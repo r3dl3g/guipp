@@ -134,6 +134,38 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     LogDebug << "Main " << (show ? "show" : "hide") << " reason: " << flags;
   }));
   
+  main.register_event_handler(new gui::wheel_x_event([&](unsigned int keys, int delta, const gui::position& p) {
+    LogDebug << "Wheel-X: " << delta << " at " << p << " key " << keys;
+    if (window1.absolute_place().is_inside(p)) {
+      window1.move(window1.position() - gui::size(delta, 0));
+    }
+  }));
+  main.register_event_handler(new gui::wheel_y_event([&](unsigned int keys, int delta, const gui::position& p) {
+    LogDebug << "Wheel-Y: " << delta << " at " << p << " key " << keys;
+    if (window1.absolute_place().is_inside(p)) {
+      window1.move(window1.position() + gui::size(0, delta));
+    }
+  }));
+  main.register_event_handler(new gui::left_btn_dblclk_event([&](unsigned int keys, const gui::position& p) {
+    gui::position pos = window1.position();
+    gui::size sz = window1.size();
+    LogDebug << "Pos: " << pos << " Size " << sz;
+
+    gui::rectangle pl = window1.place();
+    LogDebug << "Place: " << pl;
+
+    gui::rectangle apl = window1.absolute_place();
+    LogDebug << "Abs Place: " << apl;
+
+    gui::position apos = window1.absolute_position();
+    LogDebug << "Abs Pos: " << apos;
+
+    gui::rectangle car = window1.client_area();
+    LogDebug << "Client: " << car;
+  }));
+  main.register_event_handler(new gui::right_btn_dblclk_event([&](unsigned int keys, const gui::position& p) {
+    window1.move({50, 50});
+  }));
 
 
   main.register_event_handler(new log_all_events());

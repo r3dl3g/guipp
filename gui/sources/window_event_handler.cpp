@@ -58,14 +58,16 @@ namespace gui {
   bool pos_changing_event::handle_event(const window_event& e, event_result& result) {
     if ((e.msg == WM_WINDOWPOSCHANGING) && callback) {
       LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
-      rectangle r = get_rectangle_from<WINDOWPOS>()(e);
+      rectangle r = get_rect<WINDOWPOS>()(e);
       unsigned int flags = get_flags_from_wp()(e);
       callback(flags, r);
       p->flags = flags;
-      p->x = r.position.x;
-      p->y = r.position.y;
-      p->cx = r.size.width;
-      p->cy = r.size.height;
+      const gui::position pos = r.position();
+      const gui::size sz = r.size();
+      p->x = pos.x;
+      p->y = pos.y;
+      p->cx = sz.width;
+      p->cy = sz.height;
       result = 0;
       return true;
     }

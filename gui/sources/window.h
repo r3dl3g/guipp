@@ -51,9 +51,10 @@ namespace gui {
     bool is_visible() const;
     bool is_enabled() const;
     bool is_active() const;
+    bool is_child() const;
     bool is_popup() const;
-    bool is_overlapped() const;
     bool is_toplevel() const;
+    bool is_top_most() const;
     bool is_minimized() const;
     bool is_maximized() const;
 
@@ -97,6 +98,7 @@ namespace gui {
 
     gui::size size() const;
     gui::position position() const;
+    gui::rectangle absolute_place() const;
     gui::rectangle place() const;
     gui::position absolute_position() const;
     gui::rectangle client_area() const;
@@ -107,6 +109,8 @@ namespace gui {
 
     gui::position windowToScreen(const gui::position&) const;
     gui::position screenToWindow(const gui::position&) const;
+    gui::position clientToScreen(const gui::position&) const;
+    gui::position screenToClient(const gui::position&) const;
 
     void register_event_handler(event_handler*);
     void unregister_event_handler(event_handler*);

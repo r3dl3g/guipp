@@ -126,12 +126,52 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
+  template<event_id M,
+           typename P1,
+           typename P2,
+           typename P3,
+           typename F1 = get_param1_low<P1>,
+           typename F2 = get_param1_high<P2>,
+           typename F3 = get_param2<P3>,
+           event_result R = 0>
+  struct three_param_event_handler : event_handlerT<void, P1, P2, P3> {
+
+    three_param_event_handler(function fn)
+      : event_handlerT(fn) {}
+
+    template<class T>
+    three_param_event_handler(T* win, void(T::*fn)(P1, P2, P3))
+      : event_handlerT(win, fn) {}
+
+    bool handle_event(const window_event& e, event_result& result) {
+      if ((e.msg == M) && callback) {
+        callback(F1()(e), F2()(e), F3()(e));
+        result = R;
+        return true;
+      }
+      return false;
+    }
+  };
+
+  // --------------------------------------------------------------------------
   template<typename T> struct get_param1 {
     T operator()(const window_event& e) const { return T(e.param_1); }
   };
   // --------------------------------------------------------------------------
   template<typename T> struct get_param2 {
     T operator()(const window_event& e) const { return T(e.param_2); }
+  };
+  // --------------------------------------------------------------------------
+  template<typename T> struct get_param1_low { 
+    T operator()(const window_event& e) const {
+      return static_cast<T>((SHORT)LOWORD(e.param_1));
+    }
+  };
+  // --------------------------------------------------------------------------
+  template<typename T> struct get_param1_high {
+    T operator()(const window_event& e) const {
+      return static_cast<T>((SHORT)HIWORD(e.param_1));
+    }
   };
   // --------------------------------------------------------------------------
   template<> struct get_param1<bool> {
@@ -146,7 +186,7 @@ namespace gui {
     window* operator()(const window_event& e) const;
   };
   // --------------------------------------------------------------------------
-  template<typename T> struct get_rectangle_from {
+  template<typename T> struct get_rect {
     rectangle operator()(const window_event& e) const {
       T& p = *reinterpret_cast<T*>(e.param_2);
       return rectangle(p.x, p.y, p.cx, p.cy);
@@ -162,39 +202,76 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
+  typedef two_param_event_handler<WM_CREATE,
+                                  window*,
+                                  rectangle,
+                                  get_window_from_cs,
+                                  get_rect<CREATESTRUCT>>       create_event;
+
   typedef no_param_event_handler<WM_DESTROY>                    destroy_event;
   typedef no_param_event_handler<WM_CLOSE>                      close_event;
-  typedef no_param_event_handler<WM_ENTERSIZEMOVE>              begin_size_or_move_event;
-  typedef no_param_event_handler<WM_EXITSIZEMOVE>               end_size_or_move_event;
+  typedef no_param_event_handler<WM_QUIT>                       quit_event;
+
   typedef no_param_event_handler<WM_PAINT>                      paint_event;
+
   typedef one_param_event_handler<WM_ENABLE, bool>              enable_event;
   typedef two_param_event_handler<WM_ACTIVATE, bool, window*>   activate_event;
   typedef one_param_event_handler<WM_ACTIVATEAPP, bool>         activate_app_event;
   typedef one_param_event_handler<WM_SETFOCUS, window*>         set_focus_event;
   typedef one_param_event_handler<WM_KILLFOCUS, window*>        lost_focus_event;
-  typedef one_param_event_handler<WM_MOVE, position, 
+
+  typedef no_param_event_handler<WM_ENTERSIZEMOVE>              begin_size_or_move_event;
+  typedef no_param_event_handler<WM_EXITSIZEMOVE>               end_size_or_move_event;
+
+  typedef one_param_event_handler<WM_MOVE, position,
                                   get_param2<position>>         move_event;
   typedef one_param_event_handler<WM_MOVING, rectangle, 
                                   get_param2<rectangle>, TRUE>  moving_event;
+
   typedef two_param_event_handler<WM_SIZE, unsigned int, size>  size_event;
   typedef two_param_event_handler<WM_SIZING, unsigned int,
                                   rectangle, 
                                   get_param1<unsigned int>, 
                                   get_param2<rectangle>, TRUE>  sizing_event;
 
-  // --------------------------------------------------------------------------
-  typedef two_param_event_handler<WM_CREATE,
-                                  window*,
-                                  rectangle,
-                                  get_window_from_cs, 
-                                  get_rectangle_from<CREATESTRUCT>> create_event;
+  typedef two_param_event_handler<WM_LBUTTONDOWN,
+                                  unsigned int, position>       left_btn_down_event;
+  typedef two_param_event_handler<WM_LBUTTONUP,
+                                  unsigned int, position>       left_btn_up_event;
+  typedef two_param_event_handler<WM_LBUTTONDBLCLK,
+                                  unsigned int, position>       left_btn_dblclk_event;
+
+  typedef two_param_event_handler<WM_RBUTTONDOWN,
+                                  unsigned int, position>       right_btn_down_event;
+  typedef two_param_event_handler<WM_RBUTTONUP,
+                                  unsigned int, position>       right_btn_up_event;
+  typedef two_param_event_handler<WM_RBUTTONDBLCLK,
+                                  unsigned int, position>       right_btn_dblclk_event;
+
+  typedef two_param_event_handler<WM_MBUTTONDOWN,
+                                  unsigned int, position>       middle_btn_down_event;
+  typedef two_param_event_handler<WM_MBUTTONUP,
+                                  unsigned int, position>       middle_btn_up_event;
+  typedef two_param_event_handler<WM_MBUTTONDBLCLK,
+                                  unsigned int, position>       middle_btn_dblclk_event;
+
+  typedef two_param_event_handler<WM_MOUSEMOVE,
+                                  unsigned int, position>       mouse_move_event;
+  typedef two_param_event_handler<WM_MOUSEHOVER,
+                                  unsigned int, position>       mouse_hover_event;
+  typedef no_param_event_handler<WM_MOUSELEAVE>                 mouse_leave_event;
+  
+  typedef three_param_event_handler<WM_MOUSEHWHEEL,
+                                    unsigned int, int, position> wheel_x_event;
+  typedef three_param_event_handler<WM_MOUSEWHEEL,
+                                    unsigned int, int, position> wheel_y_event;
 
   // --------------------------------------------------------------------------
   typedef two_param_event_handler<WM_WINDOWPOSCHANGED,
                                   unsigned int,
                                   rectangle,
                                   get_flags_from_wp,
-                                  get_rectangle_from<WINDOWPOS>>  pos_changed_event;
+                                  get_rect<WINDOWPOS>>            pos_changed_event;
 
   typedef two_param_event_handler<WM_SHOWWINDOW,
                                   bool,

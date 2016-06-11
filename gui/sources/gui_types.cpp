@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <ostream>
+#include <windowsx.h>
 
 // --------------------------------------------------------------------------
 //
@@ -44,13 +45,14 @@ namespace gui {
   {}
 
   size::size(const event_param_1& p)
-    : width(static_cast<INT16>(LOWORD(p)))
-    , height(static_cast<INT16>(HIWORD(p)))
+    : width(GET_X_LPARAM(p))
+    , height(GET_Y_LPARAM(p))
   {}
 
   size::size(const event_param_2& p)
-    : width(static_cast<INT16>(LOWORD(p)))
-    , height(static_cast<INT16>(HIWORD(p))) {}
+    : width(GET_X_LPARAM(p))
+    , height(GET_Y_LPARAM(p))
+  {}
 
   size::operator size_type() const {
     return { width, height };
@@ -66,8 +68,8 @@ namespace gui {
   {}
 
   position::position(const event_param_2& p)
-    : x(static_cast<INT16>(LOWORD(p)))
-    , y(static_cast<INT16>(HIWORD(p)))
+    : x(GET_X_LPARAM(p))
+    , y(GET_Y_LPARAM(p))
   {}
 
   position::operator point_type() const {
@@ -75,8 +77,8 @@ namespace gui {
   }
 
   rectangle::rectangle(const rectangle_type& r)
-    : position(r.left, r.top)
-    , size(r.right - r.left, r.bottom - r.top)
+    : topleft(r.left, r.top)
+    , bottomright(r.right, r.bottom)
   {}
 
   rectangle::rectangle(const event_param_2& p)
@@ -84,7 +86,11 @@ namespace gui {
   {}
 
   rectangle::operator rectangle_type() const {
-    return { position.x, position.y, position.x + size.width, position.y + size.height };
+    return{ topleft.x, topleft.y, bottomright.x, bottomright.y };
+  }
+
+  void rectangle::setSize(const gui::size& sz) {
+    bottomright = { topleft.x + sz.width, topleft.y + sz.height };
   }
 
   std::ostream& operator<<(std::ostream& out, const size& sz) {
@@ -98,7 +104,7 @@ namespace gui {
   }
 
   std::ostream& operator<<(std::ostream& out, const rectangle& r) {
-    out << r.position << ", " << r.size;
+    out << r.position() << ", " << r.size();
     return out;
   }
 

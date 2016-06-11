@@ -64,6 +64,34 @@ namespace gui {
 
     operator point_type() const;
 
+    inline position operator+ (const size& s) const {
+      return{ x + s.width, y + s.height };
+    }
+
+    inline position operator- (const size& s) const {
+      return{ x - s.width, y - s.height };
+    }
+
+    inline size operator- (const position& rhs) const {
+      return{ x - rhs.x, y - rhs.y };
+    }
+
+    inline bool operator< (const position& rhs) const {
+      return (x < rhs.x) && (y < rhs.y);
+    }
+
+    inline bool operator<= (const position& rhs) const {
+      return (x <= rhs.x) && (y <= rhs.y);
+    }
+
+    inline bool operator> (const position& rhs) const {
+      return (x > rhs.x) && (y > rhs.y);
+    }
+
+    inline bool operator>= (const position& rhs) const {
+      return (x >= rhs.x) && (y >= rhs.y);
+    }
+
     int x;
     int y;
   };
@@ -73,19 +101,23 @@ namespace gui {
   struct rectangle {
     inline rectangle(const gui::position& pos = gui::position(),
                      const gui::size& sz = gui::size())
-      : position(pos)
-      , size(sz)
+      : topleft(pos)
+      , bottomright(pos.x + sz.width, pos.y + sz.height)
+    {}
+
+    inline explicit rectangle(const gui::size& sz)
+      : bottomright(sz)
     {}
 
     inline rectangle(const gui::position& topleft,
                      const gui::position& bottomright)
-      : position(topleft)
-      , size(bottomright.x - topleft.x, bottomright.y - topleft.y)
+      : topleft(topleft)
+      , bottomright(bottomright.x - topleft.x, bottomright.y - topleft.y)
     {}
 
     inline rectangle(int x, int y, int width, int height)
-      : position(x, y)
-      , size(width, height)
+      : topleft(x, y)
+      , bottomright(x + width, y + height)
     {}
 
     explicit rectangle(const rectangle_type& r);
@@ -93,8 +125,22 @@ namespace gui {
 
     operator rectangle_type() const;
 
-    gui::position position;
-    gui::size size;
+    inline bool is_inside(const gui::position& p) const {
+      return (p >= topleft) && (p < bottomright);
+    }
+
+    inline gui::position position() const {
+      return topleft;
+    }
+
+    inline gui::size size() const {
+      return{ bottomright.x - topleft.x, bottomright.y - topleft.y };
+    }
+
+    void setSize(const gui::size& sz);
+
+    gui::position topleft;
+    gui::position bottomright;
 
     static rectangle default;
   };

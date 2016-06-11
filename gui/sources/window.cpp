@@ -46,14 +46,16 @@ namespace gui {
                       const window& parent,
                       const rectangle& place) {
 
+    const gui::position pos = place.position();
+    const gui::size sz = place.size();
     id = CreateWindowEx(type.ex_style,          // window style
                        type.class_name.c_str(), // address of registered class name
                        NULL,                    // address of window text
                        type.style,              // window style
-                       place.position.x,        // horizontal position of window
-                       place.position.y,        // vertical position of window
-                       place.size.width,        // window width
-                       place.size.height,       // window height
+                       pos.x,                   // horizontal position of window
+                       pos.y,                   // vertical position of window
+                       sz.width,                // window width
+                       sz.height,               // window height
                        parent.get_id(),         // handle of parent window
                        NULL,                    // handle of menu or child-window identifier
                        type.instance,           // handle of application instance
@@ -63,14 +65,16 @@ namespace gui {
   void window::create(const window_class& type,
                       const rectangle& place) {
 
+    const gui::position pos = place.position();
+    const gui::size sz = place.size();
     id = CreateWindowEx(type.ex_style,          // window style
                         type.class_name.c_str(), // address of registered class name
                         NULL,                    // address of window text
                         type.style,              // window style
-                        place.position.x,        // horizontal position of window
-                        place.position.y,        // vertical position of window
-                        place.size.width,        // window width
-                        place.size.height,       // window height
+                        pos.x,                   // horizontal position of window
+                        pos.y,                   // vertical position of window
+                        sz.width,                // window width
+                        sz.height,               // window height
                         NULL,                    // handle of parent window
                         NULL,                    // handle of menu or child-window identifier
                         type.instance,           // handle of application instance
@@ -93,15 +97,19 @@ namespace gui {
     return is_valid() && (GetActiveWindow() == id);
   }
 
+  bool window::is_child() const {
+    return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+  }
+
   bool window::is_popup() const {
     return (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
   }
 
-  bool window::is_overlapped() const {
-    return (GetWindowLong(get_id(), GWL_STYLE) & (WS_CHILD | WS_POPUP)) == 0;
+  bool window::is_toplevel() const {
+    return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
   }
 
-  bool window::is_toplevel() const {
+  bool window::is_top_most() const {
     return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
   }
 
@@ -206,44 +214,63 @@ namespace gui {
   position window::position() const {
     RECT r;
     GetWindowRect(get_id(), &r);
-    return gui::position(r.left, r.top);
+    return screenToWindow({ r.left, r.top });
   }
 
   rectangle window::place() const {
+    const gui::rectangle pl = absolute_place();
+    return gui::rectangle(screenToWindow(pl.position()), pl.size());
+  }
+
+  gui::rectangle window::absolute_place() const {
     RECT r;
     GetWindowRect(get_id(), &r);
-    return gui::rectangle(r.left, r.top, r.right - r.left, r.bottom - r.top);
+    return gui::rectangle(r);
   }
 
   position window::absolute_position() const {
-    return windowToScreen(position());
+    RECT r;
+    GetWindowRect(get_id(), &r);
+    return{ r.left, r.top };
   }
 
   rectangle window::client_area() const {
     RECT r;
     GetClientRect(get_id(), &r);
-    return gui::rectangle(r.left, r.top, r.right - r.left, r.bottom - r.top);
+    return gui::rectangle(r);
   }
 
   void window::move(const gui::position& pt, bool repaint) {
-    SetWindowPos(get_id(), 0, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOZORDER | (repaint ? 0 : SWP_NOREDRAW));
+    place(gui::rectangle(pt, size()));
   }
   
   void window::resize(const gui::size& sz, bool repaint) {
-    SetWindowPos(get_id(), 0, 0, 0, sz.width, sz.height, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER | (repaint ? 0 : SWP_NOREDRAW));
+    place(gui::rectangle(position(), sz));
   }
   
   void window::place(const gui::rectangle& r, bool repaint) {
-    MoveWindow(get_id(), r.position.x, r.position.y, r.size.width, r.size.height, repaint);
+    const gui::position pos = r.position();
+    const gui::size sz = r.size();
+    MoveWindow(get_id(), pos.x, pos.y, sz.width, sz.height, repaint);
   }
 
   gui::position window::windowToScreen(const gui::position& pt) const {
+    window* p = getParent();
+    return p ? p->clientToScreen(pt): pt;
+  }
+  
+  gui::position window::screenToWindow(const gui::position& pt) const {
+    window* p = getParent();
+    return p ? p->screenToClient(pt) : pt;
+  }
+
+  gui::position window::clientToScreen(const gui::position& pt) const {
     POINT Point = { pt.x, pt.y };
     ClientToScreen(get_id(), &Point);
     return gui::position(Point.x, Point.y);
   }
-  
-  gui::position window::screenToWindow(const gui::position& pt) const {
+
+  gui::position window::screenToClient(const gui::position& pt) const {
     POINT Point = { pt.x, pt.y };
     ScreenToClient(get_id(), &Point);
     return gui::position(Point.x, Point.y);

@@ -30,24 +30,26 @@
 //
 #include "indices.h"
 
-namespace util {
+namespace gui {
 
-  namespace detail {
+  namespace core {
 
-    template<typename T, std::size_t... Is, typename F, typename... Args>
-    auto easy_bind(T* t, indices<Is...>, F& f, Args&&... args)
-      -> decltype(std::bind(f, t, std::forward<Args>(args)..., std::_Ph<Is + 1>{}...)) {
-      return std::bind(f, t, std::forward<Args>(args)..., std::_Ph<Is + 1>{}...);
-    };
+    namespace detail {
 
-  } // detail
+      template<typename T, std::size_t... Is, typename F, typename... Args>
+      auto easy_bind(T* t, indices<Is...>, F& f, Args&&... args)
+        -> decltype(std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...)) {
+        return std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...);
+      };
 
-  template<typename T, typename R, typename... FArgs>
-  auto easy_bind(T* t, R(T::*f)(FArgs...))
-    -> decltype(detail::easy_bind(t, detail::build_indices<sizeof...(FArgs)>{}, f)) {
-    return detail::easy_bind(t, detail::build_indices<sizeof...(FArgs)>{}, f);
-  }
+    } // detail
 
-}
+    template<typename T, typename R, typename... FArgs>
+    auto easy_bind(T* t, R(T::*f)(FArgs...))
+      -> decltype(detail::easy_bind(t, detail::build_indices < sizeof...(FArgs) > {}, f)) {
+      return detail::easy_bind(t, detail::build_indices < sizeof...(FArgs) > {}, f);
+    }
 
+  } // core
 
+} // gui

@@ -38,97 +38,105 @@
 
 namespace gui {
 
-  class window {
-  public:
-    window();
-    ~window();
+  namespace win {
 
-    inline window_id get_id() const {
-      return id;
+    class window;
+
+    namespace detail {
+      void set_id(window* w, core::window_id id);
     }
 
-    bool is_valid() const;
-    bool is_visible() const;
-    bool is_enabled() const;
-    bool is_active() const;
-    bool is_child() const;
-    bool is_popup() const;
-    bool is_toplevel() const;
-    bool is_top_most() const;
-    bool is_minimized() const;
-    bool is_maximized() const;
+    class window {
+    public:
+      window();
+      ~window();
 
-    bool has_border() const;
+      inline core::window_id get_id() const {
+        return id;
+      }
 
-    void create(const window_class& type,
-                const window& parent,
-                const rectangle& place = rectangle::default);
-    void create(const window_class& type,
-                const rectangle& place = rectangle::default);
+      bool is_valid() const;
+      bool is_visible() const;
+      bool is_enabled() const;
+      bool is_active() const;
+      bool is_child() const;
+      bool is_popup() const;
+      bool is_toplevel() const;
+      bool is_top_most() const;
+      bool is_minimized() const;
+      bool is_maximized() const;
 
-    void close();
-    void destroy();
-    void quit();
+      bool has_border() const;
 
-    void setParent(const window& parent);
-    window* getParent() const;
+      void create(const window_class& type,
+                  const window& parent,
+                  const core::rectangle& place = core::rectangle::default);
+      void create(const window_class& type,
+                  const core::rectangle& place = core::rectangle::default);
 
-    bool is_parent_of(const window& parent) const;
-    bool is_child_of(const window& parent) const;
+      void close();
+      void destroy();
+      void quit();
 
-    void hide();
-    void show();
+      void setParent(const window& parent);
+      window* getParent() const;
 
-    void minimize();
-    void maximize();
-    void restore();
+      bool is_parent_of(const window& parent) const;
+      bool is_child_of(const window& parent) const;
 
-    void set_toplevel(bool toplevel);
+      void hide();
+      void show();
 
-    void enable(bool on = true);
-    inline void disable() {
-      enable(false);
-    }
-    void enableRedraw(bool on = true);
-    void redraw_now();
-    void redraw_later();
+      void minimize();
+      void maximize();
+      void restore();
 
-    void setText(const std::string&);
-    std::string getText() const;
+      void set_toplevel(bool toplevel);
 
-    gui::size size() const;
-    gui::position position() const;
-    gui::rectangle absolute_place() const;
-    gui::rectangle place() const;
-    gui::position absolute_position() const;
-    gui::rectangle client_area() const;
+      void enable(bool on = true);
+      inline void disable() {
+        enable(false);
+      }
+      void enableRedraw(bool on = true);
+      void redraw_now();
+      void redraw_later();
 
-    void move(const gui::position&, bool repaint = true);
-    void resize(const gui::size&, bool repaint = true);
-    void place(const gui::rectangle&, bool repaint = true);
+      void setText(const std::string&);
+      std::string getText() const;
 
-    gui::position windowToScreen(const gui::position&) const;
-    gui::position screenToWindow(const gui::position&) const;
-    gui::position clientToScreen(const gui::position&) const;
-    gui::position screenToClient(const gui::position&) const;
+      core::size size() const;
+      core::position position() const;
+      core::rectangle absolute_place() const;
+      core::rectangle place() const;
+      core::position absolute_position() const;
+      core::rectangle client_area() const;
 
-    void register_event_handler(event_handler*);
-    void unregister_event_handler(event_handler*);
+      void move(const core::position&, bool repaint = true);
+      void resize(const core::size&, bool repaint = true);
+      void place(const core::rectangle&, bool repaint = true);
 
-    bool handle_event(const window_event& e, event_result& result);
+      core::position windowToScreen(const core::position&) const;
+      core::position screenToWindow(const core::position&) const;
+      core::position clientToScreen(const core::position&) const;
+      core::position screenToClient(const core::position&) const;
 
-    static window* get(window_id id);
+      void register_event_handler(event_handler*);
+      void unregister_event_handler(event_handler*);
 
-  private:
-    friend void set_id(window* win, window_id id);
+      bool handle_event(const window_event& e, core::event_result& result);
 
-    window_id id;
+      static window* get(core::window_id id);
 
-  private:
-    std::vector<event_handler*> event_handler_list;
+    private:
+      friend void detail::set_id(window*, core::window_id);
 
-  };
+      core::window_id id;
 
-}
+    private:
+      std::vector<event_handler*> event_handler_list;
 
+    };
 
+  } // win
+
+} // gui

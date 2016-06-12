@@ -33,21 +33,24 @@
 
 namespace gui {
 
-  bool is_frequent_event(event_id e);
-  bool is_none_client_event(event_id e);
+  namespace win {
 
-  struct EventId {
-    EventId(event_id e)
-      : id(e)
-    {}
+    bool is_frequent_event(core::event_id e);
+    bool is_none_client_event(core::event_id e);
 
-    event_id id;
-  };
+    struct EventId {
+      EventId(core::event_id e)
+        : id(e) {}
 
-}
+      core::event_id id;
+    };
+  
+  } // win
+
+} // gui
 
 namespace std {
 
-  std::ostream& operator<<(std::ostream& out, const gui::EventId& e);
+  std::ostream& operator<<(std::ostream& out, const gui::win::EventId& e);
 
 }

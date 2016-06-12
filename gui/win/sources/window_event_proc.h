@@ -32,8 +32,14 @@
 
 namespace gui {
 
-  LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  namespace win {
 
-}
+    namespace detail {
 
+      LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+    } // detail
+
+  } // win
+
+} // gui

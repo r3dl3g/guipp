@@ -32,6 +32,7 @@
 #include "window_event.h"
 #include "easy_bind.h"
 #include "gui_types.h"
+#include "graphics.h"
 
 
 namespace gui {
@@ -186,6 +187,10 @@ namespace gui {
       window* operator()(const window_event& e) const;
     };
     // --------------------------------------------------------------------------
+    template<> struct get_param1<draw::graphics> {
+      draw::graphics operator()(const window_event& e) const;
+    };
+    // --------------------------------------------------------------------------
     template<> struct get_param2<window*> {
       window* operator()(const window_event& e) const;
     };
@@ -216,7 +221,11 @@ namespace gui {
     typedef no_param_event_handler<WM_CLOSE>                      close_event;
     typedef no_param_event_handler<WM_QUIT>                       quit_event;
 
-    typedef no_param_event_handler<WM_PAINT>                      paint_event;
+    typedef one_param_event_handler<WM_ERASEBKGND, draw::graphics> erase_event;
+    typedef one_param_event_handler<WM_PRINT, draw::graphics>      print_event;
+    typedef one_param_event_handler<WM_PRINTCLIENT, draw::graphics> print_client_event;
+
+    typedef one_param_event_handler<WM_SETREDRAW, bool>           redraw_changed_event;
 
     typedef one_param_event_handler<WM_ENABLE, bool>              enable_event;
     typedef two_param_event_handler<WM_ACTIVATE, bool, window*>   activate_event;
@@ -283,6 +292,20 @@ namespace gui {
     typedef two_param_event_handler<WM_SHOWWINDOW,
                                     bool,
                                     unsigned int> show_event;
+
+    // --------------------------------------------------------------------------
+    struct paint_event : event_handlerT<void, draw::graphics&> {
+      paint_event(function changingfn)
+        : event_handlerT(changingfn)
+      {}
+
+      template<class T>
+      paint_event(T* win, void(T::*changingfn)(draw::graphics&))
+        : event_handlerT(t, changingfn)
+      {}
+
+      virtual bool handle_event(const window_event& e, core::event_result& result);
+    };
 
     // --------------------------------------------------------------------------
     struct pos_changing_event : event_handlerT<void, unsigned int&, core::rectangle &> {

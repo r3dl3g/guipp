@@ -2,6 +2,7 @@
 #include "window.h"
 #include "window_event_handler.h"
 #include "dbg_win_message.h"
+#include "gui_types.h"
 
 struct Bool {
   inline Bool(bool b)
@@ -24,24 +25,26 @@ std::ostream& operator<<(std::ostream& out, const Bool& b) {
 
 DEFINE_LOGGING_CORE(NO_EXPORT)
 
-class log_all_events : public gui::win::event_handler {
+using namespace gui;
+
+class log_all_events : public win::event_handler {
 public:
   log_all_events()
   {}
 
-  virtual bool handle_event(const gui::win::window_event& e, gui::core::event_result& result) {
-    if ((result == 0xdeadbeef) && !gui::win::is_none_client_event(e.msg) && !gui::win::is_frequent_event(e.msg)) {
-      LogDebug << "Message: " << gui::win::EventId(e.msg) << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")";
+  virtual bool handle_event(const win::window_event& e, core::event_result& result) {
+    if ((result == 0xdeadbeef) && !win::is_none_client_event(e.msg) && !win::is_frequent_event(e.msg)) {
+      LogDebug << "Message: " << win::EventId(e.msg) << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")";
     }
     return false;
   }
 };
 
-class init_result_handler : public gui::win::event_handler {
+class init_result_handler : public win::event_handler {
 public:
   init_result_handler() {}
 
-  virtual bool handle_event(const gui::win::window_event& e, gui::core::event_result& result) {
+  virtual bool handle_event(const win::window_event& e, core::event_result& result) {
     result = 0xdeadbeef;
     return false;
   }
@@ -57,7 +60,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   ibr::odebugstream dbgStrm;
   ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
 
-  gui::win::window_class mainCls("mainwindow",
+  win::window_class mainCls("mainwindow",
                                  CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
                                  WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
                                  WS_EX_NOPARENTNOTIFY,
@@ -66,119 +69,148 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
                                  LoadCursor(NULL, IDC_ARROW),
                                  (HBRUSH)(COLOR_APPWORKSPACE + 1));
 
-  gui::win::window_class chldCls("childwindow",
+  win::window_class chldCls("childwindow",
                                  CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SIZEBOX | WS_VISIBLE,
-                                 WS_EX_NOPARENTNOTIFY | WS_EX_CLIENTEDGE,
+                                 WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
                                  hInstance,
                                  NULL,
                                  LoadCursor(NULL, IDC_ARROW),
                                  (HBRUSH)(COLOR_WINDOW + 1));
 
-  gui::win::window main;
-  gui::win::window window1;
-  gui::win::window window2;
+  win::window main;
+  win::window window1;
+  win::window window2;
   
   main.register_event_handler(new init_result_handler());
 
-
-  main.register_event_handler(new gui::win::pos_changing_event(
-    [](unsigned int& flags, gui::core::rectangle & r) {
+  main.register_event_handler(new win::pos_changing_event(
+    [](unsigned int& flags, core::rectangle & r) {
     LogDebug << "Main changing: " << flags << ", " << r;
   }));
-  main.register_event_handler(new gui::win::pos_changed_event(
-    [](unsigned int flags, gui::core::rectangle  const& r) {
+  main.register_event_handler(new win::pos_changed_event(
+    [](unsigned int flags, core::rectangle  const& r) {
     LogDebug << "Main changed: " << flags << ", " << r;
   }));
 
-  main.register_event_handler(new gui::win::get_minmax_event(
-    [](const gui::core::size& sz, const gui::core::position& pos, gui::core::size& mi, gui::core::size& ma) {
+  main.register_event_handler(new win::get_minmax_event(
+    [](const core::size& sz, const core::position& pos, core::size& mi, core::size& ma) {
     mi = { 300, 200 };
     ma = { 800, 600 };
     LogDebug << "Min/Max: " << mi << " < " << ma << " < " << sz;
   }));
 
-  main.register_event_handler(new gui::win::create_event([](gui::win::window*, gui::core::rectangle  const& r) {
+  main.register_event_handler(new win::create_event([](win::window*, core::rectangle  const& r) {
     LogDebug << "Create Main: " << r;
   }));
-  main.register_event_handler(new gui::win::destroy_event([&]() {
+  main.register_event_handler(new win::destroy_event([&]() {
     LogDebug << "Destroyed!";
     main.quit();
   }));
-  //main.register_event_handler(new gui::win::close_event([&]()->gui::event_result { 
-  //  LogDebug << "Close!";
-  //  main.destroy();
-  //  return 0;
-  //}));
-  main.register_event_handler(new gui::win::enable_event([](bool on) { LogDebug << (on ? "Enableed" : "Disabled"); }));
-  main.register_event_handler(new gui::win::activate_event([](bool on, gui::win::window* win) {
+  main.register_event_handler(new win::close_event([&]() { 
+    LogDebug << "Close!";
+    main.destroy();
+  }));
+  main.register_event_handler(new win::enable_event([](bool on) { LogDebug << (on ? "Enableed" : "Disabled"); }));
+  main.register_event_handler(new win::activate_event([](bool on, win::window* win) {
     LogDebug << "Main " << (on ? "activate" : "deactivate");
   }));
-  main.register_event_handler(new gui::win::set_focus_event([](gui::win::window* win) { LogDebug << "Set Focus"; }));
-  main.register_event_handler(new gui::win::lost_focus_event([](gui::win::window* win) { LogDebug << "Lost Focus"; }));
-  main.register_event_handler(new gui::win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
-  main.register_event_handler(new gui::win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  main.register_event_handler(new gui::win::move_event([](gui::core::position const& p) { LogDebug << "Main move: " << p; }));
-  main.register_event_handler(new gui::win::moving_event([](gui::core::rectangle  const& r) { LogDebug << "Main moving: " << r; }));
-  main.register_event_handler(new gui::win::sizing_event([](unsigned int flags, gui::core::rectangle  const& r) {
+  main.register_event_handler(new win::set_focus_event([](win::window* win) { LogDebug << "Set Focus"; }));
+  main.register_event_handler(new win::lost_focus_event([](win::window* win) { LogDebug << "Lost Focus"; }));
+  main.register_event_handler(new win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
+  main.register_event_handler(new win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
+  main.register_event_handler(new win::move_event([](core::position const& p) { LogDebug << "Main move: " << p; }));
+  main.register_event_handler(new win::moving_event([](core::rectangle  const& r) { LogDebug << "Main moving: " << r; }));
+  main.register_event_handler(new win::sizing_event([](unsigned int flags, core::rectangle  const& r) {
     LogDebug << "Main sizing: " << flags << ", " << r;
   }));
-  main.register_event_handler(new gui::win::size_event([](unsigned int flags, gui::core::size const& s) {
+  main.register_event_handler(new win::size_event([](unsigned int flags, core::size const& s) {
     LogDebug << "Main size: " << flags << ", " << s;
   }));
-  main.register_event_handler(new gui::win::activate_app_event([](bool on) {
+  main.register_event_handler(new win::activate_app_event([](bool on) {
     LogDebug << (on ? "A" : "Dea") << "ctivate App";
   }));
 
-  main.register_event_handler(new gui::win::show_event([](bool show, unsigned int flags) {
+  main.register_event_handler(new win::show_event([](bool show, unsigned int flags) {
     LogDebug << "Main " << (show ? "show" : "hide") << " reason: " << flags;
   }));
   
-  main.register_event_handler(new gui::win::wheel_x_event([&](unsigned int keys, int delta, const gui::core::position& p) {
+  main.register_event_handler(new win::wheel_x_event([&](unsigned int keys, int delta, const core::position& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p << " key " << keys;
     if (window1.absolute_place().is_inside(p)) {
-      window1.move(window1.position() - gui::core::size(delta, 0));
+      window1.move(window1.position() - core::size(delta, 0));
     }
   }));
-  main.register_event_handler(new gui::win::wheel_y_event([&](unsigned int keys, int delta, const gui::core::position& p) {
+  main.register_event_handler(new win::wheel_y_event([&](unsigned int keys, int delta, const core::position& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p << " key " << keys;
     if (window1.absolute_place().is_inside(p)) {
-      window1.move(window1.position() + gui::core::size(0, delta));
+      window1.move(window1.position() + core::size(0, delta));
     }
   }));
-  main.register_event_handler(new gui::win::mouse_move_event([](unsigned int keys, const gui::core::position& p) {
+  main.register_event_handler(new win::mouse_move_event([](unsigned int keys, const core::position& p) {
     LogDebug << "Mouse move : " << keys << " at " << p;
   }));
-  main.register_event_handler(new gui::win::mouse_hover_event([](unsigned int keys, const gui::core::position& p) {
+  main.register_event_handler(new win::mouse_hover_event([](unsigned int keys, const core::position& p) {
     LogDebug << "Mouse hover : " << keys << " at " << p;
   }));
-  main.register_event_handler(new gui::win::left_btn_dblclk_event([&](unsigned int keys, const gui::core::position& p) {
-    gui::core::position pos = window1.position();
-    gui::core::size sz = window1.size();
+  main.register_event_handler(new win::left_btn_dblclk_event([&](unsigned int keys, const core::position& p) {
+    core::position pos = window1.position();
+    core::size sz = window1.size();
     LogDebug << "Pos: " << pos << " Size " << sz;
 
-    gui::core::rectangle  pl = window1.place();
+    core::rectangle  pl = window1.place();
     LogDebug << "Place: " << pl;
 
-    gui::core::rectangle  apl = window1.absolute_place();
+    core::rectangle  apl = window1.absolute_place();
     LogDebug << "Abs Place: " << apl;
 
-    gui::core::position apos = window1.absolute_position();
+    core::position apos = window1.absolute_position();
     LogDebug << "Abs Pos: " << apos;
 
-    gui::core::rectangle  car = window1.client_area();
+    core::rectangle  car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  main.register_event_handler(new gui::win::right_btn_dblclk_event([&](unsigned int keys, const gui::core::position& p) {
+  main.register_event_handler(new win::right_btn_dblclk_event([&](unsigned int keys, const core::position& p) {
     window1.move({50, 50});
   }));
 
 
   main.register_event_handler(new log_all_events());
 
-  main.create(mainCls, gui::core::rectangle (50, 50, 640, 480));
-  window1.create(chldCls, main, gui::core::rectangle (50, 50, 200, 380));
-  window2.create(chldCls, main, gui::core::rectangle (300, 50, 200, 380));
+  window2.register_event_handler(new win::paint_event([](draw::graphics& graph) {
+    using namespace draw;
+    
+    pen blue(color::blue);
+    pen red(color::red);
+
+    graph.drawPixel(core::position(3, 3), color::gray);
+    graph.drawPixel(core::position(6, 6), color::gray);
+
+    core::size sz(30, 50);
+    core::size offs1(0, 60);
+    core::size offs2(0, 120);
+
+    core::position pos1(10, 10);
+    graph.frame(rectangle(core::rectangle(pos1, sz)), blue);
+    graph.fill(rectangle(core::rectangle(pos1 + offs1, sz)), color::green);
+    graph.draw(rectangle(core::rectangle(pos1 + offs2, sz)), color::yellow, red);
+
+    core::position pos2(50, 10);
+    graph.frame(ellipse(core::rectangle(pos2, sz)), blue);
+    graph.fill(ellipse(core::rectangle(pos2 + offs1, sz)), color::green);
+    graph.draw(ellipse(core::rectangle(pos2 + offs2, sz)), color::yellow, red);
+
+    core::position pos3(90, 10);
+    core::size rd(10, 10);
+    graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
+    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::green);
+    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
+
+  }));
+
+  main.create(mainCls, core::rectangle (50, 50, 640, 480));
+  window1.create(chldCls, main, core::rectangle (50, 50, 200, 380));
+  window2.create(chldCls, main, core::rectangle (300, 50, 200, 380));
   main.setText("Window Test");
   main.show();
 

@@ -41,8 +41,10 @@ namespace gui {
       GetObject(id, sizeof(core::pen_type), &type);
     }
 
-    pen::pen(const draw::color& color, Style style, size_type width) {
-      pen(CreatePen(style, width, color));
+    pen::pen(const draw::color& color, Style style, size_type width)
+      : id(CreatePen(style, width, color))
+    {
+      GetObject(id, sizeof(core::pen_type), &type);
     }
 
     pen::pen(const pen& rhs) 

@@ -42,6 +42,10 @@ namespace gui {
       return window::get((core::window_id)e.param_1);
     }
     // --------------------------------------------------------------------------
+    draw::graphics get_param1<draw::graphics>::operator()(const window_event& e) const {
+      return draw::graphics((core::graphics_id)e.param_1);
+    };
+    // --------------------------------------------------------------------------
     window* get_param2<window*>::operator()(const window_event& e) const {
       return window::get((core::window_id)e.param_2);
     }
@@ -54,6 +58,19 @@ namespace gui {
     unsigned int get_flags_from_wp::operator()(const window_event& e) const {
       WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.param_2);
       return p->flags;
+    }
+
+    // --------------------------------------------------------------------------
+    bool paint_event::handle_event(const window_event& e, core::event_result& result) {
+      if ((e.msg == WM_PAINT) && callback) {
+        PAINTSTRUCT ps;
+        core::graphics_id id = BeginPaint(e.id, &ps);
+        callback(draw::graphics(id));
+        EndPaint(e.id, &ps);
+        result = 0;
+        return true;
+      }
+      return false;
     }
 
     // --------------------------------------------------------------------------

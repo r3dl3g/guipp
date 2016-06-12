@@ -51,10 +51,12 @@ namespace gui {
                int rotation,
                bool italic,
                bool underline,
-               bool strikeout) {
-      font(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
-                      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-                      name.c_str()));
+               bool strikeout) 
+      : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
+      name.c_str()))
+    {
+      GetObject(id, sizeof(core::font_type), &type);
     }
 
     font::font(const font& rhs) 

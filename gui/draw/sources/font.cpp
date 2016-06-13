@@ -36,8 +36,8 @@ namespace gui {
     const font font::system((core::font_id)GetStockObject(SYSTEM_FONT));
     const font font::system_bold = font::system.with_thickness(font::bold);
     const font font::monospace((core::font_id)GetStockObject(SYSTEM_FIXED_FONT));
-    const font font::serif("Times New Roman", 10);
-    const font font::sans_serif("Arial", 10);
+    const font font::serif("Times New Roman", font::system.size());
+    const font font::sans_serif("Arial", font::system.size());
 
     font::font(core::font_id id)
       :id(id)
@@ -53,8 +53,8 @@ namespace gui {
                bool underline,
                bool strikeout) 
       : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
-      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-      name.c_str()))
+           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
+           name.c_str()))
     {
       GetObject(id, sizeof(core::font_type), &type);
     }

@@ -24,6 +24,8 @@
 //
 #include <vector>
 #include <functional>
+#include <string>
+
 
 // --------------------------------------------------------------------------
 //
@@ -55,7 +57,7 @@ namespace gui {
       const core::rectangle rect;
     };
 
-    typedef rect_function<Recangle> recangle;
+    typedef rect_function<Rectangle> rectangle;
     typedef rect_function<Ellipse> ellipse;
 
     struct round_rectangle {
@@ -125,6 +127,56 @@ namespace gui {
     typedef poly_function<int, Polygon> polygone;
     typedef poly_function<DWORD, PolyBezier> polybezier;
 
+    enum text_origin {
+      top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
+      top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
+      top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
+      bottom_left = DT_BOTTOM | DT_SINGLELINE | DT_LEFT,
+      bottom_hcenter = DT_BOTTOM | DT_SINGLELINE | DT_CENTER,
+      bottom_right = DT_BOTTOM | DT_SINGLELINE | DT_RIGHT,
+      vcenter_left = DT_SINGLELINE | DT_VCENTER | DT_LEFT,
+      vcenter_right = DT_SINGLELINE | DT_VCENTER | DT_RIGHT,
+      center = DT_SINGLELINE | DT_VCENTER | DT_CENTER,
+      end_ellipsis = DT_END_ELLIPSIS,
+      path_ellipsis = DT_PATH_ELLIPSIS,
+      word_ellipsis = DT_WORD_ELLIPSIS,
+      expand_tabs = DT_EXPANDTABS,
+      undefined = -1
+    };
+
+    struct text_box {
+      text_box(const std::string& text, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
+        : text(text)
+        , rect(rect)
+        , origin(origin)
+        , clear_background(clear_background)
+      {}
+
+      void operator() (core::graphics_id id);
+
+    private:
+      const std::string text;
+      const core::rectangle rect;
+      const text_origin origin;
+      bool clear_background;
+    };
+
+    struct text {
+      text(const std::string& str, const core::position& pos, text_origin origin = top_left, bool clear_background = false)
+        : str(str)
+        , pos(pos)
+        , origin(origin)
+        , clear_background(clear_background) {}
+
+      void operator() (core::graphics_id id);
+
+    private:
+      const std::string str;
+      const core::position pos;
+      const text_origin origin;
+      bool clear_background;
+    };
+
     class graphics {
     public:
       graphics(core::graphics_id id)
@@ -140,6 +192,9 @@ namespace gui {
       void frame(drawable drawer, const draw::pen& pen) const;
       void fill(drawable drawer, const draw::color& color) const;
       void draw(drawable drawer, const draw::color& color, const draw::pen& pen) const;
+      void draw(drawable drawer, const draw::font& font, const draw::color& color) const;
+
+      void invert(const core::rectangle&) const;
 
     private:
       core::graphics_id id;

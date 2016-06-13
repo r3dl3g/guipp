@@ -76,6 +76,72 @@ namespace gui {
       PolyBezier(id, points, (DWORD)count);
     }
 
+    void text_box::operator() (core::graphics_id id) {
+      int old_mode = SetBkMode(id, clear_background ? OPAQUE : TRANSPARENT);
+      RECT Rect = rect;
+      if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
+        int h = DrawText(id, text.c_str(), (int)text.size(), &Rect, (UINT)origin | DT_CALCRECT);
+        Rect.left = rect.topleft.x;
+        Rect.right = rect.bottomright.x;
+        Rect.top = (rect.size().height - h) / 2;
+        Rect.bottom = Rect.top + h;
+      }
+      DrawText(id, text.c_str(), (int)text.size(), &Rect, (UINT)origin);
+      SetBkMode(id, old_mode);
+    }
+
+    void text::operator() (core::graphics_id id) {
+      int old_mode = SetBkMode(id, clear_background ? OPAQUE : TRANSPARENT);
+      int px = pos.x;
+      int py = pos.y;
+      UINT old_align = top_left;
+
+      switch (origin) {
+        case top_left:
+          old_align = SetTextAlign(id, TA_LEFT | TA_TOP | TA_NOUPDATECP);
+          break;
+        case top_right:
+          old_align = SetTextAlign(id, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
+          break;
+        case top_hcenter:
+          old_align = SetTextAlign(id, TA_CENTER | TA_TOP | TA_NOUPDATECP);
+          break;
+        case bottom_left:
+          old_align = SetTextAlign(id, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
+          break;
+        case bottom_right:
+          old_align = SetTextAlign(id, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
+          break;
+        case bottom_hcenter:
+          old_align = SetTextAlign(id, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
+          break;
+        case vcenter_right: {
+          SIZE sz;
+          GetTextExtentPoint32(id, str.c_str(), (int)str.size(), &sz);
+          py += sz.cy / 2;
+          old_align = SetTextAlign(id, TA_RIGHT | TA_BASELINE | TA_NOUPDATECP);
+          break;
+        }
+        case vcenter_left: {
+          SIZE sz;
+          GetTextExtentPoint32(id, str.c_str(), (int)str.size(), &sz);
+          py += sz.cy / 2;
+          old_align = SetTextAlign(id, TA_LEFT | TA_BASELINE | TA_NOUPDATECP);
+          break;
+        }
+        case center: {
+          SIZE sz;
+          GetTextExtentPoint32(id, str.c_str(), (int)str.size(), &sz);
+          py += sz.cy / 2;
+          old_align = SetTextAlign(id, TA_CENTER | TA_BASELINE | TA_NOUPDATECP);
+          break;
+        }
+      }
+      TextOut(id, px, py, str.c_str(), (int)str.size());
+      SetTextAlign(id, old_align);
+      SetBkMode(id, old_mode);
+    }
+
     template<bool freeObj = false>
     struct Use {
       inline Use(core::graphics_id id, HGDIOBJ obj)
@@ -139,6 +205,18 @@ namespace gui {
       Use<true> b(id, CreateSolidBrush(color));
       Use<false> p(id, pen);
       drawer(id);
+    }
+
+    void graphics::draw(drawable drawer, const draw::font& font, const draw::color& color) const {
+      core::color_type old_color = SetTextColor(id, color);
+      Use<false> f(id, font);
+      drawer(id);
+      SetTextColor(id, old_color);
+    }
+
+    void graphics::invert(const core::rectangle& r) const {
+      RECT rect = r;
+      InvertRect(id, &rect);
     }
 
   }

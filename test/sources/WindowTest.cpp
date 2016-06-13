@@ -3,6 +3,7 @@
 #include "window_event_handler.h"
 #include "dbg_win_message.h"
 #include "gui_types.h"
+#include "font.h"
 
 struct Bool {
   inline Bool(bool b)
@@ -205,6 +206,16 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
     graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::green);
     graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
+
+    graph.draw(text("Hello World!", core::position(10, 190)), draw::font::system, color::green);
+    graph.draw(text("Hello World!", core::position(10, 205)), draw::font::system_bold, color::green);
+    graph.draw(text("Hello World!", core::position(10, 220)), draw::font::sans_serif, color::green);
+    graph.draw(text("Hello World!", core::position(10, 235)), draw::font::serif, color::green);
+    graph.draw(text("Hello World!", core::position(10, 250)), draw::font::monospace, color::green);
+    graph.draw(text("Hello World!", core::position(10, 265)), draw::font("Modern", draw::font::system.size()), color::blue);
+    graph.draw(text("Hello World!", core::position(10, 280)), draw::font("Modern", draw::font::system.size(), draw::font::regular, 0, true), color::blue);
+    graph.draw(text_box("Hello World!", core::rectangle(10, 295, 180, 20), draw::center), draw::font::serif, color::red);
+
 
   }));
 

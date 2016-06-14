@@ -81,7 +81,7 @@ namespace gui {
         unsigned int flags = get_flags_from_wp()(e);
         callback(flags, r);
         p->flags = flags;
-        const core::position pos = r.position();
+        const core::point pos = r.position();
         const core::size sz = r.size();
         p->x = pos.x;
         p->y = pos.y;
@@ -99,7 +99,7 @@ namespace gui {
         core::size mi(info->ptMinTrackSize);
         core::size ma(info->ptMaxTrackSize);
         core::size sz(info->ptMaxSize);
-        core::position pos(info->ptMaxPosition);
+        core::point pos(info->ptMaxPosition);
         callback(sz, pos, mi, ma);
         info->ptMinTrackSize = mi;
         info->ptMaxTrackSize = ma;

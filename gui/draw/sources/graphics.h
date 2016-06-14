@@ -70,11 +70,11 @@ namespace gui {
     };
 
     struct arc {
-      arc(const core::position& pos, unsigned int radius, float startrad, float endrad);
+      arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
       void operator() (core::graphics_id id);
 
     private:
-      const core::position pos;
+      const core::point pos;
       unsigned int radius;
       float startrad;
       float endrad;
@@ -82,7 +82,7 @@ namespace gui {
 
     template<BOOL(WINAPI Fnct)(HDC, int, int, int, int, int, int, int, int)>
     struct arc_function {
-      inline arc_function(const core::rectangle& rect, const core::position& limit1, const core::position& limit2)
+      inline arc_function(const core::rectangle& rect, const core::point& limit1, const core::point& limit2)
         : rect(rect)
         , limit1(limit1)
         , limit2(limit2)
@@ -96,19 +96,19 @@ namespace gui {
 
     private:
       const core::rectangle rect;
-      const core::position limit1;
-      const core::position limit2;
+      const core::point limit1;
+      const core::point limit2;
     };
 
     typedef arc_function<ArcTo> elliptic_arc;
     typedef arc_function<Pie> pie;
     typedef arc_function<Chord> chord;
 
-    POINT *buildPoints(const std::vector<core::position>&, int&);
+    POINT *buildPoints(const std::vector<core::point>&, int&);
 
     template<typename T, BOOL(WINAPI Fnct)(HDC, CONST POINT *, T)>
     struct poly_function {
-      poly_function(std::vector<core::position>& points)
+      poly_function(std::vector<core::point>& points)
         : points(buildPoints(points), count)
       {}
 
@@ -162,7 +162,7 @@ namespace gui {
     };
 
     struct text {
-      text(const std::string& str, const core::position& pos, text_origin origin = top_left, bool clear_background = false)
+      text(const std::string& str, const core::point& pos, text_origin origin = top_left, bool clear_background = false)
         : str(str)
         , pos(pos)
         , origin(origin)
@@ -172,7 +172,7 @@ namespace gui {
 
     private:
       const std::string str;
-      const core::position pos;
+      const core::point pos;
       const text_origin origin;
       bool clear_background;
     };
@@ -183,11 +183,11 @@ namespace gui {
         :id(id)
       {}
 
-      void drawPixel(const core::position& pt, const draw::color& color);
-      draw::color getPixel(const core::position&) const;
+      void drawPixel(const core::point& pt, const draw::color& color);
+      draw::color getPixel(const core::point&) const;
 
-      void drawLine(const core::position& from, const core::position& to, const draw::pen& pen);
-      void drawLines(std::vector<core::position>& points, const draw::pen& pen);
+      void drawLine(const core::point& from, const core::point& to, const draw::pen& pen);
+      void drawLines(std::vector<core::point>& points, const draw::pen& pen);
 
       void frame(drawable drawer, const draw::pen& pen) const;
       void fill(drawable drawer, const draw::color& color) const;

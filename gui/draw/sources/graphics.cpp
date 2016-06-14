@@ -41,7 +41,7 @@ namespace gui {
       RoundRect(id, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
     }
 
-    arc::arc(const core::position& pos, unsigned int radius, float startrad, float endrad)
+    arc::arc(const core::point& pos, unsigned int radius, float startrad, float endrad)
       : pos(pos)
       , radius(radius)
       , startrad(startrad)
@@ -52,7 +52,7 @@ namespace gui {
       AngleArc(id, pos.x, pos.y, radius, startrad, endrad);
     }
 
-    POINT *buildPoints(const std::vector<core::position>& pts, int& size) {
+    POINT *buildPoints(const std::vector<core::point>& pts, int& size) {
       size = (int)pts.size();
       POINT *points = new POINT[size];
       for (int i = 0; i < size; ++i) {
@@ -162,24 +162,24 @@ namespace gui {
       HGDIOBJ old;
     };
 
-    void graphics::drawPixel(const core::position &pt, const draw::color &color) {
+    void graphics::drawPixel(const core::point &pt, const draw::color &color) {
       SetPixel(id, pt.x, pt.y, color);
     }
     
-    draw::color graphics::getPixel(const core::position &pt) const {
+    draw::color graphics::getPixel(const core::point &pt) const {
       return GetPixel(id, pt.x, pt.y);
     }
 
-    void graphics::drawLine(const core::position &from, const core::position &to, const draw::pen& pen) {
+    void graphics::drawLine(const core::point &from, const core::point &to, const draw::pen& pen) {
       Use<false> p(id, pen);
       MoveToEx(id, from.x, from.y, NULL);
       LineTo(id, to.x, to.y);
     }
     
-    void graphics::drawLines(std::vector<core::position> &points, const draw::pen& pen) {
+    void graphics::drawLines(std::vector<core::point> &points, const draw::pen& pen) {
       Use<false> p(id, pen);
       bool first = true;
-      for (core::position pt : points) {
+      for (core::point pt : points) {
         if (first) {
           first = false;
           MoveToEx(id, pt.x, pt.y, NULL);

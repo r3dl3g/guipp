@@ -38,7 +38,8 @@ namespace gui {
     struct size {
       inline size(int width_ = 0, int height_ = 0)
         : width(width_)
-        , height(height_) {}
+        , height(height_) {
+      }
 
       explicit size(const size_type& sz);
       explicit size(const point_type& pt);
@@ -54,41 +55,42 @@ namespace gui {
 
     std::ostream& operator<<(std::ostream& out, const size&);
 
-    struct position {
-      inline position(int x_ = 0, int y_ = 0)
+    struct point {
+      inline point(int x_ = 0, int y_ = 0)
         : x(x_)
-        , y(y_) {}
+        , y(y_) {
+      }
 
-      explicit position(const point_type& pt);
-      explicit position(const event_param_2& p);
+      explicit point(const point_type& pt);
+      explicit point(const event_param_2& p);
 
       operator point_type() const;
 
-      inline position operator+ (const size& s) const {
+      inline point operator+ (const size& s) const {
         return{ x + s.width, y + s.height };
       }
 
-      inline position operator- (const size& s) const {
+      inline point operator- (const size& s) const {
         return{ x - s.width, y - s.height };
       }
 
-      inline size operator- (const position& rhs) const {
+      inline size operator- (const point& rhs) const {
         return{ x - rhs.x, y - rhs.y };
       }
 
-      inline bool operator< (const position& rhs) const {
+      inline bool operator< (const point& rhs) const {
         return (x < rhs.x) && (y < rhs.y);
       }
 
-      inline bool operator<= (const position& rhs) const {
+      inline bool operator<= (const point& rhs) const {
         return (x <= rhs.x) && (y <= rhs.y);
       }
 
-      inline bool operator>(const position& rhs) const {
+      inline bool operator>(const point& rhs) const {
         return (x > rhs.x) && (y > rhs.y);
       }
 
-      inline bool operator>= (const position& rhs) const {
+      inline bool operator>= (const point& rhs) const {
         return (x >= rhs.x) && (y >= rhs.y);
       }
 
@@ -96,36 +98,40 @@ namespace gui {
       int y;
     };
 
-    std::ostream& operator<<(std::ostream& out, const position&);
+    std::ostream& operator<<(std::ostream& out, const point&);
 
     struct rectangle {
-      inline rectangle(const position& pos = core::position(),
+      inline rectangle(const point& pos = core::point(),
                        const size& sz = core::size())
         : topleft(pos)
-        , bottomright(pos.x + sz.width, pos.y + sz.height) {}
+        , bottomright(pos.x + sz.width, pos.y + sz.height) {
+      }
 
       inline explicit rectangle(const size& sz)
-        : bottomright(sz) {}
+        : bottomright(sz) {
+      }
 
-      inline rectangle(const position& topleft,
-                       const position& bottomright)
+      inline rectangle(const point& topleft,
+                       const point& bottomright)
         : topleft(topleft)
-        , bottomright(bottomright.x - topleft.x, bottomright.y - topleft.y) {}
+        , bottomright(bottomright.x - topleft.x, bottomright.y - topleft.y) {
+      }
 
       inline rectangle(int x, int y, int width, int height)
         : topleft(x, y)
-        , bottomright(x + width, y + height) {}
+        , bottomright(x + width, y + height) {
+      }
 
       explicit rectangle(const rectangle_type& r);
       explicit rectangle(const event_param_2& p);
 
       operator rectangle_type() const;
 
-      inline bool is_inside(const position& p) const {
+      inline bool is_inside(const point& p) const {
         return (p >= topleft) && (p < bottomright);
       }
 
-      inline position position() const {
+      inline point position() const {
         return topleft;
       }
 
@@ -135,8 +141,8 @@ namespace gui {
 
       void setSize(const core::size& sz);
 
-      core::position topleft;
-      core::position bottomright;
+      core::point topleft;
+      core::point bottomright;
 
       static rectangle default;
     };

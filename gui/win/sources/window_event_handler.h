@@ -237,8 +237,8 @@ namespace gui {
     typedef no_param_event_handler<WM_EXITSIZEMOVE>               end_size_or_move_event;
 
     typedef one_param_event_handler<WM_MOVE,
-                                    core::position,
-                                    get_param2<core::position>>   move_event;
+                                    core::point,
+                                    get_param2<core::point>>   move_event;
     typedef one_param_event_handler<WM_MOVING,
                                     core::rectangle,
                                     get_param2<core::rectangle>, TRUE > moving_event;
@@ -251,36 +251,36 @@ namespace gui {
                                     get_param2<core::rectangle>, TRUE > sizing_event;
 
     typedef two_param_event_handler<WM_LBUTTONDOWN,
-                                    unsigned int,core::position>  left_btn_down_event;
+                                    unsigned int,core::point>  left_btn_down_event;
     typedef two_param_event_handler<WM_LBUTTONUP,
-                                    unsigned int,core::position>  left_btn_up_event;
+                                    unsigned int,core::point>  left_btn_up_event;
     typedef two_param_event_handler<WM_LBUTTONDBLCLK,
-                                    unsigned int, core::position> left_btn_dblclk_event;
+                                    unsigned int, core::point> left_btn_dblclk_event;
 
     typedef two_param_event_handler<WM_RBUTTONDOWN,
-                                    unsigned int, core::position> right_btn_down_event;
+                                    unsigned int, core::point> right_btn_down_event;
     typedef two_param_event_handler<WM_RBUTTONUP,
-                                    unsigned int, core::position> right_btn_up_event;
+                                    unsigned int, core::point> right_btn_up_event;
     typedef two_param_event_handler<WM_RBUTTONDBLCLK,
-                                    unsigned int, core::position> right_btn_dblclk_event;
+                                    unsigned int, core::point> right_btn_dblclk_event;
 
     typedef two_param_event_handler<WM_MBUTTONDOWN,
-                                    unsigned int, core::position> middle_btn_down_event;
+                                    unsigned int, core::point> middle_btn_down_event;
     typedef two_param_event_handler<WM_MBUTTONUP,
-                                    unsigned int, core::position> middle_btn_up_event;
+                                    unsigned int, core::point> middle_btn_up_event;
     typedef two_param_event_handler<WM_MBUTTONDBLCLK,
-                                    unsigned int, core::position> middle_btn_dblclk_event;
+                                    unsigned int, core::point> middle_btn_dblclk_event;
 
     typedef two_param_event_handler<WM_MOUSEMOVE,
-                                    unsigned int, core::position> mouse_move_event;
+                                    unsigned int, core::point> mouse_move_event;
     typedef two_param_event_handler<WM_MOUSEHOVER,
-                                    unsigned int, core::position> mouse_hover_event;
+                                    unsigned int, core::point> mouse_hover_event;
     typedef no_param_event_handler<WM_MOUSELEAVE>                 mouse_leave_event;
 
     typedef three_param_event_handler<WM_MOUSEHWHEEL,
-                                      unsigned int, int, core::position> wheel_x_event;
+                                      unsigned int, int, core::point> wheel_x_event;
     typedef three_param_event_handler<WM_MOUSEWHEEL,
-                                      unsigned int, int, core::position> wheel_y_event;
+                                      unsigned int, int, core::point> wheel_y_event;
 
     // --------------------------------------------------------------------------
     typedef two_param_event_handler<WM_WINDOWPOSCHANGED,
@@ -321,12 +321,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct get_minmax_event : event_handlerT<void, const core::size&, const core::position&, core::size&, core::size&> {
+    struct get_minmax_event : event_handlerT<void, const core::size&, const core::point&, core::size&, core::size&> {
       get_minmax_event(function fn)
         : event_handlerT(fn) {}
 
       template<class T>
-      get_minmax_event(T* win, void(T::*fn)(const core::size&, const core::position&, core::size&, core::size&))
+      get_minmax_event(T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
         : event_handlerT(win, fn) {}
 
       virtual bool handle_event(const window_event& e, core::event_result& result);

@@ -31,25 +31,30 @@
 
 
 namespace gui {
+
   namespace core {
 
-    rectangle rectangle::default = rectangle(core::position(-1, -1), core::size(-1, -1));
+    rectangle rectangle::default = rectangle(core::point(-1, -1), core::size(-1, -1));
 
     size::size(const size_type& sz)
       : width(sz.cx)
-      , height(sz.cy) {}
+      , height(sz.cy) {
+    }
 
     size::size(const point_type& pt)
       : width(pt.x)
-      , height(pt.y) {}
+      , height(pt.y) {
+    }
 
     size::size(const event_param_1& p)
       : width(GET_X_LPARAM(p))
-      , height(GET_Y_LPARAM(p)) {}
+      , height(GET_Y_LPARAM(p)) {
+    }
 
     size::size(const event_param_2& p)
       : width(GET_X_LPARAM(p))
-      , height(GET_Y_LPARAM(p)) {}
+      , height(GET_Y_LPARAM(p)) {
+    }
 
     size::operator size_type() const {
       return{ width, height };
@@ -59,24 +64,28 @@ namespace gui {
       return{ width, height };
     }
 
-    position::position(const point_type& pt)
+    point::point(const point_type& pt)
       : x(pt.x)
-      , y(pt.y) {}
+      , y(pt.y) {
+    }
 
-    position::position(const event_param_2& p)
+    point::point(const event_param_2& p)
       : x(GET_X_LPARAM(p))
-      , y(GET_Y_LPARAM(p)) {}
+      , y(GET_Y_LPARAM(p)) {
+    }
 
-    position::operator point_type() const {
+    point::operator point_type() const {
       return{ x, y };
     }
 
     rectangle::rectangle(const rectangle_type& r)
       : topleft(r.left, r.top)
-      , bottomright(r.right, r.bottom) {}
+      , bottomright(r.right, r.bottom) {
+    }
 
     rectangle::rectangle(const event_param_2& p)
-      : rectangle(*reinterpret_cast<LPRECT>(p)) {}
+      : rectangle(*reinterpret_cast<LPRECT>(p)) {
+    }
 
     rectangle::operator rectangle_type() const {
       return{ topleft.x, topleft.y, bottomright.x, bottomright.y };
@@ -91,7 +100,7 @@ namespace gui {
       return out;
     }
 
-    std::ostream& operator<<(std::ostream& out, const position& p) {
+    std::ostream& operator<<(std::ostream& out, const point& p) {
       out << p.x << ", " << p.y;
       return out;
     }

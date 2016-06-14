@@ -105,20 +105,20 @@ namespace gui {
       std::string getText() const;
 
       core::size size() const;
-      core::position position() const;
+      core::point position() const;
       core::rectangle absolute_place() const;
       core::rectangle place() const;
-      core::position absolute_position() const;
+      core::point absolute_position() const;
       core::rectangle client_area() const;
 
-      void move(const core::position&, bool repaint = true);
+      void move(const core::point&, bool repaint = true);
       void resize(const core::size&, bool repaint = true);
       void place(const core::rectangle&, bool repaint = true);
 
-      core::position windowToScreen(const core::position&) const;
-      core::position screenToWindow(const core::position&) const;
-      core::position clientToScreen(const core::position&) const;
-      core::position screenToClient(const core::position&) const;
+      core::point windowToScreen(const core::point&) const;
+      core::point screenToWindow(const core::point&) const;
+      core::point clientToScreen(const core::point&) const;
+      core::point screenToClient(const core::point&) const;
 
       void register_event_handler(event_handler*);
       void unregister_event_handler(event_handler*);

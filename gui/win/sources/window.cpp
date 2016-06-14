@@ -47,7 +47,7 @@ namespace gui {
                         const window& parent,
                         const core::rectangle& place) {
 
-      const core::position pos = place.position();
+      const core::point pos = place.position();
       const core::size sz = place.size();
       id = CreateWindowEx(type.ex_style,          // window style
         type.class_name.c_str(), // address of registered class name
@@ -66,7 +66,7 @@ namespace gui {
     void window::create(const window_class& type,
                         const core::rectangle& place) {
 
-      const core::position pos = place.position();
+      const core::point pos = place.position();
       const core::size sz = place.size();
       id = CreateWindowEx(type.ex_style,          // window style
         type.class_name.c_str(), // address of registered class name
@@ -212,7 +212,7 @@ namespace gui {
       return core::size(r.right - r.left, r.bottom - r.top);
     }
 
-    core::position window::position() const {
+    core::point window::position() const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return screenToWindow({ r.left, r.top });
@@ -229,7 +229,7 @@ namespace gui {
       return core::rectangle(r);
     }
 
-    core::position window::absolute_position() const {
+    core::point window::absolute_position() const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return{ r.left, r.top };
@@ -241,7 +241,7 @@ namespace gui {
       return core::rectangle(r);
     }
 
-    void window::move(const core::position& pt, bool repaint) {
+    void window::move(const core::point& pt, bool repaint) {
       place(core::rectangle(pt, size()));
     }
 
@@ -250,31 +250,31 @@ namespace gui {
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
-      const core::position pos = r.position();
+      const core::point pos = r.position();
       const core::size sz = r.size();
       MoveWindow(get_id(), pos.x, pos.y, sz.width, sz.height, repaint);
     }
 
-    core::position window::windowToScreen(const core::position& pt) const {
+    core::point window::windowToScreen(const core::point& pt) const {
       window* p = getParent();
       return p ? p->clientToScreen(pt) : pt;
     }
 
-    core::position window::screenToWindow(const core::position& pt) const {
+    core::point window::screenToWindow(const core::point& pt) const {
       window* p = getParent();
       return p ? p->screenToClient(pt) : pt;
     }
 
-    core::position window::clientToScreen(const core::position& pt) const {
+    core::point window::clientToScreen(const core::point& pt) const {
       POINT Point = { pt.x, pt.y };
       ClientToScreen(get_id(), &Point);
-      return core::position(Point.x, Point.y);
+      return core::point(Point.x, Point.y);
     }
 
-    core::position window::screenToClient(const core::position& pt) const {
+    core::point window::screenToClient(const core::point& pt) const {
       POINT Point = { pt.x, pt.y };
       ScreenToClient(get_id(), &Point);
-      return core::position(Point.x, Point.y);
+      return core::point(Point.x, Point.y);
     }
 
     void window::register_event_handler(event_handler* handler) {

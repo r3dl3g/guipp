@@ -171,7 +171,7 @@ namespace gui {
         }
 
         static byte v(core::color_type a) {
-          return (byte)((a && mask) >> shift);
+          return (byte)((a & mask) >> shift);
         }
       };
 

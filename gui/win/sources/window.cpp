@@ -34,13 +34,12 @@ namespace gui {
   namespace win {
 
     window::window()
-      : id(0) {}
+      : id(0)
+      , event_handler_stores(nullptr) {
+    }
 
     window::~window() {
       destroy();
-      for (auto i : event_handler_list) {
-        delete i;
-      }
     }
 
     void window::create(const window_class& type,
@@ -49,18 +48,18 @@ namespace gui {
 
       const core::point pos = place.position();
       const core::size sz = place.size();
-      id = CreateWindowEx(type.ex_style,          // window style
-        type.class_name.c_str(), // address of registered class name
-        NULL,                    // address of window text
-        type.style,              // window style
-        pos.x,                   // horizontal position of window
-        pos.y,                   // vertical position of window
-        sz.width,                // window width
-        sz.height,               // window height
-        parent.get_id(),         // handle of parent window
-        NULL,                    // handle of menu or child-window identifier
-        type.instance,           // handle of application instance
-        (LPVOID)this);
+      id = CreateWindowEx(type.get_ex_style(),            // window style
+                          type.get_class_name().c_str(),  // address of registered class name
+                          NULL,                           // address of window text
+                          type.get_style(),               // window style
+                          pos.x,                          // horizontal position of window
+                          pos.y,                          // vertical position of window
+                          sz.width,                       // window width
+                          sz.height,                      // window height
+                          parent.get_id(),                // handle of parent window
+                          NULL,                           // handle of menu or child-window identifier
+                          type.get_instance(),            // handle of application instance
+                          (LPVOID)this);
     }
 
     void window::create(const window_class& type,
@@ -68,18 +67,18 @@ namespace gui {
 
       const core::point pos = place.position();
       const core::size sz = place.size();
-      id = CreateWindowEx(type.ex_style,          // window style
-        type.class_name.c_str(), // address of registered class name
-        NULL,                    // address of window text
-        type.style,              // window style
-        pos.x,                   // horizontal position of window
-        pos.y,                   // vertical position of window
-        sz.width,                // window width
-        sz.height,               // window height
-        NULL,                    // handle of parent window
-        NULL,                    // handle of menu or child-window identifier
-        type.instance,           // handle of application instance
-        (LPVOID)this);
+      id = CreateWindowEx(type.get_ex_style(),            // window style
+                          type.get_class_name().c_str(),  // address of registered class name
+                          NULL,                           // address of window text
+                          type.get_style(),               // window style
+                          pos.x,                          // horizontal position of window
+                          pos.y,                          // vertical position of window
+                          sz.width,                       // window width
+                          sz.height,                      // window height
+                          NULL,                           // handle of parent window
+                          NULL,                           // handle of menu or child-window identifier
+                          type.get_instance(),            // handle of application instance
+                          (LPVOID)this);
     }
 
     bool window::is_valid() const {
@@ -174,9 +173,10 @@ namespace gui {
       ShowWindow(get_id(), SW_RESTORE);
     }
 
-    void window::set_toplevel(bool toplevel) {
-      SetWindowPos(get_id(), toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
-        0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    void window::set_top_most(bool toplevel) {
+      SetWindowPos(get_id(),
+                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
+                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
     void window::enable(bool on) {
@@ -188,7 +188,7 @@ namespace gui {
     }
 
     void window::redraw_now() {
-      UpdateWindow(get_id());
+      RedrawWindow(get_id(), NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
     void window::redraw_later() {
@@ -277,14 +277,30 @@ namespace gui {
       return core::point(Point.x, Point.y);
     }
 
-    void window::register_event_handler(event_handler* handler) {
-      event_handler_list.push_back(handler);
+    bool window::in_event_handle() const {
+      return event_handler_stores != nullptr;
     }
 
-    void window::unregister_event_handler(event_handler* handler) {
-      auto end = event_handler_list.end();
-      auto idx = std::remove(event_handler_list.begin(), end, handler);
-      event_handler_list.erase(idx, end);
+    window::event_handler_ptr window::register_event_handler(event_handler_fnct handler) {
+      event_handler_ptr ptr(new event_handler_fnct(handler));
+      if (in_event_handle()) {
+        event_handler_stores->push_back(std::make_pair(true, ptr));
+        return ptr;
+      }
+      event_handlers.push_back(ptr);
+      return ptr;
+    }
+
+    void window::unregister_event_handler(event_handler_ptr ptr) {
+      if (in_event_handle()) {
+        event_handler_stores->push_back(std::make_pair(false, ptr));
+        return;
+      }
+      auto end = event_handlers.end();
+      auto it = std::remove(event_handlers.begin(), end, ptr);
+      if (it != end) {
+        event_handlers.erase(it, end);
+      }
     }
 
     window* window::get(core::window_id id) {
@@ -292,9 +308,35 @@ namespace gui {
     }
 
     bool window::handle_event(const window_event& e, core::event_result& resultValue) {
+
+      bool my_event_handler_stores = false;
+
+      if (!event_handler_stores) {
+        // Make in_event_handle == true
+        event_handler_stores = new event_handler_store_list();
+        my_event_handler_stores = true;
+      }
+
       bool result = false;
-      for (auto i : event_handler_list) {
-        result |= i->handle_event(e, resultValue);
+      for (auto i : event_handlers) {
+        result |= i.get()->operator()(e, resultValue);
+      }
+
+      // only deepest call of handle_event manages the event_handler_stores
+      if (my_event_handler_stores) {
+        for (auto i : *event_handler_stores) {
+          if (i.second) {
+            if (i.first) {
+              event_handlers.push_back(i.second);
+            } else {
+              auto end = event_handlers.end();
+              event_handlers.erase(std::remove(event_handlers.begin(), end, i.second), end);
+            }
+          }
+        }
+        // Make in_event_handle == false
+        delete event_handler_stores;
+        event_handler_stores = nullptr;
       }
       return result;
     }

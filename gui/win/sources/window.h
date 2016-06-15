@@ -25,6 +25,8 @@
 #include <cstddef>
 #include <vector>
 #include <functional>
+#include <memory>
+
 
 // --------------------------------------------------------------------------
 //
@@ -48,6 +50,9 @@ namespace gui {
 
     class window {
     public:
+      typedef std::function<event_handler> event_handler_fnct;
+      typedef std::shared_ptr<event_handler_fnct> event_handler_ptr;
+
       window();
       ~window();
 
@@ -91,12 +96,13 @@ namespace gui {
       void maximize();
       void restore();
 
-      void set_toplevel(bool toplevel);
+      void set_top_most(bool toplevel);
 
       void enable(bool on = true);
       inline void disable() {
         enable(false);
       }
+
       void enableRedraw(bool on = true);
       void redraw_now();
       void redraw_later();
@@ -120,8 +126,8 @@ namespace gui {
       core::point clientToScreen(const core::point&) const;
       core::point screenToClient(const core::point&) const;
 
-      void register_event_handler(event_handler*);
-      void unregister_event_handler(event_handler*);
+      event_handler_ptr register_event_handler(event_handler_fnct);
+      void unregister_event_handler(event_handler_ptr);
 
       bool handle_event(const window_event& e, core::event_result& result);
 
@@ -133,8 +139,27 @@ namespace gui {
       core::window_id id;
 
     private:
-      std::vector<event_handler*> event_handler_list;
+      typedef std::vector<event_handler_ptr> event_handler_list;
+      typedef std::pair<bool, event_handler_ptr> event_handler_store;
+      typedef std::vector<event_handler_store> event_handler_store_list;
 
+      bool in_event_handle() const;
+
+      event_handler_list event_handlers;
+      event_handler_store_list* event_handler_stores;
+
+    };
+
+    template<window_class& cls>
+    class windowT : public window {
+    public:
+      void create(const window& parent,
+                  const core::rectangle& place = core::rectangle::default) {
+        window::create(cls, parent, place);
+      }
+      void create(const core::rectangle& place = core::rectangle::default) {
+        window::create(cls, place);
+      }
     };
 
   } // win

@@ -42,7 +42,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename R, typename ... Args>
-    struct event_handlerT : event_handler {
+    struct event_handlerT : std::function<event_handler> {
       typedef std::function<R(Args...)> function;
 
       event_handlerT(function callback_)
@@ -66,7 +66,7 @@ namespace gui {
       no_param_event_handler(T* win, void(T::*fn)())
         : event_handlerT(win, fn) {}
 
-      bool handle_event(const window_event& e, core::event_result& result) {
+      bool operator()(const window_event& e, core::event_result& result) {
         if ((e.msg == M) && callback) {
           callback();
           result = R;
@@ -90,7 +90,7 @@ namespace gui {
       one_param_event_handler(T* win, void(T::*fn)(T))
         : event_handlerT(win, fn) {}
 
-      bool handle_event(const window_event& e, core::event_result& result) {
+      bool operator()(const window_event& e, core::event_result& result) {
         if ((e.msg == M) && callback) {
           callback(F()(e));
           result = R;
@@ -116,7 +116,7 @@ namespace gui {
       two_param_event_handler(T* win, void(T::*fn)(P1, P2))
         : event_handlerT(win, fn) {}
 
-      bool handle_event(const window_event& e, core::event_result& result) {
+      bool operator()(const window_event& e, core::event_result& result) {
         if ((e.msg == M) && callback) {
           callback(F1()(e), F2()(e));
           result = R;
@@ -144,7 +144,7 @@ namespace gui {
       three_param_event_handler(T* win, void(T::*fn)(P1, P2, P3))
         : event_handlerT(win, fn) {}
 
-      bool handle_event(const window_event& e, core::event_result& result) {
+      bool operator()(const window_event& e, core::event_result& result) {
         if ((e.msg == M) && callback) {
           callback(F1()(e), F2()(e), F3()(e));
           result = R;
@@ -304,7 +304,7 @@ namespace gui {
         : event_handlerT(t, changingfn)
       {}
 
-      virtual bool handle_event(const window_event& e, core::event_result& result);
+      bool operator()(const window_event& e, core::event_result& result);
     };
 
     // --------------------------------------------------------------------------
@@ -317,7 +317,7 @@ namespace gui {
         void(T::*changingfn)(unsigned int&, core::rectangle&))
         : event_handlerT(t, changingfn) {}
 
-      virtual bool handle_event(const window_event& e, core::event_result& result);
+      bool operator()(const window_event& e, core::event_result& result);
     };
 
     // --------------------------------------------------------------------------
@@ -329,7 +329,7 @@ namespace gui {
       get_minmax_event(T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
         : event_handlerT(win, fn) {}
 
-      virtual bool handle_event(const window_event& e, core::event_result& result);
+      bool operator()(const window_event& e, core::event_result& result);
     };
 
   } // gui

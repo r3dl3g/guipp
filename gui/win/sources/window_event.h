@@ -51,10 +51,7 @@ namespace gui {
       core::event_param_2 param_2;
     };
 
-    class event_handler {
-    public:
-      virtual bool handle_event(const window_event& e, core::event_result& result) = 0;
-    };
+    typedef bool(event_handler)(const window_event&, core::event_result&);
 
   } // win
 

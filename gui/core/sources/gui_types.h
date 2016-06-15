@@ -36,9 +36,9 @@ namespace gui {
   namespace core {
 
     struct size {
-      inline size(int width_ = 0, int height_ = 0)
-        : width(width_)
-        , height(height_) {
+      inline size(int width = 0, int height = 0)
+        : width(width)
+        , height(height) {
       }
 
       explicit size(const size_type& sz);
@@ -56,9 +56,9 @@ namespace gui {
     std::ostream& operator<<(std::ostream& out, const size&);
 
     struct point {
-      inline point(int x_ = 0, int y_ = 0)
-        : x(x_)
-        , y(y_) {
+      inline point(int x = 0, int y = 0)
+        : x(x)
+        , y(y) {
       }
 
       explicit point(const point_type& pt);
@@ -114,7 +114,7 @@ namespace gui {
       inline rectangle(const point& topleft,
                        const point& bottomright)
         : topleft(topleft)
-        , bottomright(bottomright.x - topleft.x, bottomright.y - topleft.y) {
+        , bottomright(bottomright) {
       }
 
       inline rectangle(int x, int y, int width, int height)

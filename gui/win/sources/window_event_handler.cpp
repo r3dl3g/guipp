@@ -61,7 +61,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool paint_event::handle_event(const window_event& e, core::event_result& result) {
+    bool paint_event::operator()(const window_event& e, core::event_result& result) {
       if ((e.msg == WM_PAINT) && callback) {
         PAINTSTRUCT ps;
         core::graphics_id id = BeginPaint(e.id, &ps);
@@ -74,7 +74,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool pos_changing_event::handle_event(const window_event& e, core::event_result& result) {
+    bool pos_changing_event::operator()(const window_event& e, core::event_result& result) {
       if ((e.msg == WM_WINDOWPOSCHANGING) && callback) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
         core::rectangle r = get_rect<WINDOWPOS>()(e);
@@ -93,7 +93,7 @@ namespace gui {
       return false;
     }
     // --------------------------------------------------------------------------
-    bool get_minmax_event::handle_event(const window_event& e, core::event_result& result) {
+    bool get_minmax_event::operator()(const window_event& e, core::event_result& result) {
       if ((e.msg == WM_GETMINMAXINFO) && callback) {
         LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.param_2);
         core::size mi(info->ptMinTrackSize);

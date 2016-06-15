@@ -38,39 +38,53 @@ namespace gui {
     class window_class {
     public:
       inline window_class(const std::string& cls_name,
-                          core::windows_style class_style_ = 0,
-                          core::windows_style style_ = 0,
+                          core::windows_style class_style_,
+                          core::windows_style style_,
                           core::windows_style ex_style_ = 0,
-                          core::instance_id instance_ = 0,
                           core::icon_id icon_ = NULL,
                           core::cursor_id cursor_ = NULL,
                           core::brush_id brush_ = NULL)
-        : class_name(cls_name)
+        : is_initialized(false)
+        , class_name(cls_name)
         , class_style(class_style_)
         , style(style_)
         , ex_style(ex_style_)
-        , instance(instance_)
         , icon(icon_)
         , cursor(cursor_)
         , brush(brush_) {
-        register_class();
       }
 
       inline ~window_class() {
         unregister_class();
       }
 
-      std::string class_name;
-      core::windows_style class_style;
-      core::windows_style style;
-      core::windows_style ex_style;
-      core::instance_id instance;
-      core::icon_id icon;
-      core::cursor_id cursor;
-      core::brush_id brush;
+      const std::string& get_class_name() const;
+      const core::instance_id get_instance() const;
+      const core::windows_style get_class_style() const;
+      const core::windows_style get_style() const;
+      const core::windows_style get_ex_style() const;
+      const core::icon_id get_icon() const;
+      const core::cursor_id get_cursor() const;
+      const core::brush_id get_brush() const;
 
-      void register_class();
+      static void init(core::instance_id instance);
+
+    private:
+      void register_class() const;
       void unregister_class();
+
+      mutable bool is_initialized;
+
+      const std::string class_name;
+      const core::windows_style class_style;
+      const core::windows_style style;
+      const core::windows_style ex_style;
+      const core::icon_id icon;
+      const core::cursor_id cursor;
+      const core::brush_id brush;
+
+      static bool is_global_initialized;
+      static core::instance_id global_instance;
     };
 
   } // win

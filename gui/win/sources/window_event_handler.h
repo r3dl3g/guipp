@@ -76,7 +76,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e.msg, M) && callback) {
+        if (event_type_match(e, M) && callback) {
           callback();
           result = R;
           return true;
@@ -100,7 +100,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e.msg, M) && callback) {
+        if (event_type_match(e, M) && callback) {
           callback(F()(e));
           result = R;
           return true;
@@ -126,7 +126,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e.msg, M) && callback) {
+        if (event_type_match(e, M) && callback) {
           callback(F1()(e), F2()(e));
           result = R;
           return true;
@@ -154,7 +154,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e.msg, M) && callback) {
+        if (event_type_match(e, M) && callback) {
           callback(F1()(e), F2()(e), F3()(e));
           result = R;
           return true;
@@ -266,7 +266,7 @@ namespace gui {
     typedef two_param_event_handler<ButtonPress,
                                     unsigned int,core::point>  left_btn_down_event;
 #endif // WIN32
-    typedef two_param_event_handler<ButtonPress,
+    typedef two_param_event_handler<WM_LBUTTONUP,
                                     unsigned int,core::point>  left_btn_up_event;
     typedef two_param_event_handler<WM_LBUTTONDBLCLK,
                                     unsigned int, core::point> left_btn_dblclk_event;

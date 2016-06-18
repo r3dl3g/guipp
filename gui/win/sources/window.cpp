@@ -72,7 +72,7 @@ namespace gui {
                           sz.height,                      // window height
                           parent.get_id(),                // handle of parent window
                           NULL,                           // handle of menu or child-window identifier
-                          type.get_instance(),            // handle of application instance
+                          core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
 #endif // WIN32
 
@@ -98,7 +98,7 @@ namespace gui {
                           sz.height,                      // window height
                           NULL,                           // handle of parent window
                           NULL,                           // handle of menu or child-window identifier
-                          type.get_instance(),            // handle of application instance
+                          core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
 #endif // WIN32
 

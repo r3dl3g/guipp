@@ -92,7 +92,7 @@ namespace gui {
     }
 
     void rectangle::setSize(const core::size& sz) {
-      bottomright = { topleft.x + sz.width, topleft.y + sz.height };
+      bottomright = core::point( topleft.x + sz.width, topleft.y + sz.height );
     }
 
     std::ostream& operator<<(std::ostream& out, const size& sz) {
@@ -129,7 +129,7 @@ namespace gui {
       core::instance_id get_instance() {
         if (!is_global_initialized) {
           throw std::runtime_error("window_class::init must be called before first use!");
-          return;
+          return 0;
         }
         return global_instance;
       }

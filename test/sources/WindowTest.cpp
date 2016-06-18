@@ -79,7 +79,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   ibr::odebugstream dbgStrm;
   ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
 
-  win::core::global::init(hInstance);
+  gui::core::global::init(hInstance);
 
   win::windowT<mainCls> main;
   win::windowT<chldCls> window1;
@@ -259,10 +259,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   main.setText("Window Test");
   main.show();
 
-  win::run_main_loop();
+  int ret = win::run_main_loop();
 
   ibr::log::core::instance().finish();
 
-  return (int)msg.wParam;
+  return ret;
 }
 

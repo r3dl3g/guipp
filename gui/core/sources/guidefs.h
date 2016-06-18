@@ -105,9 +105,6 @@ namespace gui {
 #endif
     namespace global {
 
-      static bool is_global_initialized;
-      static core::instance_id global_instance;
-
       void init(core::instance_id instance);
       core::instance_id get_instance();
 

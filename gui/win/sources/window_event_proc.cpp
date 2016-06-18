@@ -97,6 +97,7 @@ namespace gui {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
       }
+      return (int)msg.wParam;
     }
 #endif // WIN32
 

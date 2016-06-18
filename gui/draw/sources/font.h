@@ -47,6 +47,7 @@ namespace gui {
       typedef int size_type;
 
       enum Thickness {
+#ifdef WIN32
         thin = FW_THIN,
         ultraLight = FW_ULTRALIGHT,
         light = FW_LIGHT,
@@ -56,6 +57,17 @@ namespace gui {
         bold = FW_BOLD,
         ultraBold = FW_ULTRABOLD,
         heavy = FW_HEAVY
+#elif X11
+        thin,
+        ultraLight,
+        light,
+        regular,
+        medium,
+        semiBild,
+        bold,
+        ultraBold,
+        heavy
+#endif // X11
       };
 
       font(const std::string& name,
@@ -89,7 +101,7 @@ namespace gui {
       font with_strikeout(bool) const;
 
       bool operator== (const font&) const;
-      
+
       void swap(font&);
 
     private:

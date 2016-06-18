@@ -36,9 +36,15 @@ namespace gui {
 
     namespace detail {
 
+#ifdef WIN32
+
       LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+#endif // WIN32
+
     } // detail
+
+    int run_main_loop();
 
   } // win
 

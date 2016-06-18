@@ -10,5 +10,9 @@ if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
+if(UNIX)
+  add_definitions(-DX11)
+endif(UNIX)
+
 add_subdirectory(gui)
 add_subdirectory(ibr_std_lib)

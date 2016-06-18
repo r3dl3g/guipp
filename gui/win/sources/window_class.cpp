@@ -33,9 +33,6 @@ namespace gui {
 
   namespace win {
 
-    core::instance_id window_class::global_instance;
-    bool window_class::is_global_initialized = false;
-
     class window;
 
     std::string getLastErrorText() {
@@ -48,11 +45,6 @@ namespace gui {
     const std::string& window_class::get_class_name() const {
       register_class();
       return class_name;
-    }
-
-    const core::instance_id window_class::get_instance() const {
-      register_class();
-      return global_instance;
     }
 
     const core::windows_style window_class::get_class_style() const {
@@ -85,18 +77,8 @@ namespace gui {
       return brush;
     }
 
-    void window_class::init(core::instance_id instance) {
-      global_instance = instance;
-      is_global_initialized = true;
-    }
-
     void window_class::register_class() const {
       if (is_initialized) {
-        return;
-      }
-
-      if (!is_global_initialized) {
-        throw std::runtime_error("window_class::init must be called before first use!");
         return;
       }
 
@@ -109,7 +91,7 @@ namespace gui {
       wc.lpfnWndProc = detail::WindowEventProc;
       wc.cbClsExtra = 0;
       wc.cbWndExtra = sizeof(window*);
-      wc.hInstance = global_instance;
+      wc.hInstance = core::global::get_instance();
       wc.hIcon = icon;
       wc.hCursor = cursor;
       wc.hbrBackground = brush;
@@ -125,7 +107,7 @@ namespace gui {
     }
 
     void window_class::unregister_class() {
-      BOOL result = UnregisterClass(class_name.c_str(), global_instance);
+      BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }

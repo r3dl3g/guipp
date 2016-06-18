@@ -26,6 +26,12 @@
 #include <windows.h>
 #endif
 
+#ifdef X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#endif
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -61,11 +67,56 @@ namespace gui {
 
     typedef COLORREF color_type;
 
+#elif X11
+
+    typedef Window window_id;
+    typedef int event_id;
+
+    typedef unsigned int windows_style;
+
+    typedef Icon icon_id;
+    typedef Cursor cursor_id;
+    typedef Pixmap brush_id;
+    typedef Display instance_id;
+    typedef int screen_id;
+    typedef Font font_id;
+    typedef GC graphics_id;
+
+    typedef XPoint point_type;
+    typedef struct {
+        unsigned int width;
+        unsigned int height;
+    } size_type;
+    typedef XRectangle rectangle_type;
+    typedef XFontStruct font_type;
+    typedef unsigned long color_type;
+
+    typedef struct {
+        unsigned int line_width;
+        int line_style;
+        color_type color;
+    } pen_id;
+
+
 #else
 
 #pragma error "Unknown target system"
 
 #endif
+    namespace global {
+
+      static bool is_global_initialized;
+      static core::instance_id global_instance;
+
+      void init(core::instance_id instance);
+      core::instance_id get_instance();
+
+#ifdef X11
+      screen_id get_screen();
+      void set_screen(screen_id);
+#endif // X11
+
+    }
 
   } // core
 

@@ -57,6 +57,15 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    inline bool event_type_match(const window_event& e, core::event_id id) {
+#ifdef WIN32
+        return (e.msg == id);
+#elif X11
+        return (e.type == id);
+#endif // WIN32
+    }
+
+    // --------------------------------------------------------------------------
     template<core::event_id M, core::event_result R = 0>
     struct no_param_event_handler : event_handlerT<void> {
       no_param_event_handler(function fn)
@@ -67,7 +76,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if ((e.msg == M) && callback) {
+        if (event_type_match(e.msg, M) && callback) {
           callback();
           result = R;
           return true;
@@ -91,7 +100,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if ((e.msg == M) && callback) {
+        if (event_type_match(e.msg, M) && callback) {
           callback(F()(e));
           result = R;
           return true;
@@ -117,7 +126,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if ((e.msg == M) && callback) {
+        if (event_type_match(e.msg, M) && callback) {
           callback(F1()(e), F2()(e));
           result = R;
           return true;
@@ -145,7 +154,7 @@ namespace gui {
         : event_handlerT(win, fn) {}
 
       bool operator()(const window_event& e, core::event_result& result) {
-        if ((e.msg == M) && callback) {
+        if (event_type_match(e.msg, M) && callback) {
           callback(F1()(e), F2()(e), F3()(e));
           result = R;
           return true;
@@ -250,9 +259,14 @@ namespace gui {
                                     get_param1<unsigned int>,
                                     get_param2<core::rectangle>, TRUE > sizing_event;
 
+#ifdef WIN32
     typedef two_param_event_handler<WM_LBUTTONDOWN,
                                     unsigned int,core::point>  left_btn_down_event;
-    typedef two_param_event_handler<WM_LBUTTONUP,
+#elif X11
+    typedef two_param_event_handler<ButtonPress,
+                                    unsigned int,core::point>  left_btn_down_event;
+#endif // WIN32
+    typedef two_param_event_handler<ButtonPress,
                                     unsigned int,core::point>  left_btn_up_event;
     typedef two_param_event_handler<WM_LBUTTONDBLCLK,
                                     unsigned int, core::point> left_btn_dblclk_event;

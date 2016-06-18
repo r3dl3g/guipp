@@ -35,6 +35,7 @@ namespace gui {
 
     const color color::black{ 0, 0, 0 };
     const color color::white{ 255, 255, 255 };
+    const color color::gray{ 128, 128, 128 };
     const color color::red{ 255, 0, 0 };
     const color color::green{ 0, 255, 0 };
     const color color::blue{ 0, 0, 255 };
@@ -43,6 +44,7 @@ namespace gui {
     const color color::yellow{ 255, 255, 0 };
     const color color::orange{ 255, 128, 0 };
     const color color::brown{ 192, 64, 0 };
+    const color color::darkGray{ 64, 64, 64 };
     const color color::darkBlue{ 0, 0, 192 };
     const color color::darkGreen{ 0, 192, 0 };
     const color color::darkRed{ 192, 0, 0 };
@@ -51,7 +53,6 @@ namespace gui {
     const color color::darkYellow{ 192, 192, 0 };
     const color color::darkOrange{ 192, 96, 0 };
     const color color::darkBrown{ 128, 48, 0 };
-    const color color::gray{ 128, 128, 128 };
     const color color::lightGray{ 128, 128, 128 };
     const color color::lightRed{ 255, 128, 128 };
     const color color::lightGreen{ 128, 255, 128 };
@@ -66,9 +67,40 @@ namespace gui {
     const color color::veryLightCyan{ 192, 255, 255 };
     const color color::veryLightMagenta{ 255, 192, 255 };
     const color color::veryLightYellow{ 255, 255, 192 };
-    const color color::darkGray{ 64, 64, 64 };
 
-#ifdef WIN32
+#ifdef X11
+    typedef SystemColor {
+        COLOR_SCROLLBAR,
+        COLOR_MENU,
+        COLOR_MENUTEXT,
+        COLOR_BACKGROUND,
+        COLOR_ACTIVECAPTION,
+        COLOR_INACTIVECAPTION,
+        COLOR_WINDOW,
+        COLOR_WINDOWFRAME,
+        COLOR_WINDOWTEXT,
+        COLOR_CAPTIONTEXT,
+        COLOR_INACTIVECAPTIONTEXT,
+        COLOR_ACTIVEBORDER,
+        COLOR_INACTIVEBORDER,
+        COLOR_APPWORKSPACE,
+        COLOR_HIGHLIGHT,
+        COLOR_HIGHLIGHTTEXT,
+        COLOR_GRAYTEXT,
+        COLOR_BTNFACE,
+        COLOR_BTNSHADOW,
+        COLOR_BTNTEXT,
+        COLOR_BTNHIGHLIGHT
+    };
+
+    core::color_type GetSysColor(SystemColor) {
+//        XColor exact_def_return, screen_def_return;
+//        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
+//        return screen_def_return.pixel;
+        return 0;
+    }
+#endif
+
     const color color::scrollBarColor(GetSysColor(COLOR_SCROLLBAR));
     const color color::menuColor(GetSysColor(COLOR_MENU));
     const color color::menuTextColor(GetSysColor(COLOR_MENUTEXT));
@@ -90,7 +122,6 @@ namespace gui {
     const color color::shadowColor(GetSysColor(COLOR_BTNSHADOW));
     const color color::buttonTextColor(GetSysColor(COLOR_BTNTEXT));
     const color color::buttonHighLightColor(GetSysColor(COLOR_BTNHIGHLIGHT));
-#endif
 
     std::ostream& operator<<(std::ostream& out, const color& c) {
       out << std::hex << c.r() << ", " << c.g() << ", " << c.b() << ", " << c.a();

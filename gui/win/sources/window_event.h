@@ -34,6 +34,7 @@ namespace gui {
 
   namespace win {
 
+#ifdef WIN32
     struct window_event {
       inline window_event(core::window_id id,
                           core::event_id msg,
@@ -50,7 +51,16 @@ namespace gui {
       core::event_param_1 param_1;
       core::event_param_2 param_2;
     };
+#elif X11
+    struct window_event {
+      inline window_event(const XEvent& event)
+        : event(event1)
+      {}
 
+      XEvent event;
+};
+
+#endif // WIN
     typedef bool(event_handler)(const window_event&, core::event_result&);
 
   } // win

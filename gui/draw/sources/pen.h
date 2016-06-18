@@ -42,6 +42,7 @@ namespace gui {
       typedef int size_type;
 
       enum Style {
+#ifdef WIN32
         solid = PS_SOLID,
         dash = PS_DASH,
         dot = PS_DOT,
@@ -49,6 +50,19 @@ namespace gui {
         dashDotDot = PS_DASHDOTDOT,
         hairLine = PS_NULL,
         insideFrame = PS_INSIDEFRAME
+#elif X11
+        solid,
+        dash,
+        dot,
+        dashDot,
+        dashDotDot,
+        hairLine,
+        insideFrame
+#else
+
+#pragma error "Unknown target system"
+
+#endif // WIN32
       };
 
       pen(const draw::color& = draw::color::black, Style = solid, size_type = 1);
@@ -68,14 +82,17 @@ namespace gui {
       pen with_color(const draw::color&) const;
 
       bool operator== (const pen&) const;
-      
+
       void swap(pen&);
 
     private:
       pen(core::pen_id);
 
       core::pen_id id;
+
+#ifdef WIN32
       core::pen_type type;
+#endif // WIN32
 
     };
 

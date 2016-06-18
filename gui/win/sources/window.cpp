@@ -16,6 +16,7 @@
 * @file
 */
 
+
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -33,6 +34,15 @@ namespace gui {
 
   namespace win {
 
+#ifdef X11
+    namespace detail {
+
+        typedef std::map<core::window_id, win::window*> window_map;
+        window_map global_window_map;
+
+    }
+#endif // X11
+
     window::window()
       : id(0)
       , event_handler_stores(nullptr) {
@@ -40,6 +50,9 @@ namespace gui {
 
     window::~window() {
       destroy();
+#ifdef X11
+      global_window_map.erase(id);
+#endif // X11
     }
 
     void window::create(const window_class& type,
@@ -48,6 +61,7 @@ namespace gui {
 
       const core::point pos = place.position();
       const core::size sz = place.size();
+#ifdef WIN32
       id = CreateWindowEx(type.get_ex_style(),            // window style
                           type.get_class_name().c_str(),  // address of registered class name
                           NULL,                           // address of window text
@@ -60,6 +74,12 @@ namespace gui {
                           NULL,                           // handle of menu or child-window identifier
                           type.get_instance(),            // handle of application instance
                           (LPVOID)this);
+#endif // WIN32
+
+#ifdef X11
+    id = XCreateSimpleWindow(display, parent.id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
+    global_window_map[id] = this;
+#endif // X11
     }
 
     void window::create(const window_class& type,
@@ -67,6 +87,7 @@ namespace gui {
 
       const core::point pos = place.position();
       const core::size sz = place.size();
+#ifdef WIN32
       id = CreateWindowEx(type.get_ex_style(),            // window style
                           type.get_class_name().c_str(),  // address of registered class name
                           NULL,                           // address of window text
@@ -79,18 +100,43 @@ namespace gui {
                           NULL,                           // handle of menu or child-window identifier
                           type.get_instance(),            // handle of application instance
                           (LPVOID)this);
+#endif // WIN32
+
+#ifdef X11
+    id = XCreateSimpleWindow(display, DefaultRootWindow(display).id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
+    global_window_map[id] = this;
+#endif // X11
     }
 
     bool window::is_valid() const {
+#ifdef WIN32
       return IsWindow(id) != FALSE;
+#endif // WIN32
+#ifdef X11
+      return global_window_map[id] == this;
+#endif // X11
     }
 
     bool window::is_visible() const {
+#ifdef WIN32
       return is_valid() && IsWindowVisible(get_id());
+#endif // WIN32
+#ifdef X11
+        XWindowAttributes a;
+        if (XGetWindowAttributes(display, id, &a)) {
+            return a.map_state == IsViewable;
+        }
+        return false;
+#endif // X11
     }
 
     bool window::is_enabled() const {
+#ifdef WIN32
       return is_valid() && IsWindowEnabled(get_id());
+#endif // WIN32
+#ifdef X11
+      return is_valid();
+#endif // X11
     }
 
     bool window::is_active() const {
@@ -154,11 +200,21 @@ namespace gui {
     }
 
     void window::hide() {
+#ifdef WIN32
       ShowWindow(get_id(), SW_HIDE);
+#endif // WIN32
+#ifdef X11
+    XUnmapWindow(display, id);
+#endif // X11
     }
 
     void window::show() {
+#ifdef WIN32
       ShowWindow(get_id(), SW_SHOWNA);
+#endif // WIN32
+#ifdef X11
+    XMapWindow(display, id);
+#endif // X11
     }
 
     void window::minimize() {
@@ -304,7 +360,12 @@ namespace gui {
     }
 
     window* window::get(core::window_id id) {
+#ifdef WIN32
       return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+#endif // WIN32
+#ifdef X11
+      return global_window_map[id];
+#endif // X11
     }
 
     bool window::handle_event(const window_event& e, core::event_result& resultValue) {

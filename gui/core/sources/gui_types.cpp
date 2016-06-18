@@ -34,7 +34,7 @@ namespace gui {
 
   namespace core {
 
-    rectangle rectangle::default = rectangle(core::point(-1, -1), core::size(-1, -1));
+    rectangle rectangle::default = rectangle(core::point(-1, -1), core::point(-1, -1));
 
     size::size(const size_type& sz)
       : width(sz.cx)
@@ -110,6 +110,42 @@ namespace gui {
       return out;
     }
 
+    namespace global {
+
+      instance_id global_instance = 0;
+#ifdef X11
+      screen_id global_screen = 0;
+#endif // X11
+      bool is_global_initialized = false;
+
+      void init(core::instance_id instance) {
+        global_instance = instance;
+#ifdef X11
+        global_screen = DefaultScreen(global_instance);
+#endif // X11
+        is_global_initialized = true;
+      }
+
+      core::instance_id get_instance() {
+        if (!is_global_initialized) {
+          throw std::runtime_error("window_class::init must be called before first use!");
+          return;
+        }
+        return global_instance;
+      }
+
+#ifdef X11
+      screen_id get_screen() {
+        return global_screen;
+      }
+
+      void set_screen(screen_id screen) {
+        global_screen = screen;
+      }
+
+#endif // X11
+
+    }
   } // core
 
 } // gui

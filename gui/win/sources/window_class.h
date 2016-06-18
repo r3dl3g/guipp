@@ -59,7 +59,6 @@ namespace gui {
       }
 
       const std::string& get_class_name() const;
-      const core::instance_id get_instance() const;
       const core::windows_style get_class_style() const;
       const core::windows_style get_style() const;
       const core::windows_style get_ex_style() const;
@@ -67,7 +66,6 @@ namespace gui {
       const core::cursor_id get_cursor() const;
       const core::brush_id get_brush() const;
 
-      static void init(core::instance_id instance);
 
     private:
       void register_class() const;
@@ -82,9 +80,6 @@ namespace gui {
       const core::icon_id icon;
       const core::cursor_id cursor;
       const core::brush_id brush;
-
-      static bool is_global_initialized;
-      static core::instance_id global_instance;
     };
 
   } // win

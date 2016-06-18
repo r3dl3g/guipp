@@ -36,33 +36,43 @@ namespace gui {
   namespace core {
 
     struct size {
-      inline size(int width = 0, int height = 0)
+      typedef unsigned int type;
+
+      inline size(type width = 0, type height = 0)
         : width(width)
         , height(height) {
       }
 
       explicit size(const size_type& sz);
       explicit size(const point_type& pt);
+
+#ifdef WIN32
       explicit size(const event_param_1& p);
       explicit size(const event_param_2& p);
+#endif // WIN32
 
       operator size_type() const;
       operator point_type() const;
 
-      int width;
-      int height;
+      type width;
+      type height;
     };
 
     std::ostream& operator<<(std::ostream& out, const size&);
 
     struct point {
-      inline point(int x = 0, int y = 0)
+      typedef int type;
+
+      inline point(type x = 0, type y = 0)
         : x(x)
         , y(y) {
       }
 
       explicit point(const point_type& pt);
+
+#ifdef WIN32
       explicit point(const event_param_2& p);
+#endif // WIN32
 
       operator point_type() const;
 
@@ -94,8 +104,8 @@ namespace gui {
         return (x >= rhs.x) && (y >= rhs.y);
       }
 
-      int x;
-      int y;
+      type x;
+      type y;
     };
 
     std::ostream& operator<<(std::ostream& out, const point&);
@@ -117,7 +127,7 @@ namespace gui {
         , bottomright(bottomright) {
       }
 
-      inline rectangle(int x, int y, int width, int height)
+      inline rectangle(point::type x, point::type y, size::type width, size::type height)
         : topleft(x, y)
         , bottomright(x + width, y + height) {
       }

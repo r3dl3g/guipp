@@ -1,6 +1,7 @@
 
 #include "window.h"
 #include "window_event_handler.h"
+#include "window_event_proc.h"
 #include "dbg_win_message.h"
 #include "gui_types.h"
 #include "font.h"
@@ -78,7 +79,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   ibr::odebugstream dbgStrm;
   ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
 
-  win::window_class::init(hInstance);
+  win::core::global::init(hInstance);
 
   win::windowT<mainCls> main;
   win::windowT<chldCls> window1;
@@ -258,11 +259,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   main.setText("Window Test");
   main.show();
 
-  MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
+  win::run_main_loop();
 
   ibr::log::core::instance().finish();
 

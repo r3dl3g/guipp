@@ -69,9 +69,11 @@ namespace gui {
       pen(const pen&);
       ~pen();
 
+#ifdef WIN32
       inline operator core::pen_id() const {
         return id;
       }
+#endif // WIN32
 
       draw::color color() const;
       size_type size() const;
@@ -83,16 +85,19 @@ namespace gui {
 
       bool operator== (const pen&) const;
 
-      void swap(pen&);
-
     private:
+
+#ifdef WIN32
       pen(core::pen_id);
 
       core::pen_id id;
-
-#ifdef WIN32
       core::pen_type type;
 #endif // WIN32
+#ifdef X11
+      const draw::color m_color;
+      const Style m_style;
+      const size_type m_size;
+#endif // X11
 
     };
 

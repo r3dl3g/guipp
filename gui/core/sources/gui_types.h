@@ -133,7 +133,9 @@ namespace gui {
       }
 
       explicit rectangle(const rectangle_type& r);
+#ifdef WIN32
       explicit rectangle(const event_param_2& p);
+#endif // WIN32
 
       operator rectangle_type() const;
 

@@ -53,7 +53,7 @@ namespace gui {
         light = FW_LIGHT,
         regular = FW_REGULAR,
         medium = FW_MEDIUM,
-        semiBild = FW_SEMIBOLD,
+        semiBold = FW_SEMIBOLD,
         bold = FW_BOLD,
         ultraBold = FW_ULTRABOLD,
         heavy = FW_HEAVY
@@ -63,7 +63,7 @@ namespace gui {
         light,
         regular,
         medium,
-        semiBild,
+        semiBold,
         bold,
         ultraBold,
         heavy
@@ -81,9 +81,7 @@ namespace gui {
       font(const font&);
       ~font();
 
-      inline operator core::font_id() const {
-        return id;
-      }
+      operator core::font_id() const;
 
       std::string name() const;
       size_type size() const;
@@ -102,14 +100,10 @@ namespace gui {
 
       bool operator== (const font&) const;
 
-      void swap(font&);
-
     private:
       font(core::font_id);
 
-      core::font_id id;
-      core::font_type type;
-
+      core::font_type* type;
     };
 
     std::ostream& operator<<(std::ostream& out, const font& c);

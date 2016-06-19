@@ -69,7 +69,7 @@ namespace gui {
     const color color::veryLightYellow{ 255, 255, 192 };
 
 #ifdef X11
-    typedef SystemColor {
+    enum SystemColor {
         COLOR_SCROLLBAR,
         COLOR_MENU,
         COLOR_MENUTEXT,
@@ -93,7 +93,7 @@ namespace gui {
         COLOR_BTNHIGHLIGHT
     };
 
-    core::color_type GetSysColor(SystemColor) {
+    core::color_type GetSysColor(SystemColor color) {
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
 //        return screen_def_return.pixel;

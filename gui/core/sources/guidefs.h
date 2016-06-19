@@ -74,29 +74,22 @@ namespace gui {
 
     typedef unsigned int windows_style;
 
-    typedef Icon icon_id;
+    typedef Pixmap icon_id;
     typedef Cursor cursor_id;
     typedef Pixmap brush_id;
-    typedef Display instance_id;
+    typedef Display* instance_id;
     typedef int screen_id;
     typedef Font font_id;
     typedef GC graphics_id;
 
     typedef XPoint point_type;
     typedef struct {
-        unsigned int width;
-        unsigned int height;
+        unsigned int cx;
+        unsigned int cy;
     } size_type;
     typedef XRectangle rectangle_type;
     typedef XFontStruct font_type;
     typedef unsigned long color_type;
-
-    typedef struct {
-        unsigned int line_width;
-        int line_style;
-        color_type color;
-    } pen_id;
-
 
 #else
 

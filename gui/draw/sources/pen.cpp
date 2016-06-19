@@ -31,8 +31,9 @@
 
 namespace gui {
 
-	namespace draw {
+  namespace draw {
 
+#ifdef WIN32
     const pen pen::default((core::pen_id)GetStockObject(BLACK_PEN));
 
     pen::pen(core::pen_id id)
@@ -96,14 +97,56 @@ namespace gui {
               (type.lopnWidth.y == rhs.type.lopnWidth.y));
     }
 
-    void pen::swap(pen& rhs) {
-      core::pen_id id_ = id;
-      core::pen_type type_ = type;
-      id = rhs.id;
-      type = rhs.type;
-      rhs.id = id_;
-      rhs.type = type_;
+#endif // WIN32
+#ifdef X11
+    const pen pen::default;
+
+    pen::pen(const draw::color& color, Style style, size_type size)
+      : m_color(color)
+      , m_style(style)
+      , m_size(size)
+    {}
+
+    pen::pen(const pen& rhs)
+      : m_color(rhs.color)
+      , m_style(rhs.style)
+      , m_size(rhs.size)
+    {}
+
+    pen::~pen() {
     }
+
+    draw::color pen::color() const {
+      return m_color;
+    }
+
+    pen::size_type pen::size() const {
+      return m_size;
+    }
+
+    pen::Style pen::style() const {
+      return m_style;
+    }
+
+    pen pen::with_size(size_type sz) const {
+      return pen(m_color, m_style, sz);
+    }
+
+    pen pen::with_style(Style s) const {
+      return pen(m_color, s, m_size);
+    }
+
+    pen pen::with_color(const draw::color& c) const {
+      return pen(c, m_style, m_size);
+    }
+
+    bool pen::operator== (const pen& rhs) const {
+      return ((m_color == rhs.m_color) &&
+              (m_style == rhs.m_style) &&
+              (m_size == rhs.m_size));
+    }
+
+#endif // X11
 
   }
 

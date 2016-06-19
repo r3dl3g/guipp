@@ -37,6 +37,8 @@ namespace gui {
 
     struct /*immutable*/ color {
 
+      typedef unsigned char byte;
+
       const static color black;
       const static color white;
       const static color red;

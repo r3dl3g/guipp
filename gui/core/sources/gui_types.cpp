@@ -40,14 +40,15 @@ namespace gui {
 
     size::size(const size_type& sz)
       : width(sz.cx)
-      , height(sz.cy) {
-    }
+      , height(sz.cy)
+     {}
 
     size::size(const point_type& pt)
       : width(pt.x)
       , height(pt.y) {
     }
 
+#ifdef WIN32
     size::size(const event_param_1& p)
       : width(GET_X_LPARAM(p))
       , height(GET_Y_LPARAM(p)) {
@@ -57,6 +58,7 @@ namespace gui {
       : width(GET_X_LPARAM(p))
       , height(GET_Y_LPARAM(p)) {
     }
+#endif // WIN32
 
     size::operator size_type() const {
       return{ width, height };
@@ -71,10 +73,12 @@ namespace gui {
       , y(pt.y) {
     }
 
+#ifdef WIN32
     point::point(const event_param_2& p)
       : x(GET_X_LPARAM(p))
       , y(GET_Y_LPARAM(p)) {
     }
+#endif // WIN32
 
     point::operator point_type() const {
       return{ x, y };
@@ -85,9 +89,11 @@ namespace gui {
       , bottomright(r.right, r.bottom) {
     }
 
+#ifdef WIN32
     rectangle::rectangle(const event_param_2& p)
       : rectangle(*reinterpret_cast<LPRECT>(p)) {
     }
+#endif // WIN32
 
     rectangle::operator rectangle_type() const {
       return{ topleft.x, topleft.y, bottomright.x, bottomright.y };

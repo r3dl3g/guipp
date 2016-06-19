@@ -26,7 +26,6 @@
 #include <functional>
 #include <string>
 
-
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -41,7 +40,11 @@ namespace gui {
 
   namespace draw {
 
-    typedef std::function<void(core::graphics_id)> drawable;
+    typedef void(drawable)(core::drawable_id, core::graphics_id);
+    typedef void(frameable)(core::drawable_id, core::graphics_id);
+    typedef void(fillable)(core::drawable_id, core::graphics_id);
+
+#ifdef WIN32
 
     template<BOOL(WINAPI Fnct)(HDC, int, int, int, int)>
     struct rect_function {
@@ -49,7 +52,7 @@ namespace gui {
         : rect(rect)
       {}
 
-      void operator() (core::graphics_id id) {
+      void operator() (core::drawable_id, core::graphics_id id) {
         Fnct(id, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
       }
 
@@ -62,7 +65,7 @@ namespace gui {
 
     struct round_rectangle {
       round_rectangle(const core::rectangle& rect, const core::size& size);
-      void operator() (core::graphics_id id);
+      void operator() (core::drawable_id, core::graphics_id id);
 
     private:
       const core::rectangle rect;
@@ -71,7 +74,7 @@ namespace gui {
 
     struct arc {
       arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
-      void operator() (core::graphics_id id);
+      void operator() (core::drawable_id, core::graphics_id id);
 
     private:
       const core::point pos;
@@ -88,7 +91,7 @@ namespace gui {
         , limit2(limit2)
       {}
 
-      void operator() (core::graphics_id id) {
+      void operator() (core::drawable_id, core::graphics_id id) {
         Fnct(id,
              rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y,
              limit1.x, limit1.y, limit2.x, limit2.y);
@@ -104,7 +107,7 @@ namespace gui {
     typedef arc_function<Pie> pie;
     typedef arc_function<Chord> chord;
 
-    POINT *buildPoints(const std::vector<core::point>&, int&);
+    point_type *buildPoints(const std::vector<core::point>&, int&);
 
     template<typename T, BOOL(WINAPI Fnct)(HDC, CONST POINT *, T)>
     struct poly_function {
@@ -115,8 +118,8 @@ namespace gui {
       ~poly_function() {
         delete [] points;
       }
-      
-      void operator() (core::graphics_id id);
+
+      void operator() (core::drawable_id, core::graphics_id id);
 
     private:
       POINT *points;
@@ -152,7 +155,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      void operator() (core::graphics_id id);
+      void operator() (core::drawable_id, core::graphics_id id);
 
     private:
       const std::string text;
@@ -168,7 +171,7 @@ namespace gui {
         , origin(origin)
         , clear_background(clear_background) {}
 
-      void operator() (core::graphics_id id);
+      void operator() (core::drawable_id, core::graphics_id id);
 
     private:
       const std::string str;
@@ -176,11 +179,166 @@ namespace gui {
       const text_origin origin;
       bool clear_background;
     };
+#elif X11
+
+    struct rectangle {
+      inline rectangle(const core::rectangle& rect)
+        : rect(rect)
+      {}
+
+      operator drawable() const;
+      operator frameable() const;
+      operator fillable() const;
+
+    private:
+      const core::rectangle rect;
+    };
+
+    struct ellipse {
+      inline ellipse(const core::rectangle& rect)
+        : rect(rect)
+      {}
+
+      operator drawable() const;
+      operator frameable() const;
+      operator fillable() const;
+
+    private:
+      const core::rectangle rect;
+    };
+
+    struct round_rectangle {
+      round_rectangle(const core::rectangle& rect, const core::size& size);
+
+      operator drawable() const;
+      operator frameable() const;
+      operator fillable() const;
+
+    private:
+      const core::rectangle rect;
+      const core::size size;
+    };
+
+    struct arc {
+      arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
+
+      operator drawable() const;
+      operator frameable() const;
+      operator fillable() const;
+
+    private:
+      const core::point pos;
+      unsigned int radius;
+      float startrad;
+      float endrad;
+    };
+
+    core::point_type *buildPoints(const std::vector<core::point>&, int&);
+
+    struct polygone {
+      polygone(std::vector<core::point>& points)
+        : points(buildPoints(points, count))
+      {}
+
+      ~polygone() {
+        delete [] points;
+      }
+
+      operator drawable() const;
+      operator frameable() const;
+      operator fillable() const;
+
+    private:
+      core::point_type *points;
+      int count;
+    };
+
+#ifdef WIN32
+    enum text_origin {
+      top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
+      top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
+      top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
+      bottom_left = DT_BOTTOM | DT_SINGLELINE | DT_LEFT,
+      bottom_hcenter = DT_BOTTOM | DT_SINGLELINE | DT_CENTER,
+      bottom_right = DT_BOTTOM | DT_SINGLELINE | DT_RIGHT,
+      vcenter_left = DT_SINGLELINE | DT_VCENTER | DT_LEFT,
+      vcenter_right = DT_SINGLELINE | DT_VCENTER | DT_RIGHT,
+      center = DT_SINGLELINE | DT_VCENTER | DT_CENTER,
+      end_ellipsis = DT_END_ELLIPSIS,
+      path_ellipsis = DT_PATH_ELLIPSIS,
+      word_ellipsis = DT_WORD_ELLIPSIS,
+      expand_tabs = DT_EXPANDTABS,
+      undefined = -1
+    };
+#endif // WIN32
+#ifdef X11
+    enum text_origin {
+      top_left,
+      top_hcenter,
+      top_right,
+      bottom_left,
+      bottom_hcenter,
+      bottom_right,
+      vcenter_left,
+      vcenter_right,
+      center,
+      end_ellipsis,
+      path_ellipsis,
+      word_ellipsis,
+      expand_tabs,
+      undefined
+    };
+#endif // X11
+
+    struct text_box {
+      text_box(const std::string& text, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
+        : text(text)
+        , rect(rect)
+        , origin(origin)
+        , clear_background(clear_background)
+      {}
+
+#ifdef WIN32
+      void operator() (core::graphics_id id);
+#endif // WIN32
+#ifdef X11
+      operator drawable() const;
+#endif // X11
+
+    private:
+      const std::string text;
+      const core::rectangle rect;
+      const text_origin origin;
+      bool clear_background;
+    };
+
+    struct text {
+      text(const std::string& str, const core::point& pos, text_origin origin = top_left, bool clear_background = false)
+        : str(str)
+        , pos(pos)
+        , origin(origin)
+        , clear_background(clear_background) {}
+
+#ifdef WIN32
+      void operator() (core::graphics_id id);
+#endif // WIN32
+#ifdef X11
+      operator drawable() const;
+#endif // X11
+
+    private:
+      const std::string str;
+      const core::point pos;
+      const text_origin origin;
+      bool clear_background;
+    };
+#endif // WIN32
 
     class graphics {
     public:
-      graphics(core::graphics_id id)
-        :id(id)
+      graphics(core::window_id win, core::graphics_id id)
+        : id(id)
+        , win(win)
       {}
 
       void drawPixel(const core::point& pt, const draw::color& color);
@@ -189,8 +347,8 @@ namespace gui {
       void drawLine(const core::point& from, const core::point& to, const draw::pen& pen);
       void drawLines(std::vector<core::point>& points, const draw::pen& pen);
 
-      void frame(drawable drawer, const draw::pen& pen) const;
-      void fill(drawable drawer, const draw::color& color) const;
+      void frame(frameable drawer, const draw::pen& pen) const;
+      void fill(fillable drawer, const draw::color& color) const;
       void draw(drawable drawer, const draw::color& color, const draw::pen& pen) const;
       void draw(drawable drawer, const draw::font& font, const draw::color& color) const;
 
@@ -198,6 +356,7 @@ namespace gui {
 
     private:
       core::graphics_id id;
+      core::window_id win;
 
     };
 

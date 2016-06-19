@@ -37,7 +37,7 @@ namespace gui {
 
     struct /*immutable*/ pen {
 
-      const static pen default;
+      const static pen default_pen;
 
       typedef int size_type;
 
@@ -51,13 +51,13 @@ namespace gui {
         hairLine = PS_NULL,
         insideFrame = PS_INSIDEFRAME
 #elif X11
-        solid,
-        dash,
-        dot,
-        dashDot,
-        dashDotDot,
-        hairLine,
-        insideFrame
+        solid = LineSolid,
+        dash = LineOnOffDash,
+        dot = LineOnOffDash,
+        dashDot = LineOnOffDash,
+        dashDotDot = LineOnOffDash,
+        hairLine = LineSolid,
+        insideFrame = LineSolid
 #else
 
 #pragma error "Unknown target system"

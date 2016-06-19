@@ -44,6 +44,7 @@ namespace gui {
 #ifdef WIN32
 
     typedef HWND window_id;
+    typedef HANDLE drawable_id;
     typedef UINT event_id;
     typedef WPARAM event_param_1;
     typedef LPARAM event_param_2;
@@ -70,6 +71,7 @@ namespace gui {
 #elif X11
 
     typedef Window window_id;
+    typedef Drawable drawable_id;
     typedef int event_id;
 
     typedef unsigned int windows_style;

@@ -77,15 +77,15 @@ namespace gui {
       operator point_type() const;
 
       inline point operator+ (const size& s) const {
-        return{ x + s.width, y + s.height };
+        return { x + (type)s.width, y + (type)s.height };
       }
 
       inline point operator- (const size& s) const {
-        return{ x - s.width, y - s.height };
+        return { x - (type)s.width, y - (type)s.height };
       }
 
       inline size operator- (const point& rhs) const {
-        return{ x - rhs.x, y - rhs.y };
+        return { (size::type)(x - rhs.x), (size::type)(y - rhs.y) };
       }
 
       inline bool operator< (const point& rhs) const {
@@ -147,8 +147,8 @@ namespace gui {
         return topleft;
       }
 
-      inline size size() const {
-        return{ bottomright.x - topleft.x, bottomright.y - topleft.y };
+      inline core::size size() const {
+        return{ (size::type)(bottomright.x - topleft.x), (size::type)(bottomright.y - topleft.y) };
       }
 
       void setSize(const core::size& sz);
@@ -156,7 +156,7 @@ namespace gui {
       core::point topleft;
       core::point bottomright;
 
-      static rectangle default;
+      static rectangle default_rectangle;
     };
 
     std::ostream& operator<<(std::ostream& out, const rectangle&);

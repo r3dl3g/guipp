@@ -36,7 +36,7 @@ namespace gui {
 
   namespace core {
 
-    rectangle rectangle::default = rectangle(core::point(-1, -1), core::point(-1, -1));
+    rectangle rectangle::default_rectangle = rectangle(core::point(-1, -1), core::point(-1, -1));
 
     size::size(const size_type& sz)
       : width(sz.cx)
@@ -61,11 +61,15 @@ namespace gui {
 #endif // WIN32
 
     size::operator size_type() const {
-      return{ width, height };
+      return { width, height };
     }
 
     size::operator point_type() const {
-      return{ width, height };
+#ifdef WIN32
+      return { width, height };
+#elif X11
+      return { (short)width, (short)height };
+#endif // X11
     }
 
     point::point(const point_type& pt)
@@ -81,12 +85,21 @@ namespace gui {
 #endif // WIN32
 
     point::operator point_type() const {
+#ifdef WIN32
       return{ x, y };
+#elif X11
+      return { (short)x, (short)y };
+#endif // X11
     }
 
     rectangle::rectangle(const rectangle_type& r)
+#ifdef WIN32
       : topleft(r.left, r.top)
       , bottomright(r.right, r.bottom) {
+#elif X11
+      : topleft(r.x, r.y)
+      , bottomright(r.x + r.width, r.y + r.height) {
+#endif // X11
     }
 
 #ifdef WIN32
@@ -96,7 +109,12 @@ namespace gui {
 #endif // WIN32
 
     rectangle::operator rectangle_type() const {
+#ifdef WIN32
       return{ topleft.x, topleft.y, bottomright.x, bottomright.y };
+#elif X11
+      return{ (short)topleft.x, (short)topleft.y,
+              (unsigned short)(bottomright.x - topleft.x), (unsigned short)(bottomright.y - topleft.y) };
+#endif // X11
     }
 
     void rectangle::setSize(const core::size& sz) {

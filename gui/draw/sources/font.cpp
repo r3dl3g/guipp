@@ -59,7 +59,7 @@ namespace gui {
                int rotation,
                bool italic,
                bool underline,
-               bool strikeout) 
+               bool strikeout)
                : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
                name.c_str()))
@@ -67,7 +67,7 @@ namespace gui {
       GetObject(id, sizeof(core::font_type), &type);
     }
 
-    font::font(const font& rhs) 
+    font::font(const font& rhs)
       : id(CreateFontIndirect(&rhs.type))
       , type(rhs.type)
     {}
@@ -166,11 +166,11 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    const font font::system((core::font_id)GetStockObject(SYSTEM_FONT));
+    const font font::system("fixed", 10);
     const font font::system_bold = font::system.with_thickness(font::bold);
-    const font font::monospace((core::font_id)GetStockObject(SYSTEM_FIXED_FONT));
-    const font font::serif("Times New Roman", font::system.size());
-    const font font::sans_serif("Arial", font::system.size());
+    const font font::monospace("Monospace", font::system.size());
+    const font font::serif("FreeSerif", font::system.size());
+    const font font::sans_serif("FreeSans", font::system.size());
 
     font::font(core::font_id id)
       :type(nullptr)
@@ -271,7 +271,7 @@ namespace gui {
     }
 
     font::font(const font& rhs)
-      : type(nullptr) 
+      : type(nullptr)
     {
       type = XQueryFont(core::global::get_instance(), rhs.type ? rhs.type->fid : 0);
     }

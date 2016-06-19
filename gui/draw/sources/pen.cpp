@@ -48,7 +48,7 @@ namespace gui {
       GetObject(id, sizeof(core::pen_type), &type);
     }
 
-    pen::pen(const pen& rhs) 
+    pen::pen(const pen& rhs)
       : id(CreatePenIndirect(&rhs.type))
       , type(rhs.type)
     {}
@@ -99,7 +99,7 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    const pen pen::default;
+    const pen pen::default_pen;
 
     pen::pen(const draw::color& color, Style style, size_type size)
       : m_color(color)

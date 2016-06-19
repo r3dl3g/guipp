@@ -11,7 +11,7 @@ if(NOT CMAKE_DEBUG_POSTFIX)
 endif()
 
 if(UNIX)
-  add_definitions(-DX11)
+  add_definitions(-DX11 -std=c++11)
 endif(UNIX)
 
 add_subdirectory(gui)

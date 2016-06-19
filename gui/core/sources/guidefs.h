@@ -88,7 +88,7 @@ namespace gui {
         unsigned int cy;
     } size_type;
     typedef XRectangle rectangle_type;
-    typedef XFontStruct font_type;
+    typedef XFontStruct* font_type;
     typedef unsigned long color_type;
 
 #else

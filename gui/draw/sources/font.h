@@ -100,10 +100,18 @@ namespace gui {
 
       bool operator== (const font&) const;
 
+#ifdef X11
+      std::string get_full_name() const;
+#endif // X11
+
     private:
       font(core::font_id);
 
-      core::font_type* type;
+#ifdef WIN32
+      core::font_id id;
+#endif // X11
+
+      core::font_type type;
     };
 
     std::ostream& operator<<(std::ostream& out, const font& c);

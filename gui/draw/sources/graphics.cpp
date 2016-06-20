@@ -403,19 +403,20 @@ namespace gui {
     }
 
     void graphics::drawLine(const core::point &from, const core::point &to, const draw::pen& pen) {
-      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
+      Use<false> p(id, pen);
       MoveToEx(id, from.x, from.y, NULL);
       LineTo(id, to.x, to.y);
 #endif // WIN32
 #ifdef X11
+      Use<false, draw::pen> p(id, pen);
       XDrawLine(core::global::get_instance(), win, id, from.x, from.y, to.x, to.y);
 #endif // X11
     }
 
     void graphics::drawLines(std::vector<core::point> &points, const draw::pen& pen) {
-      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
+      Use<false> p(id, pen);
       bool first = true;
       for (core::point pt : points) {
         if (first) {
@@ -425,17 +426,19 @@ namespace gui {
           LineTo(id, pt.x, pt.y);
         }
       }
-#endif // WIN32
-#ifdef X11
+#elif X11
+      Use<false, draw::pen> p(id, pen);
       polygone poly(points);
       frame(poly, pen);
 #endif // X11
     }
 
     void graphics::frame(const frameable& drawer, const draw::pen& pen) const {
-      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
+      Use<false> p(id, pen);
       Use<false> b(id, GetStockObject(NULL_BRUSH));
+#elif X11
+      Use<false, draw::pen> p(id, pen);
 #endif // WIN32
       drawer(win, id, detail::Frame);
     }
@@ -454,20 +457,20 @@ namespace gui {
     void graphics::draw(const drawable& drawer, const draw::color& color, const draw::pen& pen) const {
 #ifdef WIN32
       Use<true> b(id, CreateSolidBrush(color));
-#endif // WIN32
-#ifdef X11
+      Use<false> p(id, pen);
+#elif X11
       Use<false, draw::color> c(id, color);
-#endif // X11
       Use<false, draw::pen> p(id, pen);
+#endif // X11
       drawer(win, id, detail::Draw);
     }
 
     void graphics::draw(const drawable& drawer, const draw::font& font, const draw::color& color) const {
-      Use<false, draw::font> f(id, font);
 #ifdef WIN32
+      Use<false> f(id, font);
       core::color_type old_color = SetTextColor(id, color);
-#endif // WIN32
-#ifdef X11
+#elif X11
+      Use<false, draw::font> f(id, font);
       XSetForeground(core::global::get_instance(), id, color);
 #endif // X11
       drawer(win, id, detail::Draw);

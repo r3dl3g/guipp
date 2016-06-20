@@ -20,6 +20,7 @@
 //
 // Common includes
 //
+#include <memory.h>
 
 // --------------------------------------------------------------------------
 //
@@ -38,20 +39,20 @@ namespace gui {
     }
 #elif X11
     rectangle::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XDrawRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
         XFillRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
       };
   }
 
     rectangle::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XDrawRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
       };
     }
 
     rectangle::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XFillRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
       };
     }
@@ -63,20 +64,20 @@ namespace gui {
     }
 #elif X11
     ellipse::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XDrawArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
         XFillArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
       };
     }
 
     ellipse::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XDrawArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
       };
     }
 
     ellipse::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         XFillArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
       };
     }
@@ -107,10 +108,10 @@ namespace gui {
         XDrawArc(core::global::get_instance(), id, gc, x0, y3 - h, w, h, 180 * 64, 270 * 64);
         XDrawArc(core::global::get_instance(), id, gc, x3 - w, y3 - h, w, h, 270 * 64, 360 * 64);
 
-        XDrawLine(core::global::get_instance(), win, gc, x1, y0, x2, y0);
-        XDrawLine(core::global::get_instance(), win, gc, x1, y3, x2, y3);
-        XDrawLine(core::global::get_instance(), win, gc, x0, y1, x0, y2);
-        XDrawLine(core::global::get_instance(), win, gc, x3, y1, x3, y2);
+        XDrawLine(core::global::get_instance(), id, gc, x1, y0, x2, y0);
+        XDrawLine(core::global::get_instance(), id, gc, x1, y3, x2, y3);
+        XDrawLine(core::global::get_instance(), id, gc, x0, y1, x0, y2);
+        XDrawLine(core::global::get_instance(), id, gc, x3, y1, x3, y2);
       };
     }
 
@@ -142,8 +143,8 @@ namespace gui {
 
     round_rectangle::operator drawable() const {
       return [&](core::drawable_id id, core::graphics_id gc, int i) {
-        operator fillable()(id, gc, i);
-        operator frameable()(id, gc, i);
+        operator fillable()(id, gc, detail::FillType::Fill);
+        operator frameable()(id, gc, detail::FrameType::Frame);
       };
     }
 #endif // X11
@@ -171,7 +172,7 @@ namespace gui {
     }
 
     arc::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         int x = pos.x - radius;
         int y = pos.y - radius;
         int sz = radius * 2;
@@ -180,7 +181,7 @@ namespace gui {
     }
 
     arc::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc) {
+      return [&](core::drawable_id id, core::graphics_id gc, int) {
         int x = pos.x - radius;
         int y = pos.y - radius;
         int sz = radius * 2;
@@ -199,7 +200,7 @@ namespace gui {
     }
 
     polygone::polygone(const polygone& rhs)
-      : count(rhs.count) 
+      : count(rhs.count)
     {
       points = new core::point_type[count];
       memcpy(points, rhs.points, count * sizeof(core::point_type));
@@ -216,20 +217,20 @@ namespace gui {
 #elif X11
     polygone::operator drawable() const {
       return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XFillPolygon(core::global::get_instance(), id, gc, points, count. 0, CoordModeOrigin);
-        XDrawLines(core::global::get_instance(), id, gc, points, count.CoordModeOrigin);
+        XFillPolygon(core::global::get_instance(), id, gc, points, count, 0, CoordModeOrigin);
+        XDrawLines(core::global::get_instance(), id, gc, points, count, CoordModeOrigin);
       };
     }
 
     polygone::operator frameable() const {
       return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XDrawLines(core::global::get_instance(), id, gc, points, count.CoordModeOrigin);
+        XDrawLines(core::global::get_instance(), id, gc, points, count, CoordModeOrigin);
       };
     }
 
     polygone::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XFillPolygon(core::global::get_instance(), id, gc, points, count. 0, CoordModeOrigin);
+        XFillPolygon(core::global::get_instance(), id, gc, points, count, 0, CoordModeOrigin);
       };
     }
 #endif // X11
@@ -250,7 +251,7 @@ namespace gui {
         SetBkMode(gc, old_mode);
 #elif X11
         // TBD!
-        XDrawString(core::global::get_instance(), id, gc, rect.position().x, pos.position().y.str.c_str(), str.size());
+        XDrawString(core::global::get_instance(), id, gc, rect.position().x, rect.position().y, text.c_str(), text.size());
 #endif // X11
       };
     }
@@ -309,7 +310,7 @@ namespace gui {
         SetBkMode(gc, old_mode);
 #elif X11
         // TBD!
-        XDrawString(core::global::get_instance(), id, gc, pos.x, pos.y.str.c_str(), str.size());
+        XDrawString(core::global::get_instance(), id, gc, pos.x, pos.y, str.c_str(), str.size());
 #endif // X11
       };
     }
@@ -322,9 +323,9 @@ namespace gui {
     struct Use {
       inline Use(core::graphics_id id, const T& obj)
         : gc(id)
-        , obj(obj) {
-        old = set(obj);
-      }
+        , obj(obj)
+        , old(set(obj))
+      {}
 
       T set(const T&);
 
@@ -354,22 +355,28 @@ namespace gui {
 
 #elif X11
 
-    template<bool freeObj> draw::pen Use<freeObj, draw::pen>::set(const draw::pen&) {
-      draw::pen p(gc.foreground, gc.line_style, gc.line_width);
+    template<> draw::pen Use<false, draw::pen>::set(const draw::pen& pen) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCLineWidth | GCLineStyle, &gcv);
+      draw::pen p(gcv.foreground, (draw::pen::Style)gcv.line_style, gcv.line_width);
       XSetForeground(core::global::get_instance(), gc, pen.color());
-      XSetLineAttributes(core::global::get_instance(), gc, pen.size(), pen.style());
+      XSetLineAttributes(core::global::get_instance(), gc, pen.size(), pen.style(), CapButt, JoinMiter);
       return old;
     }
 
-    template<bool freeObj> draw::color Use<freeObj, draw::color>::set(const draw::color& color) {
-      draw::color c(gc.background);
+    template<> draw::color Use<false, draw::color>::set(const draw::color& color) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCBackground, &gcv);
+      draw::color c(gcv.background);
       XSetBackground(core::global::get_instance(), gc, color);
       XSetFillStyle(core::global::get_instance(), gc, FillSolid);
       return c;
     }
 
-    template<bool freeObj> draw::font Use<freeObj, draw::font>::set(const draw::font& font) {
-      draw::font f(gc.font);
+    template<> draw::font Use<false, draw::font>::set(const draw::font& font) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCFont, &gcv);
+      draw::font f(gcv.font);
       XSetFont(core::global::get_instance(), gc, font);
       return f;
     }
@@ -381,8 +388,8 @@ namespace gui {
       SetPixel(id, pt.x, pt.y, color);
 #endif // WIN32
 #ifdef X11
-      XSetForeground(core::global::get_instance(), gc, color);
-      XDrawPoint(core::global::get_instance(), win, gc, pt.x, pt.y)
+      XSetForeground(core::global::get_instance(), id, color);
+      XDrawPoint(core::global::get_instance(), win, id, pt.x, pt.y);
 #endif // X11
     }
 
@@ -391,23 +398,23 @@ namespace gui {
       return GetPixel(id, pt.x, pt.y);
 #endif // WIN32
 #ifdef X11
-      return draw::color::black();
+      return draw::color::black;
 #endif // X11
     }
 
     void graphics::drawLine(const core::point &from, const core::point &to, const draw::pen& pen) {
-      Use<false> p(id, pen);
+      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
       MoveToEx(id, from.x, from.y, NULL);
       LineTo(id, to.x, to.y);
 #endif // WIN32
 #ifdef X11
-      XDrawLine(core::global::get_instance(), win, gc, from.x, from.y, to.x, to.y);
+      XDrawLine(core::global::get_instance(), win, id, from.x, from.y, to.x, to.y);
 #endif // X11
     }
 
     void graphics::drawLines(std::vector<core::point> &points, const draw::pen& pen) {
-      Use<false> p(id, pen);
+      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
       bool first = true;
       for (core::point pt : points) {
@@ -426,7 +433,7 @@ namespace gui {
     }
 
     void graphics::frame(const frameable& drawer, const draw::pen& pen) const {
-      Use<false> p(id, pen);
+      Use<false, draw::pen> p(id, pen);
 #ifdef WIN32
       Use<false> b(id, GetStockObject(NULL_BRUSH));
 #endif // WIN32
@@ -439,7 +446,7 @@ namespace gui {
       Use<false> p(id, GetStockObject(NULL_PEN));
 #endif // WIN32
 #ifdef X11
-      Use<false> p(id, color);
+      Use<false, draw::color> p(id, color);
 #endif // X11
       drawer(win, id, detail::Fill);
     }
@@ -449,19 +456,19 @@ namespace gui {
       Use<true> b(id, CreateSolidBrush(color));
 #endif // WIN32
 #ifdef X11
-      Use<false> p(id, color);
+      Use<false, draw::color> c(id, color);
 #endif // X11
-      Use<false> p(id, pen);
+      Use<false, draw::pen> p(id, pen);
       drawer(win, id, detail::Draw);
     }
 
     void graphics::draw(const drawable& drawer, const draw::font& font, const draw::color& color) const {
-      Use<false> f(id, font);
+      Use<false, draw::font> f(id, font);
 #ifdef WIN32
       core::color_type old_color = SetTextColor(id, color);
 #endif // WIN32
 #ifdef X11
-      XSetForeground(core::global::get_instance(), gc, color);
+      XSetForeground(core::global::get_instance(), id, color);
 #endif // X11
       drawer(win, id, detail::Draw);
 #ifdef WIN32

@@ -108,9 +108,9 @@ namespace gui {
     {}
 
     pen::pen(const pen& rhs)
-      : m_color(rhs.color)
-      , m_style(rhs.style)
-      , m_size(rhs.size)
+      : m_color(rhs.m_color)
+      , m_style(rhs.m_style)
+      , m_size(rhs.m_size)
     {}
 
     pen::~pen() {

@@ -22,6 +22,7 @@
 // Common includes
 //
 #include <algorithm>
+#include <map>
 
 // --------------------------------------------------------------------------
 //
@@ -51,7 +52,7 @@ namespace gui {
     window::~window() {
       destroy();
 #ifdef X11
-      global_window_map.erase(id);
+      detail::global_window_map.erase(id);
 #endif // X11
     }
 
@@ -77,8 +78,8 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    id = XCreateSimpleWindow(display, parent.id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
-    global_window_map[id] = this;
+    id = XCreateSimpleWindow(core::global::get_instance(), parent.id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
+    detail::global_window_map[id] = this;
 #endif // X11
     }
 
@@ -103,8 +104,10 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    id = XCreateSimpleWindow(display, DefaultRootWindow(display).id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
-    global_window_map[id] = this;
+    id = XCreateSimpleWindow(core::global::get_instance(),
+                             DefaultRootWindow(core::global::get_instance()),
+                             pos.x, pos.y, sz.width, sz.height, 5, black, white);
+    detail::global_window_map[id] = this;
 #endif // X11
     }
 
@@ -113,7 +116,7 @@ namespace gui {
       return IsWindow(id) != FALSE;
 #endif // WIN32
 #ifdef X11
-      return global_window_map[id] == this;
+      return detail::global_window_map[id] == this;
 #endif // X11
     }
 
@@ -123,7 +126,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         XWindowAttributes a;
-        if (XGetWindowAttributes(display, id, &a)) {
+        if (XGetWindowAttributes(core::global::get_instance(), id, &a)) {
             return a.map_state == IsViewable;
         }
         return false;
@@ -204,7 +207,7 @@ namespace gui {
       ShowWindow(get_id(), SW_HIDE);
 #endif // WIN32
 #ifdef X11
-    XUnmapWindow(display, id);
+    XUnmapWindow(core::global::get_instance(), id);
 #endif // X11
     }
 
@@ -213,7 +216,7 @@ namespace gui {
       ShowWindow(get_id(), SW_SHOWNA);
 #endif // WIN32
 #ifdef X11
-    XMapWindow(display, id);
+    XMapWindow(core::global::get_instance(), id);
 #endif // X11
     }
 

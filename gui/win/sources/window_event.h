@@ -54,7 +54,7 @@ namespace gui {
 #elif X11
     struct window_event {
       inline window_event(const XEvent& event)
-        : event(event1)
+        : event(event)
       {}
 
       XEvent event;

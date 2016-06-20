@@ -182,6 +182,9 @@ namespace gui {
 #define DT_WORDBREAK  0x00000010
 #define DT_SINGLELINE 0x00000020
 #define DT_EXPANDTABS 0x00000040
+#define DT_END_ELLIPSIS  0x00000100
+#define DT_PATH_ELLIPSIS 0x00000200
+#define DT_WORD_ELLIPSIS 0x00000400
 #endif // X11
 
     enum text_origin {

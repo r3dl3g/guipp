@@ -36,6 +36,10 @@ namespace gui {
 
     namespace detail {
 
+#ifdef X11
+# define _Ph _Placeholder
+#endif // X11
+
       template<typename T, std::size_t... Is, typename F, typename... Args>
       auto easy_bind(T* t, indices<Is...>, F& f, Args&&... args)
         -> decltype(std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...)) {

@@ -41,9 +41,9 @@ namespace gui {
                           core::windows_style class_style_,
                           core::windows_style style_,
                           core::windows_style ex_style_ = 0,
-                          core::icon_id icon_ = NULL,
-                          core::cursor_id cursor_ = NULL,
-                          core::brush_id brush_ = NULL)
+                          core::icon_id icon_ = 0,
+                          core::cursor_id cursor_ = 0,
+                          core::brush_id brush_ = 0)
         : is_initialized(false)
         , class_name(cls_name)
         , class_style(class_style_)

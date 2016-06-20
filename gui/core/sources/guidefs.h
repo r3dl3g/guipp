@@ -73,6 +73,7 @@ namespace gui {
     typedef Window window_id;
     typedef Drawable drawable_id;
     typedef int event_id;
+    typedef int event_result;
 
     typedef unsigned int windows_style;
 

@@ -185,21 +185,21 @@ namespace gui {
       std::ostringstream s;
       s << "-*-" << name << "-";
       switch (thickness) {
-        case thin:
+        case font::Thickness::thin:
           s << "thin";
           break;
-        case ultraLight:
-        case light:
+        case font::Thickness::ultraLight:
+        case font::Thickness::light:
           s << "light";
           break;
-        case regular:
-        case medium:
+        case font::Thickness::regular:
+        case font::Thickness::medium:
           s << "medium";
           break;
-        case semiBold:
-        case bold:
-        case ultraBold:
-        case heavy:
+        case font::Thickness::semiBold:
+        case font::Thickness::bold:
+        case font::Thickness::ultraBold:
+        case font::Thickness::heavy:
           s << "bold";
           break;
         default:
@@ -218,7 +218,7 @@ namespace gui {
     std::string merge(const std::vector<std::string>& vec, const std::string& delemiter) {
       std::ostringstream oss;
       if (!vec.empty()) {
-        std::copy(vec.begin(), vec.end() - 1, std::ostream_iterator<char>(oss, delemiter.c_str()));
+        std::copy(vec.begin(), vec.end() - 1, std::ostream_iterator<std::string>(oss, delemiter.c_str()));
         // add the last element with no delimiter
         oss << vec.back();
       }
@@ -371,7 +371,7 @@ namespace gui {
     }
 
     bool font::operator== (const font& rhs) const {
-      return *type == *(rhs.type);
+      return name() == rhs.name();
     }
 
     std::ostream& operator<<(std::ostream& out, const font& f) {

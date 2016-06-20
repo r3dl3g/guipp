@@ -75,9 +75,9 @@ namespace gui {
 
       void create(const window_class& type,
                   const window& parent,
-                  const core::rectangle& place = core::rectangle::default);
+                  const core::rectangle& place = core::rectangle::default_rectangle);
       void create(const window_class& type,
-                  const core::rectangle& place = core::rectangle::default);
+                  const core::rectangle& place = core::rectangle::default_rectangle);
 
       void close();
       void destroy();
@@ -156,10 +156,10 @@ namespace gui {
     class windowT : public window {
     public:
       void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default) {
+                  const core::rectangle& place = core::rectangle::default_rectangle) {
         window::create(cls, parent, place);
       }
-      void create(const core::rectangle& place = core::rectangle::default) {
+      void create(const core::rectangle& place = core::rectangle::default_rectangle) {
         window::create(cls, place);
       }
     };

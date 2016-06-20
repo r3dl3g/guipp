@@ -53,6 +53,22 @@ public:
   }
 };
 
+std::vector<core::point> calc_star(int x, int y, int w, int h) {
+  int x1 = x + w / 4;
+  int x2 = x + w / 2;
+  int x3 = x + w * 3 / 4;
+  int x4 = x + w;
+  int y1 = y + h / 4;
+  int y2 = y + h / 2;
+  int y3 = y + h * 3 / 4;
+  int y4 = y + h;
+  return{
+    core::point(x, y), core::point(x2, y1), core::point(x4, y),
+    core::point(x3, y2), core::point(x4, y4), core::point(x2, y3),
+    core::point(x, y4), core::point(x1, y2), core::point(x, y)
+  };
+}
+
 win::window_class mainCls("mainwindow",
                           CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
                           WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
@@ -202,20 +218,25 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     core::size offs2(0, 120);
 
     core::point pos1(10, 10);
-    graph.frame(rectangle(core::rectangle(pos1, sz)), blue);
-    graph.fill(rectangle(core::rectangle(pos1 + offs1, sz)), color::darkGreen);
-    graph.draw(rectangle(core::rectangle(pos1 + offs2, sz)), color::yellow, red);
+    graph.frame(rectangle(pos1, sz), blue);
+    graph.fill(rectangle(pos1 + offs1, sz), color::darkGreen);
+    graph.draw(rectangle(pos1 + offs2, sz), color::yellow, red);
 
     core::point pos2(50, 10);
-    graph.frame(ellipse(core::rectangle(pos2, sz)), blue);
-    graph.fill(ellipse(core::rectangle(pos2 + offs1, sz)), color::darkGreen);
-    graph.draw(ellipse(core::rectangle(pos2 + offs2, sz)), color::yellow, red);
+    graph.frame(ellipse(pos2, sz), blue);
+    graph.fill(ellipse(pos2 + offs1, sz), color::darkGreen);
+    graph.draw(ellipse(pos2 + offs2, sz), color::yellow, red);
 
     core::point pos3(90, 10);
     core::size rd(10, 10);
     graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
     graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
     graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
+
+    core::point pos4(130, 10);
+    graph.frame(arc(pos4, 20, 0, 360), blue);
+    graph.fill(arc(pos4 + offs1, 20, 0, 360), color::darkGreen);
+    graph.draw(arc(pos4 + offs2, 20, 0, 360), color::yellow, red);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);
@@ -227,11 +248,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   win::window::event_handler_ptr painter2 = window2.register_event_handler(win::paint_event([](draw::graphics& graph) {
     using namespace draw;
 
-    graph.draw(text("Hello World!", core::point(10, 190)), font::system, color::green);
-    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold, color::green);
-    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif, color::green);
-    graph.draw(text("Hello World!", core::point(10, 235)), font::serif, color::green);
-    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace, color::green);
+    graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);
+    graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
+    graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
+
+    graph.draw(text("Hello World!", core::point(10, 190)), font::system, color::black);
+    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold, color::black);
+    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif, color::black);
+    graph.draw(text("Hello World!", core::point(10, 235)), font::serif, color::black);
+    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace, color::black);
     graph.draw(text("Hello World!", core::point(10, 265)), font("Modern", font::system.size()), color::blue);
     graph.draw(text("Hello World!", core::point(10, 280)), font("Modern", font::system.size(), font::regular, 0, true), color::blue);
     graph.draw(text_box("Hello World!", core::rectangle(10, 295, 180, 20), center), font::serif, color::red);

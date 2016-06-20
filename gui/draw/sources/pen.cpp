@@ -34,7 +34,7 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
-    const pen pen::default((core::pen_id)GetStockObject(BLACK_PEN));
+    const pen pen::default_pen((core::pen_id)GetStockObject(BLACK_PEN));
 
     pen::pen(core::pen_id id)
       :id(id)

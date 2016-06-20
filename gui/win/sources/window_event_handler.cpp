@@ -43,7 +43,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     draw::graphics get_param1<draw::graphics>::operator()(const window_event& e) const {
-      return draw::graphics((core::graphics_id)e.param_1);
+      return draw::graphics(e.id, (core::graphics_id)e.param_1);
     };
     // --------------------------------------------------------------------------
     window* get_param2<window*>::operator()(const window_event& e) const {
@@ -65,7 +65,7 @@ namespace gui {
       if ((e.msg == WM_PAINT) && callback) {
         PAINTSTRUCT ps;
         core::graphics_id id = BeginPaint(e.id, &ps);
-        callback(draw::graphics(id));
+        callback(draw::graphics(e.id, id));
         EndPaint(e.id, &ps);
         result = 0;
         return true;

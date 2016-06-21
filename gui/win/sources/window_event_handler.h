@@ -56,128 +56,6 @@ namespace gui {
       function callback;
     };
 
-    // --------------------------------------------------------------------------
-    inline bool event_type_match(const window_event& e, core::event_id id) {
-#ifdef WIN32
-      return (e.msg == id);
-#elif X11
-      return (e.type == id);
-#endif // X11
-    }
-
-    // --------------------------------------------------------------------------
-    template<core::event_id M, core::event_result R = 0>
-    struct no_param_event_handler : event_handlerT<void> {
-      no_param_event_handler(function fn)
-        : event_handlerT(fn) {}
-
-      template<class T>
-      no_param_event_handler(T* win, void(T::*fn)())
-        : event_handlerT(win, fn) {}
-
-      bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e, M) && callback) {
-          callback();
-          result = R;
-          return true;
-        }
-        return false;
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P,
-#ifdef WIN32 
-	     typename F = get_param1<P>,
-#else
-	     typename F,
-#endif
-	     core::event_result R = 0>
-    struct one_param_event_handler : event_handlerT<void, P> {
-
-      one_param_event_handler(function fn)
-        : event_handlerT(fn) {}
-
-      template<class T>
-      one_param_event_handler(T* win, void(T::*fn)(T))
-        : event_handlerT(win, fn) {}
-
-      bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e, M) && callback) {
-          callback(F()(e));
-          result = R;
-          return true;
-        }
-        return false;
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P1,
-             typename P2,
-#ifdef WIN32 
-             typename F1 = get_param1<P1>,
-             typename F2 = get_param2<P2>,
-#else
-	     typename F1,
-	     typename F2,
-#endif
-             core::event_result R = 0>
-    struct two_param_event_handler : event_handlerT<void, P1, P2> {
-
-      two_param_event_handler(function fn)
-        : event_handlerT(fn) {}
-
-      template<class T>
-      two_param_event_handler(T* win, void(T::*fn)(P1, P2))
-        : event_handlerT(win, fn) {}
-
-      bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e, M) && callback) {
-          callback(F1()(e), F2()(e));
-          result = R;
-          return true;
-        }
-        return false;
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P1,
-             typename P2,
-             typename P3,
-#ifdef WIN32 
-             typename F1 = get_param1_low<P1>,
-             typename F2 = get_param1_high<P2>,
-             typename F3 = get_param2<P3>,
-#else
-	     typename F1,
-	     typename F2,
-	     typename F3,
-#endif
-             core::event_result R = 0>
-    struct three_param_event_handler : event_handlerT<void, P1, P2, P3> {
-
-      three_param_event_handler(event_handlerT::function fn)
-        : event_handlerT(fn) {}
-
-      template<class T>
-      three_param_event_handler(T* win, void(T::*fn)(P1, P2, P3))
-        : event_handlerT(win, fn) {}
-
-      bool operator()(const window_event& e, core::event_result& result) {
-        if (event_type_match(e, M) && callback) {
-          callback(F1()(e), F2()(e), F3()(e));
-          result = R;
-          return true;
-        }
-        return false;
-      }
-    };
-
 #ifdef WIN32
     // --------------------------------------------------------------------------
     template<typename T> struct get_param1 {
@@ -203,6 +81,183 @@ namespace gui {
         return static_cast<T>((SHORT)HIWORD(e.param_1));
       }
     };
+#elif X11
+    // --------------------------------------------------------------------------
+    template<typename T> struct get_param1 {
+      T operator()(const window_event& e) const {
+        return T(0);
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename T> struct get_param2 {
+      T operator()(const window_event& e) const {
+        return T(0);
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename T> struct get_param1_low {
+      T operator()(const window_event& e) const {
+        return T(0);
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename T> struct get_param1_high {
+      T operator()(const window_event& e) const {
+        return T(0);
+      }
+    };
+#endif // WIN32
+    
+     // --------------------------------------------------------------------------
+    template <typename T>
+    const T& cast_event_type(const window_event& e) {
+      return *((const T*)&e);
+    }
+    
+    // --------------------------------------------------------------------------
+    struct event_type_match {
+      inline bool operator()(const window_event& e, core::event_id id) {
+  #ifdef WIN32
+        return (e.msg == id);
+  #elif X11
+        return (e.type == id);
+  #endif // X11
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<core::event_id M,
+             typename matcher = event_type_match,
+             core::event_result R = 0>
+    struct no_param_event_handler : std::function<event_handler> {
+      typedef std::function<void()> function;
+
+      no_param_event_handler(function fn)
+        : callback(fn) {
+      }
+
+      template<class T>
+      no_param_event_handler(T* win, void(T::*fn)())
+        : callback(win, fn) {
+      }
+
+      bool operator()(const window_event& e, core::event_result& result) {
+        if (matcher(e, M) && callback) {
+          callback();
+          result = R;
+          return true;
+        }
+        return false;
+      }
+
+    private:
+      function callback;
+      
+    };
+
+    // --------------------------------------------------------------------------
+    template<core::event_id M,
+             typename matcher = event_type_match,
+             typename P,
+	     typename F = get_param1<P>,
+	     core::event_result R = 0>
+    struct one_param_event_handler : std::function<event_handler> {
+      typedef std::function<void(P)> function;
+      
+      one_param_event_handler(function fn)
+        : callback(fn)
+      {}
+
+      template<class T>
+      one_param_event_handler(T* win, void(T::*fn)(T))
+        : callback(win, fn) 
+      {}
+
+      bool operator()(const window_event& e, core::event_result& result) {
+        if (matcher(e, M) && callback) {
+          callback(F(e));
+          result = R;
+          return true;
+        }
+        return false;
+      }
+
+    private:
+      function callback;
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<core::event_id M,
+             typename matcher = event_type_match,
+             typename P1,
+             typename P2,
+             typename F1 = get_param1<P1>,
+             typename F2 = get_param2<P2>,
+             core::event_result R = 0>
+    struct two_param_event_handler : std::function<event_handler> {
+      typedef std::function<void(P1, P2)> function;
+
+      two_param_event_handler(function fn)
+        : callback(fn)
+      {}
+
+      template<class T>
+      two_param_event_handler(T* win, void(T::*fn)(P1, P2))
+        : callback(win, fn)
+      {}
+
+      bool operator()(const window_event& e, core::event_result& result) {
+        if (matcher(e, M) && callback) {
+          callback(F1(e), F2(e));
+          result = R;
+          return true;
+        }
+        return false;
+      }
+
+    private:
+      function callback;
+      
+    };
+
+    // --------------------------------------------------------------------------
+    template<core::event_id M,
+             typename matcher = event_type_match,
+             typename P1,
+             typename P2,
+             typename P3,
+             typename F1 = get_param1_low<P1>,
+             typename F2 = get_param1_high<P2>,
+             typename F3 = get_param2<P3>,
+             core::event_result R = 0>
+    struct three_param_event_handler : std::function<event_handler> {
+      typedef std::function<void(P1, P2, P3)> function;
+
+      three_param_event_handler(function fn)
+        : callback(fn)
+      {}
+
+      template<class T>
+      three_param_event_handler(T* win, void(T::*fn)(P1, P2, P3))
+        : callback(win, fn)
+      {}
+
+      bool operator()(const window_event& e, core::event_result& result) {
+        if (matcher(e, M) && callback) {
+          callback(F1(e), F2(e), F3(e));
+          result = R;
+          return true;
+        }
+        return false;
+      }
+
+    private:
+      function callback;
+      
+    };
+
+#ifdef WIN32
     // --------------------------------------------------------------------------
     template<> struct get_param1<bool> {
       bool operator()(const window_event& e) const;
@@ -335,12 +390,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct pos_changing_event : event_handlerT<void, unsigned int&, core::rectangle &> {
       pos_changing_event(function changingfn)
-        : event_handlerT(changingfn) {}
+        : event_handlerT(changingfn)
+      {}
 
       template<class T>
       pos_changing_event(T* win,
         void(T::*changingfn)(unsigned int&, core::rectangle&))
-        : event_handlerT(t, changingfn) {}
+        : event_handlerT(t, changingfn)
+      {}
 
       bool operator()(const window_event& e, core::event_result& result);
     };
@@ -348,28 +405,55 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct get_minmax_event : event_handlerT<void, const core::size&, const core::point&, core::size&, core::size&> {
       get_minmax_event(function fn)
-        : event_handlerT(fn) {}
+        : event_handlerT(fn)
+      {}
 
       template<class T>
       get_minmax_event(T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
-        : event_handlerT(win, fn) {}
+        : event_handlerT(win, fn)
+      {}
 
       bool operator()(const window_event& e, core::event_result& result);
     };
 #endif // WIN32
 #ifdef X11
     // --------------------------------------------------------------------------
-    
-    template <typename T>
-    T& select(XEvent& e) {
-      return *((T*)&e.xany);
+    template <>
+    const XButtonEvent& cast_event_type<XButtonEvent>(const window_event& e) {
+      return e.xbutton;
     }
+    
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct get_state {
+      unsigned int operator()(const window_event& e) const {
+        return cast_event_type<T>(e).state;
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct get_button {
+      unsigned int operator()(const window_event& e) const {
+        return cast_event_type<T>(e).button;
+      }
+    };
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct get_point {
+      core::point operator()(const window_event& e) const {
+        const T& be = cast_event_type<T>(e);
+        return core::point(be.x, be.y);
+      }
+    };
 
     // --------------------------------------------------------------------------
     typedef no_param_event_handler<DestroyNotify> destroy_event;
     
-    typedef two_param_event_handler<ButtonPress,
-                                    unsigned int,core::point>  left_btn_down_event;
+    typedef three_param_event_handler<ButtonPress,
+                                     unsigned int, unsigned int, core::point,
+                                     get_state<XButtonEvent>,
+                                     get_button<XButtonEvent>,
+                                     get_point<XButtonEvent>> button_event;
 #endif // X11
 
   } // gui

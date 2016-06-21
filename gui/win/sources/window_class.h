@@ -43,7 +43,8 @@ namespace gui {
                           core::windows_style ex_style = 0,
                           core::icon_id icon = 0,
                           core::cursor_id cursor = 0,
-                          core::brush_id background = 0)
+                          core::brush_id background = 0,
+                          core::color_type foreground = 0)
         : is_initialized(false)
         , class_name(cls_name)
         , class_style(class_style)
@@ -51,8 +52,9 @@ namespace gui {
         , ex_style(ex_style)
         , icon(icon)
         , cursor(cursor)
-        , background(background) {
-      }
+        , background(background)
+        , foreground(foreground)
+      {}
 
       inline ~window_class() {
         unregister_class();
@@ -65,6 +67,7 @@ namespace gui {
       const core::icon_id get_icon() const;
       const core::cursor_id get_cursor() const;
       const core::brush_id get_background() const;
+      const core::color_type get_foreground() const;
 
 
     private:
@@ -80,6 +83,7 @@ namespace gui {
       const core::icon_id icon;
       const core::cursor_id cursor;
       const core::brush_id background;
+      const core::color_type foreground;
     };
 
   } // win

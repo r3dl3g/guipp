@@ -81,11 +81,16 @@ namespace gui {
       return background;
     }
 
+    const core::color_type window_class::get_foreground() const {
+      register_class();
+      return foreground;
+    }
+    
     void window_class::register_class() const {
       if (is_initialized) {
         return;
       }
-#ifdef Win32
+#ifdef WIN32
       WNDCLASSEX wc;
       memset(&wc, 0, sizeof(WNDCLASSEX));
       wc.cbSize = sizeof(WNDCLASSEX);
@@ -98,7 +103,7 @@ namespace gui {
       wc.hInstance = core::global::get_instance();
       wc.hIcon = icon;
       wc.hCursor = cursor;
-      wc.hbrBackground = brush;
+      wc.hbrBackground = background;
       wc.lpszMenuName = NULL;
       wc.lpszClassName = class_name.c_str();
       wc.hIconSm = NULL;
@@ -107,12 +112,12 @@ namespace gui {
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }
-#endif // WIN§2
+#endif // WIN32
       is_initialized = true;
     }
 
     void window_class::unregister_class() {
-#ifdef Win32
+#ifdef WIN32
       BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
       if (!result) {
         throw std::runtime_error(getLastErrorText());

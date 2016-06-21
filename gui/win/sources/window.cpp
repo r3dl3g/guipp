@@ -44,303 +44,15 @@ namespace gui {
     }
 #endif // X11
 
-    window::window()
-      : id(0)
-      , event_handler_stores(nullptr) {
+    event_container::event_container()
+      : event_handler_stores(nullptr) {
     }
 
-    window::~window() {
-      destroy();
-#ifdef X11
-      detail::global_window_map.erase(id);
-#endif // X11
-    }
-
-    void window::create(const window_class& type,
-                        const window& parent,
-                        const core::rectangle& place) {
-
-      const core::point pos = place.position();
-      const core::size sz = place.size();
-#ifdef WIN32
-      id = CreateWindowEx(type.get_ex_style(),            // window style
-                          type.get_class_name().c_str(),  // address of registered class name
-                          NULL,                           // address of window text
-                          type.get_style(),               // window style
-                          pos.x,                          // horizontal position of window
-                          pos.y,                          // vertical position of window
-                          sz.width,                       // window width
-                          sz.height,                      // window height
-                          parent.get_id(),                // handle of parent window
-                          NULL,                           // handle of menu or child-window identifier
-                          core::global::get_instance(),   // handle of application instance
-                          (LPVOID)this);
-#endif // WIN32
-
-#ifdef X11
-    id = XCreateSimpleWindow(core::global::get_instance(), parent.id, pos.x, pos.y, sz.width, sz.height, 5, black, white);
-    detail::global_window_map[id] = this;
-#endif // X11
-    }
-
-    void window::create(const window_class& type,
-                        const core::rectangle& place) {
-
-      const core::point pos = place.position();
-      const core::size sz = place.size();
-#ifdef WIN32
-      id = CreateWindowEx(type.get_ex_style(),            // window style
-                          type.get_class_name().c_str(),  // address of registered class name
-                          NULL,                           // address of window text
-                          type.get_style(),               // window style
-                          pos.x,                          // horizontal position of window
-                          pos.y,                          // vertical position of window
-                          sz.width,                       // window width
-                          sz.height,                      // window height
-                          NULL,                           // handle of parent window
-                          NULL,                           // handle of menu or child-window identifier
-                          core::global::get_instance(),   // handle of application instance
-                          (LPVOID)this);
-#endif // WIN32
-
-#ifdef X11
-    id = XCreateSimpleWindow(core::global::get_instance(),
-                             DefaultRootWindow(core::global::get_instance()),
-                             pos.x, pos.y, sz.width, sz.height, 5, black, white);
-    detail::global_window_map[id] = this;
-#endif // X11
-    }
-
-    bool window::is_valid() const {
-#ifdef WIN32
-      return IsWindow(id) != FALSE;
-#endif // WIN32
-#ifdef X11
-      return detail::global_window_map[id] == this;
-#endif // X11
-    }
-
-    bool window::is_visible() const {
-#ifdef WIN32
-      return is_valid() && IsWindowVisible(get_id());
-#endif // WIN32
-#ifdef X11
-        XWindowAttributes a;
-        if (XGetWindowAttributes(core::global::get_instance(), id, &a)) {
-            return a.map_state == IsViewable;
-        }
-        return false;
-#endif // X11
-    }
-
-    bool window::is_enabled() const {
-#ifdef WIN32
-      return is_valid() && IsWindowEnabled(get_id());
-#endif // WIN32
-#ifdef X11
-      return is_valid();
-#endif // X11
-    }
-
-    bool window::is_active() const {
-      return is_valid() && (GetActiveWindow() == id);
-    }
-
-    bool window::is_child() const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
-    }
-
-    bool window::is_popup() const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
-    }
-
-    bool window::is_toplevel() const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
-    }
-
-    bool window::is_top_most() const {
-      return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
-    }
-
-    bool window::is_minimized() const {
-      return IsIconic(get_id()) != FALSE;
-    }
-
-    bool window::is_maximized() const {
-      return IsZoomed(get_id()) != FALSE;
-    }
-
-    bool window::has_border() const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
-    }
-
-    void window::close() {
-      CloseWindow(get_id());
-    }
-
-    void window::destroy() {
-      DestroyWindow(get_id());
-    }
-
-    void window::quit() {
-      PostQuitMessage(0);
-    }
-
-    void window::setParent(const window& parent) {
-      SetParent(get_id(), parent.get_id());
-    }
-
-    window* window::getParent() const {
-      return is_valid() ? window::get(GetParent(get_id())) : nullptr;
-    }
-
-    bool window::is_parent_of(const window& child) const {
-      return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
-    }
-
-    bool window::is_child_of(const window& parent) const {
-      return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
-    }
-
-    void window::hide() {
-#ifdef WIN32
-      ShowWindow(get_id(), SW_HIDE);
-#endif // WIN32
-#ifdef X11
-      XUnmapWindow(core::global::get_instance(), id);
-#endif // X11
-    }
-
-    void window::show() {
-#ifdef WIN32
-      ShowWindow(get_id(), SW_SHOWNA);
-#endif // WIN32
-#ifdef X11
-      XMapWindow(core::global::get_instance(), id);
-#endif // X11
-    }
-
-    void window::minimize() {
-      ShowWindow(get_id(), SW_MINIMIZE);
-    }
-
-    void window::maximize() {
-      ShowWindow(get_id(), SW_MAXIMIZE);
-    }
-
-    void window::restore() {
-      ShowWindow(get_id(), SW_RESTORE);
-    }
-
-    void window::set_top_most(bool toplevel) {
-      SetWindowPos(get_id(),
-                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
-                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-    }
-
-    void window::enable(bool on) {
-      EnableWindow(get_id(), on);
-    }
-
-    void window::enableRedraw(bool on) {
-      SendMessage(get_id(), WM_SETREDRAW, on, 0);
-    }
-
-    void window::redraw_now() {
-      RedrawWindow(get_id(), NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-    }
-
-    void window::redraw_later() {
-      InvalidateRect(get_id(), NULL, TRUE);
-    }
-
-    void window::setText(const std::string& s) {
-      SetWindowText(get_id(), s.c_str());
-    }
-
-    std::string window::getText() const {
-      std::string s;
-      s.resize(GetWindowTextLength(get_id()) + 1);
-      GetWindowText(get_id(), &s[0], (int)s.capacity());
-      return s;
-    }
-
-    core::size window::size() const {
-      RECT r;
-      GetWindowRect(get_id(), &r);
-      return core::size(r.right - r.left, r.bottom - r.top);
-    }
-
-    core::point window::position() const {
-      RECT r;
-      GetWindowRect(get_id(), &r);
-      return screenToWindow({ r.left, r.top });
-    }
-
-    core::rectangle window::place() const {
-      const core::rectangle pl = absolute_place();
-      return core::rectangle(screenToWindow(pl.position()), pl.size());
-    }
-
-    core::rectangle window::absolute_place() const {
-      RECT r;
-      GetWindowRect(get_id(), &r);
-      return core::rectangle(r);
-    }
-
-    core::point window::absolute_position() const {
-      RECT r;
-      GetWindowRect(get_id(), &r);
-      return{ r.left, r.top };
-    }
-
-    core::rectangle window::client_area() const {
-      RECT r;
-      GetClientRect(get_id(), &r);
-      return core::rectangle(r);
-    }
-
-    void window::move(const core::point& pt, bool repaint) {
-      place(core::rectangle(pt, size()));
-    }
-
-    void window::resize(const core::size& sz, bool repaint) {
-      place(core::rectangle(position(), sz));
-    }
-
-    void window::place(const core::rectangle& r, bool repaint) {
-      const core::point pos = r.position();
-      const core::size sz = r.size();
-      MoveWindow(get_id(), pos.x, pos.y, sz.width, sz.height, repaint);
-    }
-
-    core::point window::windowToScreen(const core::point& pt) const {
-      window* p = getParent();
-      return p ? p->clientToScreen(pt) : pt;
-    }
-
-    core::point window::screenToWindow(const core::point& pt) const {
-      window* p = getParent();
-      return p ? p->screenToClient(pt) : pt;
-    }
-
-    core::point window::clientToScreen(const core::point& pt) const {
-      POINT Point = { pt.x, pt.y };
-      ClientToScreen(get_id(), &Point);
-      return core::point(Point.x, Point.y);
-    }
-
-    core::point window::screenToClient(const core::point& pt) const {
-      POINT Point = { pt.x, pt.y };
-      ScreenToClient(get_id(), &Point);
-      return core::point(Point.x, Point.y);
-    }
-
-    bool window::in_event_handle() const {
+    bool event_container::in_event_handle() const {
       return event_handler_stores != nullptr;
     }
 
-    window::event_handler_ptr window::register_event_handler(event_handler_fnct handler) {
+    event_container::event_handler_ptr event_container::register_event_handler(event_handler_fnct handler) {
       event_handler_ptr ptr(new event_handler_fnct(handler));
       if (in_event_handle()) {
         event_handler_stores->push_back(std::make_pair(true, ptr));
@@ -350,7 +62,7 @@ namespace gui {
       return ptr;
     }
 
-    void window::unregister_event_handler(event_handler_ptr ptr) {
+    void event_container::unregister_event_handler(event_handler_ptr ptr) {
       if (in_event_handle()) {
         event_handler_stores->push_back(std::make_pair(false, ptr));
         return;
@@ -362,16 +74,7 @@ namespace gui {
       }
     }
 
-    window* window::get(core::window_id id) {
-#ifdef WIN32
-      return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
-#endif // WIN32
-#ifdef X11
-      return global_window_map[id];
-#endif // X11
-    }
-
-    bool window::handle_event(const window_event& e, core::event_result& resultValue) {
+    bool event_container::handle_event(const window_event& e, core::event_result& resultValue) {
 
       bool my_event_handler_stores = false;
 
@@ -403,6 +106,416 @@ namespace gui {
         event_handler_stores = nullptr;
       }
       return result;
+    }
+
+    // --------------------------------------------------------------------------
+
+    window::window()
+      : id(0) {
+    }
+
+    window::~window() {
+      destroy();
+#ifdef X11
+      detail::global_window_map.erase(id);
+#endif // X11
+    }
+
+    void window::create(const window_class& type,
+                        const window& parent,
+                        const core::rectangle& place) {
+
+      const core::point pos = place.position();
+      const core::size sz = place.size();
+#ifdef WIN32
+      id = CreateWindowEx(type.get_ex_style(),            // window style
+                          type.get_class_name().c_str(),  // address of registered class name
+                          NULL,                           // address of window text
+                          type.get_style(),               // window style
+                          pos.x,                          // horizontal position of window
+                          pos.y,                          // vertical position of window
+                          sz.width,                       // window width
+                          sz.height,                      // window height
+                          parent.get_id(),                // handle of parent window
+                          NULL,                           // handle of menu or child-window identifier
+                          core::global::get_instance(),   // handle of application instance
+                          (LPVOID)this);
+#elif X11
+    id = XCreateSimpleWindow(core::global::get_instance(), parent.id, pos.x, pos.y, sz.width, sz.height, 5, type.get_foreground(), type.get_background());
+    detail::global_window_map[id] = this;
+#endif // X11
+    }
+
+    void window::create(const window_class& type,
+                        const core::rectangle& place) {
+
+      const core::point pos = place.position();
+      const core::size sz = place.size();
+#ifdef WIN32
+      id = CreateWindowEx(type.get_ex_style(),            // window style
+                          type.get_class_name().c_str(),  // address of registered class name
+                          NULL,                           // address of window text
+                          type.get_style(),               // window style
+                          pos.x,                          // horizontal position of window
+                          pos.y,                          // vertical position of window
+                          sz.width,                       // window width
+                          sz.height,                      // window height
+                          NULL,                           // handle of parent window
+                          NULL,                           // handle of menu or child-window identifier
+                          core::global::get_instance(),   // handle of application instance
+                          (LPVOID)this);
+#elif X11
+    id = XCreateSimpleWindow(core::global::get_instance(),
+                             DefaultRootWindow(core::global::get_instance()),
+                             pos.x, pos.y, sz.width, sz.height, 5, type.get_foreground(), type.get_background());
+    detail::global_window_map[id] = this;
+#endif // X11
+    }
+
+    bool window::is_valid() const {
+#ifdef WIN32
+      return IsWindow(id) != FALSE;
+#elif X11
+      return detail::global_window_map[id] == this;
+#endif // X11
+    }
+
+    bool window::is_visible() const {
+#ifdef WIN32
+      return is_valid() && IsWindowVisible(get_id());
+#elif X11
+        XWindowAttributes a;
+        if (XGetWindowAttributes(core::global::get_instance(), id, &a)) {
+            return a.map_state == IsViewable;
+        }
+        return false;
+#endif // X11
+    }
+
+    bool window::is_enabled() const {
+#ifdef WIN32
+      return is_valid() && IsWindowEnabled(get_id());
+#elif X11
+      return is_valid();
+#endif // X11
+    }
+
+    bool window::is_active() const {
+#ifdef WIN32
+      return is_valid() && (GetActiveWindow() == id);
+#elif X11
+      return is_valid();
+#endif // X11
+    }
+
+    bool window::is_child() const {
+#ifdef WIN32
+      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_popup() const {
+#ifdef WIN32
+      return (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_toplevel() const {
+#ifdef WIN32
+      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_top_most() const {
+#ifdef WIN32
+      return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_minimized() const {
+#ifdef WIN32
+      return IsIconic(get_id()) != FALSE;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_maximized() const {
+#ifdef WIN32
+      return IsZoomed(get_id()) != FALSE;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::has_border() const {
+#ifdef WIN32
+      return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    void window::close() {
+#ifdef WIN32
+      CloseWindow(get_id());
+#elif X11
+#endif // X11
+    }
+
+    void window::destroy() {
+#ifdef WIN32
+      DestroyWindow(get_id());
+#elif X11
+#endif // X11
+    }
+
+    void window::quit() {
+#ifdef WIN32
+      PostQuitMessage(0);
+#elif X11
+#endif // X11
+    }
+
+    void window::setParent(const window& parent) {
+#ifdef WIN32
+      SetParent(get_id(), parent.get_id());
+#elif X11
+#endif // X11
+    }
+
+    window* window::getParent() const {
+#ifdef WIN32
+      return is_valid() ? window::get(GetParent(get_id())) : nullptr;
+#elif X11
+      return nullptr;
+#endif // X11
+    }
+
+    bool window::is_parent_of(const window& child) const {
+#ifdef WIN32
+      return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    bool window::is_child_of(const window& parent) const {
+#ifdef WIN32
+      return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
+#elif X11
+      return false;
+#endif // X11
+    }
+
+    void window::hide() {
+#ifdef WIN32
+      ShowWindow(get_id(), SW_HIDE);
+#elif X11
+      XUnmapWindow(core::global::get_instance(), id);
+#endif // X11
+    }
+
+    void window::show() {
+#ifdef WIN32
+      ShowWindow(get_id(), SW_SHOWNA);
+#elif X11
+      XMapWindow(core::global::get_instance(), id);
+#endif // X11
+    }
+
+    void window::minimize() {
+#ifdef WIN32
+      ShowWindow(get_id(), SW_MINIMIZE);
+#elif X11
+#endif // X11
+    }
+
+    void window::maximize() {
+#ifdef WIN32
+      ShowWindow(get_id(), SW_MAXIMIZE);
+#elif X11
+#endif // X11
+    }
+
+    void window::restore() {
+#ifdef WIN32
+      ShowWindow(get_id(), SW_RESTORE);
+#elif X11
+#endif // X11
+    }
+
+    void window::set_top_most(bool toplevel) {
+#ifdef WIN32
+      SetWindowPos(get_id(),
+                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
+                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+#elif X11
+#endif // X11
+    }
+
+    void window::enable(bool on) {
+#ifdef WIN32
+      EnableWindow(get_id(), on);
+#elif X11
+#endif // X11
+    }
+
+    void window::enableRedraw(bool on) {
+#ifdef WIN32
+      SendMessage(get_id(), WM_SETREDRAW, on, 0);
+#elif X11
+#endif // X11
+    }
+
+    void window::redraw_now() {
+#ifdef WIN32
+      RedrawWindow(get_id(), NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+#elif X11
+#endif // X11
+    }
+
+    void window::redraw_later() {
+#ifdef WIN32
+      InvalidateRect(get_id(), NULL, TRUE);
+#elif X11
+#endif // X11
+    }
+
+    void window::setText(const std::string& s) {
+#ifdef WIN32
+      SetWindowText(get_id(), s.c_str());
+#elif X11
+#endif // X11
+    }
+
+    std::string window::getText() const {
+      std::string s;
+#ifdef WIN32
+      s.resize(GetWindowTextLength(get_id()) + 1);
+      GetWindowText(get_id(), &s[0], (int)s.capacity());
+#elif X11
+#endif // X11
+      return s;
+    }
+
+    core::size window::size() const {
+#ifdef WIN32
+      RECT r;
+      GetWindowRect(get_id(), &r);
+      return core::size(r.right - r.left, r.bottom - r.top);
+#elif X11
+      return core::size();
+#endif // X11
+    }
+
+    core::point window::position() const {
+#ifdef WIN32
+      RECT r;
+      GetWindowRect(get_id(), &r);
+      return screenToWindow({ r.left, r.top });
+#elif X11
+      return core::point();
+#endif // X11
+    }
+
+    core::rectangle window::place() const {
+      const core::rectangle pl = absolute_place();
+      return core::rectangle(screenToWindow(pl.position()), pl.size());
+    }
+
+    core::rectangle window::absolute_place() const {
+#ifdef WIN32
+      RECT r;
+      GetWindowRect(get_id(), &r);
+      return core::rectangle(r);
+#elif X11
+      return core::rectangle();
+#endif // X11
+    }
+
+    core::point window::absolute_position() const {
+#ifdef WIN32
+      RECT r;
+      GetWindowRect(get_id(), &r);
+      return{ r.left, r.top };
+#elif X11
+      return core::point();
+#endif // X11
+    }
+
+    core::rectangle window::client_area() const {
+#ifdef WIN32
+      RECT r;
+      GetClientRect(get_id(), &r);
+      return core::rectangle(r);
+#elif X11
+      return core::rectangle();
+#endif // X11
+    }
+
+    void window::move(const core::point& pt, bool repaint) {
+      place(core::rectangle(pt, size()));
+    }
+
+    void window::resize(const core::size& sz, bool repaint) {
+      place(core::rectangle(position(), sz));
+    }
+
+    void window::place(const core::rectangle& r, bool repaint) {
+      const core::point pos = r.position();
+      const core::size sz = r.size();
+#ifdef WIN32
+      MoveWindow(get_id(), pos.x, pos.y, sz.width, sz.height, repaint);
+#elif X11
+#endif // X11
+    }
+
+    core::point window::windowToScreen(const core::point& pt) const {
+      window* p = getParent();
+      return p ? p->clientToScreen(pt) : pt;
+    }
+
+    core::point window::screenToWindow(const core::point& pt) const {
+      window* p = getParent();
+      return p ? p->screenToClient(pt) : pt;
+    }
+
+    core::point window::clientToScreen(const core::point& pt) const {
+#ifdef WIN32
+      POINT Point = { pt.x, pt.y };
+      ClientToScreen(get_id(), &Point);
+      return core::point(Point.x, Point.y);
+#elif X11
+      return core::point();
+#endif // X11
+    }
+
+    core::point window::screenToClient(const core::point& pt) const {
+#ifdef WIN32
+      POINT Point = { pt.x, pt.y };
+      ScreenToClient(get_id(), &Point);
+      return core::point(Point.x, Point.y);
+#elif X11
+      return core::point();
+#endif // X11
+    }
+
+    window* window::get(core::window_id id) {
+#ifdef WIN32
+      return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+#endif // WIN32
+#ifdef X11
+      return detail::global_window_map[id];
+#endif // X11
     }
 
   } // win

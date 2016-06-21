@@ -48,10 +48,32 @@ namespace gui {
       void set_id(window* w, core::window_id id);
     }
 
-    class window {
+    class event_container {
     public:
       typedef std::function<event_handler> event_handler_fnct;
       typedef std::shared_ptr<event_handler_fnct> event_handler_ptr;
+
+      event_container();
+
+      event_handler_ptr register_event_handler(event_handler_fnct);
+      void unregister_event_handler(event_handler_ptr);
+
+      bool handle_event(const window_event& e, core::event_result& result);
+
+    protected:
+      bool in_event_handle() const;
+
+    private:
+      typedef std::vector<event_handler_ptr> event_handler_list;
+      typedef std::pair<bool, event_handler_ptr> event_handler_store;
+      typedef std::vector<event_handler_store> event_handler_store_list;
+
+      event_handler_list event_handlers;
+      event_handler_store_list* event_handler_stores;
+    };
+
+    class window : public event_container {
+    public:
 
       window();
       ~window();
@@ -126,26 +148,11 @@ namespace gui {
       core::point clientToScreen(const core::point&) const;
       core::point screenToClient(const core::point&) const;
 
-      event_handler_ptr register_event_handler(event_handler_fnct);
-      void unregister_event_handler(event_handler_ptr);
-
-      bool handle_event(const window_event& e, core::event_result& result);
-
       static window* get(core::window_id id);
 
     private:
       friend void detail::set_id(window*, core::window_id);
       core::window_id id;
-
-    private:
-      typedef std::vector<event_handler_ptr> event_handler_list;
-      typedef std::pair<bool, event_handler_ptr> event_handler_store;
-      typedef std::vector<event_handler_store> event_handler_store_list;
-
-      bool in_event_handle() const;
-
-      event_handler_list event_handlers;
-      event_handler_store_list* event_handler_stores;
 
     };
 

@@ -44,7 +44,7 @@ namespace gui {
       bool handle_by_window(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {
         window* w = window::get(hwnd);
         if (w && w->is_valid()) {
-          return w->handle_event(window_event(hwnd, msg, wParam, lParam), resultValue);
+          return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
         }
         return false;
       }
@@ -106,19 +106,19 @@ namespace gui {
     int run_main_loop() {
         Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
 
-        XEvent event;
+        core::event e;
         bool running = true;
         while(running) {
-            XNextEvent(core::global::get_instance(), &event);
-            win::window* win = win::window::get(event.xany.window);
+            XNextEvent(core::global::get_instance(), &e);
+            win::window* win = win::window::get(e.xany.window);
             if (win && win->is_valid()) {
-              if (event.type == CreateNotify) {
-                XSetWMProtocols(core::global::get_instance(), event.xany.window, &wmDeleteMessage, 1);
-              } else if ((event.type == ClientMessage) && (event.xclient.data.l[0] == wmDeleteMessage)) {
+              if (e.type == CreateNotify) {
+                XSetWMProtocols(core::global::get_instance(), e.xany.window, &wmDeleteMessage, 1);
+              } else if ((e.type == ClientMessage) && (e.xclient.data.l[0] == wmDeleteMessage)) {
                 running = false;
               }
               core::event_result resultValue = 0;
-              win->handle_event(window_event(event), resultValue);
+              win->handle_event(core::event(e), resultValue);
             }
         }
 

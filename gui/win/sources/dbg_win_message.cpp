@@ -44,7 +44,7 @@ namespace gui {
 
       message_map_t& get_message_map() {
         static message_map_t message_map = {
-#ifdef Win32
+#ifdef WIN32
           DEFINE_MESSAGE(WM_CREATE),
           DEFINE_MESSAGE(WM_DESTROY),
 

@@ -35,34 +35,38 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    bool get_param1<bool>::operator()(const window_event& e) const {
+    template<>
+    bool get_param1<bool>(const core::event& e) {
       return LOWORD(e.param_1) != 0;
     }
     // --------------------------------------------------------------------------
-    window* get_param1<window*>::operator()(const window_event& e) const {
+    template<>
+    window* get_param1<window*>(const core::event& e) {
       return window::get((core::window_id)e.param_1);
     }
     // --------------------------------------------------------------------------
-    draw::graphics get_param1<draw::graphics>::operator()(const window_event& e) const {
+    template<>
+    draw::graphics get_param1<draw::graphics>(const core::event& e) {
       return draw::graphics(e.id, (core::graphics_id)e.param_1);
     };
     // --------------------------------------------------------------------------
-    window* get_param2<window*>::operator()(const window_event& e) const {
+    template<>
+    window* get_param2<window*>(const core::event& e) {
       return window::get((core::window_id)e.param_2);
     }
     // --------------------------------------------------------------------------
-    window* get_window_from_cs::operator()(const window_event& e) const {
+    window* get_window_from_cs(const core::event& e) {
       CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.param_2);
       return window::get(cs->hwndParent);
     }
     // --------------------------------------------------------------------------
-    unsigned int get_flags_from_wp::operator()(const window_event& e) const {
+    unsigned int get_flags_from_wp(const core::event& e) {
       WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.param_2);
       return p->flags;
     }
 
     // --------------------------------------------------------------------------
-    bool paint_event::operator()(const window_event& e, core::event_result& result) {
+    bool paint_event::operator()(const core::event& e, core::event_result& result) {
       if ((e.msg == WM_PAINT) && callback) {
         PAINTSTRUCT ps;
         core::graphics_id id = BeginPaint(e.id, &ps);
@@ -75,11 +79,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool pos_changing_event::operator()(const window_event& e, core::event_result& result) {
+    bool pos_changing_event::operator()(const core::event& e, core::event_result& result) {
       if ((e.msg == WM_WINDOWPOSCHANGING) && callback) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
-        core::rectangle r = get_rect<WINDOWPOS>()(e);
-        unsigned int flags = get_flags_from_wp()(e);
+        core::rectangle r = get_rect<WINDOWPOS>(e);
+        unsigned int flags = get_flags_from_wp(e);
         callback(flags, r);
         p->flags = flags;
         const core::point pos = r.position();
@@ -94,7 +98,7 @@ namespace gui {
       return false;
     }
     // --------------------------------------------------------------------------
-    bool get_minmax_event::operator()(const window_event& e, core::event_result& result) {
+    bool get_minmax_event::operator()(const core::event& e, core::event_result& result) {
       if ((e.msg == WM_GETMINMAXINFO) && callback) {
         LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.param_2);
         core::size mi(info->ptMinTrackSize);

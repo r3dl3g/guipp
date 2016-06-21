@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: window_event
+* @brief     C++ API: event
 *
 * @file
 */
@@ -32,31 +32,31 @@
 
 namespace gui {
 
-  namespace win {
+  namespace core {
 
 #ifdef WIN32
-    struct window_event {
-      inline window_event(core::window_id id,
-                          core::event_id msg,
-                          core::event_param_1 p1,
-                          core::event_param_2 p2)
+    struct event {
+      inline event(window_id id,
+                   event_id msg,
+                   event_param_1 p1,
+                   event_param_2 p2)
         : id(id)
         , msg(msg)
         , param_1(p1)
         , param_2(p2)
       {}
 
-      core::window_id     id;
-      core::event_id      msg;
-      core::event_param_1 param_1;
-      core::event_param_2 param_2;
+      window_id     id;
+      event_id      msg;
+      event_param_1 param_1;
+      event_param_2 param_2;
     };
 #elif X11
-    typedef XEvent window_event;
+    typedef XEvent event;
 #endif // WIN
 
-    typedef bool(event_handler)(const window_event&, core::event_result&);
+    typedef bool(event_handler)(const event&, event_result&);
 
-  } // win
+  } // core
 
 } // gui

@@ -23,8 +23,6 @@
 // Common includes
 //
 #include <cstddef>
-#include <vector>
-#include <functional>
 #include <memory>
 
 
@@ -32,10 +30,9 @@
 //
 // Library includes
 //
-#include "window_event.h"
+#include "event_container.h"
 #include "gui_types.h"
 #include "window_class.h"
-#include "easy_bind.h"
 
 
 namespace gui {
@@ -48,31 +45,7 @@ namespace gui {
       void set_id(window* w, core::window_id id);
     }
 
-    class event_container {
-    public:
-      typedef std::function<event_handler> event_handler_fnct;
-      typedef std::shared_ptr<event_handler_fnct> event_handler_ptr;
-
-      event_container();
-
-      event_handler_ptr register_event_handler(event_handler_fnct);
-      void unregister_event_handler(event_handler_ptr);
-
-      bool handle_event(const window_event& e, core::event_result& result);
-
-    protected:
-      bool in_event_handle() const;
-
-    private:
-      typedef std::vector<event_handler_ptr> event_handler_list;
-      typedef std::pair<bool, event_handler_ptr> event_handler_store;
-      typedef std::vector<event_handler_store> event_handler_store_list;
-
-      event_handler_list event_handlers;
-      event_handler_store_list* event_handler_stores;
-    };
-
-    class window : public event_container {
+    class window : public core::event_container {
     public:
 
       window();

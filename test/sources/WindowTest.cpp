@@ -34,7 +34,7 @@ public:
   log_all_events() {
   }
 
-  bool operator()(const win::window_event& e, core::event_result& result) {
+  bool operator()(const core::event& e, core::event_result& result) {
     if ((result == 0xdeadbeef) && !win::is_none_client_event(e.msg) && !win::is_frequent_event(e.msg)) {
       LogDebug << "Message: " << win::EventId(e.msg) << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")";
     }
@@ -47,7 +47,7 @@ public:
   init_result_handler() {
   }
 
-  bool operator()(const win::window_event& e, core::event_result& result) {
+  bool operator()(const core::event& e, core::event_result& result) {
     result = 0xdeadbeef;
     return false;
   }
@@ -71,7 +71,7 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 
 win::window_class mainCls("mainwindow",
                           CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
-                          WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                          WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_VISIBLE,
                           WS_EX_NOPARENTNOTIFY,
                           NULL,
                           LoadCursor(NULL, IDC_ARROW),
@@ -109,10 +109,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
   main.register_event_handler(init_result_handler());
 
-  main.register_event_handler(win::pos_changing_event([](unsigned int& flags, core::rectangle & r) {
+  main.register_event_handler(win::pos_changing_event([](unsigned int& flags, core::rectangle& r) {
     LogDebug << "Main changing: " << flags << ", " << r;
   }));
-  main.register_event_handler(win::pos_changed_event([](unsigned int flags, core::rectangle  const& r) {
+  main.register_event_handler(win::pos_changed_event([](unsigned int flags, const core::rectangle& r) {
     LogDebug << "Main changed: " << flags << ", " << r;
   }));
 
@@ -146,12 +146,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   main.register_event_handler(win::lost_focus_event([](win::window* win) { LogDebug << "Lost Focus"; }));
   main.register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
   main.register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  main.register_event_handler(win::move_event([](core::point const& p) { LogDebug << "Main move: " << p; }));
-  main.register_event_handler(win::moving_event([](core::rectangle  const& r) { LogDebug << "Main moving: " << r; }));
-  main.register_event_handler(win::sizing_event([](unsigned int flags, core::rectangle  const& r) {
+  main.register_event_handler(win::move_event([](const core::point& p) { LogDebug << "Main move: " << p; }));
+  main.register_event_handler(win::moving_event([](const core::rectangle& r) { LogDebug << "Main moving: " << r; }));
+  main.register_event_handler(win::sizing_event([](unsigned int flags, const core::rectangle& r) {
     LogDebug << "Main sizing: " << flags << ", " << r;
   }));
-  main.register_event_handler(win::size_event([](unsigned int flags, core::size const& s) {
+  main.register_event_handler(win::size_event([](unsigned int flags, const core::size& s) {
     LogDebug << "Main size: " << flags << ", " << s;
   }));
   main.register_event_handler(win::activate_app_event([](bool on) {

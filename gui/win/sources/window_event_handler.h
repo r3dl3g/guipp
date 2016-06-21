@@ -50,7 +50,7 @@ namespace gui {
 
       template<class T>
       event_handlerT(T* t, R(T::*callback_)(Args...))
-        : callback(util::easy_bind(t, callback_)) {}
+        : callback(gui::core::easy_bind(t, callback_)) {}
 
     protected:
       function callback;
@@ -59,10 +59,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline bool event_type_match(const window_event& e, core::event_id id) {
 #ifdef WIN32
-        return (e.msg == id);
+      return (e.msg == id);
 #elif X11
-        return (e.type == id);
-#endif // WIN32
+      return (e.type == id);
+#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -87,10 +87,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<core::event_id M,
-             typename P1,
-             typename F = get_param1<P1>,
-             core::event_result R = 0>
-    struct one_param_event_handler : event_handlerT <void, P1> {
+             typename P,
+#ifdef WIN32 
+	     typename F = get_param1<P>,
+#else
+	     typename F,
+#endif
+	     core::event_result R = 0>
+    struct one_param_event_handler : event_handlerT<void, P> {
 
       one_param_event_handler(function fn)
         : event_handlerT(fn) {}
@@ -113,8 +117,13 @@ namespace gui {
     template<core::event_id M,
              typename P1,
              typename P2,
+#ifdef WIN32 
              typename F1 = get_param1<P1>,
              typename F2 = get_param2<P2>,
+#else
+	     typename F1,
+	     typename F2,
+#endif
              core::event_result R = 0>
     struct two_param_event_handler : event_handlerT<void, P1, P2> {
 
@@ -140,13 +149,19 @@ namespace gui {
              typename P1,
              typename P2,
              typename P3,
+#ifdef WIN32 
              typename F1 = get_param1_low<P1>,
              typename F2 = get_param1_high<P2>,
              typename F3 = get_param2<P3>,
+#else
+	     typename F1,
+	     typename F2,
+	     typename F3,
+#endif
              core::event_result R = 0>
     struct three_param_event_handler : event_handlerT<void, P1, P2, P3> {
 
-      three_param_event_handler(function fn)
+      three_param_event_handler(event_handlerT::function fn)
         : event_handlerT(fn) {}
 
       template<class T>
@@ -163,6 +178,7 @@ namespace gui {
       }
     };
 
+#ifdef WIN32
     // --------------------------------------------------------------------------
     template<typename T> struct get_param1 {
       T operator()(const window_event& e) const {
@@ -259,13 +275,8 @@ namespace gui {
                                     get_param1<unsigned int>,
                                     get_param2<core::rectangle>, TRUE > sizing_event;
 
-#ifdef WIN32
     typedef two_param_event_handler<WM_LBUTTONDOWN,
                                     unsigned int,core::point>  left_btn_down_event;
-#elif X11
-    typedef two_param_event_handler<ButtonPress,
-                                    unsigned int,core::point>  left_btn_down_event;
-#endif // WIN32
     typedef two_param_event_handler<WM_LBUTTONUP,
                                     unsigned int,core::point>  left_btn_up_event;
     typedef two_param_event_handler<WM_LBUTTONDBLCLK,
@@ -345,6 +356,21 @@ namespace gui {
 
       bool operator()(const window_event& e, core::event_result& result);
     };
+#endif // WIN32
+#ifdef X11
+    // --------------------------------------------------------------------------
+    
+    template <typename T>
+    T& select(XEvent& e) {
+      return *((T*)&e.xany);
+    }
+
+    // --------------------------------------------------------------------------
+    typedef no_param_event_handler<DestroyNotify> destroy_event;
+    
+    typedef two_param_event_handler<ButtonPress,
+                                    unsigned int,core::point>  left_btn_down_event;
+#endif // X11
 
   } // gui
 

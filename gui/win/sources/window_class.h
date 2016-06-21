@@ -38,20 +38,20 @@ namespace gui {
     class window_class {
     public:
       inline window_class(const std::string& cls_name,
-                          core::windows_style class_style_,
-                          core::windows_style style_,
-                          core::windows_style ex_style_ = 0,
-                          core::icon_id icon_ = 0,
-                          core::cursor_id cursor_ = 0,
-                          core::brush_id brush_ = 0)
+                          core::windows_style class_style,
+                          core::windows_style style,
+                          core::windows_style ex_style = 0,
+                          core::icon_id icon = 0,
+                          core::cursor_id cursor = 0,
+                          core::brush_id background = 0)
         : is_initialized(false)
         , class_name(cls_name)
-        , class_style(class_style_)
-        , style(style_)
-        , ex_style(ex_style_)
-        , icon(icon_)
-        , cursor(cursor_)
-        , brush(brush_) {
+        , class_style(class_style)
+        , style(style)
+        , ex_style(ex_style)
+        , icon(icon)
+        , cursor(cursor)
+        , background(background) {
       }
 
       inline ~window_class() {
@@ -64,7 +64,7 @@ namespace gui {
       const core::windows_style get_ex_style() const;
       const core::icon_id get_icon() const;
       const core::cursor_id get_cursor() const;
-      const core::brush_id get_brush() const;
+      const core::brush_id get_background() const;
 
 
     private:
@@ -79,7 +79,7 @@ namespace gui {
       const core::windows_style ex_style;
       const core::icon_id icon;
       const core::cursor_id cursor;
-      const core::brush_id brush;
+      const core::brush_id background;
     };
 
   } // win

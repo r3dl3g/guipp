@@ -207,7 +207,7 @@ namespace gui {
       ShowWindow(get_id(), SW_HIDE);
 #endif // WIN32
 #ifdef X11
-    XUnmapWindow(core::global::get_instance(), id);
+      XUnmapWindow(core::global::get_instance(), id);
 #endif // X11
     }
 
@@ -216,7 +216,7 @@ namespace gui {
       ShowWindow(get_id(), SW_SHOWNA);
 #endif // WIN32
 #ifdef X11
-    XMapWindow(core::global::get_instance(), id);
+      XMapWindow(core::global::get_instance(), id);
 #endif // X11
     }
 

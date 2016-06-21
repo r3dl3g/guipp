@@ -52,15 +52,9 @@ namespace gui {
       core::event_param_2 param_2;
     };
 #elif X11
-    struct window_event {
-      inline window_event(const XEvent& event)
-        : event(event)
-      {}
-
-      XEvent event;
-};
-
+    typedef XEvent window_event;
 #endif // WIN
+
     typedef bool(event_handler)(const window_event&, core::event_result&);
 
   } // win

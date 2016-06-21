@@ -134,10 +134,7 @@ namespace gui {
       static window* get(core::window_id id);
 
     private:
-#ifdef WIN32
       friend void detail::set_id(window*, core::window_id);
-#endif // WIN32
-
       core::window_id id;
 
     private:

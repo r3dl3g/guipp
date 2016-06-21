@@ -33,6 +33,7 @@ namespace gui {
 
   namespace win {
 
+#ifdef WIN32
     // --------------------------------------------------------------------------
     bool get_param1<bool>::operator()(const window_event& e) const {
       return LOWORD(e.param_1) != 0;
@@ -108,6 +109,7 @@ namespace gui {
       }
       return false;
     }
+#endif // WIN32
 
   } // win
 

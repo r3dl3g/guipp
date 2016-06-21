@@ -16,7 +16,6 @@
 * @file
 */
 
-#pragma once
 
 // --------------------------------------------------------------------------
 //
@@ -24,6 +23,7 @@
 //
 #include <map>
 #include <iomanip>
+#include <ostream>
 
 // --------------------------------------------------------------------------
 //
@@ -44,6 +44,7 @@ namespace gui {
 
       message_map_t& get_message_map() {
         static message_map_t message_map = {
+#ifdef Win32
           DEFINE_MESSAGE(WM_CREATE),
           DEFINE_MESSAGE(WM_DESTROY),
 
@@ -437,12 +438,51 @@ namespace gui {
 #if defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0400)
           , DEFINE_MESSAGE(LB_MULTIPLEADDSTRING)
 #endif
+#endif // WIN32
+
+#ifdef X11
+          DEFINE_MESSAGE(KeyPress),
+          DEFINE_MESSAGE(KeyRelease),
+          DEFINE_MESSAGE(ButtonPress),
+          DEFINE_MESSAGE(ButtonRelease),
+          DEFINE_MESSAGE(MotionNotify),
+          DEFINE_MESSAGE(EnterNotify),
+          DEFINE_MESSAGE(LeaveNotify),
+          DEFINE_MESSAGE(FocusIn),
+          DEFINE_MESSAGE(FocusOut),
+          DEFINE_MESSAGE(KeymapNotify),
+          DEFINE_MESSAGE(Expose),
+          DEFINE_MESSAGE(GraphicsExpose),
+          DEFINE_MESSAGE(NoExpose),
+          DEFINE_MESSAGE(VisibilityNotify),
+          DEFINE_MESSAGE(CreateNotify),
+          DEFINE_MESSAGE(DestroyNotify),
+          DEFINE_MESSAGE(UnmapNotify),
+          DEFINE_MESSAGE(MapNotify),
+          DEFINE_MESSAGE(MapRequest),
+          DEFINE_MESSAGE(ReparentNotify),
+          DEFINE_MESSAGE(ConfigureNotify),
+          DEFINE_MESSAGE(ConfigureRequest),
+          DEFINE_MESSAGE(GravityNotify),
+          DEFINE_MESSAGE(ResizeRequest),
+          DEFINE_MESSAGE(CirculateNotify),
+          DEFINE_MESSAGE(CirculateRequest),
+          DEFINE_MESSAGE(PropertyNotify),
+          DEFINE_MESSAGE(SelectionClear),
+          DEFINE_MESSAGE(SelectionRequest),
+          DEFINE_MESSAGE(SelectionNotify),
+          DEFINE_MESSAGE(ColormapNotify),
+          DEFINE_MESSAGE(ClientMessage),
+          DEFINE_MESSAGE(MappingNotify),
+          DEFINE_MESSAGE(GenericEvent)
+#endif // X11
         };
         return message_map;
       }
     }// detail
 
     bool is_frequent_event(core::event_id e) {
+#ifdef WIN32
       return ((e == WM_MOUSEMOVE) ||
         (e == WM_NCMOUSEMOVE) ||
         (e == WM_NCHITTEST) ||
@@ -457,14 +497,21 @@ namespace gui {
         (e == WM_ENTERIDLE) ||
         (e == WM_CANCELMODE) ||
         (e == 0x0118));    // WM_SYSTIMER (caret blink)
+#else
+      return false;
+#endif
     }
 
     bool is_none_client_event(core::event_id e) {
+#ifdef WIN32
       return ((e >= WM_NCCREATE) && (e <= WM_NCACTIVATE)) ||
         ((e >= WM_NCMOUSEMOVE) && (e <= WM_NCMBUTTONDBLCLK)) ||
         ((e >= WM_NCXBUTTONDOWN) && (e <= WM_NCXBUTTONDBLCLK)) ||
         ((e >= WM_NCPOINTERUPDATE) && (e <= WM_NCPOINTERUP)) ||
         (e == WM_NCMOUSEHOVER) || (e == WM_NCMOUSELEAVE);
+#else
+      return false;
+#endif
     }
 
   } // win
@@ -477,10 +524,12 @@ namespace std {
     const char* msg = gui::win::detail::get_message_map()[e.id];
     if (msg) {
       out << msg;
+#ifdef WIN32
     } else if ((e.id >= WM_USER) && (e.id < WM_APP)) {
       out << "WM_USER+" << (e.id - WM_USER);
     } else if ((e.id >= WM_APP) && (e.id < 0xC000)) {
       out << "WM_APP+" << (e.id - WM_APP);
+#endif // WIN32
     } else {
       out << "0x" << std::hex << e.id;
     }

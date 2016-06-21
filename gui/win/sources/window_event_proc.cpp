@@ -103,22 +103,17 @@ namespace gui {
 
 #ifdef X11
 
-    void register_window
-
     int run_main_loop() {
-        Atom wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
+        Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
 
         XEvent event;
         bool running = true;
-
-        XEvent event;
-        WM_DELETE_WINDOW
-        while(1) {
-            XNextEvent(dis, &event);
+        while(running) {
+            XNextEvent(core::global::get_instance(), &event);
             win::window* win = win::window::get(event.xany.window);
             if (win && win->is_valid()) {
               if (event.type == CreateNotify) {
-                XSetWMProtocols(display, event.xany.window, &wmDeleteMessage, 1);
+                XSetWMProtocols(core::global::get_instance(), event.xany.window, &wmDeleteMessage, 1);
               } else if ((event.type == ClientMessage) && (event.xclient.data.l[0] == wmDeleteMessage)) {
                 running = false;
               }

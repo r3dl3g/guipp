@@ -36,10 +36,14 @@ namespace gui {
     class window;
 
     std::string getLastErrorText() {
+#ifdef WIN32
       LPTSTR lpMsgBuf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
       return lpMsgBuf;
+#elif X11
+      return std::string();
+#endif // X11
     }
 
     const std::string& window_class::get_class_name() const {
@@ -72,16 +76,16 @@ namespace gui {
       return cursor;
     }
 
-    const core::brush_id window_class::get_brush() const {
+    const core::brush_id window_class::get_background() const {
       register_class();
-      return brush;
+      return background;
     }
 
     void window_class::register_class() const {
       if (is_initialized) {
         return;
       }
-
+#ifdef Win32
       WNDCLASSEX wc;
       memset(&wc, 0, sizeof(WNDCLASSEX));
       wc.cbSize = sizeof(WNDCLASSEX);
@@ -103,14 +107,17 @@ namespace gui {
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }
+#endif // WIN§2
       is_initialized = true;
     }
 
     void window_class::unregister_class() {
+#ifdef Win32
       BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }
+#endif // WIN§2
     }
 
   } // win

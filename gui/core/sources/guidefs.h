@@ -67,6 +67,9 @@ namespace gui {
     typedef LOGPEN pen_type;
 
     typedef COLORREF color_type;
+    
+#define IF_WIN32(...) __VA_ARGS__
+#define IF_X11(...)
 
 #elif X11
 
@@ -76,10 +79,11 @@ namespace gui {
     typedef int event_result;
 
     typedef unsigned int windows_style;
+    typedef unsigned long color_type;
 
     typedef Pixmap icon_id;
     typedef Cursor cursor_id;
-    typedef Pixmap brush_id;
+    typedef color_type brush_id;
     typedef Display* instance_id;
     typedef int screen_id;
     typedef Font font_id;
@@ -92,8 +96,10 @@ namespace gui {
     } size_type;
     typedef XRectangle rectangle_type;
     typedef XFontStruct* font_type;
-    typedef unsigned long color_type;
 
+#define IF_WIN32(...)
+#define IF_X11(...) __VA_ARGS__
+        
 #else
 
 #pragma error "Unknown target system"

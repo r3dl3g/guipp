@@ -1,10 +1,18 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("Test" CXX)
+project("Gui-Test" CXX)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif()
+
+if(UNIX)
+  add_definitions(-DX11 -std=c++11)
+endif(UNIX)
 
 add_subdirectory(./../gui gui)
 add_subdirectory(./../ibr_std_lib ibr_std_lib)
@@ -15,19 +23,19 @@ add_subdirectory(./../ibr_std_lib ibr_std_lib)
 include_directories("${PROJECT_BINARY_DIR}" ${gui_Include} ${ibr_std_lib_Include})
 
 link_directories(${core_Lib}
-				 ${draw_Lib}
-				 ${win_Lib}
-				 ${ibr_std_lib_Lib}
-				 "../boost/stage/lib")
+                 ${draw_Lib}
+                 ${win_Lib}
+                 ${ibr_std_lib_Lib}
+                 "../boost/stage/gcc/x64/lib")
 
 enable_testing()
 
 set(tests 
-	WindowTest
+  WindowTest
 )
 
 foreach(test ${tests})
-	add_executable(${test} WIN32 sources/${test}.cpp)
-	target_link_libraries(${test} core draw win ibr_std_lib)
-	add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
+        add_executable(${test} WIN32 sources/${test}.cpp)
+        target_link_libraries(${test} core draw win ibr_std_lib X11 boost_filesystem boost_system)
+        add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

@@ -7,8 +7,8 @@ project("win" CXX)
 add_subdirectory(./../draw draw)
 
 set (win_Include
-	${CMAKE_CURRENT_SOURCE_DIR}/sources
-	${draw_Include}
+     ${CMAKE_CURRENT_SOURCE_DIR}/sources
+     ${draw_Include}
 )
 set (win_Include ${win_Include} PARENT_SCOPE)
 
@@ -21,5 +21,6 @@ file(GLOB SOURCE_FILES "sources/*.*")
 link_directories(${win_Lib})
 
 add_library(win ${SOURCE_FILES})
+target_link_libraries(win core draw)
 
 endif()

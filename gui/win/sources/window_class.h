@@ -38,13 +38,13 @@ namespace gui {
     class window_class {
     public:
       inline window_class(const std::string& cls_name,
-                          core::windows_style class_style,
-                          core::windows_style style,
+                          core::windows_style class_style = 0,
+                          core::windows_style style = IF_WIN32(0) IF_X11(1), // X11: Border width
                           core::windows_style ex_style = 0,
                           core::icon_id icon = 0,
                           core::cursor_id cursor = 0,
-                          core::brush_id background = 0,
-                          core::color_type foreground = 0)
+                          core::brush_id background = IF_WIN32(0) IF_X11(0xFFFFFF),
+                          core::color_type foreground = IF_WIN32(0) IF_X11(CopyFromParent))
         : is_initialized(false)
         , class_name(cls_name)
         , class_style(class_style)

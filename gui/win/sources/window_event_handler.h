@@ -404,15 +404,10 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
     // --------------------------------------------------------------------------
-    //struct XButtonEvent {
-    //  int button;
-    //};
-
     template <core::event_id id, core::event_id btn, int sts>
-    bool event_button_match(const core::event& e) {
-      return (e.type == id) && (e.xbutton == btn) && (e.state == sts);
+    bool event_button_match(const XEvent& e) {
+      return (e.type == id) && (e.xbutton.button == btn) && (e.xbutton.state & sts);
     }
-
     // --------------------------------------------------------------------------
     template <>
     const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
@@ -430,19 +425,24 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    core::point get_point(const core::event& e) const {
+    core::point get_point(const core::event& e) {
       const T& be = cast_event_type<T>(e);
       return core::point(be.x, be.y);
     }
     // --------------------------------------------------------------------------
     typedef no_param_event_handler<DestroyNotify> destroy_event;
     
+    typedef two_param_event_handler<ButtonPress,
+                                    unsigned int, core::point,
+                                    get_state<XButtonEvent>,
+                                    get_point<XButtonEvent>,
+                                    event_button_match<ButtonPress, Button1, Button1Mask>> left_btn_down_event;
+
     typedef three_param_event_handler<ButtonPress,
                                      unsigned int, unsigned int, core::point,
                                      get_state<XButtonEvent>,
                                      get_button<XButtonEvent>,
-                                     get_point<XButtonEvent>/*,
-                                     event_button_match<ButtonPress, Button1, 1>*/> button_event;
+                                     get_point<XButtonEvent>> button_event;
 #endif // X11
 
   } // gui

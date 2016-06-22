@@ -121,7 +121,7 @@ namespace gui {
               win->handle_event(core::event(e), resultValue);
             }
         }
-
+        XCloseDisplay(core::global::get_instance());
     }
 #endif // X11
 

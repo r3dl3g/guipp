@@ -6,22 +6,21 @@
 #include "gui_types.h"
 #include "font.h"
 
-struct Bool {
-  inline Bool(bool b)
+struct AsBool {
+  inline AsBool(bool b)
     : b(b) {
   }
 
   bool b;
 };
 
-std::ostream& operator<<(std::ostream& out, const Bool& b) {
+std::ostream& operator<<(std::ostream& out, const AsBool& b) {
   out << (b.b ? "true" : "false");
   return out;
 }
 
 #include <logger.h>
 #include <dbgstream.h>
-
 
 #define NO_EXPORT
 
@@ -35,8 +34,16 @@ public:
   }
 
   bool operator()(const core::event& e, core::event_result& result) {
-    if ((result == 0xdeadbeef) && !win::is_none_client_event(e.msg) && !win::is_frequent_event(e.msg)) {
-      LogDebug << "Message: " << win::EventId(e.msg) << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")";
+    if ((result == 0xdeadbeef)
+#ifdef WIN32
+       && !win::is_none_client_event(e.msg) && !win::is_frequent_event(e.msg)
+#endif
+       ) {
+      LogDebug << "Message: " << win::EventId(e)
+#ifdef WIN32
+               << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")"
+#endif
+               ;
     }
     return false;
   }
@@ -69,6 +76,7 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
   };
 }
 
+#ifdef WIN32
 win::window_class mainCls("mainwindow",
                           CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
                           WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_VISIBLE,
@@ -84,7 +92,12 @@ win::window_class chldCls("childwindow",
                           NULL,
                           LoadCursor(NULL, IDC_ARROW),
                           (HBRUSH)(COLOR_WINDOW + 1));
+#elif X11
+win::window_class mainCls("mainwindow", ButtonPressMask|ExposureMask);
+win::window_class chldCls("childwindow", ButtonPressMask|ExposureMask);
+#endif
 
+#ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -96,6 +109,14 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
 
   gui::core::global::init(hInstance);
+#elif X11
+int main(int argc, char* argv[]) {
+  ibr::log::core::instance().addSink(&std::cerr, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+
+  gui::core::global::init(XOpenDisplay(0));
+#endif
+
+
 
   win::windowT<mainCls> main;
   win::windowT<chldCls> window1;
@@ -109,6 +130,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
   main.register_event_handler(init_result_handler());
 
+#ifdef WIN32
   main.register_event_handler(win::pos_changing_event([](unsigned int& flags, core::rectangle& r) {
     LogDebug << "Main changing: " << flags << ", " << r;
   }));
@@ -128,10 +150,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     const core::rectangle& r) {
     LogDebug << "Create Main: " << r;
   }));
+#endif
   main.register_event_handler(win::destroy_event([&]() {
     LogDebug << "Destroyed!";
     main.quit();
   }));
+#ifdef WIN32
   main.register_event_handler(win::close_event([&]() {
     LogDebug << "Close!";
     main.destroy();
@@ -200,9 +224,6 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   main.register_event_handler(win::right_btn_dblclk_event([&](unsigned int keys, const core::point& p) {
     window1.move({ 50, 50 });
   }));
-
-
-  main.register_event_handler(log_all_events());
 
   win::window::event_handler_ptr painter1 = window2.register_event_handler(win::paint_event([](draw::graphics& graph) {
     using namespace draw;
@@ -277,12 +298,23 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
     }
     window2.redraw_later();
   }));
+#endif
+
+#ifdef X11
+  main.register_event_handler(win::left_btn_down_event([&](unsigned int keys, const core::point& p){
+  }));
+#endif
+
+
+  main.register_event_handler(log_all_events());
 
   main.create(core::rectangle(50, 50, 640, 480));
   window1.create(main, core::rectangle(50, 50, 200, 380));
   window2.create(main, core::rectangle(300, 50, 200, 380));
   main.setText("Window Test");
   main.show();
+  window1.show();
+  window2.show();
 
   int ret = win::run_main_loop();
 

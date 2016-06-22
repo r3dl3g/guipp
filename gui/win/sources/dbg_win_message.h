@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include "guidefs.h"
+#include "event.h"
 
 
 namespace gui {
@@ -39,8 +39,13 @@ namespace gui {
     bool is_none_client_event(core::event_id e);
 
     struct EventId {
-      EventId(core::event_id e)
-        : id(e) {}
+      EventId(const core::event& e)
+#ifdef WIN32
+        : id(e.msg)
+#elif X11
+        : id(e.type)
+#endif
+      {}
 
       core::event_id id;
     };

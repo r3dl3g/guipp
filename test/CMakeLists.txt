@@ -26,7 +26,13 @@ link_directories(${core_Lib}
                  ${draw_Lib}
                  ${win_Lib}
                  ${ibr_std_lib_Lib}
-                 "../boost/stage/gcc/x64/lib")
+                )
+
+if(UNIX)
+    link_directories("../boost/stage/gcc/x64/lib")
+else()
+    link_directories("../boost/stage/lib")
+endif(UNIX)
 
 enable_testing()
 
@@ -36,6 +42,9 @@ set(tests
 
 foreach(test ${tests})
         add_executable(${test} WIN32 sources/${test}.cpp)
-        target_link_libraries(${test} core draw win ibr_std_lib X11 boost_filesystem boost_system)
+        target_link_libraries(${test} core draw win ibr_std_lib)
+        if(UNIX)
+          add_definitions(${test} X11 boost_filesystem boost_system)
+        endif(UNIX)
         add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

@@ -151,7 +151,7 @@ namespace gui {
     core::point_type *buildPoints(const std::vector<core::point>&, int&);
 
     struct polygone {
-      polygone(std::vector<core::point>& points)
+      polygone(const std::vector<core::point>& points)
         : points(buildPoints(points, count)) {
       }
 

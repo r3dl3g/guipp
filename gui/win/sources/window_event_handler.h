@@ -33,6 +33,7 @@
 #include "easy_bind.h"
 #include "gui_types.h"
 #include "graphics.h"
+#include "logger.h"
 
 
 namespace gui {
@@ -317,32 +318,32 @@ namespace gui {
                                     get_param2<core::rectangle>,
                                     event_type_match<WM_SIZING>, TRUE>       sizing_event;
 
-    typedef two_param_event_handler<WM_LBUTTONDOWN,
-                                    unsigned int, core::point>  left_btn_down_event;
-    typedef two_param_event_handler<WM_LBUTTONUP,
-                                    unsigned int,core::point>  left_btn_up_event;
-    typedef two_param_event_handler<WM_LBUTTONDBLCLK,
-                                    unsigned int, core::point> left_btn_dblclk_event;
+    typedef one_param_event_handler<WM_LBUTTONDOWN,
+                                    core::point, get_param2<core::point>>  left_btn_down_event;
+    typedef one_param_event_handler<WM_LBUTTONUP,
+                                    core::point, get_param2<core::point>>  left_btn_up_event;
+    typedef one_param_event_handler<WM_LBUTTONDBLCLK,
+                                    core::point, get_param2<core::point>> left_btn_dblclk_event;
 
-    typedef two_param_event_handler<WM_RBUTTONDOWN,
-                                    unsigned int, core::point> right_btn_down_event;
-    typedef two_param_event_handler<WM_RBUTTONUP,
-                                    unsigned int, core::point> right_btn_up_event;
-    typedef two_param_event_handler<WM_RBUTTONDBLCLK,
-                                    unsigned int, core::point> right_btn_dblclk_event;
+    typedef one_param_event_handler<WM_RBUTTONDOWN,
+                                    core::point, get_param2<core::point>> right_btn_down_event;
+    typedef one_param_event_handler<WM_RBUTTONUP,
+                                    core::point, get_param2<core::point>> right_btn_up_event;
+    typedef one_param_event_handler<WM_RBUTTONDBLCLK,
+                                    core::point, get_param2<core::point>> right_btn_dblclk_event;
 
-    typedef two_param_event_handler<WM_MBUTTONDOWN,
-                                    unsigned int, core::point> middle_btn_down_event;
-    typedef two_param_event_handler<WM_MBUTTONUP,
-                                    unsigned int, core::point> middle_btn_up_event;
-    typedef two_param_event_handler<WM_MBUTTONDBLCLK,
-                                    unsigned int, core::point> middle_btn_dblclk_event;
+    typedef one_param_event_handler<WM_MBUTTONDOWN,
+                                    core::point, get_param2<core::point>> middle_btn_down_event;
+    typedef one_param_event_handler<WM_MBUTTONUP,
+                                    core::point, get_param2<core::point>> middle_btn_up_event;
+    typedef one_param_event_handler<WM_MBUTTONDBLCLK,
+                                    core::point, get_param2<core::point>> middle_btn_dblclk_event;
 
     typedef two_param_event_handler<WM_MOUSEMOVE,
                                     unsigned int, core::point> mouse_move_event;
     typedef two_param_event_handler<WM_MOUSEHOVER,
                                     unsigned int, core::point> mouse_hover_event;
-    typedef no_param_event_handler<WM_MOUSELEAVE>              mouse_leave_event;
+    typedef no_param_event_handler<WM_MOUSELEAVE>               mouse_leave_event;
 
     typedef three_param_event_handler<WM_MOUSEHWHEEL,
                                       unsigned int, int, core::point> wheel_x_event;
@@ -406,43 +407,80 @@ namespace gui {
     // --------------------------------------------------------------------------
     template <core::event_id id, core::event_id btn, int sts>
     bool event_button_match(const XEvent& e) {
-      return (e.type == id) && (e.xbutton.button == btn) && (e.xbutton.state & sts);
+      /*if (e.type == id) {
+        LogDebug << "event_button_match id:" << e.type << " && (" 
+                 << e.xbutton.button << " == " << btn << ") && ("
+                 << e.xbutton.state << " & " << sts << " = " << (e.xbutton.state & sts) << ")";
+      }*/
+      return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
     }
     // --------------------------------------------------------------------------
     template <>
-    const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
+    inline const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
       return e.xbutton;
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    unsigned int get_state(const core::event& e) {
+    inline unsigned int get_state(const core::event& e) {
       return cast_event_type<T>(e).state;
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    unsigned int get_button(const core::event& e) {
+    inline unsigned int get_button(const core::event& e) {
       return cast_event_type<T>(e).button;
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    core::point get_point(const core::event& e) {
+    inline core::point get_point(const core::event& e) {
       const T& be = cast_event_type<T>(e);
       return core::point(be.x, be.y);
     }
     // --------------------------------------------------------------------------
     typedef no_param_event_handler<DestroyNotify> destroy_event;
     
-    typedef two_param_event_handler<ButtonPress,
-                                    unsigned int, core::point,
-                                    get_state<XButtonEvent>,
+    typedef one_param_event_handler<ButtonPress,
+                                    core::point,
                                     get_point<XButtonEvent>,
-                                    event_button_match<ButtonPress, Button1, Button1Mask>> left_btn_down_event;
+                                    event_button_match<ButtonPress, Button1, 0>> left_btn_down_event;
+    typedef one_param_event_handler<ButtonRelease,
+                                    core::point,
+                                    get_point<XButtonEvent>,
+                                    event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
+
+    typedef one_param_event_handler<ButtonPress,
+                                    core::point,
+                                    get_point<XButtonEvent>,
+                                    event_button_match<ButtonPress, Button3, 0>> right_btn_down_event;
+    typedef one_param_event_handler<ButtonRelease,
+                                    core::point,
+                                    get_point<XButtonEvent>,
+                                    event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
 
     typedef three_param_event_handler<ButtonPress,
                                      unsigned int, unsigned int, core::point,
                                      get_state<XButtonEvent>,
                                      get_button<XButtonEvent>,
                                      get_point<XButtonEvent>> button_event;
+    // --------------------------------------------------------------------------
+    struct paint_event : std::function<core::event_handler> {
+      typedef std::function<void(draw::graphics&)> function;
+
+      paint_event(function changingfn)
+        : callback(changingfn)
+      {}
+
+      template<class T>
+      paint_event(T* t, void(T::*changingfn)(draw::graphics&))
+        : callback(t, changingfn)
+      {}
+
+      bool operator()(const core::event& e, core::event_result& result);
+
+    private:
+      function callback;
+      
+    };
+
 #endif // X11
 
   } // gui

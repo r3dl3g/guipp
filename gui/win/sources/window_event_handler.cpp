@@ -113,6 +113,20 @@ namespace gui {
       }
       return false;
     }
+#elif X11
+    // --------------------------------------------------------------------------
+    bool paint_event::operator()(const core::event& e, core::event_result& result) {
+      if ((e.type == Expose) && callback) {
+        core::graphics_id gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+        draw::graphics g(e.xexpose.window, gc);
+        callback(g);
+        XFreeGC(e.xexpose.display, gc);
+        result = 0;
+        return true;
+      }
+      return false;
+    }
+    
 #endif // WIN32
 
   } // win

@@ -7,10 +7,11 @@ project("draw" CXX)
 add_subdirectory(./../core core)
 
 set (draw_Include
-	${CMAKE_CURRENT_SOURCE_DIR}/sources
-	"../../boost"
-	${core_Include}
+     ${CMAKE_CURRENT_SOURCE_DIR}/sources
+     "../../boost"
+     ${core_Include}
 )
+
 set (draw_Include ${draw_Include} PARENT_SCOPE)
 
 if(NOT TARGET draw)

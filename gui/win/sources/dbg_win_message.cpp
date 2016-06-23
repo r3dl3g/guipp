@@ -498,7 +498,7 @@ namespace gui {
         (e == WM_CANCELMODE) ||
         (e == 0x0118));    // WM_SYSTIMER (caret blink)
 #else
-      return false;
+      return (e == ConfigureNotify);
 #endif
     }
 

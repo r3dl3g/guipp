@@ -15,7 +15,6 @@ if(UNIX)
 endif(UNIX)
 
 add_subdirectory(./../gui gui)
-add_subdirectory(./../ibr_std_lib ibr_std_lib)
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
@@ -44,7 +43,7 @@ foreach(test ${tests})
         add_executable(${test} WIN32 sources/${test}.cpp)
         target_link_libraries(${test} core draw win ibr_std_lib)
         if(UNIX)
-          target_link_libraries(${test} X11 boost_filesystem boost_system)
+          target_link_libraries(${test} X11 boost_filesystem boost_system pthread)
         endif(UNIX)
         add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

@@ -34,120 +34,258 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
-    void rectangle::operator() (core::drawable_id, core::graphics_id id, int) {
-      Rectangle(id, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
-    }
+    brush null_brush((core::brush_id)GetStockObject(NULL_BRUSH));
+    pen null_pen((core::pen_id)GetStockObject(NULL_PEN));
+#endif // WIN32
+    
+    template<typename T>
+    struct Use {
+      Use(core::graphics_id gc, const T& t)
+        : gc(gc)
+        , obj(t)
+        , old(set(t))
+      {}
+
+#ifdef WIN32
+      T set(const T& t) {
+        return SelectObject(gc, t);
+      }
+      
+      void unset(const T& t) {
+        SelectObject(gc, t);
+      }
 #elif X11
+      T set(const T& t);
+      void unset(const T& t);
+#endif // X11
+
+      inline ~Use() {
+        unset(old);
+      }
+
+      core::graphics_id gc;
+      T obj;
+      T old;
+    };
+
+#ifdef X11
+
+    template<> void Use<pen>::unset(const pen& p) {
+      core::instance_id display = core::global::get_instance();
+      XSetForeground(display, gc, p.color());
+      XSetLineAttributes(display, gc, p.size(), p.style(), CapButt, JoinMiter);
+    }
+
+    template<> void Use<brush>::unset(const brush& b) {
+      core::instance_id display = core::global::get_instance();
+      XSetForeground(display, gc, b.color());
+      XSetFillStyle(display, gc, b.style());
+    }
+
+    template<> void Use<font>::unset(const font& f) {
+      XSetFont(core::global::get_instance(), gc, f);
+    }
+
+    template<> pen Use<pen>::set(const pen& p) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCLineWidth | GCLineStyle, &gcv);
+      unset(p);
+      return {gcv.foreground, (pen::Style)gcv.line_style, gcv.line_width};
+    }
+
+    template<> brush Use<brush>::set(const brush& b) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCFillStyle, &gcv);
+      unset(b);
+      return {gcv.foreground, (brush::Style)gcv.fill_style};
+    }
+
+    template<> font Use<font>::set(const font& f) {
+      XGCValues gcv;
+      XGetGCValues(core::global::get_instance(), gc, GCFont, &gcv);
+      unset(f);
+      return {gcv.font};
+    }
+
+#endif // X11
+
     rectangle::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XDrawRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
-        XFillRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, p);
+        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
+        core::instance_id display = core::global::get_instance();
+        XFillRectangle(display, id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+        Use<pen> pn(gc, p);
+        XDrawRectangle(display, id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+#endif //X11
       };
   }
 
     rectangle::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
+        Use<pen> pn(gc, p);
+#ifdef WIN32
+        Use<brush> br(gc, null_brush);
+        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
         XDrawRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+#endif //X11
       };
     }
 
     rectangle::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, null_pen);
+        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
         XFillRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+#endif //X11
       };
     }
-#endif
 
-#ifdef WIN32
-    void ellipse::operator() (core::drawable_id, core::graphics_id id, int) {
-      Ellipse(id, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
-    }
-#elif X11
     ellipse::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XDrawArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
-        XFillArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, p);
+        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
+        core::instance_id display = core::global::get_instance();
+        const core::point& pt = rect.topleft;
+
+        XSetArcMode(display, gc, ArcPieSlice);
+        XFillArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+        Use<pen> pn(gc, p);
+        XSetArcMode(display, gc, ArcChord);
+        XDrawArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+#endif //X11
       };
     }
 
     ellipse::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XDrawArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
+      return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
+        Use<pen> pn(gc, p);
+#ifdef WIN32
+        Use<brush> br(gc, null_brush);
+        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
+        core::instance_id display = core::global::get_instance();
+        const core::point& pt = rect.topleft;
+
+        XSetArcMode(display, gc, ArcChord);
+        XDrawArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+#endif //X11
       };
     }
 
     ellipse::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        XFillArc(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height, 0, 360 * 64);
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, null_pen);
+        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+#elif X11
+        core::instance_id display = core::global::get_instance();
+        const core::point& pt = rect.topleft;
+
+        XSetArcMode(display, gc, ArcPieSlice);
+        XFillArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+#endif //X11
       };
     }
-#endif // X11
 
-#ifdef WIN32
-    void round_rectangle::operator() (core::drawable_id, core::graphics_id id, int) {
-      RoundRect(id, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
-    }
-#elif X11
     round_rectangle::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        int x0 = rect.topleft.x;
-        int x1 = x1 + size.width;
-        int x3 = rect.bottomright.x;
-        int x2 = x3 - size.width;
+      return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
+        Use<pen> pn(gc, p);
+#ifdef WIN32
+        Use<brush> br(gc, null_brush);
+        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+#elif X11
+        const int w = size.width;
+        const int h = size.height;
 
-        int y0 = rect.topleft.y;
-        int y1 = y0 + size.height;
-        int y3 = rect.bottomright.y;
-        int y2 = y3 - size.height;
+        const int x0 = rect.topleft.x;
+        const int x1 = x0 + w;
+        const int x3 = rect.bottomright.x;
+        const int x2 = x3 - w;
 
-        int w = size.width * 2;
-        int h = size.height * 2;
+        const int y0 = rect.topleft.y;
+        const int y1 = y0 + h;
+        const int y3 = rect.bottomright.y;
+        const int y2 = y3 - h;
 
-        XDrawArc(core::global::get_instance(), id, gc, x0, y0, w, h, 90 * 64, 180 * 64);
-        XDrawArc(core::global::get_instance(), id, gc, x3 - w, y0, w, h, 0, 90 * 64);
-        XDrawArc(core::global::get_instance(), id, gc, x0, y3 - h, w, h, 180 * 64, 270 * 64);
-        XDrawArc(core::global::get_instance(), id, gc, x3 - w, y3 - h, w, h, 270 * 64, 360 * 64);
+        const int w2 = w * 2;
+        const int h2 = h * 2;
 
-        XDrawLine(core::global::get_instance(), id, gc, x1, y0, x2, y0);
-        XDrawLine(core::global::get_instance(), id, gc, x1, y3, x2, y3);
-        XDrawLine(core::global::get_instance(), id, gc, x0, y1, x0, y2);
-        XDrawLine(core::global::get_instance(), id, gc, x3, y1, x3, y2);
+        core::instance_id display = core::global::get_instance();
+        XSetArcMode(display, gc, ArcChord);
+        XDrawArc(display, id, gc, x0, y0, w2, h2, 90 * 64, 90 * 64);
+        XDrawArc(display, id, gc, x3 - w2, y0, w2, h2, 0, 90 * 64);
+        XDrawArc(display, id, gc, x0, y3 - h2, w2, h2, 180 * 64, 90 * 64);
+        XDrawArc(display, id, gc, x3 - w2, y3 - h2, w2, h2, 270 * 64, 90 * 64);
+
+        XDrawLine(display, id, gc, x1, y0, x2, y0);
+        XDrawLine(display, id, gc, x1, y3, x2, y3);
+        XDrawLine(display, id, gc, x0, y1, x0, y2);
+        XDrawLine(display, id, gc, x3, y1, x3, y2);
+#endif //X11
       };
     }
 
     round_rectangle::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
-        int x0 = rect.topleft.x;
-        int x1 = x1 + size.width;
-        int x3 = rect.bottomright.x;
-        int x2 = x3 - size.width;
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, null_pen);
+        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+#elif X11
+        const int w = size.width;
+        const int h = size.height;
 
-        int y0 = rect.topleft.y;
-        int y1 = y0 + size.height;
-        int y3 = rect.bottomright.y;
-        int y2 = y3 - size.height;
+        const int x0 = rect.topleft.x;
+        const int x1 = x0 + w;
+        const int x3 = rect.bottomright.x;
+        const int x2 = x3 - w;
 
-        int w = size.width * 2;
-        int h = size.height * 2;
+        const int y0 = rect.topleft.y;
+        const int y1 = y0 + h;
+        const int y3 = rect.bottomright.y;
+        const int y2 = y3 - h;
 
-        XFillArc(core::global::get_instance(), id, gc, x0, y0, w, h, 90 * 64, 180 * 64);
-        XFillArc(core::global::get_instance(), id, gc, x3 - w, y0, w, h, 0, 90 * 64);
-        XFillArc(core::global::get_instance(), id, gc, x0, y3 - h, w, h, 180 * 64, 270 * 64);
-        XFillArc(core::global::get_instance(), id, gc, x3 - w, y3 - h, w, h, 270 * 64, 360 * 64);
+        const int w2 = w * 2;
+        const int h2 = h * 2;
 
-        XFillRectangle(core::global::get_instance(), id, gc, x0, y1, size.width, y3 - h);
-        XFillRectangle(core::global::get_instance(), id, gc, x2, y1, size.width, y3 - h);
-        XFillRectangle(core::global::get_instance(), id, gc, x1, y0, x2 - x1,  y3 - y0);
+        core::instance_id display = core::global::get_instance();
+        XSetArcMode(display, gc, ArcPieSlice);
+        XFillArc(display, id, gc, x0, y0, w2, h2, 90 * 64, 90 * 64);
+        XFillArc(display, id, gc, x3 - w2, y0, w2, h2, 0, 90 * 64);
+        XFillArc(display, id, gc, x0, y3 - h2, w2, h2, 180 * 64, 90 * 64);
+        XFillArc(display, id, gc, x3 - w2, y3 - h2, w2, h2, 270 * 64, 90 * 64);
+
+        XFillRectangle(display, id, gc, x0, y1, w, y2 - y1);
+        XFillRectangle(display, id, gc, x2, y1, w, y2 - y1);
+        XFillRectangle(display, id, gc, x1, y0, x2 - x1,  y3 - y0);
+#endif //X11
       };
     }
 
     round_rectangle::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int i) {
-        operator fillable()(id, gc, detail::FillType::Fill);
-        operator frameable()(id, gc, detail::FrameType::Frame);
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+#ifdef WIN32
+        Use<brush> br(gc, b);
+        Use<pen> pn(gc, p);
+        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+#elif X11
+        operator fillable()(id, gc, b);
+        operator frameable()(id, gc, p);
+#endif //X11
       };
     }
-#endif // X11
 
     arc::arc(const core::point& pos, unsigned int radius, float startrad, float endrad)
       : pos(pos)
@@ -156,39 +294,58 @@ namespace gui {
       , endrad(endrad) {
     }
 
-#ifdef WIN32
-    void arc::operator() (core::drawable_id, core::graphics_id id, int) {
-      AngleArc(id, pos.x, pos.y, radius, startrad, endrad);
-    }
-#elif X11
     arc::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, p);
+        MoveToEx(gc, pos.x, pos.y, NULL);
+        AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+#elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;
         int sz = radius * 2;
-        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
         XFillArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+        Use<pen> pn(gc, p);
+        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+#endif // X11
       };
     }
 
     arc::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
+        Use<pen> pn(gc, p);
+#ifdef WIN32
+        Use<brush> br(gc, null_brush);
+        MoveToEx(gc, pos.x, pos.y, NULL);
+        AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+#elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;
         int sz = radius * 2;
         XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+#endif // X11
       };
     }
 
     arc::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, null_pen);
+        MoveToEx(gc, pos.x, pos.y, NULL);
+        AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+#elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;
         int sz = radius * 2;
-        XFillArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+
+        core::instance_id display = core::global::get_instance();
+        XSetArcMode(display, gc, ArcPieSlice);
+        XFillArc(display, id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+#endif // X11
       };
     }
-#endif // X11
 
     core::point_type *buildPoints(const std::vector<core::point>& pts, int& size) {
       size = (int)pts.size();
@@ -210,34 +367,48 @@ namespace gui {
       delete[] points;
     }
 
-#ifdef WIN32
-    void polygone::operator() (core::drawable_id, core::graphics_id gc, int) {
-      Polygon(gc, points, count);
-    }
-#elif X11
     polygone::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, p);
+        Polygon(gc, points, count);
+#elif X11
         XFillPolygon(core::global::get_instance(), id, gc, points, count, 0, CoordModeOrigin);
+        Use<pen> pn(gc, p);
         XDrawLines(core::global::get_instance(), id, gc, points, count, CoordModeOrigin);
+#endif // X11
       };
     }
 
     polygone::operator frameable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
+        Use<pen> pn(gc, p);
+#ifdef WIN32
+        Use<brush> br(gc, null_brush);
+        Polygon(gc, points, count);
+#elif X11
         XDrawLines(core::global::get_instance(), id, gc, points, count, CoordModeOrigin);
+#endif // X11
       };
     }
 
     polygone::operator fillable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        Use<brush> br(gc, b);
+#ifdef WIN32
+        Use<pen> pn(gc, null_pen);
+        Polygon(gc, points, count);
+#elif X11
         XFillPolygon(core::global::get_instance(), id, gc, points, count, 0, CoordModeOrigin);
+#endif // X11
       };
     }
-#endif // X11
 
     text_box::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
 #ifdef WIN32
+        core::color_type old_color = SetTextColor(gc, p.color());
         int old_mode = SetBkMode(gc, clear_background ? OPAQUE : TRANSPARENT);
         RECT Rect = rect;
         if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
@@ -249,7 +420,9 @@ namespace gui {
         }
         DrawText(gc, text.c_str(), (int)text.size(), &Rect, (UINT)origin);
         SetBkMode(gc, old_mode);
+        SetTextColor(gc, old_color);
 #elif X11
+        Use<pen> pn(gc, p);
         // TBD!
         XDrawString(core::global::get_instance(), id, gc, rect.position().x, rect.position().y, text.c_str(), text.size());
 #endif // X11
@@ -257,8 +430,9 @@ namespace gui {
     }
 
     text::operator drawable() const {
-      return [&](core::drawable_id id, core::graphics_id gc, int) {
+      return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
 #ifdef WIN32
+        core::color_type old_color = SetTextColor(gc, p.color());
         int old_mode = SetBkMode(gc, clear_background ? OPAQUE : TRANSPARENT);
         int px = pos.x;
         int py = pos.y;
@@ -308,181 +482,83 @@ namespace gui {
         TextOut(gc, px, py, str.c_str(), (int)str.size());
         SetTextAlign(gc, old_align);
         SetBkMode(gc, old_mode);
+        SetTextColor(gc, old_color);
 #elif X11
+        Use<pen> pn(gc, p);
         // TBD!
         XDrawString(core::global::get_instance(), id, gc, pos.x, pos.y, str.c_str(), str.size());
 #endif // X11
       };
     }
 
-    template<bool freeObj, typename T
+    void graphics::drawPixel(const core::point &pt, const color &c) {
 #ifdef WIN32
-     = HGDIOBJ
-#endif // WIN32
-    >
-    struct Use {
-      inline Use(core::graphics_id id, const T& obj)
-        : gc(id)
-        , obj(obj)
-        , old(set(obj))
-      {}
-
-      T set(const T&);
-
-      inline ~Use() {
-        set(old);
-#ifdef WIN32
-        if (freeObj) {
-          DeleteObject(obj);
-        }
-#endif // WIN32
-      }
-
-      core::graphics_id gc;
-      T obj;
-      T old;
-    };
-
-#ifdef WIN32
-
-    template<> HGDIOBJ Use<false, HGDIOBJ>::set(const HGDIOBJ& hobj) {
-      return SelectObject(gc, hobj);
-    }
-
-    template<> HGDIOBJ Use<true, HGDIOBJ>::set(const HGDIOBJ& hobj) {
-      return SelectObject(gc, hobj);
-    }
-
-#elif X11
-
-    template<> draw::pen Use<false, draw::pen>::set(const draw::pen& pen) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCLineWidth | GCLineStyle, &gcv);
-      draw::pen p(gcv.foreground, (draw::pen::Style)gcv.line_style, gcv.line_width);
-      XSetForeground(core::global::get_instance(), gc, pen.color());
-      XSetLineAttributes(core::global::get_instance(), gc, pen.size(), pen.style(), CapButt, JoinMiter);
-      return old;
-    }
-
-    template<> draw::color Use<false, draw::color>::set(const draw::color& color) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCBackground, &gcv);
-      draw::color c(gcv.background);
-      XSetBackground(core::global::get_instance(), gc, color);
-      XSetFillStyle(core::global::get_instance(), gc, FillSolid);
-      return c;
-    }
-
-    template<> draw::font Use<false, draw::font>::set(const draw::font& font) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCFont, &gcv);
-      draw::font f(gcv.font);
-      XSetFont(core::global::get_instance(), gc, font);
-      return f;
-    }
-
-#endif // X11
-
-    void graphics::drawPixel(const core::point &pt, const draw::color &color) {
-#ifdef WIN32
-      SetPixel(id, pt.x, pt.y, color);
+      SetPixel(gc, pt.x, pt.y, c);
 #endif // WIN32
 #ifdef X11
-      XSetForeground(core::global::get_instance(), id, color);
-      XDrawPoint(core::global::get_instance(), win, id, pt.x, pt.y);
+      Use<pen> pn(gc, pen(c));
+      XDrawPoint(core::global::get_instance(), win, gc, pt.x, pt.y);
 #endif // X11
     }
 
-    draw::color graphics::getPixel(const core::point &pt) const {
+    color graphics::getPixel(const core::point &pt) const {
 #ifdef WIN32
-      return GetPixel(id, pt.x, pt.y);
+      return GetPixel(gc, pt.x, pt.y);
 #endif // WIN32
 #ifdef X11
-      return draw::color::black;
+      return color::black;
 #endif // X11
     }
 
-    void graphics::drawLine(const core::point &from, const core::point &to, const draw::pen& pen) {
+    void graphics::drawLine(const core::point &from, const core::point &to, const pen& p) {
+      Use<pen> pn(gc, p);
 #ifdef WIN32
-      Use<false> p(id, pen);
-      MoveToEx(id, from.x, from.y, NULL);
-      LineTo(id, to.x, to.y);
+      MoveToEx(gc, from.x, from.y, NULL);
+      LineTo(gc, to.x, to.y);
 #endif // WIN32
 #ifdef X11
-      Use<false, draw::pen> p(id, pen);
-      XDrawLine(core::global::get_instance(), win, id, from.x, from.y, to.x, to.y);
+      XDrawLine(core::global::get_instance(), win, gc, from.x, from.y, to.x, to.y);
 #endif // X11
     }
 
-    void graphics::drawLines(std::vector<core::point> &points, const draw::pen& pen) {
+    void graphics::drawLines(std::vector<core::point> &points, const pen& p) {
 #ifdef WIN32
-      Use<false> p(id, pen);
+      Use<pen> pn(gc, p);
       bool first = true;
       for (core::point pt : points) {
         if (first) {
           first = false;
-          MoveToEx(id, pt.x, pt.y, NULL);
+          MoveToEx(gc, pt.x, pt.y, NULL);
         } else {
-          LineTo(id, pt.x, pt.y);
+          LineTo(gc, pt.x, pt.y);
         }
       }
 #elif X11
-      Use<false, draw::pen> p(id, pen);
       polygone poly(points);
-      frame(poly, pen);
+      frame(poly, p);
 #endif // X11
     }
 
-    void graphics::frame(const frameable& drawer, const draw::pen& pen) const {
-#ifdef WIN32
-      Use<false> p(id, pen);
-      Use<false> b(id, GetStockObject(NULL_BRUSH));
-#elif X11
-      Use<false, draw::pen> p(id, pen);
-#endif // WIN32
-      drawer(win, id, detail::Frame);
+    void graphics::frame(const frameable& drawer, const pen& p) const {
+      drawer(win, gc, p);
     }
 
-    void graphics::fill(const fillable& drawer, const draw::color& color) const {
-#ifdef WIN32
-      Use<true> b(id, CreateSolidBrush(color));
-      Use<false> p(id, GetStockObject(NULL_PEN));
-#endif // WIN32
-#ifdef X11
-      Use<false, draw::color> p(id, color);
-#endif // X11
-      drawer(win, id, detail::Fill);
+    void graphics::fill(const fillable& drawer, const brush& b) const {
+      drawer(win, gc, b);
     }
 
-    void graphics::draw(const drawable& drawer, const draw::color& color, const draw::pen& pen) const {
-#ifdef WIN32
-      Use<true> b(id, CreateSolidBrush(color));
-      Use<false> p(id, pen);
-#elif X11
-      Use<false, draw::color> c(id, color);
-      Use<false, draw::pen> p(id, pen);
-#endif // X11
-      drawer(win, id, detail::Draw);
+    void graphics::draw(const drawable& drawer, const brush& b, const pen& p) const {
+      drawer(win, gc, b, p);
     }
 
-    void graphics::draw(const drawable& drawer, const draw::font& font, const draw::color& color) const {
-#ifdef WIN32
-      Use<false> f(id, font);
-      core::color_type old_color = SetTextColor(id, color);
-#elif X11
-      Use<false, draw::font> f(id, font);
-      XSetForeground(core::global::get_instance(), id, color);
-#endif // X11
-      drawer(win, id, detail::Draw);
-#ifdef WIN32
-      SetTextColor(id, old_color);
-#endif // WIN32
+    void graphics::draw(const drawable& drawer, const font& font, const color& c) const {
+      drawer(win, gc, brush(c), pen(c));
     }
 
     void graphics::invert(const core::rectangle& r) const {
 #ifdef WIN32
       RECT rect = r;
-      InvertRect(id, &rect);
+      InvertRect(gc, &rect);
 #endif // WIN32
     }
 

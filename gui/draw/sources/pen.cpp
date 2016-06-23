@@ -36,21 +36,21 @@ namespace gui {
 #ifdef WIN32
     const pen pen::default_pen((core::pen_id)GetStockObject(BLACK_PEN));
 
-    pen::pen(core::pen_id id)
-      :id(id)
+    pen::pen(HGDIOBJ id)
+      :id(static_cast<core::pen_id>(id))
     {
-      GetObject(id, sizeof(core::pen_type), &type);
+      GetObject(id, sizeof(core::pen_type), &info);
     }
 
     pen::pen(const draw::color& color, Style style, size_type width)
       : id(CreatePen(style, width, color))
     {
-      GetObject(id, sizeof(core::pen_type), &type);
+      GetObject(id, sizeof(core::pen_type), &info);
     }
 
     pen::pen(const pen& rhs)
-      : id(CreatePenIndirect(&rhs.type))
-      , type(rhs.type)
+      : id(CreatePenIndirect(&rhs.info))
+      , info(rhs.info)
     {}
 
     pen::~pen() {
@@ -61,40 +61,40 @@ namespace gui {
     }
 
     draw::color pen::color() const {
-      return type.lopnColor;
+      return info.lopnColor;
     }
 
     pen::size_type pen::size() const {
-      return type.lopnWidth.x;
+      return info.lopnWidth.x;
     }
 
     pen::Style pen::style() const {
-      return (pen::Style)type.lopnStyle;
+      return (pen::Style)info.lopnStyle;
     }
 
     pen pen::with_size(size_type sz) const {
-      core::pen_type newType = type;
+      core::pen_type newType = info;
       newType.lopnWidth = { sz, sz };
       return pen(CreatePenIndirect(&newType));
     }
 
     pen pen::with_style(Style s) const {
-      core::pen_type newType = type;
+      core::pen_type newType = info;
       newType.lopnStyle = s;
       return pen(CreatePenIndirect(&newType));
     }
 
     pen pen::with_color(const draw::color& c) const {
-      core::pen_type newType = type;
+      core::pen_type newType = info;
       newType.lopnColor = c;
       return pen(CreatePenIndirect(&newType));
     }
 
     bool pen::operator== (const pen& rhs) const {
-      return ((type.lopnColor == rhs.type.lopnColor) &&
-              (type.lopnStyle == rhs.type.lopnStyle) &&
-              (type.lopnWidth.x == rhs.type.lopnWidth.x) &&
-              (type.lopnWidth.y == rhs.type.lopnWidth.y));
+      return ((info.lopnColor == rhs.info.lopnColor) &&
+              (info.lopnStyle == rhs.info.lopnStyle) &&
+              (info.lopnWidth.x == rhs.info.lopnWidth.x) &&
+              (info.lopnWidth.y == rhs.info.lopnWidth.y));
     }
 
 #endif // WIN32

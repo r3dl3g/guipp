@@ -467,17 +467,22 @@ namespace gui {
 
       paint_event(function changingfn)
         : callback(changingfn)
+        , gc(0)
       {}
 
       template<class T>
       paint_event(T* t, void(T::*changingfn)(draw::graphics&))
         : callback(t, changingfn)
+        , gc(0)
       {}
+      
+      ~paint_event();
 
       bool operator()(const core::event& e, core::event_result& result);
 
     private:
       function callback;
+      core::graphics_id gc;
       
     };
 

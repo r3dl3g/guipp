@@ -22,6 +22,7 @@
 // Common includes
 //
 #include <algorithm>
+#include <logger.h>
 
 // --------------------------------------------------------------------------
 //
@@ -76,7 +77,13 @@ namespace gui {
 
       bool result = false;
       for (auto i : event_handlers) {
-        result |= i.get()->operator()(e, resultValue);
+        try {
+          result |= i.get()->operator()(e, resultValue);
+        } catch (std::exception e) {
+          LogFatal << "exception in event_container::handle_event:" << e;
+        } catch (...) {
+          LogFatal << "Unknown exception in event_container::handle_event()";
+        }
       }
 
       // only deepest call of handle_event manages the event_handler_stores

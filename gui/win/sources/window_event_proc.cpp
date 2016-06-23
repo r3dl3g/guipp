@@ -21,6 +21,7 @@
 //
 // Common includes
 //
+#include <logger.h>
 
 // --------------------------------------------------------------------------
 //
@@ -113,12 +114,19 @@ namespace gui {
             win::window* win = win::window::get(e.xany.window);
             if (win && win->is_valid()) {
               if (e.type == CreateNotify) {
-                XSetWMProtocols(core::global::get_instance(), e.xany.window, &wmDeleteMessage, 1);
+                XSetWMProtocols(e.xany.display, e.xany.window, &wmDeleteMessage, 1);
               } else if ((e.type == ClientMessage) && (e.xclient.data.l[0] == wmDeleteMessage)) {
                 running = false;
               }
-              core::event_result resultValue = 0;
-              win->handle_event(core::event(e), resultValue);
+              try {
+                  core::event_result resultValue = 0;
+                  win->handle_event(core::event(e), resultValue);
+                  XFlush(e.xany.display);
+              } catch (std::exception e) {
+                  LogFatal << "exception in run_main_loop:" << e;
+              } catch (...) {
+                  LogFatal << "Unknown exception in run_main_loop()";
+              }
             }
         }
         XCloseDisplay(core::global::get_instance());

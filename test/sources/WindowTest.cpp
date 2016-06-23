@@ -93,12 +93,9 @@ win::window_class chldCls("childwindow",
                           LoadCursor(NULL, IDC_ARROW),
                           (HBRUSH)(COLOR_WINDOW + 1));
 #elif X11
-win::window_class mainCls("mainwindow", ButtonPressMask|ExposureMask);
-win::window_class chldCls("childwindow", ButtonPressMask|ExposureMask);
+win::window_class mainCls("mainwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask);
+win::window_class chldCls("childwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask);
 #endif
-
-void initWindow() {
-}
 
 #ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,
@@ -159,7 +156,6 @@ int main(int argc, char* argv[]) {
     main.quit();
   }));
 
-  /*
   win::paint_event paint1([](draw::graphics& graph) {
     using namespace draw;
 
@@ -167,14 +163,14 @@ int main(int argc, char* argv[]) {
     graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
     graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
-    graph.draw(text("Hello World!", core::point(10, 190)), font::system, color::black);
-    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold, color::black);
-    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif, color::black);
-    graph.draw(text("Hello World!", core::point(10, 235)), font::serif, color::black);
-    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace, color::black);
-    graph.draw(text("Hello World!", core::point(10, 265)), font("Modern", font::system.size()), color::blue);
-    graph.draw(text("Hello World!", core::point(10, 280)), font("Modern", font::system.size(), font::regular, 0, true), color::blue);
-    graph.draw(text_box("Hello World!", core::rectangle(10, 295, 180, 20), center), font::serif, color::red);
+    graph.draw(text("Hello World!", core::point(10, 190)), font::system(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 235)), font::serif(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 265)), font("Modern", font::system().size()), color::blue);
+    graph.draw(text("Hello World!", core::point(10, 280)), font::sans_serif().with_size(font::system().size()*2), color::blue);
+    graph.draw(text_box("Hello World!", core::rectangle(10, 310, 180, 20), center), font::serif(), color::red);
   });
 
   win::paint_event paint2([](draw::graphics& graph) {
@@ -206,7 +202,7 @@ int main(int argc, char* argv[]) {
     graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
     graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
 
-    core::point pos4(130, 10);
+    core::point pos4(150, 30);
     graph.frame(arc(pos4, 20, 0, 360), blue);
     graph.fill(arc(pos4 + offs1, 20, 0, 360), color::darkGreen);
     graph.draw(arc(pos4 + offs2, 20, 0, 360), color::yellow, red);
@@ -216,7 +212,7 @@ int main(int argc, char* argv[]) {
     //graph.fill(rectangle(core::rectangle(pos1 + core::size(20, 30), core::size(100, 120))), cyan_trans);
 
   });
-  */
+
 #ifdef WIN32
   main.register_event_handler(win::close_event([&]() {
     LogDebug << "Close!";
@@ -266,7 +262,7 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::mouse_hover_event([](unsigned int keys, const core::point& p) {
     LogDebug << "Mouse hover : " << keys << " at " << p;
   }));
-  main.register_event_handler(win::left_btn_dblclk_event([&](unsigned int keys, const core::point& p) {
+  main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     core::point pos = window1.position();
     core::size sz = window1.size();
     LogDebug << "Pos: " << pos << " Size " << sz;
@@ -283,7 +279,7 @@ int main(int argc, char* argv[]) {
     core::rectangle  car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  main.register_event_handler(win::right_btn_dblclk_event([&](unsigned int keys, const core::point& p) {
+  main.register_event_handler(win::right_btn_dblclk_event([&](const core::point& p) {
     window1.move({ 50, 50 });
   }));
 
@@ -293,7 +289,7 @@ int main(int argc, char* argv[]) {
 
   bool p1 = true;
 
-  window2.register_event_handler(win::left_btn_dblclk_event([&](unsigned int keys, const core::point& p) {
+  window2.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     if (p1) {
       p1 = false;
       window2.unregister_event_handler(painter1);
@@ -321,20 +317,8 @@ int main(int argc, char* argv[]) {
     LogDebug << "Right Button Up at " << p;
   }));
 
-  if (true) {
-  window1.register_event_handler(win::paint_event([](draw::graphics& graph) {
-    using namespace draw;
-    graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);    graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);    graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
-    graph.draw(text("Hello World!", core::point(10, 190)), font::system, color::black);    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold, color::black);    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif, color::black);    graph.draw(text("Hello World!", core::point(10, 235)), font::serif, color::black);
-    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace, color::black);
-    graph.draw(text("Hello World!", core::point(10, 265)), font("Modern", font::system.size()), color::blue);
-    graph.draw(text("Hello World!", core::point(10, 280)), font("Modern", font::system.size(), font::regular, 0, true), color::blue);
-    graph.draw(text_box("Hello World!", core::rectangle(10, 295, 180, 20), center), font::serif, color::red);
-  }));
-  }
-
-//  window1.register_event_handler(paint1);
-//  window2.register_event_handler(paint2);
+  window1.register_event_handler(paint1);
+  window2.register_event_handler(paint2);
 
 #endif
 

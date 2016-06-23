@@ -80,9 +80,9 @@ namespace gui {
       id = XCreateSimpleWindow(core::global::get_instance(), parent.id, pos.x, pos.y, sz.width, sz.height, type.get_style(), type.get_foreground(), type.get_background());
       detail::global_window_map[id] = this;
 
-	    XSetWindowAttributes wa;
-	    wa.event_mask = 0xFFFFFF;
-	    XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
+      XSetWindowAttributes wa;
+      wa.event_mask = type.get_class_style();
+      XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
 #endif // X11
     }
 
@@ -110,9 +110,9 @@ namespace gui {
                                pos.x, pos.y, sz.width, sz.height, type.get_style(), type.get_foreground(), type.get_background());
       detail::global_window_map[id] = this;
 
-	    XSetWindowAttributes wa;
-	    wa.event_mask = 0xFFFFFF;
-	    XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
+      XSetWindowAttributes wa;
+      wa.event_mask = type.get_class_style();
+      XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
 
 #endif // X11
     }

@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: color definition
+* @brief     C++ API: font definition
 *
 * @file
 */
@@ -38,13 +38,14 @@ namespace gui {
 
     struct /*immutable*/ font {
 
-      const static font system;
-      const static font system_bold;
-      const static font monospace;
-      const static font serif;
-      const static font sans_serif;
+      static const font& system();
+      static const font& system_bold();
+      static const font& monospace();
+      static const font& serif();
+      static const font& sans_serif();
 
       typedef int size_type;
+      typedef core::font_type type;
 
       enum Thickness {
 #ifdef WIN32
@@ -111,7 +112,7 @@ namespace gui {
       core::font_id id;
 #endif // X11
 
-      core::font_type type;
+      core::font_type info;
     };
 
     std::ostream& operator<<(std::ostream& out, const font& c);

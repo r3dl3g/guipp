@@ -25,6 +25,7 @@
 #include <vector>
 #include <sstream>
 #endif // X11
+#include <logger.h>
 
 // --------------------------------------------------------------------------
 //
@@ -36,21 +37,48 @@
 #include <boost/algorithm/string.hpp>
 #endif // X11
 
+namespace std {
+  template<typename T>
+  std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
+    out << "[";
+    for(auto i : v) {
+      out << i << ", ";
+    }
+    out << "]";
+    return out;
+  }
+}
+
 namespace gui {
 
   namespace draw {
-
+    
 #ifdef WIN32
-    const font font::system((core::font_id)GetStockObject(SYSTEM_FONT));
-    const font font::system_bold = font::system.with_thickness(font::bold);
-    const font font::monospace((core::font_id)GetStockObject(SYSTEM_FIXED_FONT));
-    const font font::serif("Times New Roman", font::system.size());
-    const font font::sans_serif("Arial", font::system.size());
+    const font& font::system() {
+        static font f((core::font_id)GetStockObject(SYSTEM_FONT));
+        return f;
+    }
+    const font& font::system_bold() {
+        static font f = font::system().with_thickness(font::bold);
+        return f;
+    }
+    const font& font::monospace() {
+        static font f((core::font_id)GetStockObject(SYSTEM_FIXED_FONT));
+        return f;
+    }
+    const font& font::serif() {
+        static font f("Times New Roman", font::system().size());
+        return f;
+    }
+    const font& font::sans_serif() {
+        static font f("Arial", font::system().size());
+        return f;
+    };
 
     font::font(core::font_id id)
       :id(id)
     {
-      GetObject(id, sizeof(core::font_type), &type);
+      GetObject(id, sizeof(core::font_type), &info);
     }
 
     font::font(const std::string& name,
@@ -64,12 +92,12 @@ namespace gui {
                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
                name.c_str()))
     {
-      GetObject(id, sizeof(core::font_type), &type);
+      GetObject(id, sizeof(core::font_type), &info);
     }
 
     font::font(const font& rhs)
-      : id(CreateFontIndirect(&rhs.type))
-      , type(rhs.type)
+      : id(CreateFontIndirect(&rhs.info))
+      , info(rhs.info)
     {}
 
     font::~font() {
@@ -84,79 +112,79 @@ namespace gui {
     }
 
     std::string font::name() const {
-      return type.lfFaceName;
+      return info.lfFaceName;
     }
 
     font::size_type font::size() const {
-      return type.lfHeight;
+      return info.lfHeight;
     }
 
     font::Thickness font::thickness() const {
-      return (Thickness)type.lfWeight;
+      return (Thickness)info.lfWeight;
     }
 
     int font::rotation() const {
-      return type.lfOrientation;
+      return info.lfOrientation;
     }
 
     bool font::italic() const {
-      return type.lfItalic != 0;
+      return info.lfItalic != 0;
     }
 
     bool font::underline() const {
-      return type.lfUnderline!= 0;
+      return info.lfUnderline!= 0;
     }
 
     bool font::strikeout() const {
-      return type.lfStrikeOut!= 0;
+      return info.lfStrikeOut!= 0;
     }
 
     font font::with_size(size_type sz) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfHeight = sz;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_thickness(Thickness t) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfWeight = t;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_rotation(int r) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfOrientation = r;
       newType.lfEscapement = r;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_italic(bool i) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfItalic = i;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_underline(bool u) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfUnderline = u;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_strikeout(bool s) const {
-      core::font_type newType = type;
+      core::font_type newType = info;
       newType.lfStrikeOut = s;
       return font(CreateFontIndirect(&newType));
     }
 
     bool font::operator== (const font& rhs) const {
-      return ((type.lfHeight == rhs.type.lfHeight) &&
-              (type.lfEscapement == rhs.type.lfEscapement) &&
-              (type.lfOrientation == rhs.type.lfOrientation) &&
-              (type.lfWeight == rhs.type.lfWeight) &&
-              (type.lfItalic == rhs.type.lfItalic) &&
-              (type.lfUnderline == rhs.type.lfUnderline) &&
-              (type.lfStrikeOut == rhs.type.lfStrikeOut) &&
-              (strcmp(type.lfFaceName, rhs.type.lfFaceName) == 0));
+      return ((info.lfHeight == rhs.info.lfHeight) &&
+              (info.lfEscapement == rhs.info.lfEscapement) &&
+              (info.lfOrientation == rhs.info.lfOrientation) &&
+              (info.lfWeight == rhs.info.lfWeight) &&
+              (info.lfItalic == rhs.info.lfItalic) &&
+              (info.lfUnderline == rhs.info.lfUnderline) &&
+              (info.lfStrikeOut == rhs.info.lfStrikeOut) &&
+              (strcmp(info.lfFaceName, rhs.info.lfFaceName) == 0));
     }
 
     std::ostream& operator<<(std::ostream& out, const font& f) {
@@ -166,16 +194,31 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    const font font::system("fixed", 10);
-    const font font::system_bold = font::system.with_thickness(font::bold);
-    const font font::monospace("Monospace", font::system.size());
-    const font font::serif("FreeSerif", font::system.size());
-    const font font::sans_serif("FreeSans", font::system.size());
+    const font& font::system() {
+        static font f("fixed", 10);
+        return f;
+    }
+    const font& font::system_bold() {
+        static font f = font::system().with_thickness(font::bold);
+        return f;
+    }
+    const font& font::monospace() {
+        static font f("Monospace", font::system().size());
+        return f;
+    }
+    const font& font::serif() {
+        static font f("FreeSerif", font::system().size());
+        return f;
+    }
+    const font& font::sans_serif() {
+        static font f("FreeSans", font::system().size());
+        return f;
+    }
 
     font::font(core::font_id id)
-      :type(nullptr)
+      :info(nullptr)
     {
-      type = XQueryFont(core::global::get_instance(), id);
+      info = XQueryFont(core::global::get_instance(), id);
     }
 
     std::string buildFontName(const std::string& name,
@@ -205,7 +248,7 @@ namespace gui {
         default:
           s << "*";
       }
-      s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "*";
+      s << "-" << (italic ? "i" : "r") << "-normal--*-" << (size * 10) << "*";
       return s.str();
     }
 
@@ -232,29 +275,33 @@ namespace gui {
                        bool* italic = nullptr) {
 
       std::vector<std::string> strs = tokenize(full_name, "-");
-      if (name && strs.size() > 1) {
-        *name = strs[1];
+      LogDebug << "Font parts:" << strs;
+      if (name && strs.size() > 2) {
+        *name = strs[2];
       }
-      if (thickness && (strs.size() > 2)) {
-        if ("thin" == strs[2]) {
+      if (thickness && (strs.size() > 3)) {
+        const std::string& thck = strs[3];
+        if (thck == "thin") {
           *thickness = font::Thickness::thin;
-        } else if ("light" == strs[2]) {
+        } else if (thck == "light") {
           *thickness = font::Thickness::light;
-        } else if ("medium" == strs[2]) {
+        } else if (thck == "medium") {
           *thickness = font::Thickness::medium;
-        } else if ("bold" == strs[2]) {
+        } else if (thck == "bold") {
           *thickness = font::Thickness::bold;
         } else {
           *thickness = font::Thickness::regular;
         }
       }
-      if (italic && (strs.size() > 3)) {
-        *italic = (strs[3] == "i");
+      if (italic && (strs.size() > 4)) {
+        *italic = (strs[4] == "i") || (strs[4] == "I");
       }
-      if (size && (strs.size() > 6)) {
-        *size = std::stoi(strs[6]) / 10;
-      } else if (size && (strs.size() > 5)) {
-        *size = std::stoi(strs[5]);
+      if (size && (strs.size() > 8) && (strs[8].size() > 0)) {
+        LogDebug << "Font size:" << strs[8];
+        *size = std::stoi(strs[8]) / 10;
+      } else if (size && (strs.size() > 7) && (strs[7].size() > 0)) {
+        LogDebug << "Font size:" << strs[7];
+        *size = std::stoi(strs[7]);
       }
     }
 
@@ -265,32 +312,32 @@ namespace gui {
                bool italic,
                bool underline,
                bool strikeout)
-      : type(nullptr)
+      : info(nullptr)
     {
-      type = XLoadQueryFont(core::global::get_instance(), buildFontName(name, size, thickness, italic).c_str());
+      info = XLoadQueryFont(core::global::get_instance(), buildFontName(name, size, thickness, italic).c_str());
     }
 
     font::font(const font& rhs)
-      : type(nullptr)
+      : info(nullptr)
     {
-      type = XQueryFont(core::global::get_instance(), rhs.type ? rhs.type->fid : 0);
+      info = XQueryFont(core::global::get_instance(), rhs.info ? rhs.info->fid : 0);
     }
 
     font::~font() {
-      if (type) {
-        XFreeFont(core::global::get_instance(), type);
-        type = nullptr;
+      if (info) {
+        XFreeFont(core::global::get_instance(), info);
+        info = nullptr;
       }
     }
 
     font::operator core::font_id() const {
-      return type ? type->fid : 0;
+      return info ? info->fid : 0;
     }
 
     std::string font::get_full_name() const {
-      if (type) {
+      if (info) {
         unsigned long pid;
-        if (XGetFontProperty(type, XA_FONT, &pid)) {
+        if (XGetFontProperty(info, XA_FONT, &pid)) {
           std::string full_name = XGetAtomName(core::global::get_instance(), (Atom)pid);
           return full_name;
         }

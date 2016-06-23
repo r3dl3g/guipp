@@ -36,7 +36,7 @@ namespace gui {
   namespace core {
 
     struct size {
-      typedef unsigned int type;
+      typedef int type;
 
       inline size(type width = 0, type height = 0)
         : width(width)
@@ -145,6 +145,10 @@ namespace gui {
 
       inline point position() const {
         return topleft;
+      }
+
+      inline point center() const {
+        return { (topleft.x + bottomright.x) / 2, (topleft.y + bottomright.y) / 2 };
       }
 
       inline core::size size() const {

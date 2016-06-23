@@ -5,12 +5,10 @@ project("win" CXX)
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 add_subdirectory(./../draw draw)
-add_subdirectory(./../../ibr_std_lib ibr_std_lib)
 
 set (win_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
      ${draw_Include}
-     ${ibr_std_lib_Include}
 )
 set (win_Include ${win_Include} PARENT_SCOPE)
 

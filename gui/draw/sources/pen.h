@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: color definition
+* @brief     C++ API: pen definition
 *
 * @file
 */
@@ -70,6 +70,8 @@ namespace gui {
       ~pen();
 
 #ifdef WIN32
+      pen(HGDIOBJ);
+
       inline operator core::pen_id() const {
         return id;
       }
@@ -88,10 +90,8 @@ namespace gui {
     private:
 
 #ifdef WIN32
-      pen(core::pen_id);
-
       core::pen_id id;
-      core::pen_type type;
+      core::pen_type info;
 #endif // WIN32
 #ifdef X11
       const draw::color m_color;

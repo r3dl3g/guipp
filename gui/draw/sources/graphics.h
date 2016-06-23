@@ -34,6 +34,7 @@
 #include "gui_types.h"
 #include "color.h"
 #include "pen.h"
+#include "brush.h"
 #include "font.h"
 
 
@@ -41,21 +42,16 @@ namespace gui {
 
   namespace draw {
 
-    namespace detail {
-      enum DrawType {
-        Draw
-      };
-      enum FillType {
-        Fill
-      };
-      enum FrameType {
-        Frame
-      };
-    }
-
-    typedef std::function<void(core::drawable_id, core::graphics_id, detail::DrawType)> drawable;
-    typedef std::function<void(core::drawable_id, core::graphics_id, detail::FrameType)> frameable;
-    typedef std::function<void(core::drawable_id, core::graphics_id, detail::FillType)> fillable;
+    typedef std::function<void(core::drawable_id,
+                               core::graphics_id,
+                               const pen&)> frameable;
+    typedef std::function<void(core::drawable_id,
+                               core::graphics_id,
+                               const brush&)> fillable;
+    typedef std::function<void(core::drawable_id,
+                               core::graphics_id,
+                               const brush&,
+                               const pen&)> drawable;
 
     struct rectangle {
       inline rectangle(const core::rectangle& rect)
@@ -72,13 +68,9 @@ namespace gui {
         : rect(pos1, pos2) {
       }
 
-#ifdef WIN32
-      void operator() (core::drawable_id, core::graphics_id id, int);
-#elif X11
       operator drawable() const;
       operator frameable() const;
       operator fillable() const;
-#endif
 
     private:
       const core::rectangle rect;
@@ -99,13 +91,9 @@ namespace gui {
                      : rect(pos1, pos2) {
       }
 
-#ifdef WIN32
-      void operator() (core::drawable_id, core::graphics_id id, int);
-#elif X11
       operator drawable() const;
       operator frameable() const;
       operator fillable() const;
-#endif
 
     private:
       const core::rectangle rect;
@@ -117,13 +105,9 @@ namespace gui {
         , size(size) {
       }
 
-#ifdef WIN32
-      void operator() (core::drawable_id, core::graphics_id id, int);
-#elif X11
       operator drawable() const;
       operator frameable() const;
       operator fillable() const;
-#endif
 
     private:
       const core::rectangle rect;
@@ -133,13 +117,9 @@ namespace gui {
     struct arc {
       arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
 
-#ifdef WIN32
-      void operator() (core::drawable_id, core::graphics_id id, int);
-#elif X11
       operator drawable() const;
       operator frameable() const;
       operator fillable() const;
-#endif
 
     private:
       const core::point pos;
@@ -159,13 +139,9 @@ namespace gui {
 
       ~polygone();
 
-#ifdef WIN32
-      void operator() (core::drawable_id, core::graphics_id id, int);
-#elif X11
       operator drawable() const;
       operator frameable() const;
       operator fillable() const;
-#endif
 
     private:
       core::point_type *points;
@@ -173,18 +149,18 @@ namespace gui {
     };
 
 #ifdef X11
-#define DT_TOP        0x00000000
-#define DT_LEFT       0x00000000
-#define DT_CENTER     0x00000001
-#define DT_RIGHT      0x00000002
-#define DT_VCENTER    0x00000004
-#define DT_BOTTOM     0x00000008
-#define DT_WORDBREAK  0x00000010
-#define DT_SINGLELINE 0x00000020
-#define DT_EXPANDTABS 0x00000040
-#define DT_END_ELLIPSIS  0x00000100
-#define DT_PATH_ELLIPSIS 0x00000200
-#define DT_WORD_ELLIPSIS 0x00000400
+#     define DT_TOP           0x0000
+#     define DT_LEFT          0x0000
+#     define DT_CENTER        0x0001
+#     define DT_RIGHT         0x0002
+#     define DT_VCENTER       0x0004
+#     define DT_BOTTOM        0x0008
+#     define DT_WORDBREAK     0x0010
+#     define DT_SINGLELINE    0x0020
+#     define DT_EXPANDTABS    0x0040
+#     define DT_END_ELLIPSIS  0x0100
+#     define DT_PATH_ELLIPSIS 0x0200
+#     define DT_WORD_ELLIPSIS 0x0400
 #endif // X11
 
     enum text_origin {
@@ -240,26 +216,26 @@ namespace gui {
 
     class graphics {
     public:
-      graphics(core::window_id win, core::graphics_id id)
-        : id(id)
+      graphics(core::window_id win, core::graphics_id gc)
+        : gc(gc)
         , win(win) {
       }
 
-      void drawPixel(const core::point& pt, const draw::color& color);
-      draw::color getPixel(const core::point&) const;
+      void drawPixel(const core::point& pt, const color& color);
+      color getPixel(const core::point&) const;
 
-      void drawLine(const core::point& from, const core::point& to, const draw::pen& pen);
-      void drawLines(std::vector<core::point>& points, const draw::pen& pen);
+      void drawLine(const core::point& from, const core::point& to, const pen& pen);
+      void drawLines(std::vector<core::point>& points, const pen& pen);
 
-      void frame(const frameable& drawer, const draw::pen& pen) const;
-      void fill(const fillable& drawer, const draw::color& color) const;
-      void draw(const drawable& drawer, const draw::color& color, const draw::pen& pen) const;
-      void draw(const drawable& drawer, const draw::font& font, const draw::color& color) const;
+      void frame(const frameable& drawer, const pen& pen) const;
+      void fill(const fillable& drawer, const brush& brush) const;
+      void draw(const drawable& drawer, const brush& brush, const pen& pen) const;
+      void draw(const drawable& drawer, const font& font, const color& color) const;
 
       void invert(const core::rectangle&) const;
 
     private:
-      core::graphics_id id;
+      core::graphics_id gc;
       core::window_id win;
 
     };

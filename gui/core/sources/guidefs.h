@@ -65,6 +65,7 @@ namespace gui {
     typedef RECT rectangle_type;
     typedef LOGFONT font_type;
     typedef LOGPEN pen_type;
+    typedef LOGBRUSH brush_type;
 
     typedef COLORREF color_type;
     

@@ -129,7 +129,6 @@ namespace gui {
               }
             }
         }
-        XCloseDisplay(core::global::get_instance());
     }
 #endif // X11
 

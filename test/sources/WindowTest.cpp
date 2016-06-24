@@ -168,8 +168,8 @@ int main(int argc, char* argv[]) {
     graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif(), color::black);
     graph.draw(text("Hello World!", core::point(10, 235)), font::serif(), color::black);
     graph.draw(text("Hello World!", core::point(10, 250)), font::monospace(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 265)), font("Modern", font::system().size()), color::blue);
-    graph.draw(text("Hello World!", core::point(10, 280)), font::sans_serif().with_size(font::system().size()*2), color::blue);
+    graph.draw(text("Hello World!", core::point(10, 265)), font("newspaper", font::system().size()), color::blue);
+    graph.draw(text("Hello World!", core::point(10, 280)), font::sans_serif().with_size(18), color::blue);
     graph.draw(text_box("Hello World!", core::rectangle(10, 310, 180, 20), center), font::serif(), color::red);
   });
 
@@ -333,7 +333,18 @@ int main(int argc, char* argv[]) {
   window1.show();
   window2.show();
 
-  int ret = win::run_main_loop();
+  int ret = 0;
+  try {
+    ret = win::run_main_loop();
+  } catch (std::exception e) {
+    LogFatal << e;
+  }
+  
+  gui::core::global::fini();
+
+#ifdef X11
+  ibr::log::core::instance().removeSink(&std::cerr);
+#endif
 
   ibr::log::core::instance().finish();
 

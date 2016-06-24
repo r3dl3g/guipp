@@ -111,6 +111,8 @@ namespace gui {
       void init(core::instance_id instance);
       core::instance_id get_instance();
 
+      void fini();
+
 #ifdef X11
       screen_id get_screen();
       void set_screen(screen_id);

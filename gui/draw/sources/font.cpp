@@ -25,6 +25,7 @@
 #include <vector>
 #include <sstream>
 #endif // X11
+#include <locale>
 #include <logger.h>
 
 // --------------------------------------------------------------------------
@@ -194,8 +195,10 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
+    #define STD_FONT_SIZE 12
+
     const font& font::system() {
-        static font f("fixed", 10);
+        static font f("fixed", STD_FONT_SIZE);
         return f;
     }
     const font& font::system_bold() {
@@ -203,15 +206,15 @@ namespace gui {
         return f;
     }
     const font& font::monospace() {
-        static font f("Monospace", font::system().size());
+        static font f("fixed", STD_FONT_SIZE);
         return f;
     }
     const font& font::serif() {
-        static font f("FreeSerif", font::system().size());
+        static font f("gothic", STD_FONT_SIZE);
         return f;
     }
     const font& font::sans_serif() {
-        static font f("FreeSans", font::system().size());
+        static font f("clean", STD_FONT_SIZE);
         return f;
     }
 
@@ -248,8 +251,11 @@ namespace gui {
         default:
           s << "*";
       }
-      s << "-" << (italic ? "i" : "r") << "-normal--*-" << (size * 10) << "*";
-      return s.str();
+      s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "-*";
+      
+      std::string str = s.str();
+      //std::transform(str.begin(), str.end(), str.begin(), tolower);
+      return str;
     }
 
     std::vector<std::string> tokenize(const std::string& full_name, const std::string& delemiter) {
@@ -275,7 +281,7 @@ namespace gui {
                        bool* italic = nullptr) {
 
       std::vector<std::string> strs = tokenize(full_name, "-");
-      LogDebug << "Font parts:" << strs;
+      LogDebug << "Font:'" << full_name << "' parts:" << strs;
       if (name && strs.size() > 2) {
         *name = strs[2];
       }
@@ -314,18 +320,24 @@ namespace gui {
                bool strikeout)
       : info(nullptr)
     {
-      info = XLoadQueryFont(core::global::get_instance(), buildFontName(name, size, thickness, italic).c_str());
+      std::string full_name = buildFontName(name, size, thickness, italic);
+      LogDebug << "Load Query Font:'" << full_name << "'";
+      core::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
+      info = f;
     }
 
     font::font(const font& rhs)
       : info(nullptr)
     {
-      info = XQueryFont(core::global::get_instance(), rhs.info ? rhs.info->fid : 0);
+      core::font_type f = XQueryFont(core::global::get_instance(), rhs.info ? rhs.info->fid : 0);
+      info = f;
     }
 
     font::~font() {
       if (info) {
-        XFreeFont(core::global::get_instance(), info);
+        if (core::global::get_instance()) {
+          XFreeFont(core::global::get_instance(), info);
+        }
         info = nullptr;
       }
     }
@@ -338,7 +350,12 @@ namespace gui {
       if (info) {
         unsigned long pid;
         if (XGetFontProperty(info, XA_FONT, &pid)) {
-          std::string full_name = XGetAtomName(core::global::get_instance(), (Atom)pid);
+          std::string full_name;
+          char* name = XGetAtomName(core::global::get_instance(), (Atom)pid);
+          if (name) {
+            full_name = name;
+            XFree(name);
+          }
           return full_name;
         }
       }

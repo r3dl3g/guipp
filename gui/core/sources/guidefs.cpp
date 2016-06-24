@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <stdexcept>
+#include <logger.h>
 
 // --------------------------------------------------------------------------
 //
@@ -40,6 +41,16 @@ namespace gui {
 
 #ifdef X11
       screen_id global_screen = 0;
+      
+      int XErrorHandler(Display* dpy, XErrorEvent* errev) {
+        LogFatal << "Error occured somewhere in X!"
+                    " ResourceID = " << errev->resourceid <<
+                    " Serial = " << errev->serial <<
+                    " Error_code = " << (int) errev->error_code <<
+                    " Request_code = " << (int) errev->request_code <<
+                    " Minor_code = " << (int) errev->minor_code;
+        return 0;
+      }
 #endif // X11
 
       void init(core::instance_id instance) {
@@ -48,6 +59,7 @@ namespace gui {
         global_screen = DefaultScreen(global_instance);
 #endif // X11
         is_global_initialized = true;
+        XSetErrorHandler(XErrorHandler);
       }
 
       core::instance_id get_instance() {
@@ -57,6 +69,15 @@ namespace gui {
         }
         return global_instance;
       }
+      
+      void fini() {
+#ifdef X11
+        XCloseDisplay(core::global::get_instance());
+        global_screen = 0;
+#endif // X11
+        global_instance = 0;
+      }
+      
 
 #ifdef X11
       screen_id get_screen() {

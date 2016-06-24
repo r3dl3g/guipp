@@ -42,9 +42,13 @@ namespace gui {
     struct Use {
       Use(core::graphics_id gc, const T& t)
         : gc(gc)
+#ifdef WIN32
         , obj(t)
         , old(set(t))
-      {}
+#endif // X11
+      {
+        set(t);
+      }
 
 #ifdef WIN32
       T set(const T& t) {
@@ -55,56 +59,38 @@ namespace gui {
         SelectObject(gc, t);
       }
 #elif X11
-      T set(const T& t);
-      void unset(const T& t);
+      void set(const T& t);
 #endif // X11
 
       inline ~Use() {
+#ifdef WIN32
         unset(old);
+#endif // X11
       }
 
       core::graphics_id gc;
+#ifdef WIN32
       T obj;
       T old;
+#endif // X11
     };
 
 #ifdef X11
 
-    template<> void Use<pen>::unset(const pen& p) {
+    template<> void Use<pen>::set(const pen& p) {
       core::instance_id display = core::global::get_instance();
       XSetForeground(display, gc, p.color());
       XSetLineAttributes(display, gc, p.size(), p.style(), CapButt, JoinMiter);
     }
 
-    template<> void Use<brush>::unset(const brush& b) {
+    template<> void Use<brush>::set(const brush& b) {
       core::instance_id display = core::global::get_instance();
       XSetForeground(display, gc, b.color());
       XSetFillStyle(display, gc, b.style());
     }
 
-    template<> void Use<font>::unset(const font& f) {
+    template<> void Use<font>::set(const font& f) {
       XSetFont(core::global::get_instance(), gc, f);
-    }
-
-    template<> pen Use<pen>::set(const pen& p) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCLineWidth | GCLineStyle, &gcv);
-      unset(p);
-      return {gcv.foreground, (pen::Style)gcv.line_style, gcv.line_width};
-    }
-
-    template<> brush Use<brush>::set(const brush& b) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCForeground | GCFillStyle, &gcv);
-      unset(b);
-      return {gcv.foreground, (brush::Style)gcv.fill_style};
-    }
-
-    template<> font Use<font>::set(const font& f) {
-      XGCValues gcv;
-      XGetGCValues(core::global::get_instance(), gc, GCFont, &gcv);
-      unset(f);
-      return {gcv.font};
     }
 
 #endif // X11
@@ -551,7 +537,8 @@ namespace gui {
       drawer(win, gc, b, p);
     }
 
-    void graphics::draw(const drawable& drawer, const font& font, const color& c) const {
+    void graphics::draw(const drawable& drawer, const font& f, const color& c) const {
+      Use<font> fn(gc, f);
       drawer(win, gc, brush(c), pen(c));
     }
 

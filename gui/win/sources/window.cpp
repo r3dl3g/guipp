@@ -81,7 +81,7 @@ namespace gui {
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
-      wa.event_mask = type.get_class_style();
+      wa.event_mask = type.get_class_style() | SubstructureNotifyMask;
       XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
 #endif // X11
     }
@@ -111,7 +111,7 @@ namespace gui {
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
-      wa.event_mask = type.get_class_style();
+      wa.event_mask = type.get_class_style() | SubstructureNotifyMask;
       XChangeWindowAttributes(core::global::get_instance(), id, CWEventMask, &wa);
 
 #endif // X11

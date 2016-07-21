@@ -70,7 +70,7 @@ namespace gui {
       ~pen();
 
 #ifdef WIN32
-      pen(HGDIOBJ);
+      pen(core::pen_id);
 
       inline operator core::pen_id() const {
         return id;

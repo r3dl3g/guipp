@@ -56,7 +56,7 @@ namespace gui {
       ~brush();
 
 #ifdef WIN32
-      brush(HGDIOBJ);
+      brush(core::brush_id);
 
       inline operator core::brush_id() const {
         return id;

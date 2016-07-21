@@ -40,42 +40,42 @@ namespace gui {
     
     template<typename T>
     struct Use {
-      Use(core::graphics_id gc, const T& t)
+      Use(core::graphics_id gc, HGDIOBJ t)
         : gc(gc)
-#ifdef WIN32
         , obj(t)
-        , old(set(t))
-#endif // X11
-      {
+        , old(set(t)) {
         set(t);
       }
 
-#ifdef WIN32
-      T set(const T& t) {
+      HGDIOBJ set(HGDIOBJ t) {
         return SelectObject(gc, t);
       }
       
-      void unset(const T& t) {
+      void unset(HGDIOBJ t) {
         SelectObject(gc, t);
       }
-#elif X11
-      void set(const T& t);
-#endif // X11
 
       inline ~Use() {
-#ifdef WIN32
         unset(old);
-#endif // X11
       }
 
       core::graphics_id gc;
-#ifdef WIN32
-      T obj;
-      T old;
-#endif // X11
+      HGDIOBJ obj;
+      HGDIOBJ old;
     };
 
 #ifdef X11
+    template<typename T>
+    struct Use {
+      Use(core::graphics_id gc, const T& t)
+        : gc(gc) {
+        set(t);
+      }
+
+      void set(const T& t);
+
+      core::graphics_id gc;
+  };
 
     template<> void Use<pen>::set(const pen& p) {
       core::instance_id display = core::global::get_instance();
@@ -287,6 +287,7 @@ namespace gui {
         Use<pen> pn(gc, p);
         MoveToEx(gc, pos.x, pos.y, NULL);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+        LineTo(gc, pos.x, pos.y);
 #elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;
@@ -305,6 +306,7 @@ namespace gui {
         Use<brush> br(gc, null_brush);
         MoveToEx(gc, pos.x, pos.y, NULL);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+        LineTo(gc, pos.x, pos.y);
 #elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;
@@ -321,6 +323,7 @@ namespace gui {
         Use<pen> pn(gc, null_pen);
         MoveToEx(gc, pos.x, pos.y, NULL);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
+        LineTo(gc, pos.x, pos.y);
 #elif X11
         int x = pos.x - radius;
         int y = pos.y - radius;

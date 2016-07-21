@@ -77,8 +77,7 @@ namespace gui {
     };
 
     font::font(core::font_id id)
-      :id(id)
-    {
+      : id(id) {
       GetObject(id, sizeof(core::font_type), &info);
     }
 

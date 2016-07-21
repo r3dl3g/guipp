@@ -36,9 +36,8 @@ namespace gui {
 #ifdef WIN32
     const brush brush::default_brush((core::brush_id)GetStockObject(WHITE_BRUSH));
 
-    brush::brush(HGDIOBJ id)
-      :id(static_cast<core::brush_id>(id))
-    {
+    brush::brush(core::brush_id id)
+      :id(id) {
       GetObject(id, sizeof(core::brush_type), &info);
     }
 

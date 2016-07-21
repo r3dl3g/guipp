@@ -57,9 +57,9 @@ namespace gui {
         global_instance = instance;
 #ifdef X11
         global_screen = DefaultScreen(global_instance);
+        XSetErrorHandler(XErrorHandler);
 #endif // X11
         is_global_initialized = true;
-        XSetErrorHandler(XErrorHandler);
       }
 
       core::instance_id get_instance() {

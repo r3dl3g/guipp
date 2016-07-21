@@ -36,8 +36,8 @@ namespace gui {
 #ifdef WIN32
     const pen pen::default_pen((core::pen_id)GetStockObject(BLACK_PEN));
 
-    pen::pen(HGDIOBJ id)
-      :id(static_cast<core::pen_id>(id))
+    pen::pen(core::pen_id id)
+      :id(id)
     {
       GetObject(id, sizeof(core::pen_type), &info);
     }

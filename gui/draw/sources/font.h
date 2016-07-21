@@ -71,8 +71,6 @@ namespace gui {
 #endif // X11
       };
 
-      font(core::font_id id);
-
       font(const std::string& name,
            size_type size,
            Thickness thickness = regular,
@@ -84,7 +82,11 @@ namespace gui {
       font(const font&);
       ~font();
 
+#ifdef WIN32
+      font(core::font_id id);
+
       operator core::font_id() const;
+#endif // WIN32
 
       std::string name() const;
       size_type size() const;

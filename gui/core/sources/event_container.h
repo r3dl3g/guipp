@@ -26,6 +26,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <mutex>
 
 
 // --------------------------------------------------------------------------
@@ -33,7 +34,6 @@
 // Library includes
 //
 #include "event.h"
-#include "easy_bind.h"
 
 
 namespace gui {
@@ -45,23 +45,16 @@ namespace gui {
       typedef std::function<event_handler> event_handler_fnct;
       typedef std::shared_ptr<event_handler_fnct> event_handler_ptr;
 
-      event_container();
-
       event_handler_ptr register_event_handler(event_handler_fnct);
       void unregister_event_handler(event_handler_ptr);
 
       bool handle_event(const event& e, core::event_result& result);
 
-    protected:
-      bool in_event_handle() const;
-
     private:
       typedef std::vector<event_handler_ptr> event_handler_list;
-      typedef std::pair<bool, event_handler_ptr> event_handler_store;
-      typedef std::vector<event_handler_store> event_handler_store_list;
 
       event_handler_list event_handlers;
-      event_handler_store_list* event_handler_stores;
+      std::mutex event_handlers_mutex;
     };
 
   } // core

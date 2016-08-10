@@ -36,7 +36,6 @@ namespace gui {
 #ifdef WIN32
     brush null_brush((core::brush_id)GetStockObject(NULL_BRUSH));
     pen null_pen((core::pen_id)GetStockObject(NULL_PEN));
-#endif // WIN32
     
     template<typename T>
     struct Use {
@@ -63,6 +62,7 @@ namespace gui {
       HGDIOBJ obj;
       HGDIOBJ old;
     };
+#endif // WIN32
 
 #ifdef X11
     template<typename T>

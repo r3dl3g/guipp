@@ -82,11 +82,9 @@ namespace gui {
       font(const font&);
       ~font();
 
-#ifdef WIN32
       font(core::font_id id);
 
       operator core::font_id() const;
-#endif // WIN32
 
       std::string name() const;
       size_type size() const;
@@ -110,9 +108,7 @@ namespace gui {
 #endif // X11
 
     private:
-#ifdef WIN32
       core::font_id id;
-#endif // X11
 
       core::font_type info;
     };

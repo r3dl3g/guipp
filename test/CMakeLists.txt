@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 project("Gui-Test" CXX)
 
@@ -28,7 +28,7 @@ link_directories(${core_Lib}
                 )
 
 if(UNIX)
-    link_directories("../boost/stage/gcc/x64/lib")
+    link_directories("../boost/stage/lib")
 else()
     link_directories("../boost/stage/lib")
 endif(UNIX)
@@ -43,6 +43,7 @@ foreach(test ${tests})
         add_executable(${test} WIN32 sources/${test}.cpp)
         target_link_libraries(${test} core draw win ibr_std_lib)
         if(UNIX)
+          #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
           target_link_libraries(${test} X11 boost_filesystem boost_system pthread)
         endif(UNIX)
         add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})

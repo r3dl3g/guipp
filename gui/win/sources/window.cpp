@@ -339,6 +339,8 @@ namespace gui {
 #ifdef WIN32
       RedrawWindow(get_id(), NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 #elif X11
+      XClearArea(core::global::get_instance(), get_id(), 0, 0, 0, 0, true);
+      XFlush(core::global::get_instance());
 #endif // X11
     }
 
@@ -346,6 +348,8 @@ namespace gui {
 #ifdef WIN32
       InvalidateRect(get_id(), NULL, TRUE);
 #elif X11
+      XClearArea(core::global::get_instance(), get_id(), 0, 0, 0, 0, true);
+      XFlush(core::global::get_instance());
 #endif // X11
     }
 

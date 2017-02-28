@@ -154,6 +154,8 @@ int main(int argc, char* argv[]) {
   }));
 
   win::paint_event paint1([](draw::graphics& graph) {
+    LogDebug << "win::paint 1";
+
     using namespace draw;
 
     graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);
@@ -171,6 +173,7 @@ int main(int argc, char* argv[]) {
   });
 
   win::paint_event paint2([](draw::graphics& graph) {
+    LogDebug << "win::paint 2";
     using namespace draw;
 
     pen blue(color::blue);
@@ -259,7 +262,47 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::mouse_hover_event([](unsigned int keys, const core::point& p) {
     LogDebug << "Mouse hover : " << keys << " at " << p;
   }));
+
+
+#endif
+
+  main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
+    LogDebug << "Left Button Down at " << p;
+  }));
+  main.register_event_handler(win::left_btn_up_event([&](const core::point& p){
+    LogDebug << "Left Button Up at " << p;
+  }));
+  main.register_event_handler(win::right_btn_down_event([&](const core::point& p){
+    LogDebug << "Right Button Down at " << p;
+  }));
+  main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
+    LogDebug << "Right Button Up at " << p;
+  }));
+  main.register_event_handler(win::mouse_move_event([](unsigned int keys, const core::point& p) {
+    LogDebug << "Mouse move : " << keys << " at " << p;
+  }));
+
+  window1.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+    if (at_drag) {
+      core::size delta = p - last_pos;
+      //last_pos = p;
+      window1.move(window1.position() + delta);
+    }
+    LogDebug << "Window1 Mouse move : " << keys << " at " << p;
+  }));
+  window1.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+    at_drag = true;
+    last_pos = p;
+    LogDebug << "Window1 Mouse down at " << p;
+  }));
+  window1.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+    at_drag = false;
+    LogDebug << "Window1 Mouse up at " << p;
+  }));
+
   main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+    LogDebug << "Double Click up at " << p;
+
     core::point pos = window1.position();
     core::size sz = window1.size();
     LogDebug << "Pos: " << pos << " Size " << sz;
@@ -280,12 +323,12 @@ int main(int argc, char* argv[]) {
     window1.move({ 50, 50 });
   }));
 
-
   window2.register_event_handler(paint1);
 
   bool p1 = true;
 
   window2.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+    LogDebug << "Window2 Double Click up at " << p;
     if (p1) {
       p1 = false;
       window2.unregister_event_handler(paint1);
@@ -297,49 +340,6 @@ int main(int argc, char* argv[]) {
     }
     window2.redraw_later();
   }));
-#endif
-
-  main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
-    LogDebug << "Left Button Down at " << p;
-  }));
-  main.register_event_handler(win::left_btn_up_event([&](const core::point& p){
-    LogDebug << "Left Button Up at " << p;
-  }));
-  main.register_event_handler(win::right_btn_down_event([&](const core::point& p){
-    LogDebug << "Right Button Down at " << p;
-  }));
-  main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
-    LogDebug << "Right Button Up at " << p;
-  }));
-  main.register_event_handler(win::mouse_move_event([](unsigned int keys, const core::point& p) {
-    LogDebug << "Mouse move : " << keys << " at " << p;
-  }));
-  window2.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
-    if (at_drag) {
-      core::size delta = p - last_pos;
-      //last_pos = p;
-      window2.move(window2.position() + delta);
-    }
-    LogDebug << "Mouse move : " << keys << " at " << p;
-  }));
-  window2.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
-    at_drag = true;
-    last_pos = p;
-    LogDebug << "Mouse down at " << p;
-  }));
-  window2.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
-    at_drag = false;
-    LogDebug << "Mouse up at " << p;
-  }));
-
-
-#ifdef X11
-
-  window1.register_event_handler(paint1);
-  window2.register_event_handler(paint2);
-
-#endif
-
 
   main.register_event_handler(log_all_events());
 

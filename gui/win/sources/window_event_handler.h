@@ -24,6 +24,7 @@
 //
 #include <cstddef>
 #include <functional>
+#include <map>
 
 // --------------------------------------------------------------------------
 //
@@ -114,17 +115,16 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template <core::event_id id>
+    struct event_type_match {
+      bool operator() (const core::event& e) {
 #ifdef WIN32
-    template <core::event_id id>
-    bool event_type_match(const core::event& e) {
-      return (e.msg == id);
-    }
+        return (e.msg == id);
 #elif X11
-    template <core::event_id id>
-    bool event_type_match(const core::event& e) {
-      return (e.type == id);
-    }
+        return (e.type == id);
 #endif // X11
+      }
+    };
 
     // --------------------------------------------------------------------------
     struct no_param_caller {
@@ -239,10 +239,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<core::event_id M,
+    template<core::event_id E,
              typename C = no_param_caller,
              core::event_result R = 0,
-             bool(matcher)(const core::event&) = event_type_match<M>>
+             typename M = event_type_match<E>>
     struct event_handlerT {
       typedef typename C::function function;
 
@@ -261,6 +261,7 @@ namespace gui {
 
     protected:
       C caller;
+      M matcher;
     };
 
 #ifdef WIN32
@@ -427,14 +428,16 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     template <core::event_id id, core::event_id btn, int sts>
-    bool event_button_match(const XEvent& e) {
-      /*if (e.type == id) {
-        LogDebug << "event_button_match id:" << e.type << " && ("
-                 << e.xbutton.button << " == " << btn << ") && ("
-                 << e.xbutton.state << " & " << sts << " = " << (e.xbutton.state & sts) << ")";
-      }*/
-      return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
-    }
+    struct event_button_match {
+      bool operator() (const core::event& e) {
+        /*if (e.type == id) {
+          LogDebug << "event_button_match id:" << e.type << " && ("
+                   << e.xbutton.button << " == " << btn << ") && ("
+                   << e.xbutton.state << " & " << sts << " = " << (e.xbutton.state & sts) << ")";
+        }*/
+        return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
+      }
+    };
     // --------------------------------------------------------------------------
     template <>
     inline const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
@@ -547,6 +550,40 @@ namespace gui {
     };
 
     typedef event_handlerT<Expose, paint_caller> paint_event;
+
+    template<core::event_id B>
+    struct double_click_matcher {
+
+      bool operator() (const core::event& e) {
+        if ((e.type == ButtonRelease) && (e.xbutton.button == B)) {
+          Time last_up = s_last_up[e.xbutton.window];
+          Time diff = e.xbutton.time - last_up;
+          LogDebug << "double_click_matcher(" << e.xbutton.button
+                   << ") at:" << e.xbutton.time << " last:" << last_up << " diff:" << diff;
+          s_last_up[e.xbutton.window] = e.xbutton.time;
+          return (diff < 300);
+        }
+        return false;
+      }
+
+    protected:
+      static std::map<Window, Time> s_last_up;
+    };
+
+    template<core::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
+
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button1>> left_btn_dblclk_event;
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button3>> right_btn_dblclk_event;
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button2>> middle_btn_dblclk_event;
 
 #endif // X11
 

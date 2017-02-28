@@ -12,6 +12,7 @@ set (gui_Include
 	${core_Include}
 	${draw_Include}
 	${win_Include}
+	"../boost"
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 set (gui_Include ${gui_Include} PARENT_SCOPE)

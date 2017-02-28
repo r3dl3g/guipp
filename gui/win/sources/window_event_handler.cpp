@@ -66,21 +66,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool paint_event::operator()(const core::event& e, core::event_result& result) {
-      if ((e.msg == WM_PAINT) && callback) {
+    void paint_caller::operator()(const core::event& e) {
+      if (callback) {
         PAINTSTRUCT ps;
         core::graphics_id id = BeginPaint(e.id, &ps);
         callback(draw::graphics(e.id, id));
         EndPaint(e.id, &ps);
-        result = 0;
-        return true;
       }
-      return false;
     }
 
     // --------------------------------------------------------------------------
-    bool pos_changing_event::operator()(const core::event& e, core::event_result& result) {
-      if ((e.msg == WM_WINDOWPOSCHANGING) && callback) {
+    void pos_changing_caller::operator() (const core::event& e) {
+      if (callback) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
         core::rectangle r = get_rect<WINDOWPOS>(e);
         unsigned int flags = get_flags_from_wp(e);
@@ -92,14 +89,12 @@ namespace gui {
         p->y = pos.y;
         p->cx = sz.width;
         p->cy = sz.height;
-        result = 0;
-        return true;
       }
-      return false;
     }
+
     // --------------------------------------------------------------------------
-    bool get_minmax_event::operator()(const core::event& e, core::event_result& result) {
-      if ((e.msg == WM_GETMINMAXINFO) && callback) {
+    void get_minmax_caller::operator() (const core::event& e) {
+      if (callback) {
         LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.param_2);
         core::size mi(info->ptMinTrackSize);
         core::size ma(info->ptMaxTrackSize);
@@ -108,11 +103,9 @@ namespace gui {
         callback(sz, pos, mi, ma);
         info->ptMinTrackSize = mi;
         info->ptMaxTrackSize = ma;
-        result = 0;
-        return true;
       }
-      return false;
     }
+
 #elif X11
     // --------------------------------------------------------------------------
     paint_event::~paint_event() {

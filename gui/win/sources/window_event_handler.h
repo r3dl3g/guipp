@@ -41,22 +41,6 @@ namespace gui {
   namespace win {
     class window;
 
-    // --------------------------------------------------------------------------
-    template<typename R, typename ... Args>
-    struct event_handlerT : std::function<core::event_handler> {
-      typedef std::function<R(Args...)> function;
-
-      event_handlerT(function callback_)
-        : callback(callback_) {}
-
-      template<class T>
-      event_handlerT(T* t, R(T::*callback_)(Args...))
-        : callback(gui::core::easy_bind(t, callback_)) {}
-
-    protected:
-      function callback;
-    };
-
 #ifdef WIN32
     // --------------------------------------------------------------------------
     template<typename T> 
@@ -144,264 +128,302 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-    template<core::event_id M,
-             bool(matcher)(const core::event&) = event_type_match<M>,
-             core::event_result R = 0>
-    struct no_param_event_handler : std::function<core::event_handler> {
+    struct no_param_caller {
       typedef std::function<void()> function;
 
-      no_param_event_handler(function fn)
-        : callback(fn) {
-      }
+      no_param_caller (const function cb)
+        :callback(cb)
+      {}
 
       template<class T>
-      no_param_event_handler(T* win, void(T::*fn)())
-        : callback(win, fn) {
+      no_param_caller (T* t, void(T::*callback_)())
+        : callback(gui::core::easy_bind(t, callback_))
+      {}
+
+      operator bool () const {
+        return callback.operator bool();
       }
 
-      bool operator()(const core::event& e, core::event_result& result) {
-         if (matcher(e) && callback) {
-          callback();
-          result = R;
-          return true;
-        }
-        return false;
+      void operator() (const core::event& e) {
+        callback();
       }
 
     private:
       function callback;
-      
     };
 
     // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P,
-             P(F)(const core::event&) = get_param1<P>,
-             bool(matcher)(const core::event&) = event_type_match<M>,
-             core::event_result R = 0>
-    struct one_param_event_handler : std::function<core::event_handler> {
-      typedef std::function<void(P)> function;
-      
-      one_param_event_handler(function fn)
-        : callback(fn)
+    template<typename P1,
+             P1(F1)(const core::event&) = get_param1<P1>>
+    struct one_param_caller {
+      typedef std::function<void(P1)> function;
+
+      one_param_caller (const function cb)
+        :callback(cb)
       {}
 
       template<class T>
-      one_param_event_handler(T* win, void(T::*fn)(T))
-        : callback(win, fn) 
+      one_param_caller (T* t, void(T::*callback_)(P1))
+        : callback(gui::core::easy_bind(t, callback_))
       {}
 
-      bool operator()(const core::event& e, core::event_result& result) {
-         if (matcher(e) && callback) {
-          callback(F(e));
-          result = R;
-          return true;
-        }
-        return false;
+      operator bool () const {
+        return callback.operator bool();
       }
 
-    private:
-      function callback;
+      void operator() (const core::event& e) {
+        callback(F1(e));
+      }
 
+    protected:
+      function callback;
     };
 
     // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P1,
+    template<typename P1,
              typename P2,
              P1(F1)(const core::event&) = get_param1<P1>,
-             P2(F2)(const core::event&) = get_param2<P2>,
-             bool(matcher)(const core::event&) = event_type_match<M>,
-             core::event_result R = 0>
-    struct two_param_event_handler : std::function<core::event_handler> {
+             P2(F2)(const core::event&) = get_param2<P2>>
+    struct two_param_caller {
       typedef std::function<void(P1, P2)> function;
 
-      two_param_event_handler(function fn)
-        : callback(fn)
+      two_param_caller (const function cb)
+        :callback(cb)
       {}
 
       template<class T>
-      two_param_event_handler(T* win, void(T::*fn)(P1, P2))
-        : callback(win, fn)
+      two_param_caller (T* t, void(T::*callback_)(P1, P2))
+        : callback(gui::core::easy_bind(t, callback_))
       {}
 
-      bool operator()(const core::event& e, core::event_result& result) {
-         if (matcher(e) && callback) {
-          callback(F1(e), F2(e));
-          result = R;
-          return true;
-        }
-        return false;
+      operator bool () const {
+        return callback.operator bool();
       }
 
-    private:
+      void operator() (const core::event& e) {
+        callback(F1(e), F2(e));
+      }
+
+    protected:
       function callback;
-      
     };
 
     // --------------------------------------------------------------------------
-    template<core::event_id M,
-             typename P1,
+    template<typename P1,
              typename P2,
              typename P3,
              P1(F1)(const core::event&) = get_param1_low<P1>,
              P2(F2)(const core::event&) = get_param1_high<P2>,
-             P3(F3)(const core::event&) = get_param2<P3>,
-             bool(matcher)(const core::event&) = event_type_match<M>,
-             core::event_result R = 0>
-    struct three_param_event_handler : std::function<core::event_handler> {
+             P3(F3)(const core::event&) = get_param2<P3>>
+    struct three_param_caller {
       typedef std::function<void(P1, P2, P3)> function;
 
-      three_param_event_handler(function fn)
-        : callback(fn)
+      three_param_caller (const function cb)
+        :callback(cb)
       {}
 
       template<class T>
-      three_param_event_handler(T* win, void(T::*fn)(P1, P2, P3))
-        : callback(win, fn)
+      three_param_caller (T* t, void(T::*callback_)(P1, P2, P3))
+        : callback(gui::core::easy_bind(t, callback_))
       {}
 
-      bool operator()(const core::event& e, core::event_result& result) {
-         if (matcher(e) && callback) {
-          callback(F1(e), F2(e), F3(e));
+      operator bool () const {
+        return callback.operator bool();
+      }
+
+      void operator() (const core::event& e) {
+        callback(F1(e), F2(e), F3(e));
+      }
+
+    protected:
+      function callback;
+    };
+
+    // --------------------------------------------------------------------------
+    template<core::event_id M,
+             typename C = no_param_caller,
+             core::event_result R = 0,
+             bool(matcher)(const core::event&) = event_type_match<M>>
+    struct event_handlerT {
+      typedef typename C::function function;
+
+      event_handlerT (const function cb)
+        : caller(cb)
+      {}
+
+      bool operator() (const core::event& e, core::event_result& result) {
+        if (matcher(e) && caller) {
+          caller(e);
           result = R;
           return true;
         }
         return false;
       }
 
-    private:
-      function callback;
-      
+    protected:
+      C caller;
     };
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef two_param_event_handler<WM_CREATE,
-                                    window*,
-                                    core::rectangle,
-                                    get_window_from_cs,
-                                    get_rect<CREATESTRUCT>>       create_event;
+    typedef event_handlerT<WM_CREATE, 
+                          two_param_caller<window*,
+                                           core::rectangle,
+                                           get_window_from_cs,
+                                           get_rect<CREATESTRUCT>>>           create_event;
 
-    typedef no_param_event_handler<WM_DESTROY>                    destroy_event;
-    typedef no_param_event_handler<WM_CLOSE>                      close_event;
-    typedef no_param_event_handler<WM_QUIT>                       quit_event;
+    typedef event_handlerT<WM_DESTROY>                                        destroy_event;
+    typedef event_handlerT<WM_CLOSE>                                          close_event;
+    typedef event_handlerT<WM_QUIT>                                           quit_event;
 
-    typedef one_param_event_handler<WM_ERASEBKGND, draw::graphics> erase_event;
-    typedef one_param_event_handler<WM_PRINT, draw::graphics>      print_event;
-    typedef one_param_event_handler<WM_PRINTCLIENT, draw::graphics> print_client_event;
+    typedef event_handlerT<WM_ERASEBKGND, one_param_caller<draw::graphics>>   erase_event;
+    typedef event_handlerT<WM_PRINT, one_param_caller<draw::graphics>>        print_event;
+    typedef event_handlerT<WM_PRINTCLIENT, one_param_caller<draw::graphics>>  print_client_event;
 
-    typedef one_param_event_handler<WM_SETREDRAW, bool>           redraw_changed_event;
+    typedef event_handlerT<WM_SETREDRAW, one_param_caller<bool>>              redraw_changed_event;
 
-    typedef one_param_event_handler<WM_ENABLE, bool>              enable_event;
-    typedef two_param_event_handler<WM_ACTIVATE, bool, window*>   activate_event;
-    typedef one_param_event_handler<WM_ACTIVATEAPP, bool>         activate_app_event;
-    typedef one_param_event_handler<WM_SETFOCUS, window*>         set_focus_event;
-    typedef one_param_event_handler<WM_KILLFOCUS, window*>        lost_focus_event;
+    typedef event_handlerT<WM_ENABLE, one_param_caller<bool>>                 enable_event;
+    typedef event_handlerT<WM_ACTIVATE,
+                           two_param_caller<bool, window*>>                   activate_event;
+    typedef event_handlerT<WM_ACTIVATEAPP, one_param_caller<bool>>            activate_app_event;
+    typedef event_handlerT<WM_SETFOCUS, one_param_caller<window*>>            set_focus_event;
+    typedef event_handlerT<WM_KILLFOCUS, one_param_caller<window*>>           lost_focus_event;
 
-    typedef no_param_event_handler<WM_ENTERSIZEMOVE>              begin_size_or_move_event;
-    typedef no_param_event_handler<WM_EXITSIZEMOVE>               end_size_or_move_event;
+    typedef event_handlerT<WM_ENTERSIZEMOVE>                                  begin_size_or_move_event;
+    typedef event_handlerT<WM_EXITSIZEMOVE>                                   end_size_or_move_event;
 
-    typedef one_param_event_handler<WM_MOVE,
-                                    core::point,
-                                    get_param2<core::point>>      move_event;
-    typedef one_param_event_handler<WM_MOVING,
-                                    core::rectangle,
-                                    get_param2<core::rectangle>,
-                                    event_type_match<WM_MOVING>, TRUE>       moving_event;
+    typedef event_handlerT<WM_MOVE,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         move_event;
+    typedef event_handlerT<WM_MOVING,
+                           one_param_caller<core::rectangle,
+                                            get_param2<core::rectangle>>,
+                           TRUE>                                              moving_event;
 
-    typedef two_param_event_handler<WM_SIZE, unsigned int, core::size>  size_event;
-    typedef two_param_event_handler<WM_SIZING,
-                                    unsigned int,
-                                    core::rectangle,
-                                    get_param1<unsigned int>,
-                                    get_param2<core::rectangle>,
-                                    event_type_match<WM_SIZING>, TRUE>       sizing_event;
+    typedef event_handlerT<WM_SIZE,
+                           two_param_caller<unsigned int, core::size>>        size_event;
+    typedef event_handlerT<WM_SIZING,
+                           two_param_caller<unsigned int,
+                                            core::rectangle,
+                                            get_param1<unsigned int>,
+                                            get_param2<core::rectangle>>,
+                           TRUE>                                              sizing_event;
 
-    typedef one_param_event_handler<WM_LBUTTONDOWN,
-                                    core::point, get_param2<core::point>>  left_btn_down_event;
-    typedef one_param_event_handler<WM_LBUTTONUP,
-                                    core::point, get_param2<core::point>>  left_btn_up_event;
-    typedef one_param_event_handler<WM_LBUTTONDBLCLK,
-                                    core::point, get_param2<core::point>> left_btn_dblclk_event;
+    typedef event_handlerT<WM_LBUTTONDOWN,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         left_btn_down_event;
+    typedef event_handlerT<WM_LBUTTONUP,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         left_btn_up_event;
+    typedef event_handlerT<WM_LBUTTONDBLCLK,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         left_btn_dblclk_event;
 
-    typedef one_param_event_handler<WM_RBUTTONDOWN,
-                                    core::point, get_param2<core::point>> right_btn_down_event;
-    typedef one_param_event_handler<WM_RBUTTONUP,
-                                    core::point, get_param2<core::point>> right_btn_up_event;
-    typedef one_param_event_handler<WM_RBUTTONDBLCLK,
-                                    core::point, get_param2<core::point>> right_btn_dblclk_event;
+    typedef event_handlerT<WM_RBUTTONDOWN,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         right_btn_down_event;
+    typedef event_handlerT<WM_RBUTTONUP,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         right_btn_up_event;
+    typedef event_handlerT<WM_RBUTTONDBLCLK,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         right_btn_dblclk_event;
 
-    typedef one_param_event_handler<WM_MBUTTONDOWN,
-                                    core::point, get_param2<core::point>> middle_btn_down_event;
-    typedef one_param_event_handler<WM_MBUTTONUP,
-                                    core::point, get_param2<core::point>> middle_btn_up_event;
-    typedef one_param_event_handler<WM_MBUTTONDBLCLK,
-                                    core::point, get_param2<core::point>> middle_btn_dblclk_event;
+    typedef event_handlerT<WM_MBUTTONDOWN,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         middle_btn_down_event;
+    typedef event_handlerT<WM_MBUTTONUP,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         middle_btn_up_event;
+    typedef event_handlerT<WM_MBUTTONDBLCLK,
+                           one_param_caller<core::point,
+                                            get_param2<core::point>>>         middle_btn_dblclk_event;
 
-    typedef two_param_event_handler<WM_MOUSEMOVE,
-                                    unsigned int, core::point> mouse_move_event;
-    typedef two_param_event_handler<WM_MOUSEHOVER,
-                                    unsigned int, core::point> mouse_hover_event;
-    typedef no_param_event_handler<WM_MOUSELEAVE>               mouse_leave_event;
+    typedef event_handlerT<WM_MOUSEMOVE,
+                           two_param_caller<unsigned int,
+                                            core::point>>                     mouse_move_event;
+    typedef event_handlerT<WM_MOUSEHOVER,
+                           two_param_caller<unsigned int,
+                                            core::point>>                     mouse_hover_event;
+    typedef event_handlerT<WM_MOUSELEAVE>                                     mouse_leave_event;
 
-    typedef three_param_event_handler<WM_MOUSEHWHEEL,
-                                      unsigned int, int, core::point> wheel_x_event;
-    typedef three_param_event_handler<WM_MOUSEWHEEL,
-                                      unsigned int, int, core::point> wheel_y_event;
+    typedef event_handlerT<WM_MOUSEHWHEEL,
+                           three_param_caller<unsigned int,
+                                              int,
+                                              core::point>>                   wheel_x_event;
+    typedef event_handlerT<WM_MOUSEWHEEL,
+                           three_param_caller<unsigned int,
+                                              int,
+                                              core::point>>                   wheel_y_event;
 
     // --------------------------------------------------------------------------
-    typedef two_param_event_handler<WM_WINDOWPOSCHANGED,
-                                    unsigned int,
-                                    core::rectangle,
-                                    get_flags_from_wp,
-                                    get_rect<WINDOWPOS>> pos_changed_event;
+    typedef event_handlerT<WM_WINDOWPOSCHANGED,
+                           two_param_caller<unsigned int,
+                                            core::rectangle,
+                                            get_flags_from_wp,
+                                            get_rect<WINDOWPOS>>>             pos_changed_event;
 
-    typedef two_param_event_handler<WM_SHOWWINDOW,
-                                    bool,
-                                    unsigned int> show_event;
+    typedef event_handlerT<WM_SHOWWINDOW,
+                           two_param_caller<bool,
+                                            unsigned int>>                    show_event;
 
     // --------------------------------------------------------------------------
-    struct paint_event : event_handlerT<void, draw::graphics&> {
-      paint_event(function changingfn)
-        : event_handlerT(changingfn)
+    struct paint_caller : one_param_caller<draw::graphics&> {
+      paint_caller (const function cb)
+        :one_param_caller(cb)
       {}
 
       template<class T>
-      paint_event(T* win, void(T::*changingfn)(draw::graphics&))
+      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
+        : one_param_caller(gui::core::easy_bind(t, callback_))
+      {}
+
+      void operator()(const core::event& e);
+    };
+
+    typedef event_handlerT<WM_PAINT, paint_caller>                            paint_event;
+
+    // --------------------------------------------------------------------------
+    struct pos_changing_caller : two_param_caller<unsigned int&, core::rectangle &> {
+      pos_changing_caller (const function cb)
+        : two_param_caller(cb)
+      {}
+
+      template<class T>
+      pos_changing_caller (T* win, void(T::*changingfn)(unsigned int&, core::rectangle&))
         : event_handlerT(t, changingfn)
       {}
 
-      bool operator()(const core::event& e, core::event_result& result);
+      void operator()(const core::event& e);
     };
 
+    typedef event_handlerT<WM_WINDOWPOSCHANGING, pos_changing_caller>          pos_changing_event;
+
     // --------------------------------------------------------------------------
-    struct pos_changing_event : event_handlerT<void, unsigned int&, core::rectangle &> {
-      pos_changing_event(function changingfn)
-        : event_handlerT(changingfn)
+    struct get_minmax_caller {
+      typedef std::function<void(const core::size&, const core::point&, core::size&, core::size&)> function;
+
+      get_minmax_caller (const function cb)
+        : callback(cb)
       {}
 
       template<class T>
-      pos_changing_event(T* win, void(T::*changingfn)(unsigned int&, core::rectangle&))
-        : event_handlerT(t, changingfn)
+      get_minmax_caller (T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
+        : callback(win, fn)
       {}
 
-      bool operator()(const core::event& e, core::event_result& result);
+      operator bool () const {
+        return callback.operator bool();
+      }
+
+      void operator()(const core::event& e);
+
+    private:
+      function callback;
     };
 
-    // --------------------------------------------------------------------------
-    struct get_minmax_event : event_handlerT<void, const core::size&, const core::point&, core::size&, core::size&> {
-      get_minmax_event(function fn)
-        : event_handlerT(fn)
-      {}
+    typedef event_handlerT<WM_GETMINMAXINFO, get_minmax_caller>                 get_minmax_event;
 
-      template<class T>
-      get_minmax_event(T* win, void(T::*fn)(const core::size&, const core::point&, core::size&, core::size&))
-        : event_handlerT(win, fn)
-      {}
-
-      bool operator()(const core::event& e, core::event_result& result);
-    };
 #endif // WIN32
 #ifdef X11
     // --------------------------------------------------------------------------
@@ -436,24 +458,28 @@ namespace gui {
       return core::point(be.x, be.y);
     }
     // --------------------------------------------------------------------------
-    typedef no_param_event_handler<DestroyNotify> destroy_event;
+    typedef event_handlerT<DestroyNotify> destroy_event;
     
-    typedef one_param_event_handler<ButtonPress,
+    typedef event_handlerT<ButtonPress,
                                     core::point,
                                     get_point<XButtonEvent>,
+                                    0,
                                     event_button_match<ButtonPress, Button1, 0>> left_btn_down_event;
-    typedef one_param_event_handler<ButtonRelease,
+    typedef event_handlerT<ButtonRelease,
                                     core::point,
                                     get_point<XButtonEvent>,
+                                    0,
                                     event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
 
-    typedef one_param_event_handler<ButtonPress,
+    typedef event_handlerT<ButtonPress,
                                     core::point,
                                     get_point<XButtonEvent>,
+                                    0,
                                     event_button_match<ButtonPress, Button3, 0>> right_btn_down_event;
-    typedef one_param_event_handler<ButtonRelease,
+    typedef event_handlerT<ButtonRelease,
                                     core::point,
                                     get_point<XButtonEvent>,
+                                    0,
                                     event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
 
     typedef three_param_event_handler<ButtonPress,
@@ -462,17 +488,16 @@ namespace gui {
                                      get_button<XButtonEvent>,
                                      get_point<XButtonEvent>> button_event;
     // --------------------------------------------------------------------------
-    struct paint_event : std::function<core::event_handler> {
-      typedef std::function<void(draw::graphics&)> function;
+    struct paint_event : event_handlerT<void, draw::graphics&> {
 
       paint_event(function changingfn)
-        : callback(changingfn)
+        : event_handlerT(changingfn)
         , gc(0)
       {}
 
       template<class T>
       paint_event(T* t, void(T::*changingfn)(draw::graphics&))
-        : callback(t, changingfn)
+        : event_handlerT(t, changingfn)
         , gc(0)
       {}
       
@@ -481,7 +506,6 @@ namespace gui {
       bool operator()(const core::event& e, core::event_result& result);
 
     private:
-      function callback;
       core::graphics_id gc;
       
     };

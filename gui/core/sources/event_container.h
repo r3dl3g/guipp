@@ -42,16 +42,16 @@ namespace gui {
 
     class event_container {
     public:
-      typedef std::function<event_handler> event_handler_fnct;
-      typedef std::shared_ptr<event_handler_fnct> event_handler_ptr;
+      typedef std::function<event_handler> event_handler_function;
 
-      event_handler_ptr register_event_handler(event_handler_fnct);
-      void unregister_event_handler(event_handler_ptr);
+      void register_event_handler(event_handler_function);
+      void unregister_event_handler(event_handler_function);
 
       bool handle_event(const event& e, core::event_result& result);
 
     private:
-      typedef std::vector<event_handler_ptr> event_handler_list;
+      typedef std::pair<bool, event_handler_function> list_entry;
+      typedef std::vector<list_entry> event_handler_list;
 
       event_handler_list event_handlers;
       std::mutex event_handlers_mutex;

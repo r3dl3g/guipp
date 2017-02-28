@@ -445,7 +445,7 @@ namespace gui {
 
     void window::move(const core::point& pt, bool repaint) {
 #ifdef WIN32
-      SetWindowPos(get_id(), NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOREDRAW|SWP_NOSIZE|SWP_NOZORDER)
+	  SetWindowPos(get_id(), NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
 #elif X11
       XMoveWindow(core::global::get_instance(), get_id(), pt.x, pt.y);
 #endif // X11
@@ -453,7 +453,7 @@ namespace gui {
 
     void window::resize(const core::size& sz, bool repaint) {
 #ifdef WIN32
-      SetWindowPos(get_id(), NULL, 0, 0, sz.width, sz.height, SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOREDRAW|SWP_NOMOVE|SWP_NOZORDER)
+	  SetWindowPos(get_id(), NULL, 0, 0, sz.width, sz.height, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
 #elif X11
       XResizeWindow(core::global::get_instance(), get_id(), sz.width, sz.height);
 #endif // X11

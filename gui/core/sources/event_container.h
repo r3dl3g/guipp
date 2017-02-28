@@ -50,8 +50,7 @@ namespace gui {
       bool handle_event(const event& e, core::event_result& result);
 
     private:
-      typedef std::pair<bool, event_handler_function> list_entry;
-      typedef std::vector<list_entry> event_handler_list;
+      typedef std::vector<event_handler_function> event_handler_list;
 
       event_handler_list event_handlers;
       std::mutex event_handlers_mutex;

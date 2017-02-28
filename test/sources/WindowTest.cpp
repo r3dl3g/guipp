@@ -93,8 +93,8 @@ win::window_class chldCls("childwindow",
                           LoadCursor(NULL, IDC_ARROW),
                           (HBRUSH)(COLOR_WINDOW + 1));
 #elif X11
-win::window_class mainCls("mainwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask);
-win::window_class chldCls("childwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask);
+win::window_class mainCls("mainwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask|PointerMotionMask);
+win::window_class chldCls("childwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask|PointerMotionMask);
 #endif
 
 #ifdef WIN32
@@ -124,9 +124,6 @@ int main(int argc, char* argv[]) {
 
   LogDebug << "window size:" << sizeof(main);
   LogDebug << "window_class size:" << sizeof(mainCls);
-  LogDebug << "event_handler_fnct size:" << sizeof(win::window::event_handler_fnct);
-  LogDebug << "event_handler_ptr size:" << sizeof(win::window::event_handler_ptr);
-  LogDebug << "event_handler_list size:" << sizeof(std::vector<win::window::event_handler_ptr>);
 
   main.register_event_handler(init_result_handler());
 
@@ -213,6 +210,9 @@ int main(int argc, char* argv[]) {
 
   });
 
+  bool at_drag = false;
+  core::point last_pos;
+
 #ifdef WIN32
   main.register_event_handler(win::close_event([&]() {
     LogDebug << "Close!";
@@ -256,9 +256,6 @@ int main(int argc, char* argv[]) {
       window1.move(window1.position() + core::size(0, delta));
     }
   }));
-  main.register_event_handler(win::mouse_move_event([](unsigned int keys, const core::point& p) {
-    LogDebug << "Mouse move : " << keys << " at " << p;
-  }));
   main.register_event_handler(win::mouse_hover_event([](unsigned int keys, const core::point& p) {
     LogDebug << "Mouse hover : " << keys << " at " << p;
   }));
@@ -283,27 +280,25 @@ int main(int argc, char* argv[]) {
     window1.move({ 50, 50 });
   }));
 
-  win::window::event_handler_ptr painter1 = window2.register_event_handler(paint1);
-  win::window::event_handler_ptr painter2 = window2.register_event_handler(paint2);
-  window2.unregister_event_handler(painter2);
+
+  window2.register_event_handler(paint1);
 
   bool p1 = true;
 
   window2.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     if (p1) {
       p1 = false;
-      window2.unregister_event_handler(painter1);
-      painter2 = window2.register_event_handler(*painter2.get());
+      window2.unregister_event_handler(paint1);
+      window2.register_event_handler(paint2);
     } else {
       p1 = true;
-      window2.unregister_event_handler(painter2);
-      painter1 = window2.register_event_handler(*painter1.get());
+      window2.unregister_event_handler(paint2);
+      window2.register_event_handler(paint1);
     }
     window2.redraw_later();
   }));
 #endif
 
-#ifdef X11
   main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
     LogDebug << "Left Button Down at " << p;
   }));
@@ -316,6 +311,29 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
     LogDebug << "Right Button Up at " << p;
   }));
+  main.register_event_handler(win::mouse_move_event([](unsigned int keys, const core::point& p) {
+    LogDebug << "Mouse move : " << keys << " at " << p;
+  }));
+  window2.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+    if (at_drag) {
+      core::size delta = p - last_pos;
+      //last_pos = p;
+      window2.move(window2.position() + delta);
+    }
+    LogDebug << "Mouse move : " << keys << " at " << p;
+  }));
+  window2.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+    at_drag = true;
+    last_pos = p;
+    LogDebug << "Mouse down at " << p;
+  }));
+  window2.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+    at_drag = false;
+    LogDebug << "Mouse up at " << p;
+  }));
+
+
+#ifdef X11
 
   window1.register_event_handler(paint1);
   window2.register_event_handler(paint2);
@@ -339,7 +357,7 @@ int main(int argc, char* argv[]) {
   } catch (std::exception e) {
     LogFatal << e;
   }
-  
+
   gui::core::global::fini();
 
 #ifdef X11

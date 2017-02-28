@@ -1,5 +1,5 @@
 /**
-* @copyright (c) 2015-2016 Ing. Buero Rothfuss
+* @copyright (c) 2015-2017 Ing. Buero Rothfuss
 *                          Riedlinger Str. 8
 *                          70327 Stuttgart
 *                          Germany
@@ -77,7 +77,15 @@ namespace gui {
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
 #elif X11
-      id = XCreateSimpleWindow(core::global::get_instance(), parent.id, pos.x, pos.y, sz.width, sz.height, type.get_style(), type.get_foreground(), type.get_background());
+      id = XCreateSimpleWindow(core::global::get_instance(),
+                               parent.id,
+                               pos.x,
+                               pos.y,
+                               sz.width,
+                               sz.height,
+                               type.get_style(),
+                               type.get_foreground(),
+                               type.get_background());
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
@@ -107,7 +115,13 @@ namespace gui {
 #elif X11
       id = XCreateSimpleWindow(core::global::get_instance(),
                                DefaultRootWindow(core::global::get_instance()),
-                               pos.x, pos.y, sz.width, sz.height, type.get_style(), type.get_foreground(), type.get_background());
+                               pos.x,
+                               pos.y,
+                               sz.width,
+                               sz.height,
+                               type.get_style(),
+                               type.get_foreground(),
+                               type.get_background());
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
@@ -265,7 +279,7 @@ namespace gui {
 #ifdef WIN32
       ShowWindow(get_id(), SW_HIDE);
 #elif X11
-      XUnmapWindow(core::global::get_instance(), id);
+      XUnmapWindow(core::global::get_instance(), get_id());
 #endif // X11
     }
 
@@ -273,7 +287,7 @@ namespace gui {
 #ifdef WIN32
       ShowWindow(get_id(), SW_SHOWNA);
 #elif X11
-      XMapWindow(core::global::get_instance(), id);
+      XMapWindow(core::global::get_instance(), get_id());
 #endif // X11
     }
 
@@ -358,7 +372,13 @@ namespace gui {
       GetWindowRect(get_id(), &r);
       return core::size(r.right - r.left, r.bottom - r.top);
 #elif X11
-      return core::size();
+      Window root;
+      int x, y;
+      unsigned int width, height;
+      unsigned int border_width;
+      unsigned int depth;
+      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
+      return core::size(width, height);
 #endif // X11
     }
 
@@ -368,13 +388,29 @@ namespace gui {
       GetWindowRect(get_id(), &r);
       return screenToWindow({ r.left, r.top });
 #elif X11
-      return core::point();
+      Window root;
+      int x, y;
+      unsigned int width, height;
+      unsigned int border_width;
+      unsigned int depth;
+      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
+      return core::point(x, y);
 #endif // X11
     }
 
     core::rectangle window::place() const {
+#ifdef WIN32
       const core::rectangle pl = absolute_place();
       return core::rectangle(screenToWindow(pl.position()), pl.size());
+#elif X11
+      Window root;
+      int x, y;
+      unsigned int width, height;
+      unsigned int border_width;
+      unsigned int depth;
+      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
+      return core::rectangle(x, y, width, height);
+#endif // X11
     }
 
     core::rectangle window::absolute_place() const {
@@ -383,7 +419,7 @@ namespace gui {
       GetWindowRect(get_id(), &r);
       return core::rectangle(r);
 #elif X11
-      return core::rectangle();
+      return core::rectangle(absolute_position(), size());
 #endif // X11
     }
 
@@ -393,7 +429,7 @@ namespace gui {
       GetWindowRect(get_id(), &r);
       return{ r.left, r.top };
 #elif X11
-      return core::point();
+      return windowToScreen(core::point());
 #endif // X11
     }
 
@@ -408,30 +444,69 @@ namespace gui {
     }
 
     void window::move(const core::point& pt, bool repaint) {
-      place(core::rectangle(pt, size()));
+#ifdef WIN32
+      SetWindowPos(get_id(), NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOREDRAW|SWP_NOSIZE|SWP_NOZORDER)
+#elif X11
+      XMoveWindow(core::global::get_instance(), get_id(), pt.x, pt.y);
+#endif // X11
     }
 
     void window::resize(const core::size& sz, bool repaint) {
-      place(core::rectangle(position(), sz));
+#ifdef WIN32
+      SetWindowPos(get_id(), NULL, 0, 0, sz.width, sz.height, SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOREDRAW|SWP_NOMOVE|SWP_NOZORDER)
+#elif X11
+      XResizeWindow(core::global::get_instance(), get_id(), sz.width, sz.height);
+#endif // X11
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
-      const core::point pos = r.position();
+      const core::point pt = r.position();
       const core::size sz = r.size();
 #ifdef WIN32
-      MoveWindow(get_id(), pos.x, pos.y, sz.width, sz.height, repaint);
+      MoveWindow(get_id(), pt.x, pt.y, sz.width, sz.height, repaint);
 #elif X11
+      XMoveResizeWindow(core::global::get_instance(), get_id(), pt.x, pt.y, sz.width, sz.height);
 #endif // X11
     }
 
     core::point window::windowToScreen(const core::point& pt) const {
+#ifdef WIN32
       window* p = getParent();
       return p ? p->clientToScreen(pt) : pt;
+#elif X11
+      int x, y;
+      Window child_return;
+      XTranslateCoordinates(core::global::get_instance(),
+                            get_id(),
+                            RootWindow(core::global::get_instance(),
+                                       DefaultScreen(core::global::get_instance())),
+                            pt.x,
+                            pt.y,
+                            &x,
+                            &y,
+                            &child_return);
+      return core::point(x, y);
+#endif // X11
     }
 
     core::point window::screenToWindow(const core::point& pt) const {
+#ifdef WIN32
       window* p = getParent();
       return p ? p->screenToClient(pt) : pt;
+#elif X11
+      int x, y;
+      Window child_return;
+      XTranslateCoordinates(core::global::get_instance(),
+                            RootWindow(core::global::get_instance(),
+                                       DefaultScreen(core::global::get_instance())),
+                            get_id(),
+                            pt.x,
+                            pt.y,
+                            &x,
+                            &y,
+                            &child_return);
+      return core::point(x, y);
+#endif // X11
     }
 
     core::point window::clientToScreen(const core::point& pt) const {
@@ -440,7 +515,7 @@ namespace gui {
       ClientToScreen(get_id(), &Point);
       return core::point(Point.x, Point.y);
 #elif X11
-      return core::point();
+      return windowToScreen(pt);
 #endif // X11
     }
 
@@ -450,7 +525,7 @@ namespace gui {
       ScreenToClient(get_id(), &Point);
       return core::point(Point.x, Point.y);
 #elif X11
-      return core::point();
+      return screenToWindow(pt);
 #endif // X11
     }
 

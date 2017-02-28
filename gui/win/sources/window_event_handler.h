@@ -35,7 +35,6 @@
 #include "graphics.h"
 #include "logger.h"
 
-
 namespace gui {
 
   namespace win {
@@ -43,12 +42,12 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    template<typename T> 
+    template<typename T>
     T get_param1 (const core::event& e) {
       return T(e.param_1);
     }
     // --------------------------------------------------------------------------
-    template<typename T> 
+    template<typename T>
     T get_param2 (const core::event& e) {
       return T(e.param_2);
     }
@@ -107,13 +106,13 @@ namespace gui {
       return T(0);
     }
 #endif // WIN32
-    
+
      // --------------------------------------------------------------------------
     template <typename T>
     const T& cast_event_type(const core::event& e) {
       return *((const T*)&e);
     }
-    
+
     // --------------------------------------------------------------------------
 #ifdef WIN32
     template <core::event_id id>
@@ -266,7 +265,7 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handlerT<WM_CREATE, 
+    typedef event_handlerT<WM_CREATE,
                           two_param_caller<window*,
                                            core::rectangle,
                                            get_window_from_cs,
@@ -368,22 +367,6 @@ namespace gui {
                                             unsigned int>>                    show_event;
 
     // --------------------------------------------------------------------------
-    struct paint_caller : one_param_caller<draw::graphics&> {
-      paint_caller (const function cb)
-        :one_param_caller(cb)
-      {}
-
-      template<class T>
-      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
-        : one_param_caller(gui::core::easy_bind(t, callback_))
-      {}
-
-      void operator()(const core::event& e);
-    };
-
-    typedef event_handlerT<WM_PAINT, paint_caller>                            paint_event;
-
-    // --------------------------------------------------------------------------
     struct pos_changing_caller : two_param_caller<unsigned int&, core::rectangle &> {
       pos_changing_caller (const function cb)
         : two_param_caller(cb)
@@ -424,13 +407,29 @@ namespace gui {
 
     typedef event_handlerT<WM_GETMINMAXINFO, get_minmax_caller>                 get_minmax_event;
 
-#endif // WIN32
+    // --------------------------------------------------------------------------
+    struct paint_caller : one_param_caller<draw::graphics&> {
+      paint_caller (const function cb)
+        :one_param_caller(cb)
+      {}
+
+      template<class T>
+      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
+        : one_param_caller(gui::core::easy_bind(t, callback_))
+      {}
+
+      void operator()(const core::event& e);
+    };
+
+    typedef event_handlerT<WM_PAINT, paint_caller>                            paint_event;
+#endif //WIN32
+
 #ifdef X11
     // --------------------------------------------------------------------------
     template <core::event_id id, core::event_id btn, int sts>
     bool event_button_match(const XEvent& e) {
       /*if (e.type == id) {
-        LogDebug << "event_button_match id:" << e.type << " && (" 
+        LogDebug << "event_button_match id:" << e.type << " && ("
                  << e.xbutton.button << " == " << btn << ") && ("
                  << e.xbutton.state << " & " << sts << " = " << (e.xbutton.state & sts) << ")";
       }*/
@@ -440,6 +439,16 @@ namespace gui {
     template <>
     inline const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
       return e.xbutton;
+    }
+    // --------------------------------------------------------------------------
+    template <>
+    inline const XKeyEvent& cast_event_type<XKeyEvent>(const core::event& e) {
+      return e.xkey;
+    }
+    // --------------------------------------------------------------------------
+    template <>
+    inline const XMotionEvent& cast_event_type<XMotionEvent>(const core::event& e) {
+      return e.xmotion;
     }
     // --------------------------------------------------------------------------
     template<typename T>
@@ -453,62 +462,91 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<typename T>
+    inline unsigned int get_keycode(const core::event& e) {
+      return cast_event_type<T>(e).keycode;
+    }
+    // --------------------------------------------------------------------------
+    template<typename T>
     inline core::point get_point(const core::event& e) {
       const T& be = cast_event_type<T>(e);
       return core::point(be.x, be.y);
     }
     // --------------------------------------------------------------------------
     typedef event_handlerT<DestroyNotify> destroy_event;
-    
-    typedef event_handlerT<ButtonPress,
-                                    core::point,
-                                    get_point<XButtonEvent>,
-                                    0,
-                                    event_button_match<ButtonPress, Button1, 0>> left_btn_down_event;
-    typedef event_handlerT<ButtonRelease,
-                                    core::point,
-                                    get_point<XButtonEvent>,
-                                    0,
-                                    event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
+
+    typedef event_handlerT<KeyPress,
+                           two_param_caller<unsigned int,
+                                            unsigned int,
+                                            get_state<XKeyEvent>,
+                                            get_keycode<XKeyEvent>>>  key_down_event;
+
+    typedef event_handlerT<KeyRelease,
+                           two_param_caller<unsigned int,
+                                            unsigned int,
+                                            get_state<XKeyEvent>,
+                                            get_keycode<XKeyEvent>>>  key_op_event;
 
     typedef event_handlerT<ButtonPress,
-                                    core::point,
-                                    get_point<XButtonEvent>,
-                                    0,
-                                    event_button_match<ButtonPress, Button3, 0>> right_btn_down_event;
-    typedef event_handlerT<ButtonRelease,
-                                    core::point,
-                                    get_point<XButtonEvent>,
-                                    0,
-                                    event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonPress, Button1, 0>> left_btn_down_event;
 
-    typedef three_param_event_handler<ButtonPress,
-                                     unsigned int, unsigned int, core::point,
-                                     get_state<XButtonEvent>,
-                                     get_button<XButtonEvent>,
-                                     get_point<XButtonEvent>> button_event;
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
+
+    typedef event_handlerT<ButtonPress,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonPress, Button3, 0>> right_btn_down_event;
+
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
+
+    typedef event_handlerT<MotionNotify,
+                           two_param_caller<unsigned int,
+                                            core::point,
+                                            get_state<XMotionEvent>,
+                                            get_point<XMotionEvent>>>  mouse_move_event;
+
+    typedef event_handlerT<ButtonPress,
+                           three_param_caller<unsigned int, unsigned int, core::point,
+                                              get_state<XButtonEvent>,
+                                              get_button<XButtonEvent>,
+                                              get_point<XButtonEvent>>> button_event;
+
     // --------------------------------------------------------------------------
-    struct paint_event : event_handlerT<void, draw::graphics&> {
+    struct paint_caller {
+      typedef std::function<void(draw::graphics&)> function;
 
-      paint_event(function changingfn)
-        : event_handlerT(changingfn)
+      paint_caller (const function cb)
+        : callback(cb)
         , gc(0)
       {}
 
       template<class T>
-      paint_event(T* t, void(T::*changingfn)(draw::graphics&))
-        : event_handlerT(t, changingfn)
+      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
+        : callback(gui::core::easy_bind(t, callback_))
         , gc(0)
       {}
-      
-      ~paint_event();
 
-      bool operator()(const core::event& e, core::event_result& result);
+      operator bool () const {
+        return callback.operator bool();
+      }
+
+      ~paint_caller ();
+
+      void operator()(const core::event& e);
 
     private:
+      function callback;
       core::graphics_id gc;
-      
     };
+
+    typedef event_handlerT<Expose, paint_caller> paint_event;
 
 #endif // X11
 

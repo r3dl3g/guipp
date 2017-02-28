@@ -108,7 +108,7 @@ namespace gui {
 
 #elif X11
     // --------------------------------------------------------------------------
-    paint_event::~paint_event() {
+    paint_caller::~paint_caller() {
         if (gc) {
           if (core::global::get_instance()) {
             XFreeGC(core::global::get_instance(), gc);
@@ -117,20 +117,17 @@ namespace gui {
         }
     }
 
-    bool paint_event::operator()(const core::event& e, core::event_result& result) {
-      if ((e.type == Expose) && callback) {
+    void paint_caller::operator()(const core::event& e) {
+      if (callback) {
         if (!gc) {
             gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
         }
         draw::graphics g(e.xexpose.window, gc);
         callback(g);
         XFlushGC(e.xexpose.display, gc);
-        result = 0;
-        return true;
       }
-      return false;
     }
-    
+
 #endif // WIN32
 
   } // win

@@ -34,6 +34,7 @@
 #include "easy_bind.h"
 #include "gui_types.h"
 #include "graphics.h"
+#include "window.h"
 #include "logger.h"
 
 namespace gui {
@@ -66,8 +67,6 @@ namespace gui {
     template<>
     bool get_param1<bool>(const core::event& e);
     // --------------------------------------------------------------------------
-    template<>
-    window* get_param1<window*>(const core::event& e);
     // --------------------------------------------------------------------------
     template<>
     draw::graphics get_param1<draw::graphics>(const core::event& e);
@@ -108,6 +107,9 @@ namespace gui {
     }
 #endif // WIN32
 
+    template<>
+    window* get_param1<window*>(const core::event& e);
+
      // --------------------------------------------------------------------------
     template <typename T>
     const T& cast_event_type(const core::event& e) {
@@ -118,11 +120,7 @@ namespace gui {
     template <core::event_id id>
     struct event_type_match {
       bool operator() (const core::event& e) {
-#ifdef WIN32
-        return (e.msg == id);
-#elif X11
         return (e.type == id);
-#endif // X11
       }
     };
 
@@ -301,7 +299,8 @@ namespace gui {
                            TRUE>                                              moving_event;
 
     typedef event_handlerT<WM_SIZE,
-                           two_param_caller<unsigned int, core::size>>        size_event;
+                           one_param_caller<core::size,
+                                            get_param2<core::size>>>          size_event;
     typedef event_handlerT<WM_SIZING,
                            two_param_caller<unsigned int,
                                             core::rectangle,
@@ -342,19 +341,26 @@ namespace gui {
     typedef event_handlerT<WM_MOUSEMOVE,
                            two_param_caller<unsigned int,
                                             core::point>>                     mouse_move_event;
-    typedef event_handlerT<WM_MOUSEHOVER,
-                           two_param_caller<unsigned int,
-                                            core::point>>                     mouse_hover_event;
+
+
+    struct mouse_enter_matcher {
+      bool operator() (const core::event& e);
+    };
+
+    typedef event_handlerT<WM_MOUSEMOVE,
+                           no_param_caller,
+                           0,
+                           mouse_enter_matcher>                               mouse_enter_event;
     typedef event_handlerT<WM_MOUSELEAVE>                                     mouse_leave_event;
 
     typedef event_handlerT<WM_MOUSEHWHEEL,
-                           three_param_caller<unsigned int,
-                                              int,
-                                              core::point>>                   wheel_x_event;
+                           two_param_caller<int, core::point,
+                                            get_param1_high<int>,
+                                            get_param2<core::point>>>         wheel_x_event;
     typedef event_handlerT<WM_MOUSEWHEEL,
-                           three_param_caller<unsigned int,
-                                              int,
-                                              core::point>>                   wheel_y_event;
+                           two_param_caller<int, core::point,
+                                            get_param1_high<int>,
+                                            get_param2<core::point>>>         wheel_y_event;
 
     // --------------------------------------------------------------------------
     typedef event_handlerT<WM_WINDOWPOSCHANGED,
@@ -363,9 +369,21 @@ namespace gui {
                                             get_flags_from_wp,
                                             get_rect<WINDOWPOS>>>             pos_changed_event;
 
+    template <core::event_id id, bool show>
+    struct visibility_event_type_match {
+      bool operator() (const core::event& e) {
+        return (e.type == id) && (get_param1<bool>(e) == show);
+      }
+    };
+
     typedef event_handlerT<WM_SHOWWINDOW,
-                           two_param_caller<bool,
-                                            unsigned int>>                    show_event;
+                           no_param_caller,
+                           0,
+                           visibility_event_type_match<WM_SHOWWINDOW, true>>  show_event;
+    typedef event_handlerT<WM_SHOWWINDOW,
+                           no_param_caller,
+                           0,
+                           visibility_event_type_match<WM_SHOWWINDOW, false>> hide_event;
 
     // --------------------------------------------------------------------------
     struct pos_changing_caller : two_param_caller<unsigned int&, core::rectangle &> {
@@ -438,6 +456,15 @@ namespace gui {
         return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
       }
     };
+
+    struct move_matcher {
+      bool operator() (const core::event& e);
+    };
+
+    struct size_matcher {
+      bool operator() (const core::event& e);
+    };
+
     // --------------------------------------------------------------------------
     template <>
     inline const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
@@ -475,7 +502,31 @@ namespace gui {
       return core::point(be.x, be.y);
     }
     // --------------------------------------------------------------------------
-    typedef event_handlerT<DestroyNotify> destroy_event;
+    template<typename T>
+    inline core::size get_size(const core::event& e) {
+      const T& be = cast_event_type<T>(e);
+      return core::size(be.width, be.height);
+    }
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline core::rectangle get_rect(const core::event& e) {
+      const T& be = cast_event_type<T>(e);
+      return core::rectangle(be.x, be.y, be.width, be.height);
+    }
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline window* get_window(const core::event& e) {
+      return window::get(cast_event_type<T>(e).window);
+    }
+    // --------------------------------------------------------------------------
+    typedef event_handlerT<CreateNotify,
+                           two_param_caller<window*,
+                                            core::rectangle,
+                                            get_window<XCreateWindowEvent>,
+                                            get_rect<XCreateWindowEvent>>>
+                                                                      create_event;
+
+    typedef event_handlerT<DestroyNotify>                             destroy_event;
 
     typedef event_handlerT<KeyPress,
                            two_param_caller<unsigned int,
@@ -492,7 +543,7 @@ namespace gui {
     typedef event_handlerT<ButtonPress,
                            one_param_caller<core::point, get_point<XButtonEvent>>,
                            0,
-                           event_button_match<ButtonPress, Button1, 0>> left_btn_down_event;
+                           event_button_match<ButtonPress, Button1, 0>>             left_btn_down_event;
 
     typedef event_handlerT<ButtonRelease,
                            one_param_caller<core::point, get_point<XButtonEvent>>,
@@ -502,7 +553,7 @@ namespace gui {
     typedef event_handlerT<ButtonPress,
                            one_param_caller<core::point, get_point<XButtonEvent>>,
                            0,
-                           event_button_match<ButtonPress, Button3, 0>> right_btn_down_event;
+                           event_button_match<ButtonPress, Button3, 0>>             right_btn_down_event;
 
     typedef event_handlerT<ButtonRelease,
                            one_param_caller<core::point, get_point<XButtonEvent>>,
@@ -513,13 +564,102 @@ namespace gui {
                            two_param_caller<unsigned int,
                                             core::point,
                                             get_state<XMotionEvent>,
-                                            get_point<XMotionEvent>>>  mouse_move_event;
+                                            get_point<XMotionEvent>>>               mouse_move_event;
 
     typedef event_handlerT<ButtonPress,
                            three_param_caller<unsigned int, unsigned int, core::point,
                                               get_state<XButtonEvent>,
                                               get_button<XButtonEvent>,
-                                              get_point<XButtonEvent>>> button_event;
+                                              get_point<XButtonEvent>>>             button_event;
+
+    template<core::event_id B>
+    struct double_click_matcher {
+
+      bool operator() (const core::event& e) {
+        if ((e.type == ButtonRelease) && (e.xbutton.button == B)) {
+          Time last_up = s_last_up[e.xbutton.window];
+          Time diff = e.xbutton.time - last_up;
+          LogDebug << "double_click_matcher(" << e.xbutton.button
+                   << ") at:" << e.xbutton.time << " last:" << last_up << " diff:" << diff;
+          s_last_up[e.xbutton.window] = e.xbutton.time;
+          return (diff < 300);
+        }
+        return false;
+      }
+
+    protected:
+      static std::map<Window, Time> s_last_up;
+    };
+
+    template<core::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
+
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button1>>                           left_btn_dblclk_event;
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button3>>                           right_btn_dblclk_event;
+    typedef event_handlerT<ButtonRelease,
+                           one_param_caller<core::point, get_point<XButtonEvent>>,
+                           0,
+                           double_click_matcher<Button2>>                           middle_btn_dblclk_event;
+
+    template<int D, int U>
+    inline int get_wheel_delta (const core::event& e) {
+      switch (e.xbutton.button) {
+        case D: return 1;
+        case U: return -1;
+      }
+      return 0;
+    }
+
+    template <int D, int U>
+    struct wheel_button_match {
+      bool operator() (const core::event& e) {
+        return (e.type == ButtonRelease) && ((e.xbutton.button == D) || (e.xbutton.button == U));
+      }
+    };
+
+    typedef event_handlerT<ButtonRelease,
+                           two_param_caller<int,
+                                            core::point,
+                                            get_wheel_delta<6, 7>,
+                                            get_point<XButtonEvent>>,
+                           0,
+                           wheel_button_match<6, 7>>                                wheel_x_event;
+    typedef event_handlerT<ButtonRelease,
+                           two_param_caller<int,
+                                            core::point,
+                                            get_wheel_delta<Button4, Button5>,
+                                            get_point<XButtonEvent>>,
+                           0,
+                           wheel_button_match<Button4, Button5>>                    wheel_y_event;
+
+    typedef event_handlerT<MapNotify, no_param_caller>                              show_event;
+    typedef event_handlerT<UnmapNotify, no_param_caller>                            hide_event;
+
+    typedef event_handlerT<ConfigureNotify,
+                           one_param_caller<core::point,
+                                            get_point<XConfigureEvent>>,
+                           0,
+                           move_matcher>                                            move_event;
+    typedef event_handlerT<ConfigureNotify,
+                           one_param_caller<core::size,
+                                            get_size<XConfigureEvent>>,
+                           0,
+                           size_matcher>                                            size_event;
+
+    typedef event_handlerT<FocusIn,
+                           one_param_caller<window*,
+                                            get_window<XFocusChangeEvent>>>         set_focus_event;
+    typedef event_handlerT<FocusOut,
+                           one_param_caller<window*,
+                                            get_window<XFocusChangeEvent>>>         lost_focus_event;
+
+    typedef event_handlerT<EnterNotify>                                             mouse_enter_event;
+    typedef event_handlerT<LeaveNotify>                                             mouse_leave_event;
 
     // --------------------------------------------------------------------------
     struct paint_caller {
@@ -550,40 +690,6 @@ namespace gui {
     };
 
     typedef event_handlerT<Expose, paint_caller> paint_event;
-
-    template<core::event_id B>
-    struct double_click_matcher {
-
-      bool operator() (const core::event& e) {
-        if ((e.type == ButtonRelease) && (e.xbutton.button == B)) {
-          Time last_up = s_last_up[e.xbutton.window];
-          Time diff = e.xbutton.time - last_up;
-          LogDebug << "double_click_matcher(" << e.xbutton.button
-                   << ") at:" << e.xbutton.time << " last:" << last_up << " diff:" << diff;
-          s_last_up[e.xbutton.window] = e.xbutton.time;
-          return (diff < 300);
-        }
-        return false;
-      }
-
-    protected:
-      static std::map<Window, Time> s_last_up;
-    };
-
-    template<core::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
-
-    typedef event_handlerT<ButtonRelease,
-                           one_param_caller<core::point, get_point<XButtonEvent>>,
-                           0,
-                           double_click_matcher<Button1>> left_btn_dblclk_event;
-    typedef event_handlerT<ButtonRelease,
-                           one_param_caller<core::point, get_point<XButtonEvent>>,
-                           0,
-                           double_click_matcher<Button3>> right_btn_dblclk_event;
-    typedef event_handlerT<ButtonRelease,
-                           one_param_caller<core::point, get_point<XButtonEvent>>,
-                           0,
-                           double_click_matcher<Button2>> middle_btn_dblclk_event;
 
 #endif // X11
 

@@ -34,11 +34,9 @@ public:
   }
 
   bool operator()(const core::event& e, core::event_result& result) {
-    if ((result == 0xdeadbeef)
-#ifdef WIN32
-       && !win::is_none_client_event(e.msg) && !win::is_frequent_event(e.msg)
-#endif
-       ) {
+    if ((result == 0xdeadbeef) &&
+        !win::is_none_client_event(e) &&
+        !win::is_frequent_event(e) ) {
       LogDebug << "Message: " << win::EventId(e)
 #ifdef WIN32
                << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")"
@@ -93,8 +91,24 @@ win::window_class chldCls("childwindow",
                           LoadCursor(NULL, IDC_ARROW),
                           (HBRUSH)(COLOR_WINDOW + 1));
 #elif X11
-win::window_class mainCls("mainwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask|PointerMotionMask);
-win::window_class chldCls("childwindow", ButtonPressMask|ButtonReleaseMask|ExposureMask|PointerMotionMask);
+win::window_class mainCls("mainwindow",
+                          ButtonPressMask|
+                          ButtonReleaseMask|
+                          ExposureMask|
+                          PointerMotionMask|
+                          StructureNotifyMask|
+                          FocusChangeMask|
+                          EnterWindowMask|
+                          LeaveWindowMask);
+win::window_class chldCls("childwindow",
+                          ButtonPressMask|
+                          ButtonReleaseMask|
+                          ExposureMask|
+                          PointerMotionMask|
+                          StructureNotifyMask|
+                          FocusChangeMask|
+                          EnterWindowMask|
+                          LeaveWindowMask);
 #endif
 
 #ifdef WIN32
@@ -227,45 +241,24 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::activate_event([](bool on, win::window* win) {
     LogDebug << "Main " << (on ? "activate" : "deactivate");
   }));
-  main.register_event_handler(win::set_focus_event([](win::window* win) { LogDebug << "Set Focus"; }));
-  main.register_event_handler(win::lost_focus_event([](win::window* win) { LogDebug << "Lost Focus"; }));
   main.register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
   main.register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  main.register_event_handler(win::move_event([](const core::point& p) { LogDebug << "Main move: " << p; }));
   main.register_event_handler(win::moving_event([](const core::rectangle& r) { LogDebug << "Main moving: " << r; }));
   main.register_event_handler(win::sizing_event([](unsigned int flags, const core::rectangle& r) {
     LogDebug << "Main sizing: " << flags << ", " << r;
-  }));
-  main.register_event_handler(win::size_event([](unsigned int flags, const core::size& s) {
-    LogDebug << "Main size: " << flags << ", " << s;
   }));
   main.register_event_handler(win::activate_app_event([](bool on) {
     LogDebug << (on ? "A" : "Dea") << "ctivate App";
   }));
 
-  main.register_event_handler(win::show_event([](bool show, unsigned int flags) {
-    LogDebug << "Main " << (show ? "show" : "hide") << " reason: " << flags;
-  }));
-
-  main.register_event_handler(win::wheel_x_event([&](unsigned int keys, int delta, const core::point& p) {
-    LogDebug << "Wheel-X: " << delta << " at " << p << " key " << keys;
-    if (window1.absolute_place().is_inside(p)) {
-      window1.move(window1.position() - core::size(delta, 0));
-    }
-  }));
-  main.register_event_handler(win::wheel_y_event([&](unsigned int keys, int delta, const core::point& p) {
-    LogDebug << "Wheel-Y: " << delta << " at " << p << " key " << keys;
-    if (window1.absolute_place().is_inside(p)) {
-      window1.move(window1.position() + core::size(0, delta));
-    }
-  }));
-  main.register_event_handler(win::mouse_hover_event([](unsigned int keys, const core::point& p) {
-    LogDebug << "Mouse hover : " << keys << " at " << p;
-  }));
-
-
 #endif
 
+  main.register_event_handler(win::set_focus_event([](win::window* win) {
+    LogDebug << "Set Focus";
+  }));
+  main.register_event_handler(win::lost_focus_event([](win::window* win) {
+    LogDebug << "Lost Focus";
+  }));
   main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
     LogDebug << "Left Button Down at " << p;
   }));
@@ -278,17 +271,38 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
     LogDebug << "Right Button Up at " << p;
   }));
-  main.register_event_handler(win::mouse_move_event([](unsigned int keys, const core::point& p) {
-    LogDebug << "Mouse move : " << keys << " at " << p;
+  main.register_event_handler(win::move_event([](const core::point& p) {
+    LogDebug << "Main move: " << p;
+  }));
+  main.register_event_handler(win::size_event([](const core::size& s) {
+    LogDebug << "Main size: " << s;
+  }));
+  window1.register_event_handler(win::wheel_x_event([&](int delta, const core::point& p) {
+    LogDebug << "Wheel-X: " << delta << " at " << p;
+    if (window1.place().is_inside(p)) {
+      window1.move(window1.position() + core::size(delta, 0));
+    }
+  }));
+  window1.register_event_handler(win::wheel_y_event([&](int delta, const core::point& p) {
+    LogDebug << "Wheel-Y: " << delta << " at " << p;
+    if (window1.place().is_inside(p)) {
+      window1.move(window1.position() + core::size(0, delta));
+    }
   }));
 
+  window1.register_event_handler(win::move_event([](const core::point& p) {
+    LogDebug << "Window1 move: " << p;
+  }));
+  window1.register_event_handler(win::size_event([](const core::size& s) {
+    LogDebug << "Window1 size: " << s;
+  }));
   window1.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+    //LogDebug << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       core::size delta = p - last_pos;
       //last_pos = p;
       window1.move(window1.position() + delta);
     }
-    LogDebug << "Window1 Mouse move : " << keys << " at " << p;
   }));
   window1.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
     at_drag = true;
@@ -299,6 +313,15 @@ int main(int argc, char* argv[]) {
     at_drag = false;
     LogDebug << "Window1 Mouse up at " << p;
   }));
+  window1.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+    LogDebug << "Window1 Double Click up at " << p;
+    if (window2.is_visible()) {
+      window2.hide();
+    } else {
+      window2.show();
+    }
+  }));
+
 
   main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     LogDebug << "Double Click up at " << p;
@@ -339,6 +362,18 @@ int main(int argc, char* argv[]) {
       window2.register_event_handler(paint1);
     }
     window2.redraw_later();
+  }));
+  window2.register_event_handler(win::show_event([]() {
+    LogDebug << "Window2 show:";
+  }));
+  window2.register_event_handler(win::hide_event([]() {
+    LogDebug << "Window2 hide:";
+  }));
+  window2.register_event_handler(win::mouse_enter_event([]() {
+    LogDebug << "Window2 mouse enter";
+  }));
+  window2.register_event_handler(win::mouse_leave_event([]() {
+    LogDebug << "Window2 mouse leave";
   }));
 
   main.register_event_handler(log_all_events());

@@ -481,34 +481,41 @@ namespace gui {
       }
     }// detail
 
-    bool is_frequent_event(core::event_id e) {
+    bool is_frequent_event(const core::event& e) {
+      switch (core::get_event_id(e)) {
 #ifdef WIN32
-      return ((e == WM_MOUSEMOVE) ||
-        (e == WM_NCMOUSEMOVE) ||
-        (e == WM_NCHITTEST) ||
-        (e == WM_SETCURSOR) ||
-        (e == WM_CTLCOLORBTN) ||
-        (e == WM_CTLCOLORDLG) ||
-        (e == WM_CTLCOLOREDIT) ||
-        (e == WM_CTLCOLORLISTBOX) ||
-        (e == WM_CTLCOLORMSGBOX) ||
-        (e == WM_CTLCOLORSCROLLBAR) ||
-        (e == WM_CTLCOLORSTATIC) ||
-        (e == WM_ENTERIDLE) ||
-        (e == WM_CANCELMODE) ||
-        (e == 0x0118));    // WM_SYSTIMER (caret blink)
+        case WM_MOUSEMOVE:
+        case WM_NCMOUSEMOVE:
+        case WM_NCHITTEST:
+        case WM_SETCURSOR:
+        case WM_CTLCOLORBTN:
+        case WM_CTLCOLORDLG:
+        case WM_CTLCOLOREDIT:
+        case WM_CTLCOLORLISTBOX:
+        case WM_CTLCOLORMSGBOX:
+        case WM_CTLCOLORSCROLLBAR:
+        case WM_CTLCOLORSTATIC:
+        case WM_ENTERIDLE:
+        case WM_CANCELMODE:
+        case 0x0118:    // WM_SYSTIMER (caret blink)
 #else
-      return (e == ConfigureNotify);
+        case ConfigureNotify:
+        case MotionNotify:
 #endif
+          return true;
+        default:
+          return false;
+      }
     }
 
-    bool is_none_client_event(core::event_id e) {
+    bool is_none_client_event(const core::event& e) {
+      core::event_id id = core::get_event_id(e);
 #ifdef WIN32
-      return ((e >= WM_NCCREATE) && (e <= WM_NCACTIVATE)) ||
-        ((e >= WM_NCMOUSEMOVE) && (e <= WM_NCMBUTTONDBLCLK)) ||
-        ((e >= WM_NCXBUTTONDOWN) && (e <= WM_NCXBUTTONDBLCLK)) ||
-        ((e >= WM_NCPOINTERUPDATE) && (e <= WM_NCPOINTERUP)) ||
-        (e == WM_NCMOUSEHOVER) || (e == WM_NCMOUSELEAVE);
+      return ((id >= WM_NCCREATE) && (id <= WM_NCACTIVATE)) ||
+        ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||
+        ((id >= WM_NCXBUTTONDOWN) && (id <= WM_NCXBUTTONDBLCLK)) ||
+        ((id >= WM_NCPOINTERUPDATE) && (id <= WM_NCPOINTERUP)) ||
+        (id == WM_NCMOUSEHOVER) || (id == WM_NCMOUSELEAVE);
 #else
       return false;
 #endif

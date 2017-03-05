@@ -85,7 +85,7 @@ namespace gui {
       register_class();
       return foreground;
     }
-    
+
     void window_class::register_class() const {
       if (is_initialized) {
         return;
@@ -122,7 +122,7 @@ namespace gui {
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }
-#endif // WIN§2
+#endif // WIN32
     }
 
   } // win

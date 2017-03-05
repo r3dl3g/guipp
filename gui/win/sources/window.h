@@ -98,6 +98,8 @@ namespace gui {
         enable(false);
       }
 
+      void take_focus ();
+
       void enableRedraw(bool on = true);
       void redraw_now();
       void redraw_later();

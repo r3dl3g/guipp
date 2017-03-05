@@ -65,6 +65,23 @@ namespace gui {
       return p->flags;
     }
 
+    static std::map<window_id, bool> s_mouse_inside;
+
+    bool mouse_enter_matcher::operator() (const core::event& e) {
+      switch (e.type) {
+      case WM_MOUSEMOVE:
+        if (!s_mouse_inside[e.id]) {
+          s_mouse_inside[e.id] = true;
+          return true;
+        }
+        break;
+      case WM_MOUSELEAVE:
+        s_mouse_inside[e.id] = false;
+        break;
+      }
+      return false;
+    }
+
     // --------------------------------------------------------------------------
     void paint_caller::operator()(const core::event& e) {
       if (callback) {
@@ -126,6 +143,38 @@ namespace gui {
         callback(g);
         XFlushGC(e.xexpose.display, gc);
       }
+    }
+
+    static std::map<Window, core::point> s_last_pos;
+
+    bool move_matcher::operator() (const core::event& e) {
+      if (e.type == ConfigureNotify) {
+        core::point& pt = s_last_pos[e.xconfigure.window];
+        if ((e.xconfigure.x != pt.x) || (e.xconfigure.y != pt.y)) {
+          LogDebug << "move_matcher x:" << pt.x << " -> " << e.xconfigure.x
+                              << ", y:" << pt.y << " -> " << e.xconfigure.y;
+          pt.x = e.xconfigure.x;
+          pt.y = e.xconfigure.y;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    static std::map<Window, core::size> s_last_size;
+
+    bool size_matcher::operator() (const core::event& e) {
+      if (e.type == ConfigureNotify) {
+        core::size& sz = s_last_size[e.xconfigure.window];
+        if ((e.xconfigure.width != sz.width) || (e.xconfigure.height != sz.height)) {
+          LogDebug << "move_matcher w:" << sz.width << " -> " << e.xconfigure.width
+                              << ", h:" << sz.height << " -> " << e.xconfigure.height;
+          sz.width = e.xconfigure.width;
+          sz.height = e.xconfigure.height;
+          return true;
+        }
+      }
+      return false;
     }
 
 #endif // WIN32

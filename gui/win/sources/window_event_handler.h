@@ -385,7 +385,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct pos_changing_caller : one_param_caller<core::rectangle &> {
       pos_changing_caller (const function cb)
-        : two_param_caller(cb)
+        : one_param_caller(cb)
       {}
 
       template<class T>

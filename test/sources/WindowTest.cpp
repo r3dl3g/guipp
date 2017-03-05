@@ -151,12 +151,12 @@ int main(int argc, char* argv[]) {
     ma = { 800, 600 };
     LogDebug << "Min/Max: " << mi << " < " << ma << " < " << sz;
   }));
+#endif
 
   main.register_event_handler(win::create_event([](win::window*,
     const core::rectangle& r) {
     LogDebug << "Create Main: " << r;
   }));
-#endif
   main.register_event_handler(win::destroy_event([&]() {
     LogDebug << "Destroyed!";
     main.quit();

@@ -501,6 +501,9 @@ namespace gui {
 #else
         case ConfigureNotify:
         case MotionNotify:
+        case EnterNotify:
+        case LeaveNotify:
+        case Expose:
 #endif
           return true;
         default:

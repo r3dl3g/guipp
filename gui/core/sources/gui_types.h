@@ -40,8 +40,8 @@ namespace gui {
 
       inline size(type width = 0, type height = 0)
         : width(width)
-        , height(height) {
-      }
+        , height(height)
+      {}
 
       explicit size(const size_type& sz);
       explicit size(const point_type& pt);
@@ -50,9 +50,32 @@ namespace gui {
       explicit size(const event_param_1& p);
       explicit size(const event_param_2& p);
 #endif // WIN32
+#ifdef X11
+      template<typename T>
+      explicit size(const T& rhs)
+        : width(rhs.width)
+        , height(rhs.height)
+      {}
+#endif // X11
 
       operator size_type() const;
       operator point_type() const;
+
+      inline bool operator==(const size& rhs) const {
+        return (width == rhs.width) && (height == rhs.height);
+      }
+
+      inline bool operator!=(const size& rhs) const {
+        return !operator==(rhs);
+      }
+
+      inline size operator+ (const size& rhs) const {
+        return { width + rhs.width, height + rhs.height };
+      }
+
+      inline size operator- (const size& rhs) const {
+        return { width - rhs.width, height - rhs.height };
+      }
 
       type width;
       type height;
@@ -73,6 +96,13 @@ namespace gui {
 #ifdef WIN32
       explicit point(const event_param_2& p);
 #endif // WIN32
+#ifdef X11
+      template<typename T>
+      explicit point(const T& rhs)
+        : x(rhs.x)
+        , y(rhs.y)
+      {}
+#endif // X11
 
       operator point_type() const;
 
@@ -88,6 +118,14 @@ namespace gui {
         return { (size::type)(x - rhs.x), (size::type)(y - rhs.y) };
       }
 
+      inline bool operator== (const point& rhs) const {
+        return (x == rhs.x) && (y == rhs.y);
+      }
+
+      inline bool operator!= (const point& rhs) const {
+        return !operator==(rhs);
+      }
+
       inline bool operator< (const point& rhs) const {
         return (x < rhs.x) && (y < rhs.y);
       }
@@ -96,7 +134,7 @@ namespace gui {
         return (x <= rhs.x) && (y <= rhs.y);
       }
 
-      inline bool operator>(const point& rhs) const {
+      inline bool operator> (const point& rhs) const {
         return (x > rhs.x) && (y > rhs.y);
       }
 
@@ -118,7 +156,7 @@ namespace gui {
       }
 
       inline explicit rectangle(const size& sz)
-        : bottomright(sz) {
+        : bottomright(sz.width, sz.height) {
       }
 
       inline rectangle(const point& topleft,
@@ -136,6 +174,13 @@ namespace gui {
 #ifdef WIN32
       explicit rectangle(const event_param_2& p);
 #endif // WIN32
+#ifdef X11
+      template<typename T>
+      explicit rectangle(const T& rhs)
+        : topleft(rhs.x, rhs.y)
+        , bottomright(rhs.x + rhs.width, rhs.y + rhs.height)
+      {}
+#endif // X11
 
       operator rectangle_type() const;
 
@@ -153,6 +198,14 @@ namespace gui {
 
       inline core::size size() const {
         return{ (size::type)(bottomright.x - topleft.x), (size::type)(bottomright.y - topleft.y) };
+      }
+
+      inline bool operator== (const rectangle& rhs) const {
+        return (topleft == rhs.topleft) && (bottomright == rhs.bottomright);
+      }
+
+      inline bool operator!= (const rectangle& rhs) const {
+        return !operator==(rhs);
       }
 
       void setSize(const core::size& sz);

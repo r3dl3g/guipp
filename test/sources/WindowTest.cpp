@@ -97,6 +97,7 @@ win::window_class mainCls("mainwindow",
                           ExposureMask|
                           PointerMotionMask|
                           StructureNotifyMask|
+                          SubstructureRedirectMask|
                           FocusChangeMask|
                           EnterWindowMask|
                           LeaveWindowMask);
@@ -106,6 +107,7 @@ win::window_class chldCls("childwindow",
                           ExposureMask|
                           PointerMotionMask|
                           StructureNotifyMask|
+                          SubstructureRedirectMask|
                           FocusChangeMask|
                           EnterWindowMask|
                           LeaveWindowMask);
@@ -142,13 +144,6 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(init_result_handler());
 
 #ifdef WIN32
-  main.register_event_handler(win::pos_changing_event([](unsigned int& flags, core::rectangle& r) {
-    LogDebug << "Main changing: " << flags << ", " << r;
-  }));
-  main.register_event_handler(win::pos_changed_event([](unsigned int flags, const core::rectangle& r) {
-    LogDebug << "Main changed: " << flags << ", " << r;
-  }));
-
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
     core::size& mi, core::size& ma) {
@@ -243,15 +238,31 @@ int main(int argc, char* argv[]) {
   }));
   main.register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
   main.register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  main.register_event_handler(win::moving_event([](const core::rectangle& r) { LogDebug << "Main moving: " << r; }));
-  main.register_event_handler(win::sizing_event([](unsigned int flags, const core::rectangle& r) {
-    LogDebug << "Main sizing: " << flags << ", " << r;
-  }));
   main.register_event_handler(win::activate_app_event([](bool on) {
     LogDebug << (on ? "A" : "Dea") << "ctivate App";
   }));
 
 #endif
+
+  main.register_event_handler(win::moving_event([](const core::point& r) {
+    LogDebug << "Main moving: " << r;
+  }));
+  main.register_event_handler(win::sizing_event([](const core::size& r) {
+    LogDebug << "Main sizing: " << r;
+  }));
+  main.register_event_handler(win::placing_event([](const core::rectangle& r) {
+    LogDebug << "Main placing: " << r;
+  }));
+
+  main.register_event_handler(win::move_event([](const core::point& p) {
+    LogDebug << "Main move: " << p;
+  }));
+  main.register_event_handler(win::size_event([](const core::size& s) {
+    LogDebug << "Main size: " << s;
+  }));
+  main.register_event_handler(win::place_event([](const core::rectangle& r) {
+    LogDebug << "Main place: " << r;
+  }));
 
   main.register_event_handler(win::set_focus_event([](win::window* win) {
     LogDebug << "Set Focus";
@@ -259,6 +270,7 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::lost_focus_event([](win::window* win) {
     LogDebug << "Lost Focus";
   }));
+
   main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
     LogDebug << "Left Button Down at " << p;
   }));
@@ -270,12 +282,6 @@ int main(int argc, char* argv[]) {
   }));
   main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
     LogDebug << "Right Button Up at " << p;
-  }));
-  main.register_event_handler(win::move_event([](const core::point& p) {
-    LogDebug << "Main move: " << p;
-  }));
-  main.register_event_handler(win::size_event([](const core::size& s) {
-    LogDebug << "Main size: " << s;
   }));
   window1.register_event_handler(win::wheel_x_event([&](int delta, const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;

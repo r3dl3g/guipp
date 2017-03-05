@@ -189,7 +189,7 @@ namespace gui {
     }
 
     void window::take_focus () {
-      EnableWindow(get_id(), on);
+      SetFocus(get_id());
     }
 
     void window::enableRedraw(bool on) {
@@ -212,6 +212,7 @@ namespace gui {
       std::string s;
       s.resize(GetWindowTextLength(get_id()) + 1);
       GetWindowText(get_id(), &s[0], (int)s.capacity());
+	  return s;
     }
 
     core::size window::size() const {

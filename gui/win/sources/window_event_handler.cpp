@@ -65,9 +65,9 @@ namespace gui {
       return p->flags;
     }
 
-    static std::map<window_id, bool> s_mouse_inside;
+    static std::map<core::window_id, bool> s_mouse_inside;
 
-    bool mouse_enter_matcher::operator() (const core::event& e) {
+	bool mouse_enter_matcher::operator() (const core::event& e) {
       switch (e.type) {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {

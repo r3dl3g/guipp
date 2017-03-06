@@ -114,6 +114,18 @@ namespace gui {
         return { x - (type)s.width, y - (type)s.height };
       }
 
+      inline const point& operator+= (const size& s) {
+        x += (type)s.width;
+        y += (type)s.height;
+        return *this;
+      }
+
+      inline const point& operator-= (const size& s) {
+        x -= (type)s.width;
+        y -= (type)s.height;
+        return *this;
+      }
+
       inline size operator- (const point& rhs) const {
         return { (size::type)(x - rhs.x), (size::type)(y - rhs.y) };
       }

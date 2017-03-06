@@ -156,7 +156,7 @@ namespace gui {
       void set_text(const std::string&);
       std::string get_text() const;
 
-    private:
+    protected:
 #ifdef X11
       std::string text;
 #endif // X11

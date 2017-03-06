@@ -298,6 +298,7 @@ namespace gui {
     void window::create (const window_class& type,
                          core::window_id parent_id,
                          const core::rectangle& place) {
+      cls = &type;
       const core::point pos = place.position();
       const core::size sz = place.size();
       core::instance_id display = core::global::get_instance();
@@ -333,6 +334,10 @@ namespace gui {
     void window::create (const window_class& type,
                         const core::rectangle& place) {
       create(type, DefaultRootWindow(core::global::get_instance()), place);
+    }
+
+    const window_class* window::get_window_class() const {
+      return cls;
     }
 
     bool window::is_valid () const {
@@ -627,10 +632,16 @@ namespace gui {
     {
 #ifdef X11
       register_event_handler(win::left_btn_down_event([&](const core::point& p) {
-        set_checked(true);
+        if (get_window_class()->get_ex_style()) {
+          set_checked(!is_checked());
+        } else {
+          set_checked(true);
+        }
       }));
       register_event_handler(win::left_btn_up_event([&](const core::point& p) {
-        set_checked(false);
+        if (!get_window_class()->get_ex_style()) {
+          set_checked(false);
+        }
       }));
 #endif
     }
@@ -639,7 +650,7 @@ namespace gui {
     bool button::is_checked() const {
       return SendMessage(get_id(), BM_GETCHECK, 0, 0) != BST_UNCHECKED;
     }
-    
+
     void button::set_checked(bool f) {
       SendMessage(get_id(), BM_SETCHECK, (WPARAM)(f ? BST_CHECKED : BST_UNCHECKED), 0);
     }
@@ -647,7 +658,7 @@ namespace gui {
 
 #ifdef X11
     bool button::is_checked() const {
-      return down;
+      return checked;
     }
 
     void button::set_checked(bool f) {
@@ -710,7 +721,7 @@ namespace gui {
           ButtonPressMask | ButtonReleaseMask | ExposureMask |
           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          0, 0, 0,
+          1, 0, 0,
           draw::color::buttonColor);
 #endif // !WIN32
       }
@@ -719,14 +730,14 @@ namespace gui {
         using namespace draw;
 
         core::rectangle area = client_area();
-        int y = area.position().y + (area.size().height / 2;
+        int y = area.position().y + area.size().height / 2;
         core::point pt(area.position().x + 6, y);
         graph.frame(arc(pt, 5, 0, 360), color::black);
         if (is_checked()) {
           graph.fill(arc(pt, 3, 0, 360), color::black);
         }
         area.topleft.x += 20;
-        graph.text(draw::text_box(text, area, center), font::system(), color::black);
+        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
       }));
 #endif
     }
@@ -748,7 +759,7 @@ namespace gui {
           ButtonPressMask | ButtonReleaseMask | ExposureMask |
           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          0, 0, 0,
+          1, 0, 0,
           draw::color::buttonColor);
 #endif // !WIN32
       }
@@ -757,17 +768,17 @@ namespace gui {
         using namespace draw;
 
         core::rectangle area = client_area();
-        int y = area.position().y + (area.size().height / 2;
+        int y = area.position().y + area.size().height / 2;
 
         core::rectangle r(core::point(area.position().x + 1, y - 5), core::size(10, 10));
-        graph.frame(rectangle(r, color::black);
+        graph.frame(rectangle(r), color::black);
         if (is_checked()) {
           r.topleft += core::size(2, 2);
-          r.bottomright -= core::size(4, 4);
-          graph.frame(rectangle(r, color::black);
+          r.bottomright -= core::size(1, 1);
+          graph.fill(rectangle(r), color::black);
         }
         area.topleft.x += 20;
-        graph.text(draw::text_box(text, area, center), font::system(), color::black);
+        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
       }));
 #endif
     }

@@ -111,9 +111,11 @@ namespace gui {
     }
 
     void window_class::prepare(window* win) const {
+#ifdef WIN32
       if (callback) {
         SetWindowLongPtr(win->get_id(), GWLP_WNDPROC, (LONG_PTR)detail::WindowEventProc);
       }
+#endif // WIN32
     }
 
     const std::string& window_class::get_class_name() const {
@@ -200,10 +202,12 @@ namespace gui {
     }
 
     window_class window_class::sub_class(window_class& cls, const std::string& base_cls) {
+#ifdef WIN32
       WNDCLASS wc;
       GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
       cls.callback = wc.lpfnWndProc;
       cls.class_name = base_cls;
+#endif // WIN32
       return cls;
     }
 
@@ -212,9 +216,16 @@ namespace gui {
                                          core::windows_style style,
                                          core::windows_style ex_style,
                                          core::color_type foreground) {
+#ifdef WIN32
       WNDCLASS wc;
       GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
       return window_class(base_cls, wc.style, style, ex_style, wc.hIcon, wc.hCursor, wc.hbrBackground, foreground, wc.lpfnWndProc);
+#else // !WIN32
+      // TBD! Mask here are only temporary
+      return window_class(cls, ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                               StructureNotifyMask | SubstructureRedirectMask | FocusChangeMask |
+                               EnterWindowMask | LeaveWindowMask, style, ex_style, 0, 0, 0, foreground);
+#endif // !WIN32
     }
 
     void window_class::unregister_class() {

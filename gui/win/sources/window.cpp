@@ -392,9 +392,6 @@ namespace gui {
       return false;
     }
 
-    void window::close () {
-    }
-
     void window::destroy () {
       XDestroyWindow(core::global::get_instance(), get_id());
       detail::global_window_map.erase(id);

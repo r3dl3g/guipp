@@ -24,9 +24,10 @@
 //
 #include <cstddef>
 #include <vector>
+#include <map>
 #include <functional>
 #include <memory>
-#include <mutex>
+//#include <mutex>
 
 
 // --------------------------------------------------------------------------
@@ -44,6 +45,10 @@ namespace gui {
     public:
       typedef std::function<event_handler> event_handler_function;
 
+      inline event_container()
+        : handle_event_stack_count(0)
+      {}
+
       void register_event_handler(event_handler_function);
       void unregister_event_handler(event_handler_function);
 
@@ -53,7 +58,14 @@ namespace gui {
       typedef std::vector<event_handler_function> event_handler_list;
 
       event_handler_list event_handlers;
-      std::mutex event_handlers_mutex;
+      int                handle_event_stack_count;
+
+      typedef std::pair<bool, event_handler_function> change_entry;
+      typedef std::vector<change_entry> change_entry_list;
+
+      typedef std::map<event_container*, change_entry_list> event_handler_change_map;
+
+      static event_handler_change_map change_map;
     };
 
   } // core

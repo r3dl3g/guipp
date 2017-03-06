@@ -35,33 +35,48 @@ namespace gui {
 
   namespace core {
 
+    event_container::event_handler_change_map event_container::change_map;
+
     void event_container::register_event_handler (event_handler_function handler) {
-      std::lock_guard<std::mutex> lock(event_handlers_mutex);
-      event_handlers.push_back(handler);
+      LogDebug << "Queue new event handler add";
+      change_map[this].push_back(make_pair(true, handler));
     }
 
     void event_container::unregister_event_handler (event_handler_function handler) {
-      std::lock_guard<std::mutex> lock(event_handlers_mutex);
-      const auto end = event_handlers.end();
-      const auto i = std::find_if(event_handlers.begin(), end, [&](const event_handler_function& rhs) {
-		return (rhs.target_type() == handler.target_type());
-      });
-      if (i != end) {
-        event_handlers.erase(i);
-      }
+      LogDebug << "Queue old event handler erase";
+      change_map[this].push_back(make_pair(false, handler));
     }
 
     bool event_container::handle_event(const event& e, core::event_result& resultValue) {
 
-      event_handler_list temp_event_handlers;
-
-      {
-        std::lock_guard<std::mutex> lock(event_handlers_mutex);
-        temp_event_handlers = event_handlers;
+      if (handle_event_stack_count == 0) {
+        typedef event_handler_change_map::iterator iterator;
+        iterator j = change_map.find(this);
+        if (j != change_map.end()) {
+          change_entry_list& list = j->second;
+          for (change_entry e : list) {
+            if (e.first) {  // add
+              LogDebug << "Add new event handler";
+              event_handlers.push_back(e.second);
+            } else {        // remove
+              const auto end = event_handlers.end();
+              const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_function& rhs) {
+                return (rhs.target_type() == e.second.target_type());
+              });
+              if (k != end) {
+                LogDebug << "Erase old event handler";
+                event_handlers.erase(k);
+              }
+            }
+          }
+          change_map.erase(j);
+        }
       }
 
+      ++handle_event_stack_count;
+
       bool result = false;
-      for (auto i : temp_event_handlers) {
+      for (auto i : event_handlers) {
         try {
           result |= i(e, resultValue);
         } catch (std::exception e) {
@@ -70,6 +85,8 @@ namespace gui {
           LogFatal << "Unknown exception in event_container::handle_event()";
         }
       }
+
+      --handle_event_stack_count;
 
       return result;
     }

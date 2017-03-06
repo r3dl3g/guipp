@@ -272,7 +272,7 @@ namespace gui {
             py += sz.cy / 2;
             old_align = SetTextAlign(gc, TA_RIGHT | TA_BASELINE | TA_NOUPDATECP);
             break;
-          }font_type
+          }
           case vcenter_left: {
             SIZE sz;
             GetTextExtentPoint32(gc, str.c_str(), (int)str.size(), &sz);

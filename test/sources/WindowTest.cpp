@@ -76,7 +76,6 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 
 win::window_class mainCls;
 win::window_class chldCls;
-win::window_class staticCls;
 
 #ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,
@@ -114,14 +113,9 @@ int main(int argc, char* argv[]) {
     LoadCursor(nullptr, IDC_ARROW),
     (HBRUSH)(COLOR_WINDOW + 1));
 
-  staticCls = win::window_class::sub_class("MyStatic", "STATIC",
-    SS_NOTIFY | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-    WS_EX_NOPARENTNOTIFY);
-
 #elif X11
   mainCls = win::window_class::custom_class("mainwindow");
   chldCls = win::window_class::custom_class("childwindow");
-  staticCls = win::window_class::custom_class("Label");
 #endif
 
 
@@ -134,8 +128,10 @@ int main(int argc, char* argv[]) {
 
   main.register_event_handler(init_result_handler());
 
-  win::button button;
-  win::windowT<staticCls> label;
+  win::push_button button;
+  win::radio_button radio_button, radio_button2;
+  win::check_box check_box;
+  win::label label;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -442,7 +438,7 @@ int main(int argc, char* argv[]) {
   }));
   button.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Button clicked";
-    label.set_text("Clicked!");
+    label.set_text("OK Clicked!");
   }));
   button.register_event_handler(win::button_pushed_event([&]() {
     LogDebug << "Button pushed";
@@ -454,26 +450,56 @@ int main(int argc, char* argv[]) {
     label.set_text("Released!");
     label.redraw_now();
   }));
+  radio_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Radio clicked";
+    label.set_text("Radio clicked!");
+    bool check = !radio_button.is_checked();
+    radio_button.set_checked(check);
+    radio_button2.set_checked(!check);
+  }));
+  radio_button2.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Radio2 clicked";
+    label.set_text("Radio2 clicked!");
+    bool check = !radio_button2.is_checked();
+    radio_button2.set_checked(check);
+    radio_button.set_checked(!check);
+  }));
+  check_box.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Check clicked";
+    label.set_text("Check clicked!");
+    radio_button.set_checked(check_box.is_checked());
+  }));
 #endif // WIN32
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
   }));
   main.create(core::rectangle(50, 50, 640, 480));
-    main.set_text("Window Test");
+    //main.set_text("Window Test");
     window1.create(main, core::rectangle(50, 50, 200, 280));
     window2.create(main, core::rectangle(300, 50, 200, 280));
     window1.show();
     window2.show();
 
-    button.create(main, core::rectangle(400, 350, 100, 25));
-    button.set_text("Ok");
-    button.show();
-    button.redraw_later();
-    label.create(main, core::rectangle(200, 350, 100, 25));
-    label.set_text("Text");
+    label.create(main, core::rectangle(50, 350, 100, 25), "Text");
     label.show();
     label.redraw_later();
+
+    radio_button.create(main, core::rectangle(160, 350, 100, 25), "Radio");
+    radio_button.show();
+    radio_button.redraw_later();
+
+    radio_button2.create(main, core::rectangle(160, 370, 100, 25), "Radio2");
+    radio_button2.show();
+    radio_button2.redraw_later();
+
+    check_box.create(main, core::rectangle(270, 350, 100, 25), "Check");
+    check_box.show();
+    check_box.redraw_later();
+
+    button.create(main, core::rectangle(400, 350, 100, 25), "Ok");
+    button.show();
+    button.redraw_later();
 
     main.show();
     main.redraw_later();

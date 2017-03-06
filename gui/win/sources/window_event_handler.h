@@ -281,8 +281,7 @@ namespace gui {
     typedef event_handlerT<WM_SETREDRAW, one_param_caller<bool>>              redraw_changed_event;
 
     typedef event_handlerT<WM_ENABLE, one_param_caller<bool>>                 enable_event;
-    typedef event_handlerT<WM_ACTIVATE,
-                           two_param_caller<bool, window*>>                   activate_event;
+    typedef event_handlerT<WM_ACTIVATE, two_param_caller<bool, window*>>      activate_event;
     typedef event_handlerT<WM_ACTIVATEAPP, one_param_caller<bool>>            activate_app_event;
     typedef event_handlerT<WM_SETFOCUS, one_param_caller<window*>>            set_focus_event;
     typedef event_handlerT<WM_KILLFOCUS, one_param_caller<window*>>           lost_focus_event;
@@ -438,6 +437,23 @@ namespace gui {
     };
 
     typedef event_handlerT<WM_PAINT, paint_caller>                                paint_event;
+
+    typedef event_handlerT<BM_SETSTATE, one_param_caller<bool>>                   button_state_event;
+
+    // --------------------------------------------------------------------------
+    template <WORD N>
+    struct command_matcher {
+      bool operator() (const core::event& e) {
+        return (e.type == WM_COMMAND) && (get_param1_high<WORD>(e) == N);
+      }
+    };
+
+    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+                           command_matcher<BN_CLICKED>>                           button_clicked_event;
+    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+                           command_matcher<BN_PUSHED>>                            button_pushed_event;
+    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+                           command_matcher<BN_UNPUSHED>>                          button_released_event;
 #endif //WIN32
 
 #ifdef X11

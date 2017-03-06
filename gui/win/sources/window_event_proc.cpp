@@ -42,7 +42,7 @@ namespace gui {
 
 #ifdef WIN32
 
-      bool handle_by_window(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {
+      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {
         window* w = window::get(hwnd);
         if (w && w->is_valid()) {
           return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
@@ -50,20 +50,19 @@ namespace gui {
         return false;
       }
 
-      void set_window_id(LONG_PTR lParam, core::window_id id) {
+      void set_window_id (LONG_PTR lParam, core::window_id id) {
         window* w = reinterpret_cast<window*>(lParam);
         set_id(w, id);
       }
 
       LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-        core::event_result result = 0;
         switch (msg) {
           case WM_INITDIALOG:
             SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
             set_window_id(lParam, hwnd);
-            handle_by_window(hwnd, msg, wParam, lParam, result);
-            return TRUE;
-          case WM_DESTROY:
+            break;
+          case WM_DESTROY: {
+            core::event_result result = 0;
             if (handle_by_window(hwnd, msg, wParam, lParam, result)) {
               return result;
             } else {
@@ -73,18 +72,35 @@ namespace gui {
               }
             }
             return 0;
+          }
+          case WM_COMMAND: {
+            HWND id = (HWND)lParam;
+            if (id && (id != hwnd)) {
+              // forward to child
+              return SendMessage(id, msg, wParam, lParam);
+            }
+            break;
+          }
           case WM_CREATE: {
             CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
             set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
+            break;
           }
-                          // fall throught!
-          default:
-            if (handle_by_window(hwnd, msg, wParam, lParam, result)) {
-              return result;
-            }
-            return DefWindowProc(hwnd, msg, wParam, lParam);
         }
+
+        core::event_result result = 0;
+        window* w = window::get(hwnd);
+        if (w && w->is_valid()) {
+          const window_class* cls = w->get_window_class();
+          if (cls && cls->get_callback() && (cls->get_callback() != WindowEventProc)) {
+            result = CallWindowProc(cls->get_callback(), hwnd, msg, wParam, lParam);
+          }
+          if (w->handle_event(core::event(hwnd, msg, wParam, lParam), result)) {
+            return result;
+          }
+        }
+        return DefWindowProc(hwnd, msg, wParam, lParam);
       }
 
 #endif // WIN32
@@ -94,7 +110,7 @@ namespace gui {
 #ifdef WIN32
     int run_main_loop() {
       MSG msg;
-      while (GetMessage(&msg, NULL, 0, 0)) {
+      while (GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
       }

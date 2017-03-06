@@ -33,6 +33,7 @@
 #include "event_container.h"
 #include "gui_types.h"
 #include "window_class.h"
+#include "window_event_proc.h"
 
 
 namespace gui {
@@ -68,13 +69,6 @@ namespace gui {
 
       bool has_border() const;
 
-      void create(const window_class& type,
-                  const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle);
-      void create(const window_class& type,
-                  const core::rectangle& place = core::rectangle::default_rectangle);
-
-      void close();
       void destroy();
       void quit();
 
@@ -100,12 +94,12 @@ namespace gui {
 
       void take_focus ();
 
-      void enableRedraw(bool on = true);
+      void enable_redraw(bool on = true);
       void redraw_now();
       void redraw_later();
 
-      void setText(const std::string&);
-      std::string getText() const;
+      void set_text(const std::string&);
+      std::string get_text() const;
 
       core::size size() const;
       core::point position() const;
@@ -118,29 +112,46 @@ namespace gui {
       void resize(const core::size&, bool repaint = true);
       void place(const core::rectangle&, bool repaint = true);
 
-      core::point windowToScreen(const core::point&) const;
-      core::point screenToWindow(const core::point&) const;
-      core::point clientToScreen(const core::point&) const;
-      core::point screenToClient(const core::point&) const;
+      core::point window_to_screen(const core::point&) const;
+      core::point screen_to_window(const core::point&) const;
+      core::point client_to_screen(const core::point&) const;
+      core::point screen_to_client(const core::point&) const;
+
+      const window_class* get_window_class() const;
 
       static window* get(core::window_id id);
 
+    protected:
+      void create(const window_class& type,
+                  const window& parent,
+                  const core::rectangle& place = core::rectangle::default_rectangle);
+
+      void create(const window_class& type,
+                  const core::rectangle& place = core::rectangle::default_rectangle);
+
     private:
+      void create (const window_class& type,
+                   core::window_id parent_id,
+                   const core::rectangle& place);
+
       friend void detail::set_id(window*, core::window_id);
       core::window_id id;
-
+      const window_class* cls;
     };
 
-    template<window_class& cls>
+    template<window_class& clazz>
     class windowT : public window {
     public:
+
       void create(const window& parent,
                   const core::rectangle& place = core::rectangle::default_rectangle) {
-        window::create(cls, parent, place);
+        window::create(clazz, parent, place);
       }
+
       void create(const core::rectangle& place = core::rectangle::default_rectangle) {
-        window::create(cls, place);
+        window::create(clazz, place);
       }
+
     };
 
   } // win

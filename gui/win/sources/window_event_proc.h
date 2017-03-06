@@ -38,8 +38,8 @@ namespace gui {
 
 #ifdef WIN32
 
-      LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
+      LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+      
 #endif // WIN32
 
     } // detail

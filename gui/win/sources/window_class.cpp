@@ -26,6 +26,7 @@
 // Library includes
 //
 #include "window_class.h"
+#include "window.h"
 #include "window_event_proc.h"
 
 
@@ -39,11 +40,80 @@ namespace gui {
 #ifdef WIN32
       LPTSTR lpMsgBuf;
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+        nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
       return lpMsgBuf;
 #elif X11
       return std::string();
 #endif // X11
+    }
+
+    window_class::window_class()
+      : class_style(0)
+      , style(0)
+      , ex_style(0)
+      , icon(0)
+      , cursor(0)
+      , background(0)
+      , foreground(0)
+      , callback(0)
+      , is_initialized(false)
+    {}
+
+    window_class::window_class(const window_class& rhs)
+      : class_name(rhs.class_name)
+      , class_style(rhs.class_style)
+      , style(rhs.style)
+      , ex_style(rhs.ex_style)
+      , icon(rhs.icon)
+      , cursor(rhs.cursor)
+      , background(rhs.background)
+      , foreground(rhs.foreground)
+      , callback(rhs.callback)
+      , is_initialized(false)
+    {}
+
+    window_class::window_class(const std::string& cls_name,
+                               core::windows_style class_style,
+                               core::windows_style style,
+                               core::windows_style ex_style,
+                               core::icon_id icon,
+                               core::cursor_id cursor,
+                               core::brush_id background,
+                               core::color_type foreground,
+                               core::event_callback callback)
+      : class_name(cls_name)
+      , class_style(class_style)
+      , style(style)
+      , ex_style(ex_style)
+      , icon(icon)
+      , cursor(cursor)
+      , background(background)
+      , foreground(foreground)
+      , callback(callback)
+      , is_initialized(false)
+    {}
+
+    void window_class::operator=(const window_class& rhs) {
+      if (this == &rhs) {
+        return;
+      }
+      unregister_class();
+
+      class_name = rhs.class_name;
+      class_style = rhs.class_style;
+      style = rhs.style;
+      ex_style = rhs.ex_style;
+      icon = rhs.icon;
+      cursor = rhs.cursor;
+      background = rhs.background;
+      foreground = rhs.foreground;
+      callback = rhs.callback;
+    }
+
+    void window_class::prepare(window* win) const {
+      if (callback) {
+        SetWindowLongPtr(win->get_id(), GWLP_WNDPROC, (LONG_PTR)detail::WindowEventProc);
+      }
     }
 
     const std::string& window_class::get_class_name() const {
@@ -86,29 +156,31 @@ namespace gui {
       return foreground;
     }
 
+    const core::event_callback window_class::get_callback() const {
+      register_class();
+      return callback;
+    }
+
     void window_class::register_class() const {
-      if (is_initialized) {
+      if (is_initialized || callback) {
         return;
       }
 #ifdef WIN32
-      WNDCLASSEX wc;
-      memset(&wc, 0, sizeof(WNDCLASSEX));
-      wc.cbSize = sizeof(WNDCLASSEX);
+      WNDCLASS wc = {
+        /* Register the window class. */
+        class_style,
+        detail::WindowEventProc,
+        0,
+        sizeof(window_class*),
+        core::global::get_instance(),
+        icon,
+        cursor,
+        background,
+        nullptr,
+        class_name.c_str()
+      };
 
-      /* Register the window class. */
-      wc.style = class_style;
-      wc.lpfnWndProc = detail::WindowEventProc;
-      wc.cbClsExtra = 0;
-      wc.cbWndExtra = sizeof(window*);
-      wc.hInstance = core::global::get_instance();
-      wc.hIcon = icon;
-      wc.hCursor = cursor;
-      wc.hbrBackground = background;
-      wc.lpszMenuName = NULL;
-      wc.lpszClassName = class_name.c_str();
-      wc.hIconSm = NULL;
-
-      ATOM result = RegisterClassEx(&wc);
+      ATOM result = RegisterClass(&wc);
       if (!result) {
         throw std::runtime_error(getLastErrorText());
       }
@@ -116,13 +188,45 @@ namespace gui {
       is_initialized = true;
     }
 
+    window_class window_class::custom_class(const std::string& cls_name,
+                                            core::windows_style class_style,
+                                            core::windows_style style,
+                                            core::windows_style ex_style,
+                                            core::icon_id icon,
+                                            core::cursor_id cursor,
+                                            core::brush_id background,
+                                            core::color_type foreground) {
+      return window_class(cls_name, class_style, style, ex_style, icon, cursor, background, foreground);
+    }
+
+    window_class window_class::sub_class(window_class& cls, const std::string& base_cls) {
+      WNDCLASS wc;
+      GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
+      cls.callback = wc.lpfnWndProc;
+      cls.class_name = base_cls;
+      return cls;
+    }
+
+    window_class window_class::sub_class(const std::string& cls,
+                                         const std::string& base_cls,
+                                         core::windows_style style,
+                                         core::windows_style ex_style,
+                                         core::color_type foreground) {
+      WNDCLASS wc;
+      GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
+      return window_class(base_cls, wc.style, style, ex_style, wc.hIcon, wc.hCursor, wc.hbrBackground, foreground, wc.lpfnWndProc);
+    }
+
     void window_class::unregister_class() {
+      if (is_initialized && !callback) {
+		is_initialized = false;
 #ifdef WIN32
-      BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
-      if (!result) {
-        throw std::runtime_error(getLastErrorText());
-      }
+        BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
+        if (!result) {
+          throw std::runtime_error(getLastErrorText());
+        }
 #endif // WIN32
+      }
     }
 
   } // win

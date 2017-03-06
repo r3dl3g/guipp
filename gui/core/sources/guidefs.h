@@ -49,6 +49,7 @@ namespace gui {
     typedef WPARAM event_param_1;
     typedef LPARAM event_param_2;
     typedef LRESULT event_result;
+    typedef WNDPROC event_callback;
 
     typedef UINT windows_style;
 
@@ -78,6 +79,7 @@ namespace gui {
     typedef Drawable drawable_id;
     typedef int event_id;
     typedef int event_result;
+    typedef void* event_callback;
 
     typedef unsigned int windows_style;
     typedef unsigned long color_type;

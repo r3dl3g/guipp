@@ -29,6 +29,7 @@
 // Library includes
 //
 #include "window.h"
+#include "window_event_proc.h"
 
 
 namespace gui {
@@ -40,54 +41,55 @@ namespace gui {
 #ifdef WIN32
 
     window::window()
-      : id(0) {
-    }
+      : id(0)
+      , cls(nullptr)
+    {}
 
     window::~window() {
       destroy();
     }
 
     void window::create(const window_class& type,
-                        const window& parent,
+                        core::window_id parent_id,
                         const core::rectangle& place) {
+
+      this->cls = &type;
 
       const core::point pos = place.position();
       const core::size sz = place.size();
       id = CreateWindowEx(type.get_ex_style(),            // window style
                           type.get_class_name().c_str(),  // address of registered class name
-                          NULL,                           // address of window text
+                          nullptr,                        // address of window text
                           type.get_style(),               // window style
                           pos.x,                          // horizontal position of window
                           pos.y,                          // vertical position of window
                           sz.width,                       // window width
                           sz.height,                      // window height
-                          parent.get_id(),                // handle of parent window
-                          NULL,                           // handle of menu or child-window identifier
+                          parent_id,                      // handle of parent window
+                          nullptr,                        // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
+      type.prepare(this);
+      SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
+    }
+
+    void window::create (const window_class& type,
+                         const window& parent,
+                         const core::rectangle& place) {
+      create(type, parent.get_id(), place);
     }
 
     void window::create(const window_class& type,
                         const core::rectangle& place) {
+      create(type, nullptr, place);
+    }
 
-      const core::point pos = place.position();
-      const core::size sz = place.size();
-      id = CreateWindowEx(type.get_ex_style(),            // window style
-                          type.get_class_name().c_str(),  // address of registered class name
-                          NULL,                           // address of window text
-                          type.get_style(),               // window style
-                          pos.x,                          // horizontal position of window
-                          pos.y,                          // vertical position of window
-                          sz.width,                       // window width
-                          sz.height,                      // window height
-                          NULL,                           // handle of parent window
-                          NULL,                           // handle of menu or child-window identifier
-                          core::global::get_instance(),   // handle of application instance
-                          (LPVOID)this);
+    const window_class* window::get_window_class() const {
+      return cls;
     }
 
     bool window::is_valid() const {
-      return IsWindow(id) != FALSE;
+      return IsWindow(get_id()) != FALSE;
     }
 
     bool window::is_visible() const {
@@ -128,10 +130,6 @@ namespace gui {
 
     bool window::has_border() const {
       return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
-    }
-
-    void window::close() {
-      CloseWindow(get_id());
     }
 
     void window::destroy() {
@@ -192,26 +190,26 @@ namespace gui {
       SetFocus(get_id());
     }
 
-    void window::enableRedraw(bool on) {
+    void window::enable_redraw(bool on) {
       SendMessage(get_id(), WM_SETREDRAW, on, 0);
     }
 
     void window::redraw_now() {
-      RedrawWindow(get_id(), NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+      RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
     }
 
     void window::redraw_later() {
-      InvalidateRect(get_id(), NULL, TRUE);
+      InvalidateRect(get_id(), nullptr, TRUE);
     }
 
-    void window::setText(const std::string& s) {
-      SetWindowText(get_id(), s.c_str());
+    void window::set_text(const std::string& s) {
+      SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)s.c_str());
     }
 
-    std::string window::getText() const {
+    std::string window::get_text() const {
       std::string s;
-      s.resize(GetWindowTextLength(get_id()) + 1);
-      GetWindowText(get_id(), &s[0], (int)s.capacity());
+      s.resize(SendMessage(get_id(), WM_GETTEXTLENGTH, 0, 0) + 1);
+      SendMessage(get_id(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
 	  return s;
     }
 
@@ -224,12 +222,12 @@ namespace gui {
     core::point window::position() const {
       RECT r;
       GetWindowRect(get_id(), &r);
-      return screenToWindow({ r.left, r.top });
+      return screen_to_window({ r.left, r.top });
     }
 
     core::rectangle window::place() const {
       const core::rectangle pl = absolute_place();
-      return core::rectangle(screenToWindow(pl.position()), pl.size());
+      return core::rectangle(screen_to_window(pl.position()), pl.size());
     }
 
     core::rectangle window::absolute_place() const {
@@ -251,11 +249,11 @@ namespace gui {
     }
 
     void window::move(const core::point& pt, bool repaint) {
-      SetWindowPos(get_id(), NULL, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
     }
 
     void window::resize(const core::size& sz, bool repaint) {
-      SetWindowPos(get_id(), NULL, 0, 0, sz.width, sz.height, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, 0, 0, sz.width, sz.height, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
@@ -264,23 +262,23 @@ namespace gui {
       MoveWindow(get_id(), pt.x, pt.y, sz.width, sz.height, repaint);
     }
 
-    core::point window::windowToScreen(const core::point& pt) const {
+    core::point window::window_to_screen(const core::point& pt) const {
       window* p = getParent();
-      return p ? p->clientToScreen(pt) : pt;
+      return p ? p->client_to_screen(pt) : pt;
     }
 
-    core::point window::screenToWindow(const core::point& pt) const {
+    core::point window::screen_to_window(const core::point& pt) const {
       window* p = getParent();
-      return p ? p->screenToClient(pt) : pt;
+      return p ? p->screen_to_client(pt) : pt;
     }
 
-    core::point window::clientToScreen(const core::point& pt) const {
+    core::point window::client_to_screen(const core::point& pt) const {
       POINT Point = { pt.x, pt.y };
       ClientToScreen(get_id(), &Point);
       return core::point(Point.x, Point.y);
     }
 
-    core::point window::screenToClient(const core::point& pt) const {
+    core::point window::screen_to_client(const core::point& pt) const {
       POINT Point = { pt.x, pt.y };
       ScreenToClient(get_id(), &Point);
       return core::point(Point.x, Point.y);
@@ -307,14 +305,13 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
-                        const window& parent,
-                        const core::rectangle& place) {
-
+                         core::window_id parent_id,
+                         const core::rectangle& place) {
       const core::point pos = place.position();
       const core::size sz = place.size();
       core::instance_id display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
-                               parent.id,
+                               parent_id,
                                pos.x,
                                pos.y,
                                sz.width,
@@ -337,31 +334,14 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
+                         const window& parent,
+                         const core::rectangle& place) {
+      create(type, parent.id, place);
+    }
+
+    void window::create (const window_class& type,
                         const core::rectangle& place) {
-
-      const core::point pos = place.position();
-      const core::size sz = place.size();
-      core::instance_id display = core::global::get_instance();
-      id = XCreateSimpleWindow(display,
-                               DefaultRootWindow(display),
-                               pos.x,
-                               pos.y,
-                               sz.width,
-                               sz.height,
-                               type.get_style(),
-                               type.get_foreground(),
-                               type.get_background());
-      detail::global_window_map[id] = this;
-
-      XSetWindowAttributes wa;
-      wa.event_mask = type.get_class_style();// | SubstructureNotifyMask;
-      XChangeWindowAttributes(display, id, CWEventMask, &wa);
-
-//      Atom wm_class = XInternAtom(display, "WM_CLASS", false);
-//      Atom atom_string = XInternAtom(display, "STRING", false);
-//      XChangeProperty(display, id, wm_class, atom_string, 8, PropModeReplace,
-//                      (const unsigned char*)type.get_class_name().c_str(),
-//                      type.get_class_name().size());
+      create(type, DefaultRootWindow(core::global::get_instance()), place);
     }
 
     bool window::is_valid () const {
@@ -490,7 +470,7 @@ namespace gui {
       XSetInputFocus(core::global::get_instance(), get_id(), RevertToParent, CurrentTime);
     }
 
-    void window::enableRedraw (bool on) {
+    void window::enable_redraw (bool on) {
     }
 
     void window::redraw_now () {
@@ -502,10 +482,10 @@ namespace gui {
       XClearArea(core::global::get_instance(), get_id(), 0, 0, 0, 0, true);
     }
 
-    void window::setText (const std::string& s) {
+    void window::set_text (const std::string& s) {
     }
 
-    std::string window::getText () const {
+    std::string window::get_text () const {
       std::string s;
       return s;
     }
@@ -545,7 +525,7 @@ namespace gui {
     }
 
     core::point window::absolute_position () const {
-      return windowToScreen(core::point());
+      return window_to_screen(core::point());
     }
 
     core::rectangle window::client_area () const {
@@ -566,7 +546,7 @@ namespace gui {
       XMoveResizeWindow(core::global::get_instance(), get_id(), pt.x, pt.y, sz.width, sz.height);
     }
 
-    core::point window::windowToScreen (const core::point& pt) const {
+    core::point window::window_to_screen (const core::point& pt) const {
       int x, y;
       Window child_return;
       XTranslateCoordinates(core::global::get_instance(),
@@ -581,7 +561,7 @@ namespace gui {
       return core::point(x, y);
     }
 
-    core::point window::screenToWindow (const core::point& pt) const {
+    core::point window::screen_to_window (const core::point& pt) const {
       int x, y;
       Window child_return;
       XTranslateCoordinates(core::global::get_instance(),
@@ -596,12 +576,12 @@ namespace gui {
       return core::point(x, y);
     }
 
-    core::point window::clientToScreen (const core::point& pt) const {
-      return windowToScreen(pt);
+    core::point window::client_to_screen (const core::point& pt) const {
+      return window_to_screen(pt);
     }
 
-    core::point window::screenToClient (const core::point& pt) const {
-      return screenToWindow(pt);
+    core::point window::screen_to_client (const core::point& pt) const {
+      return screen_to_window(pt);
     }
 
     window* window::get (core::window_id id) {

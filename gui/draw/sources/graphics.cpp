@@ -285,7 +285,7 @@ namespace gui {
         Use<brush> br(gc, b);
 #ifdef WIN32
         Use<pen> pn(gc, p);
-        MoveToEx(gc, pos.x, pos.y, NULL);
+        MoveToEx(gc, pos.x, pos.y, nullptr);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
         LineTo(gc, pos.x, pos.y);
 #elif X11
@@ -304,7 +304,7 @@ namespace gui {
         Use<pen> pn(gc, p);
 #ifdef WIN32
         Use<brush> br(gc, null_brush);
-        MoveToEx(gc, pos.x, pos.y, NULL);
+        MoveToEx(gc, pos.x, pos.y, nullptr);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
         LineTo(gc, pos.x, pos.y);
 #elif X11
@@ -321,7 +321,7 @@ namespace gui {
         Use<brush> br(gc, b);
 #ifdef WIN32
         Use<pen> pn(gc, null_pen);
-        MoveToEx(gc, pos.x, pos.y, NULL);
+        MoveToEx(gc, pos.x, pos.y, nullptr);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
         LineTo(gc, pos.x, pos.y);
 #elif X11
@@ -502,7 +502,7 @@ namespace gui {
     void graphics::drawLine(const core::point &from, const core::point &to, const pen& p) {
       Use<pen> pn(gc, p);
 #ifdef WIN32
-      MoveToEx(gc, from.x, from.y, NULL);
+      MoveToEx(gc, from.x, from.y, nullptr);
       LineTo(gc, to.x, to.y);
 #endif // WIN32
 #ifdef X11
@@ -517,7 +517,7 @@ namespace gui {
       for (core::point pt : points) {
         if (first) {
           first = false;
-          MoveToEx(gc, pt.x, pt.y, NULL);
+          MoveToEx(gc, pt.x, pt.y, nullptr);
         } else {
           LineTo(gc, pt.x, pt.y);
         }

@@ -30,6 +30,8 @@
 //
 #include "window.h"
 #include "window_event_proc.h"
+#include "window_event_handler.h"
+#include "graphics.h"
 
 
 namespace gui {
@@ -316,13 +318,13 @@ namespace gui {
                                pos.y,
                                sz.width,
                                sz.height,
-                               type.get_style(),
+                               type.get_class_style(),
                                type.get_foreground(),
                                type.get_background());
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
-      wa.event_mask = type.get_class_style();// | SubstructureNotifyMask;
+      wa.event_mask = type.get_style();// | SubstructureNotifyMask;
       XChangeWindowAttributes(display, id, CWEventMask, &wa);
 
 //      Atom wm_class = XInternAtom(display, "WM_CLASS", false);
@@ -526,7 +528,7 @@ namespace gui {
     }
 
     core::rectangle window::client_area () const {
-      return core::rectangle();
+      return core::rectangle(size());
     }
 
     void window::move (const core::point& pt, bool repaint) {
@@ -587,6 +589,51 @@ namespace gui {
 
 #endif // X11
 
+    window_class button_class;
+
+    button::button()
+    : down(false) {
+      if (!button_class.is_valid()) {
+#ifdef WIN32
+        button_class = win::window_class::sub_class("MyButton",
+                                                    "BUTTON",
+                                                    BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
+                                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                                                    WS_VISIBLE | WS_TABSTOP,
+                                                    WS_EX_NOPARENTNOTIFY);
+#else // !WIN32
+        button_class = window_class::custom_class("BUTTON",
+                                                  1,
+                                                  ButtonPressMask | ButtonReleaseMask | ExposureMask |
+                                                  PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
+                                                  FocusChangeMask | EnterWindowMask | LeaveWindowMask,
+                                                  0, 0, 0,
+                                                  draw::color::buttonColor);
+#endif // !WIN32
+      }
+#ifdef X11
+      register_event_handler(win::paint_event([&](draw::graphics& graph){
+        core::size sz = size() - core::size(1, 1);
+
+        using namespace draw;
+
+        graph.drawLines({ core::point(0, sz.height), core::point(), core::point(sz.width, 0) },
+                        down ? color::darkGray : color::veryLightGray);
+        graph.drawLines({ {0, sz.height }, { sz.width, sz.height }, { sz.width, 0 } },
+                        down ? color::veryLightGray : color::darkGray);
+        core::rectangle area = client_area();
+        graph.text(draw::text_box(text, area, center), font::system(), color::black);
+      }));
+      register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+        down = true;
+        redraw_now();
+      }));
+      register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+        down = false;
+        redraw_now();
+      }));
+#endif
+    }
   } // win
 
 } // gui

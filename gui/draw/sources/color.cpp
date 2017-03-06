@@ -53,7 +53,7 @@ namespace gui {
     const color color::darkYellow{ 192, 192, 0 };
     const color color::darkOrange{ 192, 96, 0 };
     const color color::darkBrown{ 128, 48, 0 };
-    const color color::lightGray{ 128, 128, 128 };
+    const color color::lightGray{ 192, 192, 192 };
     const color color::lightRed{ 255, 128, 128 };
     const color color::lightGreen{ 128, 255, 128 };
     const color color::lightBlue{ 128, 128, 255 };
@@ -97,7 +97,7 @@ namespace gui {
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
 //        return screen_def_return.pixel;
-        return 0;
+        return color::lightGray;
     }
 #endif
 

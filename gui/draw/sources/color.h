@@ -177,9 +177,9 @@ namespace gui {
         }
       };
 
-      typedef part<0> r_;
+      typedef part<16> r_;
       typedef part<8> g_;
-      typedef part<16> b_;
+      typedef part<0> b_;
       typedef part<24> a_;
 
     };

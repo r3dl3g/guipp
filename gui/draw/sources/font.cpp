@@ -53,7 +53,7 @@ namespace std {
 namespace gui {
 
   namespace draw {
-    
+
 #ifdef WIN32
     const font& font::system() {
         static font f((core::font_id)GetStockObject(SYSTEM_FONT));
@@ -209,7 +209,7 @@ namespace gui {
         return f;
     }
     const font& font::serif() {
-        static font f("gothic", STD_FONT_SIZE);
+        static font f("serif", STD_FONT_SIZE);
         return f;
     }
     const font& font::sans_serif() {
@@ -251,7 +251,7 @@ namespace gui {
           s << "*";
       }
       s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "-*";
-      
+
       std::string str = s.str();
       //std::transform(str.begin(), str.end(), str.begin(), tolower);
       return str;
@@ -343,6 +343,10 @@ namespace gui {
 
     font::operator core::font_id() const {
       return info ? info->fid : 0;
+    }
+
+    core::font_type font::font_type () const {
+      return info;
     }
 
     std::string font::get_full_name() const {

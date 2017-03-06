@@ -163,6 +163,10 @@ namespace gui {
       return callback;
     }
 
+    bool window_class::is_valid () const {
+      return !class_name.empty();
+    }
+
     void window_class::register_class() const {
       if (is_initialized || callback) {
         return;
@@ -222,9 +226,7 @@ namespace gui {
       return window_class(base_cls, wc.style, style, ex_style, wc.hIcon, wc.hCursor, wc.hbrBackground, foreground, wc.lpfnWndProc);
 #else // !WIN32
       // TBD! Mask here are only temporary
-      return window_class(cls, ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                               StructureNotifyMask | SubstructureRedirectMask | FocusChangeMask |
-                               EnterWindowMask | LeaveWindowMask, style, ex_style, 0, 0, 0, foreground);
+      return custom_class(cls);
 #endif // !WIN32
     }
 

@@ -44,14 +44,21 @@ namespace gui {
 
     typedef std::function<void(core::drawable_id,
                                core::graphics_id,
-                               const pen&)> frameable;
+                               const pen&)>         frameable;
+
     typedef std::function<void(core::drawable_id,
                                core::graphics_id,
-                               const brush&)> fillable;
+                               const brush&)>       fillable;
+
     typedef std::function<void(core::drawable_id,
                                core::graphics_id,
                                const brush&,
-                               const pen&)> drawable;
+                               const pen&)>         drawable;
+
+    typedef std::function<void(core::drawable_id,
+                               core::graphics_id,
+                               const font& font,
+                               const color& color)> texter;
 
     struct rectangle {
       inline rectangle(const core::rectangle& rect)
@@ -128,11 +135,13 @@ namespace gui {
       float endrad;
     };
 
-    core::point_type *buildPoints(const std::vector<core::point>&, int&);
+    namespace detail {
+      core::point_type *buildPoints(const std::vector<core::point>&, int&);
+    }
 
     struct polygone {
       polygone(const std::vector<core::point>& points)
-        : points(buildPoints(points, count)) {
+        : points(detail::buildPoints(points, count)) {
       }
 
       polygone(const polygone&);
@@ -181,17 +190,17 @@ namespace gui {
     };
 
     struct text_box {
-      text_box(const std::string& text, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
-        : text(text)
+      text_box(const std::string& str, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
+        : str(str)
         , rect(rect)
         , origin(origin)
         , clear_background(clear_background)
       {}
 
-      operator drawable() const;
+      operator texter() const;
 
     private:
-      const std::string text;
+      const std::string str;
       const core::rectangle rect;
       const text_origin origin;
       bool clear_background;
@@ -205,7 +214,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      operator drawable() const;
+      operator texter() const;
 
     private:
       const std::string str;
@@ -225,12 +234,12 @@ namespace gui {
       color getPixel(const core::point&) const;
 
       void drawLine(const core::point& from, const core::point& to, const pen& pen);
-      void drawLines(std::vector<core::point>& points, const pen& pen);
+      void drawLines(const std::vector<core::point>& points, const pen& pen);
 
-      void frame(const frameable& drawer, const pen& pen) const;
-      void fill(const fillable& drawer, const brush& brush) const;
-      void draw(const drawable& drawer, const brush& brush, const pen& pen) const;
-      void draw(const drawable& drawer, const font& font, const color& color) const;
+      void frame(const frameable&, const pen& pen) const;
+      void fill(const fillable&, const brush& brush) const;
+      void draw(const drawable&, const brush& brush, const pen& pen) const;
+      void text(const texter&, const font& font, const color& color) const;
 
       void invert(const core::rectangle&) const;
 

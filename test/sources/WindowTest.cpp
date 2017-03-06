@@ -76,7 +76,6 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 
 win::window_class mainCls;
 win::window_class chldCls;
-win::window_class btnCls;
 win::window_class staticCls;
 
 #ifdef WIN32
@@ -120,26 +119,9 @@ int main(int argc, char* argv[]) {
     WS_EX_NOPARENTNOTIFY);
 
 #elif X11
-  mainCls = win::window_class::custom_class("mainwindow",
-    ButtonPressMask |
-    ButtonReleaseMask |
-    ExposureMask |
-    PointerMotionMask |
-    StructureNotifyMask |
-    SubstructureRedirectMask |
-    FocusChangeMask |
-    EnterWindowMask |
-    LeaveWindowMask);
-  chldCls = win::window_class::custom_class("childwindow",
-    ButtonPressMask |
-    ButtonReleaseMask |
-    ExposureMask |
-    PointerMotionMask |
-    StructureNotifyMask |
-    SubstructureRedirectMask |
-    FocusChangeMask |
-    EnterWindowMask |
-    LeaveWindowMask);
+  mainCls = win::window_class::custom_class("mainwindow");
+  chldCls = win::window_class::custom_class("childwindow");
+  staticCls = win::window_class::custom_class("Label");
 #endif
 
 
@@ -152,15 +134,10 @@ int main(int argc, char* argv[]) {
 
   main.register_event_handler(init_result_handler());
 
-#ifdef WIN32
-  win::windowT<btnCls> button;
+  win::button button;
   win::windowT<staticCls> label;
 
-  btnCls = win::window_class::sub_class("MyButton", "BUTTON",
-    BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
-    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-    WS_EX_NOPARENTNOTIFY);
-
+#ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
     core::size& mi, core::size& ma) {
@@ -188,14 +165,73 @@ int main(int argc, char* argv[]) {
     graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
     graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
-    graph.draw(text("Hello World!", core::point(10, 90)), font::system(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 105)), font::system_bold(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 120)), font::sans_serif(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 135)), font::serif(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 150)), font::monospace(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 165)), font("newspaper", font::system().size()), color::blue);
-    graph.draw(text("Hello World!", core::point(10, 180)), font::sans_serif().with_size(18), color::blue);
-    graph.draw(text_box("Hello World!", core::rectangle(10, 210, 180, 20), center), font::serif(), color::red);
+    graph.text(text("Hello World 1!", core::point(10, 60)), font::system(), color::black);
+    graph.text(text("Hello World 2!", core::point(10, 75)), font::system_bold(), color::black);
+    graph.text(text("Hello World 3!", core::point(10, 90)), font::sans_serif(), color::black);
+    graph.text(text("Hello World 4!", core::point(10, 105)), font::serif(), color::black);
+    graph.text(text("Hello World 5!", core::point(10, 120)), font::monospace(), color::black);
+    graph.text(text("Hello World 6!", core::point(10, 135)), font::sans_serif().with_size(18), color::blue);
+
+    core::rectangle r(10, 155, 50, 15);
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TL", r, top_left), font::system(), color::red);
+    r= {70, 155, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
+    r= {130, 155, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TR", r, top_right), font::system(), color::red);
+
+    r= {10, 175, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
+    r= {70, 175, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CC", r, center), font::system(), color::red);
+    r= {130, 175, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
+
+    r= {10, 195, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
+    r= {70, 195, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
+    r= {130, 195, 50, 15};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
+
+    core::point pt(10, 215);
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TL", pt, top_left), font::system(), color::red);
+    pt = {70, 215};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
+    pt = {130, 215};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TR", pt, top_right), font::system(), color::red);
+
+    pt = {10, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text_box("CL", pt, vcenter_left), font::system(), color::red);
+    pt = {70, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CC", pt, center), font::system(), color::red);
+    pt = {130, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
+
+    pt = {10, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
+    pt = {70, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
+    pt = {130, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
+
   });
 
   win::paint_event paint2([](draw::graphics& graph) {
@@ -400,6 +436,7 @@ int main(int argc, char* argv[]) {
 
   main.register_event_handler(log_all_events());
 
+#ifdef WIN32
   button.register_event_handler(win::button_state_event([](bool state) {
     LogDebug << "Button " << (state ? "pressed" : "released");
   }));
@@ -417,28 +454,29 @@ int main(int argc, char* argv[]) {
     label.set_text("Released!");
     label.redraw_now();
   }));
+#endif // WIN32
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
+    LogDebug << "Main created";
+  }));
+  main.create(core::rectangle(50, 50, 640, 480));
     main.set_text("Window Test");
     window1.create(main, core::rectangle(50, 50, 200, 280));
     window2.create(main, core::rectangle(300, 50, 200, 280));
-    //window1.show();
-    //window2.show();
+    window1.show();
+    window2.show();
 
-#ifdef WIN32
     button.create(main, core::rectangle(400, 350, 100, 25));
     button.set_text("Ok");
-    //button.show();
+    button.show();
     button.redraw_later();
     label.create(main, core::rectangle(200, 350, 100, 25));
     label.set_text("Text");
-    //label.show();
+    label.show();
     label.redraw_later();
-#endif // WIN32
-    //main.show();
-    //main.redraw_later();
-  }));
-  main.create(core::rectangle(50, 50, 640, 480));
+
+    main.show();
+    main.redraw_later();
 
   int ret = 0;
   try {

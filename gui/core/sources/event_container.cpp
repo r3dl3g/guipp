@@ -35,6 +35,11 @@ namespace gui {
 
   namespace core {
 
+    /**
+    * To avoid crashes during handle_event when adding or remove new handlers,
+    * this is done at the beginning of the dispatch loop, and only when not
+    * in a recursive call to handle_event.
+    */
     event_container::event_handler_change_map event_container::change_map;
 
     void event_container::register_event_handler (event_handler_function handler) {

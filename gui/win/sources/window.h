@@ -154,6 +154,24 @@ namespace gui {
 
     };
 
+    extern window_class button_class;
+
+    class button : public windowT<button_class> {
+    public:
+      button();
+
+      void set_text(const std::string& t) {
+        text = t;
+      }
+      std::string get_text() const {
+        return text;
+      }
+
+    private:
+      bool down;
+      std::string text;
+    };
+
   } // win
 
 } // gui

@@ -85,6 +85,7 @@ namespace gui {
       font(core::font_id id);
 
       operator core::font_id() const;
+      core::font_type font_type () const;
 
       std::string name() const;
       size_type size() const;

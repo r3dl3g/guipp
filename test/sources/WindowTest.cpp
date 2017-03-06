@@ -74,44 +74,10 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
   };
 }
 
-#ifdef WIN32
-win::window_class mainCls("mainwindow",
-                          CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
-                          WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_VISIBLE,
-                          WS_EX_NOPARENTNOTIFY,
-                          NULL,
-                          LoadCursor(NULL, IDC_ARROW),
-                          (HBRUSH)(COLOR_APPWORKSPACE + 1));
-
-win::window_class chldCls("childwindow",
-                          CS_DBLCLKS,// | CS_VREDRAW | CS_HREDRAW,
-                          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SIZEBOX | WS_VISIBLE,
-                          WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                          NULL,
-                          LoadCursor(NULL, IDC_ARROW),
-                          (HBRUSH)(COLOR_WINDOW + 1));
-#elif X11
-win::window_class mainCls("mainwindow",
-                          ButtonPressMask|
-                          ButtonReleaseMask|
-                          ExposureMask|
-                          PointerMotionMask|
-                          StructureNotifyMask|
-                          SubstructureRedirectMask|
-                          FocusChangeMask|
-                          EnterWindowMask|
-                          LeaveWindowMask);
-win::window_class chldCls("childwindow",
-                          ButtonPressMask|
-                          ButtonReleaseMask|
-                          ExposureMask|
-                          PointerMotionMask|
-                          StructureNotifyMask|
-                          SubstructureRedirectMask|
-                          FocusChangeMask|
-                          EnterWindowMask|
-                          LeaveWindowMask);
-#endif
+win::window_class mainCls;
+win::window_class chldCls;
+win::window_class btnCls;
+win::window_class staticCls;
 
 #ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,
@@ -132,6 +98,49 @@ int main(int argc, char* argv[]) {
   gui::core::global::init(XOpenDisplay(0));
 #endif
 
+#ifdef WIN32
+ mainCls = win::window_class::custom_class("mainwindow",
+    CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_VISIBLE,
+    WS_EX_NOPARENTNOTIFY,
+    nullptr,
+    LoadCursor(nullptr, IDC_ARROW),
+    (HBRUSH)(COLOR_APPWORKSPACE + 1));
+
+ chldCls = win::window_class::custom_class("childwindow",
+    CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SIZEBOX | WS_VISIBLE,
+    WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+    nullptr,
+    LoadCursor(nullptr, IDC_ARROW),
+    (HBRUSH)(COLOR_WINDOW + 1));
+
+  staticCls = win::window_class::sub_class("MyStatic", "STATIC",
+    SS_NOTIFY | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+    WS_EX_NOPARENTNOTIFY);
+
+#elif X11
+  mainCls = win::window_class::custom_class("mainwindow",
+    ButtonPressMask |
+    ButtonReleaseMask |
+    ExposureMask |
+    PointerMotionMask |
+    StructureNotifyMask |
+    SubstructureRedirectMask |
+    FocusChangeMask |
+    EnterWindowMask |
+    LeaveWindowMask);
+  chldCls = win::window_class::custom_class("childwindow",
+    ButtonPressMask |
+    ButtonReleaseMask |
+    ExposureMask |
+    PointerMotionMask |
+    StructureNotifyMask |
+    SubstructureRedirectMask |
+    FocusChangeMask |
+    EnterWindowMask |
+    LeaveWindowMask);
+#endif
 
 
   win::windowT<mainCls> main;
@@ -144,6 +153,14 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(init_result_handler());
 
 #ifdef WIN32
+  win::windowT<btnCls> button;
+  win::windowT<staticCls> label;
+
+  btnCls = win::window_class::sub_class("MyButton", "BUTTON",
+    BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
+    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+    WS_EX_NOPARENTNOTIFY);
+
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
     core::size& mi, core::size& ma) {
@@ -171,14 +188,14 @@ int main(int argc, char* argv[]) {
     graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
     graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
-    graph.draw(text("Hello World!", core::point(10, 190)), font::system(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 205)), font::system_bold(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 220)), font::sans_serif(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 235)), font::serif(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 250)), font::monospace(), color::black);
-    graph.draw(text("Hello World!", core::point(10, 265)), font("newspaper", font::system().size()), color::blue);
-    graph.draw(text("Hello World!", core::point(10, 280)), font::sans_serif().with_size(18), color::blue);
-    graph.draw(text_box("Hello World!", core::rectangle(10, 310, 180, 20), center), font::serif(), color::red);
+    graph.draw(text("Hello World!", core::point(10, 90)), font::system(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 105)), font::system_bold(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 120)), font::sans_serif(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 135)), font::serif(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 150)), font::monospace(), color::black);
+    graph.draw(text("Hello World!", core::point(10, 165)), font("newspaper", font::system().size()), color::blue);
+    graph.draw(text("Hello World!", core::point(10, 180)), font::sans_serif().with_size(18), color::blue);
+    graph.draw(text_box("Hello World!", core::rectangle(10, 210, 180, 20), center), font::serif(), color::red);
   });
 
   win::paint_event paint2([](draw::graphics& graph) {
@@ -328,7 +345,6 @@ int main(int argc, char* argv[]) {
     }
   }));
 
-
   main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     LogDebug << "Double Click up at " << p;
 
@@ -384,13 +400,45 @@ int main(int argc, char* argv[]) {
 
   main.register_event_handler(log_all_events());
 
+  button.register_event_handler(win::button_state_event([](bool state) {
+    LogDebug << "Button " << (state ? "pressed" : "released");
+  }));
+  button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Button clicked";
+    label.set_text("Clicked!");
+  }));
+  button.register_event_handler(win::button_pushed_event([&]() {
+    LogDebug << "Button pushed";
+    label.set_text("Pushed!");
+    label.redraw_now();
+  }));
+  button.register_event_handler(win::button_released_event([&]() {
+    LogDebug << "Button released";
+    label.set_text("Released!");
+    label.redraw_now();
+  }));
+
+  main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
+    main.set_text("Window Test");
+    window1.create(main, core::rectangle(50, 50, 200, 280));
+    window2.create(main, core::rectangle(300, 50, 200, 280));
+    //window1.show();
+    //window2.show();
+
+#ifdef WIN32
+    button.create(main, core::rectangle(400, 350, 100, 25));
+    button.set_text("Ok");
+    //button.show();
+    button.redraw_later();
+    label.create(main, core::rectangle(200, 350, 100, 25));
+    label.set_text("Text");
+    //label.show();
+    label.redraw_later();
+#endif // WIN32
+    //main.show();
+    //main.redraw_later();
+  }));
   main.create(core::rectangle(50, 50, 640, 480));
-  window1.create(main, core::rectangle(50, 50, 200, 380));
-  window2.create(main, core::rectangle(300, 50, 200, 380));
-  main.setText("Window Test");
-  main.show();
-  window1.show();
-  window2.show();
 
   int ret = 0;
   try {

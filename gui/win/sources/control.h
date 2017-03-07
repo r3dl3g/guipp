@@ -108,8 +108,9 @@ namespace gui {
                            bn_pushed_message_match>           button_pushed_event;
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
                            bn_unpushed_message_match>         button_released_event;
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           bn_state_message_match>            button_state_event;
+    typedef event_handlerT<ClientMessage,
+                           one_param_caller<bool, get_client_data<bool, 0>>,
+                           0, bn_state_message_match>         button_state_event;
 #endif // X11
 
     class push_button : public button {

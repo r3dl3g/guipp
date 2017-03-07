@@ -520,6 +520,11 @@ namespace gui {
       return cast_event_type<T>(e).keycode;
     }
     // --------------------------------------------------------------------------
+    template<typename T, int I = 0>
+    inline T get_client_data(const core::event& e) {
+      return (T)e.xclient.data.l[I];
+    }
+    // --------------------------------------------------------------------------
     template<typename T, typename C>
     inline T get_param (const core::event& e) {
       return T(cast_event_type<C>(e));

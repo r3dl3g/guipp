@@ -438,8 +438,6 @@ namespace gui {
 
     typedef event_handlerT<WM_PAINT, paint_caller>                                paint_event;
 
-    typedef event_handlerT<BM_SETSTATE, one_param_caller<bool>>                   button_state_event;
-
     // --------------------------------------------------------------------------
     template <WORD N>
     struct command_matcher {
@@ -759,7 +757,7 @@ namespace gui {
 
     typedef event_handlerT<Expose, paint_caller> paint_event;
 
-    void send_client_message (window* win, Atom message, void* data = 0);
+    void send_client_message (window* win, Atom message, int data = 0);
 
 #endif // X11
 

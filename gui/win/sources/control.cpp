@@ -71,6 +71,7 @@ namespace gui {
     Atom BN_CLICKED_MESSAGE = 0;
     Atom BN_PUSHED_MESSAGE = 0;
     Atom BN_UNPUSHED_MESSAGE = 0;
+    Atom BN_STATE_MESSAGE = 0;
 
     bool bn_clicked_message_match::operator() (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
@@ -83,6 +84,11 @@ namespace gui {
     bool bn_unpushed_message_match::operator() (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
     }
+
+    bool bn_state_message_match::operator() (const core::event& e) {
+      return (e.type == ClientMessage) && (e.xclient.message_type == BN_STATE_MESSAGE);
+    }
+    
 #endif // X11
 
     button::button()
@@ -101,6 +107,10 @@ namespace gui {
       if (!BN_UNPUSHED_MESSAGE) {
         BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
       }
+      if (!BN_STATE_MESSAGE) {
+        BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
+      }
+      
 
       register_event_handler(win::left_btn_down_event([&](const core::point& p) {
         if (is_enabled()) {
@@ -149,8 +159,8 @@ namespace gui {
       return SendMessage(get_id(), BM_GETSTATE, 0, 0 ) == BST_FOCUS;
     }
 
-    void button::set_hilited (bool p) {
-      SendMessage(get_id(), BM_SETSTATE, (WPARAM)(f ? BST_FOCUS : BST_UNFOCUS ), 0 );
+    void button::set_hilited (bool h) {
+      SendMessage(get_id(), BM_SETSTATE, (WPARAM)(h ? BST_FOCUS : 0), 0 );
     }
 #endif // WIN32
 
@@ -160,8 +170,11 @@ namespace gui {
     }
 
     void button::set_checked(bool f) {
-      checked = f;
-      redraw_later();
+      if (checked != f) {
+        checked = f;
+        send_client_message(this, BN_STATE_MESSAGE, f ? 1 : 0);
+        redraw_later();
+      }
     }
 
     bool button::is_hilited () const {

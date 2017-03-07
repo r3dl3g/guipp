@@ -74,17 +74,20 @@ namespace gui {
 
 #ifdef WIN32
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_CLICKED>>      button_clicked_event;
+                           command_matcher<BN_CLICKED>>         button_clicked_event;
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_PUSHED>>       button_pushed_event;
+                           command_matcher<BN_PUSHED>>          button_pushed_event;
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_UNPUSHED>>     button_released_event;
+                           command_matcher<BN_UNPUSHED>>        button_released_event;
+    typedef event_handlerT<BM_SETCHECK, one_param_caller<bool>> button_state_event;
+
 #endif //WIN32
 
 #ifdef X11
     extern Atom BN_CLICKED_MESSAGE;
     extern Atom BN_PUSHED_MESSAGE;
     extern Atom BN_UNPUSHED_MESSAGE;
+    extern Atom BN_STATE_MESSAGE;
 
     struct bn_clicked_message_match {
       bool operator() (const core::event& e);
@@ -95,6 +98,9 @@ namespace gui {
     struct bn_unpushed_message_match {
       bool operator() (const core::event& e);
     };
+    struct bn_state_message_match {
+      bool operator() (const core::event& e);
+    };
 
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
                            bn_clicked_message_match>          button_clicked_event;
@@ -102,6 +108,8 @@ namespace gui {
                            bn_pushed_message_match>           button_pushed_event;
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
                            bn_unpushed_message_match>         button_released_event;
+    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+                           bn_state_message_match>            button_state_event;
 #endif // X11
 
     class push_button : public button {

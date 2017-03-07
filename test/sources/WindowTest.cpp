@@ -168,33 +168,33 @@ int main(int argc, char* argv[]) {
     graph.text(text("Hello World 5!", core::point(10, 120)), font::monospace(), color::black);
     graph.text(text("Hello World 6!", core::point(10, 135)), font::sans_serif().with_size(18), color::blue);
 
-    core::rectangle r(10, 155, 50, 15);
+    core::rectangle r(10, 155, 50, 18);
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("TL", r, top_left), font::system(), color::red);
-    r= {70, 155, 50, 15};
+    r= {70, 155, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
-    r= {130, 155, 50, 15};
+    r= {130, 155, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("TR", r, top_right), font::system(), color::red);
 
-    r= {10, 175, 50, 15};
+    r= {10, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
-    r= {70, 175, 50, 15};
+    r= {70, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("CC", r, center), font::system(), color::red);
-    r= {130, 175, 50, 15};
+    r= {130, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
 
-    r= {10, 195, 50, 15};
+    r= {10, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
-    r= {70, 195, 50, 15};
+    r= {70, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
-    r= {130, 195, 50, 15};
+    r= {130, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
     graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
 
@@ -465,12 +465,12 @@ int main(int argc, char* argv[]) {
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   }));
-  check_box.register_event_handler(win::button_clicked_event([&]() {
+  check_box.register_event_handler(win::button_state_event([&](bool on) {
     LogDebug << "Check clicked";
     label.set_text("Check clicked!");
-    radio_button.enable(check_box.is_checked());
-    radio_button2.enable(check_box.is_checked());
-    button.enable(check_box.is_checked());
+    radio_button.enable(on);
+    radio_button2.enable(on);
+    button.enable(on);
   }));
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {

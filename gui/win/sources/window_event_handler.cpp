@@ -143,7 +143,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (window* win, Atom message, void* data) {
+    void send_client_message (window* win, Atom message, int data) {
       core::instance_id display = core::global::get_instance();
 
       XClientMessageEvent client ;
@@ -151,8 +151,9 @@ namespace gui {
       client.display      = display;
       client.window       = win->get_id();
       client.type         = ClientMessage ;
-      client.format       = 8 ;
+      client.format       = 32 ;
       client.message_type = message;
+      client.data.l[0]    = data;
 
       /* Send the data off to the other process */
       XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);

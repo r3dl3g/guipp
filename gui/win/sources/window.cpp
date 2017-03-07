@@ -30,8 +30,6 @@
 //
 #include "window.h"
 #include "window_event_proc.h"
-#include "window_event_handler.h"
-#include "graphics.h"
 
 
 namespace gui {
@@ -142,11 +140,11 @@ namespace gui {
       PostQuitMessage(0);
     }
 
-    void window::setParent(const window& parent) {
+    void window::set_parent(const window& parent) {
       SetParent(get_id(), parent.get_id());
     }
 
-    window* window::getParent() const {
+    window* window::get_parent() const {
       return is_valid() ? window::get(GetParent(get_id())) : nullptr;
     }
 
@@ -254,12 +252,12 @@ namespace gui {
     }
 
     core::point window::window_to_screen(const core::point& pt) const {
-      window* p = getParent();
+      window* p = get_parent();
       return p ? p->client_to_screen(pt) : pt;
     }
 
     core::point window::screen_to_window(const core::point& pt) const {
-      window* p = getParent();
+      window* p = get_parent();
       return p ? p->screen_to_client(pt) : pt;
     }
 
@@ -288,8 +286,12 @@ namespace gui {
     }
 
     window::window ()
-      : id(0) {
-    }
+      : id(0)
+#ifdef X11
+      , redraw_disabled(false)
+      , window_disabled(false)
+#endif // X11
+    {}
 
     window::~window () {
       destroy();
@@ -314,15 +316,8 @@ namespace gui {
       detail::global_window_map[id] = this;
 
       XSetWindowAttributes wa;
-      wa.event_mask = type.get_style();// | SubstructureNotifyMask;
+      wa.event_mask = type.get_style();
       XChangeWindowAttributes(display, id, CWEventMask, &wa);
-
-//      Atom wm_class = XInternAtom(display, "WM_CLASS", false);
-//      Atom atom_string = XInternAtom(display, "STRING", false);
-//      XChangeProperty(display, id, wm_class, atom_string, 8, PropModeReplace,
-//                      (const unsigned char*)type.get_class_name().c_str(),
-//                      type.get_class_name().size());
-
     }
 
     void window::create (const window_class& type,
@@ -353,7 +348,7 @@ namespace gui {
     }
 
     bool window::is_enabled () const {
-      return is_valid();
+      return !window_disabled;
     }
 
     bool window::is_active () const {
@@ -361,7 +356,18 @@ namespace gui {
     }
 
     bool window::is_child () const {
-      return false;
+      Window root_return;
+      Window parent_return;
+      Window *children_return;
+      unsigned int nchildren_return;
+
+      XQueryTree(core::global::get_instance(),
+                 get_id(),
+                 &root_return,
+                 &parent_return,
+                 &children_return,
+                 &nchildren_return);
+      return parent_return != 0;
     }
 
     bool window::is_popup () const {
@@ -397,12 +403,12 @@ namespace gui {
     void window::quit () {
     }
 
-    void window::setParent (const window& parent) {
+    void window::set_parent (const window& parent) {
       core::point pt = position();
       XReparentWindow(core::global::get_instance(), get_id(), parent.get_id(), pt.x, pt.y);
     }
 
-    window* window::getParent () const {
+    window* window::get_parent () const {
       Window root_return;
       Window parent_return;
       Window *children_return;
@@ -418,11 +424,11 @@ namespace gui {
     }
 
     bool window::is_parent_of (const window& child) const {
-      return child.getParent() == this;
+      return child.get_parent() == this;
     }
 
     bool window::is_child_of (const window& parent) const {
-      return getParent() == &parent;
+      return get_parent() == &parent;
     }
 
     void window::hide () {
@@ -457,6 +463,8 @@ namespace gui {
     }
 
     void window::enable (bool on) {
+      window_disabled = !on;
+      redraw_later();
     }
 
     void window::take_focus () {
@@ -464,6 +472,7 @@ namespace gui {
     }
 
     void window::enable_redraw (bool on) {
+      redraw_disabled = !on;
     }
 
     void window::redraw_now () {
@@ -591,197 +600,12 @@ namespace gui {
 #ifdef X11
     void window_with_text::set_text(const std::string& t) {
       text = t;
+      redraw_later();
     }
     std::string window_with_text::get_text() const {
       return text;
     }
 #endif //X11
-
-    window_class label::clazz;
-
-    label::label() {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = window_class::sub_class("MyStatic", "STATIC",
-          SS_NOTIFY | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#endif // WIN32
-#ifdef X11
-        clazz = window_class::custom_class("STATIC",
-          0,
-          ButtonPressMask | ButtonReleaseMask | ExposureMask |
-          PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-          FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          0, 0, 0,
-          draw::color::buttonColor);
-#endif // X11
-      }
-#ifdef X11
-      register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        using namespace draw;
-        core::rectangle area = client_area();
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
-      }));
-#endif // X11
-    }
-
-    button::button()
-#ifdef X11
-      : checked(false)
-#endif
-    {
-#ifdef X11
-      register_event_handler(win::left_btn_down_event([&](const core::point& p) {
-        if (get_window_class()->get_ex_style()) {
-          set_checked(!is_checked());
-        } else {
-          set_checked(true);
-        }
-      }));
-      register_event_handler(win::left_btn_up_event([&](const core::point& p) {
-        if (!get_window_class()->get_ex_style()) {
-          set_checked(false);
-        }
-      }));
-#endif
-    }
-
-#ifdef WIN32
-    bool button::is_checked() const {
-      return SendMessage(get_id(), BM_GETCHECK, 0, 0) != BST_UNCHECKED;
-    }
-
-    void button::set_checked(bool f) {
-      SendMessage(get_id(), BM_SETCHECK, (WPARAM)(f ? BST_CHECKED : BST_UNCHECKED), 0);
-    }
-#endif // WIN32
-
-#ifdef X11
-    bool button::is_checked() const {
-      return checked;
-    }
-
-    void button::set_checked(bool f) {
-      checked = f;
-      redraw_now();
-    }
-#endif // X11
-
-    window_class push_button::clazz;
-
-    push_button::push_button() {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyButton",
-                                             "BUTTON",
-                                             BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
-                                             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                             WS_VISIBLE | WS_TABSTOP,
-                                             WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("BUTTON",
-                                           1,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                           0, 0, 0,
-                                           draw::color::buttonColor);
-#endif // !WIN32
-      }
-#ifdef X11
-      register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        core::size sz = size() - core::size(1, 1);
-
-        using namespace draw;
-
-        graph.drawLines({ core::point(0, sz.height), core::point(), core::point(sz.width, 0) },
-          is_checked() ? color::darkGray : color::veryLightGray);
-        graph.drawLines({ { 0, sz.height },{ sz.width, sz.height },{ sz.width, 0 } },
-          is_checked() ? color::veryLightGray : color::darkGray);
-        core::rectangle area = client_area();
-        graph.text(draw::text_box(text, area, center), font::system(), color::black);
-      }));
-#endif
-    }
-
-    window_class radio_button::clazz;
-
-    radio_button::radio_button() {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyRadioButton",
-          "BUTTON",
-          BS_AUTORADIOBUTTON | BS_TEXT |
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-          WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("RADIO_BUTTON",
-          0,
-          ButtonPressMask | ButtonReleaseMask | ExposureMask |
-          PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-          FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          1, 0, 0,
-          draw::color::buttonColor);
-#endif // !WIN32
-      }
-#ifdef X11
-      register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        using namespace draw;
-
-        core::rectangle area = client_area();
-        int y = area.position().y + area.size().height / 2;
-        core::point pt(area.position().x + 6, y);
-        graph.frame(arc(pt, 5, 0, 360), color::black);
-        if (is_checked()) {
-          graph.fill(arc(pt, 3, 0, 360), color::black);
-        }
-        area.topleft.x += 20;
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
-      }));
-#endif
-    }
-
-    window_class check_box::clazz;
-
-    check_box::check_box() {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyCheckBox",
-          "BUTTON",
-          BS_AUTOCHECKBOX | BS_TEXT |
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-          WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("CHECKBOX",
-          0,
-          ButtonPressMask | ButtonReleaseMask | ExposureMask |
-          PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-          FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          1, 0, 0,
-          draw::color::buttonColor);
-#endif // !WIN32
-      }
-#ifdef X11
-      register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        using namespace draw;
-
-        core::rectangle area = client_area();
-        int y = area.position().y + area.size().height / 2;
-
-        core::rectangle r(core::point(area.position().x + 1, y - 5), core::size(10, 10));
-        graph.frame(rectangle(r), color::black);
-        if (is_checked()) {
-          r.topleft += core::size(2, 2);
-          r.bottomright -= core::size(1, 1);
-          graph.fill(rectangle(r), color::black);
-        }
-        area.topleft.x += 20;
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
-      }));
-#endif
-    }
 
   } // win
 

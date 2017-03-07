@@ -1,5 +1,5 @@
 
-#include "window.h"
+#include "control.h"
 #include "window_event_handler.h"
 #include "window_event_proc.h"
 #include "dbg_win_message.h"
@@ -434,12 +434,9 @@ int main(int argc, char* argv[]) {
 
 #ifdef WIN32
   button.register_event_handler(win::button_state_event([](bool state) {
-    LogDebug << "Button " << (state ? "pressed" : "released");
+    LogDebug << "Button " << (state ? "hilited" : "unhilited");
   }));
-  button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Button clicked";
-    label.set_text("OK Clicked!");
-  }));
+#endif // WIN32
   button.register_event_handler(win::button_pushed_event([&]() {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
@@ -450,26 +447,31 @@ int main(int argc, char* argv[]) {
     label.set_text("Released!");
     label.redraw_now();
   }));
+  button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Button clicked";
+    label.set_text("OK Clicked!");
+  }));
   radio_button.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Radio clicked";
     label.set_text("Radio clicked!");
-    bool check = !radio_button.is_checked();
-    radio_button.set_checked(check);
+    bool check = radio_button.is_checked();
+//    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   }));
   radio_button2.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Radio2 clicked";
     label.set_text("Radio2 clicked!");
-    bool check = !radio_button2.is_checked();
-    radio_button2.set_checked(check);
+    bool check = radio_button2.is_checked();
+//    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   }));
   check_box.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Check clicked";
     label.set_text("Check clicked!");
-    radio_button.set_checked(check_box.is_checked());
+    radio_button.enable(check_box.is_checked());
+    radio_button2.enable(check_box.is_checked());
+    button.enable(check_box.is_checked());
   }));
-#endif // WIN32
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";

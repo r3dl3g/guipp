@@ -448,12 +448,6 @@ namespace gui {
       }
     };
 
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_CLICKED>>                           button_clicked_event;
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_PUSHED>>                            button_pushed_event;
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_UNPUSHED>>                          button_released_event;
 #endif //WIN32
 
 #ifdef X11
@@ -764,6 +758,8 @@ namespace gui {
     };
 
     typedef event_handlerT<Expose, paint_caller> paint_event;
+
+    void send_client_message (window* win, Atom message, void* data = 0);
 
 #endif // X11
 

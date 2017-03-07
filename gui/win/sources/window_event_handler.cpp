@@ -143,6 +143,22 @@ namespace gui {
       }
     }
 
+    void send_client_message (window* win, Atom message, void* data) {
+      core::instance_id display = core::global::get_instance();
+
+      XClientMessageEvent client ;
+
+      client.display      = display;
+      client.window       = win->get_id();
+      client.type         = ClientMessage ;
+      client.format       = 8 ;
+      client.message_type = message;
+
+      /* Send the data off to the other process */
+      XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
+      XFlush(display);
+    }
+
 #endif // WIN32
 
   } // win

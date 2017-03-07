@@ -72,8 +72,8 @@ namespace gui {
       void destroy();
       void quit();
 
-      void setParent(const window& parent);
-      window* getParent() const;
+      void set_parent(const window& parent);
+      window* get_parent() const;
 
       bool is_parent_of(const window& parent) const;
       bool is_child_of(const window& parent) const;
@@ -134,6 +134,11 @@ namespace gui {
       friend void detail::set_id(window*, core::window_id);
       core::window_id id;
       const window_class* cls;
+
+#ifdef X11
+      bool redraw_disabled;
+      bool window_disabled;
+#endif // X11
     };
 
     template<window_class& clazz>
@@ -160,88 +165,6 @@ namespace gui {
 #ifdef X11
       std::string text;
 #endif // X11
-    };
-
-
-    class label : public window_with_text {
-    public:
-      typedef window_with_text super;
-
-      label();
-
-      void create(const window& parent,
-        const core::rectangle& place = core::rectangle::default_rectangle,
-        const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-    }
-
-    private:
-      static window_class clazz;
-    };
-
-    class button : public window_with_text {
-    public:
-      typedef window_with_text super;
-
-      button();
-
-      bool is_checked() const;
-      void set_checked(bool);
-
-#ifdef X11
-    private:
-      bool checked;
-#endif // X11
-    };
-
-    class push_button : public button {
-    public:
-      typedef button super;
-
-      push_button();
-
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-      }
-
-    private:
-      static window_class clazz;
-    };
-
-    class radio_button : public button {
-    public:
-      typedef button super;
-
-      radio_button();
-
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-      }
-    private:
-      static window_class clazz;
-    };
-
-    class check_box : public button {
-    public:
-      typedef button super;
-
-      check_box();
-
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-      }
-    private:
-      static window_class clazz;
     };
 
   } // win

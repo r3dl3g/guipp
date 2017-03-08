@@ -313,11 +313,16 @@ int main(int argc, char* argv[]) {
     LogDebug << "Main place: " << r;
   }));
 
-  main.register_event_handler(win::set_focus_event([](win::window* win) {
-    LogDebug << "Set Focus";
+#ifdef WIN32
+  button.register_event_handler(win::activate_event([](bool on, win::window* win) {
+    LogDebug << "Button " << (on ? "" : "de") << "activate";
   }));
-  main.register_event_handler(win::lost_focus_event([](win::window* win) {
-    LogDebug << "Lost Focus";
+#endif
+  button.register_event_handler(win::set_focus_event([](win::window* win) {
+    LogDebug << "Button Set Focus";
+  }));
+  button.register_event_handler(win::lost_focus_event([](win::window* win) {
+    LogDebug << "Button Lost Focus";
   }));
 
   main.register_event_handler(win::left_btn_down_event([&](const core::point& p){

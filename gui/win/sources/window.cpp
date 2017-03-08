@@ -100,8 +100,8 @@ namespace gui {
       return is_valid() && IsWindowEnabled(get_id());
     }
 
-    bool window::is_active() const {
-      return is_valid() && (GetActiveWindow() == id);
+    bool window::has_focus() const {
+      return is_valid() && (GetFocus() == id);
     }
 
     bool window::is_child() const {
@@ -351,7 +351,7 @@ namespace gui {
       return !window_disabled;
     }
 
-    bool window::is_active () const {
+    bool window::has_focus() const {
       return is_valid();
     }
 

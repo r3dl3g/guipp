@@ -59,7 +59,7 @@ namespace gui {
       bool is_valid() const;
       bool is_visible() const;
       bool is_enabled() const;
-      bool is_active() const;
+      bool has_focus() const;
       bool is_child() const;
       bool is_popup() const;
       bool is_toplevel() const;

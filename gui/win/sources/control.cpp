@@ -23,7 +23,9 @@
 //
 #include <algorithm>
 #include <map>
-#include <X11/Xlib.h>
+#ifdef X11
+# include <X11/Xlib.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -112,9 +114,10 @@ namespace gui {
         BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
       }
       register_event_handler(this, &button::button_handle_event);
-#endif
+#endif // X11
     }
 
+#ifdef X11
     bool button::button_handle_event (const core::event& e, core::event_result& result) {
         if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
             if (is_enabled()) {
@@ -156,6 +159,7 @@ namespace gui {
         }
         return false;
     }
+#endif // X11
 
 #ifdef WIN32
     bool button::is_checked() const {

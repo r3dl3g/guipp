@@ -28,8 +28,9 @@
 //
 #include "graphics.h"
 #include <logger.h>
-#include <X11/Xlib.h>
-
+#ifdef X11
+# include <X11/Xlib.h>
+#endif // X11
 
 namespace gui {
 
@@ -244,7 +245,7 @@ namespace gui {
         Use<font> fn(gc, f);
         RECT Rect = rect;
         DrawText(gc, str.c_str(), (int)str.size(), &Rect, (UINT)origin | DT_CALCRECT);
-        rect = Rect;
+        rect = core::rectangle(Rect);
       };
     }
 

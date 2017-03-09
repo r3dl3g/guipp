@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
 
 #elif X11
   mainCls = win::window_class::custom_class("mainwindow");
+  //mainCls.background = draw::color::buttonColor;
   chldCls = win::window_class::custom_class("childwindow");
 #endif
 
@@ -132,6 +133,11 @@ int main(int argc, char* argv[]) {
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
+
+  win::push_button min_button;
+  win::push_button max_button;
+  win::push_button norm_button;
+  win::push_button info_button;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -321,7 +327,7 @@ int main(int argc, char* argv[]) {
   button.register_event_handler(win::set_focus_event([](win::window* win) {
     LogDebug << "Button Set Focus";
   }));
-  button.register_event_handler(win::lost_focus_event([](win::window* win) {
+  button.register_event_handler(win::lost_focus_event([&](win::window* win) {
     LogDebug << "Button Lost Focus";
   }));
 
@@ -478,38 +484,74 @@ int main(int argc, char* argv[]) {
     button.enable(on);
   }));
 
+  min_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Min clicked";
+    main.minimize();
+  }));
+  max_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Max clicked";
+    main.maximize();
+  }));
+  norm_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Norm clicked";
+    main.restore();
+  }));
+  info_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Info clicked";
+    if (main.is_minimized()) {
+      label.set_text("Minimized");
+    } else if (main.is_maximized()) {
+      label.set_text("Maximized");
+    } else {
+      label.set_text("Normal");
+    }
+  }));
+
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
   }));
   main.create(core::rectangle(50, 50, 640, 480));
-    //main.set_text("Window Test");
-    window1.create(main, core::rectangle(50, 50, 200, 280));
-    window2.create(main, core::rectangle(300, 50, 200, 280));
-    window1.show();
-    window2.show();
+  //main.set_text("Window Test");
 
-    label.create(main, core::rectangle(50, 350, 100, 25), "Text");
-    label.show();
-    label.redraw_later();
+  window1.create(main, core::rectangle(50, 50, 200, 280));
+  window2.create(main, core::rectangle(300, 50, 200, 280));
+  window1.show();
+  window2.show();
 
-    radio_button.create(main, core::rectangle(160, 350, 100, 25), "Radio");
-    radio_button.show();
-    radio_button.redraw_later();
+  label.create(main, core::rectangle(50, 350, 100, 25), "Text");
+  label.show();
+  label.redraw_later();
 
-    radio_button2.create(main, core::rectangle(160, 370, 100, 25), "Radio2");
-    radio_button2.show();
-    radio_button2.redraw_later();
+  radio_button.create(main, core::rectangle(160, 350, 100, 25), "Radio");
+  radio_button.show();
+  radio_button.redraw_later();
 
-    check_box.create(main, core::rectangle(270, 350, 100, 25), "Check");
-    check_box.show();
-    check_box.redraw_later();
+  radio_button2.create(main, core::rectangle(160, 370, 100, 25), "Radio2");
+  radio_button2.show();
+  radio_button2.redraw_later();
 
-    button.create(main, core::rectangle(400, 350, 100, 25), "Ok");
-    button.show();
-    button.redraw_later();
+  check_box.create(main, core::rectangle(270, 350, 100, 25), "Check");
+  check_box.show();
+  check_box.redraw_later();
 
-    main.show();
-    main.redraw_later();
+  button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
+  button.show();
+  button.redraw_later();
+
+  min_button.create(main, core::rectangle(50, 400, 100, 25), "Min");
+  min_button.show();
+
+  max_button.create(main, core::rectangle(160, 400, 100, 25), "Max");
+  max_button.show();
+
+  norm_button.create(main, core::rectangle(270, 400, 100, 25), "Norm");
+  norm_button.show();
+
+  info_button.create(main, core::rectangle(380, 400, 100, 25), "Info");
+  info_button.show();
+
+  main.show();
+  main.redraw_later();
 
   int ret = 0;
   try {

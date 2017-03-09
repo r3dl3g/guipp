@@ -105,16 +105,14 @@ namespace gui {
     T get_param1_high(const core::event& e) {
       return T(0);
     }
-#endif // WIN32
+#endif // X11
 
     template<>
     window* get_param1<window*>(const core::event& e);
 
      // --------------------------------------------------------------------------
     template <typename T>
-    const T& cast_event_type(const core::event& e) {
-      return *((const T*)&e);
-    }
+    const T& cast_event_type(const core::event& e);
 
     // --------------------------------------------------------------------------
     template <core::event_id id>
@@ -461,6 +459,14 @@ namespace gui {
     template <>
     inline const XButtonEvent& cast_event_type<XButtonEvent>(const core::event& e) {
       return e.xbutton;
+    }
+    template <>
+    inline const XCreateWindowEvent& cast_event_type<XCreateWindowEvent>(const core::event& e) {
+      return e.xcreatewindow;
+    }
+    template <>
+    inline const XFocusChangeEvent& cast_event_type<XFocusChangeEvent>(const core::event& e) {
+      return e.xfocus;
     }
     // --------------------------------------------------------------------------
     template <>

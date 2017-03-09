@@ -114,20 +114,36 @@ namespace gui {
         return { x - (type)s.width, y - (type)s.height };
       }
 
-      inline const point& operator+= (const size& s) {
+      inline point& operator+= (const size& s) {
         x += (type)s.width;
         y += (type)s.height;
         return *this;
       }
 
-      inline const point& operator-= (const size& s) {
+      inline point& operator-= (const size& s) {
         x -= (type)s.width;
         y -= (type)s.height;
         return *this;
       }
 
-      inline size operator- (const point& rhs) const {
-        return { (size::type)(x - rhs.x), (size::type)(y - rhs.y) };
+      inline size operator- (const point& pt) const {
+        return { (size::type)(x - pt.x), (size::type)(y - pt.y) };
+      }
+
+      inline point operator+ (const point& pt) const {
+        return { x + pt.x, y + pt.y };
+      }
+
+      inline point& operator+= (const point& pt) {
+        x += pt.x;
+        y += pt.x;
+        return *this;
+      }
+
+      inline point& operator-= (const point& pt) {
+        x -= pt.x;
+        y -= pt.x;
+        return *this;
       }
 
       inline bool operator== (const point& rhs) const {
@@ -163,23 +179,23 @@ namespace gui {
     struct rectangle {
       inline rectangle(const point& pos = core::point(),
                        const size& sz = core::size())
-        : topleft(pos)
-        , bottomright(pos.x + sz.width, pos.y + sz.height) {
+        : top_left(pos)
+        , bottom_right(pos.x + sz.width, pos.y + sz.height) {
       }
 
       inline explicit rectangle(const size& sz)
-        : bottomright(sz.width, sz.height) {
+        : bottom_right(sz.width, sz.height) {
       }
 
       inline rectangle(const point& topleft,
                        const point& bottomright)
-        : topleft(topleft)
-        , bottomright(bottomright) {
+        : top_left(topleft)
+        , bottom_right(bottomright) {
       }
 
       inline rectangle(point::type x, point::type y, size::type width, size::type height)
-        : topleft(x, y)
-        , bottomright(x + width, y + height) {
+        : top_left(x, y)
+        , bottom_right(x + width, y + height) {
       }
 
       explicit rectangle(const rectangle_type& r);
@@ -189,41 +205,87 @@ namespace gui {
 #ifdef X11
       template<typename T>
       explicit rectangle(const T& rhs)
-        : topleft(rhs.x, rhs.y)
-        , bottomright(rhs.x + rhs.width, rhs.y + rhs.height)
+        : top_left(rhs.x, rhs.y)
+        , bottom_right(rhs.x + rhs.width, rhs.y + rhs.height)
       {}
 #endif // X11
 
       operator rectangle_type() const;
 
       inline bool is_inside(const point& p) const {
-        return (p >= topleft) && (p < bottomright);
+        return (p >= top_left) && (p < bottom_right);
       }
 
       inline point position() const {
-        return topleft;
+        return top_left;
+      }
+
+      inline rectangle grown (const size& sz) const {
+        return { top_left - sz, bottom_right + sz };
+      }
+
+      inline rectangle& grow (const size& sz) {
+        top_left -= sz;
+        bottom_right += sz;
+        return *this;
       }
 
       inline point center() const {
-        return { (topleft.x + bottomright.x) / 2, (topleft.y + bottomright.y) / 2 };
+        return { (top_left.x + bottom_right.x) / 2, (top_left.y + bottom_right.y) / 2 };
       }
 
       inline core::size size() const {
-        return{ (size::type)(bottomright.x - topleft.x), (size::type)(bottomright.y - topleft.y) };
+        return{ (size::type)(bottom_right.x - top_left.x), (size::type)(bottom_right.y - top_left.y) };
+      }
+
+      inline rectangle operator- (const core::size& sz) const {
+        return { top_left, bottom_right - sz };
+      }
+
+      inline rectangle& operator-= (const core::size& sz) {
+        bottom_right -= sz;
+        return *this;
+      }
+
+      inline rectangle operator+ (const core::size& sz) const {
+        return { top_left, bottom_right + sz };
+      }
+
+      inline rectangle& operator+= (const core::size& sz) {
+        bottom_right += sz;
+        return *this;
+      }
+
+      inline rectangle operator- (const point& pt) const {
+        return { top_left + pt, bottom_right };
+      }
+
+      inline rectangle& operator-= (const core::point& pt) {
+        top_left -= pt;
+        return *this;
+      }
+
+      inline rectangle operator+ (const core::point& pt) const {
+        return { top_left + pt, bottom_right };
+      }
+
+      inline rectangle& operator+= (const core::point& pt) {
+        top_left += pt;
+        return *this;
       }
 
       inline bool operator== (const rectangle& rhs) const {
-        return (topleft == rhs.topleft) && (bottomright == rhs.bottomright);
+        return (top_left == rhs.top_left) && (bottom_right == rhs.bottom_right);
       }
 
       inline bool operator!= (const rectangle& rhs) const {
         return !operator==(rhs);
       }
 
-      void setSize(const core::size& sz);
+      void set_size (const core::size& sz);
 
-      core::point topleft;
-      core::point bottomright;
+      core::point top_left;
+      core::point bottom_right;
 
       static rectangle default_rectangle;
     };

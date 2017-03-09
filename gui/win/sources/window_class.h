@@ -97,11 +97,6 @@ namespace gui {
         unregister_class();
       }
 
-    private:
-      void register_class() const;
-      void unregister_class();
-
-      std::string class_name;
       core::windows_style class_style;
       core::windows_style style;
       core::windows_style ex_style;
@@ -109,8 +104,13 @@ namespace gui {
       core::cursor_id cursor;
       core::brush_id background;
       core::color_type foreground;
-      core::event_callback callback;
 
+    private:
+      void register_class() const;
+      void unregister_class();
+
+      std::string class_name;
+      core::event_callback callback;
       mutable bool is_initialized;
     };
 

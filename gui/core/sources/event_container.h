@@ -35,6 +35,7 @@
 // Library includes
 //
 #include "event.h"
+#include "easy_bind.h"
 
 
 namespace gui {
@@ -50,9 +51,15 @@ namespace gui {
       {}
 
       void register_event_handler(event_handler_function);
+
+      template<typename T, typename F>
+      void register_event_handler(T* t, F f) {
+        register_event_handler(easy_bind(t, f));
+      };
+
       void unregister_event_handler(event_handler_function);
 
-      bool handle_event(const event& e, core::event_result& result);
+      bool handle_event(const event& e, event_result& result);
 
     private:
       typedef std::vector<event_handler_function> event_handler_list;

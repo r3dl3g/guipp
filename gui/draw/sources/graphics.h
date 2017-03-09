@@ -190,7 +190,7 @@ namespace gui {
     };
 
     struct text_box {
-      text_box(const std::string& str, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
+      text_box (const std::string& str, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
         : str(str)
         , rect(rect)
         , origin(origin)
@@ -204,6 +204,23 @@ namespace gui {
       const core::rectangle rect;
       const text_origin origin;
       bool clear_background;
+    };
+
+    struct bounding_box {
+      bounding_box (const std::string& str, core::rectangle& rect, text_origin origin = top_left)
+              : str(str)
+              , rect(rect)
+              , origin(origin)
+      {}
+
+      operator texter () const;
+
+    private:
+      const std::string str;
+      core::rectangle& rect;
+      const text_origin origin;
+
+      void operator= (bounding_box&);
     };
 
     struct text {

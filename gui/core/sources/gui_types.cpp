@@ -94,11 +94,11 @@ namespace gui {
 
     rectangle::rectangle(const rectangle_type& r)
 #ifdef WIN32
-      : topleft(r.left, r.top)
-      , bottomright(r.right, r.bottom) {
+      : top_left(r.left, r.top)
+      , bottom_right(r.right, r.bottom) {
 #elif X11
-      : topleft(r.x, r.y)
-      , bottomright(r.x + r.width, r.y + r.height) {
+      : top_left(r.x, r.y)
+      , bottom_right(r.x + r.width, r.y + r.height) {
 #endif // X11
     }
 
@@ -110,15 +110,15 @@ namespace gui {
 
     rectangle::operator rectangle_type() const {
 #ifdef WIN32
-      return{ topleft.x, topleft.y, bottomright.x, bottomright.y };
+      return{ top_left.x, top_left.y, bottom_right.x, bottom_right.y };
 #elif X11
-      return{ (short)topleft.x, (short)topleft.y,
-              (unsigned short)(bottomright.x - topleft.x), (unsigned short)(bottomright.y - topleft.y) };
+      return{ (short)top_left.x, (short)top_left.y,
+              (unsigned short)(bottom_right.x - top_left.x), (unsigned short)(bottom_right.y - top_left.y) };
 #endif // X11
     }
 
-    void rectangle::setSize(const core::size& sz) {
-      bottomright = core::point( topleft.x + sz.width, topleft.y + sz.height );
+    void rectangle::set_size (const core::size& sz) {
+      bottom_right = core::point( top_left.x + sz.width, top_left.y + sz.height );
     }
 
     std::ostream& operator<<(std::ostream& out, const size& sz) {

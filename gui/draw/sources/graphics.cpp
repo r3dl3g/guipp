@@ -28,6 +28,7 @@
 //
 #include "graphics.h"
 #include <logger.h>
+#include <X11/Xlib.h>
 
 
 namespace gui {
@@ -79,7 +80,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, p);
-        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Rectangle(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
   }
 
@@ -87,7 +88,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
         Use<brush> br(gc, null_brush);
-        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Rectangle(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
 
@@ -95,7 +96,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, null_pen);
-        Rectangle(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Rectangle(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
 
@@ -103,7 +104,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, p);
-        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Ellipse(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
 
@@ -111,7 +112,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
         Use<brush> br(gc, null_brush);
-        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Ellipse(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
 
@@ -119,7 +120,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, null_pen);
-        Ellipse(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y);
+        Ellipse(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
 
@@ -127,7 +128,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
         Use<brush> br(gc, null_brush);
-        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
       };
     }
 
@@ -135,7 +136,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, null_pen);
-        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
       };
     }
 
@@ -143,7 +144,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, p);
-        RoundRect(gc, rect.topleft.x, rect.topleft.y, rect.bottomright.x, rect.bottomright.y, size.width, size.height);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
       };
     }
 
@@ -227,14 +228,23 @@ namespace gui {
         RECT Rect = rect;
         if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
           int h = DrawText(gc, str.c_str(), (int)str.size(), &Rect, (UINT)origin | DT_CALCRECT);
-          Rect.left = rect.topleft.x;
-          Rect.right = rect.bottomright.x;
+          Rect.left = rect.top_left.x;
+          Rect.right = rect.bottom_right.x;
           Rect.top = (rect.size().height - h) / 2;
           Rect.bottom = Rect.top + h;
         }
         DrawText(gc, str.c_str(), (int)str.size(), &Rect, (UINT)origin);
         SetBkMode(gc, old_mode);
         SetTextColor(gc, old_color);
+      };
+    }
+
+    bounding_box::operator texter() const {
+      return [&](core::drawable_id id, core::graphics_id gc, const font& f, const color& c) {
+        Use<font> fn(gc, f);
+        RECT Rect = rect;
+        DrawText(gc, str.c_str(), (int)str.size(), &Rect, (UINT)origin | DT_CALCRECT);
+        rect = Rect;
       };
     }
 
@@ -342,19 +352,38 @@ namespace gui {
       core::graphics_id gc;
   };
 
-    template<> void Use<pen>::set(const pen& p) {
+    template<>
+    void Use<pen>::set(const pen& p) {
       core::instance_id display = core::global::get_instance();
       XSetForeground(display, gc, p.color());
-      XSetLineAttributes(display, gc, p.size(), p.style(), CapButt, JoinMiter);
+      XSetLineAttributes(display, gc, p.size(), p.style() & 0x0F, CapButt, JoinMiter);
+      if (p.style() & 0x0F0) {
+        switch (p.style()) {
+          case pen::dot:
+            static const char dots[] = { 1, 2 };
+            XSetDashes(display, gc, 0, dots, 2);
+          break;
+          case pen::dashDot:
+            static const char dash_dots[] = { 4, 4, 1, 4 };
+            XSetDashes(display, gc, 0, dash_dots, 4);
+            break;
+          case pen::dashDotDot:
+            static const char dash_dot_dots[] = { 4, 4, 1, 2, 1, 4 };
+            XSetDashes(display, gc, 0, dash_dot_dots, 6);
+            break;
+        }
+      }
     }
 
-    template<> void Use<brush>::set(const brush& b) {
+    template<>
+    void Use<brush>::set(const brush& b) {
       core::instance_id display = core::global::get_instance();
       XSetForeground(display, gc, b.color());
       XSetFillStyle(display, gc, b.style());
     }
 
-    template<> void Use<font>::set(const font& f) {
+    template<>
+    void Use<font>::set(const font& f) {
       XSetFont(core::global::get_instance(), gc, f);
     }
 
@@ -362,23 +391,47 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         core::instance_id display = core::global::get_instance();
-        XFillRectangle(display, id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+        XFillRectangle(display,
+                       id,
+                       gc,
+                       rect.top_left.x,
+                       rect.top_left.y,
+                       (unsigned int)rect.size().width,
+                       (unsigned int)rect.size().height);
         Use<pen> pn(gc, p);
-        XDrawRectangle(display, id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+        XDrawRectangle(display,
+                       id,
+                       gc,
+                       rect.top_left.x,
+                       rect.top_left.y,
+                       (unsigned int)rect.size().width,
+                       (unsigned int)rect.size().height);
       };
     }
 
     rectangle::operator frameable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
-        XDrawRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+        XDrawRectangle(core::global::get_instance(),
+                       id,
+                       gc,
+                       rect.top_left.x,
+                       rect.top_left.y,
+                       (unsigned int)rect.size().width,
+                       (unsigned int)rect.size().height);
       };
     }
 
     rectangle::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        XFillRectangle(core::global::get_instance(), id, gc, rect.topleft.x, rect.topleft.y, rect.size().width, rect.size().height);
+        XFillRectangle(core::global::get_instance(),
+                       id,
+                       gc,
+                       rect.top_left.x,
+                       rect.top_left.y,
+                       (unsigned int)rect.size().width,
+                       (unsigned int)rect.size().height);
       };
     }
 
@@ -386,13 +439,29 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         core::instance_id display = core::global::get_instance();
-        const core::point& pt = rect.topleft;
+        const core::point& pt = rect.top_left;
 
         XSetArcMode(display, gc, ArcPieSlice);
-        XFillArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+        XFillArc(display,
+                 id,
+                 gc,
+                 pt.x,
+                 pt.y,
+                 (unsigned int)rect.size().width,
+                 (unsigned int)rect.size().height,
+                 0,
+                 360 * 64);
         Use<pen> pn(gc, p);
         XSetArcMode(display, gc, ArcChord);
-        XDrawArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+        XDrawArc(display,
+                 id,
+                 gc,
+                 pt.x,
+                 pt.y,
+                 (unsigned int)rect.size().width,
+                 (unsigned int)rect.size().height,
+                 0,
+                 360 * 64);
       };
     }
 
@@ -400,10 +469,18 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
         core::instance_id display = core::global::get_instance();
-        const core::point& pt = rect.topleft;
+        const core::point& pt = rect.top_left;
 
         XSetArcMode(display, gc, ArcChord);
-        XDrawArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+        XDrawArc(display,
+                 id,
+                 gc,
+                 pt.x,
+                 pt.y,
+                 (unsigned int)rect.size().width,
+                 (unsigned int)rect.size().height,
+                 0,
+                 360 * 64);
       };
     }
 
@@ -411,10 +488,18 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
         core::instance_id display = core::global::get_instance();
-        const core::point& pt = rect.topleft;
+        const core::point& pt = rect.top_left;
 
         XSetArcMode(display, gc, ArcPieSlice);
-        XFillArc(display, id, gc, pt.x, pt.y, rect.size().width, rect.size().height, 0, 360 * 64);
+        XFillArc(display,
+                 id,
+                 gc,
+                 pt.x,
+                 pt.y,
+                 (unsigned int)rect.size().width,
+                 (unsigned int)rect.size().height,
+                 0,
+                 360 * 64);
       };
     }
 
@@ -424,14 +509,14 @@ namespace gui {
         const int w = size.width;
         const int h = size.height;
 
-        const int x0 = rect.topleft.x;
+        const int x0 = rect.top_left.x;
         const int x1 = x0 + w;
-        const int x3 = rect.bottomright.x;
+        const int x3 = rect.bottom_right.x;
         const int x2 = x3 - w;
 
-        const int y0 = rect.topleft.y;
+        const int y0 = rect.top_left.y;
         const int y1 = y0 + h;
-        const int y3 = rect.bottomright.y;
+        const int y3 = rect.bottom_right.y;
         const int y2 = y3 - h;
 
         const int w2 = w * 2;
@@ -457,14 +542,14 @@ namespace gui {
         const int w = size.width;
         const int h = size.height;
 
-        const int x0 = rect.topleft.x;
+        const int x0 = rect.top_left.x;
         const int x1 = x0 + w;
-        const int x3 = rect.bottomright.x;
+        const int x3 = rect.bottom_right.x;
         const int x2 = x3 - w;
 
-        const int y0 = rect.topleft.y;
+        const int y0 = rect.top_left.y;
         const int y1 = y0 + h;
-        const int y3 = rect.bottomright.y;
+        const int y3 = rect.bottom_right.y;
         const int y2 = y3 - h;
 
         const int w2 = w * 2;
@@ -608,6 +693,45 @@ namespace gui {
 //        LogDebug << "x:" << px << " y:" << py;
 
         XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), str.size());
+      };
+    }
+
+    bounding_box::operator texter() const {
+      return [&](core::drawable_id id, core::graphics_id gc, const font& f, const color& c) {
+        Use<font> fn(gc, f);
+        Use<pen> pn(gc, c);
+
+        int direction = 0, ascent = 0, descent = 0;
+        XCharStruct overall;
+        memset(&overall, 0, sizeof(XCharStruct));
+
+        if (f.font_type()) {
+          XTextExtents(f.font_type(), str.c_str(), str.size(),
+                       &direction, &ascent, &descent, &overall);
+        } else {
+          LogError << "font_type is zero!";
+        }
+
+        int px = rect.position().x;
+        int py = rect.position().y;
+        int width = overall.width;
+        int height = (ascent - descent);
+
+        if ((origin & DT_CENTER) == DT_CENTER) {
+          px += (rect.size().width - width) / 2;
+        } else if ((origin & DT_RIGHT) == DT_RIGHT) {
+          px += rect.size().width - width;
+        }
+        if ((origin & DT_VCENTER) == DT_VCENTER) {
+          py += (rect.size().height + height) / 2;
+        } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
+          py += rect.size().height;
+        } else {
+          py += height;
+        }
+
+        rect.top_left = { px, py - overall.ascent };
+        rect.set_size({width, overall.ascent + overall.descent});
       };
     }
 

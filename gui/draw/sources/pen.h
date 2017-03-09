@@ -39,7 +39,12 @@ namespace gui {
 
       const static pen default_pen;
 
+#ifdef WIN32
       typedef int size_type;
+#endif // WIN32
+#ifdef X11
+      typedef unsigned int size_type;
+#endif // X11
 
       enum Style {
 #ifdef WIN32
@@ -53,11 +58,11 @@ namespace gui {
 #elif X11
         solid = LineSolid,
         dash = LineOnOffDash,
-        dot = LineOnOffDash,
-        dashDot = LineOnOffDash,
-        dashDotDot = LineOnOffDash,
-        hairLine = LineSolid,
-        insideFrame = LineSolid
+        dot = LineOnOffDash | 0x010,
+        dashDot = LineOnOffDash | 0x020,
+        dashDotDot = LineOnOffDash | 0x030,
+        hairLine = LineSolid | 0x040,
+        insideFrame = LineSolid | 0x050
 #else
 
 #pragma error "Unknown target system"

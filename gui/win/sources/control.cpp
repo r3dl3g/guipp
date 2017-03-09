@@ -23,6 +23,7 @@
 //
 #include <algorithm>
 #include <map>
+#include <X11/Xlib.h>
 
 // --------------------------------------------------------------------------
 //
@@ -88,7 +89,7 @@ namespace gui {
     bool bn_state_message_match::operator() (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == BN_STATE_MESSAGE);
     }
-    
+
 #endif // X11
 
     button::button()
@@ -110,40 +111,50 @@ namespace gui {
       if (!BN_STATE_MESSAGE) {
         BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
       }
-      
-
-      register_event_handler(win::left_btn_down_event([&](const core::point& p) {
-        if (is_enabled()) {
-          send_client_message(this, BN_PUSHED_MESSAGE);
-          if (get_window_class()->get_ex_style()) {
-            set_hilited(true);
-          } else {
-            set_checked(true);
-          }
-        }
-      }));
-      register_event_handler(win::left_btn_up_event([&](const core::point& p) {
-        if (is_enabled()) {
-          send_client_message(this, BN_UNPUSHED_MESSAGE);
-          if (get_window_class()->get_ex_style()) {
-            if (is_hilited()) {
-              set_hilited(false);
-              if (client_area().is_inside(p)) {
-                set_checked(!is_checked());
-                if (is_enabled()) {
-                  send_client_message(this, BN_CLICKED_MESSAGE);
-                }
-              }
-            }
-          } else {
-            set_checked(false);
-            if (client_area().is_inside(p)) {
-              send_client_message(this, BN_CLICKED_MESSAGE);
-            }
-          }
-        }
-      }));
+      register_event_handler(this, &button::button_handle_event);
 #endif
+    }
+
+    bool button::button_handle_event (const core::event& e, core::event_result& result) {
+        if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
+            if (is_enabled()) {
+                take_focus();
+                send_client_message(this, BN_PUSHED_MESSAGE);
+                if (get_window_class()->get_ex_style()) {
+                    set_hilited(true);
+                } else {
+                    set_checked(true);
+                }
+            }
+            return true;
+        } else if ((e.type == ButtonRelease) &&
+                   (e.xbutton.button == Button1) &&
+                   ((e.xbutton.state & Button1Mask) == Button1Mask)) {
+            if (is_enabled()) {
+                send_client_message(this, BN_UNPUSHED_MESSAGE);
+                core::point p = get_param<core::point, XButtonEvent>(e);
+                if (get_window_class()->get_ex_style()) {
+                    if (is_hilited()) {
+                        set_hilited(false);
+                        if (client_area().is_inside(p)) {
+                            set_checked(!is_checked());
+                            if (is_enabled()) {
+                                send_client_message(this, BN_CLICKED_MESSAGE);
+                            }
+                        }
+                    }
+                } else {
+                    set_checked(false);
+                    if (client_area().is_inside(p)) {
+                        send_client_message(this, BN_CLICKED_MESSAGE);
+                    }
+                }
+            }
+            return true;
+        } else if ((e.type == FocusIn) || (e.type == FocusOut)) {
+            redraw_later();
+        }
+        return false;
     }
 
 #ifdef WIN32
@@ -200,7 +211,7 @@ namespace gui {
                                              WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
         clazz = window_class::custom_class("BUTTON",
-                                           1,
+                                           0,
                                            ButtonPressMask | ButtonReleaseMask | ExposureMask |
                                            PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
                                            FocusChangeMask | EnterWindowMask | LeaveWindowMask,
@@ -210,16 +221,28 @@ namespace gui {
       }
 #ifdef X11
       register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        core::size sz = size() - core::size(1, 1);
-
         using namespace draw;
 
-        graph.drawLines({ core::point(0, sz.height), core::point(), core::point(sz.width, 0) },
-          is_checked() ? color::darkGray : color::veryLightGray);
-        graph.drawLines({ { 0, sz.height },{ sz.width, sz.height },{ sz.width, 0 } },
-          is_checked() ? color::veryLightGray : color::darkGray);
+        const bool focus = has_focus();
         core::rectangle area = client_area();
+        area.bottom_right -= core::size(1, 1);
+
+        if (focus) {
+          graph.frame(draw::rectangle(area), color::black);
+          area.grow({-1, -1});
+        }
+        const core::point& tl = area.top_left;
+        const core::point& br = area.bottom_right;
+
+        graph.drawLines({ { tl.x, br.y }, { tl.x, tl.y }, { br.x, tl.y } },
+                        is_checked() ? color::darkGray : color::veryLightGray);
+        graph.drawLines({ { tl.x, br.y }, { br.x, br.y }, { br.x, tl.y } },
+                        is_checked() ? color::veryLightGray : color::darkGray);
         graph.text(draw::text_box(text, area, center), font::system(), is_enabled() ? color::black : color::gray);
+        if (focus) {
+          area.grow({-3, -3});
+          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+        }
       }));
 #endif
     }
@@ -249,8 +272,10 @@ namespace gui {
       register_event_handler(win::paint_event([&](draw::graphics& graph) {
         using namespace draw;
 
+        const bool focus = has_focus();
+
         color col = is_enabled() ? color::black : color::gray;
-        core::rectangle area = client_area();
+        core::rectangle area = client_area() - core::size(1, 1);
         int y = area.position().y + area.size().height / 2;
         core::point pt(area.position().x + 6, y);
         graph.draw(arc(pt, 5, 0, 360),
@@ -260,8 +285,13 @@ namespace gui {
         if (is_checked()) {
           graph.fill(arc(pt, 3, 0, 360), col);
         }
-        area.topleft.x += 20;
+        area.top_left.x += 20;
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
+        if (focus) {
+          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
+          area.grow({ 3, 3 });
+          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+        }
       }));
 #endif
     }
@@ -291,6 +321,8 @@ namespace gui {
       register_event_handler(win::paint_event([&](draw::graphics& graph) {
         using namespace draw;
 
+        const bool focus = has_focus();
+
         core::rectangle area = client_area();
         int y = area.position().y + area.size().height / 2;
 
@@ -302,12 +334,17 @@ namespace gui {
                                 : color::buttonColor,
                    col);
         if (is_checked()) {
-          r.topleft += core::size(2, 2);
-          r.bottomright -= core::size(1, 1);
+          r.top_left += core::size(2, 2);
+          r.bottom_right -= core::size(1, 1);
           graph.fill(rectangle(r), col);
         }
-        area.topleft.x += 20;
+        area.top_left.x += 20;
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
+        if (focus) {
+          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
+          area.grow({ 3, 3 });
+          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+        }
       }));
 #endif
     }

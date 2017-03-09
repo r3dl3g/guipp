@@ -67,6 +67,8 @@ namespace gui {
 
 #ifdef X11
     private:
+      bool button_handle_event (const core::event& e, core::event_result& result);
+
       bool checked;
       bool hilited;
 #endif // X11

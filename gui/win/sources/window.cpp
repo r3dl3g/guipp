@@ -101,7 +101,7 @@ namespace gui {
     }
 
     bool window::has_focus() const {
-      return is_valid() && (GetFocus() == id);
+      return is_valid() && (GetFocus() == get_id());
     }
 
     bool window::is_child() const {
@@ -323,7 +323,7 @@ namespace gui {
     void window::create (const window_class& type,
                          const window& parent,
                          const core::rectangle& place) {
-      create(type, parent.id, place);
+      create(type, parent.get_id(), place);
     }
 
     void window::create (const window_class& type,
@@ -336,15 +336,13 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return detail::global_window_map[id] == this;
+      return detail::global_window_map[get_id()] == this;
     }
 
     bool window::is_visible () const {
-        XWindowAttributes a;
-        if (XGetWindowAttributes(core::global::get_instance(), id, &a)) {
-            return a.map_state == IsViewable;
-        }
-        return false;
+      XWindowAttributes a;
+      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
+              (a.map_state == IsViewable));
     }
 
     bool window::is_enabled () const {
@@ -352,51 +350,79 @@ namespace gui {
     }
 
     bool window::has_focus() const {
-      return is_valid();
+      Window focus;
+      int revert_to;
+      if (is_valid()) {
+        int result = XGetInputFocus(core::global::get_instance(), &focus, &revert_to);
+        return focus == get_id();
+      }
+      return false;
     }
 
     bool window::is_child () const {
-      Window root_return;
-      Window parent_return;
-      Window *children_return;
-      unsigned int nchildren_return;
+      Window root;
+      Window parent;
+      Window *children;
+      unsigned int nchildren;
 
       XQueryTree(core::global::get_instance(),
                  get_id(),
-                 &root_return,
-                 &parent_return,
-                 &children_return,
-                 &nchildren_return);
-      return parent_return != 0;
-    }
-
-    bool window::is_popup () const {
-      return false;
+                 &root,
+                 &parent,
+                 &children,
+                 &nchildren);
+      return parent != root;
     }
 
     bool window::is_toplevel () const {
-      return false;
+      Window root;
+      Window parent;
+      Window *children;
+      unsigned int nchildren;
+
+      XQueryTree(core::global::get_instance(),
+                 get_id(),
+                 &root,
+                 &parent,
+                 &children,
+                 &nchildren);
+      return parent == root;
+    }
+
+    bool window::is_popup () const {
+      return is_toplevel();
     }
 
     bool window::is_top_most () const {
-      return false;
+      return is_toplevel();
     }
 
     bool window::is_minimized () const {
+      XWindowAttributes a;
+      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
+              (a.map_state == IsUnmapped));
       return false;
     }
 
     bool window::is_maximized () const {
+//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
+//      long suplied = 0;
+//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
+//        core::size sz = size();
+//        return (sz.width == zhints.base_width) && (sz.height == zhints.base_height);
+//      }
       return false;
     }
 
     bool window::has_border () const {
-      return false;
+      XWindowAttributes a;
+      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
+              (a.border_width > 0));
     }
 
     void window::destroy () {
       XDestroyWindow(core::global::get_instance(), get_id());
-      detail::global_window_map.erase(id);
+      detail::global_window_map.erase(get_id());
       id = 0;
     }
 
@@ -440,18 +466,23 @@ namespace gui {
     }
 
     void window::minimize () {
+      XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
     }
 
     void window::maximize () {
-      XSizeHints zhints;
-      XGetZoomHints(core::global::get_instance(), get_id(), &zhints);
-      XResizeWindow(core::global::get_instance(), get_id(), zhints.max_width, zhints.max_height);
+//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
+//      long suplied = 0;
+//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
+//        XResizeWindow(core::global::get_instance(), get_id(), zhints.base_width, zhints.base_width);
+//      }
     }
 
     void window::restore () {
-      XSizeHints zhints;
-      XGetNormalHints(core::global::get_instance(), get_id(), &zhints);
-      XResizeWindow(core::global::get_instance(), get_id(), zhints.max_width, zhints.max_height);
+//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
+//      long suplied = 0;
+//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
+//        XResizeWindow(core::global::get_instance(), get_id(), zhints.width, zhints.width);
+//      }
     }
 
     void window::set_top_most (bool toplevel) {

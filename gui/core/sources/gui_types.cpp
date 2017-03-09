@@ -117,8 +117,21 @@ namespace gui {
 #endif // X11
     }
 
+    void rectangle::move (const core::size& sz) {
+      top_left += sz;
+      bottom_right += sz;
+    }
+
     void rectangle::set_size (const core::size& sz) {
       bottom_right = core::point( top_left.x + sz.width, top_left.y + sz.height );
+    }
+
+    void rectangle::set_height (core::size::type height) {
+      bottom_right.y = top_left.y + height;
+    }
+
+    void rectangle::set_width (core::size::type width) {
+      bottom_right.x = top_left.x + width;
     }
 
     std::ostream& operator<<(std::ostream& out, const size& sz) {

@@ -77,6 +77,9 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 win::window_class mainCls;
 win::window_class chldCls;
 
+win::paint_event create_paint1();
+win::paint_event create_paint2();
+
 #ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -133,11 +136,15 @@ int main(int argc, char* argv[]) {
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
+  win::label_center labelC;
+  win::label_right labelR;
 
   win::push_button min_button;
   win::push_button max_button;
   win::push_button norm_button;
   win::push_button info_button;
+
+  win::list list;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -158,124 +165,8 @@ int main(int argc, char* argv[]) {
     main.quit();
   }));
 
-  win::paint_event paint1([](draw::graphics& graph) {
-    LogDebug << "win::paint 1";
-
-    using namespace draw;
-
-    graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);
-    graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
-    graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
-
-    graph.text(text("Hello World 1!", core::point(10, 60)), font::system(), color::black);
-    graph.text(text("Hello World 2!", core::point(10, 75)), font::system_bold(), color::black);
-    graph.text(text("Hello World 3!", core::point(10, 90)), font::sans_serif(), color::black);
-    graph.text(text("Hello World 4!", core::point(10, 105)), font::serif(), color::black);
-    graph.text(text("Hello World 5!", core::point(10, 120)), font::monospace(), color::black);
-    graph.text(text("Hello World 6!", core::point(10, 135)), font::sans_serif().with_size(18), color::blue);
-
-    core::rectangle r(10, 155, 50, 18);
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TL", r, top_left), font::system(), color::red);
-    r= {70, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
-    r= {130, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TR", r, top_right), font::system(), color::red);
-
-    r= {10, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
-    r= {70, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CC", r, center), font::system(), color::red);
-    r= {130, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
-
-    r= {10, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
-    r= {70, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
-    r= {130, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
-
-    core::point pt(10, 215);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TL", pt, top_left), font::system(), color::red);
-    pt = {70, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
-    pt = {130, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TR", pt, top_right), font::system(), color::red);
-
-    pt = {10, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text_box("CL", pt, vcenter_left), font::system(), color::red);
-    pt = {70, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CC", pt, center), font::system(), color::red);
-    pt = {130, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
-
-    pt = {10, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
-    pt = {70, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
-    pt = {130, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
-
-  });
-
-  win::paint_event paint2([](draw::graphics& graph) {
-    LogDebug << "win::paint 2";
-    using namespace draw;
-
-    pen blue(color::blue);
-    pen red(color::red);
-
-    graph.drawPixel(core::point(3, 3), color::gray);
-    graph.drawPixel(core::point(6, 6), color::gray);
-
-    core::size sz(30, 50);
-    core::size offs1(0, 60);
-    core::size offs2(0, 120);
-
-    core::point pos1(10, 10);
-    graph.frame(rectangle(pos1, sz), blue);
-    graph.fill(rectangle(pos1 + offs1, sz), color::darkGreen);
-    graph.draw(rectangle(pos1 + offs2, sz), color::yellow, red);
-
-    core::point pos2(50, 10);
-    graph.frame(ellipse(pos2, sz), blue);
-    graph.fill(ellipse(pos2 + offs1, sz), color::darkGreen);
-    graph.draw(ellipse(pos2 + offs2, sz), color::yellow, red);
-
-    core::point pos3(90, 10);
-    core::size rd(10, 10);
-    graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
-    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
-    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
-
-    core::point pos4(150, 30);
-    graph.frame(arc(pos4, 20, 0, 360), blue);
-    graph.fill(arc(pos4 + offs1, 20, 0, 360), color::darkGreen);
-    graph.draw(arc(pos4 + offs2, 20, 0, 360), color::yellow, red);
-
-    //color cyan = color::cyan;
-    //color cyan_trans = cyan.transparency(0.5);
-    //graph.fill(rectangle(core::rectangle(pos1 + core::size(20, 30), core::size(100, 120))), cyan_trans);
-
-  });
+  win::paint_event paint1 = create_paint1();
+  win::paint_event paint2 = create_paint2();
 
   bool at_drag = false;
   core::point last_pos;
@@ -464,14 +355,14 @@ int main(int argc, char* argv[]) {
   }));
   radio_button.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Radio clicked";
-    label.set_text("Radio clicked!");
+    labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   }));
   radio_button2.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Radio2 clicked";
-    label.set_text("Radio2 clicked!");
+    labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
@@ -499,13 +390,21 @@ int main(int argc, char* argv[]) {
   info_button.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Info clicked";
     if (main.is_minimized()) {
-      label.set_text("Minimized");
+      labelC.set_text("Minimized");
     } else if (main.is_maximized()) {
-      label.set_text("Maximized");
+      labelC.set_text("Maximized");
     } else {
-      label.set_text("Normal");
+      labelC.set_text("Normal");
     }
   }));
+
+  list.set_drawer([](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+    using namespace draw;
+    std::ostringstream strm;
+    strm << "Item " << idx;
+    g.text(text_box(strm.str(), place, vcenter_left), font::system(), color::black);
+  });
+  list.set_count(20);
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
@@ -513,20 +412,32 @@ int main(int argc, char* argv[]) {
   main.create(core::rectangle(50, 50, 640, 480));
   //main.set_text("Window Test");
 
-  window1.create(main, core::rectangle(50, 50, 200, 280));
-  window2.create(main, core::rectangle(300, 50, 200, 280));
+  window1.create(main, core::rectangle(10, 50, 100, 280));
   window1.show();
+
+  window2.create(main, core::rectangle(120, 50, 200, 280));
   window2.show();
 
-  label.create(main, core::rectangle(50, 350, 100, 25), "Text");
+  list.create(main, core::rectangle(330, 50, 100, 280));
+  list.show();
+
+  label.create(main, core::rectangle(50, 350, 120, 20), "Text");
   label.show();
   label.redraw_later();
 
-  radio_button.create(main, core::rectangle(160, 350, 100, 25), "Radio");
+  labelC.create(main, core::rectangle(50, 371, 120, 20));
+  labelC.show();
+  labelC.redraw_later();
+
+  labelR.create(main, core::rectangle(50, 392, 120, 20));
+  labelR.show();
+  labelR.redraw_later();
+
+  radio_button.create(main, core::rectangle(180, 350, 70, 20), "Radio");
   radio_button.show();
   radio_button.redraw_later();
 
-  radio_button2.create(main, core::rectangle(160, 370, 100, 25), "Radio2");
+  radio_button2.create(main, core::rectangle(180, 372, 70, 20), "Radio2");
   radio_button2.show();
   radio_button2.redraw_later();
 
@@ -538,16 +449,16 @@ int main(int argc, char* argv[]) {
   button.show();
   button.redraw_later();
 
-  min_button.create(main, core::rectangle(50, 400, 100, 25), "Min");
+  min_button.create(main, core::rectangle(180, 400, 60, 25), "Min");
   min_button.show();
 
-  max_button.create(main, core::rectangle(160, 400, 100, 25), "Max");
+  max_button.create(main, core::rectangle(250, 400, 60, 25), "Max");
   max_button.show();
 
-  norm_button.create(main, core::rectangle(270, 400, 100, 25), "Norm");
+  norm_button.create(main, core::rectangle(320, 400, 60, 25), "Norm");
   norm_button.show();
 
-  info_button.create(main, core::rectangle(380, 400, 100, 25), "Info");
+  info_button.create(main, core::rectangle(390, 400, 90, 25), "Info");
   info_button.show();
 
   main.show();
@@ -571,3 +482,141 @@ int main(int argc, char* argv[]) {
   return ret;
 }
 
+win::paint_event create_paint1 () {
+  return win::paint_event([](draw::graphics& graph) {
+    LogDebug << "win::paint 1";
+
+    using namespace draw;
+
+    graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);
+    graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
+    graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
+
+    core::point pt(10, 60);
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 1!", pt), font::system(), color::black);
+
+    pt.y += 15;
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 2!", pt), font::system_bold(), color::black);
+
+    pt.y += 15;
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 3!", pt), font::sans_serif(), color::black);
+
+    pt.y += 15;
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 4!", pt), font::serif(), color::black);
+
+    pt.y += 15;
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 5!", pt), font::monospace(), color::black);
+
+    pt.y += 15;
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
+
+    core::rectangle r(10, 155, 50, 18);
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TL", r, top_left), font::system(), color::red);
+    r= {70, 155, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
+    r= {130, 155, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TR", r, top_right), font::system(), color::red);
+
+    r= {10, 175, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
+    r= {70, 175, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CC", r, center), font::system(), color::red);
+    r= {130, 175, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
+
+    r= {10, 195, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
+    r= {70, 195, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
+    r= {130, 195, 50, 18};
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
+
+    pt = {10, 215};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TL", pt, top_left), font::system(), color::red);
+    pt = {70, 215};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
+    pt = {130, 215};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TR", pt, top_right), font::system(), color::red);
+
+    pt = {10, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text_box("CL", pt, vcenter_left), font::system(), color::red);
+    pt = {70, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CC", pt, center), font::system(), color::red);
+    pt = {130, 235};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
+
+    pt = {10, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
+    pt = {70, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
+    pt = {130, 255};
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
+  });
+}
+
+win::paint_event create_paint2 () {
+  return win::paint_event([](draw::graphics& graph) {
+    LogDebug << "win::paint 2";
+    using namespace draw;
+
+    pen blue(color::blue);
+    pen red(color::red);
+
+    graph.drawPixel(core::point(3, 3), color::gray);
+    graph.drawPixel(core::point(6, 6), color::gray);
+
+    core::size sz(30, 50);
+    core::size offs1(0, 60);
+    core::size offs2(0, 120);
+
+    core::point pos1(10, 10);
+    graph.frame(rectangle(pos1, sz), blue);
+    graph.fill(rectangle(pos1 + offs1, sz), color::darkGreen);
+    graph.draw(rectangle(pos1 + offs2, sz), color::yellow, red);
+
+    core::point pos2(50, 10);
+    graph.frame(ellipse(pos2, sz), blue);
+    graph.fill(ellipse(pos2 + offs1, sz), color::darkGreen);
+    graph.draw(ellipse(pos2 + offs2, sz), color::yellow, red);
+
+    core::point pos3(90, 10);
+    core::size rd(10, 10);
+    graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
+    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
+    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
+
+    core::point pos4(150, 30);
+    graph.frame(arc(pos4, 20, 0, 360), blue);
+    graph.fill(arc(pos4 + offs1, 20, 0, 360), color::darkGreen);
+    graph.draw(arc(pos4 + offs2, 20, 0, 360), color::yellow, red);
+
+    //color cyan = color::cyan;
+    //color cyan_trans = cyan.transparency(0.5);
+    //graph.fill(rectangle(core::rectangle(pos1 + core::size(20, 30), core::size(100, 120))), cyan_trans);
+
+  });
+}

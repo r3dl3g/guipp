@@ -36,38 +36,85 @@ namespace gui {
 
   namespace win {
 
-    class label : public window_with_text {
+    enum Alignment {
+      AlignmentLeft   = IF_WIN32(SS_LEFT) IF_X11(draw::vcenter_left),
+      AlignmentCenter = IF_WIN32(SS_CENTER) IF_X11(draw::center),
+      AlignmentRight  = IF_WIN32(SS_RIGHT) IF_X11(draw::vcenter_right)
+    };
+
+    template<Alignment A>
+    class labelT : public window_with_text {
     public:
       typedef window_with_text super;
 
-      label();
+      labelT() {
+        if (!clazz.is_valid()) {
+#ifdef WIN32
+          clazz = window_class::sub_class("MyStatic", "STATIC",
+                                          A | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+                                          WS_EX_NOPARENTNOTIFY);
+#endif // WIN32
+#ifdef X11
+          clazz = window_class::custom_class("STATIC",
+                                             0,
+                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                             StructureNotifyMask | SubstructureRedirectMask | FocusChangeMask |
+                                             EnterWindowMask | LeaveWindowMask,
+                                             A, 0, 0,
+                                             draw::color::buttonColor);
+#endif // X11
+        }
+#ifdef X11
+        register_event_handler(win::paint_event([&] (draw::graphics& graph) {
+          using namespace draw;
+          core::rectangle area = client_area();
+          text_origin origin = (text_origin)get_window_class()->ex_style;
+          graph.text(draw::text_box(text, area, origin),
+                     font::system(),
+                     color::black);
+          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
+          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+        }));
+#endif // X11
+      }
 
-      void create(const window& parent,
-        const core::rectangle& place = core::rectangle::default_rectangle,
-        const std::string& txt = std::string()) {
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
-    }
+      }
 
     private:
       static window_class clazz;
     };
 
+    template<Alignment A> window_class labelT<A>::clazz;
+
+    typedef labelT<AlignmentLeft> label_left;
+    typedef label_left label;
+    typedef labelT<AlignmentRight> label_right;
+    typedef labelT<AlignmentCenter> label_center;
+
+
     class button : public window_with_text {
     public:
       typedef window_with_text super;
 
-      button();
+      button ();
 
-      bool is_checked() const;
+      bool is_checked () const;
+
       void set_checked (bool);
 
       bool is_hilited () const;
+
       void set_hilited (bool);
 
 #ifdef X11
     private:
-      bool button_handle_event (const core::event& e, core::event_result& result);
+      bool button_handle_event (const core::event& e,
+                                core::event_result& result);
 
       bool checked;
       bool hilited;
@@ -119,11 +166,11 @@ namespace gui {
     public:
       typedef button super;
 
-      push_button();
+      push_button ();
 
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
       }
@@ -136,14 +183,15 @@ namespace gui {
     public:
       typedef button super;
 
-      radio_button();
+      radio_button ();
 
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
       }
+
     private:
       static window_class clazz;
     };
@@ -152,15 +200,50 @@ namespace gui {
     public:
       typedef button super;
 
-      check_box();
+      check_box ();
 
-      void create(const window& parent,
-                  const core::rectangle& place = core::rectangle::default_rectangle,
-                  const std::string& txt = std::string()) {
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
       }
+
     private:
+      static window_class clazz;
+    };
+
+    class list : public window {
+    public:
+      typedef window super;
+      typedef void(item_draw)(draw::graphics&, int idx, const core::rectangle& place, bool selected);
+
+      list ();
+      ~list ();
+
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle) {
+        super::create(clazz, parent, place);
+      }
+
+      void set_drawer (std::function<item_draw> drawer) {
+        this->drawer = drawer;
+      }
+
+      void set_count (int count);
+      int get_count () const;
+
+    private:
+      bool list_handle_event (const core::event& e,
+                              core::event_result& result);
+
+      void draw_item (draw::graphics&, int idx, const core::rectangle& place, bool selected);
+
+      std::function<item_draw> drawer;
+#ifdef X11
+      int item_count;
+      core::graphics_id gc;
+#endif
       static window_class clazz;
     };
 

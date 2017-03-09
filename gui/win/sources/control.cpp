@@ -42,34 +42,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-    window_class label::clazz;
-
-    label::label() {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = window_class::sub_class("MyStatic", "STATIC",
-          SS_NOTIFY | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#endif // WIN32
-#ifdef X11
-        clazz = window_class::custom_class("STATIC",
-          0,
-          ButtonPressMask | ButtonReleaseMask | ExposureMask |
-          PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-          FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-          0, 0, 0,
-          draw::color::buttonColor);
-#endif // X11
-      }
-#ifdef X11
-      register_event_handler(win::paint_event([&](draw::graphics& graph) {
-        using namespace draw;
-        core::rectangle area = client_area();
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), color::black);
-      }));
-#endif // X11
-    }
-
 #ifdef X11
     Atom BN_CLICKED_MESSAGE = 0;
     Atom BN_PUSHED_MESSAGE = 0;
@@ -351,6 +323,90 @@ namespace gui {
         }
       }));
 #endif
+    }
+
+    window_class list::clazz;
+
+    list::list ()
+#ifdef X11
+      : item_count(0)
+      , gc(0)
+#endif // X11
+    {
+      if (!clazz.is_valid()) {
+#ifdef WIN32
+        clazz = win::window_class::sub_class("MyCheckBox",
+            "LISTBOX",
+            LBS_OWNERDRAWFIXED | LBS_WANTKEYBOARDINPUT | LBS_NOTIFY | LBS_NODATA |
+            WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+            WS_EX_NOPARENTNOTIFY);
+#else // !WIN32
+        clazz = window_class::custom_class("LISTBOX",
+                                           1,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | FocusChangeMask,
+                                           0, 0, 0,
+                                           draw::color::white);
+#endif // !WIN32
+        register_event_handler(this, &list::list_handle_event);
+      }
+    }
+
+    void list::set_count (int count) {
+#ifdef WIN32
+      SendMessage(get_id(), LB_SETCOUNT, count, 0);
+#endif // WIN32
+#ifdef X11
+      item_count = count;
+#endif // X11
+      redraw_later();
+    }
+
+    int list::get_count () const {
+#ifdef WIN32
+      return SendMessage(get_id(), LB_GETCOUNT, 0, 0);
+#endif // WIN32
+#ifdef X11
+      return item_count;
+#endif // X11
+    }
+
+    void list::draw_item (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+      if (drawer) {
+        drawer(g, idx, place, selected);
+      }
+    }
+
+    bool list::list_handle_event (const core::event& e,
+                                  core::event_result& result) {
+#ifdef WIN32
+#endif // WIN32
+#ifdef X11
+      if (e.type == Expose) {
+        if (!gc) {
+          gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+        }
+        draw::graphics g(e.xexpose.window, gc);
+        core::rectangle place = client_area();
+        const int max_y = place.bottom_right.y;
+        const int max_idx = get_count();
+        place.set_height(20);
+        for(int idx = 0; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move({0, 20})) {
+          draw_item(g, idx, place, false);
+        }
+        XFlushGC(e.xexpose.display, gc);
+        return true;
+      }
+#endif // X11
+      return false;
+    }
+
+    list::~list () {
+      if (gc) {
+        if (core::global::get_instance()) {
+          XFreeGC(core::global::get_instance(), gc);
+        }
+        gc = 0;
+      }
     }
 
   } // win

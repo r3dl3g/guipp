@@ -282,7 +282,13 @@ namespace gui {
         return !operator==(rhs);
       }
 
+      void move (const core::size& sz);
+
       void set_size (const core::size& sz);
+
+      void set_height (core::size::type height);
+
+      void set_width (core::size::type width);
 
       core::point top_left;
       core::point bottom_right;

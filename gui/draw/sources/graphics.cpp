@@ -361,7 +361,7 @@ namespace gui {
       if (p.style() & 0x0F0) {
         switch (p.style()) {
           case pen::dot:
-            static const char dots[] = { 1, 2 };
+            static const char dots[] = { 1, 1 };
             XSetDashes(display, gc, 0, dots, 2);
           break;
           case pen::dashDot:
@@ -760,11 +760,13 @@ namespace gui {
         } else if ((origin & DT_RIGHT) == DT_RIGHT) {
           px -= overall.width;
         }
+
+        int height = (overall.ascent - overall.descent);
         if ((origin & DT_VCENTER) == DT_VCENTER) {
-          py += (ascent - descent) / 2;
+          py += height / 2;
         } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
         } else {
-          py += (ascent - descent);
+          py += height;
         }
 
         XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), str.size());

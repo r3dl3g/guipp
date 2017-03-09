@@ -109,7 +109,9 @@ namespace gui {
 #endif // X11
 
     private:
+#ifdef WIN32
       core::font_id id;
+#endif // WIN32
 
       core::font_type info;
     };

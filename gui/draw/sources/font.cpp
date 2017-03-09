@@ -209,7 +209,7 @@ namespace gui {
         return f;
     }
     const font& font::serif() {
-        static font f("serif", STD_FONT_SIZE);
+        static font f("clean", STD_FONT_SIZE);
         return f;
     }
     const font& font::sans_serif() {
@@ -322,6 +322,9 @@ namespace gui {
       std::string full_name = buildFontName(name, size, thickness, italic);
       LogDebug << "Load Query Font:'" << full_name << "'";
       core::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
+      if (!f) {
+        f = XQueryFont(core::global::get_instance(), font::system().info->fid);
+      }
       info = f;
     }
 

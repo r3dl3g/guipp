@@ -213,9 +213,42 @@ namespace gui {
       static window_class clazz;
     };
 
-    class list : public window {
+    class owner_draw : public window {
     public:
       typedef window super;
+
+      owner_draw()
+        : owner_draw_id(++next_owner_draw_id)
+      {}
+
+      int get_owner_draw_id () const {
+        return owner_draw_id;
+      }
+
+      void set_item_size (const core::size&);
+      const core::size& get_item_size () const;
+
+      static const core::size& get_item_size(int id);
+
+    protected:
+      core::size item_size;
+
+      void create (const window_class& clazz,
+                   const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle) {
+        super::create(clazz, parent, place, (core::menu_id)(long long)(get_owner_draw_id()));
+      }
+
+    private:
+      const int owner_draw_id;
+
+      static int next_owner_draw_id;
+      static std::map<int, core::size> measure_item_size;
+    };
+
+    class list : public owner_draw {
+    public:
+      typedef owner_draw super;
       typedef void(item_draw)(draw::graphics&, int idx, const core::rectangle& place, bool selected);
 
       list ();
@@ -226,9 +259,7 @@ namespace gui {
         super::create(clazz, parent, place);
       }
 
-      void set_drawer (std::function<item_draw> drawer) {
-        this->drawer = drawer;
-      }
+      void set_drawer (std::function<item_draw> drawer, int item_height = 20);
 
       void set_count (int count);
       int get_count () const;
@@ -243,7 +274,7 @@ namespace gui {
 #ifdef X11
       int item_count;
       core::graphics_id gc;
-#endif
+#endif // X11
       static window_class clazz;
     };
 

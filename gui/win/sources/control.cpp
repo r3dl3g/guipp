@@ -325,6 +325,22 @@ namespace gui {
 #endif
     }
 
+    std::map<int, core::size> owner_draw::measure_item_size;
+    int owner_draw::next_owner_draw_id = 0;
+    
+    void owner_draw::set_item_size(const core::size& sz) {
+      item_size = sz;
+      measure_item_size[owner_draw_id] = sz;
+    }
+
+    const core::size& owner_draw::get_item_size() const {
+      return item_size;
+    }
+
+    const core::size& owner_draw::get_item_size(int id) {
+      return measure_item_size[id];
+    }
+
     window_class list::clazz;
 
     list::list ()
@@ -335,10 +351,10 @@ namespace gui {
     {
       if (!clazz.is_valid()) {
 #ifdef WIN32
-        clazz = win::window_class::sub_class("MyCheckBox",
+        clazz = win::window_class::sub_class("MyListBox",
             "LISTBOX",
-            LBS_OWNERDRAWFIXED | LBS_WANTKEYBOARDINPUT | LBS_NOTIFY | LBS_NODATA |
-            WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+            LBS_OWNERDRAWFIXED | LBS_NODATA | //LBS_WANTKEYBOARDINPUT | LBS_NOTIFY | WS_VSCROLL | 
+            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
             WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
         clazz = window_class::custom_class("LISTBOX",
@@ -363,11 +379,16 @@ namespace gui {
 
     int list::get_count () const {
 #ifdef WIN32
-      return SendMessage(get_id(), LB_GETCOUNT, 0, 0);
+      return (int)SendMessage(get_id(), LB_GETCOUNT, 0, 0);
 #endif // WIN32
 #ifdef X11
       return item_count;
 #endif // X11
+    }
+
+    void list::set_drawer(std::function<item_draw> drawer, int item_height) {
+      this->drawer = drawer;
+      set_item_size( { 0, item_height } );
     }
 
     void list::draw_item (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
@@ -379,6 +400,24 @@ namespace gui {
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
 #ifdef WIN32
+      if (e.type == WM_DRAWITEM) {
+        PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
+        // If there are no list box items, skip this message. 
+        if (pdis->itemID == -1) {
+          return false;
+        }
+        switch (pdis->itemAction) {
+        case ODA_SELECT:
+        case ODA_DRAWENTIRE:
+          draw::graphics g(get_id(), pdis->hDC);
+          core::rectangle place(core::point(pdis->rcItem.left, pdis->rcItem.top),
+                                core::point(pdis->rcItem.right, pdis->rcItem.bottom));
+          bool selected = (pdis->itemState & ODS_SELECTED);
+          draw_item(g, pdis->itemID, place, selected);
+          break;
+        }
+        return true;
+      }
 #endif // WIN32
 #ifdef X11
       if (e.type == Expose) {
@@ -401,12 +440,14 @@ namespace gui {
     }
 
     list::~list () {
+#ifdef X11
       if (gc) {
         if (core::global::get_instance()) {
           XFreeGC(core::global::get_instance(), gc);
         }
         gc = 0;
       }
+#endif // X11
     }
 
   } // win

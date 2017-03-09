@@ -177,9 +177,9 @@ namespace gui {
         }
       };
 
-      typedef part<16> r_;
+      typedef part<IF_WIN32(0) IF_X11(16)> r_;
       typedef part<8> g_;
-      typedef part<0> b_;
+      typedef part<IF_WIN32(16) IF_X11(0)> b_;
       typedef part<24> a_;
 
     };

@@ -49,9 +49,10 @@ namespace gui {
       destroy();
     }
 
-    void window::create(const window_class& type,
-                        core::window_id parent_id,
-                        const core::rectangle& place) {
+    void window::create (const window_class& type,
+                         core::window_id parent_id,
+                         const core::rectangle& place,
+                         core::menu_id menu) {
 
       this->cls = &type;
 
@@ -66,7 +67,7 @@ namespace gui {
                           sz.width,                       // window width
                           sz.height,                      // window height
                           parent_id,                      // handle of parent window
-                          nullptr,                        // handle of menu or child-window identifier
+                          menu,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
       type.prepare(this);
@@ -75,8 +76,9 @@ namespace gui {
 
     void window::create (const window_class& type,
                          const window& parent,
-                         const core::rectangle& place) {
-      create(type, parent.get_id(), place);
+                         const core::rectangle& place,
+                         core::menu_id menu) {
+      create(type, parent.get_id(), place, menu);
     }
 
     void window::create(const window_class& type,
@@ -299,7 +301,8 @@ namespace gui {
 
     void window::create (const window_class& type,
                          core::window_id parent_id,
-                         const core::rectangle& place) {
+                         const core::rectangle& place,
+                         core::window_id) {
       cls = &type;
       const core::point pos = place.position();
       const core::size sz = place.size();
@@ -322,8 +325,9 @@ namespace gui {
 
     void window::create (const window_class& type,
                          const window& parent,
-                         const core::rectangle& place) {
-      create(type, parent.get_id(), place);
+                         const core::rectangle& place,
+                         core::window_id menu_id) {
+      create(type, parent.get_id(), place, menu_id);
     }
 
     void window::create (const window_class& type,

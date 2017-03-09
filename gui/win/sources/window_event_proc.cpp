@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "window.h"
+#include "control.h"
 #include "window_event_proc.h"
 
 namespace gui {
@@ -75,6 +76,25 @@ namespace gui {
           }
           case WM_COMMAND: {
             HWND id = (HWND)lParam;
+            if (id && (id != hwnd)) {
+              // forward to child
+              return SendMessage(id, msg, wParam, lParam);
+            }
+            break;
+          }
+          case WM_MEASUREITEM: {
+            PMEASUREITEMSTRUCT pmis = (PMEASUREITEMSTRUCT)lParam;
+            const core::size& sz = owner_draw::get_item_size((int)pmis->CtlID);
+            if (sz.height || sz.width) {
+              pmis->itemHeight = sz.height;
+              pmis->itemWidth = sz.width;
+              return true;
+            }
+            break;
+          }
+          case WM_DRAWITEM: {
+            PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)lParam;
+            HWND id = pdis->hwndItem;
             if (id && (id != hwnd)) {
               // forward to child
               return SendMessage(id, msg, wParam, lParam);

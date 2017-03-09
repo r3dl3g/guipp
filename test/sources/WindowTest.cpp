@@ -400,11 +400,14 @@ int main(int argc, char* argv[]) {
 
   list.set_drawer([](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
     using namespace draw;
+
     std::ostringstream strm;
     strm << "Item " << idx;
-    g.text(text_box(strm.str(), place, vcenter_left), font::system(), color::black);
-  });
-  list.set_count(20);
+
+    g.fill(rectangle(place), selected ? color::highLightColor : color::white);
+    g.text(text_box(strm.str(), place, vcenter_left), font::system(),
+           selected ? color::highLightTextColor : color::windowTextColor);
+  }, 25);
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
@@ -419,6 +422,7 @@ int main(int argc, char* argv[]) {
   window2.show();
 
   list.create(main, core::rectangle(330, 50, 100, 280));
+  list.set_count(20);
   list.show();
 
   label.create(main, core::rectangle(50, 350, 120, 20), "Text");
@@ -558,7 +562,7 @@ win::paint_event create_paint1 () {
 
     pt = {10, 235};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text_box("CL", pt, vcenter_left), font::system(), color::red);
+    graph.text(text("CL", pt, vcenter_left), font::system(), color::red);
     pt = {70, 235};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("CC", pt, center), font::system(), color::red);

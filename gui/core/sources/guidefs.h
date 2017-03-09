@@ -60,6 +60,7 @@ namespace gui {
     typedef HFONT font_id;
     typedef HPEN pen_id;
     typedef HDC graphics_id;
+    typedef HMENU menu_id;
 
     typedef POINT point_type;
     typedef SIZE size_type;
@@ -91,6 +92,7 @@ namespace gui {
     typedef int screen_id;
     typedef Font font_id;
     typedef GC graphics_id;
+    typedef int menu_id;
 
     typedef XPoint point_type;
     typedef struct {

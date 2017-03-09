@@ -154,7 +154,8 @@ namespace gui {
     protected:
       void create (const window_class& type,
                    const window& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle);
+                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   core::menu_id menu = nullptr);
 
       void create (const window_class& type,
                    const core::rectangle& place = core::rectangle::default_rectangle);
@@ -162,7 +163,8 @@ namespace gui {
     private:
       void create (const window_class& type,
                    core::window_id parent_id,
-                   const core::rectangle& place);
+                   const core::rectangle& place,
+                   core::menu_id menu = nullptr);
 
       friend void detail::set_id (window*,
                                   core::window_id);

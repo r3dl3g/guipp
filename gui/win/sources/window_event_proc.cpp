@@ -112,12 +112,12 @@ namespace gui {
         core::event_result result = 0;
         window* w = window::get(hwnd);
         if (w && w->is_valid()) {
+          if (w->handle_event(core::event(hwnd, msg, wParam, lParam), result)) {
+            //return result;
+          }
           const window_class* cls = w->get_window_class();
           if (cls && cls->get_callback() && (cls->get_callback() != WindowEventProc)) {
-            result = CallWindowProc(cls->get_callback(), hwnd, msg, wParam, lParam);
-          }
-          if (w->handle_event(core::event(hwnd, msg, wParam, lParam), result)) {
-            return result;
+            return CallWindowProc(cls->get_callback(), hwnd, msg, wParam, lParam);
           }
         }
         return DefWindowProc(hwnd, msg, wParam, lParam);

@@ -554,7 +554,7 @@ namespace gui {
     }
 
     core::point window::absolute_position () const {
-      return window_to_screen(core::point());
+      return window_to_screen(core::point::zero);
     }
 
     core::rectangle window::client_area () const {

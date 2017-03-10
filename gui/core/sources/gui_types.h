@@ -37,6 +37,7 @@ namespace gui {
 
     struct size {
       typedef int type;
+      static const size zero;
 
       inline size(type width = 0, type height = 0)
         : width(width)
@@ -85,6 +86,7 @@ namespace gui {
 
     struct point {
       typedef int type;
+      static const point zero;
 
       inline point(type x = 0, type y = 0)
         : x(x)
@@ -177,8 +179,11 @@ namespace gui {
     std::ostream& operator<<(std::ostream& out, const point&);
 
     struct rectangle {
-      inline rectangle(const point& pos = core::point(),
-                       const size& sz = core::size())
+      static const rectangle zero;
+      static const rectangle default_rectangle;
+
+      inline rectangle(const point& pos = core::point::zero,
+                       const size& sz = core::size::zero)
         : top_left(pos)
         , bottom_right(pos.x + sz.width, pos.y + sz.height) {
       }
@@ -292,8 +297,6 @@ namespace gui {
 
       core::point top_left;
       core::point bottom_right;
-
-      static rectangle default_rectangle;
     };
 
     std::ostream& operator<<(std::ostream& out, const rectangle&);

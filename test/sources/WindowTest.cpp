@@ -145,6 +145,8 @@ int main(int argc, char* argv[]) {
   win::push_button info_button;
 
   win::list list;
+  win::push_button up_button;
+  win::push_button down_button;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -413,6 +415,13 @@ int main(int argc, char* argv[]) {
     strm << "Select item " << list.get_selection();
     labelC.set_text(strm.str());
   }));
+  up_button.register_event_handler(win::button_clicked_event([&]() {
+    list.set_selection(list.get_selection() - 1);
+  }));
+  down_button.register_event_handler(win::button_clicked_event([&]() {
+    list.set_selection(list.get_selection() + 1);
+  }));
+
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
@@ -426,9 +435,15 @@ int main(int argc, char* argv[]) {
   window2.create(main, core::rectangle(120, 50, 200, 280));
   window2.show();
 
-  list.create(main, core::rectangle(330, 50, 100, 280));
+  list.create(main, core::rectangle(330, 50, 100, 250));
   list.set_count(20);
   list.show();
+  
+  up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
+  up_button.show();
+
+  down_button.create(main, core::rectangle(383, 305, 47, 25), "Down");
+  down_button.show();
 
   label.create(main, core::rectangle(50, 350, 120, 20), "Text");
   label.show();

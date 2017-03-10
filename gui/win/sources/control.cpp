@@ -16,7 +16,11 @@
 * @file
 */
 
+#ifdef WIN32
+#include <windowsx.h>
+#endif // WIN32
 
+#define NOMINMAX
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -342,7 +346,11 @@ namespace gui {
     }
 
     const core::size& owner_draw::get_item_size(int id) {
-      return measure_item_size[id];
+      std::map<int, core::size>::iterator i = measure_item_size.find(id);
+      if (i != measure_item_size.end()) {
+        return i->second;
+      }
+      return core::size::zero;
     }
 
     // --------------------------------------------------------------------------
@@ -360,6 +368,7 @@ namespace gui {
     list::list ()
 #ifdef X11
       : item_count(0)
+      , selection(-1)
       , gc(0)
       , offset(0)
 #endif // X11
@@ -373,8 +382,7 @@ namespace gui {
 #ifdef WIN32
         clazz = win::window_class::sub_class("MyListBox",
             "LISTBOX",
-            LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOTIFY | //WS_VSCROLL | LBS_WANTKEYBOARDINPUT | 
-            WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+            LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | WS_CHILD | WS_VISIBLE,
             WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
         clazz = window_class::custom_class("LISTBOX",
@@ -394,13 +402,13 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       item_count = count;
-#endif // X11
       redraw_later();
+#endif // X11
     }
 
     int list::get_count () const {
 #ifdef WIN32
-      return (int)SendMessage(get_id(), LB_GETCOUNT, 0, 0);
+      return ListBox_GetCount(get_id());
 #endif // WIN32
 #ifdef X11
       return item_count;
@@ -409,19 +417,19 @@ namespace gui {
 
     void list::set_selection (int sel) {
 #ifdef WIN32
-      SendMessage(get_id(), LB_SETCURSEL, (WPARAM)sel, 0L);
+      ListBox_SetCurSel(get_id(), sel);
 #endif // WIN32
 #ifdef X11
-      selection = std::min(std::max(0, sel), item_count);
+      selection = std::min(std::max(0, sel), get_count());
       send_client_message(this, SELECTION_CHANGE_MESSAGE);
       redraw_later();
 #endif // X11
     }
 
     int list::get_selection () const {
-#ifdef WIN32
-      return (int)SendMessage(get_id(), LB_GETCURSEL, 0L, 0L);
-#endif // WIN32
+//#ifdef WIN32
+      return ListBox_GetCurSel(get_id());
+//#endif // WIN32
 #ifdef X11
       return selection;
 #endif // X11
@@ -448,14 +456,13 @@ namespace gui {
           return false;
         }
         switch (pdis->itemAction) {
-        case ODA_SELECT:
-        case ODA_DRAWENTIRE:
-          draw::graphics g(get_id(), pdis->hDC);
-          core::rectangle place(core::point(pdis->rcItem.left, pdis->rcItem.top),
-                                core::point(pdis->rcItem.right, pdis->rcItem.bottom));
-          bool selected = (pdis->itemState & ODS_SELECTED);
-          draw_item(g, pdis->itemID, place, selected);
-          break;
+          case ODA_SELECT:
+          case ODA_DRAWENTIRE: {
+            draw::graphics g(get_id(), pdis->hDC);
+            core::rectangle place(pdis->rcItem);
+            bool selected = (pdis->itemState & ODS_SELECTED);
+            draw_item(g, pdis->itemID, place, selected);
+          }
         }
         return true;
       }

@@ -36,7 +36,11 @@ namespace gui {
 
   namespace core {
 
-    rectangle rectangle::default_rectangle = rectangle(core::point(-1, -1), core::point(-1, -1));
+    const rectangle rectangle::default_rectangle = rectangle(core::point(-1, -1), core::point(-1, -1));
+
+    const size size::zero;
+    const point point::zero;
+    const rectangle rectangle::zero;
 
     size::size(const size_type& sz)
       : width(sz.cx)

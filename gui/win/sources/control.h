@@ -297,14 +297,16 @@ namespace gui {
       void draw_item (draw::graphics&, int idx, const core::rectangle& place, bool selected);
 
       std::function<item_draw> drawer;
+
 #ifdef X11
       int item_count;
-      int offset;
       int selection;
+      int offset;
       bool moved;
       core::point last_mouse_point;
       core::graphics_id gc;
 #endif // X11
+
       static window_class clazz;
     };
 

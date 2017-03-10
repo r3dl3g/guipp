@@ -382,7 +382,7 @@ namespace gui {
 #ifdef WIN32
         clazz = win::window_class::sub_class("MyListBox",
             "LISTBOX",
-            LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | WS_CHILD | WS_VISIBLE,
+            LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
             WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
         clazz = window_class::custom_class("LISTBOX",
@@ -418,6 +418,7 @@ namespace gui {
     void list::set_selection (int sel) {
 #ifdef WIN32
       ListBox_SetCurSel(get_id(), sel);
+      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
 #endif // WIN32
 #ifdef X11
       selection = std::min(std::max(0, sel), get_count());

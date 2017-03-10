@@ -388,12 +388,12 @@ namespace gui {
         clazz = window_class::custom_class("LISTBOX",
                                            1,
                                            ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask,
+                                           FocusChangeMask | KeyPressMask,
                                            0, 0, 0,
                                            draw::color::white);
 #endif // !WIN32
-        register_event_handler(this, &list::list_handle_event);
       }
+      register_event_handler(this, &list::list_handle_event);
     }
 
     void list::set_count (int count) {
@@ -421,16 +421,24 @@ namespace gui {
       SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
 #endif // WIN32
 #ifdef X11
-      selection = std::min(std::max(0, sel), get_count());
+      selection = std::min(std::max(0, sel), get_count() - 1);
+      // Make selection visible
+      const int sel_pos = item_size.height * selection;
+      const core::size sz = size();
+      if (offset + sel_pos < 0) {
+        offset = -sel_pos;
+      } else if (offset + sel_pos + item_size.height > sz.height) {
+        offset = sz.height - (sel_pos + item_size.height);
+      }
       send_client_message(this, SELECTION_CHANGE_MESSAGE);
       redraw_later();
 #endif // X11
     }
 
     int list::get_selection () const {
-//#ifdef WIN32
+#ifdef WIN32
       return ListBox_GetCurSel(get_id());
-//#endif // WIN32
+#endif // WIN32
 #ifdef X11
       return selection;
 #endif // X11
@@ -469,47 +477,103 @@ namespace gui {
       }
 #endif // WIN32
 #ifdef X11
-      if (e.type == Expose) {
-        if (!gc) {
-          gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-        }
-        draw::graphics g(e.xexpose.window, gc);
-        core::rectangle place = client_area();
-        const int max_y = place.bottom_right.y;
-        const int max_idx = get_count();
-        const int first = -offset / item_size.height;
+      switch (e.type) {
+        case Expose: {
+          if (!gc) {
+            gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+          }
+          draw::graphics g(e.xexpose.window, gc);
+          core::rectangle place = client_area();
+          const int max_y = place.bottom_right.y;
+          const int max_idx = get_count();
+          const int first = -offset / item_size.height;
 
-        place.top_left.y = offset + (item_size.height * first);
-        place.set_height(item_size.height);
+          place.top_left.y = offset + (item_size.height * first);
+          place.set_height(item_size.height);
 
-        for(int idx = first; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move(item_size)) {
-          draw_item(g, idx, place, selection == idx);
-        }
-        XFlushGC(e.xexpose.display, gc);
-        return true;
-      }
-      if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
-        last_mouse_point = { e.xbutton.x, e.xbutton.y };
-        moved = false;
-        return true;
-      }
-      if ((e.type == ButtonRelease) && (e.xbutton.button == Button1)) {
-        if (!moved) {
-          const int new_selection = (e.xbutton.y - offset) / item_size.height;
-          selection = new_selection == selection? -1 : new_selection;
-          send_client_message(this, SELECTION_CHANGE_MESSAGE);
-          redraw_later();
+          for(int idx = first; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move(item_size)) {
+            draw_item(g, idx, place, selection == idx);
+          }
+          XFlushGC(e.xexpose.display, gc);
           return true;
         }
-      }
-      if ((e.type == MotionNotify) && ((e.xmotion.state & Button1Mask) == Button1Mask)) {
-        int dy = e.xmotion.y - last_mouse_point.y;
-        const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
-        offset = std::max(std::min(0, offset + dy), -max_delta);
-        last_mouse_point = { e.xmotion.x, e.xmotion.y };
-        moved = true;
-        redraw_later();
-        return true;
+        case ButtonPress:
+          if (e.xbutton.button == Button1) {
+            last_mouse_point = { e.xbutton.x, e.xbutton.y };
+            moved = false;
+            return true;
+          }
+          break;
+        case ButtonRelease:
+          switch (e.xbutton.button) {
+            case Button1:
+              if (!moved) {
+                const int new_selection = (e.xbutton.y - offset) / item_size.height;
+                selection = new_selection == selection ? -1 : new_selection;
+                send_client_message(this, SELECTION_CHANGE_MESSAGE);
+                redraw_later();
+                return true;
+              }
+              break;
+            case Button4: { // Y-Wheel
+              const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+              offset = std::max(std::min(0, offset + item_size.height), -max_delta);
+              moved = true;
+              redraw_later();
+              return true;
+            }
+            case Button5: { // Y-Wheel
+              const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+              offset = std::max(std::min(0, offset - item_size.height), -max_delta);
+              moved = true;
+              redraw_later();
+              return true;
+            }
+          }
+          break;
+        case MotionNotify:
+          if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+            int dy = e.xmotion.y - last_mouse_point.y;
+            const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+            offset = std::max(std::min(0, offset + dy), -max_delta);
+            last_mouse_point = { e.xmotion.x, e.xmotion.y };
+            moved = true;
+            redraw_later();
+            return true;
+          }
+          break;
+        case KeyPress: {
+          KeySym key;
+          char text[8] = {0};
+          XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &key, 0);
+          switch (key) {
+            case XK_Up:
+            case XK_KP_Up:
+              set_selection(get_selection() - 1);
+              return true;
+            case XK_Down:
+            case XK_KP_Down:
+              set_selection(get_selection() + 1);
+              return true;
+            case XK_Page_Up:
+            case XK_KP_Page_Up:
+              set_selection(get_selection() - (size().height / item_size.height));
+              return true;
+            case XK_Page_Down:
+            case XK_KP_Page_Down:
+              set_selection(get_selection() + (size().height / item_size.height));
+              return true;
+            case XK_Home:
+            case XK_KP_Home:
+              set_selection(0);
+              return true;
+            case XK_End:
+            case XK_KP_End:
+              set_selection(get_count() - 1);
+              return true;
+          }
+          break;
+        }
       }
 #endif // X11
       return false;
@@ -524,6 +588,19 @@ namespace gui {
         gc = 0;
       }
 #endif // X11
+    }
+
+    void list_data::operator() (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+      using namespace draw;
+
+      const std::string& text = at(idx);
+      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
+      g.text(text_box(text, place, vcenter_left), font::system(),
+             selected ? color::highLightTextColor : color::windowTextColor);
+    }
+
+    void list_data::update_list(list& l) {
+      l.set_count(size());
     }
 
   } // win

@@ -311,6 +311,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    struct list_data : public std::vector<std::string> {
+      typedef std::vector<std::string> super;
+
+      void operator() (draw::graphics&, int idx, const core::rectangle& place, bool selected);
+
+      void update_list(list& l);
+    };
 
   } // win
 

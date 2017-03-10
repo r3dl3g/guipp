@@ -6,6 +6,10 @@
 #include "gui_types.h"
 #include "font.h"
 
+#include <boost/assign/std/vector.hpp>
+using namespace boost::assign;
+
+
 struct AsBool {
   inline AsBool(bool b)
     : b(b) {
@@ -132,7 +136,7 @@ int main(int argc, char* argv[]) {
 
   main.register_event_handler(init_result_handler());
 
-  win::push_button button;
+  win::push_button ok_button;
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
@@ -144,7 +148,8 @@ int main(int argc, char* argv[]) {
   win::push_button norm_button;
   win::push_button info_button;
 
-  win::list list;
+  win::list list1;
+  win::list list2;
   win::push_button up_button;
   win::push_button down_button;
 
@@ -213,14 +218,14 @@ int main(int argc, char* argv[]) {
   }));
 
 #ifdef WIN32
-  button.register_event_handler(win::activate_event([](bool on, win::window* win) {
+  ok_button.register_event_handler(win::activate_event([](bool on, win::window* win) {
     LogDebug << "Button " << (on ? "" : "de") << "activate";
   }));
 #endif
-  button.register_event_handler(win::set_focus_event([](win::window* win) {
+  ok_button.register_event_handler(win::set_focus_event([](win::window* win) {
     LogDebug << "Button Set Focus";
   }));
-  button.register_event_handler(win::lost_focus_event([&](win::window* win) {
+  ok_button.register_event_handler(win::lost_focus_event([&](win::window* win) {
     LogDebug << "Button Lost Focus";
   }));
 
@@ -337,23 +342,19 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(log_all_events());
 
 #ifdef WIN32
-  button.register_event_handler(win::button_state_event([](bool state) {
+  ok_button.register_event_handler(win::button_state_event([](bool state) {
     LogDebug << "Button " << (state ? "hilited" : "unhilited");
   }));
 #endif // WIN32
-  button.register_event_handler(win::button_pushed_event([&]() {
+  ok_button.register_event_handler(win::button_pushed_event([&]() {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
     label.redraw_now();
   }));
-  button.register_event_handler(win::button_released_event([&]() {
+  ok_button.register_event_handler(win::button_released_event([&]() {
     LogDebug << "Button released";
     label.set_text("Released!");
     label.redraw_now();
-  }));
-  button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Button clicked";
-    label.set_text("OK Clicked!");
   }));
   radio_button.register_event_handler(win::button_clicked_event([&]() {
     LogDebug << "Radio clicked";
@@ -374,7 +375,7 @@ int main(int argc, char* argv[]) {
     label.set_text("Check clicked!");
     radio_button.enable(on);
     radio_button2.enable(on);
-    button.enable(on);
+    ok_button.enable(on);
   }));
 
   min_button.register_event_handler(win::button_clicked_event([&]() {
@@ -400,7 +401,7 @@ int main(int argc, char* argv[]) {
     }
   }));
 
-  list.set_drawer([](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+  auto list_drawer = [](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
     using namespace draw;
 
     std::ostringstream strm;
@@ -409,19 +410,42 @@ int main(int argc, char* argv[]) {
     g.fill(rectangle(place), selected ? color::highLightColor : color::white);
     g.text(text_box(strm.str(), place, vcenter_left), font::system(),
            selected ? color::highLightTextColor : color::windowTextColor);
-  }, 25);
-  list.register_event_handler(win::selection_changed_event([&](){
+  };
+
+  list1.set_drawer(list_drawer, 25);
+  list1.register_event_handler(win::selection_changed_event([&](){
     std::ostringstream strm;
-    strm << "Select item " << list.get_selection();
+    strm << "List1 item " << list1.get_selection();
     labelC.set_text(strm.str());
   }));
+
   up_button.register_event_handler(win::button_clicked_event([&]() {
-    list.set_selection(list.get_selection() - 1);
+    list1.set_selection(list1.get_selection() - 1);
+    list2.set_selection(list2.get_selection() - 1);
   }));
   down_button.register_event_handler(win::button_clicked_event([&]() {
-    list.set_selection(list.get_selection() + 1);
+    list1.set_selection(list1.get_selection() + 1);
+    list2.set_selection(list2.get_selection() + 1);
   }));
 
+  win::list_data data;
+  data += "Eins", "Zwei", "Drei", "View", "Fünf";
+  list2.set_drawer([&](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+    data(g, idx, place, selected);
+  }, 16);
+
+  list2.register_event_handler(win::selection_changed_event([&](){
+    std::ostringstream strm;
+    strm << "List2 item " << list2.get_selection();
+    labelC.set_text(strm.str());
+  }));
+
+  ok_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Button clicked";
+    label.set_text("OK Clicked!");
+    data += "Sechs", "Sieben", "Acht", "Neun", "Zehn";
+    data.update_list(list2);
+  }));
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
@@ -435,9 +459,13 @@ int main(int argc, char* argv[]) {
   window2.create(main, core::rectangle(120, 50, 200, 280));
   window2.show();
 
-  list.create(main, core::rectangle(330, 50, 100, 250));
-  list.set_count(20);
-  list.show();
+  list1.create(main, core::rectangle(330, 50, 70, 250));
+  list1.set_count(20);
+  list1.show();
+
+  list2.create(main, core::rectangle(410, 50, 60, 250));
+  data.update_list(list2);
+  list2.show();
   
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.show();
@@ -469,9 +497,9 @@ int main(int argc, char* argv[]) {
   check_box.show();
   check_box.redraw_later();
 
-  button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
-  button.show();
-  button.redraw_later();
+  ok_button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
+  ok_button.show();
+  ok_button.redraw_later();
 
   min_button.create(main, core::rectangle(180, 400, 60, 25), "Min");
   min_button.show();

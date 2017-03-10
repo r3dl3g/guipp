@@ -364,14 +364,16 @@ namespace gui {
       , offset(0)
 #endif // X11
     {
+#ifdef X11
       if (!SELECTION_CHANGE_MESSAGE) {
         SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
       }
+#endif // X11
       if (!clazz.is_valid()) {
 #ifdef WIN32
         clazz = win::window_class::sub_class("MyListBox",
             "LISTBOX",
-            LBS_OWNERDRAWFIXED | LBS_NODATA | //LBS_WANTKEYBOARDINPUT | LBS_NOTIFY | WS_VSCROLL | 
+            LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOTIFY | //WS_VSCROLL | LBS_WANTKEYBOARDINPUT | 
             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
             WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
@@ -407,7 +409,7 @@ namespace gui {
 
     void list::set_selection (int sel) {
 #ifdef WIN32
-      ListBox_SetCurSel(get_id(), sel);
+      SendMessage(get_id(), LB_SETCURSEL, (WPARAM)sel, 0L);
 #endif // WIN32
 #ifdef X11
       selection = std::min(std::max(0, sel), item_count);
@@ -418,7 +420,7 @@ namespace gui {
 
     int list::get_selection () const {
 #ifdef WIN32
-      return ListBox_GetCurSel(get_id());
+      return (int)SendMessage(get_id(), LB_GETCURSEL, 0L, 0L);
 #endif // WIN32
 #ifdef X11
       return selection;

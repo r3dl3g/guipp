@@ -132,7 +132,6 @@ namespace gui {
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
                            command_matcher<BN_UNPUSHED>>        button_released_event;
     typedef event_handlerT<BM_SETCHECK, one_param_caller<bool>> button_state_event;
-
 #endif //WIN32
 
 #ifdef X11
@@ -254,6 +253,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+#ifdef WIN32
+    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+                           command_matcher<LBN_SELCHANGE>>      selection_changed_event;
+#endif //WIN32
 #ifdef X11
     extern Atom SELECTION_CHANGE_MESSAGE;
 

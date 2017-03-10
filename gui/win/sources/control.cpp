@@ -41,7 +41,6 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-
 #ifdef X11
     Atom BN_CLICKED_MESSAGE = 0;
     Atom BN_PUSHED_MESSAGE = 0;
@@ -66,6 +65,7 @@ namespace gui {
 
 #endif // X11
 
+    // --------------------------------------------------------------------------
     button::button()
 #ifdef X11
       : checked(false)
@@ -174,6 +174,7 @@ namespace gui {
     }
 #endif // X11
 
+    // --------------------------------------------------------------------------
     window_class push_button::clazz;
 
     push_button::push_button() {
@@ -223,6 +224,7 @@ namespace gui {
 #endif
     }
 
+    // --------------------------------------------------------------------------
     window_class radio_button::clazz;
 
     radio_button::radio_button() {
@@ -272,6 +274,7 @@ namespace gui {
 #endif
     }
 
+    // --------------------------------------------------------------------------
     window_class check_box::clazz;
 
     check_box::check_box() {
@@ -325,6 +328,7 @@ namespace gui {
 #endif
     }
 
+    // --------------------------------------------------------------------------
     std::map<int, core::size> owner_draw::measure_item_size;
     int owner_draw::next_owner_draw_id = 0;
     
@@ -341,14 +345,28 @@ namespace gui {
       return measure_item_size[id];
     }
 
+    // --------------------------------------------------------------------------
+#ifdef X11
+    Atom SELECTION_CHANGE_MESSAGE = 0;
+
+    bool selection_changed_message_match::operator() (const core::event& e) {
+      return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
+    }
+#endif // X11
+
+    // --------------------------------------------------------------------------
     window_class list::clazz;
 
     list::list ()
 #ifdef X11
       : item_count(0)
       , gc(0)
+      , offset(0)
 #endif // X11
     {
+      if (!SELECTION_CHANGE_MESSAGE) {
+        SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
+      }
       if (!clazz.is_valid()) {
 #ifdef WIN32
         clazz = win::window_class::sub_class("MyListBox",
@@ -359,7 +377,8 @@ namespace gui {
 #else // !WIN32
         clazz = window_class::custom_class("LISTBOX",
                                            1,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | FocusChangeMask,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           FocusChangeMask,
                                            0, 0, 0,
                                            draw::color::white);
 #endif // !WIN32
@@ -383,6 +402,26 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       return item_count;
+#endif // X11
+    }
+
+    void list::set_selection (int sel) {
+#ifdef WIN32
+      ListBox_SetCurSel(get_id(), sel);
+#endif // WIN32
+#ifdef X11
+      selection = std::min(std::max(0, sel), item_count);
+      send_client_message(this, SELECTION_CHANGE_MESSAGE);
+      redraw_later();
+#endif // X11
+    }
+
+    int list::get_selection () const {
+#ifdef WIN32
+      return ListBox_GetCurSel(get_id());
+#endif // WIN32
+#ifdef X11
+      return selection;
 #endif // X11
     }
 
@@ -428,11 +467,38 @@ namespace gui {
         core::rectangle place = client_area();
         const int max_y = place.bottom_right.y;
         const int max_idx = get_count();
-        place.set_height(20);
-        for(int idx = 0; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move({0, 20})) {
-          draw_item(g, idx, place, false);
+        const int first = -offset / item_size.height;
+
+        place.top_left.y = offset + (item_size.height * first);
+        place.set_height(item_size.height);
+
+        for(int idx = first; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move(item_size)) {
+          draw_item(g, idx, place, selection == idx);
         }
         XFlushGC(e.xexpose.display, gc);
+        return true;
+      }
+      if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
+        last_mouse_point = { e.xbutton.x, e.xbutton.y };
+        moved = false;
+        return true;
+      }
+      if ((e.type == ButtonRelease) && (e.xbutton.button == Button1)) {
+        if (!moved) {
+          const int new_selection = (e.xbutton.y - offset) / item_size.height;
+          selection = new_selection == selection? -1 : new_selection;
+          send_client_message(this, SELECTION_CHANGE_MESSAGE);
+          redraw_later();
+          return true;
+        }
+      }
+      if ((e.type == MotionNotify) && ((e.xmotion.state & Button1Mask) == Button1Mask)) {
+        int dy = e.xmotion.y - last_mouse_point.y;
+        const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+        offset = std::max(std::min(0, offset + dy), -max_delta);
+        last_mouse_point = { e.xmotion.x, e.xmotion.y };
+        moved = true;
+        redraw_later();
         return true;
       }
 #endif // X11

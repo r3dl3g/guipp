@@ -408,6 +408,11 @@ int main(int argc, char* argv[]) {
     g.text(text_box(strm.str(), place, vcenter_left), font::system(),
            selected ? color::highLightTextColor : color::windowTextColor);
   }, 25);
+  list.register_event_handler(win::selection_changed_event([&](){
+    std::ostringstream strm;
+    strm << "Select item " << list.get_selection();
+    labelC.set_text(strm.str());
+  }));
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";

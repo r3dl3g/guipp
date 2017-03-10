@@ -69,7 +69,7 @@ namespace gui {
     const color color::veryLightYellow{ 255, 255, 192 };
 
 #ifdef X11
-    enum SystemColor {
+    enum SystemColor : core::color_type {
         COLOR_SCROLLBAR,
         COLOR_MENU,
         COLOR_MENUTEXT,
@@ -93,11 +93,17 @@ namespace gui {
         COLOR_BTNHIGHLIGHT
     };
 
-    core::color_type GetSysColor(SystemColor color) {
+    core::color_type GetSysColor(SystemColor c) {
+      switch (c) {
+        case COLOR_WINDOWTEXT:    return color::black;
+        case COLOR_HIGHLIGHT:     return color::blue;
+        case COLOR_HIGHLIGHTTEXT: return color::white;
+        case COLOR_BTNFACE:       return color::lightGray;
+      }
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
 //        return screen_def_return.pixel;
-        return color::lightGray;
+        return c;
     }
 #endif
 

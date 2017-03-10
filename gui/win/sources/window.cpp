@@ -302,7 +302,7 @@ namespace gui {
     void window::create (const window_class& type,
                          core::window_id parent_id,
                          const core::rectangle& place,
-                         core::window_id) {
+                         core::menu_id) {
       cls = &type;
       const core::point pos = place.position();
       const core::size sz = place.size();
@@ -326,8 +326,8 @@ namespace gui {
     void window::create (const window_class& type,
                          const window& parent,
                          const core::rectangle& place,
-                         core::window_id menu_id) {
-      create(type, parent.get_id(), place, menu_id);
+                         core::menu_id menu) {
+      create(type, parent.get_id(), place, menu);
     }
 
     void window::create (const window_class& type,

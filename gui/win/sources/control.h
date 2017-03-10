@@ -36,12 +36,14 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     enum Alignment {
       AlignmentLeft   = IF_WIN32(SS_LEFT) IF_X11(draw::vcenter_left),
       AlignmentCenter = IF_WIN32(SS_CENTER) IF_X11(draw::center),
       AlignmentRight  = IF_WIN32(SS_RIGHT) IF_X11(draw::vcenter_right)
     };
 
+    // --------------------------------------------------------------------------
     template<Alignment A>
     class labelT : public window_with_text {
     public:
@@ -91,12 +93,13 @@ namespace gui {
 
     template<Alignment A> window_class labelT<A>::clazz;
 
+    // --------------------------------------------------------------------------
     typedef labelT<AlignmentLeft> label_left;
     typedef label_left label;
     typedef labelT<AlignmentRight> label_right;
     typedef labelT<AlignmentCenter> label_center;
 
-
+    // --------------------------------------------------------------------------
     class button : public window_with_text {
     public:
       typedef window_with_text super;
@@ -162,6 +165,7 @@ namespace gui {
                            0, bn_state_message_match>         button_state_event;
 #endif // X11
 
+    // --------------------------------------------------------------------------
     class push_button : public button {
     public:
       typedef button super;
@@ -179,6 +183,7 @@ namespace gui {
       static window_class clazz;
     };
 
+    // --------------------------------------------------------------------------
     class radio_button : public button {
     public:
       typedef button super;
@@ -196,6 +201,7 @@ namespace gui {
       static window_class clazz;
     };
 
+    // --------------------------------------------------------------------------
     class check_box : public button {
     public:
       typedef button super;
@@ -213,6 +219,7 @@ namespace gui {
       static window_class clazz;
     };
 
+    // --------------------------------------------------------------------------
     class owner_draw : public window {
     public:
       typedef window super;
@@ -246,6 +253,19 @@ namespace gui {
       static std::map<int, core::size> measure_item_size;
     };
 
+    // --------------------------------------------------------------------------
+#ifdef X11
+    extern Atom SELECTION_CHANGE_MESSAGE;
+
+    struct selection_changed_message_match {
+      bool operator() (const core::event& e);
+    };
+
+    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+                           selection_changed_message_match>     selection_changed_event;
+#endif // X11
+
+    // --------------------------------------------------------------------------
     class list : public owner_draw {
     public:
       typedef owner_draw super;
@@ -264,6 +284,9 @@ namespace gui {
       void set_count (int count);
       int get_count () const;
 
+      void set_selection (int count);
+      int get_selection () const;
+
     private:
       bool list_handle_event (const core::event& e,
                               core::event_result& result);
@@ -273,10 +296,16 @@ namespace gui {
       std::function<item_draw> drawer;
 #ifdef X11
       int item_count;
+      int offset;
+      int selection;
+      bool moved;
+      core::point last_mouse_point;
       core::graphics_id gc;
 #endif // X11
       static window_class clazz;
     };
+
+    // --------------------------------------------------------------------------
 
   } // win
 

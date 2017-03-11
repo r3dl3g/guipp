@@ -283,19 +283,19 @@ namespace gui {
         typedef std::vector<T> super;
         typedef typename super::iterator iterator;
 
-        inline data ()
+        data ()
         {}
 
-        inline data (std::initializer_list<T> args)
+        data (std::initializer_list<T> args)
           : super(args)
         {}
 
-        inline data (iterator b, iterator e)
+        data (iterator b, iterator e)
           : super(b, e)
         {}
 
         template<size_t N>
-        inline data (const T (&t)[N])
+        data (const T (&t)[N])
           : super(t, t + N)
         {}
 
@@ -370,10 +370,12 @@ namespace gui {
     };
 
     template<>
-    void list::data<std::string>::operator () (draw::graphics& g,
+    inline void list::data<std::string>::operator () (draw::graphics& g,
                                                int idx,
                                                const core::rectangle& place,
-                                               bool selected);
+                                               bool selected) {
+      draw_text_item(g, at(idx), place, selected);
+    }
 
   } // win
 

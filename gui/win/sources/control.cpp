@@ -601,14 +601,6 @@ namespace gui {
              selected ? color::highLightTextColor : color::windowTextColor);
     }
 
-    template<>
-    void list::data<std::string>::operator () (draw::graphics& g,
-                                               int idx,
-                                               const core::rectangle& place,
-                                               bool selected) {
-      draw_text_item(g, at(idx), place, selected);
-    }
-
   } // win
 
 } // gui

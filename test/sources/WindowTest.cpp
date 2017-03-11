@@ -674,15 +674,15 @@ win::paint_event create_paint2 () {
     graph.draw(ellipse(pos2 + offs2, sz), color::yellow, red);
 
     core::point pos3(90, 10);
-    core::size rd(10, 10);
+    core::size rd(3, 3);
     graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
     graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
     graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
 
     core::point pos4(150, 30);
-    graph.frame(arc(pos4, 20, 0, 360), blue);
-    graph.fill(arc(pos4 + offs1, 20, 0, 360), color::darkGreen);
-    graph.draw(arc(pos4 + offs2, 20, 0, 360), color::yellow, red);
+    graph.frame(arc(pos4, 20, 0, 350), blue);
+    graph.fill(arc(pos4 + offs1, 20, 0, 350), color::darkGreen);
+    graph.draw(arc(pos4 + offs2, 20, 0, 350), color::yellow, red);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);

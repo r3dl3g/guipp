@@ -383,7 +383,8 @@ namespace gui {
 #ifdef WIN32
         clazz = win::window_class::sub_class("MyListBox",
             "LISTBOX",
-            LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
+            LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
+            WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
             WS_EX_NOPARENTNOTIFY);
 #else // !WIN32
         clazz = window_class::custom_class("LISTBOX",

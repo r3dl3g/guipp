@@ -96,7 +96,8 @@ namespace gui {
     rectangle::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        Use<pen> pn(gc, null_pen);
+        pen p(b.color());
+        Use<pen> pn(gc, p);
         Rectangle(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
@@ -120,7 +121,8 @@ namespace gui {
     ellipse::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        Use<pen> pn(gc, null_pen);
+        pen p(b.color());
+        Use<pen> pn(gc, p);
         Ellipse(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y);
       };
     }
@@ -129,15 +131,16 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
         Use<brush> br(gc, null_brush);
-        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width * 2, size.height * 2);
       };
     }
 
     round_rectangle::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        Use<pen> pn(gc, null_pen);
-        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
+        pen p(b.color());
+        Use<pen> pn(gc, p);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width * 2, size.height * 2);
       };
     }
 
@@ -145,7 +148,7 @@ namespace gui {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
         Use<brush> br(gc, b);
         Use<pen> pn(gc, p);
-        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width, size.height);
+        RoundRect(gc, rect.top_left.x, rect.top_left.y, rect.bottom_right.x, rect.bottom_right.y, size.width * 2, size.height * 2);
       };
     }
 
@@ -158,11 +161,14 @@ namespace gui {
 
     arc::operator drawable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
+        BeginPath(gc);
         Use<brush> br(gc, b);
         Use<pen> pn(gc, p);
         MoveToEx(gc, pos.x, pos.y, nullptr);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
         LineTo(gc, pos.x, pos.y);
+        EndPath(gc);
+        StrokeAndFillPath(gc);
       };
     }
 
@@ -178,11 +184,15 @@ namespace gui {
 
     arc::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
+        BeginPath(gc);
         Use<brush> br(gc, b);
-        Use<pen> pn(gc, null_pen);
+        pen p(b.color());
+        Use<pen> pn(gc, p);
         MoveToEx(gc, pos.x, pos.y, nullptr);
         AngleArc(gc, pos.x, pos.y, radius, startrad, endrad);
         LineTo(gc, pos.x, pos.y);
+        EndPath(gc);
+        StrokeAndFillPath(gc);
       };
     }
 
@@ -216,7 +226,8 @@ namespace gui {
     polygone::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        Use<pen> pn(gc, null_pen);
+        pen p(b.color());
+        Use<pen> pn(gc, p);
         Polygon(gc, points, count);
       };
     }

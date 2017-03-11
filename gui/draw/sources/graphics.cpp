@@ -39,11 +39,10 @@ namespace gui {
   namespace draw {
 
     namespace detail {
-      core::point_type *buildPoints(const std::vector<core::point>& pts, int& size) {
-        size = (int)pts.size();
+      core::point_type *buildPoints (core::point const* begin, size_t size) {
         core::point_type *points = new core::point_type[size];
         for (int i = 0; i < size; ++i) {
-          points[i] = pts[i];
+          points[i] = begin[i];
         }
         return points;
       }
@@ -221,7 +220,8 @@ namespace gui {
     }
 
     polygon::polygon (const polygon& rhs)
-            : count(rhs.count) {
+      : count(rhs.count)
+    {
       points = new core::point_type[count];
       memcpy(points, rhs.points, count * sizeof(core::point_type));
     }
@@ -236,7 +236,7 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(gc, b);
       Use<pen> pn(gc, p);
-      Polygon(gc, points, count);
+      Polygon(gc, points, (int)count);
     }
 
     void polygon::operator() (core::drawable_id id,
@@ -244,7 +244,7 @@ namespace gui {
                               const pen& p) const {
       Use<pen> pn(gc, p);
       Use<brush> br(gc, null_brush);
-      Polygon(gc, points, count);
+      Polygon(gc, points, (int)count);
     }
 
     void polygon::operator() (core::drawable_id id,
@@ -253,7 +253,7 @@ namespace gui {
       Use<brush> br(gc, b);
       pen p(b.color());
       Use<pen> pn(gc, p);
-      Polygon(gc, points, count);
+      Polygon(gc, points, (int)count);
     }
 
     void text_box::operator() (core::drawable_id id,

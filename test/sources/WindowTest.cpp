@@ -562,6 +562,8 @@ win::paint_event create_paint1 () {
     graph.fill(polygon(calc_star(60, 10, 40, 40)), color::darkGreen);
     graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
+    graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red);
+
     core::point pt(10, 60);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 1!", pt), font::system(), color::black);

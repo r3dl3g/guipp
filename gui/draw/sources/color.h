@@ -49,6 +49,7 @@ namespace gui {
       const static color yellow;
       const static color orange;
       const static color brown;
+      const static color darkGray;
       const static color darkBlue;
       const static color darkGreen;
       const static color darkRed;
@@ -58,6 +59,7 @@ namespace gui {
       const static color darkOrange;
       const static color darkBrown;
       const static color gray;
+      const static color mediumGray;
       const static color lightGray;
       const static color lightRed;
       const static color lightGreen;
@@ -72,7 +74,7 @@ namespace gui {
       const static color veryLightCyan;
       const static color veryLightMagenta;
       const static color veryLightYellow;
-      const static color darkGray;
+      const static color veryVeryLightGray;
 
       const static color scrollBarColor;
       const static color menuColor;

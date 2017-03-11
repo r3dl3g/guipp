@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 
 #elif X11
   mainCls = win::window_class::custom_class("mainwindow");
-  //mainCls.background = draw::color::buttonColor;
+  mainCls.background = draw::color::workSpaceColor;
   chldCls = win::window_class::custom_class("childwindow");
 #endif
 

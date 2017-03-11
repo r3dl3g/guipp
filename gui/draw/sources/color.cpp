@@ -53,6 +53,7 @@ namespace gui {
     const color color::darkYellow{ 192, 192, 0 };
     const color color::darkOrange{ 192, 96, 0 };
     const color color::darkBrown{ 128, 48, 0 };
+    const color color::mediumGray{ 160, 160, 160 };
     const color color::lightGray{ 192, 192, 192 };
     const color color::lightRed{ 255, 128, 128 };
     const color color::lightGreen{ 128, 255, 128 };
@@ -60,13 +61,14 @@ namespace gui {
     const color color::lightCyan{ 128, 255, 255 };
     const color color::lightMagenta{ 255, 128, 255 };
     const color color::lightYellow{ 255, 255, 128 };
-    const color color::veryLightGray{ 227, 227, 227 };
+    const color color::veryLightGray{ 224, 224, 224 };
     const color color::veryLightRed{ 255, 192, 192 };
     const color color::veryLightGreen{ 192, 255, 192 };
     const color color::veryLightBlue{ 192, 192, 255 };
     const color color::veryLightCyan{ 192, 255, 255 };
     const color color::veryLightMagenta{ 255, 192, 255 };
     const color color::veryLightYellow{ 255, 255, 192 };
+    const color color::veryVeryLightGray{ 240, 240, 240 };
 
 #ifdef X11
     enum SystemColor : core::color_type {
@@ -95,10 +97,11 @@ namespace gui {
 
     core::color_type GetSysColor(SystemColor c) {
       switch (c) {
+        case COLOR_APPWORKSPACE:  return color::mediumGray;
         case COLOR_WINDOWTEXT:    return color::black;
-        case COLOR_HIGHLIGHT:     return color::blue;
+        case COLOR_HIGHLIGHT:     return color::lightBlue;
         case COLOR_HIGHLIGHTTEXT: return color::white;
-        case COLOR_BTNFACE:       return color::lightGray;
+        case COLOR_BTNFACE:       return color::veryVeryLightGray;
       }
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

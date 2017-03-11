@@ -42,23 +42,10 @@ namespace gui {
 
   namespace draw {
 
-    typedef std::function<void(core::drawable_id,
-                               core::graphics_id,
-                               const pen&)>         frameable;
-
-    typedef std::function<void(core::drawable_id,
-                               core::graphics_id,
-                               const brush&)>       fillable;
-
-    typedef std::function<void(core::drawable_id,
-                               core::graphics_id,
-                               const brush&,
-                               const pen&)>         drawable;
-
-    typedef std::function<void(core::drawable_id,
-                               core::graphics_id,
-                               const font& font,
-                               const color& color)> textable;
+    typedef void (drawable) (core::drawable_id, core::graphics_id, const brush&, const pen&);
+    typedef void (frameable) (core::drawable_id, core::graphics_id, const pen&);
+    typedef void (fillable) (core::drawable_id, core::graphics_id, const brush&);
+    typedef void (textable) (core::drawable_id, core::graphics_id, const font& font, const color& color);
 
     struct rectangle {
       inline rectangle(const core::rectangle& rect)
@@ -75,9 +62,9 @@ namespace gui {
         : rect(pos1, pos2) {
       }
 
-      operator drawable() const;
-      operator frameable() const;
-      operator fillable() const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -98,9 +85,9 @@ namespace gui {
                      : rect(pos1, pos2) {
       }
 
-      operator drawable() const;
-      operator frameable() const;
-      operator fillable() const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -112,9 +99,9 @@ namespace gui {
         , size(size) {
       }
 
-      operator drawable() const;
-      operator frameable() const;
-      operator fillable() const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
       const core::rectangle rect;
@@ -124,9 +111,9 @@ namespace gui {
     struct arc {
       arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
 
-      operator drawable() const;
-      operator frameable() const;
-      operator fillable() const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
       const core::point pos;
@@ -148,9 +135,9 @@ namespace gui {
 
       ~polygon();
 
-      operator drawable() const;
-      operator frameable() const;
-      operator fillable() const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const pen&) const;
+      void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
       core::point_type *points;
@@ -197,7 +184,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      operator textable() const;
+      void operator() (core::drawable_id, core::graphics_id, const font& font, const color& color) const;
 
     private:
       const std::string str;
@@ -213,7 +200,7 @@ namespace gui {
               , origin(origin)
       {}
 
-      operator textable () const;
+      void operator() (core::drawable_id, core::graphics_id, const font& font, const color& color) const;
 
     private:
       const std::string str;
@@ -231,7 +218,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      operator textable() const;
+      void operator() (core::drawable_id, core::graphics_id, const font& font, const color& color) const;
 
     private:
       const std::string str;
@@ -257,10 +244,10 @@ namespace gui {
       void draw_lines (const std::vector<core::point>& points,
                        const pen& pen);
 
-      void frame (const frameable&, const pen& pen) const;
-      void fill (const fillable&, const brush& brush) const;
-      void draw (const drawable&, const brush& brush, const pen& pen) const;
-      void text (const textable&, const font& font, const color& color) const;
+      void frame (std::function<frameable>, const pen& pen) const;
+      void fill (std::function<fillable>, const brush& brush) const;
+      void draw (std::function<drawable>, const brush& brush, const pen& pen) const;
+      void text (std::function<textable>, const font& font, const color& color) const;
 
       void invert (const core::rectangle&) const;
 

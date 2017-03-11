@@ -99,7 +99,7 @@ namespace gui {
       switch (c) {
         case COLOR_APPWORKSPACE:  return color::mediumGray;
         case COLOR_WINDOWTEXT:    return color::black;
-        case COLOR_HIGHLIGHT:     return color::lightBlue;
+        case COLOR_HIGHLIGHT:     return color::darkBlue;
         case COLOR_HIGHLIGHTTEXT: return color::white;
         case COLOR_BTNFACE:       return color::veryVeryLightGray;
       }

@@ -504,75 +504,105 @@ namespace gui {
       };
     }
 
+    static const int degree_0 = 0;
+    static const int degree_90 = 90 * 64;
+    static const int degree_180 = 180 * 64;
+    static const int degree_270 = 270 * 64;
+
+    void calc_arcs (const core::rectangle& rect,
+                    const core::size& size,
+                    std::array<XArc, 4>* arcs,
+                    std::array<XSegment, 4>* segments,
+                    std::array<XRectangle, 3>* rects) {
+
+      const unsigned short w = (unsigned short)size.width;
+      const unsigned short h = (unsigned short)size.height;
+
+      const short x0 = (short)rect.top_left.x;
+      const short x1 = x0 + w;
+      const short x3 = (short)rect.bottom_right.x;
+      const short x2 = x3 - w;
+
+      const short y0 = (short)rect.top_left.y;
+      const short y1 = y0 + h;
+      const short y3 = (short)rect.bottom_right.y;
+      const short y2 = y3 - h;
+
+      const unsigned short w2 = w * (unsigned short)(2);
+      const unsigned short h2 = h * (unsigned short)(2);
+
+      if (arcs) {
+        (*arcs)[0] = {x0, y0, w2, h2, degree_90, degree_90};
+        (*arcs)[1] = {short(x3 - w2), y0, w2, h2, degree_0, degree_90};
+        (*arcs)[2] = {x0, short(y3 - h2), w2, h2, degree_180, degree_90};
+        (*arcs)[3] = {short(x3 - w2), short(y3 - h2), w2, h2, degree_270, degree_90};
+      }
+
+      if (segments) {
+        (*segments)[0] = {x1, y0, x2, y0};
+        (*segments)[1] = {x3, y1, x3, y2};
+        (*segments)[2] = {x1, y3, x2, y3};
+        (*segments)[3] = {x0, y1, x0, y2};
+      }
+
+      if (rects) {
+        (*rects)[0] = {x0, y1, w, (unsigned short)(y2 - y1)};
+        (*rects)[1] = {x2, y1, w, (unsigned short)(y2 - y1)};
+        (*rects)[2] = {x1, y0, (unsigned short)(x2 - x1),  (unsigned short)(y3 - y0)};
+      }
+    }
+
+
     round_rectangle::operator frameable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const pen& p) {
         Use<pen> pn(gc, p);
-        const int w = size.width;
-        const int h = size.height;
-
-        const int x0 = rect.top_left.x;
-        const int x1 = x0 + w;
-        const int x3 = rect.bottom_right.x;
-        const int x2 = x3 - w;
-
-        const int y0 = rect.top_left.y;
-        const int y1 = y0 + h;
-        const int y3 = rect.bottom_right.y;
-        const int y2 = y3 - h;
-
-        const int w2 = w * 2;
-        const int h2 = h * 2;
-
         core::instance_id display = core::global::get_instance();
         XSetArcMode(display, gc, ArcChord);
-        XDrawArc(display, id, gc, x0, y0, w2, h2, 90 * 64, 90 * 64);
-        XDrawArc(display, id, gc, x3 - w2, y0, w2, h2, 0, 90 * 64);
-        XDrawArc(display, id, gc, x0, y3 - h2, w2, h2, 180 * 64, 90 * 64);
-        XDrawArc(display, id, gc, x3 - w2, y3 - h2, w2, h2, 270 * 64, 90 * 64);
 
-        XDrawLine(display, id, gc, x1, y0, x2, y0);
-        XDrawLine(display, id, gc, x1, y3, x2, y3);
-        XDrawLine(display, id, gc, x0, y1, x0, y2);
-        XDrawLine(display, id, gc, x3, y1, x3, y2);
+        std::array<XArc, 4> arcs;
+        std::array<XSegment, 4> segments;
+
+        calc_arcs(rect, size, &arcs, &segments, nullptr);
+
+        XDrawArcs(display, id, gc, arcs.data(), (int)arcs.size());
+        XDrawSegments(display, id, gc, segments.data(), (int)segments.size());
       };
     }
 
     round_rectangle::operator fillable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b) {
         Use<brush> br(gc, b);
-        const int w = size.width;
-        const int h = size.height;
-
-        const int x0 = rect.top_left.x;
-        const int x1 = x0 + w;
-        const int x3 = rect.bottom_right.x;
-        const int x2 = x3 - w;
-
-        const int y0 = rect.top_left.y;
-        const int y1 = y0 + h;
-        const int y3 = rect.bottom_right.y;
-        const int y2 = y3 - h;
-
-        const int w2 = w * 2;
-        const int h2 = h * 2;
-
         core::instance_id display = core::global::get_instance();
-        XSetArcMode(display, gc, ArcPieSlice);
-        XFillArc(display, id, gc, x0, y0, w2, h2, 90 * 64, 90 * 64);
-        XFillArc(display, id, gc, x3 - w2, y0, w2, h2, 0, 90 * 64);
-        XFillArc(display, id, gc, x0, y3 - h2, w2, h2, 180 * 64, 90 * 64);
-        XFillArc(display, id, gc, x3 - w2, y3 - h2, w2, h2, 270 * 64, 90 * 64);
+        XSetArcMode(display, gc, ArcChord);
 
-        XFillRectangle(display, id, gc, x0, y1, w, y2 - y1);
-        XFillRectangle(display, id, gc, x2, y1, w, y2 - y1);
-        XFillRectangle(display, id, gc, x1, y0, x2 - x1,  y3 - y0);
+        std::array<XArc, 4> arcs;
+        std::array<XRectangle, 3> rects;
+        calc_arcs(rect, size, &arcs, nullptr, &rects);
+
+        XFillArcs(display, id, gc, arcs.data(), (int)arcs.size());
+        XFillRectangles(display, id, gc, rects.data(), (int)rects.size());
       };
     }
 
     round_rectangle::operator drawable() const {
       return [&](core::drawable_id id, core::graphics_id gc, const brush& b, const pen& p) {
-        operator fillable()(id, gc, b);
-        operator frameable()(id, gc, p);
+        Use<brush> br(gc, b);
+        core::instance_id display = core::global::get_instance();
+        XSetArcMode(display, gc, ArcPieSlice);
+
+        std::array<XArc, 4> arcs;
+        std::array<XSegment, 4> segments;
+        std::array<XRectangle, 3> rects;
+        calc_arcs(rect, size, &arcs, &segments, &rects);
+
+        XFillArcs(display, id, gc, arcs.data(), (int)arcs.size());
+        XFillRectangles(display, id, gc, rects.data(), (int)rects.size());
+
+        Use<pen> pn(gc, p);
+        XSetArcMode(display, gc, ArcChord);
+
+        XDrawArcs(display, id, gc, arcs.data(), (int)arcs.size());
+        XDrawSegments(display, id, gc, segments.data(), (int)segments.size());
       };
     }
 
@@ -588,10 +618,10 @@ namespace gui {
         Use<brush> br(gc, b);
         int x = pos.x - radius;
         int y = pos.y - radius;
-        int sz = radius * 2;
-        XFillArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+        unsigned int sz = radius * 2;
+        XFillArc(core::global::get_instance(), id, gc, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
         Use<pen> pn(gc, p);
-        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
       };
     }
 
@@ -600,8 +630,8 @@ namespace gui {
         Use<pen> pn(gc, p);
         int x = pos.x - radius;
         int y = pos.y - radius;
-        int sz = radius * 2;
-        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+        unsigned int sz = radius * 2;
+        XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
       };
     }
 
@@ -610,11 +640,11 @@ namespace gui {
         Use<brush> br(gc, b);
         int x = pos.x - radius;
         int y = pos.y - radius;
-        int sz = radius * 2;
+        unsigned int sz = radius * 2;
 
         core::instance_id display = core::global::get_instance();
         XSetArcMode(display, gc, ArcPieSlice);
-        XFillArc(display, id, gc, x, y, sz, sz, startrad * 64, endrad * 64);
+        XFillArc(display, id, gc, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
       };
     }
 
@@ -662,7 +692,7 @@ namespace gui {
         memset(&overall, 0, sizeof(XCharStruct));
 
         if (f.font_type()) {
-          XTextExtents(f.font_type(), str.c_str(), str.size(),
+          XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                        &direction, &ascent, &descent, &overall);
         } else {
           LogError << "font_type is zero!";
@@ -693,7 +723,7 @@ namespace gui {
 
 //        LogDebug << "x:" << px << " y:" << py;
 
-        XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), str.size());
+        XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), int(str.size()));
       };
     }
 
@@ -707,7 +737,7 @@ namespace gui {
         memset(&overall, 0, sizeof(XCharStruct));
 
         if (f.font_type()) {
-          XTextExtents(f.font_type(), str.c_str(), str.size(),
+          XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                        &direction, &ascent, &descent, &overall);
         } else {
           LogError << "font_type is zero!";
@@ -746,7 +776,7 @@ namespace gui {
         memset(&overall, 0, sizeof(XCharStruct));
 
         if (f.font_type()) {
-          XTextExtents(f.font_type(), str.c_str(), str.size(),
+          XTextExtents(f.font_type(), str.c_str(), int(str.size()),
                        &direction, &ascent, &descent, &overall);
         } else {
           LogError << "font_type is zero!";
@@ -769,7 +799,7 @@ namespace gui {
           py += height;
         }
 
-        XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), str.size());
+        XDrawString(core::global::get_instance(), id, gc, px, py, str.c_str(), int(str.size()));
       };
     }
 

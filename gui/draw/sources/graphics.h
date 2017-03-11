@@ -58,7 +58,7 @@ namespace gui {
     typedef std::function<void(core::drawable_id,
                                core::graphics_id,
                                const font& font,
-                               const color& color)> texter;
+                               const color& color)> textable;
 
     struct rectangle {
       inline rectangle(const core::rectangle& rect)
@@ -131,22 +131,22 @@ namespace gui {
     private:
       const core::point pos;
       unsigned int radius;
-      float startrad;
-      float endrad;
+      float start_radius;
+      float end_raduis;
     };
 
     namespace detail {
       core::point_type *buildPoints(const std::vector<core::point>&, int&);
     }
 
-    struct polygone {
-      polygone(const std::vector<core::point>& points)
+    struct polygon {
+      polygon(const std::vector<core::point>& points)
         : points(detail::buildPoints(points, count)) {
       }
 
-      polygone(const polygone&);
+      polygon(const polygon&);
 
-      ~polygone();
+      ~polygon();
 
       operator drawable() const;
       operator frameable() const;
@@ -197,7 +197,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      operator texter() const;
+      operator textable() const;
 
     private:
       const std::string str;
@@ -213,7 +213,7 @@ namespace gui {
               , origin(origin)
       {}
 
-      operator texter () const;
+      operator textable () const;
 
     private:
       const std::string str;
@@ -231,7 +231,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      operator texter() const;
+      operator textable() const;
 
     private:
       const std::string str;
@@ -247,18 +247,22 @@ namespace gui {
         , win(win) {
       }
 
-      void drawPixel(const core::point& pt, const color& color);
-      color getPixel(const core::point&) const;
+      void draw_pixel (const core::point& pt,
+                       const color& color);
+      color get_pixel (const core::point&) const;
 
-      void drawLine(const core::point& from, const core::point& to, const pen& pen);
-      void drawLines(const std::vector<core::point>& points, const pen& pen);
+      void draw_line (const core::point& from,
+                      const core::point& to,
+                      const pen& pen);
+      void draw_lines (const std::vector<core::point>& points,
+                       const pen& pen);
 
-      void frame(const frameable&, const pen& pen) const;
-      void fill(const fillable&, const brush& brush) const;
-      void draw(const drawable&, const brush& brush, const pen& pen) const;
-      void text(const texter&, const font& font, const color& color) const;
+      void frame (const frameable&, const pen& pen) const;
+      void fill (const fillable&, const brush& brush) const;
+      void draw (const drawable&, const brush& brush, const pen& pen) const;
+      void text (const textable&, const font& font, const color& color) const;
 
-      void invert(const core::rectangle&) const;
+      void invert (const core::rectangle&) const;
 
     private:
       core::graphics_id gc;

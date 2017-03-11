@@ -216,10 +216,14 @@ namespace gui {
         const core::point& tl = area.top_left;
         const core::point& br = area.bottom_right;
 
-        graph.drawLines({ { tl.x, br.y }, { tl.x, tl.y }, { br.x, tl.y } },
-                        is_checked() ? color::darkGray : color::veryLightGray);
-        graph.drawLines({ { tl.x, br.y }, { br.x, br.y }, { br.x, tl.y } },
-                        is_checked() ? color::veryLightGray : color::darkGray);
+        graph.draw_lines({{tl.x, br.y},
+                          {tl.x, tl.y},
+                          {br.x, tl.y}},
+                         is_checked() ? color::darkGray : color::veryLightGray);
+        graph.draw_lines({{tl.x, br.y},
+                          {br.x, br.y},
+                          {br.x, tl.y}},
+                         is_checked() ? color::veryLightGray : color::darkGray);
         graph.text(draw::text_box(text, area, center), font::system(), is_enabled() ? color::black : color::gray);
         if (focus) {
           area.grow({-3, -3});

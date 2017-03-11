@@ -558,9 +558,9 @@ win::paint_event create_paint1 () {
 
     using namespace draw;
 
-    graph.frame(polygone(calc_star(10, 10, 40, 40)), color::blue);
-    graph.fill(polygone(calc_star(60, 10, 40, 40)), color::darkGreen);
-    graph.draw(polygone(calc_star(110, 10, 40, 40)), color::yellow, color::red);
+    graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue);
+    graph.fill(polygon(calc_star(60, 10, 40, 40)), color::darkGreen);
+    graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
     core::point pt(10, 60);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
@@ -654,10 +654,12 @@ win::paint_event create_paint2 () {
     using namespace draw;
 
     pen blue(color::blue);
-    pen red(color::red);
+    color red = color::red;
+    color darkGreen = color::darkGreen;
+    color yellow = color::cyan;
 
-    graph.drawPixel(core::point(3, 3), color::gray);
-    graph.drawPixel(core::point(6, 6), color::gray);
+    graph.draw_pixel(core::point(3, 3), color::gray);
+    graph.draw_pixel(core::point(6, 6), color::gray);
 
     core::size sz(30, 50);
     core::size offs1(0, 60);
@@ -665,24 +667,24 @@ win::paint_event create_paint2 () {
 
     core::point pos1(10, 10);
     graph.frame(rectangle(pos1, sz), blue);
-    graph.fill(rectangle(pos1 + offs1, sz), color::darkGreen);
-    graph.draw(rectangle(pos1 + offs2, sz), color::yellow, red);
+    graph.fill(rectangle(pos1 + offs1, sz), darkGreen);
+    graph.draw(rectangle(pos1 + offs2, sz), red, yellow);
 
     core::point pos2(50, 10);
     graph.frame(ellipse(pos2, sz), blue);
-    graph.fill(ellipse(pos2 + offs1, sz), color::darkGreen);
-    graph.draw(ellipse(pos2 + offs2, sz), color::yellow, red);
+    graph.fill(ellipse(pos2 + offs1, sz), darkGreen);
+    graph.draw(ellipse(pos2 + offs2, sz), red, yellow);
 
     core::point pos3(90, 10);
-    core::size rd(3, 3);
+    core::size rd(10, 10);
     graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
-    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::darkGreen);
-    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::yellow, red);
+    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), darkGreen);
+    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), red, yellow);
 
     core::point pos4(150, 30);
     graph.frame(arc(pos4, 20, 0, 350), blue);
-    graph.fill(arc(pos4 + offs1, 20, 0, 350), color::darkGreen);
-    graph.draw(arc(pos4 + offs2, 20, 0, 350), color::yellow, red);
+    graph.fill(arc(pos4 + offs1, 20, 0, 350), darkGreen);
+    graph.draw(arc(pos4 + offs2, 20, 0, 350), red, yellow);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);

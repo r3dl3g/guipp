@@ -22,7 +22,7 @@
 //
 // Common includes
 //
-
+#include<ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
@@ -274,6 +274,44 @@ namespace gui {
       typedef owner_draw super;
       typedef void(item_draw)(draw::graphics&, int idx, const core::rectangle& place, bool selected);
 
+
+      // --------------------------------------------------------------------------
+      // static data for list.
+      // --------------------------------------------------------------------------
+      template<typename T>
+      struct data : public std::vector<T> {
+        typedef std::vector<T> super;
+
+        inline data ()
+        {}
+
+        inline data (std::initializer_list<T> args)
+          : super(args)
+        {}
+
+        inline data (iterator b, iterator e)
+          : super(b, e)
+        {}
+
+        template<size_t N>
+        inline data (const T (&t)[N])
+          : super(t, t + N)
+        {}
+
+        void update_list (list& l) {
+          l.set_count(size());
+        }
+
+        void operator () (draw::graphics& g,
+                          int idx,
+                          const core::rectangle& place,
+                          bool selected) {
+          draw_text_item(g, ostreamfmt(at(idx)), place, selected);
+        }
+
+      };
+      // --------------------------------------------------------------------------
+
       list ();
       ~list ();
 
@@ -282,13 +320,33 @@ namespace gui {
         super::create(clazz, parent, place);
       }
 
+      template<typename T>
+      void create (const window& parent,
+                   const core::rectangle& place,
+                   data<T> data,
+                   int item_height = 20) {
+        create(parent, place);
+        set_data(data, item_height);
+      }
+
       void set_drawer (std::function<item_draw> drawer, int item_height = 20);
 
-      void set_count (int count);
-      int get_count () const;
+      template<typename T>
+      void set_data (data<T> data, int item_height = 20) {
+        set_drawer(data, item_height);
+        set_count(data.size());
+      }
+
+      void set_count (size_t count);
+      size_t get_count () const;
 
       void set_selection (int count);
       int get_selection () const;
+
+      static void draw_text_item (draw::graphics&,
+                                  const std::string& text,
+                                  const core::rectangle& place,
+                                  bool selected);
 
     private:
       bool list_handle_event (const core::event& e,
@@ -299,7 +357,7 @@ namespace gui {
       std::function<item_draw> drawer;
 
 #ifdef X11
-      int item_count;
+      size_t item_count;
       int selection;
       int offset;
       bool moved;
@@ -310,14 +368,13 @@ namespace gui {
       static window_class clazz;
     };
 
-    // --------------------------------------------------------------------------
-    struct list_data : public std::vector<std::string> {
-      typedef std::vector<std::string> super;
-
-      void operator() (draw::graphics&, int idx, const core::rectangle& place, bool selected);
-
-      void update_list(list& l);
-    };
+    template<>
+    void list::data<std::string>::operator () (draw::graphics& g,
+                                               int idx,
+                                               const core::rectangle& place,
+                                               bool selected) {
+      draw_text_item(g, at(idx), place, selected);
+    }
 
   } // win
 

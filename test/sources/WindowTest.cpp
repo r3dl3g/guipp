@@ -150,6 +150,10 @@ int main(int argc, char* argv[]) {
 
   win::list list1;
   win::list list2;
+  win::list list3;
+  win::list list4;
+  win::list list5;
+
   win::push_button up_button;
   win::push_button down_button;
 
@@ -422,13 +426,15 @@ int main(int argc, char* argv[]) {
   up_button.register_event_handler(win::button_clicked_event([&]() {
     list1.set_selection(list1.get_selection() - 1);
     list2.set_selection(list2.get_selection() - 1);
+    list3.set_selection(list3.get_selection() - 1);
   }));
   down_button.register_event_handler(win::button_clicked_event([&]() {
     list1.set_selection(list1.get_selection() + 1);
     list2.set_selection(list2.get_selection() + 1);
+    list3.set_selection(list3.get_selection() + 1);
   }));
 
-  win::list_data data;
+  win::list::data<std::string> data;
   data += "Eins", "Zwei", "Drei", "View", "Fünf";
   list2.set_drawer([&](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
     data(g, idx, place, selected);
@@ -450,7 +456,7 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
   }));
-  main.create(core::rectangle(50, 50, 640, 480));
+  main.create(core::rectangle(50, 50, 800, 480));
   //main.set_text("Window Test");
 
   window1.create(main, core::rectangle(10, 50, 100, 280));
@@ -466,7 +472,19 @@ int main(int argc, char* argv[]) {
   list2.create(main, core::rectangle(410, 50, 60, 250));
   data.update_list(list2);
   list2.show();
-  
+
+  list3.create(main, core::rectangle(480, 50, 60, 250));
+  list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
+  list3.show();
+
+  list4.create(main, core::rectangle(550, 50, 60, 250));
+  const float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
+  list4.set_data(win::list::data<float>(floats), 16);
+  list4.show();
+
+  list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
+  list5.show();
+
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.show();
 

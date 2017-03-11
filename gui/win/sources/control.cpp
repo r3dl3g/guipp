@@ -17,6 +17,7 @@
 */
 
 #ifdef WIN32
+#define WINVER 0x0602
 #include <windowsx.h>
 #endif // WIN32
 
@@ -396,7 +397,7 @@ namespace gui {
       register_event_handler(this, &list::list_handle_event);
     }
 
-    void list::set_count (int count) {
+    void list::set_count (size_t count) {
 #ifdef WIN32
       SendMessage(get_id(), LB_SETCOUNT, count, 0);
 #endif // WIN32
@@ -406,9 +407,9 @@ namespace gui {
 #endif // X11
     }
 
-    int list::get_count () const {
+    size_t list::get_count () const {
 #ifdef WIN32
-      return ListBox_GetCount(get_id());
+      return (size_t)ListBox_GetCount(get_id());
 #endif // WIN32
 #ifdef X11
       return item_count;
@@ -590,17 +591,14 @@ namespace gui {
 #endif // X11
     }
 
-    void list_data::operator() (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+    void list::draw_text_item (draw::graphics& g,
+                               const std::string& text,
+                               const core::rectangle& place,
+                               bool selected) {
       using namespace draw;
-
-      const std::string& text = at(idx);
       g.fill(rectangle(place), selected ? color::highLightColor : color::white);
       g.text(text_box(text, place, vcenter_left), font::system(),
              selected ? color::highLightTextColor : color::windowTextColor);
-    }
-
-    void list_data::update_list(list& l) {
-      l.set_count(size());
     }
 
   } // win

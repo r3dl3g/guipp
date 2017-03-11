@@ -344,16 +344,16 @@ namespace gui {
       SetTextColor(gc, old_color);
     }
 
-    void graphics::drawPixel (const core::point& pt,
+    void graphics::draw_pixel (const core::point& pt,
                               const color& c) {
       SetPixel(gc, pt.x, pt.y, c);
     }
 
-    color graphics::getPixel (const core::point& pt) const {
+    color graphics::get_pixel (const core::point& pt) const {
       return GetPixel(gc, pt.x, pt.y);
     }
 
-    void graphics::drawLine (const core::point& from,
+    void graphics::draw_line (const core::point& from,
                              const core::point& to,
                              const pen& p) {
       Use<pen> pn(gc, p);
@@ -361,7 +361,7 @@ namespace gui {
       LineTo(gc, to.x, to.y);
     }
 
-    void graphics::drawLines (const std::vector<core::point>& points,
+    void graphics::draw_lines (const std::vector<core::point>& points,
                               const pen& p) {
       Use<pen> pn(gc, p);
       bool first = true;

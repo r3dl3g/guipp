@@ -422,7 +422,7 @@ namespace gui {
       SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
 #endif // WIN32
 #ifdef X11
-      selection = std::min(std::max(0, sel), get_count() - 1);
+      selection = std::min(std::max(0, sel), (int)get_count() - 1);
       // Make selection visible
       const int sel_pos = item_size.height * selection;
       const core::size sz = size();
@@ -517,14 +517,14 @@ namespace gui {
               }
               break;
             case Button4: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+              const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
               offset = std::max(std::min(0, offset + item_size.height), -max_delta);
               moved = true;
               redraw_later();
               return true;
             }
             case Button5: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+              const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
               offset = std::max(std::min(0, offset - item_size.height), -max_delta);
               moved = true;
               redraw_later();
@@ -535,7 +535,7 @@ namespace gui {
         case MotionNotify:
           if ((e.xmotion.state & Button1Mask) == Button1Mask) {
             int dy = e.xmotion.y - last_mouse_point.y;
-            const int max_delta = std::max(0, (item_size.height * item_count) - size().height);
+            const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
             offset = std::max(std::min(0, offset + dy), -max_delta);
             last_mouse_point = { e.xmotion.x, e.xmotion.y };
             moved = true;
@@ -599,6 +599,14 @@ namespace gui {
       g.fill(rectangle(place), selected ? color::highLightColor : color::white);
       g.text(text_box(text, place, vcenter_left), font::system(),
              selected ? color::highLightTextColor : color::windowTextColor);
+    }
+
+    template<>
+    void list::data<std::string>::operator () (draw::graphics& g,
+                                               int idx,
+                                               const core::rectangle& place,
+                                               bool selected) {
+      draw_text_item(g, at(idx), place, selected);
     }
 
   } // win

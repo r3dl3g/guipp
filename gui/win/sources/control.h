@@ -281,6 +281,7 @@ namespace gui {
       template<typename T>
       struct data : public std::vector<T> {
         typedef std::vector<T> super;
+        typedef typename super::iterator iterator;
 
         inline data ()
         {}
@@ -299,14 +300,14 @@ namespace gui {
         {}
 
         void update_list (list& l) {
-          l.set_count(size());
+          l.set_count(super::size());
         }
 
         void operator () (draw::graphics& g,
                           int idx,
                           const core::rectangle& place,
                           bool selected) {
-          draw_text_item(g, ostreamfmt(at(idx)), place, selected);
+          draw_text_item(g, ostreamfmt(super::at(idx)), place, selected);
         }
 
       };
@@ -372,9 +373,7 @@ namespace gui {
     void list::data<std::string>::operator () (draw::graphics& g,
                                                int idx,
                                                const core::rectangle& place,
-                                               bool selected) {
-      draw_text_item(g, at(idx), place, selected);
-    }
+                                               bool selected);
 
   } // win
 

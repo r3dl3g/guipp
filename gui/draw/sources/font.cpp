@@ -323,7 +323,7 @@ namespace gui {
       LogDebug << "Load Query Font:'" << full_name << "'";
       core::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
       if (!f) {
-        f = XQueryFont(core::global::get_instance(), font::system().info->fid);
+        f = XLoadQueryFont(core::global::get_instance(), "fixed");
       }
       info = f;
     }
@@ -331,8 +331,17 @@ namespace gui {
     font::font(const font& rhs)
       : info(nullptr)
     {
-      core::font_type f = XQueryFont(core::global::get_instance(), rhs.info ? rhs.info->fid : 0);
+      core::font_type f = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
       info = f;
+    }
+
+    font& font::operator= (const font& rhs) {
+      if (this == &rhs) {
+        return *this;
+      }
+      core::font_type f = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
+      info = f;
+      return *this;
     }
 
     font::~font() {

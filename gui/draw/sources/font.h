@@ -82,6 +82,8 @@ namespace gui {
       font(const font&);
       ~font();
 
+      font& operator= (const font& rhs);
+
       font(core::font_id id);
 
       operator core::font_id() const;

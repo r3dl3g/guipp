@@ -295,33 +295,33 @@ namespace gui {
           old_align = SetTextAlign(gc, TA_CENTER | TA_TOP | TA_NOUPDATECP);
           break;
         case bottom_left:
-          old_align = SetTextAlign(gc, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
+          old_align = SetTextAlign(gc, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
         case bottom_right:
-          old_align = SetTextAlign(gc, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
+          old_align = SetTextAlign(gc, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
         case bottom_hcenter:
-          old_align = SetTextAlign(gc, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
+          old_align = SetTextAlign(gc, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
         case vcenter_right: {
           SIZE sz;
           GetTextExtentPoint32(gc, str.c_str(), (int)str.size(), &sz);
-          py += sz.cy / 2;
-          old_align = SetTextAlign(gc, TA_RIGHT | TA_BASELINE | TA_NOUPDATECP);
+          py -= sz.cy / 2;
+          old_align = SetTextAlign(gc, TA_RIGHT | TA_NOUPDATECP);
           break;
         }
         case vcenter_left: {
           SIZE sz;
           GetTextExtentPoint32(gc, str.c_str(), (int)str.size(), &sz);
-          py += sz.cy / 2;
-          old_align = SetTextAlign(gc, TA_LEFT | TA_BASELINE | TA_NOUPDATECP);
+          py -= sz.cy / 2;
+          old_align = SetTextAlign(gc, TA_LEFT | TA_NOUPDATECP);
           break;
         }
         case center: {
           SIZE sz;
           GetTextExtentPoint32(gc, str.c_str(), (int)str.size(), &sz);
-          py += sz.cy / 2;
-          old_align = SetTextAlign(gc, TA_CENTER | TA_BASELINE | TA_NOUPDATECP);
+          py -= sz.cy / 2;
+          old_align = SetTextAlign(gc, TA_CENTER | TA_NOUPDATECP);
           break;
         }
       }

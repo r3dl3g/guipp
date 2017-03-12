@@ -123,18 +123,18 @@ namespace gui {
     };
 
     namespace detail {
-      core::point_type *buildPoints(core::point const* pts, size_t size);
+      core::point_type *buildPoints(core::point const* pts, size_t size, bool closeEnd = false);
     }
 
     struct polygon {
       polygon (const std::vector<core::point>& points)
-        : points(detail::buildPoints(points.data(), points.size()))
-        , count(points.size()) {
+        : points(detail::buildPoints(points.data(), points.size(), IF_WIN32(false) IF_X11(true)))
+        , count(points.size() + IF_WIN32(0) IF_X11(1)) {
       }
 
       polygon (std::initializer_list<core::point> points)
-        : points(detail::buildPoints(points.begin(), points.size()))
-        , count(points.size()) {
+        : points(detail::buildPoints(points.begin(), points.size(), IF_WIN32(false) IF_X11(true)))
+        , count(points.size() + IF_WIN32(0) IF_X11(1)) {
       }
 
       polygon (const polygon&);

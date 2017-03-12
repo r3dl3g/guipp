@@ -39,10 +39,14 @@ namespace gui {
   namespace draw {
 
     namespace detail {
-      core::point_type *buildPoints (core::point const* begin, size_t size) {
-        core::point_type *points = new core::point_type[size];
-        for (int i = 0; i < size; ++i) {
+      core::point_type *buildPoints (core::point const* begin, size_t size, bool closeEnd) {
+        core::point_type *points = new core::point_type[size + (closeEnd ? 1 : 0)];
+        int i = 0;
+        for (; i < size; ++i) {
           points[i] = begin[i];
+        }
+        if (closeEnd) {
+          points[i] = begin[0];
         }
         return points;
       }
@@ -636,16 +640,20 @@ namespace gui {
       unsigned int sz = radius * 2;
       XDrawArc(core::global::get_instance(), id, gc, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
 
-      double start = M_PI * startrad / 180.0;
-      double end = M_PI * endrad / 180.0;
-      core::point_type pt[3];
-      pt[0].x = short(pos.x + int(radius * cos(start)));
-      pt[0].y = short(pos.y - int(radius * sin(start)));
-      pt[1].x = short(pos.x);
-      pt[1].y = short(pos.y);
-      pt[2].x = short(pos.x + int(radius * cos(end)));
-      pt[2].y = short(pos.y - int(radius * sin(end)));
-      XDrawLines(core::global::get_instance(), id, gc, pt, 3, CoordModeOrigin);
+      int istart = int(startrad * 1000.0F) % 360000;
+      int iend = int(endrad * 1000.0F) % 360000;
+      if (istart != iend) {
+        double start = M_PI * startrad / 180.0;
+        double end = M_PI * endrad / 180.0;
+        core::point_type pt[3];
+        pt[0].x = short(pos.x + int(radius * cos(start)));
+        pt[0].y = short(pos.y - int(radius * sin(start)));
+        pt[1].x = short(pos.x);
+        pt[1].y = short(pos.y);
+        pt[2].x = short(pos.x + int(radius * cos(end)));
+        pt[2].y = short(pos.y - int(radius * sin(end)));
+        XDrawLines(core::global::get_instance(), id, gc, pt, 3, CoordModeOrigin);
+      }
     }
 
     void fill_arc(core::drawable_id id, core::graphics_id gc, const brush& b,
@@ -862,10 +870,18 @@ namespace gui {
       XDrawLine(core::global::get_instance(), win, gc, from.x, from.y, to.x, to.y);
     }
 
-    void graphics::draw_lines (const std::vector<core::point>& points,
+    void graphics::draw_lines (const std::vector<core::point>& pts,
                                const pen& p) {
-      polygon poly(points);
-      frame(poly, p);
+
+      int size = (int)pts.size();
+      core::point_type *points = new core::point_type[size];
+      for (int i = 0; i < size; ++i) {
+        points[i] = pts[i];
+      }
+
+      Use<pen> pn(gc, p);
+      XDrawLines(core::global::get_instance(), win, gc, points, size, CoordModeOrigin);
+      delete [] points;
     }
 
     void graphics::invert(const core::rectangle& r) const {

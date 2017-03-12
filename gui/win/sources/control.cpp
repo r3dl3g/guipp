@@ -323,7 +323,7 @@ namespace gui {
                    col);
         if (is_checked()) {
           r.top_left += core::size(2, 2);
-          r.bottom_right -= core::size(1, 1);
+          r.bottom_right -= core::size(2, 2);
           graph.fill(rectangle(r), col);
         }
         area.top_left.x += 20;

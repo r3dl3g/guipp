@@ -568,23 +568,23 @@ win::paint_event create_paint1 () {
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 1!", pt), font::system(), color::black);
 
-    pt.y += 15;
+    pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 2!", pt), font::system_bold(), color::black);
 
-    pt.y += 15;
+    pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 3!", pt), font::sans_serif(), color::black);
 
-    pt.y += 15;
+    pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 4!", pt), font::serif(), color::black);
 
-    pt.y += 15;
+    pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 5!", pt), font::monospace(), color::black);
 
-    pt.y += 15;
+    pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 

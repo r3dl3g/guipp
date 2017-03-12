@@ -207,26 +207,26 @@ namespace gui {
 
         const bool focus = has_focus();
         core::rectangle area = client_area();
-        area.bottom_right -= core::size(1, 1);
+        area.bottom_right(area.bottom_right() - core::size(1, 1));
 
         if (focus) {
           graph.frame(draw::rectangle(area), color::black);
-          area.grow({-1, -1});
+          area.shrink({1, 1});
         }
-        const core::point& tl = area.top_left;
-        const core::point& br = area.bottom_right;
+        const core::point& tl = area.top_left();
+        const core::point& br = area.bottom_right();
 
-        graph.draw_lines({{tl.x, br.y},
-                          {tl.x, tl.y},
-                          {br.x, tl.y}},
+        graph.draw_lines({{tl.x(), br.y()},
+                          {tl.x(), tl.y()},
+                          {br.x(), tl.y()}},
                          is_checked() ? color::darkGray : color::veryLightGray);
-        graph.draw_lines({{tl.x, br.y},
-                          {br.x, br.y},
-                          {br.x, tl.y}},
+        graph.draw_lines({{tl.x(), br.y()},
+                          {br.x(), br.y()},
+                          {br.x(), tl.y()}},
                          is_checked() ? color::veryLightGray : color::darkGray);
         graph.text(draw::text_box(text, area, center), font::system(), is_enabled() ? color::black : color::gray);
         if (focus) {
-          area.grow({-3, -3});
+          area.shrink({3, 3});
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
         }
       }));
@@ -263,8 +263,8 @@ namespace gui {
 
         color col = is_enabled() ? color::black : color::gray;
         core::rectangle area = client_area() - core::size(1, 1);
-        int y = area.position().y + area.size().height / 2;
-        core::point pt(area.position().x + 6, y);
+        int y = area.position().y() + area.size().height() / 2;
+        core::point pt(area.position().x() + 6, y);
         graph.draw(arc(pt, 5, 0, 360),
                    is_hilited() ? color::veryLightGray
                                 : color::buttonColor,
@@ -272,7 +272,7 @@ namespace gui {
         if (is_checked()) {
           graph.fill(arc(pt, 3, 0, 360), col);
         }
-        area.top_left.x += 20;
+        area.move_x(20);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
           graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
@@ -312,21 +312,20 @@ namespace gui {
         const bool focus = has_focus();
 
         core::rectangle area = client_area();
-        int y = area.position().y + area.size().height / 2;
+        int y = area.y() + area.height() / 2;
 
         color col = is_enabled() ? color::black : color::gray;
 
-        core::rectangle r(core::point(area.position().x + 1, y - 5), core::size(10, 10));
+        core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
                    is_hilited() ? color::veryLightGray
                                 : color::buttonColor,
                    col);
         if (is_checked()) {
-          r.top_left += core::size(2, 2);
-          r.bottom_right -= core::size(2, 2);
+          r.shrink(core::size(2, 2));
           graph.fill(rectangle(r), col);
         }
-        area.top_left.x += 20;
+        area += core::point(20, 0);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
           graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
@@ -429,12 +428,12 @@ namespace gui {
 #ifdef X11
       selection = std::min(std::max(0, sel), (int)get_count() - 1);
       // Make selection visible
-      const int sel_pos = item_size.height * selection;
+      const int sel_pos = item_size.height() * selection;
       const core::size sz = size();
       if (offset + sel_pos < 0) {
         offset = -sel_pos;
-      } else if (offset + sel_pos + item_size.height > sz.height) {
-        offset = sz.height - (sel_pos + item_size.height);
+      } else if (offset + sel_pos + item_size.height() > sz.height()) {
+        offset = sz.height() - (sel_pos + item_size.height());
       }
       send_client_message(this, SELECTION_CHANGE_MESSAGE);
       redraw_later();
@@ -452,7 +451,7 @@ namespace gui {
 
     void list::set_drawer(std::function<item_draw> drawer, int item_height) {
       this->drawer = drawer;
-      set_item_size( { 0, item_height } );
+      set_item_size( { 0, core::size::type(item_height) } );
     }
 
     void list::draw_item (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
@@ -490,14 +489,14 @@ namespace gui {
           }
           draw::graphics g(e.xexpose.window, gc);
           core::rectangle place = client_area();
-          const int max_y = place.bottom_right.y;
-          const int max_idx = get_count();
-          const int first = -offset / item_size.height;
+          const int max_y = place.y2();
+          const int max_idx = (int)get_count();
+          const int first = -offset / item_size.height();
 
-          place.top_left.y = offset + (item_size.height * first);
-          place.set_height(item_size.height);
+          place.top_left({place.x(), core::point::type(offset + item_size.height() * first)});
+          place.height(item_size.height());
 
-          for(int idx = first; (idx < max_idx) && (place.top_left.y < max_y); ++idx, place.move(item_size)) {
+          for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move(item_size)) {
             draw_item(g, idx, place, selection == idx);
           }
           XFlushGC(e.xexpose.display, gc);
@@ -505,7 +504,7 @@ namespace gui {
         }
         case ButtonPress:
           if (e.xbutton.button == Button1) {
-            last_mouse_point = { e.xbutton.x, e.xbutton.y };
+            last_mouse_point = core::point(e.xbutton);
             moved = false;
             return true;
           }
@@ -514,7 +513,7 @@ namespace gui {
           switch (e.xbutton.button) {
             case Button1:
               if (!moved) {
-                const int new_selection = (e.xbutton.y - offset) / item_size.height;
+                const int new_selection = (e.xbutton.y - offset) / item_size.height();
                 selection = new_selection == selection ? -1 : new_selection;
                 send_client_message(this, SELECTION_CHANGE_MESSAGE);
                 redraw_later();
@@ -522,15 +521,15 @@ namespace gui {
               }
               break;
             case Button4: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
-              offset = std::max(std::min(0, offset + item_size.height), -max_delta);
+              const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
+              offset = std::max(std::min(0, offset + item_size.height()), -max_delta);
               moved = true;
               redraw_later();
               return true;
             }
             case Button5: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
-              offset = std::max(std::min(0, offset - item_size.height), -max_delta);
+              const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
+              offset = std::max(std::min(0, offset - item_size.height()), -max_delta);
               moved = true;
               redraw_later();
               return true;
@@ -539,10 +538,10 @@ namespace gui {
           break;
         case MotionNotify:
           if ((e.xmotion.state & Button1Mask) == Button1Mask) {
-            int dy = e.xmotion.y - last_mouse_point.y;
-            const int max_delta = std::max(0, (item_size.height * (int)get_count()) - size().height);
+            int dy = e.xmotion.y - last_mouse_point.y();
+            const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
             offset = std::max(std::min(0, offset + dy), -max_delta);
-            last_mouse_point = { e.xmotion.x, e.xmotion.y };
+            last_mouse_point = core::point(e.xmotion);
             moved = true;
             redraw_later();
             return true;
@@ -563,11 +562,11 @@ namespace gui {
               return true;
             case XK_Page_Up:
             case XK_KP_Page_Up:
-              set_selection(get_selection() - (size().height / item_size.height));
+              set_selection(get_selection() - (size().height() / item_size.height()));
               return true;
             case XK_Page_Down:
             case XK_KP_Page_Down:
-              set_selection(get_selection() + (size().height / item_size.height));
+              set_selection(get_selection() + (size().height() / item_size.height()));
               return true;
             case XK_Home:
             case XK_KP_Home:
@@ -575,7 +574,7 @@ namespace gui {
               return true;
             case XK_End:
             case XK_KP_End:
-              set_selection(get_count() - 1);
+              set_selection((int)get_count() - 1);
               return true;
           }
           break;

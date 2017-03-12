@@ -119,35 +119,19 @@ namespace gui {
       const core::point pos;
       unsigned int radius;
       float start_radius;
-      float end_raduis;
+      float end_radius;
     };
 
-    namespace detail {
-      core::point_type *buildPoints(core::point const* pts, size_t size, bool closeEnd = false);
-    }
-
     struct polygon {
-      polygon (const std::vector<core::point>& points)
-        : points(detail::buildPoints(points.data(), points.size(), IF_WIN32(false) IF_X11(true)))
-        , count(points.size() + IF_WIN32(0) IF_X11(1)) {
-      }
-
-      polygon (std::initializer_list<core::point> points)
-        : points(detail::buildPoints(points.begin(), points.size(), IF_WIN32(false) IF_X11(true)))
-        , count(points.size() + IF_WIN32(0) IF_X11(1)) {
-      }
-
-      polygon (const polygon&);
-
-      ~polygon();
+      polygon (const std::vector<core::point>& pts);
+      polygon (std::initializer_list<core::point> pts);
 
       void operator() (core::drawable_id, core::graphics_id, const brush&, const pen&) const;
       void operator() (core::drawable_id, core::graphics_id, const pen&) const;
       void operator() (core::drawable_id, core::graphics_id, const brush&) const;
 
     private:
-      core::point_type *points;
-      size_t count;
+      std::vector<core::point> points;
     };
 
 #ifdef X11

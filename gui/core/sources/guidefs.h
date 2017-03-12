@@ -96,8 +96,8 @@ namespace gui {
 
     typedef XPoint point_type;
     typedef struct {
-        unsigned int cx;
-        unsigned int cy;
+        unsigned short cx;
+        unsigned short cy;
     } size_type;
     typedef XRectangle rectangle_type;
     typedef XFontStruct* font_type;

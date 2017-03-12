@@ -43,13 +43,11 @@ namespace gui {
     const rectangle rectangle::zero;
 
     size::size(const size_type& sz)
-      : width(sz.cx)
-      , height(sz.cy)
+      : sz(sz)
      {}
 
-    size::size(const point_type& pt)
-      : width(pt.x)
-      , height(pt.y) {
+    size::size(const point& pt) {
+      sz = { (type)pt.x(), (type)pt.y() };
     }
 
 #ifdef WIN32
@@ -65,21 +63,20 @@ namespace gui {
 #endif // WIN32
 
     size::operator size_type() const {
-      return { width, height };
+      return sz;
     }
 
     size::operator point_type() const {
 #ifdef WIN32
-      return { width, height };
+      return { width(), height() };
 #elif X11
-      return { (short)width, (short)height };
+      return { (short)width(), (short)height() };
 #endif // X11
     }
 
-    point::point(const point_type& pt)
-      : x(pt.x)
-      , y(pt.y) {
-    }
+    point::point(const point_type& rhs)
+      : pt(rhs)
+    {}
 
 #ifdef WIN32
     point::point(const event_param_2& p)
@@ -89,20 +86,16 @@ namespace gui {
 #endif // WIN32
 
     point::operator point_type() const {
-#ifdef WIN32
-      return{ x, y };
-#elif X11
-      return { (short)x, (short)y };
-#endif // X11
+      return pt;
     }
 
     rectangle::rectangle(const rectangle_type& r)
 #ifdef WIN32
-      : top_left(r.left, r.top)
-      , bottom_right(r.right, r.bottom) {
+      : tl(r.left, r.top)
+      , br(r.right, r.bottom) {
 #elif X11
-      : top_left(r.x, r.y)
-      , bottom_right(r.x + r.width, r.y + r.height) {
+      : tl(r.x, r.y)
+      , br(r.x + r.width, r.y + r.height) {
 #endif // X11
     }
 
@@ -114,37 +107,59 @@ namespace gui {
 
     rectangle::operator rectangle_type() const {
 #ifdef WIN32
-      return{ top_left.x, top_left.y, bottom_right.x, bottom_right.y };
+      return{ tl.x(), tl.y(), br.x(), br.y() };
 #elif X11
-      return{ (short)top_left.x, (short)top_left.y,
-              (unsigned short)(bottom_right.x - top_left.x), (unsigned short)(bottom_right.y - top_left.y) };
+      return{ x(), y(), width(), height() };
 #endif // X11
     }
 
+    void rectangle::move (const core::point& pt) {
+      tl += pt;
+      br += pt;
+    }
+
     void rectangle::move (const core::size& sz) {
-      top_left += sz;
-      bottom_right += sz;
+      tl += sz;
+      br += sz;
+    }
+
+    void rectangle::move_x (core::point::type dx) {
+      tl.move_x(dx);
+      br.move_x(dx);
+    }
+
+    void rectangle::move_y (core::point::type dy) {
+      tl.move_y(dy);
+      br.move_y(dy);
     }
 
     void rectangle::set_size (const core::size& sz) {
-      bottom_right = core::point( top_left.x + sz.width, top_left.y + sz.height );
+      br = core::point(tl.x() + sz.width(), tl.y() + sz.height() );
     }
 
-    void rectangle::set_height (core::size::type height) {
-      bottom_right.y = top_left.y + height;
+    void rectangle::x (core::point::type x) {
+      move_x(x - tl.x());
     }
 
-    void rectangle::set_width (core::size::type width) {
-      bottom_right.x = top_left.x + width;
+    void rectangle::y (core::point::type y) {
+      move_y(y - tl.y());
+    }
+
+    void rectangle::height (core::size::type height) {
+      br.y(tl.y() + height);
+    }
+
+    void rectangle::width (core::size::type width) {
+      br.x(tl.x() + width);
     }
 
     std::ostream& operator<<(std::ostream& out, const size& sz) {
-      out << sz.width << ", " << sz.height;
+      out << sz.width() << ", " << sz.height();
       return out;
     }
 
     std::ostream& operator<<(std::ostream& out, const point& p) {
-      out << p.x << ", " << p.y;
+      out << p.x() << ", " << p.y();
       return out;
     }
 

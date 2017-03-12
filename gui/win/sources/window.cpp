@@ -56,16 +56,14 @@ namespace gui {
 
       this->cls = &type;
 
-      const core::point pos = place.position();
-      const core::size sz = place.size();
       id = CreateWindowEx(type.get_ex_style(),            // window style
                           type.get_class_name().c_str(),  // address of registered class name
                           nullptr,                        // address of window text
                           type.get_style(),               // window style
-                          pos.x,                          // horizontal position of window
-                          pos.y,                          // vertical position of window
-                          sz.width,                       // window width
-                          sz.height,                      // window height
+                          place.x(),                      // horizontal position of window
+                          place.y(),                      // vertical position of window
+                          place.width(),                  // window width
+                          place.height(),                 // window height
                           parent_id,                      // handle of parent window
                           menu,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
@@ -240,17 +238,15 @@ namespace gui {
     }
 
     void window::move(const core::point& pt, bool repaint) {
-      SetWindowPos(get_id(), nullptr, pt.x, pt.y, 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, pt.x(), pt.y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
     }
 
     void window::resize(const core::size& sz, bool repaint) {
-      SetWindowPos(get_id(), nullptr, 0, 0, sz.width, sz.height, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, 0, 0, sz.width(), sz.height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
-      const core::point pt = r.position();
-      const core::size sz = r.size();
-      MoveWindow(get_id(), pt.x, pt.y, sz.width, sz.height, repaint);
+      MoveWindow(get_id(), r.x(), r.y(), r.width(), r.height(), repaint);
     }
 
     core::point window::window_to_screen(const core::point& pt) const {
@@ -264,15 +260,15 @@ namespace gui {
     }
 
     core::point window::client_to_screen(const core::point& pt) const {
-      POINT Point = { pt.x, pt.y };
+      POINT Point = pt;
       ClientToScreen(get_id(), &Point);
-      return core::point(Point.x, Point.y);
+      return core::point(Point);
     }
 
     core::point window::screen_to_client(const core::point& pt) const {
-      POINT Point = { pt.x, pt.y };
+      POINT Point = pt;
       ScreenToClient(get_id(), &Point);
-      return core::point(Point.x, Point.y);
+      return core::point(Point);
     }
 
     window* window::get(core::window_id id) {
@@ -304,15 +300,13 @@ namespace gui {
                          const core::rectangle& place,
                          core::menu_id) {
       cls = &type;
-      const core::point pos = place.position();
-      const core::size sz = place.size();
       core::instance_id display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
                                parent_id,
-                               pos.x,
-                               pos.y,
-                               sz.width,
-                               sz.height,
+                               place.x(),
+                               place.y(),
+                               place.width(),
+                               place.height(),
                                type.get_class_style(),
                                type.get_foreground(),
                                type.get_background());
@@ -405,7 +399,6 @@ namespace gui {
       XWindowAttributes a;
       return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
               (a.map_state == IsUnmapped));
-      return false;
     }
 
     bool window::is_maximized () const {
@@ -413,7 +406,7 @@ namespace gui {
 //      long suplied = 0;
 //      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
 //        core::size sz = size();
-//        return (sz.width == zhints.base_width) && (sz.height == zhints.base_height);
+//        return (sz.width() == zhints.base_width) && (sz.height() == zhints.base_height);
 //      }
       return false;
     }
@@ -435,7 +428,7 @@ namespace gui {
 
     void window::set_parent (const window& parent) {
       core::point pt = position();
-      XReparentWindow(core::global::get_instance(), get_id(), parent.get_id(), pt.x, pt.y);
+      XReparentWindow(core::global::get_instance(), get_id(), parent.get_id(), pt.x(), pt.y());
     }
 
     window* window::get_parent () const {
@@ -477,7 +470,7 @@ namespace gui {
 //      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
 //      long suplied = 0;
 //      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
-//        XResizeWindow(core::global::get_instance(), get_id(), zhints.base_width, zhints.base_width);
+//        XResizeWindow(core::global::get_instance(), get_id(), zhints.base_width, zhints.base_height);
 //      }
     }
 
@@ -485,7 +478,7 @@ namespace gui {
 //      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
 //      long suplied = 0;
 //      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
-//        XResizeWindow(core::global::get_instance(), get_id(), zhints.width, zhints.width);
+//        XResizeWindow(core::global::get_instance(), get_id(), zhints.width, zhints.height);
 //      }
     }
 
@@ -526,7 +519,7 @@ namespace gui {
       unsigned int border_width;
       unsigned int depth;
       XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return core::size(width, height);
+      return {core::size::type(width), core::size::type(height)};
     }
 
     core::point window::position () const {
@@ -536,7 +529,7 @@ namespace gui {
       unsigned int border_width;
       unsigned int depth;
       XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return core::point(x, y);
+      return {core::point::type(x), core::point::type(y)};
     }
 
     core::rectangle window::place () const {
@@ -546,7 +539,8 @@ namespace gui {
       unsigned int border_width;
       unsigned int depth;
       XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return core::rectangle(x, y, width, height);
+      return core::rectangle(core::point::type(x), core::point::type(y),
+                             core::size::type(width), core::size::type(height));
     }
 
     core::rectangle window::absolute_place () const {
@@ -562,17 +556,15 @@ namespace gui {
     }
 
     void window::move (const core::point& pt, bool repaint) {
-      XMoveWindow(core::global::get_instance(), get_id(), pt.x, pt.y);
+      XMoveWindow(core::global::get_instance(), get_id(), pt.x(), pt.y());
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      XResizeWindow(core::global::get_instance(), get_id(), sz.width, sz.height);
+      XResizeWindow(core::global::get_instance(), get_id(), sz.width(), sz.height());
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
-      const core::point pt = r.position();
-      const core::size sz = r.size();
-      XMoveResizeWindow(core::global::get_instance(), get_id(), pt.x, pt.y, sz.width, sz.height);
+      XMoveResizeWindow(core::global::get_instance(), get_id(), r.x(), r.y(), r.width(), r.height());
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
@@ -582,12 +574,12 @@ namespace gui {
                             get_id(),
                             RootWindow(core::global::get_instance(),
                                        DefaultScreen(core::global::get_instance())),
-                            pt.x,
-                            pt.y,
+                            pt.x(),
+                            pt.y(),
                             &x,
                             &y,
                             &child_return);
-      return core::point(x, y);
+      return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::screen_to_window (const core::point& pt) const {
@@ -597,12 +589,12 @@ namespace gui {
                             RootWindow(core::global::get_instance(),
                                        DefaultScreen(core::global::get_instance())),
                             get_id(),
-                            pt.x,
-                            pt.y,
+                            pt.x(),
+                            pt.y(),
                             &x,
                             &y,
                             &child_return);
-      return core::point(x, y);
+      return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::client_to_screen (const core::point& pt) const {

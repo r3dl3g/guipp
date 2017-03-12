@@ -751,9 +751,9 @@ namespace gui {
       if ((origin & DT_VCENTER) == DT_VCENTER) {
         py += (rect.size().height() + height) / 2;
       } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
-        py += rect.size().height();
+        py += rect.size().height() - descent;
       } else {
-        py += height;
+        py += height + descent;
       }
 
 //        LogDebug << "x:" << px << " y:" << py;

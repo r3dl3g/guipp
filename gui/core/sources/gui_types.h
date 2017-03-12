@@ -48,7 +48,7 @@ namespace gui {
 
       explicit size (const size_type& sz);
 
-      explicit size (const point& pt);
+      explicit size (const point_type& pt);
 
 #ifdef WIN32
       explicit size(const event_param_1& p);

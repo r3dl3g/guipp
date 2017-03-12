@@ -46,19 +46,17 @@ namespace gui {
       : sz(sz)
      {}
 
-    size::size(const point& pt) {
-      sz = { (type)pt.x(), (type)pt.y() };
+    size::size(const point_type& pt) {
+      sz = { (type)pt.x, (type)pt.y };
     }
 
 #ifdef WIN32
-    size::size(const event_param_1& p)
-      : width(GET_X_LPARAM(p))
-      , height(GET_Y_LPARAM(p)) {
+    size::size(const event_param_1& p) {
+      sz = { (type)GET_X_LPARAM(p), (type)GET_Y_LPARAM(p) };
     }
 
-    size::size(const event_param_2& p)
-      : width(GET_X_LPARAM(p))
-      , height(GET_Y_LPARAM(p)) {
+    size::size(const event_param_2& p) {
+      sz = { (type)GET_X_LPARAM(p), (type)GET_Y_LPARAM(p) };
     }
 #endif // WIN32
 
@@ -79,9 +77,8 @@ namespace gui {
     {}
 
 #ifdef WIN32
-    point::point(const event_param_2& p)
-      : x(GET_X_LPARAM(p))
-      , y(GET_Y_LPARAM(p)) {
+    point::point(const event_param_2& p) {
+      pt = { (type)GET_X_LPARAM(p) , (type)GET_Y_LPARAM(p) };
     }
 #endif // WIN32
 

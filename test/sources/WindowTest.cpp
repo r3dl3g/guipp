@@ -5,6 +5,8 @@
 #include "dbg_win_message.h"
 #include "gui_types.h"
 #include "font.h"
+#include "label.h"
+#include "button.h"
 
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;

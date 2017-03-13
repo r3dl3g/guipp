@@ -409,10 +409,6 @@ namespace gui {
       XSetFillStyle(display, g, b.style());
     }
 
-    template<>
-    void Use<font>::set (const font& f) {
-    }
-
     XftDraw* graphics::s_xft = nullptr;
 
     graphics::graphics (core::window_id win, core::graphics_id gc)

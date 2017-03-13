@@ -202,7 +202,7 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-#define STD_FONT_SIZE 11
+#define STD_FONT_SIZE 10
 
     const font& font::system () {
       static font f("FreeSans", STD_FONT_SIZE);

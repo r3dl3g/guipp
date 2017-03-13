@@ -22,17 +22,17 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
+    window_class push_button::clazz;
+    window_class radio_button::clazz;
+    window_class check_box::clazz;
+
+    // --------------------------------------------------------------------------
 #ifdef X11
-// --------------------------------------------------------------------------
     Atom BN_CLICKED_MESSAGE = 0;
     Atom BN_PUSHED_MESSAGE = 0;
     Atom BN_UNPUSHED_MESSAGE = 0;
     Atom BN_STATE_MESSAGE = 0;
-
-// --------------------------------------------------------------------------
-    window_class push_button::clazz;
-    window_class radio_button::clazz;
-    window_class check_box::clazz;
 // --------------------------------------------------------------------------
 #endif // X11
 
@@ -59,6 +59,7 @@ namespace gui {
 #endif // X11
     }
 
+#ifdef X11
     bool button::button_handle_event (const core::event& e,
                                       core::event_result& result) {
       if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
@@ -101,6 +102,7 @@ namespace gui {
       }
       return false;
     }
+#endif // X11
 
 #ifdef WIN32
     bool button::is_checked() const {
@@ -144,6 +146,7 @@ namespace gui {
 #endif // X11
 
 // --------------------------------------------------------------------------
+#ifdef X11
     bool bn_clicked_message_match::operator() (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
     }
@@ -159,6 +162,7 @@ namespace gui {
     bool bn_state_message_match::operator() (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == BN_STATE_MESSAGE);
     }
+#endif // X11
 
 // --------------------------------------------------------------------------
     push_button::push_button () {

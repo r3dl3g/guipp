@@ -586,7 +586,7 @@ win::paint_event create_paint1 () {
 
     pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(16), color::blue);
+    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
     core::rectangle r(10, 155, 50, 18);
     graph.frame(rectangle(r), color::blue);

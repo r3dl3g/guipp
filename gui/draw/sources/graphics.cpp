@@ -28,6 +28,7 @@
 //
 #include "graphics.h"
 #include <logger.h>
+#include <string_util.h>
 
 #ifdef X11
 
@@ -237,14 +238,17 @@ namespace gui {
       core::color_type old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
       RECT Rect = rect;
+
+      std::wstring wstr = ibr::string::utf8_to_utf16(str);
+
       if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
-        int h = DrawText(g, str.c_str(), (int)str.size(), &Rect, (UINT)origin | DT_CALCRECT);
+        int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
         Rect.left = rect.x();
         Rect.right = rect.x2();
         Rect.top = (rect.size().height() - h) / 2;
         Rect.bottom = Rect.top + h;
       }
-      DrawText(g, str.c_str(), (int)str.size(), &Rect, (UINT)origin);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin);
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);
     }
@@ -254,7 +258,8 @@ namespace gui {
                                    const color& c) const {
       Use<font> fn(g, f);
       RECT Rect = rect;
-      DrawText(g, str.c_str(), (int)str.size(), &Rect, (UINT)origin | DT_CALCRECT);
+      std::wstring wstr = ibr::string::utf8_to_utf16(str);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
       rect = core::rectangle(Rect);
     }
 
@@ -267,6 +272,7 @@ namespace gui {
       int px = pos.x();
       int py = pos.y();
       UINT old_align = top_left;
+      std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
       switch (origin) {
         case top_left:
@@ -289,66 +295,71 @@ namespace gui {
           break;
         case vcenter_right: {
           SIZE sz;
-          GetTextExtentPoint32(g, str.c_str(), (int)str.size(), &sz);
+          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;
           old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
           break;
         }
         case vcenter_left: {
           SIZE sz;
-          GetTextExtentPoint32(g, str.c_str(), (int)str.size(), &sz);
+          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;
           old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
           break;
         }
         case center: {
           SIZE sz;
-          GetTextExtentPoint32(g, str.c_str(), (int)str.size(), &sz);
+          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;
           old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
           break;
         }
       }
-      TextOut(g, px, py, str.c_str(), (int)str.size());
+      TextOutW(g, px, py, wstr.c_str(), (int)wstr.size());
       SetTextAlign(g, old_align);
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);
     }
 
+    graphics::graphics (core::window_id win, core::graphics_id gc)
+      : gc(gc)
+      , win(win)
+    {}
+
     void graphics::draw_pixel (const core::point& pt,
                               const color& c) {
-      SetPixel(g, pt.x(), pt.y(), c);
+      SetPixel(gc, pt.x(), pt.y(), c);
     }
 
     color graphics::get_pixel (const core::point& pt) const {
-      return GetPixel(g, pt.x(), pt.y());
+      return GetPixel(gc, pt.x(), pt.y());
     }
 
     void graphics::draw_line (const core::point& from,
                              const core::point& to,
                              const pen& p) {
-      Use<pen> pn(g, p);
-      MoveToEx(g, from.x(), from.y(), nullptr);
-      LineTo(g, to.x(), to.y());
+      Use<pen> pn(gc, p);
+      MoveToEx(gc, from.x(), from.y(), nullptr);
+      LineTo(gc, to.x(), to.y());
     }
 
     void graphics::draw_lines (const std::vector<core::point>& points,
                               const pen& p) {
-      Use<pen> pn(g, p);
+      Use<pen> pn(gc, p);
       bool first = true;
       for (core::point pt : points) {
         if (first) {
           first = false;
-          MoveToEx(g, pt.x(), pt.y(), nullptr);
+          MoveToEx(gc, pt.x(), pt.y(), nullptr);
         } else {
-          LineTo(g, pt.x(), pt.y());
+          LineTo(gc, pt.x(), pt.y());
         }
       }
     }
 
     void graphics::invert (const core::rectangle& r) const {
       RECT rect = r;
-      InvertRect(g, &rect);
+      InvertRect(gc, &rect);
     }
 
 #endif // WIN32

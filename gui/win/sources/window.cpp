@@ -552,7 +552,7 @@ namespace gui {
     }
 
     core::rectangle window::client_area () const {
-      return core::rectangle(size());
+      return core::rectangle(size() - core::size(1, 1));
     }
 
     void window::move (const core::point& pt, bool repaint) {

@@ -41,7 +41,7 @@ namespace gui {
     public:
       typedef window super;
 
-      scroll_bar ();
+      scroll_bar (bool horizontal = false);
       ~scroll_bar ();
 
       void create (const window& parent,
@@ -62,8 +62,28 @@ namespace gui {
 
     private:
 #ifdef X11
+      core::size::type button_size (const core::rectangle& place) const;
+      core::point::type thumb_top (const core::rectangle& place) const;
+      core::size::type thumb_size (const core::rectangle& place) const;
+
+      core::rectangle up_button_place (const core::rectangle& place) const;
+      core::rectangle down_button_place (const core::rectangle& place) const;
+      core::rectangle page_up_place (const core::rectangle& place) const;
+      core::rectangle page_down_place (const core::rectangle& place) const;
+      core::rectangle thumb_button_place (const core::rectangle& place) const;
+
       bool scroll_handle_event (const core::event& e,
                                 core::event_result& result);
+
+      enum State {
+        Nothing_pressed,
+        Up_button_pressed,
+        Down_button_pressed,
+        Thumb_button_pressed,
+        Page_up_pressed,
+        Page_down_pressed
+      };
+
       int min;
       int max;
       int step;
@@ -71,6 +91,7 @@ namespace gui {
       core::point last_mouse_point;
       core::graphics_id gc;
       bool horizontal;
+      State state;
 #endif // X11
       static window_class clazz;
     };

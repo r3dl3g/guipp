@@ -62,7 +62,7 @@ namespace gui {
                       const core::point& to,
                       const pen& pen);
 
-      void draw_lines (const std::vector<core::point>& points,
+      void draw_lines (std::initializer_list<core::point> points,
                        const pen& pen);
 
       void draw_relief (const core::rectangle&, bool sunken);

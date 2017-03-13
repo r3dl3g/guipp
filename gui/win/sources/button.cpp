@@ -190,7 +190,6 @@ namespace gui {
 
         const bool focus = has_focus();
         core::rectangle area = client_area();
-        area.bottom_right(area.bottom_right() - core::size(1, 1));
 
         if (focus) {
           graph.frame(draw::rectangle(area), color::black);
@@ -234,7 +233,7 @@ namespace gui {
         const bool focus = has_focus();
 
         color col = is_enabled() ? color::black : color::gray;
-        core::rectangle area = client_area() - core::size(1, 1);
+        core::rectangle area = client_area();
         int y = area.position().y() + area.size().height() / 2;
         core::point pt(area.position().x() + 6, y);
         graph.draw(arc(pt, 5, 0, 360),

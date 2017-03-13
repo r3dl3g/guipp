@@ -343,7 +343,7 @@ namespace gui {
       LineTo(gc, to.x(), to.y());
     }
 
-    void graphics::draw_lines (const std::vector<core::point>& points,
+    void graphics::draw_lines (std::initializer_list<core::point> points,
                               const pen& p) {
       Use<pen> pn(gc, p);
       bool first = true;
@@ -882,14 +882,17 @@ namespace gui {
                               const core::point& to,
                               const pen& p) {
       Use<pen> pn(gc, p);
-      XDrawLine(core::global::get_instance(), win, gc, from.x(), from.y(), to.x(), to.y());
+      XDrawLine(core::global::get_instance(), win, gc,
+                from.x(), from.y(), to.x(), to.y());
     }
 
-    void graphics::draw_lines (const std::vector<core::point>& points,
+    void graphics::draw_lines (std::initializer_list<core::point> points,
                                const pen& p) {
 
       Use<pen> pn(gc, p);
-      XDrawLines(core::global::get_instance(), win, gc, (XPoint*)points.data(), (int)points.size(), CoordModeOrigin);
+      XDrawLines(core::global::get_instance(), win, gc,
+                 (XPoint*)points.begin(), (int)points.size(),
+                 CoordModeOrigin);
     }
 
     void graphics::invert (const core::rectangle& r) const {
@@ -923,10 +926,28 @@ namespace gui {
       const core::point& tl = area.top_left();
       const core::point& br = area.bottom_right();
 
-      draw_lines({{tl.x(), br.y()}, {tl.x(), tl.y()}, {br.x(), tl.y()}},
-                       sunken ? color::darkGray : color::veryLightGray);
-      draw_lines({{tl.x(), br.y()}, {br.x(), br.y()}, {br.x(), tl.y()}},
-                       sunken ? color::veryLightGray : color::darkGray);
+      const core::point::type one = core::point::type(1);
+      core::point::type x0 = tl.x();
+      core::point::type x1 = x0 + one;
+      core::point::type x3 = br.x();
+      core::point::type x2 = x3 - one;
+      core::point::type y0 = tl.y();
+      core::point::type y1 = y0 + one;
+      core::point::type y3 = br.y();
+      core::point::type y2 = y3 - one;
+
+      draw_lines({{x0, y3}, {x0, y0}, {x3, y0}},
+                 sunken ? color::gray
+                        : color::white);
+      draw_lines({{x1, y2}, {x1, y1}, {x2, y1}},
+                 sunken ? color::darkGray
+                        : color::veryLightGray);
+      draw_lines({{x1, y2}, {x2, y2}, {x2, y1}},
+                 sunken ? color::veryLightGray
+                        : color::mediumGray);
+      draw_lines({{x0, y3}, {x3, y3}, {x3, y0}},
+                 sunken ? color::white
+                        : color::gray);
     }
   }
 

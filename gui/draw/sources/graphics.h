@@ -55,13 +55,17 @@ namespace gui {
 
       void draw_pixel (const core::point& pt,
                        const color& color);
+
       color get_pixel (const core::point&) const;
 
       void draw_line (const core::point& from,
                       const core::point& to,
                       const pen& pen);
+
       void draw_lines (const std::vector<core::point>& points,
                        const pen& pen);
+
+      void draw_relief (const core::rectangle&, bool sunken);
 
       void frame (std::function<frameable>, const pen& pen);
       void fill (std::function<fillable>, const brush& brush);

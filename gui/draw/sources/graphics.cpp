@@ -919,6 +919,15 @@ namespace gui {
       drawer(*this, f, c);
     }
 
+    void graphics::draw_relief (const core::rectangle& area, bool sunken) {
+      const core::point& tl = area.top_left();
+      const core::point& br = area.bottom_right();
+
+      draw_lines({{tl.x(), br.y()}, {tl.x(), tl.y()}, {br.x(), tl.y()}},
+                       sunken ? color::darkGray : color::veryLightGray);
+      draw_lines({{tl.x(), br.y()}, {br.x(), br.y()}, {br.x(), tl.y()}},
+                       sunken ? color::veryLightGray : color::darkGray);
+    }
   }
 
 }

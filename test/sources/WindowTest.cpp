@@ -159,6 +159,8 @@ int main(int argc, char* argv[]) {
   win::push_button up_button;
   win::push_button down_button;
 
+  win::scroll_bar scroll_bar;
+
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
@@ -486,6 +488,9 @@ int main(int argc, char* argv[]) {
 
   list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
   list5.show();
+
+  scroll_bar.create(main, core::rectangle(690, 50, 20, 250));
+  scroll_bar.show();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.show();

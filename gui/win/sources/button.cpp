@@ -196,17 +196,8 @@ namespace gui {
           graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
-        const core::point& tl = area.top_left();
-        const core::point& br = area.bottom_right();
+        graph.draw_relief(area, is_checked());
 
-        graph.draw_lines({{tl.x(), br.y()},
-                          {tl.x(), tl.y()},
-                          {br.x(), tl.y()}},
-                         is_checked() ? color::darkGray : color::veryLightGray);
-        graph.draw_lines({{tl.x(), br.y()},
-                          {br.x(), br.y()},
-                          {br.x(), tl.y()}},
-                         is_checked() ? color::veryLightGray : color::darkGray);
         graph.text(draw::text_box(text, area, center), font::system(), is_enabled() ? color::black : color::gray);
         if (focus) {
           area.shrink({3, 3});

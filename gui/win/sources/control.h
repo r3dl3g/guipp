@@ -41,14 +41,7 @@ namespace gui {
     public:
       typedef window super;
 
-      scroll_bar (bool horizontal = false);
       ~scroll_bar ();
-
-      void create (const window& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle,
-                   bool horizontal = false) {
-        super::create(clazz, parent, place);
-      }
 
       int get_min () const;
       int get_max () const;
@@ -59,6 +52,9 @@ namespace gui {
       void set_max (int);
       void set_step (int);
       void set_current (int);
+
+    protected:
+      scroll_bar (bool horizontal);
 
     private:
 #ifdef X11
@@ -93,8 +89,35 @@ namespace gui {
       bool horizontal;
       State state;
 #endif // X11
+    };
+
+    template <bool H>
+    class scroll_barT : public scroll_bar {
+    public:
+      typedef scroll_bar super;
+
+      scroll_barT ();
+
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle) {
+        super::create(clazz, parent, place);
+      }
+
+    private:
       static window_class clazz;
     };
+
+    template <bool H>
+    window_class scroll_barT<H>::clazz;
+
+    template<>
+    scroll_barT<false>::scroll_barT ();
+
+    template<>
+    scroll_barT<true>::scroll_barT ();
+
+    typedef scroll_barT<false> vscroll_bar;
+    typedef scroll_barT<true> hscroll_bar;
 
   } // win
 

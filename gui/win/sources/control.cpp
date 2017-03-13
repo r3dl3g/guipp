@@ -33,18 +33,33 @@ namespace gui {
 
   namespace win {
 
-    window_class scroll_bar::clazz;
-
 #ifdef WIN32
 // --------------------------------------------------------------------------
-    scroll_bar::scroll_bar (bool horizontal) {
+    template<>
+    scroll_barT<false>::scroll_barT ()
+      : scroll_bar(false)
+    {
       if (!clazz.is_valid()) {
         clazz = win::window_class::sub_class("MyScrollBar",
                                              "SCROLLBAR",
-                                             (horizontal ? SBS_HORI | WS_HSCROLL : SBS_VERT | WS_VSCROLL) |
-                                              WS_CHILD | WS_VISIBLE,
+                                             SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
                                              WS_EX_NOPARENTNOTIFY);
       }
+    }
+
+    template<>
+    scroll_barT<true>::scroll_barT ()
+      : scroll_bar(true)
+    {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::sub_class("MyScrollBar",
+                                             "SCROLLBAR",
+                                             SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_VISIBLE,
+                                             WS_EX_NOPARENTNOTIFY);
+      }
+    }
+
+    scroll_bar::scroll_bar (bool) {
     }
 
     scroll_bar::~scroll_bar ()
@@ -105,6 +120,36 @@ namespace gui {
 #ifdef X11
 
     // --------------------------------------------------------------------------
+    template<>
+    scroll_barT<false>::scroll_barT ()
+      : scroll_bar(false)
+    {
+      if (!clazz.is_valid()) {
+        clazz = window_class::custom_class("VSCROLLBAR",
+                                           0,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           FocusChangeMask | KeyPressMask,
+                                           0, 0, 0,
+                                           draw::color::veryLightGray);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    scroll_barT<true>::scroll_barT ()
+      : scroll_bar(true)
+    {
+      if (!clazz.is_valid()) {
+        clazz = window_class::custom_class("HSCROLLBAR",
+                                           0,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           FocusChangeMask | KeyPressMask,
+                                           0, 0, 0,
+                                           draw::color::veryLightGray);
+      }
+    }
+
+    // --------------------------------------------------------------------------
     scroll_bar::scroll_bar (bool horizontal)
       : min(0)
       , max(100)
@@ -114,14 +159,6 @@ namespace gui {
       , state(Nothing_pressed)
       , gc(0)
     {
-      if (!clazz.is_valid()) {
-        clazz = window_class::custom_class("SCROLLBAR",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask,
-                                           0, 0, 0,
-                                           draw::color::veryLightGray);
-      }
       register_event_handler(this, &scroll_bar::scroll_handle_event);
     }
 

@@ -1,12 +1,6 @@
 
 #include "control.h"
-#include "window_event_handler.h"
-#include "window_event_proc.h"
 #include "dbg_win_message.h"
-#include "gui_types.h"
-#include "font.h"
-#include "label.h"
-#include "button.h"
 
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;
@@ -159,8 +153,8 @@ int main(int argc, char* argv[]) {
   win::push_button up_button;
   win::push_button down_button;
 
-  win::scroll_bar vscroll_bar(false);
-  win::scroll_bar hscroll_bar(true);
+  win::vscroll_bar vscroll;
+  win::hscroll_bar hscroll;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -490,11 +484,11 @@ int main(int argc, char* argv[]) {
   list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
   list5.show();
 
-  vscroll_bar.create(main, core::rectangle(700, 50, 16, 250));
-  vscroll_bar.show();
+  vscroll.create(main, core::rectangle(700, 50, 16, 250));
+  vscroll.show();
 
-  hscroll_bar.create(main, core::rectangle(450, 20, 250, 16));
-  hscroll_bar.show();
+  hscroll.create(main, core::rectangle(450, 20, 250, 16));
+  hscroll.show();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.show();

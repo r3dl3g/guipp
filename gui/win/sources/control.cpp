@@ -37,18 +37,11 @@ namespace gui {
 
 #ifdef WIN32
 // --------------------------------------------------------------------------
-    scroll_bar::scroll_bar ()
-      : min(0)
-      , max(100)
-      , step(10)
-      , current(0)
-      , horizontal(false)
-      , gc(0)
-    {
+    scroll_bar::scroll_bar () {
       if (!clazz.is_valid()) {
         clazz = win::window_class::sub_class("MyScrollBar",
                                              "SCROLLBAR",
-                                             SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                             SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
                                              WS_EX_NOPARENTNOTIFY);
       }
     }
@@ -83,24 +76,23 @@ namespace gui {
     void scroll_bar::set_min (int i) {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      si.min = i;
+      si.nMin = i;
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
     void scroll_bar::set_max (int i) {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      si.max = i;
+      si.nMax = i;
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
     void scroll_bar::set_step (int i) {
-      SCROLLINFO si = { sizeof( SCROLLINFO ), SIF_PAGE, 0, 0, i, 0, 0 };
+      SCROLLINFO si = { sizeof( SCROLLINFO ), SIF_PAGE, 0, 0, (UINT)i, 0, 0 };
       SetScrollInfo( get_id(), SB_CTL, &si, TRUE  );
     }
 
     void scroll_bar::set_current (int i) {
-      i = std::min(std::max(i, min), max);
       if (i != get_current()) {
         SCROLLINFO si = {sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, i, i};
         SetScrollInfo(get_id(), SB_CTL, &si, TRUE);

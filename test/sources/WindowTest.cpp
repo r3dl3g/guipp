@@ -489,7 +489,7 @@ int main(int argc, char* argv[]) {
   list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
   list5.show();
 
-  scroll_bar.create(main, core::rectangle(690, 50, 20, 250));
+  scroll_bar.create(main, core::rectangle(700, 50, 16, 250));
   scroll_bar.show();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");

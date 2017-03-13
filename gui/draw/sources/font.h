@@ -59,15 +59,15 @@ namespace gui {
         ultraBold = FW_ULTRABOLD,
         heavy = FW_HEAVY
 #elif X11
-        thin,
-        ultraLight,
-        light,
-        regular,
-        medium,
-        semiBold,
-        bold,
-        ultraBold,
-        heavy
+        thin        = FC_WEIGHT_THIN,
+        ultraLight  = FC_WEIGHT_ULTRALIGHT,
+        light       = FC_WEIGHT_SEMILIGHT,
+        regular     = FC_WEIGHT_REGULAR,
+        medium      = FC_WEIGHT_MEDIUM,
+        semiBold    = FC_WEIGHT_SEMIBOLD,
+        bold        = FC_WEIGHT_BOLD,
+        ultraBold   = FC_WEIGHT_ULTRABOLD,
+        heavy       = FC_WEIGHT_HEAVY
 #endif // X11
       };
 
@@ -106,15 +106,11 @@ namespace gui {
 
       bool operator== (const font&) const;
 
-#ifdef X11
-      std::string get_full_name() const;
-#endif // X11
-
     private:
+      void destroy();
 #ifdef WIN32
       core::font_id id;
 #endif // WIN32
-
       core::font_type info;
     };
 

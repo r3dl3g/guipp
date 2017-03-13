@@ -30,6 +30,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/Xft/Xft.h>
 #endif
 
 // --------------------------------------------------------------------------
@@ -90,7 +91,7 @@ namespace gui {
     typedef color_type brush_id;
     typedef Display* instance_id;
     typedef int screen_id;
-    typedef Font font_id;
+    typedef XftPattern* font_id;
     typedef GC graphics_id;
     typedef int menu_id;
 
@@ -100,7 +101,7 @@ namespace gui {
         unsigned short cy;
     } size_type;
     typedef XRectangle rectangle_type;
-    typedef XFontStruct* font_type;
+    typedef XftFont* font_type;
 
 #define IF_WIN32(...)
 #define IF_X11(...) __VA_ARGS__

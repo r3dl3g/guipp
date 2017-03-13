@@ -8,6 +8,7 @@ add_subdirectory(./../../ibr_std_lib ibr_std_lib)
 set (core_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
      ${ibr_std_lib_Include}
+     /usr/include/freetype2
 )
 set (core_Include ${core_Include} PARENT_SCOPE)
 

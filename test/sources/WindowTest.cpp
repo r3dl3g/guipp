@@ -435,7 +435,7 @@ int main(int argc, char* argv[]) {
   }));
 
   win::list::data<std::string> data;
-  data += "Eins", "Zwei", "Drei", "View", "Fünf";
+  data += "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß";
   list2.set_drawer([&](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
     data(g, idx, place, selected);
   }, 16);
@@ -574,7 +574,7 @@ win::paint_event create_paint1 () {
 
     pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 3!", pt), font::sans_serif(), color::black);
+    graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black);
 
     pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
@@ -586,7 +586,7 @@ win::paint_event create_paint1 () {
 
     pt.move_y(15);
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
+    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(16), color::blue);
 
     core::rectangle r(10, 155, 50, 18);
     graph.frame(rectangle(r), color::blue);

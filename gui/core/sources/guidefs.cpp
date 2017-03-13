@@ -41,8 +41,9 @@ namespace gui {
 
 #ifdef X11
       screen_id global_screen = 0;
-      
-      int XErrorHandler(Display* dpy, XErrorEvent* errev) {
+
+      int XErrorHandler (Display* dpy,
+                         XErrorEvent* errev) {
         LogFatal << "Error occured somewhere in X!"
                     " ResourceID = " << errev->resourceid <<
                     " Serial = " << errev->serial <<
@@ -51,9 +52,10 @@ namespace gui {
                     " Minor_code = " << (int) errev->minor_code;
         return 0;
       }
+
 #endif // X11
 
-      void init(core::instance_id instance) {
+      void init (core::instance_id instance) {
         global_instance = instance;
 #ifdef X11
         global_screen = DefaultScreen(global_instance);
@@ -62,29 +64,29 @@ namespace gui {
         is_global_initialized = true;
       }
 
-      core::instance_id get_instance() {
+      core::instance_id get_instance () {
         if (!is_global_initialized) {
           throw std::runtime_error("gui::core::global::init must be called before first use!");
-          return 0;
         }
         return global_instance;
       }
-      
-      void fini() {
+
+      void fini () {
 #ifdef X11
         XCloseDisplay(core::global::get_instance());
         global_screen = 0;
 #endif // X11
         global_instance = 0;
       }
-      
+
 
 #ifdef X11
-      screen_id get_screen() {
+
+      screen_id get_screen () {
         return global_screen;
       }
 
-      void set_screen(screen_id screen) {
+      void set_screen (screen_id screen) {
         global_screen = screen;
       }
 

@@ -21,10 +21,14 @@
 // Common includes
 //
 #include <ostream>
+
 #ifdef X11
+
 #include <vector>
 #include <sstream>
+
 #endif // X11
+
 #include <locale>
 #include <logger.h>
 
@@ -35,14 +39,18 @@
 #include "font.h"
 
 #ifdef X11
+
 #include <boost/algorithm/string.hpp>
+#include <X11/Xlib.h>
+
 #endif // X11
 
 namespace std {
   template<typename T>
-  std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
+  std::ostream& operator<< (std::ostream& out,
+                            const std::vector<T>& v) {
     out << "[";
-    for(auto i : v) {
+    for (auto i : v) {
       out << i << ", ";
     }
     out << "]";
@@ -194,258 +202,164 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    #define STD_FONT_SIZE 12
+#define STD_FONT_SIZE 11
 
-    const font& font::system() {
-        static font f("fixed", STD_FONT_SIZE);
-        return f;
-    }
-    const font& font::system_bold() {
-        static font f = font::system().with_thickness(font::bold);
-        return f;
-    }
-    const font& font::monospace() {
-        static font f("fixed", STD_FONT_SIZE);
-        return f;
-    }
-    const font& font::serif() {
-        static font f("clean", STD_FONT_SIZE);
-        return f;
-    }
-    const font& font::sans_serif() {
-        static font f("clean", STD_FONT_SIZE);
-        return f;
+    const font& font::system () {
+      static font f("FreeSans", STD_FONT_SIZE);
+      return f;
     }
 
-    font::font(core::font_id id)
-      :info(nullptr)
-    {
-      info = XQueryFont(core::global::get_instance(), id);
+    const font& font::system_bold () {
+      static font f("FreeSans", STD_FONT_SIZE, font::bold);
+      return f;
     }
 
-    std::string buildFontName(const std::string& name,
-                              font::size_type size,
-                              font::Thickness thickness,
-                              bool italic) {
-      std::ostringstream s;
-      s << "-*-" << name << "-";
-      switch (thickness) {
-        case font::Thickness::thin:
-          s << "thin";
-          break;
-        case font::Thickness::ultraLight:
-        case font::Thickness::light:
-          s << "light";
-          break;
-        case font::Thickness::regular:
-        case font::Thickness::medium:
-          s << "medium";
-          break;
-        case font::Thickness::semiBold:
-        case font::Thickness::bold:
-        case font::Thickness::ultraBold:
-        case font::Thickness::heavy:
-          s << "bold";
-          break;
-        default:
-          s << "*";
-      }
-      s << "-" << (italic ? "i" : "r") << "-normal-*-" << (size * 10) << "-*";
-
-      std::string str = s.str();
-      //std::transform(str.begin(), str.end(), str.begin(), tolower);
-      return str;
+    const font& font::monospace () {
+      static font f("FreeMono", STD_FONT_SIZE);
+      return f;
     }
 
-    std::vector<std::string> tokenize(const std::string& full_name, const std::string& delemiter) {
-      std::vector<std::string> strs;
-      boost::split(strs, full_name, boost::is_any_of(delemiter));
-      return strs;
+    const font& font::serif () {
+      static font f("FreeSerif", STD_FONT_SIZE);
+      return f;
     }
 
-    std::string merge(const std::vector<std::string>& vec, const std::string& delemiter) {
-      std::ostringstream oss;
-      if (!vec.empty()) {
-        std::copy(vec.begin(), vec.end() - 1, std::ostream_iterator<std::string>(oss, delemiter.c_str()));
-        // add the last element with no delimiter
-        oss << vec.back();
-      }
-      return oss.str();
+    const font& font::sans_serif () {
+      static font f("FreeSans", STD_FONT_SIZE);
+      return f;
     }
 
-    void parseFontName(const std::string& full_name,
-                       std::string* name = nullptr,
-                       font::size_type* size = nullptr,
-                       font::Thickness* thickness = nullptr,
-                       bool* italic = nullptr) {
-
-      std::vector<std::string> strs = tokenize(full_name, "-");
-      LogDebug << "Font:'" << full_name << "' parts:" << strs;
-      if (name && strs.size() > 2) {
-        *name = strs[2];
-      }
-      if (thickness && (strs.size() > 3)) {
-        const std::string& thck = strs[3];
-        if (thck == "thin") {
-          *thickness = font::Thickness::thin;
-        } else if (thck == "light") {
-          *thickness = font::Thickness::light;
-        } else if (thck == "medium") {
-          *thickness = font::Thickness::medium;
-        } else if (thck == "bold") {
-          *thickness = font::Thickness::bold;
-        } else {
-          *thickness = font::Thickness::regular;
-        }
-      }
-      if (italic && (strs.size() > 4)) {
-        *italic = (strs[4] == "i") || (strs[4] == "I");
-      }
-      if (size && (strs.size() > 8) && (strs[8].size() > 0)) {
-        LogDebug << "Font size:" << strs[8];
-        *size = std::stoi(strs[8]) / 10;
-      } else if (size && (strs.size() > 7) && (strs[7].size() > 0)) {
-        LogDebug << "Font size:" << strs[7];
-        *size = std::stoi(strs[7]);
-      }
+    font::font (core::font_id id) {
+      info = XftFontOpenPattern(core::global::get_instance(), id);
     }
 
-    font::font(const std::string& name,
-               font::size_type size,
-               font::Thickness thickness,
-               int rotation,
-               bool italic,
-               bool underline,
-               bool strikeout)
-      : info(nullptr)
-    {
-      std::string full_name = buildFontName(name, size, thickness, italic);
-      LogDebug << "Load Query Font:'" << full_name << "'";
-      core::font_type f = XLoadQueryFont(core::global::get_instance(), full_name.c_str());
-      if (!f) {
-        f = XLoadQueryFont(core::global::get_instance(), "fixed");
-      }
-      info = f;
+    font::font (const std::string& name,
+                font::size_type size,
+                font::Thickness thickness,
+                int rotation,
+                bool italic,
+                bool underline,
+                bool strikeout)
+      : info(nullptr) {
+      info = XftFontOpen(core::global::get_instance(),
+                         core::global::get_screen(),
+                         XFT_FAMILY, XftTypeString, name.c_str(),
+                         XFT_SIZE, XftTypeDouble, (double)size,
+                         XFT_WEIGHT, XftTypeInteger, (int)thickness,
+                         XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
+                         NULL);
     }
 
-    font::font(const font& rhs)
-      : info(nullptr)
-    {
-      core::font_type f = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
-      info = f;
+    font::font (const font& rhs)
+      : info(nullptr) {
+      info = XftFontOpenPattern(core::global::get_instance(), rhs.info->pattern);
     }
 
     font& font::operator= (const font& rhs) {
       if (this == &rhs) {
         return *this;
       }
-      core::font_type f = XLoadQueryFont(core::global::get_instance(), rhs.get_full_name().c_str());
-      info = f;
+      destroy();
+      if (rhs.info) {
+        info = XftFontOpenPattern(core::global::get_instance(), rhs.info->pattern);
+      }
       return *this;
     }
 
-    font::~font() {
+    font::~font () {
+      destroy();
+    }
+
+    void font::destroy () {
       if (info) {
         if (core::global::get_instance()) {
-          XFreeFont(core::global::get_instance(), info);
+          XftFontClose(core::global::get_instance(), info);
         }
         info = nullptr;
       }
     }
 
-    font::operator core::font_id() const {
-      return info ? info->fid : 0;
+    font::operator core::font_id () const {
+      return (info ? info->pattern : nullptr);
     }
 
     core::font_type font::font_type () const {
       return info;
     }
 
-    std::string font::get_full_name() const {
+    std::string font::name () const {
       if (info) {
-        unsigned long pid;
-        if (XGetFontProperty(info, XA_FONT, &pid)) {
-          std::string full_name;
-          char* name = XGetAtomName(core::global::get_instance(), (Atom)pid);
-          if (name) {
-            full_name = name;
-            XFree(name);
-          }
-          return full_name;
+        char* name = nullptr;
+        if (XftResultMatch == XftPatternGetString(info->pattern, XFT_FAMILY, 0, &name)) {
+          return name;
         }
       }
       return std::string();
     }
 
-    std::string font::name() const {
-      std::string name;
-      parseFontName(get_full_name(), &name);
-      return name;
+    font::size_type font::size () const {
+      if (info) {
+        double sz;
+        if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
+          return (font::size_type)sz;
+        }
+      }
+      return STD_FONT_SIZE;
     }
 
-    font::size_type font::size() const {
-      font::size_type size = -1;
-      parseFontName(get_full_name(), nullptr, &size);
-      return size;
+    font::Thickness font::thickness () const {
+      if (info) {
+        int sz;
+        if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_WEIGHT, 0, &sz)) {
+          return (font::Thickness)sz;
+        }
+      }
+      return font::Thickness::regular;
     }
 
-    font::Thickness font::thickness() const {
-      font::Thickness thickness = Thickness::regular;
-      parseFontName(get_full_name(), nullptr, nullptr, &thickness);
-      return thickness;
-    }
-
-    int font::rotation() const {
+    int font::rotation () const {
       return 0;
     }
 
-    bool font::italic() const {
-      bool italic = false;
-      parseFontName(get_full_name(), nullptr, nullptr, nullptr, &italic);
-      return italic;
-    }
-
-    bool font::underline() const {
+    bool font::italic () const {
+      if (info) {
+        int sz;
+        if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_SLANT, 0, &sz)) {
+          return sz != 0;
+        }
+      }
       return false;
     }
 
-    bool font::strikeout() const {
+    bool font::underline () const {
       return false;
     }
 
-    font font::with_size(size_type sz) const {
-      std::string name;
-      font::Thickness thickness = Thickness::regular;
-      bool italic = false;
-      parseFontName(get_full_name(), &name, nullptr, &thickness, &italic);
-      return font(name, sz, thickness, 0, italic);
+    bool font::strikeout () const {
+      return false;
     }
 
-    font font::with_thickness(Thickness t) const {
-      std::string name;
-      font::size_type size = 10;
-      bool italic = false;
-      parseFontName(get_full_name(), &name, &size, nullptr, &italic);
-      return font(name, size, t, 0, italic);
+    font font::with_size (size_type sz) const {
+      return font(name(), sz, thickness(), rotation(), italic(), underline(), strikeout());
     }
 
-    font font::with_rotation(int r) const {
+    font font::with_thickness (Thickness t) const {
+      return font(name(), size(), t, rotation(), italic(), underline(), strikeout());
+    }
+
+    font font::with_rotation (int r) const {
       return *this;
     }
 
-    font font::with_italic(bool i) const {
-      std::string name;
-      font::size_type size = 10;
-      font::Thickness thickness = Thickness::regular;
-      parseFontName(get_full_name(), &name, &size, &thickness);
-      return font(name, size, thickness, 0, i);
+    font font::with_italic (bool i) const {
+      return font(name(), size(), thickness(), rotation(), i, underline(), strikeout());
     }
 
-    font font::with_underline(bool) const {
+    font font::with_underline (bool) const {
       return *this;
     }
 
-    font font::with_strikeout(bool) const {
+    font font::with_strikeout (bool) const {
       return *this;
     }
 
@@ -453,15 +367,12 @@ namespace gui {
       return name() == rhs.name();
     }
 
-    std::ostream& operator<<(std::ostream& out, const font& f) {
-      std::string name;
-      font::size_type size;
-      font::Thickness thickness;
-      bool italic;
-      parseFontName(f.get_full_name(), &name, &size, &thickness, &italic);
-      out << name << ", " << size << ", " << thickness << ", " << italic;
+    std::ostream& operator<< (std::ostream& out,
+                              const font& f) {
+      out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();
       return out;
     }
+
 #endif // X11
 
   }

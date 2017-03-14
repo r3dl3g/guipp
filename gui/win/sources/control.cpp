@@ -60,10 +60,62 @@ namespace gui {
     }
 
     scroll_bar::scroll_bar (bool) {
+      register_event_handler(this, &scroll_bar::scroll_handle_event);
     }
 
     scroll_bar::~scroll_bar ()
     {}
+
+    void scroll_bar::create (const window_class& type,
+                             const window& parent,
+                             const core::rectangle& place) {
+      super::create(type, parent, place);
+      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_RANGE| SIF_POS| SIF_PAGE, 0, 100, 10, 0, 0 };
+      SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
+    }
+
+    bool scroll_bar::scroll_handle_event (const core::event& e, core::event_result& result) {
+      switch (e.type) {
+      case WM_VSCROLL:
+      case WM_HSCROLL: {
+        int	nScrollCode = (int)LOWORD(e.param_1);
+        SCROLLINFO si = { sizeof(SCROLLINFO), SIF_ALL, 0, 0, 0, 0, 0 };
+        GetScrollInfo(e.id, SB_CTL, &si);
+        switch (nScrollCode) {
+        case SB_BOTTOM:
+          set_current(si.nMin);
+          break;
+        case SB_TOP:
+          set_current(si.nMax);
+          break;
+        case SB_LINEUP:
+          set_current(si.nPos - 1);
+          break;
+        case SB_LINEDOWN:
+          set_current(si.nPos + 1);
+          break;
+        case SB_PAGEUP:
+          set_current(si.nPos - si.nPage);
+          break;
+        case SB_PAGEDOWN:
+          set_current(si.nPos + si.nPage);
+          break;
+        case SB_THUMBTRACK:
+          set_current(si.nTrackPos);
+          break;
+        case SB_THUMBPOSITION:
+          set_current(si.nTrackPos);
+          break;
+        case SB_ENDSCROLL:
+          set_current(si.nPos);
+          break;
+        }
+      }
+      default:
+        break;
+      }
+      return false;
+    }
 
     int scroll_bar::get_min () const {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
@@ -103,9 +155,14 @@ namespace gui {
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
+    void scroll_bar::set_min_max(int mi, int ma) {
+      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_RANGE, mi, ma, 0, 0, 0 };
+      SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
+    }
+
     void scroll_bar::set_step (int i) {
-      SCROLLINFO si = { sizeof( SCROLLINFO ), SIF_PAGE, 0, 0, (UINT)i, 0, 0 };
-      SetScrollInfo( get_id(), SB_CTL, &si, TRUE  );
+      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_PAGE, 0, 0, (UINT)i, 0, 0 };
+      SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
     void scroll_bar::set_current (int i) {
@@ -171,6 +228,12 @@ namespace gui {
       }
     }
 
+    void scroll_bar::create (const window_class& type,
+                             const window& parent,
+                             const core::rectangle& place) {
+      super::create(type, parent, place);
+    }
+
     int scroll_bar::get_min () const {
       return min;
     }
@@ -196,6 +259,13 @@ namespace gui {
     void scroll_bar::set_max (int i) {
       max = i;
       current = std::min(current, max);
+      redraw_later();
+    }
+
+    void scroll_bar::set_min_max (int mi, int ma) {
+      min = mi;
+      max = ma;
+      current = std::max(current, min);
       redraw_later();
     }
 

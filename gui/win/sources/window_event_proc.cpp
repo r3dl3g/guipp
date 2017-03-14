@@ -101,6 +101,15 @@ namespace gui {
             }
             break;
           }
+          case WM_VSCROLL:
+          case WM_HSCROLL: {
+            HWND id = (HWND)lParam;
+            if (id && (id != hwnd)) {
+              SendMessage(id, msg, wParam, lParam);
+              return 0;
+            }
+            break;
+          }
           case WM_CREATE: {
             CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
@@ -112,9 +121,8 @@ namespace gui {
         core::event_result result = 0;
         window* w = window::get(hwnd);
         if (w && w->is_valid()) {
-          if (w->handle_event(core::event(hwnd, msg, wParam, lParam), result)) {
-            //return result;
-          }
+          w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
+
           const window_class* cls = w->get_window_class();
           if (cls && cls->get_callback() && (cls->get_callback() != WindowEventProc)) {
             return CallWindowProc(cls->get_callback(), hwnd, msg, wParam, lParam);

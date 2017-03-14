@@ -50,11 +50,18 @@ namespace gui {
 
       void set_min (int);
       void set_max (int);
+      void set_min_max (int, int);
       void set_step (int);
       void set_current (int);
 
     protected:
       scroll_bar (bool horizontal);
+
+      void create (const window_class& type,
+                   const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle);
+
+      bool scroll_handle_event (const core::event& e, core::event_result& result);
 
     private:
 #ifdef X11
@@ -67,9 +74,6 @@ namespace gui {
       core::rectangle page_up_place (const core::rectangle& place) const;
       core::rectangle page_down_place (const core::rectangle& place) const;
       core::rectangle thumb_button_place (const core::rectangle& place) const;
-
-      bool scroll_handle_event (const core::event& e,
-                                core::event_result& result);
 
       enum State {
         Nothing_pressed,

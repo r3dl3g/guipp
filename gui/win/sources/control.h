@@ -41,8 +41,6 @@ namespace gui {
     public:
       typedef window super;
 
-      ~scroll_bar ();
-
       int get_min () const;
       int get_max () const;
       int get_step () const;
@@ -55,7 +53,7 @@ namespace gui {
       void set_current (int);
 
     protected:
-      scroll_bar (bool horizontal);
+      scroll_bar ();
 
       void create (const window_class& type,
                    const window& parent,
@@ -65,63 +63,143 @@ namespace gui {
 
     private:
 #ifdef X11
-      core::size::type button_size (const core::rectangle& place) const;
-      core::point::type thumb_top (const core::rectangle& place) const;
-      core::size::type thumb_size (const core::rectangle& place) const;
-
-      core::rectangle up_button_place (const core::rectangle& place) const;
-      core::rectangle down_button_place (const core::rectangle& place) const;
-      core::rectangle page_up_place (const core::rectangle& place) const;
-      core::rectangle page_down_place (const core::rectangle& place) const;
-      core::rectangle thumb_button_place (const core::rectangle& place) const;
-
-      enum State {
-        Nothing_pressed,
-        Up_button_pressed,
-        Down_button_pressed,
-        Thumb_button_pressed,
-        Page_up_pressed,
-        Page_down_pressed
-      };
-
       int min;
       int max;
       int step;
       int current;
-      core::point last_mouse_point;
-      core::graphics_id gc;
-      bool horizontal;
-      State state;
 #endif // X11
+
     };
 
-    template <bool H>
-    class scroll_barT : public scroll_bar {
-    public:
-      typedef scroll_bar super;
+    namespace detail {
+      template<bool H>
+      class scroll_barT : public scroll_bar {
+      public:
+        typedef scroll_bar super;
 
-      scroll_barT ();
+        scroll_barT ();
 
-      void create (const window& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle) {
-        super::create(clazz, parent, place);
-      }
+        ~scroll_barT ();
 
-    private:
-      static window_class clazz;
-    };
+        void create (const window& parent,
+                     const core::rectangle& place = core::rectangle::default_rectangle) {
+          super::create(clazz, parent, place);
+        }
 
-    template <bool H>
-    window_class scroll_barT<H>::clazz;
+      private:
+        static window_class clazz;
 
-    template<>
-    scroll_barT<false>::scroll_barT ();
+#ifdef X11
+        bool scroll_handle_eventT (const core::event& e,
+                                   core::event_result& result);
 
-    template<>
-    scroll_barT<true>::scroll_barT ();
+        core::size::type button_size (const core::rectangle& place) const;
 
-    typedef scroll_barT<false> vscroll_bar;
-    typedef scroll_barT<true> hscroll_bar;
+        core::point::type thumb_top (const core::rectangle& place) const;
+
+        core::size::type thumb_size (const core::rectangle& place) const;
+
+        core::rectangle up_button_place (const core::rectangle& place) const;
+
+        core::rectangle down_button_place (const core::rectangle& place) const;
+
+        core::rectangle page_up_place (const core::rectangle& place) const;
+
+        core::rectangle page_down_place (const core::rectangle& place) const;
+
+        core::rectangle thumb_button_place (const core::rectangle& place) const;
+
+        enum State {
+          Nothing_pressed,
+          Up_button_pressed,
+          Down_button_pressed,
+          Thumb_button_pressed,
+          Page_up_pressed,
+          Page_down_pressed
+        };
+
+        core::point last_mouse_point;
+        core::graphics_id gc;
+        State state;
+#endif // X11
+      };
+
+      template<bool H>
+      window_class scroll_barT<H>::clazz;
+
+      template<>
+      scroll_barT<false>::scroll_barT ();
+
+      template<>
+      scroll_barT<true>::scroll_barT ();
+
+      template<>
+      scroll_barT<false>::~scroll_barT ();
+
+      template<>
+      scroll_barT<true>::~scroll_barT ();
+
+#ifdef X11
+      template<>
+      bool scroll_barT<false>::scroll_handle_eventT (const core::event& e,
+                                                     core::event_result& result);
+
+      template<>
+      bool scroll_barT<true>::scroll_handle_eventT (const core::event& e,
+                                                    core::event_result& result);
+
+      template<>
+      core::size::type scroll_barT<false>::button_size (const core::rectangle& place) const;
+
+      template<>
+      core::size::type scroll_barT<true>::button_size (const core::rectangle& place) const;
+
+      template<>
+      core::point::type scroll_barT<false>::thumb_top (const core::rectangle& place) const;
+
+      template<>
+      core::point::type scroll_barT<true>::thumb_top (const core::rectangle& place) const;
+
+      template<>
+      core::size::type scroll_barT<false>::thumb_size (const core::rectangle& place) const;
+
+      template<>
+      core::size::type scroll_barT<true>::thumb_size (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<false>::up_button_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<true>::up_button_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<false>::down_button_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<true>::down_button_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<false>::page_up_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<true>::page_up_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<false>::page_down_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<true>::page_down_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<false>::thumb_button_place (const core::rectangle& place) const;
+
+      template<>
+      core::rectangle scroll_barT<true>::thumb_button_place (const core::rectangle& place) const;
+#endif // X11
+    }
+
+    typedef detail::scroll_barT<false> vscroll_bar;
+    typedef detail::scroll_barT<true> hscroll_bar;
 
   } // win
 

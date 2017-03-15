@@ -49,7 +49,7 @@ namespace gui {
 
     template<>
     scroll_barT<true>::scroll_barT ()
-      : scroll_bar(true)
+      : scroll_bar()
     {
       if (!clazz.is_valid()) {
         clazz = win::window_class::sub_class("MyScrollBar",
@@ -59,12 +59,9 @@ namespace gui {
       }
     }
 
-    scroll_bar::scroll_bar (bool) {
+    scroll_bar::scroll_bar () {
       register_event_handler(this, &scroll_bar::scroll_handle_event);
     }
-
-    scroll_bar::~scroll_bar ()
-    {}
 
     void scroll_bar::create (const window_class& type,
                              const window& parent,
@@ -177,56 +174,12 @@ namespace gui {
 #ifdef X11
 
     // --------------------------------------------------------------------------
-    template<>
-    scroll_barT<false>::scroll_barT ()
-      : scroll_bar(false)
-    {
-      if (!clazz.is_valid()) {
-        clazz = window_class::custom_class("VSCROLLBAR",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask,
-                                           0, 0, 0,
-                                           draw::color::veryLightGray);
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    scroll_barT<true>::scroll_barT ()
-      : scroll_bar(true)
-    {
-      if (!clazz.is_valid()) {
-        clazz = window_class::custom_class("HSCROLLBAR",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask,
-                                           0, 0, 0,
-                                           draw::color::veryLightGray);
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    scroll_bar::scroll_bar (bool horizontal)
+    scroll_bar::scroll_bar ()
       : min(0)
       , max(100)
       , step(10)
       , current(0)
-      , horizontal(horizontal)
-      , state(Nothing_pressed)
-      , gc(0)
-    {
-      register_event_handler(this, &scroll_bar::scroll_handle_event);
-    }
-
-    scroll_bar::~scroll_bar () {
-      if (gc) {
-        if (core::global::get_instance()) {
-          XFreeGC(core::global::get_instance(), gc);
-        }
-        gc = 0;
-      }
-    }
+    {}
 
     void scroll_bar::create (const window_class& type,
                              const window& parent,
@@ -282,185 +235,281 @@ namespace gui {
       }
     }
 
-    core::size::type scroll_bar::button_size (const core::rectangle& place) const {
-      return horizontal ? place.height() : place.width();
+    bool scroll_bar::scroll_handle_event (const core::event& e, core::event_result& result) {
+      return false;
     }
 
-    core::rectangle scroll_bar::up_button_place (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      return core::rectangle(place.x(), place.y(), sz, sz);
-    }
-
-    core::rectangle scroll_bar::down_button_place (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      return horizontal ? core::rectangle(place.x2() - sz, place.y(), sz, sz)
-                        : core::rectangle(place.x(), place.y2() - sz, sz, sz);
-    }
-
-    core::rectangle scroll_bar::page_up_place (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      core::size::type bottom = (core::size::type)thumb_top(place);
-      return horizontal ? core::rectangle(sz, place.y(), bottom - sz, sz)
-                        : core::rectangle(place.x(), sz, sz, bottom - sz);
-    }
-
-    core::rectangle scroll_bar::page_down_place (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      core::point::type top = thumb_top(place) + thumb_size(place);
-      return horizontal ? core::rectangle(top, place.y(), place.x2() - sz - top, sz)
-                        : core::rectangle(place.x(), top, sz, place.y2() - sz - top);
-    }
-
-    core::point::type scroll_bar::thumb_top (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      return core::point::type(sz + current + 1);
-    }
-
-    core::size::type scroll_bar::thumb_size (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      return std::max(core::size::type((horizontal ? place.width()
-                                                   : place.height()) - sz * 2 - 2 - get_max()), sz);
-    }
-
-    core::rectangle scroll_bar::thumb_button_place (const core::rectangle& place) const {
-      core::size::type sz = button_size(place);
-      core::size::type tsz = thumb_size(place);
-      core::point::type pos = thumb_top(place);
-      return horizontal ? core::rectangle(pos, place.y(), tsz, sz)
-                        : core::rectangle(place.x(), pos, sz, tsz);
-    }
-
-    bool scroll_bar::scroll_handle_event (const core::event& e,
-                                          core::event_result& result) {
-      switch (e.type) {
-        case Expose: {
-          if (!gc) {
-            gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-          }
-          draw::graphics g(e.xexpose.window, gc);
-          core::rectangle place = client_area();
-
-          auto up = up_button_place(place);
-          g.fill(draw::rectangle(up), draw::color::buttonColor);
-          g.draw_relief(up, state == Up_button_pressed);
-          g.text(draw::text_box(horizontal ? " < " : u8" \u2227 ", up, draw::center),
-                 draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
-
-          auto down = down_button_place(place);
-          g.fill(draw::rectangle(down), draw::color::buttonColor);
-          g.draw_relief(down, state == Down_button_pressed);
-          g.text(draw::text_box(horizontal ? " > " : u8" \u2228 ", down, draw::center),
-                 draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
-
-          auto thumb = thumb_button_place(place);
-          g.fill(draw::rectangle(thumb), draw::color::buttonColor);
-          g.draw_relief(thumb, false);
-
-          switch (state) {
-            case Page_up_pressed:
-              g.fill(draw::rectangle(page_up_place(place)), draw::color::lightGray);
-              break;
-            case Page_down_pressed:
-              g.fill(draw::rectangle(page_down_place(place)), draw::color::lightGray);
-              break;
-          }
-          return true;
+    namespace detail {
+      // --------------------------------------------------------------------------
+      template<>
+      scroll_barT<false>::scroll_barT ()
+        : state(Nothing_pressed)
+        , gc(0) {
+        if (!clazz.is_valid()) {
+          clazz = window_class::custom_class("VSCROLLBAR",
+                                             0,
+                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                             FocusChangeMask | KeyPressMask,
+                                             0, 0, 0,
+                                             draw::color::veryLightGray);
         }
-        case ButtonPress:
-          if (e.xbutton.button == Button1) {
-            last_mouse_point = core::point(e.xbutton);
+        register_event_handler(this, &scroll_barT<false>::scroll_handle_eventT);
+      }
+
+      template<>
+      scroll_barT<false>::~scroll_barT () {
+        if (gc) {
+          if (core::global::get_instance()) {
+            XFreeGC(core::global::get_instance(), gc);
+          }
+          gc = 0;
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
+      scroll_barT<true>::scroll_barT ()
+        : state(Nothing_pressed)
+        , gc(0) {
+        if (!clazz.is_valid()) {
+          clazz = window_class::custom_class("HSCROLLBAR",
+                                             0,
+                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                             FocusChangeMask | KeyPressMask,
+                                             0, 0, 0,
+                                             draw::color::veryLightGray);
+        }
+        register_event_handler(this, &scroll_barT<true>::scroll_handle_eventT);
+      }
+
+      template<>
+      scroll_barT<true>::~scroll_barT () {
+        if (gc) {
+          if (core::global::get_instance()) {
+            XFreeGC(core::global::get_instance(), gc);
+          }
+          gc = 0;
+        }
+      }
+
+      // --------------------------------------------------------------------------
+
+      template<>
+      core::size::type scroll_barT<true>::button_size (const core::rectangle& place) const {
+        return place.height();
+      }
+
+      template<>
+      core::size::type scroll_barT<false>::button_size (const core::rectangle& place) const {
+        return place.width();
+      }
+
+      template<>
+      core::rectangle scroll_barT<true>::up_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::rectangle(place.x(), place.y(), sz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<false>::up_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::rectangle(place.x(), place.y(), sz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<true>::down_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::rectangle(place.x2() - sz, place.y(), sz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<false>::down_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::rectangle(place.x(), place.y2() - sz, sz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<true>::page_up_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::size::type bottom = (core::size::type)thumb_top(place);
+        return core::rectangle(sz, place.y(), bottom - sz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<false>::page_up_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::size::type bottom = (core::size::type)thumb_top(place);
+        return core::rectangle(place.x(), sz, sz, bottom - sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<true>::page_down_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::point::type top = thumb_top(place) + thumb_size(place);
+        return core::rectangle(top, place.y(), place.x2() - sz - top, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<false>::page_down_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::point::type top = thumb_top(place) + thumb_size(place);
+        return core::rectangle(place.x(), top, sz, place.y2() - sz - top);
+      }
+
+      template<>
+      core::point::type scroll_barT<true>::thumb_top (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::point::type(sz + get_current() + 1);
+      }
+
+      template<>
+      core::point::type scroll_barT<false>::thumb_top (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return core::point::type(sz + get_current() + 1);
+      }
+
+      template<>
+      core::size::type scroll_barT<true>::thumb_size (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return std::max(core::size::type(place.width() - sz * 2 - 2 - get_max()), sz);
+      }
+
+      template<>
+      core::size::type scroll_barT<false>::thumb_size (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        return std::max(core::size::type(place.height() - sz * 2 - 2 - get_max()), sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<true>::thumb_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::size::type tsz = thumb_size(place);
+        core::point::type pos = thumb_top(place);
+        return core::rectangle(pos, place.y(), tsz, sz);
+      }
+
+      template<>
+      core::rectangle scroll_barT<false>::thumb_button_place (const core::rectangle& place) const {
+        core::size::type sz = button_size(place);
+        core::size::type tsz = thumb_size(place);
+        core::point::type pos = thumb_top(place);
+        return core::rectangle(place.x(), pos, sz, tsz);
+      }
+
+      template<>
+      bool scroll_barT<true>::scroll_handle_eventT (const core::event& e,
+                                                    core::event_result& result) {
+        switch (e.type) {
+          case Expose: {
+            if (!gc) {
+              gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+            }
+            draw::graphics g(e.xexpose.window, gc);
             core::rectangle place = client_area();
-            if (up_button_place(place).is_inside(last_mouse_point)) {
-              state = Up_button_pressed;
-            } else if (down_button_place(place).is_inside(last_mouse_point)) {
-              state = Down_button_pressed;
-            } else if (thumb_button_place(place).is_inside(last_mouse_point)) {
-              state = Thumb_button_pressed;
-            } else if (page_up_place(place).is_inside(last_mouse_point)) {
-              state = Page_up_pressed;
-            } else if (page_down_place(place).is_inside(last_mouse_point)) {
-              state = Page_down_pressed;
-            } else {
-              state = Nothing_pressed;
+
+            auto up = up_button_place(place);
+            g.fill(draw::rectangle(up), draw::color::buttonColor);
+            g.draw_relief(up, state == Up_button_pressed);
+            g.text(draw::text_box(" < ", up, draw::center),
+                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+
+            auto down = down_button_place(place);
+            g.fill(draw::rectangle(down), draw::color::buttonColor);
+            g.draw_relief(down, state == Down_button_pressed);
+            g.text(draw::text_box(" > ", down, draw::center),
+                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+
+            auto thumb = thumb_button_place(place);
+            g.fill(draw::rectangle(thumb), draw::color::buttonColor);
+            g.draw_relief(thumb, false);
+
+            switch (state) {
+              case Page_up_pressed:
+                g.fill(draw::rectangle(page_up_place(place)), draw::color::lightGray);
+                break;
+              case Page_down_pressed:
+                g.fill(draw::rectangle(page_down_place(place)), draw::color::lightGray);
+                break;
             }
-            redraw_later();
             return true;
           }
-          break;
-        case ButtonRelease:
-          switch (e.xbutton.button) {
-            case Button1: {
-              auto pt = core::point(e.xbutton);
+          case ButtonPress:
+            if (e.xbutton.button == Button1) {
+              last_mouse_point = core::point(e.xbutton);
               core::rectangle place = client_area();
-              switch (state) {
-                case Up_button_pressed:
-                  if (up_button_place(place).is_inside(pt)) {
-                    set_current(get_current() - 1);
-                  }
-                  break;
-                case Down_button_pressed:
-                  if (down_button_place(place).is_inside(pt)) {
-                    set_current(get_current() + 1);
-                  }
-                  break;
-                case Page_up_pressed:
-                  if (page_up_place(place).is_inside(pt)) {
-                    set_current(get_current() - step);
-                  }
-                  break;
-                case Page_down_pressed:
-                  if (page_down_place(place).is_inside(pt)) {
-                    set_current(get_current() + step);
-                  }
-                  break;
+              if (up_button_place(place).is_inside(last_mouse_point)) {
+                state = Up_button_pressed;
+              } else if (down_button_place(place).is_inside(last_mouse_point)) {
+                state = Down_button_pressed;
+              } else if (thumb_button_place(place).is_inside(last_mouse_point)) {
+                state = Thumb_button_pressed;
+              } else if (page_up_place(place).is_inside(last_mouse_point)) {
+                state = Page_up_pressed;
+              } else if (page_down_place(place).is_inside(last_mouse_point)) {
+                state = Page_down_pressed;
+              } else {
+                state = Nothing_pressed;
               }
-              break;
+              redraw_later();
+              return true;
             }
-            case Button4: { // Y-Wheel
-              if (!horizontal) {
+            break;
+          case ButtonRelease:
+            switch (e.xbutton.button) {
+              case Button1: {
+                auto pt = core::point(e.xbutton);
+                core::rectangle place = client_area();
+                switch (state) {
+                  case Up_button_pressed:
+                    if (up_button_place(place).is_inside(pt)) {
+                      set_current(get_current() - 1);
+                    }
+                    break;
+                  case Down_button_pressed:
+                    if (down_button_place(place).is_inside(pt)) {
+                      set_current(get_current() + 1);
+                    }
+                    break;
+                  case Page_up_pressed:
+                    if (page_up_place(place).is_inside(pt)) {
+                      set_current(get_current() - get_step());
+                    }
+                    break;
+                  case Page_down_pressed:
+                    if (page_down_place(place).is_inside(pt)) {
+                      set_current(get_current() + get_step());
+                    }
+                    break;
+                }
+                break;
+              }
+              case 6: { // X-Wheel
                 set_current(get_current() - 1);
+                return true;
               }
-              return true;
-            }
-            case Button5: { // Y-Wheel
-              if (!horizontal) {
+              case 7: { // X-Wheel
                 set_current(get_current() + 1);
+                return true;
+              }
+            }
+            state = Nothing_pressed;
+            redraw_later();
+            break;
+          case MotionNotify:
+            if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+              // check if on thumb
+              if (state == Thumb_button_pressed) {
+                int delta = e.xmotion.x - last_mouse_point.x();
+                last_mouse_point = core::point(e.xmotion);
+                set_current(get_current() + delta);
               }
               return true;
             }
-            case 6: { // X-Wheel
-              if (horizontal) {
-                set_current(get_current() - 1);
-              }
-              return true;
-            }
-            case 7: { // X-Wheel
-              if (horizontal) {
-                set_current(get_current() + 1);
-              }
-              return true;
-            }
-          }
-          state = Nothing_pressed;
-          redraw_later();
-          break;
-        case MotionNotify:
-          if ((e.xmotion.state & Button1Mask) == Button1Mask) {
-            // check if on thumb
-            if (state == Thumb_button_pressed) {
-              int delta = horizontal ?  e.xmotion.x - last_mouse_point.x()
-                                     : e.xmotion.y - last_mouse_point.y();
-              last_mouse_point = core::point(e.xmotion);
-              set_current(get_current() + delta);
-            }
-            return true;
-          }
-          break;
-        case KeyPress: {
-          KeySym key;
-          char text[8] = {0};
-          XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &key, 0);
-          if (horizontal) {
+            break;
+          case KeyPress: {
+            KeySym key;
+            char text[8] = {0};
+            XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &key, 0);
             switch (key) {
               case XK_Left:
               case XK_KP_Left:
@@ -470,8 +519,143 @@ namespace gui {
               case XK_KP_Right:
                 set_current(get_current() + 1);
                 return true;
+              case XK_Page_Up:
+              case XK_KP_Page_Up:
+                set_current(get_current() - get_step());
+                return true;
+              case XK_Page_Down:
+              case XK_KP_Page_Down:
+                set_current(get_current() + get_step());
+                return true;
+              case XK_Home:
+              case XK_KP_Home:
+                set_current(get_min());
+                return true;
+              case XK_End:
+              case XK_KP_End:
+                set_current(get_min());
+                return true;
             }
-          } else {
+            break;
+          }
+        }
+        return false;
+      }
+
+      template<>
+      bool scroll_barT<false>::scroll_handle_eventT (const core::event& e,
+                                                     core::event_result& result) {
+        switch (e.type) {
+          case Expose: {
+            if (!gc) {
+              gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+            }
+            draw::graphics g(e.xexpose.window, gc);
+            core::rectangle place = client_area();
+
+            auto up = up_button_place(place);
+            g.fill(draw::rectangle(up), draw::color::buttonColor);
+            g.draw_relief(up, state == Up_button_pressed);
+            g.text(draw::text_box(u8" \u2227 ", up, draw::center),
+                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+
+            auto down = down_button_place(place);
+            g.fill(draw::rectangle(down), draw::color::buttonColor);
+            g.draw_relief(down, state == Down_button_pressed);
+            g.text(draw::text_box(u8" \u2228 ", down, draw::center),
+                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+
+            auto thumb = thumb_button_place(place);
+            g.fill(draw::rectangle(thumb), draw::color::buttonColor);
+            g.draw_relief(thumb, false);
+
+            switch (state) {
+              case Page_up_pressed:
+                g.fill(draw::rectangle(page_up_place(place)), draw::color::lightGray);
+                break;
+              case Page_down_pressed:
+                g.fill(draw::rectangle(page_down_place(place)), draw::color::lightGray);
+                break;
+            }
+            return true;
+          }
+          case ButtonPress:
+            if (e.xbutton.button == Button1) {
+              last_mouse_point = core::point(e.xbutton);
+              core::rectangle place = client_area();
+              if (up_button_place(place).is_inside(last_mouse_point)) {
+                state = Up_button_pressed;
+              } else if (down_button_place(place).is_inside(last_mouse_point)) {
+                state = Down_button_pressed;
+              } else if (thumb_button_place(place).is_inside(last_mouse_point)) {
+                state = Thumb_button_pressed;
+              } else if (page_up_place(place).is_inside(last_mouse_point)) {
+                state = Page_up_pressed;
+              } else if (page_down_place(place).is_inside(last_mouse_point)) {
+                state = Page_down_pressed;
+              } else {
+                state = Nothing_pressed;
+              }
+              redraw_later();
+              return true;
+            }
+            break;
+          case ButtonRelease:
+            switch (e.xbutton.button) {
+              case Button1: {
+                auto pt = core::point(e.xbutton);
+                core::rectangle place = client_area();
+                switch (state) {
+                  case Up_button_pressed:
+                    if (up_button_place(place).is_inside(pt)) {
+                      set_current(get_current() - 1);
+                    }
+                    break;
+                  case Down_button_pressed:
+                    if (down_button_place(place).is_inside(pt)) {
+                      set_current(get_current() + 1);
+                    }
+                    break;
+                  case Page_up_pressed:
+                    if (page_up_place(place).is_inside(pt)) {
+                      set_current(get_current() - get_step());
+                    }
+                    break;
+                  case Page_down_pressed:
+                    if (page_down_place(place).is_inside(pt)) {
+                      set_current(get_current() + get_step());
+                    }
+                    break;
+                }
+                break;
+              }
+              case Button4: { // Y-Wheel
+                set_current(get_current() - 1);
+                return true;
+              }
+              case Button5: { // Y-Wheel
+                set_current(get_current() + 1);
+                return true;
+              }
+            }
+            state = Nothing_pressed;
+            redraw_later();
+            break;
+          case MotionNotify:
+            if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+              // check if on thumb
+              if (state == Thumb_button_pressed) {
+                int delta = e.xmotion.y - last_mouse_point.y();
+                last_mouse_point = core::point(e.xmotion);
+                set_current(get_current() + delta);
+              }
+              return true;
+            }
+            break;
+          case KeyPress: {
+            KeySym key;
+            char text[8] = {0};
+            XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &key, 0);
             switch (key) {
               case XK_Up:
               case XK_KP_Up:
@@ -481,30 +665,28 @@ namespace gui {
               case XK_KP_Down:
                 set_current(get_current() + 1);
                 return true;
+              case XK_Page_Up:
+              case XK_KP_Page_Up:
+                set_current(get_current() - get_step());
+                return true;
+              case XK_Page_Down:
+              case XK_KP_Page_Down:
+                set_current(get_current() + get_step());
+                return true;
+              case XK_Home:
+              case XK_KP_Home:
+                set_current(get_min());
+                return true;
+              case XK_End:
+              case XK_KP_End:
+                set_current(get_min());
+                return true;
             }
+            break;
           }
-          switch (key) {
-            case XK_Page_Up:
-            case XK_KP_Page_Up:
-              set_current(get_current() - step);
-              return true;
-            case XK_Page_Down:
-            case XK_KP_Page_Down:
-              set_current(get_current() + step);
-              return true;
-            case XK_Home:
-            case XK_KP_Home:
-              set_current(min);
-              return true;
-            case XK_End:
-            case XK_KP_End:
-              set_current(max);
-              return true;
-          }
-          break;
         }
+        return false;
       }
-      return false;
     }
 
 #endif // X11

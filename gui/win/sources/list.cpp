@@ -135,6 +135,26 @@ namespace gui {
 #endif // X11
     }
 
+    void list::set_scroll_pos (int pos) {
+#ifdef WIN32
+      SetScrollPos(get_id(), SB_VERT, -pos, true);
+#endif // WIN32
+#ifdef X11
+      const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
+      offset = std::max(std::min(0, pos), -max_delta);
+      redraw_later();
+#endif // X11
+    }
+
+    int list::get_scroll_pos () const {
+#ifdef WIN32
+      return -GetScrollPos(get_id(), SB_VERT);
+#endif // WIN32
+#ifdef X11
+      return offset;
+#endif // X11
+    }
+
     void list::set_drawer(std::function<item_draw> drawer, int item_height) {
       this->drawer = drawer;
       set_item_size( { 0, core::size::type(item_height) } );
@@ -207,17 +227,13 @@ namespace gui {
               }
               break;
             case Button4: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
-              offset = std::max(std::min(0, offset + item_size.height()), -max_delta);
+              set_scroll_pos(offset + item_size.height());
               moved = true;
-              redraw_later();
               return true;
             }
             case Button5: { // Y-Wheel
-              const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
-              offset = std::max(std::min(0, offset - item_size.height()), -max_delta);
+              set_scroll_pos(offset - item_size.height());
               moved = true;
-              redraw_later();
               return true;
             }
           }
@@ -225,11 +241,9 @@ namespace gui {
         case MotionNotify:
           if ((e.xmotion.state & Button1Mask) == Button1Mask) {
             int dy = e.xmotion.y - last_mouse_point.y();
-            const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
-            offset = std::max(std::min(0, offset + dy), -max_delta);
+            set_scroll_pos(offset + dy);
             last_mouse_point = core::point(e.xmotion);
             moved = true;
-            redraw_later();
             return true;
           }
           break;

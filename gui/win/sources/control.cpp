@@ -174,12 +174,23 @@ namespace gui {
 #ifdef X11
 
     // --------------------------------------------------------------------------
+    Atom SCROLLBAR_MESSAGE = 0;
+
+    bool scroll_matcher::operator() (const core::event& e) {
+      return (e.type == ClientMessage) && (e.xclient.message_type == SCROLLBAR_MESSAGE);
+    }
+
+    // --------------------------------------------------------------------------
     scroll_bar::scroll_bar ()
       : min(0)
       , max(100)
       , step(10)
       , current(0)
-    {}
+    {
+      if (!SCROLLBAR_MESSAGE) {
+        SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
+      }
+    }
 
     void scroll_bar::create (const window_class& type,
                              const window& parent,
@@ -232,6 +243,7 @@ namespace gui {
       if (i != current) {
         current = i;
         redraw_later();
+        send_client_message(this, SCROLLBAR_MESSAGE, i);
       }
     }
 
@@ -484,11 +496,11 @@ namespace gui {
                 break;
               }
               case 6: { // X-Wheel
-                set_current(get_current() - 1);
+                set_current(get_current() - get_step());
                 return true;
               }
               case 7: { // X-Wheel
-                set_current(get_current() + 1);
+                set_current(get_current() + get_step());
                 return true;
               }
             }
@@ -630,11 +642,11 @@ namespace gui {
                 break;
               }
               case Button4: { // Y-Wheel
-                set_current(get_current() - 1);
+                set_current(get_current() - get_step());
                 return true;
               }
               case Button5: { // Y-Wheel
-                set_current(get_current() + 1);
+                set_current(get_current() + get_step());
                 return true;
               }
             }

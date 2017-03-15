@@ -133,6 +133,10 @@ namespace gui {
 
       int get_selection () const;
 
+      void set_scroll_pos (int pos);
+
+      int get_scroll_pos () const;
+
       static void draw_text_item (draw::graphics&,
                                   const std::string& text,
                                   const core::rectangle& place,

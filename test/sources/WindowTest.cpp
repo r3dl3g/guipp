@@ -452,6 +452,10 @@ int main(int argc, char* argv[]) {
     data.update_list(list2);
   }));
 
+  vscroll.register_event_handler(win::scroll_event([&](int pos){
+    list1.set_scroll_pos(-pos);
+  }));
+
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
   }));

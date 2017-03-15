@@ -37,7 +37,8 @@ namespace gui {
 
     namespace detail {
 
-      void set_id(window* w, core::window_id id) {
+      void set_id (window* w,
+                   core::window_id id) {
         w->id = id;
       }
 
@@ -148,32 +149,35 @@ namespace gui {
 
 #ifdef X11
 
-    int run_main_loop() {
-        Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
+    int run_main_loop () {
+      Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
 
-        core::event e;
-        bool running = true;
-        while(running) {
-            XNextEvent(core::global::get_instance(), &e);
-            win::window* win = win::window::get(e.xany.window);
-            if (win && win->is_valid()) {
-              if (e.type == CreateNotify) {
-                XSetWMProtocols(e.xany.display, e.xany.window, &wmDeleteMessage, 1);
-              } else if ((e.type == ClientMessage) && (e.xclient.data.l[0] == wmDeleteMessage)) {
-                running = false;
-              }
-              try {
-                  core::event_result resultValue = 0;
-                  win->handle_event(core::event(e), resultValue);
-                  XFlush(e.xany.display);
-              } catch (std::exception e) {
-                  LogFatal << "exception in run_main_loop:" << e;
-              } catch (...) {
-                  LogFatal << "Unknown exception in run_main_loop()";
-              }
+      core::event e;
+      bool running = true;
+      while (running) {
+        while (XPending(core::global::get_instance())) {
+          XNextEvent(core::global::get_instance(), &e);
+          win::window* win = win::window::get(e.xany.window);
+          if (win && win->is_valid()) {
+            if (e.type == CreateNotify) {
+              XSetWMProtocols(e.xany.display, e.xany.window, &wmDeleteMessage, 1);
+            } else if ((e.type == ClientMessage) && (e.xclient.data.l[0] == wmDeleteMessage)) {
+              running = false;
             }
+            try {
+              core::event_result resultValue = 0;
+              win->handle_event(core::event(e), resultValue);
+              XFlush(e.xany.display);
+            } catch (std::exception e) {
+              LogFatal << "exception in run_main_loop:" << e;
+            } catch (...) {
+              LogFatal << "Unknown exception in run_main_loop()";
+            }
+          }
         }
+      }
     }
+
 #endif // X11
 
   } // win

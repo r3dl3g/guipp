@@ -384,26 +384,34 @@ namespace gui {
 
       template<>
       core::point::type scroll_barT<true>::thumb_top (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return core::point::type(sz + get_current() + 1);
+        int sz = button_size(place);
+        int space = place.width() - sz * 2 - 2;
+        int thumb_size = std::max(space - get_max(), sz);
+        return core::point::type(sz + 1 + get_current() * (space - thumb_size) / get_max());
       }
 
       template<>
       core::point::type scroll_barT<false>::thumb_top (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return core::point::type(sz + get_current() + 1);
+        int sz = button_size(place);
+        int space = place.height() - sz * 2 - 2;
+        int thumb_size = std::max(space - get_max(), sz);
+        return core::point::type(sz + 1 + get_current() * (space - thumb_size) / get_max());
       }
 
       template<>
       core::size::type scroll_barT<true>::thumb_size (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return std::max(core::size::type(place.width() - sz * 2 - 2 - get_max()), sz);
+        int sz = button_size(place);
+        int space = place.width() - sz * 2 - 2;
+        int t = space - get_max();
+        return core::size::type(std::max(t, sz));
       }
 
       template<>
       core::size::type scroll_barT<false>::thumb_size (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return std::max(core::size::type(place.height() - sz * 2 - 2 - get_max()), sz);
+        int sz = button_size(place);
+        int space = place.height() - sz * 2 - 2;
+        int t = space - get_max();
+        return core::size::type(std::max(t, sz));
       }
 
       template<>

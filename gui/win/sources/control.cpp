@@ -35,28 +35,42 @@ namespace gui {
 
 #ifdef WIN32
 // --------------------------------------------------------------------------
-    template<>
-    scroll_barT<false>::scroll_barT ()
-      : scroll_bar(false)
-    {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::sub_class("MyScrollBar",
-                                             "SCROLLBAR",
-                                             SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
-                                             WS_EX_NOPARENTNOTIFY);
+    namespace detail {
+      template<>
+      scroll_barT<false>::scroll_barT () {
+        if (!clazz.is_valid()) {
+          clazz = win::window_class::sub_class("MyScrollBar",
+            "SCROLLBAR",
+            SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
+            WS_EX_NOPARENTNOTIFY);
+        }
       }
+
+      template<>
+      scroll_barT<true>::scroll_barT () {
+        if (!clazz.is_valid()) {
+          clazz = win::window_class::sub_class("MyScrollBar",
+            "SCROLLBAR",
+            SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_VISIBLE,
+            WS_EX_NOPARENTNOTIFY);
+        }
+      }
+
+      template<>
+      scroll_barT<false>::~scroll_barT() {}
+
+      template<>
+      scroll_barT<true>::~scroll_barT() {}
     }
 
-    template<>
-    scroll_barT<true>::scroll_barT ()
-      : scroll_bar()
-    {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::sub_class("MyScrollBar",
-                                             "SCROLLBAR",
-                                             SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_VISIBLE,
-                                             WS_EX_NOPARENTNOTIFY);
-      }
+    bool scroll_matcher::operator() (const core::event& e) {
+      return (e.type == WM_VSCROLL) || (e.type == WM_HSCROLL);
+    }
+
+    int get_scroll_pos(const core::event& e) {
+      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0 };
+      GetScrollInfo(e.id, SB_CTL, &si);
+      return si.nPos;
     }
 
     scroll_bar::scroll_bar () {

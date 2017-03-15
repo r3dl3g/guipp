@@ -489,6 +489,8 @@ int main(int argc, char* argv[]) {
   list5.show();
 
   vscroll.create(main, core::rectangle(700, 50, 16, 250));
+  vscroll.set_max(list1.get_count() * list1.get_item_size().height() - list1.size().height());
+  vscroll.set_step(list1.get_item_size().height());
   vscroll.show();
 
   hscroll.create(main, core::rectangle(450, 20, 250, 16));

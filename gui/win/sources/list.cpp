@@ -137,7 +137,7 @@ namespace gui {
 
     void list::set_scroll_pos (int pos) {
 #ifdef WIN32
-      SetScrollPos(get_id(), SB_VERT, -pos, true);
+      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)-pos / (double)get_item_size().height()), 0);
 #endif // WIN32
 #ifdef X11
       const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
@@ -148,7 +148,7 @@ namespace gui {
 
     int list::get_scroll_pos () const {
 #ifdef WIN32
-      return -GetScrollPos(get_id(), SB_VERT);
+      return -GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
 #endif // WIN32
 #ifdef X11
       return offset;

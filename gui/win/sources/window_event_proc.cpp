@@ -155,7 +155,7 @@ namespace gui {
       core::event e;
       bool running = true;
       while (running) {
-        while (XPending(core::global::get_instance())) {
+//        while (XPending(core::global::get_instance())) {
           XNextEvent(core::global::get_instance(), &e);
           win::window* win = win::window::get(e.xany.window);
           if (win && win->is_valid()) {
@@ -174,7 +174,7 @@ namespace gui {
               LogFatal << "Unknown exception in run_main_loop()";
             }
           }
-        }
+//        }
       }
     }
 

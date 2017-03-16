@@ -158,6 +158,10 @@ namespace gui {
       void create (const window_class& type,
                    const core::rectangle& place = core::rectangle::default_rectangle);
 
+#ifdef WIN32
+      void set_style (core::windows_style mask, bool);
+      core::windows_style get_style (core::windows_style mask = 0xffff) const;
+#endif // WIN32
     private:
       void create (const window_class& type,
                    core::window_id parent_id,

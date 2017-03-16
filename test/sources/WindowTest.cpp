@@ -133,6 +133,9 @@ int main(int argc, char* argv[]) {
   main.register_event_handler(init_result_handler());
 
   win::push_button ok_button;
+  win::push_button del_button;
+  win::push_button clear_button;
+
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
@@ -155,6 +158,8 @@ int main(int argc, char* argv[]) {
 
   win::vscroll_bar vscroll;
   win::hscroll_bar hscroll;
+
+  win::check_box scroll_check_box;
 
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -442,14 +447,36 @@ int main(int argc, char* argv[]) {
   }));
 
   ok_button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Button clicked";
+    LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data += "Sechs", "Sieben", "Acht", "Neun", "Zehn";
     data.update_list(list2);
   }));
+  
+  del_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Del Button clicked";
+    label.set_text("Del Clicked!");
+    data.erase(data.begin());
+    data.update_list(list2);
+  }));
+
+  clear_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Clear Button clicked";
+    label.set_text("Clear Clicked!");
+    data.clear();
+    data.update_list(list2);
+  }));
+
+  scroll_check_box.register_event_handler(win::button_state_event([&](bool on) {
+    list1.enable_vscroll_bar(on);
+    list2.enable_vscroll_bar(on);
+  }));
 
   vscroll.register_event_handler(win::scroll_event([&](int pos){
     list1.set_scroll_pos(pos);
+    list2.set_scroll_pos(pos);
+    list3.set_scroll_pos(pos);
+    list4.set_scroll_pos(pos);
   }));
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
@@ -492,6 +519,10 @@ int main(int argc, char* argv[]) {
   hscroll.create(main, core::rectangle(450, 20, 250, 16));
   hscroll.set_visible();
 
+  scroll_check_box.create(main, core::rectangle(340, 20, 100, 20), "Enable");
+  scroll_check_box.set_checked(true);
+  scroll_check_box.set_visible();
+
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.set_visible();
 
@@ -525,6 +556,14 @@ int main(int argc, char* argv[]) {
   ok_button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
   ok_button.set_visible();
   ok_button.redraw_later();
+
+  del_button.create(main, core::rectangle(490, 350, 100, 25), "Del");
+  del_button.set_visible();
+  del_button.redraw_later();
+
+  clear_button.create(main, core::rectangle(600, 350, 100, 25), "Clear");
+  clear_button.set_visible();
+  clear_button.redraw_later();
 
   min_button.create(main, core::rectangle(180, 400, 60, 25), "Min");
   min_button.set_visible();

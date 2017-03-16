@@ -42,14 +42,16 @@ namespace gui {
                            command_matcher<LBN_SELCHANGE>>      selection_changed_event;
 #endif //WIN32
 #ifdef X11
-    extern Atom SELECTION_CHANGE_MESSAGE;
+    namespace detail {
+      extern Atom SELECTION_CHANGE_MESSAGE;
 
-    struct selection_changed_message_match {
-      bool operator() (const core::event& e);
-    };
+      struct selection_changed_message_match {
+        bool operator() (const core::event& e);
+      };
+    }
 
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           selection_changed_message_match>     selection_changed_event;
+                           detail::selection_changed_message_match>     selection_changed_event;
 #endif // X11
 
     // --------------------------------------------------------------------------
@@ -130,16 +132,16 @@ namespace gui {
       }
 
       void set_count (size_t count);
-
       size_t get_count () const;
 
       void set_selection (int count);
-
       int get_selection () const;
 
       void set_scroll_pos (int pos);
-
       int get_scroll_pos () const;
+
+      void enable_vscroll_bar (bool enable);
+      bool is_vscroll_bar_enabled () const;
 
       static void draw_text_item (draw::graphics&,
                                   const std::string& text,

@@ -270,6 +270,14 @@ namespace gui {
     window* window::get(core::window_id id) {
       return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
     }
+
+    core::windows_style window::get_style (core::windows_style mask) const {
+      return GetWindowLong(get_id(), GWL_STYLE) & mask;
+    }
+
+    void window::set_style (core::windows_style style, bool enable) {
+      SetWindowLong(get_id(), GWL_STYLE, enable ? get_style() | style : get_style(~style));
+    }
 #endif // WIN32
 
 #ifdef X11

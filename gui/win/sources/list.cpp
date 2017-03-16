@@ -41,136 +41,8 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     // --------------------------------------------------------------------------
-#ifdef X11
-    Atom SELECTION_CHANGE_MESSAGE = 0;
-
-    bool selection_changed_message_match::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
-    }
-#endif // X11
-
     // --------------------------------------------------------------------------
     window_class list::clazz;
-
-    list::list ()
-#ifdef X11
-      : item_count(0)
-      , selection(-1)
-      , gc(0)
-#endif // X11
-    {
-#ifdef X11
-      if (!SELECTION_CHANGE_MESSAGE) {
-        SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
-      }
-      scrollbar.register_event_handler(win::scroll_event([&](int pos){
-        redraw_later();
-      }));
-#endif // X11
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyListBox",
-                                             "LISTBOX",
-                                             LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-                                             WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
-                                             WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("LISTBOX",
-                                           1,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask,
-                                           0, 0, 0,
-                                           draw::color::white);
-#endif // !WIN32
-      }
-      register_event_handler(this, &list::list_handle_event);
-    }
-
-    void list::set_count (size_t count) {
-#ifdef WIN32
-      SendMessage(get_id(), LB_SETCOUNT, count, 0);
-#endif // WIN32
-#ifdef X11
-      item_count = count;
-
-      core::size::type ih = get_item_height();
-      int h = (ih * (int)item_count) - size().height();
-
-      scrollbar.set_max(std::max(h, 0));
-      scrollbar.set_step(ih);
-      scrollbar.set_visible(h > 0);
-
-      redraw_later();
-#endif // X11
-    }
-
-    size_t list::get_count () const {
-#ifdef WIN32
-      return (size_t)ListBox_GetCount(get_id());
-#endif // WIN32
-#ifdef X11
-      return item_count;
-#endif // X11
-    }
-
-    void list::set_selection (int sel) {
-#ifdef WIN32
-      ListBox_SetCurSel(get_id(), sel);
-      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
-#endif // WIN32
-#ifdef X11
-      selection = std::min(std::max(0, sel), (int)get_count() - 1);
-      // Make selection visible
-      const int sel_pos = get_item_height() * selection;
-      const core::size sz = size();
-
-      if (sel_pos < get_scroll_pos()) {
-        set_scroll_pos(sel_pos);
-      } else if (sel_pos + get_item_height() - get_scroll_pos() > sz.height()) {
-        set_scroll_pos(sel_pos + get_item_height() - sz.height());
-      }
-      send_client_message(this, SELECTION_CHANGE_MESSAGE);
-      redraw_later();
-#endif // X11
-    }
-
-    int list::get_selection () const {
-#ifdef WIN32
-      return ListBox_GetCurSel(get_id());
-#endif // WIN32
-#ifdef X11
-      return selection;
-#endif // X11
-    }
-
-    void list::set_scroll_pos (int pos) {
-#ifdef WIN32
-      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
-#endif // WIN32
-#ifdef X11
-      const int max_delta = std::max(0, (get_item_height() * (int)get_count()) - size().height());
-      scrollbar.set_value(std::min(std::max(0, pos), max_delta));
-      redraw_later();
-#endif // X11
-    }
-
-    int list::get_scroll_pos () const {
-#ifdef WIN32
-      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
-#endif // WIN32
-#ifdef X11
-      return scrollbar.get_value();
-#endif // X11
-    }
-
-#ifdef X11
-    core::rectangle list::get_scroll_area() {
-      core::rectangle r(size());
-      r.x(r.x2() - core::point::type(16));
-      r.width(16);
-      return r;
-    }
-#endif // X11
 
     void list::set_drawer(std::function<item_draw> drawer, int item_height) {
       this->drawer = drawer;
@@ -183,9 +55,63 @@ namespace gui {
       }
     }
 
+    void list::draw_text_item (draw::graphics& g,
+                               const std::string& text,
+                               const core::rectangle& place,
+                               bool selected) {
+      using namespace draw;
+      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
+      g.text(text_box(text, place, vcenter_left), font::system(),
+             selected ? color::highLightTextColor : color::windowTextColor);
+    }
+
+#ifdef WIN32
+    list::list () {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::sub_class("MyListBox",
+                                             "LISTBOX",
+                                             LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
+                                             WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
+                                             WS_EX_NOPARENTNOTIFY);
+      }
+      register_event_handler(this, &list::list_handle_event);
+    }
+
+    void list::set_count (size_t count) {
+      SendMessage(get_id(), LB_SETCOUNT, count, 0);
+    }
+
+    size_t list::get_count () const {
+      return (size_t)ListBox_GetCount(get_id());
+    }
+
+    void list::set_selection (int sel) {
+      ListBox_SetCurSel(get_id(), sel);
+      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
+    }
+
+    int list::get_selection () const {
+      return ListBox_GetCurSel(get_id());
+    }
+
+    void list::set_scroll_pos (int pos) {
+      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
+    }
+
+    int list::get_scroll_pos () const {
+      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
+    }
+
+    void  list::enable_vscroll_bar (bool enable) {
+      set_style(WS_VSCROLL, enable);
+    }
+
+    bool  list::is_vscroll_bar_enabled () const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
+
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
-#ifdef WIN32
       if (e.type == WM_DRAWITEM) {
         PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
         // If there are no list box items, skip this message. 
@@ -203,8 +129,109 @@ namespace gui {
         }
         return true;
       }
+      return false;
+    }
+
+    list::~list ()
+    {}
+
 #endif // WIN32
+
 #ifdef X11
+    namespace detail {
+      Atom SELECTION_CHANGE_MESSAGE = 0;
+
+      bool selection_changed_message_match::operator() (const core::event& e) {
+        return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
+      }
+    }
+
+    list::list ()
+      : item_count(0)
+      , selection(-1)
+      , gc(0)
+    {
+      if (!detail::SELECTION_CHANGE_MESSAGE) {
+        detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
+      }
+      scrollbar.register_event_handler(win::scroll_event([&](int pos){
+        redraw_later();
+      }));
+      if (!clazz.is_valid()) {
+        clazz = window_class::custom_class("LISTBOX",
+                                           1,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           FocusChangeMask | KeyPressMask,
+                                           0, 0, 0,
+                                           draw::color::white);
+      }
+      register_event_handler(this, &list::list_handle_event);
+    }
+
+    void list::set_count (size_t count) {
+      item_count = count;
+
+      core::size::type ih = get_item_height();
+      int h = (ih * (int)item_count) - size().height();
+
+      scrollbar.set_max(std::max(h, 0));
+      scrollbar.set_step(ih);
+      scrollbar.set_visible((h > 0) && is_vscroll_bar_enabled());
+
+      redraw_later();
+    }
+
+    size_t list::get_count () const {
+      return item_count;
+    }
+
+    void list::set_selection (int sel) {
+      selection = std::min(std::max(0, sel), (int)get_count() - 1);
+      // Make selection visible
+      const int sel_pos = get_item_height() * selection;
+      const core::size sz = size();
+
+      if (sel_pos < get_scroll_pos()) {
+        set_scroll_pos(sel_pos);
+      } else if (sel_pos + get_item_height() - get_scroll_pos() > sz.height()) {
+        set_scroll_pos(sel_pos + get_item_height() - sz.height());
+      }
+      send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+      redraw_later();
+    }
+
+    int list::get_selection () const {
+      return selection;
+    }
+
+    void list::set_scroll_pos (int pos) {
+      const int max_delta = std::max(0, (get_item_height() * (int)get_count()) - size().height());
+      scrollbar.set_value(std::min(std::max(0, pos), max_delta));
+      redraw_later();
+    }
+
+    int list::get_scroll_pos () const {
+      return scrollbar.get_value();
+    }
+
+    void  list::enable_vscroll_bar (bool enable) {
+      scrollbar.enable(enable);
+      scrollbar.set_visible(enable && scrollbar.get_max());
+    }
+
+    bool  list::is_vscroll_bar_enabled () const {
+      return scrollbar.is_enabled();
+    }
+
+    core::rectangle list::get_scroll_area() {
+      core::rectangle r(size());
+      r.x(r.x2() - core::point::type(16));
+      r.width(16);
+      return r;
+    }
+
+    bool list::list_handle_event (const core::event& e,
+                                  core::event_result& result) {
       switch (e.type) {
         case Expose: {
           if (!gc) {
@@ -238,7 +265,7 @@ namespace gui {
               if (!moved) {
                 const int new_selection = (e.xbutton.y + get_scroll_pos()) / get_item_height();
                 selection = new_selection == selection ? -1 : new_selection;
-                send_client_message(this, SELECTION_CHANGE_MESSAGE);
+                send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
                 redraw_later();
                 return true;
               }
@@ -297,30 +324,19 @@ namespace gui {
           break;
         }
       }
-#endif // X11
       return false;
     }
 
     list::~list () {
-#ifdef X11
       if (gc) {
         if (core::global::get_instance()) {
           XFreeGC(core::global::get_instance(), gc);
         }
         gc = 0;
       }
-#endif // X11
     }
 
-    void list::draw_text_item (draw::graphics& g,
-                               const std::string& text,
-                               const core::rectangle& place,
-                               bool selected) {
-      using namespace draw;
-      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
-      g.text(text_box(text, place, vcenter_left), font::system(),
-             selected ? color::highLightTextColor : color::windowTextColor);
-    }
+#endif // X11
 
   } // win
 

@@ -156,12 +156,8 @@ namespace gui {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
     }
 
-    void window::hide() {
-      ShowWindow(get_id(), SW_HIDE);
-    }
-
-    void window::show() {
-      ShowWindow(get_id(), SW_SHOWNA);
+    void window::show(bool s) {
+      ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
     }
 
     void window::minimize() {
@@ -454,12 +450,12 @@ namespace gui {
       return get_parent() == &parent;
     }
 
-    void window::hide () {
-      XUnmapWindow(core::global::get_instance(), get_id());
-    }
-
-    void window::show () {
-      XMapWindow(core::global::get_instance(), get_id());
+    void window::set_visible (bool s) {
+      if (s) {
+        XMapWindow(core::global::get_instance(), get_id());
+      } else {
+        XUnmapWindow(core::global::get_instance(), get_id());
+      }
     }
 
     void window::minimize () {

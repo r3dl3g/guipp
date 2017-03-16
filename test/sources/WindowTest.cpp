@@ -282,11 +282,7 @@ int main(int argc, char* argv[]) {
   }));
   window1.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
-    if (window2.is_visible()) {
-      window2.hide();
-    } else {
-      window2.show();
-    }
+    window2.set_visible(!window2.is_visible());
   }));
 
   main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
@@ -453,7 +449,7 @@ int main(int argc, char* argv[]) {
   }));
 
   vscroll.register_event_handler(win::scroll_event([&](int pos){
-    list1.set_scroll_pos(-pos);
+    list1.set_scroll_pos(pos);
   }));
 
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
@@ -463,86 +459,86 @@ int main(int argc, char* argv[]) {
   //main.set_text("Window Test");
 
   window1.create(main, core::rectangle(10, 50, 100, 280));
-  window1.show();
+  window1.set_visible();
 
   window2.create(main, core::rectangle(120, 50, 200, 280));
-  window2.show();
+  window2.set_visible();
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
   list1.set_count(20);
-  list1.show();
+  list1.set_visible();
 
   list2.create(main, core::rectangle(410, 50, 60, 250));
   data.update_list(list2);
-  list2.show();
+  list2.set_visible();
 
   list3.create(main, core::rectangle(480, 50, 60, 250));
   list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  list3.show();
+  list3.set_visible();
 
   list4.create(main, core::rectangle(550, 50, 60, 250));
   const float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
   list4.set_data(win::list::data<float>(floats), 16);
-  list4.show();
+  list4.set_visible();
 
   list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
-  list5.show();
+  list5.set_visible();
 
   vscroll.create(main, core::rectangle(700, 50, 16, 250));
   vscroll.set_max(list1.get_count() * list1.get_item_size().height() - list1.size().height());
   vscroll.set_step(list1.get_item_size().height());
-  vscroll.show();
+  vscroll.set_visible();
 
   hscroll.create(main, core::rectangle(450, 20, 250, 16));
-  hscroll.show();
+  hscroll.set_visible();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
-  up_button.show();
+  up_button.set_visible();
 
   down_button.create(main, core::rectangle(383, 305, 47, 25), "Down");
-  down_button.show();
+  down_button.set_visible();
 
   label.create(main, core::rectangle(50, 350, 120, 20), "Text");
-  label.show();
+  label.set_visible();
   label.redraw_later();
 
   labelC.create(main, core::rectangle(50, 371, 120, 20));
-  labelC.show();
+  labelC.set_visible();
   labelC.redraw_later();
 
   labelR.create(main, core::rectangle(50, 392, 120, 20));
-  labelR.show();
+  labelR.set_visible();
   labelR.redraw_later();
 
   radio_button.create(main, core::rectangle(180, 350, 70, 20), "Radio");
-  radio_button.show();
+  radio_button.set_visible();
   radio_button.redraw_later();
 
   radio_button2.create(main, core::rectangle(180, 372, 70, 20), "Radio2");
-  radio_button2.show();
+  radio_button2.set_visible();
   radio_button2.redraw_later();
 
   check_box.create(main, core::rectangle(270, 350, 100, 25), "Check");
-  check_box.show();
+  check_box.set_visible();
   check_box.redraw_later();
 
   ok_button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
-  ok_button.show();
+  ok_button.set_visible();
   ok_button.redraw_later();
 
   min_button.create(main, core::rectangle(180, 400, 60, 25), "Min");
-  min_button.show();
+  min_button.set_visible();
 
   max_button.create(main, core::rectangle(250, 400, 60, 25), "Max");
-  max_button.show();
+  max_button.set_visible();
 
   norm_button.create(main, core::rectangle(320, 400, 60, 25), "Norm");
-  norm_button.show();
+  norm_button.set_visible();
 
   info_button.create(main, core::rectangle(390, 400, 90, 25), "Info");
-  info_button.show();
+  info_button.set_visible();
 
-  main.show();
+  main.set_visible();
   main.redraw_later();
 
   int ret = 0;

@@ -26,9 +26,6 @@
 //
 // Common includes
 //
-//#ifdef X11
-//# include <X11/Xlib.h>
-//#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -60,13 +57,15 @@ namespace gui {
       : item_count(0)
       , selection(-1)
       , gc(0)
-      , offset(0)
 #endif // X11
     {
 #ifdef X11
       if (!SELECTION_CHANGE_MESSAGE) {
         SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
       }
+      scrollbar.register_event_handler(win::scroll_event([&](int pos){
+        redraw_later();
+      }));
 #endif // X11
       if (!clazz.is_valid()) {
 #ifdef WIN32
@@ -93,6 +92,14 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       item_count = count;
+
+      core::size::type ih = get_item_height();
+      int h = (ih * (int)item_count) - size().height();
+
+      scrollbar.set_max(std::max(h, 0));
+      scrollbar.set_step(ih);
+      scrollbar.set_visible(h > 0);
+
       redraw_later();
 #endif // X11
     }
@@ -114,12 +121,13 @@ namespace gui {
 #ifdef X11
       selection = std::min(std::max(0, sel), (int)get_count() - 1);
       // Make selection visible
-      const int sel_pos = item_size.height() * selection;
+      const int sel_pos = get_item_height() * selection;
       const core::size sz = size();
-      if (offset + sel_pos < 0) {
-        offset = -sel_pos;
-      } else if (offset + sel_pos + item_size.height() > sz.height()) {
-        offset = sz.height() - (sel_pos + item_size.height());
+
+      if (sel_pos < get_scroll_pos()) {
+        set_scroll_pos(sel_pos);
+      } else if (sel_pos + get_item_height() - get_scroll_pos() > sz.height()) {
+        set_scroll_pos(sel_pos + get_item_height() - sz.height());
       }
       send_client_message(this, SELECTION_CHANGE_MESSAGE);
       redraw_later();
@@ -137,23 +145,32 @@ namespace gui {
 
     void list::set_scroll_pos (int pos) {
 #ifdef WIN32
-      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)-pos / (double)get_item_size().height()), 0);
+      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
 #endif // WIN32
 #ifdef X11
-      const int max_delta = std::max(0, (item_size.height() * (int)get_count()) - size().height());
-      offset = std::max(std::min(0, pos), -max_delta);
+      const int max_delta = std::max(0, (get_item_height() * (int)get_count()) - size().height());
+      scrollbar.set_value(std::min(std::max(0, pos), max_delta));
       redraw_later();
 #endif // X11
     }
 
     int list::get_scroll_pos () const {
 #ifdef WIN32
-      return -GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
+      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
 #endif // WIN32
 #ifdef X11
-      return offset;
+      return scrollbar.get_value();
 #endif // X11
     }
+
+#ifdef X11
+    core::rectangle list::get_scroll_area() {
+      core::rectangle r(size());
+      r.x(r.x2() - core::point::type(16));
+      r.width(16);
+      return r;
+    }
+#endif // X11
 
     void list::set_drawer(std::function<item_draw> drawer, int item_height) {
       this->drawer = drawer;
@@ -197,12 +214,12 @@ namespace gui {
           core::rectangle place = client_area();
           const int max_y = place.y2();
           const int max_idx = (int)get_count();
-          const int first = -offset / item_size.height();
+          const int first = get_scroll_pos() / get_item_height();
 
-          place.top_left({place.x(), core::point::type(offset + item_size.height() * first)});
-          place.height(item_size.height());
+          place.top_left({place.x(), core::point::type(get_item_height() * first - get_scroll_pos())});
+          place.height(get_item_height());
 
-          for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move(item_size)) {
+          for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move(get_item_size())) {
             draw_item(g, idx, place, selection == idx);
           }
           XFlushGC(e.xexpose.display, gc);
@@ -219,7 +236,7 @@ namespace gui {
           switch (e.xbutton.button) {
             case Button1:
               if (!moved) {
-                const int new_selection = (e.xbutton.y - offset) / item_size.height();
+                const int new_selection = (e.xbutton.y + get_scroll_pos()) / get_item_height();
                 selection = new_selection == selection ? -1 : new_selection;
                 send_client_message(this, SELECTION_CHANGE_MESSAGE);
                 redraw_later();
@@ -227,12 +244,12 @@ namespace gui {
               }
               break;
             case Button4: { // Y-Wheel
-              set_scroll_pos(offset + item_size.height());
+              set_scroll_pos(get_scroll_pos() - get_item_height());
               moved = true;
               return true;
             }
             case Button5: { // Y-Wheel
-              set_scroll_pos(offset - item_size.height());
+              set_scroll_pos(get_scroll_pos() + get_item_height());
               moved = true;
               return true;
             }
@@ -240,8 +257,8 @@ namespace gui {
           break;
         case MotionNotify:
           if ((e.xmotion.state & Button1Mask) == Button1Mask) {
-            int dy = e.xmotion.y - last_mouse_point.y();
-            set_scroll_pos(offset + dy);
+            int dy = last_mouse_point.y() - e.xmotion.y;
+            set_scroll_pos(get_scroll_pos() + dy);
             last_mouse_point = core::point(e.xmotion);
             moved = true;
             return true;
@@ -262,11 +279,11 @@ namespace gui {
               return true;
             case XK_Page_Up:
             case XK_KP_Page_Up:
-              set_selection(get_selection() - (size().height() / item_size.height()));
+              set_selection(get_selection() - (size().height() / get_item_height()));
               return true;
             case XK_Page_Down:
             case XK_KP_Page_Down:
-              set_selection(get_selection() + (size().height() / item_size.height()));
+              set_selection(get_selection() + (size().height() / get_item_height()));
               return true;
             case XK_Home:
             case XK_KP_Home:

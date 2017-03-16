@@ -92,9 +92,7 @@ namespace gui {
 
       bool is_child_of (const window& parent) const;
 
-      void hide ();
-
-      void show ();
+      void set_visible (bool s = true);
 
       void minimize ();
 

@@ -51,11 +51,17 @@ namespace gui {
 
       const gui::core::size& get_item_size () const;
 
+      inline gui::core::size::type get_item_width () const {
+        return get_item_size().width();
+      }
+
+      inline gui::core::size::type get_item_height () const {
+        return get_item_size().height();
+      }
+
       static const gui::core::size& get_item_size (int id);
 
     protected:
-      gui::core::size item_size;
-
       void create (const gui::win::window_class& clazz,
                    const gui::win::window& parent,
                    const gui::core::rectangle& place = gui::core::rectangle::default_rectangle) {
@@ -63,6 +69,8 @@ namespace gui {
       }
 
     private:
+      gui::core::size item_size;
+
       const int owner_draw_id;
 
       static int next_owner_draw_id;

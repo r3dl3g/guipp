@@ -29,6 +29,7 @@
 //
 #include "window_event_handler.h"
 #include "owner_draw.h"
+#include "scroll_bar.h"
 
 
 namespace gui {
@@ -48,7 +49,7 @@ namespace gui {
     };
 
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
-      selection_changed_message_match> selection_changed_event;
+                           selection_changed_message_match>     selection_changed_event;
 #endif // X11
 
     // --------------------------------------------------------------------------
@@ -104,6 +105,9 @@ namespace gui {
       void create (const window& parent,
                    const core::rectangle& place = core::rectangle::default_rectangle) {
         super::create(clazz, parent, place);
+#ifdef X11
+        scrollbar.create(*this, get_scroll_area());
+#endif // X11
       }
 
       template<typename T>
@@ -154,9 +158,11 @@ namespace gui {
       std::function<item_draw> drawer;
 
 #ifdef X11
+      core::rectangle get_scroll_area();
+      vscroll_bar scrollbar;
+
       size_t item_count;
       int selection;
-      int offset;
       bool moved;
       core::point last_mouse_point;
       core::graphics_id gc;

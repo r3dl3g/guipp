@@ -160,7 +160,8 @@ namespace gui {
 
 #ifdef WIN32
       void set_style (core::windows_style mask, bool);
-      core::windows_style get_style (core::windows_style mask = 0xffff) const;
+      core::windows_style get_style (core::windows_style mask = 
+                                     std::numeric_limits<core::windows_style>::max()) const;
 #endif // WIN32
     private:
       void create (const window_class& type,

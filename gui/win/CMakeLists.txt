@@ -21,6 +21,7 @@ file(GLOB SOURCE_FILES "sources/*.*")
 link_directories(${win_Lib})
 
 add_library(win ${SOURCE_FILES})
+
 target_link_libraries(win core draw)
 
 endif()

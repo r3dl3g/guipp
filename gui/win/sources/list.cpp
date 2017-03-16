@@ -19,7 +19,6 @@
 #ifdef WIN32
 #define WINVER 0x0602
 #include <windowsx.h>
-#define NOMINMAX
 #endif // WIN32
 
 // --------------------------------------------------------------------------
@@ -103,10 +102,15 @@ namespace gui {
     }
 
     void  list::enable_vscroll_bar (bool enable) {
-      set_style(WS_VSCROLL, enable);
+      // first check, if needed.
+      if (enable && (get_count() * get_item_height() > size().height())) {
+        ShowScrollBar(get_id(), SB_VERT, true);
+      } else {
+        ShowScrollBar(get_id(), SB_VERT, false);
+      }
     }
 
-    bool  list::is_vscroll_bar_enabled () const {
+    bool list::is_vscroll_bar_enabled () const {
       return get_style(WS_VSCROLL) == WS_VSCROLL;
     }
 

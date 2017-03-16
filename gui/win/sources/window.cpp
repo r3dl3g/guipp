@@ -156,7 +156,7 @@ namespace gui {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
     }
 
-    void window::show(bool s) {
+    void window::set_visible(bool s) {
       ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
     }
 
@@ -272,11 +272,15 @@ namespace gui {
     }
 
     core::windows_style window::get_style (core::windows_style mask) const {
-      return GetWindowLong(get_id(), GWL_STYLE) & mask;
+      LONG old_style = GetWindowLong(get_id(), GWL_STYLE);
+      core::windows_style new_style = old_style & mask;
+      return new_style;
     }
 
     void window::set_style (core::windows_style style, bool enable) {
-      SetWindowLong(get_id(), GWL_STYLE, enable ? get_style() | style : get_style(~style));
+      LONG new_style = enable ? get_style() | style : get_style(~style);
+      SetWindowLong(get_id(), GWL_STYLE, new_style);
+      redraw_now();
     }
 #endif // WIN32
 

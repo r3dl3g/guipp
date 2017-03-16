@@ -31,7 +31,7 @@
 #include "button.h"
 #include "owner_draw.h"
 #include "list.h"
-#include "scroll_bar.h"
+#include "scroll_view.h"
 
 
 namespace gui {

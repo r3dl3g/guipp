@@ -282,10 +282,8 @@ namespace gui {
 
     window::window ()
       : id(0)
-#ifdef X11
       , redraw_disabled(false)
       , window_disabled(false)
-#endif // X11
     {}
 
     window::~window () {
@@ -615,10 +613,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     window_class main_window::clazz;
 
+    // --------------------------------------------------------------------------
+    window_class client_window::clazz;
+
+    // --------------------------------------------------------------------------
 #ifdef WIN32
     main_window::main_window () {
       if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("mainwindow",
+        clazz = win::window_class::custom_class("main_window",
                                                 CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
                                                 WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
                                                 WS_THICKFRAME | WS_VISIBLE,
@@ -670,12 +672,24 @@ namespace gui {
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
+    client_window::client_window () {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::custom_class("client_window",
+                                                CS_DBLCLKS,
+                                                WS_CHILD | WS_SIZEBOX,
+                                                WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+                                                nullptr,
+                                                LoadCursor(nullptr, IDC_ARROW),
+                                                (HBRUSH)(COLOR_BTNFACE + 1));
+        );
+      }
+    }
 #endif // WIN32
 
 #ifdef X11
     main_window::main_window () {
       if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("mainwindow");
+        clazz = win::window_class::custom_class("main_window");
         clazz.background = draw::color::workSpaceColor;
       }
     }
@@ -824,6 +838,13 @@ namespace gui {
       send_net_wm_state(get_id(),
                         toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
                         NET_WM_STATE_ABOVE);
+    }
+
+    client_window::client_window () {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::custom_class("client_window");
+        clazz.background = draw::color::buttonColor;
+      }
     }
 
 #endif //X11

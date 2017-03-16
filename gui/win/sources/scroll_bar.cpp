@@ -33,6 +33,10 @@ namespace gui {
 
   namespace win {
 
+    core::size::type scroll_bar::get_scroll_bar_width () {
+      return core::size::type(16);
+    }
+
 #ifdef WIN32
 // --------------------------------------------------------------------------
     namespace detail {
@@ -71,10 +75,6 @@ namespace gui {
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0 };
       GetScrollInfo(e.id, SB_CTL, &si);
       return si.nPos;
-    }
-
-    core::size::type scroll_bar::get_scroll_bar_width () {
-      return core::size::type(16);
     }
 
     scroll_bar::scroll_bar () {

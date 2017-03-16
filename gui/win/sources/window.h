@@ -230,6 +230,19 @@ namespace gui {
       static window_class clazz;
     };
 
+    class client_window : public window {
+    public:
+      client_window ();
+
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle) {
+        window::create(clazz, parent, place);
+      }
+
+    private:
+      static window_class clazz;
+    };
+
   } // win
 
 } // gui

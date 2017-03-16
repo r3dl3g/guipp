@@ -38,11 +38,9 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-
-    // --------------------------------------------------------------------------
-    // --------------------------------------------------------------------------
     window_class list::clazz;
 
+    // --------------------------------------------------------------------------
     void list::set_drawer(std::function<item_draw> drawer, int item_height) {
       this->drawer = drawer;
       set_item_size( { 0, core::size::type(item_height) } );
@@ -64,6 +62,7 @@ namespace gui {
              selected ? color::highLightTextColor : color::windowTextColor);
     }
 
+    // --------------------------------------------------------------------------
 #ifdef WIN32
     list::list () {
       if (!clazz.is_valid()) {

@@ -150,6 +150,26 @@ namespace gui {
       br.x(tl.x() + width);
     }
 
+    rectangle& rectangle::operator|= (const rectangle& rhs) {
+      core::point::type x0 = std::min(x(), rhs.x());
+      core::point::type y0 = std::min(y(), rhs.y());
+      core::point::type x1 = std::max(x2(), rhs.x2());
+      core::point::type y1 = std::max(y2(), rhs.y2());
+      tl = {x0, y0};
+      br = {x1, y1};
+      return *this;
+    }
+
+    rectangle& rectangle::operator&= (const rectangle& rhs) {
+      core::point::type x0 = std::max(x(), rhs.x());
+      core::point::type y0 = std::max(y(), rhs.y());
+      core::point::type x1 = std::min(x2(), rhs.x2());
+      core::point::type y1 = std::min(y2(), rhs.y2());
+      tl = {x0, y0};
+      br = {x1, y1};
+      return *this;
+    }
+
     std::ostream& operator<<(std::ostream& out, const size& sz) {
       out << sz.width() << ", " << sz.height();
       return out;

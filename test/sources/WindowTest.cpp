@@ -6,6 +6,190 @@
 using namespace boost::assign;
 
 
+namespace gui {
+  namespace win {
+
+    class scroll_view : public window {
+    public:
+      typedef window super;
+
+      scroll_view ();
+
+      void calc_area ();
+
+      void set_scroll_pos (const core::point& pt);
+      core::point get_scroll_pos () const;
+
+      void enable_vscroll_bar (bool enable);
+      void enable_hscroll_bar (bool enable);
+      bool is_vscroll_bar_enabled () const;
+      bool is_hscroll_bar_enabled () const;
+
+      void create (const window& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle) {
+        super::create(clazz, parent, place);
+//#ifdef X11
+        vscroll.create(*this, get_vscroll_area());
+        hscroll.create(*this, get_hscroll_area());
+//#endif // X11
+      }
+
+      void move_children (const core::point& delta);
+
+    protected:
+      core::rectangle get_vscroll_area () const;
+      core::rectangle get_hscroll_area () const;
+      core::rectangle get_visible_area () const;
+
+    private:
+      core::point current_pos;
+      vscroll_bar vscroll;
+      hscroll_bar hscroll;
+
+      static window_class clazz;
+    };
+
+    window_class scroll_view::clazz;
+
+    scroll_view::scroll_view () {
+      if (!clazz.is_valid()) {
+#ifdef WIN32
+        clazz = win::window_class::custom_class("MyScrollView",
+                                                CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                WS_EX_NOPARENTNOTIFY,
+                                                nullptr,
+                                                LoadCursor(nullptr, IDC_ARROW),
+                                                (HBRUSH)(COLOR_WINDOW + 1));
+#endif // WIN32
+#ifdef X11
+        clazz = win::window_class::custom_class("MyScrollView");
+#endif //X11
+      }
+      vscroll.register_event_handler(scroll_event([&](int y) {
+        move_children(core::point(0, y - current_pos.y()));
+      }));
+      hscroll.register_event_handler(scroll_event([&](int x) {
+        move_children(core::point(x - current_pos.x(), 0));
+      }));
+    }
+
+    void scroll_view::move_children (const core::point& delta) {
+      std::vector<window*> children = get_children();
+      for(window* win : children) {
+        if ((win != &vscroll) && (win != &hscroll)) {
+          win->move(win->position() - delta);
+        }
+      }
+      current_pos += delta;
+    }
+
+    void scroll_view::set_scroll_pos (const core::point& pt) {
+      hscroll.set_value(pt.x());
+      vscroll.set_value(pt.y());
+    }
+
+    core::point scroll_view::get_scroll_pos () const {
+      return { core::point::type(hscroll.get_value()),
+               core::point::type(vscroll.get_value()) };
+    }
+
+    void scroll_view::enable_vscroll_bar (bool enable) {
+      if (enable) {
+        vscroll.place(get_vscroll_area());
+        vscroll.to_front();
+      }
+      vscroll.set_visible(enable);
+    }
+
+    void scroll_view::enable_hscroll_bar (bool enable) {
+      if (enable) {
+        hscroll.place(get_hscroll_area());
+        hscroll.to_front();
+      }
+      hscroll.set_visible(enable);
+    }
+
+    bool scroll_view::is_vscroll_bar_enabled () const {
+      return vscroll.is_visible();
+    }
+
+    bool scroll_view::is_hscroll_bar_enabled () const {
+      return hscroll.is_visible();
+    }
+    
+    void scroll_view::calc_area () {
+      core::rectangle space(size());
+
+      std::vector<window*> children = get_children();
+      core::rectangle required;
+      for(window* win : children) {
+        if (required == core::rectangle::zero) {
+          required = win->place();
+        } else {
+          required |= win->place();
+        }
+      }
+      LogDebug << "Space:" << space << ", Required:" << required;
+
+      bool show_h = (required.x() < space.x()) || (required.x2() > space.x2());
+      if (show_h) {
+        space.height(space.height() - core::size::type(16));
+      }
+
+      bool show_v = (required.y() < space.y()) || (required.y2() > space.y2());
+      if (show_v) {
+        space.width(space.width() - core::size::type(16));
+
+        if (!show_h) {
+          // recheck h
+          show_h = (required.x() < space.x()) || (required.x2() > space.x2());
+          if (show_h) {
+            space.height(space.height() - core::size::type(16));
+          }
+        }
+
+        vscroll.set_min_max(space.y() - required.y(), required.y2() - space.y2());
+        vscroll.set_value(space.y());
+      }
+
+      if (show_h) {
+        hscroll.set_min_max(space.x() - required.x(), required.x2() - space.x2());
+        hscroll.set_value(space.x());
+      }
+
+      enable_vscroll_bar(show_v);
+      enable_hscroll_bar(show_h);
+    }
+
+    core::rectangle scroll_view::get_vscroll_area () const {
+      core::rectangle r(size());
+      r.x(r.x2() - core::point::type(16));
+      r.width(16);
+      return r;
+    }
+
+    core::rectangle scroll_view::get_hscroll_area () const {
+      core::rectangle r(size());
+      r.y(r.y2() - core::point::type(16));
+      r.height(16);
+      return r;
+    }
+
+    core::rectangle scroll_view::get_visible_area () const {
+      core::rectangle r(size());
+      if (is_vscroll_bar_enabled()) {
+        r.width(r.width() - core::size::type(16));
+      }
+      if (is_hscroll_bar_enabled()) {
+        r.height(r.height() - core::size::type(16));
+      }
+      return r;
+    }
+
+  }
+}
+
 struct AsBool {
   inline AsBool(bool b)
     : b(b) {
@@ -74,7 +258,6 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
   };
 }
 
-win::window_class mainCls;
 win::window_class chldCls;
 
 win::paint_event create_paint1();
@@ -100,14 +283,6 @@ int main(int argc, char* argv[]) {
 #endif
 
 #ifdef WIN32
- mainCls = win::window_class::custom_class("mainwindow",
-    CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_VISIBLE,
-    WS_EX_NOPARENTNOTIFY,
-    nullptr,
-    LoadCursor(nullptr, IDC_ARROW),
-    (HBRUSH)(COLOR_APPWORKSPACE + 1));
-
  chldCls = win::window_class::custom_class("childwindow",
     CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SIZEBOX | WS_VISIBLE,
@@ -117,18 +292,21 @@ int main(int argc, char* argv[]) {
     (HBRUSH)(COLOR_WINDOW + 1));
 
 #elif X11
-  mainCls = win::window_class::custom_class("mainwindow");
-  mainCls.background = draw::color::workSpaceColor;
   chldCls = win::window_class::custom_class("childwindow");
 #endif
 
 
-  win::windowT<mainCls> main;
+  win::main_window main;
+
+  win::scroll_view view; 
+
   win::windowT<chldCls> window1;
   win::windowT<chldCls> window2;
 
+  win::push_button calc_button;
+
   LogDebug << "window size:" << sizeof(main);
-  LogDebug << "window_class size:" << sizeof(mainCls);
+  LogDebug << "window_class size:" << sizeof(chldCls);
 
   main.register_event_handler(init_result_handler());
 
@@ -268,27 +446,43 @@ int main(int argc, char* argv[]) {
   window1.register_event_handler(win::size_event([](const core::size& s) {
     LogDebug << "Window1 size: " << s;
   }));
+
+  auto down_handler = [&](const core::point& p) {
+    at_drag = true;
+    last_pos = p;
+    LogDebug << "Window Mouse down at " << p;
+  };
+  auto up_handler = [&](const core::point& p) {
+    at_drag = false;
+    LogDebug << "Window Mouse up at " << p;
+  };
+  window1.register_event_handler(win::left_btn_down_event(down_handler));
+  window1.register_event_handler(win::left_btn_up_event(up_handler));
+  window2.register_event_handler(win::left_btn_down_event(down_handler));
+  window2.register_event_handler(win::left_btn_up_event(up_handler));
+
   window1.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
-    //LogDebug << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
-      core::size delta = p - last_pos;
+      core::point delta = p - last_pos;
       //last_pos = p;
       window1.move(window1.position() + delta);
     }
   }));
-  window1.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
-    at_drag = true;
-    last_pos = p;
-    LogDebug << "Window1 Mouse down at " << p;
+  window2.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+    //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    if (at_drag) {
+      core::point delta = p - last_pos;
+      //last_pos = p;
+      window2.move(window2.position() + delta);
+    }
   }));
-  window1.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
-    at_drag = false;
-    LogDebug << "Window1 Mouse up at " << p;
-  }));
+
   window1.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   }));
+
 
   main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
     LogDebug << "Double Click up at " << p;
@@ -382,20 +576,7 @@ int main(int argc, char* argv[]) {
     ok_button.enable(on);
   }));
 
-  min_button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Min clicked";
-    main.minimize();
-  }));
-  max_button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Max clicked";
-    main.maximize();
-  }));
-  norm_button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Norm clicked";
-    main.restore();
-  }));
-  info_button.register_event_handler(win::button_clicked_event([&]() {
-    LogDebug << "Info clicked";
+  auto query_state = [&]() {
     if (main.is_minimized()) {
       labelC.set_text("Minimized");
     } else if (main.is_maximized()) {
@@ -403,6 +584,26 @@ int main(int argc, char* argv[]) {
     } else {
       labelC.set_text("Normal");
     }
+  };
+
+  min_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Min clicked";
+    main.minimize();
+    query_state();
+  }));
+  max_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Max clicked";
+    main.maximize();
+    query_state();
+  }));
+  norm_button.register_event_handler(win::button_clicked_event([&]() {
+    LogDebug << "Norm clicked";
+    main.restore();
+    query_state();
+  }));
+  info_button.register_event_handler(win::button_clicked_event([&](){
+    LogDebug << "Info clicked";
+    query_state();
   }));
 
   auto list_drawer = [](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
@@ -479,17 +680,27 @@ int main(int argc, char* argv[]) {
     list4.set_scroll_pos(pos);
   }));
 
+  calc_button.register_event_handler(win::button_clicked_event([&]() {
+    view.calc_area();
+  }));
+
   main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
     LogDebug << "Main created";
   }));
   main.create(core::rectangle(50, 50, 800, 480));
-  //main.set_text("Window Test");
+  main.set_title("Window Test");
 
-  window1.create(main, core::rectangle(10, 50, 100, 280));
+  view.create(main, core::rectangle(0, 0, 300, 330));
+  view.set_visible();
+
+  window1.create(view, core::rectangle(10, 10, 100, 280));
   window1.set_visible();
 
-  window2.create(main, core::rectangle(120, 50, 200, 280));
+  window2.create(view, core::rectangle(120, 10, 200, 280));
   window2.set_visible();
+
+  calc_button.create(main, core::rectangle(310, 0, 60, 20), "Calc");
+  calc_button.set_visible();
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
   list1.set_count(20);

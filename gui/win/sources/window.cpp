@@ -30,6 +30,7 @@
 //
 #include "window.h"
 #include "window_event_proc.h"
+#include "color.h"
 
 
 namespace gui {
@@ -116,18 +117,6 @@ namespace gui {
       return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
-    bool window::is_top_most() const {
-      return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
-    }
-
-    bool window::is_minimized() const {
-      return IsIconic(get_id()) != FALSE;
-    }
-
-    bool window::is_maximized() const {
-      return IsZoomed(get_id()) != FALSE;
-    }
-
     bool window::has_border() const {
       return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
     }
@@ -156,26 +145,18 @@ namespace gui {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
     }
 
+    std::vector<window*> window::get_children () const {
+      std::vector<window*> list;
+      core::window_id id = GetWindow(get_id(), GW_CHILD);
+      while (id) {
+        list.push_back(get(id));
+        id = GetWindow(id, GW_HWNDNEXT);
+      }
+      return list;      
+    }
+
     void window::set_visible(bool s) {
       ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
-    }
-
-    void window::minimize() {
-      ShowWindow(get_id(), SW_MINIMIZE);
-    }
-
-    void window::maximize() {
-      ShowWindow(get_id(), SW_MAXIMIZE);
-    }
-
-    void window::restore() {
-      ShowWindow(get_id(), SW_RESTORE);
-    }
-
-    void window::set_top_most(bool toplevel) {
-      SetWindowPos(get_id(),
-                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
-                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
     void window::enable(bool on) {
@@ -184,6 +165,14 @@ namespace gui {
 
     void window::take_focus () {
       SetFocus(get_id());
+    }
+
+    void window::to_front () {
+      BringWindowToTop(get_id());
+    }
+
+    void window::to_back () {
+      SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
     void window::enable_redraw(bool on) {
@@ -399,26 +388,6 @@ namespace gui {
       return is_toplevel();
     }
 
-    bool window::is_top_most () const {
-      return is_toplevel();
-    }
-
-    bool window::is_minimized () const {
-      XWindowAttributes a;
-      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
-              (a.map_state == IsUnmapped));
-    }
-
-    bool window::is_maximized () const {
-//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
-//      long suplied = 0;
-//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
-//        core::size sz = size();
-//        return (sz.width() == zhints.base_width) && (sz.height() == zhints.base_height);
-//      }
-      return false;
-    }
-
     bool window::has_border () const {
       XWindowAttributes a;
       return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
@@ -462,39 +431,32 @@ namespace gui {
       return get_parent() == &parent;
     }
 
+    std::vector<window*> window::get_children () const {
+      std::vector<window*> list;
+      
+      Window root;
+      Window parent;
+      Window *children;
+      unsigned int nchildren;
+
+      if (XQueryTree(core::global::get_instance(),
+                     get_id(),
+                     &root,
+                     &parent,
+                     &children,
+                     &nchildren)) {
+        for (unsigned int n = 0; n < nchildren; ++n) {
+          list.push_back(window::get(children[n]));
+        }
+      }
+      return list;
+    }
+
     void window::set_visible (bool s) {
       if (s) {
         XMapWindow(core::global::get_instance(), get_id());
       } else {
         XUnmapWindow(core::global::get_instance(), get_id());
-      }
-    }
-
-    void window::minimize () {
-      XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
-    }
-
-    void window::maximize () {
-//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
-//      long suplied = 0;
-//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
-//        XResizeWindow(core::global::get_instance(), get_id(), zhints.base_width, zhints.base_height);
-//      }
-    }
-
-    void window::restore () {
-//      XSizeHints zhints = { PBaseSize | PMaxSize | USSize | PSize, 0 };
-//      long suplied = 0;
-//      if (!XGetWMNormalHints(core::global::get_instance(), get_id(), &zhints, &suplied)) {
-//        XResizeWindow(core::global::get_instance(), get_id(), zhints.width, zhints.height);
-//      }
-    }
-
-    void window::set_top_most (bool toplevel) {
-      if (toplevel) {
-        XRaiseWindow(core::global::get_instance(), get_id());
-      } else {
-        XLowerWindow(core::global::get_instance(), get_id());
       }
     }
 
@@ -505,6 +467,14 @@ namespace gui {
 
     void window::take_focus () {
       XSetInputFocus(core::global::get_instance(), get_id(), RevertToParent, CurrentTime);
+    }
+
+    void window::to_front () {
+      XRaiseWindow(core::global::get_instance(), get_id());
+    }
+
+    void window::to_back () {
+      XLowerWindow(core::global::get_instance(), get_id());
     }
 
     void window::enable_redraw (bool on) {
@@ -640,6 +610,222 @@ namespace gui {
     std::string window_with_text::get_text() const {
       return text;
     }
+#endif //X11
+
+    // --------------------------------------------------------------------------
+    window_class main_window::clazz;
+
+#ifdef WIN32
+    main_window::main_window () {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::custom_class("mainwindow",
+                                                CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+                                                WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
+                                                WS_THICKFRAME | WS_VISIBLE,
+                                                WS_EX_NOPARENTNOTIFY,
+                                                nullptr,
+                                                LoadCursor(nullptr, IDC_ARROW),
+                                                (HBRUSH)(COLOR_APPWORKSPACE + 1));
+      }
+    }
+    
+    void main_window::set_title (const std::string& title) {
+      SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)title.c_str());
+    }
+
+    std::string main_window::get_title () const {
+      std::string s;
+      s.resize(SendMessage(get_id(), WM_GETTEXTLENGTH, 0, 0) + 1);
+      SendMessage(get_id(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
+      return s;
+    }
+
+    bool main_window::is_top_most() const {
+      return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
+    }
+
+    bool main_window::is_minimized() const {
+      return IsIconic(get_id()) != FALSE;
+    }
+
+    bool main_window::is_maximized() const {
+      return IsZoomed(get_id()) != FALSE;
+    }
+
+    void main_window::minimize() {
+      ShowWindow(get_id(), SW_MINIMIZE);
+    }
+
+    void main_window::maximize() {
+      ShowWindow(get_id(), SW_MAXIMIZE);
+    }
+
+    void main_window::restore() {
+      ShowWindow(get_id(), SW_RESTORE);
+    }
+
+    void main_window::set_top_most(bool toplevel) {
+      SetWindowPos(get_id(),
+                   toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
+                   0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    }
+
+#endif // WIN32
+
+#ifdef X11
+    main_window::main_window () {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::custom_class("mainwindow");
+        clazz.background = draw::color::workSpaceColor;
+      }
+    }
+    
+    void main_window::set_title (const std::string& title) {
+      XStoreName(core::global::get_instance(), get_id(), title.c_str());
+    }
+
+    std::string main_window::get_title () const {
+      char *window_name;
+      XFetchName(core::global::get_instance(), get_id(), &window_name);
+      return std::string(window_name);
+    }
+
+    Atom ATOM_ATOM = 0;
+    Atom NET_WM_STATE = 0;
+    Atom NET_WM_STATE_MAXIMIZED_HORZ = 0;
+    Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
+    Atom NET_WM_STATE_ABOVE = 0;
+    Atom NET_WM_STATE_HIDDEN = 0;
+
+#ifndef _NET_WM_STATE_REMOVE
+# define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
+#endif
+#ifndef _NET_WM_STATE_ADD
+# define _NET_WM_STATE_ADD           1    /* add/set property */
+#endif
+#ifndef _NET_WM_STATE_TOGGLE
+# define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
+#endif
+
+    void init_for_net_wm_state () {
+      auto dpy = core::global::get_instance();
+
+      if (!NET_WM_STATE) {
+        NET_WM_STATE = XInternAtom(dpy, "_NET_WM_STATE", false);
+      }
+      if (!NET_WM_STATE_MAXIMIZED_HORZ) {
+        NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
+      }
+      if (!NET_WM_STATE_MAXIMIZED_VERT) {
+        NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", false);
+      }
+      if (!NET_WM_STATE_ABOVE) {
+        NET_WM_STATE_ABOVE = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", false);
+      }
+      if (!NET_WM_STATE_HIDDEN) {
+        NET_WM_STATE_HIDDEN = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", false);
+      }
+      if (!ATOM_ATOM) {
+        ATOM_ATOM = XInternAtom(dpy, "ATOM", false);
+      }
+    }
+
+    bool query_net_wm_state (core::window_id id,
+                             Atom a1,
+                             Atom a2 = 0,
+                             Atom a3 = 0) {
+      auto dpy = core::global::get_instance();
+
+      Atom actual_type_return;
+      int actual_format_return;
+      unsigned long nitems_return;
+      unsigned long bytes_after_return;
+      unsigned char *prop_return;
+
+      bool ret_a1 = (a1 ? false : true);
+      bool ret_a2 = (a2 ? false : true);
+      bool ret_a3 = (a3 ? false : true);
+      if (Success == XGetWindowProperty(dpy, id, NET_WM_STATE,
+                                        0, 99, false, AnyPropertyType,
+                                        &actual_type_return,
+                                        &actual_format_return,
+                                        &nitems_return,
+                                        &bytes_after_return, 
+                                        &prop_return)) {
+        if (actual_type_return == ATOM_ATOM) {
+          Atom* atoms = (Atom*)prop_return;
+          for (unsigned long i = 0; i < nitems_return; ++i) {
+            ret_a1 |= (atoms[i] == a1);
+            ret_a2 |= (atoms[i] == a2);
+            ret_a3 |= (atoms[i] == a3);
+          }
+        }
+      }
+      return ret_a1 && ret_a2 && ret_a3;
+    }
+
+    bool main_window::is_maximized () const {
+      init_for_net_wm_state();
+      return query_net_wm_state(get_id(), NET_WM_STATE_MAXIMIZED_HORZ, NET_WM_STATE_MAXIMIZED_VERT);
+    }
+
+    bool main_window::is_top_most () const {
+      init_for_net_wm_state();
+      return query_net_wm_state(get_id(), NET_WM_STATE_ABOVE);
+    }
+
+    bool main_window::is_minimized () const {
+      init_for_net_wm_state();
+      return query_net_wm_state(get_id(), NET_WM_STATE_HIDDEN);
+    }
+
+    void main_window::minimize () {
+      XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
+    }
+
+    void send_net_wm_state (core::window_id id,
+                            long action,
+                            Atom a1,
+                            Atom a2 = 0,
+                            Atom a3 = 0) {
+      auto dpy = core::global::get_instance();
+      
+      XEvent xev;
+      memset(&xev, 0, sizeof(xev));
+      xev.type = ClientMessage;
+      xev.xclient.window = id;
+      xev.xclient.message_type = NET_WM_STATE;
+      xev.xclient.format = 32;
+      xev.xclient.data.l[0] = action;
+      xev.xclient.data.l[1] = a1;
+      xev.xclient.data.l[2] = a2;
+      xev.xclient.data.l[3] = a3;
+
+      XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
+    }
+
+    void main_window::maximize () {
+      init_for_net_wm_state();
+      send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
+                        NET_WM_STATE_MAXIMIZED_HORZ,
+                        NET_WM_STATE_MAXIMIZED_VERT);
+
+    }
+
+    void main_window::restore () {
+      init_for_net_wm_state();
+      send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
+                        NET_WM_STATE_MAXIMIZED_HORZ,
+                        NET_WM_STATE_MAXIMIZED_VERT);
+    }
+
+    void main_window::set_top_most (bool toplevel) {
+      init_for_net_wm_state();
+      send_net_wm_state(get_id(),
+                        toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
+                        NET_WM_STATE_ABOVE);
+    }
+
 #endif //X11
 
   } // win

@@ -72,12 +72,6 @@ namespace gui {
 
       bool is_toplevel () const;
 
-      bool is_top_most () const;
-
-      bool is_minimized () const;
-
-      bool is_maximized () const;
-
       bool has_border () const;
 
       void destroy ();
@@ -92,15 +86,9 @@ namespace gui {
 
       bool is_child_of (const window& parent) const;
 
+      std::vector<window*> get_children () const;
+
       void set_visible (bool s = true);
-
-      void minimize ();
-
-      void maximize ();
-
-      void restore ();
-
-      void set_top_most (bool toplevel);
 
       void enable (bool on = true);
 
@@ -109,6 +97,10 @@ namespace gui {
       }
 
       void take_focus ();
+
+      void to_front ();
+
+      void to_back ();
 
       void enable_redraw (bool on = true);
 
@@ -206,6 +198,36 @@ namespace gui {
 #ifdef X11
       std::string text;
 #endif // X11
+    };
+
+    class main_window : public window {
+    public:
+      main_window ();
+      
+      void set_title (const std::string&);
+
+      std::string get_title () const;
+
+      bool is_top_most () const;
+
+      bool is_minimized () const;
+
+      bool is_maximized () const;
+
+      void minimize ();
+
+      void maximize ();
+
+      void restore ();
+
+      void set_top_most (bool toplevel);
+
+      void create (const core::rectangle& place = core::rectangle::default_rectangle) {
+        window::create(clazz, place);
+      }
+
+    private:
+      static window_class clazz;
     };
 
   } // win

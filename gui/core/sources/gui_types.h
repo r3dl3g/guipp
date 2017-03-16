@@ -148,12 +148,12 @@ namespace gui {
         return *this;
       }
 
-      inline size operator- (const point& pt) const {
-        return {size::type(x() - pt.x()), size::type(y() - pt.y())};
+      inline point operator- (const point& pt) const {
+        return { type(x() - pt.x()), type(y() - pt.y()) };
       }
 
       inline point operator+ (const point& pt) const {
-        return {type(x() + pt.x()), type(y() + pt.y())};
+        return { type(x() + pt.x()), type(y() + pt.y()) };
       }
 
       inline point& operator+= (const point& pt) {
@@ -406,6 +406,11 @@ namespace gui {
 
       void width (size::type width);
 
+      // union
+      rectangle& operator&= (const rectangle& rhs);
+      
+      // intersection
+      rectangle& operator|= (const rectangle& rhs);
 
     private:
       point tl;

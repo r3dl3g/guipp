@@ -117,11 +117,11 @@ namespace gui {
                                    core::event_result& result);
 
         double get_scale () const {
-          return get_scale (client_area());
+          return get_scale(client_area());
         }
 
         double get_scale (const core::rectangle& place) const {
-          return (double)(space_size(place) - thumb_size(place)) / (double)get_max();
+          return (double)(space_size(place) - thumb_size(place)) / (double)(get_max() - get_min());
         }
 
         core::size::type button_size (const core::rectangle& place) const;
@@ -129,11 +129,12 @@ namespace gui {
         int space_size (const core::rectangle& place) const;
 
         core::point::type thumb_top (const core::rectangle& place) const {
-          return core::point::type(button_size(place) + 1 + get_value() * get_scale(place));
+          return core::point::type(button_size(place) + 1 + (get_value() - get_min()) * get_scale(place));
         }
 
         core::size::type thumb_size (const core::rectangle& place) const {
-          return core::size::type(std::max(space_size(place) - get_max(), (int)button_size(place)));
+          return core::size::type(std::max(space_size(place) - (get_max() - get_min()),
+                                           (int)button_size(place)));
         }
 
         core::rectangle up_button_place (const core::rectangle& place) const {

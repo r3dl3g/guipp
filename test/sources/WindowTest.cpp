@@ -31,6 +31,8 @@ namespace gui {
 //#ifdef X11
         vscroll.create(*this, get_vscroll_area());
         hscroll.create(*this, get_hscroll_area());
+        vscroll.set_step(1);
+        hscroll.set_step(1);
 //#endif // X11
       }
 
@@ -39,7 +41,7 @@ namespace gui {
     protected:
       core::rectangle get_vscroll_area () const;
       core::rectangle get_hscroll_area () const;
-      core::rectangle get_visible_area () const;
+      core::rectangle get_visible_area (bool without_scrolls = false) const;
 
     private:
       core::point current_pos;
@@ -95,19 +97,19 @@ namespace gui {
     }
 
     void scroll_view::enable_vscroll_bar (bool enable) {
+      vscroll.set_visible(enable);
       if (enable) {
         vscroll.place(get_vscroll_area());
         vscroll.to_front();
       }
-      vscroll.set_visible(enable);
     }
 
     void scroll_view::enable_hscroll_bar (bool enable) {
+      hscroll.set_visible(enable);
       if (enable) {
         hscroll.place(get_hscroll_area());
         hscroll.to_front();
       }
-      hscroll.set_visible(enable);
     }
 
     bool scroll_view::is_vscroll_bar_enabled () const {
@@ -124,65 +126,101 @@ namespace gui {
       std::vector<window*> children = get_children();
       core::rectangle required;
       for(window* win : children) {
-        if (required == core::rectangle::zero) {
-          required = win->place();
-        } else {
-          required |= win->place();
+        if ((win != &vscroll) && (win != &hscroll)) {
+          if (required == core::rectangle::zero) {
+            required = win->place();
+          } else {
+            required |= win->place();
+          }
         }
       }
+      required |= get_visible_area(true);
+
       LogDebug << "Space:" << space << ", Required:" << required;
 
       bool show_h = (required.x() < space.x()) || (required.x2() > space.x2());
       if (show_h) {
-        space.height(space.height() - core::size::type(16));
+        space.height(space.height() - scroll_bar::get_scroll_bar_width());
       }
 
       bool show_v = (required.y() < space.y()) || (required.y2() > space.y2());
       if (show_v) {
-        space.width(space.width() - core::size::type(16));
+        space.width(space.width() - scroll_bar::get_scroll_bar_width());
 
         if (!show_h) {
-          // recheck h
+          // re-check h
           show_h = (required.x() < space.x()) || (required.x2() > space.x2());
           if (show_h) {
-            space.height(space.height() - core::size::type(16));
+            space.height(space.height() - scroll_bar::get_scroll_bar_width());
           }
         }
 
-        vscroll.set_min_max(space.y() - required.y(), required.y2() - space.y2());
-        vscroll.set_value(space.y());
+        int ymin = std::min(required.y() - space.y(), core::point::type(0));
+        int ymax = std::max(required.y2() - space.y2(), core::point::type(0));
+        int ypos = 0;
+
+        LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << " }";
+
+        vscroll.set_min_max(ymin, ymax);
+
+        vscroll.set_value(ypos);
+        current_pos.y(ypos);
       }
 
       if (show_h) {
-        hscroll.set_min_max(space.x() - required.x(), required.x2() - space.x2());
-        hscroll.set_value(space.x());
+        int xmin = std::min(required.x() - space.x(), core::point::type(0));
+        int xmax = std::max(required.x2() - space.x2(), core::point::type(0));
+        int xpos = 0;
+
+        LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << " }";
+
+        hscroll.set_min_max(xmin, xmax);
+
+        hscroll.set_value(xpos);
+        current_pos.x(xpos);
       }
 
-      enable_vscroll_bar(show_v);
-      enable_hscroll_bar(show_h);
+      vscroll.set_visible(show_v);
+      hscroll.set_visible(show_h);
+
+      if (show_v) {
+        vscroll.place(get_vscroll_area());
+        vscroll.to_front();
+      }
+
+      if (show_h) {
+        hscroll.place(get_hscroll_area());
+        hscroll.to_front();
+      }
     }
 
     core::rectangle scroll_view::get_vscroll_area () const {
       core::rectangle r(size());
-      r.x(r.x2() - core::point::type(16));
-      r.width(16);
+      r.x(r.x2() - scroll_bar::get_scroll_bar_width());
+      r.width(scroll_bar::get_scroll_bar_width());
+      if (is_hscroll_bar_enabled()) {
+        r.height(r.height() - scroll_bar::get_scroll_bar_width());
+      }
       return r;
     }
 
     core::rectangle scroll_view::get_hscroll_area () const {
       core::rectangle r(size());
-      r.y(r.y2() - core::point::type(16));
-      r.height(16);
+      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
+      r.height(scroll_bar::get_scroll_bar_width());
+      if (is_vscroll_bar_enabled()) {
+        r.width(r.width() - scroll_bar::get_scroll_bar_width());
+      }
       return r;
     }
 
-    core::rectangle scroll_view::get_visible_area () const {
+    core::rectangle scroll_view::get_visible_area (bool without_scrolls) const {
       core::rectangle r(size());
-      if (is_vscroll_bar_enabled()) {
-        r.width(r.width() - core::size::type(16));
+      if (without_scrolls || is_vscroll_bar_enabled()) {
+        r.width(r.width() - scroll_bar::get_scroll_bar_width());
       }
-      if (is_hscroll_bar_enabled()) {
-        r.height(r.height() - core::size::type(16));
+      if (without_scrolls || is_hscroll_bar_enabled()) {
+        r.height(r.height() - scroll_bar::get_scroll_bar_width());
       }
       return r;
     }
@@ -308,7 +346,7 @@ int main(int argc, char* argv[]) {
   LogDebug << "window size:" << sizeof(main);
   LogDebug << "window_class size:" << sizeof(chldCls);
 
-  main.register_event_handler(init_result_handler());
+  //main.register_event_handler(init_result_handler());
 
   win::push_button ok_button;
   win::push_button del_button;
@@ -440,12 +478,12 @@ int main(int argc, char* argv[]) {
     }
   }));
 
-  window1.register_event_handler(win::move_event([](const core::point& p) {
-    LogDebug << "Window1 move: " << p;
-  }));
-  window1.register_event_handler(win::size_event([](const core::size& s) {
-    LogDebug << "Window1 size: " << s;
-  }));
+  //window1.register_event_handler(win::move_event([](const core::point& p) {
+  //  LogDebug << "Window1 move: " << p;
+  //}));
+  //window1.register_event_handler(win::size_event([](const core::size& s) {
+  //  LogDebug << "Window1 size: " << s;
+  //}));
 
   auto down_handler = [&](const core::point& p) {
     at_drag = true;
@@ -530,14 +568,14 @@ int main(int argc, char* argv[]) {
   window2.register_event_handler(win::hide_event([]() {
     LogDebug << "Window2 hide:";
   }));
-  window2.register_event_handler(win::mouse_enter_event([]() {
-    LogDebug << "Window2 mouse enter";
-  }));
-  window2.register_event_handler(win::mouse_leave_event([]() {
-    LogDebug << "Window2 mouse leave";
-  }));
+  //window2.register_event_handler(win::mouse_enter_event([]() {
+  //  LogDebug << "Window2 mouse enter";
+  //}));
+  //window2.register_event_handler(win::mouse_leave_event([]() {
+  //  LogDebug << "Window2 mouse leave";
+  //}));
 
-  main.register_event_handler(log_all_events());
+  //main.register_event_handler(log_all_events());
 
 #ifdef WIN32
   ok_button.register_event_handler(win::button_state_event([](bool state) {
@@ -811,7 +849,7 @@ int main(int argc, char* argv[]) {
 
 win::paint_event create_paint1 () {
   return win::paint_event([](draw::graphics& graph) {
-    LogDebug << "win::paint 1";
+    //LogDebug << "win::paint 1";
 
     using namespace draw;
 
@@ -909,7 +947,7 @@ win::paint_event create_paint1 () {
 
 win::paint_event create_paint2 () {
   return win::paint_event([](draw::graphics& graph) {
-    LogDebug << "win::paint 2";
+    //LogDebug << "win::paint 2";
     using namespace draw;
 
     pen blue(color::blue);

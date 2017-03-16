@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <ostream>
+#include <algorithm>
 #ifdef WIN32
 #include <windowsx.h>
 #endif

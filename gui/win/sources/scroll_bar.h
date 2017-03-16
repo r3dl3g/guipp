@@ -75,6 +75,8 @@ namespace gui {
       void set_step (int);
       void set_value (int);
 
+      static core::size::type get_scroll_bar_width ();
+
     protected:
       scroll_bar ();
 

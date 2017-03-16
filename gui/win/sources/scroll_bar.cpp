@@ -41,7 +41,7 @@ namespace gui {
         if (!clazz.is_valid()) {
           clazz = win::window_class::sub_class("MyScrollBar",
             "SCROLLBAR",
-            SBS_VERT | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
+            SBS_VERT | WS_VSCROLL | WS_CHILD,
             WS_EX_NOPARENTNOTIFY);
         }
       }
@@ -51,7 +51,7 @@ namespace gui {
         if (!clazz.is_valid()) {
           clazz = win::window_class::sub_class("MyScrollBar",
             "SCROLLBAR",
-            SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_VISIBLE,
+            SBS_HORZ | WS_HSCROLL | WS_CHILD,
             WS_EX_NOPARENTNOTIFY);
         }
       }
@@ -71,6 +71,10 @@ namespace gui {
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0 };
       GetScrollInfo(e.id, SB_CTL, &si);
       return si.nPos;
+    }
+
+    core::size::type scroll_bar::get_scroll_bar_width () {
+      return core::size::type(16);
     }
 
     scroll_bar::scroll_bar () {

@@ -45,7 +45,7 @@ namespace gui {
         if (!clazz.is_valid()) {
           clazz = win::window_class::sub_class("MyScrollBar",
             "SCROLLBAR",
-            SBS_VERT | WS_VSCROLL | WS_CHILD,
+            SBS_VERT | WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_NOPARENTNOTIFY);
         }
       }
@@ -55,7 +55,7 @@ namespace gui {
         if (!clazz.is_valid()) {
           clazz = win::window_class::sub_class("MyScrollBar",
             "SCROLLBAR",
-            SBS_HORZ | WS_HSCROLL | WS_CHILD,
+            SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             WS_EX_NOPARENTNOTIFY);
         }
       }

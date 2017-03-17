@@ -47,7 +47,7 @@ namespace gui {
         clazz = win::window_class::sub_class("MyListBox",
                                              "LISTBOX",
                                              LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-                                             WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL,
+                                             WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                                              WS_EX_NOPARENTNOTIFY);
       }
       register_event_handler(this, &list::list_handle_event);

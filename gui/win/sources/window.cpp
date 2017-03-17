@@ -168,7 +168,7 @@ namespace gui {
     }
 
     void window::to_front () {
-      BringWindowToTop(get_id());
+      SetWindowPos(get_id(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
     void window::to_back () {
@@ -224,10 +224,16 @@ namespace gui {
 
     void window::move(const core::point& pt, bool repaint) {
       SetWindowPos(get_id(), nullptr, pt.x(), pt.y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+      if (repaint) {
+        redraw_later();
+      }
     }
 
     void window::resize(const core::size& sz, bool repaint) {
       SetWindowPos(get_id(), nullptr, 0, 0, sz.width(), sz.height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+      if (repaint) {
+        redraw_later();
+      }
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
@@ -676,7 +682,7 @@ namespace gui {
       if (!clazz.is_valid()) {
         clazz = win::window_class::custom_class("client_window",
                                                 CS_DBLCLKS,
-                                                WS_CHILD,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                                                 WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
                                                 nullptr,
                                                 LoadCursor(nullptr, IDC_ARROW),

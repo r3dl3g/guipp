@@ -52,7 +52,7 @@ namespace gui {
 
       window ();
 
-      ~window ();
+      virtual ~window ();
 
       inline core::window_id get_id () const {
         return id;

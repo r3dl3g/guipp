@@ -28,6 +28,16 @@ namespace gui {
     int owner_draw::next_owner_draw_id = 0;
 
 // --------------------------------------------------------------------------
+    void owner_draw::draw_text_item (draw::graphics& g,
+                                     const std::string& text,
+                                     const core::rectangle& place,
+                                     bool selected) {
+      using namespace draw;
+      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
+      g.text(text_box(text, place, vcenter_left), font::system(),
+             selected ? color::highLightTextColor : color::windowTextColor);
+    }
+
     void owner_draw::set_item_size (const gui::core::size& sz) {
       item_size = sz;
       measure_item_size[owner_draw_id] = sz;

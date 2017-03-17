@@ -28,8 +28,7 @@
 // Library includes
 //
 #include "window_event_handler.h"
-#include "owner_draw.h"
-#include "scroll_bar.h"
+#include "owner_draw_list.h"
 
 
 namespace gui {
@@ -41,65 +40,11 @@ namespace gui {
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
                            command_matcher<LBN_SELCHANGE>>      selection_changed_event;
 #endif //WIN32
-#ifdef X11
-    namespace detail {
-      extern Atom SELECTION_CHANGE_MESSAGE;
-
-      struct selection_changed_message_match {
-        bool operator() (const core::event& e);
-      };
-    }
-
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           detail::selection_changed_message_match>     selection_changed_event;
-#endif // X11
 
     // --------------------------------------------------------------------------
-    class list : public owner_draw {
+    class list : public owner_draw_list {
     public:
-      typedef owner_draw super;
-
-      typedef void(item_draw) (draw::graphics&,
-                               int idx,
-                               const core::rectangle& place,
-                               bool selected);
-
-
       // --------------------------------------------------------------------------
-      // static data for list.
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct data : public std::vector<T> {
-        typedef std::vector<T> super;
-        typedef typename super::iterator iterator;
-
-        data () {}
-
-        data (std::initializer_list<T> args)
-          : super(args) {}
-
-        data (iterator b,
-              iterator e)
-          : super(b, e) {}
-
-        template<size_t N>
-        data (const T (& t)[N])
-          : super(t, t + N) {}
-
-        void update_list (list& l) {
-          l.set_count(super::size());
-        }
-
-        void operator() (draw::graphics& g,
-                         int idx,
-                         const core::rectangle& place,
-                         bool selected) {
-          draw_text_item(g, ostreamfmt(super::at(idx)), place, selected);
-        }
-
-      };
-      // --------------------------------------------------------------------------
-
       list ();
 
       ~list ();
@@ -121,9 +66,6 @@ namespace gui {
         set_data(data, item_height);
       }
 
-      void set_drawer (std::function<item_draw> drawer,
-                       int item_height = 20);
-
       template<typename T>
       void set_data (data<T> data,
                      int item_height = 20) {
@@ -140,46 +82,22 @@ namespace gui {
       void set_scroll_pos (int pos);
       int get_scroll_pos () const;
 
-      void enable_vscroll_bar (bool enable);
-      bool is_vscroll_bar_enabled () const;
-
-      static void draw_text_item (draw::graphics&,
-                                  const std::string& text,
-                                  const core::rectangle& place,
-                                  bool selected);
 
     private:
       bool list_handle_event (const core::event& e,
                               core::event_result& result);
 
-      void draw_item (draw::graphics&,
-                      int idx,
-                      const core::rectangle& place,
-                      bool selected);
-
-      std::function<item_draw> drawer;
-
 #ifdef X11
       core::rectangle get_scroll_area();
-      vscroll_bar scrollbar;
 
       size_t item_count;
       int selection;
       bool moved;
       core::point last_mouse_point;
-      core::graphics_id gc;
 #endif // X11
 
       static window_class clazz;
     };
-
-    template<>
-    inline void list::data<std::string>::operator() (draw::graphics& g,
-                                                     int idx,
-                                                     const core::rectangle& place,
-                                                     bool selected) {
-      draw_text_item(g, at(idx), place, selected);
-    }
 
   } // win
 

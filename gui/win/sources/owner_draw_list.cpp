@@ -1,0 +1,121 @@
+/**
+* @copyright (c) 2016-2017 Ing. Buero Rothfuss
+*                          Riedlinger Str. 8
+*                          70327 Stuttgart
+*                          Germany
+*                          http://www.rothfuss-web.de
+*
+* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+*
+* Project    standard lib
+*
+* Customer   -
+*
+* @brief     C++ API: list
+*
+* @file
+*/
+
+#include "owner_draw_list.h"
+
+namespace gui {
+
+  namespace win {
+
+    namespace detail {
+      Atom SELECTION_CHANGE_MESSAGE = 0;
+
+      bool selection_changed_message_match::operator() (const core::event& e) {
+        return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
+      }
+    }
+
+    // --------------------------------------------------------------------------
+#ifdef WIN32
+    owner_draw_list::owner_draw_list ()
+    {}
+
+    owner_draw_list::~owner_draw_list ()
+    {}
+
+    void  owner_draw_list::enable_vscroll_bar (bool enable) {
+      // first check, if needed.
+      if (enable && (get_count() * get_item_height() > size().height())) {
+        ShowScrollBar(get_id(), SB_VERT, true);
+      } else {
+        ShowScrollBar(get_id(), SB_VERT, false);
+      }
+    }
+
+    bool owner_draw_list::is_vscroll_bar_enabled () const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
+
+#endif // WIN32
+
+#ifdef X11
+
+    // --------------------------------------------------------------------------
+    owner_draw_list::owner_draw_list ()
+      : gc(0)
+    {
+      if (!detail::SELECTION_CHANGE_MESSAGE) {
+        detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
+      }
+      scrollbar.register_event_handler(win::scroll_event([&](int pos){
+        redraw_later();
+      }));
+    }
+
+    owner_draw_list::~owner_draw_list () {
+      if (gc) {
+        if (core::global::get_instance()) {
+          XFreeGC(core::global::get_instance(), gc);
+        }
+        gc = 0;
+      }
+    }
+
+    core::graphics_id owner_draw_list::get_graphics (const core::event& e) {
+      if (!gc) {
+        gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+      }
+      return gc;
+    }
+
+    void owner_draw_list::enable_vscroll_bar (bool enable) {
+      scrollbar.enable(enable);
+      scrollbar.set_visible(enable && scrollbar.get_max());
+    }
+
+    bool owner_draw_list::is_vscroll_bar_enabled () const {
+      return scrollbar.is_enabled();
+    }
+
+#endif // X11
+
+    void owner_draw_list::set_drawer (std::function<item_draw> drawer,
+                                      int item_height) {
+      this->drawer = drawer;
+      set_item_size({0, core::size::type(item_height)});
+    }
+
+    void owner_draw_list::draw_item (draw::graphics& g,
+                                     int idx,
+                                     const core::rectangle& place,
+                                     bool selected) {
+      if (drawer) {
+        drawer(g, idx, place, selected);
+      }
+    }
+
+    template<>
+    inline void owner_draw_list::data<std::string>::operator() (draw::graphics& g,
+                                                                int idx,
+                                                                const core::rectangle& place,
+                                                                bool selected) {
+      draw_text_item(g, at(idx), place, selected);
+    }
+
+  }
+}

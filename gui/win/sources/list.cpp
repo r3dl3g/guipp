@@ -41,28 +41,6 @@ namespace gui {
     window_class list::clazz;
 
     // --------------------------------------------------------------------------
-    void list::set_drawer(std::function<item_draw> drawer, int item_height) {
-      this->drawer = drawer;
-      set_item_size( { 0, core::size::type(item_height) } );
-    }
-
-    void list::draw_item (draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
-      if (drawer) {
-        drawer(g, idx, place, selected);
-      }
-    }
-
-    void list::draw_text_item (draw::graphics& g,
-                               const std::string& text,
-                               const core::rectangle& place,
-                               bool selected) {
-      using namespace draw;
-      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
-      g.text(text_box(text, place, vcenter_left), font::system(),
-             selected ? color::highLightTextColor : color::windowTextColor);
-    }
-
-    // --------------------------------------------------------------------------
 #ifdef WIN32
     list::list () {
       if (!clazz.is_valid()) {
@@ -100,19 +78,6 @@ namespace gui {
       return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
     }
 
-    void  list::enable_vscroll_bar (bool enable) {
-      // first check, if needed.
-      if (enable && (get_count() * get_item_height() > size().height())) {
-        ShowScrollBar(get_id(), SB_VERT, true);
-      } else {
-        ShowScrollBar(get_id(), SB_VERT, false);
-      }
-    }
-
-    bool list::is_vscroll_bar_enabled () const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
-
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
       if (e.type == WM_DRAWITEM) {
@@ -141,25 +106,10 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    namespace detail {
-      Atom SELECTION_CHANGE_MESSAGE = 0;
-
-      bool selection_changed_message_match::operator() (const core::event& e) {
-        return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
-      }
-    }
-
     list::list ()
       : item_count(0)
       , selection(-1)
-      , gc(0)
     {
-      if (!detail::SELECTION_CHANGE_MESSAGE) {
-        detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
-      }
-      scrollbar.register_event_handler(win::scroll_event([&](int pos){
-        redraw_later();
-      }));
       if (!clazz.is_valid()) {
         clazz = window_class::custom_class("LISTBOX",
                                            1,
@@ -217,30 +167,17 @@ namespace gui {
       return scrollbar.get_value();
     }
 
-    void  list::enable_vscroll_bar (bool enable) {
-      scrollbar.enable(enable);
-      scrollbar.set_visible(enable && scrollbar.get_max());
-    }
-
-    bool  list::is_vscroll_bar_enabled () const {
-      return scrollbar.is_enabled();
-    }
-
     core::rectangle list::get_scroll_area() {
       core::rectangle r(size());
       r.x(r.x2() - core::point::type(16));
       r.width(16);
       return r;
     }
-
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
       switch (e.type) {
         case Expose: {
-          if (!gc) {
-            gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-          }
-          draw::graphics g(e.xexpose.window, gc);
+          draw::graphics g(e.xexpose.window, get_graphics(e));
           core::rectangle place = client_area();
           const int max_y = place.y2();
           const int max_idx = (int)get_count();
@@ -250,9 +187,9 @@ namespace gui {
           place.height(get_item_height());
 
           for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move(get_item_size())) {
-            draw_item(g, idx, place, selection == idx);
+            draw_item(g, idx, place, get_selection() == idx);
           }
-          XFlushGC(e.xexpose.display, gc);
+          g.flush();
           return true;
         }
         case ButtonPress:
@@ -267,7 +204,7 @@ namespace gui {
             case Button1:
               if (!moved) {
                 const int new_selection = (e.xbutton.y + get_scroll_pos()) / get_item_height();
-                selection = new_selection == selection ? -1 : new_selection;
+                set_selection(new_selection == get_selection() ? -1 : new_selection);
                 send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
                 redraw_later();
                 return true;
@@ -331,12 +268,6 @@ namespace gui {
     }
 
     list::~list () {
-      if (gc) {
-        if (core::global::get_instance()) {
-          XFreeGC(core::global::get_instance(), gc);
-        }
-        gc = 0;
-      }
     }
 
 #endif // X11

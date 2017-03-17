@@ -73,6 +73,7 @@ namespace gui {
       void text (std::function<textable>, const font& font, const color& color);
 
       void invert (const core::rectangle&) const;
+      void flush ();
 
       inline operator core::graphics_id () const {
         return gc;

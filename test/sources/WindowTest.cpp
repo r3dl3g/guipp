@@ -1,6 +1,7 @@
 
 #include "control.h"
 #include "dbg_win_message.h"
+#include "owner_draw_list.h"
 
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;

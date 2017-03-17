@@ -29,6 +29,8 @@
 // Library includes
 //
 #include "window.h"
+#include "graphics.h"
+
 
 namespace gui {
 
@@ -60,6 +62,11 @@ namespace gui {
       }
 
       static const gui::core::size& get_item_size (int id);
+
+      static void draw_text_item (draw::graphics&,
+                                  const std::string& text,
+                                  const core::rectangle& place,
+                                  bool selected);
 
     protected:
       void create (const gui::win::window_class& clazz,

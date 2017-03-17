@@ -362,6 +362,10 @@ namespace gui {
       InvertRect(gc, &rect);
     }
 
+    void graphics::flush() {
+      GdiFlush();
+    }
+
 #endif // WIN32
 
 #ifdef X11
@@ -897,6 +901,11 @@ namespace gui {
 
     void graphics::invert (const core::rectangle& r) const {
     }
+
+    void graphics::flush () {
+      XFlushGC(core::global::get_instance(), gc);
+    }
+
 
 #endif // X11
 

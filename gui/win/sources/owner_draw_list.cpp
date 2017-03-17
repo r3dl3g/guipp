@@ -22,6 +22,7 @@ namespace gui {
 
   namespace win {
 
+#ifdef X11
     namespace detail {
       Atom SELECTION_CHANGE_MESSAGE = 0;
 
@@ -29,6 +30,7 @@ namespace gui {
         return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
       }
     }
+#endif // X11
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
@@ -37,19 +39,6 @@ namespace gui {
 
     owner_draw_list::~owner_draw_list ()
     {}
-
-    void  owner_draw_list::enable_vscroll_bar (bool enable) {
-      // first check, if needed.
-      if (enable && (get_count() * get_item_height() > size().height())) {
-        ShowScrollBar(get_id(), SB_VERT, true);
-      } else {
-        ShowScrollBar(get_id(), SB_VERT, false);
-      }
-    }
-
-    bool owner_draw_list::is_vscroll_bar_enabled () const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
 
 #endif // WIN32
 
@@ -62,9 +51,6 @@ namespace gui {
       if (!detail::SELECTION_CHANGE_MESSAGE) {
         detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
       }
-      scrollbar.register_event_handler(win::scroll_event([&](int pos){
-        redraw_later();
-      }));
     }
 
     owner_draw_list::~owner_draw_list () {
@@ -81,15 +67,6 @@ namespace gui {
         gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
       }
       return gc;
-    }
-
-    void owner_draw_list::enable_vscroll_bar (bool enable) {
-      scrollbar.enable(enable);
-      scrollbar.set_visible(enable && scrollbar.get_max());
-    }
-
-    bool owner_draw_list::is_vscroll_bar_enabled () const {
-      return scrollbar.is_enabled();
     }
 
 #endif // X11

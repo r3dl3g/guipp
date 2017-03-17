@@ -78,6 +78,20 @@ namespace gui {
       return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
     }
 
+    void  list::enable_vscroll_bar(bool enable) {
+      // first check, if needed.
+      if (enable && (get_count() * get_item_height() > size().height())) {
+        ShowScrollBar(get_id(), SB_VERT, true);
+      }
+      else {
+        ShowScrollBar(get_id(), SB_VERT, false);
+      }
+    }
+
+    bool list::is_vscroll_bar_enabled() const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
+
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
       if (e.type == WM_DRAWITEM) {
@@ -119,6 +133,9 @@ namespace gui {
                                            draw::color::white);
       }
       register_event_handler(this, &list::list_handle_event);
+      scrollbar.register_event_handler(win::scroll_event([&](int pos) {
+        redraw_later();
+      }));
     }
 
     void list::set_count (size_t count) {
@@ -173,6 +190,16 @@ namespace gui {
       r.width(16);
       return r;
     }
+
+    void list::enable_vscroll_bar(bool enable) {
+      scrollbar.enable(enable);
+      scrollbar.set_visible(enable && scrollbar.get_max());
+    }
+
+    bool list::is_vscroll_bar_enabled() const {
+      return scrollbar.is_enabled();
+    }
+
     bool list::list_handle_event (const core::event& e,
                                   core::event_result& result) {
       switch (e.type) {

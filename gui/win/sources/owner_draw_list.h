@@ -100,10 +100,6 @@ namespace gui {
       void set_drawer (std::function<item_draw> drawer,
                        int item_height = 20);
 
-      void enable_vscroll_bar (bool enable);
-
-      bool is_vscroll_bar_enabled () const;
-
     protected:
       void draw_item (draw::graphics&,
                       int idx,
@@ -111,8 +107,6 @@ namespace gui {
                       bool selected);
 
 #ifdef X11
-      vscroll_bar scrollbar;
-
       core::graphics_id get_graphics (const core::event& e);
 #endif // X11
 

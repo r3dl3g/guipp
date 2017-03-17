@@ -82,6 +82,8 @@ namespace gui {
       void set_scroll_pos (int pos);
       int get_scroll_pos () const;
 
+      void enable_vscroll_bar(bool enable);
+      bool is_vscroll_bar_enabled() const;
 
     private:
       bool list_handle_event (const core::event& e,
@@ -89,6 +91,8 @@ namespace gui {
 
 #ifdef X11
       core::rectangle get_scroll_area();
+
+      vscroll_bar scrollbar;
 
       size_t item_count;
       int selection;

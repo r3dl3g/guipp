@@ -184,7 +184,7 @@ namespace gui {
       return scrollbar.get_value();
     }
 
-    core::rectangle list::get_scroll_area() {
+    core::rectangle list::get_vscroll_bar_area () {
       core::rectangle r(size());
       r.x(r.x2() - core::point::type(16));
       r.width(16);

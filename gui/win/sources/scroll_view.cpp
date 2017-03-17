@@ -118,17 +118,12 @@ namespace gui {
       core::rectangle space = client_area();
 
       std::vector<window*> children = get_children();
-      core::rectangle required;
+      core::rectangle required= get_visible_area(true);
       for(window* win : children) {
         if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
-          if (required == core::rectangle::zero) {
-            required = win->place();
-          } else {
-            required |= win->place();
-          }
+          required |= win->place() + core::size(1, 1);
         }
       }
-      required |= get_visible_area(true);
 
       LogDebug << "Space:" << space << ", Required:" << required;
 

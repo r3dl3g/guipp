@@ -53,7 +53,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::default_rectangle) {
         super::create(clazz, parent, place);
 #ifdef X11
-        scrollbar.create(*this, get_scroll_area());
+        scrollbar.create(*this, get_vscroll_bar_area());
 #endif // X11
       }
 
@@ -90,7 +90,7 @@ namespace gui {
                               core::event_result& result);
 
 #ifdef X11
-      core::rectangle get_scroll_area();
+      core::rectangle get_vscroll_bar_area ();
 
       vscroll_bar scrollbar;
 

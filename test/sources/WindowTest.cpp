@@ -1,7 +1,6 @@
 
 #include "control.h"
 #include "dbg_win_message.h"
-#include "owner_draw_list.h"
 
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;
@@ -75,8 +74,6 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
   };
 }
 
-win::window_class chldCls;
-
 win::paint_event create_paint1();
 win::paint_event create_paint2();
 
@@ -99,31 +96,16 @@ int main(int argc, char* argv[]) {
   gui::core::global::init(XOpenDisplay(0));
 #endif
 
-#ifdef WIN32
- chldCls = win::window_class::custom_class("childwindow",
-    CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SIZEBOX | WS_VISIBLE,
-    WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-    nullptr,
-    LoadCursor(nullptr, IDC_ARROW),
-    (HBRUSH)(COLOR_WINDOW + 1));
-
-#elif X11
-  chldCls = win::window_class::custom_class("childwindow");
-#endif
-
-
   win::main_window main;
+  win::scroll_view view;
 
-  win::scroll_view view; 
-
-  win::windowT<chldCls> window1;
-  win::windowT<chldCls> window2;
+  win::client_window window1;
+  win::client_window window2;
 
   win::push_button calc_button;
 
   LogDebug << "window size:" << sizeof(main);
-  LogDebug << "window_class size:" << sizeof(chldCls);
+  LogDebug << "window_class size:" << sizeof(win::window_class);
 
   //main.register_event_handler(init_result_handler());
 
@@ -516,7 +498,7 @@ int main(int argc, char* argv[]) {
   window2.create(view, core::rectangle(120, 10, 200, 280));
   window2.set_visible();
 
-  calc_button.create(main, core::rectangle(310, 0, 60, 20), "Calc");
+  calc_button.create(main, core::rectangle(330, 20, 60, 25), "Calc");
   calc_button.set_visible();
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
@@ -547,15 +529,15 @@ int main(int argc, char* argv[]) {
   hscroll.create(main, core::rectangle(450, 20, 250, 16));
   hscroll.set_visible();
 
-  scroll_check_box.create(main, core::rectangle(340, 20, 100, 20), "Enable");
-  scroll_check_box.set_checked(true);
-  scroll_check_box.set_visible();
-
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.set_visible();
 
   down_button.create(main, core::rectangle(383, 305, 47, 25), "Down");
   down_button.set_visible();
+
+  scroll_check_box.create(main, core::rectangle(440, 305, 100, 20), "Enable");
+  scroll_check_box.set_checked(true);
+  scroll_check_box.set_visible();
 
   label.create(main, core::rectangle(50, 350, 120, 20), "Text");
   label.set_visible();

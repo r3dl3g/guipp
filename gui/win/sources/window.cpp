@@ -31,6 +31,7 @@
 #include "window.h"
 #include "window_event_proc.h"
 #include "color.h"
+#include "window_event_handler.h"
 
 
 namespace gui {
@@ -282,15 +283,19 @@ namespace gui {
 #ifdef X11
 
     namespace detail {
-        typedef std::map<core::window_id, win::window*> window_map;
-        window_map global_window_map;
+      typedef std::map<core::window_id, win::window*> window_map;
+      window_map global_window_map;
     }
 
     window::window ()
       : id(0)
       , redraw_disabled(false)
       , window_disabled(false)
-    {}
+    {
+      if (!detail::WM_CREATE_WINDOW) {
+        detail::WM_CREATE_WINDOW = XInternAtom(core::global::get_instance(), "WM_CREATE_WINDOW", False);
+      }
+    }
 
     window::~window () {
       destroy();
@@ -316,6 +321,7 @@ namespace gui {
       XSetWindowAttributes wa;
       wa.event_mask = type.get_style();
       XChangeWindowAttributes(display, id, CWEventMask, &wa);
+      send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
     }
 
     void window::create (const window_class& type,

@@ -192,12 +192,9 @@ namespace gui {
 #ifdef X11
 
     // --------------------------------------------------------------------------
-    Atom SCROLLBAR_MESSAGE = 0;
-
-    bool scroll_matcher::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == SCROLLBAR_MESSAGE);
+    namespace detail {
+      Atom SCROLLBAR_MESSAGE = 0;
     }
-
     // --------------------------------------------------------------------------
     scroll_bar::scroll_bar ()
       : min(0)
@@ -205,8 +202,8 @@ namespace gui {
       , step(10)
       , value(0)
     {
-      if (!SCROLLBAR_MESSAGE) {
-        SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
+      if (!detail::SCROLLBAR_MESSAGE) {
+        detail::SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
       }
     }
 
@@ -261,7 +258,7 @@ namespace gui {
       if (i != value) {
         value = i;
         redraw_later();
-        send_client_message(this, SCROLLBAR_MESSAGE, i);
+        send_client_message(this, detail::SCROLLBAR_MESSAGE, i);
       }
     }
 

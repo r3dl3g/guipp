@@ -38,14 +38,11 @@ namespace gui {
 #ifdef X11
     namespace detail {
       extern Atom SELECTION_CHANGE_MESSAGE;
-
-      struct selection_changed_message_match {
-        bool operator() (const core::event& e);
-      };
     }
 
     typedef event_handlerT<ClientMessage, no_param_caller, 0,
-      detail::selection_changed_message_match>     selection_changed_event;
+                           client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
+            selection_changed_event;
 #endif // X11
 
 

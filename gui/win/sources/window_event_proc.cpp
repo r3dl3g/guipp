@@ -152,6 +152,7 @@ namespace gui {
     int run_main_loop () {
       Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
 
+      core::event_result resultValue = 0;
       core::event e;
       bool running = true;
       while (running) {
@@ -165,7 +166,6 @@ namespace gui {
               running = false;
             }
             try {
-              core::event_result resultValue = 0;
               win->handle_event(core::event(e), resultValue);
               XFlush(e.xany.display);
             } catch (std::exception e) {
@@ -176,6 +176,7 @@ namespace gui {
           }
 //        }
       }
+      return resultValue;
     }
 
 #endif // X11

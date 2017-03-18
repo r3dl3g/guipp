@@ -43,12 +43,12 @@ namespace gui {
     event_container::event_handler_change_map event_container::change_map;
 
     void event_container::register_event_handler (event_handler_function handler) {
-      LogDebug << "Queue new event handler add";
+      //LogDebug << "Queue new event handler add";
       change_map[this].push_back(make_pair(true, handler));
     }
 
     void event_container::unregister_event_handler (event_handler_function handler) {
-      LogDebug << "Queue old event handler erase";
+      //LogDebug << "Queue old event handler erase";
       change_map[this].push_back(make_pair(false, handler));
     }
 
@@ -61,7 +61,7 @@ namespace gui {
           change_entry_list& list = j->second;
           for (change_entry e : list) {
             if (e.first) {  // add
-              LogDebug << "Add new event handler";
+              //LogDebug << "Add new event handler";
               event_handlers.push_back(e.second);
             } else {        // remove
               const auto end = event_handlers.end();
@@ -69,7 +69,7 @@ namespace gui {
                 return (rhs.target_type() == e.second.target_type());
               });
               if (k != end) {
-                LogDebug << "Erase old event handler";
+                //LogDebug << "Erase old event handler";
                 event_handlers.erase(k);
               }
             }

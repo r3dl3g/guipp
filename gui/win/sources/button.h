@@ -50,71 +50,54 @@ namespace gui {
 
 #ifdef X11
 // --------------------------------------------------------------------------
+  namespace detail {
     extern Atom BN_CLICKED_MESSAGE;
     extern Atom BN_PUSHED_MESSAGE;
     extern Atom BN_UNPUSHED_MESSAGE;
     extern Atom BN_STATE_MESSAGE;
+  }
 
 // --------------------------------------------------------------------------
-    struct bn_clicked_message_match {
-      bool operator() (const core::event& e);
-    };
-
-    struct bn_pushed_message_match {
-      bool operator() (const core::event& e);
-    };
-
-    struct bn_unpushed_message_match {
-      bool operator() (const core::event& e);
-    };
-
-    struct bn_state_message_match {
-      bool operator() (const core::event& e);
-    };
-
-// --------------------------------------------------------------------------
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           bn_clicked_message_match>            button_clicked_event;
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           bn_pushed_message_match>             button_pushed_event;
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
-                           bn_unpushed_message_match>           button_released_event;
-    typedef event_handlerT<ClientMessage,
-                           one_param_caller<bool,
-                                            get_client_data<bool, 0>>,
-                           0,
-                           bn_state_message_match>              button_state_event;
+  typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    client_message_matcher<detail::BN_CLICKED_MESSAGE>>          button_clicked_event;
+  typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    client_message_matcher<detail::BN_PUSHED_MESSAGE>>           button_pushed_event;
+  typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>         button_released_event;
+  typedef event_handlerT<ClientMessage,
+    one_param_caller<bool, get_client_data<bool, 0>>, 0,
+  client_message_matcher<detail::BN_STATE_MESSAGE>>            button_state_event;
 // --------------------------------------------------------------------------
 #endif // X11
 
 // --------------------------------------------------------------------------
-    class button : public gui::win::window_with_text {
-    public:
-      typedef gui::win::window_with_text super;
+  class button : public gui::win::window_with_text {
+  public:
+    typedef gui::win::window_with_text super;
 
-      button ();
+    button ();
 
-      bool is_checked () const;
+    bool is_checked () const;
 
-      void set_checked (bool);
+    void set_checked (bool);
 
-      bool is_hilited () const;
+    bool is_hilited () const;
 
-      void set_hilited (bool);
+    void set_hilited (bool);
 
 #ifdef X11
-    private:
-      bool button_handle_event (const gui::core::event& e,
-                                core::event_result& result);
+  private:
+    bool button_handle_event (const gui::core::event& e,
+                              core::event_result& result);
 
-      bool checked;
-      bool hilited;
+    bool checked;
+    bool hilited;
 #endif // X11
-    };
+  };
 
 // --------------------------------------------------------------------------
-    class push_button : public button {
-    public:
+  class push_button : public button {
+  public:
       typedef button super;
 
       push_button ();

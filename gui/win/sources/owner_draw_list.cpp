@@ -25,10 +25,6 @@ namespace gui {
 #ifdef X11
     namespace detail {
       Atom SELECTION_CHANGE_MESSAGE = 0;
-
-      bool selection_changed_message_match::operator() (const core::event& e) {
-        return (e.type == ClientMessage) && (e.xclient.message_type == SELECTION_CHANGE_MESSAGE);
-      }
     }
 #endif // X11
 

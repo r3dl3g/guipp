@@ -74,40 +74,25 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
   };
 }
 
-win::paint_event create_paint1();
-win::paint_event create_paint2();
 
-#ifdef WIN32
-int APIENTRY WinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
+class my_main_window : public win::main_window {
+public:
+  my_main_window (win::paint_event p1, win::paint_event p2);
 
-  ibr::odebugstream dbgStrm;
-  ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+  void onCreated (win::window*, const core::rectangle&);
+  void created_children ();
+  void query_state ();
 
-  gui::core::global::init(hInstance);
-#elif X11
-int main(int argc, char* argv[]) {
-  ibr::log::core::instance().addSink(&std::cerr, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+  static win::paint_event create_paint1();
+  static win::paint_event create_paint2();
 
-  gui::core::global::init(XOpenDisplay(0));
-#endif
-
-  win::main_window main;
+private:
   win::scroll_view view;
 
   win::client_window window1;
   win::client_window window2;
 
   win::push_button calc_button;
-
-  LogDebug << "window size:" << sizeof(main);
-  LogDebug << "window_class size:" << sizeof(win::window_class);
-
-  //main.register_event_handler(init_result_handler());
 
   win::push_button ok_button;
   win::push_button del_button;
@@ -138,6 +123,48 @@ int main(int argc, char* argv[]) {
 
   win::check_box scroll_check_box;
 
+  win::list::data<std::string> data;
+
+  win::paint_event paint1;
+  win::paint_event paint2;
+
+  bool at_paint1;
+  bool at_drag;
+  core::point last_pos;
+};
+
+#ifdef WIN32
+int APIENTRY WinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPTSTR    lpCmdLine,
+                     _In_ int       nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+
+  ibr::odebugstream dbgStrm;
+  ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+
+  gui::core::global::init(hInstance);
+#elif X11
+int main(int argc, char* argv[]) {
+  ibr::log::core::instance().addSink(&std::cerr,
+                                     ibr::log::level::debug,
+                                     ibr::log::core::instance().getConsoleFormatter());
+
+  gui::core::global::init(XOpenDisplay(0));
+#endif
+
+  win::paint_event paint1(my_main_window::create_paint1());
+  win::paint_event paint2(my_main_window::create_paint2());
+
+  my_main_window main(paint1, paint2);
+
+  LogDebug << "window size:" << sizeof(main)  << ", window_class size:" << sizeof(win::window_class);
+  LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
+
+  //main.register_event_handler(init_result_handler());
+
+
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
@@ -148,57 +175,81 @@ int main(int argc, char* argv[]) {
   }));
 #endif
 
-  main.register_event_handler(win::create_event([](win::window*,
-    const core::rectangle& r) {
-    LogDebug << "Create Main: " << r;
-  }));
-  main.register_event_handler(win::destroy_event([&]() {
+  const core::rectangle& r = core::rectangle(50, 50, 800, 480);
+  LogDebug << "Create Main: " << r;
+  main.create(r);
+//  main.created_children();
+  main.set_title("Window Test");
+
+  main.set_visible();
+  main.redraw_later();
+
+  int ret = 0;
+  try {
+    ret = win::run_main_loop();
+  } catch (std::exception e) {
+    LogFatal << e;
+  }
+
+  gui::core::global::fini();
+
+#ifdef X11
+  ibr::log::core::instance().removeSink(&std::cerr);
+#endif
+
+  ibr::log::core::instance().finish();
+
+  return ret;
+}
+
+my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
+  : paint1(p1)
+  , paint2(p2)
+  , at_paint1(true)
+  , at_drag(false)
+{
+  register_event_handler(win::destroy_event([&] () {
     LogDebug << "Destroyed!";
-    main.quit();
+    quit();
   }));
 
-  win::paint_event paint1 = create_paint1();
-  win::paint_event paint2 = create_paint2();
-
-  bool at_drag = false;
-  core::point last_pos;
 
 #ifdef WIN32
-  main.register_event_handler(win::close_event([&]() {
+  register_event_handler(win::close_event([&]() {
     LogDebug << "Close!";
     main.destroy();
   }));
-  main.register_event_handler(win::enable_event([](bool on) {
+  register_event_handler(win::enable_event([](bool on) {
     LogDebug << (on ? "Enableed" : "Disabled");
   }));
-  main.register_event_handler(win::activate_event([](bool on, win::window* win) {
+  register_event_handler(win::activate_event([](bool on, win::window* win) {
     LogDebug << "Main " << (on ? "activate" : "deactivate");
   }));
-  main.register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
-  main.register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  main.register_event_handler(win::activate_app_event([](bool on) {
+  register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
+  register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
+  register_event_handler(win::activate_app_event([](bool on) {
     LogDebug << (on ? "A" : "Dea") << "ctivate App";
   }));
 
 #endif
 
-  main.register_event_handler(win::moving_event([](const core::point& r) {
+  register_event_handler(win::moving_event([] (const core::point& r) {
     LogDebug << "Main moving: " << r;
   }));
-  main.register_event_handler(win::sizing_event([](const core::size& r) {
+  register_event_handler(win::sizing_event([] (const core::size& r) {
     LogDebug << "Main sizing: " << r;
   }));
-  main.register_event_handler(win::placing_event([](const core::rectangle& r) {
+  register_event_handler(win::placing_event([] (const core::rectangle& r) {
     LogDebug << "Main placing: " << r;
   }));
 
-  main.register_event_handler(win::move_event([](const core::point& p) {
+  register_event_handler(win::move_event([] (const core::point& p) {
     LogDebug << "Main move: " << p;
   }));
-  main.register_event_handler(win::size_event([](const core::size& s) {
+  register_event_handler(win::size_event([] (const core::size& s) {
     LogDebug << "Main size: " << s;
   }));
-  main.register_event_handler(win::place_event([](const core::rectangle& r) {
+  register_event_handler(win::place_event([] (const core::rectangle& r) {
     LogDebug << "Main place: " << r;
   }));
 
@@ -207,32 +258,34 @@ int main(int argc, char* argv[]) {
     LogDebug << "Button " << (on ? "" : "de") << "activate";
   }));
 #endif
-  ok_button.register_event_handler(win::set_focus_event([](win::window* win) {
+  ok_button.register_event_handler(win::set_focus_event([] (win::window* win) {
     LogDebug << "Button Set Focus";
   }));
-  ok_button.register_event_handler(win::lost_focus_event([&](win::window* win) {
+  ok_button.register_event_handler(win::lost_focus_event([&] (win::window* win) {
     LogDebug << "Button Lost Focus";
   }));
 
-  main.register_event_handler(win::left_btn_down_event([&](const core::point& p){
+  register_event_handler(win::left_btn_down_event([&] (const core::point& p) {
     LogDebug << "Left Button Down at " << p;
   }));
-  main.register_event_handler(win::left_btn_up_event([&](const core::point& p){
+  register_event_handler(win::left_btn_up_event([&] (const core::point& p) {
     LogDebug << "Left Button Up at " << p;
   }));
-  main.register_event_handler(win::right_btn_down_event([&](const core::point& p){
+  register_event_handler(win::right_btn_down_event([&] (const core::point& p) {
     LogDebug << "Right Button Down at " << p;
   }));
-  main.register_event_handler(win::right_btn_up_event([&](const core::point& p){
+  register_event_handler(win::right_btn_up_event([&] (const core::point& p) {
     LogDebug << "Right Button Up at " << p;
   }));
-  window1.register_event_handler(win::wheel_x_event([&](int delta, const core::point& p) {
+  window1.register_event_handler(win::wheel_x_event([&] (int delta,
+                                                         const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   }));
-  window1.register_event_handler(win::wheel_y_event([&](int delta, const core::point& p) {
+  window1.register_event_handler(win::wheel_y_event([&] (int delta,
+                                                         const core::point& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(0, delta));
@@ -246,12 +299,12 @@ int main(int argc, char* argv[]) {
   //  LogDebug << "Window1 size: " << s;
   //}));
 
-  auto down_handler = [&](const core::point& p) {
+  auto down_handler = [&] (const core::point& p) {
     at_drag = true;
     last_pos = p;
     LogDebug << "Window Mouse down at " << p;
   };
-  auto up_handler = [&](const core::point& p) {
+  auto up_handler = [&] (const core::point& p) {
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
   };
@@ -260,7 +313,8 @@ int main(int argc, char* argv[]) {
   window2.register_event_handler(win::left_btn_down_event(down_handler));
   window2.register_event_handler(win::left_btn_up_event(up_handler));
 
-  window1.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+  window1.register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+                                                            const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       core::point delta = p - last_pos;
@@ -268,7 +322,8 @@ int main(int argc, char* argv[]) {
       window1.move(window1.position() + delta);
     }
   }));
-  window2.register_event_handler(win::mouse_move_event([&](unsigned int keys, const core::point& p) {
+  window2.register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+                                                            const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       core::point delta = p - last_pos;
@@ -277,58 +332,59 @@ int main(int argc, char* argv[]) {
     }
   }));
 
-  window1.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+  window1.register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   }));
 
 
-  main.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+  register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
     LogDebug << "Double Click up at " << p;
 
     core::point pos = window1.position();
     core::size sz = window1.size();
     LogDebug << "Pos: " << pos << " Size " << sz;
 
-    core::rectangle  pl = window1.place();
+    core::rectangle pl = window1.place();
     LogDebug << "Place: " << pl;
 
-    core::rectangle  apl = window1.absolute_place();
+    core::rectangle apl = window1.absolute_place();
     LogDebug << "Abs Place: " << apl;
 
     core::point apos = window1.absolute_position();
     LogDebug << "Abs Pos: " << apos;
 
-    core::rectangle  car = window1.client_area();
+    core::rectangle car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  main.register_event_handler(win::right_btn_dblclk_event([&](const core::point& p) {
-    window1.move({ 50, 50 });
+  register_event_handler(win::right_btn_dblclk_event([&] (const core::point& p) {
+    window1.move({50, 50});
   }));
 
   window2.register_event_handler(paint1);
 
-  bool p1 = true;
+  at_paint1 = true;
 
-  window2.register_event_handler(win::left_btn_dblclk_event([&](const core::point& p) {
+  window2.register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
     LogDebug << "Window2 Double Click up at " << p;
-    if (p1) {
-      p1 = false;
+    if (at_paint1) {
+      at_paint1 = false;
       window2.unregister_event_handler(paint1);
       window2.register_event_handler(paint2);
     } else {
-      p1 = true;
+      at_paint1 = true;
       window2.unregister_event_handler(paint2);
       window2.register_event_handler(paint1);
     }
     window2.redraw_later();
   }));
-  window2.register_event_handler(win::show_event([]() {
+  window2.register_event_handler(win::show_event([] () {
     LogDebug << "Window2 show:";
   }));
-  window2.register_event_handler(win::hide_event([]() {
+  window2.register_event_handler(win::hide_event([] () {
     LogDebug << "Window2 hide:";
   }));
+
   //window2.register_event_handler(win::mouse_enter_event([]() {
   //  LogDebug << "Window2 mouse enter";
   //}));
@@ -343,31 +399,31 @@ int main(int argc, char* argv[]) {
     LogDebug << "Button " << (state ? "hilited" : "unhilited");
   }));
 #endif // WIN32
-  ok_button.register_event_handler(win::button_pushed_event([&]() {
+  ok_button.register_event_handler(win::button_pushed_event([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
     label.redraw_now();
   }));
-  ok_button.register_event_handler(win::button_released_event([&]() {
+  ok_button.register_event_handler(win::button_released_event([&] () {
     LogDebug << "Button released";
     label.set_text("Released!");
     label.redraw_now();
   }));
-  radio_button.register_event_handler(win::button_clicked_event([&]() {
+  radio_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Radio clicked";
     labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   }));
-  radio_button2.register_event_handler(win::button_clicked_event([&]() {
+  radio_button2.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Radio2 clicked";
     labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   }));
-  check_box.register_event_handler(win::button_state_event([&](bool on) {
+  check_box.register_event_handler(win::button_state_event([&] (bool on) {
     LogDebug << "Check clicked";
     label.set_text("Check clicked!");
     radio_button.enable(on);
@@ -375,37 +431,30 @@ int main(int argc, char* argv[]) {
     ok_button.enable(on);
   }));
 
-  auto query_state = [&]() {
-    if (main.is_minimized()) {
-      labelC.set_text("Minimized");
-    } else if (main.is_maximized()) {
-      labelC.set_text("Maximized");
-    } else {
-      labelC.set_text("Normal");
-    }
-  };
-
-  min_button.register_event_handler(win::button_clicked_event([&]() {
+  min_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Min clicked";
-    main.minimize();
+    minimize();
     query_state();
   }));
-  max_button.register_event_handler(win::button_clicked_event([&]() {
+  max_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Max clicked";
-    main.maximize();
+    maximize();
     query_state();
   }));
-  norm_button.register_event_handler(win::button_clicked_event([&]() {
+  norm_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Norm clicked";
-    main.restore();
+    restore();
     query_state();
   }));
-  info_button.register_event_handler(win::button_clicked_event([&](){
+  info_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Info clicked";
     query_state();
   }));
 
-  auto list_drawer = [](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+  auto list_drawer = [] (draw::graphics& g,
+                         int idx,
+                         const core::rectangle& place,
+                         bool selected) {
     using namespace draw;
 
     std::ostringstream strm;
@@ -417,77 +466,96 @@ int main(int argc, char* argv[]) {
   };
 
   list1.set_drawer(list_drawer, 25);
-  list1.register_event_handler(win::selection_changed_event([&](){
+  list1.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List1 item " << list1.get_selection();
     labelC.set_text(strm.str());
   }));
 
-  up_button.register_event_handler(win::button_clicked_event([&]() {
+  up_button.register_event_handler(win::button_clicked_event([&] () {
     list1.set_selection(list1.get_selection() - 1);
     list2.set_selection(list2.get_selection() - 1);
     list3.set_selection(list3.get_selection() - 1);
   }));
-  down_button.register_event_handler(win::button_clicked_event([&]() {
+  down_button.register_event_handler(win::button_clicked_event([&] () {
     list1.set_selection(list1.get_selection() + 1);
     list2.set_selection(list2.get_selection() + 1);
     list3.set_selection(list3.get_selection() + 1);
   }));
 
-  win::list::data<std::string> data;
   data += "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß";
-  list2.set_drawer([&](draw::graphics& g, int idx, const core::rectangle& place, bool selected) {
+  list2.set_drawer([&] (draw::graphics& g,
+                        int idx,
+                        const core::rectangle& place,
+                        bool selected) {
     data(g, idx, place, selected);
   }, 16);
 
-  list2.register_event_handler(win::selection_changed_event([&](){
+  list2.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List2 item " << list2.get_selection();
     labelC.set_text(strm.str());
   }));
 
-  ok_button.register_event_handler(win::button_clicked_event([&]() {
+  ok_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data += "Sechs", "Sieben", "Acht", "Neun", "Zehn";
     data.update_list(list2);
   }));
-  
-  del_button.register_event_handler(win::button_clicked_event([&]() {
+
+  del_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Del Button clicked";
     label.set_text("Del Clicked!");
     data.erase(data.begin());
     data.update_list(list2);
   }));
 
-  clear_button.register_event_handler(win::button_clicked_event([&]() {
+  clear_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
     data.update_list(list2);
   }));
 
-  scroll_check_box.register_event_handler(win::button_state_event([&](bool on) {
+  scroll_check_box.register_event_handler(win::button_state_event([&] (bool on) {
     list1.enable_vscroll_bar(on);
     list2.enable_vscroll_bar(on);
   }));
 
-  vscroll.register_event_handler(win::scroll_event([&](int pos){
+  vscroll.register_event_handler(win::scroll_event([&] (int pos) {
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
     list4.set_scroll_pos(pos);
   }));
 
-  calc_button.register_event_handler(win::button_clicked_event([&]() {
+  calc_button.register_event_handler(win::button_clicked_event([&] () {
     view.calc_area();
   }));
 
-  main.register_event_handler(win::create_event([&](win::window* w, const core::rectangle& rect) {
-    LogDebug << "Main created";
-  }));
-  main.create(core::rectangle(50, 50, 800, 480));
-  main.set_title("Window Test");
+  register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
+}
+
+void my_main_window::query_state () {
+  if (is_minimized()) {
+    labelC.set_text("Minimized");
+  } else if (is_maximized()) {
+    labelC.set_text("Maximized");
+  } else {
+    labelC.set_text("Normal");
+  }
+}
+
+
+void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
+  LogDebug << "Main created: this:" << std::hex << this << ", w:" << w << ", rect:" << std::dec << r;
+  created_children();
+}
+
+void my_main_window::created_children () {
+
+  my_main_window& main = *this;
 
   view.create(main, core::rectangle(0, 0, 300, 330));
   view.set_visible();
@@ -586,29 +654,9 @@ int main(int argc, char* argv[]) {
 
   info_button.create(main, core::rectangle(390, 400, 90, 25), "Info");
   info_button.set_visible();
-
-  main.set_visible();
-  main.redraw_later();
-
-  int ret = 0;
-  try {
-    ret = win::run_main_loop();
-  } catch (std::exception e) {
-    LogFatal << e;
-  }
-
-  gui::core::global::fini();
-
-#ifdef X11
-  ibr::log::core::instance().removeSink(&std::cerr);
-#endif
-
-  ibr::log::core::instance().finish();
-
-  return ret;
 }
 
-win::paint_event create_paint1 () {
+win::paint_event my_main_window::create_paint1 () {
   return win::paint_event([](draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
@@ -706,7 +754,7 @@ win::paint_event create_paint1 () {
   });
 }
 
-win::paint_event create_paint2 () {
+win::paint_event my_main_window::create_paint2 () {
   return win::paint_event([](draw::graphics& graph) {
     //LogDebug << "win::paint 2";
     using namespace draw;

@@ -45,6 +45,8 @@ namespace gui {
     namespace detail {
       void set_id (window* w,
                    core::window_id id);
+
+      extern Atom WM_CREATE_WINDOW;
     }
 
     class window : public core::event_container {

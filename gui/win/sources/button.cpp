@@ -29,10 +29,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef X11
-    Atom BN_CLICKED_MESSAGE = 0;
-    Atom BN_PUSHED_MESSAGE = 0;
-    Atom BN_UNPUSHED_MESSAGE = 0;
-    Atom BN_STATE_MESSAGE = 0;
+    namespace detail {
+      Atom BN_CLICKED_MESSAGE = 0;
+      Atom BN_PUSHED_MESSAGE = 0;
+      Atom BN_UNPUSHED_MESSAGE = 0;
+      Atom BN_STATE_MESSAGE = 0;
+    }
 // --------------------------------------------------------------------------
 #endif // X11
 
@@ -43,17 +45,17 @@ namespace gui {
 #endif // X11
     {
 #ifdef X11
-      if (!BN_CLICKED_MESSAGE) {
-        BN_CLICKED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_CLICKED_MESSAGE", False);
+      if (!detail::BN_CLICKED_MESSAGE) {
+        detail::BN_CLICKED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_CLICKED_MESSAGE", False);
       }
-      if (!BN_PUSHED_MESSAGE) {
-        BN_PUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_PUSHED_MESSAGE", False);
+      if (!detail::BN_PUSHED_MESSAGE) {
+        detail::BN_PUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_PUSHED_MESSAGE", False);
       }
-      if (!BN_UNPUSHED_MESSAGE) {
-        BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
+      if (!detail::BN_UNPUSHED_MESSAGE) {
+        detail::BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
       }
-      if (!BN_STATE_MESSAGE) {
-        BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
+      if (!detail::BN_STATE_MESSAGE) {
+        detail::BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
       }
       register_event_handler(this, &button::button_handle_event);
 #endif // X11
@@ -65,7 +67,7 @@ namespace gui {
       if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
         if (is_enabled()) {
           take_focus();
-          send_client_message(this, BN_PUSHED_MESSAGE);
+          send_client_message(this, detail::BN_PUSHED_MESSAGE);
           if (get_window_class()->get_ex_style()) {
             set_hilited(true);
           } else {
@@ -77,7 +79,7 @@ namespace gui {
                  (e.xbutton.button == Button1) &&
                  ((e.xbutton.state & Button1Mask) == Button1Mask)) {
         if (is_enabled()) {
-          send_client_message(this, BN_UNPUSHED_MESSAGE);
+          send_client_message(this, detail::BN_UNPUSHED_MESSAGE);
           core::point p = get_param<core::point, XButtonEvent>(e);
           if (get_window_class()->get_ex_style()) {
             if (is_hilited()) {
@@ -85,14 +87,14 @@ namespace gui {
               if (client_area().is_inside(p)) {
                 set_checked(!is_checked());
                 if (is_enabled()) {
-                  send_client_message(this, BN_CLICKED_MESSAGE);
+                  send_client_message(this, detail::BN_CLICKED_MESSAGE);
                 }
               }
             }
           } else {
             set_checked(false);
             if (client_area().is_inside(p)) {
-              send_client_message(this, BN_CLICKED_MESSAGE);
+              send_client_message(this, detail::BN_CLICKED_MESSAGE);
             }
           }
         }
@@ -130,7 +132,7 @@ namespace gui {
     void button::set_checked (bool f) {
       if (checked != f) {
         checked = f;
-        send_client_message(this, BN_STATE_MESSAGE, f ? 1 : 0);
+        send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
         redraw_later();
       }
     }
@@ -142,25 +144,6 @@ namespace gui {
     void button::set_hilited (bool h) {
       hilited = h;
       redraw_later();
-    }
-#endif // X11
-
-// --------------------------------------------------------------------------
-#ifdef X11
-    bool bn_clicked_message_match::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
-    }
-
-    bool bn_pushed_message_match::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
-    }
-
-    bool bn_unpushed_message_match::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == BN_CLICKED_MESSAGE);
-    }
-
-    bool bn_state_message_match::operator() (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == BN_STATE_MESSAGE);
     }
 #endif // X11
 

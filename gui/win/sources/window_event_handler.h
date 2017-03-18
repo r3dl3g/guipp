@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <X11/Xlib.h>
 
 // --------------------------------------------------------------------------
 //
@@ -448,6 +449,16 @@ namespace gui {
 
 #ifdef X11
     // --------------------------------------------------------------------------
+    namespace detail {
+      extern Atom WM_CREATE_WINDOW;
+
+      struct window_and_rect {
+        window* w;
+        core::rectangle r;
+      };
+
+    }
+
     template <core::event_id id, core::event_id btn, int sts>
     struct event_button_match {
       bool operator() (const core::event& e) {
@@ -531,6 +542,10 @@ namespace gui {
       return (T)e.xclient.data.l[I];
     }
     // --------------------------------------------------------------------------
+    core::rectangle get_client_data_rect(const core::event& e);
+    // --------------------------------------------------------------------------
+    window* get_client_data_window(const core::event& e);
+    // --------------------------------------------------------------------------
     template<typename T, typename C>
     inline T get_param (const core::event& e) {
       return T(cast_event_type<C>(e));
@@ -541,12 +556,20 @@ namespace gui {
       return window::get(cast_event_type<T>(e).window);
     }
     // --------------------------------------------------------------------------
-    typedef event_handlerT<CreateNotify,
+    template <Atom& M>
+    struct client_message_matcher {
+      bool operator() (const core::event& e) {
+        return (e.type == ClientMessage) && (e.xclient.message_type == M);
+      }
+    };
+    // --------------------------------------------------------------------------
+    typedef event_handlerT<ClientMessage,
                            two_param_caller<window*,
                                             core::rectangle,
-                                            get_window<XCreateWindowEvent>,
-                                            get_param<core::rectangle,
-                                                      XCreateWindowEvent>>>         create_event;
+                                            get_client_data_window,
+                                            get_client_data_rect>,
+                            0,
+                            client_message_matcher<detail::WM_CREATE_WINDOW>>       create_event;
 
     typedef event_handlerT<DestroyNotify>                                           destroy_event;
 
@@ -740,7 +763,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct paint_caller {
-      typedef std::function<void(draw::graphics&)> function;
+      typedef void(F)(draw::graphics&);
+      typedef std::function<F> function;
 
       paint_caller (const function cb)
         : callback(cb)
@@ -768,7 +792,9 @@ namespace gui {
 
     typedef event_handlerT<Expose, paint_caller> paint_event;
 
-    void send_client_message (window* win, Atom message, int data = 0);
+    void send_client_message (window* win, Atom message,
+                              long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
+    void send_client_message (window* win, Atom message, window* w, const core::rectangle& r);
 
 #endif // X11
 

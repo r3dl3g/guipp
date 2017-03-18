@@ -46,7 +46,9 @@ namespace gui {
       void set_id (window* w,
                    core::window_id id);
 
+#ifdef X11
       extern Atom WM_CREATE_WINDOW;
+#endif // X11
     }
 
     class window : public core::event_container {

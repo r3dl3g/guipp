@@ -25,7 +25,9 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#ifdef X11
 #include <X11/Xlib.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //

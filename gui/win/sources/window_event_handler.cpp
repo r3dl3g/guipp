@@ -25,7 +25,6 @@
 //
 // Library includes
 //
-#include <X11/Xlib.h>
 #include "window_event_handler.h"
 #include "window.h"
 #include <logger.h>

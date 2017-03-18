@@ -151,8 +151,12 @@ namespace gui {
         LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << " }";
 
         vscroll.set_min_max(ymin, ymax);
+#ifdef WIN32
+        vscroll.set_step(std::min(ymax - ymin, (int)space.height()) / 2);
+#endif // WIN32
+#ifdef X11
         vscroll.set_step(std::min(ymax - ymin, (int)space.height()));
-
+#endif // X11
         vscroll.set_value(ypos);
         current_pos.y(ypos);
       }
@@ -165,7 +169,12 @@ namespace gui {
         LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << " }";
 
         hscroll.set_min_max(xmin, xmax);
+#ifdef WIN32
+        hscroll.set_step(std::min(xmax - xmin, (int)space.width()) / 2);
+#endif // WIN32
+#ifdef X11
         hscroll.set_step(std::min(xmax - xmin, (int)space.width()));
+#endif // X11
 
         hscroll.set_value(xpos);
         current_pos.x(xpos);

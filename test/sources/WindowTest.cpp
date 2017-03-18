@@ -217,7 +217,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 #ifdef WIN32
   register_event_handler(win::close_event([&]() {
     LogDebug << "Close!";
-    main.destroy();
+    destroy();
   }));
   register_event_handler(win::enable_event([](bool on) {
     LogDebug << (on ? "Enableed" : "Disabled");

@@ -55,8 +55,6 @@ namespace gui {
         super::create(clazz, parent, place);
         vscroll.create(*this, get_vscroll_area());
         hscroll.create(*this, get_hscroll_area());
-        vscroll.set_step(1);
-        hscroll.set_step(1);
         edge.create(*this, get_edge_area());
       }
 

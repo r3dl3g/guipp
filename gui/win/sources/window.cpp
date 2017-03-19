@@ -496,8 +496,12 @@ namespace gui {
       return window_to_screen(core::point::zero);
     }
 
+    core::size window::client_size () const {
+      return size() - core::size(1, 1);
+    }
+
     core::rectangle window::client_area () const {
-      return core::rectangle(size() - core::size(1, 1));
+      return core::rectangle(client_size());
     }
 
     void window::move (const core::point& pt, bool repaint) {
@@ -606,6 +610,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     window_class client_window::clazz;
+
+    // --------------------------------------------------------------------------
+    window_class group_window_class;
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
@@ -845,8 +852,31 @@ namespace gui {
       }
     }
 
+
 #endif //X11
 
-  } // win
+#ifdef WIN32
+    void init_group_window_class () {
+      if (!group_window_class.is_valid()) {
+        group_window_class = win::window_class::custom_class("group_window",
+                                                CS_DBLCLKS,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+                                                nullptr,
+                                                LoadCursor(nullptr, IDC_ARROW),
+                                                (HBRUSH)(COLOR_WINDOW + 1));
+      }
+    }
+#endif // WIN32
+
+#ifdef X11
+    void init_group_window_class () {
+      if (!group_window_class.is_valid()) {
+        group_window_class = win::window_class::custom_class("group_window", 0);
+      }
+    }
+#endif //X11
+
+} // win
 
 } // gui

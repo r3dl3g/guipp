@@ -84,7 +84,7 @@ namespace gui {
 
       void create (const window_class& type,
                    const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle);
+                   const core::rectangle& place = core::rectangle::def);
 
       bool scroll_handle_event (const core::event& e, core::event_result& result);
 
@@ -109,7 +109,7 @@ namespace gui {
         ~scroll_barT ();
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::default_rectangle) {
+                     const core::rectangle& place = core::rectangle::def) {
           super::create(clazz, parent, place);
         }
 

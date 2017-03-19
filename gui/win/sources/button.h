@@ -103,7 +103,7 @@ namespace gui {
       push_button ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
@@ -121,7 +121,7 @@ namespace gui {
       radio_button ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);
@@ -139,7 +139,7 @@ namespace gui {
       check_box ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
         set_text(txt);

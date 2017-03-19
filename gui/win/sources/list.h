@@ -50,7 +50,7 @@ namespace gui {
       ~list ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle);
+                   const core::rectangle& place = core::rectangle::def);
 
       template<typename T>
       void create (const container& parent,

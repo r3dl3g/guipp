@@ -32,16 +32,16 @@
 
 namespace gui {
 
-  namespace win {
+  namespace layout {
 
     // --------------------------------------------------------------------------
     class scroll_view_layout {
     public:
-      scroll_view_layout (container*);
+      scroll_view_layout (win::container*);
 
-      void init (vscroll_bar* vscroll,
-                 hscroll_bar* hscroll,
-                 client_window* edge);
+      void init (win::vscroll_bar* vscroll,
+                 win::hscroll_bar* hscroll,
+                 win::client_window* edge);
 
       void layout (const core::size& new_size);
 
@@ -54,15 +54,20 @@ namespace gui {
       static core::rectangle get_visible_area (const core::size&);
 
     private:
-      core::point    current_pos;
-      container*     main;
-      vscroll_bar*   vscroll;
-      hscroll_bar*   hscroll;
-      client_window* edge;
+      core::point         current_pos;
+      win::container*     main;
+      win::vscroll_bar*   vscroll;
+      win::hscroll_bar*   hscroll;
+      win::client_window* edge;
     };
+    // --------------------------------------------------------------------------
+
+  }
+
+  namespace win {
 
     // --------------------------------------------------------------------------
-    class scroll_view : public layout_container<scroll_view_layout> {
+    class scroll_view : public layout_container<layout::scroll_view_layout> {
     public:
       typedef window super;
 
@@ -79,7 +84,7 @@ namespace gui {
       bool is_hscroll_bar_enabled () const;
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle);
+                   const core::rectangle& place = core::rectangle::def);
 
       void move_children (const core::point& delta);
 

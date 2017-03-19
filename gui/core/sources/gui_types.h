@@ -230,7 +230,7 @@ namespace gui {
 
     struct rectangle {
       static const rectangle zero;
-      static const rectangle default_rectangle;
+      static const rectangle def;
 
       inline rectangle (const point& pos = point::zero,
                         const size& sz = size::zero)

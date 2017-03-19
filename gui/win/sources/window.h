@@ -34,6 +34,7 @@
 #include "gui_types.h"
 #include "window_class.h"
 #include "window_event_handler.h"
+#include "layout.h"
 
 
 namespace gui {
@@ -122,6 +123,8 @@ namespace gui {
 
       core::point absolute_position () const;
 
+      core::size client_size () const;
+
       core::rectangle client_area () const;
 
       void move (const core::point&,
@@ -146,7 +149,7 @@ namespace gui {
     protected:
       void create (const window_class& type,
                    const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle,
+                   const core::rectangle& place = core::rectangle::def,
                    core::menu_id menu = 0);
 
 #ifdef WIN32
@@ -178,7 +181,7 @@ namespace gui {
     public:
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle) {
+                   const core::rectangle& place = core::rectangle::def) {
         window::create(clazz, parent, place);
       }
 
@@ -193,17 +196,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class standard_layout {
-    public:
-      standard_layout(container*)
-      {}
-
-      void layout (const core::size& new_size)
-      {}
-    };
-
-    // --------------------------------------------------------------------------
-    template<typename Layout = standard_layout>
+    template<typename Layout = layout::standard_layout>
     class layout_container : public container {
     public:
       layout_container ()
@@ -211,18 +204,28 @@ namespace gui {
         register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
       }
 
+      void do_layout () {
+        layout.layout(client_size());
+      }
+
     protected:
       Layout layout;
     };
 
-    // --------------------------------------------------------------------------
-    template<window_class& clazz, typename L = standard_layout>
-    class containerT : public layout_container<L> {
-    public:
-      void create (const core::rectangle& place = core::rectangle::default_rectangle) {
-        container::create(clazz, place);
-      }
+    extern window_class group_window_class;
+    void init_group_window_class ();
 
+    // --------------------------------------------------------------------------
+    template<typename L = layout::standard_layout>
+    class group_window : public layout_container<L> {
+    public:
+      typedef layout_container<L> super;
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        init_group_window_class();
+        super::create(group_window_class, parent, place);
+      }
     };
 
     // --------------------------------------------------------------------------
@@ -261,7 +264,7 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const core::rectangle& place = core::rectangle::default_rectangle);
+      void create (const core::rectangle& place = core::rectangle::def);
 
     private:
       static window_class clazz;
@@ -272,7 +275,7 @@ namespace gui {
       client_window ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle) {
+                   const core::rectangle& place = core::rectangle::def) {
         window::create(clazz, parent, place);
       }
 

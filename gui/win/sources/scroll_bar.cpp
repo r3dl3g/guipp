@@ -256,10 +256,9 @@ namespace gui {
     void scroll_bar::set_value (int i) {
       i = std::min(std::max(i, min), max);
       if (i != value) {
-        int delta = i - value;
         value = i;
         redraw_later();
-        send_client_message(this, detail::SCROLLBAR_MESSAGE, delta);
+        send_client_message(this, detail::SCROLLBAR_MESSAGE, value);
       }
     }
 
@@ -456,8 +455,7 @@ namespace gui {
                 state = Nothing_pressed;
               }
               redraw_later();
-              return true;
-            }
+              return true;            }
             break;
           case ButtonRelease:
             switch (e.xbutton.button) {

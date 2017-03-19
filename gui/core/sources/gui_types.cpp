@@ -37,7 +37,12 @@ namespace gui {
 
   namespace core {
 
-    const rectangle rectangle::default_rectangle = rectangle(core::point(-1, -1), core::point(-1, -1));
+#ifdef WIN32
+    const rectangle rectangle::def = rectangle(core::point(-1, -1), core::point(-1, -1));
+#endif // WIN32
+#ifdef X11
+    const rectangle rectangle::def = rectangle(0, 0, 1, 1);
+#endif // X11
 
     const size size::zero;
     const point point::zero;

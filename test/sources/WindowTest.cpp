@@ -100,6 +100,9 @@ private:
   win::push_button del_button;
   win::push_button clear_button;
 
+  win::group_window<layout::horizontal_lineup<5, 10>> btn_group;
+  win::group_window<layout::vertical_lineup<5, 5>> chck_group;
+
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
@@ -634,41 +637,51 @@ void my_main_window::created_children () {
   labelR.set_visible();
   labelR.redraw_later();
 
-  radio_button.create(main, core::rectangle(180, 350, 70, 20), "Radio");
+  chck_group.create(main, core::rectangle(180, 350, 100, 80));
+  chck_group.set_visible();
+
+  radio_button.create(chck_group, core::rectangle::def, "Radio");
   radio_button.set_visible();
   radio_button.redraw_later();
 
-  radio_button2.create(main, core::rectangle(180, 372, 70, 20), "Radio2");
+  radio_button2.create(chck_group, core::rectangle(0, 20, 100, 20), "Radio2");
   radio_button2.set_visible();
   radio_button2.redraw_later();
 
-  check_box.create(main, core::rectangle(270, 350, 100, 25), "Check");
+  check_box.create(chck_group, core::rectangle(0, 40, 100, 20), "Check");
   check_box.set_visible();
   check_box.redraw_later();
 
-  ok_button.create(main, core::rectangle(380, 350, 100, 25), "Ok");
+  chck_group.do_layout();
+
+  btn_group.create(main, core::rectangle(10, 440, 780, 35));
+  btn_group.set_visible();
+
+  ok_button.create(btn_group, core::rectangle(380, 350, 100, 25), "Ok");
   ok_button.set_visible();
   ok_button.redraw_later();
 
-  del_button.create(main, core::rectangle(490, 350, 100, 25), "Del");
+  del_button.create(btn_group, core::rectangle(490, 350, 100, 25), "Del");
   del_button.set_visible();
   del_button.redraw_later();
 
-  clear_button.create(main, core::rectangle(600, 350, 100, 25), "Clear");
+  clear_button.create(btn_group, core::rectangle(600, 350, 100, 25), "Clear");
   clear_button.set_visible();
   clear_button.redraw_later();
 
-  min_button.create(main, core::rectangle(180, 400, 60, 25), "Min");
+  min_button.create(btn_group, core::rectangle(180, 400, 60, 25), "Min");
   min_button.set_visible();
 
-  max_button.create(main, core::rectangle(250, 400, 60, 25), "Max");
+  max_button.create(btn_group, core::rectangle(250, 400, 60, 25), "Max");
   max_button.set_visible();
 
-  norm_button.create(main, core::rectangle(320, 400, 60, 25), "Norm");
+  norm_button.create(btn_group, core::rectangle(320, 400, 60, 25), "Norm");
   norm_button.set_visible();
 
-  info_button.create(main, core::rectangle(390, 400, 90, 25), "Info");
+  info_button.create(btn_group, core::rectangle(390, 400, 90, 25), "Info");
   info_button.set_visible();
+
+  btn_group.do_layout();
 }
 
 win::paint_event my_main_window::create_paint1 () {

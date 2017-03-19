@@ -44,8 +44,16 @@ namespace gui {
 
 #ifdef WIN32
 
-      window* get__window (core::window_id id) {
+      window* get_window (core::window_id id) {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+      }
+
+      void set_window(core::window_id id, window* win) {
+        SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
+      }
+      
+      void unset_window(core::window_id id) {
+        SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
       bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {

@@ -38,11 +38,27 @@ namespace gui {
     class scroll_view_layout {
     public:
       scroll_view_layout (container*);
-      void operator() (layout_container<scroll_view_layout>&, const core::size& new_size);
+
+      void init (vscroll_bar* vscroll,
+                 hscroll_bar* hscroll,
+                 client_window* edge);
+
+      void layout (const core::size& new_size);
+
+      void set_current_pos (const core::point& pt);
+      core::point get_current_pos () const;
 
       static core::rectangle get_vscroll_area (const core::size&, bool hscroll_bar_enabled);
       static core::rectangle get_hscroll_area (const core::size&, bool vscroll_bar_enabled);
       static core::rectangle get_edge_area (const core::size&);
+      static core::rectangle get_visible_area (const core::size&);
+
+    private:
+      core::point    current_pos;
+      container*     main;
+      vscroll_bar*   vscroll;
+      hscroll_bar*   hscroll;
+      client_window* edge;
     };
 
     // --------------------------------------------------------------------------
@@ -67,8 +83,6 @@ namespace gui {
 
       void move_children (const core::point& delta);
 
-      core::rectangle get_visible_area (bool without_scrolls = false) const;
-
     protected:
       friend class scroll_view_layout;
 
@@ -77,7 +91,6 @@ namespace gui {
       client_window& get_edge ();
 
     private:
-//      core::point   current_pos;
       vscroll_bar   vscroll;
       hscroll_bar   hscroll;
       client_window edge;

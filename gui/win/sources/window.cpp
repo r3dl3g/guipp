@@ -256,11 +256,6 @@ namespace gui {
       redraw_now();
     }
 
-    void container::create(const window_class& type,
-                           const core::rectangle& place) {
-      create(type, nullptr, place);
-    }
-
     bool container::is_parent_of(const window& child) const {
       return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
     }
@@ -269,7 +264,7 @@ namespace gui {
       std::vector<window*> list;
       core::window_id id = GetWindow(get_id(), GW_CHILD);
       while (id) {
-        list.push_back(get(id));
+        list.push_back(detail::get_window(id));
         id = GetWindow(id, GW_HWNDNEXT);
       }
       return list;
@@ -627,6 +622,10 @@ namespace gui {
       }
     }
     
+    void main_window::create (const core::rectangle& place) {
+      window::create(clazz, GetDesktopWindow(), place);
+    }
+
     void main_window::set_title (const std::string& title) {
       SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)title.c_str());
     }

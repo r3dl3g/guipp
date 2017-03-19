@@ -61,17 +61,17 @@ namespace gui {
       }
 
       template<>
-      scroll_barT<false>::~scroll_barT() {}
+      scroll_barT<false>::~scroll_barT () {}
 
       template<>
-      scroll_barT<true>::~scroll_barT() {}
+      scroll_barT<true>::~scroll_barT () {}
     }
 
     bool scroll_matcher::operator() (const core::event& e) {
       return (e.type == WM_VSCROLL) || (e.type == WM_HSCROLL);
     }
 
-    int get_scroll_pos(const core::event& e) {
+    int get_scroll_pos (const core::event& e) {
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0 };
       GetScrollInfo(e.id, SB_CTL, &si);
       return si.nPos;
@@ -82,7 +82,7 @@ namespace gui {
     }
 
     void scroll_bar::create (const window_class& type,
-                             const window& parent,
+                             const container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_RANGE| SIF_POS| SIF_PAGE, 0, 100, 10, 0, 0 };
@@ -93,7 +93,7 @@ namespace gui {
       switch (e.type) {
       case WM_VSCROLL:
       case WM_HSCROLL: {
-        int	nScrollCode = (int)LOWORD(e.param_1);
+        short int nScrollCode = get_param1_low<short int>(e);
         SCROLLINFO si = { sizeof(SCROLLINFO), SIF_ALL, 0, 0, 0, 0, 0 };
         GetScrollInfo(e.id, SB_CTL, &si);
         switch (nScrollCode) {

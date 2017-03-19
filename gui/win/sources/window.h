@@ -198,7 +198,7 @@ namespace gui {
       standard_layout(container*)
       {}
 
-      void operator() (container&, const core::size& new_size)
+      void layout (const core::size& new_size)
       {}
     };
 
@@ -208,12 +208,9 @@ namespace gui {
     public:
       layout_container ()
         : layout(this) {
-        register_event_handler(size_event(core::easy_bind(this, &layout_container::on_size_changed)));
+        register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
       }
 
-      void on_size_changed (const core::size& sz) {
-        layout(*this, sz);
-      }
     protected:
       Layout layout;
     };

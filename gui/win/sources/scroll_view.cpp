@@ -50,11 +50,15 @@ namespace gui {
         clazz = win::window_class::custom_class("MyScrollView");
 #endif //X11
       }
-      vscroll.register_event_handler(scroll_event([&](int dy) {
-        move_children(core::point(0, dy));
+
+      layout.init(&vscroll, &hscroll, &edge);
+
+      vscroll.register_event_handler(scroll_event([&](int y) {
+        move_children(core::point(0, y - layout.get_current_pos().y()));
       }));
-      hscroll.register_event_handler(scroll_event([&](int dx) {
-        move_children(core::point(dx, 0));
+
+      hscroll.register_event_handler(scroll_event([&](int x) {
+        move_children(core::point(x - layout.get_current_pos().x(), 0));
       }));
     }
 
@@ -74,7 +78,7 @@ namespace gui {
           win->move(win->position() - delta);
         }
       }
-      current_pos += delta;
+      layout.set_current_pos(layout.get_current_pos() + delta);
     }
 
     void scroll_view::set_scroll_pos (const core::point& pt) {
@@ -125,17 +129,6 @@ namespace gui {
       return hscroll.is_visible();
     }
 
-    core::rectangle scroll_view::get_visible_area (bool without_scrolls) const {
-      core::rectangle r = client_area();
-      if (without_scrolls || is_vscroll_bar_enabled()) {
-        r.width(r.width() - scroll_bar::get_scroll_bar_width());
-      }
-      if (without_scrolls || is_hscroll_bar_enabled()) {
-        r.height(r.height() - scroll_bar::get_scroll_bar_width());
-      }
-      return r;
-    }
-
     vscroll_bar& scroll_view::get_vscroll () {
       return vscroll;
     }
@@ -149,11 +142,30 @@ namespace gui {
     }
 
     void scroll_view::calc_area () {
-      layout(*this, size());
+      layout.layout(size());
     }
 
-    scroll_view_layout::scroll_view_layout (container*)
+    scroll_view_layout::scroll_view_layout (container* main)
+      : main(main)
+      , vscroll(nullptr)
+      , hscroll(nullptr)
+      , edge(nullptr)
     {}
+
+    void scroll_view_layout::init (vscroll_bar* vscroll,
+                                   hscroll_bar* hscroll,
+                                   client_window* edge) {
+      this->vscroll = vscroll;
+      this->hscroll = hscroll;
+      this->edge = edge;
+    }
+
+    void scroll_view_layout::set_current_pos (const core::point& pt) {
+      current_pos = pt;
+    }
+    core::point scroll_view_layout::get_current_pos () const {
+      return current_pos;
+    }
 
     core::rectangle scroll_view_layout::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
       core::rectangle r(sz);
@@ -175,6 +187,10 @@ namespace gui {
       return r;
     }
 
+    core::rectangle scroll_view_layout::get_visible_area (const core::size& sz) {
+      return core::rectangle(sz - core::size{ scroll_bar::get_scroll_bar_width() , scroll_bar::get_scroll_bar_width() });
+    }
+
     core::rectangle scroll_view_layout::get_edge_area (const core::size& sz) {
       return core::rectangle(sz.width() - scroll_bar::get_scroll_bar_width(),
                              sz.height() - scroll_bar::get_scroll_bar_width(),
@@ -182,36 +198,31 @@ namespace gui {
                              scroll_bar::get_scroll_bar_width());
     }
 
-    void scroll_view_layout::operator() (layout_container<scroll_view_layout>& v, const core::size& new_size) {
+    void scroll_view_layout::layout (const core::size& new_size) {
       core::rectangle space(new_size);
 
-      scroll_view& view = reinterpret_cast<scroll_view&>(v);
-      vscroll_bar& vscroll = view.get_vscroll();
-      hscroll_bar& hscroll = view.get_hscroll();
-      client_window& edge = view.get_edge();
-
-      std::vector<window*> children = v.get_children();
-      core::rectangle required = view.get_visible_area(true);
+      std::vector<window*> children = main->get_children();
+      core::rectangle required = get_visible_area(new_size);
       for(window* win : children) {
-        if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
+        if ((win != vscroll) && (win != hscroll) && (win != edge)) {
           required |= win->place() + core::size(1, 1);
         }
       }
 
       LogDebug << "Space:" << space << ", Required:" << required;
 
-      bool show_h = (required.x() < space.x()) || (required.x2() > space.x2());
+      bool show_h = hscroll && (required.x() < space.x()) || (required.x2() > space.x2());
       if (show_h) {
         space.height(space.height() - scroll_bar::get_scroll_bar_width());
       }
 
-      bool show_v = (required.y() < space.y()) || (required.y2() > space.y2());
+      bool show_v = vscroll && (required.y() < space.y()) || (required.y2() > space.y2());
       if (show_v) {
         space.width(space.width() - scroll_bar::get_scroll_bar_width());
 
         if (!show_h) {
           // re-check h
-          show_h = (required.x() < space.x()) || (required.x2() > space.x2());
+          show_h = hscroll && (required.x() < space.x()) || (required.x2() > space.x2());
           if (show_h) {
             space.height(space.height() - scroll_bar::get_scroll_bar_width());
           }
@@ -223,15 +234,15 @@ namespace gui {
 
         LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << " }";
 
-        vscroll.set_min_max(ymin, ymax);
+        vscroll->set_min_max(ymin, ymax);
 #ifdef WIN32
-        vscroll.set_step(std::min(ymax - ymin, (int)space.height()) / 2);
+        vscroll->set_step(std::min(ymax - ymin, (int)space.height()) / 2);
 #endif // WIN32
 #ifdef X11
-        vscroll.set_step(std::min(ymax - ymin, (int)space.height()));
+        vscroll->set_step(std::min(ymax - ymin, (int)space.height()));
 #endif // X11
-        vscroll.set_value(ypos);
-        view.current_pos.y(ypos);
+        vscroll->set_value(ypos);
+        current_pos.y(ypos);
       }
 
       if (show_h) {
@@ -241,35 +252,41 @@ namespace gui {
 
         LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << " }";
 
-        hscroll.set_min_max(xmin, xmax);
+        hscroll->set_min_max(xmin, xmax);
 #ifdef WIN32
-        hscroll.set_step(std::min(xmax - xmin, (int)space.width()) / 2);
+        hscroll->set_step(std::min(xmax - xmin, (int)space.width()) / 2);
 #endif // WIN32
 #ifdef X11
-        hscroll.set_step(std::min(xmax - xmin, (int)space.width()));
+        hscroll->set_step(std::min(xmax - xmin, (int)space.width()));
 #endif // X11
 
-        hscroll.set_value(xpos);
-        view.current_pos.x(xpos);
+        hscroll->set_value(xpos);
+        current_pos.x(xpos);
       }
 
-      vscroll.set_visible(show_v);
-      hscroll.set_visible(show_h);
-      edge.set_visible(show_h && show_v);
+      if (vscroll) {
+        vscroll->set_visible(show_v);
+      }
+      if (hscroll) {
+        hscroll->set_visible(show_h);
+      }
+      if (edge) {
+        edge->set_visible(show_h && show_v);
+      }
 
-      if (show_h && show_v) {
-        edge.place(get_edge_area(new_size));
-        edge.to_front();
+      if (edge && show_h && show_v) {
+        edge->place(get_edge_area(new_size));
+        edge->to_front();
       }
 
       if (show_v) {
-        vscroll.place(get_vscroll_area(new_size, show_h));
-        vscroll.to_front();
+        vscroll->place(get_vscroll_area(new_size, show_h));
+        vscroll->to_front();
       }
 
       if (show_h) {
-        hscroll.place(get_hscroll_area(new_size, show_v));
-        hscroll.to_front();
+        hscroll->place(get_hscroll_area(new_size, show_v));
+        hscroll->to_front();
       }
 
     }

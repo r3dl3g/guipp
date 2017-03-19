@@ -49,16 +49,11 @@ namespace gui {
 
       ~list ();
 
-      void create (const window& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle) {
-        super::create(clazz, parent, place);
-#ifdef X11
-        scrollbar.create(*this, get_vscroll_bar_area());
-#endif // X11
-      }
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle);
 
       template<typename T>
-      void create (const window& parent,
+      void create (const container& parent,
                    const core::rectangle& place,
                    data<T> data,
                    int item_height = 20) {

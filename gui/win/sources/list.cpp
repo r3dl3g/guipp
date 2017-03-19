@@ -53,6 +53,11 @@ namespace gui {
       register_event_handler(this, &list::list_handle_event);
     }
 
+    void list::create (const container& parent,
+                 const core::rectangle& place) {
+      super::create(clazz, parent, place);
+    }
+
     void list::set_count (size_t count) {
       SendMessage(get_id(), LB_SETCOUNT, count, 0);
     }
@@ -133,9 +138,15 @@ namespace gui {
                                            draw::color::white);
       }
       register_event_handler(this, &list::list_handle_event);
-      scrollbar.register_event_handler(win::scroll_event([&](int pos) {
+      scrollbar.register_event_handler(win::scroll_event([&](int) {
         redraw_later();
       }));
+    }
+
+    void list::create (const container& parent,
+                       const core::rectangle& place) {
+      super::create(clazz, parent, place);
+      scrollbar.create(*reinterpret_cast<container*>(this), get_vscroll_bar_area());
     }
 
     void list::set_count (size_t count) {

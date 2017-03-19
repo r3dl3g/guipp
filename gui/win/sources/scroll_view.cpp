@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: basic controls
+* @brief     C++ API: scroll view container
 *
 * @file
 */
@@ -50,12 +50,21 @@ namespace gui {
         clazz = win::window_class::custom_class("MyScrollView");
 #endif //X11
       }
-      vscroll.register_event_handler(scroll_event([&](int y) {
-        move_children(core::point(0, y - current_pos.y()));
+      vscroll.register_event_handler(scroll_event([&](int dy) {
+        move_children(core::point(0, dy));
       }));
-      hscroll.register_event_handler(scroll_event([&](int x) {
-        move_children(core::point(x - current_pos.x(), 0));
+      hscroll.register_event_handler(scroll_event([&](int dx) {
+        move_children(core::point(dx, 0));
       }));
+    }
+
+    void scroll_view::create (const container& parent,
+                              const core::rectangle& place) {
+      super::create(clazz, parent, place);
+      core::size sz = place.size();
+      vscroll.create(*this, scroll_view_layout::get_vscroll_area(sz, true));
+      hscroll.create(*this, scroll_view_layout::get_hscroll_area(sz, true));
+      edge.create(*this, scroll_view_layout::get_edge_area(sz));
     }
 
     void scroll_view::move_children (const core::point& delta) {
@@ -81,11 +90,12 @@ namespace gui {
     void scroll_view::enable_vscroll_bar (bool enable) {
       vscroll.set_visible(enable);
       if (enable) {
-        vscroll.place(get_vscroll_area());
+        bool hscroll_bar_enabled = is_hscroll_bar_enabled();
+        vscroll.place(scroll_view_layout::get_vscroll_area(size(), hscroll_bar_enabled));
         vscroll.to_front();
-        if (is_hscroll_bar_enabled()) {
-          hscroll.place(get_hscroll_area());
-          edge.place(get_edge_area());
+        if (hscroll_bar_enabled) {;
+          hscroll.place(scroll_view_layout::get_hscroll_area(size(), enable));
+          edge.place(scroll_view_layout::get_edge_area(size()));
           edge.set_visible();
           edge.to_front();
         }
@@ -95,11 +105,12 @@ namespace gui {
     void scroll_view::enable_hscroll_bar (bool enable) {
       hscroll.set_visible(enable);
       if (enable) {
-        hscroll.place(get_hscroll_area());
+        bool vscroll_bar_enabled = is_vscroll_bar_enabled();
+        hscroll.place(scroll_view_layout::get_hscroll_area(size(), vscroll_bar_enabled));
         hscroll.to_front();
-        if (is_vscroll_bar_enabled()) {
-          vscroll.place(get_vscroll_area());
-          edge.place(get_edge_area());
+        if (vscroll_bar_enabled) {
+          vscroll.place(scroll_view_layout::get_vscroll_area(size(), enable));
+          edge.place(scroll_view_layout::get_edge_area(size()));
           edge.set_visible();
           edge.to_front();
         }
@@ -113,12 +124,74 @@ namespace gui {
     bool scroll_view::is_hscroll_bar_enabled () const {
       return hscroll.is_visible();
     }
-    
-    void scroll_view::calc_area () {
-      core::rectangle space = client_area();
 
-      std::vector<window*> children = get_children();
-      core::rectangle required= get_visible_area(true);
+    core::rectangle scroll_view::get_visible_area (bool without_scrolls) const {
+      core::rectangle r = client_area();
+      if (without_scrolls || is_vscroll_bar_enabled()) {
+        r.width(r.width() - scroll_bar::get_scroll_bar_width());
+      }
+      if (without_scrolls || is_hscroll_bar_enabled()) {
+        r.height(r.height() - scroll_bar::get_scroll_bar_width());
+      }
+      return r;
+    }
+
+    vscroll_bar& scroll_view::get_vscroll () {
+      return vscroll;
+    }
+
+    hscroll_bar& scroll_view::get_hscroll () {
+      return hscroll;
+    }
+
+    client_window& scroll_view::get_edge () {
+      return edge;
+    }
+
+    void scroll_view::calc_area () {
+      layout(*this, size());
+    }
+
+    scroll_view_layout::scroll_view_layout (container*)
+    {}
+
+    core::rectangle scroll_view_layout::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
+      core::rectangle r(sz);
+      r.x(r.x2() - scroll_bar::get_scroll_bar_width());
+      r.width(scroll_bar::get_scroll_bar_width());
+      if (hscroll_bar_enabled) {
+        r.height(r.height() - scroll_bar::get_scroll_bar_width());
+      }
+      return r;
+    }
+
+    core::rectangle scroll_view_layout::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
+      core::rectangle r(sz);
+      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
+      r.height(scroll_bar::get_scroll_bar_width());
+      if (vscroll_bar_enabled) {
+        r.width(r.width() - scroll_bar::get_scroll_bar_width());
+      }
+      return r;
+    }
+
+    core::rectangle scroll_view_layout::get_edge_area (const core::size& sz) {
+      return core::rectangle(sz.width() - scroll_bar::get_scroll_bar_width(),
+                             sz.height() - scroll_bar::get_scroll_bar_width(),
+                             scroll_bar::get_scroll_bar_width(),
+                             scroll_bar::get_scroll_bar_width());
+    }
+
+    void scroll_view_layout::operator() (layout_container<scroll_view_layout>& v, const core::size& new_size) {
+      core::rectangle space(new_size);
+
+      scroll_view& view = reinterpret_cast<scroll_view&>(v);
+      vscroll_bar& vscroll = view.get_vscroll();
+      hscroll_bar& hscroll = view.get_hscroll();
+      client_window& edge = view.get_edge();
+
+      std::vector<window*> children = v.get_children();
+      core::rectangle required = view.get_visible_area(true);
       for(window* win : children) {
         if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
           required |= win->place() + core::size(1, 1);
@@ -158,7 +231,7 @@ namespace gui {
         vscroll.set_step(std::min(ymax - ymin, (int)space.height()));
 #endif // X11
         vscroll.set_value(ypos);
-        current_pos.y(ypos);
+        view.current_pos.y(ypos);
       }
 
       if (show_h) {
@@ -177,7 +250,7 @@ namespace gui {
 #endif // X11
 
         hscroll.set_value(xpos);
-        current_pos.x(xpos);
+        view.current_pos.x(xpos);
       }
 
       vscroll.set_visible(show_v);
@@ -185,59 +258,20 @@ namespace gui {
       edge.set_visible(show_h && show_v);
 
       if (show_h && show_v) {
-        edge.place(get_edge_area());
+        edge.place(get_edge_area(new_size));
         edge.to_front();
       }
 
       if (show_v) {
-        vscroll.place(get_vscroll_area());
+        vscroll.place(get_vscroll_area(new_size, show_h));
         vscroll.to_front();
       }
 
       if (show_h) {
-        hscroll.place(get_hscroll_area());
+        hscroll.place(get_hscroll_area(new_size, show_v));
         hscroll.to_front();
       }
 
-    }
-
-    core::rectangle scroll_view::get_vscroll_area () const {
-      core::rectangle r(size());
-      r.x(r.x2() - scroll_bar::get_scroll_bar_width());
-      r.width(scroll_bar::get_scroll_bar_width());
-      if (is_hscroll_bar_enabled()) {
-        r.height(r.height() - scroll_bar::get_scroll_bar_width());
-      }
-      return r;
-    }
-
-    core::rectangle scroll_view::get_hscroll_area () const {
-      core::rectangle r(size());
-      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
-      r.height(scroll_bar::get_scroll_bar_width());
-      if (is_vscroll_bar_enabled()) {
-        r.width(r.width() - scroll_bar::get_scroll_bar_width());
-      }
-      return r;
-    }
-
-    core::rectangle scroll_view::get_edge_area () const {
-      core::size sz = size();
-      return core::rectangle(sz.width() - scroll_bar::get_scroll_bar_width(),
-                             sz.height() - scroll_bar::get_scroll_bar_width(),
-                             scroll_bar::get_scroll_bar_width(),
-                             scroll_bar::get_scroll_bar_width());
-    }
-
-    core::rectangle scroll_view::get_visible_area (bool without_scrolls) const {
-      core::rectangle r = client_area();
-      if (without_scrolls || is_vscroll_bar_enabled()) {
-        r.width(r.width() - scroll_bar::get_scroll_bar_width());
-      }
-      if (without_scrolls || is_hscroll_bar_enabled()) {
-        r.height(r.height() - scroll_bar::get_scroll_bar_width());
-      }
-      return r;
     }
 
   } // win

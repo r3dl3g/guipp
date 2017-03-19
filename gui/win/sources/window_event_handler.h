@@ -37,7 +37,7 @@
 #include "easy_bind.h"
 #include "gui_types.h"
 #include "graphics.h"
-#include "window.h"
+#include "window_event_proc.h"
 #include "logger.h"
 
 namespace gui {
@@ -555,7 +555,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     inline window* get_window(const core::event& e) {
-      return window::get(cast_event_type<T>(e).window);
+      return detail::get_window(cast_event_type<T>(e).window);
     }
     // --------------------------------------------------------------------------
     template <Atom& M>

@@ -208,7 +208,7 @@ namespace gui {
     }
 
     void scroll_bar::create (const window_class& type,
-                             const window& parent,
+                             const container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);
     }
@@ -256,9 +256,10 @@ namespace gui {
     void scroll_bar::set_value (int i) {
       i = std::min(std::max(i, min), max);
       if (i != value) {
+        int delta = i - value;
         value = i;
         redraw_later();
-        send_client_message(this, detail::SCROLLBAR_MESSAGE, i);
+        send_client_message(this, detail::SCROLLBAR_MESSAGE, delta);
       }
     }
 

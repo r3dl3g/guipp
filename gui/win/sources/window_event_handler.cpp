@@ -27,7 +27,6 @@
 //
 #include "window_event_handler.h"
 #include "window.h"
-#include <logger.h>
 
 
 namespace gui {
@@ -43,7 +42,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window* get_param1<window*>(const core::event& e) {
-      return window::get((core::window_id)e.param_1);
+      return detail::get_window((core::window_id)e.param_1);
     }
     // --------------------------------------------------------------------------
     template<>
@@ -53,12 +52,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window* get_param2<window*>(const core::event& e) {
-      return window::get((core::window_id)e.param_2);
+      return detail::get_window((core::window_id)e.param_2);
     }
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e) {
       CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.param_2);
-      return window::get(cs->hwndParent);
+      return detail::get_window(cs->hwndParent);
     }
     // --------------------------------------------------------------------------
     unsigned int get_flags_from_wp(const core::event& e) {

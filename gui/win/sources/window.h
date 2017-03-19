@@ -33,7 +33,7 @@
 #include "event_container.h"
 #include "gui_types.h"
 #include "window_class.h"
-#include "window_event_proc.h"
+#include "window_event_handler.h"
 
 
 namespace gui {
@@ -51,6 +51,10 @@ namespace gui {
 #endif // X11
     }
 
+    // --------------------------------------------------------------------------
+    class container;
+
+    // --------------------------------------------------------------------------
     class window : public core::event_container {
     public:
 
@@ -82,15 +86,11 @@ namespace gui {
 
       void quit ();
 
-      void set_parent (const window& parent);
+      void set_parent (const container& parent);
 
-      window* get_parent () const;
+      container* get_parent () const;
 
-      bool is_parent_of (const window& parent) const;
-
-      bool is_child_of (const window& parent) const;
-
-      std::vector<window*> get_children () const;
+      bool is_child_of (const container& parent) const;
 
       void set_visible (bool s = true);
 
@@ -143,28 +143,23 @@ namespace gui {
 
       const window_class* get_window_class () const;
 
-      static window* get (core::window_id id);
-
     protected:
       void create (const window_class& type,
-                   const window& parent,
+                   const container& parent,
                    const core::rectangle& place = core::rectangle::default_rectangle,
                    core::menu_id menu = 0);
-
-      void create (const window_class& type,
-                   const core::rectangle& place = core::rectangle::default_rectangle);
 
 #ifdef WIN32
       void set_style (core::windows_style mask, bool);
       core::windows_style get_style (core::windows_style mask = 
                                      std::numeric_limits<core::windows_style>::max()) const;
 #endif // WIN32
-    private:
       void create (const window_class& type,
                    core::window_id parent_id,
                    const core::rectangle& place,
                    core::menu_id menu = 0);
 
+    private:
       friend void detail::set_id (window*,
                                   core::window_id);
 
@@ -177,21 +172,63 @@ namespace gui {
 #endif // X11
     };
 
+    // --------------------------------------------------------------------------
     template<window_class& clazz>
     class windowT : public window {
     public:
 
-      void create (const window& parent,
+      void create (const container& parent,
                    const core::rectangle& place = core::rectangle::default_rectangle) {
         window::create(clazz, parent, place);
       }
 
+    };
+
+    // --------------------------------------------------------------------------
+    class container : public window {
+    public:
+      bool is_parent_of (const window& parent) const;
+
+      std::vector<window*> get_children () const;
+    };
+
+    // --------------------------------------------------------------------------
+    class standard_layout {
+    public:
+      standard_layout(container*)
+      {}
+
+      void operator() (container&, const core::size& new_size)
+      {}
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename Layout = standard_layout>
+    class layout_container : public container {
+    public:
+      layout_container ()
+        : layout(this) {
+        register_event_handler(size_event(core::easy_bind(this, &layout_container::on_size_changed)));
+      }
+
+      void on_size_changed (const core::size& sz) {
+        layout(*this, sz);
+      }
+    protected:
+      Layout layout;
+    };
+
+    // --------------------------------------------------------------------------
+    template<window_class& clazz, typename L = standard_layout>
+    class containerT : public layout_container<L> {
+    public:
       void create (const core::rectangle& place = core::rectangle::default_rectangle) {
-        window::create(clazz, place);
+        container::create(clazz, place);
       }
 
     };
 
+    // --------------------------------------------------------------------------
     class window_with_text : public window {
     public:
       void set_text (const std::string&);
@@ -204,7 +241,8 @@ namespace gui {
 #endif // X11
     };
 
-    class main_window : public window {
+    // --------------------------------------------------------------------------
+    class main_window : public container {
     public:
       main_window ();
       
@@ -226,9 +264,7 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const core::rectangle& place = core::rectangle::default_rectangle) {
-        window::create(clazz, place);
-      }
+      void create (const core::rectangle& place = core::rectangle::default_rectangle);
 
     private:
       static window_class clazz;
@@ -238,7 +274,7 @@ namespace gui {
     public:
       client_window ();
 
-      void create (const window& parent,
+      void create (const container& parent,
                    const core::rectangle& place = core::rectangle::default_rectangle) {
         window::create(clazz, parent, place);
       }
@@ -247,6 +283,7 @@ namespace gui {
       static window_class clazz;
     };
 
+    // --------------------------------------------------------------------------
   } // win
 
 } // gui

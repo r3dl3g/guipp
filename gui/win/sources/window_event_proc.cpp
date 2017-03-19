@@ -44,8 +44,12 @@ namespace gui {
 
 #ifdef WIN32
 
+      window* get__window (core::window_id id) {
+        return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
+      }
+
       bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {
-        window* w = window::get(hwnd);
+        window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
         }
@@ -120,7 +124,7 @@ namespace gui {
         }
 
         core::event_result result = 0;
-        window* w = window::get(hwnd);
+        window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
 
@@ -133,6 +137,23 @@ namespace gui {
       }
 
 #endif // WIN32
+#ifdef X11
+      typedef std::map<core::window_id, win::window*> window_map;
+      window_map global_window_map;
+
+      window* get_window (core::window_id id) {
+        return global_window_map[id];
+      }
+
+      void set_window (core::window_id id, window* win) {
+        global_window_map[id] = win;
+      }
+
+      void unset_window (core::window_id id) {
+        global_window_map.erase(id);
+      }
+
+#endif // X11
 
     } // detail
 
@@ -158,7 +179,7 @@ namespace gui {
       while (running) {
 //        while (XPending(core::global::get_instance())) {
           XNextEvent(core::global::get_instance(), &e);
-          win::window* win = win::window::get(e.xany.window);
+          win::window* win = win::detail::get_window(e.xany.window);
           if (win && win->is_valid()) {
             if (e.type == CreateNotify) {
               XSetWMProtocols(e.xany.display, e.xany.window, &wmDeleteMessage, 1);

@@ -75,15 +75,10 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
-                         const window& parent,
+                         const container& parent,
                          const core::rectangle& place,
                          core::menu_id menu) {
       create(type, parent.get_id(), place, menu);
-    }
-
-    void window::create(const window_class& type,
-                        const core::rectangle& place) {
-      create(type, nullptr, place);
     }
 
     const window_class* window::get_window_class() const {
@@ -130,30 +125,16 @@ namespace gui {
       PostQuitMessage(0);
     }
 
-    void window::set_parent(const window& parent) {
+    void window::set_parent(const container& parent) {
       SetParent(get_id(), parent.get_id());
     }
 
-    window* window::get_parent() const {
-      return is_valid() ? window::get(GetParent(get_id())) : nullptr;
+    container* window::get_parent() const {
+      return is_valid() ? (container*)detail::get_window(GetParent(get_id())) : nullptr;
     }
 
-    bool window::is_parent_of(const window& child) const {
-      return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
-    }
-
-    bool window::is_child_of(const window& parent) const {
+    bool window::is_child_of(const container& parent) const {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
-    }
-
-    std::vector<window*> window::get_children () const {
-      std::vector<window*> list;
-      core::window_id id = GetWindow(get_id(), GW_CHILD);
-      while (id) {
-        list.push_back(get(id));
-        id = GetWindow(id, GW_HWNDNEXT);
-      }
-      return list;      
     }
 
     void window::set_visible(bool s) {
@@ -263,10 +244,6 @@ namespace gui {
       return core::point(Point);
     }
 
-    window* window::get(core::window_id id) {
-      return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
-    }
-
     core::windows_style window::get_style (core::windows_style mask) const {
       LONG old_style = GetWindowLong(get_id(), GWL_STYLE);
       core::windows_style new_style = old_style & mask;
@@ -278,14 +255,29 @@ namespace gui {
       SetWindowLong(get_id(), GWL_STYLE, new_style);
       redraw_now();
     }
+
+    void container::create(const window_class& type,
+                           const core::rectangle& place) {
+      create(type, nullptr, place);
+    }
+
+    bool container::is_parent_of(const window& child) const {
+      return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
+    }
+
+    std::vector<window*> container::get_children () const {
+      std::vector<window*> list;
+      core::window_id id = GetWindow(get_id(), GW_CHILD);
+      while (id) {
+        list.push_back(get(id));
+        id = GetWindow(id, GW_HWNDNEXT);
+      }
+      return list;
+    }
+
 #endif // WIN32
 
 #ifdef X11
-
-    namespace detail {
-      typedef std::map<core::window_id, win::window*> window_map;
-      window_map global_window_map;
-    }
 
     window::window ()
       : id(0)
@@ -316,7 +308,7 @@ namespace gui {
                                type.get_class_style(),
                                type.get_foreground(),
                                type.get_background());
-      detail::global_window_map[id] = this;
+      detail::set_window(id, this);
 
       XSetWindowAttributes wa;
       wa.event_mask = type.get_style();
@@ -325,15 +317,10 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
-                         const window& parent,
+                         const container& parent,
                          const core::rectangle& place,
                          core::menu_id menu) {
       create(type, parent.get_id(), place, menu);
-    }
-
-    void window::create (const window_class& type,
-                        const core::rectangle& place) {
-      create(type, DefaultRootWindow(core::global::get_instance()), place);
     }
 
     const window_class* window::get_window_class() const {
@@ -341,7 +328,7 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return detail::global_window_map[get_id()] == this;
+      return detail::get_window(get_id()) == this;
     }
 
     bool window::is_visible () const {
@@ -406,19 +393,19 @@ namespace gui {
 
     void window::destroy () {
       XDestroyWindow(core::global::get_instance(), get_id());
-      detail::global_window_map.erase(get_id());
+      detail::unset_window(get_id());
       id = 0;
     }
 
     void window::quit () {
     }
 
-    void window::set_parent (const window& parent) {
+    void window::set_parent (const container& parent) {
       core::point pt = position();
       XReparentWindow(core::global::get_instance(), get_id(), parent.get_id(), pt.x(), pt.y());
     }
 
-    window* window::get_parent () const {
+    container* window::get_parent () const {
       Window root_return;
       Window parent_return;
       Window *children_return;
@@ -430,36 +417,11 @@ namespace gui {
                  &parent_return,
                  &children_return,
                  &nchildren_return);
-      return window::get(parent_return);
+      return (container*)detail::get_window(parent_return);
     }
 
-    bool window::is_parent_of (const window& child) const {
-      return child.get_parent() == this;
-    }
-
-    bool window::is_child_of (const window& parent) const {
+    bool window::is_child_of (const container& parent) const {
       return get_parent() == &parent;
-    }
-
-    std::vector<window*> window::get_children () const {
-      std::vector<window*> list;
-      
-      Window root;
-      Window parent;
-      Window *children;
-      unsigned int nchildren;
-
-      if (XQueryTree(core::global::get_instance(),
-                     get_id(),
-                     &root,
-                     &parent,
-                     &children,
-                     &nchildren)) {
-        for (unsigned int n = 0; n < nchildren; ++n) {
-          list.push_back(window::get(children[n]));
-        }
-      }
-      return list;
     }
 
     void window::set_visible (bool s) {
@@ -593,9 +555,31 @@ namespace gui {
       return screen_to_window(pt);
     }
 
-    window* window::get (core::window_id id) {
-      return detail::global_window_map[id];
+    bool container::is_parent_of (const window& child) const {
+      return child.get_parent() == this;
     }
+
+    std::vector<window*> container::get_children () const {
+      std::vector<window*> list;
+
+      Window root;
+      Window parent;
+      Window *children;
+      unsigned int nchildren;
+
+      if (XQueryTree(core::global::get_instance(),
+                     get_id(),
+                     &root,
+                     &parent,
+                     &children,
+                     &nchildren)) {
+        for (unsigned int n = 0; n < nchildren; ++n) {
+          list.push_back(detail::get_window(children[n]));
+        }
+      }
+      return list;
+    }
+
 
 #endif // X11
 
@@ -704,7 +688,11 @@ namespace gui {
         clazz.background = draw::color::workSpaceColor;
       }
     }
-    
+
+    void main_window::create (const core::rectangle& place) {
+      window::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
+    }
+
     void main_window::set_title (const std::string& title) {
       XStoreName(core::global::get_instance(), get_id(), title.c_str());
     }

@@ -93,6 +93,8 @@ private:
   win::client_window window2;
 
   win::push_button calc_button;
+  win::push_button inc_button;
+  win::push_button dec_button;
 
   win::push_button ok_button;
   win::push_button del_button;
@@ -534,6 +536,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     view.calc_area();
   }));
 
+  inc_button.register_event_handler(win::button_clicked_event([&] () {
+    view.resize(view.size() + core::size{5, 5});
+  }));
+  dec_button.register_event_handler(win::button_clicked_event([&] () {
+    view.resize(view.size() - core::size{5, 5});
+  }));
+
+
   register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
 }
 
@@ -569,6 +579,11 @@ void my_main_window::created_children () {
   calc_button.create(main, core::rectangle(330, 20, 60, 25), "Calc");
   calc_button.set_visible();
 
+  inc_button.create(main, core::rectangle(400, 20, 25, 25), "+");
+  inc_button.set_visible();
+  dec_button.create(main, core::rectangle(435, 20, 25, 25), "-");
+  dec_button.set_visible();
+
   list1.create(main, core::rectangle(330, 50, 70, 250));
   list1.set_count(20);
   list1.set_visible();
@@ -594,7 +609,7 @@ void my_main_window::created_children () {
   vscroll.set_step(list1.get_item_size().height());
   vscroll.set_visible();
 
-  hscroll.create(main, core::rectangle(450, 20, 250, 16));
+  hscroll.create(main, core::rectangle(470, 20, 250, 16));
   hscroll.set_visible();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");

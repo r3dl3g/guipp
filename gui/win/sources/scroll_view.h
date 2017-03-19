@@ -34,7 +34,19 @@ namespace gui {
 
   namespace win {
 
-    class scroll_view : public window {
+    // --------------------------------------------------------------------------
+    class scroll_view_layout {
+    public:
+      scroll_view_layout (container*);
+      void operator() (layout_container<scroll_view_layout>&, const core::size& new_size);
+
+      static core::rectangle get_vscroll_area (const core::size&, bool hscroll_bar_enabled);
+      static core::rectangle get_hscroll_area (const core::size&, bool vscroll_bar_enabled);
+      static core::rectangle get_edge_area (const core::size&);
+    };
+
+    // --------------------------------------------------------------------------
+    class scroll_view : public layout_container<scroll_view_layout> {
     public:
       typedef window super;
 
@@ -50,31 +62,29 @@ namespace gui {
       bool is_vscroll_bar_enabled () const;
       bool is_hscroll_bar_enabled () const;
 
-      void create (const window& parent,
-                   const core::rectangle& place = core::rectangle::default_rectangle) {
-        super::create(clazz, parent, place);
-        vscroll.create(*this, get_vscroll_area());
-        hscroll.create(*this, get_hscroll_area());
-        edge.create(*this, get_edge_area());
-      }
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::default_rectangle);
 
       void move_children (const core::point& delta);
 
-    protected:
-      core::rectangle get_vscroll_area () const;
-      core::rectangle get_hscroll_area () const;
-      core::rectangle get_edge_area () const;
-
       core::rectangle get_visible_area (bool without_scrolls = false) const;
 
+    protected:
+      friend class scroll_view_layout;
+
+      vscroll_bar& get_vscroll ();
+      hscroll_bar& get_hscroll ();
+      client_window& get_edge ();
+
     private:
-      core::point   current_pos;
+//      core::point   current_pos;
       vscroll_bar   vscroll;
       hscroll_bar   hscroll;
       client_window edge;
 
       static window_class clazz;
     };
+    // --------------------------------------------------------------------------
 
   } // win
 

@@ -70,7 +70,7 @@ namespace gui {
 
     protected:
       void create (const gui::win::window_class& clazz,
-                   const gui::win::window& parent,
+                   const gui::win::container& parent,
                    const gui::core::rectangle& place = gui::core::rectangle::default_rectangle) {
         super::create(clazz, parent, place, (gui::core::menu_id)(long long)(get_owner_draw_id()));
       }

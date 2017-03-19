@@ -63,7 +63,7 @@ namespace gui {
         register_handler();
       }
 
-      void create (const window& parent,
+      void create (const container& parent,
                    const core::rectangle& place = core::rectangle::default_rectangle,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);

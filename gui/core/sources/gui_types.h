@@ -406,6 +406,10 @@ namespace gui {
 
       void y (point::type y);
 
+      void x2 (point::type x);
+
+      void y2 (point::type y);
+
       void height (size::type height);
 
       void width (size::type width);

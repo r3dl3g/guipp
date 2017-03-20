@@ -188,6 +188,33 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class window_with_text : public window {
+    public:
+      void set_text (const std::string&);
+
+      std::string get_text () const;
+
+    protected:
+#ifdef X11
+      std::string text;
+#endif // X11
+    };
+
+    // --------------------------------------------------------------------------
+    class client_window : public window {
+    public:
+      client_window ();
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        window::create(clazz, parent, place);
+      }
+
+    private:
+      static window_class clazz;
+    };
+
+    // --------------------------------------------------------------------------
     class container : public window {
     public:
       bool is_parent_of (const window& parent) const;
@@ -229,19 +256,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class window_with_text : public window {
-    public:
-      void set_text (const std::string&);
-
-      std::string get_text () const;
-
-    protected:
-#ifdef X11
-      std::string text;
-#endif // X11
-    };
-
-    // --------------------------------------------------------------------------
     class main_window : public container {
     public:
       main_window ();
@@ -270,19 +284,30 @@ namespace gui {
       static window_class clazz;
     };
 
-    class client_window : public window {
+    // --------------------------------------------------------------------------
+    template<typename Layout = layout::standard_layout>
+    class layout_main_window : public main_window {
     public:
-      client_window ();
-
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        window::create(clazz, parent, place);
+      layout_main_window ()
+        : layout(this) {
+        register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
       }
 
-    private:
-      static window_class clazz;
-    };
+      void do_layout () {
+        layout.layout(client_size());
+      }
 
+      inline Layout& get_layout () {
+        return layout;
+      };
+
+      inline const Layout& get_layout () const {
+        return layout;
+      };
+
+    protected:
+      Layout layout;
+    };
     // --------------------------------------------------------------------------
   } // win
 

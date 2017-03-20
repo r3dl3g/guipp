@@ -16,6 +16,16 @@
 * @file
 */
 
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <map>
+
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
 #include "layout.h"
 #include "window.h"
 
@@ -74,6 +84,64 @@ namespace gui {
       }
 
     } // detail
+
+    void attach_layout::layout (const core::size& sz) {
+      typedef std::map<win::window*, core::rectangle> window_places;
+      typedef window_places::iterator iterator;
+      window_places places;
+
+      for(attach a : attachments) {
+        iterator i = places.find(a.target);
+        if (i != places.end()) {
+          a.adjust(i->second, a.source->client_size(), a.source->place());
+        } else {
+          core::rectangle& r = places[a.target];
+          r = a.target->place();
+          a.adjust(r, a.source->client_size(), a.source->place());
+        }
+      }
+      for (auto i : places) {
+        i.first->place(i.second);
+      }
+    }
+
+    core::point::type attach_layout::attach::adjust (const core::size& sz,
+                                                     const core::rectangle& outer) const {
+      switch( where ) {
+        case Where::width:
+          return calc(sz.width());
+        case Where::x:
+          return calc(outer.x());
+        case Where::x2:
+          return calc(outer.x2());
+        case Where::height:
+          return calc(sz.height());
+        case Where::y:
+          return calc(outer.y());
+        case Where::y2:
+          return calc(outer.y2());
+      }
+    }
+
+    void attach_layout::attach::adjust (core::rectangle& rect,
+                                        const core::size& sz,
+                                        const core::rectangle& outer) const {
+      switch (what) {
+        case What::left:
+          rect.x(adjust(sz, outer));
+          break;
+        case What::right:
+          rect.x2(adjust(sz, outer));
+          break;
+        case What::top:
+          rect.y(adjust(sz, outer));
+          break;
+        case What::bottom:
+          rect.y2(adjust(sz, outer));
+          break;
+      }
+
+    }
 
   } // layout
 

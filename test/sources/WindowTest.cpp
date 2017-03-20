@@ -75,7 +75,7 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 }
 
 
-class my_main_window : public win::main_window {
+class my_main_window : public win::layout_main_window<layout::attach_layout> {
 public:
   my_main_window (win::paint_event p1, win::paint_event p2);
 
@@ -682,6 +682,13 @@ void my_main_window::created_children () {
   info_button.set_visible();
 
   btn_group.do_layout();
+
+  get_layout().abs(&btn_group, this, layout::What::left, layout::Where::width, -600);
+  get_layout().abs(&btn_group, this, layout::What::right, layout::Where::width, -10);
+  get_layout().abs(&btn_group, this, layout::What::top, layout::Where::height, -45);
+  get_layout().abs(&btn_group, this, layout::What::bottom, layout::Where::height, -10);
+
+  do_layout();
 }
 
 win::paint_event my_main_window::create_paint1 () {

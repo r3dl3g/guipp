@@ -141,11 +141,19 @@ namespace gui {
     }
 
     void rectangle::x (core::point::type x) {
-      move_x(x - tl.x());
+      tl.x(x);
     }
 
     void rectangle::y (core::point::type y) {
-      move_y(y - tl.y());
+      tl.y(y);
+    }
+
+    void rectangle::x2 (core::point::type x) {
+      br.x(x);
+    }
+
+    void rectangle::y2 (core::point::type y) {
+      br.y(y);
     }
 
     void rectangle::height (core::size::type height) {

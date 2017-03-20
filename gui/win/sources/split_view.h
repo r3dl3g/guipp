@@ -85,6 +85,9 @@ namespace gui {
         if (second) {
           second->place(get_second_place(sz, pos));
         }
+        if (slider) {
+          slider->place(get_slider_place(sz, pos));
+        }
       }
 
     private:

@@ -70,7 +70,7 @@ namespace gui {
     template<>
     core::rectangle split_view<false>::get_slider_place (const core::size& sz, double pos) {
       const core::point::type x = core::point::type(sz.width() * pos - get_slider_width() / 2);
-      return core::rectangle(core::point(x, 0), core::point(get_slider_width(), sz.height()));
+      return core::rectangle(core::point(x, 0), core::size(get_slider_width(), sz.height()));
     }
 
     template<>
@@ -90,7 +90,7 @@ namespace gui {
     template<>
     core::rectangle split_view<true>::get_slider_place (const core::size& sz, double pos) {
       const core::point::type y = core::point::type(sz.height() * pos - get_slider_width() / 2);
-      return core::rectangle(core::point(0, y), core::point(sz.width(), get_slider_width()));
+      return core::rectangle(core::point(0, y), core::size(sz.width(), get_slider_width()));
     }
 
   }
@@ -101,6 +101,15 @@ namespace gui {
       template<>
       split_view<false>::split_view () {
         if (!clazz.is_valid()) {
+#ifdef WIN32
+          clazz = win::window_class::custom_class("vsplit_view",
+                                                  CS_VREDRAW | CS_HREDRAW,
+                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                  WS_EX_NOPARENTNOTIFY,
+                                                  nullptr,
+                                                  LoadCursor(nullptr, IDC_ARROW),
+                                                  (HBRUSH)(COLOR_BTNFACE + 1));
+#endif // WIN32
 #ifdef X11
           clazz = win::window_class::custom_class("vsplit_view");
           clazz.background = draw::color::buttonColor;
@@ -115,6 +124,15 @@ namespace gui {
       template<>
       split_view<true>::split_view () {
         if (!clazz.is_valid()) {
+#ifdef WIN32
+          clazz = win::window_class::custom_class("hsplit_view",
+                                                  CS_VREDRAW | CS_HREDRAW,
+                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                  WS_EX_NOPARENTNOTIFY,
+                                                  nullptr,
+                                                  LoadCursor(nullptr, IDC_ARROW),
+                                                  (HBRUSH)(COLOR_BTNFACE + 1));
+#endif // WIN32
 #ifdef X11
           clazz = win::window_class::custom_class("hsplit_view");
           clazz.background = draw::color::buttonColor;

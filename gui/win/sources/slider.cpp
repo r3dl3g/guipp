@@ -45,6 +45,7 @@ namespace gui {
                                                   WS_EX_NOPARENTNOTIFY,
                                                   nullptr,
                                                   LoadCursor(nullptr, IDC_SIZEWE),
+                                                  //CreateSolidBrush(0xff0000));
                                                   (HBRUSH)(COLOR_BTNFACE + 1));
 #endif // WIN32
 #ifdef X11
@@ -78,6 +79,7 @@ namespace gui {
                                                   WS_EX_NOPARENTNOTIFY,
                                                   nullptr,
                                                   LoadCursor(nullptr, IDC_SIZENS),
+                                                  //CreateSolidBrush(0x00ff00));
                                                   (HBRUSH)(COLOR_BTNFACE + 1));
 #endif // WIN32
 #ifdef X11
@@ -117,7 +119,7 @@ namespace gui {
       }));
       register_event_handler(win::paint_event([&](draw::graphics& g) {
         core::rectangle place = client_area();
-        g.fill(draw::rectangle(place), draw::color::buttonColor);
+        g.fill(draw::rectangle(place), get_window_class()->get_background());
         g.draw_relief(place, false);
       }));
     }

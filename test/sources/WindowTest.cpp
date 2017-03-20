@@ -618,7 +618,7 @@ void my_main_window::created_children () {
   vsplit_view.get_first().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
   vsplit_view.get_first().get_second().set_data(win::list::data<float>(floats), 16);
   vsplit_view.get_second().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5}), 16);
-  vsplit_view.get_second().get_second().set_data(win::list::data<float>({1.1, 2.1, 3.1, 4.1, 5.1, 6.1}), 16);
+  vsplit_view.get_second().get_second().set_data(win::list::data<float>({1.1F, 2.1F, 3.1F, 4.1F, 5.1F, 6.1F}), 16);
   vsplit_view.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));

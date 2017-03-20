@@ -128,6 +128,9 @@ private:
 
   win::check_box scroll_check_box;
 
+  win::hslider hslider;
+  win::vslider vslider;
+
   win::list::data<std::string> data;
 
   win::paint_event paint1;
@@ -546,6 +549,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     view.resize(view.size() - core::size{5, 5});
   }));
 
+  vslider.register_event_handler(win::move_event([&](const core::point&) {
+    do_layout();
+  }));
 
   register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
 }
@@ -637,6 +643,14 @@ void my_main_window::created_children () {
   labelR.set_visible();
   labelR.redraw_later();
 
+  hslider.create(main, core::rectangle(5, 420, 700, 5));
+  hslider.set_visible();
+  hslider.set_max(500);
+
+  vslider.create(main, core::rectangle(750, 5, 5, 500));
+  vslider.set_visible();
+  vslider.set_max(750);
+
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
   chck_group.set_visible();
 
@@ -688,6 +702,12 @@ void my_main_window::created_children () {
   get_layout().abs(&btn_group, this, What::right, Where::width, -10);
   get_layout().abs(&btn_group, this, What::top, Where::height, -45);
   get_layout().abs(&btn_group, this, What::bottom, Where::height, -10);
+
+  get_layout().abs(&hslider, this, What::right, Where::width, -5);
+  get_layout().abs(&vslider, this, What::bottom, Where::height, -5);
+
+  get_layout().abs(&vscroll, &vslider, What::left, Where::x, -20);
+  get_layout().abs(&vscroll, &vslider, What::right, Where::x, -4);
 
   do_layout();
 }

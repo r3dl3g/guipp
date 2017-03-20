@@ -38,6 +38,67 @@ namespace gui {
 
   namespace win {
 
+    class slider : public window {
+    public:
+      typedef window super;
+
+      slider ();
+      ~slider ();
+
+      void set_min (int min);
+      void set_max (int min);
+      void set_min_max (int mi, int ma);
+
+      inline int get_min () const {
+        return min;
+      }
+
+      inline int get_max () const {
+        return max;
+      }
+
+    protected:
+      bool slider_handle_event (const core::event& e, core::event_result& result);
+
+      int min;
+      int max;
+
+      core::point last_mouse_point;
+#ifdef X11
+      core::graphics_id gc;
+#endif
+    };
+
+    namespace detail {
+
+      template<bool H>
+      class sliderT : public slider {
+      public:
+        typedef slider super;
+
+        sliderT ();
+
+        void create (const container& parent,
+                     const core::rectangle& place = core::rectangle::def) {
+          super::create(clazz, parent, place);
+        }
+
+      private:
+        static window_class clazz;
+      };
+
+      template<bool H>
+      window_class sliderT<H>::clazz;
+
+      template<>
+      sliderT<false>::sliderT ();
+
+      template<>
+      sliderT<true>::sliderT ();
+    }
+
+    typedef detail::sliderT<false> vslider;
+    typedef detail::sliderT<true> hslider;
 
   } // win
 

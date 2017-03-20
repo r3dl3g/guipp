@@ -258,6 +258,10 @@ namespace gui {
         return false;
       }
 
+      core::event_id get_event_id () const {
+        return E;
+      }
+
     protected:
       C caller;
       M matcher;

@@ -311,9 +311,14 @@ namespace gui {
                                type.get_background());
       detail::set_window(id, this);
 
+      unsigned long mask = CWEventMask;
       XSetWindowAttributes wa;
       wa.event_mask = type.get_style();
-      XChangeWindowAttributes(display, id, CWEventMask, &wa);
+      if (type.get_cursor()) {
+        mask |= CWCursor;
+        wa.cursor = type.get_cursor();
+      }
+      XChangeWindowAttributes(display, id, mask, &wa);
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
     }
 

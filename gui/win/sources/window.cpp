@@ -198,6 +198,10 @@ namespace gui {
       return{ r.left, r.top };
     }
 
+    core::size window::client_size() const {
+      return size();
+    }
+
     core::rectangle window::client_area() const {
       RECT r;
       GetClientRect(get_id(), &r);

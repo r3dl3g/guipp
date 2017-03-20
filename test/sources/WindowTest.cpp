@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
     const core::point& pos,
     core::size& mi, core::size& ma) {
     mi = { 300, 200 };
-    ma = { 800, 600 };
+    ma = { 880, 660 };
     LogDebug << "Min/Max: " << mi << " < " << ma << " < " << sz;
   }));
 #endif

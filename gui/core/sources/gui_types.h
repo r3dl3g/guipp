@@ -108,6 +108,7 @@ namespace gui {
     struct point {
       typedef IF_WIN32(LONG) IF_X11(short) type;
       static const point zero;
+      static const point undefined;
 
       inline point (type x = 0,
                     type y = 0) {

@@ -683,10 +683,11 @@ void my_main_window::created_children () {
 
   btn_group.do_layout();
 
-  get_layout().abs(&btn_group, this, layout::What::left, layout::Where::width, -600);
-  get_layout().abs(&btn_group, this, layout::What::right, layout::Where::width, -10);
-  get_layout().abs(&btn_group, this, layout::What::top, layout::Where::height, -45);
-  get_layout().abs(&btn_group, this, layout::What::bottom, layout::Where::height, -10);
+  using namespace layout;
+  get_layout().abs(&btn_group, this, What::left, Where::width, -600);
+  get_layout().abs(&btn_group, this, What::right, Where::width, -10);
+  get_layout().abs(&btn_group, this, What::top, Where::height, -45);
+  get_layout().abs(&btn_group, this, What::bottom, Where::height, -10);
 
   do_layout();
 }

@@ -129,9 +129,9 @@ namespace gui {
       height
     };
 
-    class attach_layout {
+    class attach {
     public:
-      attach_layout (win::container* main)
+      attach (win::container* main)
       {}
 
       void abs (win::window* target, win::window* source, What what, Where where, short offset) {
@@ -147,7 +147,7 @@ namespace gui {
       void layout (const core::size& sz);
 
     private:
-      struct attach {
+      struct attachment {
         win::window* target;
         win::window* source;
         What what;
@@ -175,7 +175,7 @@ namespace gui {
         return int16_t(rel * 10000.0);
       }
 
-      std::vector<attach> attachments;
+      std::vector<attachment> attachments;
     };
   }
 }

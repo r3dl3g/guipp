@@ -31,9 +31,16 @@
 
 namespace gui {
 
+  namespace layout {
+
+
+  }
+
   namespace win {
 
     namespace detail {
+
+
     }
 
   } // win

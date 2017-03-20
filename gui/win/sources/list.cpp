@@ -133,7 +133,7 @@ namespace gui {
         clazz = window_class::custom_class("LISTBOX",
                                            1,
                                            ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask,
+                                           FocusChangeMask | KeyPressMask | StructureNotifyMask,
                                            0, 0, 0,
                                            draw::color::white);
       }
@@ -269,6 +269,15 @@ namespace gui {
             return true;
           }
           break;
+        case ConfigureNotify: {
+          scrollbar.place(get_vscroll_bar_area());
+          core::size::type ih = get_item_height();
+          int h = (ih * (int)item_count) - size().height();
+
+          scrollbar.set_max(std::max(h, 0));
+          scrollbar.set_visible((h > 0) && is_vscroll_bar_enabled());
+          break;
+        }
         case KeyPress: {
           KeySym key;
           char text[8] = {0};

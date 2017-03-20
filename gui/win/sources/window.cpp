@@ -517,14 +517,23 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       XMoveWindow(core::global::get_instance(), get_id(), pt.x(), pt.y());
+      if (repaint) {
+        redraw_later();
+      }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
       XResizeWindow(core::global::get_instance(), get_id(), sz.width(), sz.height());
+      if (repaint) {
+        redraw_later();
+      }
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
       XMoveResizeWindow(core::global::get_instance(), get_id(), r.x(), r.y(), r.width(), r.height());
+      if (repaint) {
+        redraw_later();
+      }
     }
 
     core::point window::window_to_screen (const core::point& pt) const {

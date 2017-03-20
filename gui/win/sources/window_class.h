@@ -40,7 +40,7 @@ namespace gui {
     class window_class {
     public:
       static window_class custom_class(const std::string& cls_name,
-                                       core::windows_style class_style = IF_WIN32(0) IF_X11(1), // X11: Border width
+                                       core::windows_style class_style = 0, // X11: Border width
                                        core::windows_style style = IF_WIN32(0) IF_X11(ButtonPressMask |
                                                                                       ButtonReleaseMask |
                                                                                       ExposureMask |
@@ -60,7 +60,7 @@ namespace gui {
 
       static window_class sub_class(const std::string& cls,
                                     const std::string& base_cls,
-                                    core::windows_style style = IF_WIN32(0) IF_X11(1),
+                                    core::windows_style style = 0,
                                     core::windows_style ex_style = 0,
                                     core::color_type foreground = IF_WIN32(0) IF_X11(CopyFromParent));
 
@@ -68,7 +68,7 @@ namespace gui {
       window_class(const window_class&);
 
       window_class(const std::string& cls_name,
-                   core::windows_style class_style = IF_WIN32(0) IF_X11(1), // X11: Border width
+                   core::windows_style class_style = 0, // X11: Border width
                    core::windows_style style = 0,
                    core::windows_style ex_style = 0,
                    core::icon_id icon = 0,

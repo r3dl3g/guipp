@@ -98,6 +98,7 @@ namespace gui {
             pt.y(core::point::type(std::min(max, std::max(min, (int)pt.y() + dy))));
             move(pt);
           }
+          return;
         }));
       }
     }

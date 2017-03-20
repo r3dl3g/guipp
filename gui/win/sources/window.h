@@ -223,9 +223,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout = layout::standard_layout>
+    template<typename L = layout::standard_layout>
     class layout_container : public container {
     public:
+      typedef L Layout;
+
       layout_container ()
         : layout(this) {
         register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
@@ -234,6 +236,14 @@ namespace gui {
       void do_layout () {
         layout.layout(client_size());
       }
+
+      inline Layout& get_layout () {
+        return layout;
+      };
+
+      inline const Layout& get_layout () const {
+        return layout;
+      };
 
     protected:
       Layout layout;

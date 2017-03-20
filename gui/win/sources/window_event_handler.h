@@ -457,12 +457,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
       extern Atom WM_CREATE_WINDOW;
-
-      struct window_and_rect {
-        window* w;
-        core::rectangle r;
-      };
-
     }
 
     template <core::event_id id, core::event_id btn, int sts>

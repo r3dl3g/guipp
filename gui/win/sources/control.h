@@ -33,12 +33,13 @@
 #include "list.h"
 #include "scroll_view.h"
 #include "slider.h"
+#include "split_view.h"
 
 
 namespace gui {
 
   namespace win {
-
+    
     namespace detail {
     }
 

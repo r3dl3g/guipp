@@ -85,12 +85,12 @@ namespace gui {
 
     } // detail
 
-    void attach_layout::layout (const core::size& sz) {
+    void attach::layout (const core::size& sz) {
       typedef std::map<win::window*, core::rectangle> window_places;
       typedef window_places::iterator iterator;
       window_places places;
 
-      for(attach a : attachments) {
+      for(attachment a : attachments) {
         iterator i = places.find(a.target);
         if (i != places.end()) {
           a.adjust(i->second, a.source->client_size(), a.source->place());
@@ -105,8 +105,8 @@ namespace gui {
       }
     }
 
-    core::point::type attach_layout::attach::adjust (const core::size& sz,
-                                                     const core::rectangle& outer) const {
+    core::point::type attach::attachment::adjust (const core::size& sz,
+                                                  const core::rectangle& outer) const {
       switch( where ) {
         case Where::width:
           return calc(sz.width());
@@ -123,9 +123,9 @@ namespace gui {
       }
     }
 
-    void attach_layout::attach::adjust (core::rectangle& rect,
-                                        const core::size& sz,
-                                        const core::rectangle& outer) const {
+    void attach::attachment::adjust (core::rectangle& rect,
+                                     const core::size& sz,
+                                     const core::rectangle& outer) const {
       switch (what) {
         case What::left:
           rect.x(adjust(sz, outer));

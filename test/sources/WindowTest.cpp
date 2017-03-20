@@ -75,7 +75,7 @@ std::vector<core::point> calc_star(int x, int y, int w, int h) {
 }
 
 
-class my_main_window : public win::layout_main_window<layout::attach_layout> {
+class my_main_window : public win::layout_main_window<layout::attach> {
 public:
   my_main_window (win::paint_event p1, win::paint_event p2);
 
@@ -117,8 +117,9 @@ private:
   win::list list1;
   win::list list2;
   win::list list3;
-  win::list list4;
-  win::list list5;
+
+  typedef win::split_viewT<false, win::list, win::list> list_split_view;
+  win::split_viewT<true, list_split_view, list_split_view> vsplit_view;
 
   win::push_button up_button;
   win::push_button down_button;
@@ -535,7 +536,6 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
-    list4.set_scroll_pos(pos);
   }));
 
   calc_button.register_event_handler(win::button_clicked_event([&] () {
@@ -551,6 +551,13 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   vslider.register_event_handler(win::move_event([&](const core::point&) {
     do_layout();
+  }));
+
+  hscroll.register_event_handler(win::scroll_event([&](int pos){
+    vsplit_view.set_split_pos((double)pos / 100.0);
+  }));
+  vsplit_view.get_slider().register_event_handler(win::move_event([&](const core::point&){
+    hscroll.set_value(int(vsplit_view.get_split_pos() * hscroll.get_max()));
   }));
 
   register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
@@ -605,21 +612,22 @@ void my_main_window::created_children () {
   list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
   list3.set_visible();
 
-  list4.create(main, core::rectangle(550, 50, 60, 250));
-  const float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
-  list4.set_data(win::list::data<float>(floats), 16);
-  list4.set_visible();
+  float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  list5.create(main, core::rectangle(620, 50, 60, 250), win::list::data<float>(floats), 16);
-  list5.set_visible();
+  vsplit_view.create(main, core::rectangle(550, 50, 130, 250));
+  vsplit_view.get_first().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
+  vsplit_view.get_first().get_second().set_data(win::list::data<float>(floats), 16);
+  vsplit_view.get_second().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5}), 16);
+  vsplit_view.get_second().get_second().set_data(win::list::data<float>({1.1, 2.1, 3.1, 4.1, 5.1, 6.1}), 16);
+  vsplit_view.set_visible();
+
+  hscroll.create(main, core::rectangle(550, 305, 130, 16));
+  hscroll.set_visible();
 
   vscroll.create(main, core::rectangle(700, 50, 16, 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size().height() - list1.size().height());
   vscroll.set_step(list1.get_item_size().height());
   vscroll.set_visible();
-
-  hscroll.create(main, core::rectangle(470, 20, 250, 16));
-  hscroll.set_visible();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
   up_button.set_visible();

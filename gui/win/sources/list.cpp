@@ -101,7 +101,7 @@ namespace gui {
                                   core::event_result& result) {
       if (e.type == WM_DRAWITEM) {
         PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
-        // If there are no list box items, skip this message. 
+        // If there are no list box items, skip this message.
         if (pdis->itemID == -1) {
           return false;
         }
@@ -247,6 +247,7 @@ namespace gui {
                 redraw_later();
                 return true;
               }
+              last_mouse_point = core::point::undefined;
               break;
             case Button4: { // Y-Wheel
               set_scroll_pos(get_scroll_pos() - get_item_height());
@@ -262,10 +263,12 @@ namespace gui {
           break;
         case MotionNotify:
           if ((e.xmotion.state & Button1Mask) == Button1Mask) {
-            int dy = last_mouse_point.y() - e.xmotion.y;
-            set_scroll_pos(get_scroll_pos() + dy);
+            if (last_mouse_point != core::point::undefined) {
+                int dy = last_mouse_point.y() - e.xmotion.y;
+                set_scroll_pos(get_scroll_pos() + dy);
+                moved = true;
+            }
             last_mouse_point = core::point(e.xmotion);
-            moved = true;
             return true;
           }
           break;

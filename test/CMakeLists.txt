@@ -35,7 +35,7 @@ endif(UNIX)
 
 enable_testing()
 
-set(tests 
+set(tests
   WindowTest
 )
 
@@ -44,7 +44,7 @@ foreach(test ${tests})
         target_link_libraries(${test} core draw win ibr_std_lib)
         if(UNIX)
           #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
-          target_link_libraries(${test} X11 Xft fontconfig boost_filesystem boost_system pthread)
+          target_link_libraries(${test} stdc++fs X11 Xft fontconfig boost_filesystem boost_system pthread)
         endif(UNIX)
         add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

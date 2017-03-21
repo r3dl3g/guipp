@@ -168,9 +168,6 @@ int main(int argc, char* argv[]) {
   LogDebug << "window size:" << sizeof(main)  << ", window_class size:" << sizeof(win::window_class);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
 
-  //main.register_event_handler(init_result_handler());
-
-
 #ifdef WIN32
   main.register_event_handler(win::get_minmax_event([](const core::size& sz,
     const core::point& pos,
@@ -184,7 +181,6 @@ int main(int argc, char* argv[]) {
   const core::rectangle& r = core::rectangle(50, 50, 800, 480);
   LogDebug << "Create Main: " << r;
   main.create(r);
-//  main.created_children();
   main.set_title("Window Test");
 
   main.set_visible();
@@ -214,6 +210,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , at_paint1(true)
   , at_drag(false)
 {
+  register_event_handler(init_result_handler());
+
   register_event_handler(win::destroy_event([&] () {
     LogDebug << "Destroyed!";
     quit();
@@ -398,8 +396,6 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   //  LogDebug << "Window2 mouse leave";
   //}));
 
-  //main.register_event_handler(log_all_events());
-
 #ifdef WIN32
   ok_button.register_event_handler(win::button_state_event([](bool state) {
     LogDebug << "Button " << (state ? "hilited" : "unhilited");
@@ -558,6 +554,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
+  register_event_handler(log_all_events());
+
 }
 
 void my_main_window::query_state () {

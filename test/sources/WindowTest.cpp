@@ -2,9 +2,6 @@
 #include "control.h"
 #include "dbg_win_message.h"
 
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign;
-
 
 struct AsBool {
   inline AsBool(bool b)
@@ -492,7 +489,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list3.set_selection(list3.get_selection() + 1);
   }));
 
-  data += "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß";
+  data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
   list2.set_drawer([&] (draw::graphics& g,
                         int idx,
                         const core::rectangle& place,
@@ -509,7 +506,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   ok_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
-    data += "Sechs", "Sieben", "Acht", "Neun", "Zehn";
+	data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     data.update_list(list2);
   }));
 

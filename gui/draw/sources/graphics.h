@@ -25,7 +25,6 @@
 #include <vector>
 #include <functional>
 #include <string>
-#include <boost/serialization/strong_typedef.hpp>
 
 // --------------------------------------------------------------------------
 //

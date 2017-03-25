@@ -735,6 +735,7 @@ namespace gui {
       core::instance_id display = core::global::get_instance();
 
       int height = 0, width = 0;
+      int dx = 0, dy = 0;
       if (f.font_type()) {
         XGlyphInfo extents;
         XftTextExtentsUtf8(display,
@@ -744,59 +745,8 @@ namespace gui {
                            &extents);
         width = extents.width;
         height = extents.height;
-      } else {
-        LogError << "font_type is zero!";
-      }
-
-      int px = rect.x();
-      int py = rect.y();
-
-      if ((origin & DT_CENTER) == DT_CENTER) {
-        px += (rect.size().width() - width) / 2;
-      } else if ((origin & DT_RIGHT) == DT_RIGHT) {
-        px += rect.size().width() - width;
-      }
-      if ((origin & DT_VCENTER) == DT_VCENTER) {
-        py += (rect.size().height() + height) / 2;
-      } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
-        py += rect.size().height();
-      } else {
-        py += height;
-      }
-
-      Visual* visual = XftDrawVisual(g);
-      Colormap colormap = XftDrawColormap(g);
-
-      /* Xft text color */
-      XRenderColor xrcolor = {
-        (unsigned short)(c.r() << 8),
-        (unsigned short)(c.g() << 8),
-        (unsigned short)(c.b() << 8),
-        0xffff
-      };
-      XftColor xftcolor;
-      XftColorAllocValue(display, visual, colormap, &xrcolor, &xftcolor);
-
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py, (XftChar8*)str.c_str(), int(str.size()));
-
-      XftColorFree(display, visual, colormap, &xftcolor);
-    }
-
-    void bounding_box::operator() (graphics& g,
-                                   const font& f,
-                                   const color& c) const {
-      core::instance_id display = core::global::get_instance();
-
-      int height = 0, width = 0;
-      if (f.font_type()) {
-        XGlyphInfo extents;
-        XftTextExtentsUtf8(display,
-                           f.font_type(),
-                           (XftChar8*)str.c_str(),
-                           int(str.size()),
-                           &extents);
-        width = extents.width;
-        height = extents.height;
+        dx = extents.x;
+        dy = extents.y;
       } else {
         LogError << "font_type is zero!";
       }
@@ -815,7 +765,61 @@ namespace gui {
         py += rect.size().height() - height;
       }
 
-      rect.top_left({core::point::type(px), core::point::type(py)});
+      Visual* visual = XftDrawVisual(g);
+      Colormap colormap = XftDrawColormap(g);
+
+      /* Xft text color */
+      XRenderColor xrcolor = {
+        (unsigned short)(c.r() << 8),
+        (unsigned short)(c.g() << 8),
+        (unsigned short)(c.b() << 8),
+        0xffff
+      };
+      XftColor xftcolor;
+      XftColorAllocValue(display, visual, colormap, &xrcolor, &xftcolor);
+
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
+
+      XftColorFree(display, visual, colormap, &xftcolor);
+    }
+
+    void bounding_box::operator() (graphics& g,
+                                   const font& f,
+                                   const color& c) const {
+      core::instance_id display = core::global::get_instance();
+
+      int height = 0, width = 0;
+      int dx = 0, dy = 0;
+      if (f.font_type()) {
+        XGlyphInfo extents;
+        XftTextExtentsUtf8(display,
+                           f.font_type(),
+                           (XftChar8*)str.c_str(),
+                           int(str.size()),
+                           &extents);
+        width = extents.xOff - extents.x;
+        height = extents.height;
+        dx = extents.x;
+        dy = extents.y;
+      } else {
+        LogError << "font_type is zero!";
+      }
+
+      int px = rect.x();
+      int py = rect.y();
+
+      if ((origin & DT_CENTER) == DT_CENTER) {
+        px += (rect.size().width() - width) / 2;
+      } else if ((origin & DT_RIGHT) == DT_RIGHT) {
+        px += rect.size().width() - width;
+      }
+      if ((origin & DT_VCENTER) == DT_VCENTER) {
+        py += (rect.size().height() - height) / 2;
+      } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
+        py += rect.size().height() - height;
+      }
+
+      rect.top_left({core::point::type(px + dx), core::point::type(py + dy - height)});
       rect.set_size({core::size::type(width), core::size::type(height)});
     }
 
@@ -825,6 +829,7 @@ namespace gui {
       core::instance_id display = core::global::get_instance();
 
       int height = 0, width = 0;
+      int dx = 0, dy = 0;
       if (f.font_type()) {
         XGlyphInfo extents;
         XftTextExtentsUtf8(display,
@@ -834,6 +839,8 @@ namespace gui {
                            &extents);
         width = extents.width;
         height = extents.height;
+        dx = extents.x;
+        dy = extents.y;
       } else {
         LogError << "font_type is zero!";
       }
@@ -848,10 +855,9 @@ namespace gui {
       }
 
       if ((origin & DT_VCENTER) == DT_VCENTER) {
-        py += height / 2;
+        py -= height / 2;
       } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
-      } else {
-        py += height;
+        py -= height;
       }
 
       Visual* visual = XftDrawVisual(g);
@@ -867,7 +873,7 @@ namespace gui {
       XftColor xftcolor;
       XftColorAllocValue(display, visual, colormap, &xrcolor, &xftcolor);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px, py, (XftChar8*)str.c_str(), int(str.size()));
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
 
       XftColorFree(display, visual, colormap, &xftcolor);
     }
@@ -931,32 +937,34 @@ namespace gui {
       drawer(*this, f, c);
     }
 
-    void graphics::draw_relief (const core::rectangle& area, bool sunken) {
+    void graphics::draw_relief (const core::rectangle& area, bool sunken, bool single) {
       const core::point& tl = area.top_left();
       const core::point& br = area.bottom_right();
 
       const core::point::type one = core::point::type(1);
       core::point::type x0 = tl.x();
-      core::point::type x1 = x0 + one;
       core::point::type x3 = br.x();
-      core::point::type x2 = x3 - one;
       core::point::type y0 = tl.y();
-      core::point::type y1 = y0 + one;
       core::point::type y3 = br.y();
-      core::point::type y2 = y3 - one;
 
       draw_lines({{x0, y3}, {x0, y0}, {x3, y0}},
                  sunken ? color::gray
                         : color::white);
-      draw_lines({{x1, y2}, {x1, y1}, {x2, y1}},
-                 sunken ? color::darkGray
-                        : color::veryLightGray);
-      draw_lines({{x1, y2}, {x2, y2}, {x2, y1}},
-                 sunken ? color::veryLightGray
-                        : color::mediumGray);
       draw_lines({{x0, y3}, {x3, y3}, {x3, y0}},
                  sunken ? color::white
                         : color::gray);
+      if (!single) {
+        core::point::type x1 = x0 + one;
+        core::point::type x2 = x3 - one;
+        core::point::type y1 = y0 + one;
+        core::point::type y2 = y3 - one;
+        draw_lines({{x1, y2}, {x1, y1}, {x2, y1}},
+                   sunken ? color::darkGray
+                          : color::veryLightGray);
+        draw_lines({{x1, y2}, {x2, y2}, {x2, y1}},
+                   sunken ? color::veryLightGray
+                          : color::mediumGray);
+      }
     }
   }
 

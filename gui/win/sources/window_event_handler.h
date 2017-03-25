@@ -533,8 +533,13 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    inline unsigned int get_keycode(const core::event& e) {
-      return cast_event_type<T>(e).keycode;
+    inline KeySym get_keycode(const core::event& e) {
+      return XLookupKeysym(const_cast<T*>(&e.xkey), 0);
+    }
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline T* get_event_ptr(const core::event& e) {
+      return const_cast<T*>(&(cast_event_type<T>(e)));
     }
     // --------------------------------------------------------------------------
     template<typename T, int I = 0>
@@ -574,16 +579,18 @@ namespace gui {
     typedef event_handlerT<DestroyNotify>                                           destroy_event;
 
     typedef event_handlerT<KeyPress,
-                           two_param_caller<unsigned int,
-                                            unsigned int,
-                                            get_state<XKeyEvent>,
-                                            get_keycode<XKeyEvent>>>                key_down_event;
+                           three_param_caller<unsigned int,
+                                              KeySym,
+                                              XKeyEvent*,
+                                              get_state<XKeyEvent>,
+                                              get_keycode<XKeyEvent>,
+                                              get_event_ptr<XKeyEvent>>>          key_down_event;
 
     typedef event_handlerT<KeyRelease,
                            two_param_caller<unsigned int,
-                                            unsigned int,
+                                            KeySym,
                                             get_state<XKeyEvent>,
-                                            get_keycode<XKeyEvent>>>                key_op_event;
+                                            get_keycode<XKeyEvent>>>                key_up_event;
 
     typedef event_handlerT<MotionNotify,
                            two_param_caller<unsigned int,

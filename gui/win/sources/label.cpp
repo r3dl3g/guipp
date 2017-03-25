@@ -18,13 +18,15 @@
 
 #include "label.h"
 
+#define SHOW_TEXT_AREA
+
 namespace gui {
 
   namespace win {
 
     namespace detail {
 
-      window_class label_base::register_label_class (Alignment a) {
+      window_class label_base::register_label_class (gui::win::alignment_h a) {
 #ifdef WIN32
         return window_class::sub_class("MyStatic", "STATIC",
                                         a | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,

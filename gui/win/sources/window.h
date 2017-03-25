@@ -154,7 +154,7 @@ namespace gui {
 
 #ifdef WIN32
       void set_style (core::windows_style mask, bool);
-      core::windows_style get_style (core::windows_style mask = 
+      core::windows_style get_style (core::windows_style mask =
                                      std::numeric_limits<core::windows_style>::max()) const;
 #endif // WIN32
       void create (const window_class& type,
@@ -194,8 +194,8 @@ namespace gui {
 
       std::string get_text () const;
 
-    protected:
 #ifdef X11
+    protected:
       std::string text;
 #endif // X11
     };
@@ -269,7 +269,7 @@ namespace gui {
     class main_window : public container {
     public:
       main_window ();
-      
+
       void set_title (const std::string&);
 
       std::string get_title () const;

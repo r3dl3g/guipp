@@ -134,6 +134,16 @@ private:
   win::paint_event paint1;
   win::paint_event paint2;
 
+  win::edit edit1;
+
+  win::group_window<layout::horizontal_lineup<0, 3>> edit_btn_group;
+  win::push_button cur_plus;
+  win::push_button cur_minus;
+  win::push_button sel_first_plus;
+  win::push_button sel_first_minus;
+  win::push_button sel_last_plus;
+  win::push_button sel_last_minus;
+
   bool at_paint1;
   bool at_drag;
   core::point last_pos;
@@ -553,9 +563,40 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     hscroll.set_value(int(vsplit_view.get_split_pos() * hscroll.get_max()));
   }));
 
-  register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
-  register_event_handler(log_all_events());
+  cur_plus.register_event_handler(win::button_clicked_event([&] () {
+    edit1.set_cursor_pos(edit1.get_cursor_pos() + 1);
+  }));
+  cur_minus.register_event_handler(win::button_clicked_event([&] () {
+    if (edit1.get_cursor_pos() > 0) {
+      edit1.set_cursor_pos(edit1.get_cursor_pos() - 1);
+    }
+  }));
+  sel_first_plus.register_event_handler(win::button_clicked_event([&] () {
+    auto r = edit1.get_selection();
+    (r.first)++;
+    edit1.set_selection(r);
+  }));
+  sel_first_minus.register_event_handler(win::button_clicked_event([&] () {
+    auto r = edit1.get_selection();
+    if (r.first > 0) {
+      (r.first)--;
+      edit1.set_selection(r);
+    }
+  }));
+  sel_last_plus.register_event_handler(win::button_clicked_event([&] () {
+    auto r = edit1.get_selection();
+    (r.last)++;
+    edit1.set_selection(r);
+  }));
+  sel_last_minus.register_event_handler(win::button_clicked_event([&] () {
+    auto r = edit1.get_selection();
+    if (r.last > 0) {
+      (r.last)--;
+      edit1.set_selection(r);
+    }
+  }));
 
+  register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
 }
 
 void my_main_window::query_state () {
@@ -567,7 +608,6 @@ void my_main_window::query_state () {
     labelC.set_text("Normal");
   }
 }
-
 
 void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
   LogDebug << "Main created: this:" << std::hex << this << ", w:" << w << ", rect:" << std::dec << r;
@@ -670,6 +710,27 @@ void my_main_window::created_children () {
   check_box.redraw_later();
 
   chck_group.do_layout();
+
+  edit1.create(main, core::rectangle(290, 350, 100, 25), "Text");
+  edit1.set_visible();
+
+  edit_btn_group.create(main, core::rectangle(290, 380, 100, 16));
+  edit_btn_group.set_visible();
+
+  cur_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "c-");
+  cur_minus.set_visible();
+  cur_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "c+");
+  cur_plus.set_visible();
+  sel_first_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "f-");
+  sel_first_minus.set_visible();
+  sel_first_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "f+");
+  sel_first_plus.set_visible();
+  sel_last_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "l-");
+  sel_last_minus.set_visible();
+  sel_last_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "l+");
+  sel_last_plus.set_visible();
+
+  edit_btn_group.do_layout();
 
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
   btn_group.set_visible();

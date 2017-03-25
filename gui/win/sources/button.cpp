@@ -180,7 +180,7 @@ namespace gui {
         }
         graph.draw_relief(area, is_checked());
 
-        graph.text(draw::text_box(text, area, center), font::system(), is_enabled() ? color::black : color::gray);
+        graph.text(draw::text_box(get_text(), area, center), font::system(), is_enabled() ? color::black : color::gray);
         if (focus) {
           area.shrink({3, 3});
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
@@ -226,7 +226,7 @@ namespace gui {
         if (is_checked()) {
           graph.fill(arc(pt, 3, 0, 360), col);
         }
-        area.move_x(20);
+        area.x(20);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
           graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);

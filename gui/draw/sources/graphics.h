@@ -64,7 +64,7 @@ namespace gui {
       void draw_lines (std::initializer_list<core::point> points,
                        const pen& pen);
 
-      void draw_relief (const core::rectangle&, bool sunken);
+      void draw_relief (const core::rectangle&, bool sunken, bool single = false);
 
       void frame (std::function<frameable>, const pen& pen);
       void fill (std::function<fillable>, const brush& brush);

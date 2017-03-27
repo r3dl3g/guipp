@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include "guidefs.h"
+#include "gui_types.h"
 
 
 namespace gui {
@@ -105,6 +105,8 @@ namespace gui {
       font with_strikeout(bool) const;
 
       bool operator== (const font&) const;
+
+      core::size get_text_size (const std::string& text) const;
 
     private:
       void destroy();

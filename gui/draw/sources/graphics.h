@@ -71,6 +71,9 @@ namespace gui {
       void draw (std::function<drawable>, const brush& brush, const pen& pen);
       void text (std::function<textable>, const font& font, const color& color);
 
+      void set_clip_rectangle (const core::rectangle&);
+      void clear_clip_rectangle ();
+
       void invert (const core::rectangle&) const;
       void flush ();
 

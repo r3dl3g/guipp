@@ -367,6 +367,19 @@ namespace gui {
       return name() == rhs.name();
     }
 
+    core::size font::get_text_size (const std::string& str) const {
+      if (font_type()) {
+        XGlyphInfo extents;
+        XftTextExtentsUtf8(core::global::get_instance(),
+                           font_type(),
+                           (XftChar8*)str.c_str(),
+                           int(str.size()),
+                           &extents);
+        return core::size(extents.xOff - extents.x, extents.height);
+      }
+      return core::size::zero;
+    }
+
     std::ostream& operator<< (std::ostream& out,
                               const font& f) {
       out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();

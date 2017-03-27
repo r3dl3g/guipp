@@ -912,6 +912,17 @@ namespace gui {
       XFlushGC(core::global::get_instance(), gc);
     }
 
+    void graphics::set_clip_rectangle (const core::rectangle& r) {
+      XRectangle rectangles = r;
+      XSetClipRectangles(core::global::get_instance(), gc, 0, 0, &rectangles, 1, Unsorted);
+
+      XftDrawSetClipRectangles(s_xft, 0, 0, &rectangles, 1);
+    }
+
+    void graphics::clear_clip_rectangle () {
+      XSetClipMask(core::global::get_instance(), gc, None);
+      XftDrawSetClip(s_xft, None);
+    }
 
 #endif // X11
 

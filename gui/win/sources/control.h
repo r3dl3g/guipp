@@ -64,6 +64,10 @@ namespace gui {
               std::swap(first, last);
             }
           }
+
+          bool empty () const {
+            return first >= last;
+          }
         };
 
         edit_base ();
@@ -88,6 +92,7 @@ namespace gui {
         range selection;
         pos_t cursor_pos;
         pos_t text_limit;
+        pos_t scroll_pos;
 #endif // X11
       };
     }

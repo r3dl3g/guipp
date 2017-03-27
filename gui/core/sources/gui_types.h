@@ -82,6 +82,18 @@ namespace gui {
         return {type(width() - rhs.width()), type(height() - rhs.height())};
       }
 
+      inline size& operator+= (const size& s) {
+        sz.cx += s.sz.cx;
+        sz.cy += s.sz.cy;
+        return *this;
+      }
+
+      inline size& operator-= (const size& s) {
+        sz.cx -= s.sz.cx;
+        sz.cy -= s.sz.cy;
+        return *this;
+      }
+
       inline type width () const {
         return sz.cx;
       }
@@ -417,7 +429,7 @@ namespace gui {
 
       // union
       rectangle& operator&= (const rectangle& rhs);
-      
+
       // intersection
       rectangle& operator|= (const rectangle& rhs);
 

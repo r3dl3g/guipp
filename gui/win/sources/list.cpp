@@ -282,9 +282,7 @@ namespace gui {
           break;
         }
         case KeyPress: {
-          KeySym key;
-          char text[8] = {0};
-          XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &key, 0);
+          KeySym key = XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
           switch (key) {
             case XK_Up:
             case XK_KP_Up:

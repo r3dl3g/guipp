@@ -111,12 +111,15 @@ private:
   win::push_button norm_button;
   win::push_button info_button;
 
+  win::list::data<std::string> data;
+
   win::list list1;
-  win::list list2;
-  win::list list3;
+  win::list& list2;
+  win::list& list3;
 
   typedef win::split_viewT<false, win::list, win::list> list_split_view;
-  win::split_viewT<true, list_split_view, list_split_view> vsplit_view;
+  typedef win::split_viewT<false, win::list, win::column_list> column_list_split_view;
+  win::split_viewT<true, list_split_view, column_list_split_view> vsplit_view;
 
   win::push_button up_button;
   win::push_button down_button;
@@ -128,8 +131,6 @@ private:
 
   win::hslider hslider;
   win::vslider vslider;
-
-  win::list::data<std::string> data;
 
   win::paint_event paint1;
   win::paint_event paint2;
@@ -143,6 +144,8 @@ private:
   win::push_button sel_first_minus;
   win::push_button sel_last_plus;
   win::push_button sel_last_minus;
+
+  win::column_list column_list;
 
   bool at_paint1;
   bool at_drag;
@@ -219,6 +222,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , paint2(p2)
   , at_paint1(true)
   , at_drag(false)
+  , list2(vsplit_view.first.first)
+  , list3(vsplit_view.first.second)
 {
   register_event_handler(init_result_handler());
 
@@ -505,14 +510,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   list2.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
-    strm << "List2 item " << list2.get_selection();
+    strm << "List2 item " << list2.get_selection() << ": " << data[list2.get_selection()];
     labelC.set_text(strm.str());
   }));
 
   ok_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
-	data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
+    data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     data.update_list(list2);
   }));
 
@@ -559,7 +564,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   hscroll.register_event_handler(win::scroll_event([&](int pos){
     vsplit_view.set_split_pos((double)pos / 100.0);
   }));
-  vsplit_view.get_slider().register_event_handler(win::move_event([&](const core::point&){
+  vsplit_view.slider.register_event_handler(win::move_event([&](const core::point&){
     hscroll.set_value(int(vsplit_view.get_split_pos() * hscroll.get_max()));
   }));
 
@@ -639,22 +644,39 @@ void my_main_window::created_children () {
   list1.set_count(20);
   list1.set_visible();
 
-  list2.create(main, core::rectangle(410, 50, 60, 250));
-  data.update_list(list2);
-  list2.set_visible();
-
-  list3.create(main, core::rectangle(480, 50, 60, 250));
-  list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  list3.set_visible();
+//  list2.create(main, core::rectangle(410, 50, 60, 250));
+//  data.update_list(list2);
+//  list2.set_visible();
+//
+//  list3.create(main, core::rectangle(480, 50, 60, 250));
+//  list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
+//  list3.set_visible();
 
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  vsplit_view.create(main, core::rectangle(550, 50, 130, 250));
-  vsplit_view.get_first().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  vsplit_view.get_first().get_second().set_data(win::list::data<float>(floats), 16);
-  vsplit_view.get_second().get_first().set_data(win::list::data<int>({1, 2, 3, 4, 5}), 16);
-  vsplit_view.get_second().get_second().set_data(win::list::data<float>({1.1F, 2.1F, 3.1F, 4.1F, 5.1F, 6.1F}), 16);
+  win::column_list::columns_t columns;
+  columns.push_back(win::column_list::column(30, 0.7F));
+  columns.push_back(win::column_list::column(30, 0.3F));
+  columns.push_back(win::column_list::column(40));
+
+  win::column_list::data<int> col_data;
+  col_data.push_back({ 1, 2, 3 });
+  col_data.push_back({ 3, 4, 5 });
+  col_data.push_back({ 5, 6, 7 });
+  col_data.push_back({ 7, 8, 9 });
+  col_data.push_back({ 9, 10, 11 });
+
+  vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
+  vsplit_view.first.second.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
+  vsplit_view.second.first.set_data(win::list::data<float>(floats), 16);
+  vsplit_view.second.second.set_columns(columns);
+  vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();
+
+  data.update_list(list2);
+
+  column_list.create(main, core::rectangle(580, 50, 100, 250), columns, col_data);
+  column_list.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));
   hscroll.set_visible();
@@ -711,7 +733,7 @@ void my_main_window::created_children () {
 
   chck_group.do_layout();
 
-  edit1.create(main, core::rectangle(290, 350, 100, 25), "Text");
+  edit1.create(main, core::rectangle(290, 350, 100, 25), "Text zwei drei vier fuenf sechs sieben acht");
   edit1.set_visible();
 
   edit_btn_group.create(main, core::rectangle(290, 380, 100, 16));

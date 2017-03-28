@@ -158,17 +158,9 @@ namespace gui {
           slider.place(Layout::get_slider_place(super::client_size(), pos));
         }
 
-        const win::slider& get_slider () const {
-          return slider;
-        }
-
-        win::slider& get_slider () {
-          return slider;
-        }
-
-      private:
         win::detail::sliderT<H> slider;
 
+      private:
         static window_class clazz;
       };
 
@@ -208,23 +200,6 @@ namespace gui {
         second.set_visible();
       }
 
-      const First& get_first () const {
-        return first;
-      }
-
-      const Second& get_second () const {
-        return second;
-      }
-
-      First& get_first () {
-        return first;
-      }
-
-      Second& get_second () {
-        return second;
-      }
-
-    private:
       First first;
       Second second;
     };

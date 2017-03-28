@@ -64,18 +64,22 @@ namespace gui {
 
         typedef typename super::iterator iterator;
 
-        data () {}
+        data ()
+        {}
 
         data (std::initializer_list<T> args)
-          : super(args) {}
+          : super(args)
+        {}
 
         data (iterator b,
               iterator e)
-          : super(b, e) {}
+          : super(b, e)
+        {}
 
         template<size_t N>
         data (const T (& t)[N])
-          : super(t, t + N) {}
+          : super(t, t + N)
+        {}
 
         template<typename L>
         void update_list (L& l) {
@@ -83,9 +87,9 @@ namespace gui {
         }
 
         void operator() (draw::graphics& g,
-                         int idx,
-                         const core::rectangle& place,
-                         bool selected) {
+                          int idx,
+                          const core::rectangle& place,
+                          bool selected) {
           draw_text_item(g, ostreamfmt(super::at(idx)), place, selected);
         }
 

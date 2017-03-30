@@ -68,9 +68,9 @@ namespace gui {
                               const core::rectangle& place) {
       super::create(clazz, parent, place);
       core::size sz = place.size();
-      vscroll.create(*this, layout::scroll_view_layout::get_vscroll_area(sz, true));
-      hscroll.create(*this, layout::scroll_view_layout::get_hscroll_area(sz, true));
-      edge.create(*this, layout::scroll_view_layout::get_edge_area(sz));
+      vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
+      hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));
+      edge.create(*this, layout::scroll_view::get_edge_area(sz));
     }
 
     void scroll_view::move_children (const core::point& delta) {
@@ -97,11 +97,11 @@ namespace gui {
       vscroll.set_visible(enable);
       if (enable) {
         bool hscroll_bar_enabled = is_hscroll_bar_enabled();
-        vscroll.place(layout::scroll_view_layout::get_vscroll_area(size(), hscroll_bar_enabled));
+        vscroll.place(layout::scroll_view::get_vscroll_area(size(), hscroll_bar_enabled));
         vscroll.to_front();
         if (hscroll_bar_enabled) { ;
-          hscroll.place(layout::scroll_view_layout::get_hscroll_area(size(), enable));
-          edge.place(layout::scroll_view_layout::get_edge_area(size()));
+          hscroll.place(layout::scroll_view::get_hscroll_area(size(), enable));
+          edge.place(layout::scroll_view::get_edge_area(size()));
           edge.set_visible();
           edge.to_front();
         }
@@ -112,11 +112,11 @@ namespace gui {
       hscroll.set_visible(enable);
       if (enable) {
         bool vscroll_bar_enabled = is_vscroll_bar_enabled();
-        hscroll.place(layout::scroll_view_layout::get_hscroll_area(size(), vscroll_bar_enabled));
+        hscroll.place(layout::scroll_view::get_hscroll_area(size(), vscroll_bar_enabled));
         hscroll.to_front();
         if (vscroll_bar_enabled) {
-          vscroll.place(layout::scroll_view_layout::get_vscroll_area(size(), enable));
-          edge.place(layout::scroll_view_layout::get_edge_area(size()));
+          vscroll.place(layout::scroll_view::get_vscroll_area(size(), enable));
+          edge.place(layout::scroll_view::get_edge_area(size()));
           edge.set_visible();
           edge.to_front();
         }
@@ -152,14 +152,14 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    scroll_view_layout::scroll_view_layout (win::container* main)
+    scroll_view::scroll_view (win::container* main)
       : main(main)
       , vscroll(nullptr)
       , hscroll(nullptr)
       , edge(nullptr)
     {}
 
-    void scroll_view_layout::init (win::vscroll_bar* vscroll,
+    void scroll_view::init (win::vscroll_bar* vscroll,
                                    win::hscroll_bar* hscroll,
                                    win::client_window* edge) {
       this->vscroll = vscroll;
@@ -167,14 +167,15 @@ namespace gui {
       this->edge = edge;
     }
 
-    void scroll_view_layout::set_current_pos (const core::point& pt) {
+    void scroll_view::set_current_pos (const core::point& pt) {
       current_pos = pt;
     }
-    core::point scroll_view_layout::get_current_pos () const {
+
+    core::point scroll_view::get_current_pos () const {
       return current_pos;
     }
 
-    core::rectangle scroll_view_layout::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
+    core::rectangle scroll_view::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
       core::rectangle r(sz);
       r.x(r.x2() - win::scroll_bar::get_scroll_bar_width());
       r.width(win::scroll_bar::get_scroll_bar_width());
@@ -184,7 +185,7 @@ namespace gui {
       return r;
     }
 
-    core::rectangle scroll_view_layout::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
+    core::rectangle scroll_view::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
       core::rectangle r(sz);
       r.y(r.y2() - win::scroll_bar::get_scroll_bar_width());
       r.height(win::scroll_bar::get_scroll_bar_width());
@@ -194,19 +195,19 @@ namespace gui {
       return r;
     }
 
-    core::rectangle scroll_view_layout::get_visible_area (const core::size& sz) {
+    core::rectangle scroll_view::get_visible_area (const core::size& sz) {
       return core::rectangle(sz - core::size{ win::scroll_bar::get_scroll_bar_width(),
                                               win::scroll_bar::get_scroll_bar_width() });
     }
 
-    core::rectangle scroll_view_layout::get_edge_area (const core::size& sz) {
+    core::rectangle scroll_view::get_edge_area (const core::size& sz) {
       return core::rectangle(sz.width() - win::scroll_bar::get_scroll_bar_width(),
                              sz.height() - win::scroll_bar::get_scroll_bar_width(),
                              win::scroll_bar::get_scroll_bar_width(),
                              win::scroll_bar::get_scroll_bar_width());
     }
 
-    void scroll_view_layout::layout (const core::size& new_size) {
+    void scroll_view::layout (const core::size& new_size) {
       core::rectangle space(new_size);
 
       std::vector<win::window*> children = main->get_children();

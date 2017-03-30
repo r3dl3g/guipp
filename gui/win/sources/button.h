@@ -38,66 +38,71 @@ namespace gui {
 #ifdef WIN32
     // --------------------------------------------------------------------------
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_CLICKED>>         button_clicked_event;
+                           command_matcher<BN_CLICKED>>
+                           button_clicked_event;
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_PUSHED>>          button_pushed_event;
+                           command_matcher<BN_PUSHED>>
+                           button_pushed_event;
     typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_UNPUSHED>>        button_released_event;
+                           command_matcher<BN_UNPUSHED>>
+                           button_released_event;
     typedef event_handlerT<BM_SETCHECK,
-                           one_param_caller<bool>>              button_state_event;
+                           one_param_caller<bool>>
+                           button_state_event;
 // --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
 // --------------------------------------------------------------------------
-  namespace detail {
-    extern Atom BN_CLICKED_MESSAGE;
-    extern Atom BN_PUSHED_MESSAGE;
-    extern Atom BN_UNPUSHED_MESSAGE;
-    extern Atom BN_STATE_MESSAGE;
-  }
+    namespace detail {
+      extern Atom BN_CLICKED_MESSAGE;
+      extern Atom BN_PUSHED_MESSAGE;
+      extern Atom BN_UNPUSHED_MESSAGE;
+      extern Atom BN_STATE_MESSAGE;
+    }
 
 // --------------------------------------------------------------------------
-  typedef event_handlerT<ClientMessage, no_param_caller, 0,
-    client_message_matcher<detail::BN_CLICKED_MESSAGE>>          button_clicked_event;
-  typedef event_handlerT<ClientMessage, no_param_caller, 0,
-    client_message_matcher<detail::BN_PUSHED_MESSAGE>>           button_pushed_event;
-  typedef event_handlerT<ClientMessage, no_param_caller, 0,
-    client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>         button_released_event;
-  typedef event_handlerT<ClientMessage,
-    one_param_caller<bool, get_client_data<bool, 0>>, 0,
-  client_message_matcher<detail::BN_STATE_MESSAGE>>            button_state_event;
-// --------------------------------------------------------------------------
+    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+                           client_message_matcher<detail::BN_CLICKED_MESSAGE>>
+                           button_clicked_event;
+    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+                           client_message_matcher<detail::BN_PUSHED_MESSAGE>>
+                           button_pushed_event;
+    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+                           client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
+                           button_released_event;
+    typedef event_handlerT<ClientMessage,
+                           one_param_caller<bool, get_client_data<bool, 0>>, 0,
+                           client_message_matcher<detail::BN_STATE_MESSAGE>>
+                           button_state_event;
+    // --------------------------------------------------------------------------
 #endif // X11
+    // --------------------------------------------------------------------------
+    class button : public gui::win::window_with_text {
+    public:
+      typedef gui::win::window_with_text super;
 
-// --------------------------------------------------------------------------
-  class button : public gui::win::window_with_text {
-  public:
-    typedef gui::win::window_with_text super;
+      button ();
 
-    button ();
+      bool is_checked () const;
+      void set_checked (bool);
 
-    bool is_checked () const;
-
-    void set_checked (bool);
-
-    bool is_hilited () const;
-
-    void set_hilited (bool);
+      bool is_hilited () const;
+      void set_hilited (bool);
 
 #ifdef X11
-  private:
-    bool button_handle_event (const gui::core::event& e,
-                              core::event_result& result);
+    private:
+      bool button_handle_event (const gui::core::event& e,
+                                core::event_result& result);
 
-    bool checked;
-    bool hilited;
+      bool checked;
+      bool hilited;
 #endif // X11
-  };
+    };
 
-// --------------------------------------------------------------------------
-  class push_button : public button {
-  public:
+    // --------------------------------------------------------------------------
+    class push_button : public button {
+    public:
       typedef button super;
 
       push_button ();
@@ -113,7 +118,7 @@ namespace gui {
       static window_class clazz;
     };
 
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     class radio_button : public button {
     public:
       typedef button super;
@@ -131,7 +136,7 @@ namespace gui {
       static window_class clazz;
     };
 
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     class check_box : public button {
     public:
       typedef button super;

@@ -35,9 +35,9 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    class scroll_view_layout {
+    class scroll_view {
     public:
-      scroll_view_layout (win::container*);
+      scroll_view (win::container*);
 
       void init (win::vscroll_bar* vscroll,
                  win::hscroll_bar* hscroll,
@@ -67,7 +67,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    class scroll_view : public layout_container<layout::scroll_view_layout> {
+    class scroll_view : public layout_container<layout::scroll_view> {
     public:
       typedef window super;
 
@@ -89,7 +89,7 @@ namespace gui {
       void move_children (const core::point& delta);
 
     protected:
-      friend class scroll_view_layout;
+      friend class scroll_view;
 
       vscroll_bar& get_vscroll ();
       hscroll_bar& get_hscroll ();

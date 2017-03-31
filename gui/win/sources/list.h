@@ -51,19 +51,7 @@ namespace gui {
 
         ~list ();
 
-        template<typename T>
-        void create (const container& parent,
-                     const core::rectangle& place,
-                     data<T> data,
-                     int item_height = 20) {
-          create(parent, place);
-          set_data(data, item_height);
-        }
-
-        void set_count (size_t count);
         size_t get_count () const;
-
-        void set_selection (int count);
         int get_selection () const;
 
       private:
@@ -71,11 +59,9 @@ namespace gui {
                                 core::event_result& result);
 
 #ifdef X11
-        core::rectangle get_scroll_bar_area ();
-
-        scroll_barT<H> scrollbar;
-
+      protected:
         size_t item_count;
+
         int selection;
         bool moved;
         core::point last_mouse_point;
@@ -91,8 +77,15 @@ namespace gui {
       listT ();
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+                   const core::rectangle& place = core::rectangle::def);
+
+      template<typename T>
+      void create (const container& parent,
+                   const core::rectangle& place,
+                   data<T> data,
+                   int item_height = 20) {
+        set_data(data, item_height);
+        create(parent, place);
       }
 
       template<typename T>
@@ -101,6 +94,9 @@ namespace gui {
         set_drawer(data, calc_item_size(item_height));
         set_count(data.size());
       }
+
+      void set_count (size_t count);
+      void set_selection (int count);
 
       int get_scroll_pos () const;
       void set_scroll_pos (int pos);
@@ -112,6 +108,15 @@ namespace gui {
       core::size client_size () const;
 
     private:
+#ifdef X11
+      bool listT_handle_event (const core::event& e,
+                               core::event_result& result);
+
+      core::rectangle get_scroll_bar_area ();
+
+      detail::scroll_barT<!V> scrollbar;
+#endif // X11
+
       core::size calc_item_size (core::size::type item_height) const;
 
       static window_class clazz;
@@ -124,6 +129,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     listT<false>::listT ();
+
+    template<>
+    void listT<false>::create (const container& parent,
+                               const core::rectangle& place);
+
+    template<>
+    void listT<false>::set_count (size_t count);
+
+    template<>
+    void listT<false>::set_selection (int count);
 
     template<>
     int listT<false>::get_scroll_pos () const;
@@ -151,6 +166,16 @@ namespace gui {
     listT<true>::listT();
 
     template<>
+    void listT<true>::create (const container& parent,
+                              const core::rectangle& place);
+
+    template<>
+    void listT<true>::set_count (size_t count);
+
+    template<>
+    void listT<true>::set_selection (int count);
+
+    template<>
     int listT<true>::get_scroll_pos() const;
 
     template<>
@@ -170,6 +195,22 @@ namespace gui {
 
     template<>
     core::size listT<true>::calc_item_size(core::size::type item_height) const;
+
+#ifdef X11
+    template<>
+    core::rectangle listT<false>::get_scroll_bar_area ();
+
+    template<>
+    core::rectangle listT<true>::get_scroll_bar_area ();
+
+    template<>
+    bool listT<false>::listT_handle_event (const core::event& e,
+                                           core::event_result& result);
+
+    template<>
+    bool listT<true>::listT_handle_event (const core::event& e,
+                                          core::event_result& result);
+#endif // X11
 
     // --------------------------------------------------------------------------
     typedef listT<false> hlist;

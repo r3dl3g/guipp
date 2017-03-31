@@ -41,8 +41,12 @@ namespace gui {
       typedef IF_WIN32(LONG) IF_X11(unsigned short) type;
       static const size zero;
 
-      inline size (type width = 0,
-                   type height = 0) {
+      inline size (type i = 0) {
+        sz = {i, i};
+      }
+
+      inline size (type width,
+                   type height) {
         sz = {width, height};
       }
 
@@ -122,8 +126,12 @@ namespace gui {
       static const point zero;
       static const point undefined;
 
-      inline point (type x = 0,
-                    type y = 0) {
+      inline point (type i = 0) {
+        pt = {i, i};
+      }
+
+      inline point (type x,
+                    type y) {
         pt = {x, y};
       }
 

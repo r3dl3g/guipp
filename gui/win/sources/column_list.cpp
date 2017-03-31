@@ -105,7 +105,7 @@ namespace gui {
         for (column c : columns) {
           r.width(c.width - 1);
           drawer(g, idx, idy, r, c, selected);
-          r.move_x(c.width + 1);
+          r.move_x(c.width);
           ++idy;
         }
       }

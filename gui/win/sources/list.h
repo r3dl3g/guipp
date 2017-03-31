@@ -77,9 +77,9 @@ namespace gui {
       void set_scroll_pos (int pos);
       int get_scroll_pos () const;
 
-      void enable_vscroll_bar(bool enable);
-      bool is_vscroll_bar_enabled() const;
-      bool is_vscroll_bar_visible() const;
+      void enable_vscroll_bar (bool enable);
+      bool is_vscroll_bar_enabled () const;
+      bool is_vscroll_bar_visible () const;
 
       core::size client_size () const;
 

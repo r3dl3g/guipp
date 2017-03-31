@@ -73,8 +73,8 @@ namespace gui {
 
     void line::operator() (graphics& g, const pen& p) const {
       Use<pen> pn(g, p);
-      MoveToEx(gc, from.x(), from.y(), nullptr);
-      LineTo(gc, to.x(), to.y());
+      MoveToEx(g, from.x(), from.y(), nullptr);
+      LineTo(g, to.x(), to.y());
     }
 
     void rectangle::operator() (graphics& g,

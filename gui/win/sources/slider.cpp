@@ -119,7 +119,9 @@ namespace gui {
       }));
       register_event_handler(win::paint_event([&](draw::graphics& g) {
         core::rectangle place = client_area();
+#ifdef X11
         g.fill(draw::rectangle(place), draw::brush(get_window_class()->get_background()));
+#endif // X11
         draw::frame::raised_relief(g, place);
       }));
     }

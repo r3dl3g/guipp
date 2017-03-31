@@ -114,7 +114,9 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
+#ifdef X11
         prepare_input();
+#endif // X11
         set_text(txt);
       }
 

@@ -83,7 +83,7 @@ namespace gui {
       return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
     }
 
-    void  list::enable_vscroll_bar(bool enable) {
+    void  list::enable_vscroll_bar (bool enable) {
       // first check, if needed.
       if (enable && (get_count() * get_item_height() > size().height())) {
         ShowScrollBar(get_id(), SB_VERT, true);
@@ -92,7 +92,11 @@ namespace gui {
       }
     }
 
-    bool list::is_vscroll_bar_enabled() const {
+    bool list::is_vscroll_bar_enabled () const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
+
+    bool list::is_vscroll_bar_visible () const {
       return get_style(WS_VSCROLL) == WS_VSCROLL;
     }
 
@@ -110,6 +114,7 @@ namespace gui {
             draw::graphics g(get_id(), pdis->hDC);
             core::rectangle place(pdis->rcItem);
             bool selected = (pdis->itemState & ODS_SELECTED);
+            place.height(place.height() - 1);
             draw_item(g, pdis->itemID, place, selected);
           }
         }

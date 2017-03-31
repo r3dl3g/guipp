@@ -43,6 +43,9 @@ namespace gui {
       edit_base::edit_base ()
       {}
 
+      edit_base::~edit_base()
+      {}
+
       window_class edit_base::register_edit_class (gui::win::alignment_h a) {
         return window_class::sub_class("MyEdit", "EDIT",
                                         a | ES_AUTOHSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,

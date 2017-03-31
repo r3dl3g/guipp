@@ -201,13 +201,13 @@ namespace gui {
     core::size window::client_size() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::size(r.right - r.left, r.bottom - r.top);
+      return core::size(r.right - r.left - 1, r.bottom - r.top - 1);
     }
 
     core::rectangle window::client_area() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::rectangle(r);
+      return core::rectangle(r) - core::size(1, 1);
     }
 
     void window::move(const core::point& pt, bool repaint) {

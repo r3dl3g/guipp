@@ -99,7 +99,7 @@ namespace gui {
       ~owner_draw_list ();
 
       void set_drawer (std::function<item_draw> drawer,
-                       int item_height = 20);
+                       const core::size& sz = {20, 20});
 
     protected:
       void draw_item (draw::graphics&,

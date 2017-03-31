@@ -38,77 +38,39 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class list::clazz;
-
-    // --------------------------------------------------------------------------
 #ifdef WIN32
-    list::list () {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::sub_class("MyListBox",
-                                             "LISTBOX",
-                                             LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-                                             WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                             WS_EX_NOPARENTNOTIFY);
+    // --------------------------------------------------------------------------
+    namespace detail {
+      list::list () {
+        register_event_handler(this, &list::list_handle_event);
       }
-      register_event_handler(this, &list::list_handle_event);
-    }
 
-    void list::create (const container& parent,
-                 const core::rectangle& place) {
-      super::create(clazz, parent, place);
-    }
-
-    void list::set_count (size_t count) {
-      SendMessage(get_id(), LB_SETCOUNT, count, 0);
-    }
-
-    size_t list::get_count () const {
-      return (size_t)ListBox_GetCount(get_id());
-    }
-
-    void list::set_selection (int sel) {
-      ListBox_SetCurSel(get_id(), sel);
-      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
-    }
-
-    int list::get_selection () const {
-      return ListBox_GetCurSel(get_id());
-    }
-
-    void list::set_scroll_pos (int pos) {
-      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
-    }
-
-    int list::get_scroll_pos () const {
-      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
-    }
-
-    void  list::enable_vscroll_bar (bool enable) {
-      // first check, if needed.
-      if (enable && (get_count() * get_item_height() > size().height())) {
-        ShowScrollBar(get_id(), SB_VERT, true);
-      } else {
-        ShowScrollBar(get_id(), SB_VERT, false);
+      void list::set_count (size_t count) {
+        SendMessage(get_id(), LB_SETCOUNT, count, 0);
       }
-    }
 
-    bool list::is_vscroll_bar_enabled () const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
+      size_t list::get_count () const {
+        return (size_t)ListBox_GetCount(get_id());
+      }
 
-    bool list::is_vscroll_bar_visible () const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
+      void list::set_selection (int sel) {
+        ListBox_SetCurSel(get_id(), sel);
+        SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
+      }
 
-    bool list::list_handle_event (const core::event& e,
-                                  core::event_result& result) {
-      if (e.type == WM_DRAWITEM) {
-        PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
-        // If there are no list box items, skip this message.
-        if (pdis->itemID == -1) {
-          return false;
-        }
-        switch (pdis->itemAction) {
+      int list::get_selection () const {
+        return ListBox_GetCurSel(get_id());
+      }
+
+      bool list::list_handle_event (const core::event& e,
+        core::event_result& result) {
+        if (e.type == WM_DRAWITEM) {
+          PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
+          // If there are no list box items, skip this message.
+          if (pdis->itemID == -1) {
+            return false;
+          }
+          switch (pdis->itemAction) {
           case ODA_SELECT:
           case ODA_DRAWENTIRE: {
             draw::graphics g(get_id(), pdis->hDC);
@@ -117,25 +79,135 @@ namespace gui {
             place.height(place.height() - 1);
             draw_item(g, pdis->itemID, place, selected);
           }
+          }
+          return true;
         }
-        return true;
+        return false;
       }
-      return false;
+
+      list::~list ()
+      {}
+    
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    listT<false>::listT() {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::sub_class("MyVListBox",
+          "LISTBOX",
+          LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN |
+          WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+          WS_EX_NOPARENTNOTIFY);
+      }
+      register_event_handler(size_event([&](const core::size& sz) {
+        SendMessage(get_id(), LB_SETITEMHEIGHT, 0, sz.height());
+      }));
     }
 
-    list::~list ()
-    {}
+    template<>
+    listT<true>::listT() {
+      if (!clazz.is_valid()) {
+        clazz = win::window_class::sub_class("MyHListBox",
+          "LISTBOX",
+          LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
+          WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+          WS_EX_NOPARENTNOTIFY);
+      }
+    }
+
+    template<>
+    int listT<false>::get_scroll_pos () const {
+      return GetScrollPos(get_id(), SB_HORZ) * get_item_size().width();
+    }
+
+    template<>
+    int listT<true>::get_scroll_pos() const {
+      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
+    }
+
+    template<>
+    void listT<false>::set_scroll_pos(int pos) {
+      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().width()), 0);
+    }
+
+    template<>
+    void listT<true>::set_scroll_pos(int pos) {
+      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
+    }
+
+    template<>
+    void listT<false>::enable_scroll_bar (bool enable) {
+      // first check, if needed.
+      if (enable && (get_count() * get_item_width() > size().width())) {
+        ShowScrollBar(get_id(), SB_HORZ, true);
+      } else {
+        ShowScrollBar(get_id(), SB_HORZ, false);
+      }
+    }
+
+    template<>
+    bool listT<false>::is_scroll_bar_enabled () const {
+      return get_style(WS_HSCROLL) == WS_HSCROLL;
+    }
+
+    template<>
+    bool listT<false>::is_scroll_bar_visible () const {
+      return get_style(WS_HSCROLL) == WS_HSCROLL;
+    }
+
+    template<>
+    void  listT<true>::enable_scroll_bar(bool enable) {
+      // first check, if needed.
+      if (enable && (get_count() * get_item_height() > size().height())) {
+        ShowScrollBar(get_id(), SB_VERT, true);
+      }
+      else {
+        ShowScrollBar(get_id(), SB_VERT, false);
+      }
+    }
+
+    template<>
+    bool listT<true>::is_scroll_bar_enabled() const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
+
+    template<>
+    bool listT<true>::is_scroll_bar_visible() const {
+      return get_style(WS_VSCROLL) == WS_VSCROLL;
+    }
 
 #endif // WIN32
 
-    core::size list::client_size () const {
+    template<>
+    core::size listT<false>::client_size () const {
       core::size sz = super::client_size();
-      if (is_vscroll_bar_enabled()) {
+      if (is_scroll_bar_enabled()) {
+        sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
+      }
+      return sz;
+    }
+
+    template<>
+    core::size listT<true>::client_size() const {
+      core::size sz = super::client_size();
+      if (is_scroll_bar_enabled()) {
         sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
       }
       return sz;
     }
 
+    template<>
+    core::size listT<false>::calc_item_size(core::size::type item_height) const {
+      SendMessage(get_id(), LB_SETCOLUMNWIDTH, item_height, 0);
+      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, client_size().height());
+      return { item_height, client_size().height() };
+    }
+
+    template<>
+    core::size listT<true>::calc_item_size(core::size::type item_height) const {
+      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, item_height);
+      return{ client_size().width(), item_height };
+    }
 
 #ifdef X11
     list::list ()
@@ -159,7 +231,7 @@ namespace gui {
     void list::create (const container& parent,
                        const core::rectangle& place) {
       super::create(clazz, parent, place);
-      scrollbar.create(*reinterpret_cast<container*>(this), get_vscroll_bar_area());
+      scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
     }
 
     void list::set_count (size_t count) {
@@ -170,7 +242,7 @@ namespace gui {
 
       scrollbar.set_max(std::max(h, 0));
       scrollbar.set_step(ih);
-      scrollbar.set_visible((h > 0) && is_vscroll_bar_enabled());
+      scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
 
       redraw_later();
     }
@@ -208,23 +280,23 @@ namespace gui {
       return scrollbar.get_value();
     }
 
-    core::rectangle list::get_vscroll_bar_area () {
+    core::rectangle list::get_scroll_bar_area () {
       core::rectangle r(size());
       r.x(r.x2() - core::point::type(16));
       r.width(16);
       return r;
     }
 
-    void list::enable_vscroll_bar (bool enable) {
+    void list::enable_scroll_bar (bool enable) {
       scrollbar.enable(enable);
       scrollbar.set_visible(enable && scrollbar.get_max());
     }
 
-    bool list::is_vscroll_bar_enabled () const {
+    bool list::is_scroll_bar_enabled () const {
       return scrollbar.is_enabled();
     }
 
-    bool list::is_vscroll_bar_visible () const {
+    bool list::is_scroll_bar_visible () const {
       return scrollbar.is_visible();
     }
 
@@ -290,12 +362,12 @@ namespace gui {
           }
           break;
         case ConfigureNotify: {
-          scrollbar.place(get_vscroll_bar_area());
+          scrollbar.place(get_scroll_bar_area());
           core::size::type ih = get_item_height();
           int h = (ih * (int)item_count) - size().height();
 
           scrollbar.set_max(std::max(h, 0));
-          scrollbar.set_visible((h > 0) && is_vscroll_bar_enabled());
+          scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
           break;
         }
         case KeyPress: {

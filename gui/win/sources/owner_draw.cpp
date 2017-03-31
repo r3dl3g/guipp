@@ -24,7 +24,7 @@ namespace gui {
 
   namespace win {
 // --------------------------------------------------------------------------
-    owner_draw::measure_item_map owner_draw::measure_item_size;
+    owner_draw::measure_item_map owner_draw::s_measure_item_size;
     int owner_draw::next_owner_draw_id = 0;
 
 // --------------------------------------------------------------------------
@@ -41,7 +41,7 @@ namespace gui {
 
     void owner_draw::set_item_size (const gui::core::size& sz) {
       item_size = sz;
-      measure_item_size[owner_draw_id] = sz;
+      s_measure_item_size[owner_draw_id] = sz;
     }
 
     const gui::core::size& owner_draw::get_item_size () const {
@@ -49,8 +49,8 @@ namespace gui {
     }
 
     const gui::core::size& owner_draw::get_item_size (int id) {
-      measure_item_map::iterator i = measure_item_size.find(id);
-      if (i != measure_item_size.end()) {
+      measure_item_map::iterator i = s_measure_item_size.find(id);
+      if (i != s_measure_item_size.end()) {
         return i->second;
       }
       return gui::core::size::zero;

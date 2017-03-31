@@ -68,7 +68,7 @@ namespace gui {
         }
 
         int diff = sz.width() - full_width;
-        if (is_vscroll_bar_visible()) {
+        if (is_scroll_bar_visible()) {
           diff -= scroll_bar::get_scroll_bar_width();
         }
         for (column& c : columns) {
@@ -90,9 +90,9 @@ namespace gui {
     }
 
     void column_list::set_drawer (std::function<cell_draw> drawer,
-                                  int item_height) {
+                                  core::size::type item_height) {
       this->drawer = drawer;
-      list.set_drawer(core::easy_bind(this, &column_list::draw_cells), item_height);
+      list.set_drawer(core::easy_bind(this, &column_list::draw_cells), { item_height, item_height });
     }
 
     void column_list::draw_cells (draw::graphics& g,

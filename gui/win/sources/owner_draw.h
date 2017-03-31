@@ -84,7 +84,7 @@ namespace gui {
       static int next_owner_draw_id;
 
       typedef std::map<int, gui::core::size> measure_item_map;
-      static measure_item_map measure_item_size;
+      static measure_item_map s_measure_item_size;
     };
 
   } // win

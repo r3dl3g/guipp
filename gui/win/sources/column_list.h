@@ -114,7 +114,7 @@ namespace gui {
       ~column_list ();
 
       void set_drawer (std::function<cell_draw> drawer,
-                       int item_height = 20);
+                       core::size::type item_height = 20);
 
       const columns_t& get_columns () const {
         return columns;
@@ -142,7 +142,7 @@ namespace gui {
       template<typename T,
                void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
       void set_data (data<T, F> data,
-                     int item_height = 20) {
+                     core::size::type item_height = 20) {
         set_drawer(data, item_height);
         set_count(data.size());
       }
@@ -171,16 +171,16 @@ namespace gui {
         return list.get_scroll_pos();
       }
 
-      inline void enable_vscroll_bar (bool enable) {
-        list.enable_vscroll_bar(enable);
+      inline void enable_scroll_bar (bool enable) {
+        list.enable_scroll_bar(enable);
       }
 
-      inline bool is_vscroll_bar_enabled () const {
-        return list.is_vscroll_bar_enabled();
+      inline bool is_scroll_bar_enabled () const {
+        return list.is_scroll_bar_enabled();
       }
 
-      inline bool is_vscroll_bar_visible () const {
-        return list.is_vscroll_bar_visible();
+      inline bool is_scroll_bar_visible () const {
+        return list.is_scroll_bar_visible();
       }
 
       core::size client_size () const;

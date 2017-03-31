@@ -118,7 +118,7 @@ private:
   win::list& list3;
 
   typedef win::split_viewT<false, win::list, win::list> list_split_view;
-  typedef win::split_viewT<false, win::list, win::column_list> column_list_split_view;
+  typedef win::split_viewT<false, win::hlist, win::column_list> column_list_split_view;
   win::split_viewT<true, list_split_view, column_list_split_view> vsplit_view;
 
   win::push_button up_button;
@@ -536,8 +536,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   scroll_check_box.register_event_handler(win::button_state_event([&] (bool on) {
-    list1.enable_vscroll_bar(on);
-    list2.enable_vscroll_bar(on);
+    list1.enable_scroll_bar(on);
+    list2.enable_scroll_bar(on);
   }));
 
   vscroll.register_event_handler(win::scroll_event([&] (int pos) {
@@ -670,7 +670,7 @@ void my_main_window::created_children () {
 
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
   vsplit_view.first.second.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  vsplit_view.second.first.set_data(win::list::data<float>(floats), 16);
+  vsplit_view.second.first.set_data(win::list::data<float>(floats), 25);
   vsplit_view.second.second.set_columns(columns);
   vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();

@@ -42,10 +42,6 @@ namespace gui {
 
   namespace win {
 
-    namespace detail {
-
-    } // detail
-
     window_class column_list::clazz;
 
     column_list::column_list () {
@@ -70,7 +66,11 @@ namespace gui {
           full_weigth += c.weight;
           full_width += c.min_width;
         }
+
         int diff = sz.width() - full_width;
+        if (is_vscroll_bar_visible()) {
+          diff -= scroll_bar::get_scroll_bar_width();
+        }
         for (column& c : columns) {
           c.width = c.min_width + std::max((int)(diff * c.weight / full_weigth), 0);
         }
@@ -92,25 +92,28 @@ namespace gui {
     void column_list::set_drawer (std::function<cell_draw> drawer,
                                   int item_height) {
       this->drawer = drawer;
-      list.set_drawer(core::easy_bind(this, &column_list::draw_line), item_height);
+      list.set_drawer(core::easy_bind(this, &column_list::draw_cells), item_height);
     }
 
-    void column_list::draw_line (draw::graphics& g,
-                                 int idx,
-                                 const core::rectangle& place,
-                                 bool selected) {
+    void column_list::draw_cells (draw::graphics& g,
+                                  int idx,
+                                  const core::rectangle& place,
+                                  bool selected) {
       if (drawer) {
         int idy = 0;
         core::rectangle r = place;
         for (column c : columns) {
-          r.width(c.width);
-          drawer(g, idx, idy, r, selected);
-          r.move_x(c.width);
+          r.width(c.width - 1);
+          drawer(g, idx, idy, r, c, selected);
+          r.move_x(c.width + 1);
           ++idy;
         }
       }
     }
 
+    core::size column_list::client_size () const {
+      return list.client_size();
+    }
 
   } // win
 

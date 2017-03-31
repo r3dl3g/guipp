@@ -178,8 +178,7 @@ namespace gui {
           graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
-        graph.draw_relief(area, is_checked());
-
+        draw::frame::deep_relief(graph, area, is_checked());
         graph.text(draw::text_box(get_text(), area, center), font::system(), is_enabled() ? color::black : color::gray);
         if (focus) {
           area.shrink({3, 3});

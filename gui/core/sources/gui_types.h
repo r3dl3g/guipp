@@ -379,12 +379,20 @@ namespace gui {
         return tl;
       }
 
-      void top_left (const point& pt) {
-        tl = pt;
+      point top_right () const {
+        return { br.x(), tl.y() };
       }
 
       const point& bottom_right () const {
         return br;
+      }
+
+      point bottom_left () const {
+        return { tl.x(), br.y() };
+      }
+
+      void top_left (const point& pt) {
+        tl = pt;
       }
 
       void bottom_right (const point& pt) {

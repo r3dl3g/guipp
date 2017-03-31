@@ -57,14 +57,8 @@ namespace gui {
 
       color get_pixel (const core::point&) const;
 
-      void draw_line (const core::point& from,
-                      const core::point& to,
-                      const pen& pen);
-
       void draw_lines (std::initializer_list<core::point> points,
                        const pen& pen);
-
-      void draw_relief (const core::rectangle&, bool sunken, bool single = false);
 
       void frame (std::function<frameable>, const pen& pen);
       void fill (std::function<fillable>, const brush& brush);
@@ -99,6 +93,19 @@ namespace gui {
 #endif // X11
     };
 
+    struct line {
+      inline line (const core::point& from,
+                   const core::point& to)
+        : from(from)
+        , to(to)
+      {}
+
+      void operator() (graphics&, const pen&) const;
+
+    private:
+      core::point from;
+      core::point to;
+    };
 
     struct rectangle {
       inline rectangle(const core::rectangle& rect)
@@ -271,6 +278,39 @@ namespace gui {
       bool clear_background;
     };
 
-  }
+    namespace frame {
 
-}
+      inline void no_frame (draw::graphics&, const core::rectangle&)
+      {}
+
+      void lines (draw::graphics&, const core::rectangle&);
+      void vline (draw::graphics&, const core::rectangle&);
+      void hline (draw::graphics&, const core::rectangle&);
+
+      void raised_relief (draw::graphics&, const core::rectangle&);
+      void sunken_relief (draw::graphics&, const core::rectangle&);
+
+      inline void relief (draw::graphics& g, const core::rectangle& r, bool sunken) {
+        if (sunken) {
+          sunken_relief(g, r);
+        } else {
+          raised_relief(g, r);
+        }
+      }
+
+      void raised_deep_relief (draw::graphics&, const core::rectangle&);
+      void sunken_deep_relief (draw::graphics&, const core::rectangle&);
+
+      inline void deep_relief (draw::graphics& g, const core::rectangle& r, bool sunken) {
+        if (sunken) {
+          sunken_deep_relief(g, r);
+        } else {
+          raised_deep_relief(g, r);
+        }
+      }
+
+    } // frame
+
+  } // fraw
+
+} // gui

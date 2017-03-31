@@ -56,8 +56,7 @@ namespace gui {
       edit_base::range edit_base::get_selection () const {
         range sel;
         SendMessage(get_id(), EM_GETSEL, (WPARAM)&sel.first, (LPARAM)&sel.last);
-        //Edit_GetSel(get_id(), sel.first, sel.last);
-		return sel;
+     		return sel;
       }
 
       edit_base::pos_t edit_base::get_cursor_pos () const {
@@ -95,7 +94,9 @@ namespace gui {
         : cursor_pos(0)
         , text_limit(std::numeric_limits<pos_t>::max())
         , scroll_pos(0)
-      {}
+        , im(0)
+        , ic(0)
+    {}
 
       window_class edit_base::register_edit_class (gui::win::alignment_h a) {
         return gui::win::window_class::custom_class("EDIT",
@@ -105,6 +106,39 @@ namespace gui {
                                                     StructureNotifyMask | SubstructureRedirectMask,
                                                     a, 0, 0,
                                                     gui::draw::color::white);
+      }
+
+      edit_base::~edit_base () {
+        detail::s_window_ic_map.erase(get_id());
+        XDestroyIC(ic);
+        ic = 0;
+        XCloseIM(im);
+        im = 0;
+      }
+
+      void edit_base::prepare_input () {
+        im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
+        XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
+                                        XIMStatusNone | XIMStatusNothing | XIMStatusArea;
+
+        XIMStyles *im_supported_styles;
+        /* figure out which styles the IM can support */
+        XGetIMValues(im, XNQueryInputStyle, &im_supported_styles, NULL);
+        XIMStyle best_style = 0x0F1F;
+        for (int i = 0; i < im_supported_styles->count_styles; ++i) {
+          XIMStyle style = im_supported_styles->supported_styles[i];
+          if ((style & app_supported_styles) == style) {/* if we can handle it */
+            best_style = std::min(style, best_style);
+          }
+        }
+        XFree(im_supported_styles);
+
+        ic = XCreateIC(im,
+                       XNInputStyle, best_style,
+                       XNClientWindow, get_id(),
+                       NULL);
+
+        detail::s_window_ic_map[get_id()] = ic;
       }
 
       void edit_base::set_selection (const edit_base::range& sel) {
@@ -171,11 +205,17 @@ namespace gui {
         redraw_later();
       }
 
+      namespace utf8 {
+        bool is_continuation_char (char ch) {
+          return ((ch & 0b11000000) == 0b10000000);
+        }
+      }
+
       void edit_base::register_handler () {
         register_event_handler(gui::win::paint_event([&] (gui::draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
-          graph.draw_relief(area, true, true);
+          draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           graph.set_clip_rectangle(area);
           text_origin origin = (text_origin)get_window_class()->ex_style;
@@ -200,9 +240,9 @@ namespace gui {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
                        font::system(), color::black);
-            graph.draw_line(core::point(cursor_area.x2(), y1),
-                            core::point(cursor_area.x2(), y2),
-                            draw::pen(color::black, draw::pen::solid, 1));
+            graph.frame(line(core::point(cursor_area.x2(), y1),
+                             core::point(cursor_area.x2(), y2)),
+                             color::black);
           }
           graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black);
           graph.clear_clip_rectangle();
@@ -211,7 +251,9 @@ namespace gui {
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
 #endif // SHOW_TEXT_AREA
         }));
-        register_event_handler(gui::win::key_down_event([&] (unsigned int keystate, KeySym keycode, XKeyEvent* e) {
+        register_event_handler(gui::win::key_down_event([&] (unsigned int keystate,
+                                                             KeySym keycode,
+                                                             const std::string& chars) {
           bool shift = (keystate & ShiftMask) != 0;
           bool ctrl = (keystate & ControlMask) != 0;
 
@@ -231,7 +273,11 @@ namespace gui {
                   }
                 }
               } else if (cursor_pos > 0) {
-                set_cursor_pos(cursor_pos - 1, shift);
+                int cp = cursor_pos - 1;
+                while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
+                  --cp;
+                }
+                set_cursor_pos(cp, shift);
                 return true;
               }
               set_cursor_pos(0, shift);
@@ -251,8 +297,12 @@ namespace gui {
                 } else {
                   set_cursor_pos(get_text_length(), shift);
                 }
-              } else {
-                set_cursor_pos(get_cursor_pos() + 1, shift);
+              } else if (cursor_pos < get_text_length ()) {
+                int cp = cursor_pos + 1;
+                while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+                  ++cp;
+                }
+                set_cursor_pos(cp, shift);
               }
               return true;
             case XK_Home:
@@ -266,7 +316,11 @@ namespace gui {
             case XK_Delete:
             case XK_KP_Delete:
               if (selection.empty()) {
-                text.replace(cursor_pos, 1, std::string());
+                int cp = cursor_pos + 1;
+                while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+                  ++cp;
+                }
+                text.replace(cursor_pos, cp - cursor_pos, std::string());
                 redraw_later();
               } else {
                 replace_selection(std::string());
@@ -276,8 +330,12 @@ namespace gui {
             case XK_BackSpace:
               if (selection.empty()) {
                 if (cursor_pos > 0) {
-                  text.replace(cursor_pos - 1, 1, std::string());
-                  set_cursor_pos(get_cursor_pos() - 1, false);
+                  int cp = cursor_pos - 1;
+                  while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
+                    --cp;
+                  }
+                  text.replace(cp, cursor_pos - cp, std::string());
+                  set_cursor_pos(cp, false);
                 }
               } else {
                 replace_selection(std::string());
@@ -309,11 +367,8 @@ namespace gui {
               if (ctrl) {
                 LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
               } else {
-                char text[8] = {0};
-                KeySym key;
-                int len = XLookupString(e, text, 8, &key, 0);
-                if (len) {
-                  replace_selection(std::string(text, len));
+                if (chars.size()) {
+                  replace_selection(chars);
                   set_cursor_pos(selection.last, false);
                 }
               }

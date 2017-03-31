@@ -25,6 +25,7 @@
 //
 // Library includes
 //
+#include <X11/Xlib.h>
 #include "window_event_handler.h"
 #include "window.h"
 
@@ -122,6 +123,26 @@ namespace gui {
 #elif X11
     namespace detail {
       Atom WM_CREATE_WINDOW = 0;
+      std::map<Window, XIC> s_window_ic_map;
+    }
+
+    // --------------------------------------------------------------------------
+    std::string get_key_chars(const core::event& e) {
+      std::map<Window, XIC>::iterator i = detail::s_window_ic_map.find(e.xany.window);
+      if (i != detail::s_window_ic_map.end()) {
+        XIC ic = i->second;
+        Status status;
+        char text[8] = {0};
+        int len = Xutf8LookupString(ic, const_cast<XKeyEvent*>(&e.xkey), text, 8, nullptr, &status);
+        if (status == XLookupChars) {
+          return std::string(text, len);
+        }
+      } else {
+        char text[8] = {0};
+        int len = XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, nullptr, 0);
+        return std::string(text, len);
+      }
+      return std::string();
     }
 
     // --------------------------------------------------------------------------

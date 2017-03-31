@@ -457,6 +457,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
       extern Atom WM_CREATE_WINDOW;
+      extern std::map<Window, XIC> s_window_ic_map;
     }
 
     template <core::event_id id, core::event_id btn, int sts>
@@ -537,6 +538,8 @@ namespace gui {
       return XLookupKeysym(const_cast<T*>(&e.xkey), 0);
     }
     // --------------------------------------------------------------------------
+    std::string get_key_chars(const core::event& e);
+    // --------------------------------------------------------------------------
     template<typename T>
     inline T* get_event_ptr(const core::event& e) {
       return const_cast<T*>(&(cast_event_type<T>(e)));
@@ -581,10 +584,10 @@ namespace gui {
     typedef event_handlerT<KeyPress,
                            three_param_caller<unsigned int,
                                               KeySym,
-                                              XKeyEvent*,
+                                              std::string,
                                               get_state<XKeyEvent>,
                                               get_keycode<XKeyEvent>,
-                                              get_event_ptr<XKeyEvent>>>          key_down_event;
+                                              get_key_chars>>                       key_down_event;
 
     typedef event_handlerT<KeyRelease,
                            two_param_caller<unsigned int,

@@ -412,19 +412,19 @@ namespace gui {
 
             auto up = up_button_place(place);
             g.fill(draw::rectangle(up), draw::color::buttonColor);
-            g.draw_relief(up, state == Up_button_pressed);
-            g.text(draw::text_box(" < ", up, draw::center),
+            draw::frame::deep_relief(g, up, state == Up_button_pressed);
+            g.text(draw::text_box("<", up, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
             auto down = down_button_place(place);
             g.fill(draw::rectangle(down), draw::color::buttonColor);
-            g.draw_relief(down, state == Down_button_pressed);
-            g.text(draw::text_box(" > ", down, draw::center),
+            draw::frame::deep_relief(g, down, state == Down_button_pressed);
+            g.text(draw::text_box(">", down, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
             auto thumb = thumb_button_place(place);
             g.fill(draw::rectangle(thumb), draw::color::buttonColor);
-            g.draw_relief(thumb, false);
+            draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:
@@ -555,19 +555,19 @@ namespace gui {
 
             auto up = up_button_place(place);
             g.fill(draw::rectangle(up), draw::color::buttonColor);
-            g.draw_relief(up, state == Up_button_pressed);
-            g.text(draw::text_box(u8" \u2227 ", up, draw::center),
+            draw::frame::deep_relief(g, up, state == Up_button_pressed);
+            g.text(draw::text_box(u8"\u2227", up, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
             auto down = down_button_place(place);
             g.fill(draw::rectangle(down), draw::color::buttonColor);
-            g.draw_relief(down, state == Down_button_pressed);
-            g.text(draw::text_box(u8" \u2228 ", down, draw::center),
+            draw::frame::deep_relief(g, down, state == Down_button_pressed);
+            g.text(draw::text_box(u8"\u2228", down, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
             auto thumb = thumb_button_place(place);
             g.fill(draw::rectangle(thumb), draw::color::buttonColor);
-            g.draw_relief(thumb, false);
+            draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:

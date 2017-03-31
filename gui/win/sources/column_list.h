@@ -40,16 +40,20 @@ namespace gui {
     class column_list : public owner_draw {
     public:
       struct column {
-        column (core::size::type width, float weight = 0.0F)
+        column (core::size::type width,
+                float weight = 0.0F,
+                draw::text_origin align = draw::vcenter_left)
           : min_width(width)
           , width(width)
           , weight(weight)
+          , align(align)
         {}
 
         std::string       title;
         core::size::type  min_width;
         core::size::type  width;
         float		          weight;
+        draw::text_origin align;
       };
 
       typedef std::vector<column> columns_t;
@@ -57,22 +61,25 @@ namespace gui {
       typedef void(cell_draw)(draw::graphics&,
                               int idx, int idy,
                               const core::rectangle& place,
+                              const column& col,
                               bool selected);
 
 
       // --------------------------------------------------------------------------
       // static data for list.
       // --------------------------------------------------------------------------
-      template<typename T>
+      template<typename T,
+               void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
       struct data : public std::vector<std::vector<T>> {
-        typedef std::vector<std::vector<T>> super;
+        typedef std::vector<T> row;
+        typedef std::vector<row> super;
 
         typedef typename super::iterator iterator;
 
         data()
         {}
 
-        data (std::initializer_list<std::initializer_list<T>> args)
+        data (std::initializer_list<row> args)
           : super(args)
         {}
 
@@ -81,7 +88,7 @@ namespace gui {
         {}
 
         template<size_t N>
-        data (const T(&t) [N])
+        data (const row(&t) [N])
           : super(t, t + N)
         {}
 
@@ -93,15 +100,18 @@ namespace gui {
         void operator() (draw::graphics& g,
                          int idx, int idy,
                          const core::rectangle& place,
+                         const column& c,
                          bool selected) {
-          draw_text_item(g, ostreamfmt(super::at(idx).at(idy)), place, selected);
-          g.draw_relief(place, true);
+          draw_text_item(g, ostreamfmt(super::at(idx).at(idy)), place, selected, c.align);
+          if (!selected) {
+            F(g, place);
+          }
         }
 
       };
 
-      column_list();
-      ~column_list();
+      column_list ();
+      ~column_list ();
 
       void set_drawer (std::function<cell_draw> drawer,
                        int item_height = 20);
@@ -117,19 +127,21 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      template<typename T>
+      template<typename T,
+               void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
       void create (const container& parent,
                    const core::rectangle& place,
                    const columns_t& val,
-                   data<T> data,
+                   data<T, F> data,
                    int item_height = 20) {
         create(parent, place);
         set_columns(val);
         set_data(data, item_height);
       }
 
-      template<typename T>
-      void set_data (data<T> data,
+      template<typename T,
+               void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+      void set_data (data<T, F> data,
                      int item_height = 20) {
         set_drawer(data, item_height);
         set_count(data.size());
@@ -167,11 +179,17 @@ namespace gui {
         return list.is_vscroll_bar_enabled();
       }
 
+      inline bool is_vscroll_bar_visible () const {
+        return list.is_vscroll_bar_visible();
+      }
+
+      core::size client_size () const;
+
     private:
-      void draw_line (draw::graphics& g,
-                      int idx,
-                      const core::rectangle& place,
-                      bool selected);
+      void draw_cells (draw::graphics& g,
+                       int idx,
+                       const core::rectangle& place,
+                       bool selected);
 
       //bool column_list_handle_event (const core::event& e,
       //                               core::event_result& result);

@@ -71,6 +71,12 @@ namespace gui {
       HGDIOBJ old;
     };
 
+    void line::operator() (graphics& g, const pen& p) const {
+      Use<pen> pn(g, p);
+      MoveToEx(gc, from.x(), from.y(), nullptr);
+      LineTo(gc, to.x(), to.y());
+    }
+
     void rectangle::operator() (graphics& g,
                                 const brush& b,
                                 const pen& p) const {
@@ -335,14 +341,6 @@ namespace gui {
       return GetPixel(gc, pt.x(), pt.y());
     }
 
-    void graphics::draw_line (const core::point& from,
-                             const core::point& to,
-                             const pen& p) {
-      Use<pen> pn(gc, p);
-      MoveToEx(gc, from.x(), from.y(), nullptr);
-      LineTo(gc, to.x(), to.y());
-    }
-
     void graphics::draw_lines (std::initializer_list<core::point> points,
                               const pen& p) {
       Use<pen> pn(gc, p);
@@ -426,6 +424,11 @@ namespace gui {
       } else {
         XftDrawChange(s_xft, win);
       }
+    }
+
+    void line::operator() (graphics& g, const pen& p) const {
+      Use<pen> pn(g, p);
+      XDrawLine(core::global::get_instance(), g, g, from.x(), from.y(), to.x(), to.y());
     }
 
     void rectangle::operator() (graphics& g,
@@ -888,14 +891,6 @@ namespace gui {
       return color::black;
     }
 
-    void graphics::draw_line (const core::point& from,
-                              const core::point& to,
-                              const pen& p) {
-      Use<pen> pn(gc, p);
-      XDrawLine(core::global::get_instance(), win, gc,
-                from.x(), from.y(), to.x(), to.y());
-    }
-
     void graphics::draw_lines (std::initializer_list<core::point> points,
                                const pen& p) {
 
@@ -948,35 +943,52 @@ namespace gui {
       drawer(*this, f, c);
     }
 
-    void graphics::draw_relief (const core::rectangle& area, bool sunken, bool single) {
-      const core::point& tl = area.top_left();
-      const core::point& br = area.bottom_right();
+    namespace frame {
 
-      const core::point::type one = core::point::type(1);
-      core::point::type x0 = tl.x();
-      core::point::type x3 = br.x();
-      core::point::type y0 = tl.y();
-      core::point::type y3 = br.y();
-
-      draw_lines({{x0, y3}, {x0, y0}, {x3, y0}},
-                 sunken ? color::gray
-                        : color::white);
-      draw_lines({{x0, y3}, {x3, y3}, {x3, y0}},
-                 sunken ? color::white
-                        : color::gray);
-      if (!single) {
-        core::point::type x1 = x0 + one;
-        core::point::type x2 = x3 - one;
-        core::point::type y1 = y0 + one;
-        core::point::type y2 = y3 - one;
-        draw_lines({{x1, y2}, {x1, y1}, {x2, y1}},
-                   sunken ? color::darkGray
-                          : color::veryLightGray);
-        draw_lines({{x1, y2}, {x2, y2}, {x2, y1}},
-                   sunken ? color::veryLightGray
-                          : color::mediumGray);
+      void lines (draw::graphics& g, const core::rectangle& place) {
+        g.draw_lines({place.bottom_left(), place.bottom_right(), place.top_right()}, color::veryLightGray);
       }
-    }
+
+      void vline (draw::graphics& g, const core::rectangle& place) {
+        g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray);
+      }
+
+      void hline (draw::graphics& g, const core::rectangle& place) {
+        g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray);
+      }
+
+      void raised_relief (draw::graphics& g, const core::rectangle& area) {
+        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::white);
+        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::gray);
+      }
+
+      void sunken_relief (draw::graphics& g, const core::rectangle& area) {
+        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::gray);
+        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::white);
+      }
+
+      void raised_deep_relief (draw::graphics& g, const core::rectangle& area) {
+        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::white);
+        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::gray);
+
+        const core::point pp = core::point(1, 1);
+        const core::point pm = core::point(1, -1);
+        g.draw_lines({ area.bottom_left() + pm, area.top_left() + pp, area.top_right() - pm }, color::veryLightGray);
+        g.draw_lines({ area.bottom_left() + pm, area.bottom_right() - pp, area.top_right() - pm }, color::mediumGray);
+      }
+
+      void sunken_deep_relief (draw::graphics& g, const core::rectangle& area) {
+        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::gray);
+        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::white);
+
+        const core::point pp = core::point(1, 1);
+        const core::point pm = core::point(1, -1);
+        g.draw_lines({ area.bottom_left() + pm, area.top_left() + pp, area.top_right() - pm }, color::darkGray);
+        g.draw_lines({ area.bottom_left() + pm, area.bottom_right() - pp, area.top_right() - pm }, color::veryLightGray);
+      }
+
+    } // frame
+
   }
 
 }

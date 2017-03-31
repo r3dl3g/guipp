@@ -654,17 +654,19 @@ void my_main_window::created_children () {
 
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  win::column_list::columns_t columns;
-  columns.push_back(win::column_list::column(30, 0.7F));
-  columns.push_back(win::column_list::column(30, 0.3F));
-  columns.push_back(win::column_list::column(40));
+  win::column_list::columns_t columns = {
+    win::column_list::column(30, 0.0F, draw::vcenter_right),
+    win::column_list::column(30, 0.3F, draw::center),
+    win::column_list::column(30, 0.7F, draw::vcenter_left)
+  };
 
-  win::column_list::data<int> col_data;
-  col_data.push_back({ 1, 2, 3 });
-  col_data.push_back({ 3, 4, 5 });
-  col_data.push_back({ 5, 6, 7 });
-  col_data.push_back({ 7, 8, 9 });
-  col_data.push_back({ 9, 10, 11 });
+  win::column_list::data<int, draw::frame::lines> col_data = {
+    { 1, 2, 3 },
+    { 3, 4, 5 },
+    { 5, 6, 7 },
+    { 7, 8, 9 },
+    { 9, 10, 11 }
+  };
 
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
   vsplit_view.first.second.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);

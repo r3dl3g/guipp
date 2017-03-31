@@ -67,6 +67,7 @@ namespace gui {
         };
 
         edit_base ();
+        ~edit_base ();
 
         void set_selection (const range& sel);
         range get_selection () const;
@@ -85,10 +86,14 @@ namespace gui {
         void register_handler();
 
 #ifdef X11
+        void prepare_input ();
+
         range selection;
         pos_t cursor_pos;
         pos_t text_limit;
         pos_t scroll_pos;
+        XIM im;
+        XIC ic;
 #endif // X11
       };
     }
@@ -109,6 +114,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
         super::create(clazz, parent, place);
+        prepare_input();
         set_text(txt);
       }
 

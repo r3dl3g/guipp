@@ -89,8 +89,6 @@ namespace gui {
       void move_children (const core::point& delta);
 
     protected:
-      friend class scroll_view;
-
       vscroll_bar& get_vscroll ();
       hscroll_bar& get_hscroll ();
       client_window& get_edge ();

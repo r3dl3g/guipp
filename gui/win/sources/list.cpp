@@ -87,8 +87,7 @@ namespace gui {
       // first check, if needed.
       if (enable && (get_count() * get_item_height() > size().height())) {
         ShowScrollBar(get_id(), SB_VERT, true);
-      }
-      else {
+      } else {
         ShowScrollBar(get_id(), SB_VERT, false);
       }
     }
@@ -123,6 +122,15 @@ namespace gui {
     {}
 
 #endif // WIN32
+
+    core::size list::client_size () const {
+      core::size sz = super::client_size();
+      if (is_vscroll_bar_enabled()) {
+        sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
+      }
+      return sz;
+    }
+
 
 #ifdef X11
     list::list ()
@@ -202,13 +210,17 @@ namespace gui {
       return r;
     }
 
-    void list::enable_vscroll_bar(bool enable) {
+    void list::enable_vscroll_bar (bool enable) {
       scrollbar.enable(enable);
       scrollbar.set_visible(enable && scrollbar.get_max());
     }
 
-    bool list::is_vscroll_bar_enabled() const {
+    bool list::is_vscroll_bar_enabled () const {
       return scrollbar.is_enabled();
+    }
+
+    bool list::is_vscroll_bar_visible () const {
+      return scrollbar.is_visible();
     }
 
     bool list::list_handle_event (const core::event& e,
@@ -222,7 +234,7 @@ namespace gui {
           const int first = get_scroll_pos() / get_item_height();
 
           place.top_left({place.x(), core::point::type(get_item_height() * first - get_scroll_pos())});
-          place.height(get_item_height());
+          place.height(get_item_height() - 1);
 
           for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move(get_item_size())) {
             draw_item(g, idx, place, get_selection() == idx);

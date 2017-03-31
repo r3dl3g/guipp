@@ -123,7 +123,7 @@ namespace gui {
 
       core::point absolute_position () const;
 
-      core::size client_size () const;
+      virtual core::size client_size () const;
 
       core::rectangle client_area () const;
 

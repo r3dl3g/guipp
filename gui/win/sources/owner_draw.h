@@ -66,7 +66,8 @@ namespace gui {
       static void draw_text_item (draw::graphics&,
                                   const std::string& text,
                                   const core::rectangle& place,
-                                  bool selected);
+                                  bool selected,
+                                  draw::text_origin origin = draw::vcenter_left);
 
     protected:
       void create (const gui::win::window_class& clazz,

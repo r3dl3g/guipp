@@ -77,7 +77,7 @@ namespace gui {
         return true;
       } else if ((e.type == ButtonRelease) &&
                  (e.xbutton.button == Button1) &&
-                 ((e.xbutton.state & Button1Mask) == Button1Mask)) {
+                 left_button_bit_mask::is_set(e.xbutton.state)) {
         if (is_enabled()) {
           send_client_message(this, detail::BN_UNPUSHED_MESSAGE);
           core::point p = get_param<core::point, XButtonEvent>(e);

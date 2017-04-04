@@ -99,6 +99,7 @@ namespace gui {
         , scroll_pos(0)
         , im(0)
         , ic(0)
+        , last_mouse_point(core::point::undefined)
     {}
 
       window_class edit_base::register_edit_class (gui::win::alignment_h a) {
@@ -214,8 +215,19 @@ namespace gui {
         }
       }
 
+      edit_base::pos_t edit_base::get_char_at_point (const core::point& pt) {
+          pos_t max_chars = text.size();
+          for (pos_t i = scroll_pos + 1; i < max_chars; ++i) {
+            core::size sz = draw::font::system().get_text_size(text.substr(scroll_pos, i - scroll_pos));
+            if (sz.width() >= pt.x()) {
+              return i - 1;
+            }
+          }
+          return max_chars;
+      }
+
       void edit_base::register_handler () {
-        register_event_handler(gui::win::paint_event([&] (gui::draw::graphics& graph) {
+        register_event_handler(paint_event([&] (gui::draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);
@@ -254,9 +266,9 @@ namespace gui {
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
 #endif // SHOW_TEXT_AREA
         }));
-        register_event_handler(gui::win::key_down_event([&] (unsigned int keystate,
-                                                             KeySym keycode,
-                                                             const std::string& chars) {
+        register_event_handler(key_down_event([&] (unsigned int keystate,
+                                                   KeySym keycode,
+                                                   const std::string& chars) {
           bool shift = (keystate & ShiftMask) != 0;
           bool ctrl = (keystate & ControlMask) != 0;
 
@@ -376,6 +388,18 @@ namespace gui {
                 }
               }
             }
+          }
+        }));
+        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+          last_mouse_point = pt;
+          set_cursor_pos(get_char_at_point(pt));
+        }));
+        register_event_handler(left_btn_up_event([&](const core::point& pt) {
+          last_mouse_point = core::point::undefined;
+        }));
+        register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
+          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+            set_cursor_pos(get_char_at_point(pt), true);
           }
         }));
       }

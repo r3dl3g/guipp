@@ -28,8 +28,8 @@ namespace gui {
     int owner_draw::next_owner_draw_id = 0;
 
 // --------------------------------------------------------------------------
-    void owner_draw::draw_text_item (draw::graphics& g,
-                                     const std::string& text,
+    void owner_draw::draw_text_item (const std::string& text,
+                                     draw::graphics& g,
                                      const core::rectangle& place,
                                      bool selected,
                                      draw::text_origin origin) {

@@ -22,7 +22,6 @@
 //
 // Common includes
 //
-#include<ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
@@ -43,6 +42,7 @@ namespace gui {
 
       owner_draw ()
         : owner_draw_id(++next_owner_draw_id)
+        , item_size(1, 1)
       {}
 
       int get_owner_draw_id () const {
@@ -63,8 +63,8 @@ namespace gui {
 
       static const gui::core::size& get_item_size (int id);
 
-      static void draw_text_item (draw::graphics&,
-                                  const std::string& text,
+      static void draw_text_item (const std::string& text,
+                                  draw::graphics&,
                                   const core::rectangle& place,
                                   bool selected,
                                   draw::text_origin origin = draw::vcenter_left);

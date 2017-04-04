@@ -36,7 +36,7 @@ namespace gui {
   namespace win {
 
 #ifdef WIN32
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     int get_scroll_pos(const core::event& e);
 
     struct scroll_matcher {
@@ -46,20 +46,20 @@ namespace gui {
     typedef event_handlerT<WM_COMMAND,
                            one_param_caller<int, get_scroll_pos>,
                            0, scroll_matcher>                  scroll_event;
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     namespace detail {
       extern Atom SCROLLBAR_MESSAGE;
     }
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     typedef event_handlerT<ClientMessage,
                            one_param_caller<int, get_client_data<int, 0>>, 0,
                            client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 #endif // X11
 
     class scroll_bar : public window {
@@ -81,6 +81,8 @@ namespace gui {
 
     protected:
       scroll_bar ();
+
+      void set_value (int v, bool notify);
 
       void create (const window_class& type,
                    const container& parent,

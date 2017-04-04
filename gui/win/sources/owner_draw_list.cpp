@@ -73,21 +73,13 @@ namespace gui {
       set_item_size(sz);
     }
 
-    void owner_draw_list::draw_item (draw::graphics& g,
-                                     int idx,
+    void owner_draw_list::draw_item (int idx,
+                                     draw::graphics& g,
                                      const core::rectangle& place,
                                      bool selected) {
       if (drawer) {
-        drawer(g, idx, place, selected);
+        drawer(idx, g, place, selected);
       }
-    }
-
-    template<>
-    inline void owner_draw_list::data<std::string>::operator() (draw::graphics& g,
-                                                                int idx,
-                                                                const core::rectangle& place,
-                                                                bool selected) {
-      draw_text_item(g, at(idx), place, selected);
     }
 
   }

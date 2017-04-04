@@ -22,6 +22,7 @@
 //
 // Common includes
 //
+#include<ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
@@ -34,6 +35,69 @@
 namespace gui {
 
   namespace win {
+
+    template<typename T>
+    inline std::string convert_to_string(const T& t) {
+      return ostreamfmt(t);
+    }
+
+    template<>
+    inline std::string convert_to_string<std::string>(const std::string& t) {
+      return t;
+    }
+
+    template<typename T,
+             draw::text_origin O = draw::vcenter_left,
+             void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+    void list_item_drawer (const T& t,
+                           draw::graphics& g,
+                           const core::rectangle& place,
+                           bool selected) {
+      owner_draw::draw_text_item(convert_to_string<T>(t), g, place, selected, O);
+      if (!selected) {
+        F(g, place);
+      }
+    }
+
+    // static data for list.
+    // --------------------------------------------------------------------------
+    template<typename T,
+             void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
+    struct simple_list_data : public std::vector<T> {
+      typedef std::vector<T> super;
+
+      typedef typename super::iterator iterator;
+
+      simple_list_data ()
+      {}
+
+      simple_list_data (std::initializer_list<T> args)
+        : super(args)
+      {}
+
+      simple_list_data (iterator b, iterator e)
+        : super(b, e)
+      {}
+
+      template<size_t N>
+      simple_list_data (const T (& t)[N])
+        : super(t, t + N)
+      {}
+
+      template<typename L>
+      void update_list (L& l) {
+        l.set_count(super::size());
+      }
+
+      void operator() (int idx,
+                       draw::graphics& g,
+                       const core::rectangle& place,
+                       bool selected) {
+        F(super::at(idx), g, place, selected);
+      }
+
+    };
+
 
 #ifdef X11
     namespace detail {
@@ -50,50 +114,10 @@ namespace gui {
     public:
       typedef owner_draw super;
 
-      typedef void(item_draw) (draw::graphics&,
-                               int idx,
+      typedef void(item_draw) (int idx,
+                               draw::graphics&,
                                const core::rectangle& place,
                                bool selected);
-
-      // --------------------------------------------------------------------------
-      // static data for list.
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct data : public std::vector<T> {
-        typedef std::vector<T> super;
-
-        typedef typename super::iterator iterator;
-
-        data ()
-        {}
-
-        data (std::initializer_list<T> args)
-          : super(args)
-        {}
-
-        data (iterator b,
-              iterator e)
-          : super(b, e)
-        {}
-
-        template<size_t N>
-        data (const T (& t)[N])
-          : super(t, t + N)
-        {}
-
-        template<typename L>
-        void update_list (L& l) {
-          l.set_count(super::size());
-        }
-
-        void operator() (draw::graphics& g,
-                          int idx,
-                          const core::rectangle& place,
-                          bool selected) {
-          draw_text_item(g, ostreamfmt(super::at(idx)), place, selected);
-        }
-
-      };
 
       owner_draw_list ();
       ~owner_draw_list ();
@@ -102,8 +126,8 @@ namespace gui {
                        const core::size& sz = {20, 20});
 
     protected:
-      void draw_item (draw::graphics&,
-                      int idx,
+      void draw_item (int idx,
+                      draw::graphics&,
                       const core::rectangle& place,
                       bool selected);
 

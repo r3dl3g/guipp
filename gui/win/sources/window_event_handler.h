@@ -1,5 +1,5 @@
 /**
-* @copyright (c) 2015-2016 Ing. Buero Rothfuss
+* @copyright (c) 2016-2017 Ing. Buero Rothfuss
 *                          Riedlinger Str. 8
 *                          70327 Stuttgart
 *                          Germany
@@ -43,6 +43,33 @@
 namespace gui {
 
   namespace win {
+
+    namespace detail {
+
+      template<typename T, T mask>
+      struct bit_mask {
+        static bool is_set (T value) {
+          return (value & mask) == mask;
+        }
+
+        static bool is_not_set (T value) {
+          return (value & mask) == 0;
+        }
+      };
+
+    }
+
+#ifdef WIN32
+    typedef detail::bit_mask<unsigned int, MK_LBUTTON> left_button_bit_mask;
+    typedef detail::bit_mask<unsigned int, MK_MBUTTON> middle_button_bit_mask;
+    typedef detail::bit_mask<unsigned int, MK_RBUTTON> right_button_bit_mask;
+#endif // WIN32
+#ifdef X11
+    typedef detail::bit_mask<unsigned int, Button1Mask> left_button_bit_mask;
+    typedef detail::bit_mask<unsigned int, Button2Mask> middle_button_bit_mask;
+    typedef detail::bit_mask<unsigned int, Button3Mask> right_button_bit_mask;
+#endif // X11
+
     class window;
 
 #ifdef WIN32

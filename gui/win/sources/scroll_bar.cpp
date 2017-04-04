@@ -181,6 +181,10 @@ namespace gui {
     }
 
     void scroll_bar::set_value (int i) {
+      set_value (i, false);
+    }
+
+    void scroll_bar::set_value (int i, bool notify) {
       if (i != get_value()) {
         SCROLLINFO si = {sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, i, i};
         SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
@@ -254,13 +258,20 @@ namespace gui {
     }
 
     void scroll_bar::set_value (int i) {
+      set_value(i, false);
+    }
+
+    void scroll_bar::set_value (int i, bool notify) {
       i = std::min(std::max(i, min), max);
       if (i != value) {
         value = i;
         redraw_later();
-        send_client_message(this, detail::SCROLLBAR_MESSAGE, value);
+        if (notify) {
+          send_client_message(this, detail::SCROLLBAR_MESSAGE, value);
+        }
       }
     }
+
 
     bool scroll_bar::scroll_handle_event (const core::event& e, core::event_result& result) {
       return false;
@@ -465,33 +476,33 @@ namespace gui {
                 switch (state) {
                   case Up_button_pressed:
                     if (up_button_place(place).is_inside(pt)) {
-                      set_value(get_value() - 1);
+                      set_value(get_value() - 1, true);
                     }
                     break;
                   case Down_button_pressed:
                     if (down_button_place(place).is_inside(pt)) {
-                      set_value(get_value() + 1);
+                      set_value(get_value() + 1, true);
                     }
                     break;
                   case Page_up_pressed:
                     if (page_up_place(place).is_inside(pt)) {
-                      set_value(get_value() - get_step());
+                      set_value(get_value() - get_step(), true);
                     }
                     break;
                   case Page_down_pressed:
                     if (page_down_place(place).is_inside(pt)) {
-                      set_value(get_value() + get_step());
+                      set_value(get_value() + get_step(), true);
                     }
                     break;
                 }
                 break;
               }
               case 6: { // X-Wheel
-                set_value(get_value() - get_step());
+                set_value(get_value() - get_step(), true);
                 return true;
               }
               case 7: { // X-Wheel
-                set_value(get_value() + get_step());
+                set_value(get_value() + get_step(), true);
                 return true;
               }
             }
@@ -499,11 +510,11 @@ namespace gui {
             redraw_later();
             break;
           case MotionNotify:
-            if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+            if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
               if (state == Thumb_button_pressed) {
                 int delta = (int)((e.xmotion.x - last_mouse_point.x()) / get_scale());
-                set_value(last_position + delta);
+                set_value(last_position + delta, true);
               }
               return true;
             }
@@ -513,27 +524,27 @@ namespace gui {
             switch (key) {
               case XK_Left:
               case XK_KP_Left:
-                set_value(get_value() - 1);
+                set_value(get_value() - 1, true);
                 return true;
               case XK_Right:
               case XK_KP_Right:
-                set_value(get_value() + 1);
+                set_value(get_value() + 1, true);
                 return true;
               case XK_Page_Up:
               case XK_KP_Page_Up:
-                set_value(get_value() - get_step());
+                set_value(get_value() - get_step(), true);
                 return true;
               case XK_Page_Down:
               case XK_KP_Page_Down:
-                set_value(get_value() + get_step());
+                set_value(get_value() + get_step(), true);
                 return true;
               case XK_Home:
               case XK_KP_Home:
-                set_value(get_min());
+                set_value(get_min(), true);
                 return true;
               case XK_End:
               case XK_KP_End:
-                set_value(get_min());
+                set_value(get_min(), true);
                 return true;
             }
             break;
@@ -609,33 +620,33 @@ namespace gui {
                 switch (state) {
                   case Up_button_pressed:
                     if (up_button_place(place).is_inside(pt)) {
-                      set_value(get_value() - 1);
+                      set_value(get_value() - 1, true);
                     }
                     break;
                   case Down_button_pressed:
                     if (down_button_place(place).is_inside(pt)) {
-                      set_value(get_value() + 1);
+                      set_value(get_value() + 1, true);
                     }
                     break;
                   case Page_up_pressed:
                     if (page_up_place(place).is_inside(pt)) {
-                      set_value(get_value() - get_step());
+                      set_value(get_value() - get_step(), true);
                     }
                     break;
                   case Page_down_pressed:
                     if (page_down_place(place).is_inside(pt)) {
-                      set_value(get_value() + get_step());
+                      set_value(get_value() + get_step(), true);
                     }
                     break;
                 }
                 break;
               }
               case Button4: { // Y-Wheel
-                set_value(get_value() - get_step());
+                set_value(get_value() - get_step(), true);
                 return true;
               }
               case Button5: { // Y-Wheel
-                set_value(get_value() + get_step());
+                set_value(get_value() + get_step(), true);
                 return true;
               }
             }
@@ -643,11 +654,11 @@ namespace gui {
             redraw_later();
             break;
           case MotionNotify:
-            if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+            if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
               if (state == Thumb_button_pressed) {
                 int delta = (int)((e.xmotion.y - last_mouse_point.y()) / get_scale());
-                set_value(last_position + delta);
+                set_value(last_position + delta, true);
               }
               return true;
             }
@@ -659,27 +670,27 @@ namespace gui {
             switch (key) {
               case XK_Up:
               case XK_KP_Up:
-                set_value(get_value() - 1);
+                set_value(get_value() - 1, true);
                 return true;
               case XK_Down:
               case XK_KP_Down:
-                set_value(get_value() + 1);
+                set_value(get_value() + 1, true);
                 return true;
               case XK_Page_Up:
               case XK_KP_Page_Up:
-                set_value(get_value() - get_step());
+                set_value(get_value() - get_step(), true);
                 return true;
               case XK_Page_Down:
               case XK_KP_Page_Down:
-                set_value(get_value() + get_step());
+                set_value(get_value() + get_step(), true);
                 return true;
               case XK_Home:
               case XK_KP_Home:
-                set_value(get_min());
+                set_value(get_min(), true);
                 return true;
               case XK_End:
               case XK_KP_End:
-                set_value(get_min());
+                set_value(get_min(), true);
                 return true;
             }
             break;

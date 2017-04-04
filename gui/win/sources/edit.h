@@ -87,6 +87,7 @@ namespace gui {
 
 #ifdef X11
         void prepare_input ();
+        pos_t get_char_at_point (const core::point& pt);
 
         range selection;
         pos_t cursor_pos;
@@ -94,6 +95,8 @@ namespace gui {
         pos_t scroll_pos;
         XIM im;
         XIC ic;
+
+        core::point last_mouse_point;
 #endif // X11
       };
     }

@@ -68,7 +68,7 @@ namespace gui {
             core::rectangle place(pdis->rcItem);
             bool selected = (pdis->itemState & ODS_SELECTED);
             place.height(place.height() - 1);
-            draw_item(g, pdis->itemID, place, selected);
+            draw_item(pdis->itemID, g, place, selected);
           }
           }
           return true;
@@ -78,7 +78,7 @@ namespace gui {
 
       list::~list ()
       {}
-    
+
     }
     // --------------------------------------------------------------------------
     template<>
@@ -221,7 +221,7 @@ namespace gui {
     template<>
     core::size listT<false>::client_size () const {
       core::size sz = super::client_size();
-      if (is_scroll_bar_enabled()) {
+      if (is_scroll_bar_visible()) {
         sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
       }
       return sz;
@@ -230,7 +230,7 @@ namespace gui {
     template<>
     core::size listT<true>::client_size() const {
       core::size sz = super::client_size();
-      if (is_scroll_bar_enabled()) {
+      if (is_scroll_bar_visible()) {
         sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
       }
       return sz;
@@ -265,7 +265,7 @@ namespace gui {
     listT<false>::listT () {
       if (!clazz.is_valid()) {
         clazz = window_class::custom_class("HLISTBOX",
-                                           1,
+                                           0,
                                            ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
                                            FocusChangeMask | KeyPressMask | StructureNotifyMask,
                                            0, 0, 0,
@@ -370,7 +370,7 @@ namespace gui {
           place.width(get_item_width() - 1);
 
           for(int idx = first; (idx < max_idx) && (place.x() < max_x); ++idx, place.move_x(get_item_width())) {
-            draw_item(g, idx, place, get_selection() == idx);
+            draw_item(idx, g, place, get_selection() == idx);
           }
           g.flush();
           return true;
@@ -407,7 +407,7 @@ namespace gui {
           }
           break;
         case MotionNotify:
-          if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+          if (left_button_bit_mask::is_set(e.xmotion.state)) {
             if (last_mouse_point != core::point::undefined) {
               int dx = last_mouse_point.x() - e.xmotion.x;
               set_scroll_pos(get_scroll_pos() + dx);
@@ -465,7 +465,7 @@ namespace gui {
     listT<true>::listT () {
       if (!clazz.is_valid()) {
         clazz = window_class::custom_class("VLISTBOX",
-                                           1,
+                                           0,
                                            ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
                                            FocusChangeMask | KeyPressMask | StructureNotifyMask,
                                            0, 0, 0,
@@ -570,7 +570,7 @@ namespace gui {
           place.height(get_item_height() - 1);
 
           for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move_y(get_item_height())) {
-            draw_item(g, idx, place, get_selection() == idx);
+            draw_item(idx, g, place, get_selection() == idx);
           }
           g.flush();
           return true;
@@ -607,7 +607,7 @@ namespace gui {
           }
           break;
         case MotionNotify:
-          if ((e.xmotion.state & Button1Mask) == Button1Mask) {
+          if (left_button_bit_mask::is_set(e.xmotion.state)) {
             if (last_mouse_point != core::point::undefined) {
                 int dy = last_mouse_point.y() - e.xmotion.y;
                 set_scroll_pos(get_scroll_pos() + dy);

@@ -79,17 +79,19 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      template<typename T>
+      template<typename T,
+               void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
-                   data<T> data,
+                   simple_list_data<T, F> data,
                    int item_height = 20) {
         set_data(data, item_height);
         create(parent, place);
       }
 
-      template<typename T>
-      void set_data (data<T> data,
+      template<typename T,
+               void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
+      void set_data (simple_list_data<T, F> data,
                      core::size::type item_height = 20) {
         set_drawer(data, calc_item_size(item_height));
         set_count(data.size());

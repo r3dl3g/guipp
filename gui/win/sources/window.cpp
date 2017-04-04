@@ -298,6 +298,7 @@ namespace gui {
                          core::window_id parent_id,
                          const core::rectangle& place,
                          core::menu_id) {
+//      destroy();
       cls = &type;
       core::instance_id display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
@@ -398,9 +399,11 @@ namespace gui {
     }
 
     void window::destroy () {
-      XDestroyWindow(core::global::get_instance(), get_id());
-      detail::unset_window(get_id());
-      id = 0;
+      if (get_id()) {
+        XDestroyWindow(core::global::get_instance(), get_id());
+        detail::unset_window(get_id());
+        id = 0;
+      }
     }
 
     void window::quit () {
@@ -640,7 +643,7 @@ namespace gui {
       if (!clazz.is_valid()) {
         clazz = win::window_class::custom_class("main_window",
                                                 CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                                WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
+                                                WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
                                                 WS_THICKFRAME | WS_VISIBLE,
                                                 WS_EX_NOPARENTNOTIFY,
                                                 nullptr,
@@ -648,7 +651,7 @@ namespace gui {
                                                 (HBRUSH)(COLOR_APPWORKSPACE + 1));
       }
     }
-    
+
     void main_window::create (const core::rectangle& place) {
       window::create(clazz, GetDesktopWindow(), place);
     }
@@ -789,7 +792,7 @@ namespace gui {
                                         &actual_type_return,
                                         &actual_format_return,
                                         &nitems_return,
-                                        &bytes_after_return, 
+                                        &bytes_after_return,
                                         &prop_return)) {
         if (actual_type_return == ATOM_ATOM) {
           Atom* atoms = (Atom*)prop_return;
@@ -828,7 +831,7 @@ namespace gui {
                             Atom a2 = 0,
                             Atom a3 = 0) {
       auto dpy = core::global::get_instance();
-      
+
       XEvent xev;
       memset(&xev, 0, sizeof(xev));
       xev.type = ClientMessage;

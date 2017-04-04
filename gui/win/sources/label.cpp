@@ -18,7 +18,7 @@
 
 #include "label.h"
 
-#define SHOW_TEXT_AREA
+//#define SHOW_TEXT_AREA
 
 namespace gui {
 

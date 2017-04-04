@@ -116,7 +116,7 @@ namespace gui {
 #endif // X11
         }
         layout.set_slider(&slider);
-        slider.register_event_handler(win::move_event([&] (const core::point&) {
+        slider.register_event_handler(win::slider_event([&] (int) {
           do_layout();
         }));
       }
@@ -139,7 +139,7 @@ namespace gui {
 #endif // X11
         }
         layout.set_slider(&slider);
-        slider.register_event_handler(win::move_event([&] (const core::point&) {
+        slider.register_event_handler(win::slider_event([&] (int) {
           do_layout();
         }));
       }

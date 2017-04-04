@@ -61,11 +61,11 @@ namespace gui {
         split_view::second = right;
       }
 
-      win::slider* get_slider () const {
+      win::detail::slider* get_slider () const {
         return slider;
       }
 
-      void set_slider (win::slider* slider) {
+      void set_slider (win::detail::slider* slider) {
         split_view::slider = slider;
       }
 
@@ -94,7 +94,7 @@ namespace gui {
       const win::container* main;
       win::window* first;
       win::window* second;
-      win::slider* slider;
+      win::detail::slider* slider;
     };
     // --------------------------------------------------------------------------
 
@@ -156,9 +156,10 @@ namespace gui {
 
         void set_split_pos (double pos) {
           slider.place(Layout::get_slider_place(super::client_size(), pos));
+          super::do_layout();
         }
 
-        win::detail::sliderT<H> slider;
+        win::framed_slider_t<H, draw::frame::raised_relief> slider;
 
       private:
         static window_class clazz;
@@ -179,12 +180,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<bool H, typename First, typename Second>
-    class split_viewT : public detail::split_view<H> {
+    class split_view_t : public detail::split_view<H> {
     public:
       typedef detail::split_view<H> super;
       typedef typename super::Layout Layout;
 
-      split_viewT () {
+      split_view_t () {
         super::get_layout().set_first(&first);
         super::get_layout().set_second(&second);
       }

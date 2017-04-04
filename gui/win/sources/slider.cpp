@@ -36,7 +36,7 @@ namespace gui {
     namespace detail {
 
       template <>
-      sliderT<false>::sliderT () {
+      slider_t<false>::slider_t () {
         if (!clazz.is_valid()) {
 #ifdef WIN32
           clazz = win::window_class::custom_class("VSLIDER",
@@ -60,17 +60,23 @@ namespace gui {
         }
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && (keys == IF_WIN32(MK_LBUTTON) IF_X11(Button1Mask))) {
+          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
-            int dx = p.x() - last_mouse_point.x();
-            pt.x(core::point::type(std::min(max, std::max(min, (int)pt.x() + dx))));
-            move(pt);
+            core::point::type new_x = std::min(max, std::max(min, pt.x() + p.x() - last_mouse_point.x()));
+            core::point::type dx = new_x - pt.x();
+            if (dx != 0) {
+              pt.x(new_x);
+              move(pt);
+#ifdef X11
+              send_client_message(this, detail::SLIDER_MESSAGE, dx);
+#endif // X11
+            }
           }
         }));
       }
 
       template <>
-      sliderT<true>::sliderT () {
+      slider_t<true>::slider_t () {
         if (!clazz.is_valid()) {
 #ifdef WIN32
           clazz = win::window_class::custom_class("HSLIDER",
@@ -94,53 +100,66 @@ namespace gui {
         }
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && (keys == IF_WIN32(MK_LBUTTON) IF_X11(Button1Mask))) {
+          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
-            int dy = p.y() - last_mouse_point.y();
-            pt.y(core::point::type(std::min(max, std::max(min, (int)pt.y() + dy))));
-            move(pt);
-          }
+            core::point::type new_y = std::min(max, std::max(min, pt.y() + p.y() - last_mouse_point.y()));
+            core::point::type dy = new_y - pt.y();
+            if (dy != 0) {
+              pt.y(new_y);
+              move(pt);
+#ifdef X11
+              send_client_message(this, detail::SLIDER_MESSAGE, dy);
+#endif // X11
+            }
+           }
           return;
         }));
       }
-    }
 
-    slider::slider ()
-      : min(0)
-      , max(std::numeric_limits<int>::max())
-    {
-      register_event_handler(win::left_btn_down_event([&](const core::point& pt) {
-        IF_WIN32(SetCapture(get_id()));
-        last_mouse_point = pt;
-      }));
-      register_event_handler(win::left_btn_up_event([&](const core::point& pt) {
-        IF_WIN32(ReleaseCapture());
-        last_mouse_point = core::point::undefined;
-      }));
-      register_event_handler(win::paint_event([&](draw::graphics& g) {
-        core::rectangle place = client_area();
 #ifdef X11
-        g.fill(draw::rectangle(place), draw::brush(get_window_class()->get_background()));
+      Atom SLIDER_MESSAGE = 0;
 #endif // X11
-        draw::frame::raised_relief(g, place);
-      }));
-    }
 
-    void slider::set_min (int i) {
-      min = i;
-      redraw_later();
-    }
+      slider::slider ()
+        : min(0)
+        , max(std::numeric_limits<int>::max())
+      {
+#ifdef X11
+        if (!detail::SLIDER_MESSAGE) {
+          detail::SLIDER_MESSAGE = XInternAtom(core::global::get_instance(), "SLIDER_MESSAGE", False);
+        }
+#endif // X11
+        register_event_handler(win::left_btn_down_event([&](const core::point& pt) {
+          IF_WIN32(SetCapture(get_id()));
+          IF_X11(XGrabPointer(core::global::get_instance(), get_id(), False,
+                              ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                              GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+          last_mouse_point = pt;
+        }));
+        register_event_handler(win::left_btn_up_event([&](const core::point& pt) {
+          IF_WIN32(ReleaseCapture());
+          IF_X11(XUngrabPointer(core::global::get_instance(), CurrentTime));
+          last_mouse_point = core::point::undefined;
+        }));
+      }
 
-    void slider::set_max (int i) {
-      max = i;
-      redraw_later();
-    }
+      void slider::set_min (int i) {
+        min = i;
+        redraw_later();
+      }
 
-    void slider::set_min_max (int mi, int ma) {
-      min = mi;
-      max = ma;
-      redraw_later();
-    }
+      void slider::set_max (int i) {
+        max = i;
+        redraw_later();
+      }
+
+      void slider::set_min_max (int mi, int ma) {
+        min = mi;
+        max = ma;
+        redraw_later();
+      }
+
+    } // detail
 
   } // win
 

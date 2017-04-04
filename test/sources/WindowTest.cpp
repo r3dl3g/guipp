@@ -3,16 +3,8 @@
 #include "dbg_win_message.h"
 
 
-struct AsBool {
-  inline AsBool(bool b)
-    : b(b) {
-  }
-
-  bool b;
-};
-
-std::ostream& operator<<(std::ostream& out, const AsBool& b) {
-  out << (b.b ? "true" : "false");
+std::ostream& operator<<(std::ostream& out, const bool& b) {
+  out << (b ? "true" : "false");
   return out;
 }
 
@@ -111,15 +103,15 @@ private:
   win::push_button norm_button;
   win::push_button info_button;
 
-  win::list::data<std::string> data;
+  win::simple_list_data<std::string> data;
 
   win::list list1;
   win::list& list2;
   win::list& list3;
 
-  typedef win::split_viewT<false, win::list, win::list> list_split_view;
-  typedef win::split_viewT<false, win::hlist, win::column_list> column_list_split_view;
-  win::split_viewT<true, list_split_view, column_list_split_view> vsplit_view;
+  typedef win::split_view_t<false, win::list, win::list> list_split_view;
+  typedef win::split_view_t<false, win::hlist, win::simple_column_list> column_list_split_view;
+  win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
 
   win::push_button up_button;
   win::push_button down_button;
@@ -145,7 +137,10 @@ private:
   win::push_button sel_last_plus;
   win::push_button sel_last_minus;
 
-  win::column_list column_list;
+  typedef win::column_list_t<int, std::string, float> my_column_list_t;
+  my_column_list_t column_list;
+  my_column_list_t::standard_data column_list_data;
+  my_column_list_t::row_drawer column_list_drawer;
 
   bool at_paint1;
   bool at_drag;
@@ -311,13 +306,6 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  //window1.register_event_handler(win::move_event([](const core::point& p) {
-  //  LogDebug << "Window1 move: " << p;
-  //}));
-  //window1.register_event_handler(win::size_event([](const core::size& s) {
-  //  LogDebug << "Window1 size: " << s;
-  //}));
-
   auto down_handler = [&] (const core::point& p) {
     at_drag = true;
     last_pos = p;
@@ -404,13 +392,6 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     LogDebug << "Window2 hide:";
   }));
 
-  //window2.register_event_handler(win::mouse_enter_event([]() {
-  //  LogDebug << "Window2 mouse enter";
-  //}));
-  //window2.register_event_handler(win::mouse_leave_event([]() {
-  //  LogDebug << "Window2 mouse leave";
-  //}));
-
 #ifdef WIN32
   ok_button.register_event_handler(win::button_state_event([](bool state) {
     LogDebug << "Button " << (state ? "hilited" : "unhilited");
@@ -468,8 +449,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     query_state();
   }));
 
-  auto list_drawer = [] (draw::graphics& g,
-                         int idx,
+  auto list_drawer = [] (int idx,
+                         draw::graphics& g,
                          const core::rectangle& place,
                          bool selected) {
     using namespace draw;
@@ -477,12 +458,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    g.fill(rectangle(place), selected ? color::highLightColor : color::white);
-    g.text(text_box(strm.str(), place, vcenter_left), font::system(),
-           selected ? color::highLightTextColor : color::windowTextColor);
+    win::owner_draw::draw_text_item(strm.str(), g, place, selected);
   };
 
-  list1.set_drawer(list_drawer, 25);
+  list1.set_drawer(list_drawer, core::size(0, 25));
   list1.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List1 item " << list1.get_selection();
@@ -501,16 +480,22 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
-  list2.set_drawer([&] (draw::graphics& g,
-                        int idx,
+  list2.set_drawer([&] (int idx,
+                        draw::graphics& g,
                         const core::rectangle& place,
                         bool selected) {
-    data(g, idx, place, selected);
-  }, 16);
+    data(idx, g, place, selected);
+  }, core::size(0, 16));
 
   list2.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List2 item " << list2.get_selection() << ": " << data[list2.get_selection()];
+    labelC.set_text(strm.str());
+  }));
+
+  column_list.list.register_event_handler(win::selection_changed_event([&] () {
+    std::ostringstream strm;
+    strm << "column_list item " << column_list.list.get_selection();
     labelC.set_text(strm.str());
   }));
 
@@ -601,6 +586,21 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
+  /*
+    window2.register_event_handler(win::mouse_enter_event([]() {
+    LogDebug << "Window2 mouse enter";
+  }));
+  window2.register_event_handler(win::mouse_leave_event([]() {
+    LogDebug << "Window2 mouse leave";
+  }));
+  window1.register_event_handler(win::move_event([](const core::point& p) {
+    LogDebug << "Window1 move: " << p;
+  }));
+  window1.register_event_handler(win::size_event([](const core::size& s) {
+    LogDebug << "Window1 size: " << s;
+  }));
+  */
+
   register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
 }
 
@@ -654,13 +654,13 @@ void my_main_window::created_children () {
 
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  win::column_list::columns_t columns = {
-    win::column_list::column(30, 0.0F, draw::vcenter_right),
-    win::column_list::column(30, 0.3F, draw::center),
-    win::column_list::column(30, 0.7F, draw::vcenter_left)
+  win::simple_column_list::columns_t columns = {
+    win::column_info(30, 0.0F, draw::vcenter_right),
+    win::column_info(30, 0.0F, draw::center),
+    win::column_info(30, 0.0F, draw::vcenter_left)
   };
 
-  win::column_list::data<int, draw::frame::lines> col_data = {
+  win::simple_column_list_data<int, draw::frame::lines> col_data = {
     { 1, 2, 3 },
     { 3, 4, 5 },
     { 5, 6, 7 },
@@ -669,16 +669,46 @@ void my_main_window::created_children () {
   };
 
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
-  vsplit_view.first.second.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  vsplit_view.second.first.set_data(win::list::data<float>(floats), 25);
+  vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
+  vsplit_view.second.first.set_data(win::simple_list_data<float>(floats), 25);
   vsplit_view.second.second.set_columns(columns);
   vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();
 
   data.update_list(list2);
 
-  column_list.create(main, core::rectangle(580, 50, 100, 250), columns, col_data);
+  column_list_data = { std::make_tuple(1, "eins", 1.1F),
+                       std::make_tuple(2, "zwei", 2.2F),
+                       std::make_tuple(3, "drei", 3.3F) };
+
+  column_list_drawer = {
+    win::cell_drawer<int, draw::frame::lines>,
+    win::cell_drawer<std::string, draw::frame::lines>,
+    win::cell_drawer<float, draw::frame::lines>
+//    [](const int& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
+//      win::owner_draw::draw_text_item(ostreamfmt("i:" << v), g, r, s);
+//    },
+//    [](const std::string& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
+//      win::cell_drawer<std::string, draw::frame::lines>(ostreamfmt("t:" << v), c, g, r, s);
+////      win::owner_draw::draw_text_item(ostreamfmt("t:" << v), g, r, s, c.align);
+//    },
+//    [](const float& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
+//      win::owner_draw::draw_text_item(ostreamfmt("f:" << v), g, r, s, c.align);
+//      draw::frame::lines(g, r);
+//    }
+  };
+
+  column_list.create(main, core::rectangle(580, 50, 140, 250));
+//  column_list.set_data(column_list_data, column_list_data.size());
+  column_list.set_data([](int i){
+    return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i));
+  }, 20);
+  column_list.set_drawer(column_list_drawer);
+  column_list.set_column(0, win::column_info(30, 0.0F));
+  column_list.set_column(1, win::column_info(45, 0.0F));
+  column_list.set_column(2, win::column_info(45, 1.0F, draw::center));
   column_list.set_visible();
+  column_list.do_layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));
   hscroll.set_visible();

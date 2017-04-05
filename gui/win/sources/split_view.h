@@ -151,11 +151,11 @@ namespace gui {
         }
 
         double get_split_pos () const {
-          return super::get_layout().get_split_pos(super::client_size());
+          return super::get_layout().get_split_pos(super::size());
         }
 
         void set_split_pos (double pos) {
-          slider.place(Layout::get_slider_place(super::client_size(), pos));
+          slider.place(Layout::get_slider_place(super::size(), pos));
           super::do_layout();
         }
 

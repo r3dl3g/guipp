@@ -282,6 +282,7 @@ namespace gui {
                                const core::rectangle& place) {
       super::create(clazz, parent, place);
       scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+      adjust_scroll_bar();
     }
 
     template<>
@@ -419,11 +420,7 @@ namespace gui {
           break;
         case ConfigureNotify: {
           scrollbar.place(get_scroll_bar_area());
-          core::size::type iw = get_item_width();
-          int w = (iw * (int)item_count) - size().width();
-
-          scrollbar.set_max(std::max(w, 0));
-          scrollbar.set_visible((w > 0) && is_scroll_bar_enabled());
+          adjust_scroll_bar();
           break;
         }
         case KeyPress: {
@@ -460,6 +457,15 @@ namespace gui {
       return false;
     }
 
+    template<>
+    void listT<false>::adjust_scroll_bar () {
+      core::size::type iw = get_item_width();
+      int w = (iw * (int)item_count) - size().width();
+
+      scrollbar.set_max(std::max(w, 0));
+      scrollbar.set_visible((w > 0) && is_scroll_bar_enabled());
+    }
+
     // --------------------------------------------------------------------------
     template<>
     listT<true>::listT () {
@@ -482,6 +488,7 @@ namespace gui {
                               const core::rectangle& place) {
       super::create(clazz, parent, place);
       scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+      adjust_scroll_bar();
     }
 
     template<>
@@ -619,11 +626,7 @@ namespace gui {
           break;
         case ConfigureNotify: {
           scrollbar.place(get_scroll_bar_area());
-          core::size::type ih = get_item_height();
-          int h = (ih * (int)item_count) - size().height();
-
-          scrollbar.set_max(std::max(h, 0));
-          scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
+          adjust_scroll_bar();
           break;
         }
         case KeyPress: {
@@ -658,6 +661,15 @@ namespace gui {
         }
       }
       return false;
+    }
+
+    template<>
+    void listT<true>::adjust_scroll_bar () {
+      core::size::type ih = get_item_height();
+      int h = (ih * (int)item_count) - size().height();
+
+      scrollbar.set_max(std::max(h, 0));
+      scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
     }
 
 #endif // X11

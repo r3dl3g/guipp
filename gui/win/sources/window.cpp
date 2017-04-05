@@ -298,7 +298,7 @@ namespace gui {
                          core::window_id parent_id,
                          const core::rectangle& place,
                          core::menu_id) {
-//      destroy();
+      destroy();
       cls = &type;
       core::instance_id display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
@@ -473,33 +473,42 @@ namespace gui {
 
     core::size window::size () const {
       Window root;
-      int x, y;
-      unsigned int width, height;
-      unsigned int border_width;
-      unsigned int depth;
-      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return {core::size::type(width), core::size::type(height)};
+      int x = 0, y = 0;
+      unsigned int width = 0, height = 0;
+      unsigned int border_width = 0;
+      unsigned int depth = 0;
+      if (XGetGeometry(core::global::get_instance(), get_id(),
+                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+        return {core::size::type(width), core::size::type(height)};
+      }
+      return core::size::zero;
     }
 
     core::point window::position () const {
       Window root;
-      int x, y;
-      unsigned int width, height;
-      unsigned int border_width;
-      unsigned int depth;
-      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return {core::point::type(x), core::point::type(y)};
+      int x = 0, y = 0;
+      unsigned int width = 0, height = 0;
+      unsigned int border_width = 0;
+      unsigned int depth = 0;
+      if (XGetGeometry(core::global::get_instance(), get_id(),
+                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+        return {core::point::type(x), core::point::type(y)};
+      }
+      return core::point::undefined;
     }
 
     core::rectangle window::place () const {
       Window root;
-      int x, y;
-      unsigned int width, height;
-      unsigned int border_width;
-      unsigned int depth;
-      XGetGeometry(core::global::get_instance(), get_id(), &root, &x, &y, &width, &height, &border_width, &depth);
-      return core::rectangle(core::point::type(x), core::point::type(y),
-                             core::size::type(width), core::size::type(height));
+      int x = 0, y = 0;
+      unsigned int width = 0, height = 0;
+      unsigned int border_width = 0;
+      unsigned int depth = 0;
+      if (XGetGeometry(core::global::get_instance(), get_id(),
+                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+        return core::rectangle(core::point::type(x), core::point::type(y),
+                               core::size::type(width), core::size::type(height));
+      }
+      return core::rectangle::def;
     }
 
     core::rectangle window::absolute_place () const {

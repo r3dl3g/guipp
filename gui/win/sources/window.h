@@ -234,7 +234,11 @@ namespace gui {
       }
 
       void do_layout () {
-        layout.layout(client_size());
+        do_layout_for_size(size());
+      }
+
+      void do_layout_for_size (const core::size& sz) {
+        layout.layout(sz);
       }
 
       inline Layout& get_layout () {

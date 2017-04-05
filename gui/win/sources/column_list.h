@@ -52,66 +52,124 @@ namespace gui {
       draw::text_origin align;
     };
 
+    // --------------------------------------------------------------------------
+    //
+    // forwards
+    //
     namespace detail {
 
-      class base_column_list;
+      class column_list_header;
+
+      class column_list_layout {
+      public:
+        typedef std::vector<column_info> columns_info_list;
+
+        column_list_layout (win::container* m)
+          : main(m)
+          , header(nullptr)
+          , list(nullptr)
+        {}
+
+        void set_header_and_list (detail::column_list_header* h, win::list* l);
+
+        void layout (const core::size& new_size);
+
+        void set_column_count (std::size_t i) {
+          columns.resize(i);
+        }
+
+        std::size_t get_column_count () const {
+          return columns.size();
+        }
+
+        void set_columns (const columns_info_list& val);
+
+        void set_column (columns_info_list::size_type i, const column_info& c);
+
+        const columns_info_list& get_columns () const {
+          return columns;
+        }
+
+        const column_info& get_column (columns_info_list::size_type i) const {
+          return columns[i];
+        }
+
+        column_info& get_column (columns_info_list::size_type i) {
+          return columns[i];
+        }
+
+        void set_column_width (columns_info_list::size_type i, core::size::type w);
+
+        core::size::type get_column_width (columns_info_list::size_type i) const {
+          return columns[i].width;
+        }
+
+      private:
+        columns_info_list columns;
+
+        win::container* main;
+        detail::column_list_header* header;
+        win::list* list;
+      };
 
       // --------------------------------------------------------------------------
-      class column_list_header : public group_window<layout::standard_layout> {
+      class column_list_header_layout {
       public:
         typedef framed_slider_t<false, draw::frame::sunken_relief> slider;
 
-        column_list_header (base_column_list& m)
-          : main(m)
+        column_list_header_layout (win::container* m)
+          : sliders(nullptr)
+          , column_layout(nullptr)
         {}
 
+        void set_sliders (std::vector<slider>* s) {
+          sliders = s;
+        }
+
+        void set_column_list_layout (column_list_layout* cl) {
+          column_layout = cl;
+        }
+
+        void layout (const core::size& new_size);
+
+      private:
+        std::vector<slider>* sliders;
+        column_list_layout* column_layout;
+      };
+
+      // --------------------------------------------------------------------------
+      class column_list_header : public group_window<column_list_header_layout> {
+      public:
+        typedef group_window<layout::standard_layout> super;
+
+        typedef framed_slider_t<false, draw::frame::sunken_relief> slider;
+
+        column_list_header (column_list_layout& m);
+
         void init ();
-        void do_layout ();
 
       private:
         std::vector<slider> sliders;
-        base_column_list& main;
+        column_list_layout& main_layout;
 
         void operator= (column_list_header&) = delete;
       };
 
       // --------------------------------------------------------------------------
-      class base_column_list : public owner_draw {
+      class base_column_list : public layout_container<column_list_layout> {
       public:
-        typedef std::vector<column_info> columns_t;
+        typedef layout_container<column_list_layout> super;
 
         base_column_list ();
         ~base_column_list ();
 
-        const columns_t& get_columns () const {
-          return columns;
-        }
-
-        void set_columns (const columns_t& val);
-        void set_column (columns_t::size_type i, const column_info& c);
-
-        const column_info& get_column (columns_t::size_type i) const {
-          return columns[i];
-        }
-
-        column_info& get_column (columns_t::size_type i) {
-          return columns[i];
-        }
-
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
-
-        void do_layout ();
 
         column_list_header header;
         win::list list;
 
-      protected:
-        void do_layout_intern (const core::size& sz);
-
       private:
-        columns_t columns;
-
         static window_class clazz;
       };
 
@@ -165,7 +223,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class simple_column_list : public detail::base_column_list {
     public:
-      typedef std::vector<column_info> columns_t;
+      typedef std::vector<column_info> columns_info_list;
       typedef detail::base_column_list super;
 
       typedef void(cell_draw)(int row_id, int col_id,
@@ -187,11 +245,11 @@ namespace gui {
                void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
       void create (const container& parent,
                    const core::rectangle& place,
-                   const columns_t& val,
+                   const columns_info_list& val,
                    simple_column_list_data<T, F> data,
                    int item_height = 20) {
         super::create(parent, place);
-        set_columns(val);
+        get_layout().set_columns(val);
         set_data(data, item_height);
       }
 
@@ -282,7 +340,7 @@ namespace gui {
     struct column_list_row_drawer_t : public row_cell_drawer_t<Arguments...> {
       typedef row_cell_drawer_t<Arguments...> super;
 
-      typedef std::vector<column_info> columns_t;
+      typedef std::vector<column_info> columns_info_list;
       typedef column_list_row_t<Arguments...> row;
 
       column_list_row_drawer_t ()
@@ -301,11 +359,11 @@ namespace gui {
       }
 
       template<int I>
-      void draw_cell (const row&, const columns_t&, draw::graphics&, core::rectangle, bool)
+      void draw_cell (const row&, const columns_info_list&, draw::graphics&, core::rectangle, bool)
       {}
 
       template<int I, typename T, typename... Args>
-      void draw_cell (const row& data, const columns_t& cs, draw::graphics& g, core::rectangle place, bool selected) {
+      void draw_cell (const row& data, const columns_info_list& cs, draw::graphics& g, core::rectangle place, bool selected) {
         const column_info& c = cs[I];
         place.width(c.width - 1);
         std::get<I>(*this)(std::get<I>(data), c, g, place, selected);
@@ -314,7 +372,7 @@ namespace gui {
       }
 
       void operator() (const row& data,
-                       const columns_t& cs,
+                       const columns_info_list& cs,
                        draw::graphics& g,
                        const core::rectangle& place,
                        bool selected) {
@@ -327,15 +385,15 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename... Arguments>
       struct column_list_drawer_t {
-        typedef std::vector<column_info> columns_t;
+        typedef std::vector<column_info> columns_info_list;
         typedef column_list_row_t<Arguments...> row;
 
         template<int I>
-        void draw_cell (const row& r, const columns_t& cs, draw::graphics& g, core::rectangle place, bool selected) {
+        void draw_cell (const row& r, const columns_info_list& cs, draw::graphics& g, core::rectangle place, bool selected) {
         }
 
         template<int I, typename T, typename... Args>
-        void draw_cell (const row& r, const columns_t& cs, draw::graphics& g, core::rectangle place, bool selected) {
+        void draw_cell (const row& r, const columns_info_list& cs, draw::graphics& g, core::rectangle place, bool selected) {
           const column_info& c = cs[I];
           place.width(c.width - 1);
           cell_drawer(std::get<I>(r), c, g, place, selected);
@@ -344,7 +402,7 @@ namespace gui {
         }
 
         void operator() (const row& r,
-                         const columns_t& cs,
+                         const columns_info_list& cs,
                          draw::graphics& g,
                          const core::rectangle& place,
                          bool selected) {
@@ -360,6 +418,7 @@ namespace gui {
     public:
       static const std::size_t size = sizeof...(Arguments);
 
+      typedef std::vector<column_info> columns_info_list;
       typedef column_list_row_t<Arguments...> row;
 
       typedef column_list_data_t<Arguments...> standard_data;
@@ -370,7 +429,7 @@ namespace gui {
       typedef row (get_row_data_t)(int idy);
 
       typedef void (draw_row_data_t)(const row&,
-                                     const columns_t& cs,
+                                     const columns_info_list& cs,
                                      draw::graphics& g,
                                      const core::rectangle& place,
                                      bool selected);
@@ -379,7 +438,7 @@ namespace gui {
       typedef std::function<draw_row_data_t> data_drawer;
 
       column_list_t () {
-        set_columns(columns_t(size));
+        get_layout().set_column_count(size);
         set_drawer(standard_drawer());
       }
 
@@ -398,7 +457,7 @@ namespace gui {
                          draw::graphics& g,
                          const core::rectangle& place,
                          bool selected) {
-        drawer(data(row_id), get_columns(), g, place, selected);
+        drawer(data(row_id), get_layout().get_columns(), g, place, selected);
       }
 
       data_drawer drawer;

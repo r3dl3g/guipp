@@ -654,7 +654,7 @@ void my_main_window::created_children () {
 
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  win::simple_column_list::columns_t columns = {
+  win::simple_column_list::columns_info_list columns = {
     win::column_info(30, 0.0F, draw::vcenter_right),
     win::column_info(30, 0.0F, draw::center),
     win::column_info(30, 0.0F, draw::vcenter_left)
@@ -671,7 +671,7 @@ void my_main_window::created_children () {
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
   vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
   vsplit_view.second.first.set_data(win::simple_list_data<float>(floats), 25);
-  vsplit_view.second.second.set_columns(columns);
+  vsplit_view.second.second.get_layout().set_columns(columns);
   vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();
 
@@ -698,17 +698,17 @@ void my_main_window::created_children () {
 //    }
   };
 
-  column_list.create(main, core::rectangle(580, 50, 140, 250));
 //  column_list.set_data(column_list_data, column_list_data.size());
+  column_list.set_drawer(column_list_drawer, 25);
+  column_list.get_layout().set_column(0, win::column_info(30, 0.0F));
+  column_list.get_layout().set_column(1, win::column_info(45, 0.0F));
+  column_list.get_layout().set_column(2, win::column_info(45, 1.0F, draw::center));
   column_list.set_data([](int i){
     return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i));
   }, 20);
-  column_list.set_drawer(column_list_drawer);
-  column_list.set_column(0, win::column_info(30, 0.0F));
-  column_list.set_column(1, win::column_info(45, 0.0F));
-  column_list.set_column(2, win::column_info(45, 1.0F, draw::center));
+  column_list.create(main, core::rectangle(580, 50, 140, 250));
   column_list.set_visible();
-  column_list.do_layout();
+//  column_list.do_layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));
   hscroll.set_visible();

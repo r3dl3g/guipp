@@ -115,6 +115,7 @@ namespace gui {
                                core::event_result& result);
 
       core::rectangle get_scroll_bar_area ();
+      void adjust_scroll_bar ();
 
       detail::scroll_barT<!V> scrollbar;
 #endif // X11
@@ -204,6 +205,12 @@ namespace gui {
 
     template<>
     core::rectangle listT<true>::get_scroll_bar_area ();
+
+    template<>
+    void listT<false>::adjust_scroll_bar ();
+
+    template<>
+    void listT<true>::adjust_scroll_bar ();
 
     template<>
     bool listT<false>::listT_handle_event (const core::event& e,

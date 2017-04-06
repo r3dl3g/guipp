@@ -54,7 +54,7 @@ namespace gui {
       }
 
       bool list::list_handle_event (const core::event& e,
-        core::event_result& result) {
+                                    core::event_result& result) {
         if (e.type == WM_DRAWITEM) {
           PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
           // If there are no list box items, skip this message.
@@ -62,14 +62,13 @@ namespace gui {
             return false;
           }
           switch (pdis->itemAction) {
-          case ODA_SELECT:
-          case ODA_DRAWENTIRE: {
-            draw::graphics g(get_id(), pdis->hDC);
-            core::rectangle place(pdis->rcItem);
-            bool selected = (pdis->itemState & ODS_SELECTED);
-            place.height(place.height() - 1);
-            draw_item(pdis->itemID, g, place, selected);
-          }
+            case ODA_SELECT:
+            case ODA_DRAWENTIRE: {
+              draw::graphics g(get_id(), pdis->hDC);
+              core::rectangle place(pdis->rcItem);
+              bool selected = (pdis->itemState & ODS_SELECTED);
+              draw_item(pdis->itemID, g, place, draw::color::windowColor, selected);
+            }
           }
           return true;
         }

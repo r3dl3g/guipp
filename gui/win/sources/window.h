@@ -223,14 +223,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout>
+    template<typename Layout = layout::standard_layout>
     class layout_container : public container {
     public:
-      typedef L Layout;
+      typedef Layout layout_type;
 
       layout_container ()
         : layout(this) {
-        register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
+        register_event_handler(size_event(core::easy_bind(&layout, &layout_type::layout)));
       }
 
       void do_layout () {
@@ -241,20 +241,20 @@ namespace gui {
         layout.layout(sz);
       }
 
-      inline Layout& get_layout () {
+      inline layout_type& get_layout() {
         return layout;
       };
 
-      inline const Layout& get_layout () const {
+      inline const layout_type& get_layout() const {
         return layout;
       };
 
     protected:
-      Layout layout;
+      layout_type layout;
     };
 
-    extern window_class group_window_class;
-    void init_group_window_class ();
+    extern window_class group_window_clazz;
+    void init_group_window_clazz ();
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout>
@@ -264,8 +264,8 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
-        init_group_window_class();
-        super::create(group_window_class, parent, place);
+        init_group_window_clazz();
+        super::create(group_window_clazz, parent, place);
       }
     };
 

@@ -40,6 +40,7 @@ namespace gui {
     struct size {
       typedef IF_WIN32(LONG) IF_X11(unsigned short) type;
       static const size zero;
+      static const size one;
 
       inline size () {
         sz = {0, 0};
@@ -128,6 +129,7 @@ namespace gui {
     struct point {
       typedef IF_WIN32(LONG) IF_X11(short) type;
       static const point zero;
+      static const point one;
       static const point undefined;
 
       inline point () {

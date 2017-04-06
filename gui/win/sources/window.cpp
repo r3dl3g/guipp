@@ -644,7 +644,7 @@ namespace gui {
     window_class client_window::clazz;
 
     // --------------------------------------------------------------------------
-    window_class group_window_class;
+    window_class group_window_clazz;
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
@@ -654,7 +654,7 @@ namespace gui {
                                                 CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
                                                 WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
                                                 WS_THICKFRAME | WS_VISIBLE,
-                                                WS_EX_NOPARENTNOTIFY,
+                                                WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
                                                 nullptr,
                                                 LoadCursor(nullptr, IDC_ARROW),
                                                 (HBRUSH)(COLOR_APPWORKSPACE + 1));
@@ -888,9 +888,9 @@ namespace gui {
 #endif //X11
 
 #ifdef WIN32
-    void init_group_window_class () {
-      if (!group_window_class.is_valid()) {
-        group_window_class = win::window_class::custom_class("group_window",
+    void init_group_window_clazz () {
+      if (!group_window_clazz.is_valid()) {
+        group_window_clazz = win::window_class::custom_class("group_window",
                                                 CS_DBLCLKS,
                                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                                                 WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
@@ -902,9 +902,9 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void init_group_window_class () {
-      if (!group_window_class.is_valid()) {
-        group_window_class = win::window_class::custom_class("group_window", 0);
+    void init_group_window_clazz () {
+      if (!group_window_clazz.is_valid()) {
+        group_window_clazz = win::window_class::custom_class("group_window", 0);
       }
     }
 #endif //X11

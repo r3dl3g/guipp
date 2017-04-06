@@ -48,6 +48,15 @@ namespace gui {
             slider_event;
     // --------------------------------------------------------------------------
 #endif // X11
+#ifdef WIN32
+    namespace detail {
+      const core::event_id SLIDER_MESSAGE = WM_USER + 1;
+    }
+
+    typedef event_handlerT<detail::SLIDER_MESSAGE,
+                           one_param_caller<int, get_param1<int>>> slider_event;
+    // --------------------------------------------------------------------------
+#endif //WIN32
 
     namespace detail {
 

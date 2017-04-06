@@ -172,7 +172,7 @@ namespace gui {
       }
 
       static inline short double_to_short (double rel) {
-        return int16_t(rel * 10000.0);
+        return short(rel * 10000.0);
       }
 
       std::vector<attachment> attachments;

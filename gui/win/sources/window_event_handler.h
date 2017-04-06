@@ -478,6 +478,9 @@ namespace gui {
       }
     };
 
+    void send_client_message (window* win, core::event_id message, long l1 = 0, long l2 = 0);
+
+
 #endif //WIN32
 
 #ifdef X11

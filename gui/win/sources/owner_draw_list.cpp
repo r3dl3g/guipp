@@ -76,9 +76,10 @@ namespace gui {
     void owner_draw_list::draw_item (int idx,
                                      draw::graphics& g,
                                      const core::rectangle& place,
+                                     const draw::brush& background,
                                      bool selected) {
       if (drawer) {
-        drawer(idx, g, place, selected);
+        drawer(idx, g, place, background, selected);
       }
     }
 

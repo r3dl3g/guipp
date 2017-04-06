@@ -138,7 +138,7 @@ namespace gui {
       class split_view : public layout_container<layout::split_view<H>> {
       public:
         typedef layout_container<layout::split_view<H>> super;
-        typedef typename super::Layout Layout;
+        typedef typename super::layout_type layout_type;
 
         split_view ();
 
@@ -146,7 +146,7 @@ namespace gui {
                      const core::rectangle& place = core::rectangle::def,
                      double split_pos = 0.5) {
           super::create(clazz, parent, place);
-          slider.create(*this, Layout::get_slider_place(place.size(), split_pos));
+          slider.create(*this, layout_type::get_slider_place(place.size(), split_pos));
           slider.set_visible();
         }
 
@@ -155,7 +155,7 @@ namespace gui {
         }
 
         void set_split_pos (double pos) {
-          slider.place(Layout::get_slider_place(super::size(), pos));
+          slider.place(layout_type::get_slider_place(super::size(), pos));
           super::do_layout();
         }
 
@@ -183,7 +183,7 @@ namespace gui {
     class split_view_t : public detail::split_view<H> {
     public:
       typedef detail::split_view<H> super;
-      typedef typename super::Layout Layout;
+      typedef typename super::layout_type layout_type;
 
       split_view_t () {
         super::get_layout().set_first(&first);
@@ -195,9 +195,9 @@ namespace gui {
                    double split_pos = 0.5) {
         super::create(parent, place, split_pos);
         core::size sz = place.size();
-        first.create(*this, Layout::get_first_place(sz, split_pos));
+        first.create(*this, layout_type::get_first_place(sz, split_pos));
         first.set_visible();
-        second.create(*this, Layout::get_second_place(sz, split_pos));
+        second.create(*this, layout_type::get_second_place(sz, split_pos));
         second.set_visible();
       }
 

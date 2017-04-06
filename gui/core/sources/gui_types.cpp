@@ -45,8 +45,12 @@ namespace gui {
 #endif // X11
 
     const size size::zero;
+    const size size::one(1, 1);
+
     const point point::zero;
+    const point point::one(1, 1);
     const point point::undefined(std::numeric_limits<point::type>::min(), std::numeric_limits<point::type>::min());
+
     const rectangle rectangle::zero;
 
     size::size(const size_type& sz)

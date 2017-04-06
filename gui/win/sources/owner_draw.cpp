@@ -31,10 +31,11 @@ namespace gui {
     void owner_draw::draw_text_item (const std::string& text,
                                      draw::graphics& g,
                                      const core::rectangle& place,
+                                     const draw::brush& background,
                                      bool selected,
                                      draw::text_origin origin) {
       using namespace draw;
-      g.fill(rectangle(place), selected ? color::highLightColor : color::white);
+      g.fill(rectangle(place), selected ? color::highLightColor : background);
       g.text(text_box(text, place, origin), font::system(),
              selected ? color::highLightTextColor : color::windowTextColor);
     }

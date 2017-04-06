@@ -121,6 +121,7 @@ namespace gui {
         case Where::y2:
           return calc(outer.y2());
       }
+      return 0;
     }
 
     void attach::attachment::adjust (core::rectangle& rect,

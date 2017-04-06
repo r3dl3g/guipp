@@ -80,7 +80,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
       template<typename T,
-               void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
+               void(F)(const T&, draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
                    simple_list_data<T, F> data,
@@ -90,7 +90,7 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
+               void(F)(const T&, draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
       void set_data (simple_list_data<T, F> data,
                      core::size::type item_height = 20) {
         set_drawer(data, calc_item_size(item_height));

@@ -946,45 +946,50 @@ namespace gui {
     namespace frame {
 
       void lines (draw::graphics& g, const core::rectangle& place) {
-        g.draw_lines({place.bottom_left(), place.bottom_right(), place.top_right()}, color::veryLightGray);
+        core::rectangle r = place - core::size::one;
+        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray);
       }
 
       void vline (draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
         g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray);
       }
 
       void hline (draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
         g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray);
       }
 
-      void raised_relief (draw::graphics& g, const core::rectangle& area) {
-        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::white);
-        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::gray);
+      void raised_relief(draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
       }
 
-      void sunken_relief (draw::graphics& g, const core::rectangle& area) {
-        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::gray);
-        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::white);
+      void sunken_relief(draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
       }
 
-      void raised_deep_relief (draw::graphics& g, const core::rectangle& area) {
-        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::white);
-        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::gray);
+      void raised_deep_relief(draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
 
-        const core::point pp = core::point(1, 1);
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ area.bottom_left() + pm, area.top_left() + pp, area.top_right() - pm }, color::veryLightGray);
-        g.draw_lines({ area.bottom_left() + pm, area.bottom_right() - pp, area.top_right() - pm }, color::mediumGray);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::veryLightGray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::mediumGray);
       }
 
-      void sunken_deep_relief (draw::graphics& g, const core::rectangle& area) {
-        g.draw_lines({ area.bottom_left(), area.top_left(), area.top_right() }, color::gray);
-        g.draw_lines({ area.bottom_left(), area.bottom_right(), area.top_right() }, color::white);
+      void sunken_deep_relief(draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
 
-        const core::point pp = core::point(1, 1);
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ area.bottom_left() + pm, area.top_left() + pp, area.top_right() - pm }, color::darkGray);
-        g.draw_lines({ area.bottom_left() + pm, area.bottom_right() - pp, area.top_right() - pm }, color::veryLightGray);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::darkGray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::veryLightGray);
       }
 
     } // frame

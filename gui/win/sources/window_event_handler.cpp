@@ -67,7 +67,7 @@ namespace gui {
 
     static std::map<core::window_id, bool> s_mouse_inside;
 
-	bool mouse_enter_matcher::operator() (const core::event& e) {
+    bool mouse_enter_matcher::operator() (const core::event& e) {
       switch (e.type) {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {
@@ -117,6 +117,10 @@ namespace gui {
         info->ptMinTrackSize = mi;
         info->ptMaxTrackSize = ma;
       }
+    }
+
+    void send_client_message (window* win, core::event_id message, long l1, long l2) {
+      SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
     }
 
 #elif X11

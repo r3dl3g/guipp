@@ -52,8 +52,9 @@ namespace gui {
     void list_item_drawer (const T& t,
                            draw::graphics& g,
                            const core::rectangle& place,
+                           const draw::brush& background,
                            bool selected) {
-      owner_draw::draw_text_item(convert_to_string<T>(t), g, place, selected, O);
+      owner_draw::draw_text_item(convert_to_string<T>(t), g, place, background, selected, O);
       if (!selected) {
         F(g, place);
       }
@@ -62,7 +63,7 @@ namespace gui {
     // static data for list.
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(const T&, draw::graphics&, const core::rectangle&, bool) = list_item_drawer<T>>
+             void(F)(const T&, draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
     struct simple_list_data : public std::vector<T> {
       typedef std::vector<T> super;
 
@@ -92,8 +93,9 @@ namespace gui {
       void operator() (int idx,
                        draw::graphics& g,
                        const core::rectangle& place,
+                       const draw::brush& background,
                        bool selected) {
-        F(super::at(idx), g, place, selected);
+        F(super::at(idx), g, place, background, selected);
       }
 
     };
@@ -117,6 +119,7 @@ namespace gui {
       typedef void(item_draw) (int idx,
                                draw::graphics&,
                                const core::rectangle& place,
+                               const draw::brush& background,
                                bool selected);
 
       owner_draw_list ();
@@ -129,6 +132,7 @@ namespace gui {
       void draw_item (int idx,
                       draw::graphics&,
                       const core::rectangle& place,
+                      const draw::brush& background,
                       bool selected);
 
 #ifdef X11

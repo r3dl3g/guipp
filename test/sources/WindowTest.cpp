@@ -707,7 +707,7 @@ void my_main_window::created_children () {
   column_list.header.set_cell_drawer([](int i, draw::graphics& g, const core::rectangle& r, const draw::brush&) {
     using namespace draw;
     frame::raised_relief(g, r);
-    g.text(text_box(ostreamfmt((char)('A' + i) << '.'), r, center), font::system(), color::windowTextColor);
+    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor);
   });
   column_list.set_drawer(column_list_drawer, 25);
   column_list.get_column_layout().set_columns(weight_columns);

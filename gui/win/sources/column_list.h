@@ -33,6 +33,12 @@
 
 namespace gui {
 
+  namespace layout {
+
+    typedef core::size::type column_size_type;
+
+  }
+
   namespace win {
 
     inline void default_cell_drawer (int i,
@@ -71,7 +77,7 @@ namespace gui {
 
           std::size_t count = get_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
-            core::size::type w = get_layout().get_column_width(i);
+            layout::column_size_type w = get_layout().get_column_width(i);
             r.width(w - 1);
             if (cell_drawer) {
               cell_drawer(i, g, r, color::buttonColor);
@@ -117,7 +123,7 @@ namespace gui {
   namespace layout {
 
     struct column_info {
-      core::size::type width;
+      column_size_type width;
       draw::text_origin align;
     };
 
@@ -150,7 +156,7 @@ namespace gui {
           return aligns[i];
         }
 
-        inline core::size::type get_column_width(std::size_t i) const {
+        inline column_size_type get_column_width(std::size_t i) const {
           return widths[i];
         }
 
@@ -162,12 +168,12 @@ namespace gui {
           return sliders[i];
         }
 
-        core::size::type get_column_left_pos (std::size_t i) const;
-        core::size::type get_column_right_pos (std::size_t i) const;
+        column_size_type get_column_left_pos(std::size_t i) const;
+        column_size_type get_column_right_pos(std::size_t i) const;
 
         void set_column_align(std::size_t i, draw::text_origin a);
 
-        void set_column_width(std::size_t i, core::size::type w, bool update = true);
+        void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
         void set_slider(std::size_t i, win::detail::slider*);
 
@@ -189,7 +195,7 @@ namespace gui {
 
         std::function<create_sliders> slider_creator;
 
-        std::vector<core::size::type> widths;
+        std::vector<column_size_type> widths;
         std::vector<draw::text_origin> aligns;
         std::vector<slider*> sliders;
 
@@ -201,9 +207,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct simple_column_info {
-      core::size::type width;
+      column_size_type width;
       draw::text_origin align;
-      core::size::type min_width;
+      column_size_type min_width;
     };
 
     // --------------------------------------------------------------------------
@@ -215,7 +221,7 @@ namespace gui {
         : super(m)
       {}
 
-      void set_column_width(std::size_t i, core::size::type w, bool update = true) {
+      void set_column_width(std::size_t i, column_size_type w, bool update = true) {
         super::set_column_width(i, std::max(w, get_column_min_width(i)), update);
       }
 
@@ -230,27 +236,27 @@ namespace gui {
 
       void set_columns(std::initializer_list<simple_column_info> infos, bool update = true);
 
-      void set_column_min_width(std::size_t i, const core::size::type w) {
+      void set_column_min_width(std::size_t i, const column_size_type w) {
         min_widths[i] = w;
         if (get_column_width(i)< get_column_min_width(i)) {
           set_column_width(i, w);
         }
       }
 
-      const core::size::type get_column_min_width(std::size_t i) const {
+      const column_size_type get_column_min_width(std::size_t i) const {
         return min_widths[i];
       }
 
     protected:
-      std::vector<core::size::type> min_widths;
+      std::vector<column_size_type> min_widths;
 
     };
 
     // --------------------------------------------------------------------------
     struct weight_column_info {
-      core::size::type width;
+      column_size_type width;
       draw::text_origin align;
-      core::size::type min_width;
+      column_size_type min_width;
       float weight;
     };
 
@@ -265,7 +271,7 @@ namespace gui {
 
       void layout(const core::size& new_size);
 
-      void set_column_width(std::size_t i, core::size::type w, bool update = true);
+      void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
       void set_column_count(std::size_t i) {
         weights.resize(i);
@@ -454,11 +460,7 @@ namespace gui {
           std::size_t count = get_column_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
             core::size::type w = get_column_layout().get_column_width(i);
-            if (i == count - 1) {
-              r.width(place.x2() - r.x2());
-            } else {
-              r.width(w - 1);
-            }
+            r.width(w - 1);
             drawer(idx, i, g, r, background, selected, get_column_layout().get_column_align(i));
             r.move_x(w);
           }

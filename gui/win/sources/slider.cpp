@@ -67,7 +67,7 @@ namespace gui {
             if (dx != 0) {
               pt.x(new_x);
               move(pt);
-              send_client_message(this, detail::SLIDER_MESSAGE, dx);
+              send_client_message(this, detail::SLIDER_MESSAGE, os(dx));
             }
           }
         }));
@@ -105,7 +105,7 @@ namespace gui {
             if (dy != 0) {
               pt.y(new_y);
               move(pt);
-              send_client_message(this, detail::SLIDER_MESSAGE, dy);
+              send_client_message(this, detail::SLIDER_MESSAGE, os(dy));
             }
            }
           return;
@@ -121,7 +121,7 @@ namespace gui {
 
       slider::slider ()
         : min(0)
-        , max(std::numeric_limits<int>::max())
+        , max(std::numeric_limits<type>::max())
       {
 #ifdef WIN32
 //        if (!detail::SLIDER_MESSAGE) {
@@ -147,17 +147,17 @@ namespace gui {
         }));
       }
 
-      void slider::set_min (int i) {
+      void slider::set_min (type i) {
         min = i;
         redraw_later();
       }
 
-      void slider::set_max (int i) {
+      void slider::set_max (type i) {
         max = i;
         redraw_later();
       }
 
-      void slider::set_min_max (int mi, int ma) {
+      void slider::set_min_max (type mi, type ma) {
         min = mi;
         max = ma;
         redraw_later();

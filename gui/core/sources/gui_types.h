@@ -38,26 +38,31 @@ namespace gui {
     struct point;
 
     struct size {
-      typedef IF_WIN32(LONG) IF_X11(unsigned short) type;
+      typedef float type;
+
       static const size zero;
       static const size one;
 
-      inline size () {
-        sz = {0, 0};
-      }
+      inline size () 
+        : m_w(0)
+        , m_h(0) 
+      {}
 
-      explicit inline size (type i) {
-        sz = {i, i};
-      }
+      explicit inline size (type i) 
+        : m_w(i)
+        , m_h(i) 
+      {}
 
-      inline size (type width,
-                   type height) {
-        sz = {width, height};
-      }
+      inline size (type width, type height)
+        : m_w(width)
+        , m_h(height)
+      {}
 
-      explicit size (const size_type& sz);
+      explicit size (const os::size& sz);
 
-      explicit size (const point_type& pt);
+      explicit size (const os::point& pt);
+
+      explicit size (const os::rectangle& r);
 
 #ifdef WIN32
       explicit size(const event_param_1& p);
@@ -71,9 +76,9 @@ namespace gui {
 
 #endif // X11
 
-      operator size_type () const;
+      operator os::size () const;
 
-      operator point_type () const;
+      operator os::point () const;
 
       inline bool operator== (const size& rhs) const {
         return (width() == rhs.width()) && (height() == rhs.height());
@@ -92,60 +97,65 @@ namespace gui {
       }
 
       inline size& operator+= (const size& s) {
-        sz.cx += s.sz.cx;
-        sz.cy += s.sz.cy;
+        m_w += s.m_w;
+        m_h += s.m_h;
         return *this;
       }
 
       inline size& operator-= (const size& s) {
-        sz.cx -= s.sz.cx;
-        sz.cy -= s.sz.cy;
+        m_w -= s.m_w;
+        m_h -= s.m_h;
         return *this;
       }
 
       inline type width () const {
-        return sz.cx;
+        return m_w;
       }
 
       inline type height () const {
-        return sz.cy;
+        return m_h;
       }
 
       inline void width (type w) {
-        sz.cx = w;
+        m_w = w;
       }
 
       inline void height (type h) {
-        sz.cy = h;
+        m_h = h;
       }
 
     private:
-      size_type sz;
+      type m_w;
+      type m_h;
     };
 
     std::ostream& operator<< (std::ostream& out,
                               const size&);
 
     struct point {
-      typedef IF_WIN32(LONG) IF_X11(short) type;
+      typedef float type;
       static const point zero;
       static const point one;
       static const point undefined;
 
-      inline point () {
-        pt = {0, 0};
-      }
+      inline point ()
+        : m_x(0)
+        , m_y(0)
+      {}
 
-      explicit inline point (type i) {
-        pt = {i, i};
-      }
+      explicit inline point (type i)
+        : m_x(i)
+        , m_y(i)
+      {}
 
-      inline point (type x,
-                    type y) {
-        pt = {x, y};
-      }
+      inline point (type x, type y)
+        : m_x(x)
+        , m_y(y)
+      {}
 
-      explicit point (const point_type& pt);
+      explicit point (const os::point& pt);
+
+      explicit point (const os::rectangle& r);
 
 #ifdef WIN32
       explicit point(const event_param_2& p);
@@ -159,7 +169,7 @@ namespace gui {
 
 #endif // X11
 
-      operator point_type () const;
+      operator os::point () const;
 
       inline point operator+ (const size& s) const {
         return {type(x() + s.width()), type(y() + s.height())};
@@ -237,23 +247,24 @@ namespace gui {
       }
 
       inline type x () const {
-        return pt.x;
+        return m_x;
       }
 
       inline void x (type x_) {
-        pt.x = x_;
+        m_x = x_;
       }
 
       inline type y () const {
-        return pt.y;
+        return m_y;
       }
 
       inline void y (type y_) {
-        pt.y = y_;
+        m_y = y_;
       }
 
     private:
-      point_type pt;
+      type m_x;
+      type m_y;
     };
 
     std::ostream& operator<< (std::ostream& out,
@@ -288,7 +299,7 @@ namespace gui {
         , br(x + width, y + height) {
       }
 
-      explicit rectangle (const rectangle_type& r);
+      explicit rectangle (const os::rectangle& r);
 
 #ifdef WIN32
       explicit rectangle(const event_param_2& p);
@@ -301,7 +312,7 @@ namespace gui {
 
 #endif // X11
 
-      operator rectangle_type () const;
+      operator os::rectangle () const;
 
       inline bool is_inside (const point& p) const {
         return (p >= tl) && (p < br);
@@ -468,5 +479,10 @@ namespace gui {
                               const rectangle&);
 
   } // core
+
+  inline core::os::point_type os(core::point::type v) {
+    return static_cast<core::os::point_type>(v);
+  }
+
 
 } // gui

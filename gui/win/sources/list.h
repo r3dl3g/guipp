@@ -100,8 +100,8 @@ namespace gui {
       void set_count (size_t count);
       void set_selection (int count);
 
-      int get_scroll_pos () const;
-      void set_scroll_pos (int pos);
+      core::point::type get_scroll_pos() const;
+      void set_scroll_pos(core::point::type pos);
 
       void enable_scroll_bar (bool enable);
       bool is_scroll_bar_enabled () const;
@@ -144,10 +144,10 @@ namespace gui {
     void listT<false>::set_selection (int count);
 
     template<>
-    int listT<false>::get_scroll_pos () const;
+    core::point::type listT<false>::get_scroll_pos() const;
 
     template<>
-    void listT<false>::set_scroll_pos(int pos);
+    void listT<false>::set_scroll_pos(core::point::type pos);
 
     template<>
     void listT<false>::enable_scroll_bar(bool enable);
@@ -179,10 +179,10 @@ namespace gui {
     void listT<true>::set_selection (int count);
 
     template<>
-    int listT<true>::get_scroll_pos() const;
+    core::point::type listT<true>::get_scroll_pos() const;
 
     template<>
-    void listT<true>::set_scroll_pos(int pos);
+    void listT<true>::set_scroll_pos(core::point::type pos);
 
     template<>
     void listT<true>::enable_scroll_bar(bool enable);

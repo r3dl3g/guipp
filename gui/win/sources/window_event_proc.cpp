@@ -99,8 +99,8 @@ namespace gui {
             PMEASUREITEMSTRUCT pmis = (PMEASUREITEMSTRUCT)lParam;
             const core::size& sz = owner_draw::get_item_size((int)pmis->CtlID);
             if (sz.height() || sz.width()) {
-              pmis->itemHeight = sz.height();
-              pmis->itemWidth = sz.width();
+              pmis->itemHeight = os(sz.height());
+              pmis->itemWidth = os(sz.width());
               return true;
             }
             break;

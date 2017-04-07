@@ -107,7 +107,10 @@ namespace gui {
     template<typename T>
     core::rectangle get_rect(const core::event& e) {
       T& p = *reinterpret_cast<T*>(e.param_2);
-      return core::rectangle(p.x, p.y, p.cx, p.cy);
+      return core::rectangle(static_cast<core::point::type>(p.x),
+                             static_cast<core::point::type>(p.y),
+                             static_cast<core::size::type>(p.cx),
+                             static_cast<core::size::type>(p.cy));
     }
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e);
@@ -383,12 +386,12 @@ namespace gui {
     typedef event_handlerT<WM_MOUSELEAVE>                                     mouse_leave_event;
 
     typedef event_handlerT<WM_MOUSEHWHEEL,
-                           two_param_caller<int, core::point,
-                                            get_param1_high<int>,
+                           two_param_caller<core::point::type, core::point,
+                                            get_param1_high<core::point::type>,
                                             get_param2<core::point>>>         wheel_x_event;
     typedef event_handlerT<WM_MOUSEWHEEL,
-                           two_param_caller<int, core::point,
-                                            get_param1_high<int>,
+                           two_param_caller<core::point::type, core::point,
+                                            get_param1_high<core::point::type>,
                                             get_param2<core::point>>>         wheel_y_event;
 
     // --------------------------------------------------------------------------
@@ -729,14 +732,14 @@ namespace gui {
     };
 
     typedef event_handlerT<ButtonRelease,
-                           two_param_caller<int,
+                           two_param_caller<core::point::type,
                                             core::point,
                                             get_wheel_delta<6, 7>,
                                             get_param<core::point, XButtonEvent>>,
                            0,
                            wheel_button_match<6, 7>>                                wheel_x_event;
     typedef event_handlerT<ButtonRelease,
-                           two_param_caller<int,
+                           two_param_caller<core::point::type,
                                             core::point,
                                             get_wheel_delta<Button4, Button5>,
                                             get_param<core::point, XButtonEvent>>,

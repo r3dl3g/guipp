@@ -55,11 +55,11 @@ namespace gui {
 
       layout.init(&vscroll, &hscroll, &edge);
 
-      vscroll.register_event_handler(scroll_event([&] (int y) {
+      vscroll.register_event_handler(scroll_event([&](core::point::type y) {
         move_children(core::point(0, y - layout.get_current_pos().y()));
       }));
 
-      hscroll.register_event_handler(scroll_event([&] (int x) {
+      hscroll.register_event_handler(scroll_event([&](core::point::type x) {
         move_children(core::point(x - layout.get_current_pos().x(), 0));
       }));
     }
@@ -237,36 +237,36 @@ namespace gui {
           }
         }
 
-        int ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0));
-        int ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0));
-        int ypos = 0;
+        core::point::type ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0));
+        core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0));
+        core::point::type ypos = 0;
 
         LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << " }";
 
         vscroll->set_min_max(ymin, ymax);
 #ifdef WIN32
-        vscroll->set_step(std::min(ymax - ymin, (int)space.height()) / 2);
+        vscroll->set_step(std::min(ymax - ymin, space.height()) / 2);
 #endif // WIN32
 #ifdef X11
-        vscroll->set_step(std::min(ymax - ymin, (int)space.height()));
+        vscroll->set_step(std::min(ymax - ymin, space.height()));
 #endif // X11
         vscroll->set_value(ypos);
         current_pos.y(ypos);
       }
 
       if (show_h) {
-        int xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0));
-        int xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0));
-        int xpos = 0;
+        core::point::type xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0));
+        core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0));
+        core::point::type xpos = 0;
 
         LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << " }";
 
         hscroll->set_min_max(xmin, xmax);
 #ifdef WIN32
-        hscroll->set_step(std::min(xmax - xmin, (int)space.width()) / 2);
+        hscroll->set_step(std::min(xmax - xmin, space.width()) / 2);
 #endif // WIN32
 #ifdef X11
-        hscroll->set_step(std::min(xmax - xmin, (int)space.width()));
+        hscroll->set_step(std::min(xmax - xmin, space.width()));
 #endif // X11
 
         hscroll->set_value(xpos);

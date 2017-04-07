@@ -73,8 +73,8 @@ namespace gui {
 
     void line::operator() (graphics& g, const pen& p) const {
       Use<pen> pn(g, p);
-      MoveToEx(g, from.x(), from.y(), nullptr);
-      LineTo(g, to.x(), to.y());
+      MoveToEx(g, os(from.x()), os(from.y()), nullptr);
+      LineTo(g, os(to.x()), os(to.y()));
     }
 
     void rectangle::operator() (graphics& g,
@@ -82,14 +82,14 @@ namespace gui {
                                 const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Rectangle(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Rectangle(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Rectangle(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Rectangle(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void rectangle::operator() (graphics& g,
@@ -97,7 +97,7 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Rectangle(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Rectangle(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void ellipse::operator() (graphics& g,
@@ -105,14 +105,14 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Ellipse(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Ellipse(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void ellipse::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Ellipse(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Ellipse(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void ellipse::operator() (graphics& g,
@@ -120,7 +120,7 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Ellipse(g, rect.x(), rect.y(), rect.x2(), rect.y2());
+      Ellipse(g, os(rect.x()), os(rect.y()), os(rect.x2()), os(rect.y2()));
     }
 
     void round_rectangle::operator() (graphics& g,
@@ -128,12 +128,12 @@ namespace gui {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
       RoundRect(g,
-                rect.x(),
-                rect.y(),
-                rect.x2(),
-                rect.y2(),
-                size.width() * 2,
-                size.height() * 2);
+                os(rect.x()),
+                os(rect.y()),
+                os(rect.x2()),
+                os(rect.y2()),
+                os(size.width() * 2),
+                os(size.height() * 2));
     }
 
     void round_rectangle::operator() (graphics& g,
@@ -142,12 +142,12 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       RoundRect(g,
-                rect.x(),
-                rect.y(),
-                rect.x2(),
-                rect.y2(),
-                size.width() * 2,
-                size.height() * 2);
+                os(rect.x()),
+                os(rect.y()),
+                os(rect.x2()),
+                os(rect.y2()),
+                os(size.width() * 2),
+                os(size.height() * 2));
     }
 
     void round_rectangle::operator() (graphics& g,
@@ -156,19 +156,22 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       RoundRect(g,
-                rect.x(),
-                rect.y(),
-                rect.x2(),
-                rect.y2(),
-                size.width() * 2,
-                size.height() * 2);
+                os(rect.x()),
+                os(rect.y()),
+                os(rect.x2()),
+                os(rect.y2()),
+                os(size.width() * 2),
+                os(size.height() * 2));
     }
 
     arc::arc (const core::point& pos,
               unsigned int radius,
               float start_radius,
               float end_radius)
-            : pos(pos), radius(radius), start_radius(start_radius), end_radius(end_radius) {
+      : pos(pos)
+      , radius(radius)
+      , start_radius(start_radius)
+      , end_radius(end_radius) {
     }
 
     void arc::operator() (graphics& g,
@@ -177,9 +180,9 @@ namespace gui {
       BeginPath(g);
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      MoveToEx(g, pos.x(), pos.y(), nullptr);
-      AngleArc(g, pos.x(), pos.y(), radius, start_radius, end_radius);
-      LineTo(g, pos.x(), pos.y());
+      MoveToEx(g, os(pos.x()), os(pos.y()), nullptr);
+      AngleArc(g, os(pos.x()), os(pos.y()), radius, start_radius, end_radius);
+      LineTo(g, os(pos.x()), os(pos.y()));
       EndPath(g);
       StrokeAndFillPath(g);
     }
@@ -188,9 +191,9 @@ namespace gui {
                           const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      MoveToEx(g, pos.x(), pos.y(), nullptr);
-      AngleArc(g, pos.x(), pos.y(), radius, start_radius, end_radius);
-      LineTo(g, pos.x(), pos.y());
+      MoveToEx(g, os(pos.x()), os(pos.y()), nullptr);
+      AngleArc(g, os(pos.x()), os(pos.y()), radius, start_radius, end_radius);
+      LineTo(g, os(pos.x()), os(pos.y()));
     }
 
     void arc::operator() (graphics& g,
@@ -199,9 +202,9 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      MoveToEx(g, pos.x(), pos.y(), nullptr);
-      AngleArc(g, pos.x(), pos.y(), radius, start_radius, end_radius);
-      LineTo(g, pos.x(), pos.y());
+      MoveToEx(g, os(pos.x()), os(pos.y()), nullptr);
+      AngleArc(g, os(pos.x()), os(pos.y()), radius, start_radius, end_radius);
+      LineTo(g, os(pos.x()), os(pos.y()));
       EndPath(g);
       StrokeAndFillPath(g);
     }
@@ -249,9 +252,9 @@ namespace gui {
 
       if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
-        Rect.left = rect.x();
-        Rect.right = rect.x2();
-        Rect.top = (rect.size().height() - h) / 2;
+        Rect.left = os(rect.x());
+        Rect.right = os(rect.x2());
+        Rect.top = os((rect.size().height() - h) / 2);
         Rect.bottom = Rect.top + h;
       }
       DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin);
@@ -275,8 +278,8 @@ namespace gui {
       Use<font> fn(g, f);
       core::color_type old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
-      int px = pos.x();
-      int py = pos.y();
+      int px = os(pos.x());
+      int py = os(pos.y());
       UINT old_align = top_left;
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
@@ -334,11 +337,11 @@ namespace gui {
 
     void graphics::draw_pixel (const core::point& pt,
                               const color& c) {
-      SetPixel(gc, pt.x(), pt.y(), c);
+      SetPixel(gc, os(pt.x()), os(pt.y()), c);
     }
 
     color graphics::get_pixel (const core::point& pt) const {
-      return GetPixel(gc, pt.x(), pt.y());
+      return GetPixel(gc, os(pt.x()), os(pt.y()));
     }
 
     void graphics::draw_lines (std::initializer_list<core::point> points,
@@ -348,9 +351,9 @@ namespace gui {
       for (core::point pt : points) {
         if (first) {
           first = false;
-          MoveToEx(gc, pt.x(), pt.y(), nullptr);
+          MoveToEx(gc, os(pt.x()), os(pt.y()), nullptr);
         } else {
-          LineTo(gc, pt.x(), pt.y());
+          LineTo(gc, os(pt.x()), os(pt.y()));
         }
       }
     }
@@ -637,7 +640,7 @@ namespace gui {
       if (istart != iend) {
         double start = M_PI * startrad / 180.0;
         double end = M_PI * endrad / 180.0;
-        core::point_type pt[3];
+        core::os::point pt[3];
         pt[0].x = short(pos.x() + int(radius * cos(start)));
         pt[0].y = short(pos.y() - int(radius * sin(start)));
         pt[1].x = short(pos.x());

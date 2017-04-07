@@ -64,9 +64,17 @@ namespace gui {
     typedef HDC graphics_id;
     typedef HMENU menu_id;
 
-    typedef POINT point_type;
-    typedef SIZE size_type;
-    typedef RECT rectangle_type;
+    namespace os {
+
+      typedef LONG point_type;
+      typedef LONG size_type;
+
+      typedef POINT point;
+      typedef SIZE size;
+      typedef RECT rectangle;
+
+    }
+
     typedef LOGFONT font_type;
     typedef LOGPEN pen_type;
     typedef LOGBRUSH brush_type;
@@ -96,12 +104,20 @@ namespace gui {
     typedef GC graphics_id;
     typedef int menu_id;
 
-    typedef XPoint point_type;
-    typedef struct {
-        unsigned short cx;
-        unsigned short cy;
-    } size_type;
-    typedef XRectangle rectangle_type;
+    namespace os {
+
+      typedef short point_type;
+      typedef unsigned short size_type;
+
+      typedef XPoint os::point;
+      typedef struct {
+        size_type cx;
+        size_type cy;
+      } os::size;
+      typedef XRectangle rectangle;
+
+    }
+
     typedef XftFont* font_type;
 
 #define IF_WIN32(...)

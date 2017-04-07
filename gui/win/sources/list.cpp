@@ -90,7 +90,7 @@ namespace gui {
           WS_EX_NOPARENTNOTIFY);
       }
       register_event_handler(size_event([&](const core::size& sz) {
-        SendMessage(get_id(), LB_SETITEMHEIGHT, 0, sz.height());
+        SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(sz.height()));
       }));
     }
 
@@ -112,22 +112,22 @@ namespace gui {
     }
 
     template<>
-    int listT<false>::get_scroll_pos () const {
-      return GetScrollPos(get_id(), SB_HORZ) * get_item_size().width();
+    core::point::type listT<false>::get_scroll_pos() const {
+      return static_cast<core::point::type>(GetScrollPos(get_id(), SB_HORZ) * get_item_size().width());
     }
 
     template<>
-    int listT<true>::get_scroll_pos() const {
-      return GetScrollPos(get_id(), SB_VERT) * get_item_size().height();
+    core::point::type listT<true>::get_scroll_pos() const {
+      return static_cast<core::point::type>(GetScrollPos(get_id(), SB_VERT) * get_item_size().height());
     }
 
     template<>
-    void listT<false>::set_scroll_pos(int pos) {
+    void listT<false>::set_scroll_pos(core::point::type pos) {
       SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().width()), 0);
     }
 
     template<>
-    void listT<true>::set_scroll_pos(int pos) {
+    void listT<true>::set_scroll_pos(core::point::type pos) {
       SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
     }
 
@@ -203,14 +203,14 @@ namespace gui {
 
     template<>
     core::size listT<false>::calc_item_size(core::size::type item_height) const {
-      SendMessage(get_id(), LB_SETCOLUMNWIDTH, item_height, 0);
-      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, client_size().height());
+      SendMessage(get_id(), LB_SETCOLUMNWIDTH, static_cast<WPARAM>(item_height), 0);
+      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(client_size().height()));
       return { item_height, client_size().height() };
     }
 
     template<>
     core::size listT<true>::calc_item_size(core::size::type item_height) const {
-      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, item_height);
+      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(item_height));
       return{ client_size().width(), item_height };
     }
 
@@ -271,7 +271,7 @@ namespace gui {
                                            draw::color::white);
       }
       register_event_handler(this, &listT<false>::listT_handle_event);
-      scrollbar.register_event_handler(win::scroll_event([&] (int) {
+      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
       }));
     }
@@ -477,7 +477,7 @@ namespace gui {
                                            draw::color::white);
       }
       register_event_handler(this, &listT<true>::listT_handle_event);
-      scrollbar.register_event_handler(win::scroll_event([&] (int) {
+      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
       }));
     }

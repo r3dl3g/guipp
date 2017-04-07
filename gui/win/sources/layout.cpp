@@ -39,7 +39,7 @@ namespace gui {
         std::vector<win::window*> children = main->get_children();
 
         const int count = static_cast<int>(children.size());
-        const int space = sz.width() - (border * 2);
+        const int space = static_cast<int>(sz.width()) - (border * 2);
         if (count && (space > 0)) {
           const core::size::type width = core::size::type((space - (gap * (count - 1))) / count);
           const core::size::type height = core::size::type(sz.height() - (border * 2));
@@ -63,7 +63,7 @@ namespace gui {
         std::vector<win::window*> children = main->get_children();
 
         const int count = static_cast<int>(children.size());
-        const int space = sz.height() - (border * 2);
+        const int space = static_cast<int>(sz.height()) - (border * 2);
         if (count && (space > 0)) {
           const core::size::type width = core::size::type(sz.width() - (border * 2));
           const core::size::type height = core::size::type((space - (gap * (count - 1))) / count);

@@ -64,24 +64,25 @@ namespace gui {
       class slider : public window {
       public:
         typedef window super;
+        typedef core::point::type type;
 
         slider ();
 
-        void set_min (int min);
-        void set_max (int min);
-        void set_min_max (int mi, int ma);
+        void set_min (type min);
+        void set_max (type min);
+        void set_min_max (type mi, type ma);
 
-        inline int get_min () const {
+        inline type get_min () const {
           return min;
         }
 
-        inline int get_max () const {
+        inline type get_max () const {
           return max;
         }
 
       protected:
-        int min;
-        int max;
+        type min;
+        type max;
 
         core::point last_mouse_point;
       };

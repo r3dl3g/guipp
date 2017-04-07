@@ -37,14 +37,14 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    int get_scroll_pos(const core::event& e);
+    core::point::type get_scroll_pos(const core::event& e);
 
     struct scroll_matcher {
       bool operator() (const core::event& e);
     };
 
     typedef event_handlerT<WM_COMMAND,
-                           one_param_caller<int, get_scroll_pos>,
+                           one_param_caller<core::point::type, get_scroll_pos>,
                            0, scroll_matcher>                  scroll_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
@@ -56,7 +56,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     typedef event_handlerT<ClientMessage,
-                           one_param_caller<int, get_client_data<int, 0>>, 0,
+                           one_param_caller<type, get_client_data<type, 0>>, 0,
                            client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
     // --------------------------------------------------------------------------
@@ -65,24 +65,25 @@ namespace gui {
     class scroll_bar : public window {
     public:
       typedef window super;
+      typedef core::point::type type;
 
-      int get_min () const;
-      int get_max () const;
-      int get_step () const;
-      int get_value () const;
+      type get_min () const;
+      type get_max () const;
+      type get_step () const;
+      type get_value () const;
 
-      void set_min (int);
-      void set_max (int);
-      void set_min_max (int, int);
-      void set_step (int);
-      void set_value (int);
+      void set_min (type);
+      void set_max (type);
+      void set_min_max (type, type);
+      void set_step (type);
+      void set_value (type);
 
       static core::size::type get_scroll_bar_width ();
 
     protected:
       scroll_bar ();
 
-      void set_value (int v, bool notify);
+      void set_value (type v, bool notify);
 
       void create (const window_class& type,
                    const container& parent,
@@ -92,10 +93,10 @@ namespace gui {
 
     private:
 #ifdef X11
-      int min;
-      int max;
-      int step;
-      int value;
+      type min;
+      type max;
+      type step;
+      type value;
 #endif // X11
 
     };
@@ -132,7 +133,7 @@ namespace gui {
 
         core::size::type button_size (const core::rectangle& place) const;
 
-        int space_size (const core::rectangle& place) const;
+        type space_size (const core::rectangle& place) const;
 
         core::point::type thumb_top (const core::rectangle& place) const {
           return core::point::type(button_size(place) + 1 + (get_value() - get_min()) * get_scale(place));
@@ -140,7 +141,7 @@ namespace gui {
 
         core::size::type thumb_size (const core::rectangle& place) const {
           return core::size::type(std::max(space_size(place) - (get_max() - get_min()),
-                                           (int)button_size(place)));
+                                           (type)button_size(place)));
         }
 
         core::rectangle up_button_place (const core::rectangle& place) const {
@@ -167,7 +168,7 @@ namespace gui {
 
         core::point last_mouse_point;
         State state;
-        int last_position;
+        type last_position;
         core::graphics_id gc;
 #endif // X11
       };
@@ -203,10 +204,10 @@ namespace gui {
       core::size::type scroll_barT<true>::button_size (const core::rectangle& place) const;
 
       template<>
-      int scroll_barT<false>::space_size (const core::rectangle& place) const;
+      type scroll_barT<false>::space_size (const core::rectangle& place) const;
 
       template<>
-      int scroll_barT<true>::space_size (const core::rectangle& place) const;
+      type scroll_barT<true>::space_size (const core::rectangle& place) const;
 
       template<>
       core::rectangle scroll_barT<false>::down_button_place (const core::rectangle& place) const;

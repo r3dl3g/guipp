@@ -71,10 +71,10 @@ namespace gui {
       return (e.type == WM_VSCROLL) || (e.type == WM_HSCROLL);
     }
 
-    int get_scroll_pos (const core::event& e) {
+    core::point::type get_scroll_pos(const core::event& e) {
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0 };
       GetScrollInfo(e.id, SB_CTL, &si);
-      return si.nPos;
+      return static_cast<core::point::type>(si.nPos);
     }
 
     scroll_bar::scroll_bar () {
@@ -98,31 +98,31 @@ namespace gui {
         GetScrollInfo(e.id, SB_CTL, &si);
         switch (nScrollCode) {
         case SB_BOTTOM:
-          set_value(si.nMin);
+          set_value(static_cast<type>(si.nMin));
           break;
         case SB_TOP:
-          set_value(si.nMax);
+          set_value(static_cast<type>(si.nMax));
           break;
         case SB_LINEUP:
-          set_value(si.nPos - 1);
+          set_value(static_cast<type>(si.nPos - 1));
           break;
         case SB_LINEDOWN:
-          set_value(si.nPos + 1);
+          set_value(static_cast<type>(si.nPos + 1));
           break;
         case SB_PAGEUP:
-          set_value(si.nPos - si.nPage);
+          set_value(static_cast<type>(si.nPos - si.nPage));
           break;
         case SB_PAGEDOWN:
-          set_value(si.nPos + si.nPage);
+          set_value(static_cast<type>(si.nPos + si.nPage));
           break;
         case SB_THUMBTRACK:
-          set_value(si.nTrackPos);
+          set_value(static_cast<type>(si.nTrackPos));
           break;
         case SB_THUMBPOSITION:
-          set_value(si.nTrackPos);
+          set_value(static_cast<type>(si.nTrackPos));
           break;
         case SB_ENDSCROLL:
-          set_value(si.nPos);
+          set_value(static_cast<type>(si.nPos));
           break;
         }
       }
@@ -132,61 +132,61 @@ namespace gui {
       return false;
     }
 
-    int scroll_bar::get_min () const {
+    scroll_bar::type scroll_bar::get_min() const {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      return si.nMin;
+      return static_cast<type>(si.nMin);
     }
 
-    int scroll_bar::get_max () const {
+    scroll_bar::type scroll_bar::get_max() const {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      return si.nMax;
+      return static_cast<type>(si.nMax);
     }
 
-    int scroll_bar::get_step () const {
+    scroll_bar::type scroll_bar::get_step() const {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_PAGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      return si.nPage;
+      return static_cast<type>(si.nPage);
     }
 
-    int scroll_bar::get_value () const {
+    scroll_bar::type scroll_bar::get_value() const {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      return si.nPos;
+      return static_cast<type>(si.nPos);
     }
 
-    void scroll_bar::set_min (int i) {
+    void scroll_bar::set_min (type i) {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      si.nMin = i;
+      si.nMin = static_cast<int>(i);
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
-    void scroll_bar::set_max (int i) {
+    void scroll_bar::set_max (type i) {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
-      si.nMax = i;
+      si.nMax = static_cast<int>(i);
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
-    void scroll_bar::set_min_max(int mi, int ma) {
-      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_RANGE, mi, ma, 0, 0, 0 };
+    void scroll_bar::set_min_max(type mi, type ma) {
+      SCROLLINFO si = { sizeof(SCROLLINFO), SIF_RANGE, static_cast<int>(mi), static_cast<int>(ma), 0, 0, 0 };
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
-    void scroll_bar::set_step (int i) {
+    void scroll_bar::set_step (type i) {
       SCROLLINFO si = { sizeof(SCROLLINFO), SIF_PAGE, 0, 0, (UINT)i, 0, 0 };
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
-    void scroll_bar::set_value (int i) {
+    void scroll_bar::set_value (type i) {
       set_value (i, false);
     }
 
-    void scroll_bar::set_value (int i, bool notify) {
+    void scroll_bar::set_value (type i, bool notify) {
       if (i != get_value()) {
-        SCROLLINFO si = {sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, i, i};
+        SCROLLINFO si = { sizeof(SCROLLINFO), SIF_POS, 0, 0, 0, static_cast<int>(i), static_cast<int>(i) };
         SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
       }
     }
@@ -217,51 +217,51 @@ namespace gui {
       super::create(type, parent, place);
     }
 
-    int scroll_bar::get_min () const {
+    scroll_bar::type scroll_bar::get_min () const {
       return min;
     }
 
-    int scroll_bar::get_max () const {
+    scroll_bar::type scroll_bar::get_max () const {
       return max;
     }
 
-    int scroll_bar::get_step () const {
+    scroll_bar::type scroll_bar::get_step () const {
       return step;
     }
 
-    int scroll_bar::get_value () const {
+    scroll_bar::type scroll_bar::get_value () const {
       return value;
     }
 
-    void scroll_bar::set_min (int i) {
+    void scroll_bar::set_min (type i) {
       min = i;
       value = std::max(value, min);
       redraw_later();
     }
 
-    void scroll_bar::set_max (int i) {
+    void scroll_bar::set_max (type i) {
       max = i;
       value = std::min(value, max);
       redraw_later();
     }
 
-    void scroll_bar::set_min_max (int mi, int ma) {
+    void scroll_bar::set_min_max (type mi, type ma) {
       min = mi;
       max = ma;
       value = std::max(value, min);
       redraw_later();
     }
 
-    void scroll_bar::set_step (int i) {
+    void scroll_bar::set_step (type i) {
       step = i;
       redraw_later();
     }
 
-    void scroll_bar::set_value (int i) {
+    void scroll_bar::set_value (type i) {
       set_value(i, false);
     }
 
-    void scroll_bar::set_value (int i, bool notify) {
+    void scroll_bar::set_value (type i, bool notify) {
       i = std::min(std::max(i, min), max);
       if (i != value) {
         value = i;
@@ -345,12 +345,12 @@ namespace gui {
       }
 
       template<>
-      int scroll_barT<true>::space_size (const core::rectangle& place) const {
+      scroll_bar::type scroll_barT<true>::space_size (const core::rectangle& place) const {
         return place.width() - button_size(place) * 2 - 2;
       }
 
       template<>
-      int scroll_barT<false>::space_size (const core::rectangle& place) const {
+      scroll_bar::type scroll_barT<false>::space_size (const core::rectangle& place) const {
         return place.height() - button_size(place) * 2 - 2;
       }
 
@@ -513,7 +513,7 @@ namespace gui {
             if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
               if (state == Thumb_button_pressed) {
-                int delta = (int)((e.xmotion.x - last_mouse_point.x()) / get_scale());
+                type delta = (type)((e.xmotion.x - last_mouse_point.x()) / get_scale());
                 set_value(last_position + delta, true);
               }
               return true;
@@ -657,7 +657,7 @@ namespace gui {
             if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
               if (state == Thumb_button_pressed) {
-                int delta = (int)((e.xmotion.y - last_mouse_point.y()) / get_scale());
+                type delta = (type)((e.xmotion.y - last_mouse_point.y()) / get_scale());
                 set_value(last_position + delta, true);
               }
               return true;

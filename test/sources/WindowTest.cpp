@@ -42,15 +42,15 @@ public:
   }
 };
 
-std::vector<core::point> calc_star(int x, int y, int w, int h) {
-  int x1 = x + w / 4;
-  int x2 = x + w / 2;
-  int x3 = x + w * 3 / 4;
-  int x4 = x + w;
-  int y1 = y + h / 4;
-  int y2 = y + h / 2;
-  int y3 = y + h * 3 / 4;
-  int y4 = y + h;
+std::vector<core::point> calc_star(core::point::type x, core::point::type y, core::point::type w, core::point::type h) {
+  core::point::type x1 = x + w / 4;
+  core::point::type x2 = x + w / 2;
+  core::point::type x3 = x + w * 3 / 4;
+  core::point::type x4 = x + w;
+  core::point::type y1 = y + h / 4;
+  core::point::type y2 = y + h / 2;
+  core::point::type y3 = y + h * 3 / 4;
+  core::point::type y4 = y + h;
   return{
     core::point(x, y), core::point(x2, y1), core::point(x4, y),
     core::point(x3, y2), core::point(x4, y4), core::point(x2, y3),
@@ -288,14 +288,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   register_event_handler(win::right_btn_up_event([&] (const core::point& p) {
     LogDebug << "Right Button Up at " << p;
   }));
-  window1.register_event_handler(win::wheel_x_event([&] (int delta,
+  window1.register_event_handler(win::wheel_x_event([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   }));
-  window1.register_event_handler(win::wheel_y_event([&] (int delta,
+  window1.register_event_handler(win::wheel_y_event([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
@@ -524,7 +524,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list2.enable_scroll_bar(on);
   }));
 
-  vscroll.register_event_handler(win::scroll_event([&] (int pos) {
+  vscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
@@ -545,11 +545,11 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     do_layout();
   }));
 
-  hscroll.register_event_handler(win::scroll_event([&](int pos){
+  hscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
     vsplit_view.set_split_pos((double)pos / 100.0);
   }));
   vsplit_view.slider.register_event_handler(win::move_event([&](const core::point&){
-    hscroll.set_value(int(vsplit_view.get_split_pos() * hscroll.get_max()));
+    hscroll.set_value(static_cast<win::scroll_bar::type>(vsplit_view.get_split_pos() * hscroll.get_max()));
   }));
 
   cur_plus.register_event_handler(win::button_clicked_event([&] () {
@@ -681,23 +681,15 @@ void my_main_window::created_children () {
   };
 
   column_list_drawer = {
-    win::cell_drawer<int, draw::frame::lines>,
-    win::cell_drawer<std::string, draw::frame::lines>,
-    win::cell_drawer<float, draw::frame::lines>,
-    win::cell_drawer<int, draw::frame::lines>,
-//      [](const int& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s) {
-//        win::owner_draw::draw_text_item(ostreamfmt("i:" << v), g, r, b, s);
-//      },
-//      [](const std::string& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s) {
-//        win::cell_drawer<std::string, draw::frame::lines>(ostreamfmt("t:" << v), c, g, r, b, s);
-////      win::owner_draw::draw_text_item(ostreamfmt("t:" << v), g, r, s, c.align);
-//      },
-//      [](const float& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s) {
-//        win::owner_draw::draw_text_item(ostreamfmt("f:" << v), g, r, b, s, c.align);
-//        draw::frame::lines(g, r);
-//      }
+      [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
+        win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, align);
+        draw::frame::raised_relief(g, r);
+      },
+      win::cell_drawer<std::string, draw::frame::lines>,
+      win::cell_drawer<float, draw::frame::lines>,
+      win::cell_drawer<int, draw::frame::lines>,
       [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
-        win::owner_draw::draw_text_item(v ? "true" : "false", g, r, b, s, align);
+        win::owner_draw::draw_text_item(v ? "✔" : "✘", g, r, b, s, align);
         draw::frame::lines(g, r);
       }
   };
@@ -715,6 +707,7 @@ void my_main_window::created_children () {
     return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i), i * i, i % 2 == 1);
   }, 20);
   column_list.set_visible();
+  column_list.get_column_layout().get_slider(0)->disable();
   column_list.do_layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));

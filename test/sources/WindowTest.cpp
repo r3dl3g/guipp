@@ -23,14 +23,10 @@ public:
   }
 
   bool operator()(const core::event& e, core::event_result& result) {
-    if ((result == 0xdeadbeef) &&
+    if ((result == 0x0) &&
         !win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      LogDebug << "Message: " << win::EventId(e)
-#ifdef WIN32
-               << " (" << std::hex << e.param_1 << ", " << e.param_2 << ")"
-#endif
-               ;
+      LogDebug << "Message: " << win::EventId(e) IF_WIN32(<< " (" << std::hex << e.param_1 << ", " << e.param_2 << ")");
     }
     return false;
   }
@@ -42,7 +38,6 @@ public:
   }
 
   bool operator()(const core::event& e, core::event_result& result) {
-    result = 0xdeadbeef;
     return false;
   }
 };
@@ -110,7 +105,9 @@ private:
   win::list& list3;
 
   typedef win::split_view_t<false, win::list, win::list> list_split_view;
-  typedef win::split_view_t<false, win::hlist, win::simple_column_list> column_list_split_view;
+  typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
+  typedef win::split_view_t<false, win::hlist, simple_list> column_list_split_view;
+
   win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
 
   win::push_button up_button;
@@ -137,9 +134,9 @@ private:
   win::push_button sel_last_plus;
   win::push_button sel_last_minus;
 
-  typedef win::column_list_t<int, std::string, float> my_column_list_t;
+  typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
-  my_column_list_t::standard_data column_list_data;
+  //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
 
   bool at_paint1;
@@ -176,17 +173,17 @@ int main(int argc, char* argv[]) {
   LogDebug << "window size:" << sizeof(main)  << ", window_class size:" << sizeof(win::window_class);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
 
-#ifdef WIN32
-  main.register_event_handler(win::get_minmax_event([](const core::size& sz,
-    const core::point& pos,
-    core::size& mi, core::size& ma) {
-    mi = { 300, 200 };
-    ma = { 880, 660 };
-    LogDebug << "Min/Max: " << mi << " < " << ma << " < " << sz;
-  }));
-#endif
+//#ifdef WIN32
+//  main.register_event_handler(win::get_minmax_event([](const core::size& sz,
+//    const core::point& pos,
+//    core::size& mi, core::size& ma) {
+//    mi = { 300, 200 };
+//    ma = { 880, 660 };
+//    LogDebug << "Min/Max: " << mi << " < " << ma << " < " << sz;
+//  }));
+//#endif
 
-  const core::rectangle& r = core::rectangle(50, 50, 800, 480);
+  const core::rectangle& r = core::rectangle(50, 50, 1000, 600);
   LogDebug << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
@@ -452,13 +449,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   auto list_drawer = [] (int idx,
                          draw::graphics& g,
                          const core::rectangle& place,
+                         const draw::brush& background,
                          bool selected) {
     using namespace draw;
 
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    win::owner_draw::draw_text_item(strm.str(), g, place, selected);
+    win::owner_draw::draw_text_item(strm.str(), g, place, background, selected);
   };
 
   list1.set_drawer(list_drawer, core::size(0, 25));
@@ -483,8 +481,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   list2.set_drawer([&] (int idx,
                         draw::graphics& g,
                         const core::rectangle& place,
+                        const draw::brush& background,
                         bool selected) {
-    data(idx, g, place, selected);
+    data(idx, g, place, background, selected);
   }, core::size(0, 16));
 
   list2.register_event_handler(win::selection_changed_event([&] () {
@@ -644,20 +643,12 @@ void my_main_window::created_children () {
   list1.set_count(20);
   list1.set_visible();
 
-//  list2.create(main, core::rectangle(410, 50, 60, 250));
-//  data.update_list(list2);
-//  list2.set_visible();
-//
-//  list3.create(main, core::rectangle(480, 50, 60, 250));
-//  list3.set_data(win::list::data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-//  list3.set_visible();
-
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
-  win::simple_column_list::columns_info_list columns = {
-    win::column_info(30, 0.0F, draw::vcenter_right),
-    win::column_info(30, 0.0F, draw::center),
-    win::column_info(30, 0.0F, draw::vcenter_left)
+  auto columns = {
+    layout::simple_column_info{ 30, draw::vcenter_right, 20 },
+    layout::simple_column_info{ 30, draw::center, 20 },
+    layout::simple_column_info{ 30, draw::vcenter_left, 20 }
   };
 
   win::simple_column_list_data<int, draw::frame::lines> col_data = {
@@ -671,44 +662,60 @@ void my_main_window::created_children () {
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
   vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
   vsplit_view.second.first.set_data(win::simple_list_data<float>(floats), 25);
-  vsplit_view.second.second.get_layout().set_columns(columns);
+  vsplit_view.second.second.get_column_layout().set_columns(columns);
   vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();
 
   data.update_list(list2);
 
-  column_list_data = { std::make_tuple(1, "eins", 1.1F),
-                       std::make_tuple(2, "zwei", 2.2F),
-                       std::make_tuple(3, "drei", 3.3F) };
+  //column_list_data = my_column_list_t::standard_data{ std::make_tuple(1, "eins", 1.1F),
+  //                                                    std::make_tuple(2, "zwei", 2.2F),
+  //                                                    std::make_tuple(3, "drei", 3.3F) };
+
+  auto weight_columns = {
+    layout::weight_column_info{ 30, draw::vcenter_left, 20, 0.0F },
+    layout::weight_column_info{ 30, draw::vcenter_right, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::center, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::center, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::center, 20, 1.0F }
+  };
 
   column_list_drawer = {
     win::cell_drawer<int, draw::frame::lines>,
     win::cell_drawer<std::string, draw::frame::lines>,
-    win::cell_drawer<float, draw::frame::lines>
-//    [](const int& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
-//      win::owner_draw::draw_text_item(ostreamfmt("i:" << v), g, r, s);
-//    },
-//    [](const std::string& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
-//      win::cell_drawer<std::string, draw::frame::lines>(ostreamfmt("t:" << v), c, g, r, s);
+    win::cell_drawer<float, draw::frame::lines>,
+    win::cell_drawer<int, draw::frame::lines>,
+//      [](const int& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s) {
+//        win::owner_draw::draw_text_item(ostreamfmt("i:" << v), g, r, b, s);
+//      },
+//      [](const std::string& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s) {
+//        win::cell_drawer<std::string, draw::frame::lines>(ostreamfmt("t:" << v), c, g, r, b, s);
 ////      win::owner_draw::draw_text_item(ostreamfmt("t:" << v), g, r, s, c.align);
-//    },
-//    [](const float& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, bool s) {
-//      win::owner_draw::draw_text_item(ostreamfmt("f:" << v), g, r, s, c.align);
-//      draw::frame::lines(g, r);
-//    }
+//      },
+//      [](const float& v, const win::column_info& c, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s) {
+//        win::owner_draw::draw_text_item(ostreamfmt("f:" << v), g, r, b, s, c.align);
+//        draw::frame::lines(g, r);
+//      }
+      [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
+        win::owner_draw::draw_text_item(v ? "true" : "false", g, r, b, s, align);
+        draw::frame::lines(g, r);
+      }
   };
 
 //  column_list.set_data(column_list_data, column_list_data.size());
-  column_list.set_drawer(column_list_drawer, 25);
-  column_list.get_layout().set_column(0, win::column_info(30, 0.0F));
-  column_list.get_layout().set_column(1, win::column_info(45, 0.0F));
-  column_list.get_layout().set_column(2, win::column_info(45, 1.0F, draw::center));
-  column_list.set_data([](int i){
-    return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i));
-  }, 20);
   column_list.create(main, core::rectangle(580, 50, 140, 250));
+  column_list.header.set_cell_drawer([](int i, draw::graphics& g, const core::rectangle& r, const draw::brush&) {
+    using namespace draw;
+    frame::raised_relief(g, r);
+    g.text(text_box(ostreamfmt((char)('A' + i) << '.'), r, center), font::system(), color::windowTextColor);
+  });
+  column_list.set_drawer(column_list_drawer, 25);
+  column_list.get_column_layout().set_columns(weight_columns);
+  column_list.set_data([](int i){
+    return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i), i * i, i % 2 == 1);
+  }, 20);
   column_list.set_visible();
-//  column_list.do_layout();
+  column_list.do_layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, 16));
   hscroll.set_visible();
@@ -746,7 +753,7 @@ void my_main_window::created_children () {
 
   vslider.create(main, core::rectangle(750, 5, 5, 500));
   vslider.set_visible();
-  vslider.set_max(750);
+  vslider.set_max(1000);
 
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
   chck_group.set_visible();
@@ -824,6 +831,7 @@ void my_main_window::created_children () {
   get_layout().abs(&hslider, this, What::right, Where::width, -5);
   get_layout().abs(&vslider, this, What::bottom, Where::height, -5);
 
+  get_layout().abs(&column_list, &vslider, What::right, Where::x, -25);
   get_layout().abs(&vscroll, &vslider, What::left, Where::x, -20);
   get_layout().abs(&vscroll, &vslider, What::right, Where::x, -4);
 

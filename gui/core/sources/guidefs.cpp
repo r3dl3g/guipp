@@ -22,6 +22,7 @@
 //
 #include <stdexcept>
 #include <logger.h>
+#include <dbgstream.h>
 
 // --------------------------------------------------------------------------
 //
@@ -96,3 +97,57 @@ namespace gui {
   } // core
 
 } // gui
+
+#ifdef WIN32
+int APIENTRY WinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPTSTR    lpCmdLine,
+                     _In_ int       nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+
+  ibr::odebugstream dbgStrm;
+  ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+
+
+  std::vector<std::string> args{
+    std::istream_iterator<std::string>{ std::istringstream(lpCmdLine) },
+    std::istream_iterator<std::string>{}
+  };
+
+  gui::core::global::init(hInstance);
+#endif // WIN32
+
+#ifdef X11
+int main(int argc, char* argv[]) {
+  ibr::log::core::instance().addSink(&std::cerr,
+                                     ibr::log::level::debug,
+                                     ibr::log::core::instance().getConsoleFormatter());
+
+  std::vector<std::string> args;
+  for(int i = 0; i < argc; ++i) {
+    args.push_back(argv[i]);
+  }
+
+  gui::core::global::init(XOpenDisplay(0));
+#endif
+
+  int ret = 0;
+  try {
+    ret = gui_main(args);
+  } catch (std::exception e) {
+    LogFatal << e;
+    ret = 1;
+  }
+
+  gui::core::global::fini();
+
+#ifdef X11
+  ibr::log::core::instance().removeSink(&std::cerr);
+#endif
+
+  ibr::log::core::instance().finish();
+
+  return ret;
+}
+

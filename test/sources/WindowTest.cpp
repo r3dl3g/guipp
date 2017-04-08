@@ -9,7 +9,6 @@ std::ostream& operator<<(std::ostream& out, const bool& b) {
 }
 
 #include <logger.h>
-#include <dbgstream.h>
 
 #define NO_EXPORT
 
@@ -144,26 +143,7 @@ private:
   core::point last_pos;
 };
 
-#ifdef WIN32
-int APIENTRY WinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
-
-  ibr::odebugstream dbgStrm;
-  ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
-
-  gui::core::global::init(hInstance);
-#elif X11
-int main(int argc, char* argv[]) {
-  ibr::log::core::instance().addSink(&std::cerr,
-                                     ibr::log::level::debug,
-                                     ibr::log::core::instance().getConsoleFormatter());
-
-  gui::core::global::init(XOpenDisplay(0));
-#endif
+int gui_main(const std::vector<std::string>& args) {
 
   win::paint_event paint1(my_main_window::create_paint1());
   win::paint_event paint2(my_main_window::create_paint2());
@@ -183,7 +163,7 @@ int main(int argc, char* argv[]) {
 //  }));
 //#endif
 
-  const core::rectangle& r = core::rectangle(50, 50, 1000, 600);
+  const core::rectangle r = core::rectangle(50, 50, 1000, 600);
   LogDebug << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
@@ -191,22 +171,7 @@ int main(int argc, char* argv[]) {
   main.set_visible();
   main.redraw_later();
 
-  int ret = 0;
-  try {
-    ret = win::run_main_loop();
-  } catch (std::exception e) {
-    LogFatal << e;
-  }
-
-  gui::core::global::fini();
-
-#ifdef X11
-  ibr::log::core::instance().removeSink(&std::cerr);
-#endif
-
-  ibr::log::core::instance().finish();
-
-  return ret;
+  return win::run_main_loop();
 }
 
 my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
@@ -681,20 +646,20 @@ void my_main_window::created_children () {
   };
 
   column_list_drawer = {
-      [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
-        win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, draw::center);
-        draw::frame::raised_relief(g, r);
-      },
+    [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
+      win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, draw::center);
+      draw::frame::raised_relief(g, r);
+    },
 
-      win::cell_drawer<std::string, draw::frame::lines>,
-      win::cell_drawer<float, draw::frame::lines>,
-      win::cell_drawer<int, draw::frame::lines>,
+    win::cell_drawer<std::string, draw::frame::lines>,
+    win::cell_drawer<float, draw::frame::lines>,
+    win::cell_drawer<int, draw::frame::lines>,
 
-      [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
-        std::string text = v ? u8"\u2611" : u8"\u2610";
-        win::owner_draw::draw_text_item(text, g, r, b, s, align);
-        draw::frame::lines(g, r);
-      }
+    [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
+      std::string text = v ? u8"\u2611" : u8"\u2610";
+      win::owner_draw::draw_text_item(text, g, r, b, s, align);
+      draw::frame::lines(g, r);
+    }
   };
 
 //  column_list.set_data(column_list_data, column_list_data.size());

@@ -147,3 +147,7 @@ namespace gui {
   } // core
 
 } //gui
+
+// this is the main function that has to be defined in every application
+extern int gui_main(const std::vector<std::string>& args);
+

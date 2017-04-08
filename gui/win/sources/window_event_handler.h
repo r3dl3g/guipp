@@ -34,7 +34,7 @@
 // Library includes
 //
 #include "event.h"
-#include "easy_bind.h"
+#include "bind_method.h"
 #include "gui_types.h"
 #include "graphics.h"
 #include "window_event_proc.h"
@@ -148,7 +148,7 @@ namespace gui {
     const T& cast_event_type(const core::event& e);
 
     // --------------------------------------------------------------------------
-    template <core::event_id id>
+    template <os::event_id id>
     struct event_type_match {
       bool operator() (const core::event& e) {
         return (e.type == id);
@@ -165,7 +165,7 @@ namespace gui {
 
       template<class T>
       no_param_caller (T* t, void(T::*callback_)())
-        : callback(gui::core::easy_bind(t, callback_))
+        : callback(gui::core::bind_method(t, callback_))
       {}
 
       operator bool () const {
@@ -192,7 +192,7 @@ namespace gui {
 
       template<class T>
       one_param_caller (T* t, void(T::*callback_)(P1))
-        : callback(gui::core::easy_bind(t, callback_))
+        : callback(gui::core::bind_method(t, callback_))
       {}
 
       operator bool () const {
@@ -221,7 +221,7 @@ namespace gui {
 
       template<class T>
       two_param_caller (T* t, void(T::*callback_)(P1, P2))
-        : callback(gui::core::easy_bind(t, callback_))
+        : callback(gui::core::bind_method(t, callback_))
       {}
 
       operator bool () const {
@@ -252,7 +252,7 @@ namespace gui {
 
       template<class T>
       three_param_caller (T* t, void(T::*callback_)(P1, P2, P3))
-        : callback(gui::core::easy_bind(t, callback_))
+        : callback(gui::core::bind_method(t, callback_))
       {}
 
       operator bool () const {
@@ -268,9 +268,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<core::event_id E,
+    template<os::event_id E,
              typename C = no_param_caller,
-             core::event_result R = 0,
+             os::event_result R = 0,
              typename M = event_type_match<E>>
     struct event_handlerT {
       typedef typename C::function function;
@@ -279,7 +279,7 @@ namespace gui {
         : caller(cb)
       {}
 
-      bool operator() (const core::event& e, core::event_result& result) {
+      bool operator() (const core::event& e, os::event_result& result) {
         if (matcher(e) && caller) {
           caller(e);
           result = R;
@@ -288,7 +288,7 @@ namespace gui {
         return false;
       }
 
-      core::event_id get_event_id () const {
+      os::event_id get_event_id () const {
         return E;
       }
 
@@ -395,7 +395,7 @@ namespace gui {
                                             get_param2<core::point>>>         wheel_y_event;
 
     // --------------------------------------------------------------------------
-    template <core::event_id id, bool show>
+    template <os::event_id id, bool show>
     struct visibility_event_type_match {
       bool operator() (const core::event& e) {
         return (e.type == id) && (get_param1<bool>(e) == show);
@@ -465,7 +465,7 @@ namespace gui {
 
       template<class T>
       paint_caller (T* t, void(T::*callback_)(draw::graphics&))
-        : one_param_caller(gui::core::easy_bind(t, callback_))
+        : one_param_caller(gui::core::bind_method(t, callback_))
       {}
 
       void operator()(const core::event& e);
@@ -481,7 +481,7 @@ namespace gui {
       }
     };
 
-    void send_client_message (window* win, core::event_id message, long l1 = 0, long l2 = 0);
+    void send_client_message (window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
 
 #endif //WIN32
@@ -493,7 +493,7 @@ namespace gui {
       extern std::map<Window, XIC> s_window_ic_map;
     }
 
-    template <core::event_id id, core::event_id btn, int sts>
+    template <os::event_id id, os::event_id btn, int sts>
     struct event_button_match {
       bool operator() (const core::event& e) {
         return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
@@ -534,14 +534,14 @@ namespace gui {
       return e.xconfigurerequest;
     }
     // --------------------------------------------------------------------------
-    template<typename T, core::event_id E, typename C>
+    template<typename T, os::event_id E, typename C>
     struct move_size_matcher {
       bool operator() (const core::event& e) {
         if (e.type == E) {
           T& o = s_last_place[e.xany.window];
           T n = T(cast_event_type<C>(e));
           if (o != n) {
-            LogDebug << "move_size_matcher " << o << " -> " << n;
+            //LogDebug << "move_size_matcher " << o << " -> " << n;
             o = n;
             return true;
           }
@@ -552,7 +552,7 @@ namespace gui {
       static std::map<Window, T> s_last_place;
     };
 
-    template<typename T, core::event_id E, typename C>
+    template<typename T, os::event_id E, typename C>
     std::map<Window, T> move_size_matcher<T, E, C>::s_last_place;
 
     // --------------------------------------------------------------------------
@@ -678,7 +678,7 @@ namespace gui {
                            0,
                            event_button_match<ButtonRelease, Button2, Button3Mask>> middle_btn_up_event;
 
-    template<core::event_id B>
+    template<os::event_id B>
     struct double_click_matcher {
 
       bool operator() (const core::event& e) {
@@ -697,7 +697,7 @@ namespace gui {
       static std::map<Window, Time> s_last_up;
     };
 
-    template<core::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
+    template<os::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
 
     typedef event_handlerT<ButtonRelease,
                            one_param_caller<core::point,
@@ -716,10 +716,10 @@ namespace gui {
                            double_click_matcher<Button2>>                           middle_btn_dblclk_event;
 
     template<int D, int U>
-    inline int get_wheel_delta (const core::event& e) {
+    inline core::point::type get_wheel_delta (const core::event& e) {
       switch (e.xbutton.button) {
-        case D: return 1;
-        case U: return -1;
+        case D: return 1.0F;
+        case U: return -1.0F;
       }
       return 0;
     }
@@ -816,7 +816,7 @@ namespace gui {
 
       template<class T>
       paint_caller (T* t, void(T::*callback_)(draw::graphics&))
-        : callback(gui::core::easy_bind(t, callback_))
+        : callback(gui::core::bind_method(t, callback_))
         , gc(0)
       {}
 
@@ -830,7 +830,7 @@ namespace gui {
 
     private:
       function callback;
-      core::graphics_id gc;
+      os::graphics gc;
     };
 
     typedef event_handlerT<Expose, paint_caller> paint_event;

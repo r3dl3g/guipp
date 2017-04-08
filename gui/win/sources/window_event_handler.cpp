@@ -42,17 +42,17 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window* get_param1<window*>(const core::event& e) {
-      return detail::get_window((core::window_id)e.param_1);
+      return detail::get_window((os::window)e.param_1);
     }
     // --------------------------------------------------------------------------
     template<>
     draw::graphics get_param1<draw::graphics>(const core::event& e) {
-      return draw::graphics(e.id, (core::graphics_id)e.param_1);
+      return draw::graphics(e.id, (os::graphics)e.param_1);
     };
     // --------------------------------------------------------------------------
     template<>
     window* get_param2<window*>(const core::event& e) {
-      return detail::get_window((core::window_id)e.param_2);
+      return detail::get_window((os::window)e.param_2);
     }
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e) {
@@ -65,7 +65,7 @@ namespace gui {
       return p->flags;
     }
 
-    static std::map<core::window_id, bool> s_mouse_inside;
+    static std::map<os::window, bool> s_mouse_inside;
 
     bool mouse_enter_matcher::operator() (const core::event& e) {
       switch (e.type) {
@@ -86,7 +86,7 @@ namespace gui {
     void paint_caller::operator()(const core::event& e) {
       if (callback) {
         PAINTSTRUCT ps;
-        core::graphics_id id = BeginPaint(e.id, &ps);
+        os::graphics id = BeginPaint(e.id, &ps);
         callback(draw::graphics(e.id, id));
         EndPaint(e.id, &ps);
       }
@@ -119,7 +119,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (window* win, core::event_id message, long l1, long l2) {
+    void send_client_message (window* win, os::event_id message, long l1, long l2) {
       SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
     }
 
@@ -170,7 +170,7 @@ namespace gui {
     }
 
     void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
-      core::instance_id display = core::global::get_instance();
+      os::instance display = core::global::get_instance();
 
       XClientMessageEvent client;
 
@@ -191,7 +191,7 @@ namespace gui {
     }
 
     void send_client_message (window* win, Atom message, window* w, const core::rectangle& r) {
-      core::instance_id display = core::global::get_instance();
+      os::instance display = core::global::get_instance();
 
       XClientMessageEvent client;
 

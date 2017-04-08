@@ -22,7 +22,7 @@ public:
   log_all_events() {
   }
 
-  bool operator()(const core::event& e, core::event_result& result) {
+  bool operator()(const core::event& e, os::event_result& result) {
     if ((result == 0x0) &&
         !win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
@@ -37,7 +37,7 @@ public:
   init_result_handler() {
   }
 
-  bool operator()(const core::event& e, core::event_result& result) {
+  bool operator()(const core::event& e, os::event_result& result) {
     return false;
   }
 };
@@ -600,7 +600,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
   */
 
-  register_event_handler(win::create_event(gui::core::easy_bind(this, &my_main_window::onCreated)));
+  register_event_handler(win::create_event(gui::core::bind_method(this, &my_main_window::onCreated)));
 }
 
 void my_main_window::query_state () {
@@ -682,14 +682,17 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
       [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
-        win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, align);
+        win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, draw::center);
         draw::frame::raised_relief(g, r);
       },
+
       win::cell_drawer<std::string, draw::frame::lines>,
       win::cell_drawer<float, draw::frame::lines>,
       win::cell_drawer<int, draw::frame::lines>,
+
       [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
-        win::owner_draw::draw_text_item(v ? "✔" : "✘", g, r, b, s, align);
+        std::string text = v ? u8"\u2611" : u8"\u2610";
+        win::owner_draw::draw_text_item(text, g, r, b, s, align);
         draw::frame::lines(g, r);
       }
   };

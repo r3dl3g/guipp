@@ -52,7 +52,7 @@ namespace gui {
       change_map[this].push_back(make_pair(false, handler));
     }
 
-    bool event_container::handle_event(const event& e, core::event_result& resultValue) {
+    bool event_container::handle_event(const event& e, os::event_result& resultValue) {
 
       if (handle_event_stack_count == 0) {
         typedef event_handler_change_map::iterator iterator;

@@ -40,7 +40,7 @@ namespace gui {
 
     namespace detail {
 
-      typedef std::map<core::event_id, const char*> message_map_t;
+      typedef std::map<os::event_id, const char*> message_map_t;
 
       message_map_t& get_message_map() {
         static message_map_t message_map = {
@@ -512,7 +512,7 @@ namespace gui {
     }
 
     bool is_none_client_event(const core::event& e) {
-      core::event_id id = core::get_event_id(e);
+      os::event_id id = core::get_event_id(e);
 #ifdef WIN32
       return ((id >= WM_NCCREATE) && (id <= WM_NCACTIVATE)) ||
         ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||

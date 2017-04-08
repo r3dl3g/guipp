@@ -50,7 +50,7 @@ namespace gui {
 
     class graphics {
     public:
-      graphics (core::window_id win, core::graphics_id gc);
+      graphics (os::window win, os::graphics gc);
 
       void draw_pixel (const core::point& pt,
                        const color& color);
@@ -65,17 +65,18 @@ namespace gui {
       void draw (std::function<drawable>, const brush& brush, const pen& pen);
       void text (std::function<textable>, const font& font, const color& color);
 
-      void set_clip_rectangle (const core::rectangle&);
-      void clear_clip_rectangle ();
-
       void invert (const core::rectangle&) const;
       void flush ();
 
-      inline operator core::graphics_id () const {
+      inline os::graphics os () const {
         return gc;
       }
 
-      inline operator core::window_id () const {
+      inline operator os::graphics () const {
+        return gc;
+      }
+
+      inline operator os::window () const {
         return win;
       }
 
@@ -85,12 +86,37 @@ namespace gui {
       }
 #endif // X11
 
+    protected:
+      friend struct clip;
+      void push_clip_rectangle (const core::rectangle&);
+      void pop_clip_rectangle ();
+
     private:
-      core::graphics_id gc;
-      core::window_id win;
+      os::graphics gc;
+      os::window win;
+#ifdef WIN32
+      std::vector<HRGN> clipping_rectangles;
+#endif // WIN32
 #ifdef X11
+      std::vector<os::rectangle> clipping_rectangles;
       static XftDraw* s_xft;
 #endif // X11
+    };
+
+    struct clip {
+      inline clip (graphics& g, const core::rectangle& r)
+        : g(g) {
+        g.push_clip_rectangle(r);
+      }
+
+      inline ~clip () {
+        g.pop_clip_rectangle();
+      }
+
+    private:
+      graphics& g;
+
+      void operator=(clip&) = delete;
     };
 
     struct line {
@@ -191,7 +217,7 @@ namespace gui {
       void operator() (graphics&, const brush&) const;
 
     private:
-      std::vector<core::point> points;
+      std::vector<os::point> points;
     };
 
 #ifdef X11

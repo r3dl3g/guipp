@@ -44,9 +44,9 @@ namespace gui {
       
 #endif // WIN32
 
-      window* get_window (core::window_id id);
-      void set_window (core::window_id id, window* win);
-      void unset_window (core::window_id id);
+      window* get_window (os::window id);
+      void set_window (os::window id, window* win);
+      void unset_window (os::window id);
 
     } // detail
 

@@ -58,7 +58,7 @@ namespace gui {
       }
     }
 
-    core::graphics_id owner_draw_list::get_graphics (const core::event& e) {
+    os::graphics owner_draw_list::get_graphics (const core::event& e) {
       if (!gc) {
         gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
       }
@@ -76,10 +76,9 @@ namespace gui {
     void owner_draw_list::draw_item (int idx,
                                      draw::graphics& g,
                                      const core::rectangle& place,
-                                     const draw::brush& background,
                                      bool selected) {
       if (drawer) {
-        drawer(idx, g, place, background, selected);
+        drawer(idx, g, place, draw::color::windowColor, selected);
       }
     }
 

@@ -41,7 +41,7 @@ namespace gui {
 #endif // X11
 
       template<typename T, std::size_t... Is, typename F, typename... Args>
-      auto easy_bind(T* t, indices<Is...>, F& f, Args&&... args)
+      auto bind_method(T* t, indices<Is...>, F& f, Args&&... args)
         -> decltype(std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...)) {
         return std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...);
       };
@@ -49,9 +49,9 @@ namespace gui {
     } // detail
 
     template<typename T, typename R, typename... FArgs>
-    auto easy_bind(T* t, R(T::*f)(FArgs...))
-      -> decltype(detail::easy_bind(t, detail::build_indices < sizeof...(FArgs) > {}, f)) {
-      return detail::easy_bind(t, detail::build_indices < sizeof...(FArgs) > {}, f);
+    auto bind_method(T* t, R(T::*f)(FArgs...))
+      -> decltype(detail::bind_method(t, detail::build_indices < sizeof...(FArgs) > {}, f)) {
+      return detail::bind_method(t, detail::build_indices < sizeof...(FArgs) > {}, f);
     }
 
   } // core

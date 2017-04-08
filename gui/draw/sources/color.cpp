@@ -71,7 +71,7 @@ namespace gui {
     const color color::veryVeryLightGray{ 240, 240, 240 };
 
 #ifdef X11
-    enum SystemColor : core::color_type {
+    enum SystemColor : os::color {
         COLOR_SCROLLBAR,
         COLOR_MENU,
         COLOR_MENUTEXT,
@@ -95,13 +95,14 @@ namespace gui {
         COLOR_BTNHIGHLIGHT
     };
 
-    core::color_type GetSysColor(SystemColor c) {
+    os::color GetSysColor(SystemColor c) {
       switch (c) {
         case COLOR_APPWORKSPACE:  return color::mediumGray;
         case COLOR_WINDOWTEXT:    return color::black;
         case COLOR_HIGHLIGHT:     return color::darkBlue;
         case COLOR_HIGHLIGHTTEXT: return color::white;
         case COLOR_BTNFACE:       return color::veryVeryLightGray;
+        case COLOR_WINDOW:        return color::white;
       }
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

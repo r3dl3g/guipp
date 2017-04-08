@@ -45,7 +45,7 @@ namespace gui {
 
     namespace detail {
       void set_id (window* w,
-                   core::window_id id);
+                   os::window id);
 
 #ifdef X11
       extern Atom WM_CREATE_WINDOW;
@@ -63,7 +63,7 @@ namespace gui {
 
       virtual ~window ();
 
-      inline core::window_id get_id () const {
+      inline os::window get_id () const {
         return id;
       }
 
@@ -123,7 +123,7 @@ namespace gui {
 
       core::point absolute_position () const;
 
-      virtual core::size client_size () const;
+      core::size client_size () const;
 
       core::rectangle client_area () const;
 
@@ -150,23 +150,23 @@ namespace gui {
       void create (const window_class& type,
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def,
-                   core::menu_id menu = 0);
+                   os::menu menu = 0);
 
 #ifdef WIN32
-      void set_style (core::windows_style mask, bool);
-      core::windows_style get_style (core::windows_style mask =
-                                     std::numeric_limits<core::windows_style>::max()) const;
+      void set_style (os::style mask, bool);
+      os::style get_style (os::style mask =
+                                     std::numeric_limits<os::style>::max()) const;
 #endif // WIN32
       void create (const window_class& type,
-                   core::window_id parent_id,
+                   os::window parent_id,
                    const core::rectangle& place,
-                   core::menu_id menu = 0);
+                   os::menu menu = 0);
 
     private:
       friend void detail::set_id (window*,
-                                  core::window_id);
+                                  os::window);
 
-      core::window_id id;
+      os::window id;
       const window_class* cls;
 
 #ifdef X11
@@ -230,7 +230,7 @@ namespace gui {
 
       layout_container ()
         : layout(this) {
-        register_event_handler(size_event(core::easy_bind(&layout, &layout_type::layout)));
+        register_event_handler(size_event(core::bind_method(&layout, &layout_type::layout)));
       }
 
       void do_layout () {
@@ -304,7 +304,7 @@ namespace gui {
     public:
       layout_main_window ()
         : layout(this) {
-        register_event_handler(size_event(core::easy_bind(&layout, &Layout::layout)));
+        register_event_handler(size_event(core::bind_method(&layout, &Layout::layout)));
       }
 
       void do_layout () {

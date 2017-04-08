@@ -56,9 +56,9 @@ namespace gui {
       ~brush();
 
 #ifdef WIN32
-      brush(core::brush_id);
+      brush(os::brush);
 
-      inline operator core::brush_id() const {
+      inline operator os::brush() const {
         return id;
       }
 #endif // WIN32
@@ -73,7 +73,7 @@ namespace gui {
 
     private:
 #ifdef WIN32
-      core::brush_id id;
+      os::brush id;
       core::brush_type info;
 #endif // WIN32
 #ifdef X11

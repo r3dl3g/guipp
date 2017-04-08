@@ -43,7 +43,7 @@ namespace gui {
         : id(e.type)
       {}
 
-      core::event_id id;
+      os::event_id id;
     };
 
   } // win

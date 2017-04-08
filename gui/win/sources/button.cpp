@@ -63,7 +63,7 @@ namespace gui {
 
 #ifdef X11
     bool button::button_handle_event (const core::event& e,
-                                      core::event_result& result) {
+                                      os::event_result& result) {
       if ((e.type == ButtonPress) && (e.xbutton.button == Button1)) {
         if (is_enabled()) {
           take_focus();

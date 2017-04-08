@@ -232,7 +232,7 @@ namespace gui {
           gui::core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
-          graph.set_clip_rectangle(area);
+          draw::clip clp(graph, area);
           text_origin origin = (text_origin)get_window_class()->ex_style;
           int y1 = area.y() + 2;
           int y2 = area.y2() - 2;
@@ -260,7 +260,6 @@ namespace gui {
                              color::black);
           }
           graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black);
-          graph.clear_clip_rectangle();
 #ifdef SHOW_TEXT_AREA
           graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));

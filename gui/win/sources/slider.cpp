@@ -21,6 +21,9 @@
 //
 // Common includes
 //
+#ifdef X11
+#include <X11/cursorfont.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -49,7 +52,7 @@ namespace gui {
                                                   (HBRUSH)(COLOR_BTNFACE + 1));
 #endif // WIN32
 #ifdef X11
-          core::cursor_id cursor = XCreateFontCursor(core::global::get_instance(), 108);
+          os::cursor cursor = XCreateFontCursor(core::global::get_instance(), XC_sb_h_double_arrow);
           clazz = window_class::custom_class("VSLIDER",
                                              0,
                                              ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
@@ -60,14 +63,14 @@ namespace gui {
         }
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+          if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
             core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, pt.x() + p.x() - last_mouse_point.x()));
             core::point::type dx = new_x - pt.x();
             if (dx != 0) {
               pt.x(new_x);
               move(pt);
-              send_client_message(this, detail::SLIDER_MESSAGE, os(dx));
+              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dx));
             }
           }
         }));
@@ -87,7 +90,7 @@ namespace gui {
                                                   (HBRUSH)(COLOR_BTNFACE + 1));
 #endif // WIN32
 #ifdef X11
-          core::cursor_id cursor = XCreateFontCursor(core::global::get_instance(), 116);
+          os::cursor cursor = XCreateFontCursor(core::global::get_instance(), XC_sb_v_double_arrow);
           clazz = window_class::custom_class("HSLIDER",
                                              0,
                                              ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
@@ -98,14 +101,14 @@ namespace gui {
         }
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+          if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
             core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, pt.y() + p.y() - last_mouse_point.y()));
             core::point::type dy = new_y - pt.y();
             if (dy != 0) {
               pt.y(new_y);
               move(pt);
-              send_client_message(this, detail::SLIDER_MESSAGE, os(dy));
+              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dy));
             }
            }
           return;
@@ -116,7 +119,7 @@ namespace gui {
       Atom SLIDER_MESSAGE = 0;
 #endif // X11
 //#ifdef WIN32
-//      core::event_id SLIDER_MESSAGE = 0;
+//      os::event_id SLIDER_MESSAGE = 0;
 //#endif //WIN32
 
       slider::slider ()

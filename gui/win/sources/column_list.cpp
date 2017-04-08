@@ -246,6 +246,7 @@ namespace gui {
       }
 
       super::layout(sz);
+      get_slider(count - 1)->disable();
       list->redraw_later();
     }
 
@@ -270,7 +271,7 @@ namespace gui {
                                                                    (HBRUSH)(COLOR_WINDOW + 1));
 #endif // WIN32
 #ifdef X11
-          clazz = win::window_class::custom_class("column_list");
+          base_column_list_clazz = win::window_class::custom_class("column_list");
 #endif //X11
         }
       }

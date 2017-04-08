@@ -56,7 +56,7 @@ namespace gui {
 
       private:
         bool list_handle_event (const core::event& e,
-                                core::event_result& result);
+                                os::event_result& result);
 
 #ifdef X11
       protected:
@@ -112,7 +112,7 @@ namespace gui {
     private:
 #ifdef X11
       bool listT_handle_event (const core::event& e,
-                               core::event_result& result);
+                               os::event_result& result);
 
       core::rectangle get_scroll_bar_area ();
       void adjust_scroll_bar ();
@@ -214,11 +214,11 @@ namespace gui {
 
     template<>
     bool listT<false>::listT_handle_event (const core::event& e,
-                                           core::event_result& result);
+                                           os::event_result& result);
 
     template<>
     bool listT<true>::listT_handle_event (const core::event& e,
-                                          core::event_result& result);
+                                          os::event_result& result);
 #endif // X11
 
     // --------------------------------------------------------------------------

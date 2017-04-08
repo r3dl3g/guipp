@@ -34,9 +34,9 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
-    const brush brush::default_brush((core::brush_id)GetStockObject(WHITE_BRUSH));
+    const brush brush::default_brush((os::brush)GetStockObject(WHITE_BRUSH));
 
-    brush::brush(core::brush_id id)
+    brush::brush(os::brush id)
       :id(id) {
       GetObject(id, sizeof(core::brush_type), &info);
     }

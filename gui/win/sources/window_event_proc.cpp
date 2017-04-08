@@ -38,25 +38,25 @@ namespace gui {
     namespace detail {
 
       void set_id (window* w,
-                   core::window_id id) {
+                   os::window id) {
         w->id = id;
       }
 
 #ifdef WIN32
 
-      window* get_window (core::window_id id) {
+      window* get_window (os::window id) {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
       }
 
-      void set_window(core::window_id id, window* win) {
+      void set_window(os::window id, window* win) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
       }
       
-      void unset_window(core::window_id id) {
+      void unset_window(os::window id) {
         SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
-      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, core::event_result& resultValue) {
+      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, os::event_result& resultValue) {
         window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
@@ -64,7 +64,7 @@ namespace gui {
         return false;
       }
 
-      void set_window_id (LONG_PTR lParam, core::window_id id) {
+      void set_window_id (LONG_PTR lParam, os::window id) {
         window* w = reinterpret_cast<window*>(lParam);
         set_id(w, id);
       }
@@ -76,7 +76,7 @@ namespace gui {
             set_window_id(lParam, hwnd);
             break;
           case WM_DESTROY: {
-            core::event_result result = 0;
+            os::event_result result = 0;
             if (handle_by_window(hwnd, msg, wParam, lParam, result)) {
               return result;
             } else {
@@ -131,7 +131,7 @@ namespace gui {
           }
         }
 
-        core::event_result result = 0;
+        os::event_result result = 0;
         window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
@@ -150,18 +150,18 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-      typedef std::map<core::window_id, win::window*> window_map;
+      typedef std::map<os::window, win::window*> window_map;
       window_map global_window_map;
 
-      window* get_window (core::window_id id) {
+      window* get_window (os::window id) {
         return global_window_map[id];
       }
 
-      void set_window (core::window_id id, window* win) {
+      void set_window (os::window id, window* win) {
         global_window_map[id] = win;
       }
 
-      void unset_window (core::window_id id) {
+      void unset_window (os::window id) {
         global_window_map.erase(id);
       }
 
@@ -185,7 +185,7 @@ namespace gui {
     int run_main_loop () {
       Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
 
-      core::event_result resultValue = 0;
+      os::event_result resultValue = 0;
       core::event e;
       bool running = true;
       while (running) {

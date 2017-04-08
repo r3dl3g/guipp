@@ -50,7 +50,7 @@ namespace gui {
 #endif // X11
 #ifdef WIN32
     namespace detail {
-      const core::event_id SLIDER_MESSAGE = WM_USER + 1;
+      const os::event_id SLIDER_MESSAGE = WM_USER + 1;
     }
 
     typedef event_handlerT<detail::SLIDER_MESSAGE,

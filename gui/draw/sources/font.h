@@ -45,7 +45,7 @@ namespace gui {
       static const font& sans_serif();
 
       typedef int size_type;
-      typedef core::font_type type;
+      typedef os::font_type type;
 
       enum Thickness {
 #ifdef WIN32
@@ -84,10 +84,10 @@ namespace gui {
 
       font& operator= (const font& rhs);
 
-      font(core::font_id id);
+      font(os::font id);
 
-      operator core::font_id() const;
-      core::font_type font_type () const;
+      operator os::font() const;
+      os::font_type font_type () const;
 
       std::string name() const;
       size_type size() const;
@@ -111,9 +111,9 @@ namespace gui {
     private:
       void destroy();
 #ifdef WIN32
-      core::font_id id;
+      os::font id;
 #endif // WIN32
-      core::font_type info;
+      os::font_type info;
     };
 
     std::ostream& operator<<(std::ostream& out, const font& c);

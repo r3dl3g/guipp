@@ -75,9 +75,9 @@ namespace gui {
       ~pen();
 
 #ifdef WIN32
-      pen(core::pen_id);
+      pen(os::pen);
 
-      inline operator core::pen_id() const {
+      inline operator os::pen() const {
         return id;
       }
 #endif // WIN32
@@ -95,7 +95,7 @@ namespace gui {
     private:
 
 #ifdef WIN32
-      core::pen_id id;
+      os::pen id;
       core::pen_type info;
 #endif // WIN32
 #ifdef X11

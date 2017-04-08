@@ -73,14 +73,14 @@ namespace gui {
     {}
 
     window_class::window_class(const std::string& cls_name,
-                               core::windows_style class_style,
-                               core::windows_style style,
-                               core::windows_style ex_style,
-                               core::icon_id icon,
-                               core::cursor_id cursor,
-                               core::brush_id background,
-                               core::color_type foreground,
-                               core::event_callback callback)
+                               os::style class_style,
+                               os::style style,
+                               os::style ex_style,
+                               os::icon icon,
+                               os::cursor cursor,
+                               os::brush background,
+                               os::color foreground,
+                               os::event_callback callback)
       : class_name(cls_name)
       , class_style(class_style)
       , style(style)
@@ -123,42 +123,42 @@ namespace gui {
       return class_name;
     }
 
-    const core::windows_style window_class::get_class_style() const {
+    const os::style window_class::get_class_style() const {
       register_class();
       return class_style;
     }
 
-    const core::windows_style window_class::get_style() const {
+    const os::style window_class::get_style() const {
       register_class();
       return style;
     }
 
-    const core::windows_style window_class::get_ex_style() const {
+    const os::style window_class::get_ex_style() const {
       register_class();
       return ex_style;
     }
 
-    const core::icon_id window_class::get_icon() const {
+    const os::icon window_class::get_icon() const {
       register_class();
       return icon;
     }
 
-    const core::cursor_id window_class::get_cursor() const {
+    const os::cursor window_class::get_cursor() const {
       register_class();
       return cursor;
     }
 
-    const core::brush_id window_class::get_background() const {
+    const os::brush window_class::get_background() const {
       register_class();
       return background;
     }
 
-    const core::color_type window_class::get_foreground() const {
+    const os::color window_class::get_foreground() const {
       register_class();
       return foreground;
     }
 
-    const core::event_callback window_class::get_callback() const {
+    const os::event_callback window_class::get_callback() const {
       register_class();
       return callback;
     }
@@ -195,13 +195,13 @@ namespace gui {
     }
 
     window_class window_class::custom_class(const std::string& cls_name,
-                                            core::windows_style class_style,
-                                            core::windows_style style,
-                                            core::windows_style ex_style,
-                                            core::icon_id icon,
-                                            core::cursor_id cursor,
-                                            core::brush_id background,
-                                            core::color_type foreground) {
+                                            os::style class_style,
+                                            os::style style,
+                                            os::style ex_style,
+                                            os::icon icon,
+                                            os::cursor cursor,
+                                            os::brush background,
+                                            os::color foreground) {
       return window_class(cls_name, class_style, style, ex_style, icon, cursor, background, foreground);
     }
 
@@ -217,9 +217,9 @@ namespace gui {
 
     window_class window_class::sub_class(const std::string& cls,
                                          const std::string& base_cls,
-                                         core::windows_style style,
-                                         core::windows_style ex_style,
-                                         core::color_type foreground) {
+                                         os::style style,
+                                         os::style ex_style,
+                                         os::color foreground) {
 #ifdef WIN32
       WNDCLASS wc;
       GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);

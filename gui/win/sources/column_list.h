@@ -39,87 +39,6 @@ namespace gui {
 
   }
 
-  namespace win {
-
-    inline void default_cell_drawer (int i,
-                                     draw::graphics& g,
-                                     const core::rectangle& r,
-                                     const draw::brush& background) {
-      using namespace draw;
-      frame::raised_relief(g, r);
-      g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor);
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename Layout>
-    class column_list_header : public group_window<Layout> {
-    public:
-      typedef Layout layout_type;
-      typedef group_window<layout_type> super;
-
-      typedef framed_slider_t<false, draw::frame::sunken_relief> slider_type;
-
-      typedef void(cell_draw)(int idx,
-                              draw::graphics&,
-                              const core::rectangle& place,
-                              const draw::brush& background);
-
-      column_list_header() {
-        set_cell_drawer(default_cell_drawer);
-        get_layout().set_slider_creator([&](std::size_t i) {
-          return create_slider(i);
-        });
-        register_event_handler(win::paint_event([&](draw::graphics& g) {
-          using namespace draw;
-
-          core::rectangle r = client_area();
-          g.fill(rectangle(r), color::buttonColor);
-
-          std::size_t count = get_layout().get_column_count();
-          for (int i = 0; i < count; ++i) {
-            layout::column_size_type w = get_layout().get_column_width(i);
-            r.width(w - 1);
-            if (cell_drawer) {
-              cell_drawer(i, g, r, color::buttonColor);
-            }
-            r.move_x(w);
-          }
-
-        }));
-      }
-
-      std::vector<detail::slider*> create_slider (std::size_t count) {
-        core::rectangle r(0, 0, 2, size().height());
-        sliders.resize(count);
-        std::vector<detail::slider*> v;
-        for (int i = 0; i < count; ++i) {
-          slider_type& s = sliders[i];
-          v.push_back(&s);
-          r.move_x(get_layout().get_column_width(i) - 2);
-          if (!s.is_valid()) {
-            s.create(*this, r);
-            s.set_visible();
-            s.register_event_handler(win::slider_event([=](int dx) {
-              get_layout().set_column_width(i, get_layout().get_column_width(i) + dx);
-            }));
-          }
-          r.move_x(2);
-        }
-        return v;
-      }
-
-      void set_cell_drawer(std::function<cell_draw> cd) {
-        cell_drawer = cd;
-      }
-
-    private:
-      std::vector<slider_type> sliders;
-      std::function<cell_draw> cell_drawer;
-
-      void operator= (column_list_header&) = delete;
-    };
-  }
-
   namespace layout {
 
     struct column_info {
@@ -323,6 +242,85 @@ namespace gui {
 
   namespace win {
 
+    inline void default_cell_drawer (int i,
+                                     draw::graphics& g,
+                                     const core::rectangle& r,
+                                     const draw::brush& background) {
+      using namespace draw;
+      frame::raised_relief(g, r);
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor);
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename Layout>
+    class column_list_header : public group_window<Layout> {
+    public:
+      typedef Layout layout_type;
+      typedef group_window<layout_type> super;
+
+      typedef framed_slider_t<false, draw::frame::sunken_relief> slider_type;
+
+      typedef void(cell_draw)(int idx,
+                              draw::graphics&,
+                              const core::rectangle& place,
+                              const draw::brush& background);
+
+      column_list_header() {
+        set_cell_drawer(default_cell_drawer);
+        this->get_layout().set_slider_creator([&](std::size_t i) {
+          return create_slider(i);
+        });
+        this->register_event_handler(win::paint_event([&](draw::graphics& g) {
+          using namespace draw;
+
+          core::rectangle r = this->client_area();
+          draw::brush background(color::buttonColor);
+          g.fill(rectangle(r), background);
+
+          std::size_t count = this->get_layout().get_column_count();
+          for (int i = 0; i < count; ++i) {
+            layout::column_size_type w = this->get_layout().get_column_width(i);
+            r.width(w - 1);
+            if (cell_drawer) {
+              cell_drawer(i, g, r, background);
+            }
+            r.move_x(w);
+          }
+
+        }));
+      }
+
+      std::vector<detail::slider*> create_slider (std::size_t count) {
+        core::rectangle r(0, 0, 2, this->size().height());
+        sliders.resize(count);
+        std::vector<detail::slider*> v;
+        for (int i = 0; i < count; ++i) {
+          slider_type& s = sliders[i];
+          v.push_back(&s);
+          r.move_x(this->get_layout().get_column_width(i) - 2);
+          if (!s.is_valid()) {
+            s.create(*this, r);
+            s.set_visible();
+            s.register_event_handler(win::slider_event([=](int dx) {
+              this->get_layout().set_column_width(i, this->get_layout().get_column_width(i) + dx);
+            }));
+          }
+          r.move_x(2);
+        }
+        return v;
+      }
+
+      void set_cell_drawer(std::function<cell_draw> cd) {
+        cell_drawer = cd;
+      }
+
+    private:
+      std::vector<slider_type> sliders;
+      std::function<cell_draw> cell_drawer;
+
+      void operator= (column_list_header&) = delete;
+    };
+
     namespace detail {
 
       extern window_class base_column_list_clazz;
@@ -339,7 +337,7 @@ namespace gui {
           init_base_column_list_clazz();
           get_layout().set_header_and_list(&header, &list);
           get_column_layout().set_list(&list);
-          register_event_handler(size_event(core::easy_bind((super*)this, &super::do_layout_for_size)));
+          register_event_handler(size_event(core::bind_method((super*)this, &super::do_layout_for_size)));
         }
 
         ~base_column_list ()
@@ -433,7 +431,7 @@ namespace gui {
       void set_drawer (std::function<cell_draw> drawer,
                        core::size::type item_height = 20) {
         this->drawer = drawer;
-        list.set_drawer(core::easy_bind(this, &simple_column_list::draw_cells), { item_height, item_height });
+        this->list.set_drawer(core::bind_method(this, &simple_column_list::draw_cells), { item_height, item_height });
       }
 
       void create (const container& parent,
@@ -446,7 +444,7 @@ namespace gui {
       void set_data (simple_column_list_data<T, F> data,
                      core::size::type item_height = 20) {
         set_drawer(data, item_height);
-        list.set_count(data.size());
+        this->list.set_count(data.size());
       }
 
     protected:
@@ -457,11 +455,11 @@ namespace gui {
                        bool selected) {
         if (drawer) {
           core::rectangle r = place;
-          std::size_t count = get_column_layout().get_column_count();
+          std::size_t count = this->get_column_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
-            core::size::type w = get_column_layout().get_column_width(i);
+            core::size::type w = this->get_column_layout().get_column_width(i);
             r.width(w - 1);
-            drawer(idx, i, g, r, background, selected, get_column_layout().get_column_align(i));
+            drawer(idx, i, g, r, background, selected, this->get_column_layout().get_column_align(i));
             r.move_x(w);
           }
         }
@@ -535,7 +533,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename... Arguments>
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#ifdef _MSC_VER
 
     struct row_cell_drawer_t : public std::tuple<cell_drawer_t<Arguments>...> {
       typedef std::tuple<cell_drawer_t<Arguments>...> super;
@@ -561,9 +559,11 @@ namespace gui {
       column_list_row_drawer_t ()
       {}
 
+#ifdef _MSC_VER
       column_list_row_drawer_t (const super::super& rhs)
         : super(rhs)
       {}
+#endif // _MSC_VER
 
       column_list_row_drawer_t (cell_drawer_t<Arguments>...args)
         : super(std::make_tuple(args...))
@@ -659,17 +659,17 @@ namespace gui {
       typedef std::function<draw_row_data_t> data_drawer;
 
       column_list_t () {
-        get_column_layout().set_column_count(size);
+        this->get_column_layout().set_column_count(size);
       }
 
       void set_drawer (data_drawer drawer, core::size::type item_height = 20) {
         this->drawer = drawer;
-        list.set_drawer(core::easy_bind(this, &column_list_t::draw_cells_t), { item_height, item_height });
+        this->list.set_drawer(core::bind_method(this, &column_list_t::draw_cells_t), { item_height, item_height });
       }
 
       void set_data (data_provider data, std::size_t count) {
         this->data = data;
-        list.set_count(count);
+        this->list.set_count(count);
       }
 
     protected:
@@ -678,7 +678,7 @@ namespace gui {
                          const core::rectangle& place,
                          const draw::brush& background,
                          bool selected) {
-        drawer(data(row_id), get_column_layout(), g, place, background, selected);
+        drawer(data(row_id), this->get_column_layout(), g, place, background, selected);
       }
 
       data_drawer drawer;

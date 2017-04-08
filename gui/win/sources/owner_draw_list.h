@@ -132,18 +132,17 @@ namespace gui {
       void draw_item (int idx,
                       draw::graphics&,
                       const core::rectangle& place,
-                      const draw::brush& background,
                       bool selected);
 
 #ifdef X11
-      core::graphics_id get_graphics (const core::event& e);
+      os::graphics get_graphics (const core::event& e);
 #endif // X11
 
     private:
       std::function<item_draw> drawer;
 
 #ifdef X11
-      core::graphics_id gc;
+      os::graphics gc;
 #endif // X11
     };
 

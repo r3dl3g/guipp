@@ -22,6 +22,8 @@
 //
 #include <ostream>
 #include <algorithm>
+#include <X11/Xlib.h>
+
 #ifdef WIN32
 #include <windowsx.h>
 #endif
@@ -63,26 +65,37 @@ namespace gui {
       , m_h(static_cast<type>(pt.y))
     {}
 
-    size::size(const os::rectangle& r) 
+#ifdef WIN32
+    size::size(const os::rectangle& r)
       : m_w(static_cast<type>(r.right - r.left))
       , m_h(static_cast<type>(r.bottom - r.top))
     {}
 
-#ifdef WIN32
-    size::size(const event_param_1& p) {
+    size::size(const os::win32::event_param_1& p) {
       m_w = static_cast<type>(GET_X_LPARAM(p));
       m_h = static_cast<type>(GET_Y_LPARAM(p));
     }
 
-    size::size(const event_param_2& p) {
+    size::size(const os::win32::event_param_2& p) {
       m_w = static_cast<type>(GET_X_LPARAM(p));
       m_h = static_cast<type>(GET_Y_LPARAM(p));
     }
 #endif // WIN32
+#ifdef X11
+    size::size (const os::rectangle& r)
+      : m_w(static_cast<type>(r.width))
+      , m_h(static_cast<type>(r.height))
+    {}
+#endif // X11
 
     size::operator os::size() const {
-      return os::size{ static_cast<os::size_type>(m_w), static_cast<os::size_type>(m_h) };
+      return os();
     }
+
+    os::size size::os () const {
+      return { os_width(), os_height() };
+    }
+
 
     size::operator os::point() const {
       return{ static_cast<os::point_type>(width()), static_cast<os::point_type>(height()) };
@@ -93,20 +106,30 @@ namespace gui {
       , m_y(static_cast<type>(rhs.y))
     {}
 
+#ifdef WIN32
     point::point(const os::rectangle& rhs)
       : m_x(static_cast<type>(rhs.left))
       , m_y(static_cast<type>(rhs.top))
     {}
 
-#ifdef WIN32
-    point::point(const event_param_2& p) {
+    point::point(const os::win32::event_param_2& p) {
       m_x = static_cast<type>(GET_X_LPARAM(p));
       m_y = static_cast<type>(GET_Y_LPARAM(p));
     }
 #endif // WIN32
+#ifdef X11
+    point::point (const os::rectangle& r)
+      : m_x(static_cast<type>(r.x))
+      , m_y(static_cast<type>(r.y))
+    {}
+#endif // X11
 
     point::operator os::point() const {
-      return{ static_cast<os::point_type>(m_x), static_cast<os::point_type>(m_y) };
+      return { os_x(), os_y() };
+    }
+
+    os::point point::os () const {
+      return { os_x(), os_y() };
     }
 
     rectangle::rectangle(const os::rectangle& r)
@@ -120,13 +143,17 @@ namespace gui {
     {}
 
 #ifdef WIN32
-    rectangle::rectangle(const event_param_2& p)
+    rectangle::rectangle(const os::win32::event_param_2& p)
       : rectangle(*reinterpret_cast<LPRECT>(p)) {
     }
 #endif // WIN32
 
     rectangle::operator os::rectangle() const {
-      return{ static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
+      return os();
+    }
+
+    os::rectangle rectangle::os () const {
+return{ static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
 #ifdef WIN32
               static_cast<os::point_type>(x2()), static_cast<os::point_type>(y2())
 #elif X11

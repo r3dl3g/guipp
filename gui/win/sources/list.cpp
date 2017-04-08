@@ -54,7 +54,7 @@ namespace gui {
       }
 
       bool list::list_handle_event (const core::event& e,
-                                    core::event_result& result) {
+                                    os::event_result& result) {
         if (e.type == WM_DRAWITEM) {
           PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
           // If there are no list box items, skip this message.
@@ -67,7 +67,7 @@ namespace gui {
               draw::graphics g(get_id(), pdis->hDC);
               core::rectangle place(pdis->rcItem);
               bool selected = (pdis->itemState & ODS_SELECTED);
-              draw_item(pdis->itemID, g, place, draw::color::windowColor, selected);
+              draw_item(pdis->itemID, g, place, selected);
             }
           }
           return true;
@@ -202,10 +202,11 @@ namespace gui {
     }
 
     template<>
-    core::size listT<false>::calc_item_size(core::size::type item_height) const {
-      SendMessage(get_id(), LB_SETCOLUMNWIDTH, static_cast<WPARAM>(item_height), 0);
-      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(client_size().height()));
-      return { item_height, client_size().height() };
+    core::size listT<false>::calc_item_size(core::size::type width) const {
+      core::size::type height = client_size().height();
+      SendMessage(get_id(), LB_SETCOLUMNWIDTH, static_cast<WPARAM>(width), 0);
+      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(height));
+      return { width, height };
     }
 
     template<>
@@ -251,7 +252,7 @@ namespace gui {
       }
 
       bool list::list_handle_event (const core::event& e,
-                                    core::event_result& result) {
+                                    os::event_result& result) {
         return false;
       }
 
@@ -315,14 +316,14 @@ namespace gui {
     }
 
     template<>
-    void listT<false>::set_scroll_pos (int pos) {
-      const int max_delta = std::max(0, (get_item_width() * (int)get_count()) - size().width());
-      scrollbar.set_value(std::min(std::max(0, pos), max_delta));
+    void listT<false>::set_scroll_pos (core::point::type pos) {
+      const core::point::type max_delta = std::max(0.0F, (get_item_width() * (core::point::type)get_count()) - size().width());
+      scrollbar.set_value(std::min(std::max(0.0F, pos), max_delta));
       redraw_later();
     }
 
     template<>
-    int listT<false>::get_scroll_pos () const {
+    core::point::type listT<false>::get_scroll_pos () const {
       return scrollbar.get_value();
     }
 
@@ -351,13 +352,13 @@ namespace gui {
     }
 
     template<>
-    core::size listT<false>::calc_item_size(core::size::type item_height) const {
-      return { item_height, client_size().height() };
+    core::size listT<false>::calc_item_size(core::size::type width) const {
+      return { width, client_size().height() };
     }
 
     template<>
     bool listT<false>::listT_handle_event (const core::event& e,
-                                           core::event_result& result) {
+                                           os::event_result& result) {
       switch (e.type) {
         case Expose: {
           draw::graphics g(e.xexpose.window, get_graphics(e));
@@ -370,7 +371,7 @@ namespace gui {
           place.width(get_item_width() - 1);
 
           for(int idx = first; (idx < max_idx) && (place.x() < max_x); ++idx, place.move_x(get_item_width())) {
-            draw_item(idx, g, place, get_selection() == idx);
+            draw_item(idx, g, place, this->get_selection() == idx);
           }
           g.flush();
           return true;
@@ -409,7 +410,7 @@ namespace gui {
         case MotionNotify:
           if (left_button_bit_mask::is_set(e.xmotion.state)) {
             if (last_mouse_point != core::point::undefined) {
-              int dx = last_mouse_point.x() - e.xmotion.x;
+              core::point::type dx = last_mouse_point.x() - e.xmotion.x;
               set_scroll_pos(get_scroll_pos() + dx);
               moved = true;
             }
@@ -459,10 +460,10 @@ namespace gui {
     template<>
     void listT<false>::adjust_scroll_bar () {
       core::size::type iw = get_item_width();
-      int w = (iw * (int)item_count) - size().width();
+      scroll_bar::type w = (iw * item_count) - size().width();
 
-      scrollbar.set_max(std::max(w, 0));
-      scrollbar.set_visible((w > 0) && is_scroll_bar_enabled());
+      scrollbar.set_max(std::max(w, 0.0F));
+      scrollbar.set_visible((w > 0.0F) && is_scroll_bar_enabled());
     }
 
     // --------------------------------------------------------------------------
@@ -521,14 +522,14 @@ namespace gui {
     }
 
     template<>
-    void listT<true>::set_scroll_pos (int pos) {
-      const int max_delta = std::max(0, (get_item_height() * (int)get_count()) - size().height());
-      scrollbar.set_value(std::min(std::max(0, pos), max_delta));
+    void listT<true>::set_scroll_pos (core::point::type pos) {
+      const core::point::type max_delta = std::max(0.0F, (get_item_height() * (core::point::type)get_count()) - size().height());
+      scrollbar.set_value(std::min(std::max(0.0F, pos), max_delta));
       redraw_later();
     }
 
     template<>
-    int listT<true>::get_scroll_pos () const {
+    core::point::type listT<true>::get_scroll_pos () const {
       return scrollbar.get_value();
     }
 
@@ -563,7 +564,7 @@ namespace gui {
 
     template<>
     bool listT<true>::listT_handle_event (const core::event& e,
-                                          core::event_result& result) {
+                                          os::event_result& result) {
       switch (e.type) {
         case Expose: {
           draw::graphics g(e.xexpose.window, get_graphics(e));
@@ -665,10 +666,10 @@ namespace gui {
     template<>
     void listT<true>::adjust_scroll_bar () {
       core::size::type ih = get_item_height();
-      int h = (ih * (int)item_count) - size().height();
+      scroll_bar::type h = (ih * item_count) - size().height();
 
-      scrollbar.set_max(std::max(h, 0));
-      scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
+      scrollbar.set_max(std::max(h, 0.0F));
+      scrollbar.set_visible((h > 0.0F) && is_scroll_bar_enabled());
     }
 
 #endif // X11

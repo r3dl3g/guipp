@@ -98,11 +98,11 @@ namespace gui {
       const static color buttonTextColor;
       const static color buttonHighLightColor;
 
-      static core::color_type value_of (byte r, byte g, byte b) {
+      static os::color value_of (byte r, byte g, byte b) {
         return r_::c(r) | g_::c(g) | b_::c(b);
       }
 
-      inline color(core::color_type value = 0)
+      inline color(os::color value = 0)
         : value(value)
       {}
 
@@ -130,7 +130,7 @@ namespace gui {
         return a_::v(value);
       }
 
-      inline operator core::color_type() const {
+      inline operator os::color() const {
         return value;
       }
 
@@ -170,15 +170,15 @@ namespace gui {
       }
 
     private:
-      const core::color_type value;
+      const os::color value;
 
       template<int shift>
       struct part {
-        static core::color_type c(byte a) {
-          return (core::color_type)a << shift;
+        static os::color c(byte a) {
+          return (os::color)a << shift;
         }
 
-        static byte v(core::color_type a) {
+        static byte v(os::color a) {
           return (byte)((a & (0x000000ff << shift)) >> shift);
         }
       };

@@ -89,7 +89,7 @@ namespace gui {
       SetScrollInfo(get_id(), SB_CTL, &si, TRUE);
     }
 
-    bool scroll_bar::scroll_handle_event (const core::event& e, core::event_result& result) {
+    bool scroll_bar::scroll_handle_event (const core::event& e, os::event_result& result) {
       switch (e.type) {
       case WM_VSCROLL:
       case WM_HSCROLL: {
@@ -273,7 +273,7 @@ namespace gui {
     }
 
 
-    bool scroll_bar::scroll_handle_event (const core::event& e, core::event_result& result) {
+    bool scroll_bar::scroll_handle_event (const core::event& e, os::event_result& result) {
       return false;
     }
 
@@ -335,114 +335,39 @@ namespace gui {
       // --------------------------------------------------------------------------
 
       template<>
-      core::size::type scroll_barT<true>::button_size (const core::rectangle& place) const {
-        return place.height();
-      }
-
-      template<>
-      core::size::type scroll_barT<false>::button_size (const core::rectangle& place) const {
-        return place.width();
-      }
-
-      template<>
-      scroll_bar::type scroll_barT<true>::space_size (const core::rectangle& place) const {
-        return place.width() - button_size(place) * 2 - 2;
-      }
-
-      template<>
-      scroll_bar::type scroll_barT<false>::space_size (const core::rectangle& place) const {
-        return place.height() - button_size(place) * 2 - 2;
-      }
-
-      template<>
-      core::rectangle scroll_barT<true>::down_button_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return core::rectangle(place.x2() - sz, place.y(), sz, sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<false>::down_button_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        return core::rectangle(place.x(), place.y2() - sz, sz, sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<true>::page_up_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::size::type bottom = (core::size::type)thumb_top(place);
-        return core::rectangle(sz, place.y(), bottom - sz, sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<false>::page_up_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::size::type bottom = (core::size::type)thumb_top(place);
-        return core::rectangle(place.x(), sz, sz, bottom - sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<true>::page_down_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::point::type top = thumb_top(place) + thumb_size(place);
-        return core::rectangle(top, place.y(), place.x2() - sz - top, sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<false>::page_down_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::point::type top = thumb_top(place) + thumb_size(place);
-        return core::rectangle(place.x(), top, sz, place.y2() - sz - top);
-      }
-
-      template<>
-      core::rectangle scroll_barT<true>::thumb_button_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::size::type tsz = thumb_size(place);
-        core::point::type pos = thumb_top(place);
-        return core::rectangle(pos, place.y(), tsz, sz);
-      }
-
-      template<>
-      core::rectangle scroll_barT<false>::thumb_button_place (const core::rectangle& place) const {
-        core::size::type sz = button_size(place);
-        core::size::type tsz = thumb_size(place);
-        core::point::type pos = thumb_top(place);
-        return core::rectangle(place.x(), pos, sz, tsz);
-      }
-
-      template<>
       bool scroll_barT<true>::scroll_handle_eventT (const core::event& e,
-                                                    core::event_result& result) {
+                                                    os::event_result& result) {
         switch (e.type) {
           case Expose: {
             if (!gc) {
               gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
             }
             draw::graphics g(e.xexpose.window, gc);
-            core::rectangle place = client_area();
 
-            auto up = up_button_place(place);
+            geometry geo = get_geometry();
+
+            auto up = up_button_place(geo);
             g.fill(draw::rectangle(up), draw::color::buttonColor);
             draw::frame::deep_relief(g, up, state == Up_button_pressed);
             g.text(draw::text_box("<", up, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
-            auto down = down_button_place(place);
+            auto down = down_button_place(geo);
             g.fill(draw::rectangle(down), draw::color::buttonColor);
             draw::frame::deep_relief(g, down, state == Down_button_pressed);
             g.text(draw::text_box(">", down, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
-            auto thumb = thumb_button_place(place);
+            auto thumb = thumb_button_place(geo);
             g.fill(draw::rectangle(thumb), draw::color::buttonColor);
             draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(place)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray);
                 break;
               case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(place)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray);
                 break;
             }
             return true;
@@ -451,16 +376,18 @@ namespace gui {
             if (e.xbutton.button == Button1) {
               last_mouse_point = core::point(e.xbutton);
               last_position = get_value();
-              core::rectangle place = client_area();
-              if (up_button_place(place).is_inside(last_mouse_point)) {
+
+              geometry geo = get_geometry();
+
+              if (up_button_place(geo).is_inside(last_mouse_point)) {
                 state = Up_button_pressed;
-              } else if (down_button_place(place).is_inside(last_mouse_point)) {
+              } else if (down_button_place(geo).is_inside(last_mouse_point)) {
                 state = Down_button_pressed;
-              } else if (thumb_button_place(place).is_inside(last_mouse_point)) {
+              } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
                 state = Thumb_button_pressed;
-              } else if (page_up_place(place).is_inside(last_mouse_point)) {
+              } else if (page_up_place(geo).is_inside(last_mouse_point)) {
                 state = Page_up_pressed;
-              } else if (page_down_place(place).is_inside(last_mouse_point)) {
+              } else if (page_down_place(geo).is_inside(last_mouse_point)) {
                 state = Page_down_pressed;
               } else {
                 state = Nothing_pressed;
@@ -472,25 +399,27 @@ namespace gui {
             switch (e.xbutton.button) {
               case Button1: {
                 auto pt = core::point(e.xbutton);
-                core::rectangle place = client_area();
+
+                geometry geo = get_geometry();
+
                 switch (state) {
                   case Up_button_pressed:
-                    if (up_button_place(place).is_inside(pt)) {
+                    if (up_button_place(geo).is_inside(pt)) {
                       set_value(get_value() - 1, true);
                     }
                     break;
                   case Down_button_pressed:
-                    if (down_button_place(place).is_inside(pt)) {
+                    if (down_button_place(geo).is_inside(pt)) {
                       set_value(get_value() + 1, true);
                     }
                     break;
                   case Page_up_pressed:
-                    if (page_up_place(place).is_inside(pt)) {
+                    if (page_up_place(geo).is_inside(pt)) {
                       set_value(get_value() - get_step(), true);
                     }
                     break;
                   case Page_down_pressed:
-                    if (page_down_place(place).is_inside(pt)) {
+                    if (page_down_place(geo).is_inside(pt)) {
                       set_value(get_value() + get_step(), true);
                     }
                     break;
@@ -555,37 +484,38 @@ namespace gui {
 
       template<>
       bool scroll_barT<false>::scroll_handle_eventT (const core::event& e,
-                                                     core::event_result& result) {
+                                                     os::event_result& result) {
         switch (e.type) {
           case Expose: {
             if (!gc) {
               gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
             }
             draw::graphics g(e.xexpose.window, gc);
-            core::rectangle place = client_area();
 
-            auto up = up_button_place(place);
+            geometry geo = get_geometry();
+
+            auto up = up_button_place(geo);
             g.fill(draw::rectangle(up), draw::color::buttonColor);
             draw::frame::deep_relief(g, up, state == Up_button_pressed);
             g.text(draw::text_box(u8"\u2227", up, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
-            auto down = down_button_place(place);
+            auto down = down_button_place(geo);
             g.fill(draw::rectangle(down), draw::color::buttonColor);
             draw::frame::deep_relief(g, down, state == Down_button_pressed);
             g.text(draw::text_box(u8"\u2228", down, draw::center),
                    draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
 
-            auto thumb = thumb_button_place(place);
+            auto thumb = thumb_button_place(geo);
             g.fill(draw::rectangle(thumb), draw::color::buttonColor);
             draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(place)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray);
                 break;
               case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(place)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray);
                 break;
             }
             return true;
@@ -594,16 +524,18 @@ namespace gui {
             if (e.xbutton.button == Button1) {
               last_mouse_point = core::point(e.xbutton);
               last_position = get_value();
-              core::rectangle place = client_area();
-              if (up_button_place(place).is_inside(last_mouse_point)) {
+
+              geometry geo = get_geometry();
+
+              if (up_button_place(geo).is_inside(last_mouse_point)) {
                 state = Up_button_pressed;
-              } else if (down_button_place(place).is_inside(last_mouse_point)) {
+              } else if (down_button_place(geo).is_inside(last_mouse_point)) {
                 state = Down_button_pressed;
-              } else if (thumb_button_place(place).is_inside(last_mouse_point)) {
+              } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
                 state = Thumb_button_pressed;
-              } else if (page_up_place(place).is_inside(last_mouse_point)) {
+              } else if (page_up_place(geo).is_inside(last_mouse_point)) {
                 state = Page_up_pressed;
-              } else if (page_down_place(place).is_inside(last_mouse_point)) {
+              } else if (page_down_place(geo).is_inside(last_mouse_point)) {
                 state = Page_down_pressed;
               } else {
                 state = Nothing_pressed;
@@ -616,25 +548,27 @@ namespace gui {
             switch (e.xbutton.button) {
               case Button1: {
                 auto pt = core::point(e.xbutton);
-                core::rectangle place = client_area();
+
+                geometry geo = get_geometry();
+
                 switch (state) {
                   case Up_button_pressed:
-                    if (up_button_place(place).is_inside(pt)) {
+                    if (up_button_place(geo).is_inside(pt)) {
                       set_value(get_value() - 1, true);
                     }
                     break;
                   case Down_button_pressed:
-                    if (down_button_place(place).is_inside(pt)) {
+                    if (down_button_place(geo).is_inside(pt)) {
                       set_value(get_value() + 1, true);
                     }
                     break;
                   case Page_up_pressed:
-                    if (page_up_place(place).is_inside(pt)) {
+                    if (page_up_place(geo).is_inside(pt)) {
                       set_value(get_value() - get_step(), true);
                     }
                     break;
                   case Page_down_pressed:
-                    if (page_down_place(place).is_inside(pt)) {
+                    if (page_down_place(geo).is_inside(pt)) {
                       set_value(get_value() + get_step(), true);
                     }
                     break;

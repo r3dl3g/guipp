@@ -65,20 +65,24 @@ namespace gui {
       explicit size (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit size(const event_param_1& p);
-      explicit size(const event_param_2& p);
+      explicit size(const os::win32::event_param_1& p);
+      explicit size(const os::win32::event_param_2& p);
 #endif // WIN32
 #ifdef X11
 
       template<typename T>
       explicit size (const T& rhs)
-        : sz({type(rhs.width), type(rhs.height)}) {}
+        : m_w(static_cast<type>(rhs.width))
+        , m_h(static_cast<type>(rhs.height))
+      {}
 
 #endif // X11
 
       operator os::size () const;
 
       operator os::point () const;
+
+      os::size os () const;
 
       inline bool operator== (const size& rhs) const {
         return (width() == rhs.width()) && (height() == rhs.height());
@@ -114,6 +118,14 @@ namespace gui {
 
       inline type height () const {
         return m_h;
+      }
+
+      inline os::size_type os_width () const {
+        return static_cast<os::size_type>(m_w);
+      }
+
+      inline os::size_type os_height () const {
+        return static_cast<os::size_type>(m_h);
       }
 
       inline void width (type w) {
@@ -163,13 +175,15 @@ namespace gui {
 #ifdef X11
 
       template<typename T>
-      explicit point (const T& rhs) {
-        pt = {type(rhs.x), type(rhs.y)};
-      }
+      explicit point (const T& rhs)
+        : m_x(static_cast<type>(rhs.x))
+        , m_y(static_cast<type>(rhs.y))
+      {}
 
 #endif // X11
 
       operator os::point () const;
+      os::point os () const;
 
       inline point operator+ (const size& s) const {
         return {type(x() + s.width()), type(y() + s.height())};
@@ -262,6 +276,14 @@ namespace gui {
         m_y = y_;
       }
 
+      inline os::point_type os_x () const {
+        return static_cast<os::point_type>(m_x);
+      }
+
+      inline os::point_type os_y () const {
+        return static_cast<os::point_type>(m_y);
+      }
+
     private:
       type m_x;
       type m_y;
@@ -313,6 +335,16 @@ namespace gui {
 #endif // X11
 
       operator os::rectangle () const;
+
+      os::rectangle os () const;
+
+//      operator point () const {
+//        return position();
+//      }
+
+//      operator core::size () const {
+//        return size();
+//      }
 
       inline bool is_inside (const point& p) const {
         return (p >= tl) && (p < br);
@@ -464,6 +496,30 @@ namespace gui {
 
       void width (size::type width);
 
+      inline os::point_type os_x () const {
+        return static_cast<os::point_type>(x());
+      }
+
+      inline os::point_type os_y () const {
+        return static_cast<os::point_type>(y());
+      }
+
+      inline os::point_type os_x2 () const {
+        return static_cast<os::point_type>(x2());
+      }
+
+      inline os::point_type os_y2 () const {
+        return static_cast<os::point_type>(y2());
+      }
+
+      inline os::size_type os_width () const {
+        return static_cast<os::size_type>(width());
+      }
+
+      inline os::size_type os_height () const {
+        return static_cast<os::size_type>(height());
+      }
+
       // union
       rectangle& operator&= (const rectangle& rhs);
 
@@ -479,10 +535,5 @@ namespace gui {
                               const rectangle&);
 
   } // core
-
-  inline core::os::point_type os(core::point::type v) {
-    return static_cast<core::os::point_type>(v);
-  }
-
 
 } // gui

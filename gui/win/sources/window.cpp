@@ -24,6 +24,9 @@
 #include <algorithm>
 #include <map>
 
+#ifdef X11
+#include <X11/cursorfont.h>
+#endif // X11
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -52,9 +55,9 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
-                         core::window_id parent_id,
+                         os::window parent_id,
                          const core::rectangle& place,
-                         core::menu_id menu) {
+                         os::menu menu) {
 
       this->cls = &type;
 
@@ -77,7 +80,7 @@ namespace gui {
     void window::create (const window_class& type,
                          const container& parent,
                          const core::rectangle& place,
-                         core::menu_id menu) {
+                         os::menu menu) {
       create(type, parent.get_id(), place, menu);
     }
 
@@ -178,7 +181,7 @@ namespace gui {
     core::point window::position() const {
       RECT r;
       GetWindowRect(get_id(), &r);
-      return screen_to_window(core::point(core::os::point{ r.left, r.top }));
+      return screen_to_window(core::point(os::point{ r.left, r.top }));
     }
 
     core::rectangle window::place() const {
@@ -250,13 +253,13 @@ namespace gui {
       return core::point(Point);
     }
 
-    core::windows_style window::get_style (core::windows_style mask) const {
+    os::style window::get_style (os::style mask) const {
       LONG old_style = GetWindowLong(get_id(), GWL_STYLE);
-      core::windows_style new_style = old_style & mask;
+      os::style new_style = old_style & mask;
       return new_style;
     }
 
-    void window::set_style (core::windows_style style, bool enable) {
+    void window::set_style (os::style style, bool enable) {
       LONG new_style = enable ? get_style() | style : get_style(~style);
       SetWindowLong(get_id(), GWL_STYLE, new_style);
       redraw_now();
@@ -268,7 +271,7 @@ namespace gui {
 
     std::vector<window*> container::get_children () const {
       std::vector<window*> list;
-      core::window_id id = GetWindow(get_id(), GW_CHILD);
+      os::window id = GetWindow(get_id(), GW_CHILD);
       while (id) {
         list.push_back(detail::get_window(id));
         id = GetWindow(id, GW_HWNDNEXT);
@@ -295,12 +298,12 @@ namespace gui {
     }
 
     void window::create (const window_class& type,
-                         core::window_id parent_id,
+                         os::window parent_id,
                          const core::rectangle& place,
-                         core::menu_id) {
+                         os::menu) {
       destroy();
       cls = &type;
-      core::instance_id display = core::global::get_instance();
+      os::instance display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
                                parent_id,
                                place.x(),
@@ -326,7 +329,7 @@ namespace gui {
     void window::create (const window_class& type,
                          const container& parent,
                          const core::rectangle& place,
-                         core::menu_id menu) {
+                         os::menu menu) {
       create(type, parent.get_id(), place, menu);
     }
 
@@ -442,8 +445,18 @@ namespace gui {
     }
 
     void window::enable (bool on) {
-      window_disabled = !on;
-      redraw_later();
+      if (window_disabled == on) {
+        window_disabled = !on;
+
+        if (get_window_class()->get_cursor()) {
+          unsigned long mask = CWCursor;
+          XSetWindowAttributes wa;
+          wa.cursor = on ? get_window_class()->get_cursor()
+                         : XCreateFontCursor(core::global::get_instance(), XC_arrow);
+          XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa);
+        }
+        redraw_later();
+      }
     }
 
     void window::take_focus () {
@@ -520,7 +533,7 @@ namespace gui {
     }
 
     core::size window::client_size () const {
-      return size() - core::size(1, 1);
+      return size();// - core::size(1, 1);
     }
 
     core::rectangle window::client_area () const {
@@ -781,7 +794,7 @@ namespace gui {
       }
     }
 
-    bool query_net_wm_state (core::window_id id,
+    bool query_net_wm_state (os::window id,
                              Atom a1,
                              Atom a2 = 0,
                              Atom a3 = 0) {
@@ -834,7 +847,7 @@ namespace gui {
       XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
     }
 
-    void send_net_wm_state (core::window_id id,
+    void send_net_wm_state (os::window id,
                             long action,
                             Atom a1,
                             Atom a2 = 0,

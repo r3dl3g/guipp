@@ -27,7 +27,6 @@
 #include <map>
 #include <functional>
 #include <memory>
-//#include <mutex>
 
 
 // --------------------------------------------------------------------------
@@ -35,7 +34,7 @@
 // Library includes
 //
 #include "event.h"
-#include "easy_bind.h"
+#include "bind_method.h"
 
 
 namespace gui {
@@ -52,14 +51,14 @@ namespace gui {
 
       void register_event_handler(event_handler_function);
 
-      template<typename T, typename F>
-      void register_event_handler(T* t, F f) {
-        register_event_handler(easy_bind(t, f));
+      template<typename T>
+      void register_event_handler(T* t, bool(T::*f)(const core::event&, os::event_result& result)) {
+        register_event_handler(bind_method(t, f));
       };
 
       void unregister_event_handler(event_handler_function);
 
-      bool handle_event(const event& e, event_result& result);
+      bool handle_event(const event& e, os::event_result& result);
 
     private:
       typedef std::vector<event_handler_function> event_handler_list;

@@ -41,84 +41,84 @@
 
 namespace gui {
 
-  namespace core {
-
 #ifdef WIN32
 
-    typedef HWND window_id;
-    typedef HANDLE drawable_id;
+  namespace os {
+    typedef HINSTANCE instance;
+    typedef HWND window;
+    typedef HANDLE drawable;
+    typedef HDC graphics;
+
+    typedef COLORREF color;
+    typedef UINT style;
+
+    typedef HICON icon;
+    typedef HCURSOR cursor;
+    typedef HBRUSH brush;
+    typedef HFONT font;
+    typedef HPEN pen;
+    typedef HMENU menu;
+
+    typedef LONG point_type;
+    typedef LONG size_type;
+    typedef LOGFONT font_type;
+
+    typedef POINT point;
+    typedef SIZE size;
+    typedef RECT rectangle;
+
     typedef UINT event_id;
-    typedef WPARAM event_param_1;
-    typedef LPARAM event_param_2;
     typedef LRESULT event_result;
     typedef WNDPROC event_callback;
 
-    typedef UINT windows_style;
+    namespace win32 {
+      typedef WPARAM event_param_1;
+      typedef LPARAM event_param_2;
 
-    typedef HICON icon_id;
-    typedef HCURSOR cursor_id;
-    typedef HBRUSH brush_id;
-    typedef HINSTANCE instance_id;
-    typedef HFONT font_id;
-    typedef HPEN pen_id;
-    typedef HDC graphics_id;
-    typedef HMENU menu_id;
-
-    namespace os {
-
-      typedef LONG point_type;
-      typedef LONG size_type;
-
-      typedef POINT point;
-      typedef SIZE size;
-      typedef RECT rectangle;
-
+      typedef LOGBRUSH brush_type;
+      typedef LOGPEN pen_type;
     }
-
-    typedef LOGFONT font_type;
-    typedef LOGPEN pen_type;
-    typedef LOGBRUSH brush_type;
-
-    typedef COLORREF color_type;
+  }
     
 #define IF_WIN32(...) __VA_ARGS__
 #define IF_X11(...)
 
 #elif X11
 
-    typedef Window window_id;
-    typedef Drawable drawable_id;
+  namespace os {
+    typedef Display* instance;
+    typedef Window window;
+    typedef Drawable drawable;
+    typedef GC graphics;
+
+    typedef unsigned long color;
+    typedef unsigned int style;
+
+    typedef Pixmap icon;
+    typedef Cursor cursor;
+    typedef color brush;
+    typedef XftPattern* font;
+    typedef int menu;
+
+    typedef short point_type;
+    typedef unsigned short size_type;
+    typedef XftFont* font_type;
+
+    typedef XPoint point;
+    typedef struct {
+      size_type cx;
+      size_type cy;
+    } size;
+    typedef XRectangle rectangle;
+
     typedef int event_id;
     typedef int event_result;
     typedef void* event_callback;
 
-    typedef unsigned int windows_style;
-    typedef unsigned long color_type;
-
-    typedef Pixmap icon_id;
-    typedef Cursor cursor_id;
-    typedef color_type brush_id;
-    typedef Display* instance_id;
-    typedef int screen_id;
-    typedef XftPattern* font_id;
-    typedef GC graphics_id;
-    typedef int menu_id;
-
-    namespace os {
-
-      typedef short point_type;
-      typedef unsigned short size_type;
-
-      typedef XPoint os::point;
-      typedef struct {
-        size_type cx;
-        size_type cy;
-      } os::size;
-      typedef XRectangle rectangle;
-
+    namespace x11 {
+      typedef int screen;
     }
-
-    typedef XftFont* font_type;
+  }
 
 #define IF_WIN32(...)
 #define IF_X11(...) __VA_ARGS__
@@ -128,16 +128,18 @@ namespace gui {
 #pragma error "Unknown target system"
 
 #endif
+  namespace core {
+
     namespace global {
 
-      void init(core::instance_id instance);
-      core::instance_id get_instance();
+      void init(os::instance instance);
+      os::instance get_instance();
 
       void fini();
 
 #ifdef X11
-      screen_id get_screen();
-      void set_screen(screen_id);
+      os::x11::screen get_screen();
+      void set_screen(os::x11::screen);
 #endif // X11
 
     }

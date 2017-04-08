@@ -36,20 +36,20 @@ namespace gui {
 
 #ifdef WIN32
     struct event {
-      inline event(window_id id,
-                   event_id e,
-                   event_param_1 p1,
-                   event_param_2 p2)
+      inline event(os::window id,
+                   os::event_id e,
+                   os::win32::event_param_1 p1,
+                   os::win32::event_param_2 p2)
         : id(id)
         , type(e)
         , param_1(p1)
         , param_2(p2)
       {}
 
-      window_id     id;
-      event_id      type;
-      event_param_1 param_1;
-      event_param_2 param_2;
+      os::window               id;
+      os::event_id             type;
+      os::win32::event_param_1 param_1;
+      os::win32::event_param_2 param_2;
     };
 
 #elif X11
@@ -58,11 +58,11 @@ namespace gui {
 
 #endif // WIN
 
-    inline event_id get_event_id (const event& e) {
+    inline os::event_id get_event_id (const event& e) {
       return e.type;
     }
 
-    typedef bool(event_handler)(const event&, event_result&);
+    typedef bool(event_handler)(const event&, os::event_result&);
 
   } // core
 

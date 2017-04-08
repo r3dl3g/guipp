@@ -64,7 +64,7 @@ namespace gui {
 
 #ifdef WIN32
     const font& font::system() {
-        static font f((core::font_id)GetStockObject(SYSTEM_FONT));
+        static font f((os::font)GetStockObject(SYSTEM_FONT));
         return f;
     }
     const font& font::system_bold() {
@@ -72,7 +72,7 @@ namespace gui {
         return f;
     }
     const font& font::monospace() {
-        static font f((core::font_id)GetStockObject(SYSTEM_FIXED_FONT));
+        static font f((os::font)GetStockObject(SYSTEM_FIXED_FONT));
         return f;
     }
     const font& font::serif() {
@@ -84,9 +84,9 @@ namespace gui {
         return f;
     };
 
-    font::font(core::font_id id)
+    font::font(os::font id)
       : id(id) {
-      GetObject(id, sizeof(core::font_type), &info);
+      GetObject(id, sizeof(os::font_type), &info);
     }
 
     font::font(const std::string& name,
@@ -100,7 +100,7 @@ namespace gui {
                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
                name.c_str()))
     {
-      GetObject(id, sizeof(core::font_type), &info);
+      GetObject(id, sizeof(os::font_type), &info);
     }
 
     font::font(const font& rhs)
@@ -115,7 +115,7 @@ namespace gui {
       }
     }
 
-    font::operator core::font_id() const {
+    font::operator os::font() const {
       return id;
     }
 
@@ -148,38 +148,38 @@ namespace gui {
     }
 
     font font::with_size(size_type sz) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfHeight = sz;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_thickness(Thickness t) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfWeight = t;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_rotation(int r) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfOrientation = r;
       newType.lfEscapement = r;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_italic(bool i) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfItalic = i;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_underline(bool u) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfUnderline = u;
       return font(CreateFontIndirect(&newType));
     }
 
     font font::with_strikeout(bool s) const {
-      core::font_type newType = info;
+      os::font_type newType = info;
       newType.lfStrikeOut = s;
       return font(CreateFontIndirect(&newType));
     }
@@ -229,7 +229,7 @@ namespace gui {
       return f;
     }
 
-    font::font (core::font_id id) {
+    font::font (os::font id) {
       info = XftFontOpenPattern(core::global::get_instance(), id);
     }
 
@@ -279,11 +279,11 @@ namespace gui {
       }
     }
 
-    font::operator core::font_id () const {
+    font::operator os::font () const {
       return (info ? info->pattern : nullptr);
     }
 
-    core::font_type font::font_type () const {
+    os::font_type font::font_type () const {
       return info;
     }
 

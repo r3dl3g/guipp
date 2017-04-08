@@ -98,10 +98,10 @@ namespace gui {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
         core::rectangle r = get_rect<WINDOWPOS>(e);
         callback(r);
-        p->x = os(r.x());
-        p->y = os(r.y());
-        p->cx = os(r.width());
-        p->cy = os(r.height());
+        p->x = r.os_x();
+        p->y = r.os_y();
+        p->cx = r.os_width();
+        p->cy = r.os_height();
       }
     }
 

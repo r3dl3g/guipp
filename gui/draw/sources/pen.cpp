@@ -39,13 +39,13 @@ namespace gui {
     pen::pen(os::pen id)
       :id(id)
     {
-      GetObject(id, sizeof(core::pen_type), &info);
+      GetObject(id, sizeof(os::win32::pen_type), &info);
     }
 
     pen::pen(const draw::color& color, Style style, size_type width)
       : id(CreatePen(style, width, color))
     {
-      GetObject(id, sizeof(core::pen_type), &info);
+      GetObject(id, sizeof(os::win32::pen_type), &info);
     }
 
     pen::pen(const pen& rhs)
@@ -73,19 +73,19 @@ namespace gui {
     }
 
     pen pen::with_size(size_type sz) const {
-      core::pen_type newType = info;
+      os::win32::pen_type newType = info;
       newType.lopnWidth = { sz, sz };
       return pen(CreatePenIndirect(&newType));
     }
 
     pen pen::with_style(Style s) const {
-      core::pen_type newType = info;
+      os::win32::pen_type newType = info;
       newType.lopnStyle = s;
       return pen(CreatePenIndirect(&newType));
     }
 
     pen pen::with_color(const draw::color& c) const {
-      core::pen_type newType = info;
+      os::win32::pen_type newType = info;
       newType.lopnColor = c;
       return pen(CreatePenIndirect(&newType));
     }

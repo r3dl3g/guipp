@@ -83,14 +83,14 @@ namespace gui {
                                 const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void rectangle::operator() (graphics& g,
                                 const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void rectangle::operator() (graphics& g,
@@ -98,7 +98,7 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void ellipse::operator() (graphics& g,
@@ -106,14 +106,14 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void ellipse::operator() (graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void ellipse::operator() (graphics& g,
@@ -121,7 +121,7 @@ namespace gui {
       Use<brush> br(g, b);
       pen p(b.color());
       Use<pen> pn(g, p);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.x2()), os(rect.os_y2());
+      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
     }
 
     void round_rectangle::operator() (graphics& g,
@@ -210,13 +210,19 @@ namespace gui {
       StrokeAndFillPath(g);
     }
 
-    polygon::polygon (const std::vector<core::point>& pts)
-      : points(pts)
-    {}
+    polygon::polygon (const std::vector<core::point>& pts) {
+      points.reserve(pts.size() + 1);
+      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt) {
+        points.push_back(pt.os());
+      });
+    }
 
-    polygon::polygon (std::initializer_list<core::point> pts)
-      : points(pts)
-    {}
+    polygon::polygon (std::initializer_list<core::point> pts) {
+      points.reserve(pts.size() + 1);
+      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt) {
+        points.push_back(pt.os());
+      });
+    }
 
     void polygon::operator() (graphics& g,
                               const brush& b,
@@ -369,7 +375,7 @@ namespace gui {
     }
 
     void graphics::push_clip_rectangle (const core::rectangle& r) {
-      HRGN hr = CreateRectRgn(r.x(), r.y(), r.x2(), r.y2());
+      HRGN hr = CreateRectRgn(r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
       SelectClipRgn(gc, hr);
       clipping_rectangles.push_back(hr);
     }

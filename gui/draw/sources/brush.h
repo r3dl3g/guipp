@@ -74,7 +74,7 @@ namespace gui {
     private:
 #ifdef WIN32
       os::brush id;
-      core::brush_type info;
+      os::win32::brush_type info;
 #endif // WIN32
 #ifdef X11
       const draw::color m_color;

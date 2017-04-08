@@ -96,7 +96,7 @@ namespace gui {
 
 #ifdef WIN32
       os::pen id;
-      core::pen_type info;
+      os::win32::pen_type info;
 #endif // WIN32
 #ifdef X11
       const draw::color m_color;

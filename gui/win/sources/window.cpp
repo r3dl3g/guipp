@@ -65,10 +65,10 @@ namespace gui {
                           type.get_class_name().c_str(),  // address of registered class name
                           nullptr,                        // address of window text
                           type.get_style(),               // window style
-                          os(place.x()),                  // horizontal position of window
-                          os(place.y()),                  // vertical position of window
-                          os(place.width()),              // window width
-                          os(place.height()),             // window height
+                          place.os_x(),                   // horizontal position of window
+                          place.os_y(),                   // vertical position of window
+                          place.os_width(),               // window width
+                          place.os_height(),              // window height
                           parent_id,                      // handle of parent window
                           menu,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
@@ -214,21 +214,21 @@ namespace gui {
     }
 
     void window::move(const core::point& pt, bool repaint) {
-      SetWindowPos(get_id(), nullptr, os(pt.x()), os(pt.y()), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
       if (repaint) {
         redraw_later();
       }
     }
 
     void window::resize(const core::size& sz, bool repaint) {
-      SetWindowPos(get_id(), nullptr, 0, 0, os(sz.width()), os(sz.height()), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+      SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
       if (repaint) {
         redraw_later();
       }
     }
 
     void window::place(const core::rectangle& r, bool repaint) {
-      MoveWindow(get_id(), os(r.x()), os(r.y()), os(r.width()), os(r.height()), repaint);
+      MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
     }
 
     core::point window::window_to_screen(const core::point& pt) const {

@@ -38,7 +38,7 @@ namespace gui {
 
     brush::brush(os::brush id)
       :id(id) {
-      GetObject(id, sizeof(core::brush_type), &info);
+      GetObject(id, sizeof(os::win32::brush_type), &info);
     }
 
     brush::brush(const draw::color& color, Style style)
@@ -71,13 +71,13 @@ namespace gui {
     }
 
     brush brush::with_style(Style s) const {
-      core::brush_type newType = info;
+      os::win32::brush_type newType = info;
       newType.lbStyle = s;
       return brush(CreateBrushIndirect(&newType));
     }
 
     brush brush::with_color(const draw::color& c) const {
-      core::brush_type newType = info;
+      os::win32::brush_type newType = info;
       newType.lbColor = c;
       return brush(CreateBrushIndirect(&newType));
     }

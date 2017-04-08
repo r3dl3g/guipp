@@ -22,11 +22,13 @@
 //
 #include <ostream>
 #include <algorithm>
-#include <X11/Xlib.h>
 
 #ifdef WIN32
 #include <windowsx.h>
 #endif
+#ifdef X11
+#include <X11/Xlib.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //

@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <logger.h>
 #include <dbgstream.h>
+#include <iterator>
 
 // --------------------------------------------------------------------------
 //

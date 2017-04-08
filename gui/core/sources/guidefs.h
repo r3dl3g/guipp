@@ -86,6 +86,21 @@ namespace gui {
 #define IF_WIN32(...) __VA_ARGS__
 #define IF_X11(...)
 
+#ifdef _MSC_VER
+# if (_MSC_VER >= 1900)
+# define IF_VC14(...) __VA_ARGS__
+# else 
+# define IF_VC14(...)
+# endif
+# if (_MSC_VER >= 1800) && (_MSC_VER < 1900)
+# define IF_VC12(...) __VA_ARGS__
+# define IF_NOT_VC12(...)
+# else 
+# define IF_VC12(...)
+# define IF_NOT_VC12(...) __VA_ARGS__
+# endif
+#endif
+
 #elif X11
 
   namespace os {

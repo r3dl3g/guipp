@@ -565,7 +565,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
   */
 
-  register_event_handler(win::create_event(gui::core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(win::create_event(core::bind_method(this, &my_main_window::onCreated)));
 }
 
 void my_main_window::query_state () {
@@ -656,7 +656,7 @@ void my_main_window::created_children () {
     win::cell_drawer<int, draw::frame::lines>,
 
     [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
-      std::string text = v ? u8"\u25C9" : u8"\u25CB";
+      std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
       win::owner_draw::draw_text_item(text, g, r, b, s, align);
       draw::frame::lines(g, r);
     }

@@ -656,7 +656,7 @@ void my_main_window::created_children () {
     win::cell_drawer<int, draw::frame::lines>,
 
     [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
-      std::string text = v ? u8"\u2611" : u8"\u2610";
+      std::string text = v ? u8"\u25C9" : u8"\u25CB";
       win::owner_draw::draw_text_item(text, g, r, b, s, align);
       draw::frame::lines(g, r);
     }

@@ -22,6 +22,9 @@
 //
 // Common includes
 //
+#include<vector>
+#include<string>
+
 #ifdef WIN32
 #define NOMINMAX
 #include <windows.h>

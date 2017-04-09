@@ -35,6 +35,7 @@
 #include "window_event_proc.h"
 #include "color.h"
 #include "window_event_handler.h"
+#include "ostreamfmt.h"
 
 
 namespace gui {
@@ -204,13 +205,13 @@ namespace gui {
     core::size window::client_size() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::size(r) - core::size::one;
+      return core::size(r);// -core::size::one;
     }
 
     core::rectangle window::client_area() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::rectangle(r) - core::size::one;
+      return core::rectangle(r);// - core::size::one;
     }
 
     void window::move(const core::point& pt, bool repaint) {
@@ -320,7 +321,7 @@ namespace gui {
       wa.event_mask = type.get_style();
       if (type.get_cursor()) {
         mask |= CWCursor;
-        wa.cursor = XCreateFontCursor(core::global::get_instance(), type.get_cursor());
+        wa.cursor = type.get_cursor();
       }
       XChangeWindowAttributes(display, id, mask, &wa);
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
@@ -451,8 +452,8 @@ namespace gui {
         if (get_window_class()->get_cursor()) {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa;
-          wa.cursor = XCreateFontCursor(core::global::get_instance(), on ? get_window_class()->get_cursor()
-                                                                         : XC_arrow);
+          wa.cursor = on ? get_window_class()->get_cursor()
+                         : XCreateFontCursor(core::global::get_instance(), XC_arrow);
           XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa);
         }
         redraw_later();
@@ -885,24 +886,24 @@ namespace gui {
 #endif //X11
 
 #ifdef WIN32
-    win::window_class init_group_window_clazz (unsigned long v) {
-        return win::window_class::custom_class("group_window",
-                                               CS_DBLCLKS,
-                                               WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                               WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                                               nullptr,
-                                               IDC_ARROW,
-                                               core::brush(v));
-      }
+    win::window_class create_group_window_clazz (unsigned long v) {
+      static int group_window_id = 0;
+      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++),
+                                              CS_DBLCLKS,
+                                              WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                              WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+                                              nullptr,
+                                              IDC_ARROW,
+                                              draw::brush(draw::color(v)));
     }
 #endif // WIN32
 
 #ifdef X11
-    win::window_class init_group_window_clazz (draw::color::value_type v) {
-      return win::window_class::custom_class("group_window", draw::brush(v));
+    win::window_class create_group_window_clazz (draw::color::value_type v) {
+      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++), draw::brush(v));
     }
 #endif //X11
 
-} // win
+  } // win
 
 } // gui

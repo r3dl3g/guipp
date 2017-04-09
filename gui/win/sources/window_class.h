@@ -60,8 +60,8 @@ namespace gui {
 
       static window_class sub_class (window_class& cls, const std::string& base_cls);
 
-      static window_class sub_class (const std::string& cls,
-                                     const std::string& base_cls,
+      static window_class sub_class (const std::string& sub_cls,
+                                     const std::string& cls,
                                      os::style style = 0,
                                      os::style ex_style = 0,
                                      draw::color foreground = draw::color::black());
@@ -79,6 +79,16 @@ namespace gui {
                     draw::color foreground = draw::color::black(),
                     os::event_callback callback = nullptr);
 
+      window_class (const std::string& cls_name,
+                    os::style class_style = 0, // X11: Border width
+                    os::style style = 0,
+                    os::style ex_style = 0,
+                    os::icon icon = 0,
+                    os::cursor cursor = 0,
+                    const draw::brush& background = draw::brush(draw::color::windowColor()),
+                    draw::color foreground = draw::color::black(),
+                    os::event_callback callback = nullptr);
+
       void prepare (window*) const;
 
       const std::string& get_class_name () const;
@@ -86,7 +96,7 @@ namespace gui {
       const os::style get_style () const;
       const os::style get_ex_style () const;
       const os::icon get_icon () const;
-      const os::cursor_type get_cursor () const;
+      const os::cursor get_cursor () const;
       const draw::brush& get_background () const;
       const draw::color get_foreground () const;
       const os::event_callback get_callback () const;
@@ -97,21 +107,29 @@ namespace gui {
         unregister_class();
       }
 
-      os::style class_style;
-      os::style style;
-      os::style ex_style;
-      os::icon icon;
-      os::cursor_type cursor;
-      draw::brush background;
-      draw::color foreground;
-
     private:
       void register_class () const;
       void unregister_class ();
 
+      window_class (const std::string& cls,
+                    const std::string& sub_cls,
+                    os::style style = 0,
+                    os::style ex_style = 0,
+                    draw::color foreground = draw::color::black());
+
       std::string class_name;
-      os::event_callback callback;
+      std::string sub_class_name;
+      mutable os::style class_style;
+      os::style style;
+      os::style ex_style;
+      mutable os::icon icon;
+      mutable os::cursor cursor;
+      os::cursor_type cursor_type;
+      mutable draw::brush background;
+      draw::color foreground;
+      mutable os::event_callback callback;
       mutable bool is_initialized;
+      bool is_sub_class;
     };
 
   } // win

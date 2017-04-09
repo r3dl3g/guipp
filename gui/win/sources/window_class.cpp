@@ -53,10 +53,12 @@ namespace gui {
       , ex_style(0)
       , icon(0)
       , cursor(0)
+      , cursor_type(0)
       , background(0)
       , foreground(0)
       , callback(0)
       , is_initialized(false)
+      , is_sub_class(false)
     {}
 
     window_class::window_class (const window_class& rhs)
@@ -66,10 +68,12 @@ namespace gui {
       , ex_style(rhs.ex_style)
       , icon(rhs.icon)
       , cursor(rhs.cursor)
+      , cursor_type(rhs.cursor_type)
       , background(rhs.background)
       , foreground(rhs.foreground)
       , callback(rhs.callback)
-      , is_initialized(false)
+      , is_initialized(rhs.is_initialized)
+      , is_sub_class(rhs.is_sub_class)
     {}
 
     window_class::window_class (const std::string& cls_name,
@@ -77,7 +81,7 @@ namespace gui {
                                 os::style style,
                                 os::style ex_style,
                                 os::icon icon,
-                                os::cursor_type cursor,
+                                os::cursor cursor,
                                 const draw::brush& background,
                                 draw::color foreground,
                                 os::event_callback callback)
@@ -87,11 +91,57 @@ namespace gui {
       , ex_style(ex_style)
       , icon(icon)
       , cursor(cursor)
+      , cursor_type(0)
       , background(background)
       , foreground(foreground)
       , callback(callback)
       , is_initialized(false)
+      , is_sub_class(false)
     {}
+
+    window_class::window_class (const std::string& cls_name,
+                                os::style class_style,
+                                os::style style,
+                                os::style ex_style,
+                                os::icon icon,
+                                os::cursor_type cursor_t,
+                                const draw::brush& background,
+                                draw::color foreground,
+                                os::event_callback callback)
+      : class_name(cls_name)
+      , class_style(class_style)
+      , style(style)
+      , ex_style(ex_style)
+      , icon(icon)
+      , cursor(0)
+      , cursor_type(cursor_t)
+      , background(background)
+      , foreground(foreground)
+      , callback(callback)
+      , is_initialized(false)
+      , is_sub_class(false)
+    {}
+
+    window_class::window_class (const std::string& cls,
+                                const std::string& sub_cls,
+                                os::style style,
+                                os::style ex_style,
+                                draw::color foreground) 
+      : class_name(cls)
+      , sub_class_name(sub_cls)
+      , class_style(0)
+      , style(style)
+      , ex_style(ex_style)
+      , icon(0)
+      , cursor(0)
+      , cursor_type(0)
+      , foreground(foreground)
+      , callback(nullptr)
+      , is_initialized(false)
+      , is_sub_class(true)
+    {
+    }
+
 
     void window_class::prepare (window* win) const {
 #ifdef WIN32
@@ -126,7 +176,7 @@ namespace gui {
       return icon;
     }
 
-    const os::cursor_type window_class::get_cursor () const {
+    const os::cursor window_class::get_cursor () const {
       register_class();
       return cursor;
     }
@@ -155,25 +205,45 @@ namespace gui {
         return;
       }
 #ifdef WIN32
-      WNDCLASS wc = {
-        /* Register the window class. */
-        class_style,
-        detail::WindowEventProc,
-        0,
-        sizeof(window_class*),
-        core::global::get_instance(),
-        icon,
-        cursor ? LoadCursor(nullptr, cursor) : nullptr,
-        background,
-        nullptr,
-        class_name.c_str()
-      };
+      if (cursor_type && !cursor) {
+        cursor = LoadCursor(nullptr, cursor_type);
+      }
+      if (is_sub_class) {
+        WNDCLASS wc;
+        GetClassInfo(core::global::get_instance(), class_name.c_str(), &wc);
+        class_style = wc.style;
+        callback = wc.lpfnWndProc;
+        icon = wc.hIcon;
+        cursor = wc.hCursor;
+        background = wc.hbrBackground;
+      } else {
+        WNDCLASS wc = {
+          /* Register the window class. */
+          class_style,
+          detail::WindowEventProc,
+          0,
+          sizeof(window_class*),
+          core::global::get_instance(),
+          icon,
+          cursor,
+          background,
+          nullptr,
+          class_name.c_str()
+        };
 
-      ATOM result = RegisterClass(&wc);
-      if (!result) {
-        throw std::runtime_error(getLastErrorText());
+        ATOM result = RegisterClass(&wc);
+        if (!result) {
+          std::string msg = getLastErrorText();
+          LogError << msg;
+          //throw std::runtime_error(msg);
+        }
       }
 #endif // WIN32
+#ifdef X11
+      if (cursor_type && !cursor) {
+        cursor = XCreateFontCursor(core::global::get_instance(), cursor_type);
+      }
+#endif
       is_initialized = true;
     }
 
@@ -208,33 +278,23 @@ namespace gui {
                           draw::color::black());
     }
 
-    window_class window_class::sub_class(window_class& cls, const std::string& base_cls) {
-#ifdef WIN32
-      WNDCLASS wc;
-      GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
-      cls.callback = wc.lpfnWndProc;
-      cls.class_name = base_cls;
-#endif // WIN32
-      return cls;
+    window_class window_class::sub_class (window_class& cls, const std::string& sub_cls) {
+      window_class wc = cls;
+      wc.sub_class_name = sub_cls;
+      wc.is_sub_class = true;
+      return wc;
     }
 
-    window_class window_class::sub_class (const std::string& cls,
-                                          const std::string& base_cls,
+    window_class window_class::sub_class (const std::string& sub_cls,
+                                          const std::string& cls,
                                           os::style style,
                                           os::style ex_style,
                                           draw::color foreground) {
-#ifdef WIN32
-      WNDCLASS wc;
-      GetClassInfo(core::global::get_instance(), base_cls.c_str(), &wc);
-      return window_class(base_cls, wc.style, style, ex_style, wc.hIcon, wc.hCursor, wc.hbrBackground, foreground, wc.lpfnWndProc);
-#else // !WIN32
-      // TBD! Mask here are only temporary
-      return custom_class(cls);
-#endif // !WIN32
+      return window_class(cls, sub_cls, style, ex_style, foreground);
     }
 
     void window_class::unregister_class () {
-      if (is_initialized && !callback) {
+      if (is_initialized && !callback && !is_sub_class) {
         is_initialized = false;
 #ifdef WIN32
         BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());

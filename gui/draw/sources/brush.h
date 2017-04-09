@@ -58,9 +58,7 @@ namespace gui {
 #ifdef WIN32
       brush(os::brush);
 
-      inline operator os::brush() const {
-        return id;
-      }
+      operator os::brush() const;
 #endif // WIN32
 
       draw::color color() const;
@@ -75,7 +73,7 @@ namespace gui {
 #ifdef WIN32
       void destroy();
 
-      os::brush id;
+      mutable os::brush id;
       os::win32::brush_type info;
 #endif // WIN32
 #ifdef X11

@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <ostream>
+#include <logger.h>
 
 // --------------------------------------------------------------------------
 //
@@ -37,9 +38,16 @@ namespace gui {
     const brush brush::default_brush((os::brush)GetStockObject(WHITE_BRUSH));
 
     brush::brush(os::brush os_id)
-      :id(0) {
-      GetObject(os_id, sizeof(os::win32::brush_type), &info);
-      id = CreateBrushIndirect(&info);
+      :id(os_id) {
+      if (reinterpret_cast<size_t>(id) > 31) {
+        const int expected = sizeof(os::win32::brush_type);
+        int result = GetObject(os_id, expected, &info);
+#ifdef _DEBUG
+        if (result != expected) {
+          LogDebug << "GetObject result returned unexpected result:" << result << " (expected:" << expected << ")";
+        }
+#endif
+      }
     }
 
     brush::brush(const draw::color& color, Style style)
@@ -48,11 +56,10 @@ namespace gui {
       info.lbColor = color;
       info.lbStyle = style;
       info.lbHatch = 0;
-      id = CreateBrushIndirect(&info);
     }
 
     brush::brush(const brush& rhs)
-      : id(CreateBrushIndirect(&rhs.info))
+      : id(reinterpret_cast<size_t>(rhs.id) > 31 ? 0 : rhs.id)
       , info(rhs.info)
     {}
 
@@ -61,10 +68,17 @@ namespace gui {
     }
 
     void brush::destroy() {
-      if (id) {
+      if (reinterpret_cast<size_t>(id) > 31) {
         DeleteObject(id);
         id = 0;
       }
+    }
+
+    brush::operator os::brush() const {
+      if (!id) {
+        id = CreateBrushIndirect(&info);
+      }
+      return id;
     }
 
     draw::color brush::color() const {

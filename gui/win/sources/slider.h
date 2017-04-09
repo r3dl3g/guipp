@@ -104,11 +104,11 @@ namespace gui {
         static window_class clazz;
       };
 
-      template<>
-      window_class slider_t<false>::clazz;
+      //template<>
+      //window_class slider_t<false>::clazz;
 
-      template<>
-      window_class slider_t<true>::clazz;
+      //template<>
+      //window_class slider_t<true>::clazz;
 
       template<>
       slider_t<false>::slider_t ();

@@ -163,11 +163,11 @@ namespace gui {
         static window_class clazz;
       };
 
-      template<>
-      window_class split_view<false>::clazz;
+      //template<>
+      //window_class split_view<false>::clazz;
 
-      template<>
-      window_class split_view<true>::clazz;
+      //template<>
+      //window_class split_view<true>::clazz;
 
       // --------------------------------------------------------------------------
       template<>

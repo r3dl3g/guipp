@@ -65,7 +65,7 @@ namespace gui {
     typedef LONG point_type;
     typedef LONG size_type;
     typedef LOGFONT font_type;
-    typedef UINT cursor_type;
+    typedef LPCSTR cursor_type;
 
     typedef POINT point;
     typedef SIZE size;

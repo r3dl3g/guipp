@@ -263,7 +263,7 @@ namespace gui {
                                         CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
                                         WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
                                         WS_EX_NOPARENTNOTIFY,
-                                        nullptr,
+                                        0,
                                         IDC_ARROW,
                                         (HBRUSH)(COLOR_WINDOW + 1))
 #endif // WIN32

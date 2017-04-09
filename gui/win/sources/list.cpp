@@ -85,7 +85,7 @@ namespace gui {
                                                                   "LISTBOX",
                                                                   LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN |
                                                                   WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                  WS_EX_NOPARENTNOTIFY)));
+                                                                  WS_EX_NOPARENTNOTIFY));
     template<>
     listT<false>::listT() {
       register_event_handler(size_event([&](const core::size& sz) {
@@ -152,11 +152,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    window_class listT<true>::clazz(win::sub_class(win::window_class::sub_class("MyHListBox",
-                                                                                "LISTBOX",
-                                                                                LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-                                                                                WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                                WS_EX_NOPARENTNOTIFY));
+    window_class listT<true>::clazz(win::window_class::sub_class("MyHListBox",
+                                                                 "LISTBOX",
+                                                                 LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
+                                                                 WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                 WS_EX_NOPARENTNOTIFY));
 
     template<>
     listT<true>::listT() {

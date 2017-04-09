@@ -250,7 +250,7 @@ namespace gui {
       layout_type layout;
     };
 
-    window_class init_group_window_clazz (draw::color::value_type);
+    window_class create_group_window_clazz (draw::color::value_type);
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, draw::color::value_type B = 0xFFFFFF>
@@ -268,7 +268,7 @@ namespace gui {
     };
 
     template<typename L, draw::color::value_type B>
-    window_class group_window<L, B>::clazz(init_group_window_clazz(B));
+    window_class group_window<L, B>::clazz(create_group_window_clazz(B));
 
     // --------------------------------------------------------------------------
     class main_window : public container {

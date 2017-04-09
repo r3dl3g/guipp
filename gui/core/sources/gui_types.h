@@ -434,6 +434,10 @@ namespace gui {
 
       void move_y (point::type dy);
 
+      void move_to_x (point::type x);
+
+      void move_to_y (point::type y);
+
       void set_size (const core::size& sz);
 
       const point& top_left () const {

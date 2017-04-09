@@ -82,7 +82,7 @@ namespace gui {
         void replace_selection (const std::string &new_text);
 
       protected:
-        static window_class register_edit_class(alignment_h);
+        static window_class create_edit_class(alignment_h);
         void register_handler();
 
 #ifdef X11
@@ -107,9 +107,6 @@ namespace gui {
       typedef detail::edit_base super;
 
       editT () {
-        if (!clazz.is_valid()) {
-          clazz = register_edit_class(A);
-        }
         register_handler();
       }
 
@@ -127,7 +124,7 @@ namespace gui {
       static window_class clazz;
     };
 
-    template<alignment_h A> window_class editT<A>::clazz;
+    template<alignment_h A> window_class editT<A>::clazz(editT<A>::create_edit_class(A));
 
     // --------------------------------------------------------------------------
     typedef editT<alignment_left> edit_left;

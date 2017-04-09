@@ -214,8 +214,11 @@ namespace gui {
 #endif // X11
       };
 
-      template<bool H>
-      window_class scroll_barT<H>::clazz;
+      template<>
+      window_class scroll_barT<false>::clazz;
+
+      template<>
+      window_class scroll_barT<true>::clazz;
 
       template<>
       scroll_barT<false>::scroll_barT ();

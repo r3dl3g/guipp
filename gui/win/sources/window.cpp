@@ -312,7 +312,7 @@ namespace gui {
                                place.height(),
                                type.get_class_style(),
                                type.get_foreground(),
-                               type.get_background());
+                               type.get_background().color());
       detail::set_window(id, this);
 
       unsigned long mask = CWEventMask;
@@ -320,7 +320,7 @@ namespace gui {
       wa.event_mask = type.get_style();
       if (type.get_cursor()) {
         mask |= CWCursor;
-        wa.cursor = type.get_cursor();
+        wa.cursor = XCreateFontCursor(core::global::get_instance(), type.get_cursor());
       }
       XChangeWindowAttributes(display, id, mask, &wa);
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
@@ -451,8 +451,8 @@ namespace gui {
         if (get_window_class()->get_cursor()) {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa;
-          wa.cursor = on ? get_window_class()->get_cursor()
-                         : XCreateFontCursor(core::global::get_instance(), XC_arrow);
+          wa.cursor = XCreateFontCursor(core::global::get_instance(), on ? get_window_class()->get_cursor()
+                                                                         : XC_arrow);
           XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa);
         }
         redraw_later();
@@ -651,29 +651,40 @@ namespace gui {
 #endif //X11
 
     // --------------------------------------------------------------------------
-    window_class main_window::clazz;
+    window_class main_window::clazz(
+#ifdef WIN32
+      win::window_class::custom_class("main_window",
+                                      CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+                                      WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                                      WS_THICKFRAME | WS_VISIBLE,
+                                      WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
+                                      nullptr,
+                                      IDC_ARROW,
+                                      (HBRUSH)(COLOR_APPWORKSPACE + 1))
+#endif // WIN32
+#ifdef X11
+      win::window_class::custom_class("main_window", draw::brush(draw::color::workSpaceColor()))
+#endif
+    );
 
     // --------------------------------------------------------------------------
-    window_class client_window::clazz;
-
-    // --------------------------------------------------------------------------
-    window_class group_window_clazz;
+    window_class client_window::clazz(
+#ifdef WIN32
+      win::window_class::custom_class("client_window",
+                                      CS_DBLCLKS,
+                                      WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                      WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+                                      nullptr,
+                                      IDC_ARROW,
+                                      (HBRUSH)(COLOR_BTNFACE + 1))
+#endif // WIN32
+#ifdef X11
+      win::window_class::custom_class("client_window", draw::brush(draw::color::buttonColor()))
+#endif
+    );
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    main_window::main_window () {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("main_window",
-                                                CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                                WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                                WS_THICKFRAME | WS_VISIBLE,
-                                                WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
-                                                nullptr,
-                                                LoadCursor(nullptr, IDC_ARROW),
-                                                (HBRUSH)(COLOR_APPWORKSPACE + 1));
-      }
-    }
-
     void main_window::create (const core::rectangle& place) {
       window::create(clazz, GetDesktopWindow(), place);
     }
@@ -718,28 +729,9 @@ namespace gui {
                    toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
-
-    client_window::client_window () {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("client_window",
-                                                CS_DBLCLKS,
-                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                                                nullptr,
-                                                LoadCursor(nullptr, IDC_ARROW),
-                                                (HBRUSH)(COLOR_BTNFACE + 1));
-      }
-    }
 #endif // WIN32
 
 #ifdef X11
-    main_window::main_window () {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("main_window");
-        clazz.background = draw::color::workSpaceColor;
-      }
-    }
-
     void main_window::create (const core::rectangle& place) {
       window::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
     }
@@ -890,35 +882,24 @@ namespace gui {
                         NET_WM_STATE_ABOVE);
     }
 
-    client_window::client_window () {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::custom_class("client_window");
-        clazz.background = draw::color::buttonColor;
-      }
-    }
-
-
 #endif //X11
 
 #ifdef WIN32
-    void init_group_window_clazz () {
-      if (!group_window_clazz.is_valid()) {
-        group_window_clazz = win::window_class::custom_class("group_window",
-                                                CS_DBLCLKS,
-                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                                                nullptr,
-                                                LoadCursor(nullptr, IDC_ARROW),
-                                                (HBRUSH)(COLOR_WINDOW + 1));
+    win::window_class init_group_window_clazz (unsigned long v) {
+        return win::window_class::custom_class("group_window",
+                                               CS_DBLCLKS,
+                                               WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                               WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
+                                               nullptr,
+                                               IDC_ARROW,
+                                               core::brush(v));
       }
     }
 #endif // WIN32
 
 #ifdef X11
-    void init_group_window_clazz () {
-      if (!group_window_clazz.is_valid()) {
-        group_window_clazz = win::window_class::custom_class("group_window", 0);
-      }
+    win::window_class init_group_window_clazz (draw::color::value_type v) {
+      return win::window_class::custom_class("group_window", draw::brush(v));
     }
 #endif //X11
 

@@ -36,9 +36,10 @@ namespace gui {
 #ifdef WIN32
     const brush brush::default_brush((os::brush)GetStockObject(WHITE_BRUSH));
 
-    brush::brush(os::brush id)
-      :id(id) {
-      GetObject(id, sizeof(os::win32::brush_type), &info);
+    brush::brush(os::brush os_id)
+      :id(0) {
+      GetObject(os_id, sizeof(os::win32::brush_type), &info);
+      id = CreateBrushIndirect(&info);
     }
 
     brush::brush(const draw::color& color, Style style)
@@ -56,6 +57,10 @@ namespace gui {
     {}
 
     brush::~brush() {
+      destroy();
+    }
+
+    void brush::destroy() {
       if (id) {
         DeleteObject(id);
         id = 0;

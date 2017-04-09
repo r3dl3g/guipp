@@ -35,73 +35,54 @@ namespace gui {
 
     namespace detail {
 
-      void horizontal_lineup_base::layout (const core::size& sz) {
-        std::vector<win::window*> children = main->get_children();
-
-        const int count = static_cast<int>(children.size());
-        const int space = static_cast<int>(sz.width()) - (border * 2);
-        if (count && (space > 0)) {
-          const core::size::type width = core::size::type((space - (gap * (count - 1))) / count);
-          const core::size::type height = core::size::type(sz.height() - (border * 2));
-          core::point::type offset = width + gap;
-          core::point::type padding = core::point::type (space - (offset * count - gap));
-
-          core::rectangle area(border, border, width + padding, height);
-          offset += padding;
-          for(win::window* win : children) {
-            win->place(area);
-            area.move_x(offset);
-
-            area.width(width);
-            offset -= padding;
-            padding = 0;
-          }
-        }
+      std::vector<win::window*> layout_base::get_children (win::container* main) {
+        return main->get_children();
       }
 
-      void vertical_lineup_base::layout (const core::size& sz) {
-        std::vector<win::window*> children = main->get_children();
-
-        const int count = static_cast<int>(children.size());
-        const int space = static_cast<int>(sz.height()) - (border * 2);
-        if (count && (space > 0)) {
-          const core::size::type width = core::size::type(sz.width() - (border * 2));
-          const core::size::type height = core::size::type((space - (gap * (count - 1))) / count);
-          core::point::type offset = height + gap;
-          core::point::type padding = core::point::type(space - (offset * count - gap));
-
-          core::rectangle area(border, border, width, height + padding);
-          offset += padding;
-          for(win::window* win : children) {
-            win->place(area);
-            area.move_y(offset);
-
-            area.height(height);
-            offset -= padding;
-            padding = 0;
-          }
-        }
+      void layout_base::place_child (win::window* win, const core::rectangle& area) {
+        win->place(area);
+        win->set_visible();
       }
 
-    } // detail
+      void layout_base::hide_children (std::vector<win::window*>& children) {
+        std::for_each(children.begin(), children.end(), [](win::window* win){
+          win->set_visible(false);
+        });
+      }
 
-    void attach::layout (const core::size& sz) {
-      typedef std::map<win::window*, core::rectangle> window_places;
+    }
+
+    void attach::layout (const core::size& sz, win::container*) {
+      typedef std::pair<core::rectangle, core::size> place_and_size;
+      typedef std::map<win::window*, place_and_size> window_places;
       typedef window_places::iterator iterator;
       window_places places;
 
       for(attachment a : attachments) {
         iterator i = places.find(a.target);
-        if (i != places.end()) {
-          a.adjust(i->second, a.source->client_size(), a.source->place());
+        iterator j = places.find(a.source);
+
+        place_and_size source;
+        if (j != places.end()) {
+          source = j->second;
         } else {
-          core::rectangle& r = places[a.target];
-          r = a.target->place();
-          a.adjust(r, a.source->client_size(), a.source->place());
+          source.first = a.source->place();
+          source.second = a.source->client_size();
+        }
+
+        if (i != places.end()) {
+          a.adjust(i->second.first, source.second, source.first);
+        } else {
+          place_and_size& r = places[a.target];
+          r.first = a.target->place();
+          r.second = a.target->client_size();
+          core::size diff = r.first.size() - r.second;
+          a.adjust(r.first, source.second, source.first);
+          r.second = r.first.size() - diff;
         }
       }
       for (auto i : places) {
-        i.first->place(i.second);
+        i.first->place(i.second.first);
       }
     }
 

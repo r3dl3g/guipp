@@ -81,14 +81,13 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<>
+    window_class listT<false>::clazz(win::window_class::sub_class("MyVListBox",
+                                                                  "LISTBOX",
+                                                                  LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN |
+                                                                  WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                  WS_EX_NOPARENTNOTIFY)));
+    template<>
     listT<false>::listT() {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::sub_class("MyVListBox",
-          "LISTBOX",
-          LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN |
-          WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-          WS_EX_NOPARENTNOTIFY);
-      }
       register_event_handler(size_event([&](const core::size& sz) {
         SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(sz.height()));
       }));
@@ -153,14 +152,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
+    window_class listT<true>::clazz(win::sub_class(win::window_class::sub_class("MyHListBox",
+                                                                                "LISTBOX",
+                                                                                LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
+                                                                                WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                                WS_EX_NOPARENTNOTIFY));
+
+    template<>
     listT<true>::listT() {
-      if (!clazz.is_valid()) {
-        clazz = win::window_class::sub_class("MyHListBox",
-          "LISTBOX",
-          LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-          WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-          WS_EX_NOPARENTNOTIFY);
-      }
     }
 
     template<>
@@ -262,15 +261,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
+    window_class listT<false>::clazz(window_class::custom_class("HLISTBOX",
+                                                                0,
+                                                                ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                                                FocusChangeMask | KeyPressMask | StructureNotifyMask,
+                                                                0, 0, 0,
+                                                                draw::color::white()));
+
+    template<>
     listT<false>::listT () {
-      if (!clazz.is_valid()) {
-        clazz = window_class::custom_class("HLISTBOX",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask | StructureNotifyMask,
-                                           0, 0, 0,
-                                           draw::color::white);
-      }
       register_event_handler(this, &listT<false>::listT_handle_event);
       scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
@@ -468,15 +467,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
+    window_class listT<true>::clazz(window_class::custom_class("VLISTBOX",
+                                                               0,
+                                                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                                               FocusChangeMask | KeyPressMask | StructureNotifyMask,
+                                                               0, 0, 0,
+                                                               draw::color::white()));
+
+    template<>
     listT<true>::listT () {
-      if (!clazz.is_valid()) {
-        clazz = window_class::custom_class("VLISTBOX",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                           FocusChangeMask | KeyPressMask | StructureNotifyMask,
-                                           0, 0, 0,
-                                           draw::color::white);
-      }
       register_event_handler(this, &listT<true>::listT_handle_event);
       scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();

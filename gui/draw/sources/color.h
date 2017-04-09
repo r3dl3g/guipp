@@ -38,71 +38,72 @@ namespace gui {
     struct /*immutable*/ color {
 
       typedef unsigned char byte;
+      typedef os::color value_type;
 
-      const static color black;
-      const static color white;
-      const static color red;
-      const static color green;
-      const static color blue;
-      const static color cyan;
-      const static color magenta;
-      const static color yellow;
-      const static color orange;
-      const static color brown;
-      const static color darkGray;
-      const static color darkBlue;
-      const static color darkGreen;
-      const static color darkRed;
-      const static color darkCyan;
-      const static color darkMagenta;
-      const static color darkYellow;
-      const static color darkOrange;
-      const static color darkBrown;
-      const static color gray;
-      const static color mediumGray;
-      const static color lightGray;
-      const static color lightRed;
-      const static color lightGreen;
-      const static color lightBlue;
-      const static color lightCyan;
-      const static color lightMagenta;
-      const static color lightYellow;
-      const static color veryLightGray;
-      const static color veryLightRed;
-      const static color veryLightGreen;
-      const static color veryLightBlue;
-      const static color veryLightCyan;
-      const static color veryLightMagenta;
-      const static color veryLightYellow;
-      const static color veryVeryLightGray;
+      static color black ();
+      static color white ();
+      static color red ();
+      static color green ();
+      static color blue ();
+      static color cyan ();
+      static color magenta ();
+      static color yellow ();
+      static color orange ();
+      static color brown ();
+      static color darkGray ();
+      static color darkBlue ();
+      static color darkGreen ();
+      static color darkRed ();
+      static color darkCyan ();
+      static color darkMagenta ();
+      static color darkYellow ();
+      static color darkOrange ();
+      static color darkBrown ();
+      static color gray ();
+      static color mediumGray ();
+      static color lightGray ();
+      static color lightRed ();
+      static color lightGreen ();
+      static color lightBlue ();
+      static color lightCyan ();
+      static color lightMagenta ();
+      static color lightYellow ();
+      static color veryLightGray ();
+      static color veryLightRed ();
+      static color veryLightGreen ();
+      static color veryLightBlue ();
+      static color veryLightCyan ();
+      static color veryLightMagenta ();
+      static color veryLightYellow ();
+      static color veryVeryLightGray ();
 
-      const static color scrollBarColor;
-      const static color menuColor;
-      const static color menuTextColor;
-      const static color backGroundColor;
-      const static color activeCaptionColor;
-      const static color inActiveCaptionColor;
-      const static color windowColor;
-      const static color windowFrameColor;
-      const static color windowTextColor;
-      const static color captionTextColor;
-      const static color inActiveCaptionTextColor;
-      const static color activeBorderColor;
-      const static color inActiveBorderColor;
-      const static color workSpaceColor;
-      const static color highLightColor;
-      const static color highLightTextColor;
-      const static color disabledTextColor;
-      const static color buttonColor;
-      const static color shadowColor;
-      const static color buttonTextColor;
-      const static color buttonHighLightColor;
+      static color scrollBarColor();
+      static color menuColor();
+      static color menuTextColor();
+      static color backGroundColor();
+      static color activeCaptionColor();
+      static color inActiveCaptionColor();
+      static color windowColor();
+      static color windowFrameColor();
+      static color windowTextColor();
+      static color captionTextColor();
+      static color inActiveCaptionTextColor();
+      static color activeBorderColor();
+      static color inActiveBorderColor();
+      static color workSpaceColor();
+      static color highLightColor();
+      static color highLightTextColor();
+      static color disabledTextColor();
+      static color buttonColor();
+      static color shadowColor();
+      static color buttonTextColor();
+      static color buttonHighLightColor();
 
-      static os::color value_of (byte r, byte g, byte b) {
+      static value_type value_of (byte r, byte g, byte b) {
         return r_::c(r) | g_::c(g) | b_::c(b);
       }
 
-      inline color(os::color value = 0)
+      inline color(value_type value = 0)
         : value(value)
       {}
 
@@ -130,7 +131,7 @@ namespace gui {
         return a_::v(value);
       }
 
-      inline operator os::color() const {
+      inline operator value_type () const {
         return value;
       }
 
@@ -169,16 +170,16 @@ namespace gui {
         return color(255 - r(), 255 - g(), 255 - b(), a());
       }
 
-    private:
-      const os::color value;
+      const value_type value;
 
+    private:
       template<int shift>
       struct part {
-        static os::color c(byte a) {
-          return (os::color)a << shift;
+        static value_type c(byte a) {
+          return (value_type)a << shift;
         }
 
-        static byte v(os::color a) {
+        static byte v(value_type a) {
           return (byte)((a & (0x000000ff << shift)) >> shift);
         }
       };

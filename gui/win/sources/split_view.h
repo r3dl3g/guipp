@@ -38,9 +38,8 @@ namespace gui {
     template<bool H>
     class split_view {
     public:
-      split_view (win::container* main)
-        : main(main)
-        , first(nullptr)
+      split_view ()
+        : first(nullptr)
         , second(nullptr)
         , slider(nullptr)
       {}
@@ -77,7 +76,7 @@ namespace gui {
 
       double get_split_pos (const core::size&) const;
 
-      void layout (const core::size& sz) {
+      void layout (const core::size& sz, win::container* main) {
         double pos = get_split_pos(sz);
         if (first) {
           first->place(get_first_place(sz, pos));
@@ -91,7 +90,6 @@ namespace gui {
       }
 
     private:
-      const win::container* main;
       win::window* first;
       win::window* second;
       win::detail::slider* slider;
@@ -165,8 +163,11 @@ namespace gui {
         static window_class clazz;
       };
 
-      template<bool H>
-      window_class split_view<H>::clazz;
+      template<>
+      window_class split_view<false>::clazz;
+
+      template<>
+      window_class split_view<true>::clazz;
 
       // --------------------------------------------------------------------------
       template<>

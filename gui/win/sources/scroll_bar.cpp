@@ -41,24 +41,24 @@ namespace gui {
 // --------------------------------------------------------------------------
     namespace detail {
       template<>
-      scroll_barT<false>::scroll_barT () {
-        if (!clazz.is_valid()) {
-          clazz = win::window_class::sub_class("MyScrollBar",
-            "SCROLLBAR",
-            SBS_VERT | WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            WS_EX_NOPARENTNOTIFY);
-        }
-      }
+      window_class scroll_barT<false>::clazz(win::window_class::sub_class("MyScrollBar",
+                                                                          "SCROLLBAR",
+                                                                          SBS_VERT | WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                          WS_EX_NOPARENTNOTIFY));
 
       template<>
-      scroll_barT<true>::scroll_barT () {
-        if (!clazz.is_valid()) {
-          clazz = win::window_class::sub_class("MyScrollBar",
-            "SCROLLBAR",
-            SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-            WS_EX_NOPARENTNOTIFY);
-        }
-      }
+      scroll_barT<false>::scroll_barT ()
+      {}
+
+      template<>
+      window_class scroll_barT<true>::clazz(win::window_class::sub_class("MyScrollBar",
+                                                                         "SCROLLBAR",
+                                                                         SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                         WS_EX_NOPARENTNOTIFY));
+
+      template<>
+      scroll_barT<true>::scroll_barT ()
+      {}
 
       template<>
       scroll_barT<false>::~scroll_barT () {}
@@ -280,18 +280,18 @@ namespace gui {
     namespace detail {
       // --------------------------------------------------------------------------
       template<>
+      window_class scroll_barT<false>::clazz(window_class::custom_class("VSCROLLBAR",
+                                                                        0,
+                                                                        ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                                                        FocusChangeMask | KeyPressMask,
+                                                                        0, 0, 0,
+                                                                        draw::color::veryLightGray()));
+
+      template<>
       scroll_barT<false>::scroll_barT ()
         : state(Nothing_pressed)
         , last_position(0)
         , gc(0) {
-        if (!clazz.is_valid()) {
-          clazz = window_class::custom_class("VSCROLLBAR",
-                                             0,
-                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                             FocusChangeMask | KeyPressMask,
-                                             0, 0, 0,
-                                             draw::color::veryLightGray);
-        }
         register_event_handler(this, &scroll_barT<false>::scroll_handle_eventT);
       }
 
@@ -307,18 +307,18 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
+      window_class scroll_barT<true>::clazz(window_class::custom_class("HSCROLLBAR",
+                                                                       0,
+                                                                       ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                                                       FocusChangeMask | KeyPressMask,
+                                                                       0, 0, 0,
+                                                                       draw::color::veryLightGray()));
+
+      template<>
       scroll_barT<true>::scroll_barT ()
         : state(Nothing_pressed)
         , last_position(0)
         , gc(0) {
-        if (!clazz.is_valid()) {
-          clazz = window_class::custom_class("HSCROLLBAR",
-                                             0,
-                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                             FocusChangeMask | KeyPressMask,
-                                             0, 0, 0,
-                                             draw::color::veryLightGray);
-        }
         register_event_handler(this, &scroll_barT<true>::scroll_handle_eventT);
       }
 
@@ -347,27 +347,27 @@ namespace gui {
             geometry geo = get_geometry();
 
             auto up = up_button_place(geo);
-            g.fill(draw::rectangle(up), draw::color::buttonColor);
+            g.fill(draw::rectangle(up), draw::color::buttonColor());
             draw::frame::deep_relief(g, up, state == Up_button_pressed);
             g.text(draw::text_box("<", up, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
 
             auto down = down_button_place(geo);
-            g.fill(draw::rectangle(down), draw::color::buttonColor);
+            g.fill(draw::rectangle(down), draw::color::buttonColor());
             draw::frame::deep_relief(g, down, state == Down_button_pressed);
             g.text(draw::text_box(">", down, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
 
             auto thumb = thumb_button_place(geo);
-            g.fill(draw::rectangle(thumb), draw::color::buttonColor);
+            g.fill(draw::rectangle(thumb), draw::color::buttonColor());
             draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray());
                 break;
               case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray());
                 break;
             }
             return true;
@@ -495,27 +495,27 @@ namespace gui {
             geometry geo = get_geometry();
 
             auto up = up_button_place(geo);
-            g.fill(draw::rectangle(up), draw::color::buttonColor);
+            g.fill(draw::rectangle(up), draw::color::buttonColor());
             draw::frame::deep_relief(g, up, state == Up_button_pressed);
             g.text(draw::text_box(u8"\u2227", up, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
 
             auto down = down_button_place(geo);
-            g.fill(draw::rectangle(down), draw::color::buttonColor);
+            g.fill(draw::rectangle(down), draw::color::buttonColor());
             draw::frame::deep_relief(g, down, state == Down_button_pressed);
             g.text(draw::text_box(u8"\u2228", down, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black : draw::color::gray);
+                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
 
             auto thumb = thumb_button_place(geo);
-            g.fill(draw::rectangle(thumb), draw::color::buttonColor);
+            g.fill(draw::rectangle(thumb), draw::color::buttonColor());
             draw::frame::raised_deep_relief(g, thumb);
 
             switch (state) {
               case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray());
                 break;
               case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray);
+                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray());
                 break;
             }
             return true;

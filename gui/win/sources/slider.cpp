@@ -38,29 +38,56 @@ namespace gui {
 
     namespace detail {
 
-      template <>
-      slider_t<false>::slider_t () {
-        if (!clazz.is_valid()) {
+      template<>
+      window_class slider_t<false>::clazz(
 #ifdef WIN32
-          clazz = win::window_class::custom_class("VSLIDER",
-                                                  0,
-                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                  WS_EX_NOPARENTNOTIFY,
-                                                  nullptr,
-                                                  LoadCursor(nullptr, IDC_SIZEWE),
-                                                  //CreateSolidBrush(0xff0000));
-                                                  (HBRUSH)(COLOR_BTNFACE + 1));
+        win::window_class::custom_class("VSLIDER",
+                                                0,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                WS_EX_NOPARENTNOTIFY,
+                                                nullptr,
+                                                IDC_SIZEWE,
+                                                //CreateSolidBrush(0xff0000));
+                                                (HBRUSH)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-          os::cursor cursor = XCreateFontCursor(core::global::get_instance(), XC_sb_h_double_arrow);
-          clazz = window_class::custom_class("VSLIDER",
-                                             0,
-                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                             StructureNotifyMask,
-                                             0, 0, cursor,
-                                             draw::color::buttonColor);
+        window_class::custom_class("VSLIDER",
+                                           0,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           StructureNotifyMask,
+                                           0,
+                                           0,
+                                           XC_sb_h_double_arrow,
+                                           draw::color::buttonColor())
 #endif // X11
-        }
+      );
+
+      template<>
+      window_class slider_t<true>::clazz(
+#ifdef WIN32
+        win::window_class::custom_class("HSLIDER",
+                                                0,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                WS_EX_NOPARENTNOTIFY,
+                                                nullptr,
+                                                IDC_SIZENS,
+                                                //CreateSolidBrush(0x00ff00));
+                                                (HBRUSH)(COLOR_BTNFACE + 1))
+#endif // WIN32
+#ifdef X11
+        window_class::custom_class("HSLIDER",
+                                           0,
+                                           ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                           StructureNotifyMask,
+                                           0,
+                                           0,
+                                           XC_sb_v_double_arrow,
+                                           draw::color::buttonColor())
+#endif // X11
+      );
+
+      template <>
+      slider_t<false>::slider_t () {
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -78,27 +105,6 @@ namespace gui {
 
       template <>
       slider_t<true>::slider_t () {
-        if (!clazz.is_valid()) {
-#ifdef WIN32
-          clazz = win::window_class::custom_class("HSLIDER",
-                                                  0,
-                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                  WS_EX_NOPARENTNOTIFY,
-                                                  nullptr,
-                                                  LoadCursor(nullptr, IDC_SIZENS),
-                                                  //CreateSolidBrush(0x00ff00));
-                                                  (HBRUSH)(COLOR_BTNFACE + 1));
-#endif // WIN32
-#ifdef X11
-          os::cursor cursor = XCreateFontCursor(core::global::get_instance(), XC_sb_v_double_arrow);
-          clazz = window_class::custom_class("HSLIDER",
-                                             0,
-                                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                             StructureNotifyMask,
-                                             0, 0, cursor,
-                                             draw::color::buttonColor);
-#endif // X11
-        }
         register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {

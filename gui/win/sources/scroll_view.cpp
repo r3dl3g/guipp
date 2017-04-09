@@ -34,34 +34,32 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class scroll_view::clazz;
+    window_class scroll_view::clazz(
+    #ifdef WIN32
+      win::window_class::custom_class("MyScrollView",
+                                      CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+                                      WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                      WS_EX_NOPARENTNOTIFY,
+                                      nullptr,
+                                      IDC_ARROW,
+                                      (HBRUSH)(COLOR_WINDOW + 1))
+    #endif // WIN32
+    #ifdef X11
+      win::window_class::custom_class("MyScrollView")
+    #endif //X11
+    );
 
     // --------------------------------------------------------------------------
     scroll_view::scroll_view () {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::custom_class("MyScrollView",
-                                                CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                WS_EX_NOPARENTNOTIFY,
-                                                nullptr,
-                                                LoadCursor(nullptr, IDC_ARROW),
-                                                (HBRUSH)(COLOR_WINDOW + 1));
-#endif // WIN32
-#ifdef X11
-        clazz = win::window_class::custom_class("MyScrollView");
-#endif //X11
-      }
-
       layout.init(&vscroll, &hscroll, &edge);
 
       vscroll.register_event_handler(scroll_event([&](core::point::type y) {
-        move_children(core::point(0, y - layout.get_current_pos().y()));
-      }));
+                                       move_children(core::point(0, y - layout.get_current_pos().y()));
+                                     }));
 
       hscroll.register_event_handler(scroll_event([&](core::point::type x) {
-        move_children(core::point(x - layout.get_current_pos().x(), 0));
-      }));
+                                       move_children(core::point(x - layout.get_current_pos().x(), 0));
+                                     }));
     }
 
     void scroll_view::create (const container& parent,
@@ -90,7 +88,7 @@ namespace gui {
 
     core::point scroll_view::get_scroll_pos () const {
       return {core::point::type(hscroll.get_value()),
-              core::point::type(vscroll.get_value())};
+            core::point::type(vscroll.get_value())};
     }
 
     void scroll_view::enable_vscroll_bar (bool enable) {
@@ -144,7 +142,7 @@ namespace gui {
     }
 
     void scroll_view::calc_area () {
-      layout.layout(size());
+      layout.layout(size(), this);
     }
   } // win
 
@@ -152,16 +150,15 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    scroll_view::scroll_view (win::container* main)
-      : main(main)
-      , vscroll(nullptr)
+    scroll_view::scroll_view ()
+      : vscroll(nullptr)
       , hscroll(nullptr)
       , edge(nullptr)
     {}
 
     void scroll_view::init (win::vscroll_bar* vscroll,
-                                   win::hscroll_bar* hscroll,
-                                   win::client_window* edge) {
+                            win::hscroll_bar* hscroll,
+                            win::client_window* edge) {
       this->vscroll = vscroll;
       this->hscroll = hscroll;
       this->edge = edge;
@@ -207,7 +204,7 @@ namespace gui {
                              win::scroll_bar::get_scroll_bar_width());
     }
 
-    void scroll_view::layout (const core::size& new_size) {
+    void scroll_view::layout (const core::size& new_size, win::container* main) {
       core::rectangle space(new_size);
 
       std::vector<win::window*> children = main->get_children();

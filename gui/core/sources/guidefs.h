@@ -65,6 +65,7 @@ namespace gui {
     typedef LONG point_type;
     typedef LONG size_type;
     typedef LOGFONT font_type;
+    typedef UINT cursor_type;
 
     typedef POINT point;
     typedef SIZE size;
@@ -121,6 +122,7 @@ namespace gui {
     typedef short point_type;
     typedef unsigned short size_type;
     typedef XftFont* font_type;
+    typedef unsigned int cursor_type;
 
     typedef XPoint point;
     typedef struct {
@@ -140,7 +142,10 @@ namespace gui {
 
 #define IF_WIN32(...)
 #define IF_X11(...) __VA_ARGS__
-        
+#define IF_VC12(...)
+#define IF_VC14(...)
+#define IF_NOT_VC12(...) __VA_ARGS__
+
 #else
 
 #pragma error "Unknown target system"

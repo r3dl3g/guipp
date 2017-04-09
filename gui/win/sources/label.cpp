@@ -26,7 +26,7 @@ namespace gui {
 
     namespace detail {
 
-      window_class label_base::register_label_class (gui::win::alignment_h a) {
+      window_class label_base::create_label_class (win::alignment_h a) {
 #ifdef WIN32
         return window_class::sub_class("MyStatic", "STATIC",
                                         a | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
@@ -41,22 +41,22 @@ namespace gui {
                                                     FocusChangeMask |
                                                     EnterWindowMask | LeaveWindowMask,
                                                     a, 0, 0,
-                                                    gui::draw::color::buttonColor);
+                                                    draw::brush(draw::color::buttonColor()));
 #endif // X11
       }
 
       void label_base::register_handler () {
 #ifdef X11
-        register_event_handler(gui::win::paint_event([&] (gui::draw::graphics& graph) {
+        register_event_handler(paint_event([&] (draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
           text_origin origin = (text_origin)get_window_class()->ex_style;
           graph.text(draw::text_box(text, area, origin),
                      font::system(),
-                     color::black);
+                     color::black());
 #ifdef SHOW_TEXT_AREA
-          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
-          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
+          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
 #endif // SHOW_TEXT_AREA
         }));
 #endif // X11

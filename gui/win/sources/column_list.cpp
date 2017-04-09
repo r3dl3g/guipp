@@ -111,7 +111,7 @@ namespace gui {
         slider_creator = sc;
       }
 
-      void column_list_layout::layout(const core::size& new_size) {
+      void column_list_layout::layout(const core::size& new_size, win::container*) {
         if (header) {
           core::rectangle r(1, 0, 2, new_size.height());
           std::size_t count = get_column_count();
@@ -128,7 +128,7 @@ namespace gui {
       }
 
       void column_list_layout::layout() {
-        layout(header->client_size());
+        layout(header->client_size(), header);
       }
 
       void column_list_layout::update_views() {
@@ -221,7 +221,7 @@ namespace gui {
       }
     }
 
-    void weight_column_list_layout::layout(const core::size& sz) {
+    void weight_column_list_layout::layout(const core::size& sz, win::container* m) {
       std::size_t count = get_column_count();
 
       float full_weigth = 0.0F;
@@ -245,7 +245,7 @@ namespace gui {
         super::set_column_width(i, w, false);
       }
 
-      super::layout(sz);
+      super::layout(sz, m);
       get_slider(count - 1)->disable();
       list->redraw_later();
     }
@@ -257,24 +257,21 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      window_class base_column_list_clazz;
-
-      void init_base_column_list_clazz() {
-        if (!base_column_list_clazz.is_valid()) {
+      window_class base_column_list_clazz(
 #ifdef WIN32
-          base_column_list_clazz = win::window_class::custom_class("column_list",
-                                                                   CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                                   WS_EX_NOPARENTNOTIFY,
-                                                                   nullptr,
-                                                                   LoadCursor(nullptr, IDC_ARROW),
-                                                                   (HBRUSH)(COLOR_WINDOW + 1));
+        win::window_class::custom_class("column_list",
+                                        CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
+                                        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                        WS_EX_NOPARENTNOTIFY,
+                                        nullptr,
+                                        IDC_ARROW,
+                                        (HBRUSH)(COLOR_WINDOW + 1))
 #endif // WIN32
 #ifdef X11
-          base_column_list_clazz = win::window_class::custom_class("column_list");
+        win::window_class::custom_class("column_list")
 #endif //X11
-        }
-      }
+      );
+
     }
 
   } // win

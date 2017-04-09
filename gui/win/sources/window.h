@@ -203,8 +203,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     class client_window : public window {
     public:
-      client_window ();
-
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
         window::create(clazz, parent, place);
@@ -228,9 +226,8 @@ namespace gui {
     public:
       typedef Layout layout_type;
 
-      layout_container ()
-        : layout(this) {
-        register_event_handler(size_event(core::bind_method(&layout, &layout_type::layout)));
+      layout_container () {
+        register_event_handler(size_event(core::bind_method(this, &layout_container::do_layout_for_size)));
       }
 
       void do_layout () {
@@ -238,7 +235,7 @@ namespace gui {
       }
 
       void do_layout_for_size (const core::size& sz) {
-        layout.layout(sz);
+        layout.layout(sz, this);
       }
 
       inline layout_type& get_layout() {
@@ -253,27 +250,29 @@ namespace gui {
       layout_type layout;
     };
 
-    extern window_class group_window_clazz;
-    void init_group_window_clazz ();
+    window_class init_group_window_clazz (draw::color::value_type);
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout>
+    template<typename L = layout::standard_layout, draw::color::value_type B = 0xFFFFFF>
     class group_window : public layout_container<L> {
     public:
       typedef layout_container<L> super;
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
-        init_group_window_clazz();
-        super::create(group_window_clazz, parent, place);
+        super::create(clazz, parent, place);
       }
+
+    private:
+      static window_class clazz;
     };
+
+    template<typename L, draw::color::value_type B>
+    window_class group_window<L, B>::clazz(init_group_window_clazz(B));
 
     // --------------------------------------------------------------------------
     class main_window : public container {
     public:
-      main_window ();
-
       void set_title (const std::string&);
 
       std::string get_title () const;
@@ -302,13 +301,16 @@ namespace gui {
     template<typename Layout = layout::standard_layout>
     class layout_main_window : public main_window {
     public:
-      layout_main_window ()
-        : layout(this) {
-        register_event_handler(size_event(core::bind_method(&layout, &Layout::layout)));
+      layout_main_window () {
+        register_event_handler(size_event(core::bind_method(this, &layout_main_window::do_layout_for_size)));
       }
 
       void do_layout () {
-        layout.layout(client_size());
+        do_layout_for_size(client_size());
+      }
+
+      void do_layout_for_size (const core::size& sz) {
+        layout.layout(sz, this);
       }
 
       inline Layout& get_layout () {

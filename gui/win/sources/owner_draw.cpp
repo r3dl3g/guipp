@@ -35,9 +35,9 @@ namespace gui {
                                      bool selected,
                                      draw::text_origin origin) {
       using namespace draw;
-      g.fill(rectangle(place), selected ? color::highLightColor : background);
+      g.fill(rectangle(place), selected ? color::highLightColor() : background);
       g.text(text_box(text, place, origin), font::system(),
-             selected ? color::highLightTextColor : color::windowTextColor);
+             selected ? color::highLightTextColor() : color::windowTextColor());
     }
 
     void owner_draw::set_item_size (const gui::core::size& sz) {

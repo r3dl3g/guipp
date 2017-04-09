@@ -39,7 +39,7 @@ namespace gui {
     namespace detail {
       class label_base : public gui::win::window_with_text {
       protected:
-        static window_class register_label_class(gui::win::alignment_h);
+        static window_class create_label_class(gui::win::alignment_h);
         void register_handler();
       };
     }
@@ -50,9 +50,6 @@ namespace gui {
       typedef detail::label_base super;
 
       labelT () {
-        if (!clazz.is_valid()) {
-          clazz = register_label_class(A);
-        }
         register_handler();
       }
 
@@ -67,7 +64,7 @@ namespace gui {
       static window_class clazz;
     };
 
-    template<alignment_h A> window_class labelT<A>::clazz;
+    template<alignment_h A> window_class labelT<A>::clazz(labelT<A>::create_label_class(A));
 
     // --------------------------------------------------------------------------
     typedef labelT<alignment_left> label_left;

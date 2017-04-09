@@ -23,9 +23,62 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class push_button::clazz;
-    window_class radio_button::clazz;
-    window_class check_box::clazz;
+    window_class push_button::clazz(
+#ifdef WIN32
+      win::window_class::sub_class("MyButton",
+                                   "BUTTON",
+                                   BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
+                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                                   WS_VISIBLE | WS_TABSTOP,
+                                   WS_EX_NOPARENTNOTIFY)
+#else // !WIN32
+      window_class::custom_class("BUTTON",
+                                 0,
+                                 ButtonPressMask | ButtonReleaseMask | ExposureMask |
+                                 PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
+                                 FocusChangeMask | EnterWindowMask | LeaveWindowMask,
+                                 0, 0, 0,
+                                 draw::color::buttonColor())
+#endif // !WIN32
+    );
+
+    window_class radio_button::clazz(
+#ifdef WIN32
+      win::window_class::sub_class("MyRadioButton",
+                                   "BUTTON",
+                                   BS_AUTORADIOBUTTON | BS_TEXT |
+                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                                   WS_VISIBLE | WS_TABSTOP,
+                                   WS_EX_NOPARENTNOTIFY)
+#else // !WIN32
+      window_class::custom_class("RADIO_BUTTON",
+                                 0,
+                                 ButtonPressMask | ButtonReleaseMask | ExposureMask |
+                                 PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
+                                 FocusChangeMask | EnterWindowMask | LeaveWindowMask,
+                                 1, 0, 0,
+                                 draw::color::buttonColor())
+#endif // !WIN32
+    );
+
+    window_class check_box::clazz(
+#ifdef WIN32
+        win::window_class::sub_class("MyCheckBox",
+                                     "BUTTON",
+                                     BS_AUTOCHECKBOX | BS_TEXT |
+                                     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                                     WS_VISIBLE | WS_TABSTOP,
+                                     WS_EX_NOPARENTNOTIFY)
+#else // !WIN32
+        window_class::custom_class("CHECKBOX",
+                                   0,
+                                   ButtonPressMask | ButtonReleaseMask | ExposureMask |
+                                   PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
+                                   FocusChangeMask | EnterWindowMask | LeaveWindowMask,
+                                   1, 0, 0,
+                                   draw::color::buttonColor())
+#endif // !WIN32
+    );
 
     // --------------------------------------------------------------------------
 #ifdef X11
@@ -149,24 +202,6 @@ namespace gui {
 
 // --------------------------------------------------------------------------
     push_button::push_button () {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyButton",
-                                             "BUTTON",
-                                             BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
-                                             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                             WS_VISIBLE | WS_TABSTOP,
-                                             WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("BUTTON",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                           0, 0, 0,
-                                           draw::color::buttonColor);
-#endif // !WIN32
-      }
 #ifdef X11
       register_event_handler(win::paint_event([&] (draw::graphics& graph) {
         using namespace draw;
@@ -175,14 +210,14 @@ namespace gui {
         core::rectangle area = client_area();
 
         if (focus) {
-          graph.frame(draw::rectangle(area), color::black);
+          graph.frame(draw::rectangle(area), color::black());
           area.shrink({1, 1});
         }
         draw::frame::deep_relief(graph, area, is_checked());
-        graph.text(draw::text_box(get_text(), area, center), font::system(), is_enabled() ? color::black : color::gray);
+        graph.text(draw::text_box(get_text(), area, center), font::system(), is_enabled() ? color::black() : color::gray());
         if (focus) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
         }
       }));
 #endif
@@ -190,37 +225,19 @@ namespace gui {
 
 // --------------------------------------------------------------------------
     radio_button::radio_button () {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyRadioButton",
-          "BUTTON",
-          BS_AUTORADIOBUTTON | BS_TEXT |
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-          WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("RADIO_BUTTON",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                           1, 0, 0,
-                                           draw::color::buttonColor);
-#endif // !WIN32
-      }
 #ifdef X11
       register_event_handler(win::paint_event([&] (draw::graphics& graph) {
         using namespace draw;
 
         const bool focus = has_focus();
 
-        color col = is_enabled() ? color::black : color::gray;
+        color col = is_enabled() ? color::black() : color::gray();
         core::rectangle area = client_area();
         int y = area.position().y() + area.size().height() / 2;
         core::point pt(area.position().x() + 6, y);
         graph.draw(arc(pt, 5, 0, 360),
-                   is_hilited() ? color::veryLightGray
-                                : color::buttonColor,
+                   is_hilited() ? color::veryLightGray()
+                                : color::buttonColor(),
                    col);
         if (is_checked()) {
           graph.fill(arc(pt, 3, 0, 360), col);
@@ -228,9 +245,9 @@ namespace gui {
         area.x(20);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
+          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black());
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
         }
       }));
 #endif
@@ -238,24 +255,6 @@ namespace gui {
 
 // --------------------------------------------------------------------------
     check_box::check_box () {
-      if (!clazz.is_valid()) {
-#ifdef WIN32
-        clazz = win::window_class::sub_class("MyCheckBox",
-          "BUTTON",
-          BS_AUTOCHECKBOX | BS_TEXT |
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-          WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY);
-#else // !WIN32
-        clazz = window_class::custom_class("CHECKBOX",
-                                           0,
-                                           ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                           PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                           FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                           1, 0, 0,
-                                           draw::color::buttonColor);
-#endif // !WIN32
-      }
 #ifdef X11
       register_event_handler(win::paint_event([&] (draw::graphics& graph) {
         using namespace draw;
@@ -265,12 +264,12 @@ namespace gui {
         core::rectangle area = client_area();
         int y = area.y() + area.height() / 2;
 
-        color col = is_enabled() ? color::black : color::gray;
+        color col = is_enabled() ? color::black() : color::gray();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
-                   is_hilited() ? color::veryLightGray
-                                : color::buttonColor,
+                   is_hilited() ? color::veryLightGray()
+                                : color::buttonColor(),
                    col);
         if (is_checked()) {
           r.shrink(core::size(2, 2));
@@ -279,9 +278,9 @@ namespace gui {
         area += core::point(20, 0);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black);
+          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black());
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
         }
       }));
 #endif

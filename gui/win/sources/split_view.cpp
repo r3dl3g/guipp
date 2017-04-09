@@ -98,23 +98,41 @@ namespace gui {
   namespace win {
 
     namespace detail {
+
       template<>
-      split_view<false>::split_view () {
-        if (!clazz.is_valid()) {
+      window_class split_view<false>::clazz(
 #ifdef WIN32
-          clazz = win::window_class::custom_class("vsplit_view",
-                                                  CS_VREDRAW | CS_HREDRAW,
-                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                  WS_EX_NOPARENTNOTIFY,
-                                                  nullptr,
-                                                  LoadCursor(nullptr, IDC_ARROW),
-                                                  (HBRUSH)(COLOR_BTNFACE + 1));
+        win::window_class::custom_class("vsplit_view",
+                                        CS_VREDRAW | CS_HREDRAW,
+                                        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                        WS_EX_NOPARENTNOTIFY,
+                                        nullptr,
+                                        IDC_ARROW,
+                                        (HBRUSH)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-          clazz = win::window_class::custom_class("vsplit_view");
-          clazz.background = draw::color::buttonColor;
+        win::window_class::custom_class("vsplit_view", draw::brush(draw::color::buttonColor()))
 #endif // X11
-        }
+      );
+
+      template<>
+      window_class split_view<true>::clazz(
+#ifdef WIN32
+        win::window_class::custom_class("hsplit_view",
+                                                CS_VREDRAW | CS_HREDRAW,
+                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                WS_EX_NOPARENTNOTIFY,
+                                                nullptr,
+                                                IDC_ARROW,
+                                                (HBRUSH)(COLOR_BTNFACE + 1))
+#endif // WIN32
+#ifdef X11
+        win::window_class::custom_class("hsplit_view", draw::brush(draw::color::buttonColor()))
+#endif // X11
+      );
+
+      template<>
+      split_view<false>::split_view () {
         layout.set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
           do_layout();
@@ -123,21 +141,6 @@ namespace gui {
 
       template<>
       split_view<true>::split_view () {
-        if (!clazz.is_valid()) {
-#ifdef WIN32
-          clazz = win::window_class::custom_class("hsplit_view",
-                                                  CS_VREDRAW | CS_HREDRAW,
-                                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                  WS_EX_NOPARENTNOTIFY,
-                                                  nullptr,
-                                                  LoadCursor(nullptr, IDC_ARROW),
-                                                  (HBRUSH)(COLOR_BTNFACE + 1));
-#endif // WIN32
-#ifdef X11
-          clazz = win::window_class::custom_class("hsplit_view");
-          clazz.background = draw::color::buttonColor;
-#endif // X11
-        }
         layout.set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
           do_layout();

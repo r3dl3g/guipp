@@ -37,10 +37,6 @@ namespace gui {
 
     typedef core::size::type column_size_type;
 
-  }
-
-  namespace layout {
-
     struct column_info {
       column_size_type width;
       draw::text_origin align;
@@ -54,14 +50,14 @@ namespace gui {
 
         typedef std::vector<slider*>(create_sliders)(size_t);
 
-        column_list_layout(win::container* m)
+        column_list_layout ()
           : list(nullptr)
-          , header(m)
+          , header(nullptr)
         {}
 
         void layout ();
 
-        void layout(const core::size& new_size);
+        void layout(const core::size& new_size, win::container* main);
           
         void set_slider_creator(std::function<create_sliders> sc);
 
@@ -104,8 +100,9 @@ namespace gui {
 
         core::size::type get_available_width(const core::size&) const;
 
-        void set_list(win::list* l) {
+        void set_header_and_list(win::container* h, win::list* l) {
           list = l;
+          header = h;
         }
 
       protected:
@@ -136,16 +133,15 @@ namespace gui {
     public:
       typedef column_list_layout super;
 
-      simple_column_list_layout(win::container* m)
-        : super(m)
+      simple_column_list_layout ()
       {}
 
       void set_column_width(std::size_t i, column_size_type w, bool update = true) {
         super::set_column_width(i, std::max(w, get_column_min_width(i)), update);
       }
 
-      void layout(const core::size& new_size) {
-        super::layout(new_size);
+      void layout(const core::size& new_size, win::container* main) {
+        super::layout(new_size, main);
       }
 
       void set_column_count(std::size_t i) {
@@ -184,11 +180,10 @@ namespace gui {
     public:
       typedef simple_column_list_layout super;
 
-      weight_column_list_layout(win::container* m)
-        : super(m)
+      weight_column_list_layout ()
       {}
 
-      void layout(const core::size& new_size);
+      void layout(const core::size& new_size, win::container* main);
 
       void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
@@ -217,11 +212,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       class base_column_list_layout {
       public:
-        base_column_list_layout(win::container* m)
+        base_column_list_layout()
           : header(nullptr)
-          , list(nullptr) {}
+          , list(nullptr)
+        {}
 
-        void layout(const core::size& sz) {
+        void layout(const core::size& sz, win::container* main) {
           header->resize(core::size(sz.width(), 20));
           list->resize(sz - core::size(0, 20));
         }
@@ -248,7 +244,7 @@ namespace gui {
                                      const draw::brush& background) {
       using namespace draw;
       frame::raised_relief(g, r);
-      g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor);
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor());
     }
 
     // --------------------------------------------------------------------------
@@ -274,7 +270,7 @@ namespace gui {
           using namespace draw;
 
           core::rectangle r = this->client_area();
-          draw::brush background(color::buttonColor);
+          draw::brush background(color::buttonColor());
           g.fill(rectangle(r), background);
 
           std::size_t count = this->get_layout().get_column_count();
@@ -324,7 +320,6 @@ namespace gui {
     namespace detail {
 
       extern window_class base_column_list_clazz;
-      void init_base_column_list_clazz();
 
       // --------------------------------------------------------------------------
       template<typename Layout>
@@ -334,9 +329,8 @@ namespace gui {
         typedef layout_container<layout::detail::base_column_list_layout> super;
 
         base_column_list () {
-          init_base_column_list_clazz();
           get_layout().set_header_and_list(&header, &list);
-          get_column_layout().set_list(&list);
+          get_column_layout().set_header_and_list(&header, &list);
           register_event_handler(size_event(core::bind_method((super*)this, &super::do_layout_for_size)));
         }
 

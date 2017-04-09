@@ -83,8 +83,22 @@ private:
   win::push_button del_button;
   win::push_button clear_button;
 
-  win::group_window<layout::horizontal_lineup<5, 10>> btn_group;
-  win::group_window<layout::vertical_lineup<5, 5>> chck_group;
+  win::group_window<layout::horizontal_adaption<5, 10>> btn_group;
+  win::group_window<layout::vertical_adaption<5, 5>> chck_group;
+
+  win::group_window<layout::horizontal_adaption<5, 5>> group_group;
+
+  win::group_window<layout::horizontal_lineup<30, 5, 5>> h_lineup_group;
+  win::label h_lineup_labels[4];
+
+  win::group_window<layout::vertical_lineup<30, 5, 5>> v_lineup_group;
+  win::label v_lineup_labels[4];
+
+  win::group_window<layout::grid_lineup<30, 30, 5, 5>> grid_lineup_group;
+  win::label grid_lineup_labels[4];
+
+  win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
+  win::label grid_adaption_labels[4];
 
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
@@ -119,7 +133,6 @@ private:
 
   win::hslider hslider;
   win::vslider vslider;
-
   win::paint_event paint1;
   win::paint_event paint2;
 
@@ -190,24 +203,24 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
 
-#ifdef WIN32
-  register_event_handler(win::close_event([&]() {
-    LogDebug << "Close!";
-    destroy();
-  }));
-  register_event_handler(win::enable_event([](bool on) {
-    LogDebug << (on ? "Enableed" : "Disabled");
-  }));
-  register_event_handler(win::activate_event([](bool on, win::window* win) {
-    LogDebug << "Main " << (on ? "activate" : "deactivate");
-  }));
-  register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
-  register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-  register_event_handler(win::activate_app_event([](bool on) {
-    LogDebug << (on ? "A" : "Dea") << "ctivate App";
-  }));
+//#ifdef WIN32
+//  register_event_handler(win::close_event([&]() {
+//    LogDebug << "Close!";
+//    destroy();
+//  }));
+//  register_event_handler(win::enable_event([](bool on) {
+//    LogDebug << (on ? "Enableed" : "Disabled");
+//  }));
+//  register_event_handler(win::activate_event([](bool on, win::window* win) {
+//    LogDebug << "Main " << (on ? "activate" : "deactivate");
+//  }));
+//  register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
+//  register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
+//  register_event_handler(win::activate_app_event([](bool on) {
+//    LogDebug << (on ? "A" : "Dea") << "ctivate App";
+//  }));
 
-#endif
+//#endif
 
   register_event_handler(win::moving_event([] (const core::point& r) {
     LogDebug << "Main moving: " << r;
@@ -229,11 +242,11 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     LogDebug << "Main place: " << r;
   }));
 
-#ifdef WIN32
-  ok_button.register_event_handler(win::activate_event([](bool on, win::window* win) {
-    LogDebug << "Button " << (on ? "" : "de") << "activate";
-  }));
-#endif
+//#ifdef WIN32
+//  ok_button.register_event_handler(win::activate_event([](bool on, win::window* win) {
+//    LogDebug << "Button " << (on ? "" : "de") << "activate";
+//  }));
+//#endif
   ok_button.register_event_handler(win::set_focus_event([] (win::window* win) {
     LogDebug << "Button Set Focus";
   }));
@@ -354,11 +367,11 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     LogDebug << "Window2 hide:";
   }));
 
-#ifdef WIN32
-  ok_button.register_event_handler(win::button_state_event([](bool state) {
-    LogDebug << "Button " << (state ? "hilited" : "unhilited");
-  }));
-#endif // WIN32
+//#ifdef WIN32
+//  ok_button.register_event_handler(win::button_state_event([](bool state) {
+//    LogDebug << "Button " << (state ? "hilited" : "unhilited");
+//  }));
+//#endif // WIN32
   ok_button.register_event_handler(win::button_pushed_event([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
@@ -509,6 +522,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   vslider.register_event_handler(win::move_event([&](const core::point&) {
     do_layout();
   }));
+  hslider.register_event_handler(win::move_event([&](const core::point&) {
+    do_layout();
+  }));
 
   hscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
     vsplit_view.set_split_pos((double)pos / 100.0);
@@ -583,6 +599,21 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
   created_children();
 }
 
+template<int T>
+void create_buttons (win::container& m, win::label labels[T]) {
+  for (int i = 0; i < T; ++i) {
+    labels[i].create(m, core::rectangle::def, ostreamfmt("No. " << (i + 1)));
+    labels[i].set_visible();
+  }
+}
+
+template<int T, typename C>
+void create_group (win::container& m, C& c, win::label labels[T]) {
+  c.create(m);
+  create_buttons<T>(c, labels);
+  c.set_visible();
+}
+
 void my_main_window::created_children () {
 
   my_main_window& main = *this;
@@ -647,7 +678,7 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
-      win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor, false, draw::center);
+      win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor(), false, draw::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -667,7 +698,7 @@ void my_main_window::created_children () {
   column_list.header.set_cell_drawer([](int i, draw::graphics& g, const core::rectangle& r, const draw::brush&) {
     using namespace draw;
     frame::raised_relief(g, r);
-    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor);
+    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor());
   });
   column_list.set_drawer(column_list_drawer, 25);
   column_list.get_column_layout().set_columns(weight_columns);
@@ -708,13 +739,13 @@ void my_main_window::created_children () {
   labelR.set_visible();
   labelR.redraw_later();
 
-  hslider.create(main, core::rectangle(5, 420, 700, 5));
+  hslider.create(main, core::rectangle(5, 335, 500, 5));
   hslider.set_visible();
-  hslider.set_max(500);
+  hslider.set_min_max(330, 345);
 
   vslider.create(main, core::rectangle(750, 5, 5, 500));
   vslider.set_visible();
-  vslider.set_max(1000);
+  vslider.set_min_max(570, 1200);
 
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
   chck_group.set_visible();
@@ -783,6 +814,14 @@ void my_main_window::created_children () {
 
   btn_group.do_layout();
 
+  group_group.create(main, core::rectangle(400, 345, 300, 115));
+  create_group<4>(group_group, h_lineup_group, h_lineup_labels);
+  create_group<4>(group_group, v_lineup_group, v_lineup_labels);
+  create_group<4>(group_group, grid_lineup_group, grid_lineup_labels);
+  create_group<4>(group_group, grid_adaption_group, grid_adaption_labels);
+  group_group.set_visible();
+  group_group.do_layout();
+
   using namespace layout;
   get_layout().abs(&btn_group, this, What::left, Where::width, -600);
   get_layout().abs(&btn_group, this, What::right, Where::width, -10);
@@ -790,11 +829,14 @@ void my_main_window::created_children () {
   get_layout().abs(&btn_group, this, What::bottom, Where::height, -10);
 
   get_layout().abs(&hslider, this, What::right, Where::width, -5);
-  get_layout().abs(&vslider, this, What::bottom, Where::height, -5);
+  get_layout().abs(&vslider, &btn_group, What::bottom, Where::y, -5);
 
   get_layout().abs(&column_list, &vslider, What::right, Where::x, -25);
   get_layout().abs(&vscroll, &vslider, What::left, Where::x, -20);
   get_layout().abs(&vscroll, &vslider, What::right, Where::x, -4);
+
+  get_layout().abs(&group_group, &vslider, What::right, Where::x, -4);
+  get_layout().abs(&group_group, &hslider, What::top, Where::y2, 4);
 
   do_layout();
 }
@@ -805,95 +847,95 @@ win::paint_event my_main_window::create_paint1 () {
 
     using namespace draw;
 
-    graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue);
-    graph.fill(polygon(calc_star(60, 10, 40, 40)), color::darkGreen);
-    graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow, color::red);
+    graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue());
+    graph.fill(polygon(calc_star(60, 10, 40, 40)), color::darkGreen());
+    graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow(), color::red());
 
-    graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red);
+    graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red());
 
     core::point pt(10, 60);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 1!", pt), font::system(), color::black);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 1!", pt), font::system(), color::black());
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 2!", pt), font::system_bold(), color::black);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 2!", pt), font::system_bold(), color::black());
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black());
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 4!", pt), font::serif(), color::black);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 4!", pt), font::serif(), color::black());
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 5!", pt), font::monospace(), color::black);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 5!", pt), font::monospace(), color::black());
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue());
 
     core::rectangle r(10, 155, 50, 18);
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TL", r, top_left), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("TL", r, top_left), font::system(), color::red());
     r= {70, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red());
     r= {130, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TR", r, top_right), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("TR", r, top_right), font::system(), color::red());
 
     r= {10, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red());
     r= {70, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CC", r, center), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("CC", r, center), font::system(), color::red());
     r= {130, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red());
 
     r= {10, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("BL", r, bottom_left), font::system(), color::red());
     r= {70, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red());
     r= {130, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
+    graph.frame(rectangle(r), color::blue());
+    graph.text(text_box("BR", r, bottom_right), font::system(), color::red());
 
     pt = {10, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TL", pt, top_left), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("TL", pt, top_left), font::system(), color::red());
     pt = {70, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("TC", pt, top_hcenter), font::system(), color::red());
     pt = {130, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TR", pt, top_right), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("TR", pt, top_right), font::system(), color::red());
 
     pt = {10, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CL", pt, vcenter_left), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("CL", pt, vcenter_left), font::system(), color::red());
     pt = {70, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CC", pt, center), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("CC", pt, center), font::system(), color::red());
     pt = {130, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("CR", pt, vcenter_right), font::system(), color::red());
 
     pt = {10, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("BL", pt, bottom_left), font::system(), color::red());
     pt = {70, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red());
     pt = {130, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
+    graph.fill(arc(pt, 2, 0, 360), color::blue());
+    graph.text(text("BR", pt, bottom_right), font::system(), color::red());
   });
 }
 
@@ -902,13 +944,13 @@ win::paint_event my_main_window::create_paint2 () {
     //LogDebug << "win::paint 2";
     using namespace draw;
 
-    pen blue(color::blue);
-    color red = color::red;
-    color darkGreen = color::darkGreen;
-    color yellow = color::cyan;
+    pen blue(color::blue());
+    color red = color::red();
+    color darkGreen = color::darkGreen();
+    color yellow = color::cyan();
 
-    graph.draw_pixel(core::point(3, 3), color::gray);
-    graph.draw_pixel(core::point(6, 6), color::gray);
+    graph.draw_pixel(core::point(3, 3), color::gray());
+    graph.draw_pixel(core::point(6, 6), color::gray());
 
     core::size sz(30, 50);
     core::size offs1(0, 60);

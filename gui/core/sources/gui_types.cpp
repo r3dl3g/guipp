@@ -184,6 +184,16 @@ return{ static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
       br.move_y(dy);
     }
 
+    void rectangle::move_to_x (point::type new_x) {
+      x2(new_x + width());
+      x(new_x);
+    }
+
+    void rectangle::move_to_y (point::type new_y) {
+      y2(new_y + height());
+      y(new_y);
+    }
+
     void rectangle::set_size (const core::size& sz) {
       br = point(tl.x() + sz.width(), tl.y() + sz.height() );
     }

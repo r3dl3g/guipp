@@ -35,7 +35,6 @@
 #ifdef X11
 #include <cmath>
 #include <algorithm>
-
 #endif // X11
 
 namespace gui {
@@ -922,7 +921,7 @@ namespace gui {
     }
 
     color graphics::get_pixel (const core::point& pt) const {
-      return color::black;
+      return color::black();
     }
 
     void graphics::draw_lines (std::initializer_list<core::point> pts,
@@ -993,49 +992,49 @@ namespace gui {
 
       void lines (draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray);
+        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray());
       }
 
       void vline (draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray);
+        g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray());
       }
 
       void hline (draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray);
+        g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray());
       }
 
       void raised_relief(draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white());
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray());
       }
 
       void sunken_relief(draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray());
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white());
       }
 
       void raised_deep_relief(draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white());
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray());
 
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::veryLightGray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::mediumGray);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::veryLightGray());
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::mediumGray());
       }
 
       void sunken_deep_relief(draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray());
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white());
 
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::darkGray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::veryLightGray);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::darkGray());
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::veryLightGray());
       }
 
     } // frame

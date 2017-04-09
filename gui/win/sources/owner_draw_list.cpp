@@ -78,7 +78,7 @@ namespace gui {
                                      const core::rectangle& place,
                                      bool selected) {
       if (drawer) {
-        drawer(idx, g, place, draw::color::windowColor, selected);
+        drawer(idx, g, place, draw::color::windowColor(), selected);
       }
     }
 

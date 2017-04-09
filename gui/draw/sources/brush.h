@@ -51,7 +51,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      brush(const draw::color& = draw::color::black, Style = solid);
+      brush(const draw::color& = draw::color::black(), Style = solid);
       brush(const brush&);
       ~brush();
 
@@ -73,12 +73,14 @@ namespace gui {
 
     private:
 #ifdef WIN32
+      void destroy();
+
       os::brush id;
       os::win32::brush_type info;
 #endif // WIN32
 #ifdef X11
-      const draw::color m_color;
-      const Style m_style;
+      draw::color m_color;
+      Style m_style;
 #endif // X11
 
     };

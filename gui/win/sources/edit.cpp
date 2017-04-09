@@ -46,7 +46,7 @@ namespace gui {
       edit_base::~edit_base()
       {}
 
-      window_class edit_base::register_edit_class (gui::win::alignment_h a) {
+      window_class edit_base::create_edit_class (gui::win::alignment_h a) {
         return window_class::sub_class("MyEdit", "EDIT",
                                         a | ES_AUTOHSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                         WS_EX_NOPARENTNOTIFY);
@@ -102,14 +102,14 @@ namespace gui {
         , last_mouse_point(core::point::undefined)
     {}
 
-      window_class edit_base::register_edit_class (gui::win::alignment_h a) {
+      window_class edit_base::create_edit_class (gui::win::alignment_h a) {
         return gui::win::window_class::custom_class("EDIT",
                                                     0,
                                                     ButtonPressMask | ButtonReleaseMask | ExposureMask |
                                                     PointerMotionMask | KeyPressMask | FocusChangeMask |
                                                     StructureNotifyMask | SubstructureRedirectMask,
                                                     a, 0, 0,
-                                                    gui::draw::color::white);
+                                                    gui::draw::color::white());
       }
 
       edit_base::~edit_base () {
@@ -240,29 +240,29 @@ namespace gui {
             gui::core::rectangle a1 = area;
             if (selection.first > scroll_pos) {
               graph.text(draw::bounding_box(text.substr(scroll_pos, selection.first - scroll_pos), a1, origin),
-                         font::system(), color::black);
+                         font::system(), color::black());
             } else {
               a1.x2(a1.x());
             }
             gui::core::rectangle a2 = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, selection.last - scroll_pos), a2, origin),
-                       font::system(), color::black);
+                       font::system(), color::black());
             graph.fill(draw::rectangle(core::point(a1.x2(), y1),
                                        core::point(a2.x2(), y2)),
-                       color::lightBlue);
+                       color::lightBlue());
           }
           if (cursor_pos < std::numeric_limits<pos_t>::max()) {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
-                       font::system(), color::black);
+                       font::system(), color::black());
             graph.frame(line(core::point(cursor_area.x2(), y1),
                              core::point(cursor_area.x2(), y2)),
-                             color::black);
+                             color::black());
           }
-          graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black);
+          graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black());
 #ifdef SHOW_TEXT_AREA
-          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
-          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
+          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
+          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
 #endif // SHOW_TEXT_AREA
         }));
         register_event_handler(key_down_event([&] (unsigned int keystate,

@@ -37,13 +37,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     class scroll_view {
     public:
-      scroll_view (win::container*);
+      scroll_view ();
 
       void init (win::vscroll_bar* vscroll,
                  win::hscroll_bar* hscroll,
                  win::client_window* edge);
 
-      void layout (const core::size& new_size);
+      void layout (const core::size& new_size, win::container* main);
 
       void set_current_pos (const core::point& pt);
       core::point get_current_pos () const;
@@ -55,7 +55,6 @@ namespace gui {
 
     private:
       core::point         current_pos;
-      win::container*     main;
       win::vscroll_bar*   vscroll;
       win::hscroll_bar*   hscroll;
       win::client_window* edge;

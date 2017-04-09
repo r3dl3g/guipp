@@ -900,6 +900,7 @@ namespace gui {
 
 #ifdef X11
     win::window_class create_group_window_clazz (draw::color::value_type v) {
+      static int group_window_id = 0;
       return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++), draw::brush(v));
     }
 #endif //X11

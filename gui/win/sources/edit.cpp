@@ -233,7 +233,7 @@ namespace gui {
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           draw::clip clp(graph, area);
-          text_origin origin = (text_origin)get_window_class()->ex_style;
+          text_origin origin = (text_origin)get_window_class()->get_ex_style();
           int y1 = area.y() + 2;
           int y2 = area.y2() - 2;
           if (selection.first < selection.last) {

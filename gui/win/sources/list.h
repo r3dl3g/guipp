@@ -126,13 +126,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    //template<>
-    //window_class listT<false>::clazz;
-
-    //template<>
-    //window_class listT<true>::clazz;
-
-    // --------------------------------------------------------------------------
     template<>
     listT<false>::listT ();
 

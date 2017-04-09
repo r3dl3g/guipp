@@ -77,8 +77,8 @@ namespace gui {
       os::win32::brush_type info;
 #endif // WIN32
 #ifdef X11
-      draw::color m_color;
-      Style m_style;
+      const draw::color m_color;
+      const Style m_style;
 #endif // X11
 
     };

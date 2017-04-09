@@ -50,7 +50,7 @@ namespace gui {
         register_event_handler(paint_event([&] (draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
-          text_origin origin = (text_origin)get_window_class()->ex_style;
+          text_origin origin = (text_origin)get_window_class()->get_ex_style();
           graph.text(draw::text_box(text, area, origin),
                      font::system(),
                      color::black());

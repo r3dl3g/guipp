@@ -89,6 +89,15 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<bool H>
+      class slider_class : public window_class {
+      public:
+        slider_class();
+
+        virtual void prepare (window*) const;
+      };
+
+      // --------------------------------------------------------------------------
+      template<bool H>
       class slider_t : public slider {
       public:
         typedef slider super;
@@ -101,8 +110,11 @@ namespace gui {
         }
 
       private:
-        static window_class clazz;
+        static slider_class<H> clazz;
       };
+
+      template<bool H>
+      slider_class<H> slider_t<H>::clazz;
 
       template<>
       slider_t<false>::slider_t ();

@@ -51,7 +51,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     scroll_view::scroll_view () {
-      layout.init(&vscroll, &hscroll, &edge);
+      layout.init(this, &vscroll, &hscroll, &edge);
 
       vscroll.register_event_handler(scroll_event([&](core::point::type y) {
                                        move_children(core::point(0, y - layout.get_current_pos().y()));
@@ -154,11 +154,15 @@ namespace gui {
       : vscroll(nullptr)
       , hscroll(nullptr)
       , edge(nullptr)
+      , me(core::bind_method(this, &scroll_view::handle_child_move))
+      , se(core::bind_method(this, &scroll_view::handle_child_size))
     {}
 
-    void scroll_view::init (win::vscroll_bar* vscroll,
+    void scroll_view::init (win::container* main,
+                            win::vscroll_bar* vscroll,
                             win::hscroll_bar* hscroll,
                             win::client_window* edge) {
+      this->main = main;
       this->vscroll = vscroll;
       this->hscroll = hscroll;
       this->edge = edge;
@@ -212,6 +216,10 @@ namespace gui {
       for(win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
           required |= win->place() + core::size(1, 1);
+          win->unregister_event_handler(me);
+          win->register_event_handler(me);
+          win->unregister_event_handler(se);
+          win->register_event_handler(se);
         }
       }
 
@@ -295,6 +303,17 @@ namespace gui {
         hscroll->to_front();
       }
 
+    }
+
+    void scroll_view::handle_child_move (const core::point&) {
+      if ((vscroll->get_state() == win::scroll_bar::Nothing_pressed) &&
+          (hscroll->get_state() == win::scroll_bar::Nothing_pressed)) {
+        layout(main->size(), main);
+      }
+    }
+
+    void scroll_view::handle_child_size (const core::size&) {
+      layout(main->size(), main);
     }
     // --------------------------------------------------------------------------
 

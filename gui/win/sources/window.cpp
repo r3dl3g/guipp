@@ -315,15 +315,7 @@ namespace gui {
                                type.get_foreground(),
                                type.get_background().color());
       detail::set_window(id, this);
-
-      unsigned long mask = CWEventMask;
-      XSetWindowAttributes wa;
-      wa.event_mask = type.get_style();
-      if (type.get_cursor()) {
-        mask |= CWCursor;
-        wa.cursor = type.get_cursor();
-      }
-      XChangeWindowAttributes(display, id, mask, &wa);
+      type.prepare(this);
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
     }
 

@@ -40,31 +40,75 @@ namespace gui {
 #ifdef WIN32
 // --------------------------------------------------------------------------
     namespace detail {
+
       template<>
-      window_class scroll_barT<false>::clazz(win::window_class::sub_class("MyScrollBar",
-                                                                          "SCROLLBAR",
-                                                                          SBS_VERT | WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                          WS_EX_NOPARENTNOTIFY));
+      scroll_bar_class<false>::scroll_bar_class ()
+        : window_class(sub_class("MyScrollBar",
+                                 "SCROLLBAR",
+                                 SBS_VERT | WS_VSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                 WS_EX_NOPARENTNOTIFY))
+      {}
+
+      template<>
+      scroll_bar_class<true>::scroll_bar_class ()
+        : window_class(sub_class("MyScrollBar",
+                                 "SCROLLBAR",
+                                 SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                 WS_EX_NOPARENTNOTIFY))
+      {}
+
+      template<>
+      void scroll_bar_class<false>::prepare (window* win) const {
+        window_class::prepare(win);
+      }
+
+      template<>
+      void scroll_bar_class<true>::prepare (window* win) const {
+        window_class::prepare(win);
+      }
 
       template<>
       scroll_barT<false>::scroll_barT ()
       {}
 
       template<>
-      window_class scroll_barT<true>::clazz(win::window_class::sub_class("MyScrollBar",
-                                                                         "SCROLLBAR",
-                                                                         SBS_HORZ | WS_HSCROLL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                         WS_EX_NOPARENTNOTIFY));
-
-      template<>
       scroll_barT<true>::scroll_barT ()
       {}
 
       template<>
-      scroll_barT<false>::~scroll_barT () {}
+      scroll_barT<false>::~scroll_barT ()
+      {}
 
       template<>
-      scroll_barT<true>::~scroll_barT () {}
+      scroll_barT<true>::~scroll_barT ()
+      {}
+
+      template<>
+      scroll_bar::State scroll_barT<false>::get_state () {
+        SCROLLBARINFO info;
+        info.cbSize = sizeof(SCROLLBARINFO);
+        GetScrollBarInfo(get_id(), SB_CTL, &info);
+        for (State i = Up_button_pressed; i <= Down_button_pressed; ++i) {
+          if ((info[i] & STATE_SYSTEM_PRESSED) == STATE_SYSTEM_PRESSED) {
+            return i;
+          }
+        }
+        return Nothing_pressed;
+      }
+
+      template<>
+      scroll_bar::State scroll_barT<true>::get_state () {
+        SCROLLBARINFO info;
+        info.cbSize = sizeof(SCROLLBARINFO);
+        GetScrollBarInfo(get_id(), SB_CTL, &info);
+        for (State i = Up_button_pressed; i <= Down_button_pressed; ++i) {
+          if ((info[i] & STATE_SYSTEM_PRESSED) == STATE_SYSTEM_PRESSED) {
+            return i;
+          }
+        }
+        return Nothing_pressed;
+      }
+
     }
 
     bool scroll_matcher::operator() (const core::event& e) {
@@ -278,15 +322,46 @@ namespace gui {
     }
 
     namespace detail {
-      // --------------------------------------------------------------------------
-      template<>
-      window_class scroll_barT<false>::clazz(window_class::custom_class("VSCROLLBAR",
-                                                                        0,
-                                                                        ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                                                        FocusChangeMask | KeyPressMask,
-                                                                        0, 0, 0,
-                                                                        draw::color::veryLightGray()));
 
+      template<>
+      scroll_bar_class<false>::scroll_bar_class ()
+        : window_class(custom_class("VSCROLLBAR",
+                                    0,
+                                    ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                    FocusChangeMask | KeyPressMask,
+                                    0, 0, 0,
+                                    draw::color::veryLightGray()))
+      {}
+
+      template<>
+      scroll_bar_class<true>::scroll_bar_class ()
+        : window_class(custom_class("HSCROLLBAR",
+                                    0,
+                                    ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                                    FocusChangeMask | KeyPressMask,
+                                    0, 0, 0,
+                                    draw::color::veryLightGray()))
+      {}
+
+      template<>
+      void scroll_bar_class<false>::prepare (window* win) const {
+        window_class::prepare(win);
+        unsigned long mask = CWBackPixmap;
+        XSetWindowAttributes wa;
+        wa.background_pixmap = None;
+        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
+      }
+
+      template<>
+      void scroll_bar_class<true>::prepare (window* win) const {
+        window_class::prepare(win);
+        unsigned long mask = CWBackPixmap;
+        XSetWindowAttributes wa;
+        wa.background_pixmap = None;
+        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
+      }
+
+      // --------------------------------------------------------------------------
       template<>
       scroll_barT<false>::scroll_barT ()
         : state(Nothing_pressed)
@@ -307,14 +382,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      window_class scroll_barT<true>::clazz(window_class::custom_class("HSCROLLBAR",
-                                                                       0,
-                                                                       ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                                                       FocusChangeMask | KeyPressMask,
-                                                                       0, 0, 0,
-                                                                       draw::color::veryLightGray()));
-
-      template<>
       scroll_barT<true>::scroll_barT ()
         : state(Nothing_pressed)
         , last_position(0)
@@ -330,6 +397,16 @@ namespace gui {
           }
           gc = 0;
         }
+      }
+
+      template<>
+      scroll_bar::State scroll_barT<false>::get_state () {
+        return state;
+      }
+
+      template<>
+      scroll_bar::State scroll_barT<true>::get_state () {
+        return state;
       }
 
       // --------------------------------------------------------------------------
@@ -362,14 +439,8 @@ namespace gui {
             g.fill(draw::rectangle(thumb), draw::color::buttonColor());
             draw::frame::raised_deep_relief(g, thumb);
 
-            switch (state) {
-              case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray());
-                break;
-              case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray());
-                break;
-            }
+            g.fill(draw::rectangle(page_up_place(geo)), state == Page_up_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
+            g.fill(draw::rectangle(page_down_place(geo)), state == Page_down_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
             return true;
           }
           case ButtonPress:
@@ -510,14 +581,8 @@ namespace gui {
             g.fill(draw::rectangle(thumb), draw::color::buttonColor());
             draw::frame::raised_deep_relief(g, thumb);
 
-            switch (state) {
-              case Page_up_pressed:
-                g.fill(draw::rectangle(page_up_place(geo)), draw::color::lightGray());
-                break;
-              case Page_down_pressed:
-                g.fill(draw::rectangle(page_down_place(geo)), draw::color::lightGray());
-                break;
-            }
+            g.fill(draw::rectangle(page_up_place(geo)), state == Page_up_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
+            g.fill(draw::rectangle(page_down_place(geo)), state == Page_down_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
             return true;
           }
           case ButtonPress:

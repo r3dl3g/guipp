@@ -39,7 +39,8 @@ namespace gui {
     public:
       scroll_view ();
 
-      void init (win::vscroll_bar* vscroll,
+      void init (win::container* main,
+                 win::vscroll_bar* vscroll,
                  win::hscroll_bar* hscroll,
                  win::client_window* edge);
 
@@ -54,7 +55,15 @@ namespace gui {
       static core::rectangle get_visible_area (const core::size&);
 
     private:
+
+      win::move_event me;
+      win::size_event se;
+
+      void handle_child_move (const core::point&);
+      void handle_child_size (const core::size&);
+
       core::point         current_pos;
+      win::container*     main;
       win::vscroll_bar*   vscroll;
       win::hscroll_bar*   hscroll;
       win::client_window* edge;

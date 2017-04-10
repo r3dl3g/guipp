@@ -942,7 +942,7 @@ namespace gui {
     }
 
     void graphics::flush () {
-      XFlushGC(core::global::get_instance(), gc);
+//      XFlushGC(core::global::get_instance(), gc);
     }
 
     void graphics::push_clip_rectangle (const core::rectangle& rect) {

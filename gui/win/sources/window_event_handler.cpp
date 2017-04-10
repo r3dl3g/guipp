@@ -165,7 +165,7 @@ namespace gui {
         }
         draw::graphics g(e.xexpose.window, gc);
         callback(g);
-        XFlushGC(e.xexpose.display, gc);
+//        XFlushGC(e.xexpose.display, gc);
       }
     }
 

@@ -80,6 +80,15 @@ namespace gui {
 
       static core::size::type get_scroll_bar_width ();
 
+      enum State {
+        Nothing_pressed = 0,
+        Up_button_pressed,
+        Page_up_pressed,
+        Thumb_button_pressed,
+        Page_down_pressed,
+        Down_button_pressed
+      };
+
     protected:
       scroll_bar ();
 
@@ -102,6 +111,17 @@ namespace gui {
     };
 
     namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<bool H>
+      class scroll_bar_class : public window_class {
+      public:
+        scroll_bar_class ();
+
+        virtual void prepare (window*) const;
+      };
+
+      // --------------------------------------------------------------------------
       template<bool H>
       class scroll_barT : public scroll_bar {
       public:
@@ -116,8 +136,10 @@ namespace gui {
           super::create(clazz, parent, place);
         }
 
+        State get_state ();
+
       private:
-        static window_class clazz;
+        static scroll_bar_class<H> clazz;
 
 #ifdef X11
         bool scroll_handle_eventT (const core::event& e,
@@ -198,21 +220,15 @@ namespace gui {
           return core::rectangle(build_pos(tmp_top), build_size(m.thumb_size, m.thickness));
         }
 
-        enum State {
-          Nothing_pressed,
-          Up_button_pressed,
-          Down_button_pressed,
-          Thumb_button_pressed,
-          Page_up_pressed,
-          Page_down_pressed
-        };
-
         core::point last_mouse_point;
         State state;
         type last_position;
         os::graphics gc;
 #endif // X11
       };
+
+      template<bool H>
+      scroll_bar_class<H> scroll_barT<H>::clazz;
 
       template<>
       scroll_barT<false>::scroll_barT ();

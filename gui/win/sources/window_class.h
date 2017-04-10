@@ -89,7 +89,7 @@ namespace gui {
                     draw::color foreground = draw::color::black(),
                     os::event_callback callback = nullptr);
 
-      void prepare (window*) const;
+      virtual void prepare (window*) const;
 
       const std::string& get_class_name () const;
       const os::style get_class_style () const;

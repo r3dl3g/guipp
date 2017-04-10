@@ -149,6 +149,16 @@ namespace gui {
         SetWindowLongPtr(win->get_id(), GWLP_WNDPROC, (LONG_PTR)detail::WindowEventProc);
       }
 #endif // WIN32
+#ifdef X11
+      unsigned long mask = CWEventMask;
+      XSetWindowAttributes wa;
+      wa.event_mask = get_style();
+      if (get_cursor()) {
+        mask |= CWCursor;
+        wa.cursor = get_cursor();
+      }
+      XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
+#endif // X11
     }
 
     const std::string& window_class::get_class_name () const {

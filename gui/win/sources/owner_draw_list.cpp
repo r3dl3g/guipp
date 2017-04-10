@@ -67,7 +67,7 @@ namespace gui {
 
 #endif // X11
 
-    void owner_draw_list::set_drawer (std::function<item_draw> drawer,
+    void owner_draw_list::set_drawer (std::function<draw_list_item> drawer,
                                       const core::size& sz) {
       this->drawer = drawer;
       set_item_size(sz);

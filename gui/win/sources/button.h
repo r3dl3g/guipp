@@ -81,6 +81,8 @@ namespace gui {
     public:
       typedef gui::win::window_with_text super;
 
+      typedef void(draw_button_item) (draw::graphics&, const button& btn);
+
       button ();
 
       bool is_checked () const;
@@ -91,13 +93,16 @@ namespace gui {
 
 #ifdef X11
     private:
-      bool button_handle_event (const gui::core::event& e,
-                                os::event_result& result);
-
       bool checked;
       bool hilited;
 #endif // X11
     };
+
+    namespace paint {
+      void push_button (draw::graphics& graph, const button& btn, const std::string& text);
+      void radio_button (draw::graphics& graph, const button& btn, const std::string& text);
+      void check_box (draw::graphics& graph, const button& btn, const std::string& text);
+    }
 
     // --------------------------------------------------------------------------
     class push_button : public button {
@@ -105,6 +110,22 @@ namespace gui {
       typedef button super;
 
       push_button ();
+    };
+
+    // --------------------------------------------------------------------------
+    class toggle_button : public button {
+    public:
+      typedef button super;
+
+      toggle_button ();
+    };
+
+    // --------------------------------------------------------------------------
+    class text_button : public push_button {
+    public:
+      typedef push_button super;
+
+      text_button ();
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def,
@@ -118,9 +139,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class radio_button : public button {
+    class radio_button : public toggle_button {
     public:
-      typedef button super;
+      typedef toggle_button super;
 
       radio_button ();
 
@@ -136,9 +157,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class check_box : public button {
+    class check_box : public toggle_button {
     public:
-      typedef button super;
+      typedef toggle_button super;
 
       check_box ();
 

@@ -399,7 +399,7 @@ namespace gui {
                        const draw::brush& background,
                        bool selected,
                        draw::text_origin align) {
-        owner_draw::draw_text_item(convert_to_string(super::at(row_id).at(col_id)), g, place, background, selected, align);
+        paint::text_item(convert_to_string(super::at(row_id).at(col_id)), g, place, background, selected, align);
         if (!selected) {
           F(g, place);
         }
@@ -510,7 +510,7 @@ namespace gui {
                       const draw::brush& background,
                       bool selected,
                       draw::text_origin align) {
-      owner_draw::draw_text_item(convert_to_string(t), g, place, background, selected, align);
+      paint::text_item(convert_to_string(t), g, place, background, selected, align);
       if (!selected) {
         F(g, place);
       }

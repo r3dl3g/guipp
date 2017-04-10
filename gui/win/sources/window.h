@@ -224,10 +224,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout = layout::standard_layout>
+    template<typename L = layout::standard_layout>
     class layout_container : public container {
     public:
-      typedef Layout layout_type;
+      typedef L layout_type;
 
       layout_container () {
         register_event_handler(size_event(core::bind_method(this, &layout_container::do_layout_for_size)));
@@ -301,9 +301,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout = layout::standard_layout>
+    template<typename L = layout::standard_layout>
     class layout_main_window : public main_window {
     public:
+      typedef L layout_type;
+
       layout_main_window () {
         register_event_handler(size_event(core::bind_method(this, &layout_main_window::do_layout_for_size)));
       }
@@ -316,16 +318,16 @@ namespace gui {
         layout.layout(sz, this);
       }
 
-      inline Layout& get_layout () {
+      inline layout_type& get_layout () {
         return layout;
       };
 
-      inline const Layout& get_layout () const {
+      inline const layout_type& get_layout () const {
         return layout;
       };
 
     protected:
-      Layout layout;
+      layout_type layout;
     };
     // --------------------------------------------------------------------------
   } // win

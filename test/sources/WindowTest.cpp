@@ -75,13 +75,13 @@ private:
   win::client_window window1;
   win::client_window window2;
 
-  win::push_button calc_button;
-  win::push_button inc_button;
-  win::push_button dec_button;
+  win::text_button calc_button;
+  win::text_button inc_button;
+  win::text_button dec_button;
 
-  win::push_button ok_button;
-  win::push_button del_button;
-  win::push_button clear_button;
+  win::text_button ok_button;
+  win::text_button del_button;
+  win::text_button clear_button;
 
   win::group_window<layout::horizontal_adaption<5, 10>> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
@@ -106,10 +106,10 @@ private:
   win::label_center labelC;
   win::label_right labelR;
 
-  win::push_button min_button;
-  win::push_button max_button;
-  win::push_button norm_button;
-  win::push_button info_button;
+  win::text_button min_button;
+  win::text_button max_button;
+  win::text_button norm_button;
+  win::text_button info_button;
 
   win::simple_list_data<std::string> data;
 
@@ -123,8 +123,8 @@ private:
 
   win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
 
-  win::push_button up_button;
-  win::push_button down_button;
+  win::text_button up_button;
+  win::text_button down_button;
 
   win::vscroll_bar vscroll;
   win::hscroll_bar hscroll;
@@ -139,12 +139,12 @@ private:
   win::edit edit1;
 
   win::group_window<layout::horizontal_lineup<0, 3>> edit_btn_group;
-  win::push_button cur_plus;
-  win::push_button cur_minus;
-  win::push_button sel_first_plus;
-  win::push_button sel_first_minus;
-  win::push_button sel_last_plus;
-  win::push_button sel_last_minus;
+  win::text_button cur_plus;
+  win::text_button cur_minus;
+  win::text_button sel_first_plus;
+  win::text_button sel_first_minus;
+  win::text_button sel_last_plus;
+  win::text_button sel_last_minus;
 
   typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
@@ -444,7 +444,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    win::owner_draw::draw_text_item(strm.str(), g, place, background, selected);
+    win::paint::text_item(strm.str(), g, place, background, selected);
   };
 
   list1.set_drawer(list_drawer, core::size(0, 25));
@@ -688,7 +688,7 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
-      win::owner_draw::draw_text_item(ostreamfmt(v), g, r, draw::color::buttonColor(), false, draw::center);
+      win::paint::text_item(ostreamfmt(v), g, r, draw::color::buttonColor(), false, draw::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -698,7 +698,7 @@ void my_main_window::created_children () {
 
     [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
       std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
-      win::owner_draw::draw_text_item(text, g, r, b, s, align);
+      win::paint::text_item(text, g, r, b, s, align);
       draw::frame::lines(g, r);
     }
   };

@@ -315,10 +315,10 @@ namespace gui {
       os::instance display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
                                parent_id,
-                               place.x(),
-                               place.y(),
-                               place.width(),
-                               place.height(),
+                               place.os_x(),
+                               place.os_y(),
+                               place.os_width(),
+                               place.os_height(),
                                type.get_class_style(),
                                type.get_foreground(),
                                type.get_background().color());
@@ -542,21 +542,21 @@ namespace gui {
     }
 
     void window::move (const core::point& pt, bool repaint) {
-      XMoveWindow(core::global::get_instance(), get_id(), pt.x(), pt.y());
+      XMoveWindow(core::global::get_instance(), get_id(), pt.os_x(), pt.os_y());
       if (repaint) {
         redraw_later();
       }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      XResizeWindow(core::global::get_instance(), get_id(), sz.width(), sz.height());
+      XResizeWindow(core::global::get_instance(), get_id(), sz.os_width(), sz.os_height());
       if (repaint) {
         redraw_later();
       }
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
-      XMoveResizeWindow(core::global::get_instance(), get_id(), r.x(), r.y(), r.width(), r.height());
+      XMoveResizeWindow(core::global::get_instance(), get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
       if (repaint) {
         redraw_later();
       }
@@ -569,8 +569,8 @@ namespace gui {
                             get_id(),
                             RootWindow(core::global::get_instance(),
                                        DefaultScreen(core::global::get_instance())),
-                            pt.x(),
-                            pt.y(),
+                            pt.os_x(),
+                            pt.os_y(),
                             &x,
                             &y,
                             &child_return);
@@ -584,8 +584,8 @@ namespace gui {
                             RootWindow(core::global::get_instance(),
                                        DefaultScreen(core::global::get_instance())),
                             get_id(),
-                            pt.x(),
-                            pt.y(),
+                            pt.os_x(),
+                            pt.os_y(),
                             &x,
                             &y,
                             &child_return);

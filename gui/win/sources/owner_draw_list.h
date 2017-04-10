@@ -54,7 +54,7 @@ namespace gui {
                            const core::rectangle& place,
                            const draw::brush& background,
                            bool selected) {
-      owner_draw::draw_text_item(convert_to_string<T>(t), g, place, background, selected, O);
+      paint::text_item(convert_to_string<T>(t), g, place, background, selected, O);
       if (!selected) {
         F(g, place);
       }
@@ -116,16 +116,16 @@ namespace gui {
     public:
       typedef owner_draw super;
 
-      typedef void(item_draw) (int idx,
-                               draw::graphics&,
-                               const core::rectangle& place,
-                               const draw::brush& background,
-                               bool selected);
+      typedef void(draw_list_item) (int idx,
+                                    draw::graphics&,
+                                    const core::rectangle& place,
+                                    const draw::brush& background,
+                                    bool selected);
 
       owner_draw_list ();
       ~owner_draw_list ();
 
-      void set_drawer (std::function<item_draw> drawer,
+      void set_drawer (std::function<draw_list_item> drawer,
                        const core::size& sz = {20, 20});
 
     protected:
@@ -139,7 +139,7 @@ namespace gui {
 #endif // X11
 
     private:
-      std::function<item_draw> drawer;
+      std::function<draw_list_item> drawer;
 
 #ifdef X11
       os::graphics gc;

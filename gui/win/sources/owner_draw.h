@@ -35,19 +35,32 @@ namespace gui {
 
   namespace win {
 
+    namespace paint {
+      void text_item (const std::string& text,
+                      draw::graphics&,
+                      const core::rectangle& place,
+                      const draw::brush& background,
+                      bool selected,
+                      draw::text_origin origin = draw::vcenter_left);
+    }
+
     // --------------------------------------------------------------------------
     class owner_draw : public gui::win::window {
     public:
       typedef gui::win::window super;
 
       owner_draw ()
-        : owner_draw_id(++next_owner_draw_id)
-        , item_size(1, 1)
+        : item_size(1, 1)
+  #ifdef WIN32
+        , owner_draw_id(++next_owner_draw_id)
+  #endif // WIN32
       {}
 
+#ifdef WIN32
       int get_owner_draw_id () const {
         return owner_draw_id;
       }
+#endif // WIN32
 
       void set_item_size (const gui::core::size&);
 
@@ -61,31 +74,32 @@ namespace gui {
         return get_item_size().height();
       }
 
+#ifdef WIN32
       static const gui::core::size& get_item_size (int id);
-
-      static void draw_text_item (const std::string& text,
-                                  draw::graphics&,
-                                  const core::rectangle& place,
-                                  const draw::brush& background,
-                                  bool selected,
-                                  draw::text_origin origin = draw::vcenter_left);
+#endif // WIN32
 
     protected:
       void create (const gui::win::window_class& clazz,
                    const gui::win::container& parent,
                    const gui::core::rectangle& place = gui::core::rectangle::def) {
+#ifdef WIN32
         super::create(clazz, parent, place, (os::menu)(long long)(get_owner_draw_id()));
+#else
+        super::create(clazz, parent, place);
+#endif
       }
 
     private:
       gui::core::size item_size;
 
+#ifdef WIN32
       const int owner_draw_id;
 
       static int next_owner_draw_id;
 
       typedef std::map<int, gui::core::size> measure_item_map;
       static measure_item_map s_measure_item_size;
+#endif // WIN32
     };
 
   } // win

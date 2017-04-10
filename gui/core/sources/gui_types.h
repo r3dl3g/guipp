@@ -35,10 +35,21 @@ namespace gui {
 
   namespace core {
 
+    typedef float size_type;
+
     struct point;
 
+    inline os::size_type convert_size_dimension (size_type v) {
+#ifdef WIN32
+      return static_cast<os::size_type>(v);
+#endif // WIN32
+#ifdef X11
+      return static_cast<os::size_type>(std::max(v, size_type(0)));
+#endif // X11
+    }
+
     struct size {
-      typedef float type;
+      typedef size_type type;
 
       static const size zero;
       static const size one;
@@ -125,11 +136,11 @@ namespace gui {
       }
 
       inline os::size_type os_width () const {
-        return static_cast<os::size_type>(m_w);
+        return convert_size_dimension(m_w);
       }
 
       inline os::size_type os_height () const {
-        return static_cast<os::size_type>(m_h);
+        return convert_size_dimension(m_h);
       }
 
       inline void width (type w) {
@@ -148,8 +159,10 @@ namespace gui {
     std::ostream& operator<< (std::ostream& out,
                               const size&);
 
+    typedef float point_type;
+
     struct point {
-      typedef float type;
+      typedef point_type type;
       static const point zero;
       static const point one;
       static const point undefined;
@@ -517,11 +530,11 @@ namespace gui {
       }
 
       inline os::size_type os_width () const {
-        return static_cast<os::size_type>(width());
+        return convert_size_dimension(width());
       }
 
       inline os::size_type os_height () const {
-        return static_cast<os::size_type>(height());
+        return convert_size_dimension(height());
       }
 
       // union

@@ -51,14 +51,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     scroll_view::scroll_view () {
-      layout.init(this, &vscroll, &hscroll, &edge);
+      get_layout().init(&vscroll, &hscroll, &edge);
 
       vscroll.register_event_handler(scroll_event([&](core::point::type y) {
-                                       move_children(core::point(0, y - layout.get_current_pos().y()));
+                                       move_children(core::point(0, y - get_layout().get_current_pos().y()));
                                      }));
 
       hscroll.register_event_handler(scroll_event([&](core::point::type x) {
-                                       move_children(core::point(x - layout.get_current_pos().x(), 0));
+                                       move_children(core::point(x - get_layout().get_current_pos().x(), 0));
                                      }));
     }
 
@@ -82,7 +82,7 @@ namespace gui {
           win->move(win->position() - delta);
         }
       }
-      layout.set_current_pos(layout.get_current_pos() + delta);
+      get_layout().set_current_pos(get_layout().get_current_pos() + delta);
       get_layout().set_in_scroll_event(false);
     }
 
@@ -146,29 +146,27 @@ namespace gui {
       return edge;
     }
 
-    void scroll_view::calc_area () {
-      layout.layout(size(), this);
-    }
   } // win
 
   // --------------------------------------------------------------------------
   namespace layout {
 
     // --------------------------------------------------------------------------
-    scroll_view::scroll_view ()
-      : vscroll(nullptr)
+    scroll_view::scroll_view (win::container* main)
+      : super(main)
+      , vscroll(nullptr)
       , hscroll(nullptr)
       , edge(nullptr)
       , me(core::bind_method(this, &scroll_view::handle_child_move))
       , se(core::bind_method(this, &scroll_view::handle_child_size))
       , in_scroll_event(false)
-    {}
+    {
+      super::init(core::bind_method(this, &scroll_view::layout));
+    }
 
-    void scroll_view::init (win::container* main,
-                            win::vscroll_bar* vscroll,
+    void scroll_view::init (win::vscroll_bar* vscroll,
                             win::hscroll_bar* hscroll,
                             win::client_window* edge) {
-      this->main = main;
       this->vscroll = vscroll;
       this->hscroll = hscroll;
       this->edge = edge;
@@ -214,7 +212,7 @@ namespace gui {
                              win::scroll_bar::get_scroll_bar_width());
     }
 
-    void scroll_view::layout (const core::size& new_size, win::container* main) {
+    void scroll_view::layout (const core::size& new_size) {
       core::rectangle space(new_size);
 
       std::vector<win::window*> children = main->get_children();
@@ -306,12 +304,12 @@ namespace gui {
 
     void scroll_view::handle_child_move (const core::point&) {
       if (!in_scroll_event) {
-        layout(main->size(), main);
+        layout(main->size());
       }
     }
 
     void scroll_view::handle_child_size (const core::size&) {
-      layout(main->size(), main);
+      layout(main->size());
     }
     // --------------------------------------------------------------------------
 

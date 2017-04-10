@@ -24,12 +24,15 @@
 //
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include "gui_types.h"
+#include "bind_method.h"
+
 
 namespace gui {
 
@@ -43,25 +46,43 @@ namespace gui {
     // --------------------------------------------------------------------------
     class standard_layout {
     public:
-      void layout (const core::size& new_size, win::container*) {}
+      standard_layout (win::container*)
+      {}
     };
 
-    namespace detail {
+    class layout_base {
+    public:
+      typedef void (callback)(const core::size& sz);
+      typedef std::function<callback> callback_function;
 
-      class layout_base {
-      public:
-        static std::vector<win::window*> get_children (win::container*);
-        static void place_child (win::window*, const core::rectangle&);
-        static void hide_children (std::vector<win::window*>&);
-      };
-    }
+
+      layout_base (win::container* m)
+        : main(m)
+      {}
+
+      void init(callback_function f);
+
+      static std::vector<win::window*> get_children (win::container*);
+      static void place_child (win::window*, const core::rectangle&);
+      static void hide_children (std::vector<win::window*>&);
+
+    protected:
+      win::container* main;
+    };
 
     template<unsigned short width, unsigned short border = 0, unsigned short gap = 0>
-    class horizontal_lineup : protected detail::layout_base {
+    class horizontal_lineup : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      void layout (const core::size& sz, win::container* main) {
+      horizontal_lineup (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &horizontal_lineup::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const type border2 = (border * 2);
         const type space = sz.width() - border2;
@@ -71,10 +92,10 @@ namespace gui {
             const type height = sz.height() - border2;
             const type offset = width + gap;
             core::rectangle area(border, border, width, height);
-            std::for_each(children.begin(), children.end(), [&](win::window* win) {
+            for(win::window* win : children) {
               place_child(win, area);
               area.move_x(offset);
-            });
+            }
           } else {
             hide_children(children);
           }
@@ -83,11 +104,18 @@ namespace gui {
     };
 
     template<unsigned short height, unsigned short border = 0, unsigned short gap = 0>
-    class vertical_lineup : protected detail::layout_base {
+    class vertical_lineup : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      inline void layout (const core::size& sz, win::container* main) {
+      vertical_lineup (win::container* m)
+        :super(m)
+      {
+        super::init(core::bind_method(this, &vertical_lineup::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const type border2 = (border * 2);
         const type space = sz.height() - border2;
@@ -110,11 +138,18 @@ namespace gui {
     };
 
     template<unsigned short width, unsigned short height, unsigned short border = 0, unsigned short gap = 0>
-    class grid_lineup : protected detail::layout_base {
+    class grid_lineup : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      void layout (const core::size& sz, win::container* main) {
+      grid_lineup (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &grid_lineup::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const type xmax = sz.width() - border;
         const type ymax = sz.height() - border;
@@ -124,14 +159,14 @@ namespace gui {
             const type xoffset = width + gap;
             const type yoffset = height + gap;
             core::rectangle area(border, border, width, height);
-            std::for_each(children.begin(), children.end(), [&](win::window* win) {
+            for(win::window* win : children) {
               place_child(win, area);
               area.move_x(xoffset);
               if (area.x2() > xmax) {
                 area.move_to_x(border);
                 area.move_y(yoffset);
               }
-            });
+            }
           } else {
             hide_children(children);
           }
@@ -140,11 +175,18 @@ namespace gui {
     };
 
     template<unsigned short border = 0, unsigned short gap = 0>
-    class horizontal_adaption : protected detail::layout_base {
+    class horizontal_adaption : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      void layout (const core::size& sz, win::container* main) {
+      horizontal_adaption (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &horizontal_adaption::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const std::size_t count = children.size();
         const type border2 = (border * 2);
@@ -157,10 +199,10 @@ namespace gui {
             const type offset = width + gap;
 
             core::rectangle area(border, border, width, height);
-            std::for_each(children.begin(), children.end(), [&](win::window* win) {
+            for(win::window* win : children) {
               place_child(win, area);
               area.move_x(offset);
-            });
+            }
           } else {
             hide_children(children);
           }
@@ -169,11 +211,18 @@ namespace gui {
     };
 
     template<unsigned short border = 0, unsigned short gap = 0>
-    class vertical_adaption : protected detail::layout_base {
+    class vertical_adaption : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      void layout (const core::size& sz, win::container* main) {
+      vertical_adaption (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &vertical_adaption::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const std::size_t count = static_cast<int>(children.size());
         const type border2 = (border * 2);
@@ -198,11 +247,18 @@ namespace gui {
     };
 
     template<unsigned short columns, unsigned short rows, unsigned short border = 0, unsigned short gap = 0>
-    class grid_adaption : protected detail::layout_base {
+    class grid_adaption : protected layout_base {
     public:
       typedef core::size::type type;
+      typedef layout_base super;
 
-      void layout (const core::size& sz, win::container* main) {
+      grid_adaption (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &grid_adaption::layout));
+      }
+
+      void layout (const core::size& sz) {
         std::vector<win::window*> children = get_children(main);
         const type border2 = (border * 2);
         const type xspace = sz.width() - border2;
@@ -254,6 +310,8 @@ namespace gui {
 
     class attach {
     public:
+      attach (win::container*);
+
       void abs (win::window* target, win::window* source, What what, Where where, short offset) {
         attachments.push_back({target, source, what, where, offset, double_to_short(1.0)});
       }
@@ -264,7 +322,7 @@ namespace gui {
                                offset, double_to_short(relative)});
       }
 
-      void layout (const core::size& sz, win::container* main);
+      void layout (const core::size& sz);
 
     private:
       struct attachment {

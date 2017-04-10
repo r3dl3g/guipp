@@ -44,20 +44,23 @@ namespace gui {
 
     namespace detail {
 
-      class column_list_layout {
+      class column_list_layout : protected layout_base {
       public:
+        typedef layout_base super;
         typedef win::detail::slider slider;
 
         typedef std::vector<slider*>(create_sliders)(size_t);
 
-        column_list_layout ()
-          : list(nullptr)
-          , header(nullptr)
+        column_list_layout (win::container* main)
+          : super(main)
+          , list(nullptr)
         {}
 
-        void layout ();
+        void init_auto_layout () {
+          super::init(core::bind_method(this, &column_list_layout::layout));
+        }
 
-        void layout(const core::size& new_size, win::container* main);
+        void layout(const core::size& new_size);
           
         void set_slider_creator(std::function<create_sliders> sc);
 
@@ -100,9 +103,8 @@ namespace gui {
 
         core::size::type get_available_width(const core::size&) const;
 
-        void set_header_and_list(win::container* h, win::list* l) {
+        void set_list (win::list* l) {
           list = l;
-          header = h;
         }
 
       protected:
@@ -116,7 +118,6 @@ namespace gui {
         std::vector<slider*> sliders;
 
         win::list* list;
-        win::container* header;
       };
 
     }
@@ -131,17 +132,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     class simple_column_list_layout : public detail::column_list_layout {
     public:
-      typedef column_list_layout super;
+      typedef detail::column_list_layout super;
 
-      simple_column_list_layout ()
+      simple_column_list_layout (win::container* main)
+        : super(main)
       {}
 
       void set_column_width(std::size_t i, column_size_type w, bool update = true) {
         super::set_column_width(i, std::max(w, get_column_min_width(i)), update);
-      }
-
-      void layout(const core::size& new_size, win::container* main) {
-        super::layout(new_size, main);
       }
 
       void set_column_count(std::size_t i) {
@@ -180,10 +178,15 @@ namespace gui {
     public:
       typedef simple_column_list_layout super;
 
-      weight_column_list_layout ()
+      weight_column_list_layout (win::container* main)
+        : super(main)
       {}
 
-      void layout(const core::size& new_size, win::container* main);
+      void init_auto_layout () {
+        super::init(core::bind_method(this, &weight_column_list_layout::layout));
+      }
+
+      void layout(const core::size& new_size);
 
       void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
@@ -210,14 +213,19 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class base_column_list_layout {
+      class base_column_list_layout : protected layout_base {
       public:
-        base_column_list_layout()
-          : header(nullptr)
-          , list(nullptr)
-        {}
+        typedef layout_base super;
 
-        void layout(const core::size& sz, win::container* main) {
+        base_column_list_layout(win::container* m)
+          : super(m)
+          , header(nullptr)
+          , list(nullptr)
+        {
+          super::init(core::bind_method(this, &base_column_list_layout::layout));
+        }
+
+        void layout (const core::size& sz) {
           header->resize(core::size(sz.width(), 20));
           list->resize(sz - core::size(0, 20));
         }
@@ -263,6 +271,7 @@ namespace gui {
 
       column_list_header() {
         set_cell_drawer(default_cell_drawer);
+        this->get_layout().init_auto_layout();
         this->get_layout().set_slider_creator([&](std::size_t i) {
           return create_slider(i);
         });
@@ -330,8 +339,7 @@ namespace gui {
 
         base_column_list () {
           get_layout().set_header_and_list(&header, &list);
-          get_column_layout().set_header_and_list(&header, &list);
-          register_event_handler(size_event(core::bind_method((super*)this, &super::do_layout_for_size)));
+          get_column_layout().set_list(&list);
         }
 
         ~base_column_list ()
@@ -352,7 +360,7 @@ namespace gui {
           header.set_visible();
           list.create(*reinterpret_cast<container*>(this), core::rectangle(0, 20, place.width(), place.height() - 20));
           list.set_visible();
-          header.do_layout();
+          header.layout();
         }
 
         column_list_header<layout_type> header;

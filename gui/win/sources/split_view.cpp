@@ -133,17 +133,17 @@ namespace gui {
 
       template<>
       split_view<false>::split_view () {
-        layout.set_slider(&slider);
+        get_layout().set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
-          do_layout();
+          get_layout().layout(size());
         }));
       }
 
       template<>
       split_view<true>::split_view () {
-        layout.set_slider(&slider);
+        get_layout().set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
-          do_layout();
+          get_layout().layout(size());
         }));
       }
 

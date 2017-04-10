@@ -33,26 +33,30 @@ namespace gui {
 
   namespace layout {
 
-    namespace detail {
-
-      std::vector<win::window*> layout_base::get_children (win::container* main) {
-        return main->get_children();
-      }
-
-      void layout_base::place_child (win::window* win, const core::rectangle& area) {
-        win->place(area);
-        win->set_visible();
-      }
-
-      void layout_base::hide_children (std::vector<win::window*>& children) {
-        std::for_each(children.begin(), children.end(), [](win::window* win){
-          win->set_visible(false);
-        });
-      }
-
+    std::vector<win::window*> layout_base::get_children (win::container* main) {
+      return main->get_children();
     }
 
-    void attach::layout (const core::size& sz, win::container*) {
+    void layout_base::place_child (win::window* win, const core::rectangle& area) {
+      win->place(area);
+      win->set_visible();
+    }
+
+    void layout_base::hide_children (std::vector<win::window*>& children) {
+      std::for_each(children.begin(), children.end(), [](win::window* win){
+        win->set_visible(false);
+      });
+    }
+
+    void layout_base::init(callback_function callback) {
+      main->register_event_handler(win::size_event(callback));
+    }
+
+    attach::attach (win::container* main) {
+      main->register_event_handler(win::size_event(core::bind_method(this, &attach::layout)));
+    }
+
+    void attach::layout (const core::size& sz) {
       typedef std::pair<core::rectangle, core::size> place_and_size;
       typedef std::map<win::window*, place_and_size> window_places;
       typedef window_places::iterator iterator;

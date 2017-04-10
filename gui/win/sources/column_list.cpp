@@ -59,7 +59,7 @@ namespace gui {
 
       core::size::type column_list_layout::get_available_width() const {
         if (list) {
-          return get_available_width(header->client_size());
+          return get_available_width(main->client_size());
         }
         return 0;
       }
@@ -111,33 +111,27 @@ namespace gui {
         slider_creator = sc;
       }
 
-      void column_list_layout::layout(const core::size& new_size, win::container*) {
-        if (header) {
-          core::rectangle r(1, 0, 2, new_size.height());
-          std::size_t count = get_column_count();
-          if (count != sliders.size()) {
-            sliders = slider_creator(count);
-          }
-          for (std::size_t i = 0; i < count; ++i) {
-            slider* s = sliders[i];
-            r.move_x(get_column_width(i) - 2);
-            s->place(r);
-            r.move_x(2);
-          }
+      void column_list_layout::layout(const core::size& new_size) {
+        core::rectangle r(1, 0, 2, new_size.height());
+        std::size_t count = get_column_count();
+        if (count != sliders.size()) {
+          sliders = slider_creator(count);
+        }
+        for (std::size_t i = 0; i < count; ++i) {
+          slider* s = sliders[i];
+          r.move_x(get_column_width(i) - 2);
+          s->place(r);
+          r.move_x(2);
         }
       }
 
-      void column_list_layout::layout() {
-        layout(header->client_size(), header);
-      }
-
       void column_list_layout::update_views() {
-        layout();
+        layout(main->size());
         redraw_views();
       }
 
       void column_list_layout::redraw_views() {
-        header->redraw_later();
+        main->redraw_later();
         list->redraw_later();
       }
     }
@@ -221,7 +215,7 @@ namespace gui {
       }
     }
 
-    void weight_column_list_layout::layout(const core::size& sz, win::container* m) {
+    void weight_column_list_layout::layout (const core::size& sz) {
       std::size_t count = get_column_count();
 
       float full_weigth = 0.0F;
@@ -245,7 +239,7 @@ namespace gui {
         super::set_column_width(i, w, false);
       }
 
-      super::layout(sz, m);
+      super::layout(sz);
       get_slider(count - 1)->disable();
       list->redraw_later();
     }

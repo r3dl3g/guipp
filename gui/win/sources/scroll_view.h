@@ -35,16 +35,17 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    class scroll_view {
+    class scroll_view : protected layout_base {
     public:
-      scroll_view ();
+      typedef layout_base super;
 
-      void init (win::container* main,
-                 win::vscroll_bar* vscroll,
+      scroll_view (win::container* main);
+
+      void init (win::vscroll_bar* vscroll,
                  win::hscroll_bar* hscroll,
                  win::client_window* edge);
 
-      void layout (const core::size& new_size, win::container* main);
+      void layout (const core::size& new_size);
 
       void set_current_pos (const core::point& pt);
       core::point get_current_pos () const;
@@ -70,7 +71,6 @@ namespace gui {
       void handle_child_size (const core::size&);
 
       core::point         current_pos;
-      win::container*     main;
       win::vscroll_bar*   vscroll;
       win::hscroll_bar*   hscroll;
       win::client_window* edge;
@@ -87,8 +87,6 @@ namespace gui {
       typedef window super;
 
       scroll_view ();
-
-      void calc_area ();
 
       void set_scroll_pos (const core::point& pt);
       core::point get_scroll_pos () const;

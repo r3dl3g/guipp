@@ -229,28 +229,24 @@ namespace gui {
     public:
       typedef L layout_type;
 
-      layout_container () {
-        register_event_handler(size_event(core::bind_method(this, &layout_container::do_layout_for_size)));
-      }
+      layout_container ()
+        : layouter(this)
+      {}
 
-      void do_layout () {
-        do_layout_for_size(size());
-      }
-
-      void do_layout_for_size (const core::size& sz) {
-        layout.layout(sz, this);
+      void layout () {
+        layouter.layout(size());
       }
 
       inline layout_type& get_layout() {
-        return layout;
+        return layouter;
       };
 
       inline const layout_type& get_layout() const {
-        return layout;
+        return layouter;
       };
 
-    protected:
-      layout_type layout;
+    private:
+      layout_type layouter;
     };
 
     window_class create_group_window_clazz (draw::color::value_type);
@@ -306,28 +302,24 @@ namespace gui {
     public:
       typedef L layout_type;
 
-      layout_main_window () {
-        register_event_handler(size_event(core::bind_method(this, &layout_main_window::do_layout_for_size)));
-      }
+      layout_main_window ()
+        : layouter(this)
+      {}
 
-      void do_layout () {
-        do_layout_for_size(client_size());
-      }
-
-      void do_layout_for_size (const core::size& sz) {
-        layout.layout(sz, this);
+      void layout () {
+        layouter.layout(size());
       }
 
       inline layout_type& get_layout () {
-        return layout;
+        return layouter;
       };
 
       inline const layout_type& get_layout () const {
-        return layout;
+        return layouter;
       };
 
     protected:
-      layout_type layout;
+      layout_type layouter;
     };
     // --------------------------------------------------------------------------
   } // win

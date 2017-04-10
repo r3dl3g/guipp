@@ -138,7 +138,7 @@ private:
 
   win::edit edit1;
 
-  win::group_window<layout::horizontal_lineup<0, 3>> edit_btn_group;
+  win::group_window<layout::horizontal_adaption<0, 2>> edit_btn_group;
   win::text_button cur_plus;
   win::text_button cur_minus;
   win::text_button sel_first_plus;
@@ -519,7 +519,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   calc_button.register_event_handler(win::button_clicked_event([&] () {
-    view.calc_area();
+    view.layout();
   }));
 
   inc_button.register_event_handler(win::button_clicked_event([&] () {
@@ -530,10 +530,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   vslider.register_event_handler(win::move_event([&](const core::point&) {
-    do_layout();
+    layout();
   }));
   hslider.register_event_handler(win::move_event([&](const core::point&) {
-    do_layout();
+    layout();
   }));
 
   hscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
@@ -717,7 +717,7 @@ void my_main_window::created_children () {
   }, 20);
   column_list.set_visible();
   column_list.get_column_layout().get_slider(0)->disable();
-  column_list.do_layout();
+  column_list.layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, win::scroll_bar::get_scroll_bar_width()));
   hscroll.set_visible();
@@ -772,7 +772,7 @@ void my_main_window::created_children () {
   check_box.set_visible();
   check_box.redraw_later();
 
-  chck_group.do_layout();
+  chck_group.layout();
 
   edit1.create(main, core::rectangle(290, 350, 100, 25), "Text zwei drei vier fuenf sechs sieben acht");
   edit1.set_visible();
@@ -793,7 +793,7 @@ void my_main_window::created_children () {
   sel_last_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "l+");
   sel_last_plus.set_visible();
 
-  edit_btn_group.do_layout();
+  edit_btn_group.layout();
 
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
   btn_group.set_visible();
@@ -822,7 +822,7 @@ void my_main_window::created_children () {
   info_button.create(btn_group, core::rectangle(390, 400, 90, 25), "Info");
   info_button.set_visible();
 
-  btn_group.do_layout();
+  btn_group.layout();
 
   group_group.create(main, core::rectangle(400, 345, 300, 115));
   create_group<4>(group_group, h_lineup_group, h_lineup_labels);
@@ -830,7 +830,7 @@ void my_main_window::created_children () {
   create_group<4>(group_group, grid_lineup_group, grid_lineup_labels);
   create_group<4>(group_group, grid_adaption_group, grid_adaption_labels);
   group_group.set_visible();
-  group_group.do_layout();
+  group_group.layout();
 
   using namespace layout;
   get_layout().abs(&btn_group, this, What::left, Where::width, -600);
@@ -848,7 +848,7 @@ void my_main_window::created_children () {
   get_layout().abs(&group_group, &vslider, What::right, Where::x, -4);
   get_layout().abs(&group_group, &hslider, What::top, Where::y2, 4);
 
-  do_layout();
+  layout();
 }
 
 win::paint_event my_main_window::create_paint1 () {

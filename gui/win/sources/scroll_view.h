@@ -49,6 +49,11 @@ namespace gui {
       void set_current_pos (const core::point& pt);
       core::point get_current_pos () const;
 
+      void set_in_scroll_event (bool);
+      inline bool is_in_scroll_event () const {
+        return in_scroll_event;
+      }
+
       static core::rectangle get_vscroll_area (const core::size&, bool hscroll_bar_enabled);
       static core::rectangle get_hscroll_area (const core::size&, bool vscroll_bar_enabled);
       static core::rectangle get_edge_area (const core::size&);
@@ -58,6 +63,8 @@ namespace gui {
 
       win::move_event me;
       win::size_event se;
+
+      bool in_scroll_event;
 
       void handle_child_move (const core::point&);
       void handle_child_size (const core::size&);

@@ -205,13 +205,13 @@ namespace gui {
     core::size window::client_size() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::size(r);// -core::size::one;
+      return core::size(r);//
     }
 
     core::rectangle window::client_area() const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::rectangle(r);// - core::size::one;
+      return core::rectangle(r);//
     }
 
     void window::move(const core::point& pt, bool repaint) {
@@ -252,6 +252,14 @@ namespace gui {
       POINT Point = pt;
       ScreenToClient(get_id(), &Point);
       return core::point(Point);
+    }
+
+    void window::capture_pointer() {
+      SetCapture(get_id());
+    }
+
+    void window::uncapture_pointer() {
+      ReleaseCapture();
     }
 
     os::style window::get_style (os::style mask) const {
@@ -590,6 +598,16 @@ namespace gui {
 
     core::point window::screen_to_client (const core::point& pt) const {
       return screen_to_window(pt);
+    }
+
+    void window::capture_pointer() {
+      XGrabPointer(core::global::get_instance(), get_id(), False,
+        ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+        GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+    }
+
+    void window::uncapture_pointer() {
+      XUngrabPointer(core::global::get_instance(), CurrentTime);
     }
 
     bool container::is_parent_of (const window& child) const {

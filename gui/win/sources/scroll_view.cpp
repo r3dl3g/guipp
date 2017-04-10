@@ -72,6 +72,10 @@ namespace gui {
     }
 
     void scroll_view::move_children (const core::point& delta) {
+      if (delta == core::point::zero) {
+        return;
+      }
+      get_layout().set_in_scroll_event(true);
       std::vector<window*> children = get_children();
       for (window* win : children) {
         if ((win != &vscroll) && (win != &hscroll) && (win != &edge)) {
@@ -79,6 +83,7 @@ namespace gui {
         }
       }
       layout.set_current_pos(layout.get_current_pos() + delta);
+      get_layout().set_in_scroll_event(false);
     }
 
     void scroll_view::set_scroll_pos (const core::point& pt) {
@@ -156,6 +161,7 @@ namespace gui {
       , edge(nullptr)
       , me(core::bind_method(this, &scroll_view::handle_child_move))
       , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , in_scroll_event(false)
     {}
 
     void scroll_view::init (win::container* main,
@@ -215,7 +221,7 @@ namespace gui {
       core::rectangle required = get_visible_area(new_size);
       for(win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-          required |= win->place() + core::size(1, 1);
+          required |= win->place();
           win->unregister_event_handler(me);
           win->register_event_handler(me);
           win->unregister_event_handler(se);
@@ -244,37 +250,24 @@ namespace gui {
 
         core::point::type ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0));
         core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0));
+        core::point::type st = std::min(ymax - ymin, space.height());
         core::point::type ypos = 0;
 
-        LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << " }";
+        LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
 
-        vscroll->set_min_max(ymin, ymax);
-#ifdef WIN32
-        vscroll->set_step(std::min(ymax - ymin, space.height()) / 2);
-#endif // WIN32
-#ifdef X11
-        vscroll->set_step(std::min(ymax - ymin, space.height()));
-#endif // X11
-        vscroll->set_value(ypos);
+        vscroll->set_min_max_step_value(ymin, ymax, st, ypos);
         current_pos.y(ypos);
       }
 
       if (show_h) {
         core::point::type xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0));
         core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0));
+        core::point::type st = std::min(xmax - xmin, space.width());
         core::point::type xpos = 0;
 
-        LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << " }";
+        LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
 
-        hscroll->set_min_max(xmin, xmax);
-#ifdef WIN32
-        hscroll->set_step(std::min(xmax - xmin, space.width()) / 2);
-#endif // WIN32
-#ifdef X11
-        hscroll->set_step(std::min(xmax - xmin, space.width()));
-#endif // X11
-
-        hscroll->set_value(xpos);
+        hscroll->set_min_max_step_value(xmin, xmax, st, xpos);
         current_pos.x(xpos);
       }
 
@@ -305,9 +298,12 @@ namespace gui {
 
     }
 
+    void scroll_view::set_in_scroll_event (bool b) {
+      in_scroll_event = b;
+    }
+
     void scroll_view::handle_child_move (const core::point&) {
-      if ((vscroll->get_state() == win::scroll_bar::Nothing_pressed) &&
-          (hscroll->get_state() == win::scroll_bar::Nothing_pressed)) {
+      if (!in_scroll_event) {
         layout(main->size(), main);
       }
     }

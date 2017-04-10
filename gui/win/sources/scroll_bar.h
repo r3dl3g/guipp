@@ -78,6 +78,9 @@ namespace gui {
       void set_step (type);
       void set_value (type);
 
+      void set_min_max_step (type, type, type);
+      void set_min_max_step_value (type, type, type, type);
+
       static core::size::type get_scroll_bar_width ();
 
       enum State {

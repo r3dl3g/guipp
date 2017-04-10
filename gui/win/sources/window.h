@@ -146,6 +146,9 @@ namespace gui {
 
       const window_class* get_window_class () const;
 
+      void capture_pointer ();
+      void uncapture_pointer ();
+
     protected:
       void create (const window_class& type,
                    const container& parent,

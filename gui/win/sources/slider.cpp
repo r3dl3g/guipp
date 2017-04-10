@@ -171,15 +171,11 @@ namespace gui {
         }
 #endif // X11
         register_event_handler(left_btn_down_event([&](const core::point& pt) {
-          IF_WIN32(SetCapture(get_id()));
-          IF_X11(XGrabPointer(core::global::get_instance(), get_id(), False,
-                              ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                              GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+          capture_pointer();
           last_mouse_point = pt;
         }));
         register_event_handler(left_btn_up_event([&](const core::point& pt) {
-          IF_WIN32(ReleaseCapture());
-          IF_X11(XUngrabPointer(core::global::get_instance(), CurrentTime));
+          uncapture_pointer();
           last_mouse_point = core::point::undefined;
         }));
       }

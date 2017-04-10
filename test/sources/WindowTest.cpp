@@ -281,19 +281,29 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  auto down_handler = [&] (const core::point& p) {
+  window1.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
     at_drag = true;
     last_pos = p;
-    LogDebug << "Window Mouse down at " << p;
-  };
-  auto up_handler = [&] (const core::point& p) {
+    window1.capture_pointer();
+    LogDebug << "Window1 Mouse down at " << p;
+  }));
+  window1.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+    window1.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
-  };
-  window1.register_event_handler(win::left_btn_down_event(down_handler));
-  window1.register_event_handler(win::left_btn_up_event(up_handler));
-  window2.register_event_handler(win::left_btn_down_event(down_handler));
-  window2.register_event_handler(win::left_btn_up_event(up_handler));
+  }));
+
+  window2.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+    at_drag = true;
+    last_pos = p;
+    window2.capture_pointer();
+    LogDebug << "Window2 Mouse down at " << p;
+  }));
+  window2.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+    window2.uncapture_pointer();
+    at_drag = false;
+    LogDebug << "Window Mouse up at " << p;
+  }));
 
   window1.register_event_handler(win::mouse_move_event([&] (unsigned int keys,
                                                             const core::point& p) {
@@ -709,10 +719,10 @@ void my_main_window::created_children () {
   column_list.get_column_layout().get_slider(0)->disable();
   column_list.do_layout();
 
-  hscroll.create(main, core::rectangle(550, 305, 130, 16));
+  hscroll.create(main, core::rectangle(550, 305, 130, win::scroll_bar::get_scroll_bar_width()));
   hscroll.set_visible();
 
-  vscroll.create(main, core::rectangle(700, 50, 16, 250));
+  vscroll.create(main, core::rectangle(700, 50, win::scroll_bar::get_scroll_bar_width(), 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size().height() - list1.size().height());
   vscroll.set_step(list1.get_item_size().height());
   vscroll.set_visible();

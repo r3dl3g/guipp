@@ -17,7 +17,11 @@
 */
 
 #ifdef WIN32
-#define WINVER 0x0602
+
+#ifndef WINVER
+#define WINVER 0x0500   // version 5.0
+#endif /* !WINVER */
+
 #include <windowsx.h>
 #endif // WIN32
 
@@ -329,8 +333,8 @@ namespace gui {
     template<>
     core::rectangle listT<false>::get_scroll_bar_area () {
       core::rectangle r(size());
-      r.y(r.y2() - core::point::type(16));
-      r.height(16);
+      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
+      r.height(scroll_bar::get_scroll_bar_width());
       return r;
     }
 
@@ -535,8 +539,8 @@ namespace gui {
     template<>
     core::rectangle listT<true>::get_scroll_bar_area () {
       core::rectangle r(size());
-      r.x(r.x2() - core::point::type(16));
-      r.width(16);
+      r.x(r.x2() - core::point::type(scroll_bar::get_scroll_bar_width()));
+      r.width(scroll_bar::get_scroll_bar_width());
       return r;
     }
 

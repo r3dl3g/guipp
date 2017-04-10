@@ -188,7 +188,7 @@ namespace gui {
 
         color col = btn.is_enabled() ? color::black() : color::gray();
         core::rectangle area = btn.client_area();
-        int y = area.position().y() + area.size().height() / 2;
+        core::point_type y = area.position().y() + area.size().height() / 2;
         core::point pt(area.position().x() + 6, y);
         graph.draw(arc(pt, 5, 0, 360),
                    btn.is_hilited() ? color::veryLightGray()
@@ -213,7 +213,7 @@ namespace gui {
         const bool focus = btn.has_focus();
 
         core::rectangle area = btn.client_area();
-        int y = area.y() + area.height() / 2;
+        core::point_type y = area.y() + area.height() / 2;
 
         color col = btn.is_enabled() ? color::black() : color::gray();
 

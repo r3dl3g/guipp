@@ -223,9 +223,7 @@ namespace gui {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
           required |= win->place();
           win->unregister_event_handler(me);
-          win->register_event_handler(me);
           win->unregister_event_handler(se);
-          win->register_event_handler(se);
         }
       }
 
@@ -248,27 +246,25 @@ namespace gui {
           }
         }
 
-        core::point::type ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0));
-        core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0));
+        core::point::type ypos = current_pos.y();
+        core::point::type ymin = std::min(core::point::type(required.y() - space.y()), core::point::type(0)) + ypos;
+        core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0)) + ypos;
         core::point::type st = std::min(ymax - ymin, space.height());
-        core::point::type ypos = 0;
 
         LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
 
-        vscroll->set_min_max_step_value(ymin, ymax, st, ypos);
-        current_pos.y(ypos);
+        vscroll->set_min_max_step(ymin, ymax, st);
       }
 
       if (show_h) {
-        core::point::type xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0));
-        core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0));
+        core::point::type xpos = current_pos.x();
+        core::point::type xmin = std::min(core::point::type(required.x() - space.x()), core::point::type(0)) + xpos;
+        core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0)) + xpos;
         core::point::type st = std::min(xmax - xmin, space.width());
-        core::point::type xpos = 0;
 
         LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
 
-        hscroll->set_min_max_step_value(xmin, xmax, st, xpos);
-        current_pos.x(xpos);
+        hscroll->set_min_max_step(xmin, xmax, st);
       }
 
       if (vscroll) {
@@ -296,6 +292,12 @@ namespace gui {
         hscroll->to_front();
       }
 
+      for(win::window* win : children) {
+        if ((win != vscroll) && (win != hscroll) && (win != edge)) {
+          win->register_event_handler(me);
+          win->register_event_handler(se);
+        }
+      }
     }
 
     void scroll_view::set_in_scroll_event (bool b) {

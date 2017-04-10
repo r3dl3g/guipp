@@ -81,7 +81,7 @@ namespace gui {
       void set_min_max_step (type, type, type);
       void set_min_max_step_value (type, type, type, type);
 
-      static core::size::type get_scroll_bar_width ();
+      static type get_scroll_bar_width ();
 
       enum State {
         Nothing_pressed = 0,
@@ -91,6 +91,8 @@ namespace gui {
         Page_down_pressed,
         Down_button_pressed
       };
+
+      State get_state ();
 
     protected:
       scroll_bar ();
@@ -103,8 +105,20 @@ namespace gui {
 
       bool scroll_handle_event (const core::event& e, os::event_result& result);
 
-    private:
 #ifdef X11
+      void set_state (State);
+
+      void draw_scrollbar (draw::graphics &g,
+                           const std::string& up_char,
+                           const std::string& down_char,
+                           const core::rectangle& up,
+                           const core::rectangle& down,
+                           const core::rectangle& thumb,
+                           const core::rectangle& page_up,
+                           const core::rectangle& page_down) const;
+
+    private:
+      State state;
       type min;
       type max;
       type step;
@@ -139,8 +153,6 @@ namespace gui {
           super::create(clazz, parent, place);
         }
 
-        State get_state ();
-
       private:
         static scroll_bar_class<H> clazz;
 
@@ -149,55 +161,62 @@ namespace gui {
                                    os::event_result& result);
 
         struct geometry {
-          core::size::type length;
-          core::size::type thickness;
-          core::size::type button_size;
-          core::size::type space_size;
-          core::size::type thumb_size;
+          type length;
+          type thickness;
+          type button_size;
+          type space_size;
+          type thumb_size;
+          type scale;
+          type thumb_top;
         };
 
         geometry get_geometry () const {
           core::size sz = client_size();
-          core::size::type l = length(sz);
-          core::size::type t = thickness(sz);
-          core::size::type b = button_size(l, t);
-          core::size::type s = space_size(l, b);
-          core::size::type th = thumb_size(s, b);
-          return { l, t, b, s, th };
+          type l = length(sz);
+          type t = thickness(sz);
+          type b = button_size(l, t);
+          type s = space_size(l, b);
+          type th = thumb_size(s, b);
+          type sc = get_scale(s, th);
+          type tt = thumb_top(b, sc);
+          return { l, t, b, s, th, sc, tt };
         }
 
-        double get_scale () const {
-          return get_scale(get_geometry());
+        type get_range () const {
+          return get_max() + get_step() - get_min();
         }
 
-        double get_scale (const geometry& m) const {
-          return (double)(m.space_size - m.thumb_size) / (double)(get_max() - get_min());
+        type get_scale () const {
+          return get_geometry().scale;
         }
 
-        core::size::type thumb_size (core::size::type spc_size, core::size::type btn_size) const {
-          return core::size::type(std::max(spc_size - (get_max() - get_min()), (type)std::min(btn_size, spc_size)));
+        type get_scale (type spc_size, type tmb_size) const {
+          return (spc_size - tmb_size) / (get_max() - get_min());
         }
 
-        core::size::type thumb_top (const geometry& m) const {
-          return m.button_size + 1 + (get_value() - get_min()) * get_scale(m);
-        }
+        static core::size build_size (type pos,
+                                      type thickness);
 
-        static core::size::type length (const core::size& sz);
+        static core::point build_pos (type pos);
 
-        static core::size::type thickness (const core::size& sz);
+        static type length (const core::size& sz);
 
-        static core::size build_size (core::size::type pos,
-                                      core::size::type thickness);
+        static type thickness (const core::size& sz);
 
-        static core::point build_pos (core::size::type pos);
-
-
-        static core::size::type button_size (core::size::type length, core::size::type thickness) {
+        static type button_size (type length, type thickness) {
           return std::min(thickness, length / type(2));
         }
 
-        static core::size::type space_size (core::size::type length, core::size::type btn_size) {
+        static type space_size (type length, type btn_size) {
           return std::max(length - btn_size * 2 - 1, type(0));
+        }
+
+        type thumb_size (type spc_size, type btn_size) const {
+          return std::max(get_step() * spc_size / get_range(), std::min(btn_size, spc_size));
+        }
+
+        type thumb_top (type btn_size, type scale) const {
+          return btn_size + (get_value() - get_min()) * scale;
         }
 
         core::rectangle up_button_place (const geometry& m) const {
@@ -209,22 +228,19 @@ namespace gui {
         }
 
         core::rectangle page_up_place (const geometry& m) const {
-          core::size::type bottom = thumb_top(m);
-          return core::rectangle(build_pos(m.button_size), build_size(bottom - m.button_size, m.thickness));
+          return core::rectangle(build_pos(m.button_size), build_size(m.thumb_top - m.button_size, m.thickness));
         }
 
         core::rectangle page_down_place (const geometry& m) const {
-          core::size::type tmb_top = thumb_top(m) + m.thumb_size;
-          return core::rectangle(build_pos(tmb_top), build_size(m.length - m.button_size - tmb_top, m.thickness));
+          type tmb_bottom = m.thumb_top + m.thumb_size;
+          return core::rectangle(build_pos(tmb_bottom), build_size(m.length - m.button_size - tmb_bottom, m.thickness));
         }
 
         core::rectangle thumb_button_place (const geometry& m) const {
-          core::size::type tmp_top = thumb_top(m);
-          return core::rectangle(build_pos(tmp_top), build_size(m.thumb_size, m.thickness));
+          return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
         }
 
         core::point last_mouse_point;
-        State state;
         type last_position;
         os::graphics gc;
 #endif // X11
@@ -255,44 +271,44 @@ namespace gui {
                                                     os::event_result& result);
 
       template<>
-      inline core::size::type scroll_barT<true>::length (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<true>::length (const core::size& sz) {
         return sz.width();
       }
 
       template<>
-      inline core::size::type scroll_barT<false>::length (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<false>::length (const core::size& sz) {
         return sz.height();
       }
 
       template<>
-      inline core::size::type scroll_barT<true>::thickness  (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<true>::thickness  (const core::size& sz) {
         return sz.height();
       }
 
       template<>
-      inline core::size::type scroll_barT<false>::thickness  (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<false>::thickness  (const core::size& sz) {
         return sz.width();
       }
 
       template<>
-      inline core::size scroll_barT<true>::build_size (core::size::type pos,
-                                                       core::size::type thickness) {
+      inline core::size scroll_barT<true>::build_size (type pos,
+                                                       type thickness) {
         return core::size(pos, thickness);
       }
 
       template<>
-      inline core::size scroll_barT<false>::build_size (core::size::type pos,
-                                                        core::size::type thickness) {
+      inline core::size scroll_barT<false>::build_size (type pos,
+                                                        type thickness) {
         return core::size(thickness, pos);
       }
 
       template<>
-      inline core::point scroll_barT<true>::build_pos (core::size::type pos) {
+      inline core::point scroll_barT<true>::build_pos (type pos) {
         return { pos, 0 };
       }
 
       template<>
-      inline core::point scroll_barT<false>::build_pos (core::size::type pos) {
+      inline core::point scroll_barT<false>::build_pos (type pos) {
         return { 0, pos };
       }
 

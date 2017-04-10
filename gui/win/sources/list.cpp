@@ -290,14 +290,18 @@ namespace gui {
 
     template<>
     void listT<false>::set_count (size_t count) {
+      typedef core::size::type type;
+      const type zero = type(0);
+
       item_count = count;
 
-      core::size::type iw = get_item_width();
-      int w = (iw * (int)item_count) - size().width();
+      const type iw = get_item_width();
+      const type pw = size().width();
+      const type w = (iw * (int)item_count) - pw;
 
-      scrollbar.set_max(std::max(w, 0));
-      scrollbar.set_step(iw);
-      scrollbar.set_visible((w > 0) && is_scroll_bar_enabled());
+
+      scrollbar.set_min_max_step(zero, std::max(w, zero), pw);
+      scrollbar.set_visible((w > zero) && is_scroll_bar_enabled());
 
       redraw_later();
     }
@@ -496,14 +500,17 @@ namespace gui {
 
     template<>
     void listT<true>::set_count (size_t count) {
+      typedef core::size::type type;
+      const type zero = type(0);
+
       item_count = count;
 
-      core::size::type ih = get_item_height();
-      int h = (ih * (int)item_count) - size().height();
+      const type ih = get_item_height();
+      const type ph = size().height();
+      const type h = (ih * (int)item_count) - ph;
 
-      scrollbar.set_max(std::max(h, 0));
-      scrollbar.set_step(ih);
-      scrollbar.set_visible((h > 0) && is_scroll_bar_enabled());
+      scrollbar.set_min_max_step(zero, std::max(h, zero), ph);
+      scrollbar.set_visible((h > zero) && is_scroll_bar_enabled());
 
       redraw_later();
     }

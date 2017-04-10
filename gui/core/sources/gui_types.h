@@ -84,6 +84,10 @@ namespace gui {
 
       os::size os () const;
 
+      inline bool empty () const {
+        return (m_w <= 0) || (m_h <= 0);
+      }
+
       inline bool operator== (const size& rhs) const {
         return (width() == rhs.width()) && (height() == rhs.height());
       }
@@ -338,13 +342,9 @@ namespace gui {
 
       os::rectangle os () const;
 
-//      operator point () const {
-//        return position();
-//      }
-
-//      operator core::size () const {
-//        return size();
-//      }
+      inline bool empty () const {
+        return tl == br;
+      }
 
       inline bool is_inside (const point& p) const {
         return (p >= tl) && (p < br);

@@ -33,8 +33,8 @@ namespace gui {
 
   namespace win {
 
-    core::size::type scroll_bar::get_scroll_bar_width () {
-      return core::size::type(17);
+    scroll_bar::type scroll_bar::get_scroll_bar_width () {
+      return scroll_bar::type(17);
     }
 
 #ifdef WIN32
@@ -82,34 +82,6 @@ namespace gui {
       template<>
       scroll_barT<true>::~scroll_barT ()
       {}
-
-      template<>
-      scroll_bar::State scroll_barT<false>::get_state () {
-        SCROLLBARINFO info = { 0 };
-        info.cbSize = sizeof(SCROLLBARINFO);
-        if (GetScrollBarInfo(get_id(), OBJID_CLIENT, &info)) {
-          for (int i = Up_button_pressed; i <= Down_button_pressed; ++i) {
-            if ((info.rgstate[i] & STATE_SYSTEM_PRESSED) == STATE_SYSTEM_PRESSED) {
-              return State(i);
-            }
-          }
-        }
-        return Nothing_pressed;
-      }
-
-      template<>
-      scroll_bar::State scroll_barT<true>::get_state () {
-        SCROLLBARINFO info = { 0 };
-        info.cbSize = sizeof(SCROLLBARINFO);
-        if (GetScrollBarInfo(get_id(), OBJID_CLIENT, &info)) {
-          for (int i = Up_button_pressed; i <= Down_button_pressed; ++i) {
-            if ((info.rgstate[i] & STATE_SYSTEM_PRESSED) == STATE_SYSTEM_PRESSED) {
-              return State(i);
-            }
-          }
-        }
-        return Nothing_pressed;
-      }
 
     }
 
@@ -202,6 +174,19 @@ namespace gui {
       return static_cast<type>(si.nPos);
     }
 
+    scroll_bar::State scroll_bar::get_state () {
+      SCROLLBARINFO info = { 0 };
+      info.cbSize = sizeof(SCROLLBARINFO);
+      if (GetScrollBarInfo(get_id(), OBJID_CLIENT, &info)) {
+        for (int i = Up_button_pressed; i <= Down_button_pressed; ++i) {
+          if ((info.rgstate[i] & STATE_SYSTEM_PRESSED) == STATE_SYSTEM_PRESSED) {
+            return State(i);
+          }
+        }
+      }
+      return Nothing_pressed;
+    }
+
     void scroll_bar::set_min (type mi) {
       SCROLLINFO si = {sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0, 0, 0};
       GetScrollInfo(get_id(), SB_CTL, &si);
@@ -286,6 +271,7 @@ namespace gui {
       , max(100)
       , step(10)
       , value(0)
+      , state(Nothing_pressed)
     {
       if (!detail::SCROLLBAR_MESSAGE) {
         detail::SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
@@ -314,6 +300,10 @@ namespace gui {
       return value;
     }
 
+    scroll_bar::State scroll_bar::get_state () {
+      return state;
+    }
+
     void scroll_bar::set_min (type mi) {
       min = mi;
       value = std::max(value, min);
@@ -321,7 +311,7 @@ namespace gui {
     }
 
     void scroll_bar::set_max (type ma) {
-      max = ima
+      max = ma;
       value = std::min(value, max);
       redraw_later();
     }
@@ -338,15 +328,15 @@ namespace gui {
       redraw_later();
     }
 
-    void scroll_bar::set_min_max_step (type mi, type ma, type p) {
+    void scroll_bar::set_min_max_step (type mi, type ma, type s) {
       min = mi;
       max = ma;
       step = s;
       redraw_later();
     }
 
-    void scroll_bar::set_min_max_step_value(type mi, type ma, type p, type v) {
-      set_min_max_step(mi, ma, p);
+    void scroll_bar::set_min_max_step_value(type mi, type ma, type s, type v) {
+      set_min_max_step(mi, ma, s);
       set_value(v);
     }
 
@@ -368,6 +358,47 @@ namespace gui {
 
     bool scroll_bar::scroll_handle_event (const core::event& e, os::event_result& result) {
       return false;
+    }
+
+    void scroll_bar::set_state (State s) {
+      state = s;
+    }
+
+    void scroll_bar::draw_scrollbar (draw::graphics &g,
+                                     const std::string& up_char,
+                                     const std::string& down_char,
+                                     const core::rectangle& up,
+                                     const core::rectangle& down,
+                                     const core::rectangle& thumb,
+                                     const core::rectangle& page_up,
+                                     const core::rectangle& page_down) const {
+
+      if (!page_up.empty()) {
+        g.fill(draw::rectangle(page_up), state == Page_up_pressed ? draw::color::lightGray()
+                                                                  : draw::color::veryLightGray());
+      }
+      if (!page_down.empty()) {
+        g.fill(draw::rectangle(page_down), state == Page_down_pressed ? draw::color::lightGray()
+                                                                      : draw::color::veryLightGray());
+      }
+      if (!up.empty()) {
+        g.fill(draw::rectangle(up), draw::color::buttonColor());
+        draw::frame::relief(g, up, state == Up_button_pressed);
+        g.text(draw::text_box(up_char, up, draw::center),
+               draw::font::system(), is_enabled() ? draw::color::black()
+                                                  : draw::color::gray());
+      }
+      if (!down.empty()) {
+        g.fill(draw::rectangle(down), draw::color::buttonColor());
+        draw::frame::relief(g, down, state == Down_button_pressed);
+        g.text(draw::text_box(down_char, down, draw::center),
+               draw::font::system(), is_enabled() ? draw::color::black()
+                                                  : draw::color::gray());
+      }
+      if (!thumb.empty()) {
+        g.fill(draw::rectangle(thumb), draw::color::buttonColor());
+        draw::frame::raised_relief(g, thumb);
+      }
     }
 
     namespace detail {
@@ -413,8 +444,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       scroll_barT<false>::scroll_barT ()
-        : state(Nothing_pressed)
-        , last_position(0)
+        : last_position(0)
         , gc(0) {
         register_event_handler(this, &scroll_barT<false>::scroll_handle_eventT);
       }
@@ -432,8 +462,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       scroll_barT<true>::scroll_barT ()
-        : state(Nothing_pressed)
-        , last_position(0)
+        : last_position(0)
         , gc(0) {
         register_event_handler(this, &scroll_barT<true>::scroll_handle_eventT);
       }
@@ -448,17 +477,9 @@ namespace gui {
         }
       }
 
-      template<>
-      scroll_bar::State scroll_barT<false>::get_state () {
-        return state;
-      }
-
-      template<>
-      scroll_bar::State scroll_barT<true>::get_state () {
-        return state;
-      }
-
       // --------------------------------------------------------------------------
+      const std::string left_char = "<";
+      const std::string right_char = ">";
 
       template<>
       bool scroll_barT<true>::scroll_handle_eventT (const core::event& e,
@@ -470,26 +491,15 @@ namespace gui {
             }
             draw::graphics g(e.xexpose.window, gc);
 
-            geometry geo = get_geometry();
-
+            auto geo = get_geometry();
             auto up = up_button_place(geo);
-            g.fill(draw::rectangle(up), draw::color::buttonColor());
-            draw::frame::deep_relief(g, up, state == Up_button_pressed);
-            g.text(draw::text_box("<", up, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
-
             auto down = down_button_place(geo);
-            g.fill(draw::rectangle(down), draw::color::buttonColor());
-            draw::frame::deep_relief(g, down, state == Down_button_pressed);
-            g.text(draw::text_box(">", down, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
-
             auto thumb = thumb_button_place(geo);
-            g.fill(draw::rectangle(thumb), draw::color::buttonColor());
-            draw::frame::raised_deep_relief(g, thumb);
+            auto page_up = page_up_place(geo);
+            auto page_down = page_down_place(geo);
 
-            g.fill(draw::rectangle(page_up_place(geo)), state == Page_up_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
-            g.fill(draw::rectangle(page_down_place(geo)), state == Page_down_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
+            draw_scrollbar(g, left_char, right_char, up, down, thumb, page_up, page_down);
+
             return true;
           }
           case ButtonPress:
@@ -497,20 +507,20 @@ namespace gui {
               last_mouse_point = core::point(e.xbutton);
               last_position = get_value();
 
-              geometry geo = get_geometry();
+              auto geo = get_geometry();
 
               if (up_button_place(geo).is_inside(last_mouse_point)) {
-                state = Up_button_pressed;
+                set_state(Up_button_pressed);
               } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-                state = Down_button_pressed;
+                set_state(Down_button_pressed);
               } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-                state = Thumb_button_pressed;
+                set_state(Thumb_button_pressed);
               } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-                state = Page_up_pressed;
+                set_state(Page_up_pressed);
               } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-                state = Page_down_pressed;
+                set_state(Page_down_pressed);
               } else {
-                state = Nothing_pressed;
+                set_state(Nothing_pressed);
               }
               redraw_later();
               return true;            }
@@ -520,9 +530,9 @@ namespace gui {
               case Button1: {
                 auto pt = core::point(e.xbutton);
 
-                geometry geo = get_geometry();
+                auto geo = get_geometry();
 
-                switch (state) {
+                switch (get_state()) {
                   case Up_button_pressed:
                     if (up_button_place(geo).is_inside(pt)) {
                       set_value(get_value() - 1, true);
@@ -555,14 +565,14 @@ namespace gui {
                 return true;
               }
             }
-            state = Nothing_pressed;
+            set_state(Nothing_pressed);
             redraw_later();
             break;
           case MotionNotify:
             if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
-              if (state == Thumb_button_pressed) {
-                type delta = (type)((e.xmotion.x - last_mouse_point.x()) / get_scale());
+              if (get_state() == Thumb_button_pressed) {
+                type delta = (type)(e.xmotion.x - last_mouse_point.x()) / get_scale();
                 set_value(last_position + delta, true);
               }
               return true;
@@ -602,6 +612,9 @@ namespace gui {
         return false;
       }
 
+      const std::string up_char = u8"\u2227";
+      const std::string down_char = u8"\u2228";
+
       template<>
       bool scroll_barT<false>::scroll_handle_eventT (const core::event& e,
                                                      os::event_result& result) {
@@ -612,26 +625,15 @@ namespace gui {
             }
             draw::graphics g(e.xexpose.window, gc);
 
-            geometry geo = get_geometry();
-
+            auto geo = get_geometry();
             auto up = up_button_place(geo);
-            g.fill(draw::rectangle(up), draw::color::buttonColor());
-            draw::frame::deep_relief(g, up, state == Up_button_pressed);
-            g.text(draw::text_box(u8"\u2227", up, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
-
             auto down = down_button_place(geo);
-            g.fill(draw::rectangle(down), draw::color::buttonColor());
-            draw::frame::deep_relief(g, down, state == Down_button_pressed);
-            g.text(draw::text_box(u8"\u2228", down, draw::center),
-                   draw::font::system(), is_enabled() ? draw::color::black() : draw::color::gray());
-
             auto thumb = thumb_button_place(geo);
-            g.fill(draw::rectangle(thumb), draw::color::buttonColor());
-            draw::frame::raised_deep_relief(g, thumb);
+            auto page_up = page_up_place(geo);
+            auto page_down = page_down_place(geo);
 
-            g.fill(draw::rectangle(page_up_place(geo)), state == Page_up_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
-            g.fill(draw::rectangle(page_down_place(geo)), state == Page_down_pressed ? draw::color::lightGray() : draw::color::veryLightGray());
+            draw_scrollbar(g, up_char, down_char, up, down, thumb, page_up, page_down);
+
             return true;
           }
           case ButtonPress:
@@ -639,20 +641,20 @@ namespace gui {
               last_mouse_point = core::point(e.xbutton);
               last_position = get_value();
 
-              geometry geo = get_geometry();
+              auto geo = get_geometry();
 
               if (up_button_place(geo).is_inside(last_mouse_point)) {
-                state = Up_button_pressed;
+                set_state(Up_button_pressed);
               } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-                state = Down_button_pressed;
+                set_state(Down_button_pressed);
               } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-                state = Thumb_button_pressed;
+                set_state(Thumb_button_pressed);
               } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-                state = Page_up_pressed;
+                set_state(Page_up_pressed);
               } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-                state = Page_down_pressed;
+                set_state(Page_down_pressed);
               } else {
-                state = Nothing_pressed;
+                set_state(Nothing_pressed);
               }
               redraw_later();
               return true;
@@ -663,9 +665,9 @@ namespace gui {
               case Button1: {
                 auto pt = core::point(e.xbutton);
 
-                geometry geo = get_geometry();
+                auto geo = get_geometry();
 
-                switch (state) {
+                switch (get_state()) {
                   case Up_button_pressed:
                     if (up_button_place(geo).is_inside(pt)) {
                       set_value(get_value() - 1, true);
@@ -698,14 +700,14 @@ namespace gui {
                 return true;
               }
             }
-            state = Nothing_pressed;
+            set_state(Nothing_pressed);
             redraw_later();
             break;
           case MotionNotify:
             if (left_button_bit_mask::is_set(e.xmotion.state)) {
               // check if on thumb
-              if (state == Thumb_button_pressed) {
-                type delta = (type)((e.xmotion.y - last_mouse_point.y()) / get_scale());
+              if (get_state() == Thumb_button_pressed) {
+                type delta = (type)(e.xmotion.y - last_mouse_point.y()) / get_scale();
                 set_value(last_position + delta, true);
               }
               return true;

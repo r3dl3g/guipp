@@ -31,6 +31,7 @@
 //
 #include "slider.h"
 
+//#define NO_CAPTURE
 
 namespace gui {
 
@@ -171,11 +172,15 @@ namespace gui {
         }
 #endif // X11
         register_event_handler(left_btn_down_event([&](const core::point& pt) {
+#ifndef NO_CAPTURE
           capture_pointer();
+#endif // NO_CAPTURE
           last_mouse_point = pt;
         }));
         register_event_handler(left_btn_up_event([&](const core::point& pt) {
+#ifndef NO_CAPTURE
           uncapture_pointer();
+#endif // NO_CAPTURE
           last_mouse_point = core::point::undefined;
         }));
       }

@@ -75,6 +75,7 @@ namespace gui {
 
       void fini () {
 #ifdef X11
+        XFlush(core::global::get_instance());
         XCloseDisplay(core::global::get_instance());
         global_screen = 0;
 #endif // X11

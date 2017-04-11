@@ -44,6 +44,42 @@ namespace gui {
       }
     }
 
+#ifdef WIN32
+    owner_draw::owner_draw ()
+      : item_size(1, 1)
+      , owner_draw_id(++next_owner_draw_id)
+    {}
+
+    owner_draw::~owner_draw ()
+    {}
+
+#endif // WIN32
+
+#ifdef X11
+    // --------------------------------------------------------------------------
+    owner_draw::owner_draw ()
+      : item_size(1, 1)
+      , gc(0)
+    {}
+
+    owner_draw::~owner_draw () {
+      if (gc) {
+        if (core::global::get_instance()) {
+          XFreeGC(core::global::get_instance(), gc);
+        }
+        gc = 0;
+      }
+    }
+
+    os::graphics owner_draw::get_graphics (const core::event& e) {
+      if (!gc) {
+        gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+      }
+      return gc;
+    }
+
+#endif // X11
+
     void owner_draw::set_item_size (const gui::core::size& sz) {
       item_size = sz;
 #ifdef WIN32

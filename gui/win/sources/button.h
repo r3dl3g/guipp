@@ -22,12 +22,13 @@
 //
 // Common includes
 //
+#include <functional>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include "window.h"
+#include "owner_draw.h"
 #include "window_event_handler.h"
 
 namespace gui {
@@ -76,54 +77,90 @@ namespace gui {
                            button_state_event;
     // --------------------------------------------------------------------------
 #endif // X11
-    // --------------------------------------------------------------------------
-    class button : public gui::win::window_with_text {
-    public:
-      typedef gui::win::window_with_text super;
 
-      typedef void(draw_button_item) (draw::graphics&, const button& btn);
+    namespace detail {
+      // --------------------------------------------------------------------------
+      class button_info {
+      public:
+        button_info (window& w);
 
-      button ();
+        bool is_checked (const window& w) const;
+        void set_checked (window& w, bool b);
 
-      bool is_checked () const;
-      void set_checked (bool);
-
-      bool is_hilited () const;
-      void set_hilited (bool);
+        bool is_hilited (const window& w) const;
+        void set_hilited (window& w, bool b);
 
 #ifdef X11
-    private:
-      bool checked;
-      bool hilited;
+      private:
+        bool checked;
+        bool hilited;
 #endif // X11
-    };
-
-    namespace paint {
-      void push_button (draw::graphics& graph, const button& btn, const std::string& text);
-      void radio_button (draw::graphics& graph, const button& btn, const std::string& text);
-      void check_box (draw::graphics& graph, const button& btn, const std::string& text);
+      };
     }
 
     // --------------------------------------------------------------------------
-    class push_button : public button {
+    template<class super>
+    class button : public super {
     public:
-      typedef button super;
+      button ()
+        : bi(*this)
+      {}
 
-      push_button ();
+      inline bool is_checked () const {
+        bi.is_checked(*this);
+      }
+
+      void set_checked (bool b) {
+        bi.set_checked(*this, b);
+      }
+
+      bool is_hilited () const {
+        bi.is_hilited(*this);
+      }
+
+      void set_hilited (bool b) {
+        bi.set_hilited(*this, b);
+      }
+
+    protected:
+      detail::button_info bi;
     };
 
     // --------------------------------------------------------------------------
-    class toggle_button : public button {
-    public:
-      typedef button super;
+    namespace paint {
+      void push_button (draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text);
+      void radio_button (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
+      void check_box (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
+    }
 
-      toggle_button ();
+    // --------------------------------------------------------------------------
+    namespace detail {
+      void register_push_button_handler (window& win, button_info& bi);
+      void register_toggle_button_handler (window& win, button_info& bi);
+    }
+
+    // --------------------------------------------------------------------------
+    template<class super>
+    class push_button : public super {
+    public:
+      push_button () {
+        register_push_button_handler(*this, super::bi);
+      }
     };
 
     // --------------------------------------------------------------------------
-    class text_button : public push_button {
+    template<class super>
+    class toggle_button : public super {
     public:
-      typedef push_button super;
+      toggle_button () {
+        register_toggle_button_handler(*this, super::bi);
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    class text_button : public push_button<button<window_with_text>> {
+    public:
+      typedef push_button<button<window_with_text>> super;
 
       text_button ();
 
@@ -139,9 +176,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class radio_button : public toggle_button {
+    class radio_button : public toggle_button<button<window_with_text>> {
     public:
-      typedef toggle_button super;
+      typedef toggle_button<button<window_with_text>> super;
 
       radio_button ();
 
@@ -157,9 +194,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class check_box : public toggle_button {
+    class check_box : public toggle_button<button<window_with_text>> {
     public:
-      typedef toggle_button super;
+      typedef toggle_button<button<window_with_text>> super;
 
       check_box ();
 
@@ -174,6 +211,49 @@ namespace gui {
       static window_class clazz;
     };
 
+    // --------------------------------------------------------------------------
+    class owner_draw_button : public button<owner_draw> {
+    public:
+      typedef button<owner_draw> super;
+
+      typedef void(draw_button_item) (draw::graphics&, const owner_draw_button& btn);
+      typedef std::function<draw_button_item> function;
+
+      owner_draw_button ();
+
+      void set_drawer (function drawer) {
+        this->drawer = drawer;
+      }
+
+      void draw_item (draw::graphics& g) {
+        if (drawer) {
+          drawer(g, *this);
+        }
+      }
+
+    private:
+      function drawer;
+
+      bool handle_event (const core::event& e,
+                         os::event_result& result);
+    };
+
+    // --------------------------------------------------------------------------
+    class custom_push_button : public push_button<owner_draw_button> {
+    public:
+      typedef push_button<owner_draw_button> super;
+
+      custom_push_button ()
+      {}
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(clazz, parent, place);
+      }
+
+    private:
+      static window_class clazz;
+    };
 
   } // win
 

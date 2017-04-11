@@ -123,7 +123,6 @@ namespace gui {
                                     bool selected);
 
       owner_draw_list ();
-      ~owner_draw_list ();
 
       void set_drawer (std::function<draw_list_item> drawer,
                        const core::size& sz = {20, 20});
@@ -134,16 +133,8 @@ namespace gui {
                       const core::rectangle& place,
                       bool selected);
 
-#ifdef X11
-      os::graphics get_graphics (const core::event& e);
-#endif // X11
-
     private:
       std::function<draw_list_item> drawer;
-
-#ifdef X11
-      os::graphics gc;
-#endif // X11
     };
 
   }

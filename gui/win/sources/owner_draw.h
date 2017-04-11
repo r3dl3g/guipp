@@ -45,16 +45,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class owner_draw : public gui::win::window {
+    class owner_draw : public window {
     public:
-      typedef gui::win::window super;
+      typedef window super;
 
-      owner_draw ()
-        : item_size(1, 1)
-  #ifdef WIN32
-        , owner_draw_id(++next_owner_draw_id)
-  #endif // WIN32
-      {}
+      owner_draw ();
+      ~owner_draw ();
 
 #ifdef WIN32
       int get_owner_draw_id () const {
@@ -77,6 +73,9 @@ namespace gui {
 #ifdef WIN32
       static const gui::core::size& get_item_size (int id);
 #endif // WIN32
+#ifdef X11
+      os::graphics get_graphics (const core::event& e);
+#endif // X11
 
     protected:
       void create (const gui::win::window_class& clazz,
@@ -100,6 +99,9 @@ namespace gui {
       typedef std::map<int, gui::core::size> measure_item_map;
       static measure_item_map s_measure_item_size;
 #endif // WIN32
+#ifdef X11
+      os::graphics gc;
+#endif // X11
     };
 
   } // win

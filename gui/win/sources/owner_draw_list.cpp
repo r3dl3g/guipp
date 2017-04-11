@@ -33,38 +33,15 @@ namespace gui {
     owner_draw_list::owner_draw_list ()
     {}
 
-    owner_draw_list::~owner_draw_list ()
-    {}
-
 #endif // WIN32
 
-#ifdef X11
-
     // --------------------------------------------------------------------------
-    owner_draw_list::owner_draw_list ()
-      : gc(0)
-    {
+#ifdef X11
+    owner_draw_list::owner_draw_list () {
       if (!detail::SELECTION_CHANGE_MESSAGE) {
         detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
       }
     }
-
-    owner_draw_list::~owner_draw_list () {
-      if (gc) {
-        if (core::global::get_instance()) {
-          XFreeGC(core::global::get_instance(), gc);
-        }
-        gc = 0;
-      }
-    }
-
-    os::graphics owner_draw_list::get_graphics (const core::event& e) {
-      if (!gc) {
-        gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-      }
-      return gc;
-    }
-
 #endif // X11
 
     void owner_draw_list::set_drawer (std::function<draw_list_item> drawer,

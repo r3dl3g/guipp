@@ -146,6 +146,8 @@ private:
   win::text_button sel_last_plus;
   win::text_button sel_last_minus;
 
+  win::custom_push_button custom_button;
+
   typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   //my_column_list_t::standard_data column_list_data;
@@ -576,6 +578,13 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
+  custom_button.register_event_handler(win::mouse_enter_event([&]() {
+    custom_button.set_hilited(true);
+  }));
+  custom_button.register_event_handler(win::mouse_leave_event([&]() {
+    custom_button.set_hilited(false);
+  }));
+
   /*
     window2.register_event_handler(win::mouse_enter_event([]() {
     LogDebug << "Window2 mouse enter";
@@ -794,6 +803,25 @@ void my_main_window::created_children () {
   sel_last_plus.set_visible();
 
   edit_btn_group.layout();
+
+  custom_button.set_drawer([](draw::graphics& g, const win::owner_draw_button& btn) {
+    core::rectangle r = btn.client_area() - core::size{ 1, 1 };
+
+    if (btn.is_checked()) {
+      g.fill(draw::rectangle(r), draw::color::darkGray());
+    } else
+    if (btn.is_hilited()) {
+      g.fill(draw::rectangle(r), draw::color::lightGray());
+    } else
+    {
+      g.fill(draw::rectangle(r), draw::color::workSpaceColor());
+    }
+    g.text(draw::text_box("Custom", r, draw::center), draw::font::serif(), draw::color::white());
+
+  });
+
+  custom_button.create(main, core::rectangle(290, 410, 100, 25));
+  custom_button.set_visible();
 
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
   btn_group.set_visible();

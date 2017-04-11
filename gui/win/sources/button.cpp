@@ -354,8 +354,8 @@ namespace gui {
           g.flush();
           return true;
         }
-      }
 #endif // X11
+      }
       return false;
     }
 

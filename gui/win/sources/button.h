@@ -107,18 +107,18 @@ namespace gui {
       {}
 
       inline bool is_checked () const {
-        bi.is_checked(*this);
+        return bi.is_checked(*this);
       }
 
-      void set_checked (bool b) {
+      inline void set_checked (bool b) {
         bi.set_checked(*this, b);
       }
 
-      bool is_hilited () const {
-        bi.is_hilited(*this);
+      inline bool is_hilited () const {
+        return bi.is_hilited(*this);
       }
 
-      void set_hilited (bool b) {
+      inline void set_hilited (bool b) {
         bi.set_hilited(*this, b);
       }
 

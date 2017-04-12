@@ -486,10 +486,7 @@ namespace gui {
                                                     os::event_result& result) {
         switch (e.type) {
           case Expose: {
-            if (!gc) {
-              gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-            }
-            draw::graphics g(e.xexpose.window, gc);
+            draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
 
             auto geo = get_geometry();
             auto up = up_button_place(geo);
@@ -620,10 +617,7 @@ namespace gui {
                                                      os::event_result& result) {
         switch (e.type) {
           case Expose: {
-            if (!gc) {
-              gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-            }
-            draw::graphics g(e.xexpose.window, gc);
+            draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
 
             auto geo = get_geometry();
             auto up = up_button_place(geo);

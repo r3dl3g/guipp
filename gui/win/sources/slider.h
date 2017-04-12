@@ -127,13 +127,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<bool H,
-             void(F)(draw::graphics&, const core::rectangle&)>
+             void(F)(const draw::graphics&, const core::rectangle&)>
     class framed_slider_t : public detail::slider_t<H> {
     public:
       typedef detail::slider_t<H> super;
 
       framed_slider_t () {
-        super::register_event_handler(win::paint_event([&](draw::graphics& g) {
+        super::register_event_handler(win::paint_event([&](const draw::graphics& g) {
           core::rectangle place = super::client_area();
 #ifdef X11
           g.fill(draw::rectangle(place), draw::color::buttonColor());

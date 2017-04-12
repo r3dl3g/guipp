@@ -47,7 +47,7 @@ namespace gui {
 
       void label_base::register_handler () {
 #ifdef X11
-        register_event_handler(paint_event([&] (draw::graphics& graph) {
+        register_event_handler(paint_event([&] (const draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
           text_origin origin = (text_origin)get_window_class()->get_ex_style();

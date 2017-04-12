@@ -128,9 +128,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace paint {
-      void push_button (draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text);
-      void radio_button (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
-      void check_box (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
+      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text);
+      void radio_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
+      void check_box (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
     }
 
     // --------------------------------------------------------------------------
@@ -216,7 +216,7 @@ namespace gui {
     public:
       typedef button<owner_draw> super;
 
-      typedef void(draw_button_item) (draw::graphics&, const owner_draw_button& btn);
+      typedef void(draw_button_item) (const draw::graphics&, const owner_draw_button& btn);
       typedef std::function<draw_button_item> function;
 
       owner_draw_button ();
@@ -225,7 +225,7 @@ namespace gui {
         this->drawer = drawer;
       }
 
-      void draw_item (draw::graphics& g) {
+      void draw_item (const draw::graphics& g) {
         if (drawer) {
           drawer(g, *this);
         }

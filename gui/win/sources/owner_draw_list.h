@@ -48,7 +48,7 @@ namespace gui {
 
     template<typename T,
              draw::text_origin O = draw::vcenter_left,
-             void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     void list_item_drawer (const T& t,
                            draw::graphics& g,
                            const core::rectangle& place,

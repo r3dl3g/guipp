@@ -722,7 +722,7 @@ void my_main_window::created_children () {
 
 //  column_list.set_data(column_list_data, column_list_data.size());
   column_list.create(main, core::rectangle(580, 50, 140, 250));
-  column_list.header.set_cell_drawer([](int i, draw::graphics& g, const core::rectangle& r, const draw::brush&) {
+  column_list.header.set_cell_drawer([](int i, const draw::graphics& g, const core::rectangle& r, const draw::brush&) {
     using namespace draw;
     frame::raised_relief(g, r);
     g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor());
@@ -812,7 +812,7 @@ void my_main_window::created_children () {
 
   edit_btn_group.layout();
 
-  custom_button.set_drawer([](draw::graphics& g, const win::owner_draw_button& btn) {
+  custom_button.set_drawer([](const draw::graphics& g, const win::owner_draw_button& btn) {
     core::rectangle r = btn.client_area() - core::size{ 1, 1 };
 
     if (btn.is_checked()) {
@@ -888,7 +888,7 @@ void my_main_window::created_children () {
 }
 
 win::paint_event my_main_window::create_paint1 () {
-  return win::paint_event([](draw::graphics& graph) {
+  return win::paint_event([](const draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
     using namespace draw;
@@ -986,7 +986,7 @@ win::paint_event my_main_window::create_paint1 () {
 }
 
 win::paint_event my_main_window::create_paint2 () {
-  return win::paint_event([](draw::graphics& graph) {
+  return win::paint_event([](const draw::graphics& graph) {
     //LogDebug << "win::paint 2";
     using namespace draw;
 

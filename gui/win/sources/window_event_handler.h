@@ -102,10 +102,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    os::graphics get_param<0, os::graphics>(const core::event& e);
-
-    // --------------------------------------------------------------------------
-    template<>
     window* get_param<1, window*>(const core::event& e);
 
     // --------------------------------------------------------------------------
@@ -144,6 +140,10 @@ namespace gui {
     const T& cast_event_type(const core::event& e);
 
 #endif // X11
+
+    // --------------------------------------------------------------------------
+    template<>
+    os::graphics get_param<0, os::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
@@ -728,36 +728,9 @@ namespace gui {
                                              XConfigureRequestEvent>>               placing_event;
 
     // --------------------------------------------------------------------------
-    struct os_paint_caller {
-      typedef void(F)(os::graphics&);
-      typedef std::function<F> function;
-
-      os_paint_caller (const function cb)
-        : callback(cb)
-        , gc(0)
-      {}
-
-      template<class T>
-      os_paint_caller (T* t, void(T::*callback_)(os::graphics&))
-        : callback(gui::core::bind_method(t, callback_))
-        , gc(0)
-      {}
-
-      operator bool () const {
-        return callback.operator bool();
-      }
-
-      ~os_paint_caller ();
-
-      void operator()(const core::event& e);
-
-    private:
-      function callback;
-      os::graphics gc;
-    };
-
-    // --------------------------------------------------------------------------
-    typedef event_handler<Expose, os_paint_caller> os_paint_event;
+    typedef event_handler<Expose,
+                          Params<os::graphics>::
+                          caller<get_param<0, os::graphics>>>                       os_paint_event;
 
     // --------------------------------------------------------------------------
     void send_client_message (window* win, Atom message,

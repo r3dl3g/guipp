@@ -247,7 +247,7 @@ namespace gui {
   namespace win {
 
     inline void default_cell_drawer (int i,
-                                     draw::graphics& g,
+                                     const draw::graphics& g,
                                      const core::rectangle& r,
                                      const draw::brush& background) {
       using namespace draw;
@@ -265,7 +265,7 @@ namespace gui {
       typedef framed_slider_t<false, draw::frame::sunken_relief> slider_type;
 
       typedef void(cell_draw)(int idx,
-                              draw::graphics&,
+                              const draw::graphics&,
                               const core::rectangle& place,
                               const draw::brush& background);
 
@@ -275,7 +275,7 @@ namespace gui {
         this->get_layout().set_slider_creator([&](std::size_t i) {
           return create_slider(i);
         });
-        this->register_event_handler(win::paint_event([&](draw::graphics& g) {
+        this->register_event_handler(win::paint_event([&](const draw::graphics& g) {
           using namespace draw;
 
           core::rectangle r = this->client_area();
@@ -373,7 +373,7 @@ namespace gui {
     // static data for simple_column_list.
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     struct simple_column_list_data : public std::vector<std::vector<T>> {
       typedef std::vector<T> row;
       typedef std::vector<row> super;
@@ -442,7 +442,7 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+               void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
       void set_data (simple_column_list_data<T, F> data,
                      core::size::type item_height = 20) {
         set_drawer(data, item_height);
@@ -511,7 +511,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     void cell_drawer (const T& t,
                       draw::graphics& g,
                       const core::rectangle& place,

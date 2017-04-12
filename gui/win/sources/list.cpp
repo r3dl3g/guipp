@@ -368,7 +368,7 @@ namespace gui {
                                            os::event_result& result) {
       switch (e.type) {
         case Expose: {
-          draw::graphics g(e.xexpose.window, get_graphics(e));
+          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
           core::rectangle place = client_area();
           const int max_x = place.x2();
           const int max_idx = (int)get_count();
@@ -577,7 +577,7 @@ namespace gui {
                                           os::event_result& result) {
       switch (e.type) {
         case Expose: {
-          draw::graphics g(e.xexpose.window, get_graphics(e));
+          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
           core::rectangle place = client_area();
           const int max_y = place.y2();
           const int max_idx = (int)get_count();

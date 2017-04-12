@@ -59,23 +59,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     owner_draw::owner_draw ()
       : item_size(1, 1)
-      , gc(0)
     {}
 
     owner_draw::~owner_draw () {
-      if (gc) {
-        if (core::global::get_instance()) {
-          XFreeGC(core::global::get_instance(), gc);
-        }
-        gc = 0;
-      }
-    }
-
-    os::graphics owner_draw::get_graphics (const core::event& e) {
-      if (!gc) {
-        gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-      }
-      return gc;
     }
 
 #endif // X11

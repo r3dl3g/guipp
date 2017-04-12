@@ -169,16 +169,13 @@ namespace gui {
       return std::string();
     }
 
-    void os_paint_caller::operator()(const core::event& e) {
-      if (callback) {
-        if (!gc) {
-            gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-        }
-        callback(gc);
-//        XFlushGC(e.xexpose.display, gc);
-      }
+    // --------------------------------------------------------------------------
+    template<>
+    os::graphics get_param<0, os::graphics>(const core::event& e) {
+      return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
     }
 
+    // --------------------------------------------------------------------------
     void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
       os::instance display = core::global::get_instance();
 

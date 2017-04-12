@@ -73,9 +73,6 @@ namespace gui {
 #ifdef WIN32
       static const gui::core::size& get_item_size (int id);
 #endif // WIN32
-#ifdef X11
-      os::graphics get_graphics (const core::event& e);
-#endif // X11
 
     protected:
       void create (const gui::win::window_class& clazz,
@@ -99,9 +96,6 @@ namespace gui {
       typedef std::map<int, gui::core::size> measure_item_map;
       static measure_item_map s_measure_item_size;
 #endif // WIN32
-#ifdef X11
-      os::graphics gc;
-#endif // X11
     };
 
   } // win

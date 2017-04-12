@@ -39,22 +39,22 @@ namespace gui {
     namespace detail {
     }
 
-#ifdef WIN32
-
     // --------------------------------------------------------------------------
     template<>
     draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
+#ifdef WIN32
     // --------------------------------------------------------------------------
     struct paint_caller : Params<draw::graphics>::caller<get_param<0, draw::graphics>> {
       typedef Params<draw::graphics>::caller<get_param<0, draw::graphics>> super;
+      typedef super::function function;
 
       paint_caller(const function cb)
         :super(cb)
       {}
 
       template<class T>
-      paint_caller(T* t, void(T::*callback_)(draw::graphics&))
+      paint_caller(T* t, void(T::*callback_)(const draw::graphics&))
         : super(gui::core::bind_method(t, callback_))
       {}
 
@@ -68,36 +68,9 @@ namespace gui {
 
 #ifdef X11
 
-    // --------------------------------------------------------------------------
-    struct paint_caller {
-      typedef void(F)(draw::graphics&);
-      typedef std::function<F> function;
-
-      paint_caller(const function cb)
-        : callback(cb)
-        , gc(0)
-      {}
-
-      template<class T>
-      paint_caller(T* t, void(T::*callback_)(draw::graphics&))
-        : callback(gui::core::bind_method(t, callback_))
-        , gc(0)
-      {}
-
-      operator bool() const {
-        return callback.operator bool();
-      }
-
-      ~paint_caller();
-
-      void operator()(const core::event& e);
-
-    private:
-      function callback;
-      os::graphics gc;
-    };
-
-    typedef event_handler<Expose, paint_caller> paint_event;
+    typedef event_handler<Expose,
+                          Params<draw::graphics>::
+                          caller<get_param<0, draw::graphics>>>   paint_event;
 
 #endif // X11
 

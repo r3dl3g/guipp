@@ -166,7 +166,7 @@ namespace gui {
 
     namespace paint {
       // --------------------------------------------------------------------------
-      void push_button (draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text) {
+      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
@@ -185,7 +185,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void radio_button (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+      void radio_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
@@ -211,7 +211,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void check_box (draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+      void check_box (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
@@ -307,7 +307,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     text_button::text_button () {
 #ifdef X11
-      register_event_handler(paint_event([&] (draw::graphics& graph) {
+      register_event_handler(paint_event([&] (const draw::graphics& graph) {
         paint::push_button(graph, *this, is_checked(), get_text());
       }));
 #endif
@@ -316,7 +316,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     radio_button::radio_button () {
 #ifdef X11
-      register_event_handler(win::paint_event([&] (draw::graphics& graph) {
+      register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
         paint::radio_button(graph, *this, is_checked(), is_hilited(), get_text());
       }));
 #endif
@@ -325,7 +325,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     check_box::check_box () {
 #ifdef X11
-      register_event_handler(win::paint_event([&] (draw::graphics& graph) {
+      register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
         paint::check_box(graph, *this, is_checked(), is_hilited(), get_text());
       }));
 #endif
@@ -362,7 +362,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         case Expose: {
-          draw::graphics g(e.xexpose.window, get_graphics(e));
+          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
           draw_item(g);
           g.flush();
           return true;

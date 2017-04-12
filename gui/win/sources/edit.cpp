@@ -227,7 +227,7 @@ namespace gui {
       }
 
       void edit_base::register_handler () {
-        register_event_handler(paint_event([&] (gui::draw::graphics& graph) {
+        register_event_handler(paint_event([&] (const gui::draw::graphics& graph) {
           using namespace gui::draw;
           gui::core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);

@@ -66,25 +66,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
 
-    void paint_caller::operator()(const core::event& e) {
-      if (callback) {
-        if (!gc) {
-          gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
-        }
-        draw::graphics g(e.xexpose.window, gc);
-        callback(g);
-        //        XFlushGC(e.xexpose.display, gc);
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    paint_caller::~paint_caller() {
-      if (gc) {
-        if (core::global::get_instance()) {
-          XFreeGC(core::global::get_instance(), gc);
-        }
-        gc = 0;
-      }
+    template<>
+    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
+      return draw::graphics(e.xany.window, get_param<0, os::graphics>(e));
     }
 
 #endif // X11

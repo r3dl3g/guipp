@@ -52,9 +52,9 @@ namespace gui {
       os::win32::event_param_2 param_2;
     };
 
-#elif X11
+#endif // Win32
+#ifdef X11
     typedef XEvent event;
-
 
 #endif // WIN
 

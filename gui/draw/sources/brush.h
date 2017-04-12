@@ -42,7 +42,8 @@ namespace gui {
       enum Style {
 #ifdef WIN32
         solid = BS_SOLID
-#elif X11
+#endif // Win32
+#ifdef X11
         solid = FillSolid
 #else
 

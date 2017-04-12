@@ -138,7 +138,8 @@ namespace gui {
 #ifdef WIN32
       : tl(static_cast<point::type>(r.left), static_cast<point::type>(r.top))
       , br(static_cast<point::type>(r.right), static_cast<point::type>(r.bottom))
-#elif X11
+#endif // Win32
+#ifdef X11
       : tl(static_cast<point::type>(r.x), static_cast<point::type>(r.y))
       , br(static_cast<point::type>(r.x + r.width), static_cast<point::type>(r.y + r.height))
 #endif // X11
@@ -155,10 +156,11 @@ namespace gui {
     }
 
     os::rectangle rectangle::os () const {
-return{ static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
+      return{ static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
 #ifdef WIN32
               static_cast<os::point_type>(x2()), static_cast<os::point_type>(y2())
-#elif X11
+#endif // Win32
+#ifdef X11
               static_cast<os::size_type>(width()), static_cast<os::size_type>(height())
 #endif // X11
       };

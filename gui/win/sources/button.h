@@ -37,16 +37,16 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+    typedef event_handler<WM_COMMAND, no_param_caller, 0,
                            command_matcher<BN_CLICKED>>
                            button_clicked_event;
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+    typedef event_handler<WM_COMMAND, no_param_caller, 0,
                            command_matcher<BN_PUSHED>>
                            button_pushed_event;
-    typedef event_handlerT<WM_COMMAND, no_param_caller, 0,
+    typedef event_handler<WM_COMMAND, no_param_caller, 0,
                            command_matcher<BN_UNPUSHED>>
                            button_released_event;
-    typedef event_handlerT<BM_SETCHECK,
+    typedef event_handler<BM_SETCHECK,
                            one_param_caller<bool>>
                            button_state_event;
 // --------------------------------------------------------------------------
@@ -62,17 +62,17 @@ namespace gui {
     }
 
 // --------------------------------------------------------------------------
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
                            client_message_matcher<detail::BN_CLICKED_MESSAGE>>
                            button_clicked_event;
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
                            client_message_matcher<detail::BN_PUSHED_MESSAGE>>
                            button_pushed_event;
-    typedef event_handlerT<ClientMessage, no_param_caller, 0,
+    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
                            client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
                            button_released_event;
-    typedef event_handlerT<ClientMessage,
-                           one_param_caller<bool, get_client_data<bool, 0>>, 0,
+    typedef event_handler<ClientMessage,
+                           Params<bool>::caller<get_client_data<bool, 0>>, 0,
                            client_message_matcher<detail::BN_STATE_MESSAGE>>
                            button_state_event;
     // --------------------------------------------------------------------------

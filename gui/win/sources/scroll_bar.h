@@ -43,7 +43,7 @@ namespace gui {
       bool operator() (const core::event& e);
     };
 
-    typedef event_handlerT<WM_COMMAND,
+    typedef event_handler<WM_COMMAND,
                            one_param_caller<core::point::type, get_scroll_pos>,
                            0, scroll_matcher>                  scroll_event;
     // --------------------------------------------------------------------------
@@ -55,8 +55,8 @@ namespace gui {
       extern Atom SCROLLBAR_MESSAGE;
     }
     // --------------------------------------------------------------------------
-    typedef event_handlerT<ClientMessage,
-                           one_param_caller<core::point::type, get_client_data<core::point::type, 0>>, 0,
+    typedef event_handler<ClientMessage,
+                           Params<core::point::type>::caller<get_client_data<core::point::type, 0>>, 0,
                            client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
     // --------------------------------------------------------------------------

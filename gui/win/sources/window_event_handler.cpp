@@ -36,22 +36,22 @@ namespace gui {
 #ifdef WIN32
     // --------------------------------------------------------------------------
     template<>
-    bool get_param1<bool>(const core::event& e) {
+    bool get_param<0, bool>(const core::event& e) {
       return LOWORD(e.param_1) != 0;
     }
     // --------------------------------------------------------------------------
     template<>
-    window* get_param1<window*>(const core::event& e) {
+    window* get_param<0, window*>(const core::event& e) {
       return detail::get_window((os::window)e.param_1);
     }
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param1<draw::graphics>(const core::event& e) {
+    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
       return draw::graphics(e.id, (os::graphics)e.param_1);
     };
     // --------------------------------------------------------------------------
     template<>
-    window* get_param2<window*>(const core::event& e) {
+    window* get_param<1, window*>(const core::event& e) {
       return detail::get_window((os::window)e.param_2);
     }
     // --------------------------------------------------------------------------
@@ -123,7 +123,8 @@ namespace gui {
       SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
     }
 
-#elif X11
+#endif // Win32
+#ifdef X11
     namespace detail {
       Atom WM_CREATE_WINDOW = 0;
       std::map<Window, XIC> s_window_ic_map;
@@ -211,9 +212,11 @@ namespace gui {
       XFlush(display);
     }
 
+    // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect(const core::event& e) {
       return *reinterpret_cast<const core::rectangle*>(&e.xclient.data.s[4]);
     }
+
     // --------------------------------------------------------------------------
     window* get_client_data_window(const core::event& e) {
       return const_cast<window*>(reinterpret_cast<const window*>(&e.xclient.data.s[0]));

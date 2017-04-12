@@ -42,8 +42,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    typedef event_handlerT<ClientMessage,
-                           one_param_caller<int, get_client_data<int, 0>>, 0,
+    typedef event_handler<ClientMessage,
+                           Params<int>::caller<get_client_data<int, 0>>, 0,
                            client_message_matcher<detail::SLIDER_MESSAGE>>
             slider_event;
     // --------------------------------------------------------------------------
@@ -53,8 +53,8 @@ namespace gui {
       const os::event_id SLIDER_MESSAGE = WM_USER + 1;
     }
 
-    typedef event_handlerT<detail::SLIDER_MESSAGE,
-                           one_param_caller<int, get_param1<int>>> slider_event;
+    typedef event_handler<detail::SLIDER_MESSAGE,
+                           one_param_caller<int, get_param<0, int>>> slider_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 

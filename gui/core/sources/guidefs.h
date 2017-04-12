@@ -22,8 +22,8 @@
 //
 // Common includes
 //
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 
 #ifdef WIN32
 #define NOMINMAX
@@ -102,7 +102,8 @@ namespace gui {
 # endif
 #endif
 
-#elif X11
+#endif // Win32
+#ifdef X11
 
   namespace os {
     typedef Display* instance;

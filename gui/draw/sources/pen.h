@@ -55,7 +55,8 @@ namespace gui {
         dashDotDot = PS_DASHDOTDOT,
         hairLine = PS_NULL,
         insideFrame = PS_INSIDEFRAME
-#elif X11
+#endif // Win32
+#ifdef X11
         solid = LineSolid,
         dash = LineOnOffDash,
         dot = LineOnOffDash | 0x010,

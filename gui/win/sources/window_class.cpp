@@ -42,7 +42,8 @@ namespace gui {
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                     nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
       return lpMsgBuf;
-#elif X11
+#endif // Win32
+#ifdef X11
       return std::string();
 #endif // X11
     }

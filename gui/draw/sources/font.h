@@ -58,7 +58,8 @@ namespace gui {
         bold = FW_BOLD,
         ultraBold = FW_ULTRABOLD,
         heavy = FW_HEAVY
-#elif X11
+#endif // Win32
+#ifdef X11
         thin        = FC_WEIGHT_THIN,
         ultraLight  = FC_WEIGHT_ULTRALIGHT,
         light       = FC_WEIGHT_SEMILIGHT,

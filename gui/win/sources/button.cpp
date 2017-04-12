@@ -98,19 +98,21 @@ namespace gui {
       {}
 
       bool button_info::is_checked (const window& w) const {
-        return SendMessage(w.get_id(), BM_GETCHECK, 0, 0) != BST_UNCHECKED;
+        return (SendMessage(w.get_id(), BM_GETSTATE, 0, 0) & BST_CHECKED) == BST_CHECKED;
+        //return SendMessage(w.get_id(), BM_GETCHECK, 0, 0) != BST_UNCHECKED;
       }
 
       void button_info::set_checked(window& w, bool f) {
         SendMessage(w.get_id(), BM_SETCHECK, (WPARAM)(f ? BST_CHECKED : BST_UNCHECKED), 0);
+        SendMessage(w.get_id(), BM_SETSTATE, (WPARAM)(f ? TRUE : FALSE), 0);
       }
 
       bool button_info::is_hilited (const window& w) const {
-        return SendMessage(w.get_id(), BM_GETSTATE, 0, 0 ) == BST_FOCUS;
+        return (SendMessage(w.get_id(), BM_GETSTATE, 0, 0 ) & BST_FOCUS) == BST_FOCUS;
       }
 
       void button_info::set_hilited (window& w, bool h) {
-        SendMessage(w.get_id(), BM_SETSTATE, (WPARAM)(h ? BST_FOCUS : 0), 0 );
+        SendMessage(w.get_id(), BM_SETSTATE, (WPARAM)(h ? TRUE : FALSE), 0 );
       }
 #endif // WIN32
 
@@ -246,52 +248,59 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      void register_push_button_handler(window& win, button_info& bi) {
+      void register_push_button_handler(bool do_register, window& win, button_info& bi) {
 #ifdef X11
-        win.register_event_handler(left_btn_down_event([&](const core::point&){
-          if (win.is_enabled()) {
-            win.take_focus();
-            send_client_message(&win, detail::BN_PUSHED_MESSAGE);
-            bi.set_checked(win, true);
-          }
-        }));
-        win.register_event_handler(left_btn_up_event([&](const core::point& pos){
-          if (win.is_enabled()) {
-            send_client_message(&win, detail::BN_UNPUSHED_MESSAGE);
-            bi.set_checked(win, false);
-            if (win.client_area().is_inside(pos)) {
-              send_client_message(&win, detail::BN_CLICKED_MESSAGE);
-            }
-          }
-        }));
+        do_register = true;
 #endif
+        if (do_register) {
+          win.register_event_handler(left_btn_down_event([&](const core::point&) {
+            if (win.is_enabled()) {
+              win.take_focus();
+              IF_X11(send_client_message(&win, detail::BN_PUSHED_MESSAGE));
+              //IF_WIN32(SendMessage(GetParent(win.get_id()), WM_COMMAND, MAKEWPARAM(win.get_owner_draw_id(), BN_PUSHED), (LPARAM)win.get_id()));
+              bi.set_checked(win, true);
+            }
+          }));
+          win.register_event_handler(left_btn_up_event([&](const core::point& pos) {
+            if (win.is_enabled()) {
+              IF_X11(send_client_message(&win, detail::BN_UNPUSHED_MESSAGE));
+              bi.set_checked(win, false);
+              if (win.client_area().is_inside(pos)) {
+                IF_X11(send_client_message(&win, detail::BN_CLICKED_MESSAGE));
+              }
+            }
+          }));
+        }
       }
 
       // --------------------------------------------------------------------------
-      void register_toggle_button_handler (window& w, button_info& b) {
+      void register_toggle_button_handler (bool do_register, window& w, button_info& b) {
 #ifdef X11
-        w.register_event_handler(left_btn_down_event([&](const core::point&){
-          if (w.is_enabled()) {
-            w.take_focus();
-            send_client_message(&w, detail::BN_PUSHED_MESSAGE);
-            b.set_hilited(w, true);
-          }
-        }));
-        w.register_event_handler(left_btn_up_event([&](const core::point& pos){
-          if (w.is_enabled()) {
-            send_client_message(&w, detail::BN_UNPUSHED_MESSAGE);
-            if (b.is_hilited(w)) {
-              b.set_hilited(w, false);
-              if (w.client_area().is_inside(pos)) {
-                b.set_checked(w, !b.is_checked(w));
-                if (w.is_enabled()) {
-                  send_client_message(&w, detail::BN_CLICKED_MESSAGE);
+        do_register = true;
+#endif
+        if (do_register) {
+          w.register_event_handler(left_btn_down_event([&](const core::point&) {
+            if (w.is_enabled()) {
+              w.take_focus();
+              IF_X11(send_client_message(&w, detail::BN_PUSHED_MESSAGE));
+              b.set_hilited(w, true);
+            }
+          }));
+          w.register_event_handler(left_btn_up_event([&](const core::point& pos) {
+            if (w.is_enabled()) {
+              IF_X11(send_client_message(&w, detail::BN_UNPUSHED_MESSAGE));
+              if (b.is_hilited(w)) {
+                b.set_hilited(w, false);
+                if (w.client_area().is_inside(pos)) {
+                  b.set_checked(w, !b.is_checked(w));
+                  if (w.is_enabled()) {
+                    IF_X11(send_client_message(&w, detail::BN_CLICKED_MESSAGE));
+                  }
                 }
               }
             }
-          }
-        }));
-#endif
+          }));
+        }
       }
     }
 
@@ -340,6 +349,10 @@ namespace gui {
             case ODA_SELECT:
             case ODA_DRAWENTIRE: {
               draw::graphics g(get_id(), pdis->hDC);
+              bool selected = (pdis->itemState & ODS_SELECTED) == ODS_SELECTED;
+              bool disabled = (pdis->itemState & ODS_DISABLED) == ODS_DISABLED;
+              bool focused = (pdis->itemState & ODS_FOCUS) == ODS_FOCUS;
+              set_checked(selected);
               draw_item(g);
               g.flush();
             }
@@ -364,7 +377,7 @@ namespace gui {
     #ifdef WIN32
       win::window_class::sub_class("CUSTOM_BUTTON",
                                    "BUTTON",
-                                   BS_PUSHBUTTON | BS_OWNERDRAW |
+                                   BS_PUSHBUTTON | BS_OWNERDRAW | BS_NOTIFY |
                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                    WS_EX_NOPARENTNOTIFY)
     #else // !WIN32

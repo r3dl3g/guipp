@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "window.h"
+#include "control.h"
 #include "graphics.h"
 
 

@@ -44,8 +44,9 @@ namespace gui {
     };
 
     typedef event_handler<WM_COMMAND,
-                           one_param_caller<core::point::type, get_scroll_pos>,
-                           0, scroll_matcher>                  scroll_event;
+                          Params<core::point::type>::
+                          caller<get_scroll_pos>,
+                          0, scroll_matcher>                  scroll_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 

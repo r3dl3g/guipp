@@ -27,8 +27,7 @@
 //
 // Library includes
 //
-#include "window.h"
-#include "window_event_handler.h"
+#include "control.h"
 
 
 namespace gui {
@@ -54,7 +53,9 @@ namespace gui {
     }
 
     typedef event_handler<detail::SLIDER_MESSAGE,
-                           one_param_caller<int, get_param<0, int>>> slider_event;
+                          Params<int>::
+                          caller<get_param<0, int>>>
+            slider_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 

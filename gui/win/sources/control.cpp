@@ -45,6 +45,41 @@ namespace gui {
 
     } // detail
 
+#ifdef WIN32
+
+    // --------------------------------------------------------------------------
+    template<>
+    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
+      return draw::graphics(e.id, (os::graphics)e.param_1);
+    }
+
+    // --------------------------------------------------------------------------
+    void paint_caller::operator()(const core::event& e) {
+      if (f) {
+        PAINTSTRUCT ps;
+        os::graphics id = BeginPaint(e.id, &ps);
+        f(draw::graphics(e.id, id));
+        EndPaint(e.id, &ps);
+      }
+    }
+
+#endif // WIN32
+#ifdef X11
+
+    void paint_caller::operator()(const core::event& e) {
+      if (callback) {
+        if (!gc) {
+          gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
+        }
+        draw::graphics g(e.xexpose.window, gc);
+        callback(g);
+        //        XFlushGC(e.xexpose.display, gc);
+      }
+    }
+
+#endif // X11
+
+
   } // win
 
 } // gui

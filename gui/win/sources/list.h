@@ -37,8 +37,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    typedef event_handler<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<LBN_SELCHANGE>>      selection_changed_event;
+    typedef event_handler<WM_COMMAND,
+                          Params<>::caller<>, 0,
+                          command_matcher<LBN_SELCHANGE>>      selection_changed_event;
 #endif //WIN32
 
     namespace detail {

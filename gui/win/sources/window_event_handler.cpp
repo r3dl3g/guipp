@@ -26,7 +26,7 @@
 // Library includes
 //
 #include "window_event_handler.h"
-#include "window.h"
+#include "owner_draw.h"
 
 
 namespace gui {
@@ -41,18 +41,38 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<>
+    unsigned int get_param<0, unsigned int>(const core::event& e) {
+      return (unsigned int)e.param_1;
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    int get_param<0, int>(const core::event& e) {
+      return (int)e.param_1;
+    }
+    // --------------------------------------------------------------------------
+    template<>
     window* get_param<0, window*>(const core::event& e) {
       return detail::get_window((os::window)e.param_1);
     }
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
-      return draw::graphics(e.id, (os::graphics)e.param_1);
-    };
+    os::graphics get_param<0, os::graphics>(const core::event& e) {
+      return (os::graphics)e.param_1;
+    }
     // --------------------------------------------------------------------------
     template<>
     window* get_param<1, window*>(const core::event& e) {
       return detail::get_window((os::window)e.param_2);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    core::point get_param<1, core::point>(const core::event& e) {
+      return core::point(e.param_2);
+    }
+    // --------------------------------------------------------------------------
+    template<>
+    core::size get_param<1, core::size>(const core::event& e) {
+      return core::size(e.param_2);
     }
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e) {
@@ -83,21 +103,21 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void paint_caller::operator()(const core::event& e) {
-      if (callback) {
+    void os_paint_caller::operator()(const core::event& e) {
+      if (f) {
         PAINTSTRUCT ps;
         os::graphics id = BeginPaint(e.id, &ps);
-        callback(draw::graphics(e.id, id));
+        f(id);
         EndPaint(e.id, &ps);
       }
     }
 
     // --------------------------------------------------------------------------
     void pos_changing_caller::operator() (const core::event& e) {
-      if (callback) {
+      if (f) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
         core::rectangle r = get_rect<WINDOWPOS>(e);
-        callback(r);
+        f(r);
         p->x = r.os_x();
         p->y = r.os_y();
         p->cx = r.os_width();
@@ -159,13 +179,12 @@ namespace gui {
         }
     }
 
-    void paint_caller::operator()(const core::event& e) {
+    void os_paint_caller::operator()(const core::event& e) {
       if (callback) {
         if (!gc) {
             gc = XCreateGC(e.xexpose.display, e.xexpose.window, 0, 0);
         }
-        draw::graphics g(e.xexpose.window, gc);
-        callback(g);
+        callback(gc);
 //        XFlushGC(e.xexpose.display, gc);
       }
     }

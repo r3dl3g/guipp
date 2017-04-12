@@ -36,7 +36,6 @@
 #include "event.h"
 #include "bind_method.h"
 #include "gui_types.h"
-#include "graphics.h"
 #include "window_event_proc.h"
 #include "logger.h"
 
@@ -76,26 +75,47 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<int I, typename T>
     T get_param (const core::event& e);
+
     // --------------------------------------------------------------------------
     template<typename T>
     T get_param1_low (const core::event& e) {
       return static_cast<T>((SHORT)LOWORD(e.param_1));
     }
+
     // --------------------------------------------------------------------------
     template<typename T>
     T get_param1_high (const core::event& e) {
       return static_cast<T>((SHORT)HIWORD(e.param_1));
     }
+
     // --------------------------------------------------------------------------
     template<>
     bool get_param<0, bool>(const core::event& e);
-    // --------------------------------------------------------------------------
+
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e);
+    unsigned int get_param<0, unsigned int>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template<>
+    int get_param<0, int>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template<>
+    os::graphics get_param<0, os::graphics>(const core::event& e);
+
     // --------------------------------------------------------------------------
     template<>
     window* get_param<1, window*>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::point get_param<1, core::point>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::size get_param<1, core::size>(const core::event& e);
+
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect(const core::event& e) {
@@ -105,26 +125,29 @@ namespace gui {
                              static_cast<core::size::type>(p.cx),
                              static_cast<core::size::type>(p.cy));
     }
+
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e);
+
     // --------------------------------------------------------------------------
     unsigned int get_flags_from_wp(const core::event& e);
 
 #endif // Win32
 #ifdef X11
+
     // --------------------------------------------------------------------------
     template<int I, typename T>
     T get_param(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template <typename T>
+    const T& cast_event_type(const core::event& e);
 
 #endif // X11
 
     // --------------------------------------------------------------------------
     template<>
     window* get_param<0, window*>(const core::event& e);
-
-     // --------------------------------------------------------------------------
-    template <typename T>
-    const T& cast_event_type(const core::event& e);
 
     // --------------------------------------------------------------------------
     template <os::event_id id>
@@ -140,7 +163,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename... Ts> struct Params {
-      template<param_getter<T>... Fs> struct caller {
+      template<param_getter<Ts>... Fs> struct caller {
         using callback = void(Ts...);
         typedef std::function<callback> function;
 
@@ -208,21 +231,23 @@ namespace gui {
     typedef event_handler<WM_QUIT>                                            quit_event;
 
     typedef event_handler<WM_ERASEBKGND,
-                           Params<draw::graphics>::
-                           caller<get_param<0, draw::graphics>>>              erase_event;
+                           Params<os::graphics>::
+                           caller<get_param<0, os::graphics>>>                erase_event;
     typedef event_handler<WM_PRINT,
-                           Params<draw::graphics>::
-                           caller<get_param<0, draw::graphics>>>              print_event;
+                           Params<os::graphics>::
+                           caller<get_param<0, os::graphics>>>                print_event;
     typedef event_handler<WM_PRINTCLIENT,
-                           Params<draw::graphics>::
-                           caller<get_param<0, draw::graphics>>>              print_client_event;
+                           Params<os::graphics>::
+                           caller<get_param<0, os::graphics>>>                print_client_event;
 
     typedef event_handler<WM_SETREDRAW,
                            Params<bool>::caller<get_param<0, bool>>>          redraw_changed_event;
 
     typedef event_handler<WM_ENABLE,
                            Params<bool>::caller<get_param<0, bool>>>          enable_event;
-    typedef event_handler<WM_ACTIVATE, two_param_caller<bool, window*>>       activate_event;
+    typedef event_handler<WM_ACTIVATE, Params<bool, window*>::
+                                       caller<get_param<0, bool>,
+                                              get_param<1, window*>>>         activate_event;
     typedef event_handler<WM_ACTIVATEAPP,
                            Params<bool>::caller<get_param<0, bool>>>          activate_app_event;
     typedef event_handler<WM_SETFOCUS,
@@ -280,7 +305,9 @@ namespace gui {
                            caller<get_param<1, core::point>>>                 middle_btn_dblclk_event;
 
     typedef event_handler<WM_MOUSEMOVE,
-                           two_param_caller<unsigned int, core::point>>       mouse_move_event;
+                           Params<unsigned int, core::point>::
+                           caller<get_param<0, unsigned int>,
+                                  get_param<1, core::point>>>                 mouse_move_event;
 
 
     struct mouse_enter_matcher {
@@ -295,11 +322,11 @@ namespace gui {
 
     typedef event_handler<WM_MOUSEHWHEEL,
                            Params<core::point::type, core::point>::
-                           caller<get_param1_high<core::point::type>,
+                           caller<get_param1_high<core::point_type>,
                                   get_param<1, core::point>>>                 wheel_x_event;
     typedef event_handler<WM_MOUSEWHEEL,
                            Params<core::point::type, core::point>::
-                           caller<get_param1_high<core::point::type>,
+                           caller<get_param1_high<core::point_type>,
                                   get_param<1, core::point>>>                 wheel_y_event;
 
     // --------------------------------------------------------------------------
@@ -368,22 +395,22 @@ namespace gui {
     typedef event_handler<WM_GETMINMAXINFO, get_minmax_caller>                 get_minmax_event;
 
     // --------------------------------------------------------------------------
-    struct paint_caller : Params<draw::graphics>::caller<get_param<0, draw::graphics>> {
-      typedef Params<draw::graphics>::caller<get_param<0, draw::graphics>> super;
+    struct os_paint_caller : Params<os::graphics>::caller<get_param<0, os::graphics>> {
+      typedef Params<os::graphics>::caller<get_param<0, os::graphics>> super;
 
-      paint_caller (const function cb)
+      os_paint_caller (const function cb)
         :super(cb)
       {}
 
       template<class T>
-      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
+      os_paint_caller (T* t, void(T::*callback_)(os::graphics&))
         : super(gui::core::bind_method(t, callback_))
       {}
 
       void operator()(const core::event& e);
     };
 
-    typedef event_handler<WM_PAINT, paint_caller>                             paint_event;
+    typedef event_handler<WM_PAINT, os_paint_caller>                           os_paint_event;
 
     // --------------------------------------------------------------------------
     template <WORD N>
@@ -701,17 +728,17 @@ namespace gui {
                                              XConfigureRequestEvent>>               placing_event;
 
     // --------------------------------------------------------------------------
-    struct paint_caller {
-      typedef void(F)(draw::graphics&);
+    struct os_paint_caller {
+      typedef void(F)(os::graphics&);
       typedef std::function<F> function;
 
-      paint_caller (const function cb)
+      os_paint_caller (const function cb)
         : callback(cb)
         , gc(0)
       {}
 
       template<class T>
-      paint_caller (T* t, void(T::*callback_)(draw::graphics&))
+      os_paint_caller (T* t, void(T::*callback_)(os::graphics&))
         : callback(gui::core::bind_method(t, callback_))
         , gc(0)
       {}
@@ -720,7 +747,7 @@ namespace gui {
         return callback.operator bool();
       }
 
-      ~paint_caller ();
+      ~os_paint_caller ();
 
       void operator()(const core::event& e);
 
@@ -729,12 +756,15 @@ namespace gui {
       os::graphics gc;
     };
 
-    typedef event_handler<Expose, paint_caller> paint_event;
+    // --------------------------------------------------------------------------
+    typedef event_handler<Expose, os_paint_caller> os_paint_event;
 
+    // --------------------------------------------------------------------------
     void send_client_message (window* win, Atom message,
                               long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
     void send_client_message (window* win, Atom message, window* w, const core::rectangle& r);
 
+    // --------------------------------------------------------------------------
 #endif // X11
 
   } // gui

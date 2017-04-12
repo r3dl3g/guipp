@@ -102,8 +102,7 @@ namespace gui {
 # endif
 #endif
 
-#endif // Win32
-#ifdef X11
+#elif X11
 
   namespace os {
     typedef Display* instance;

@@ -37,18 +37,18 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_CLICKED>>
-                           button_clicked_event;
-    typedef event_handler<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_PUSHED>>
-                           button_pushed_event;
-    typedef event_handler<WM_COMMAND, no_param_caller, 0,
-                           command_matcher<BN_UNPUSHED>>
-                           button_released_event;
+    typedef event_handler<WM_COMMAND,
+                          Params<>::caller<>, 0,
+                          command_matcher<BN_CLICKED>>    button_clicked_event;
+    typedef event_handler<WM_COMMAND,
+                          Params<>::caller<>, 0,
+                          command_matcher<BN_PUSHED>>     button_pushed_event;
+    typedef event_handler<WM_COMMAND,
+                          Params<>::caller<>, 0,
+                          command_matcher<BN_UNPUSHED>>   button_released_event;
     typedef event_handler<BM_SETCHECK,
-                           one_param_caller<bool>>
-                           button_state_event;
+                          Params<bool>::
+                          caller<get_param<0, bool>>>     button_state_event;
 // --------------------------------------------------------------------------
 #endif //WIN32
 
@@ -135,32 +135,32 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      void register_push_button_handler (window& win, button_info& bi);
-      void register_toggle_button_handler (window& win, button_info& bi);
+      void register_push_button_handler (bool do_register, window& win, button_info& bi);
+      void register_toggle_button_handler (bool do_register, window& win, button_info& bi);
     }
 
     // --------------------------------------------------------------------------
-    template<class super>
+    template<class super, bool R>
     class push_button : public super {
     public:
       push_button () {
-        register_push_button_handler(*this, super::bi);
+        register_push_button_handler(R, *this, super::bi);
       }
     };
 
     // --------------------------------------------------------------------------
-    template<class super>
+    template<class super, bool R>
     class toggle_button : public super {
     public:
       toggle_button () {
-        register_toggle_button_handler(*this, super::bi);
+        register_toggle_button_handler(R, *this, super::bi);
       }
     };
 
     // --------------------------------------------------------------------------
-    class text_button : public push_button<button<window_with_text>> {
+    class text_button : public push_button<button<window_with_text>, false> {
     public:
-      typedef push_button<button<window_with_text>> super;
+      typedef push_button<button<window_with_text>, false> super;
 
       text_button ();
 
@@ -176,9 +176,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class radio_button : public toggle_button<button<window_with_text>> {
+    class radio_button : public toggle_button<button<window_with_text>, false> {
     public:
-      typedef toggle_button<button<window_with_text>> super;
+      typedef toggle_button<button<window_with_text>, false> super;
 
       radio_button ();
 
@@ -194,9 +194,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class check_box : public toggle_button<button<window_with_text>> {
+    class check_box : public toggle_button<button<window_with_text>, false> {
     public:
-      typedef toggle_button<button<window_with_text>> super;
+      typedef toggle_button<button<window_with_text>, false> super;
 
       check_box ();
 
@@ -239,9 +239,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class custom_push_button : public push_button<owner_draw_button> {
+    class custom_push_button : public push_button<owner_draw_button, true> {
     public:
-      typedef push_button<owner_draw_button> super;
+      typedef push_button<owner_draw_button, true> super;
 
       custom_push_button ()
       {}

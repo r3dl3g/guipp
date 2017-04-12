@@ -27,15 +27,9 @@
 //
 // Library includes
 //
-#include "label.h"
-#include "button.h"
-#include "owner_draw.h"
-#include "list.h"
-#include "scroll_view.h"
-#include "slider.h"
-#include "split_view.h"
-#include "edit.h"
-#include "column_list.h"
+#include "window.h"
+#include "window_event_handler.h"
+#include "graphics.h"
 
 
 namespace gui {
@@ -44,6 +38,68 @@ namespace gui {
 
     namespace detail {
     }
+
+#ifdef WIN32
+
+    // --------------------------------------------------------------------------
+    template<>
+    draw::graphics get_param<0, draw::graphics>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    struct paint_caller : Params<draw::graphics>::caller<get_param<0, draw::graphics>> {
+      typedef Params<draw::graphics>::caller<get_param<0, draw::graphics>> super;
+
+      paint_caller(const function cb)
+        :super(cb)
+      {}
+
+      template<class T>
+      paint_caller(T* t, void(T::*callback_)(draw::graphics&))
+        : super(gui::core::bind_method(t, callback_))
+      {}
+
+      void operator()(const core::event& e);
+    };
+
+    // --------------------------------------------------------------------------
+    typedef event_handler<WM_PAINT, paint_caller> paint_event;
+
+#endif // WIN32
+
+#ifdef X11
+
+    // --------------------------------------------------------------------------
+    struct paint_caller {
+      typedef void(F)(draw::graphics&);
+      typedef std::function<F> function;
+
+      paint_caller(const function cb)
+        : callback(cb)
+        , gc(0)
+      {}
+
+      template<class T>
+      paint_caller(T* t, void(T::*callback_)(draw::graphics&))
+        : callback(gui::core::bind_method(t, callback_))
+        , gc(0)
+      {}
+
+      operator bool() const {
+        return callback.operator bool();
+      }
+
+      ~paint_caller();
+
+      void operator()(const core::event& e);
+
+    private:
+      function callback;
+      os::graphics gc;
+    };
+
+    typedef event_handler<Expose, paint_caller> paint_event;
+
+#endif // X11
 
   } // win
 

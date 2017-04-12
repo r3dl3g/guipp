@@ -169,16 +169,6 @@ namespace gui {
       return std::string();
     }
 
-    // --------------------------------------------------------------------------
-    paint_caller::~paint_caller() {
-        if (gc) {
-          if (core::global::get_instance()) {
-            XFreeGC(core::global::get_instance(), gc);
-          }
-          gc = 0;
-        }
-    }
-
     void os_paint_caller::operator()(const core::event& e) {
       if (callback) {
         if (!gc) {

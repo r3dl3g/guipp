@@ -27,8 +27,7 @@
 //
 // Library includes
 //
-#include "window.h"
-#include "window_event_handler.h"
+#include "control.h"
 #include "alignment_h.h"
 
 

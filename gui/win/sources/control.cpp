@@ -77,6 +77,16 @@ namespace gui {
       }
     }
 
+    // --------------------------------------------------------------------------
+    paint_caller::~paint_caller() {
+      if (gc) {
+        if (core::global::get_instance()) {
+          XFreeGC(core::global::get_instance(), gc);
+        }
+        gc = 0;
+      }
+    }
+
 #endif // X11
 
 

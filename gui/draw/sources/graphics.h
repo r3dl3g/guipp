@@ -244,7 +244,7 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-    enum text_origin : unsigned short {
+    enum text_origin : unsigned int {
       top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
       top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
       top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,

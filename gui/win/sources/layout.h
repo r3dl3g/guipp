@@ -325,6 +325,14 @@ namespace gui {
       void layout (const core::size& sz);
 
     private:
+      static inline double short_to_double(short offset) {
+        return (double)offset / 10000.0;
+      }
+
+      static inline short double_to_short(double rel) {
+        return short(rel * 10000.0);
+      }
+
       struct attachment {
         win::window* target;
         win::window* source;
@@ -344,14 +352,6 @@ namespace gui {
           return core::point::type ((double)a * short_to_double(relative)) + offset;
         }
       };
-
-      static inline double short_to_double (short offset) {
-        return (double)offset / 10000.0;
-      }
-
-      static inline short double_to_short (double rel) {
-        return short(rel * 10000.0);
-      }
 
       std::vector<attachment> attachments;
     };

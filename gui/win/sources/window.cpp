@@ -703,7 +703,7 @@ namespace gui {
                                       WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
                                       nullptr,
                                       IDC_ARROW,
-                                      (HBRUSH)(COLOR_APPWORKSPACE + 1))
+                                      (os::color)(COLOR_APPWORKSPACE + 1))
 #endif // WIN32
 #ifdef X11
       win::window_class::custom_class("main_window", os::get_sys_color(os::COLOR_APPWORKSPACE))
@@ -719,7 +719,7 @@ namespace gui {
                                       WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
                                       nullptr,
                                       IDC_ARROW,
-                                      (HBRUSH)(COLOR_BTNFACE + 1))
+                                      (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
       win::window_class::custom_class("client_window", os::get_sys_color(os::COLOR_BTNFACE))
@@ -928,7 +928,7 @@ namespace gui {
 #endif //X11
 
 #ifdef WIN32
-    win::window_class create_group_window_clazz (unsigned long v) {
+    win::window_class create_group_window_clazz (os::color v) {
       static int group_window_id = 0;
       return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++),
                                               CS_DBLCLKS,
@@ -936,7 +936,7 @@ namespace gui {
                                               WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
                                               nullptr,
                                               IDC_ARROW,
-                                              draw::brush(draw::color(v)));
+                                              v);
     }
 #endif // WIN32
 

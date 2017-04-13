@@ -68,6 +68,21 @@ namespace gui {
         set_id(w, id);
       }
 
+      typedef std::map<int, gui::core::size> measure_item_map;
+      measure_item_map s_measure_item_size;
+
+      void set_item_size(int id, const gui::core::size& sz) {
+        s_measure_item_size[id] = sz;
+      }
+
+      const gui::core::size& get_item_size(int id) {
+        measure_item_map::iterator i = s_measure_item_size.find(id);
+        if (i != s_measure_item_size.end()) {
+          return i->second;
+        }
+        return gui::core::size::zero;
+      }
+
       LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
           case WM_INITDIALOG:
@@ -96,7 +111,7 @@ namespace gui {
           }
           case WM_MEASUREITEM: {
             PMEASUREITEMSTRUCT pmis = (PMEASUREITEMSTRUCT)lParam;
-            const core::size& sz = owner_draw::get_item_size((int)pmis->CtlID);
+            const core::size& sz = get_item_size((int)pmis->CtlID);
             if (sz.height() || sz.width()) {
               pmis->itemHeight = sz.os_height();
               pmis->itemWidth = sz.os_width();

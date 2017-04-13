@@ -28,11 +28,22 @@
 //
 #include "color.h"
 
-#define DEFINE_SYS_COLOR(name, SYS_NAME) \
+#ifdef WIN32
+# define DEFINE_SYS_COLOR(name, SYS_NAME) \
+   color color::name () {\
+     static color c(os::get_sys_color(SYS_NAME));\
+     return c;\
+   }
+
+#endif // WIN32
+
+#ifdef X11
+# define DEFINE_SYS_COLOR(name, SYS_NAME) \
    color color::name () {\
      static color c(os::get_sys_color(os::SYS_NAME));\
      return c;\
    }
+#endif // X11
 
 #define DEFINE_RGB_COLOR(name, R, G, B) \
    color color::name () {\

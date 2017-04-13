@@ -42,6 +42,10 @@ namespace gui {
 
       LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
       
+      void set_item_size(int id, const gui::core::size&);
+
+      const gui::core::size& get_item_size(int id);
+
 #endif // WIN32
 
       window* get_window (os::window id);

@@ -50,7 +50,7 @@ namespace gui {
                                                     nullptr,
                                                     IDC_SIZEWE,
                                                     //CreateSolidBrush(0xff0000));
-                                                    (HBRUSH)(COLOR_BTNFACE + 1))
+                                                    (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
             window_class::custom_class("VSLIDER",
@@ -67,11 +67,12 @@ namespace gui {
 #ifdef WIN32
             win::window_class::custom_class("HSLIDER",
                                                     0,
-                                                    0,
+                                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+                                                    WS_EX_NOPARENTNOTIFY,
                                                     nullptr,
                                                     IDC_SIZENS,
                                                     //CreateSolidBrush(0x00ff00));
-                                                    (HBRUSH)(COLOR_BTNFACE + 1))
+                                                    (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
             window_class::custom_class("HSLIDER",

@@ -37,16 +37,16 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_COMMAND,
+    typedef event_handler<WM_COMMAND, 0,
                           Params<>::caller<>, 0,
                           command_matcher<BN_CLICKED>>    button_clicked_event;
-    typedef event_handler<WM_COMMAND,
+    typedef event_handler<WM_COMMAND, 0,
                           Params<>::caller<>, 0,
                           command_matcher<BN_PUSHED>>     button_pushed_event;
-    typedef event_handler<WM_COMMAND,
+    typedef event_handler<WM_COMMAND, 0,
                           Params<>::caller<>, 0,
                           command_matcher<BN_UNPUSHED>>   button_released_event;
-    typedef event_handler<BM_SETCHECK,
+    typedef event_handler<BM_SETCHECK, 0,
                           Params<bool>::
                           caller<get_param<0, bool>>>     button_state_event;
 // --------------------------------------------------------------------------

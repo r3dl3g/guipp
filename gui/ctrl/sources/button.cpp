@@ -318,7 +318,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     owner_draw_button::owner_draw_button () {
-      register_event_handler(this, &owner_draw_button::handle_event, ExposureMask);
+      register_event_handler(this, &owner_draw_button::handle_event, IF_X11(ExposureMask) IF_WIN32(0));
       register_event_handler(size_event([&](const core::size& sz) {
         set_item_size(sz);
       }));

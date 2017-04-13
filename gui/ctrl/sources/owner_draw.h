@@ -70,10 +70,6 @@ namespace gui {
         return get_item_size().height();
       }
 
-#ifdef WIN32
-      static const gui::core::size& get_item_size (int id);
-#endif // WIN32
-
     protected:
       void create (const gui::win::window_class& clazz,
                    const gui::win::container& parent,
@@ -92,9 +88,6 @@ namespace gui {
       const int owner_draw_id;
 
       static int next_owner_draw_id;
-
-      typedef std::map<int, gui::core::size> measure_item_map;
-      static measure_item_map s_measure_item_size;
 #endif // WIN32
     };
 

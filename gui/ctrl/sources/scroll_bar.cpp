@@ -96,7 +96,7 @@ namespace gui {
     }
 
     scroll_bar::scroll_bar () {
-      register_event_handler(this, &scroll_bar::scroll_handle_event);
+      register_event_handler(this, &scroll_bar::scroll_handle_event, 0);
     }
 
     void scroll_bar::create (const window_class& type,

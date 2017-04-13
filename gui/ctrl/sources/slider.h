@@ -52,7 +52,7 @@ namespace gui {
       const os::event_id SLIDER_MESSAGE = WM_USER + 1;
     }
 
-    typedef event_handler<detail::SLIDER_MESSAGE,
+    typedef event_handler<detail::SLIDER_MESSAGE, 0,
                           Params<int>::
                           caller<get_param<0, int>>>
             slider_event;

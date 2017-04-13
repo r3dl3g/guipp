@@ -38,7 +38,7 @@ namespace gui {
 
 #ifdef WIN32
 
-    color get_sys_color(SystemColor c) {
+    color get_sys_color(int c) {
       return GetSysColor(c);
     }
 

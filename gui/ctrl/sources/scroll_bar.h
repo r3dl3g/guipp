@@ -42,7 +42,7 @@ namespace gui {
       bool operator() (const core::event& e);
     };
 
-    typedef event_handler<WM_COMMAND,
+    typedef event_handler<WM_COMMAND, 0,
                           Params<core::point::type>::
                           caller<get_scroll_pos>,
                           0, scroll_matcher>                  scroll_event;

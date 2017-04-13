@@ -62,7 +62,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_PAINT, paint_caller> paint_event;
+    typedef event_handler<WM_PAINT, 0, paint_caller> paint_event;
 
 #endif // WIN32
 

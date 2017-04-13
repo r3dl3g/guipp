@@ -150,6 +150,13 @@ namespace gui {
 
 #endif
 
+#ifdef WIN32
+
+color get_sys_color(int);
+
+#endif // WIN32
+
+#ifdef X11
     enum SystemColor {
         COLOR_SCROLLBAR,
         COLOR_BACKGROUND,
@@ -175,6 +182,7 @@ namespace gui {
     };
 
     color get_sys_color(SystemColor);
+#endif // X11
 
     typedef unsigned char color_part_type;
 

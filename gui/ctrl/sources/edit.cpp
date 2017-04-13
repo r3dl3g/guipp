@@ -86,7 +86,7 @@ namespace gui {
         Edit_ReplaceSel(get_id(), (LPARAM)text.c_str());
       }
 
-      void edit_base::register_handler () {
+      void edit_base::register_handler (alignment_h) {
       }
 #endif // WIN32
 

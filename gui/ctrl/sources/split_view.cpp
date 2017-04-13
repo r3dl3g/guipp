@@ -108,7 +108,7 @@ namespace gui {
                                         WS_EX_NOPARENTNOTIFY,
                                         nullptr,
                                         IDC_ARROW,
-                                        (HBRUSH)(COLOR_BTNFACE + 1))
+                                        (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
         win::window_class::custom_class("vsplit_view", os::get_sys_color(os::COLOR_BTNFACE))
@@ -124,7 +124,7 @@ namespace gui {
                                                 WS_EX_NOPARENTNOTIFY,
                                                 nullptr,
                                                 IDC_ARROW,
-                                                (HBRUSH)(COLOR_BTNFACE + 1))
+                                                (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
         win::window_class::custom_class("hsplit_view", os::get_sys_color(os::COLOR_BTNFACE))

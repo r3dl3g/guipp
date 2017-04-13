@@ -42,7 +42,7 @@ namespace gui {
                                       WS_EX_NOPARENTNOTIFY,
                                       nullptr,
                                       IDC_ARROW,
-                                      (HBRUSH)(COLOR_WINDOW + 1))
+                                      (os::color)(COLOR_WINDOW + 1))
     #endif // WIN32
     #ifdef X11
       win::window_class::custom_class("MyScrollView")

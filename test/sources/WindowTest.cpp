@@ -205,7 +205,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , list2(vsplit_view.first.first)
   , list3(vsplit_view.first.second)
 {
-  register_event_handler(init_result_handler());
+  register_event_handler(init_result_handler(), 0);
 
   register_event_handler(win::destroy_event([&] () {
     LogDebug << "Destroyed!";

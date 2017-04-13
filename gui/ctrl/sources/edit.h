@@ -82,7 +82,7 @@ namespace gui {
 
       protected:
         static window_class create_edit_class(alignment_h);
-        void register_handler();
+        void register_handler(alignment_h);
 
 #ifdef X11
         void prepare_input ();
@@ -100,13 +100,25 @@ namespace gui {
       };
     }
 
+    namespace paint {
+
+      void edit_box(const draw::graphics& graph,
+                    const win::window& btn,
+                    const std::string& text,
+                    draw::text_origin origin,
+                    const detail::edit_base::range& selection,
+                    detail::edit_base::pos_t cursor_pos,
+                    detail::edit_base::pos_t scroll_pos);
+
+    }
+
     template<alignment_h A>
     class editT : public detail::edit_base {
     public:
       typedef detail::edit_base super;
 
       editT () {
-        register_handler();
+        register_handler(A);
       }
 
       void create (const container& parent,

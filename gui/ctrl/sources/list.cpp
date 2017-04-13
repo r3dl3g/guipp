@@ -46,7 +46,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
       list::list () {
-        register_event_handler(this, &list::list_handle_event);
+        register_event_handler(this, &list::list_handle_event, 0);
       }
 
       size_t list::get_count () const {
@@ -266,15 +266,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window_class listT<false>::clazz(window_class::custom_class("HLISTBOX",
-                                                                0,
-                                                                ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                                                FocusChangeMask | KeyPressMask | StructureNotifyMask,
-                                                                0, 0, 0,
                                                                 draw::color::white()));
 
     template<>
     listT<false>::listT () {
-      register_event_handler(this, &listT<false>::listT_handle_event);
+      register_event_handler(this, &listT<false>::listT_handle_event,
+                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                             FocusChangeMask | KeyPressMask | StructureNotifyMask);
       scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
       }));
@@ -476,15 +474,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window_class listT<true>::clazz(window_class::custom_class("VLISTBOX",
-                                                               0,
-                                                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                                               FocusChangeMask | KeyPressMask | StructureNotifyMask,
-                                                               0, 0, 0,
                                                                draw::color::white()));
 
     template<>
     listT<true>::listT () {
-      register_event_handler(this, &listT<true>::listT_handle_event);
+      register_event_handler(this, &listT<true>::listT_handle_event,
+                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                             FocusChangeMask | KeyPressMask | StructureNotifyMask);
       scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
       }));

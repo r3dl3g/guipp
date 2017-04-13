@@ -191,11 +191,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::event_id E,
-             typename C = Params<>::caller<>,
+             os::event_id Mask = 0,
+             typename Caller = Params<>::caller<>,
              os::event_result R = 0,
-             typename M = event_type_match<E>>
+             typename Matcher = event_type_match<E>>
     struct event_handler {
-      typedef typename C::function function;
+      static const os::event_id mask = Mask;
+
+      typedef typename Caller::function function;
 
       event_handler (const function cb)
         : caller(cb)
@@ -215,13 +218,13 @@ namespace gui {
       }
 
     protected:
-      C caller;
-      M matcher;
+      Caller caller;
+      Matcher matcher;
     };
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_CREATE,
+    typedef event_handler<WM_CREATE, 0,
                            Params<window*, core::rectangle>::
                            caller<get_window_from_cs,
                                   get_rect<CREATESTRUCT>>>                    create_event;
@@ -230,81 +233,82 @@ namespace gui {
     typedef event_handler<WM_CLOSE>                                           close_event;
     typedef event_handler<WM_QUIT>                                            quit_event;
 
-    typedef event_handler<WM_ERASEBKGND,
+    typedef event_handler<WM_ERASEBKGND, 0,
                            Params<os::graphics>::
                            caller<get_param<0, os::graphics>>>                erase_event;
-    typedef event_handler<WM_PRINT,
+    typedef event_handler<WM_PRINT, 0,
                            Params<os::graphics>::
                            caller<get_param<0, os::graphics>>>                print_event;
-    typedef event_handler<WM_PRINTCLIENT,
+    typedef event_handler<WM_PRINTCLIENT, 0,
                            Params<os::graphics>::
                            caller<get_param<0, os::graphics>>>                print_client_event;
 
-    typedef event_handler<WM_SETREDRAW,
+    typedef event_handler<WM_SETREDRAW, 0,
                            Params<bool>::caller<get_param<0, bool>>>          redraw_changed_event;
 
-    typedef event_handler<WM_ENABLE,
+    typedef event_handler<WM_ENABLE, 0,
                            Params<bool>::caller<get_param<0, bool>>>          enable_event;
-    typedef event_handler<WM_ACTIVATE, Params<bool, window*>::
-                                       caller<get_param<0, bool>,
-                                              get_param<1, window*>>>         activate_event;
-    typedef event_handler<WM_ACTIVATEAPP,
+    typedef event_handler<WM_ACTIVATE, 0,
+                          Params<bool, window*>::
+                          caller<get_param<0, bool>,
+                                 get_param<1, window*>>>                      activate_event;
+    typedef event_handler<WM_ACTIVATEAPP, 0,
                            Params<bool>::caller<get_param<0, bool>>>          activate_app_event;
-    typedef event_handler<WM_SETFOCUS,
+    typedef event_handler<WM_SETFOCUS, 0,
                            Params<window*>::caller<get_param<0, window*>>>    set_focus_event;
-    typedef event_handler<WM_KILLFOCUS,
+    typedef event_handler<WM_KILLFOCUS, 0,
                            Params<window*>::caller<get_param<0, window*>>>    lost_focus_event;
 
     typedef event_handler<WM_ENTERSIZEMOVE>                                   begin_size_or_move_event;
     typedef event_handler<WM_EXITSIZEMOVE>                                    end_size_or_move_event;
 
-    typedef event_handler<WM_MOVE,
+    typedef event_handler<WM_MOVE, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 move_event;
-    typedef event_handler<WM_MOVING,
+    typedef event_handler<WM_MOVING, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>,
                            TRUE>                                              moving_event;
 
-    typedef event_handler<WM_SIZE,
+    typedef event_handler<WM_SIZE, 0,
                            Params<core::size>::
                            caller<get_param<1, core::size>>>                  size_event;
-    typedef event_handler<WM_SIZING,
+    typedef event_handler<WM_SIZING, 0,
                            Params<core::size>::
                            caller<get_param<1, core::size>>,
                            TRUE>                                              sizing_event;
 
-    typedef event_handler<WM_LBUTTONDOWN,
+    typedef event_handler<WM_LBUTTONDOWN, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 left_btn_down_event;
-    typedef event_handler<WM_LBUTTONUP,
+    typedef event_handler<WM_LBUTTONUP, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 left_btn_up_event;
-    typedef event_handler<WM_LBUTTONDBLCLK,
+    typedef event_handler<WM_LBUTTONDBLCLK, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 left_btn_dblclk_event;
 
-    typedef event_handler<WM_RBUTTONDOWN,
+    typedef event_handler<WM_RBUTTONDOWN, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 right_btn_down_event;
-    typedef event_handler<WM_RBUTTONUP,
+    typedef event_handler<WM_RBUTTONUP, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 right_btn_up_event;
-    typedef event_handler<WM_RBUTTONDBLCLK,
+    typedef event_handler<WM_RBUTTONDBLCLK, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 right_btn_dblclk_event;
 
-    typedef event_handler<WM_MBUTTONDOWN,
+    typedef event_handler<WM_MBUTTONDOWN, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 middle_btn_down_event;
-    typedef event_handler<WM_MBUTTONUP,
+    typedef event_handler<WM_MBUTTONUP, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 middle_btn_up_event;
-    typedef event_handler<WM_MBUTTONDBLCLK,
+    typedef event_handler<WM_MBUTTONDBLCLK, 0,
                            Params<core::point>::
                            caller<get_param<1, core::point>>>                 middle_btn_dblclk_event;
 
-    typedef event_handler<WM_MOUSEMOVE,
+    typedef event_handler<WM_MOUSEMOVE, 0,
                            Params<unsigned int, core::point>::
                            caller<get_param<0, unsigned int>,
                                   get_param<1, core::point>>>                 mouse_move_event;
@@ -314,17 +318,17 @@ namespace gui {
       bool operator() (const core::event& e);
     };
 
-    typedef event_handler<WM_MOUSEMOVE,
+    typedef event_handler<WM_MOUSEMOVE, 0,
                            Params<>::caller<>,
                            0,
                            mouse_enter_matcher>                               mouse_enter_event;
     typedef event_handler<WM_MOUSELEAVE>                                      mouse_leave_event;
 
-    typedef event_handler<WM_MOUSEHWHEEL,
+    typedef event_handler<WM_MOUSEHWHEEL, 0,
                            Params<core::point::type, core::point>::
                            caller<get_param1_high<core::point_type>,
                                   get_param<1, core::point>>>                 wheel_x_event;
-    typedef event_handler<WM_MOUSEWHEEL,
+    typedef event_handler<WM_MOUSEWHEEL, 0,
                            Params<core::point::type, core::point>::
                            caller<get_param1_high<core::point_type>,
                                   get_param<1, core::point>>>                 wheel_y_event;
@@ -337,17 +341,17 @@ namespace gui {
       }
     };
 
-    typedef event_handler<WM_SHOWWINDOW,
+    typedef event_handler<WM_SHOWWINDOW, 0,
                            Params<>::caller<>,
                            0,
                            visibility_event_type_match<WM_SHOWWINDOW, true>>  show_event;
-    typedef event_handler<WM_SHOWWINDOW,
+    typedef event_handler<WM_SHOWWINDOW, 0,
                            Params<>::caller<>,
                            0,
                            visibility_event_type_match<WM_SHOWWINDOW, false>> hide_event;
 
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_WINDOWPOSCHANGED,
+    typedef event_handler<WM_WINDOWPOSCHANGED, 0,
                            Params<core::rectangle>::caller<
                                             get_rect<WINDOWPOS>>>             place_event;
 
@@ -367,7 +371,7 @@ namespace gui {
       void operator()(const core::event& e);
     };
 
-    typedef event_handler<WM_WINDOWPOSCHANGING, pos_changing_caller>          placing_event;
+    typedef event_handler<WM_WINDOWPOSCHANGING, 0, pos_changing_caller>          placing_event;
 
     // --------------------------------------------------------------------------
     struct get_minmax_caller {
@@ -392,7 +396,7 @@ namespace gui {
       function callback;
     };
 
-    typedef event_handler<WM_GETMINMAXINFO, get_minmax_caller>                 get_minmax_event;
+    typedef event_handler<WM_GETMINMAXINFO, 0, get_minmax_caller>                 get_minmax_event;
 
     // --------------------------------------------------------------------------
     struct os_paint_caller : Params<os::graphics>::caller<get_param<0, os::graphics>> {
@@ -410,7 +414,7 @@ namespace gui {
       void operator()(const core::event& e);
     };
 
-    typedef event_handler<WM_PAINT, os_paint_caller>                           os_paint_event;
+    typedef event_handler<WM_PAINT, 0, os_paint_caller>                           os_paint_event;
 
     // --------------------------------------------------------------------------
     template <WORD N>
@@ -543,61 +547,61 @@ namespace gui {
       }
     };
     // --------------------------------------------------------------------------
-    typedef event_handler<ClientMessage,
+    typedef event_handler<ClientMessage, 0,
                            Params<window*, core::rectangle>::
                            caller<get_client_data_window,
                                   get_client_data_rect>,
                            0,
                            client_message_matcher<detail::WM_CREATE_WINDOW>>        create_event;
 
-    typedef event_handler<DestroyNotify>                                            destroy_event;
+    typedef event_handler<DestroyNotify, SubstructureNotifyMask>                    destroy_event;
 
-    typedef event_handler<KeyPress,
+    typedef event_handler<KeyPress, KeyPressMask,
                            Params<unsigned int, KeySym, std::string>::
                            caller<get_state<XKeyEvent>,
                                   get_keycode<XKeyEvent>,
                                   get_key_chars>>                                   key_down_event;
 
-    typedef event_handler<KeyRelease,
+    typedef event_handler<KeyRelease, KeyReleaseMask,
                            Params<unsigned int, KeySym>::
                            caller<get_state<XKeyEvent>, get_keycode<XKeyEvent>>>    key_up_event;
 
-    typedef event_handler<MotionNotify,
+    typedef event_handler<MotionNotify, PointerMotionMask,
                            Params<unsigned int, core::point>::
                            caller<get_state<XMotionEvent>,
                                   get_param<core::point, XMotionEvent>>>            mouse_move_event;
 
-    typedef event_handler<ButtonPress,
+    typedef event_handler<ButtonPress, ButtonPressMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button1, 0>>             left_btn_down_event;
 
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
 
-    typedef event_handler<ButtonPress,
+    typedef event_handler<ButtonPress, ButtonPressMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button3, 0>>             right_btn_down_event;
 
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
 
-    typedef event_handler<ButtonPress,
+    typedef event_handler<ButtonPress, ButtonPressMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button2, 0>>             middle_btn_down_event;
 
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
@@ -624,17 +628,17 @@ namespace gui {
 
     template<os::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
 
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            double_click_matcher<Button1>>                           left_btn_dblclk_event;
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
                            double_click_matcher<Button3>>                           right_btn_dblclk_event;
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point>::
                            caller<get_param<core::point, XButtonEvent>>,
                            0,
@@ -656,47 +660,47 @@ namespace gui {
       }
     };
 
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point::type, core::point>::
                            caller<get_wheel_delta<6, 7>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
                            wheel_button_match<6, 7>>                                wheel_x_event;
-    typedef event_handler<ButtonRelease,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask,
                            Params<core::point::type,  core::point>::
                            caller<get_wheel_delta<Button4, Button5>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
                            wheel_button_match<Button4, Button5>>                    wheel_y_event;
 
-    typedef event_handler<MapNotify, Params<>::caller<>>                            show_event;
-    typedef event_handler<UnmapNotify, Params<>::caller<>>                          hide_event;
+    typedef event_handler<MapNotify, StructureNotifyMask>                           show_event;
+    typedef event_handler<UnmapNotify, StructureNotifyMask>                         hide_event;
 
-    typedef event_handler<FocusIn,
+    typedef event_handler<FocusIn, FocusChangeMask,
                            Params<window*>::
                            caller<get_window<XFocusChangeEvent>>>                   set_focus_event;
-    typedef event_handler<FocusOut,
+    typedef event_handler<FocusOut, FocusChangeMask,
                            Params<window*>::
                            caller<get_window<XFocusChangeEvent>>>                   lost_focus_event;
 
-    typedef event_handler<EnterNotify>                                              mouse_enter_event;
-    typedef event_handler<LeaveNotify>                                              mouse_leave_event;
+    typedef event_handler<EnterNotify, EnterWindowMask>                             mouse_enter_event;
+    typedef event_handler<LeaveNotify, LeaveWindowMask>                             mouse_leave_event;
 
-    typedef event_handler<ConfigureNotify,
+    typedef event_handler<ConfigureNotify, StructureNotifyMask,
                            Params<core::point>::
                            caller<get_param<core::point, XConfigureEvent>>,
                            0,
                            move_size_matcher<core::point,
                                              ConfigureNotify,
                                              XConfigureEvent>>                      move_event;
-    typedef event_handler<ConfigureNotify,
+    typedef event_handler<ConfigureNotify, StructureNotifyMask,
                            Params<core::size>::
                            caller<get_param<core::size, XConfigureEvent>>,
                            0,
                            move_size_matcher<core::size,
                                              ConfigureNotify,
                                              XConfigureEvent>>                      size_event;
-    typedef event_handler<ConfigureNotify,
+    typedef event_handler<ConfigureNotify, StructureNotifyMask,
                            Params<core::rectangle>::
                            caller<get_param<core::rectangle, XConfigureEvent>>,
                            0,
@@ -704,7 +708,7 @@ namespace gui {
                                              ConfigureNotify,
                                              XConfigureEvent>>                      place_event;
 
-    typedef event_handler<ConfigureRequest,
+    typedef event_handler<ConfigureRequest, SubstructureRedirectMask,
                            Params<core::point>::
                            caller<get_param<core::point, XConfigureRequestEvent>>,
                            0,
@@ -712,14 +716,14 @@ namespace gui {
                                              ConfigureRequest,
                                              XConfigureRequestEvent>>               moving_event;
 
-    typedef event_handler<ConfigureRequest,
+    typedef event_handler<ConfigureRequest, SubstructureRedirectMask,
                            Params<core::size>::
                            caller<get_param<core::size, XConfigureRequestEvent>>,
                            0,
                            move_size_matcher<core::size,
                                              ConfigureRequest,
                                              XConfigureRequestEvent>>               sizing_event;
-    typedef event_handler<ConfigureRequest,
+    typedef event_handler<ConfigureRequest, SubstructureRedirectMask,
                            Params<core::rectangle>::
                            caller<get_param<core::rectangle, XConfigureRequestEvent>>,
                            0,
@@ -728,7 +732,7 @@ namespace gui {
                                              XConfigureRequestEvent>>               placing_event;
 
     // --------------------------------------------------------------------------
-    typedef event_handler<Expose,
+    typedef event_handler<Expose, ExposureMask,
                           Params<os::graphics>::
                           caller<get_param<0, os::graphics>>>                       os_paint_event;
 

@@ -39,8 +39,17 @@ namespace gui {
       class label_base : public gui::win::window_with_text {
       protected:
         static window_class create_label_class(gui::win::alignment_h);
-        void register_handler();
+        void register_handler(alignment_h a);
       };
+    }
+
+    namespace paint {
+
+      void label (const draw::graphics& graph,
+                  const win::window& win,
+                  const std::string& text,
+                  draw::text_origin origin);
+
     }
 
     template<alignment_h A>
@@ -49,7 +58,7 @@ namespace gui {
       typedef detail::label_base super;
 
       labelT () {
-        register_handler();
+        register_handler(A);
       }
 
       void create (const container& parent,

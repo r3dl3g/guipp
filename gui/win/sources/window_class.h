@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include "brush.h"
+#include "guidefs.h"
 
 
 namespace gui {
@@ -41,30 +41,25 @@ namespace gui {
     public:
       static window_class custom_class(const std::string& cls_name,
                                        os::style class_style = 0, // X11: Border width
-                                       os::style style = IF_WIN32(0) IF_X11(ButtonPressMask |
-                                                                            ButtonReleaseMask |
-                                                                            ExposureMask |
-                                                                            PointerMotionMask |
-                                                                            StructureNotifyMask |
-                                                                            SubstructureRedirectMask |
-                                                                            FocusChangeMask |
-                                                                            EnterWindowMask |
-                                                                            LeaveWindowMask),
+                                       os::style style = 0,
                                        os::style ex_style = 0,
                                        os::icon icon = 0,
                                        os::cursor_type cursor = 0,
-                                       const draw::brush& background = draw::brush(draw::color::windowColor()),
-                                       draw::color foreground = draw::color::black());
+                                       os::color background = os::white,
+                                       os::color foreground = os::black);
 
-      static window_class custom_class(const std::string& cls_name, const draw::brush& background, os::style class_style = 0);
+      static window_class custom_class(const std::string& cls_name,
+                                       os::color background,
+                                       os::style class_style = 0);
 
-      static window_class sub_class (window_class& cls, const std::string& base_cls);
+      static window_class sub_class (window_class& cls,
+                                     const std::string& base_cls);
 
       static window_class sub_class (const std::string& sub_cls,
                                      const std::string& cls,
                                      os::style style = 0,
                                      os::style ex_style = 0,
-                                     draw::color foreground = draw::color::black());
+                                     os::color foreground = os::black);
 
       window_class ();
       window_class (const window_class&);
@@ -75,8 +70,8 @@ namespace gui {
                     os::style ex_style = 0,
                     os::icon icon = 0,
                     os::cursor_type cursor = 0,
-                    const draw::brush& background = draw::brush(draw::color::windowColor()),
-                    draw::color foreground = draw::color::black(),
+                    os::color background = os::white,
+                    os::color foreground = os::black,
                     os::event_callback callback = nullptr);
 
       window_class (const std::string& cls_name,
@@ -85,8 +80,8 @@ namespace gui {
                     os::style ex_style = 0,
                     os::icon icon = 0,
                     os::cursor cursor = 0,
-                    const draw::brush& background = draw::brush(draw::color::windowColor()),
-                    draw::color foreground = draw::color::black(),
+                    os::color background = os::white,
+                    os::color foreground = os::black,
                     os::event_callback callback = nullptr);
 
       virtual void prepare (window*) const;
@@ -97,8 +92,8 @@ namespace gui {
       const os::style get_ex_style () const;
       const os::icon get_icon () const;
       const os::cursor get_cursor () const;
-      const draw::brush& get_background () const;
-      const draw::color get_foreground () const;
+      const os::color get_background () const;
+      const os::color get_foreground () const;
       const os::event_callback get_callback () const;
 
       bool is_valid () const;
@@ -115,7 +110,7 @@ namespace gui {
                     const std::string& sub_cls,
                     os::style style = 0,
                     os::style ex_style = 0,
-                    draw::color foreground = draw::color::black());
+                    os::color foreground = os::black);
 
       std::string class_name;
       std::string sub_class_name;
@@ -125,8 +120,8 @@ namespace gui {
       mutable os::icon icon;
       mutable os::cursor cursor;
       os::cursor_type cursor_type;
-      mutable draw::brush background;
-      draw::color foreground;
+      mutable os::color background;
+      os::color foreground;
       mutable os::event_callback callback;
       mutable bool is_initialized;
       bool is_sub_class;

@@ -4,7 +4,7 @@ project("win" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-add_subdirectory(./../draw draw)
+add_subdirectory(./../core core)
 
 set (win_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
@@ -22,6 +22,7 @@ link_directories(${win_Lib})
 
 add_library(win ${SOURCE_FILES})
 
-target_link_libraries(win core draw)
+target_link_libraries(win core)
 
 endif()
+

@@ -106,8 +106,9 @@ namespace gui {
       extern Atom SELECTION_CHANGE_MESSAGE;
     }
 
-    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
-                           client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
             selection_changed_event;
 #endif // X11
 

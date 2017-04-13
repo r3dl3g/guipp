@@ -56,8 +56,9 @@ namespace gui {
     class container;
 
     // --------------------------------------------------------------------------
-    class window : public core::event_container {
+    class window {
     public:
+      typedef std::function<core::event_handler_callback> event_handler_function;
 
       window ();
 
@@ -147,7 +148,31 @@ namespace gui {
       const window_class* get_window_class () const;
 
       void capture_pointer ();
+
       void uncapture_pointer ();
+
+      void register_event_handler(event_handler_function f, os::event_id mask) {
+        events.register_event_handler(f);
+        prepare_for_event(mask);
+      }
+
+      template<typename H>
+      void register_event_handler(H h) {
+        register_event_handler(h, h.mask);
+      }
+
+      void unregister_event_handler(event_handler_function f) {
+        events.unregister_event_handler(f);
+      }
+
+      template<typename T>
+      void register_event_handler(T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
+        register_event_handler(core::bind_method(t, method), mask);
+      };
+
+      inline bool handle_event (const core::event& e, os::event_result& result) {
+        return events.handle_event(e, result);
+      }
 
     protected:
       void create (const window_class& type,
@@ -160,34 +185,25 @@ namespace gui {
       os::style get_style (os::style mask =
                                      std::numeric_limits<os::style>::max()) const;
 #endif // WIN32
+
       void create (const window_class& type,
                    os::window parent_id,
                    const core::rectangle& place,
                    os::menu menu = 0);
 
     private:
-      friend void detail::set_id (window*,
-                                  os::window);
+      friend void detail::set_id (window*, os::window);
+
+      void prepare_for_event (os::event_id mask);
 
       os::window id;
       const window_class* cls;
+      core::event_container events;
 
 #ifdef X11
       bool redraw_disabled;
       bool window_disabled;
 #endif // X11
-    };
-
-    // --------------------------------------------------------------------------
-    template<window_class& clazz>
-    class windowT : public window {
-    public:
-
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        window::create(clazz, parent, place);
-      }
-
     };
 
     // --------------------------------------------------------------------------
@@ -249,10 +265,10 @@ namespace gui {
       layout_type layouter;
     };
 
-    window_class create_group_window_clazz (draw::color::value_type);
+    window_class create_group_window_clazz (os::color);
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, draw::color::value_type B = 0xFFFFFF>
+    template<typename L = layout::standard_layout, os::color B = os::white>
     class group_window : public layout_container<L> {
     public:
       typedef layout_container<L> super;
@@ -266,7 +282,7 @@ namespace gui {
       static window_class clazz;
     };
 
-    template<typename L, draw::color::value_type B>
+    template<typename L, os::color B>
     window_class group_window<L, B>::clazz(create_group_window_clazz(B));
 
     // --------------------------------------------------------------------------

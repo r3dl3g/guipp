@@ -83,8 +83,8 @@ namespace gui {
                                 os::style ex_style,
                                 os::icon icon,
                                 os::cursor cursor,
-                                const draw::brush& background,
-                                draw::color foreground,
+                                os::color background,
+                                os::color foreground,
                                 os::event_callback callback)
       : class_name(cls_name)
       , class_style(class_style)
@@ -106,8 +106,8 @@ namespace gui {
                                 os::style ex_style,
                                 os::icon icon,
                                 os::cursor_type cursor_t,
-                                const draw::brush& background,
-                                draw::color foreground,
+                                os::color background,
+                                os::color foreground,
                                 os::event_callback callback)
       : class_name(cls_name)
       , class_style(class_style)
@@ -127,7 +127,7 @@ namespace gui {
                                 const std::string& sub_cls,
                                 os::style style,
                                 os::style ex_style,
-                                draw::color foreground) 
+                                os::color foreground)
       : class_name(cls)
       , sub_class_name(sub_cls)
       , class_style(0)
@@ -140,9 +140,7 @@ namespace gui {
       , callback(nullptr)
       , is_initialized(false)
       , is_sub_class(true)
-    {
-    }
-
+    {}
 
     void window_class::prepare (window* win) const {
 #ifdef WIN32
@@ -151,14 +149,11 @@ namespace gui {
       }
 #endif // WIN32
 #ifdef X11
-      unsigned long mask = CWEventMask;
-      XSetWindowAttributes wa;
-      wa.event_mask = get_style();
       if (get_cursor()) {
-        mask |= CWCursor;
+        XSetWindowAttributes wa;
         wa.cursor = get_cursor();
+        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), CWCursor, &wa);
       }
-      XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
 #endif // X11
     }
 
@@ -192,12 +187,12 @@ namespace gui {
       return cursor;
     }
 
-    const draw::brush& window_class::get_background () const {
+    const os::color window_class::get_background () const {
       register_class();
       return background;
     }
 
-    const draw::color window_class::get_foreground () const {
+    const os::color window_class::get_foreground () const {
       register_class();
       return foreground;
     }
@@ -226,8 +221,21 @@ namespace gui {
         callback = wc.lpfnWndProc;
         icon = wc.hIcon;
         cursor = wc.hCursor;
-        background = wc.hbrBackground;
+
+        os::win32::brush_type info;
+        const int expected = sizeof(os::win32::brush_type);
+        int result = GetObject(wc.hbrBackground, expected, &info);
+        if (result == expected) {
+          background = info.lbColor;
+        } else { // seems to be a sys constant
+          background = (os::color)wc.hbrBackground;
+        }
+
       } else {
+
+        os::brush br = ((background > 0) && (background < 20)) ? (os::brush)background
+                                                               : CreateSolidBrush(background);
+
         WNDCLASS wc = {
           /* Register the window class. */
           class_style,
@@ -237,7 +245,7 @@ namespace gui {
           core::global::get_instance(),
           icon,
           cursor,
-          background,
+          br,
           nullptr,
           class_name.c_str()
         };
@@ -264,29 +272,18 @@ namespace gui {
                                              os::style ex_style,
                                              os::icon icon,
                                              os::cursor_type cursor,
-                                             const draw::brush& background,
-                                             draw::color foreground) {
+                                             os::color background,
+                                             os::color foreground) {
       return window_class(cls_name, class_style, style, ex_style, icon, cursor, background, foreground);
     }
 
     window_class window_class::custom_class (const std::string& cls_name,
-                                             const draw::brush& background,
+                                             os::color background,
                                              os::style class_style) {
       return custom_class(cls_name, class_style, // X11: Border width
-                          IF_WIN32(0) IF_X11(ButtonPressMask |
-                                             ButtonReleaseMask |
-                                             ExposureMask |
-                                             PointerMotionMask |
-                                             StructureNotifyMask |
-                                             SubstructureRedirectMask |
-                                             FocusChangeMask |
-                                             EnterWindowMask |
-                                             LeaveWindowMask),
-                          0,
-                          0,
-                          0,
+                          0, 0, 0, 0,
                           background,
-                          draw::color::black());
+                          os::black);
     }
 
     window_class window_class::sub_class (window_class& cls, const std::string& sub_cls) {
@@ -300,7 +297,7 @@ namespace gui {
                                           const std::string& cls,
                                           os::style style,
                                           os::style ex_style,
-                                          draw::color foreground) {
+                                          os::color foreground) {
       return window_class(cls, sub_cls, style, ex_style, foreground);
     }
 

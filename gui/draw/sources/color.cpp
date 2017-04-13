@@ -30,13 +30,13 @@
 
 #define DEFINE_SYS_COLOR(name, SYS_NAME) \
    color color::name () {\
-     static color c(GetSysColor(SYS_NAME));\
+     static color c(os::get_sys_color(os::SYS_NAME));\
      return c;\
    }
 
 #define DEFINE_RGB_COLOR(name, R, G, B) \
    color color::name () {\
-     static color c{ R, G, B };\
+     static color c( R, G, B );\
      return c;\
    }
 
@@ -81,68 +81,27 @@ namespace gui {
     DEFINE_RGB_COLOR(veryLightYellow, 255, 255, 192)
     DEFINE_RGB_COLOR(veryVeryLightGray, 240, 240, 240)
 
-#ifdef X11
-    enum SystemColor : os::color {
-        COLOR_SCROLLBAR,
-        COLOR_MENU,
-        COLOR_MENUTEXT,
-        COLOR_BACKGROUND,
-        COLOR_ACTIVECAPTION,
-        COLOR_INACTIVECAPTION,
-        COLOR_WINDOW,
-        COLOR_WINDOWFRAME,
-        COLOR_WINDOWTEXT,
-        COLOR_CAPTIONTEXT,
-        COLOR_INACTIVECAPTIONTEXT,
-        COLOR_ACTIVEBORDER,
-        COLOR_INACTIVEBORDER,
-        COLOR_APPWORKSPACE,
-        COLOR_HIGHLIGHT,
-        COLOR_HIGHLIGHTTEXT,
-        COLOR_GRAYTEXT,
-        COLOR_BTNFACE,
-        COLOR_BTNSHADOW,
-        COLOR_BTNTEXT,
-        COLOR_BTNHIGHLIGHT
-    };
-
-    os::color GetSysColor(SystemColor c) {
-      switch (c) {
-        case COLOR_APPWORKSPACE:  return color::mediumGray();
-        case COLOR_WINDOWTEXT:    return color::black();
-        case COLOR_HIGHLIGHT:     return color::darkBlue();
-        case COLOR_HIGHLIGHTTEXT: return color::white();
-        case COLOR_BTNFACE:       return color::veryVeryLightGray();
-        case COLOR_WINDOW:        return color::white();
-      }
-//        XColor exact_def_return, screen_def_return;
-//        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
-//        return screen_def_return.pixel;
-        return c;
-    }
-#endif
-
-   DEFINE_SYS_COLOR(scrollBarColor, COLOR_SCROLLBAR)
-   DEFINE_SYS_COLOR(menuColor, COLOR_MENU)
-   DEFINE_SYS_COLOR(menuTextColor, COLOR_MENUTEXT)
-   DEFINE_SYS_COLOR(backGroundColor, COLOR_BACKGROUND)
-   DEFINE_SYS_COLOR(activeCaptionColor, COLOR_ACTIVECAPTION)
-   DEFINE_SYS_COLOR(inActiveCaptionColor, COLOR_INACTIVECAPTION)
-   DEFINE_SYS_COLOR(windowColor, COLOR_WINDOW)
-   DEFINE_SYS_COLOR(windowFrameColor, COLOR_WINDOWFRAME)
-   DEFINE_SYS_COLOR(windowTextColor, COLOR_WINDOWTEXT)
-   DEFINE_SYS_COLOR(captionTextColor, COLOR_CAPTIONTEXT)
-   DEFINE_SYS_COLOR(inActiveCaptionTextColor, COLOR_INACTIVECAPTIONTEXT)
-   DEFINE_SYS_COLOR(activeBorderColor, COLOR_ACTIVEBORDER)
-   DEFINE_SYS_COLOR(inActiveBorderColor, COLOR_INACTIVEBORDER)
-   DEFINE_SYS_COLOR(workSpaceColor, COLOR_APPWORKSPACE)
-   DEFINE_SYS_COLOR(highLightColor, COLOR_HIGHLIGHT)
-   DEFINE_SYS_COLOR(highLightTextColor, COLOR_HIGHLIGHTTEXT)
-   DEFINE_SYS_COLOR(disabledTextColor, COLOR_GRAYTEXT)
-   DEFINE_SYS_COLOR(buttonColor, COLOR_BTNFACE)
-   DEFINE_SYS_COLOR(shadowColor, COLOR_BTNSHADOW)
-   DEFINE_SYS_COLOR(buttonTextColor, COLOR_BTNTEXT)
-   DEFINE_SYS_COLOR(buttonHighLightColor, COLOR_BTNHIGHLIGHT)
+    DEFINE_SYS_COLOR(scrollBarColor, COLOR_SCROLLBAR)
+    DEFINE_SYS_COLOR(menuColor, COLOR_MENU)
+    DEFINE_SYS_COLOR(menuTextColor, COLOR_MENUTEXT)
+    DEFINE_SYS_COLOR(backGroundColor, COLOR_BACKGROUND)
+    DEFINE_SYS_COLOR(activeCaptionColor, COLOR_ACTIVECAPTION)
+    DEFINE_SYS_COLOR(inActiveCaptionColor, COLOR_INACTIVECAPTION)
+    DEFINE_SYS_COLOR(windowColor, COLOR_WINDOW)
+    DEFINE_SYS_COLOR(windowFrameColor, COLOR_WINDOWFRAME)
+    DEFINE_SYS_COLOR(windowTextColor, COLOR_WINDOWTEXT)
+    DEFINE_SYS_COLOR(captionTextColor, COLOR_CAPTIONTEXT)
+    DEFINE_SYS_COLOR(inActiveCaptionTextColor, COLOR_INACTIVECAPTIONTEXT)
+    DEFINE_SYS_COLOR(activeBorderColor, COLOR_ACTIVEBORDER)
+    DEFINE_SYS_COLOR(inActiveBorderColor, COLOR_INACTIVEBORDER)
+    DEFINE_SYS_COLOR(workSpaceColor, COLOR_APPWORKSPACE)
+    DEFINE_SYS_COLOR(highLightColor, COLOR_HIGHLIGHT)
+    DEFINE_SYS_COLOR(highLightTextColor, COLOR_HIGHLIGHTTEXT)
+    DEFINE_SYS_COLOR(disabledTextColor, COLOR_GRAYTEXT)
+    DEFINE_SYS_COLOR(buttonColor, COLOR_BTNFACE)
+    DEFINE_SYS_COLOR(shadowColor, COLOR_BTNSHADOW)
+    DEFINE_SYS_COLOR(buttonTextColor, COLOR_BTNTEXT)
+    DEFINE_SYS_COLOR(buttonHighLightColor, COLOR_BTNHIGHLIGHT)
 
     std::ostream& operator<<(std::ostream& out, const color& c) {
       out << std::hex << c.r() << ", " << c.g() << ", " << c.b() << ", " << c.a();

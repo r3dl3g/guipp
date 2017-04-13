@@ -44,9 +44,10 @@
 
 namespace gui {
 
+  namespace os {
+
 #ifdef WIN32
 
-  namespace os {
     typedef HINSTANCE instance;
     typedef HWND window;
     typedef HANDLE drawable;
@@ -82,7 +83,6 @@ namespace gui {
       typedef LOGBRUSH brush_type;
       typedef LOGPEN pen_type;
     }
-  }
     
 #define IF_WIN32(...) __VA_ARGS__
 #define IF_X11(...)
@@ -104,7 +104,6 @@ namespace gui {
 
 #elif X11
 
-  namespace os {
     typedef Display* instance;
     typedef Window window;
     typedef Drawable drawable;
@@ -138,7 +137,6 @@ namespace gui {
     namespace x11 {
       typedef int screen;
     }
-  }
 
 #define IF_WIN32(...)
 #define IF_X11(...) __VA_ARGS__
@@ -151,6 +149,162 @@ namespace gui {
 #pragma error "Unknown target system"
 
 #endif
+
+    enum SystemColor {
+        COLOR_SCROLLBAR,
+        COLOR_BACKGROUND,
+        COLOR_MENU,
+        COLOR_MENUTEXT,
+        COLOR_ACTIVECAPTION,
+        COLOR_INACTIVECAPTION,
+        COLOR_WINDOW,
+        COLOR_WINDOWFRAME,
+        COLOR_WINDOWTEXT,
+        COLOR_CAPTIONTEXT,
+        COLOR_INACTIVECAPTIONTEXT,
+        COLOR_ACTIVEBORDER,
+        COLOR_INACTIVEBORDER,
+        COLOR_APPWORKSPACE,
+        COLOR_HIGHLIGHT,
+        COLOR_HIGHLIGHTTEXT,
+        COLOR_GRAYTEXT,
+        COLOR_BTNFACE,
+        COLOR_BTNSHADOW,
+        COLOR_BTNTEXT,
+        COLOR_BTNHIGHLIGHT
+    };
+
+    color get_sys_color(SystemColor);
+
+    typedef unsigned char color_part_type;
+
+    namespace detail {
+
+#ifdef WIN32
+      const int red_shift = 0;
+      const int green_shift  = 8;
+      const int blue_shift = 16;
+      const int alpha_shift = 24;
+#endif // WIN32
+#ifdef X11
+      const int red_shift = 16;
+      const int green_shift  = 8;
+      const int blue_shift = 0;
+      const int alpha_shift = 24;
+#endif // X11
+
+      template<color_part_type P, int S>
+      struct rgb_primary {
+        static const color value = (color)P << S;
+      };
+
+      template<color C, int S>
+      struct extract_rgb_primary {
+        static const color_part_type value = (color_part_type)((C & (detail::rgb_primary<0xff, S>::value)) >> S);
+      };
+
+      template<int S>
+      inline color shift_color_part (color_part_type p) {
+        return (color)p << S;
+      }
+
+      template<int S>
+      inline color_part_type split_color_part (color c) {
+        return (color_part_type)((c & (detail::rgb_primary<0xff, S>::value)) >> S);
+      }
+
+    }
+
+    template<color_part_type P>
+    using red_primary = detail::rgb_primary<P, detail::red_shift>;
+
+    template<color_part_type P>
+    using green_primary = detail::rgb_primary<P, detail::green_shift>;
+
+    template<color_part_type P>
+    using blue_primary = detail::rgb_primary<P, detail::blue_shift>;
+
+    template<color_part_type P>
+    using alpha_primary = detail::rgb_primary<P, detail::alpha_shift>;
+
+
+    template<color_part_type R, color_part_type G, color_part_type B>
+    struct rgb_color {
+      static const color value = red_primary<R>::value |
+                                 green_primary<G>::value |
+                                 blue_primary<B>::value;
+    };
+
+    template<color_part_type R, color_part_type G, color_part_type B, color_part_type A>
+    struct rgba_color {
+      static const color value = red_primary<R>::value |
+                                 green_primary<G>::value |
+                                 blue_primary<B>::value |
+                                 alpha_primary<A>::value;
+    };
+
+    const color black = rgb_color<0, 0, 0>::value;
+    const color white = rgb_color<0xff, 0xff, 0xff>::value;
+
+
+    template<color C>
+    using extract_red_primary = detail::extract_rgb_primary<C, detail::red_shift>;
+
+    template<color C>
+    using extract_green_primary = detail::extract_rgb_primary<C, detail::green_shift>;
+
+    template<color C>
+    using extract_blue_primary = detail::extract_rgb_primary<C, detail::blue_shift>;
+
+    template<color C>
+    using extract_alpha_primary = detail::extract_rgb_primary<C, detail::alpha_shift>;
+
+
+    inline color build_red_primary (color_part_type p) {
+      return detail::shift_color_part<detail::red_shift>(p);
+    }
+
+    inline color build_green_primary (color_part_type p) {
+      return detail::shift_color_part<detail::green_shift>(p);
+    }
+
+    inline color build_blue_primary (color_part_type p) {
+      return detail::shift_color_part<detail::blue_shift>(p);
+    }
+
+    inline color build_alpha_primary (color_part_type p) {
+      return detail::shift_color_part<detail::alpha_shift>(p);
+    }
+
+
+    inline color_part_type extract_red (color c) {
+      return detail::split_color_part<detail::red_shift>(c);
+    }
+
+    inline color_part_type extract_green (color c) {
+      return detail::split_color_part<detail::green_shift>(c);
+    }
+
+    inline color_part_type extract_blue (color c) {
+      return detail::split_color_part<detail::blue_shift>(c);
+    }
+
+    inline color_part_type extract_alpha (color c) {
+      return detail::split_color_part<detail::alpha_shift>(c);
+    }
+
+
+    inline color rgb (color_part_type r, color_part_type g, color_part_type b) {
+      return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b);
+    }
+
+    inline color rgba (color_part_type r, color_part_type g, color_part_type b, color_part_type a) {
+      return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b) | build_alpha_primary(a);
+    }
+
+
+  } // os
+
   namespace core {
 
     namespace global {

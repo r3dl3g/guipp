@@ -62,16 +62,19 @@ namespace gui {
     }
 
 // --------------------------------------------------------------------------
-    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
-                           client_message_matcher<detail::BN_CLICKED_MESSAGE>>
-                           button_clicked_event;
-    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
-                           client_message_matcher<detail::BN_PUSHED_MESSAGE>>
-                           button_pushed_event;
-    typedef event_handler<ClientMessage, Params<>::caller<>, 0,
-                           client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
-                           button_released_event;
-    typedef event_handler<ClientMessage,
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::BN_CLICKED_MESSAGE>>
+                          button_clicked_event;
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::BN_PUSHED_MESSAGE>>
+                          button_pushed_event;
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
+                          button_released_event;
+    typedef event_handler<ClientMessage, 0,
                            Params<bool>::caller<get_client_data<bool, 0>>, 0,
                            client_message_matcher<detail::BN_STATE_MESSAGE>>
                            button_state_event;

@@ -7,15 +7,14 @@ project("gui" CXX)
 add_subdirectory(core core)
 add_subdirectory(draw draw)
 add_subdirectory(win win)
+add_subdirectory(ctrl ctrl)
 
 set (gui_Include
-	${core_Include}
-	${draw_Include}
-	${win_Include}
-	"../boost"
+        ${ctrl_Include}
+        "../boost"
 	${CMAKE_CURRENT_BINARY_DIR}
 )
-set (gui_Include ${gui_Include} PARENT_SCOPE)
+set (ctrl_Include ${ctrl_Include} PARENT_SCOPE)
 
 if(NOT TARGET gui)
 

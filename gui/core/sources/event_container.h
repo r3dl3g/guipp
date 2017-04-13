@@ -43,7 +43,7 @@ namespace gui {
 
     class event_container {
     public:
-      typedef std::function<event_handler> event_handler_function;
+      typedef std::function<event_handler_callback> event_handler_function;
 
       inline event_container()
         : handle_event_stack_count(0)
@@ -52,8 +52,8 @@ namespace gui {
       void register_event_handler(event_handler_function);
 
       template<typename T>
-      void register_event_handler(T* t, bool(T::*f)(const core::event&, os::event_result& result)) {
-        register_event_handler(bind_method(t, f));
+      void register_event_handler(T* t, bool(T::*method)(const core::event&, os::event_result& result)) {
+        register_event_handler(bind_method(t, method));
       };
 
       void unregister_event_handler(event_handler_function);

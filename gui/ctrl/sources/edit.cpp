@@ -102,13 +102,8 @@ namespace gui {
         , last_mouse_point(core::point::undefined)
     {}
 
-      window_class edit_base::create_edit_class (gui::win::alignment_h a) {
+      window_class edit_base::create_edit_class (gui::win::alignment_h) {
         return gui::win::window_class::custom_class("EDIT",
-                                                    0,
-                                                    ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                                    PointerMotionMask | KeyPressMask | FocusChangeMask |
-                                                    StructureNotifyMask | SubstructureRedirectMask,
-                                                    a, 0, 0,
                                                     gui::draw::color::white());
       }
 
@@ -226,14 +221,19 @@ namespace gui {
           return max_chars;
       }
 
-      void edit_base::register_handler () {
-        register_event_handler(paint_event([&] (const gui::draw::graphics& graph) {
+      namespace paint {
+        void edit_box(const draw::graphics& graph,
+                      const win::window& win,
+                      const std::string& text,
+                      draw::text_origin origin,
+                      const detail::edit_base::range& selection,
+                      detail::edit_base::pos_t cursor_pos,
+                      detail::edit_base::pos_t scroll_pos) {
           using namespace gui::draw;
-          gui::core::rectangle area = client_area();
+          gui::core::rectangle area = win.client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           draw::clip clp(graph, area);
-          text_origin origin = (text_origin)get_window_class()->get_ex_style();
           int y1 = area.y() + 2;
           int y2 = area.y2() - 2;
           if (selection.first < selection.last) {
@@ -251,7 +251,7 @@ namespace gui {
                                        core::point(a2.x2(), y2)),
                        color::lightBlue());
           }
-          if (cursor_pos < std::numeric_limits<pos_t>::max()) {
+          if (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max()) {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
                        font::system(), color::black());
@@ -264,6 +264,12 @@ namespace gui {
           graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
           graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
 #endif // SHOW_TEXT_AREA
+        }
+      }
+
+      void edit_base::register_handler (alignment_h alignment) {
+        register_event_handler(paint_event([&, alignment] (const gui::draw::graphics& graph) {
+          paint::edit_box(graph, *this, text, (draw::text_origin)alignment, selection, cursor_pos, scroll_pos);
         }));
         register_event_handler(key_down_event([&] (unsigned int keystate,
                                                    KeySym keycode,

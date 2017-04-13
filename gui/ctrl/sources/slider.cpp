@@ -54,13 +54,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
             window_class::custom_class("VSLIDER",
-                                               0,
-                                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                               StructureNotifyMask,
-                                               0,
-                                               0,
-                                               XC_sb_h_double_arrow,
-                                               draw::color::buttonColor())
+                                       0, 0, 0, 0,
+                                       XC_sb_h_double_arrow,
+                                       draw::color::buttonColor())
 #endif // X11
         )
       {}
@@ -71,8 +67,7 @@ namespace gui {
 #ifdef WIN32
             win::window_class::custom_class("HSLIDER",
                                                     0,
-                                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                    WS_EX_NOPARENTNOTIFY,
+                                                    0,
                                                     nullptr,
                                                     IDC_SIZENS,
                                                     //CreateSolidBrush(0x00ff00));
@@ -80,13 +75,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
             window_class::custom_class("HSLIDER",
-                                               0,
-                                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                               StructureNotifyMask,
-                                               0,
-                                               0,
-                                               XC_sb_v_double_arrow,
-                                               draw::color::buttonColor())
+                                       0, 0, 0, 0,
+                                       XC_sb_v_double_arrow,
+                                       draw::color::buttonColor())
 #endif // X11
         )
       {}

@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "owner_draw.h"
+#include "window.h"
 #include "window_event_proc.h"
 
 namespace gui {

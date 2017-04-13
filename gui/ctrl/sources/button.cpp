@@ -33,11 +33,6 @@ namespace gui {
                                    WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
       window_class::custom_class("BUTTON",
-                                 0,
-                                 ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                 PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                 FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                 0, 0, 0,
                                  draw::color::buttonColor())
 #endif // !WIN32
     );
@@ -52,11 +47,6 @@ namespace gui {
                                    WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
       window_class::custom_class("RADIO_BUTTON",
-                                 0,
-                                 ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                 PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                 FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                 0, 0, 0,
                                  draw::color::buttonColor())
 #endif // !WIN32
     );
@@ -71,11 +61,6 @@ namespace gui {
                                      WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
         window_class::custom_class("CHECKBOX",
-                                   0,
-                                   ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                   PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                   FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                   0, 0, 0,
                                    draw::color::buttonColor())
 #endif // !WIN32
     );
@@ -333,7 +318,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     owner_draw_button::owner_draw_button () {
-      register_event_handler(this, &owner_draw_button::handle_event);
+      register_event_handler(this, &owner_draw_button::handle_event, ExposureMask);
       register_event_handler(size_event([&](const core::size& sz) {
         set_item_size(sz);
       }));
@@ -382,11 +367,6 @@ namespace gui {
                                    WS_EX_NOPARENTNOTIFY)
     #else // !WIN32
       window_class::custom_class("CUSTOM_BUTTON",
-                                 0,
-                                 ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                 PointerMotionMask | StructureNotifyMask | SubstructureRedirectMask |
-                                 FocusChangeMask | EnterWindowMask | LeaveWindowMask,
-                                 0, 0, 0,
                                  draw::color::buttonColor())
     #endif // !WIN32
     );

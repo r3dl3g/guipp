@@ -34,23 +34,18 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         return gui::win::window_class::custom_class("STATIC",
-                                                    0,
-                                                    ButtonPressMask | ButtonReleaseMask | ExposureMask |
-                                                    PointerMotionMask |
-                                                    StructureNotifyMask | SubstructureRedirectMask |
-                                                    FocusChangeMask |
-                                                    EnterWindowMask | LeaveWindowMask,
-                                                    a, 0, 0,
-                                                    draw::brush(draw::color::buttonColor()));
+                                                    os::get_sys_color(os::COLOR_BTNFACE));
 #endif // X11
       }
 
-      void label_base::register_handler () {
-#ifdef X11
-        register_event_handler(paint_event([&] (const draw::graphics& graph) {
+      namespace paint {
+
+        void label (const draw::graphics& graph,
+                    const win::window& win,
+                    const std::string& text,
+                    draw::text_origin origin) {
           using namespace gui::draw;
-          gui::core::rectangle area = client_area();
-          text_origin origin = (text_origin)get_window_class()->get_ex_style();
+          gui::core::rectangle area = win.client_area();
           graph.text(draw::text_box(text, area, origin),
                      font::system(),
                      color::black());
@@ -58,6 +53,14 @@ namespace gui {
           graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
           graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
 #endif // SHOW_TEXT_AREA
+        }
+
+      }
+
+      void label_base::register_handler (alignment_h a) {
+#ifdef X11
+        register_event_handler(paint_event([&, a] (const draw::graphics& graph) {
+          paint::label(graph, *this, text, (draw::text_origin)a);
         }));
 #endif // X11
       }

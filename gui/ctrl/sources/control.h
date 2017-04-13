@@ -68,7 +68,7 @@ namespace gui {
 
 #ifdef X11
 
-    typedef event_handler<Expose,
+    typedef event_handler<Expose, ExposureMask,
                           Params<draw::graphics>::
                           caller<get_param<0, draw::graphics>>>   paint_event;
 

@@ -33,7 +33,6 @@
 //
 #include "window.h"
 #include "window_event_proc.h"
-#include "color.h"
 #include "window_event_handler.h"
 #include "ostreamfmt.h"
 
@@ -274,6 +273,10 @@ namespace gui {
       redraw_now();
     }
 
+    void window::prepare_for_event (os::event_id id)
+    {}
+
+    // --------------------------------------------------------------------------
     bool container::is_parent_of(const window& child) const {
       return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
     }
@@ -291,6 +294,9 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
+
+    typedef std::map<window*, os::event_id> window_event_mask_map;
+    window_event_mask_map window_event_mask;
 
     window::window ()
       : id(0)
@@ -321,9 +327,19 @@ namespace gui {
                                place.os_height(),
                                type.get_class_style(),
                                type.get_foreground(),
-                               type.get_background().color());
+                               type.get_background());
       detail::set_window(id, this);
+
       type.prepare(this);
+
+      window_event_mask_map::iterator i = window_event_mask.find(this);
+      if (i != window_event_mask.end()) {
+        XSetWindowAttributes wa = { 0 };
+        wa.event_mask = i->second;
+        XChangeWindowAttributes(display, id, CWEventMask, &wa);
+        window_event_mask.erase(i);
+      }
+
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
     }
 
@@ -610,6 +626,21 @@ namespace gui {
       XUngrabPointer(core::global::get_instance(), CurrentTime);
     }
 
+    void window::prepare_for_event (os::event_id mask) {
+      if (get_id()) {
+        XWindowAttributes wa = { 0 };
+        XGetWindowAttributes(core::global::get_instance(), get_id(), &wa);
+
+        XSetWindowAttributes was = { 0 };
+        was.event_mask = wa.your_event_mask | mask;
+        XChangeWindowAttributes(core::global::get_instance(), get_id(), CWEventMask, &was);
+      } else {
+        os::event_id& old_mask = window_event_mask[this];
+        old_mask |= mask;
+      }
+    }
+
+    // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
       return child.get_parent() == this;
     }
@@ -638,6 +669,7 @@ namespace gui {
 
 #endif // X11
 
+    // --------------------------------------------------------------------------
 #ifdef WIN32
     void window_with_text::set_text(const std::string& s) {
       SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)s.c_str());
@@ -674,7 +706,7 @@ namespace gui {
                                       (HBRUSH)(COLOR_APPWORKSPACE + 1))
 #endif // WIN32
 #ifdef X11
-      win::window_class::custom_class("main_window", draw::brush(draw::color::workSpaceColor()))
+      win::window_class::custom_class("main_window", os::get_sys_color(os::COLOR_APPWORKSPACE))
 #endif
     );
 
@@ -690,7 +722,7 @@ namespace gui {
                                       (HBRUSH)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-      win::window_class::custom_class("client_window", draw::brush(draw::color::buttonColor()))
+      win::window_class::custom_class("client_window", os::get_sys_color(os::COLOR_BTNFACE))
 #endif
     );
 
@@ -909,9 +941,9 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    win::window_class create_group_window_clazz (draw::color::value_type v) {
+    win::window_class create_group_window_clazz (os::color v) {
       static int group_window_id = 0;
-      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++), draw::brush(v));
+      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++), v);
     }
 #endif //X11
 

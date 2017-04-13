@@ -34,6 +34,39 @@
 
 namespace gui {
 
+  namespace os {
+
+#ifdef WIN32
+
+    color get_sys_color(SystemColor c) {
+      return GetSysColor(c);
+    }
+
+#endif // WIN32
+
+#ifdef X11
+
+    color get_sys_color(SystemColor c) {
+      switch (c) {
+
+        case COLOR_APPWORKSPACE:  return rgb_color<160, 160, 160>::value;
+        case COLOR_WINDOWTEXT:    return black;
+        case COLOR_HIGHLIGHT:     return rgb_color<0, 0, 192>::value;
+        case COLOR_HIGHLIGHTTEXT: return white;
+        case COLOR_BTNFACE:       return rgb_color<240, 240, 240>::value;
+        case COLOR_WINDOW:        return white;
+
+//        XColor exact_def_return, screen_def_return;
+//        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
+//        return screen_def_return.pixel;
+      }
+      return black;
+    }
+
+#endif // X11
+
+  } // os
+
   namespace core {
 
     namespace global {
@@ -81,7 +114,6 @@ namespace gui {
 #endif // X11
         global_instance = 0;
       }
-
 
 #ifdef X11
 

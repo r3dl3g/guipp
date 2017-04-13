@@ -37,7 +37,7 @@ namespace gui {
 
     struct /*immutable*/ color {
 
-      typedef unsigned char byte;
+      typedef os::color_part_type part_type;
       typedef os::color value_type;
 
       static color black ();
@@ -99,36 +99,32 @@ namespace gui {
       static color buttonTextColor();
       static color buttonHighLightColor();
 
-      static value_type value_of (byte r, byte g, byte b) {
-        return r_::c(r) | g_::c(g) | b_::c(b);
-      }
-
       inline color(value_type value = 0)
         : value(value)
       {}
 
-      inline color(byte r, byte g, byte b)
-        : value(value_of(r, g, b))
+      inline color(part_type r, part_type g, part_type b)
+        : value(os::rgb(r, g, b))
       {}
 
-      inline color(byte r, byte g, byte b, byte alpha)
-        : value(r_::c(r) | g_::c(g) | b_::c(b) | a_::c(alpha))
+      inline color(part_type r, part_type g, part_type b, part_type alpha)
+        : value(os::rgba(r, g, b, alpha))
       {}
 
-      inline byte r() const {
-        return r_::v(value);
+      inline part_type r() const {
+        return os::extract_red(value);
       }
 
-      inline byte g() const {
-        return g_::v(value);
+      inline part_type g() const {
+        return os::extract_green(value);
       }
 
-      inline byte b() const {
-        return b_::v(value);
+      inline part_type b() const {
+        return os::extract_blue(value);
       }
 
-      inline byte a() const {
-        return a_::v(value);
+      inline part_type a() const {
+        return os::extract_alpha(value);
       }
 
       inline operator value_type () const {
@@ -136,34 +132,34 @@ namespace gui {
       }
 
       inline color medium_gray() const {
-        const byte v = (byte)(((int)r() + (int)g() + (int)b()) / 3);
+        const part_type v = (part_type)(((int)r() + (int)g() + (int)b()) / 3);
         return{ v, v, v, a() };
       }
 
       inline color transparency(double faktor) const {
-        return color(r(), g(), b(), (byte)(faktor * 255));
+        return color(r(), g(), b(), (part_type)(faktor * 255));
       }
 
       inline color darker(double faktor = 1.5) const {
-        return color((byte)((double)r() / faktor),
-                     (byte)((double)g() / faktor),
-                     (byte)((double)b() / faktor),
+        return color((part_type)((double)r() / faktor),
+                     (part_type)((double)g() / faktor),
+                     (part_type)((double)b() / faktor),
                      a());
       }
 
       inline color lighter(double faktor = 1.3333) const {
-        return color((byte)((double)r() * faktor),
-                     (byte)((double)g() * faktor),
-                     (byte)((double)b() * faktor),
+        return color((part_type)((double)r() * faktor),
+                     (part_type)((double)g() * faktor),
+                     (part_type)((double)b() * faktor),
                      a());
       }
 
       inline color merge(const color &rhs, double rfaktor = 0.5) const {
         double lfaktor = 1.0 - rfaktor;
-        return color((byte)((double)rhs.r() * rfaktor + (double)r() * lfaktor),
-                     (byte)((double)rhs.g() * rfaktor + (double)g() * lfaktor),
-                     (byte)((double)rhs.b() * rfaktor + (double)b() * lfaktor),
-                     (byte)((double)rhs.a() * rfaktor + (double)a() * lfaktor));
+        return color((part_type)((double)rhs.r() * rfaktor + (double)r() * lfaktor),
+                     (part_type)((double)rhs.g() * rfaktor + (double)g() * lfaktor),
+                     (part_type)((double)rhs.b() * rfaktor + (double)b() * lfaktor),
+                     (part_type)((double)rhs.a() * rfaktor + (double)a() * lfaktor));
       }
 
       inline color invert() const {
@@ -171,24 +167,6 @@ namespace gui {
       }
 
       const value_type value;
-
-    private:
-      template<int shift>
-      struct part {
-        static value_type c(byte a) {
-          return (value_type)a << shift;
-        }
-
-        static byte v(value_type a) {
-          return (byte)((a & (0x000000ff << shift)) >> shift);
-        }
-      };
-
-      typedef part<IF_WIN32(0) IF_X11(16)> r_;
-      typedef part<8> g_;
-      typedef part<IF_WIN32(16) IF_X11(0)> b_;
-      typedef part<24> a_;
-
     };
 
     std::ostream& operator<<(std::ostream& out, const color& c);

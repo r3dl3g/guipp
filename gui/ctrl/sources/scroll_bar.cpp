@@ -406,20 +406,12 @@ namespace gui {
       template<>
       scroll_bar_class<false>::scroll_bar_class ()
         : window_class(custom_class("VSCROLLBAR",
-                                    0,
-                                    ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                    FocusChangeMask | KeyPressMask,
-                                    0, 0, 0,
                                     draw::color::veryLightGray()))
       {}
 
       template<>
       scroll_bar_class<true>::scroll_bar_class ()
         : window_class(custom_class("HSCROLLBAR",
-                                    0,
-                                    ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                                    FocusChangeMask | KeyPressMask,
-                                    0, 0, 0,
                                     draw::color::veryLightGray()))
       {}
 
@@ -446,7 +438,9 @@ namespace gui {
       scroll_barT<false>::scroll_barT ()
         : last_position(0)
         , gc(0) {
-        register_event_handler(this, &scroll_barT<false>::scroll_handle_eventT);
+        register_event_handler(this, &scroll_barT<false>::scroll_handle_eventT,
+                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                               FocusChangeMask | KeyPressMask | StructureNotifyMask);
       }
 
       template<>
@@ -464,7 +458,9 @@ namespace gui {
       scroll_barT<true>::scroll_barT ()
         : last_position(0)
         , gc(0) {
-        register_event_handler(this, &scroll_barT<true>::scroll_handle_eventT);
+        register_event_handler(this, &scroll_barT<true>::scroll_handle_eventT,
+                               ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
+                               FocusChangeMask | KeyPressMask | StructureNotifyMask);
       }
 
       template<>

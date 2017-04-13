@@ -244,7 +244,7 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-    enum text_origin {
+    enum text_origin : unsigned short {
       top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
       top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
       top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
@@ -258,7 +258,7 @@ namespace gui {
       path_ellipsis = DT_PATH_ELLIPSIS,
       word_ellipsis = DT_WORD_ELLIPSIS,
       expand_tabs = DT_EXPANDTABS,
-      undefined = -1
+      undefined = 0xFFFF
     };
 
     // --------------------------------------------------------------------------

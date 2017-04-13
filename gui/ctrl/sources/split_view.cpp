@@ -111,7 +111,7 @@ namespace gui {
                                         (HBRUSH)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-        win::window_class::custom_class("vsplit_view", draw::brush(draw::color::buttonColor()))
+        win::window_class::custom_class("vsplit_view", os::get_sys_color(os::COLOR_BTNFACE))
 #endif // X11
       );
 
@@ -127,7 +127,7 @@ namespace gui {
                                                 (HBRUSH)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-        win::window_class::custom_class("hsplit_view", draw::brush(draw::color::buttonColor()))
+        win::window_class::custom_class("hsplit_view", os::get_sys_color(os::COLOR_BTNFACE))
 #endif // X11
       );
 

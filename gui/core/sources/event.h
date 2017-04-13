@@ -62,7 +62,7 @@ namespace gui {
       return e.type;
     }
 
-    typedef bool(event_handler)(const event&, os::event_result&);
+    typedef bool(event_handler_callback)(const event&, os::event_result&);
 
   } // core
 

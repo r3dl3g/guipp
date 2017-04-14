@@ -62,7 +62,7 @@ namespace gui {
       typedef window_places::iterator iterator;
       window_places places;
 
-      for(attachment a : attachments) {
+      for(detail::attachment a : attachments) {
         iterator i = places.find(a.target);
         iterator j = places.find(a.source);
 
@@ -88,45 +88,6 @@ namespace gui {
       for (auto i : places) {
         i.first->place(i.second.first);
       }
-    }
-
-    core::point::type attach::attachment::adjust (const core::size& sz,
-                                                  const core::rectangle& outer) const {
-      switch( where ) {
-        case Where::width:
-          return calc(sz.width());
-        case Where::x:
-          return calc(outer.x());
-        case Where::x2:
-          return calc(outer.x2());
-        case Where::height:
-          return calc(sz.height());
-        case Where::y:
-          return calc(outer.y());
-        case Where::y2:
-          return calc(outer.y2());
-      }
-      return 0;
-    }
-
-    void attach::attachment::adjust (core::rectangle& rect,
-                                     const core::size& sz,
-                                     const core::rectangle& outer) const {
-      switch (what) {
-        case What::left:
-          rect.x(adjust(sz, outer));
-          break;
-        case What::right:
-          rect.x2(adjust(sz, outer));
-          break;
-        case What::top:
-          rect.y(adjust(sz, outer));
-          break;
-        case What::bottom:
-          rect.y2(adjust(sz, outer));
-          break;
-      }
-
     }
 
   } // layout

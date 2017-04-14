@@ -67,7 +67,9 @@ namespace gui {
 
     void owner_draw::set_item_size (const gui::core::size& sz) {
       item_size = sz;
+#ifdef WIN32
       detail::set_item_size(owner_draw_id, sz);
+#endif // WIN32
     }
 
     const gui::core::size& owner_draw::get_item_size () const {

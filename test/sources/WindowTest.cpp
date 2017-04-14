@@ -869,20 +869,22 @@ void my_main_window::created_children () {
   group_group.layout();
 
   using namespace layout;
-  get_layout().abs(&btn_group, this, What::left, Where::width, -600);
-  get_layout().abs(&btn_group, this, What::right, Where::width, -10);
-  get_layout().abs(&btn_group, this, What::top, Where::height, -45);
-  get_layout().abs(&btn_group, this, What::bottom, Where::height, -10);
+  get_layout().abs<What::left, Where::width, -600>(&btn_group, this);
+  get_layout().abs<What::right, Where::width, -10>(&btn_group, this);
+  get_layout().abs<What::top, Where::height, -45>(&btn_group, this);
+  get_layout().abs<What::bottom, Where::height, -10>(&btn_group, this);
 
-  get_layout().abs(&hslider, this, What::right, Where::width, -5);
-  get_layout().abs(&vslider, &btn_group, What::bottom, Where::y, -5);
+  get_layout().rel<What::left, 2000>(&hslider, this);
+  get_layout().rel<What::right, 8000>(&hslider, this);
 
-  get_layout().abs(&column_list, &vslider, What::right, Where::x, -25);
-  get_layout().abs(&vscroll, &vslider, What::left, Where::x, -20);
-  get_layout().abs(&vscroll, &vslider, What::right, Where::x, -4);
+  get_layout().abs<What::bottom, Where::y, -5>(&vslider, &btn_group);
 
-  get_layout().abs(&group_group, &vslider, What::right, Where::x, -4);
-  get_layout().abs(&group_group, &hslider, What::top, Where::y2, 4);
+  get_layout().abs<What::right, Where::x, -25>(&column_list, &vslider);
+  get_layout().abs<What::left, Where::x, -20>(&vscroll, &vslider);
+  get_layout().abs<What::right, Where::x, -4>(&vscroll, &vslider);
+
+  get_layout().abs<What::right, Where::x, -4>(&group_group, &vslider);
+  get_layout().abs<What::top, Where::y2, 4>(&group_group, &hslider);
 
   layout();
 }

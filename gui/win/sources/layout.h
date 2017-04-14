@@ -292,14 +292,14 @@ namespace gui {
     };
 
 
-    enum class What : char {
+    enum class What {
       left,
       right,
       top,
       bottom
     };
 
-    enum class Where : char {
+    enum class Where {
       x,
       x2,
       y,
@@ -308,52 +308,142 @@ namespace gui {
       height
     };
 
+    namespace detail {
+
+      template<int O, int R>
+      core::point_type scale (core::point_type a) {
+        return core::point_type(a * core::point_type(R) / 10000.0 + O);
+      }
+
+      template<Where W, int O, int R>
+      struct source {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer);
+      };
+
+      template<int O, int R>
+      struct source<Where::x, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(outer.x());
+        }
+      };
+
+      template<int O, int R>
+      struct source<Where::x2, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(outer.x2());
+        }
+      };
+
+      template<int O, int R>
+      struct source<Where::y, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(outer.y());
+        }
+      };
+
+      template<int O, int R>
+      struct source<Where::y2, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(outer.y2());
+        }
+      };
+
+      template<int O, int R>
+      struct source<Where::width, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(sz.width());
+        }
+      };
+
+      template<int O, int R>
+      struct source<Where::height, O, R> {
+        static core::point_type calc (const core::size& sz,
+                                      const core::rectangle& outer) {
+          return scale<O, R>(sz.height());
+        }
+      };
+
+      template<What T, Where W, int O, int R>
+      struct target {
+        void operator() (core::rectangle&,
+                         const core::size&,
+                         const core::rectangle&);
+      };
+
+      template<Where W, int O, int R>
+      struct target<What::left, W, O, R> {
+        void operator() (core::rectangle& rect,
+                         const core::size& sz,
+                         const core::rectangle& outer) {
+          rect.x(source<W, O, R>::calc(sz, outer));
+        }
+      };
+
+      template<Where W, int O, int R>
+      struct target<What::right, W, O, R> {
+        void operator() (core::rectangle& rect,
+                         const core::size& sz,
+                         const core::rectangle& outer) {
+          rect.x2(source<W, O, R>::calc(sz, outer));
+        }
+      };
+
+      template<Where W, int O, int R>
+      struct target<What::top, W, O, R> {
+        void operator() (core::rectangle& rect,
+                         const core::size& sz,
+                         const core::rectangle& outer) {
+          rect.y(source<W, O, R>::calc(sz, outer));
+        }
+      };
+
+      template<Where W, int O, int R>
+      struct target<What::bottom, W, O, R> {
+        void operator() (core::rectangle& rect,
+                         const core::size& sz,
+                         const core::rectangle& outer) {
+          rect.y2(source<W, O, R>::calc(sz, outer));
+        }
+      };
+
+      struct attachment {
+        typedef void(adjust_function) (core::rectangle&,
+                                     const core::size&,
+                                     const core::rectangle&);
+
+        win::window* target;
+        win::window* source;
+        std::function<adjust_function> adjust;
+      };
+
+    }
+
     class attach {
     public:
       attach (win::container*);
 
-      void abs (win::window* target, win::window* source, What what, Where where, short offset) {
-        attachments.push_back({target, source, what, where, offset, double_to_short(1.0)});
+      template<What what, Where where, int offset>
+      void abs (win::window* target, win::window* source) {
+        attachments.push_back({target, source, detail::target<what, where, offset, 10000>()});
       }
 
-      void rel (win::window* target, win::window* source, What what, double relative, short offset = 0) {
-        attachments.push_back({target, source, what,
-                               (what == What::left) || (what == What::right) ? Where::width : Where::height,
-                               offset, double_to_short(relative)});
+      template<What what, int relativ, int offset = 0>
+      void rel (win::window* target, win::window* source) {
+        const Where where = (what == What::left) || (what == What::right) ? Where::width : Where::height;
+        attachments.push_back({target, source, detail::target<what, where, offset, relativ>()});
       }
 
       void layout (const core::size& sz);
 
     private:
-      static inline double short_to_double(short offset) {
-        return (double)offset / 10000.0;
-      }
-
-      static inline short double_to_short(double rel) {
-        return short(rel * 10000.0);
-      }
-
-      struct attachment {
-        win::window* target;
-        win::window* source;
-        What what;
-        Where where;
-        short offset;
-        short relative;
-
-        void adjust (core::rectangle& rect,
-                     const core::size& sz,
-                     const core::rectangle& outer) const;
-
-        core::point::type adjust (const core::size& sz,
-                                  const core::rectangle& outer) const;
-
-        inline core::point::type calc (core::point::type a) const {
-          return core::point::type ((double)a * short_to_double(relative)) + offset;
-        }
-      };
-
-      std::vector<attachment> attachments;
+      std::vector<detail::attachment> attachments;
     };
+
   }
 }

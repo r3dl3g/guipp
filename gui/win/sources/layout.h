@@ -52,19 +52,23 @@ namespace gui {
 
     class layout_base {
     public:
-      typedef void (callback)(const core::size& sz);
-      typedef std::function<callback> callback_function;
-
+      typedef void (size_callback)(const core::size& sz);
+      typedef void (show_callback)();
 
       layout_base (win::container* m)
         : main(m)
       {}
 
-      void init(callback_function f);
+      void init(std::function<size_callback> f1);
+      void init(std::function<size_callback> f1, std::function<show_callback> f2);
 
       static std::vector<win::window*> get_children (win::container*);
       static void place_child (win::window*, const core::rectangle&);
+      static bool is_child_visible (win::window*);
       static void hide_children (std::vector<win::window*>&);
+
+      void update ();
+      core::size get_main_size () const;
 
     protected:
       win::container* main;
@@ -79,7 +83,9 @@ namespace gui {
       horizontal_lineup (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &horizontal_lineup::layout));
+        super::init(core::bind_method(this, &horizontal_lineup::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -100,6 +106,7 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
@@ -112,7 +119,9 @@ namespace gui {
       vertical_lineup (win::container* m)
         :super(m)
       {
-        super::init(core::bind_method(this, &vertical_lineup::layout));
+        super::init(core::bind_method(this, &vertical_lineup::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -134,6 +143,7 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
@@ -146,7 +156,9 @@ namespace gui {
       grid_lineup (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &grid_lineup::layout));
+        super::init(core::bind_method(this, &grid_lineup::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -171,6 +183,7 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
@@ -183,7 +196,9 @@ namespace gui {
       horizontal_adaption (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &horizontal_adaption::layout));
+        super::init(core::bind_method(this, &horizontal_adaption::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -207,6 +222,7 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
@@ -219,7 +235,9 @@ namespace gui {
       vertical_adaption (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &vertical_adaption::layout));
+        super::init(core::bind_method(this, &vertical_adaption::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -243,6 +261,7 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
@@ -255,7 +274,9 @@ namespace gui {
       grid_adaption (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &grid_adaption::layout));
+        super::init(core::bind_method(this, &grid_adaption::layout), [&](){
+          layout(get_main_size());
+        });
       }
 
       void layout (const core::size& sz) {
@@ -288,9 +309,87 @@ namespace gui {
             hide_children(children);
           }
         }
+        update();
       }
     };
 
+
+    template<int top_height, int bottom_height, int left_width, int right_width>
+    class border_layout : protected layout_base {
+    public:
+      typedef layout_base super;
+
+      border_layout (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &border_layout::layout), [&](){
+          layout(get_main_size());
+        });
+      }
+
+      void set_center (win::window* center) {
+        this->center = center;
+      }
+
+      void set_top (win::window* top) {
+        this->top = top;
+      }
+
+      void set_bottom (win::window* bottom) {
+        this->bottom = bottom;
+      }
+
+      void set_left (win::window* left) {
+        this->left = left;
+      }
+
+      void set_right (win::window* right) {
+        this->right = right;
+      }
+
+      void set_center_top_bottom_left_right (win::window* center,
+                                             win::window* top,
+                                             win::window* bottom,
+                                             win::window* left,
+                                             win::window* right) {
+        this->center = center;
+        this->top = top;
+        this->bottom = bottom;
+        this->left = left;
+        this->right = right;
+      }
+
+      void layout (const core::size& sz) {
+        core::rectangle r(core::point::zero, sz);
+        if (top && is_child_visible(top)) {
+          place_child(top, core::rectangle(0, 0, sz.width(), top_height));
+          r.y(top_height);
+        }
+        if (bottom && is_child_visible(bottom)) {
+          place_child(bottom, core::rectangle(0, sz.height() - bottom_height, sz.width(), bottom_height));
+          r.y2(r.y2() - bottom_height);
+        }
+        if (left && is_child_visible(left)) {
+          place_child(left, core::rectangle(r.top_left(), core::point(left_width, r.y2())));
+          r.x(left_width);
+        }
+        if (right && is_child_visible(right)) {
+          place_child(right, core::rectangle(core::point(r.x2() - right_width, r.y()), r.bottom_right()));
+          r.x2(r.x2() - right_width);
+        }
+        if (center && is_child_visible(center)) {
+          place_child(center, r);
+        }
+        update();
+      }
+
+    private:
+      win::window* center;
+      win::window* top;
+      win::window* bottom;
+      win::window* left;
+      win::window* right;
+    };
 
     enum class What {
       left,
@@ -311,11 +410,27 @@ namespace gui {
     namespace detail {
 
       template<int O, int R>
-      core::point_type scale (core::point_type a) {
-        return core::point_type(a * core::point_type(R) / 10000.0 + O);
-      }
+      struct scale {
+        static core::point_type calc (core::point_type a) {
+          return core::point_type(a * core::point_type(R) / 10000.0 + O);
+        }
+      };
 
-      template<Where W, int O, int R>
+      template<int O>
+      struct scale<O, 10000> {
+        static core::point_type calc (core::point_type a) {
+          return core::point_type(a + O);
+        }
+      };
+
+      template<int O>
+      struct scale<O, 0> {
+        constexpr static core::point_type calc (core::point_type a) {
+          return core::point_type(O);
+        }
+      };
+
+      template<Where W, int O, int R = 10000>
       struct source {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer);
@@ -325,7 +440,7 @@ namespace gui {
       struct source<Where::x, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(outer.x());
+          return scale<O, R>::calc(outer.x());
         }
       };
 
@@ -333,7 +448,7 @@ namespace gui {
       struct source<Where::x2, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(outer.x2());
+          return scale<O, R>::calc(outer.x2());
         }
       };
 
@@ -341,7 +456,7 @@ namespace gui {
       struct source<Where::y, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(outer.y());
+          return scale<O, R>::calc(outer.y());
         }
       };
 
@@ -349,7 +464,7 @@ namespace gui {
       struct source<Where::y2, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(outer.y2());
+          return scale<O, R>::calc(outer.y2());
         }
       };
 
@@ -357,7 +472,7 @@ namespace gui {
       struct source<Where::width, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(sz.width());
+          return scale<O, R>::calc(sz.width());
         }
       };
 
@@ -365,11 +480,11 @@ namespace gui {
       struct source<Where::height, O, R> {
         static core::point_type calc (const core::size& sz,
                                       const core::rectangle& outer) {
-          return scale<O, R>(sz.height());
+          return scale<O, R>::calc(sz.height());
         }
       };
 
-      template<What T, Where W, int O, int R>
+      template<What T, Where W, int O, int R = 10000>
       struct target {
         void operator() (core::rectangle&,
                          const core::size&,
@@ -424,17 +539,21 @@ namespace gui {
 
     }
 
+    constexpr int make_relative (double r) {
+      return static_cast<int>(r * 10000.0);
+    }
+
     class attach {
     public:
       attach (win::container*);
 
-      template<What what, Where where, int offset>
-      void abs (win::window* target, win::window* source) {
+      template<What what, Where where, int offset = 0>
+      void attach_fix (win::window* target, win::window* source) {
         attachments.push_back({target, source, detail::target<what, where, offset, 10000>()});
       }
 
       template<What what, int relativ, int offset = 0>
-      void rel (win::window* target, win::window* source) {
+      void attach_relative (win::window* target, win::window* source) {
         const Where where = (what == What::left) || (what == What::right) ? Where::width : Where::height;
         attachments.push_back({target, source, detail::target<what, where, offset, relativ>()});
       }

@@ -35,15 +35,6 @@ namespace gui {
 
   namespace win {
 
-    namespace paint {
-      void text_item (const std::string& text,
-                      draw::graphics&,
-                      const core::rectangle& place,
-                      const draw::brush& background,
-                      bool selected,
-                      draw::text_origin origin = draw::vcenter_left);
-    }
-
     // --------------------------------------------------------------------------
     class owner_draw : public window {
     public:

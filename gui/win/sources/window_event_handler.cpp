@@ -181,51 +181,46 @@ namespace gui {
 
       XClientMessageEvent client;
 
+      client.type         = ClientMessage;
+      client.serial       = 0;
       client.display      = display;
       client.window       = win->get_id();
-      client.type         = ClientMessage;
-      client.format       = 32;
       client.message_type = message;
-      client.data.l[0] = l1;
-      client.data.l[1] = l2;
-      client.data.l[2] = l3;
-      client.data.l[3] = l4;
-      client.data.l[4] = l5;
+      client.format       = 32;
+      client.data.l[0]    = l1;
+      client.data.l[1]    = l2;
+      client.data.l[2]    = l3;
+      client.data.l[3]    = l4;
+      client.data.l[4]    = l5;
 
       /* Send the data off to the other process */
-      XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
-      XFlush(display);
+      Status s = XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
+
+//      int r = XFlush(display);
     }
 
-    void send_client_message (window* win, Atom message, window* w, const core::rectangle& r) {
-      os::instance display = core::global::get_instance();
-
-      XClientMessageEvent client;
-
-      client.display = display;
-      client.window = win->get_id();
-      client.type = ClientMessage;
-      client.format = 16;
-      client.message_type = message;
-
-      window* wt = reinterpret_cast<window*>(client.data.s);
-      wt = w;
-      core::rectangle* rt = reinterpret_cast<core::rectangle*>(&client.data.s[4]);
-      *rt = r;
-
-      /* Send the data off to the other process */
-      XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
-      XFlush(display);
+    void send_client_message (window* win, Atom message, window* w, const core::rectangle& rect) {
+      XRectangle r = rect;
+      long l1 = (long)r.x << 16 | (long)r.y;
+      long l2 = (long)r.width << 16 | (long)r.height;
+      send_client_message(win, message, w->get_id(), l1, l2);
     }
 
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect(const core::event& e) {
-      return *reinterpret_cast<const core::rectangle*>(&e.xclient.data.s[4]);
+      long p = e.xclient.data.l[1], s = e.xclient.data.l[2];
+      short x = p >> 16;
+      short y = p & 0xffff;
+      unsigned short w = s >> 16;
+      unsigned short h = s & 0xffff;
+      os::rectangle r = { x, y, w, h };
+      return core::rectangle(r);
     }
 
     // --------------------------------------------------------------------------
     window* get_client_data_window(const core::event& e) {
-      return const_cast<window*>(reinterpret_cast<const window*>(&e.xclient.data.s[0]));
+      os::window id = e.xclient.data.l[0];
+      return detail::get_window(id);
     }
 
 #endif // X11

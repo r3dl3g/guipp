@@ -379,7 +379,7 @@ namespace gui {
       InvertRect(gc, &rect);
     }
 
-    void graphics::flush() {
+    void graphics::flush() const {
       GdiFlush();
     }
 
@@ -966,7 +966,7 @@ namespace gui {
     void graphics::invert (const core::rectangle& r) const {
     }
 
-    void graphics::flush () {
+    void graphics::flush () const {
 //      XFlushGC(core::global::get_instance(), gc);
     }
 

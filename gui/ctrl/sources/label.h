@@ -38,9 +38,12 @@ namespace gui {
     namespace detail {
       class label_base : public gui::win::window_with_text {
       protected:
-        static window_class create_label_class(gui::win::alignment_h);
-        void register_handler(alignment_h a);
+        label_base ();
+
+      private:
+        static window_class clazz;
       };
+
     }
 
     namespace paint {
@@ -52,13 +55,18 @@ namespace gui {
 
     }
 
-    template<alignment_h A>
+    template<alignment_h A,
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     class labelT : public detail::label_base {
     public:
       typedef detail::label_base super;
 
       labelT () {
-        register_handler(A);
+        register_event_handler(paint_event([&] (const draw::graphics& graph) {
+          gui::core::rectangle place = client_area();
+          paint::label(graph, *this, text, (draw::text_origin)A);
+          F(graph, place);
+        }));
       }
 
       void create (const container& parent,
@@ -67,12 +75,7 @@ namespace gui {
         super::create(clazz, parent, place);
         set_text(txt);
       }
-
-    private:
-      static window_class clazz;
     };
-
-    template<alignment_h A> window_class labelT<A>::clazz(labelT<A>::create_label_class(A));
 
     // --------------------------------------------------------------------------
     typedef labelT<alignment_left> label_left;

@@ -294,6 +294,41 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
+#define XLIB_ERROR_CODE(a) case a: LogFatal << #a; break;
+
+    bool check_xlib_return (int r) {
+      switch (r) {
+        case Success:
+        case True:
+          return true;
+        XLIB_ERROR_CODE(BadValue)
+        XLIB_ERROR_CODE(BadWindow)
+        XLIB_ERROR_CODE(BadPixmap)
+        XLIB_ERROR_CODE(BadAtom)
+        XLIB_ERROR_CODE(BadCursor)
+        XLIB_ERROR_CODE(BadFont)
+        XLIB_ERROR_CODE(BadMatch)
+        XLIB_ERROR_CODE(BadDrawable)
+        XLIB_ERROR_CODE(BadAccess)
+        XLIB_ERROR_CODE(BadAlloc)
+        XLIB_ERROR_CODE(BadColor)
+        XLIB_ERROR_CODE(BadGC)
+        XLIB_ERROR_CODE(BadIDChoice)
+        XLIB_ERROR_CODE(BadName)
+        XLIB_ERROR_CODE(BadLength)
+        XLIB_ERROR_CODE(BadImplementation)
+      }
+      return false;
+//      return true;
+    }
+
+    bool check_xlib_status (Status s) {
+      if (s) {
+        return true;
+      }
+//      LogFatal << "xlib Status failed";
+      return false;
+    }
 
     typedef std::map<window*, os::event_id> window_event_mask_map;
     window_event_mask_map window_event_mask;
@@ -334,10 +369,7 @@ namespace gui {
 
       window_event_mask_map::iterator i = window_event_mask.find(this);
       if (i != window_event_mask.end()) {
-        XSetWindowAttributes wa = { 0 };
-        wa.event_mask = i->second;
-        XChangeWindowAttributes(display, id, CWEventMask, &wa);
-        window_event_mask.erase(i);
+        check_xlib_return(XSelectInput(display, id, i->second));
       }
 
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
@@ -359,9 +391,13 @@ namespace gui {
     }
 
     bool window::is_visible () const {
-      XWindowAttributes a;
-      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
-              (a.map_state == IsViewable));
+      if (is_valid()) {
+        XWindowAttributes a = { 0 };
+        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
+        return (check_xlib_status(result) &&
+                (a.map_state == IsViewable));
+      }
+      return false;
     }
 
     bool window::is_enabled () const {
@@ -372,8 +408,9 @@ namespace gui {
       Window focus;
       int revert_to;
       if (is_valid()) {
-        int result = XGetInputFocus(core::global::get_instance(), &focus, &revert_to);
-        return focus == get_id();
+        if (check_xlib_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
+          return focus == get_id();
+        }
       }
       return false;
     }
@@ -384,12 +421,12 @@ namespace gui {
       Window *children;
       unsigned int nchildren;
 
-      XQueryTree(core::global::get_instance(),
+      check_xlib_status(XQueryTree(core::global::get_instance(),
                  get_id(),
                  &root,
                  &parent,
                  &children,
-                 &nchildren);
+                 &nchildren));
       return parent != root;
     }
 
@@ -399,12 +436,12 @@ namespace gui {
       Window *children;
       unsigned int nchildren;
 
-      XQueryTree(core::global::get_instance(),
+      check_xlib_status(XQueryTree(core::global::get_instance(),
                  get_id(),
                  &root,
                  &parent,
                  &children,
-                 &nchildren);
+                 &nchildren));
       return parent == root;
     }
 
@@ -414,13 +451,13 @@ namespace gui {
 
     bool window::has_border () const {
       XWindowAttributes a;
-      return (XGetWindowAttributes(core::global::get_instance(), get_id(), &a) &&
+      return (check_xlib_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
               (a.border_width > 0));
     }
 
     void window::destroy () {
       if (get_id()) {
-        XDestroyWindow(core::global::get_instance(), get_id());
+        check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
         id = 0;
       }
@@ -431,7 +468,8 @@ namespace gui {
 
     void window::set_parent (const container& parent) {
       core::point pt = position();
-      XReparentWindow(core::global::get_instance(), get_id(), parent.get_id(), pt.x(), pt.y());
+      check_xlib_return(XReparentWindow(core::global::get_instance(), get_id(),
+                                        parent.get_id(), pt.x(), pt.y()));
     }
 
     container* window::get_parent () const {
@@ -440,12 +478,12 @@ namespace gui {
       Window *children_return;
       unsigned int nchildren_return;
 
-      XQueryTree(core::global::get_instance(),
-                 get_id(),
-                 &root_return,
-                 &parent_return,
-                 &children_return,
-                 &nchildren_return);
+      check_xlib_return(XQueryTree(core::global::get_instance(),
+                                   get_id(),
+                                   &root_return,
+                                   &parent_return,
+                                   &children_return,
+                                   &nchildren_return));
       return (container*)detail::get_window(parent_return);
     }
 
@@ -455,9 +493,9 @@ namespace gui {
 
     void window::set_visible (bool s) {
       if (s) {
-        XMapWindow(core::global::get_instance(), get_id());
+        check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
       } else {
-        XUnmapWindow(core::global::get_instance(), get_id());
+        check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));
       }
     }
 
@@ -470,22 +508,23 @@ namespace gui {
           XSetWindowAttributes wa;
           wa.cursor = on ? get_window_class()->get_cursor()
                          : XCreateFontCursor(core::global::get_instance(), XC_arrow);
-          XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa);
+          check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
         }
         redraw_later();
       }
     }
 
     void window::take_focus () {
-      XSetInputFocus(core::global::get_instance(), get_id(), RevertToParent, CurrentTime);
+      check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
+                                       RevertToParent, CurrentTime));
     }
 
     void window::to_front () {
-      XRaiseWindow(core::global::get_instance(), get_id());
+      check_xlib_return(XRaiseWindow(core::global::get_instance(), get_id()));
     }
 
     void window::to_back () {
-      XLowerWindow(core::global::get_instance(), get_id());
+      check_xlib_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
     void window::enable_redraw (bool on) {
@@ -493,12 +532,14 @@ namespace gui {
     }
 
     void window::redraw_now () {
-      XClearArea(core::global::get_instance(), get_id(), 0, 0, 0, 0, true);
+      check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                   0, 0, 0, 0, true));
       XFlush(core::global::get_instance());
     }
 
     void window::redraw_later () {
-      XClearArea(core::global::get_instance(), get_id(), 0, 0, 0, 0, true);
+      check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                   0, 0, 0, 0, true));
     }
 
     core::size window::size () const {
@@ -507,8 +548,8 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (XGetGeometry(core::global::get_instance(), get_id(),
-                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+      if (check_xlib_status(XGetGeometry(core::global::get_instance(), get_id(),
+                            &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::size::type(width), core::size::type(height)};
       }
       return core::size::zero;
@@ -520,8 +561,8 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (XGetGeometry(core::global::get_instance(), get_id(),
-                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+      if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
+                            &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::point::type(x), core::point::type(y)};
       }
       return core::point::undefined;
@@ -533,8 +574,8 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (XGetGeometry(core::global::get_instance(), get_id(),
-                       &root, &x, &y, &width, &height, &border_width, &depth)) {
+      if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
+                            &root, &x, &y, &width, &height, &border_width, &depth))) {
         return core::rectangle(core::point::type(x), core::point::type(y),
                                core::size::type(width), core::size::type(height));
       }
@@ -558,54 +599,67 @@ namespace gui {
     }
 
     void window::move (const core::point& pt, bool repaint) {
-      XMoveWindow(core::global::get_instance(), get_id(), pt.os_x(), pt.os_y());
+      check_xlib_return(XMoveWindow(core::global::get_instance(), get_id(),
+                                    pt.os_x(), pt.os_y()));
       if (repaint) {
         redraw_later();
       }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      XResizeWindow(core::global::get_instance(), get_id(), sz.os_width(), sz.os_height());
-      if (repaint) {
-        redraw_later();
+      if (sz.empty()) {
+        set_visible(false);
+      } else {
+        set_visible();
+        check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
+                                      sz.os_width(), sz.os_height()));
+        if (repaint) {
+          redraw_later();
+        }
       }
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
-      XMoveResizeWindow(core::global::get_instance(), get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height());
-      if (repaint) {
-        redraw_later();
+      if (r.empty()) {
+        set_visible(false);
+      } else {
+        set_visible();
+        check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
+                                          r.os_x(), r.os_y(), r.os_width(), r.os_height()));
+        if (repaint) {
+          redraw_later();
+        }
       }
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
-      int x, y;
-      Window child_return;
-      XTranslateCoordinates(core::global::get_instance(),
-                            get_id(),
-                            RootWindow(core::global::get_instance(),
-                                       DefaultScreen(core::global::get_instance())),
-                            pt.os_x(),
-                            pt.os_y(),
-                            &x,
-                            &y,
-                            &child_return);
-      return {core::point::type(x), core::point::type(y)};
+        int x, y;
+        Window child_return;
+        check_xlib_return(XTranslateCoordinates(core::global::get_instance(),
+                                                get_id(),
+                                                RootWindow(core::global::get_instance(),
+                                                           DefaultScreen(core::global::get_instance())),
+                                                pt.os_x(),
+                                                pt.os_y(),
+                                                &x,
+                                                &y,
+                                                &child_return));
+        return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::screen_to_window (const core::point& pt) const {
-      int x, y;
-      Window child_return;
-      XTranslateCoordinates(core::global::get_instance(),
-                            RootWindow(core::global::get_instance(),
-                                       DefaultScreen(core::global::get_instance())),
-                            get_id(),
-                            pt.os_x(),
-                            pt.os_y(),
-                            &x,
-                            &y,
-                            &child_return);
-      return {core::point::type(x), core::point::type(y)};
+        int x, y;
+        Window child_return;
+        check_xlib_return(XTranslateCoordinates(core::global::get_instance(),
+                                                RootWindow(core::global::get_instance(),
+                                                           DefaultScreen(core::global::get_instance())),
+                                                get_id(),
+                                                pt.os_x(),
+                                                pt.os_y(),
+                                                &x,
+                                                &y,
+                                                &child_return));
+        return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
@@ -617,23 +671,26 @@ namespace gui {
     }
 
     void window::capture_pointer() {
-      XGrabPointer(core::global::get_instance(), get_id(), False,
-        ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-        GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+      check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
+                                     False,
+                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                     GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
     }
 
     void window::uncapture_pointer() {
-      XUngrabPointer(core::global::get_instance(), CurrentTime);
+      check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
     }
 
     void window::prepare_for_event (os::event_id mask) {
       if (get_id()) {
-        XWindowAttributes wa = { 0 };
-        XGetWindowAttributes(core::global::get_instance(), get_id(), &wa);
-
-        XSetWindowAttributes was = { 0 };
-        was.event_mask = wa.your_event_mask | mask;
-        XChangeWindowAttributes(core::global::get_instance(), get_id(), CWEventMask, &was);
+        window_event_mask_map::iterator i = window_event_mask.find(this);
+        if (i != window_event_mask.end()) {
+          i->second |= mask;
+          check_xlib_return(XSelectInput(core::global::get_instance(), id, i->second));
+        } else {
+          window_event_mask[this] = mask;
+          check_xlib_return(XSelectInput(core::global::get_instance(), id, mask));
+        }
       } else {
         os::event_id& old_mask = window_event_mask[this];
         old_mask |= mask;
@@ -645,22 +702,32 @@ namespace gui {
       return child.get_parent() == this;
     }
 
+    void container::set_children_visible (bool show) {
+      if (show) {
+        check_xlib_return(XMapSubwindows(core::global::get_instance(), get_id()));
+      } else {
+        check_xlib_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
+      }
+    }
+
     std::vector<window*> container::get_children () const {
       std::vector<window*> list;
 
-      Window root;
-      Window parent;
-      Window *children;
-      unsigned int nchildren;
+      if (is_visible()) {
+        Window root;
+        Window parent;
+        Window *children;
+        unsigned int nchildren;
 
-      if (XQueryTree(core::global::get_instance(),
-                     get_id(),
-                     &root,
-                     &parent,
-                     &children,
-                     &nchildren)) {
-        for (unsigned int n = 0; n < nchildren; ++n) {
-          list.push_back(detail::get_window(children[n]));
+        if (check_xlib_status(XQueryTree(core::global::get_instance(),
+                                         get_id(),
+                                         &root,
+                                         &parent,
+                                         &children,
+                                         &nchildren))) {
+          for (unsigned int n = 0; n < nchildren; ++n) {
+            list.push_back(detail::get_window(children[n]));
+          }
         }
       }
       return list;

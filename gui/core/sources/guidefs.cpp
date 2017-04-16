@@ -79,12 +79,16 @@ namespace gui {
 
       int XErrorHandler (Display* dpy,
                          XErrorEvent* errev) {
+        char buffer[256];
+        XGetErrorText(dpy, errev->error_code, buffer, sizeof(buffer));
+
         LogFatal << "Error occured somewhere in X!"
-                    " ResourceID = " << errev->resourceid <<
-                    " Serial = " << errev->serial <<
-                    " Error_code = " << (int) errev->error_code <<
-                    " Request_code = " << (int) errev->request_code <<
-                    " Minor_code = " << (int) errev->minor_code;
+                    " ResourceID: " << errev->resourceid <<
+                    " Serial: " << errev->serial <<
+                    " Error_code: " << (int) errev->error_code <<
+                    " Request_code: " << (int) errev->request_code <<
+                    " Minor_code: " << (int) errev->minor_code <<
+                    " Text: " << buffer;
         return 0;
       }
 
@@ -131,6 +135,7 @@ namespace gui {
   } // core
 
 } // gui
+
 
 #ifdef WIN32
 int APIENTRY WinMain(_In_ HINSTANCE hInstance,

@@ -28,21 +28,6 @@ namespace gui {
     int owner_draw::next_owner_draw_id = 0;
 #endif // WIN32
 
-    namespace paint {
-      // --------------------------------------------------------------------------
-      void text_item (const std::string& text,
-                      draw::graphics& g,
-                      const core::rectangle& place,
-                      const draw::brush& background,
-                      bool selected,
-                      draw::text_origin origin) {
-        using namespace draw;
-        g.fill(rectangle(place), selected ? color::highLightColor() : background);
-        g.text(text_box(text, place, origin), font::system(),
-               selected ? color::highLightTextColor() : color::windowTextColor());
-      }
-    }
-
 #ifdef WIN32
     owner_draw::owner_draw ()
       : item_size(1, 1)

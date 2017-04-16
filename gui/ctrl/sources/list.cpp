@@ -16,15 +16,6 @@
 * @file
 */
 
-#ifdef WIN32
-
-#ifndef WINVER
-#define WINVER 0x0500   // version 5.0
-#endif /* !WINVER */
-
-#include <windowsx.h>
-#endif // WIN32
-
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -42,184 +33,113 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-#ifdef WIN32
+#ifdef X11
+    namespace detail {
+      Atom SELECTION_CHANGE_MESSAGE = 0;
+    }
+#endif // X11
+
     // --------------------------------------------------------------------------
     namespace detail {
-      list::list () {
-        register_event_handler(this, &list::list_handle_event, 0);
+      list::list ()
+        : item_count(0)
+        , selection(-1)
+      {
+#ifdef X11
+        if (!detail::SELECTION_CHANGE_MESSAGE) {
+          detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(), "SELECTION_CHANGE_MESSAGE", False);
+        }
+#endif // X11
+        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+          last_mouse_point = pt;
+          moved = false;
+        }));
       }
 
       size_t list::get_count () const {
-        return (size_t)ListBox_GetCount(get_id());
+        return item_count;
       }
 
       int list::get_selection () const {
-        return ListBox_GetCurSel(get_id());
+        return selection;
       }
 
-      bool list::list_handle_event (const core::event& e,
-                                    os::event_result& result) {
-        if (e.type == WM_DRAWITEM) {
-          PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
-          // If there are no list box items, skip this message.
-          if (pdis->itemID == -1) {
-            return false;
-          }
-          switch (pdis->itemAction) {
-            case ODA_SELECT:
-            case ODA_DRAWENTIRE: {
-              draw::graphics g(get_id(), pdis->hDC);
-              core::rectangle place(pdis->rcItem);
-              bool selected = (pdis->itemState & ODS_SELECTED);
-              draw_item(pdis->itemID, g, place, selected);
-            }
-          }
-          return true;
+      list::~list () {
+      }
+
+      void list::set_drawer (std::function<draw_list_item> drawer,
+                             const core::size& sz) {
+        this->drawer = drawer;
+        item_size = sz;
+      }
+
+      void list::draw_item (int idx,
+                            const draw::graphics& g,
+                            const core::rectangle& place,
+                            bool selected) const {
+        if (drawer) {
+          drawer(idx, g, place, draw::color::windowColor(), selected);
         }
-        return false;
       }
 
-      list::~list ()
-      {}
-
     }
+
+#ifdef WIN32
     // --------------------------------------------------------------------------
     template<>
-    window_class listT<false>::clazz(win::window_class::sub_class("MyVListBox",
-                                                                  "LISTBOX",
-                                                                  LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN |
-                                                                  WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+    window_class listT<false>::clazz(win::window_class::custom_class("HLISTBOX++",
+                                                                  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                                                                   WS_EX_NOPARENTNOTIFY));
-    template<>
-    listT<false>::listT() {
-      register_event_handler(size_event([&](const core::size& sz) {
-        SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(sz.height()));
-      }));
-    }
-
-    template<>
-    void listT<false>::create (const container& parent,
-                               const core::rectangle& place) {
-      super::create(clazz, parent, place);
-    }
-
-    template<>
-    void listT<false>::set_count (size_t count) {
-      SendMessage(get_id(), LB_SETCOUNT, count, 0);
-    }
-
-    template<>
-    void listT<false>::set_selection (int sel) {
-      ListBox_SetCurSel(get_id(), sel);
-      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
-    }
-
-    template<>
-    core::point::type listT<false>::get_scroll_pos() const {
-      return static_cast<core::point::type>(GetScrollPos(get_id(), SB_HORZ) * get_item_size().width());
-    }
-
-    template<>
-    core::point::type listT<true>::get_scroll_pos() const {
-      return static_cast<core::point::type>(GetScrollPos(get_id(), SB_VERT) * get_item_size().height());
-    }
-
-    template<>
-    void listT<false>::set_scroll_pos(core::point::type pos) {
-      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().width()), 0);
-    }
-
-    template<>
-    void listT<true>::set_scroll_pos(core::point::type pos) {
-      SendMessage(get_id(), LB_SETTOPINDEX, (LONG)ceil((double)pos / (double)get_item_size().height()), 0);
-    }
-
-    template<>
-    void listT<false>::enable_scroll_bar (bool enable) {
-      // first check, if needed.
-      if (enable && (get_count() * get_item_width() > size().width())) {
-        ShowScrollBar(get_id(), SB_HORZ, true);
-      } else {
-        ShowScrollBar(get_id(), SB_HORZ, false);
-      }
-    }
-
-    template<>
-    bool listT<false>::is_scroll_bar_enabled () const {
-      return get_style(WS_HSCROLL) == WS_HSCROLL;
-    }
-
-    template<>
-    bool listT<false>::is_scroll_bar_visible () const {
-      return get_style(WS_HSCROLL) == WS_HSCROLL;
-    }
-
     // --------------------------------------------------------------------------
     template<>
-    window_class listT<true>::clazz(win::window_class::sub_class("MyHListBox",
-                                                                 "LISTBOX",
-                                                                 LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT |
-                                                                 WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+    window_class listT<true>::clazz(win::window_class::sub_class("VLISTBOX++",
+                                                                 WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                                                                  WS_EX_NOPARENTNOTIFY));
 
-    template<>
-    listT<true>::listT() {
-    }
-
-    template<>
-    void  listT<true>::enable_scroll_bar(bool enable) {
-      // first check, if needed.
-      if (enable && (get_count() * get_item_height() > size().height())) {
-        ShowScrollBar(get_id(), SB_VERT, true);
-      }
-      else {
-        ShowScrollBar(get_id(), SB_VERT, false);
-      }
-    }
-
-    template<>
-    void listT<true>::create (const container& parent,
-                              const core::rectangle& place) {
-      super::create(clazz, parent, place);
-    }
-
-    template<>
-    void listT<true>::set_count (size_t count) {
-      SendMessage(get_id(), LB_SETCOUNT, count, 0);
-    }
-
-    template<>
-    void listT<true>::set_selection (int sel) {
-      ListBox_SetCurSel(get_id(), sel);
-      SendMessage(GetParent(get_id()), WM_COMMAND, MAKEWPARAM(get_owner_draw_id(), LBN_SELCHANGE), (LPARAM)get_id());
-    }
-
-    template<>
-    bool listT<true>::is_scroll_bar_enabled() const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
-
-    template<>
-    bool listT<true>::is_scroll_bar_visible() const {
-      return get_style(WS_VSCROLL) == WS_VSCROLL;
-    }
-
-    template<>
-    core::size listT<false>::calc_item_size(core::size::type width) const {
-      core::size::type height = client_size().height();
-      SendMessage(get_id(), LB_SETCOLUMNWIDTH, static_cast<WPARAM>(width), 0);
-      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(height));
-      return { width, height };
-    }
-
-    template<>
-    core::size listT<true>::calc_item_size(core::size::type item_height) const {
-      SendMessage(get_id(), LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(item_height));
-      return{ client_size().width(), item_height };
-    }
-
 #endif // WIN32
+
     // --------------------------------------------------------------------------
+
+#ifdef X11
+    template<>
+    window_class listT<false>::clazz(window_class::custom_class("HLISTBOX++",
+                                                                draw::color::white()));
+    template<>
+    window_class listT<true>::clazz(window_class::custom_class("VLISTBOX++",
+                                                               draw::color::white()));
+#endif // X11
+
+    template<>
+    void listT<false>::paint (const draw::graphics& graph) {
+      core::rectangle place = client_area();
+      const int max_x = place.x2();
+      const int max_idx = (int)get_count();
+      const int first = get_scroll_pos() / get_item_width();
+
+      place.top_left({core::point::type(get_item_width() * first - get_scroll_pos()), place.y()});
+      place.width(get_item_width() - 1);
+
+      for(int idx = first; (idx < max_idx) && (place.x() < max_x); ++idx, place.move_x(get_item_width())) {
+        draw_item(idx, graph, place, get_selection() == idx);
+      }
+      graph.flush();
+    }
+
+    template<>
+    void listT<true>::paint (const draw::graphics& graph) {
+      core::rectangle place = client_area();
+      const int max_y = place.y2();
+      const int max_idx = (int)get_count();
+      const int first = get_scroll_pos() / get_item_height();
+
+      place.top_left({place.x(), core::point::type(get_item_height() * first - get_scroll_pos())});
+      place.height(get_item_height() - 1);
+
+      for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move_y(get_item_height())) {
+        draw_item(idx, graph, place, get_selection() == idx);
+      }
+      graph.flush();
+    }
 
     template<>
     core::size listT<false>::client_size () const {
@@ -237,53 +157,6 @@ namespace gui {
         sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
       }
       return sz;
-    }
-
-#ifdef X11
-    // --------------------------------------------------------------------------
-    namespace detail {
-      list::list ()
-        : item_count(0), selection(-1)
-      {}
-
-      size_t list::get_count () const {
-        return item_count;
-      }
-
-      int list::get_selection () const {
-        return selection;
-      }
-
-      bool list::list_handle_event (const core::event& e,
-                                    os::event_result& result) {
-        return false;
-      }
-
-      list::~list () {
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    window_class listT<false>::clazz(window_class::custom_class("HLISTBOX",
-                                                                draw::color::white()));
-
-    template<>
-    listT<false>::listT () {
-      register_event_handler(this, &listT<false>::listT_handle_event,
-                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                             FocusChangeMask | KeyPressMask | StructureNotifyMask);
-      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
-        redraw_later();
-      }));
-    }
-
-    template<>
-    void listT<false>::create (const container& parent,
-                               const core::rectangle& place) {
-      super::create(clazz, parent, place);
-      scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
-      adjust_scroll_bar();
     }
 
     template<>
@@ -305,196 +178,6 @@ namespace gui {
     }
 
     template<>
-    void listT<false>::set_selection (int sel) {
-      selection = std::min(std::max(0, sel), (int)get_count() - 1);
-      // Make selection visible
-      const int sel_pos = get_item_width() * selection;
-      const core::size sz = size();
-
-      if (sel_pos < get_scroll_pos()) {
-        set_scroll_pos(sel_pos);
-      } else if (sel_pos + get_item_width() - get_scroll_pos() > sz.width()) {
-        set_scroll_pos(sel_pos + get_item_width() - sz.width());
-      }
-      send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-      redraw_later();
-    }
-
-    template<>
-    void listT<false>::set_scroll_pos (core::point::type pos) {
-      const core::point::type max_delta = std::max(0.0F, (get_item_width() * (core::point::type)get_count()) - size().width());
-      scrollbar.set_value(std::min(std::max(0.0F, pos), max_delta));
-      redraw_later();
-    }
-
-    template<>
-    core::point::type listT<false>::get_scroll_pos () const {
-      return scrollbar.get_value();
-    }
-
-    template<>
-    core::rectangle listT<false>::get_scroll_bar_area () {
-      core::rectangle r(size());
-      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
-      r.height(scroll_bar::get_scroll_bar_width());
-      return r;
-    }
-
-    template<>
-    void listT<false>::enable_scroll_bar (bool enable) {
-      scrollbar.enable(enable);
-      scrollbar.set_visible(enable && scrollbar.get_max());
-    }
-
-    template<>
-    bool listT<false>::is_scroll_bar_enabled () const {
-      return scrollbar.is_enabled();
-    }
-
-    template<>
-    bool listT<false>::is_scroll_bar_visible () const {
-      return scrollbar.is_visible();
-    }
-
-    template<>
-    core::size listT<false>::calc_item_size(core::size::type width) const {
-      return { width, client_size().height() };
-    }
-
-    template<>
-    bool listT<false>::listT_handle_event (const core::event& e,
-                                           os::event_result& result) {
-      switch (e.type) {
-        case Expose: {
-          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
-          core::rectangle place = client_area();
-          const int max_x = place.x2();
-          const int max_idx = (int)get_count();
-          const int first = get_scroll_pos() / get_item_width();
-
-          place.top_left({core::point::type(get_item_width() * first - get_scroll_pos()), place.y()});
-          place.width(get_item_width() - 1);
-
-          for(int idx = first; (idx < max_idx) && (place.x() < max_x); ++idx, place.move_x(get_item_width())) {
-            draw_item(idx, g, place, this->get_selection() == idx);
-          }
-          g.flush();
-          return true;
-        }
-        case ButtonPress:
-          if (e.xbutton.button == Button1) {
-            last_mouse_point = core::point(e.xbutton);
-            moved = false;
-            return true;
-          }
-          break;
-        case ButtonRelease:
-          switch (e.xbutton.button) {
-            case Button1:
-              if (!moved) {
-                const int new_selection = (e.xbutton.x + get_scroll_pos()) / get_item_width();
-                set_selection(new_selection == get_selection() ? -1 : new_selection);
-                send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-                redraw_later();
-                return true;
-              }
-              last_mouse_point = core::point::undefined;
-              break;
-            case 6: { // X-Wheel
-              set_scroll_pos(get_scroll_pos() - get_item_width());
-              moved = true;
-              return true;
-            }
-            case 7: { // X-Wheel
-              set_scroll_pos(get_scroll_pos() + get_item_width());
-              moved = true;
-              return true;
-            }
-          }
-          break;
-        case MotionNotify:
-          if (left_button_bit_mask::is_set(e.xmotion.state)) {
-            if (last_mouse_point != core::point::undefined) {
-              core::point::type dx = last_mouse_point.x() - e.xmotion.x;
-              set_scroll_pos(get_scroll_pos() + dx);
-              moved = true;
-            }
-            last_mouse_point = core::point(e.xmotion);
-            return true;
-          }
-          break;
-        case ConfigureNotify: {
-          scrollbar.place(get_scroll_bar_area());
-          adjust_scroll_bar();
-          break;
-        }
-        case KeyPress: {
-          KeySym key = XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
-          switch (key) {
-            case XK_Left:
-            case XK_KP_Left:
-              set_selection(get_selection() - 1);
-              return true;
-            case XK_Right:
-            case XK_KP_Right:
-              set_selection(get_selection() + 1);
-              return true;
-            case XK_Page_Up:
-            case XK_KP_Page_Up:
-              set_selection(get_selection() - (size().width() / get_item_width()));
-              return true;
-            case XK_Page_Down:
-            case XK_KP_Page_Down:
-              set_selection(get_selection() + (size().width() / get_item_width()));
-              return true;
-            case XK_Home:
-            case XK_KP_Home:
-              set_selection(0);
-              return true;
-            case XK_End:
-            case XK_KP_End:
-              set_selection((int)get_count() - 1);
-              return true;
-          }
-          break;
-        }
-      }
-      return false;
-    }
-
-    template<>
-    void listT<false>::adjust_scroll_bar () {
-      core::size::type iw = get_item_width();
-      scroll_bar::type w = (iw * item_count) - size().width();
-
-      scrollbar.set_max(std::max(w, 0.0F));
-      scrollbar.set_visible((w > 0.0F) && is_scroll_bar_enabled());
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    window_class listT<true>::clazz(window_class::custom_class("VLISTBOX",
-                                                               draw::color::white()));
-
-    template<>
-    listT<true>::listT () {
-      register_event_handler(this, &listT<true>::listT_handle_event,
-                             ButtonPressMask | ButtonReleaseMask | ExposureMask | PointerMotionMask |
-                             FocusChangeMask | KeyPressMask | StructureNotifyMask);
-      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
-        redraw_later();
-      }));
-    }
-
-    template<>
-    void listT<true>::create (const container& parent,
-                              const core::rectangle& place) {
-      super::create(clazz, parent, place);
-      scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
-      adjust_scroll_bar();
-    }
-
-    template<>
     void listT<true>::set_count (size_t count) {
       typedef core::size::type type;
       const type zero = type(0);
@@ -508,6 +191,22 @@ namespace gui {
       scrollbar.set_min_max_step(zero, std::max(h, zero), ph);
       scrollbar.set_visible((h > zero) && is_scroll_bar_enabled());
 
+      redraw_later();
+    }
+
+    template<>
+    void listT<false>::set_selection (int sel) {
+      selection = std::min(std::max(0, sel), (int)get_count() - 1);
+      // Make selection visible
+      const int sel_pos = get_item_width() * selection;
+      const core::size sz = size();
+
+      if (sel_pos < get_scroll_pos()) {
+        set_scroll_pos(sel_pos);
+      } else if (sel_pos + get_item_width() - get_scroll_pos() > sz.width()) {
+        set_scroll_pos(sel_pos + get_item_width() - sz.width());
+      }
+      send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
       redraw_later();
     }
 
@@ -528,6 +227,29 @@ namespace gui {
     }
 
     template<>
+    void listT<false>::create (const container& parent,
+                               const core::rectangle& place) {
+      super::create(clazz, parent, place);
+      scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+      adjust_scroll_bar();
+    }
+
+    template<>
+    void listT<true>::create (const container& parent,
+                              const core::rectangle& place) {
+      super::create(clazz, parent, place);
+      scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+      adjust_scroll_bar();
+    }
+
+    template<>
+    void listT<false>::set_scroll_pos (core::point::type pos) {
+      const core::point::type max_delta = std::max(0.0F, (get_item_width() * (core::point::type)get_count()) - size().width());
+      scrollbar.set_value(std::min(std::max(0.0F, pos), max_delta));
+      redraw_later();
+    }
+
+    template<>
     void listT<true>::set_scroll_pos (core::point::type pos) {
       const core::point::type max_delta = std::max(0.0F, (get_item_height() * (core::point::type)get_count()) - size().height());
       scrollbar.set_value(std::min(std::max(0.0F, pos), max_delta));
@@ -535,8 +257,21 @@ namespace gui {
     }
 
     template<>
+    core::point::type listT<false>::get_scroll_pos () const {
+      return scrollbar.get_value();
+    }
+
+    template<>
     core::point::type listT<true>::get_scroll_pos () const {
       return scrollbar.get_value();
+    }
+
+    template<>
+    core::rectangle listT<false>::get_scroll_bar_area () {
+      core::rectangle r(size());
+      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
+      r.height(scroll_bar::get_scroll_bar_width());
+      return r;
     }
 
     template<>
@@ -548,9 +283,20 @@ namespace gui {
     }
 
     template<>
+    void listT<false>::enable_scroll_bar (bool enable) {
+      scrollbar.enable(enable);
+      scrollbar.set_visible(enable && scrollbar.get_max());
+    }
+
+    template<>
     void listT<true>::enable_scroll_bar (bool enable) {
       scrollbar.enable(enable);
       scrollbar.set_visible(enable && scrollbar.get_max());
+    }
+
+    template<>
+    bool listT<false>::is_scroll_bar_enabled () const {
+      return scrollbar.is_enabled();
     }
 
     template<>
@@ -559,8 +305,18 @@ namespace gui {
     }
 
     template<>
+    bool listT<false>::is_scroll_bar_visible () const {
+      return scrollbar.is_visible();
+    }
+
+    template<>
     bool listT<true>::is_scroll_bar_visible () const {
       return scrollbar.is_visible();
+    }
+
+    template<>
+    core::size listT<false>::calc_item_size(core::size::type width) const {
+      return { width, client_size().height() };
     }
 
     template<>
@@ -569,104 +325,12 @@ namespace gui {
     }
 
     template<>
-    bool listT<true>::listT_handle_event (const core::event& e,
-                                          os::event_result& result) {
-      switch (e.type) {
-        case Expose: {
-          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
-          core::rectangle place = client_area();
-          const int max_y = place.y2();
-          const int max_idx = (int)get_count();
-          const int first = get_scroll_pos() / get_item_height();
+    void listT<false>::adjust_scroll_bar () {
+      core::size::type iw = get_item_width();
+      scroll_bar::type w = (iw * item_count) - size().width();
 
-          place.top_left({place.x(), core::point::type(get_item_height() * first - get_scroll_pos())});
-          place.height(get_item_height() - 1);
-
-          for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move_y(get_item_height())) {
-            draw_item(idx, g, place, get_selection() == idx);
-          }
-          g.flush();
-          return true;
-        }
-        case ButtonPress:
-          if (e.xbutton.button == Button1) {
-            last_mouse_point = core::point(e.xbutton);
-            moved = false;
-            return true;
-          }
-          break;
-        case ButtonRelease:
-          switch (e.xbutton.button) {
-            case Button1:
-              if (!moved) {
-                const int new_selection = (e.xbutton.y + get_scroll_pos()) / get_item_height();
-                set_selection(new_selection == get_selection() ? -1 : new_selection);
-                send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-                redraw_later();
-                return true;
-              }
-              last_mouse_point = core::point::undefined;
-              break;
-            case Button4: { // Y-Wheel
-              set_scroll_pos(get_scroll_pos() - get_item_height());
-              moved = true;
-              return true;
-            }
-            case Button5: { // Y-Wheel
-              set_scroll_pos(get_scroll_pos() + get_item_height());
-              moved = true;
-              return true;
-            }
-          }
-          break;
-        case MotionNotify:
-          if (left_button_bit_mask::is_set(e.xmotion.state)) {
-            if (last_mouse_point != core::point::undefined) {
-                int dy = last_mouse_point.y() - e.xmotion.y;
-                set_scroll_pos(get_scroll_pos() + dy);
-                moved = true;
-            }
-            last_mouse_point = core::point(e.xmotion);
-            return true;
-          }
-          break;
-        case ConfigureNotify: {
-          scrollbar.place(get_scroll_bar_area());
-          adjust_scroll_bar();
-          break;
-        }
-        case KeyPress: {
-          KeySym key = XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
-          switch (key) {
-            case XK_Up:
-            case XK_KP_Up:
-              set_selection(get_selection() - 1);
-              return true;
-            case XK_Down:
-            case XK_KP_Down:
-              set_selection(get_selection() + 1);
-              return true;
-            case XK_Page_Up:
-            case XK_KP_Page_Up:
-              set_selection(get_selection() - (size().height() / get_item_height()));
-              return true;
-            case XK_Page_Down:
-            case XK_KP_Page_Down:
-              set_selection(get_selection() + (size().height() / get_item_height()));
-              return true;
-            case XK_Home:
-            case XK_KP_Home:
-              set_selection(0);
-              return true;
-            case XK_End:
-            case XK_KP_End:
-              set_selection((int)get_count() - 1);
-              return true;
-          }
-          break;
-        }
-      }
-      return false;
+      scrollbar.set_max(std::max(w, 0.0F));
+      scrollbar.set_visible((w > 0.0F) && is_scroll_bar_enabled());
     }
 
     template<>
@@ -678,7 +342,152 @@ namespace gui {
       scrollbar.set_visible((h > 0.0F) && is_scroll_bar_enabled());
     }
 
+    template<>
+    listT<false>::listT () {
+      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
+        redraw_later();
+      }));
+      register_event_handler(paint_event([&](const draw::graphics& g) {
+        paint(g);
+      }));
+      register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        if (!moved) {
+          const int new_selection = (pt.x() + get_scroll_pos()) / get_item_width();
+          set_selection(new_selection == get_selection() ? -1 : new_selection);
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          redraw_later();
+        }
+        last_mouse_point = core::point::undefined;
+      }));
+      register_event_handler(wheel_x_event([&](const core::point::type dx, const core::point&){
+        set_scroll_pos(get_scroll_pos() + get_item_width() * dx);
+        moved = true;
+      }));
+      register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
+        if (left_button_bit_mask::is_set(keys)) {
+          if (last_mouse_point != core::point::undefined) {
+            core::point::type dx = last_mouse_point.x() - pt.x();
+            set_scroll_pos(get_scroll_pos() + dx);
+            moved = true;
+          }
+          last_mouse_point = pt;
+        }
+      }));
+      register_event_handler(size_event([&](const core::size&){
+        scrollbar.place(get_scroll_bar_area());
+        adjust_scroll_bar();
+      }));
+#ifdef X11
+      register_event_handler(key_up_event([&](unsigned int, KeySym key){
+        switch (key) {
+          case XK_Left:
+          case XK_KP_Left:
+            set_selection(get_selection() - 1);
+            break;
+          case XK_Right:
+          case XK_KP_Right:
+            set_selection(get_selection() + 1);
+            break;
+          case XK_Page_Up:
+          case XK_KP_Page_Up:
+            set_selection(get_selection() - (size().width() / get_item_width()));
+            break;
+          case XK_Page_Down:
+          case XK_KP_Page_Down:
+            set_selection(get_selection() + (size().width() / get_item_width()));
+            break;
+          case XK_Home:
+          case XK_KP_Home:
+            set_selection(0);
+            break;
+          case XK_End:
+          case XK_KP_End:
+            set_selection((int)get_count() - 1);
+            break;
+        }
+      }));
 #endif // X11
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    bool listT<false>::listT_handle_event (const core::event& e,
+                                           os::event_result& result) {
+      switch (e.type) {
+        case KeyPress: {
+          KeySym key = XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
+          break;
+        }
+      }
+      return false;
+    }
+
+    template<>
+    listT<true>::listT () {
+      scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
+        redraw_later();
+      }));
+      register_event_handler(paint_event([&](const draw::graphics& g) {
+        paint(g);
+      }));
+      register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        if (!moved) {
+          const int new_selection = (pt.y() + get_scroll_pos()) / get_item_height();
+          set_selection(new_selection == get_selection() ? -1 : new_selection);
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          redraw_later();
+        }
+        last_mouse_point = core::point::undefined;
+      }));
+      register_event_handler(wheel_y_event([&](const core::point::type dy, const core::point&){
+        set_scroll_pos(get_scroll_pos() + get_item_height() * dy);
+        moved = true;
+      }));
+      register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
+        if (left_button_bit_mask::is_set(keys)) {
+          if (last_mouse_point != core::point::undefined) {
+              int dy = last_mouse_point.y() - pt.y();
+              set_scroll_pos(get_scroll_pos() + dy);
+              moved = true;
+          }
+          last_mouse_point = pt;
+        }
+      }));
+      register_event_handler(size_event([&](const core::size&){
+        scrollbar.place(get_scroll_bar_area());
+        adjust_scroll_bar();
+      }));
+#ifdef X11
+      register_event_handler(key_up_event([&](unsigned int, KeySym key){
+        switch (key) {
+          case XK_Up:
+          case XK_KP_Up:
+            set_selection(get_selection() - 1);
+            break;
+          case XK_Down:
+          case XK_KP_Down:
+            set_selection(get_selection() + 1);
+            break;
+          case XK_Page_Up:
+          case XK_KP_Page_Up:
+            set_selection(get_selection() - (size().height() / get_item_height()));
+            break;
+          case XK_Page_Down:
+          case XK_KP_Page_Down:
+            set_selection(get_selection() + (size().height() / get_item_height()));
+            break;
+          case XK_Home:
+          case XK_KP_Home:
+            set_selection(0);
+            break;
+          case XK_End:
+          case XK_KP_End:
+            set_selection((int)get_count() - 1);
+            break;
+        }
+      }));
+#endif // X11
+    }
 
   } // win
 

@@ -38,14 +38,15 @@ enable_testing()
 
 set(tests
   WindowTest
+  BorderTest
 )
 
 foreach(test ${tests})
-        add_executable(${test} WIN32 sources/${test}.cpp)
-        target_link_libraries(${test} core draw win ctrl ibr_std_lib)
-        if(UNIX)
-          #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
-          target_link_libraries(${test} stdc++fs X11 Xft fontconfig pthread)
-        endif(UNIX)
-        add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
+    add_executable(${test} WIN32 sources/${test}.cpp)
+    target_link_libraries(${test} core draw win ctrl ibr_std_lib)
+    if(UNIX)
+      #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
+      target_link_libraries(${test} stdc++fs X11 Xft fontconfig pthread)
+    endif(UNIX)
+    add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

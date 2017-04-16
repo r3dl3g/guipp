@@ -22,6 +22,7 @@
 //
 // Common includes
 //
+#include<ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
@@ -37,6 +38,16 @@ namespace gui {
   namespace win {
 
     namespace detail {
+    }
+
+    template<typename T>
+    inline std::string convert_to_string(const T& t) {
+      return ostreamfmt(t);
+    }
+
+    template<>
+    inline std::string convert_to_string<std::string>(const std::string& t) {
+      return t;
     }
 
     // --------------------------------------------------------------------------
@@ -73,6 +84,15 @@ namespace gui {
                           caller<get_param<0, draw::graphics>>>   paint_event;
 
 #endif // X11
+
+    namespace paint {
+      void text_item (const std::string& text,
+                      const draw::graphics&,
+                      const core::rectangle& place,
+                      const draw::brush& background,
+                      bool selected,
+                      draw::text_origin origin = draw::vcenter_left);
+    }
 
   } // win
 

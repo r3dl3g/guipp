@@ -445,7 +445,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   auto list_drawer = [] (int idx,
-                         draw::graphics& g,
+                         const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
                          bool selected) {
@@ -477,7 +477,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
   list2.set_drawer([&] (int idx,
-                        draw::graphics& g,
+                        const draw::graphics& g,
                         const core::rectangle& place,
                         const draw::brush& background,
                         bool selected) {
@@ -704,7 +704,7 @@ void my_main_window::created_children () {
   };
 
   column_list_drawer = {
-    [](const int& v, draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
+    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
       win::paint::text_item(ostreamfmt(v), g, r, draw::color::buttonColor(), false, draw::center);
       draw::frame::raised_relief(g, r);
     },
@@ -713,7 +713,7 @@ void my_main_window::created_children () {
     win::cell_drawer<float, draw::frame::lines>,
     win::cell_drawer<int, draw::frame::lines>,
 
-    [](const bool& v, draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
+    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
       std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
       win::paint::text_item(text, g, r, b, s, align);
       draw::frame::lines(g, r);
@@ -869,22 +869,22 @@ void my_main_window::created_children () {
   group_group.layout();
 
   using namespace layout;
-  get_layout().abs<What::left, Where::width, -600>(&btn_group, this);
-  get_layout().abs<What::right, Where::width, -10>(&btn_group, this);
-  get_layout().abs<What::top, Where::height, -45>(&btn_group, this);
-  get_layout().abs<What::bottom, Where::height, -10>(&btn_group, this);
+  get_layout().attach_relative<What::left, make_relative(0.1), 20>(&btn_group, this);
+  get_layout().attach_relative<What::right, make_relative(0.9), -20>(&btn_group, this);
+  get_layout().attach_fix<What::top, Where::height, -45>(&btn_group, this);
+  get_layout().attach_fix<What::bottom, Where::height>(&btn_group, this);
 
-  get_layout().rel<What::left, 2000>(&hslider, this);
-  get_layout().rel<What::right, 8000>(&hslider, this);
+  get_layout().attach_relative<What::left, make_relative(0.1), 10>(&hslider, this);
+  get_layout().attach_relative<What::right, make_relative(0.9)>(&hslider, this);
 
-  get_layout().abs<What::bottom, Where::y, -5>(&vslider, &btn_group);
+  get_layout().attach_fix<What::bottom, Where::y, -5>(&vslider, &btn_group);
 
-  get_layout().abs<What::right, Where::x, -25>(&column_list, &vslider);
-  get_layout().abs<What::left, Where::x, -20>(&vscroll, &vslider);
-  get_layout().abs<What::right, Where::x, -4>(&vscroll, &vslider);
+  get_layout().attach_fix<What::right, Where::x, -25>(&column_list, &vslider);
+  get_layout().attach_fix<What::left, Where::x, -20>(&vscroll, &vslider);
+  get_layout().attach_fix<What::right, Where::x, -4>(&vscroll, &vslider);
 
-  get_layout().abs<What::right, Where::x, -4>(&group_group, &vslider);
-  get_layout().abs<What::top, Where::y2, 4>(&group_group, &hslider);
+  get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&group_group, &hslider);
 
   layout();
 }

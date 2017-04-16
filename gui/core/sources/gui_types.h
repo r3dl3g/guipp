@@ -356,7 +356,7 @@ namespace gui {
       os::rectangle os () const;
 
       inline bool empty () const {
-        return tl == br;
+        return (tl.x() >= br.x()) || (tl.y() >= br.y());
       }
 
       inline bool is_inside (const point& p) const {

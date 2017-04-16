@@ -402,7 +402,7 @@ namespace gui {
       }
 
       void operator() (int row_id, int col_id,
-                       draw::graphics& g,
+                       const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
                        bool selected,
@@ -423,7 +423,7 @@ namespace gui {
       typedef detail::base_column_list<layout_type> super;
 
       typedef void(cell_draw)(int row_id, int col_id,
-                              draw::graphics&,
+                              const draw::graphics&,
                               const core::rectangle& place,
                               const draw::brush& background,
                               bool selected,
@@ -451,7 +451,7 @@ namespace gui {
 
     protected:
       void draw_cells (int idx,
-                       draw::graphics& g,
+                       const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
                        bool selected) {
@@ -513,7 +513,7 @@ namespace gui {
     template<typename T,
              void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     void cell_drawer (const T& t,
-                      draw::graphics& g,
+                      const draw::graphics& g,
                       const core::rectangle& place,
                       const draw::brush& background,
                       bool selected,
@@ -527,7 +527,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     using cell_drawer_t = void (*)(const T& t,
-                                   draw::graphics& g,
+                                   const draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    bool selected,
@@ -578,7 +578,7 @@ namespace gui {
       template<int I>
       void draw_cell (const row& data,
                       const layout_type& l,
-                      draw::graphics& g,
+                      const draw::graphics& g,
                       core::rectangle place,
                       const draw::brush& background,
                       bool selected) {
@@ -587,7 +587,7 @@ namespace gui {
       template<int I, typename T, typename... Args>
       void draw_cell (const row& data,
                       const layout_type& l,
-                      draw::graphics& g,
+                      const draw::graphics& g,
                       core::rectangle place,
                       const draw::brush& background, 
                       bool selected) {
@@ -602,7 +602,7 @@ namespace gui {
 
       void operator() (const row& data,
                        const layout_type& l,
-                       draw::graphics& g,
+                       const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
                        bool selected) {
@@ -652,7 +652,7 @@ namespace gui {
 
       typedef void (draw_row_data_t)(const row&,
                                      const layout_type& l,
-                                     draw::graphics& g,
+                                     const draw::graphics& g,
                                      const core::rectangle& place,
                                      const draw::brush& background,
                                      bool selected);
@@ -676,7 +676,7 @@ namespace gui {
 
     protected:
       void draw_cells_t (int row_id,
-                         draw::graphics& g,
+                         const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
                          bool selected) {

@@ -28,7 +28,7 @@
 // Library includes
 //
 #include "window_event_handler.h"
-#include "owner_draw_list.h"
+#include "scroll_bar.h"
 
 
 namespace gui {
@@ -37,16 +37,34 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    typedef event_handler<WM_COMMAND, 0,
-                          Params<>::caller<>, 0,
-                          command_matcher<LBN_SELCHANGE>>      selection_changed_event;
+    namespace detail {
+      const os::event_id SELECTION_CHANGE_MESSAGE = WM_USER + 2;
+    }
+
+    typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+                          Params<>::caller<>>
+            selection_changed_event;
+    // --------------------------------------------------------------------------
 #endif //WIN32
+
+#ifdef X11
+    namespace detail {
+      extern Atom SELECTION_CHANGE_MESSAGE;
+    }
+
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
+            selection_changed_event;
+#endif // X11
 
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class list : public owner_draw_list {
+      class list : public window {
       public:
+        typedef window super;
+
         // --------------------------------------------------------------------------
         list ();
 
@@ -55,21 +73,99 @@ namespace gui {
         size_t get_count () const;
         int get_selection () const;
 
-      private:
-        bool list_handle_event (const core::event& e,
-                                os::event_result& result);
+        inline const gui::core::size& get_item_size () const {
+          return item_size;
+        }
 
-#ifdef X11
+        inline gui::core::size::type get_item_width () const {
+          return get_item_size().width();
+        }
+
+        inline gui::core::size::type get_item_height () const {
+          return get_item_size().height();
+        }
+
+        typedef void(draw_list_item) (int idx,
+                                      const draw::graphics&,
+                                      const core::rectangle& place,
+                                      const draw::brush& background,
+                                      bool selected);
+
+        void set_drawer (std::function<draw_list_item> drawer,
+                         const core::size& sz = {20, 20});
+
       protected:
+        void draw_item (int idx,
+                        const draw::graphics&,
+                        const core::rectangle& place,
+                        bool selected) const;
+
         size_t item_count;
+        gui::core::size item_size;
 
         int selection;
         bool moved;
         core::point last_mouse_point;
-#endif // X11
+
+      private:
+        std::function<draw_list_item> drawer;
 
       };
     }
+
+    template<typename T,
+             draw::text_origin O = draw::vcenter_left,
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+    void list_item_drawer (const T& t,
+                           const draw::graphics& g,
+                           const core::rectangle& place,
+                           const draw::brush& background,
+                           bool selected) {
+      paint::text_item(convert_to_string<T>(t), g, place, background, selected, O);
+      if (!selected) {
+        F(g, place);
+      }
+    }
+
+    // static data for list.
+    // --------------------------------------------------------------------------
+    template<typename T,
+             void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
+    struct simple_list_data : public std::vector<T> {
+      typedef std::vector<T> super;
+
+      typedef typename super::iterator iterator;
+
+      simple_list_data ()
+      {}
+
+      simple_list_data (std::initializer_list<T> args)
+        : super(args)
+      {}
+
+      simple_list_data (iterator b, iterator e)
+        : super(b, e)
+      {}
+
+      template<size_t N>
+      simple_list_data (const T (& t)[N])
+        : super(t, t + N)
+      {}
+
+      template<typename L>
+      void update_list (L& l) {
+        l.set_count(super::size());
+      }
+
+      void operator() (int idx,
+                       const draw::graphics& g,
+                       const core::rectangle& place,
+                       const draw::brush& background,
+                       bool selected) {
+        F(super::at(idx), g, place, background, selected);
+      }
+
+    };
 
     // --------------------------------------------------------------------------
     template<bool V>
@@ -81,7 +177,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
       template<typename T,
-               void(F)(const T&, draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
+               void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
                    simple_list_data<T, F> data,
@@ -91,7 +187,7 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(const T&, draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
+               void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
       void set_data (simple_list_data<T, F> data,
                      core::size::type item_height = 20) {
         set_drawer(data, calc_item_size(item_height));
@@ -110,8 +206,9 @@ namespace gui {
 
       core::size client_size () const;
 
+      void paint (const draw::graphics& graph);
+
     private:
-#ifdef X11
       bool listT_handle_event (const core::event& e,
                                os::event_result& result);
 
@@ -119,7 +216,6 @@ namespace gui {
       void adjust_scroll_bar ();
 
       detail::scroll_barT<!V> scrollbar;
-#endif // X11
 
       core::size calc_item_size (core::size::type item_height) const;
 
@@ -161,6 +257,9 @@ namespace gui {
     template<>
     core::size listT<false>::calc_item_size(core::size::type item_height) const;
 
+    template<>
+    void listT<false>::paint (const draw::graphics& graph);
+
     // --------------------------------------------------------------------------
     template<>
     listT<true>::listT();
@@ -196,7 +295,10 @@ namespace gui {
     template<>
     core::size listT<true>::calc_item_size(core::size::type item_height) const;
 
-#ifdef X11
+    template<>
+    void listT<true>::paint (const draw::graphics& graph);
+
+    // --------------------------------------------------------------------------
     template<>
     core::rectangle listT<false>::get_scroll_bar_area ();
 
@@ -216,7 +318,6 @@ namespace gui {
     template<>
     bool listT<true>::listT_handle_event (const core::event& e,
                                           os::event_result& result);
-#endif // X11
 
     // --------------------------------------------------------------------------
     typedef listT<false> hlist;

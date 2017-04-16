@@ -236,6 +236,8 @@ namespace gui {
     public:
       bool is_parent_of (const window& parent) const;
 
+      void set_children_visible (bool = true);
+
       std::vector<window*> get_children () const;
     };
 

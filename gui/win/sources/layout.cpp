@@ -42,18 +42,38 @@ namespace gui {
       win->set_visible();
     }
 
+    bool layout_base::is_child_visible (win::window* win) {
+      return win->is_visible();
+    }
+
     void layout_base::hide_children (std::vector<win::window*>& children) {
       std::for_each(children.begin(), children.end(), [](win::window* win){
         win->set_visible(false);
       });
     }
 
-    void layout_base::init(callback_function callback) {
-      main->register_event_handler(win::size_event(callback));
+    core::size layout_base::get_main_size () const {
+      return main->size();
+    }
+
+    void layout_base::init (std::function<size_callback> f1) {
+      main->register_event_handler(win::size_event(f1));
+    }
+
+    void layout_base::init (std::function<size_callback> f1, std::function<show_callback> f2) {
+      main->register_event_handler(win::size_event(f1));
+      main->register_event_handler(win::show_event(f2));
+    }
+
+    void layout_base::update () {
+      main->redraw_now();
     }
 
     attach::attach (win::container* main) {
       main->register_event_handler(win::size_event(core::bind_method(this, &attach::layout)));
+      main->register_event_handler(win::show_event([&](){
+        layout(main->size());
+      }));
     }
 
     void attach::layout (const core::size& sz) {

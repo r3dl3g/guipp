@@ -212,12 +212,12 @@ color get_sys_color(int);
       };
 
       template<int S>
-      inline color shift_color_part (color_part_type p) {
+      constexpr color shift_color_part (color_part_type p) {
         return (color)p << S;
       }
 
       template<int S>
-      inline color_part_type split_color_part (color c) {
+      constexpr color_part_type split_color_part (color c) {
         return (color_part_type)((c & (detail::rgb_primary<0xff, S>::value)) >> S);
       }
 
@@ -268,46 +268,54 @@ color get_sys_color(int);
     using extract_alpha_primary = detail::extract_rgb_primary<C, detail::alpha_shift>;
 
 
-    inline color build_red_primary (color_part_type p) {
+    constexpr color build_red_primary (color_part_type p) {
       return detail::shift_color_part<detail::red_shift>(p);
     }
 
-    inline color build_green_primary (color_part_type p) {
+    constexpr color build_green_primary (color_part_type p) {
       return detail::shift_color_part<detail::green_shift>(p);
     }
 
-    inline color build_blue_primary (color_part_type p) {
+    constexpr color build_blue_primary (color_part_type p) {
       return detail::shift_color_part<detail::blue_shift>(p);
     }
 
-    inline color build_alpha_primary (color_part_type p) {
+    constexpr color build_alpha_primary (color_part_type p) {
       return detail::shift_color_part<detail::alpha_shift>(p);
     }
 
 
-    inline color_part_type extract_red (color c) {
+    constexpr color_part_type extract_red (color c) {
       return detail::split_color_part<detail::red_shift>(c);
     }
 
-    inline color_part_type extract_green (color c) {
+    constexpr color_part_type extract_green (color c) {
       return detail::split_color_part<detail::green_shift>(c);
     }
 
-    inline color_part_type extract_blue (color c) {
+    constexpr color_part_type extract_blue (color c) {
       return detail::split_color_part<detail::blue_shift>(c);
     }
 
-    inline color_part_type extract_alpha (color c) {
+    constexpr color_part_type extract_alpha (color c) {
       return detail::split_color_part<detail::alpha_shift>(c);
     }
 
 
-    inline color rgb (color_part_type r, color_part_type g, color_part_type b) {
+    constexpr color rgb (color_part_type r, color_part_type g, color_part_type b) {
       return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b);
     }
 
-    inline color rgba (color_part_type r, color_part_type g, color_part_type b, color_part_type a) {
+    constexpr color rgba (color_part_type r, color_part_type g, color_part_type b, color_part_type a) {
       return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b) | build_alpha_primary(a);
+    }
+
+    constexpr color rgb_gray (color_part_type v) {
+      return rgb(v, v, v);
+    }
+
+    constexpr color rgba_gray (color_part_type v, color_part_type a) {
+      return rgba(v, v, v, a);
     }
 
 

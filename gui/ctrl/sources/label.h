@@ -40,7 +40,7 @@ namespace gui {
       protected:
         label_base ();
 
-      private:
+      protected:
         static window_class clazz;
       };
 
@@ -64,7 +64,7 @@ namespace gui {
       labelT () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
           gui::core::rectangle place = client_area();
-          paint::label(graph, *this, text, (draw::text_origin)A);
+          paint::label(graph, *this, get_text(), (draw::text_origin)A);
           F(graph, place);
         }));
       }

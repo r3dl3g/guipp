@@ -209,9 +209,6 @@ namespace gui {
       void paint (const draw::graphics& graph);
 
     private:
-      bool listT_handle_event (const core::event& e,
-                               os::event_result& result);
-
       core::rectangle get_scroll_bar_area ();
       void adjust_scroll_bar ();
 
@@ -310,14 +307,6 @@ namespace gui {
 
     template<>
     void listT<true>::adjust_scroll_bar ();
-
-    template<>
-    bool listT<false>::listT_handle_event (const core::event& e,
-                                           os::event_result& result);
-
-    template<>
-    bool listT<true>::listT_handle_event (const core::event& e,
-                                          os::event_result& result);
 
     // --------------------------------------------------------------------------
     typedef listT<false> hlist;

@@ -291,6 +291,13 @@ namespace gui {
       return list;
     }
 
+    void container::set_children_visible(bool show) {
+      std::vector<window*> children = get_children();
+      for (window* win : children) {
+        win->set_visible(show);
+      }
+    }
+
 #endif // WIN32
 
 #ifdef X11

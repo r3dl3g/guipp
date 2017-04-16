@@ -88,13 +88,15 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     window_class listT<false>::clazz(win::window_class::custom_class("HLISTBOX++",
-                                                                  WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                  WS_EX_NOPARENTNOTIFY));
+                                                                     CS_DBLCLKS,
+                                                                     WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                     WS_EX_NOPARENTNOTIFY));
     // --------------------------------------------------------------------------
     template<>
-    window_class listT<true>::clazz(win::window_class::sub_class("VLISTBOX++",
-                                                                 WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                                                 WS_EX_NOPARENTNOTIFY));
+    window_class listT<true>::clazz(win::window_class::custom_class("VLISTBOX++",
+                                                                    CS_DBLCLKS,
+                                                                    WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                                                                    WS_EX_NOPARENTNOTIFY));
 
 #endif // WIN32
 
@@ -112,11 +114,11 @@ namespace gui {
     template<>
     void listT<false>::paint (const draw::graphics& graph) {
       core::rectangle place = client_area();
-      const int max_x = place.x2();
+      const core::point_type max_x = place.x2();
       const int max_idx = (int)get_count();
-      const int first = get_scroll_pos() / get_item_width();
+      const int first = int(get_scroll_pos() / get_item_width());
 
-      place.top_left({core::point::type(get_item_width() * first - get_scroll_pos()), place.y()});
+      place.top_left({ get_item_width() * first - get_scroll_pos(), place.y()});
       place.width(get_item_width() - 1);
 
       for(int idx = first; (idx < max_idx) && (place.x() < max_x); ++idx, place.move_x(get_item_width())) {
@@ -128,11 +130,11 @@ namespace gui {
     template<>
     void listT<true>::paint (const draw::graphics& graph) {
       core::rectangle place = client_area();
-      const int max_y = place.y2();
+      const core::point_type max_y  = place.y2();
       const int max_idx = (int)get_count();
-      const int first = get_scroll_pos() / get_item_height();
+      const int first = int(get_scroll_pos() / get_item_height());
 
-      place.top_left({place.x(), core::point::type(get_item_height() * first - get_scroll_pos())});
+      place.top_left({place.x(), get_item_height() * first - get_scroll_pos()});
       place.height(get_item_height() - 1);
 
       for(int idx = first; (idx < max_idx) && (place.y() < max_y); ++idx, place.move_y(get_item_height())) {
@@ -198,7 +200,7 @@ namespace gui {
     void listT<false>::set_selection (int sel) {
       selection = std::min(std::max(0, sel), (int)get_count() - 1);
       // Make selection visible
-      const int sel_pos = get_item_width() * selection;
+      const core::point_type sel_pos = get_item_width() * selection;
       const core::size sz = size();
 
       if (sel_pos < get_scroll_pos()) {
@@ -214,7 +216,7 @@ namespace gui {
     void listT<true>::set_selection (int sel) {
       selection = std::min(std::max(0, sel), (int)get_count() - 1);
       // Make selection visible
-      const int sel_pos = get_item_height() * selection;
+      const core::point_type sel_pos = get_item_height() * selection;
       const core::size sz = size();
 
       if (sel_pos < get_scroll_pos()) {
@@ -352,7 +354,7 @@ namespace gui {
       }));
       register_event_handler(left_btn_up_event([&](const core::point& pt) {
         if (!moved) {
-          const int new_selection = (pt.x() + get_scroll_pos()) / get_item_width();
+          const int new_selection = int((pt.x() + get_scroll_pos()) / get_item_width());
           set_selection(new_selection == get_selection() ? -1 : new_selection);
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
           redraw_later();
@@ -411,18 +413,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    bool listT<false>::listT_handle_event (const core::event& e,
-                                           os::event_result& result) {
-      switch (e.type) {
-        case KeyPress: {
-          KeySym key = XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
-          break;
-        }
-      }
-      return false;
-    }
-
-    template<>
     listT<true>::listT () {
       scrollbar.register_event_handler(win::scroll_event([&] (core::point::type) {
         redraw_later();
@@ -432,7 +422,7 @@ namespace gui {
       }));
       register_event_handler(left_btn_up_event([&](const core::point& pt) {
         if (!moved) {
-          const int new_selection = (pt.y() + get_scroll_pos()) / get_item_height();
+          const int new_selection = int((pt.y() + get_scroll_pos()) / get_item_height());
           set_selection(new_selection == get_selection() ? -1 : new_selection);
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
           redraw_later();
@@ -446,7 +436,7 @@ namespace gui {
       register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
         if (left_button_bit_mask::is_set(keys)) {
           if (last_mouse_point != core::point::undefined) {
-              int dy = last_mouse_point.y() - pt.y();
+              core::point_type dy = last_mouse_point.y() - pt.y();
               set_scroll_pos(get_scroll_pos() + dy);
               moved = true;
           }

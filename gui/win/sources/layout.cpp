@@ -71,7 +71,7 @@ namespace gui {
 
     attach::attach (win::container* main) {
       main->register_event_handler(win::size_event(core::bind_method(this, &attach::layout)));
-      main->register_event_handler(win::show_event([&](){
+      main->register_event_handler(win::show_event([&, main](){
         layout(main->size());
       }));
     }

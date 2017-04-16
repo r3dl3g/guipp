@@ -26,7 +26,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     window_class text_button::clazz(
 #ifdef WIN32
-      window_class::custom_class("PUSH_BUTTON++",
+      window_class::custom_class("PUSH_BUTTON++", 0,
                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                  WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
@@ -37,7 +37,7 @@ namespace gui {
 
     window_class radio_button::clazz(
 #ifdef WIN32
-      window_class::custom_class("RADIO_BUTTON++",
+      window_class::custom_class("RADIO_BUTTON++", 0,
                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |WS_VISIBLE | WS_TABSTOP,
                                  WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
@@ -48,7 +48,7 @@ namespace gui {
 
     window_class check_box::clazz(
 #ifdef WIN32
-        window_class::custom_class("CHECKBOX++",
+        window_class::custom_class("CHECKBOX++", 0,
                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                    WS_EX_NOPARENTNOTIFY)
 #else // !WIN32

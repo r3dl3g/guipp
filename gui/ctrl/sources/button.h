@@ -44,13 +44,13 @@ namespace gui {
       const os::event_id BN_STATE_MESSAGE = WM_USER + 6;
     }
 
-    typedef event_handler<BN_CLICKED_MESSAGE, 0,
+    typedef event_handler<detail::BN_CLICKED_MESSAGE, 0,
                           Params<>::caller<>>         button_clicked_event;
-    typedef event_handler<BN_PUSHED_MESSAGE, 0,
+    typedef event_handler<detail::BN_PUSHED_MESSAGE, 0,
                           Params<>::caller<>>         button_pushed_event;
-    typedef event_handler<BN_UNPUSHED_MESSAGE, 0,
+    typedef event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
                           Params<>::caller<>>         button_released_event;
-    typedef event_handler<BN_STATE_MESSAGE, 0,
+    typedef event_handler<detail::BN_STATE_MESSAGE, 0,
                           Params<bool>::
                           caller<get_param<0, bool>>> button_state_event;
 // --------------------------------------------------------------------------
@@ -284,7 +284,7 @@ namespace gui {
     template<class super>
     window_class custom_button<super>::clazz(
     #ifdef WIN32
-      window_class::custom_class("CUSTOM_BUTTON++"
+      window_class::custom_class("CUSTOM_BUTTON++", 0,
                                  WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                  WS_EX_NOPARENTNOTIFY)
     #else // !WIN32

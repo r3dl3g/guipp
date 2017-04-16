@@ -53,7 +53,7 @@ namespace gui {
     }
 
     core::size layout_base::get_main_size () const {
-      return main->size();
+      return main->client_size();
     }
 
     void layout_base::init (std::function<size_callback> f1) {
@@ -72,7 +72,7 @@ namespace gui {
     attach::attach (win::container* main) {
       main->register_event_handler(win::size_event(core::bind_method(this, &attach::layout)));
       main->register_event_handler(win::show_event([&, main](){
-        layout(main->size());
+        layout(main->client_size());
       }));
     }
 

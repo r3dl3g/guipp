@@ -17,6 +17,7 @@
 */
 
 #include "button.h"
+#include "graphics.h"
 
 namespace gui {
 
@@ -25,42 +26,33 @@ namespace gui {
     // --------------------------------------------------------------------------
     window_class text_button::clazz(
 #ifdef WIN32
-      win::window_class::sub_class("MyButton",
-                                   "BUTTON",
-                                   BS_PUSHBUTTON | BS_MULTILINE | BS_TEXT |
-                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                   WS_VISIBLE | WS_TABSTOP,
-                                   WS_EX_NOPARENTNOTIFY)
+      window_class::custom_class("PUSH_BUTTON++",
+                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+                                 WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
-      window_class::custom_class("BUTTON",
+      window_class::custom_class("PUSH_BUTTON++",
                                  draw::color::buttonColor())
 #endif // !WIN32
     );
 
     window_class radio_button::clazz(
 #ifdef WIN32
-      win::window_class::sub_class("MyRadioButton",
-                                   "BUTTON",
-                                   BS_AUTORADIOBUTTON | BS_TEXT |
-                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                   WS_VISIBLE | WS_TABSTOP,
-                                   WS_EX_NOPARENTNOTIFY)
+      window_class::custom_class("RADIO_BUTTON++",
+                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |WS_VISIBLE | WS_TABSTOP,
+                                 WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
-      window_class::custom_class("RADIO_BUTTON",
+      window_class::custom_class("RADIO_BUTTON++",
                                  draw::color::buttonColor())
 #endif // !WIN32
     );
 
     window_class check_box::clazz(
 #ifdef WIN32
-        win::window_class::sub_class("MyCheckBox",
-                                     "BUTTON",
-                                     BS_AUTOCHECKBOX | BS_TEXT |
-                                     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                     WS_VISIBLE | WS_TABSTOP,
-                                     WS_EX_NOPARENTNOTIFY)
+        window_class::custom_class("CHECKBOX++",
+                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
+                                   WS_EX_NOPARENTNOTIFY)
 #else // !WIN32
-        window_class::custom_class("CHECKBOX",
+        window_class::custom_class("CHECKBOX++",
                                    draw::color::buttonColor())
 #endif // !WIN32
     );
@@ -77,81 +69,56 @@ namespace gui {
 #endif // X11
 
 // --------------------------------------------------------------------------
-    namespace detail {
-#ifdef WIN32
-      button_info::button_info (window& w)
-      {}
-
-      bool button_info::is_checked (const window& w) const {
-        return (SendMessage(w.get_id(), BM_GETSTATE, 0, 0) & BST_CHECKED) == BST_CHECKED;
-        //return SendMessage(w.get_id(), BM_GETCHECK, 0, 0) != BST_UNCHECKED;
-      }
-
-      void button_info::set_checked(window& w, bool f) {
-        SendMessage(w.get_id(), BM_SETCHECK, (WPARAM)(f ? BST_CHECKED : BST_UNCHECKED), 0);
-        SendMessage(w.get_id(), BM_SETSTATE, (WPARAM)(f ? TRUE : FALSE), 0);
-      }
-
-      bool button_info::is_hilited (const window& w) const {
-        return (SendMessage(w.get_id(), BM_GETSTATE, 0, 0 ) & BST_FOCUS) == BST_FOCUS;
-      }
-
-      void button_info::set_hilited (window& w, bool h) {
-        SendMessage(w.get_id(), BM_SETSTATE, (WPARAM)(h ? TRUE : FALSE), 0 );
-      }
-#endif // WIN32
-
+    button::button ()
+      : checked(false)
+      , hilited(false)
+    {
 #ifdef X11
-      button_info::button_info (window& w)
-        : checked(false)
-        , hilited(false)
-      {
-        if (!detail::BN_CLICKED_MESSAGE) {
-          detail::BN_CLICKED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_CLICKED_MESSAGE", False);
-        }
-        if (!detail::BN_PUSHED_MESSAGE) {
-          detail::BN_PUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_PUSHED_MESSAGE", False);
-        }
-        if (!detail::BN_UNPUSHED_MESSAGE) {
-          detail::BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
-        }
-        if (!detail::BN_STATE_MESSAGE) {
-          detail::BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
-        }
-        w.register_event_handler(set_focus_event([&](window*){
-          w.redraw_later();
-        }));
-        w.register_event_handler(lost_focus_event([&](window*){
-          w.redraw_later();
-        }));
+      if (!detail::BN_CLICKED_MESSAGE) {
+        detail::BN_CLICKED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_CLICKED_MESSAGE", False);
       }
-
-      bool button_info::is_checked (const window&) const {
-        return checked;
+      if (!detail::BN_PUSHED_MESSAGE) {
+        detail::BN_PUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_PUSHED_MESSAGE", False);
       }
-
-      void button_info::set_checked (window& w, bool f) {
-        if (checked != f) {
-          checked = f;
-          send_client_message(&w, detail::BN_STATE_MESSAGE, f ? 1 : 0);
-          w.redraw_later();
-        }
+      if (!detail::BN_UNPUSHED_MESSAGE) {
+        detail::BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
       }
-
-      bool button_info::is_hilited (const window&) const {
-        return hilited;
-      }
-
-      void button_info::set_hilited (window& w, bool h) {
-        hilited = h;
-        w.redraw_later();
+      if (!detail::BN_STATE_MESSAGE) {
+        detail::BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
       }
 #endif // X11
+      register_event_handler(set_focus_event([&](window*){
+        redraw_later();
+      }));
+      register_event_handler(lost_focus_event([&](window*){
+        redraw_later();
+      }));
+    }
+
+    bool button::is_checked () const {
+      return checked;
+    }
+
+    void button::set_checked (bool f) {
+      if (checked != f) {
+        checked = f;
+        send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
+        redraw_later();
+      }
+    }
+
+    bool button::is_hilited () const {
+      return hilited;
+    }
+
+    void button::set_hilited (bool h) {
+      hilited = h;
+      redraw_later();
     }
 
     namespace paint {
       // --------------------------------------------------------------------------
-      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, const std::string& text) {
+      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
@@ -167,6 +134,21 @@ namespace gui {
           area.shrink({3, 3});
           graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
         }
+      }
+
+      // --------------------------------------------------------------------------
+      void flat_button (const draw::graphics& g, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+        core::rectangle r = btn.client_area() - core::size{ 1, 1 };
+
+        if (is_checked) {
+          g.fill(draw::rectangle(r), draw::color::darkGray());
+        } else
+        if (is_hilited) {
+          g.fill(draw::rectangle(r), draw::color::lightGray());
+        } else {
+          g.fill(draw::rectangle(r), draw::color::workSpaceColor());
+        }
+        g.text(draw::text_box(text, r, draw::center), draw::font::system(), draw::color::white());
       }
 
       // --------------------------------------------------------------------------
@@ -232,145 +214,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    namespace detail {
-      void register_push_button_handler(bool do_register, window& win, button_info& bi) {
-#ifdef X11
-        do_register = true;
-#endif
-        if (do_register) {
-          win.register_event_handler(left_btn_down_event([&](const core::point&) {
-            if (win.is_enabled()) {
-              win.take_focus();
-              IF_X11(send_client_message(&win, detail::BN_PUSHED_MESSAGE));
-              //IF_WIN32(SendMessage(GetParent(win.get_id()), WM_COMMAND, MAKEWPARAM(win.get_owner_draw_id(), BN_PUSHED), (LPARAM)win.get_id()));
-              bi.set_checked(win, true);
-            }
-          }));
-          win.register_event_handler(left_btn_up_event([&](const core::point& pos) {
-            if (win.is_enabled()) {
-              IF_X11(send_client_message(&win, detail::BN_UNPUSHED_MESSAGE));
-              bi.set_checked(win, false);
-              if (win.client_area().is_inside(pos)) {
-                IF_X11(send_client_message(&win, detail::BN_CLICKED_MESSAGE));
-              }
-            }
-          }));
-        }
-      }
-
-      // --------------------------------------------------------------------------
-      void register_toggle_button_handler (bool do_register, window& w, button_info& b) {
-#ifdef X11
-        do_register = true;
-#endif
-        if (do_register) {
-          w.register_event_handler(left_btn_down_event([&](const core::point&) {
-            if (w.is_enabled()) {
-              w.take_focus();
-              IF_X11(send_client_message(&w, detail::BN_PUSHED_MESSAGE));
-              b.set_hilited(w, true);
-            }
-          }));
-          w.register_event_handler(left_btn_up_event([&](const core::point& pos) {
-            if (w.is_enabled()) {
-              IF_X11(send_client_message(&w, detail::BN_UNPUSHED_MESSAGE));
-              if (b.is_hilited(w)) {
-                b.set_hilited(w, false);
-                if (w.client_area().is_inside(pos)) {
-                  b.set_checked(w, !b.is_checked(w));
-                  if (w.is_enabled()) {
-                    IF_X11(send_client_message(&w, detail::BN_CLICKED_MESSAGE));
-                  }
-                }
-              }
-            }
-          }));
-        }
-      }
-    }
-
-    // --------------------------------------------------------------------------
     text_button::text_button () {
-#ifdef X11
       register_event_handler(paint_event([&] (const draw::graphics& graph) {
-        paint::push_button(graph, *this, is_checked(), get_text());
+        paint::push_button(graph, *this, is_checked(), is_hilited(), get_text());
       }));
-#endif
     }
 
     // --------------------------------------------------------------------------
     radio_button::radio_button () {
-#ifdef X11
       register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
         paint::radio_button(graph, *this, is_checked(), is_hilited(), get_text());
       }));
-#endif
     }
 
     // --------------------------------------------------------------------------
     check_box::check_box () {
-#ifdef X11
       register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
         paint::check_box(graph, *this, is_checked(), is_hilited(), get_text());
       }));
-#endif
     }
-
-    // --------------------------------------------------------------------------
-    owner_draw_button::owner_draw_button () {
-      register_event_handler(this, &owner_draw_button::handle_event, IF_X11(ExposureMask) IF_WIN32(0));
-      register_event_handler(size_event([&](const core::size& sz) {
-        set_item_size(sz);
-      }));
-    }
-
-    bool owner_draw_button::handle_event (const core::event& e,
-                                        os::event_result& result) {
-      switch (e.type) {
-#ifdef WIN32
-        case WM_DRAWITEM: {
-          PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)e.param_2;
-          switch (pdis->itemAction) {
-            case ODA_SELECT:
-            case ODA_DRAWENTIRE: {
-              draw::graphics g(get_id(), pdis->hDC);
-              bool selected = (pdis->itemState & ODS_SELECTED) == ODS_SELECTED;
-              bool disabled = (pdis->itemState & ODS_DISABLED) == ODS_DISABLED;
-              bool focused = (pdis->itemState & ODS_FOCUS) == ODS_FOCUS;
-              set_checked(selected);
-              draw_item(g);
-              g.flush();
-            }
-          }
-          return true;
-        }
-#endif // WIN32
-#ifdef X11
-        case Expose: {
-          draw::graphics g(e.xexpose.window, get_param<0, draw::graphics>(e));
-          draw_item(g);
-          g.flush();
-          return true;
-        }
-#endif // X11
-      }
-      return false;
-    }
-
-    // --------------------------------------------------------------------------
-    window_class custom_push_button::clazz(
-    #ifdef WIN32
-      win::window_class::sub_class("CUSTOM_BUTTON",
-                                   "BUTTON",
-                                   BS_PUSHBUTTON | BS_OWNERDRAW | BS_NOTIFY |
-                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-                                   WS_EX_NOPARENTNOTIFY)
-    #else // !WIN32
-      window_class::custom_class("CUSTOM_BUTTON",
-                                 draw::color::buttonColor())
-    #endif // !WIN32
-    );
-
 
   } // win
 

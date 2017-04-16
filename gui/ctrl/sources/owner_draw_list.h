@@ -27,7 +27,6 @@
 //
 // Library includes
 //
-#include "owner_draw.h"
 
 namespace gui {
 

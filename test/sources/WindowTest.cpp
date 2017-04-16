@@ -1,7 +1,6 @@
 
 #include "label.h"
 #include "button.h"
-#include "owner_draw.h"
 #include "list.h"
 #include "scroll_view.h"
 #include "slider.h"
@@ -812,7 +811,7 @@ void my_main_window::created_children () {
 
   edit_btn_group.layout();
 
-  custom_button.set_drawer([](const draw::graphics& g, const win::owner_draw_button& btn) {
+  custom_button.set_drawer([](const draw::graphics& g, const win::button& btn) {
     core::rectangle r = btn.client_area() - core::size{ 1, 1 };
 
     if (btn.is_checked()) {
@@ -825,7 +824,6 @@ void my_main_window::created_children () {
       g.fill(draw::rectangle(r), draw::color::workSpaceColor());
     }
     g.text(draw::text_box("Custom", r, draw::center), draw::font::serif(), draw::color::white());
-
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));

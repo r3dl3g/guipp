@@ -37,13 +37,6 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    namespace detail {
-      const os::event_id BN_CLICKED_MESSAGE = WM_USER + 3;
-      const os::event_id BN_PUSHED_MESSAGE = WM_USER + 4;
-      const os::event_id BN_UNPUSHED_MESSAGE = WM_USER + 5;
-      const os::event_id BN_STATE_MESSAGE = WM_USER + 6;
-    }
-
     typedef event_handler<detail::BN_CLICKED_MESSAGE, 0,
                           Params<>::caller<>>         button_clicked_event;
     typedef event_handler<detail::BN_PUSHED_MESSAGE, 0,
@@ -57,14 +50,6 @@ namespace gui {
 #endif //WIN32
 
 #ifdef X11
-    // --------------------------------------------------------------------------
-    namespace detail {
-      extern Atom BN_CLICKED_MESSAGE;
-      extern Atom BN_PUSHED_MESSAGE;
-      extern Atom BN_UNPUSHED_MESSAGE;
-      extern Atom BN_STATE_MESSAGE;
-    }
-
     // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
                           Params<>::caller<>, 0,

@@ -37,10 +37,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    namespace detail {
-      const os::event_id SELECTION_CHANGE_MESSAGE = WM_USER + 2;
-    }
-
     typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
                           Params<>::caller<>>
             selection_changed_event;
@@ -48,10 +44,6 @@ namespace gui {
 #endif //WIN32
 
 #ifdef X11
-    namespace detail {
-      extern Atom SELECTION_CHANGE_MESSAGE;
-    }
-
     typedef event_handler<ClientMessage, 0,
                           Params<>::caller<>, 0,
                           client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>

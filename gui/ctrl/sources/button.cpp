@@ -58,17 +58,6 @@ namespace gui {
     );
 
     // --------------------------------------------------------------------------
-#ifdef X11
-    namespace detail {
-      Atom BN_CLICKED_MESSAGE = 0;
-      Atom BN_PUSHED_MESSAGE = 0;
-      Atom BN_UNPUSHED_MESSAGE = 0;
-      Atom BN_STATE_MESSAGE = 0;
-    }
-// --------------------------------------------------------------------------
-#endif // X11
-
-// --------------------------------------------------------------------------
     button::button ()
       : checked(false)
       , hilited(false)

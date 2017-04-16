@@ -37,9 +37,29 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     namespace detail {
+#ifdef WIN32
+      const os::event_id SLIDER_MESSAGE = WM_USER + 1;
+      const os::event_id SELECTION_CHANGE_MESSAGE = WM_USER + 2;
+      const os::event_id BN_CLICKED_MESSAGE = WM_USER + 3;
+      const os::event_id BN_PUSHED_MESSAGE = WM_USER + 4;
+      const os::event_id BN_UNPUSHED_MESSAGE = WM_USER + 5;
+      const os::event_id BN_STATE_MESSAGE = WM_USER + 6;
+      const os::event_id SCROLLBAR_MESSAGE = WM_USER + 7;
+#endif //WIN32
+#ifdef X11
+      extern Atom SCROLLBAR_MESSAGE;
+      extern Atom SELECTION_CHANGE_MESSAGE;
+      extern Atom SLIDER_MESSAGE;
+      extern Atom BN_CLICKED_MESSAGE;
+      extern Atom BN_PUSHED_MESSAGE;
+      extern Atom BN_UNPUSHED_MESSAGE;
+      extern Atom BN_STATE_MESSAGE;
+#endif // X11
     }
 
+    // --------------------------------------------------------------------------
     template<typename T>
     inline std::string convert_to_string(const T& t) {
       return ostreamfmt(t);

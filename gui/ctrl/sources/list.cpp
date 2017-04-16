@@ -33,13 +33,6 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-#ifdef X11
-    namespace detail {
-      Atom SELECTION_CHANGE_MESSAGE = 0;
-    }
-#endif // X11
-
-    // --------------------------------------------------------------------------
     namespace detail {
       list::list ()
         : item_count(0)
@@ -362,7 +355,7 @@ namespace gui {
         last_mouse_point = core::point::undefined;
       }));
       register_event_handler(wheel_x_event([&](const core::point::type dx, const core::point&){
-        set_scroll_pos(get_scroll_pos() + get_item_width() * dx);
+        set_scroll_pos(get_scroll_pos() - get_item_width() * dx);
         moved = true;
       }));
       register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
@@ -430,7 +423,7 @@ namespace gui {
         last_mouse_point = core::point::undefined;
       }));
       register_event_handler(wheel_y_event([&](const core::point::type dy, const core::point&){
-        set_scroll_pos(get_scroll_pos() + get_item_height() * dy);
+        set_scroll_pos(get_scroll_pos() - get_item_height() * dy);
         moved = true;
       }));
       register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {

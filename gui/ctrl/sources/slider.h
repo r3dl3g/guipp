@@ -36,11 +36,6 @@ namespace gui {
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    namespace detail {
-      extern Atom SLIDER_MESSAGE;
-    }
-
-    // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
                            Params<int>::caller<get_client_data<int, 0>>, 0,
                            client_message_matcher<detail::SLIDER_MESSAGE>>
@@ -48,10 +43,6 @@ namespace gui {
     // --------------------------------------------------------------------------
 #endif // X11
 #ifdef WIN32
-    namespace detail {
-      const os::event_id SLIDER_MESSAGE = WM_USER + 1;
-    }
-
     typedef event_handler<detail::SLIDER_MESSAGE, 0,
                           Params<int>::
                           caller<get_param<0, int>>>

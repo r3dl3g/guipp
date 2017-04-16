@@ -43,7 +43,7 @@ namespace gui {
       slider_class<false>::slider_class ()
         : window_class(
 #ifdef WIN32
-            win::window_class::custom_class("VSLIDER",
+            win::window_class::custom_class("VSLIDER++",
                                                     0,
                                                     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
                                                     WS_EX_NOPARENTNOTIFY,
@@ -53,7 +53,7 @@ namespace gui {
                                                     (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-            window_class::custom_class("VSLIDER",
+            window_class::custom_class("VSLIDER++",
                                        0, 0, 0, 0,
                                        XC_sb_h_double_arrow,
                                        draw::color::buttonColor())
@@ -65,7 +65,7 @@ namespace gui {
       slider_class<true>::slider_class ()
         : window_class(
 #ifdef WIN32
-            win::window_class::custom_class("HSLIDER",
+            win::window_class::custom_class("HSLIDER++",
                                                     0,
                                                     WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
                                                     WS_EX_NOPARENTNOTIFY,
@@ -75,7 +75,7 @@ namespace gui {
                                                     (os::color)(COLOR_BTNFACE + 1))
 #endif // WIN32
 #ifdef X11
-            window_class::custom_class("HSLIDER",
+            window_class::custom_class("HSLIDER++",
                                        0, 0, 0, 0,
                                        XC_sb_v_double_arrow,
                                        draw::color::buttonColor())
@@ -142,22 +142,10 @@ namespace gui {
         }));
       }
 
-#ifdef X11
-      Atom SLIDER_MESSAGE = 0;
-#endif // X11
-//#ifdef WIN32
-//      os::event_id SLIDER_MESSAGE = 0;
-//#endif //WIN32
-
       slider::slider ()
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
-#ifdef WIN32
-//        if (!detail::SLIDER_MESSAGE) {
-//          detail::SLIDER_MESSAGE = RegisterWindowMessage("SLIDER_MESSAGE");
-//        }
-#endif //WIN32
 #ifdef X11
         if (!detail::SLIDER_MESSAGE) {
           detail::SLIDER_MESSAGE = XInternAtom(core::global::get_instance(), "SLIDER_MESSAGE", False);

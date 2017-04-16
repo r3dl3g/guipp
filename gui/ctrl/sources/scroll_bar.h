@@ -36,28 +36,17 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    core::point::type get_scroll_pos(const core::event& e);
-
-    struct scroll_matcher {
-      bool operator() (const core::event& e);
-    };
-
-    typedef event_handler<WM_COMMAND, 0,
-                          Params<core::point::type>::
-                          caller<get_scroll_pos>,
-                          0, scroll_matcher>                  scroll_event;
+    typedef event_handler<SCROLLBAR_MESSAGE, 0,
+                          Params<core::point::type>::caller<get_param<0, int>>>
+            scroll_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    namespace detail {
-      extern Atom SCROLLBAR_MESSAGE;
-    }
-    // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
-                           Params<core::point::type>::caller<get_client_data<core::point::type, 0>>, 0,
-                           client_message_matcher<detail::SCROLLBAR_MESSAGE>>
+                          Params<core::point::type>::caller<get_client_data<core::point::type, 0>>, 0,
+                          client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
     // --------------------------------------------------------------------------
 #endif // X11
@@ -71,6 +60,10 @@ namespace gui {
       type get_max () const;
       type get_step () const;
       type get_value () const;
+
+      type get_range () const {
+        return get_max() + get_step() - get_min();
+      }
 
       void set_min (type);
       void set_max (type);
@@ -103,19 +96,7 @@ namespace gui {
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      bool scroll_handle_event (const core::event& e, os::event_result& result);
-
-#ifdef X11
       void set_state (State);
-
-      void draw_scrollbar (draw::graphics &g,
-                           const std::string& up_char,
-                           const std::string& down_char,
-                           const core::rectangle& up,
-                           const core::rectangle& down,
-                           const core::rectangle& thumb,
-                           const core::rectangle& page_up,
-                           const core::rectangle& page_down) const;
 
     private:
       State state;
@@ -123,9 +104,21 @@ namespace gui {
       type max;
       type step;
       type value;
-#endif // X11
 
     };
+
+    namespace paint {
+      void scrollbar (const draw::graphics &g,
+                      scroll_bar::State state,
+                      bool is_enabled,
+                      const std::string& up_char,
+                      const std::string& down_char,
+                      const core::rectangle& up,
+                      const core::rectangle& down,
+                      const core::rectangle& thumb,
+                      const core::rectangle& page_up,
+                      const core::rectangle& page_down);
+    }
 
     namespace detail {
 
@@ -146,8 +139,6 @@ namespace gui {
 
         scroll_barT ();
 
-        ~scroll_barT ();
-
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           super::create(clazz, parent, place);
@@ -155,10 +146,6 @@ namespace gui {
 
       private:
         static scroll_bar_class<H> clazz;
-
-#ifdef X11
-        bool scroll_handle_eventT (const core::event& e,
-                                   os::event_result& result);
 
         struct geometry {
           type length;
@@ -180,10 +167,6 @@ namespace gui {
           type sc = get_scale(s, th);
           type tt = thumb_top(b, sc);
           return { l, t, b, s, th, sc, tt };
-        }
-
-        type get_range () const {
-          return get_max() + get_step() - get_min();
         }
 
         type get_scale () const {
@@ -242,8 +225,6 @@ namespace gui {
 
         core::point last_mouse_point;
         type last_position;
-        os::graphics gc;
-#endif // X11
       };
 
       template<bool H>
@@ -254,21 +235,6 @@ namespace gui {
 
       template<>
       scroll_barT<true>::scroll_barT ();
-
-      template<>
-      scroll_barT<false>::~scroll_barT ();
-
-      template<>
-      scroll_barT<true>::~scroll_barT ();
-
-#ifdef X11
-      template<>
-      bool scroll_barT<false>::scroll_handle_eventT (const core::event& e,
-                                                     os::event_result& result);
-
-      template<>
-      bool scroll_barT<true>::scroll_handle_eventT (const core::event& e,
-                                                    os::event_result& result);
 
       template<>
       inline scroll_bar::type scroll_barT<true>::length (const core::size& sz) {
@@ -312,7 +278,6 @@ namespace gui {
         return { 0, pos };
       }
 
-#endif // X11
     }
 
     typedef detail::scroll_barT<false> vscroll_bar;

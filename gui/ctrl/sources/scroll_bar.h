@@ -36,8 +36,11 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handler<SCROLLBAR_MESSAGE, 0,
-                          Params<core::point::type>::caller<get_param<0, int>>>
+    template<>
+    float get_param<0, float>(const core::event& e);
+
+    typedef event_handler<detail::SCROLLBAR_MESSAGE, 0,
+                          Params<core::point_type>::caller<get_param<0, core::point_type>>>
             scroll_event;
     // --------------------------------------------------------------------------
 #endif //WIN32

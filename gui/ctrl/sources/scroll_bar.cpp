@@ -33,6 +33,13 @@ namespace gui {
 
   namespace win {
 
+#ifdef WIN32
+    template<>
+    float get_param<0, float>(const core::event& e) {
+      return (float)e.param_1;
+    }
+#endif //WIN32
+
     scroll_bar::type scroll_bar::get_scroll_bar_width () {
       return scroll_bar::type(17);
     }
@@ -45,9 +52,11 @@ namespace gui {
       , value(0)
       , state(Nothing_pressed)
     {
+#ifdef X11
       if (!detail::SCROLLBAR_MESSAGE) {
         detail::SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
       }
+#endif // X11
     }
 
     void scroll_bar::create (const window_class& type,
@@ -175,14 +184,30 @@ namespace gui {
 
       template<>
       scroll_bar_class<false>::scroll_bar_class ()
-        : window_class(custom_class("VSCROLLBAR++",
-                                    draw::color::veryLightGray()))
+        : window_class(custom_class("VSCROLLBAR++", 
+#ifdef WIN32
+          0,
+          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+          WS_EX_NOPARENTNOTIFY
+#endif //WIN32
+#ifdef X11
+          draw::color::veryLightGray()
+#endif // X11
+        ))
       {}
 
       template<>
       scroll_bar_class<true>::scroll_bar_class ()
-        : window_class(custom_class("HSCROLLBAR++",
-                                    draw::color::veryLightGray()))
+        : window_class(custom_class("HSCROLLBAR++", 
+#ifdef WIN32
+          0,
+          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+          WS_EX_NOPARENTNOTIFY
+#endif //WIN32
+#ifdef X11
+          draw::color::veryLightGray()
+#endif // X11
+        ))
       {}
 
       template<>
@@ -245,6 +270,7 @@ namespace gui {
           } else {
             set_state(Nothing_pressed);
           }
+          capture_pointer();
           redraw_later();
         }));
         register_event_handler(left_btn_up_event([&](const core::point& pt) {
@@ -272,6 +298,7 @@ namespace gui {
               break;
           }
           set_state(Nothing_pressed);
+          uncapture_pointer();
           redraw_later();
         }));
         register_event_handler(wheel_x_event([&](const core::point::type dx, const core::point&){
@@ -349,6 +376,7 @@ namespace gui {
           } else {
             set_state(Nothing_pressed);
           }
+          capture_pointer();
           redraw_later();
         }));
         register_event_handler(left_btn_up_event([&](const core::point& pt) {
@@ -376,6 +404,7 @@ namespace gui {
               break;
           }
           set_state(Nothing_pressed);
+          uncapture_pointer();
           redraw_later();
         }));
         register_event_handler(wheel_y_event([&](const core::point::type dy, const core::point&){

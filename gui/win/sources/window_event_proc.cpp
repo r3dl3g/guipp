@@ -143,6 +143,15 @@ namespace gui {
             set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
             break;
           }
+          case WM_KEYDOWN:
+            LogDebug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
+          case WM_KEYUP:
+            LogDebug << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
+          case WM_CHAR:
+            LogDebug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+            break;
         }
 
         os::event_result result = 0;

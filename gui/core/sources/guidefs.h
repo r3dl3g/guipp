@@ -68,6 +68,9 @@ namespace gui {
     typedef LOGFONT font_type;
     typedef LPCSTR cursor_type;
 
+    typedef unsigned int key_state;
+    typedef unsigned int key_symbol;
+
     typedef POINT point;
     typedef SIZE size;
     typedef RECT rectangle;
@@ -122,6 +125,9 @@ namespace gui {
     typedef unsigned short size_type;
     typedef XftFont* font_type;
     typedef unsigned int cursor_type;
+
+    typedef unsigned int key_state;
+    typedef KeySym key_symbol;
 
     typedef XPoint point;
     typedef struct {

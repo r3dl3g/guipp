@@ -373,7 +373,7 @@ namespace gui {
         adjust_scroll_bar();
       }));
 #ifdef X11
-      register_event_handler(key_up_event([&](unsigned int, KeySym key){
+      register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
         switch (key) {
           case XK_Left:
           case XK_KP_Left:
@@ -441,7 +441,7 @@ namespace gui {
         adjust_scroll_bar();
       }));
 #ifdef X11
-      register_event_handler(key_up_event([&](unsigned int, KeySym key){
+      register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
         switch (key) {
           case XK_Up:
           case XK_KP_Up:

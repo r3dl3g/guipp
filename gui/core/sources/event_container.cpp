@@ -52,7 +52,7 @@ namespace gui {
       change_map[this].push_back(make_pair(false, handler));
     }
 
-    bool event_container::handle_event(const event& e, os::event_result& resultValue) {
+    bool event_container::handle_event(const event& ev, os::event_result& resultValue) {
 
       if (handle_event_stack_count == 0) {
         typedef event_handler_change_map::iterator iterator;
@@ -81,9 +81,11 @@ namespace gui {
       ++handle_event_stack_count;
 
       bool result = false;
-      for (auto i : event_handlers) {
+      typedef event_handler_list::iterator iterator;
+      for (iterator i = event_handlers.begin(), e = event_handlers.end(); i != e; ++i) {
         try {
-          result |= i(e, resultValue);
+          const event_handler_function& fn = *i;
+          result |= fn(ev, resultValue);
         } catch (std::exception e) {
           LogFatal << "exception in event_container::handle_event:" << e.what();
         } catch (...) {

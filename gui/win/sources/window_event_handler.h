@@ -59,14 +59,65 @@ namespace gui {
     }
 
 #ifdef WIN32
+#ifndef MK_MENU
+# define MK_MENU 0x0080
+#endif // MK_MENU
+#ifndef MK_SYTEM
+# define MK_SYTEM 0x0100
+#endif // MK_MENU
+
     typedef detail::bit_mask<unsigned int, MK_LBUTTON> left_button_bit_mask;
     typedef detail::bit_mask<unsigned int, MK_MBUTTON> middle_button_bit_mask;
     typedef detail::bit_mask<unsigned int, MK_RBUTTON> right_button_bit_mask;
+
+    typedef detail::bit_mask<os::key_state, MK_SHIFT> shift_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, MK_CONTROL> control_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, MK_MENU> alt_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, MK_SYTEM> system_key_bit_mask;
+
+    namespace keys {
+      const os::key_symbol left = VK_LEFT;
+      const os::key_symbol right = VK_RIGHT;
+      const os::key_symbol up = VK_UP;
+      const os::key_symbol down = VK_DOWN;
+
+      const os::key_symbol page_up = VK_PRIOR;
+      const os::key_symbol page_down = VK_NEXT;
+
+      const os::key_symbol home = VK_HOME;
+      const os::key_symbol end = VK_END;
+
+      const os::key_symbol remove = VK_DELETE;
+      const os::key_symbol insert = VK_INSERT;
+    }
+
 #endif // WIN32
+
 #ifdef X11
     typedef detail::bit_mask<unsigned int, Button1Mask> left_button_bit_mask;
     typedef detail::bit_mask<unsigned int, Button2Mask> middle_button_bit_mask;
     typedef detail::bit_mask<unsigned int, Button3Mask> right_button_bit_mask;
+
+    typedef detail::bit_mask<os::key_state, ShiftMask> shift_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, ControlMask> control_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, Mod1Mask> alt_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, Mod2Mask> system_key_bit_mask;
+
+    namespace keys {
+      const os::key_symbol left = XK_Left;
+      const os::key_symbol right = XK_Right;
+      const os::key_symbol up = XK_Up;
+      const os::key_symbol down = XK_Down;
+
+      const os::key_symbol page_up = XK_Page_Up;
+      const os::key_symbol page_down = XK_Page_Down;
+
+      const os::key_symbol home = XK_Home;
+      const os::key_symbol end = XK_End;
+
+      const os::key_symbol remove = VK_DELETE;
+      const os::key_symbol insert = VK_INSERT;
+  }
 #endif // X11
 
     class window;
@@ -140,6 +191,13 @@ namespace gui {
     const T& cast_event_type(const core::event& e);
 
 #endif // X11
+
+    // --------------------------------------------------------------------------
+    os::key_state get_key_state (const core::event& e);
+    // --------------------------------------------------------------------------
+    os::key_symbol get_key_symbol (const core::event& e);
+    // --------------------------------------------------------------------------
+    std::string get_key_chars (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
@@ -233,6 +291,20 @@ namespace gui {
     typedef event_handler<WM_CLOSE>                                           close_event;
     typedef event_handler<WM_QUIT>                                            quit_event;
 
+    typedef event_handler<WM_KEYDOWN, 0,
+                          Params<os::key_state, os::key_symbol>::
+                          caller<get_key_state,
+                                 get_key_symbol>>                             key_down_event;
+
+    typedef event_handler<WM_KEYUP, 0,
+                          Params<os::key_state, os::key_symbol>::
+                          caller<get_key_state,
+                                 get_key_symbol>>                             key_up_event;
+
+    typedef event_handler<WM_CHAR, 0,
+                          Params<std::string>::
+                          caller<get_key_chars>>                              character_event;
+
     typedef event_handler<WM_ERASEBKGND, 0,
                            Params<os::graphics>::
                            caller<get_param<0, os::graphics>>>                erase_event;
@@ -309,8 +381,8 @@ namespace gui {
                            caller<get_param<1, core::point>>>                 middle_btn_dblclk_event;
 
     typedef event_handler<WM_MOUSEMOVE, 0,
-                           Params<unsigned int, core::point>::
-                           caller<get_param<0, unsigned int>,
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
                                   get_param<1, core::point>>>                 mouse_move_event;
 
 
@@ -510,13 +582,6 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<typename T>
-    inline KeySym get_keycode(const core::event& e) {
-      return XLookupKeysym(const_cast<T*>(&e.xkey), 0);
-    }
-    // --------------------------------------------------------------------------
-    std::string get_key_chars(const core::event& e);
-    // --------------------------------------------------------------------------
-    template<typename T>
     inline T* get_event_ptr(const core::event& e) {
       return const_cast<T*>(&(cast_event_type<T>(e)));
     }
@@ -557,17 +622,21 @@ namespace gui {
     typedef event_handler<DestroyNotify, SubstructureNotifyMask>                    destroy_event;
 
     typedef event_handler<KeyPress, KeyPressMask,
-                           Params<unsigned int, KeySym, std::string>::
-                           caller<get_state<XKeyEvent>,
-                                  get_keycode<XKeyEvent>,
-                                  get_key_chars>>                                   key_down_event;
+                           Params<os::key_state, os::key_symbol>::
+                           caller<get_key_state,
+                                  get_key_symbol>>                                  key_down_event;
 
     typedef event_handler<KeyRelease, KeyReleaseMask,
-                           Params<unsigned int, KeySym>::
-                           caller<get_state<XKeyEvent>, get_keycode<XKeyEvent>>>    key_up_event;
+                           Params<os::key_state, os::key_symbol>::
+                           caller<get_key_state,
+                                  get_key_symbol>>                                  key_up_event;
+
+    typedef event_handler<KeyPress, KeyPressMask,
+                          Params<std::string>::
+                          caller<get_key_chars>>                                    character_event;
 
     typedef event_handler<MotionNotify, PointerMotionMask,
-                           Params<unsigned int, core::point>::
+                           Params<os::key_state, core::point>::
                            caller<get_state<XMotionEvent>,
                                   get_param<core::point, XMotionEvent>>>            mouse_move_event;
 

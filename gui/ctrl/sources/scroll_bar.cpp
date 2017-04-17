@@ -131,7 +131,7 @@ namespace gui {
         value = v;
         redraw_later();
         if (notify) {
-          send_client_message(this, detail::SCROLLBAR_MESSAGE, value);
+          send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(value));
         }
       }
     }
@@ -187,7 +187,7 @@ namespace gui {
         : window_class(custom_class("VSCROLLBAR++", 
 #ifdef WIN32
           0,
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
           WS_EX_NOPARENTNOTIFY
 #endif //WIN32
 #ifdef X11
@@ -201,7 +201,7 @@ namespace gui {
         : window_class(custom_class("HSCROLLBAR++", 
 #ifdef WIN32
           0,
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
+          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
           WS_EX_NOPARENTNOTIFY
 #endif //WIN32
 #ifdef X11
@@ -252,6 +252,7 @@ namespace gui {
           paint::scrollbar(g, get_state(), is_enabled(), left_char, right_char, up, down, thumb, page_up, page_down);
         }));
         register_event_handler(left_btn_down_event([&](const core::point& pt) {
+          take_focus();
           last_mouse_point = pt;
           last_position = get_value();
 
@@ -302,7 +303,7 @@ namespace gui {
           redraw_later();
         }));
         register_event_handler(wheel_x_event([&](const core::point::type dx, const core::point&){
-          set_value(get_value() - get_step() * dx, true);
+          set_value(get_value() - dx, true);
         }));
         register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
           if (left_button_bit_mask::is_set(keys)) {
@@ -313,36 +314,34 @@ namespace gui {
             }
           }
         }));
-#ifdef X11
-        register_event_handler(key_up_event([&](unsigned int, KeySym key){
+        register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
           switch (key) {
-            case XK_Left:
-            case XK_KP_Left:
+            case keys::left:
+            //case XK_KP_Left:
               set_value(get_value() - 1, true);
-              return true;
-            case XK_Right:
-            case XK_KP_Right:
+              break;
+            case keys::right:
+            //case XK_KP_Right:
               set_value(get_value() + 1, true);
-              return true;
-            case XK_Page_Up:
-            case XK_KP_Page_Up:
+              break;
+            case keys::page_up:
+            //case XK_KP_Page_Up:
               set_value(get_value() - get_step(), true);
-              return true;
-            case XK_Page_Down:
-            case XK_KP_Page_Down:
+              break;
+            case keys::page_down:
+            //case XK_KP_Page_Down:
               set_value(get_value() + get_step(), true);
-              return true;
-            case XK_Home:
-            case XK_KP_Home:
+              break;
+            case keys::home:
+            //case XK_KP_Home:
               set_value(get_min(), true);
-              return true;
-            case XK_End:
-            case XK_KP_End:
+              break;
+            case keys::end:
+            //case XK_KP_End:
               set_value(get_min(), true);
-              return true;
+              break;
           }
         }));
-#endif // X11
       }
 
       template<>
@@ -358,6 +357,7 @@ namespace gui {
           paint::scrollbar(g, get_state(), is_enabled(), up_char, down_char, up, down, thumb, page_up, page_down);
         }));
         register_event_handler(left_btn_down_event([&](const core::point& pt) {
+          take_focus();
           last_mouse_point = pt;
           last_position = get_value();
 
@@ -408,7 +408,7 @@ namespace gui {
           redraw_later();
         }));
         register_event_handler(wheel_y_event([&](const core::point::type dy, const core::point&){
-          set_value(get_value() - get_step() * dy, true);
+          set_value(get_value() - dy, true);
         }));
         register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
           if (left_button_bit_mask::is_set(keys)) {
@@ -419,36 +419,34 @@ namespace gui {
             }
           }
         }));
-#ifdef X11
-        register_event_handler(key_up_event([&](unsigned int, KeySym key){
+        register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
           switch (key) {
-            case XK_Up:
-            case XK_KP_Up:
+            case keys::up:
+            //case XK_KP_Up:
               set_value(get_value() - 1, true);
-              return true;
-            case XK_Down:
-            case XK_KP_Down:
+              break;
+            case keys::down:
+            //case XK_KP_Down:
               set_value(get_value() + 1, true);
-              return true;
-            case XK_Page_Up:
-            case XK_KP_Page_Up:
+              break;
+            case keys::page_up:
+            //case XK_KP_Page_Up:
               set_value(get_value() - get_step(), true);
-              return true;
-            case XK_Page_Down:
-            case XK_KP_Page_Down:
+              break;
+            case keys::page_down:
+            //case XK_KP_Page_Down:
               set_value(get_value() + get_step(), true);
-              return true;
-            case XK_Home:
-            case XK_KP_Home:
+              break;
+            case keys::home:
+            //case XK_KP_Home:
               set_value(get_min(), true);
-              return true;
-            case XK_End:
-            case XK_KP_End:
+              break;
+            case keys::end:
+            //case XK_KP_End:
               set_value(get_min(), true);
-              return true;
+              break;
           }
         }));
-#endif // X11
       }
 
     }

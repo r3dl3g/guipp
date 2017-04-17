@@ -271,11 +271,10 @@ namespace gui {
         register_event_handler(paint_event([&, alignment] (const gui::draw::graphics& graph) {
           paint::edit_box(graph, *this, text, (draw::text_origin)alignment, selection, cursor_pos, scroll_pos);
         }));
-        register_event_handler(key_down_event([&] (unsigned int keystate,
-                                                   KeySym keycode,
-                                                   const std::string& chars) {
-          bool shift = (keystate & ShiftMask) != 0;
-          bool ctrl = (keystate & ControlMask) != 0;
+        register_event_handler(key_down_event([&] (os::key_state keystate,
+                                                   os::key_symbol keycode) {
+          bool shift = shift_key_bit_mask.is_set(keystate);
+          bool ctrl = control_key_bit_mask.is_set(keystate);
 
           switch (keycode) {
             case XK_Left:
@@ -382,17 +381,18 @@ namespace gui {
                 set_selection(range(0, text.size()));
                 return true;
               }
-              // fall through!
+              break;
             default: {
               if (ctrl) {
                 LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
-              } else {
-                if (chars.size()) {
-                  replace_selection(chars);
-                  set_cursor_pos(selection.last, false);
-                }
               }
             }
+          }
+        }));
+        register_event_handler(character_event([&] (const std::string& chars) {
+          if (chars.size()) {
+            replace_selection(chars);
+            set_cursor_pos(selection.last, false);
           }
         }));
         register_event_handler(left_btn_down_event([&](const core::point& pt) {

@@ -200,6 +200,16 @@ namespace gui {
       return out;
     }
 
+    core::size font::get_text_size(const std::string& str) const {
+      HDC hdc = GetDC(NULL);
+      HGDIOBJ old = SelectObject(hdc, id);
+      SIZE sz = { 0 };
+      GetTextExtentPoint32(hdc, str.c_str(), str.length(), &sz);
+      SelectObject(hdc, old);
+      ReleaseDC(NULL, hdc);
+      return core::size(sz);
+    }
+
 #endif // WIN32
 #ifdef X11
 #define STD_FONT_SIZE 10

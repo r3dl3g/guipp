@@ -317,27 +317,27 @@ namespace gui {
         register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
           switch (key) {
             case keys::left:
-            //case XK_KP_Left:
+            case keys::numpad::left:
               set_value(get_value() - 1, true);
               break;
             case keys::right:
-            //case XK_KP_Right:
+            case keys::numpad::right:
               set_value(get_value() + 1, true);
               break;
             case keys::page_up:
-            //case XK_KP_Page_Up:
+            case keys::numpad::page_up:
               set_value(get_value() - get_step(), true);
               break;
             case keys::page_down:
-            //case XK_KP_Page_Down:
+            case keys::numpad::page_down:
               set_value(get_value() + get_step(), true);
               break;
             case keys::home:
-            //case XK_KP_Home:
+            case keys::numpad::home:
               set_value(get_min(), true);
               break;
             case keys::end:
-            //case XK_KP_End:
+            case keys::numpad::end:
               set_value(get_min(), true);
               break;
           }
@@ -422,27 +422,27 @@ namespace gui {
         register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
           switch (key) {
             case keys::up:
-            //case XK_KP_Up:
+            case keys::numpad::up:
               set_value(get_value() - 1, true);
               break;
             case keys::down:
-            //case XK_KP_Down:
+            case keys::numpad::down:
               set_value(get_value() + 1, true);
               break;
             case keys::page_up:
-            //case XK_KP_Page_Up:
+            case keys::numpad::page_up:
               set_value(get_value() - get_step(), true);
               break;
             case keys::page_down:
-            //case XK_KP_Page_Down:
+            case keys::numpad::page_down:
               set_value(get_value() + get_step(), true);
               break;
             case keys::home:
-            //case XK_KP_Home:
+            case keys::numpad::home:
               set_value(get_min(), true);
               break;
             case keys::end:
-            //case XK_KP_End:
+            case keys::numpad::end:
               set_value(get_min(), true);
               break;
           }

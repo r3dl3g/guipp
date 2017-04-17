@@ -228,12 +228,12 @@ namespace gui {
         if (result == expected) {
           background = info.lbColor;
         } else { // seems to be a sys constant
-          background = (os::color)wc.hbrBackground;
+          background = static_cast<os::color>(reinterpret_cast<LPARAM>(wc.hbrBackground));
         }
 
       } else {
 
-        os::brush br = ((background > 0) && (background < 20)) ? (os::brush)background
+        os::brush br = ((background > 0) && (background < 20)) ? reinterpret_cast<os::brush>(static_cast<LPARAM>(background))
                                                                : CreateSolidBrush(background);
 
         WNDCLASS wc = {

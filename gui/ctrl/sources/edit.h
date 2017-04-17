@@ -38,6 +38,7 @@ namespace gui {
     namespace detail {
       class edit_base : public gui::win::window_with_text {
       public:
+        typedef gui::win::window_with_text super;
         typedef size_t pos_t;
 
         struct range {
@@ -68,6 +69,14 @@ namespace gui {
         edit_base ();
         ~edit_base ();
 
+        void create(const container& parent,
+          const core::rectangle& place = core::rectangle::def,
+          const std::string& txt = std::string()) {
+          super::create(clazz, parent, place);
+          prepare_input();
+          set_text(txt);
+        }
+
         void set_selection (const range& sel);
         range get_selection () const;
 
@@ -81,10 +90,8 @@ namespace gui {
         void replace_selection (const std::string &new_text);
 
       protected:
-        static window_class create_edit_class(alignment_h);
-        void register_handler(alignment_h);
+        void register_handler (alignment_h);
 
-#ifdef X11
         void prepare_input ();
         pos_t get_char_at_point (const core::point& pt);
 
@@ -92,11 +99,14 @@ namespace gui {
         pos_t cursor_pos;
         pos_t text_limit;
         pos_t scroll_pos;
+        core::point last_mouse_point;
+#ifdef X11
         XIM im;
         XIC ic;
-
-        core::point last_mouse_point;
 #endif // X11
+
+      private:
+        static window_class clazz;
       };
     }
 
@@ -120,22 +130,7 @@ namespace gui {
       editT () {
         register_handler(A);
       }
-
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-#ifdef X11
-        prepare_input();
-#endif // X11
-        set_text(txt);
-      }
-
-    private:
-      static window_class clazz;
     };
-
-    template<alignment_h A> window_class editT<A>::clazz(editT<A>::create_edit_class(A));
 
     // --------------------------------------------------------------------------
     typedef editT<alignment_left> edit_left;

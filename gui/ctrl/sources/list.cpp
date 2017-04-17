@@ -372,36 +372,34 @@ namespace gui {
         scrollbar.place(get_scroll_bar_area());
         adjust_scroll_bar();
       }));
-#ifdef X11
       register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
         switch (key) {
-          case XK_Left:
-          case XK_KP_Left:
+          case keys::left:
+          case keys::numpad::left:
             set_selection(get_selection() - 1);
             break;
-          case XK_Right:
-          case XK_KP_Right:
+          case keys::right:
+          case keys::numpad::right:
             set_selection(get_selection() + 1);
             break;
-          case XK_Page_Up:
-          case XK_KP_Page_Up:
-            set_selection(get_selection() - (size().width() / get_item_width()));
+          case keys::page_up:
+          case keys::numpad::page_up:
+            set_selection(get_selection() - static_cast<int>(size().width() / get_item_width()));
             break;
-          case XK_Page_Down:
-          case XK_KP_Page_Down:
-            set_selection(get_selection() + (size().width() / get_item_width()));
+          case keys::page_down:
+          case keys::numpad::page_down:
+            set_selection(get_selection() + static_cast<int>(size().width() / get_item_width()));
             break;
-          case XK_Home:
-          case XK_KP_Home:
+          case keys::home:
+          case keys::numpad::home:
             set_selection(0);
             break;
-          case XK_End:
-          case XK_KP_End:
+          case keys::end:
+          case keys::numpad::end:
             set_selection((int)get_count() - 1);
             break;
         }
       }));
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -440,36 +438,34 @@ namespace gui {
         scrollbar.place(get_scroll_bar_area());
         adjust_scroll_bar();
       }));
-#ifdef X11
       register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
         switch (key) {
-          case XK_Up:
-          case XK_KP_Up:
+          case keys::up:
+          case keys::numpad::up:
             set_selection(get_selection() - 1);
             break;
-          case XK_Down:
-          case XK_KP_Down:
+          case keys::down:
+          case keys::numpad::down:
             set_selection(get_selection() + 1);
             break;
-          case XK_Page_Up:
-          case XK_KP_Page_Up:
-            set_selection(get_selection() - (size().height() / get_item_height()));
+          case keys::page_up:
+          case keys::numpad::page_up:
+            set_selection(get_selection() - static_cast<int>(size().height() / get_item_height()));
             break;
-          case XK_Page_Down:
-          case XK_KP_Page_Down:
-            set_selection(get_selection() + (size().height() / get_item_height()));
+          case keys::page_down:
+          case keys::numpad::page_down:
+            set_selection(get_selection() + static_cast<int>(size().height() / get_item_height()));
             break;
-          case XK_Home:
-          case XK_KP_Home:
+          case keys::home:
+          case keys::numpad::home:
             set_selection(0);
             break;
-          case XK_End:
-          case XK_KP_End:
+          case keys::end:
+          case keys::numpad::end:
             set_selection((int)get_count() - 1);
             break;
         }
       }));
-#endif // X11
     }
 
   } // win

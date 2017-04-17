@@ -213,10 +213,8 @@ namespace gui {
 
       std::string get_text () const;
 
-#ifdef X11
     protected:
       std::string text;
-#endif // X11
     };
 
     // --------------------------------------------------------------------------

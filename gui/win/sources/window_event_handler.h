@@ -66,14 +66,14 @@ namespace gui {
 # define MK_SYTEM 0x0100
 #endif // MK_MENU
 
-    typedef detail::bit_mask<unsigned int, MK_LBUTTON> left_button_bit_mask;
-    typedef detail::bit_mask<unsigned int, MK_MBUTTON> middle_button_bit_mask;
-    typedef detail::bit_mask<unsigned int, MK_RBUTTON> right_button_bit_mask;
+    using left_button_bit_mask = detail::bit_mask<os::key_state, MK_LBUTTON>;
+    using middle_button_bit_mask = detail::bit_mask<os::key_state, MK_MBUTTON>;
+    using right_button_bit_mask = detail::bit_mask<os::key_state, MK_RBUTTON>;
 
-    typedef detail::bit_mask<os::key_state, MK_SHIFT> shift_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, MK_CONTROL> control_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, MK_MENU> alt_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, MK_SYTEM> system_key_bit_mask;
+    using shift_key_bit_mask = detail::bit_mask<os::key_state, MK_SHIFT>;
+    using control_key_bit_mask = detail::bit_mask<os::key_state, MK_CONTROL>;
+    using alt_key_bit_mask = detail::bit_mask<os::key_state, MK_MENU>;
+    using system_key_bit_mask = detail::bit_mask<os::key_state, MK_SYTEM>;
 
     namespace keys {
       const os::key_symbol left = VK_LEFT;
@@ -83,20 +83,41 @@ namespace gui {
 
       const os::key_symbol page_up = VK_PRIOR;
       const os::key_symbol page_down = VK_NEXT;
-
       const os::key_symbol home = VK_HOME;
       const os::key_symbol end = VK_END;
 
-      const os::key_symbol remove = VK_DELETE;
+      namespace numpad {
+        const os::key_symbol left = VK_LEFT | 0xFF00;
+        const os::key_symbol right = VK_RIGHT | 0xFF00;
+        const os::key_symbol up = VK_UP | 0xFF00;
+        const os::key_symbol down = VK_DOWN | 0xFF00;
+
+        const os::key_symbol page_up = VK_PRIOR | 0xFF00;
+        const os::key_symbol page_down = VK_NEXT | 0xFF00;
+        const os::key_symbol home = VK_HOME | 0xFF00;
+        const os::key_symbol end = VK_END | 0xFF00;
+
+        const os::key_symbol del = VK_DELETE | 0xFF00;
+      }
+
+      const os::key_symbol del = VK_DELETE;
       const os::key_symbol insert = VK_INSERT;
+      const os::key_symbol escape = VK_ESCAPE;
+      const os::key_symbol enter = VK_RETURN;
+      const os::key_symbol space = VK_SPACE;
+      const os::key_symbol clear = 0xFFFF;
+
+      const os::key_symbol back_space = VK_BACK;
+      const os::key_symbol tab = VK_TAB;
+      const os::key_symbol print = VK_PRINT;
     }
 
 #endif // WIN32
 
 #ifdef X11
-    typedef detail::bit_mask<unsigned int, Button1Mask> left_button_bit_mask;
-    typedef detail::bit_mask<unsigned int, Button2Mask> middle_button_bit_mask;
-    typedef detail::bit_mask<unsigned int, Button3Mask> right_button_bit_mask;
+    typedef detail::bit_mask<os::key_state, Button1Mask> left_button_bit_mask;
+    typedef detail::bit_mask<os::key_state, Button2Mask> middle_button_bit_mask;
+    typedef detail::bit_mask<os::key_state, Button3Mask> right_button_bit_mask;
 
     typedef detail::bit_mask<os::key_state, ShiftMask> shift_key_bit_mask;
     typedef detail::bit_mask<os::key_state, ControlMask> control_key_bit_mask;
@@ -111,12 +132,33 @@ namespace gui {
 
       const os::key_symbol page_up = XK_Page_Up;
       const os::key_symbol page_down = XK_Page_Down;
-
       const os::key_symbol home = XK_Home;
       const os::key_symbol end = XK_End;
 
-      const os::key_symbol remove = VK_DELETE;
-      const os::key_symbol insert = VK_INSERT;
+      namespace numpad {
+        const os::key_symbol left = XK_KP_Left;
+        const os::key_symbol right = XK_KP_Right;
+        const os::key_symbol up = XK_KP_Up;
+        const os::key_symbol down = XK_KP_Down;
+
+        const os::key_symbol page_up = XK_KP_Page_Up;
+        const os::key_symbol page_down = XK_KP_Page_Down;
+        const os::key_symbol home = XK_KP_Home;
+        const os::key_symbol end = XK_KP_End;
+
+        const os::key_symbol del = XK_KP_DELETE;
+      }
+
+      const os::key_symbol del = XK_DELETE;
+      const os::key_symbol insert = XK_INSERT;
+      const os::key_symbol escape = XK_Escape;
+      const os::key_symbol enter = XK_Return;
+      const os::key_symbol space = XK_SPACE;
+      const os::key_symbol clear = XK_Clear;
+
+      const os::key_symbol back_space = XK_BackSpace;
+      const os::key_symbol tab = XK_Tab;
+      const os::key_symbol print = XK_PRINT;
   }
 #endif // X11
 

@@ -744,28 +744,14 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-#ifdef WIN32
-    void window_with_text::set_text(const std::string& s) {
-      SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)s.c_str());
-    }
-
-    std::string window_with_text::get_text() const {
-      std::string s;
-      s.resize(SendMessage(get_id(), WM_GETTEXTLENGTH, 0, 0) + 1);
-      SendMessage(get_id(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
-      return s;
-    }
-#endif // WIN32
-
-#ifdef X11
     void window_with_text::set_text(const std::string& t) {
       text = t;
       redraw_later();
     }
+
     std::string window_with_text::get_text() const {
       return text;
     }
-#endif //X11
 
     // --------------------------------------------------------------------------
     window_class main_window::clazz(

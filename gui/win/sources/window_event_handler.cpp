@@ -183,13 +183,15 @@ namespace gui {
         XIC ic = i->second;
         Status status;
         char text[8] = {0};
-        int len = Xutf8LookupString(ic, const_cast<XKeyEvent*>(&e.xkey), text, 8, nullptr, &status);
-        if (status == XLookupChars) {
+        KeySym keySym = 0;
+        int len = Xutf8LookupString(ic, const_cast<XKeyEvent*>(&e.xkey), text, 8, &keySym, &status);
+        if ((status == XLookupChars) || (status == XLookupBoth)) {
           return std::string(text, len);
         }
       } else {
         char text[8] = {0};
-        int len = XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, nullptr, 0);
+        KeySym keySym = 0;
+        int len = XLookupString(const_cast<XKeyEvent*>(&e.xkey), text, 8, &keySym, 0);
         return std::string(text, len);
       }
       return std::string();

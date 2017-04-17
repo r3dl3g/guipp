@@ -146,19 +146,19 @@ namespace gui {
         const os::key_symbol home = XK_KP_Home;
         const os::key_symbol end = XK_KP_End;
 
-        const os::key_symbol del = XK_KP_DELETE;
+        const os::key_symbol del = XK_KP_Delete;
       }
 
-      const os::key_symbol del = XK_DELETE;
-      const os::key_symbol insert = XK_INSERT;
+      const os::key_symbol del = XK_Delete;
+      const os::key_symbol insert = XK_Insert;
       const os::key_symbol escape = XK_Escape;
       const os::key_symbol enter = XK_Return;
-      const os::key_symbol space = XK_SPACE;
+      const os::key_symbol space = XK_space;
       const os::key_symbol clear = XK_Clear;
 
       const os::key_symbol back_space = XK_BackSpace;
       const os::key_symbol tab = XK_Tab;
-      const os::key_symbol print = XK_PRINT;
+      const os::key_symbol print = XK_Print;
   }
 #endif // X11
 

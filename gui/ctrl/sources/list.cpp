@@ -37,6 +37,7 @@ namespace gui {
       list::list ()
         : item_count(0)
         , selection(-1)
+        , moved(false)
       {
 #ifdef X11
         if (!detail::SELECTION_CHANGE_MESSAGE) {

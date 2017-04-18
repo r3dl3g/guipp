@@ -107,7 +107,7 @@ namespace gui {
 
     template<>
     void listT<false>::paint (const draw::graphics& graph) {
-      core::rectangle place = client_area();
+      core::rectangle place(client_size());
       const core::point_type max_x = place.x2();
       const int max_idx = (int)get_count();
       const int first = int(get_scroll_pos() / get_item_width());
@@ -123,7 +123,7 @@ namespace gui {
 
     template<>
     void listT<true>::paint (const draw::graphics& graph) {
-      core::rectangle place = client_area();
+      core::rectangle place(client_size());
       const core::point_type max_y  = place.y2();
       const int max_idx = (int)get_count();
       const int first = int(get_scroll_pos() / get_item_height());

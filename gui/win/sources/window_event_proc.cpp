@@ -68,21 +68,6 @@ namespace gui {
         set_id(w, id);
       }
 
-      typedef std::map<int, gui::core::size> measure_item_map;
-      measure_item_map s_measure_item_size;
-
-      void set_item_size(int id, const gui::core::size& sz) {
-        s_measure_item_size[id] = sz;
-      }
-
-      const gui::core::size& get_item_size(int id) {
-        measure_item_map::iterator i = s_measure_item_size.find(id);
-        if (i != s_measure_item_size.end()) {
-          return i->second;
-        }
-        return gui::core::size::zero;
-      }
-
       LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
           case WM_INITDIALOG:
@@ -101,48 +86,13 @@ namespace gui {
             }
             return 0;
           }
-          case WM_COMMAND: {
-            HWND id = (HWND)lParam;
-            if (id && (id != hwnd)) {
-              // forward to child
-              return SendMessage(id, msg, wParam, lParam);
-            }
-            break;
-          }
-          case WM_MEASUREITEM: {
-            PMEASUREITEMSTRUCT pmis = (PMEASUREITEMSTRUCT)lParam;
-            const core::size& sz = get_item_size((int)pmis->CtlID);
-            if (sz.height() || sz.width()) {
-              pmis->itemHeight = sz.os_height();
-              pmis->itemWidth = sz.os_width();
-              return true;
-            }
-            break;
-          }
-          case WM_DRAWITEM: {
-            PDRAWITEMSTRUCT pdis = (PDRAWITEMSTRUCT)lParam;
-            HWND id = pdis->hwndItem;
-            if (id && (id != hwnd)) {
-              // forward to child
-              return SendMessage(id, msg, wParam, lParam);
-            }
-            break;
-          }
-          case WM_VSCROLL:
-          case WM_HSCROLL: {
-            HWND id = (HWND)lParam;
-            if (id && (id != hwnd)) {
-              SendMessage(id, msg, wParam, lParam);
-              return 0;
-            }
-            break;
-          }
           case WM_CREATE: {
             CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
             set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
             break;
           }
+#ifdef KEY_DEBUG
           case WM_KEYDOWN:
             LogDebug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
             break;
@@ -152,6 +102,7 @@ namespace gui {
           case WM_CHAR:
             LogDebug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
             break;
+#endif // KEY_DEBUG
         }
 
         os::event_result result = 0;

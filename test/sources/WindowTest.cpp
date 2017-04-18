@@ -812,7 +812,7 @@ void my_main_window::created_children () {
   edit_btn_group.layout();
 
   custom_button.set_drawer([](const draw::graphics& g, const win::button& btn) {
-    core::rectangle r = btn.client_area() - core::size{ 1, 1 };
+    core::rectangle r = btn.client_area();
 
     if (btn.is_checked()) {
       g.fill(draw::rectangle(r), draw::color::darkGray());

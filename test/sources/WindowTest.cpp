@@ -812,18 +812,7 @@ void my_main_window::created_children () {
   edit_btn_group.layout();
 
   custom_button.set_drawer([](const draw::graphics& g, const win::button& btn) {
-    core::rectangle r = btn.client_area();
-
-    if (btn.is_checked()) {
-      g.fill(draw::rectangle(r), draw::color::darkGray());
-    } else
-    if (btn.is_hilited()) {
-      g.fill(draw::rectangle(r), draw::color::lightGray());
-    } else
-    {
-      g.fill(draw::rectangle(r), draw::color::workSpaceColor());
-    }
-    g.text(draw::text_box("Custom", r, draw::center), draw::font::serif(), draw::color::white());
+    win::paint::flat_button(g, btn, btn.is_checked(), btn.is_hilited(), "Custom");
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));

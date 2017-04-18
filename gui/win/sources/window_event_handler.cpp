@@ -136,6 +136,10 @@ namespace gui {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {
           s_mouse_inside[e.id] = true;
+          TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT), 0 };
+          tme.dwFlags = TME_LEAVE;
+          tme.hwndTrack = e.id;
+          TrackMouseEvent(&tme);
           return true;
         }
         break;

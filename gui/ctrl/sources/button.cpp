@@ -128,12 +128,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void flat_button (const draw::graphics& g, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
-        core::rectangle r = btn.client_area() - core::size{ 1, 1 };
+        core::rectangle r = btn.client_area();
 
         if (is_checked) {
           g.fill(draw::rectangle(r), draw::color::darkGray());
-        } else
-        if (is_hilited) {
+        } else if (is_hilited) {
           g.fill(draw::rectangle(r), draw::color::lightGray());
         } else {
           g.fill(draw::rectangle(r), draw::color::workSpaceColor());

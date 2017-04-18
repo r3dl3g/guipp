@@ -156,7 +156,7 @@ namespace gui {
                                                                                 : draw::color::veryLightGray());
         }
         if (!page_down.empty()) {
-          g.fill(draw::rectangle(page_down), state == scroll_bar::Page_down_pressed ? draw::color::lightGray()
+          g.fill(draw::rectangle(page_down + core::size::one), state == scroll_bar::Page_down_pressed ? draw::color::lightGray()
                                                                                     : draw::color::veryLightGray());
         }
         if (!up.empty()) {

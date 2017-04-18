@@ -112,7 +112,7 @@ namespace gui {
       }
 
       void column_list_layout::layout(const core::size& new_size) {
-        core::rectangle r(1, 0, 2, new_size.height());
+        core::rectangle r(0, 1, 3, new_size.height() - 2);
         std::size_t count = get_column_count();
         if (count != sliders.size()) {
           sliders = slider_creator(count);

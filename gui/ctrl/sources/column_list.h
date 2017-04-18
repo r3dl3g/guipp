@@ -262,7 +262,7 @@ namespace gui {
       typedef Layout layout_type;
       typedef group_window<layout_type> super;
 
-      typedef framed_slider_t<false, draw::frame::sunken_relief> slider_type;
+      typedef framed_slider_t<false, draw::frame::vgroove> slider_type;
 
       typedef void(cell_draw)(int idx,
                               const draw::graphics&,
@@ -296,7 +296,7 @@ namespace gui {
       }
 
       std::vector<detail::slider*> create_slider (std::size_t count) {
-        core::rectangle r(0, 0, 2, this->size().height());
+        core::rectangle r(0, 1, 2, this->size().height() - 2);
         sliders.resize(count);
         std::vector<detail::slider*> v;
         for (int i = 0; i < count; ++i) {

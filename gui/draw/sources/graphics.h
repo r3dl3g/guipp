@@ -326,6 +326,12 @@ namespace gui {
       void vline (const draw::graphics&, const core::rectangle&);
       void hline (const draw::graphics&, const core::rectangle&);
 
+      void vraise (const draw::graphics&, const core::rectangle&);
+      void hraise (const draw::graphics&, const core::rectangle&);
+
+      void vgroove (const draw::graphics&, const core::rectangle&);
+      void hgroove (const draw::graphics&, const core::rectangle&);
+
       void raised_relief (const draw::graphics&, const core::rectangle&);
       void sunken_relief (const draw::graphics&, const core::rectangle&);
 

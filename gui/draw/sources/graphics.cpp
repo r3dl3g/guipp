@@ -479,7 +479,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
       Use<pen> pn(g, p);
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -490,7 +490,7 @@ namespace gui {
       Use<pen> pn(g, p);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
     }
 
@@ -499,7 +499,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
 
       pen p(b.color());
@@ -521,7 +521,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
 
       XSetArcMode(display, g, ArcPieSlice);
       XFillArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
@@ -535,7 +535,7 @@ namespace gui {
       Use<pen> pn(g, p);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
 
       XSetArcMode(display, g, ArcChord);
       XDrawArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
@@ -546,7 +546,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size());
+      core::size sz(rect.size() - core::size::one);
 
       XSetArcMode(display, g, ArcPieSlice);
       XFillArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
@@ -1016,30 +1016,54 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void lines (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
+        core::rectangle r = place;// - core::size::one;
         g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray());
       }
 
       void vline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
+        core::rectangle r = place;// - core::size::one;
         g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray());
       }
 
       void hline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
+        core::rectangle r = place;// - core::size::one;
         g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray());
+      }
+
+      void vraise (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size(1, 0);
+        g.frame(line(r.top_left(), r.bottom_left()), color::white());
+        g.frame(line(r.top_right(), r.bottom_right()), color::gray());
+      }
+
+      void hraise (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size(0, 1);
+        g.frame(line(r.top_left(), r.top_right()), color::white());
+        g.frame(line(r.bottom_right(), r.bottom_left()), color::gray());
+      }
+
+      void vgroove (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size(1, 0);
+        g.frame(line(r.top_left(), r.bottom_left()), color::gray());
+        g.frame(line(r.top_right(), r.bottom_right()), color::white());
+      }
+
+      void hgroove (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size(0, 1);
+        g.frame(line(r.top_left(), r.top_right()), color::gray());
+        g.frame(line(r.bottom_right(), r.bottom_left()), color::white());
       }
 
       void raised_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
         g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white());
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray());
+        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::gray());
       }
 
       void sunken_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
         g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray());
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white());
+        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::white());
       }
 
       void raised_deep_relief(const draw::graphics& g, const core::rectangle& place) {

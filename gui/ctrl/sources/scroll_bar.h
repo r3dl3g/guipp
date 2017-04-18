@@ -194,7 +194,7 @@ namespace gui {
         }
 
         static type space_size (type length, type btn_size) {
-          return std::max(length - btn_size * 2 - 1, type(0));
+          return std::max(length - btn_size * 2, type(0));
         }
 
         type thumb_size (type spc_size, type btn_size) const {

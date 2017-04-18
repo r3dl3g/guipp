@@ -334,9 +334,10 @@ namespace gui {
     typedef event_handler<WM_QUIT>                                            quit_event;
 
     typedef event_handler<WM_KEYDOWN, 0,
-                          Params<os::key_state, os::key_symbol>::
+                          Params<os::key_state, os::key_symbol, std::string>::
                           caller<get_key_state,
-                                 get_key_symbol>>                             key_down_event;
+                                 get_key_symbol,
+                                 get_key_chars>>                              key_down_event;
 
     typedef event_handler<WM_KEYUP, 0,
                           Params<os::key_state, os::key_symbol>::
@@ -664,18 +665,15 @@ namespace gui {
     typedef event_handler<DestroyNotify, SubstructureNotifyMask>                    destroy_event;
 
     typedef event_handler<KeyPress, KeyPressMask,
-                           Params<os::key_state, os::key_symbol>::
+                           Params<os::key_state, os::key_symbol, std::string>::
                            caller<get_key_state,
-                                  get_key_symbol>>                                  key_down_event;
+                                  get_key_symbol,
+                                  get_key_chars>>                                   key_down_event;
 
     typedef event_handler<KeyRelease, KeyReleaseMask,
                            Params<os::key_state, os::key_symbol>::
                            caller<get_key_state,
                                   get_key_symbol>>                                  key_up_event;
-
-    typedef event_handler<KeyPress, KeyPressMask,
-                          Params<std::string>::
-                          caller<get_key_chars>>                                    character_event;
 
     typedef event_handler<MotionNotify, PointerMotionMask,
                            Params<os::key_state, core::point>::

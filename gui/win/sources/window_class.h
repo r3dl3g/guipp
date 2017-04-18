@@ -52,15 +52,6 @@ namespace gui {
                                        os::color background,
                                        os::style class_style = 0);
 
-      static window_class sub_class (window_class& cls,
-                                     const std::string& base_cls);
-
-      static window_class sub_class (const std::string& sub_cls,
-                                     const std::string& cls,
-                                     os::style style = 0,
-                                     os::style ex_style = 0,
-                                     os::color foreground = os::black);
-
       window_class ();
       window_class (const window_class&);
 
@@ -69,7 +60,7 @@ namespace gui {
                     os::style style = 0,
                     os::style ex_style = 0,
                     os::icon icon = 0,
-                    os::cursor_type cursor = 0,
+                    os::cursor cursor = 0,
                     os::color background = os::white,
                     os::color foreground = os::black,
                     os::event_callback callback = nullptr);
@@ -79,7 +70,7 @@ namespace gui {
                     os::style style = 0,
                     os::style ex_style = 0,
                     os::icon icon = 0,
-                    os::cursor cursor = 0,
+                    os::cursor_type cursor = 0,
                     os::color background = os::white,
                     os::color foreground = os::black,
                     os::event_callback callback = nullptr);
@@ -106,14 +97,7 @@ namespace gui {
       void register_class () const;
       void unregister_class ();
 
-      window_class (const std::string& cls,
-                    const std::string& sub_cls,
-                    os::style style = 0,
-                    os::style ex_style = 0,
-                    os::color foreground = os::black);
-
       std::string class_name;
-      std::string sub_class_name;
       mutable os::style class_style;
       os::style style;
       os::style ex_style;
@@ -124,7 +108,6 @@ namespace gui {
       os::color foreground;
       mutable os::event_callback callback;
       mutable bool is_initialized;
-      bool is_sub_class;
     };
 
   } // win

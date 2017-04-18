@@ -113,6 +113,7 @@ namespace gui {
         const bool focus = btn.has_focus();
         core::rectangle area = btn.client_area();
 
+        graph.fill(draw::rectangle(area), color::buttonColor());
         if (focus) {
           graph.frame(draw::rectangle(area), color::black());
           area.shrink({1, 1});
@@ -148,14 +149,15 @@ namespace gui {
 
         color col = btn.is_enabled() ? color::black() : color::gray();
         core::rectangle area = btn.client_area();
-        core::point_type y = area.position().y() + area.size().height() / 2;
-        core::point pt(area.position().x() + 6, y);
-        graph.draw(arc(pt, 5, 0, 360),
-                   is_hilited ? color::veryLightGray()
-                              : color::buttonColor(),
-                   col);
+        graph.fill(draw::rectangle(area), color::buttonColor());
+
+        core::point_type y = area.y() + area.size().height() / 2;
+        core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
+        graph.draw(ellipse(r), is_hilited ? color::veryLightGray()
+                                          : color::buttonColor(), col);
         if (is_checked) {
-          graph.fill(arc(pt, 3, 0, 360), col);
+          r.shrink(core::size(2, 2));
+          graph.fill(ellipse(r), col);
         }
         area.x(20);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
@@ -173,8 +175,9 @@ namespace gui {
         const bool focus = btn.has_focus();
 
         core::rectangle area = btn.client_area();
-        core::point_type y = area.y() + area.height() / 2;
+        graph.fill(draw::rectangle(area), color::buttonColor());
 
+        core::point_type y = area.y() + area.height() / 2;
         color col = btn.is_enabled() ? color::black() : color::gray();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
@@ -183,16 +186,10 @@ namespace gui {
                               : color::buttonColor(),
                    col);
         if (is_checked) {
-          core::point center = r.center();
-          /*
-          graph.draw_lines({ core::point(r.x() + 1, center.y()),
-                             core::point(center.x() - 1, r.y2() - 2),
-                             core::point(r.x2() - 1, r.y() + 1 ) }, pen(col, pen::solid, 2));
-          */
           r.shrink(core::size(2, 2));
           graph.fill(rectangle(r), col);
         }
-        area += core::point(20, 0);
+        area.x(20);
         graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
           graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black());

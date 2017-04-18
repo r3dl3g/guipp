@@ -95,13 +95,38 @@ namespace gui {
                                         (GetKeyState(VK_LWIN) & 0x8000 ? MK_SYTEM : 0) |
                                         (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
     }
+
+    // --------------------------------------------------------------------------
+    int get_key_repeat_count (const core::event& e) {
+      return e.param_2 & 0x0ffff;
+    }
+    // --------------------------------------------------------------------------
+    unsigned int get_key_scan_code (const core::event& e) {
+      UINT sc = (e.param_2 >> 16) & 0x01FF;
+      return sc;
+    }
     // --------------------------------------------------------------------------
     os::key_symbol get_key_symbol (const core::event& e) {
       return (os::key_symbol)e.param_1;
     }
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
-      return ibr::string::utf16_to_utf8((wchar_t)e.param_1);
+      WCHAR wbuffer[4] = { 0 };
+
+      BYTE kb[256];
+      GetKeyboardState(kb);
+
+      UINT vk = get_key_symbol(e);
+      UINT sc = get_key_scan_code(e);
+      int len = ToUnicode(vk, sc, kb, wbuffer, 4, 0);
+
+      //WORD buffer = 0;
+      //int len2 = ToAscii(vk, sc, kb, &buffer, 0);
+
+      //UINT sc2 = MapVirtualKey(e.param_1, MAPVK_VK_TO_VSC);
+      //UINT vk2 = MapVirtualKey(sc, MAPVK_VSC_TO_VK);
+      //wchar_t ch = MapVirtualKey(e.param_1, MAPVK_VK_TO_CHAR);
+      return ibr::string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
     // --------------------------------------------------------------------------
     static std::map<os::window, bool> s_mouse_inside;

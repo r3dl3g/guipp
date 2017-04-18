@@ -41,7 +41,7 @@ namespace gui {
 
       window_class edit_base::clazz =
 #ifdef WIN32
-        window_class::custom_class("EDIT++", 0,
+        window_class::custom_class("EDIT++", CS_DBLCLKS,
                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
                                    WS_EX_NOPARENTNOTIFY);
 #endif // WIN32
@@ -226,12 +226,38 @@ namespace gui {
         }
       }
 
+      std::string::size_type find_left_space (const std::string& text, std::size_t cursor_pos) {
+        std::string::size_type pos = text.find_last_not_of(white_space, cursor_pos - 1);
+        if (pos != std::string::npos) {
+          std::string::size_type pos2 = text.find_last_of(white_space, pos);
+          if (pos2 != std::string::npos) {
+            return pos2 + 1;
+          }
+        }
+        return 0;
+      }
+
+      std::string::size_type find_right_space(const std::string& text, std::size_t cursor_pos) {
+        std::string::size_type pos = text.find_first_of(white_space, cursor_pos + 1);
+        if (pos != std::string::npos) {
+          std::string::size_type pos2 = text.find_first_not_of(text[pos], pos);
+          if (pos2 != std::string::npos) {
+            return pos2;
+          } else {
+            return pos;
+          }
+        } else {
+          return text.length();
+        }
+      }
+
       void edit_base::register_handler (alignment_h alignment) {
         register_event_handler(paint_event([&, alignment] (const gui::draw::graphics& graph) {
           paint::edit_box(graph, *this, text, (draw::text_origin)alignment, selection, cursor_pos, scroll_pos);
         }));
         register_event_handler(key_down_event([&] (os::key_state keystate,
-                                                   os::key_symbol keycode) {
+                                                   os::key_symbol keycode,
+                                                   const std::string& chars) {
           bool shift = shift_key_bit_mask::is_set(keystate);
           bool ctrl = control_key_bit_mask::is_set(keystate);
 
@@ -241,13 +267,10 @@ namespace gui {
               if (ctrl) {
                 // next word begin
                 if (cursor_pos > 1) {
-                  std::string::size_type pos = text.find_last_not_of(white_space, cursor_pos - 1);
+                  std::string::size_type pos = find_left_space(text, cursor_pos);
                   if (pos != std::string::npos) {
-                    std::string::size_type pos2 = text.find_last_of(white_space, pos);
-                    if (pos2 != std::string::npos) {
-                      set_cursor_pos(pos2 + 1, shift);
-                      return;
-                    }
+                    set_cursor_pos(pos, shift);
+                    return;
                   }
                 }
               } else if (cursor_pos > 0) {
@@ -263,18 +286,7 @@ namespace gui {
             case keys::right:
             case keys::numpad::right:
               if (ctrl) {
-                // previous word begin
-                std::string::size_type pos = text.find_first_of(white_space, cursor_pos + 1);
-                if (pos != std::string::npos) {
-                  std::string::size_type pos2 = text.find_first_not_of(text[pos], pos);
-                  if (pos2 != std::string::npos) {
-                    set_cursor_pos(pos2, shift);
-                  } else {
-                    set_cursor_pos(pos, shift);
-                  }
-                } else {
-                  set_cursor_pos(get_text_length(), shift);
-                }
+                set_cursor_pos(find_right_space(text, cursor_pos), shift);
               } else if (cursor_pos < get_text_length ()) {
                 std::size_t cp = cursor_pos + 1;
                 while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
@@ -337,27 +349,33 @@ namespace gui {
                 // select all
                 set_selection(range(0, text.size()));
               }
-              break;
+              // fall throught
             default: {
               if (ctrl) {
                 LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+              } else if (chars.size()) {
+                replace_selection(chars);
+                set_cursor_pos(selection.last, false);
               }
             }
           }
         }));
-        register_event_handler(character_event([&] (const std::string& chars) {
-          if (chars.size()) {
-            replace_selection(chars);
-            set_cursor_pos(selection.last, false);
-          }
-        }));
         register_event_handler(left_btn_down_event([&](const core::point& pt) {
+          take_focus();
           last_mouse_point = pt;
           set_cursor_pos(get_char_at_point(pt));
-          take_focus();
         }));
         register_event_handler(left_btn_up_event([&](const core::point& pt) {
           last_mouse_point = core::point::undefined;
+        }));
+        register_event_handler(left_btn_dblclk_event([&](const core::point& pt) {
+          take_focus();
+          last_mouse_point = pt;
+          pos_t p = get_char_at_point(pt);
+          set_cursor_pos(p);
+          pos_t l = find_left_space(text, p);
+          pos_t r = find_right_space(text, p);
+          set_selection(range(l, r));
         }));
         register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
           if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {

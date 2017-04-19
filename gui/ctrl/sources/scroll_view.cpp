@@ -34,18 +34,12 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class scroll_view::clazz(
+    window_class scroll_view::clazz("MyScrollView",
     #ifdef WIN32
-      win::window_class::custom_class("MyScrollView",
-                                      CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                      WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                      WS_EX_NOPARENTNOTIFY,
-                                      nullptr,
-                                      IDC_ARROW,
-                                      (os::color)(COLOR_WINDOW + 1))
+      (os::color)(COLOR_WINDOW + 1))
     #endif // WIN32
     #ifdef X11
-      win::window_class::custom_class("MyScrollView")
+      draw::color::windowColor()
     #endif //X11
     );
 

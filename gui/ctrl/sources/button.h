@@ -70,29 +70,40 @@ namespace gui {
     // --------------------------------------------------------------------------
 #endif // X11
     // --------------------------------------------------------------------------
-    class button : public window {
+    class button : public client_window {
     public:
       typedef window super;
 
       button ();
 
-      bool is_checked () const;
+      inline bool is_hilited () const {
+        return hilited;
+      }
+
+      inline bool is_pushed () const {
+        return pushed;
+      }
+
+      inline bool is_checked () const {
+        return checked;
+      }
+
+      void set_hilited (bool b);
+      void set_pushed (bool b);
       void set_checked (bool b);
 
-      bool is_hilited () const;
-      void set_hilited (bool b);
-
     private:
-      bool checked;
       bool hilited;
+      bool pushed;
+      bool checked;
     };
 
     // --------------------------------------------------------------------------
     namespace paint {
-      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
-      void flat_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
-      void radio_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
-      void check_box (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text);
+      void push_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
+      void flat_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
+      void radio_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
+      void check_box (const draw::graphics& graph, const win::button& btn, const std::string& text);
     }
 
     // --------------------------------------------------------------------------
@@ -100,24 +111,8 @@ namespace gui {
     public:
       typedef button super;
 
-      push_button () {
-        register_event_handler(left_btn_down_event([&](const core::point&) {
-          if (is_enabled()) {
-            take_focus();
-            send_client_message(this, detail::BN_PUSHED_MESSAGE);
-            set_checked(true);
-          }
-        }));
-        register_event_handler(left_btn_up_event([&](const core::point& pos) {
-          if (is_enabled()) {
-            send_client_message(this, detail::BN_UNPUSHED_MESSAGE);
-            set_checked(false);
-            if (client_area().is_inside(pos)) {
-              send_client_message(this, detail::BN_CLICKED_MESSAGE);
-            }
-          }
-        }));
-      }
+      push_button ();
+
     };
 
     // --------------------------------------------------------------------------
@@ -125,42 +120,19 @@ namespace gui {
     public:
       typedef button super;
 
-      toggle_button () {
-        register_event_handler(left_btn_down_event([&](const core::point&) {
-          if (is_enabled()) {
-            take_focus();
-            send_client_message(this, detail::BN_PUSHED_MESSAGE);
-            set_hilited(true);
-          }
-        }));
-        register_event_handler(left_btn_up_event([&](const core::point& pos) {
-          if (is_enabled()) {
-            send_client_message(this, detail::BN_UNPUSHED_MESSAGE);
-            if (is_hilited()) {
-              set_hilited(false);
-              if (client_area().is_inside(pos)) {
-                set_checked(!is_checked());
-                if (is_enabled()) {
-                  send_client_message(this, detail::BN_CLICKED_MESSAGE);
-                }
-              }
-            }
-          }
-        }));
-      }
+      toggle_button ();
+
     };
 
     // --------------------------------------------------------------------------
-    class text_button : public push_button {
+    class text_push_button : public push_button {
     public:
       typedef push_button super;
 
-      text_button ();
-
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def,
                    const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
+        super::create(parent, place);
         set_text(txt);
       }
 
@@ -175,66 +147,67 @@ namespace gui {
 
     private:
       std::string text;
-
-      static window_class clazz;
     };
 
     // --------------------------------------------------------------------------
-    class radio_button : public toggle_button {
+    class text_button : public text_push_button {
+    public:
+      typedef text_push_button super;
+
+      text_button ();
+
+    };
+
+    // --------------------------------------------------------------------------
+    class flat_button : public text_push_button {
+    public:
+      typedef text_push_button super;
+
+      flat_button ();
+
+    };
+
+    // --------------------------------------------------------------------------
+    class text_toggle_button : public toggle_button {
     public:
       typedef toggle_button super;
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def,
+                   const std::string& txt = std::string()) {
+        super::create(parent, place);
+        set_text(txt);
+      }
+
+      void set_text (const std::string& t) {
+        text = t;
+        redraw_later();
+      }
+
+      const std::string& get_text () const {
+        return text;
+      }
+
+    private:
+      std::string text;
+    };
+
+    // --------------------------------------------------------------------------
+    class radio_button : public text_toggle_button {
+    public:
+      typedef text_toggle_button super;
 
       radio_button ();
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-      }
-
-      void set_text (const std::string& t) {
-        text = t;
-        redraw_later();
-      }
-
-      const std::string& get_text () const {
-        return text;
-      }
-
-    private:
-      std::string text;
-
-      static window_class clazz;
     };
 
     // --------------------------------------------------------------------------
-    class check_box : public toggle_button {
+    class check_box : public text_toggle_button {
     public:
-      typedef toggle_button super;
+      typedef text_toggle_button super;
 
       check_box ();
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
-        super::create(clazz, parent, place);
-        set_text(txt);
-      }
-
-      void set_text (const std::string& t) {
-        text = t;
-        redraw_later();
-      }
-
-      const std::string& get_text () const {
-        return text;
-      }
-
-    private:
-      std::string text;
-
-      static window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -253,7 +226,7 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+        super::create(parent, place);
       }
 
       void set_drawer (std::function<button_drawer> d) {
@@ -262,22 +235,7 @@ namespace gui {
 
     private:
       std::function<button_drawer> drawer;
-
-      static window_class clazz;
     };
-
-    template<class super>
-    window_class custom_button<super>::clazz(
-    #ifdef WIN32
-      window_class::custom_class("CUSTOM_BUTTON++", 0,
-                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-                                 WS_EX_NOPARENTNOTIFY)
-    #else // !WIN32
-      window_class::custom_class("CUSTOM_BUTTON++",
-                                 draw::color::buttonColor())
-    #endif // !WIN32
-    );
-
 
     typedef custom_button<push_button> custom_push_button;
     typedef custom_button<toggle_button> custom_toggle_button;

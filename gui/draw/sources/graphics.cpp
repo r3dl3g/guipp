@@ -1016,17 +1016,17 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void lines (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place;// - core::size::one;
+        core::rectangle r = place - core::size::one;
         g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray());
       }
 
       void vline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place;// - core::size::one;
+        core::rectangle r = place - core::size::one;
         g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray());
       }
 
       void hline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place;// - core::size::one;
+        core::rectangle r = place - core::size::one;
         g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray());
       }
 

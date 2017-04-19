@@ -41,44 +41,28 @@ namespace gui {
 
       template<>
       slider_class<false>::slider_class ()
-        : window_class(
+        : window_class("VSLIDER++",
 #ifdef WIN32
-            win::window_class::custom_class("VSLIDER++",
-                                                    0,
-                                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                    WS_EX_NOPARENTNOTIFY,
-                                                    nullptr,
-                                                    IDC_SIZEWE,
-                                                    //CreateSolidBrush(0xff0000));
-                                                    (os::color)(COLOR_BTNFACE + 1))
+                       (os::color)(COLOR_BTNFACE + 1),
+                       IDC_SIZEWE
 #endif // WIN32
 #ifdef X11
-            window_class::custom_class("VSLIDER++",
-                                       0, 0, 0, 0,
-                                       XC_sb_h_double_arrow,
-                                       draw::color::buttonColor())
+                       draw::color::buttonColor(),
+                       XC_sb_h_double_arrow
 #endif // X11
         )
       {}
 
       template<>
       slider_class<true>::slider_class ()
-        : window_class(
+        : window_class("HSLIDER++",
 #ifdef WIN32
-            win::window_class::custom_class("HSLIDER++",
-                                                    0,
-                                                    WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                    WS_EX_NOPARENTNOTIFY,
-                                                    nullptr,
-                                                    IDC_SIZENS,
-                                                    //CreateSolidBrush(0x00ff00));
-                                                    (os::color)(COLOR_BTNFACE + 1))
+                       (os::color)(COLOR_BTNFACE + 1),
+                       IDC_SIZENS
 #endif // WIN32
 #ifdef X11
-            window_class::custom_class("HSLIDER++",
-                                       0, 0, 0, 0,
-                                       XC_sb_v_double_arrow,
-                                       draw::color::buttonColor())
+                       draw::color::buttonColor(),
+                       XC_sb_v_double_arrow
 #endif // X11
         )
       {}

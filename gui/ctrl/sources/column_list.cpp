@@ -112,16 +112,16 @@ namespace gui {
       }
 
       void column_list_layout::layout(const core::size& new_size) {
-        core::rectangle r(0, 1, 3, new_size.height() - 2);
+        core::rectangle r(-1, 1, 2, new_size.height() - 2);
         std::size_t count = get_column_count();
         if (count != sliders.size()) {
           sliders = slider_creator(count);
         }
         for (std::size_t i = 0; i < count; ++i) {
           slider* s = sliders[i];
-          r.move_x(get_column_width(i) - 2);
+          r.move_x(get_column_width(i));
           s->place(r);
-          r.move_x(2);
+//          r.move_x(1);
         }
       }
 
@@ -245,29 +245,5 @@ namespace gui {
     }
 
   }
-
-  namespace win {
-
-    namespace detail {
-
-      // --------------------------------------------------------------------------
-      window_class base_column_list_clazz(
-#ifdef WIN32
-        win::window_class::custom_class("column_list",
-                                        CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                        WS_EX_NOPARENTNOTIFY,
-                                        0,
-                                        IDC_ARROW,
-                                        (os::color)(COLOR_WINDOW + 1))
-#endif // WIN32
-#ifdef X11
-        win::window_class::custom_class("column_list")
-#endif //X11
-      );
-
-    }
-
-  } // win
 
 } // gui

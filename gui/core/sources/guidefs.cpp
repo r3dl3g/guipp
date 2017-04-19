@@ -51,10 +51,12 @@ namespace gui {
 
         case COLOR_APPWORKSPACE:  return rgb_color<160, 160, 160>::value;
         case COLOR_WINDOWTEXT:    return black;
-        case COLOR_HIGHLIGHT:     return rgb_color<0, 0, 192>::value;
+        case COLOR_HIGHLIGHT:     return rgb_color<0, 0, 224>::value;
         case COLOR_HIGHLIGHTTEXT: return white;
         case COLOR_BTNFACE:       return rgb_color<240, 240, 240>::value;
+        case COLOR_BTNHIGHLIGHT:  return rgb_color<248, 248, 248>::value;
         case COLOR_WINDOW:        return white;
+        case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
 
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

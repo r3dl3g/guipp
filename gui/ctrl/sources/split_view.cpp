@@ -100,34 +100,22 @@ namespace gui {
     namespace detail {
 
       template<>
-      window_class split_view<false>::clazz(
+      window_class split_view<false>::clazz("vsplit_view",
 #ifdef WIN32
-        win::window_class::custom_class("vsplit_view",
-                                        CS_VREDRAW | CS_HREDRAW,
-                                        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                        WS_EX_NOPARENTNOTIFY,
-                                        nullptr,
-                                        IDC_ARROW,
-                                        (os::color)(COLOR_BTNFACE + 1))
+                                            (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-        win::window_class::custom_class("vsplit_view", os::get_sys_color(os::COLOR_BTNFACE))
+                                            os::get_sys_color(os::COLOR_BTNFACE)
 #endif // X11
       );
 
       template<>
-      window_class split_view<true>::clazz(
+      window_class split_view<true>::clazz("hsplit_view",
 #ifdef WIN32
-        win::window_class::custom_class("hsplit_view",
-                                                CS_VREDRAW | CS_HREDRAW,
-                                                WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE,
-                                                WS_EX_NOPARENTNOTIFY,
-                                                nullptr,
-                                                IDC_ARROW,
-                                                (os::color)(COLOR_BTNFACE + 1))
+                                           (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-        win::window_class::custom_class("hsplit_view", os::get_sys_color(os::COLOR_BTNFACE))
+                                           os::get_sys_color(os::COLOR_BTNFACE)
 #endif // X11
       );
 

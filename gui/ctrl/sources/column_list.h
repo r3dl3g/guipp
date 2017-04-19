@@ -48,6 +48,7 @@ namespace gui {
       public:
         typedef layout_base super;
         typedef win::detail::slider slider;
+        typedef win::detail::list_t<true> list_type;
 
         typedef std::vector<slider*>(create_sliders)(size_t);
 
@@ -103,7 +104,7 @@ namespace gui {
 
         core::size::type get_available_width(const core::size&) const;
 
-        void set_list (win::list* l) {
+        void set_list (list_type* l) {
           list = l;
         }
 
@@ -117,7 +118,7 @@ namespace gui {
         std::vector<draw::text_origin> aligns;
         std::vector<slider*> sliders;
 
-        win::list* list;
+        list_type* list;
       };
 
     }
@@ -216,6 +217,7 @@ namespace gui {
       class base_column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
+        typedef win::detail::list_t<true> list_type;
 
         base_column_list_layout(win::container* m)
           : super(m)
@@ -230,14 +232,14 @@ namespace gui {
           list->resize(sz - core::size(0, 20));
         }
 
-        void set_header_and_list(win::container* h, win::list* l) {
+        void set_header_and_list(win::container* h, list_type* l) {
           list = l;
           header = h;
         }
 
       protected:
         win::container* header;
-        win::list* list;
+        list_type* list;
       };
 
     } // detail
@@ -256,8 +258,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename Layout>
-    class column_list_header : public group_window<Layout> {
+    template<typename Layout, os::color B = os::very_very_light_gray>
+    class column_list_header : public group_window<Layout, B> {
     public:
       typedef Layout layout_type;
       typedef group_window<layout_type> super;
@@ -279,13 +281,13 @@ namespace gui {
           using namespace draw;
 
           core::rectangle r = this->client_area();
-          draw::brush background(color::buttonColor());
+          draw::brush background(B);
           g.fill(rectangle(r), background);
 
           std::size_t count = this->get_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
             layout::column_size_type w = this->get_layout().get_column_width(i);
-            r.width(w - 1);
+            r.width(w);
             if (cell_drawer) {
               cell_drawer(i, g, r, background);
             }
@@ -296,13 +298,13 @@ namespace gui {
       }
 
       std::vector<detail::slider*> create_slider (std::size_t count) {
-        core::rectangle r(0, 1, 2, this->size().height() - 2);
+        core::rectangle r(-1, 1, 2, this->size().height() - 2);
         sliders.resize(count);
         std::vector<detail::slider*> v;
         for (int i = 0; i < count; ++i) {
           slider_type& s = sliders[i];
           v.push_back(&s);
-          r.move_x(this->get_layout().get_column_width(i) - 2);
+          r.move_x(this->get_layout().get_column_width(i));
           if (!s.is_valid()) {
             s.create(*this, r);
             s.set_visible();
@@ -310,7 +312,7 @@ namespace gui {
               this->get_layout().set_column_width(i, this->get_layout().get_column_width(i) + dx);
             }));
           }
-          r.move_x(2);
+//          r.move_x(1);
         }
         return v;
       }
@@ -328,17 +330,15 @@ namespace gui {
 
     namespace detail {
 
-      extern window_class base_column_list_clazz;
-
       // --------------------------------------------------------------------------
-      template<typename Layout>
-      class base_column_list : public layout_container<layout::detail::base_column_list_layout> {
+      template<typename Layout, int S, os::color B = os::white>
+      class base_column_list : public group_window<layout::detail::base_column_list_layout, B> {
       public:
         typedef Layout layout_type;
-        typedef layout_container<layout::detail::base_column_list_layout> super;
+        typedef group_window<layout::detail::base_column_list_layout, B> super;
 
         base_column_list () {
-          get_layout().set_header_and_list(&header, &list);
+          super::get_layout().set_header_and_list(&header, &list);
           get_column_layout().set_list(&list);
         }
 
@@ -355,7 +355,7 @@ namespace gui {
 
         void create(const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
-          super::create(base_column_list_clazz, parent, place);
+          super::create(parent, place);
           header.create(*reinterpret_cast<container*>(this), core::rectangle(0, 0, place.width(), 20));
           header.set_visible();
           list.create(*reinterpret_cast<container*>(this), core::rectangle(0, 20, place.width(), place.height() - 20));
@@ -364,7 +364,7 @@ namespace gui {
         }
 
         column_list_header<layout_type> header;
-        win::list list;
+        win::list_t<true, S> list;
       };
 
     }
@@ -416,11 +416,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout>
-    class simple_column_list : public detail::base_column_list<Layout> {
+    template<typename Layout, int S = 20>
+    class simple_column_list : public detail::base_column_list<Layout, S> {
     public:
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type> super;
+      typedef detail::base_column_list<layout_type, S> super;
 
       typedef void(cell_draw)(int row_id, int col_id,
                               const draw::graphics&,
@@ -430,10 +430,9 @@ namespace gui {
                               draw::text_origin align);
 
 
-      void set_drawer (std::function<cell_draw> drawer,
-                       core::size::type item_height = 20) {
+      void set_drawer (std::function<cell_draw> drawer) {
         this->drawer = drawer;
-        this->list.set_drawer(core::bind_method(this, &simple_column_list::draw_cells), { item_height, item_height });
+        this->list.set_drawer(core::bind_method(this, &simple_column_list::draw_cells));
       }
 
       void create (const container& parent,
@@ -443,9 +442,8 @@ namespace gui {
 
       template<typename T,
                void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
-      void set_data (simple_column_list_data<T, F> data,
-                     core::size::type item_height = 20) {
-        set_drawer(data, item_height);
+      void set_data (simple_column_list_data<T, F> data) {
+        set_drawer(data);
         this->list.set_count(data.size());
       }
 
@@ -460,7 +458,7 @@ namespace gui {
           std::size_t count = this->get_column_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
             core::size::type w = this->get_column_layout().get_column_width(i);
-            r.width(w - 1);
+            r.width(w);
             drawer(idx, i, g, r, background, selected, this->get_column_layout().get_column_align(i));
             r.move_x(w);
           }
@@ -594,7 +592,7 @@ namespace gui {
         core::size::type width = l.get_column_width(I);
         draw::text_origin align = l.get_column_align(I);
 
-        place.width(width - 1);
+        place.width(width);
         std::get<I>(*this)(std::get<I>(data), g, place, background, selected, align);
         place.move_x(width);
         draw_cell<I + 1, Args...>(data, l, g, place, background, selected);
@@ -633,13 +631,13 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename... Arguments>
-    class column_list_t : public detail::base_column_list<Layout> {
+    template<typename Layout, int S, typename... Arguments>
+    class column_list_t : public detail::base_column_list<Layout, S> {
     public:
       static const std::size_t size = sizeof...(Arguments);
 
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type> super;
+      typedef detail::base_column_list<layout_type, S> super;
 
       typedef column_list_row_t<Arguments...> row;
 
@@ -664,9 +662,9 @@ namespace gui {
         this->get_column_layout().set_column_count(size);
       }
 
-      void set_drawer (data_drawer drawer, core::size::type item_height = 20) {
+      void set_drawer (data_drawer drawer) {
         this->drawer = drawer;
-        this->list.set_drawer(core::bind_method(this, &column_list_t::draw_cells_t), { item_height, item_height });
+        this->list.set_drawer(core::bind_method(this, &column_list_t::draw_cells_t));
       }
 
       void set_data (data_provider data, std::size_t count) {

@@ -50,71 +50,41 @@ namespace gui {
 
     window_class::window_class ()
       : class_style(0)
-      , style(0)
-      , ex_style(0)
-      , icon(0)
+      , background(0)
       , cursor(0)
       , cursor_type(0)
-      , background(0)
-      , foreground(0)
+      , style(0)
+      , ex_style(0)
       , callback(0)
       , is_initialized(false)
     {}
 
     window_class::window_class (const window_class& rhs)
       : class_name(rhs.class_name)
+      , background(rhs.background)
+      , cursor(rhs.cursor)
+      , cursor_type(rhs.cursor_type)
       , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
-      , icon(rhs.icon)
-      , cursor(rhs.cursor)
-      , cursor_type(rhs.cursor_type)
-      , background(rhs.background)
-      , foreground(rhs.foreground)
       , callback(rhs.callback)
       , is_initialized(rhs.is_initialized)
     {}
 
     window_class::window_class (const std::string& cls_name,
-                                os::style class_style,
-                                os::style style,
-                                os::style ex_style,
-                                os::icon icon,
-                                os::cursor cursor,
                                 os::color background,
-                                os::color foreground,
-                                os::event_callback callback)
-      : class_name(cls_name)
-      , class_style(class_style)
-      , style(style)
-      , ex_style(ex_style)
-      , icon(icon)
-      , cursor(cursor)
-      , cursor_type(0)
-      , background(background)
-      , foreground(foreground)
-      , callback(callback)
-      , is_initialized(false)
-    {}
-
-    window_class::window_class (const std::string& cls_name,
-                                os::style class_style,
-                                os::style style,
-                                os::style ex_style,
-                                os::icon icon,
                                 os::cursor_type cursor_t,
-                                os::color background,
-                                os::color foreground,
+                                os::style class_style,
+                                os::style style,
+                                os::style ex_style,
                                 os::event_callback callback)
       : class_name(cls_name)
-      , class_style(class_style)
-      , style(style)
-      , ex_style(ex_style)
-      , icon(icon)
+      , background(background)
       , cursor(0)
       , cursor_type(cursor_t)
-      , background(background)
-      , foreground(foreground)
+      , class_style(class_style)
+      , style(style)
+      , ex_style(ex_style)
       , callback(callback)
       , is_initialized(false)
     {}
@@ -139,6 +109,16 @@ namespace gui {
       return class_name;
     }
 
+    const os::color window_class::get_background () const {
+      register_class();
+      return background;
+    }
+
+    const os::cursor window_class::get_cursor () const {
+      register_class();
+      return cursor;
+    }
+
     const os::style window_class::get_class_style () const {
       register_class();
       return class_style;
@@ -152,26 +132,6 @@ namespace gui {
     const os::style window_class::get_ex_style () const {
       register_class();
       return ex_style;
-    }
-
-    const os::icon window_class::get_icon () const {
-      register_class();
-      return icon;
-    }
-
-    const os::cursor window_class::get_cursor () const {
-      register_class();
-      return cursor;
-    }
-
-    const os::color window_class::get_background () const {
-      register_class();
-      return background;
-    }
-
-    const os::color window_class::get_foreground () const {
-      register_class();
-      return foreground;
     }
 
     const os::event_callback window_class::get_callback () const {
@@ -197,12 +157,12 @@ namespace gui {
 
       WNDCLASS wc = {
         /* Register the window class. */
-        class_style,
+        CS_DBLCLKS,
         detail::WindowEventProc,
         0,
         sizeof(window_class*),
         core::global::get_instance(),
-        icon,
+        nullptr,
         cursor,
         br,
         nullptr,
@@ -222,26 +182,6 @@ namespace gui {
       }
 #endif
       is_initialized = true;
-    }
-
-    window_class window_class::custom_class (const std::string& cls_name,
-                                             os::style class_style,
-                                             os::style style,
-                                             os::style ex_style,
-                                             os::icon icon,
-                                             os::cursor_type cursor,
-                                             os::color background,
-                                             os::color foreground) {
-      return window_class(cls_name, class_style, style, ex_style, icon, cursor, background, foreground);
-    }
-
-    window_class window_class::custom_class (const std::string& cls_name,
-                                             os::color background,
-                                             os::style class_style) {
-      return custom_class(cls_name, class_style, // X11: Border width
-                          0, 0, 0, 0,
-                          background,
-                          os::black);
     }
 
     void window_class::unregister_class () {

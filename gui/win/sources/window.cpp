@@ -56,8 +56,7 @@ namespace gui {
 
     void window::create (const window_class& type,
                          os::window parent_id,
-                         const core::rectangle& place,
-                         os::menu menu) {
+                         const core::rectangle& place) {
 
       this->cls = &type;
 
@@ -70,7 +69,7 @@ namespace gui {
                           place.os_width(),               // window width
                           place.os_height(),              // window height
                           parent_id,                      // handle of parent window
-                          menu,                           // handle of menu or child-window identifier
+                          NULL,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
       type.prepare(this);
@@ -79,9 +78,8 @@ namespace gui {
 
     void window::create (const window_class& type,
                          const container& parent,
-                         const core::rectangle& place,
-                         os::menu menu) {
-      create(type, parent.get_id(), place, menu);
+                         const core::rectangle& place) {
+      create(type, parent.get_id(), place);
     }
 
     const window_class* window::get_window_class() const {
@@ -356,8 +354,7 @@ namespace gui {
 
     void window::create (const window_class& type,
                          os::window parent_id,
-                         const core::rectangle& place,
-                         os::menu) {
+                         const core::rectangle& place) {
       destroy();
       cls = &type;
       os::instance display = core::global::get_instance();
@@ -367,8 +364,8 @@ namespace gui {
                                place.os_y(),
                                place.os_width(),
                                place.os_height(),
-                               type.get_class_style(),
-                               type.get_foreground(),
+                               0,
+                               0,
                                type.get_background());
       detail::set_window(id, this);
 
@@ -384,9 +381,8 @@ namespace gui {
 
     void window::create (const window_class& type,
                          const container& parent,
-                         const core::rectangle& place,
-                         os::menu menu) {
-      create(type, parent.get_id(), place, menu);
+                         const core::rectangle& place) {
+      create(type, parent.get_id(), place);
     }
 
     const window_class* window::get_window_class() const {
@@ -754,35 +750,26 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    window_class main_window::clazz(
+    window_class main_window::clazz("main_window",
 #ifdef WIN32
-      win::window_class::custom_class("main_window",
-                                      CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW,
-                                      WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
-                                      WS_THICKFRAME | WS_VISIBLE,
-                                      WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
-                                      nullptr,
-                                      IDC_ARROW,
-                                      (os::color)(COLOR_APPWORKSPACE + 1))
+                                    (os::color)(COLOR_APPWORKSPACE + 1),
+                                    IDC_ARROW,
+                                    CS_DBLCLKS,
+                                    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED,
 #endif // WIN32
 #ifdef X11
-      win::window_class::custom_class("main_window", os::get_sys_color(os::COLOR_APPWORKSPACE))
+                                    os::get_sys_color(os::COLOR_APPWORKSPACE)
 #endif
     );
 
     // --------------------------------------------------------------------------
-    window_class client_window::clazz(
+    window_class client_window::clazz("client_window",
 #ifdef WIN32
-      win::window_class::custom_class("client_window",
-                                      CS_DBLCLKS,
-                                      WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                      WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                                      nullptr,
-                                      IDC_ARROW,
-                                      (os::color)(COLOR_BTNFACE + 1))
+                                      (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-      win::window_class::custom_class("client_window", os::get_sys_color(os::COLOR_BTNFACE))
+                                      os::get_sys_color(os::COLOR_BTNFACE)
 #endif
     );
 
@@ -987,25 +974,10 @@ namespace gui {
 
 #endif //X11
 
-#ifdef WIN32
     win::window_class create_group_window_clazz (os::color v) {
       static int group_window_id = 0;
-      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++),
-                                              CS_DBLCLKS,
-                                              WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-                                              WS_EX_NOPARENTNOTIFY | WS_EX_WINDOWEDGE,
-                                              nullptr,
-                                              IDC_ARROW,
-                                              v);
+      return win::window_class(ostreamfmt("group_window-" << group_window_id++), v);
     }
-#endif // WIN32
-
-#ifdef X11
-    win::window_class create_group_window_clazz (os::color v) {
-      static int group_window_id = 0;
-      return win::window_class::custom_class(ostreamfmt("group_window-" << group_window_id++), v);
-    }
-#endif //X11
 
   } // win
 

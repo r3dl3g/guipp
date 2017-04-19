@@ -38,9 +38,6 @@ namespace gui {
     namespace detail {
       class label_base : public gui::win::window_with_text {
       protected:
-        label_base ();
-
-      protected:
         static window_class clazz;
       };
 

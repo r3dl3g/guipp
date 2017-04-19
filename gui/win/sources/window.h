@@ -62,7 +62,7 @@ namespace gui {
 
       window ();
 
-      virtual ~window ();
+      ~window ();
 
       inline os::window get_id () const {
         return id;
@@ -177,8 +177,7 @@ namespace gui {
     protected:
       void create (const window_class& type,
                    const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   os::menu menu = 0);
+                   const core::rectangle& place = core::rectangle::def);
 
 #ifdef WIN32
       void set_style (os::style mask, bool);
@@ -188,8 +187,7 @@ namespace gui {
 
       void create (const window_class& type,
                    os::window parent_id,
-                   const core::rectangle& place,
-                   os::menu menu = 0);
+                   const core::rectangle& place);
 
     private:
       friend void detail::set_id (window*, os::window);
@@ -204,6 +202,16 @@ namespace gui {
       bool redraw_disabled;
       bool window_disabled;
 #endif // X11
+    };
+
+    // --------------------------------------------------------------------------
+    class container : public window {
+    public:
+      bool is_parent_of (const window& parent) const;
+
+      void set_children_visible (bool = true);
+
+      std::vector<window*> get_children () const;
     };
 
     // --------------------------------------------------------------------------
@@ -227,16 +235,6 @@ namespace gui {
 
     private:
       static window_class clazz;
-    };
-
-    // --------------------------------------------------------------------------
-    class container : public window {
-    public:
-      bool is_parent_of (const window& parent) const;
-
-      void set_children_visible (bool = true);
-
-      std::vector<window*> get_children () const;
     };
 
     // --------------------------------------------------------------------------

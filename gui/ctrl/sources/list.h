@@ -53,28 +53,20 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class list : public window {
+      class list : public client_window {
       public:
         typedef window super;
+        typedef core::size_type pos_t;
 
         // --------------------------------------------------------------------------
         list ();
 
-        ~list ();
-
-        size_t get_count () const;
-        int get_selection () const;
-
-        inline const gui::core::size& get_item_size () const {
-          return item_size;
+        size_t get_count () const {
+          return item_count;
         }
 
-        inline gui::core::size::type get_item_width () const {
-          return get_item_size().width();
-        }
-
-        inline gui::core::size::type get_item_height () const {
-          return get_item_size().height();
+        int get_selection () const {
+          return selection;
         }
 
         typedef void(draw_list_item) (int idx,
@@ -83,8 +75,7 @@ namespace gui {
                                       const draw::brush& background,
                                       bool selected);
 
-        void set_drawer (std::function<draw_list_item> drawer,
-                         const core::size& sz = {20, 20});
+        void set_drawer (std::function<draw_list_item> drawer);
 
       protected:
         void draw_item (int idx,
@@ -93,7 +84,6 @@ namespace gui {
                         bool selected) const;
 
         size_t item_count;
-        gui::core::size item_size;
 
         int selection;
         bool moved;
@@ -103,11 +93,95 @@ namespace gui {
         std::function<draw_list_item> drawer;
 
       };
+
+      template<bool V>
+      class list_t : public list {
+      public:
+        typedef list super;
+        typedef super::pos_t pos_t;
+
+        list_t () {
+          scrollbar.register_event_handler(win::scroll_event([&] (pos_t) {
+            super::redraw_later();
+          }));
+          super::register_event_handler(left_btn_down_event([&](const core::point&) {
+            super::take_focus();
+          }));
+        }
+
+        void create (const container& parent,
+                     const core::rectangle& place = core::rectangle::def) {
+          super::create(parent, place);
+          scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+        }
+
+        core::size client_size () const;
+
+        void enable_scroll_bar (bool enable) {
+          scrollbar.enable(enable);
+          scrollbar.set_visible(enable && scrollbar.get_max());
+        }
+
+        bool is_scroll_bar_enabled () const {
+          return scrollbar.is_enabled();
+        }
+
+        bool is_scroll_bar_visible () const {
+          return scrollbar.is_visible();
+        }
+
+        pos_t get_scroll_pos () const {
+          return scrollbar.get_value();
+        }
+
+      protected:
+        pos_t get_dimension (const core::point&) const;
+        void set_dimension (core::rectangle&, pos_t, pos_t) const;
+
+        pos_t get_list_size () const;
+        core::rectangle get_scroll_bar_area () const;
+
+        detail::scroll_barT<!V> scrollbar;
+      };
+
+      // --------------------------------------------------------------------------
+      template<>
+      core::rectangle list_t<false>::get_scroll_bar_area () const;
+
+      template<>
+      list::pos_t list_t<false>::get_list_size () const;
+
+      template<>
+      list::pos_t list_t<false>::get_dimension (const core::point&) const;
+
+      template<>
+      void list_t<false>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
+
+      template<>
+      core::size list_t<false>::client_size() const;
+
+      // --------------------------------------------------------------------------
+      template<>
+      core::rectangle list_t<true>::get_scroll_bar_area () const;
+
+      template<>
+      list::pos_t list_t<true>::get_list_size () const;
+
+      template<>
+      list::pos_t list_t<true>::get_dimension (const core::point&) const;
+
+      template<>
+      void list_t<true>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
+
+      template<>
+      core::size list_t<true>::client_size() const;
+
     }
 
     template<typename T,
              draw::text_origin O = draw::vcenter_left,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             void(F)(const draw::graphics&,
+                     const core::rectangle&) = draw::frame::no_frame>
     void list_item_drawer (const T& t,
                            const draw::graphics& g,
                            const core::rectangle& place,
@@ -122,7 +196,11 @@ namespace gui {
     // static data for list.
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
+             void(F)(const T&,
+                     const draw::graphics&,
+                     const core::rectangle&,
+                     const draw::brush&,
+                     bool) = list_item_drawer<T>>
     struct simple_list_data : public std::vector<T> {
       typedef std::vector<T> super;
 
@@ -160,16 +238,118 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool V>
-    class listT : public detail::list {
+    template<bool V, int S = 20>
+    class list_t : public detail::list_t<V> {
     public:
-      listT ();
+      typedef detail::list_t<V> super;
+      typedef typename super::pos_t pos_t;
+      static const int item_size = S;
+
+      list_t () {
+        super::register_event_handler(paint_event([&](const draw::graphics& g) {
+          paint(g);
+        }));
+        super::register_event_handler(left_btn_up_event([&](const core::point& pt) {
+          if (!super::moved) {
+            const int new_selection =
+              int((super::get_dimension(pt) + super::get_scroll_pos()) / S);
+            if (new_selection == super::get_selection()) {
+              clear_selection();
+            } else {
+              set_selection(new_selection);
+            }
+            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+            super::redraw_later();
+          }
+          super::last_mouse_point = core::point::undefined;
+        }));
+        if (V) {
+          super::register_event_handler(wheel_y_event([&](const pos_t delta, const core::point&){
+            set_scroll_pos(super::get_scroll_pos() - S * delta);
+            super::moved = true;
+          }));
+        } else {
+          super::register_event_handler(wheel_x_event([&](const pos_t delta, const core::point&){
+            set_scroll_pos(super::get_scroll_pos() - S * delta);
+            super::moved = true;
+          }));
+        }
+        super::register_event_handler(mouse_move_event([&](unsigned int keys,
+                                                    const core::point& pt) {
+          if (left_button_bit_mask::is_set(keys)) {
+            if (super::last_mouse_point != core::point::undefined) {
+              pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
+              set_scroll_pos(super::get_scroll_pos() + delta);
+              super::moved = true;
+            }
+            super::last_mouse_point = pt;
+          }
+        }));
+        super::register_event_handler(size_event([&](const core::size&){
+          super::scrollbar.place(super::get_scroll_bar_area());
+          adjust_scroll_bar();
+        }));
+        super::register_event_handler(key_down_event([&](os::key_state,
+                                                         os::key_symbol key,
+                                                         const std::string&){
+          if (V) {
+            switch (key) {
+              case keys::up:
+              case keys::numpad::up:
+                set_selection(super::get_selection() - 1);
+                break;
+              case keys::down:
+              case keys::numpad::down:
+                set_selection(super::get_selection() + 1);
+                break;
+            }
+          } else {
+            switch (key) {
+              case keys::left:
+              case keys::numpad::left:
+                set_selection(super::get_selection() - 1);
+                break;
+              case keys::right:
+              case keys::numpad::right:
+                set_selection(super::get_selection() + 1);
+                break;
+            }
+          }
+          switch (key) {
+            case keys::page_up:
+            case keys::numpad::page_up:
+              set_selection(super::get_selection() -
+                            static_cast<int>(super::get_list_size() / S));
+              break;
+            case keys::page_down:
+            case keys::numpad::page_down:
+              set_selection(super::get_selection() +
+                            static_cast<int>(super::get_list_size() / S));
+              break;
+            case keys::home:
+            case keys::numpad::home:
+              set_selection(0);
+              break;
+            case keys::end:
+            case keys::numpad::end:
+              set_selection((int)super::get_count() - 1);
+              break;
+          }
+        }));
+      }
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(parent, place);
+        adjust_scroll_bar();
+      }
 
       template<typename T,
-               void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
+               void(F)(const T&,
+                       const draw::graphics&,
+                       const core::rectangle&,
+                       const draw::brush&,
+                       bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
                    simple_list_data<T, F> data,
@@ -179,131 +359,98 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(const T&, const draw::graphics&, const core::rectangle&, const draw::brush&, bool) = list_item_drawer<T>>
-      void set_data (simple_list_data<T, F> data,
-                     core::size::type item_height = 20) {
-        set_drawer(data, calc_item_size(item_height));
+               void(F)(const T&,
+                       const draw::graphics&,
+                       const core::rectangle&,
+                       const draw::brush&,
+                       bool) = list_item_drawer<T>>
+      void set_data (simple_list_data<T, F> data) {
+        super::set_drawer(data);
         set_count(data.size());
       }
 
-      void set_count (size_t count);
-      void set_selection (int count);
+      void set_count (size_t count) {
+        super::item_count = count;
 
-      core::point::type get_scroll_pos() const;
-      void set_scroll_pos(core::point::type pos);
+        const pos_t sz = super::get_list_size();
+        const pos_t visible = (S * (int)super::item_count) - sz;
 
-      void enable_scroll_bar (bool enable);
-      bool is_scroll_bar_enabled () const;
-      bool is_scroll_bar_visible () const;
+        const pos_t zero = pos_t(0);
+        super::scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
+        super::scrollbar.set_visible((visible > zero) && super::is_scroll_bar_enabled());
 
-      core::size client_size () const;
+        super::redraw_later();
+      }
 
-      void paint (const draw::graphics& graph);
+      void set_selection (int sel) {
+        super::selection = std::min(std::max(0, sel),
+                                    static_cast<int>(super::get_count()) - 1);
+        if (super::selection > -1) {
+          // Make selection visible
+          const pos_t sel_pos = S * super::selection;
+          const pos_t sz = super::get_list_size();
+
+          if (sel_pos < super::get_scroll_pos()) {
+            set_scroll_pos(sel_pos);
+          } else if (sel_pos + S - super::get_scroll_pos() > sz) {
+            set_scroll_pos(sel_pos + S - sz);
+          }
+        }
+        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+        super::redraw_later();
+      }
+
+      void clear_selection () {
+        if (super::selection != -1) {
+          super::selection = -1;
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          super::redraw_later();
+        }
+      }
+
+      void set_scroll_pos (pos_t pos) {
+        const pos_t max_delta =
+          std::max(zero, (S * (pos_t)super::get_count()) - super::get_list_size());
+        super::scrollbar.set_value(std::min(std::max(zero, pos), max_delta));
+        super::redraw_later();
+      }
+
+      void paint (const draw::graphics& graph) {
+        core::rectangle place(super::client_size());
+
+        const pos_t list_sz = super::get_list_size();
+        const int last = (int)super::get_count();
+        const int first = int(super::get_scroll_pos() / S);
+
+        super::set_dimension(place, S * first - super::get_scroll_pos(), S);
+
+        for(int idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
+          super::draw_item(idx, graph, place, super::get_selection() == idx);
+          super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
+        }
+        graph.flush();
+      }
 
     private:
-      core::rectangle get_scroll_bar_area ();
-      void adjust_scroll_bar ();
 
-      detail::scroll_barT<!V> scrollbar;
+      void adjust_scroll_bar () {
+        scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
 
-      core::size calc_item_size (core::size::type item_height) const;
+        super::scrollbar.set_max(std::max(visible, zero));
+        super::scrollbar.set_visible((visible > zero) && super::is_scroll_bar_enabled());
+      }
 
-      static window_class clazz;
+      const pos_t zero = pos_t(0);
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    listT<false>::listT ();
+    template<int S = 20>
+    using hlist = list_t<false, S>;
 
-    template<>
-    void listT<false>::create (const container& parent,
-                               const core::rectangle& place);
+    template<int S = 20>
+    using vlist = list_t<true, S>;
 
-    template<>
-    void listT<false>::set_count (size_t count);
-
-    template<>
-    void listT<false>::set_selection (int count);
-
-    template<>
-    core::point::type listT<false>::get_scroll_pos() const;
-
-    template<>
-    void listT<false>::set_scroll_pos(core::point::type pos);
-
-    template<>
-    void listT<false>::enable_scroll_bar(bool enable);
-
-    template<>
-    bool listT<false>::is_scroll_bar_enabled() const;
-
-    template<>
-    bool listT<false>::is_scroll_bar_visible() const;
-
-    template<>
-    core::size listT<false>::client_size() const;
-
-    template<>
-    core::size listT<false>::calc_item_size(core::size::type item_height) const;
-
-    template<>
-    void listT<false>::paint (const draw::graphics& graph);
-
-    // --------------------------------------------------------------------------
-    template<>
-    listT<true>::listT();
-
-    template<>
-    void listT<true>::create (const container& parent,
-                              const core::rectangle& place);
-
-    template<>
-    void listT<true>::set_count (size_t count);
-
-    template<>
-    void listT<true>::set_selection (int count);
-
-    template<>
-    core::point::type listT<true>::get_scroll_pos() const;
-
-    template<>
-    void listT<true>::set_scroll_pos(core::point::type pos);
-
-    template<>
-    void listT<true>::enable_scroll_bar(bool enable);
-
-    template<>
-    bool listT<true>::is_scroll_bar_enabled() const;
-
-    template<>
-    bool listT<true>::is_scroll_bar_visible() const;
-
-    template<>
-    core::size listT<true>::client_size() const;
-
-    template<>
-    core::size listT<true>::calc_item_size(core::size::type item_height) const;
-
-    template<>
-    void listT<true>::paint (const draw::graphics& graph);
-
-    // --------------------------------------------------------------------------
-    template<>
-    core::rectangle listT<false>::get_scroll_bar_area ();
-
-    template<>
-    core::rectangle listT<true>::get_scroll_bar_area ();
-
-    template<>
-    void listT<false>::adjust_scroll_bar ();
-
-    template<>
-    void listT<true>::adjust_scroll_bar ();
-
-    // --------------------------------------------------------------------------
-    typedef listT<false> hlist;
-    typedef listT<true> vlist;
-    typedef vlist list;
+    using list = vlist<20>;
 
   } // win
 

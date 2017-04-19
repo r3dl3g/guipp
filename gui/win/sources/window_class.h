@@ -39,52 +39,25 @@ namespace gui {
 
     class window_class {
     public:
-      static window_class custom_class(const std::string& cls_name,
-                                       os::style class_style = 0, // X11: Border width
-                                       os::style style = 0,
-                                       os::style ex_style = 0,
-                                       os::icon icon = 0,
-                                       os::cursor_type cursor = 0,
-                                       os::color background = os::white,
-                                       os::color foreground = os::black);
-
-      static window_class custom_class(const std::string& cls_name,
-                                       os::color background,
-                                       os::style class_style = 0);
-
       window_class ();
       window_class (const window_class&);
 
       window_class (const std::string& cls_name,
-                    os::style class_style = 0, // X11: Border width
-                    os::style style = 0,
-                    os::style ex_style = 0,
-                    os::icon icon = 0,
-                    os::cursor cursor = 0,
                     os::color background = os::white,
-                    os::color foreground = os::black,
-                    os::event_callback callback = nullptr);
-
-      window_class (const std::string& cls_name,
-                    os::style class_style = 0, // X11: Border width
-                    os::style style = 0,
-                    os::style ex_style = 0,
-                    os::icon icon = 0,
                     os::cursor_type cursor = 0,
-                    os::color background = os::white,
-                    os::color foreground = os::black,
+                    os::style class_style = IF_WIN32(CS_DBLCLKS) IF_X11(0),
+                    os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),
+                    os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY),
                     os::event_callback callback = nullptr);
 
       virtual void prepare (window*) const;
 
       const std::string& get_class_name () const;
+      const os::color get_background () const;
+      const os::cursor get_cursor () const;
       const os::style get_class_style () const;
       const os::style get_style () const;
       const os::style get_ex_style () const;
-      const os::icon get_icon () const;
-      const os::cursor get_cursor () const;
-      const os::color get_background () const;
-      const os::color get_foreground () const;
       const os::event_callback get_callback () const;
 
       bool is_valid () const;
@@ -98,14 +71,12 @@ namespace gui {
       void unregister_class ();
 
       std::string class_name;
+      mutable os::color background;
+      mutable os::cursor cursor;
+      os::cursor_type cursor_type;
       mutable os::style class_style;
       os::style style;
       os::style ex_style;
-      mutable os::icon icon;
-      mutable os::cursor cursor;
-      os::cursor_type cursor_type;
-      mutable os::color background;
-      os::color foreground;
       mutable os::event_callback callback;
       mutable bool is_initialized;
     };

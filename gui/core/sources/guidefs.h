@@ -158,33 +158,33 @@ namespace gui {
 
 #ifdef WIN32
 
-color get_sys_color(int);
+    color get_sys_color(int);
 
 #endif // WIN32
 
 #ifdef X11
     enum SystemColor {
-        COLOR_SCROLLBAR,
-        COLOR_BACKGROUND,
-        COLOR_MENU,
-        COLOR_MENUTEXT,
-        COLOR_ACTIVECAPTION,
-        COLOR_INACTIVECAPTION,
-        COLOR_WINDOW,
-        COLOR_WINDOWFRAME,
-        COLOR_WINDOWTEXT,
-        COLOR_CAPTIONTEXT,
-        COLOR_INACTIVECAPTIONTEXT,
-        COLOR_ACTIVEBORDER,
-        COLOR_INACTIVEBORDER,
-        COLOR_APPWORKSPACE,
-        COLOR_HIGHLIGHT,
-        COLOR_HIGHLIGHTTEXT,
-        COLOR_GRAYTEXT,
-        COLOR_BTNFACE,
-        COLOR_BTNSHADOW,
-        COLOR_BTNTEXT,
-        COLOR_BTNHIGHLIGHT
+      COLOR_SCROLLBAR,
+      COLOR_BACKGROUND,
+      COLOR_MENU,
+      COLOR_MENUTEXT,
+      COLOR_ACTIVECAPTION,
+      COLOR_INACTIVECAPTION,
+      COLOR_WINDOW,
+      COLOR_WINDOWFRAME,
+      COLOR_WINDOWTEXT,
+      COLOR_CAPTIONTEXT,
+      COLOR_INACTIVECAPTIONTEXT,
+      COLOR_ACTIVEBORDER,
+      COLOR_INACTIVEBORDER,
+      COLOR_APPWORKSPACE,
+      COLOR_HIGHLIGHT,
+      COLOR_HIGHLIGHTTEXT,
+      COLOR_GRAYTEXT,
+      COLOR_BTNFACE,
+      COLOR_BTNSHADOW,
+      COLOR_BTNTEXT,
+      COLOR_BTNHIGHLIGHT
     };
 
     color get_sys_color(SystemColor);
@@ -249,6 +249,13 @@ color get_sys_color(int);
                                  blue_primary<B>::value;
     };
 
+    template<color_part_type V>
+    struct rgb_gray {
+      static const color value = red_primary<V>::value |
+                                 green_primary<V>::value |
+                                 blue_primary<V>::value;
+    };
+
     template<color_part_type R, color_part_type G, color_part_type B, color_part_type A>
     struct rgba_color {
       static const color value = red_primary<R>::value |
@@ -257,8 +264,20 @@ color get_sys_color(int);
                                  alpha_primary<A>::value;
     };
 
-    const color black = rgb_color<0, 0, 0>::value;
-    const color white = rgb_color<0xff, 0xff, 0xff>::value;
+    template<color_part_type V, color_part_type A>
+    struct rgba_gray {
+      static const color value = red_primary<V>::value |
+                                 green_primary<V>::value |
+                                 blue_primary<V>::value |
+                                 alpha_primary<A>::value;
+    };
+
+    const color black = rgb_gray<0>::value;
+    const color gray = rgb_gray<0x80>::value;
+    const color light_gray = rgb_gray<0xC0>::value;
+    const color very_light_gray = rgb_gray<0xE0>::value;
+    const color very_very_light_gray = rgb_gray<0xF0>::value;
+    const color white = rgb_gray<0xff>::value;
 
 
     template<color C>
@@ -307,21 +326,20 @@ color get_sys_color(int);
       return detail::split_color_part<detail::alpha_shift>(c);
     }
 
-
-    constexpr color rgb (color_part_type r, color_part_type g, color_part_type b) {
+    constexpr color create_rgb (color_part_type r, color_part_type g, color_part_type b) {
       return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b);
     }
 
-    constexpr color rgba (color_part_type r, color_part_type g, color_part_type b, color_part_type a) {
+    constexpr color create_rgba (color_part_type r, color_part_type g, color_part_type b, color_part_type a) {
       return build_red_primary(r) | build_green_primary(g) | build_blue_primary(b) | build_alpha_primary(a);
     }
 
-    constexpr color rgb_gray (color_part_type v) {
-      return rgb(v, v, v);
+    constexpr color create_gray (color_part_type v) {
+      return create_rgb(v, v, v);
     }
 
-    constexpr color rgba_gray (color_part_type v, color_part_type a) {
-      return rgba(v, v, v, a);
+    constexpr color create_gray_aplha (color_part_type v, color_part_type a) {
+      return create_rgba(v, v, v, a);
     }
 
 

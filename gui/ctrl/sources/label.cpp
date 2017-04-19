@@ -26,22 +26,8 @@ namespace gui {
 
     namespace detail {
 
-      window_class label_base::clazz;
+      window_class label_base::clazz("STATIC++", os::get_sys_color(os::COLOR_BTNFACE));
 
-      label_base::label_base () {
-        if (!clazz.is_valid()) {
-#ifdef WIN32
-          clazz = window_class::custom_class("STATIC++",
-                                             CS_DBLCLKS,
-                                             WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-                                             WS_EX_NOPARENTNOTIFY);
-#endif // WIN32
-#ifdef X11
-          clazz = gui::win::window_class::custom_class("STATIC++",
-                                                       os::get_sys_color(os::COLOR_BTNFACE));
-#endif // X11
-        }
-      }
     } // detail
 
     namespace paint {

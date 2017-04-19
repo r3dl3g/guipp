@@ -24,43 +24,10 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class text_button::clazz(
-#ifdef WIN32
-      window_class::custom_class("PUSH_BUTTON++", 0,
-                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-                                 WS_EX_NOPARENTNOTIFY)
-#else // !WIN32
-      window_class::custom_class("PUSH_BUTTON++",
-                                 draw::color::buttonColor())
-#endif // !WIN32
-    );
-
-    window_class radio_button::clazz(
-#ifdef WIN32
-      window_class::custom_class("RADIO_BUTTON++", 0,
-                                 WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |WS_VISIBLE | WS_TABSTOP,
-                                 WS_EX_NOPARENTNOTIFY)
-#else // !WIN32
-      window_class::custom_class("RADIO_BUTTON++",
-                                 draw::color::buttonColor())
-#endif // !WIN32
-    );
-
-    window_class check_box::clazz(
-#ifdef WIN32
-        window_class::custom_class("CHECKBOX++", 0,
-                                   WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-                                   WS_EX_NOPARENTNOTIFY)
-#else // !WIN32
-        window_class::custom_class("CHECKBOX++",
-                                   draw::color::buttonColor())
-#endif // !WIN32
-    );
-
-    // --------------------------------------------------------------------------
     button::button ()
-      : checked(false)
-      , hilited(false)
+      : hilited(false)
+      , pushed(false)
+      , checked(false)
     {
 #ifdef X11
       if (!detail::BN_CLICKED_MESSAGE) {
@@ -82,10 +49,25 @@ namespace gui {
       register_event_handler(lost_focus_event([&](window*){
         redraw_later();
       }));
+      register_event_handler(win::mouse_enter_event([&]() {
+        set_hilited(true);
+      }));
+      register_event_handler(win::mouse_leave_event([&]() {
+        set_hilited(false);
+      }));
     }
 
-    bool button::is_checked () const {
-      return checked;
+    void button::set_hilited (bool h) {
+      hilited = h;
+      redraw_later();
+    }
+
+    void button::set_pushed (bool h) {
+      if (pushed != h) {
+        pushed = h;
+        send_client_message(this, pushed ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
+        redraw_later();
+      }
     }
 
     void button::set_checked (bool f) {
@@ -96,104 +78,143 @@ namespace gui {
       }
     }
 
-    bool button::is_hilited () const {
-      return hilited;
+    // --------------------------------------------------------------------------
+    push_button::push_button () {
+      register_event_handler(left_btn_down_event([&](const core::point&) {
+        if (is_enabled()) {
+          take_focus();
+          set_pushed(true);
+        }
+      }));
+      register_event_handler(left_btn_up_event([&](const core::point& pos) {
+        if (is_pushed()) {
+          set_pushed(false);
+          if (client_area().is_inside(pos)) {
+            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
     }
 
-    void button::set_hilited (bool h) {
-      hilited = h;
-      redraw_later();
+    // --------------------------------------------------------------------------
+    toggle_button::toggle_button () {
+      register_event_handler(left_btn_down_event([&](const core::point&) {
+        if (is_enabled()) {
+          take_focus();
+          set_pushed(true);
+        }
+      }));
+      register_event_handler(left_btn_up_event([&](const core::point& pos) {
+        if (is_pushed()) {
+          set_pushed(false);
+          if (client_area().is_inside(pos)) {
+            set_checked(!is_checked());
+            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
     }
 
     namespace paint {
       // --------------------------------------------------------------------------
-      void push_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool, const std::string& text) {
+      void push_button (const draw::graphics& graph, const win::button& btn, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
+        const bool enabled = btn.is_enabled();
         core::rectangle area = btn.client_area();
 
-        graph.fill(draw::rectangle(area), color::buttonColor());
-        if (focus) {
+        graph.fill(draw::rectangle(area), enabled && btn.is_hilited() ? color::buttonHighLightColor() : color::buttonColor());
+        if (enabled && focus) {
           graph.frame(draw::rectangle(area), color::black());
           area.shrink({1, 1});
         }
-        draw::frame::deep_relief(graph, area, is_checked);
-        graph.text(draw::text_box(text, area, center), font::system(), btn.is_enabled() ? color::black() : color::gray());
-        if (focus) {
+        frame::deep_relief(graph, area, btn.is_pushed());
+        graph.text(text_box(text, area, center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
+        if (enabled && focus) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
         }
       }
 
       // --------------------------------------------------------------------------
-      void flat_button (const draw::graphics& g, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+      void flat_button (const draw::graphics& g, const win::button& btn, const std::string& text) {
+        using namespace draw;
+
         core::rectangle r = btn.client_area();
+        const bool enabled = btn.is_enabled();
 
-        if (is_checked) {
-          g.fill(draw::rectangle(r), draw::color::darkGray());
-        } else if (is_hilited) {
-          g.fill(draw::rectangle(r), draw::color::lightGray());
+        if (btn.is_pushed()) {
+          g.fill(draw::rectangle(r), color::darkGray());
+        } else if (btn.is_hilited() && btn.is_enabled()) {
+          g.fill(draw::rectangle(r), color::lightGray());
         } else {
-          g.fill(draw::rectangle(r), draw::color::workSpaceColor());
+          g.fill(draw::rectangle(r), color::workSpaceColor());
         }
-        g.text(draw::text_box(text, r, draw::center), draw::font::system(), draw::color::white());
+        g.text(text_box(text, r, center),
+               font::system(),
+               enabled ? color::white() : color::gray());
       }
 
       // --------------------------------------------------------------------------
-      void radio_button (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+      void radio_button (const draw::graphics& graph, const win::button& btn, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
+        const bool enabled = btn.is_enabled();
+        const bool pushed = btn.is_pushed();
 
-        color col = btn.is_enabled() ? color::black() : color::gray();
+        color col = enabled ? color::windowTextColor() : color::disabledTextColor();
         core::rectangle area = btn.client_area();
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point_type y = area.y() + area.size().height() / 2;
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-        graph.draw(ellipse(r), is_hilited ? color::veryLightGray()
-                                          : color::buttonColor(), col);
-        if (is_checked) {
+        graph.draw(ellipse(r), pushed ? color::veryLightGray()
+                                      : color::buttonColor(), col);
+        if (btn.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(ellipse(r), col);
+          graph.fill(ellipse(r), pushed ? color::darkGray() : col);
         }
         area.x(20);
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black());
+          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black());
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
         }
       }
 
       // --------------------------------------------------------------------------
-      void check_box (const draw::graphics& graph, const win::window& btn, bool is_checked, bool is_hilited, const std::string& text) {
+      void check_box (const draw::graphics& graph, const win::button& btn, const std::string& text) {
         using namespace draw;
 
         const bool focus = btn.has_focus();
+        const bool enabled = btn.is_enabled();
+        const bool pushed = btn.is_pushed();
 
         core::rectangle area = btn.client_area();
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point_type y = area.y() + area.height() / 2;
-        color col = btn.is_enabled() ? color::black() : color::gray();
+        color col = enabled ? color::windowTextColor() : color::disabledTextColor();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
-                   is_hilited ? color::veryLightGray()
-                              : color::buttonColor(),
+                   pushed ? color::veryLightGray()
+                          : color::buttonColor(),
                    col);
-        if (is_checked) {
+
+        if (btn.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(rectangle(r), col);
+          graph.fill(rectangle(r), pushed ? color::darkGray() : col);
         }
         area.x(20);
-        graph.text(draw::text_box(text, area, vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(draw::bounding_box(text, area, vcenter_left), font::system(), color::black());
+          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black());
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
         }
       }
     }
@@ -201,21 +222,28 @@ namespace gui {
     // --------------------------------------------------------------------------
     text_button::text_button () {
       register_event_handler(paint_event([&] (const draw::graphics& graph) {
-        paint::push_button(graph, *this, is_checked(), is_hilited(), get_text());
+        paint::push_button(graph, *this, get_text());
+      }));
+    }
+
+    // --------------------------------------------------------------------------
+    flat_button::flat_button () {
+      register_event_handler(paint_event([&] (const draw::graphics& graph) {
+        paint::flat_button(graph, *this, get_text());
       }));
     }
 
     // --------------------------------------------------------------------------
     radio_button::radio_button () {
       register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
-        paint::radio_button(graph, *this, is_checked(), is_hilited(), get_text());
+        paint::radio_button(graph, *this, get_text());
       }));
     }
 
     // --------------------------------------------------------------------------
     check_box::check_box () {
       register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
-        paint::check_box(graph, *this, is_checked(), is_hilited(), get_text());
+        paint::check_box(graph, *this, get_text());
       }));
     }
 

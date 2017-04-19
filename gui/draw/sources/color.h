@@ -104,11 +104,11 @@ namespace gui {
       {}
 
       constexpr color (part_type r, part_type g, part_type b)
-        : value(os::rgb(r, g, b))
+        : value(os::create_rgb(r, g, b))
       {}
 
       constexpr color (part_type r, part_type g, part_type b, part_type alpha)
-        : value(os::rgba(r, g, b, alpha))
+        : value(os::create_rgba(r, g, b, alpha))
       {}
 
       constexpr part_type r () const {

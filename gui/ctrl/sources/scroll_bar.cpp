@@ -184,30 +184,12 @@ namespace gui {
 
       template<>
       scroll_bar_class<false>::scroll_bar_class ()
-        : window_class(custom_class("VSCROLLBAR++", 
-#ifdef WIN32
-          0,
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY
-#endif //WIN32
-#ifdef X11
-          draw::color::veryLightGray()
-#endif // X11
-        ))
+        : window_class("VSCROLLBAR++", draw::color::veryLightGray())
       {}
 
       template<>
       scroll_bar_class<true>::scroll_bar_class ()
-        : window_class(custom_class("HSCROLLBAR++", 
-#ifdef WIN32
-          0,
-          WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP,
-          WS_EX_NOPARENTNOTIFY
-#endif //WIN32
-#ifdef X11
-          draw::color::veryLightGray()
-#endif // X11
-        ))
+        : window_class("HSCROLLBAR++", draw::color::veryLightGray())
       {}
 
       template<>

@@ -120,13 +120,14 @@ private:
 
   win::simple_list_data<std::string> data;
 
-  win::list list1;
+  typedef win::vlist<25> List1;
+  List1 list1;
   win::list& list2;
   win::list& list3;
 
   typedef win::split_view_t<false, win::list, win::list> list_split_view;
-  typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
-  typedef win::split_view_t<false, win::hlist, simple_list> column_list_split_view;
+  typedef win::simple_column_list<layout::simple_column_list_layout, 16> simple_list;
+  typedef win::split_view_t<false, win::hlist<20>, simple_list> column_list_split_view;
 
   win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
 
@@ -155,7 +156,7 @@ private:
 
   win::custom_push_button custom_button;
 
-  typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
+  typedef win::column_list_t<layout::weight_column_list_layout, 20, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
@@ -174,6 +175,24 @@ int gui_main(const std::vector<std::string>& args) {
 
   LogDebug << "window size:" << sizeof(main)  << ", window_class size:" << sizeof(win::window_class);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
+  size_t str_size = sizeof(std::string);
+  size_t evc_size = sizeof(core::event_container);
+  size_t win_size = sizeof(win::window);
+  size_t cln_size = sizeof(win::client_window);
+  size_t btn_size = sizeof(win::button);
+  size_t push_size = sizeof(win::push_button);
+  size_t tgl_size = sizeof(win::toggle_button);
+  size_t tbtn_size = sizeof(win::text_button);
+
+  LogInfo << "Sizes: "
+           <<   "std::string:" << str_size
+           << ", event_container:" << evc_size
+           << ", window:" << win_size
+           << ", client_window:" << cln_size
+           << ", button:" << btn_size
+           << ", push_button:" << push_size
+           << ", toggle_button:" << tgl_size
+           << ", text_button:" << tbtn_size;
 
 //#ifdef WIN32
 //  main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -456,7 +475,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     win::paint::text_item(strm.str(), g, place, background, selected);
   };
 
-  list1.set_drawer(list_drawer, core::size(0, 25));
+  list1.set_drawer(list_drawer);
   list1.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List1 item " << list1.get_selection();
@@ -481,11 +500,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
                         const draw::brush& background,
                         bool selected) {
     data(idx, g, place, background, selected);
-  }, core::size(0, 16));
+  });
 
   list2.register_event_handler(win::selection_changed_event([&] () {
     std::ostringstream strm;
-    strm << "List2 item " << list2.get_selection() << ": " << data[list2.get_selection()];
+    strm << "List2 item " << list2.get_selection() << ": ";
+    if (list2.get_selection() > -1) {
+      strm  << data[list2.get_selection()];
+    }
     labelC.set_text(strm.str());
   }));
 
@@ -682,8 +704,8 @@ void my_main_window::created_children () {
   };
 
   vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
-  vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}), 16);
-  vsplit_view.second.first.set_data(win::simple_list_data<float>(floats), 25);
+  vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+  vsplit_view.second.first.set_data(win::simple_list_data<float>(floats));
   vsplit_view.second.second.get_column_layout().set_columns(columns);
   vsplit_view.second.second.set_data(col_data);
   vsplit_view.set_visible();
@@ -708,14 +730,14 @@ void my_main_window::created_children () {
       draw::frame::raised_relief(g, r);
     },
 
-    win::cell_drawer<std::string, draw::frame::lines>,
-    win::cell_drawer<float, draw::frame::lines>,
-    win::cell_drawer<int, draw::frame::lines>,
+    win::cell_drawer<std::string, draw::frame::sunken_relief>,
+    win::cell_drawer<float, draw::frame::sunken_relief>,
+    win::cell_drawer<int, draw::frame::sunken_relief>,
 
     [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
       std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
       win::paint::text_item(text, g, r, b, s, align);
-      draw::frame::lines(g, r);
+      draw::frame::sunken_relief(g, r);
     }
   };
 
@@ -723,24 +745,24 @@ void my_main_window::created_children () {
   column_list.create(main, core::rectangle(580, 50, 140, 250));
   column_list.header.set_cell_drawer([](int i, const draw::graphics& g, const core::rectangle& r, const draw::brush&) {
     using namespace draw;
-    frame::raised_relief(g, r);
+    frame::raised_deep_relief(g, r);
     g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor());
   });
-  column_list.set_drawer(column_list_drawer, 25);
+  column_list.set_drawer(column_list_drawer);
   column_list.get_column_layout().set_columns(weight_columns);
   column_list.set_data([](int i){
     return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i), i * i, i % 2 == 1);
   }, 20);
   column_list.set_visible();
-  column_list.get_column_layout().get_slider(0)->disable();
+//  column_list.get_column_layout().get_slider(0)->disable();
   column_list.layout();
 
   hscroll.create(main, core::rectangle(550, 305, 130, win::scroll_bar::get_scroll_bar_width()));
   hscroll.set_visible();
 
   vscroll.create(main, core::rectangle(700, 50, win::scroll_bar::get_scroll_bar_width(), 250));
-  vscroll.set_max((int)list1.get_count() * list1.get_item_size().height() - list1.size().height());
-  vscroll.set_step(list1.get_item_size().height());
+  vscroll.set_max((int)list1.get_count() * List1::item_size - list1.size().height());
+  vscroll.set_step(List1::item_size);
   vscroll.set_visible();
 
   up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
@@ -812,7 +834,7 @@ void my_main_window::created_children () {
   edit_btn_group.layout();
 
   custom_button.set_drawer([](const draw::graphics& g, const win::button& btn) {
-    win::paint::flat_button(g, btn, btn.is_checked(), btn.is_hilited(), "Custom");
+    win::paint::flat_button(g, btn, "Custom");
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));

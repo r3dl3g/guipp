@@ -204,7 +204,7 @@ namespace gui {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
       SIZE sz = { 0 };
-      GetTextExtentPoint32(hdc, str.c_str(), str.length(), &sz);
+      GetTextExtentPoint32(hdc, str.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);
       return core::size(sz);

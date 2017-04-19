@@ -756,7 +756,7 @@ namespace gui {
                                     IDC_ARROW,
                                     CS_DBLCLKS,
                                     WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
-                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED,
+                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
 #endif // WIN32
 #ifdef X11
                                     os::get_sys_color(os::COLOR_APPWORKSPACE)

@@ -26,7 +26,14 @@ namespace gui {
 
     namespace detail {
 
-      window_class label_base::clazz("STATIC++", os::get_sys_color(os::COLOR_BTNFACE));
+      window_class label_base::clazz("STATIC++", 
+#ifdef WIN32
+        (COLOR_BTNFACE+1)
+#endif / WIN32
+#ifdef X11
+        os::get_sys_color(os::COLOR_BTNFACE)
+#endif // X11
+      );
 
     } // detail
 

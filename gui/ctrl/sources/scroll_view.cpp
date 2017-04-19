@@ -36,7 +36,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     window_class scroll_view::clazz("MyScrollView",
     #ifdef WIN32
-      (os::color)(COLOR_WINDOW + 1))
+      (os::color)(COLOR_WINDOW + 1)
     #endif // WIN32
     #ifdef X11
       draw::color::windowColor()

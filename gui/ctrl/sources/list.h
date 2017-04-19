@@ -387,7 +387,7 @@ namespace gui {
                                     static_cast<int>(super::get_count()) - 1);
         if (super::selection > -1) {
           // Make selection visible
-          const pos_t sel_pos = S * super::selection;
+          const pos_t sel_pos = static_cast<pos_t>(S * super::selection);
           const pos_t sz = super::get_list_size();
 
           if (sel_pos < super::get_scroll_pos()) {

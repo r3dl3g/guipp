@@ -418,20 +418,26 @@ namespace gui {
       }
 
       void paint (const draw::graphics& graph) {
-        core::rectangle place(super::client_size());
+        core::rectangle area(super::client_size());
+        core::rectangle place = area;
+
+        draw::brush background(B);
 
         const pos_t list_sz = super::get_list_size();
         const int last = (int)super::get_count();
         const int first = int(super::get_scroll_pos() / S);
 
         super::set_dimension(place, S * first - super::get_scroll_pos(), S);
-        draw::brush background(B);
 
         for(int idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, background, super::get_selection() == idx);
           super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
         }
-        graph.flush();
+
+        if (place.y() < area.y2()) {
+          graph.fill(draw::rectangle(core::rectangle(place.top_left(), area.bottom_right())), background);
+        }
+
       }
 
     private:
@@ -445,11 +451,11 @@ namespace gui {
 
       const pos_t zero = pos_t(0);
 
-      static window_class clazz;
+      static no_erase_window_class clazz;
     };
 
     template<bool V, int S, os::color B>
-    window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
+    no_erase_window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
 
     // --------------------------------------------------------------------------
     template<int S = 20, os::color B = color::white>

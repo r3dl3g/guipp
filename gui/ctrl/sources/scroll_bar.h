@@ -126,11 +126,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<bool H>
-      class scroll_bar_class : public window_class {
+      class scroll_bar_class : public no_erase_window_class {
       public:
         scroll_bar_class ();
-
-        virtual void prepare (window*) const;
       };
 
       // --------------------------------------------------------------------------

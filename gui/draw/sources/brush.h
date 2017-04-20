@@ -51,7 +51,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      brush(const os::color& = gui::color::black, Style = solid);
+      brush(const os::color& = color::black, Style = solid);
       brush(const brush&);
       ~brush();
 

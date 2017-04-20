@@ -81,11 +81,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<bool H>
-      class slider_class : public window_class {
+      class slider_class : public no_erase_window_class {
       public:
         slider_class();
-
-        virtual void prepare (window*) const;
       };
 
       // --------------------------------------------------------------------------

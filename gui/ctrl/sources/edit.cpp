@@ -39,7 +39,7 @@ namespace gui {
 
     namespace detail {
 
-      window_class edit_base::clazz = gui::win::window_class("EDIT++", gui::color::white);
+      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white);
 
       const std::string white_space = " (){}[],.;:'\"!@#$%^&/*-+";
 

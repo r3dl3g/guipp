@@ -45,10 +45,6 @@ namespace gui {
     public:
       typedef std::function<event_handler_callback> event_handler_function;
 
-      inline event_container()
-        : handle_event_stack_count(0)
-      {}
-
       void register_event_handler(event_handler_function);
 
       template<typename T>
@@ -64,14 +60,6 @@ namespace gui {
       typedef std::vector<event_handler_function> event_handler_list;
 
       event_handler_list event_handlers;
-      int                handle_event_stack_count;
-
-      typedef std::pair<bool, event_handler_function> change_entry;
-      typedef std::vector<change_entry> change_entry_list;
-
-      typedef std::map<event_container*, change_entry_list> event_handler_change_map;
-
-      static event_handler_change_map change_map;
     };
 
   } // core

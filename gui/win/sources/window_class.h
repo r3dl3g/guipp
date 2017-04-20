@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include "guidefs.h"
+#include "color.h"
 
 
 namespace gui {
@@ -66,7 +66,9 @@ namespace gui {
         unregister_class();
       }
 
-    private:
+    protected:
+      virtual os::brush get_background_brush () const;
+
       void register_class () const;
       void unregister_class ();
 

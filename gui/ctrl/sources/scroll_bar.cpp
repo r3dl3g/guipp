@@ -199,35 +199,13 @@ namespace gui {
 
       template<>
       scroll_bar_class<false>::scroll_bar_class ()
-        : window_class("VSCROLLBAR++", color::very_light_gray)
+        : no_erase_window_class("VSCROLLBAR++", color::very_light_gray)
       {}
 
       template<>
       scroll_bar_class<true>::scroll_bar_class ()
-        : window_class("HSCROLLBAR++", color::very_light_gray)
+        : no_erase_window_class("HSCROLLBAR++", color::very_light_gray)
       {}
-
-      template<>
-      void scroll_bar_class<false>::prepare (window* win) const {
-        window_class::prepare(win);
-#ifdef X11
-        unsigned long mask = CWBackPixmap;
-        XSetWindowAttributes wa;
-        wa.background_pixmap = None;
-        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
-#endif // X11
-      }
-
-      template<>
-      void scroll_bar_class<true>::prepare (window* win) const {
-        window_class::prepare(win);
-#ifdef X11
-        unsigned long mask = CWBackPixmap;
-        XSetWindowAttributes wa;
-        wa.background_pixmap = None;
-        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
-#endif // X11
-      }
 
       // --------------------------------------------------------------------------
       template<>

@@ -143,6 +143,16 @@ namespace gui {
       return !class_name.empty();
     }
 
+    os::brush window_class::get_background_brush () const {
+#ifdef WIN32
+      return ((background > 0) && (background < 20)) ? reinterpret_cast<os::brush>(static_cast<LPARAM>(background))
+                                                     : CreateSolidBrush(background);
+#endif // WIN32
+#ifdef X11
+      return background;
+#endif // X11
+    }
+
     void window_class::register_class () const {
       if (is_initialized || callback) {
         return;
@@ -151,9 +161,6 @@ namespace gui {
       if (cursor_type && !cursor) {
         cursor = LoadCursor(nullptr, cursor_type);
       }
-
-      os::brush br = ((background > 0) && (background < 20)) ? reinterpret_cast<os::brush>(static_cast<LPARAM>(background))
-                                                              : CreateSolidBrush(background);
 
       WNDCLASS wc = {
         /* Register the window class. */
@@ -164,7 +171,7 @@ namespace gui {
         core::global::get_instance(),
         nullptr,
         cursor,
-        br,
+        get_background_brush(),
         nullptr,
         class_name.c_str()
       };

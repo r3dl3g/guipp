@@ -41,7 +41,7 @@ namespace gui {
 
       template<>
       slider_class<false>::slider_class ()
-        : window_class("VSLIDER++",
+        : no_erase_window_class("VSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
                        IDC_SIZEWE
@@ -55,7 +55,7 @@ namespace gui {
 
       template<>
       slider_class<true>::slider_class ()
-        : window_class("HSLIDER++",
+        : no_erase_window_class("HSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
                        IDC_SIZENS
@@ -66,30 +66,6 @@ namespace gui {
 #endif // X11
         )
       {}
-
-      template<>
-      void slider_class<false>::prepare (window* win) const {
-        window_class::prepare(win);
-#ifdef X11
-        unsigned long mask = /*CWBitGravity | */CWBackPixmap;
-        XSetWindowAttributes wa;
-        wa.background_pixmap = None;
-//        wa.bit_gravity = StaticGravity;
-        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
-#endif // X11
-      }
-
-      template<>
-      void slider_class<true>::prepare (window* win) const {
-        window_class::prepare(win);
-#ifdef X11
-        unsigned long mask = /*CWBitGravity | */CWBackPixmap;
-        XSetWindowAttributes wa;
-        wa.background_pixmap = None;
-//        wa.bit_gravity = StaticGravity;
-        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
-#endif // X11
-      }
 
       template <>
       slider_t<false>::slider_t () {

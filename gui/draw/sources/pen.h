@@ -70,7 +70,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      pen(const os::color& = gui::color::black, Style = solid, size_type = 1);
+      pen(const os::color& = color::black, Style = solid, size_type = 1);
       pen(const pen&);
       ~pen();
 

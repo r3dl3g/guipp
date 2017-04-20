@@ -30,7 +30,7 @@
 #ifdef WIN32
 # define DEFINE_SYS_COLOR(name, SYS_NAME) \
    os::color name () {\
-     static os::color c(gui::color::get_sys_color(SYS_NAME));\
+     static os::color c(get_sys_color(SYS_NAME));\
      return c;\
    }
 
@@ -39,7 +39,7 @@
 #ifdef X11
 # define DEFINE_SYS_COLOR(name, SYS_NAME) \
    os::color name () {\
-     static os::color c(gui::color::get_sys_color(gui::color::SYS_NAME));\
+     static os::color c(get_sys_color(SYS_NAME));\
      return c;\
    }
 #endif // X11
@@ -57,6 +57,30 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
+
+    enum SystemColor {
+      COLOR_SCROLLBAR,
+      COLOR_BACKGROUND,
+      COLOR_MENU,
+      COLOR_MENUTEXT,
+      COLOR_ACTIVECAPTION,
+      COLOR_INACTIVECAPTION,
+      COLOR_WINDOW,
+      COLOR_WINDOWFRAME,
+      COLOR_WINDOWTEXT,
+      COLOR_CAPTIONTEXT,
+      COLOR_INACTIVECAPTIONTEXT,
+      COLOR_ACTIVEBORDER,
+      COLOR_INACTIVEBORDER,
+      COLOR_APPWORKSPACE,
+      COLOR_HIGHLIGHT,
+      COLOR_HIGHLIGHTTEXT,
+      COLOR_GRAYTEXT,
+      COLOR_BTNFACE,
+      COLOR_BTNSHADOW,
+      COLOR_BTNTEXT,
+      COLOR_BTNHIGHLIGHT
+    };
 
     os::color get_sys_color(SystemColor c) {
       switch (c) {

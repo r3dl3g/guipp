@@ -31,7 +31,7 @@ private:
   typedef labelT<alignment_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[3];
 
-  list left_list;
+  vlist<50> left_list;
 
   group_window<vertical_adaption<5, 5>, color::rgb_gray<160>::value> right_bar;
 

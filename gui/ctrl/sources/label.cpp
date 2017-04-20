@@ -26,12 +26,12 @@ namespace gui {
 
     namespace detail {
 
-      window_class label_base::clazz("STATIC++", 
+      no_erase_window_class label_base::clazz("STATIC++",
 #ifdef WIN32
         (COLOR_BTNFACE+1)
 #endif // WIN32
 #ifdef X11
-        color::get_sys_color(color::COLOR_BTNFACE)
+        color::buttonColor()
 #endif // X11
       );
 
@@ -42,12 +42,15 @@ namespace gui {
       void label (const draw::graphics& graph,
                   const win::window& win,
                   const std::string& text,
+                  os::color foreground,
+                  os::color background,
                   draw::text_origin origin) {
         using namespace gui::draw;
         gui::core::rectangle area = win.client_area();
+        graph.fill(draw::rectangle(area), background);
         graph.text(draw::text_box(text, area, origin),
                    font::system(),
-                   color::black);
+                   foreground);
 #ifdef SHOW_TEXT_AREA
         graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
         graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));

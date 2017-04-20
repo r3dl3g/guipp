@@ -253,16 +253,17 @@ namespace gui {
                                      const core::rectangle& r,
                                      const draw::brush& background) {
       using namespace draw;
+      g.fill(rectangle(r), background);
       frame::raised_relief(g, r);
       g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor());
     }
 
     // --------------------------------------------------------------------------
     template<typename Layout, os::color B = color::very_very_light_gray>
-    class column_list_header : public group_window<Layout, B> {
+    class column_list_header : public layout_container<Layout> {
     public:
       typedef Layout layout_type;
-      typedef group_window<layout_type> super;
+      typedef layout_container<Layout> super;
 
       typedef framed_slider_t<false, draw::frame::vgroove> slider_type;
 
@@ -280,9 +281,9 @@ namespace gui {
         this->register_event_handler(win::paint_event([&](const draw::graphics& g) {
           using namespace draw;
 
-          core::rectangle r = this->client_area();
+          core::rectangle area = this->client_area();
+          core::rectangle r = area;
           draw::brush background(B);
-          g.fill(rectangle(r), background);
 
           std::size_t count = this->get_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
@@ -294,7 +295,16 @@ namespace gui {
             r.move_x(w);
           }
 
+          if (r.x() < area.x2()) {
+            g.fill(rectangle(r.top_left(), area.bottom_right()), background);
+          }
+
         }));
+      }
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(clazz, parent, place);
       }
 
       std::vector<detail::slider*> create_slider (std::size_t count) {
@@ -325,25 +335,27 @@ namespace gui {
       std::vector<slider_type> sliders;
       std::function<cell_draw> cell_drawer;
 
+      static no_erase_window_class clazz;
+
       void operator= (column_list_header&) = delete;
     };
+
+    template<typename L, os::color B>
+    no_erase_window_class column_list_header<L, B>::clazz = create_group_window_clazz(B);
 
     namespace detail {
 
       // --------------------------------------------------------------------------
       template<typename Layout, int S, os::color B>
-      class base_column_list : public group_window<layout::detail::base_column_list_layout, B> {
+      class base_column_list : public layout_container<layout::detail::base_column_list_layout> {
       public:
         typedef Layout layout_type;
-        typedef group_window<layout::detail::base_column_list_layout, B> super;
+        typedef layout_container<layout::detail::base_column_list_layout> super;
 
         base_column_list () {
           super::get_layout().set_header_and_list(&header, &list);
           get_column_layout().set_list(&list);
         }
-
-        ~base_column_list ()
-        {}
 
         layout_type& get_column_layout() {
           return header.get_layout();
@@ -355,7 +367,7 @@ namespace gui {
 
         void create(const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
-          super::create(parent, place);
+          super::create(clazz, parent, place);
           header.create(*reinterpret_cast<container*>(this), core::rectangle(0, 0, place.width(), 20));
           header.set_visible();
           list.create(*reinterpret_cast<container*>(this), core::rectangle(0, 20, place.width(), place.height() - 20));
@@ -365,7 +377,14 @@ namespace gui {
 
         column_list_header<layout_type> header;
         win::list_t<true, S, B> list;
+
+      private:
+        static no_erase_window_class clazz;
+
       };
+
+      template<typename L, int S, os::color B>
+      no_erase_window_class base_column_list<L, S, B>::clazz = create_group_window_clazz(B);
 
     }
 
@@ -461,6 +480,9 @@ namespace gui {
             r.width(w);
             drawer(idx, i, g, r, background, selected, this->get_column_layout().get_column_align(i));
             r.move_x(w);
+          }
+          if (r.x() < place.x2()) {
+            g.fill(draw::rectangle(r.top_left(), place.bottom_right()), background);
           }
         }
       }

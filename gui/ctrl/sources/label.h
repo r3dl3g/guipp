@@ -38,7 +38,7 @@ namespace gui {
     namespace detail {
       class label_base : public gui::win::window_with_text {
       protected:
-        static window_class clazz;
+        static no_erase_window_class clazz;
       };
 
     }
@@ -48,12 +48,16 @@ namespace gui {
       void label (const draw::graphics& graph,
                   const win::window& win,
                   const std::string& text,
+                  os::color foreground,
+                  os::color background,
                   draw::text_origin origin);
 
     }
 
     template<alignment_h A,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
+             os::color FC = color::black,
+             os::color BC = color::very_light_gray>
     class labelT : public detail::label_base {
     public:
       typedef detail::label_base super;
@@ -61,7 +65,7 @@ namespace gui {
       labelT () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
           gui::core::rectangle place = client_area();
-          paint::label(graph, *this, get_text(), (draw::text_origin)A);
+          paint::label(graph, *this, get_text(), FC, BC, (draw::text_origin)A);
           F(graph, place);
         }));
       }
@@ -75,10 +79,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef labelT<alignment_left> label_left;
-    typedef label_left label;
-    typedef labelT<alignment_right> label_right;
-    typedef labelT<alignment_center> label_center;
+    using label_left = labelT<alignment_left, draw::frame::no_frame, color::black, color::very_light_gray>;
+
+    using label = label_left;
+
+    using label_right = labelT<alignment_right, draw::frame::no_frame, color::black, color::very_light_gray>;
+
+    using label_center = labelT<alignment_center, draw::frame::no_frame, color::black, color::very_light_gray>;
 
   } // win
 

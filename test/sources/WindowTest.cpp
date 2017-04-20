@@ -110,7 +110,7 @@ private:
   win::radio_button radio_button, radio_button2;
   win::check_box check_box;
   win::label label;
-  win::label_center labelC;
+  win::labelT<win::alignment_center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
 
   win::text_button min_button;
@@ -121,12 +121,15 @@ private:
   win::simple_list_data<std::string> data;
 
   typedef win::vlist<25> List1;
-  List1 list1;
-  win::list& list2;
-  win::list& list3;
+  typedef win::list List2;
+  typedef win::vlist<20, color::gray> List3;
 
-  typedef win::split_view_t<false, win::list, win::list> list_split_view;
-  typedef win::simple_column_list<layout::simple_column_list_layout, 16> simple_list;
+  List1 list1;
+  List2& list2;
+  List3& list3;
+
+  typedef win::split_view_t<false, List2, List3> list_split_view;
+  typedef win::simple_column_list<layout::simple_column_list_layout, 16, color::very_light_gray> simple_list;
   typedef win::split_view_t<false, win::hlist<20>, simple_list> column_list_split_view;
 
   win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
@@ -183,6 +186,7 @@ int gui_main(const std::vector<std::string>& args) {
   size_t push_size = sizeof(win::push_button);
   size_t tgl_size = sizeof(win::toggle_button);
   size_t tbtn_size = sizeof(win::text_button);
+  size_t pnt_size = sizeof(win::paint_event);
 
   LogInfo << "Sizes: "
            <<   "std::string:" << str_size
@@ -192,7 +196,8 @@ int gui_main(const std::vector<std::string>& args) {
            << ", button:" << btn_size
            << ", push_button:" << push_size
            << ", toggle_button:" << tgl_size
-           << ", text_button:" << tbtn_size;
+           << ", text_button:" << tbtn_size
+           << ", paint_event:" << pnt_size;
 
 //#ifdef WIN32
 //  main.register_event_handler(win::get_minmax_event([](const core::size& sz,
@@ -745,8 +750,9 @@ void my_main_window::created_children () {
 
 //  column_list.set_data(column_list_data, column_list_data.size());
   column_list.create(main, core::rectangle(580, 50, 140, 250));
-  column_list.header.set_cell_drawer([](int i, const draw::graphics& g, const core::rectangle& r, const draw::brush&) {
+  column_list.header.set_cell_drawer([](int i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
     using namespace draw;
+    g.fill(rectangle(r), background);
     frame::raised_deep_relief(g, r);
     g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor());
   });

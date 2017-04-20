@@ -105,7 +105,7 @@ namespace gui {
                                             (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-                                            color::get_sys_color(color::COLOR_BTNFACE)
+                                            color::buttonColor()
 #endif // X11
       );
 
@@ -115,7 +115,7 @@ namespace gui {
                                            (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-                                           color::get_sys_color(color::COLOR_BTNFACE)
+                                           color::buttonColor()
 #endif // X11
       );
 

@@ -33,39 +33,6 @@
 namespace gui {
 
   namespace color {
-#ifdef WIN32
-
-    os::color get_sys_color(int);
-
-#endif // WIN32
-
-#ifdef X11
-    enum SystemColor {
-      COLOR_SCROLLBAR,
-      COLOR_BACKGROUND,
-      COLOR_MENU,
-      COLOR_MENUTEXT,
-      COLOR_ACTIVECAPTION,
-      COLOR_INACTIVECAPTION,
-      COLOR_WINDOW,
-      COLOR_WINDOWFRAME,
-      COLOR_WINDOWTEXT,
-      COLOR_CAPTIONTEXT,
-      COLOR_INACTIVECAPTIONTEXT,
-      COLOR_ACTIVEBORDER,
-      COLOR_INACTIVEBORDER,
-      COLOR_APPWORKSPACE,
-      COLOR_HIGHLIGHT,
-      COLOR_HIGHLIGHTTEXT,
-      COLOR_GRAYTEXT,
-      COLOR_BTNFACE,
-      COLOR_BTNSHADOW,
-      COLOR_BTNTEXT,
-      COLOR_BTNHIGHLIGHT
-    };
-
-    os::color get_sys_color(SystemColor);
-#endif // X11
 
     typedef unsigned char color_part_type;
 

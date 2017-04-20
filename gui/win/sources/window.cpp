@@ -759,7 +759,7 @@ namespace gui {
                                     WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
 #endif // WIN32
 #ifdef X11
-                                    color::get_sys_color(color::COLOR_APPWORKSPACE)
+                                    color::workSpaceColor()
 #endif
     );
 
@@ -769,7 +769,7 @@ namespace gui {
                                       (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
 #ifdef X11
-                                      color::get_sys_color(color::COLOR_BTNFACE)
+                                      color::buttonColor()
 #endif
     );
 

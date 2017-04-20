@@ -53,7 +53,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class list : public client_window {
+      class list : public window {
       public:
         typedef window super;
         typedef core::size_type pos_t;
@@ -81,6 +81,7 @@ namespace gui {
         void draw_item (int idx,
                         const draw::graphics&,
                         const core::rectangle& place,
+                        const draw::brush& background,
                         bool selected) const;
 
         size_t item_count;
@@ -109,9 +110,10 @@ namespace gui {
           }));
         }
 
-        void create (const container& parent,
+        void create (const window_class& type,
+                     const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
-          super::create(parent, place);
+          super::create(type, parent, place);
           scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
         }
 
@@ -238,7 +240,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool V, int S = 20>
+    template<bool V, int S, os::color B>
     class list_t : public detail::list_t<V> {
     public:
       typedef detail::list_t<V> super;
@@ -340,7 +342,7 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
-        super::create(parent, place);
+        super::create(clazz, parent, place);
         adjust_scroll_bar();
       }
 
@@ -355,7 +357,7 @@ namespace gui {
                    simple_list_data<T, F> data,
                    int item_height = 20) {
         set_data(data, item_height);
-        create(parent, place);
+        create(clazz, parent, place);
       }
 
       template<typename T,
@@ -423,9 +425,10 @@ namespace gui {
         const int first = int(super::get_scroll_pos() / S);
 
         super::set_dimension(place, S * first - super::get_scroll_pos(), S);
+        draw::brush background(B);
 
         for(int idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
-          super::draw_item(idx, graph, place, super::get_selection() == idx);
+          super::draw_item(idx, graph, place, background, super::get_selection() == idx);
           super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
         }
         graph.flush();
@@ -441,16 +444,21 @@ namespace gui {
       }
 
       const pos_t zero = pos_t(0);
+
+      static window_class clazz;
     };
 
+    template<bool V, int S, os::color B>
+    window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
+
     // --------------------------------------------------------------------------
-    template<int S = 20>
-    using hlist = list_t<false, S>;
+    template<int S = 20, os::color B = os::white>
+    using hlist = list_t<false, S, B>;
 
-    template<int S = 20>
-    using vlist = list_t<true, S>;
+    template<int S = 20, os::color B = os::white>
+    using vlist = list_t<true, S, B>;
 
-    using list = vlist<20>;
+    using list = vlist<20, os::white>;
 
   } // win
 

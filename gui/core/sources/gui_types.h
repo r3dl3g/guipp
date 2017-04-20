@@ -391,6 +391,14 @@ namespace gui {
         return {point::type((tl.x() + br.x()) / 2), point::type((tl.y() + br.y()) / 2)};
       }
 
+      inline point::type center_x () const {
+        return (tl.x() + br.x()) / point::type(2);
+      }
+
+      inline point::type center_y () const {
+        return (tl.y() + br.y()) / point::type(2);
+      }
+
       inline core::size size () const {
         return {(core::size::type)(br.x() - tl.x()), (core::size::type)(br.y() - tl.y())};
       }

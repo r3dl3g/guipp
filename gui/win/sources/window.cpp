@@ -764,7 +764,7 @@ namespace gui {
     );
 
     // --------------------------------------------------------------------------
-    window_class client_window::clazz("client_window",
+    const window_class client_window::clazz("client_window",
 #ifdef WIN32
                                       (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32

@@ -331,7 +331,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename Layout, int S, os::color B = os::white>
+      template<typename Layout, int S, os::color B>
       class base_column_list : public group_window<layout::detail::base_column_list_layout, B> {
       public:
         typedef Layout layout_type;
@@ -364,7 +364,7 @@ namespace gui {
         }
 
         column_list_header<layout_type> header;
-        win::list_t<true, S> list;
+        win::list_t<true, S, B> list;
       };
 
     }
@@ -416,11 +416,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S = 20>
-    class simple_column_list : public detail::base_column_list<Layout, S> {
+    template<typename Layout, int S = 20, os::color B = os::white>
+    class simple_column_list : public detail::base_column_list<Layout, S, B> {
     public:
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S> super;
+      typedef detail::base_column_list<layout_type, S, B> super;
 
       typedef void(cell_draw)(int row_id, int col_id,
                               const draw::graphics&,
@@ -631,13 +631,13 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S, typename... Arguments>
-    class column_list_t : public detail::base_column_list<Layout, S> {
+    template<typename Layout, int S, os::color B, typename... Arguments>
+    class column_list_t : public detail::base_column_list<Layout, S, B> {
     public:
       static const std::size_t size = sizeof...(Arguments);
 
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S> super;
+      typedef detail::base_column_list<layout_type, S, B> super;
 
       typedef column_list_row_t<Arguments...> row;
 

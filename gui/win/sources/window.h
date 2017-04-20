@@ -233,8 +233,7 @@ namespace gui {
         window::create(clazz, parent, place);
       }
 
-    private:
-      static window_class clazz;
+      static const window_class clazz;
     };
 
     // --------------------------------------------------------------------------

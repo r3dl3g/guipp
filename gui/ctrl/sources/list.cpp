@@ -60,9 +60,10 @@ namespace gui {
       void list::draw_item (int idx,
                             const draw::graphics& g,
                             const core::rectangle& place,
+                            const draw::brush& background,
                             bool selected) const {
         if (drawer) {
-          drawer(idx, g, place, draw::color::windowColor(), selected);
+          drawer(idx, g, place, background, selected);
         }
       }
 

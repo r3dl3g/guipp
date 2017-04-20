@@ -156,7 +156,7 @@ private:
 
   win::custom_push_button custom_button;
 
-  typedef win::column_list_t<layout::weight_column_list_layout, 20, int, std::string, float, int, bool> my_column_list_t;
+  typedef win::column_list_t<layout::weight_column_list_layout, 20, os::very_very_light_gray, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
@@ -440,6 +440,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     radio_button.enable(on);
     radio_button2.enable(on);
     ok_button.enable(on);
+    vscroll.enable(on);
+    hscroll.enable(on);
   }));
 
   min_button.register_event_handler(win::button_clicked_event([&] () {
@@ -890,7 +892,7 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::right, Where::x, -25>(&column_list, &vslider);
   get_layout().attach_fix<What::left, Where::x, -20>(&vscroll, &vslider);
-  get_layout().attach_fix<What::right, Where::x, -4>(&vscroll, &vslider);
+  get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vslider);
 
   get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
   get_layout().attach_fix<What::top, Where::y2, 4>(&group_group, &hslider);

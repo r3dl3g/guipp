@@ -39,7 +39,7 @@ namespace gui {
       (os::color)(COLOR_WINDOW + 1)
     #endif // WIN32
     #ifdef X11
-      draw::color::windowColor()
+      color::windowColor()
     #endif //X11
     );
 

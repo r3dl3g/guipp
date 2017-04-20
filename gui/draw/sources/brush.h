@@ -51,7 +51,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      brush(const draw::color& = draw::color::black(), Style = solid);
+      brush(const os::color& = gui::color::black, Style = solid);
       brush(const brush&);
       ~brush();
 
@@ -61,11 +61,11 @@ namespace gui {
       operator os::brush() const;
 #endif // WIN32
 
-      draw::color color() const;
+      os::color color() const;
       Style style() const;
 
       brush with_style(Style) const;
-      brush with_color(const draw::color&) const;
+      brush with_color(const os::color&) const;
 
       bool operator== (const brush&) const;
 
@@ -77,7 +77,7 @@ namespace gui {
       os::win32::brush_type info;
 #endif // WIN32
 #ifdef X11
-      const draw::color m_color;
+      const os::color m_color;
       const Style m_style;
 #endif // X11
 

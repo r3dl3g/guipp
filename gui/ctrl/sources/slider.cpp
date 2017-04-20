@@ -47,7 +47,7 @@ namespace gui {
                        IDC_SIZEWE
 #endif // WIN32
 #ifdef X11
-                       draw::color::buttonColor(),
+                       color::buttonColor(),
                        XC_sb_h_double_arrow
 #endif // X11
         )
@@ -61,7 +61,7 @@ namespace gui {
                        IDC_SIZENS
 #endif // WIN32
 #ifdef X11
-                       draw::color::buttonColor(),
+                       color::buttonColor(),
                        XC_sb_v_double_arrow
 #endif // X11
         )

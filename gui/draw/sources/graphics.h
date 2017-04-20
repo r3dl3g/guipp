@@ -46,7 +46,7 @@ namespace gui {
     typedef void (drawable) (const graphics&, const brush&, const pen&);
     typedef void (frameable) (const graphics&, const pen&);
     typedef void (fillable) (const graphics&, const brush&);
-    typedef void (textable) (const graphics&, const font& font, const color& color);
+    typedef void (textable) (const graphics&, const font& font, os::color color);
 
     // --------------------------------------------------------------------------
     class graphics {
@@ -54,9 +54,9 @@ namespace gui {
       graphics (os::window win, os::graphics gc);
 
       void draw_pixel (const core::point& pt,
-                       const color& color) const;
+                       os::color color) const;
 
-      color get_pixel (const core::point&) const;
+      os::color get_pixel (const core::point&) const;
 
       void draw_lines (std::initializer_list<core::point> points,
                        const pen& pen) const;
@@ -64,7 +64,7 @@ namespace gui {
       void frame (std::function<frameable>, const pen& pen) const;
       void fill (std::function<fillable>, const brush& brush) const;
       void draw (std::function<drawable>, const brush& brush, const pen& pen) const;
-      void text (std::function<textable>, const font& font, const color& color) const;
+      void text (std::function<textable>, const font& font, os::color color) const;
 
       void invert (const core::rectangle&) const;
       void flush () const;
@@ -270,7 +270,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      void operator() (const graphics&, const font& font, const color& color) const;
+      void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
@@ -287,7 +287,7 @@ namespace gui {
               , origin(origin)
       {}
 
-      void operator() (const graphics&, const font& font, const color& color) const;
+      void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
@@ -307,7 +307,7 @@ namespace gui {
         , clear_background(clear_background)
       {}
 
-      void operator() (const graphics&, const font& font, const color& color) const;
+      void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;

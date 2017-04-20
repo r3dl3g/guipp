@@ -126,14 +126,14 @@ namespace gui {
 
         graph.fill(draw::rectangle(area), enabled && btn.is_hilited() ? color::buttonHighLightColor() : color::buttonColor());
         if (enabled && focus) {
-          graph.frame(draw::rectangle(area), color::black());
+          graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
         frame::deep_relief(graph, area, btn.is_pushed());
         graph.text(text_box(text, area, center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
         if (enabled && focus) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
         }
       }
 
@@ -145,15 +145,15 @@ namespace gui {
         const bool enabled = btn.is_enabled();
 
         if (btn.is_pushed()) {
-          g.fill(draw::rectangle(r), color::darkGray());
+          g.fill(draw::rectangle(r), color::dark_gray);
         } else if (btn.is_hilited() && btn.is_enabled()) {
-          g.fill(draw::rectangle(r), color::lightGray());
+          g.fill(draw::rectangle(r), color::light_gray);
         } else {
           g.fill(draw::rectangle(r), color::workSpaceColor());
         }
         g.text(text_box(text, r, center),
                font::system(),
-               enabled ? color::white() : color::gray());
+               enabled ? color::white : color::gray);
       }
 
       // --------------------------------------------------------------------------
@@ -164,24 +164,24 @@ namespace gui {
         const bool enabled = btn.is_enabled();
         const bool pushed = btn.is_pushed();
 
-        color col = enabled ? color::windowTextColor() : color::disabledTextColor();
+        os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
         core::rectangle area = btn.client_area();
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point_type y = area.y() + area.size().height() / 2;
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-        graph.draw(ellipse(r), pushed ? color::veryLightGray()
+        graph.draw(ellipse(r), pushed ? color::very_light_gray
                                       : color::buttonColor(), col);
         if (btn.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(ellipse(r), pushed ? color::darkGray() : col);
+          graph.fill(ellipse(r), pushed ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black());
+          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
         }
       }
 
@@ -197,24 +197,24 @@ namespace gui {
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point_type y = area.y() + area.height() / 2;
-        color col = enabled ? color::windowTextColor() : color::disabledTextColor();
+        os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
-                   pushed ? color::veryLightGray()
+                   pushed ? color::very_light_gray
                           : color::buttonColor(),
                    col);
 
         if (btn.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(rectangle(r), pushed ? color::darkGray() : col);
+          graph.fill(rectangle(r), pushed ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, vcenter_left), font::system(), col);
         if (focus) {
-          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black());
+          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black(), pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
         }
       }
     }

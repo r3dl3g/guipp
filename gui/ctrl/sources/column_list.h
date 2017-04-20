@@ -258,7 +258,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename Layout, os::color B = os::very_very_light_gray>
+    template<typename Layout, os::color B = color::very_very_light_gray>
     class column_list_header : public group_window<Layout, B> {
     public:
       typedef Layout layout_type;
@@ -416,7 +416,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S = 20, os::color B = os::white>
+    template<typename Layout, int S = 20, os::color B = color::white>
     class simple_column_list : public detail::base_column_list<Layout, S, B> {
     public:
       typedef Layout layout_type;

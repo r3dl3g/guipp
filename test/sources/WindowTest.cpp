@@ -156,7 +156,7 @@ private:
 
   win::custom_push_button custom_button;
 
-  typedef win::column_list_t<layout::weight_column_list_layout, 20, os::very_very_light_gray, int, std::string, float, int, bool> my_column_list_t;
+  typedef win::column_list_t<layout::weight_column_list_layout, 20, color::very_very_light_gray, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
@@ -728,7 +728,7 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
-      win::paint::text_item(ostreamfmt(v), g, r, draw::color::buttonColor(), false, draw::center);
+      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, draw::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -906,95 +906,95 @@ win::paint_event my_main_window::create_paint1 () {
 
     using namespace draw;
 
-    graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue());
-    graph.fill(polygon(calc_star(60, 10, 40, 40)), color::darkGreen());
-    graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow(), color::red());
+    graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue);
+    graph.fill(polygon(calc_star(60, 10, 40, 40)), color::dark_green);
+    graph.draw(polygon(calc_star(110, 10, 40, 40)), color::yellow, color::red);
 
-    graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red());
+    graph.frame(polygon({ { 5, 5 }, { 155, 5 }, {75, 8} }), color::red);
 
     core::point pt(10, 60);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 1!", pt), font::system(), color::black());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 1!", pt), font::system(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 2!", pt), font::system_bold(), color::black());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 2!", pt), font::system_bold(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 3!", pt), font::sans_serif().with_italic(true), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 4!", pt), font::serif(), color::black());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 4!", pt), font::serif(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 5!", pt), font::monospace(), color::black());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 5!", pt), font::monospace(), color::black);
 
     pt.move_y(15);
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
     core::rectangle r(10, 155, 50, 18);
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("TL", r, top_left), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TL", r, top_left), font::system(), color::red);
     r= {70, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
     r= {130, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("TR", r, top_right), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("TR", r, top_right), font::system(), color::red);
 
     r= {10, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
     r= {70, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("CC", r, center), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CC", r, center), font::system(), color::red);
     r= {130, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
 
     r= {10, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("BL", r, bottom_left), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
     r= {70, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
     r= {130, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue());
-    graph.text(text_box("BR", r, bottom_right), font::system(), color::red());
+    graph.frame(rectangle(r), color::blue);
+    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
 
     pt = {10, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("TL", pt, top_left), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TL", pt, top_left), font::system(), color::red);
     pt = {70, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("TC", pt, top_hcenter), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
     pt = {130, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("TR", pt, top_right), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("TR", pt, top_right), font::system(), color::red);
 
     pt = {10, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("CL", pt, vcenter_left), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CL", pt, vcenter_left), font::system(), color::red);
     pt = {70, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("CC", pt, center), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CC", pt, center), font::system(), color::red);
     pt = {130, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("CR", pt, vcenter_right), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
 
     pt = {10, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("BL", pt, bottom_left), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
     pt = {70, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
     pt = {130, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue());
-    graph.text(text("BR", pt, bottom_right), font::system(), color::red());
+    graph.fill(arc(pt, 2, 0, 360), color::blue);
+    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
   });
 }
 
@@ -1003,38 +1003,33 @@ win::paint_event my_main_window::create_paint2 () {
     //LogDebug << "win::paint 2";
     using namespace draw;
 
-    pen blue(color::blue());
-    color red = color::red();
-    color darkGreen = color::darkGreen();
-    color yellow = color::cyan();
-
-    graph.draw_pixel(core::point(3, 3), color::gray());
-    graph.draw_pixel(core::point(6, 6), color::gray());
+    graph.draw_pixel(core::point(3, 3), color::gray);
+    graph.draw_pixel(core::point(6, 6), color::gray);
 
     core::size sz(30, 50);
     core::size offs1(0, 60);
     core::size offs2(0, 120);
 
     core::point pos1(10, 10);
-    graph.frame(rectangle(pos1, sz), blue);
-    graph.fill(rectangle(pos1 + offs1, sz), darkGreen);
-    graph.draw(rectangle(pos1 + offs2, sz), red, yellow);
+    graph.frame(rectangle(pos1, sz), color::blue);
+    graph.fill(rectangle(pos1 + offs1, sz), color::dark_green);
+    graph.draw(rectangle(pos1 + offs2, sz), color::red, color::cyan);
 
     core::point pos2(50, 10);
-    graph.frame(ellipse(pos2, sz), blue);
-    graph.fill(ellipse(pos2 + offs1, sz), darkGreen);
-    graph.draw(ellipse(pos2 + offs2, sz), red, yellow);
+    graph.frame(ellipse(pos2, sz), color::blue);
+    graph.fill(ellipse(pos2 + offs1, sz), color::dark_green);
+    graph.draw(ellipse(pos2 + offs2, sz), color::red, color::cyan);
 
     core::point pos3(90, 10);
     core::size rd(10, 10);
-    graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), blue);
-    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), darkGreen);
-    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), red, yellow);
+    graph.frame(round_rectangle(core::rectangle(pos3, sz), rd), color::blue);
+    graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::dark_green);
+    graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::red, color::cyan);
 
     core::point pos4(150, 30);
-    graph.frame(arc(pos4, 20, 0, 350), blue);
-    graph.fill(arc(pos4 + offs1, 20, 0, 350), darkGreen);
-    graph.draw(arc(pos4 + offs2, 20, 0, 350), red, yellow);
+    graph.frame(arc(pos4, 20, 0, 350), color::blue);
+    graph.fill(arc(pos4 + offs1, 20, 0, 350), color::dark_green);
+    graph.draw(arc(pos4 + offs2, 20, 0, 350), color::red, color::cyan);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);

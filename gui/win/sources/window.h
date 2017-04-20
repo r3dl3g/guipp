@@ -265,7 +265,7 @@ namespace gui {
     window_class create_group_window_clazz (os::color);
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, os::color B = os::white>
+    template<typename L = layout::standard_layout, os::color B = color::white>
     class group_window : public layout_container<L> {
     public:
       typedef layout_container<L> super;

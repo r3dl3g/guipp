@@ -70,7 +70,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      pen(const draw::color& = draw::color::black(), Style = solid, size_type = 1);
+      pen(const os::color& = gui::color::black, Style = solid, size_type = 1);
       pen(const pen&);
       ~pen();
 
@@ -82,13 +82,13 @@ namespace gui {
       }
 #endif // WIN32
 
-      draw::color color() const;
+      os::color color() const;
       size_type size() const;
       Style style() const;
 
       pen with_size(size_type) const;
       pen with_style(Style) const;
-      pen with_color(const draw::color&) const;
+      pen with_color(const os::color&) const;
 
       bool operator== (const pen&) const;
 
@@ -99,7 +99,7 @@ namespace gui {
       os::win32::pen_type info;
 #endif // WIN32
 #ifdef X11
-      const draw::color m_color;
+      const os::color m_color;
       const Style m_style;
       const size_type m_size;
 #endif // X11

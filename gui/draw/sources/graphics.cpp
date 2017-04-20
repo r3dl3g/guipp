@@ -255,7 +255,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void text_box::operator() (const graphics& g,
                                const font& f,
-                               const color& c) const {
+                               os::color c) const {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
@@ -278,7 +278,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
-                                   const color& c) const {
+                                   os::color c) const {
       Use<font> fn(g, f);
       RECT Rect = rect;
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
@@ -289,7 +289,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void text::operator() (const graphics& g,
                            const font& f,
-                           const color& c) const {
+                           os::color c) const {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
       int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
@@ -352,11 +352,11 @@ namespace gui {
     {}
 
     void graphics::draw_pixel (const core::point& pt,
-                              const color& c) const {
+                              os::color c) const {
       SetPixel(gc, pt.os_x(), pt.os_y(), c);
     }
 
-    color graphics::get_pixel (const core::point& pt) const {
+    os::color graphics::get_pixel (const core::point& pt) const {
       return GetPixel(gc, pt.os_x(), pt.os_y());
     }
 
@@ -787,7 +787,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void text_box::operator() (const graphics& g,
                                const font& f,
-                               const color& c) const {
+                               os::color c) const {
       os::instance display = core::global::get_instance();
 
       int height = 0, width = 0;
@@ -826,9 +826,9 @@ namespace gui {
 
       /* Xft text color */
       XRenderColor xrcolor = {
-        (unsigned short)(c.r() << 8),
-        (unsigned short)(c.g() << 8),
-        (unsigned short)(c.b() << 8),
+        (unsigned short)(color::extract_red(c) << 8),
+        (unsigned short)(color::extract_green(c) << 8),
+        (unsigned short)(color::extract_blue(c) << 8),
         0xffff
       };
       XftColor xftcolor;
@@ -844,7 +844,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
-                                   const color& c) const {
+                                   os::color c) const {
       os::instance display = core::global::get_instance();
 
       int height = 0, width = 0;
@@ -885,7 +885,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void text::operator() (const graphics& g,
                            const font& f,
-                           const color& c) const {
+                           os::color c) const {
       os::instance display = core::global::get_instance();
 
       int height = 0, width = 0;
@@ -925,9 +925,9 @@ namespace gui {
 
       /* Xft text color */
       XRenderColor xrcolor = {
-        (unsigned short)(c.r() << 8),
-        (unsigned short)(c.g() << 8),
-        (unsigned short)(c.b() << 8),
+        (unsigned short)(color::extract_red(c) << 8),
+        (unsigned short)(color::extract_green(c) << 8),
+        (unsigned short)(color::extract_blue(c) << 8),
         0xffff
       };
       XftColor xftcolor;
@@ -940,13 +940,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void graphics::draw_pixel (const core::point& pt,
-                               const color& c) const {
+                               os::color c) const {
       Use<pen> pn(gc, pen(c));
       XDrawPoint(core::global::get_instance(), win, gc, pt.os_x(), pt.os_y());
     }
 
-    color graphics::get_pixel (const core::point& pt) const {
-      return color::black();
+    os::color graphics::get_pixel (const core::point& pt) const {
+      return color::black;
     }
 
     void graphics::draw_lines (std::initializer_list<core::point> pts,
@@ -1008,7 +1008,7 @@ namespace gui {
 
     void graphics::text (std::function<textable> drawer,
                          const font& f,
-                         const color& c) const {
+                         os::color c) const {
       drawer(*this, f, c);
     }
 
@@ -1017,73 +1017,73 @@ namespace gui {
       // --------------------------------------------------------------------------
       void lines (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::veryLightGray());
+        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::very_light_gray);
       }
 
       void vline (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.frame(line(place.top_right(), place.bottom_right()), color::veryLightGray());
+        g.frame(line(place.top_right(), place.bottom_right()), color::very_light_gray);
       }
 
       void hline (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.frame(line(place.bottom_left(), place.bottom_right()), color::veryLightGray());
+        g.frame(line(place.bottom_left(), place.bottom_right()), color::very_light_gray);
       }
 
       void vraise (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size(1, 0);
-        g.frame(line(r.top_left(), r.bottom_left()), color::white());
-        g.frame(line(r.top_right(), r.bottom_right()), color::gray());
+        g.frame(line(r.top_left(), r.bottom_left()), color::white);
+        g.frame(line(r.top_right(), r.bottom_right()), color::gray);
       }
 
       void hraise (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size(0, 1);
-        g.frame(line(r.top_left(), r.top_right()), color::white());
-        g.frame(line(r.bottom_right(), r.bottom_left()), color::gray());
+        g.frame(line(r.top_left(), r.top_right()), color::white);
+        g.frame(line(r.bottom_right(), r.bottom_left()), color::gray);
       }
 
       void vgroove (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size(1, 0);
-        g.frame(line(r.top_left(), r.bottom_left()), color::gray());
-        g.frame(line(r.top_right(), r.bottom_right()), color::white());
+        g.frame(line(r.top_left(), r.bottom_left()), color::gray);
+        g.frame(line(r.top_right(), r.bottom_right()), color::white);
       }
 
       void hgroove (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size(0, 1);
-        g.frame(line(r.top_left(), r.top_right()), color::gray());
-        g.frame(line(r.bottom_right(), r.bottom_left()), color::white());
+        g.frame(line(r.top_left(), r.top_right()), color::gray);
+        g.frame(line(r.bottom_right(), r.bottom_left()), color::white);
       }
 
       void raised_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white());
-        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::gray());
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
+        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::gray);
       }
 
       void sunken_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray());
-        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::white());
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
+        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::white);
       }
 
       void raised_deep_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white());
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray());
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
 
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::veryLightGray());
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::mediumGray());
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::very_light_gray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::medium_gray);
       }
 
       void sunken_deep_relief(const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray());
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white());
+        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
+        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
 
         const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::darkGray());
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::veryLightGray());
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::dark_gray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::very_light_gray);
       }
 
       // --------------------------------------------------------------------------

@@ -31,7 +31,7 @@ namespace gui {
         (COLOR_BTNFACE+1)
 #endif // WIN32
 #ifdef X11
-        os::get_sys_color(os::COLOR_BTNFACE)
+        color::get_sys_color(color::COLOR_BTNFACE)
 #endif // X11
       );
 
@@ -47,10 +47,10 @@ namespace gui {
         gui::core::rectangle area = win.client_area();
         graph.text(draw::text_box(text, area, origin),
                    font::system(),
-                   color::black());
+                   color::black);
 #ifdef SHOW_TEXT_AREA
-        graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
-        graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
+        graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
+        graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
 #endif // SHOW_TEXT_AREA
       }
 

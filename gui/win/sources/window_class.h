@@ -43,7 +43,7 @@ namespace gui {
       window_class (const window_class&);
 
       window_class (const std::string& cls_name,
-                    os::color background = os::white,
+                    os::color background = color::white,
                     os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
                     os::style class_style = IF_WIN32(CS_DBLCLKS) IF_X11(0),
                     os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),

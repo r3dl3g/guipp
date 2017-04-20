@@ -42,7 +42,7 @@ namespace gui {
       GetObject(id, sizeof(os::win32::pen_type), &info);
     }
 
-    pen::pen(const draw::color& color, Style style, size_type width)
+    pen::pen(const os::color& color, Style style, size_type width)
       : id(CreatePen(style, width, color))
     {
       GetObject(id, sizeof(os::win32::pen_type), &info);
@@ -60,7 +60,7 @@ namespace gui {
       }
     }
 
-    draw::color pen::color() const {
+    os::color pen::color() const {
       return info.lopnColor;
     }
 
@@ -84,7 +84,7 @@ namespace gui {
       return pen(CreatePenIndirect(&newType));
     }
 
-    pen pen::with_color(const draw::color& c) const {
+    pen pen::with_color(const os::color& c) const {
       os::win32::pen_type newType = info;
       newType.lopnColor = c;
       return pen(CreatePenIndirect(&newType));
@@ -101,7 +101,7 @@ namespace gui {
 #ifdef X11
     const pen pen::default_pen;
 
-    pen::pen(const draw::color& color, Style style, size_type size)
+    pen::pen(const os::color& color, Style style, size_type size)
       : m_color(color)
       , m_style(style)
       , m_size(size)
@@ -116,7 +116,7 @@ namespace gui {
     pen::~pen() {
     }
 
-    draw::color pen::color() const {
+    os::color pen::color() const {
       return m_color;
     }
 
@@ -136,7 +136,7 @@ namespace gui {
       return pen(m_color, s, m_size);
     }
 
-    pen pen::with_color(const draw::color& c) const {
+    pen pen::with_color(const os::color& c) const {
       return pen(c, m_style, m_size);
     }
 

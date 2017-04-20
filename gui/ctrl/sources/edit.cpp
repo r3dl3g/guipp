@@ -39,7 +39,7 @@ namespace gui {
 
     namespace detail {
 
-      window_class edit_base::clazz = gui::win::window_class("EDIT++", gui::draw::color::white());
+      window_class edit_base::clazz = gui::win::window_class("EDIT++", gui::color::white);
 
       const std::string white_space = " (){}[],.;:'\"!@#$%^&/*-+";
 
@@ -191,29 +191,29 @@ namespace gui {
             gui::core::rectangle a1 = area;
             if (selection.first > scroll_pos) {
               graph.text(draw::bounding_box(text.substr(scroll_pos, selection.first - scroll_pos), a1, origin),
-                         font::system(), color::black());
+                         font::system(), color::black);
             } else {
               a1.x2(a1.x());
             }
             gui::core::rectangle a2 = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, selection.last - scroll_pos), a2, origin),
-                       font::system(), color::black());
+                       font::system(), color::black);
             graph.fill(draw::rectangle(core::point(a1.x2(), y1),
                                        core::point(a2.x2(), y2)),
-                       color::lightBlue());
+                       color::light_blue);
           }
           if (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max()) {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
-                       font::system(), color::black());
+                       font::system(), color::black);
             graph.frame(line(core::point(cursor_area.x2(), y1),
                              core::point(cursor_area.x2(), y2)),
-                             color::black());
+                             color::black);
           }
-          graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black());
+          graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black);
 #ifdef SHOW_TEXT_AREA
-          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black());
-          graph.frame(draw::rectangle(area), draw::pen(color::black(), draw::pen::dot));
+          graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
+          graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));
 #endif // SHOW_TEXT_AREA
         }
       }

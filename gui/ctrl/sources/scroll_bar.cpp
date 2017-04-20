@@ -152,16 +152,16 @@ namespace gui {
                       const core::rectangle& page_up,
                       const core::rectangle& page_down) {
         if (!page_up.empty()) {
-          g.fill(draw::rectangle(page_up), state == scroll_bar::Page_up_pressed ? draw::color::lightGray()
-                                                                                : draw::color::veryLightGray());
+          g.fill(draw::rectangle(page_up), state == scroll_bar::Page_up_pressed ? color::light_gray
+                                                                                : color::very_light_gray);
         }
         if (!page_down.empty()) {
-          g.fill(draw::rectangle(page_down + core::size::one), state == scroll_bar::Page_down_pressed ? draw::color::lightGray()
-                                                                                    : draw::color::veryLightGray());
+          g.fill(draw::rectangle(page_down + core::size::one), state == scroll_bar::Page_down_pressed ? color::light_gray
+                                                                                    : color::very_light_gray);
         }
-        draw::color col = is_enabled ? draw::color::black() : draw::color::gray();
+        os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
-          g.fill(draw::rectangle(up), draw::color::buttonColor());
+          g.fill(draw::rectangle(up), color::buttonColor());
           draw::frame::relief(g, up, state == scroll_bar::Up_button_pressed);
           core::rectangle r = up.shrinked({5, 5});
           if (!r.empty()) {
@@ -175,7 +175,7 @@ namespace gui {
           }
         }
         if (!down.empty()) {
-          g.fill(draw::rectangle(down), draw::color::buttonColor());
+          g.fill(draw::rectangle(down), color::buttonColor());
           draw::frame::relief(g, down, state == scroll_bar::Down_button_pressed);
           core::rectangle r = down.shrinked({5, 5});
           if (!r.empty()) {
@@ -189,7 +189,7 @@ namespace gui {
           }
         }
         if (!thumb.empty()) {
-          g.fill(draw::rectangle(thumb), draw::color::buttonColor());
+          g.fill(draw::rectangle(thumb), color::buttonColor());
           draw::frame::raised_relief(g, thumb);
         }
       }
@@ -199,12 +199,12 @@ namespace gui {
 
       template<>
       scroll_bar_class<false>::scroll_bar_class ()
-        : window_class("VSCROLLBAR++", draw::color::veryLightGray())
+        : window_class("VSCROLLBAR++", color::very_light_gray)
       {}
 
       template<>
       scroll_bar_class<true>::scroll_bar_class ()
-        : window_class("HSCROLLBAR++", draw::color::veryLightGray())
+        : window_class("HSCROLLBAR++", color::very_light_gray)
       {}
 
       template<>

@@ -24,18 +24,18 @@ public:
   void onCreated (window*, const core::rectangle&);
 
 private:
-  group_window<horizontal_lineup<30, 2, 5>, os::rgb_gray<160>::value> tool_bar;
+  group_window<horizontal_lineup<30, 2, 5>, color::rgb_gray<160>::value> tool_bar;
   flat_button buttons[10];
 
-  group_window<horizontal_adaption<2, 5>, os::rgb_gray<224>::value> status_bar;
+  group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
   typedef labelT<alignment_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[3];
 
   list left_list;
 
-  group_window<vertical_adaption<5, 5>, os::rgb_gray<160>::value> right_bar;
+  group_window<vertical_adaption<5, 5>, color::rgb_gray<160>::value> right_bar;
 
-  group_window<standard_layout, os::rgb_gray<224>::value> client_view;
+  group_window<standard_layout, color::rgb_gray<224>::value> client_view;
 
   client_window window1;
 };
@@ -74,11 +74,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
                           const core::rectangle& place,
                           const brush& background,
                           bool selected) {
-    g.fill(rectangle(place), selected ? color::gray() : color::lightGray());
+    g.fill(rectangle(place), selected ? color::gray : color::light_gray);
     if (!selected) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, center), font::system(), selected ? color::white() : color::darkGray());
+    g.text(text_box(ostreamfmt("Item " << idx), place, center), font::system(), selected ? color::white : color::dark_gray);
   });
   left_list.set_count(10);
 

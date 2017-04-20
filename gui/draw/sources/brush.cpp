@@ -50,7 +50,7 @@ namespace gui {
       }
     }
 
-    brush::brush(const draw::color& color, Style style)
+    brush::brush(const os::color& color, Style style)
       : id(0)
     {
       info.lbColor = color;
@@ -81,7 +81,7 @@ namespace gui {
       return id;
     }
 
-    draw::color brush::color() const {
+    os::color brush::color() const {
       return info.lbColor;
     }
 
@@ -95,7 +95,7 @@ namespace gui {
       return brush(CreateBrushIndirect(&newType));
     }
 
-    brush brush::with_color(const draw::color& c) const {
+    brush brush::with_color(const os::color& c) const {
       os::win32::brush_type newType = info;
       newType.lbColor = c;
       return brush(CreateBrushIndirect(&newType));
@@ -110,7 +110,7 @@ namespace gui {
 #ifdef X11
     const brush brush::default_brush;
 
-    brush::brush(const draw::color& color, Style style)
+    brush::brush(const os::color& color, Style style)
       : m_color(color)
       , m_style(style)
     {}
@@ -123,7 +123,7 @@ namespace gui {
     brush::~brush() {
     }
 
-    draw::color brush::color() const {
+    os::color brush::color() const {
       return m_color;
     }
 
@@ -135,7 +135,7 @@ namespace gui {
       return brush(m_color, s);
     }
 
-    brush brush::with_color(const draw::color& c) const {
+    brush brush::with_color(const os::color& c) const {
       return brush(c, m_style);
     }
 

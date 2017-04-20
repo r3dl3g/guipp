@@ -452,13 +452,13 @@ namespace gui {
     window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color B = os::white>
+    template<int S = 20, os::color B = color::white>
     using hlist = list_t<false, S, B>;
 
-    template<int S = 20, os::color B = os::white>
+    template<int S = 20, os::color B = color::white>
     using vlist = list_t<true, S, B>;
 
-    using list = vlist<20, os::white>;
+    using list = vlist<20, color::white>;
 
   } // win
 

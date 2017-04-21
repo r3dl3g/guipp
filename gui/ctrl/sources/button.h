@@ -70,11 +70,16 @@ namespace gui {
     // --------------------------------------------------------------------------
 #endif // X11
     // --------------------------------------------------------------------------
-    class button : public client_window {
+    class button : public window {
     public:
       typedef window super;
 
       button ();
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        window::create(clazz, parent, place);
+      }
 
       inline bool is_hilited () const {
         return hilited;
@@ -96,6 +101,8 @@ namespace gui {
       bool hilited;
       bool pushed;
       bool checked;
+
+      static no_erase_window_class clazz;
     };
 
     // --------------------------------------------------------------------------

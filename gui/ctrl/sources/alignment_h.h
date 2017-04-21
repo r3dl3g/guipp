@@ -36,9 +36,9 @@ namespace gui {
   namespace win {
 // --------------------------------------------------------------------------
     enum alignment_h : unsigned short {
-      alignment_left   = IF_WIN32(0x0) IF_X11(gui::draw::vcenter_left),
-      alignment_center = IF_WIN32(0x1) IF_X11(gui::draw::center),
-      alignment_right  = IF_WIN32(0x2) IF_X11(gui::draw::vcenter_right)
+      alignment_left   = gui::draw::vcenter_left,
+      alignment_center = gui::draw::center,
+      alignment_right  = gui::draw::vcenter_right
     };
 
   } // win

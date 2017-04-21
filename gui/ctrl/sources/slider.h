@@ -124,9 +124,7 @@ namespace gui {
       framed_slider_t () {
         super::register_event_handler(win::paint_event([&](const draw::graphics& g) {
           core::rectangle place = super::client_area();
-#ifdef X11
           g.fill(draw::rectangle(place), color::buttonColor());
-#endif // X11
           F(g, place);
         }));
       }

@@ -24,7 +24,7 @@ public:
   void onCreated (window*, const core::rectangle&);
 
 private:
-  group_window<horizontal_lineup<30, 2, 5>, color::rgb_gray<160>::value> tool_bar;
+  group_window<horizontal_lineup<30, 2, 5>, color::rgb_gray<128>::value> tool_bar;
   flat_button buttons[10];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;

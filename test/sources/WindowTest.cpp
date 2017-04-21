@@ -122,7 +122,7 @@ private:
 
   typedef win::vlist<25> List1;
   typedef win::list List2;
-  typedef win::vlist<20, color::gray> List3;
+  typedef win::vlist<20, color::light_gray> List3;
 
   List1 list1;
   List2& list2;

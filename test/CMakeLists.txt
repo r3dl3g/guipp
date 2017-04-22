@@ -28,11 +28,11 @@ link_directories(${core_Lib}
                  ${ibr_std_lib_Lib}
                 )
 
-if(UNIX)
-    link_directories("../boost/stage/lib")
-else()
-    link_directories("../boost/stage/lib")
-endif(UNIX)
+link_directories("../boost/stage/lib")
+
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif()
 
 enable_testing()
 

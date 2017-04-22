@@ -232,7 +232,7 @@ namespace gui {
         type get_dimension2 (const core::size& sz);
         core::size make_size (type dim1, type dim2);
         core::rectangle get_sep_area (const core::rectangle& area, unsigned short s);
-        void move_area (core::rectangle& area, unsigned short offs);
+        void move_area (core::rectangle& area, type offs);
       };
 
       template<>
@@ -260,7 +260,7 @@ namespace gui {
           return area.with_width(s);
         }
 
-        void move_area (core::rectangle& area, unsigned short offs) {
+        void move_area (core::rectangle& area, type offs) {
           area.move_x(offs);
         }
       };
@@ -290,7 +290,7 @@ namespace gui {
           return area.with_height(s);
         }
 
-        void move_area (core::rectangle& area, unsigned short offs) {
+        void move_area (core::rectangle& area, type offs) {
           area.move_y(offs);
         }
       };

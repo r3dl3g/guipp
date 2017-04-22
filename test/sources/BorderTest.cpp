@@ -109,6 +109,15 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   vsegmented.create(client_view, core::rectangle(10, 40, 80, 200));
   vsegmented.set_visible();
 
+  for (int i = 0; i < 4; ++i) {
+    vsegmented.get_button(i).register_event_handler(button_clicked_event([&, i]() {
+      labels[0].set_text(ostreamfmt("vsegment " << i << " selected"));
+    }));
+    segmented.get_button(i).register_event_handler(button_clicked_event([&, i]() {
+      labels[1].set_text(ostreamfmt("hsegment " << i << " selected"));
+    }));
+  }
+
   client_view.get_layout().attach_relative<What::right, make_relative(0.9)>(&segmented, &client_view);
 
   client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented, &client_view);

@@ -787,7 +787,7 @@ void my_main_window::created_children () {
 
   vscroll.create(main, core::rectangle(700, 50, win::scroll_bar::get_scroll_bar_width(), 250));
   vscroll.set_max((int)list1.get_count() * List1::item_size - list1.size().height());
-  vscroll.set_step(List1::item_size);
+  vscroll.set_step(static_cast<win::scroll_bar::type>(List1::item_size));
   vscroll.set_visible();
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));

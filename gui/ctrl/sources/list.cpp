@@ -46,8 +46,13 @@ namespace gui {
                                                          "SELECTION_CHANGE_MESSAGE",
                                                          False);
         }
+        if (!detail::SELECTION_COMMIT_MESSAGE) {
+          detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(),
+                                                         "SELECTION_CHANGE_MESSAGE",
+                                                         False);
+        }
 #endif // X11
-        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
           last_mouse_point = pt;
           moved = false;
         }));

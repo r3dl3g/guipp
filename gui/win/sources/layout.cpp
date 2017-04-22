@@ -33,7 +33,7 @@ namespace gui {
 
   namespace layout {
 
-    std::vector<win::window*> layout_base::get_children (win::container* main) {
+    std::vector<win::window*> layout_base::get_children () {
       return main->get_children();
     }
 

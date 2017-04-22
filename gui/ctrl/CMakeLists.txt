@@ -27,4 +27,3 @@ add_library(ctrl ${SOURCE_FILES})
 target_link_libraries(ctrl win draw core)
 
 endif()
-

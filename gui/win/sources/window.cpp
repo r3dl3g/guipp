@@ -144,10 +144,12 @@ namespace gui {
 
     void window::enable(bool on) {
       EnableWindow(get_id(), on);
+      redraw_later();
     }
 
     void window::take_focus () {
       SetFocus(get_id());
+      redraw_later();
     }
 
     void window::to_front () {
@@ -750,7 +752,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    window_class main_window::clazz("main_window",
+    window_class overlapped_window::clazz("overlapped_window",
 #ifdef WIN32
                                     (os::color)(COLOR_APPWORKSPACE + 1),
                                     IDC_ARROW,
@@ -775,46 +777,46 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    void main_window::create (const core::rectangle& place) {
+    void overlapped_window::create (const core::rectangle& place) {
       window::create(clazz, GetDesktopWindow(), place);
     }
 
-    void main_window::set_title (const std::string& title) {
+    void overlapped_window::set_title (const std::string& title) {
       SendMessage(get_id(), WM_SETTEXT, 0, (LPARAM)title.c_str());
     }
 
-    std::string main_window::get_title () const {
+    std::string overlapped_window::get_title () const {
       std::string s;
       s.resize(SendMessage(get_id(), WM_GETTEXTLENGTH, 0, 0) + 1);
       SendMessage(get_id(), WM_GETTEXT, (WPARAM)s.capacity(), (LPARAM)&s[0]);
       return s;
     }
 
-    bool main_window::is_top_most() const {
+    bool overlapped_window::is_top_most() const {
       return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
     }
 
-    bool main_window::is_minimized() const {
+    bool overlapped_window::is_minimized() const {
       return IsIconic(get_id()) != FALSE;
     }
 
-    bool main_window::is_maximized() const {
+    bool overlapped_window::is_maximized() const {
       return IsZoomed(get_id()) != FALSE;
     }
 
-    void main_window::minimize() {
+    void overlapped_window::minimize() {
       ShowWindow(get_id(), SW_MINIMIZE);
     }
 
-    void main_window::maximize() {
+    void overlapped_window::maximize() {
       ShowWindow(get_id(), SW_MAXIMIZE);
     }
 
-    void main_window::restore() {
+    void overlapped_window::restore() {
       ShowWindow(get_id(), SW_RESTORE);
     }
 
-    void main_window::set_top_most(bool toplevel) {
+    void overlapped_window::set_top_most(bool toplevel) {
       SetWindowPos(get_id(),
                    toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
@@ -822,15 +824,15 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void main_window::create (const core::rectangle& place) {
+    void overlapped_window::create (const core::rectangle& place) {
       window::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
     }
 
-    void main_window::set_title (const std::string& title) {
+    void overlapped_window::set_title (const std::string& title) {
       XStoreName(core::global::get_instance(), get_id(), title.c_str());
     }
 
-    std::string main_window::get_title () const {
+    std::string overlapped_window::get_title () const {
       char *window_name;
       XFetchName(core::global::get_instance(), get_id(), &window_name);
       return std::string(window_name);
@@ -910,22 +912,22 @@ namespace gui {
       return ret_a1 && ret_a2 && ret_a3;
     }
 
-    bool main_window::is_maximized () const {
+    bool overlapped_window::is_maximized () const {
       init_for_net_wm_state();
       return query_net_wm_state(get_id(), NET_WM_STATE_MAXIMIZED_HORZ, NET_WM_STATE_MAXIMIZED_VERT);
     }
 
-    bool main_window::is_top_most () const {
+    bool overlapped_window::is_top_most () const {
       init_for_net_wm_state();
       return query_net_wm_state(get_id(), NET_WM_STATE_ABOVE);
     }
 
-    bool main_window::is_minimized () const {
+    bool overlapped_window::is_minimized () const {
       init_for_net_wm_state();
       return query_net_wm_state(get_id(), NET_WM_STATE_HIDDEN);
     }
 
-    void main_window::minimize () {
+    void overlapped_window::minimize () {
       XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
     }
 
@@ -950,7 +952,7 @@ namespace gui {
       XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
     }
 
-    void main_window::maximize () {
+    void overlapped_window::maximize () {
       init_for_net_wm_state();
       send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
                         NET_WM_STATE_MAXIMIZED_HORZ,
@@ -958,14 +960,14 @@ namespace gui {
 
     }
 
-    void main_window::restore () {
+    void overlapped_window::restore () {
       init_for_net_wm_state();
       send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
                         NET_WM_STATE_MAXIMIZED_HORZ,
                         NET_WM_STATE_MAXIMIZED_VERT);
     }
 
-    void main_window::set_top_most (bool toplevel) {
+    void overlapped_window::set_top_most (bool toplevel) {
       init_for_net_wm_state();
       send_net_wm_state(get_id(),
                         toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,

@@ -84,7 +84,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class scroll_view : public layout_container<layout::scroll_view> {
     public:
-      typedef window super;
+      typedef layout_container<layout::scroll_view> super;
 
       scroll_view ();
 

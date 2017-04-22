@@ -180,47 +180,89 @@ namespace gui {
     }
 
 
-    constexpr os::color calc_medium_gray (os::color c) {
-      return create_gray_aplha(static_cast<color_part_type>((static_cast<os::color>(extract_red(c)) +
-                                                             static_cast<os::color>(extract_green(c)) +
-                                                             static_cast<os::color>(extract_blue(c))) / 3),
-                               extract_alpha(c));
+    constexpr color_part_type calc_medium_gray (os::color c) {
+      return static_cast<color_part_type>((static_cast<int>(extract_red(c)) +
+                                           static_cast<int>(extract_green(c)) +
+                                           static_cast<int>(extract_blue(c))) / 3);
     }
 
-    constexpr os::color add_transparency (os::color c, double faktor) {
+    namespace detail {
+      constexpr int fast_mul_5 (int v) {
+        return (v << 2) + v;
+      }
+
+      constexpr int fast_mul_9 (int v) {
+        return (v << 3) + v;
+      }
+
+      constexpr int fast_mul_2 (int v) {
+        return v << 1;
+      }
+
+      constexpr int fast_div_16 (int v) {
+        return v >> 4;
+      }
+    }
+
+    constexpr color_part_type calc_weigth_gray (os::color c) {
+      return static_cast<color_part_type>(detail::fast_div_16(detail::fast_mul_5(extract_red(c)) +
+                                                              detail::fast_mul_9(extract_green(c)) +
+                                                              detail::fast_mul_2(extract_blue(c))));
+    }
+
+    constexpr os::color add_transparency (os::color c, float faktor) {
       return (c & ~(alpha_primary<0xFF>::value)) | build_alpha_primary(static_cast<color_part_type>(faktor * 255));
     }
 
-    constexpr os::color darker (os::color c, double faktor = 1.5) {
-      return create_rgba(static_cast<color_part_type>(static_cast<double>(extract_red(c)) / faktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_green(c)) / faktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_blue(c)) / faktor),
-                         extract_alpha(c));
+    constexpr os::color remove_transparency (os::color c) {
+      return (c & ~(alpha_primary<0xFF>::value));
     }
 
-    constexpr os::color lighter (os::color c, double faktor = 1.3333) {
-      return create_rgba(static_cast<color_part_type>(static_cast<double>(extract_red(c)) * faktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_green(c)) * faktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_blue(c)) * faktor),
-                         extract_alpha(c));
+    constexpr os::color merge (os::color lhs, os::color rhs, float rfaktor = 0.5F) {
+      return create_rgba(static_cast<color_part_type>(static_cast<float>(extract_red(lhs)) * (1.0F - rfaktor) + static_cast<float>(extract_red(rhs)) * rfaktor),
+                         static_cast<color_part_type>(static_cast<float>(extract_green(lhs)) * (1.0F - rfaktor) + static_cast<float>(extract_green(rhs)) * rfaktor),
+                         static_cast<color_part_type>(static_cast<float>(extract_blue(lhs)) * (1.0F - rfaktor) + static_cast<float>(extract_blue(rhs)) * rfaktor),
+                         static_cast<color_part_type>(static_cast<float>(extract_alpha(lhs)) * (1.0F - rfaktor) + static_cast<float>(extract_alpha(rhs)) * rfaktor));
     }
 
-    constexpr os::color merge (os::color lhs, os::color rhs, double rfaktor = 0.5) {
-      return create_rgba(static_cast<color_part_type>(static_cast<double>(extract_red(lhs)) * (1.0 - rfaktor) + static_cast<double>(extract_red(rhs)) * rfaktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_green(lhs)) * (1.0 - rfaktor) + static_cast<double>(extract_green(rhs)) * rfaktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_blue(lhs)) * (1.0 - rfaktor) + static_cast<double>(extract_blue(rhs)) * rfaktor),
-                         static_cast<color_part_type>(static_cast<double>(extract_alpha(lhs)) * (1.0 - rfaktor) + static_cast<double>(extract_alpha(rhs)) * rfaktor));
+    constexpr os::color merge (os::color lhs, color_part_type r, color_part_type g, color_part_type b, float rfaktor = 0.5F) {
+      return create_rgba(static_cast<color_part_type>(static_cast<float>(extract_red(lhs)) * (1.0 - rfaktor) + static_cast<float>(r) * rfaktor),
+                         static_cast<color_part_type>(static_cast<float>(extract_green(lhs)) * (1.0 - rfaktor) + static_cast<float>(g) * rfaktor),
+                         static_cast<color_part_type>(static_cast<float>(extract_blue(lhs)) * (1.0 - rfaktor) + static_cast<float>(b) * rfaktor),
+                         extract_alpha(lhs));
+    }
+
+    constexpr os::color darker (os::color c, float faktor = 0.25F) {
+      return merge(c, 0, 0, 0, faktor);
+    }
+
+    constexpr os::color lighter (os::color c, float faktor = 0.25F) {
+      return merge(c, 0xff, 0xff, 0xff, faktor);
     }
 
     constexpr os::color invert (os::color c) {
       return create_rgba(0xFF - extract_red(c), 0xFF - extract_green(c), 0xFF - extract_blue(c), extract_alpha(c));
     }
 
+    constexpr int compare (os::color lhs, os::color rhs) {
+      return ((static_cast<int>(extract_red(lhs)) +
+               static_cast<int>(extract_green(lhs)) +
+               static_cast<int>(extract_blue(lhs))) -
+              (static_cast<int>(extract_red(rhs)) +
+               static_cast<int>(extract_green(rhs)) +
+               static_cast<int>(extract_blue(rhs))));
+    }
+
+    constexpr int compare_weigth (os::color lhs, os::color rhs) {
+      return static_cast<int>(calc_weigth_gray(lhs)) -
+             static_cast<int>(calc_weigth_gray(rhs));
+    }
 
     const os::color black = rgb_gray<0>::value;
     const os::color white = rgb_gray<0xff>::value;
     const os::color gray = rgb_gray<0x80>::value;
     const os::color dark_gray = rgb_gray<0x40>::value;
+    const os::color very_dark_gray = rgb_gray<0x20>::value;
     const os::color medium_gray = rgb_gray<0xA0>::value;
     const os::color light_gray = rgb_gray<0xC0>::value;
     const os::color very_light_gray = rgb_gray<0xE0>::value;

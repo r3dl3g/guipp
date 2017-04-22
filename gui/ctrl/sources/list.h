@@ -40,6 +40,9 @@ namespace gui {
     typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
                           Params<>::caller<>>
             selection_changed_event;
+    typedef event_handler<detail::SELECTION_COMMIT_MESSAGE, 0,
+                          Params<>::caller<>>
+            selection_commit_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 
@@ -48,6 +51,10 @@ namespace gui {
                           Params<>::caller<>, 0,
                           client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
             selection_changed_event;
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>
+            selection_commit_event;
 #endif // X11
 
     namespace detail {
@@ -105,7 +112,7 @@ namespace gui {
           scrollbar.register_event_handler(win::scroll_event([&] (pos_t) {
             super::redraw_later();
           }));
-          super::register_event_handler(left_btn_down_event([&](const core::point&) {
+          super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
             super::take_focus();
           }));
         }
@@ -251,19 +258,21 @@ namespace gui {
         super::register_event_handler(paint_event([&](const draw::graphics& g) {
           paint(g);
         }));
-        super::register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        super::register_event_handler(left_btn_up_event([&](os::key_state keys, const core::point& pt) {
           if (!super::moved) {
-            const int new_selection =
-              int((super::get_dimension(pt) + super::get_scroll_pos()) / S);
-            if (new_selection == super::get_selection()) {
-              clear_selection();
-            } else {
+            const int new_selection = static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
+
+            if (new_selection != super::get_selection()) {
               set_selection(new_selection);
+            } else if (control_key_bit_mask::is_set(keys)) {
+              clear_selection();
             }
-            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
             super::redraw_later();
           }
           super::last_mouse_point = core::point::undefined;
+        }));
+        super::register_event_handler(left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
+          send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         }));
         if (V) {
           super::register_event_handler(wheel_y_event([&](const pos_t delta, const core::point&){
@@ -276,7 +285,7 @@ namespace gui {
             super::moved = true;
           }));
         }
-        super::register_event_handler(mouse_move_event([&](unsigned int keys,
+        super::register_event_handler(mouse_move_event([&](os::key_state keys,
                                                     const core::point& pt) {
           if (left_button_bit_mask::is_set(keys)) {
             if (super::last_mouse_point != core::point::undefined) {
@@ -335,6 +344,9 @@ namespace gui {
             case keys::end:
             case keys::numpad::end:
               set_selection((int)super::get_count() - 1);
+              break;
+            case keys::enter:
+              send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
               break;
           }
         }));

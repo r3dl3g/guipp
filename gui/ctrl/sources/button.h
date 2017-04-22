@@ -107,10 +107,56 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace paint {
-      void push_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
-      void flat_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
-      void radio_button (const draw::graphics& graph, const win::button& btn, const std::string& text);
-      void check_box (const draw::graphics& graph, const win::button& btn, const std::string& text);
+      void push_button (const draw::graphics& graph,
+                        const core::rectangle& r,
+                        const std::string& text,
+                        bool enabled = true,
+                        bool focused = false,
+                        bool hilited = false,
+                        bool pushed = false);
+
+      void push_button (const draw::graphics& graph,
+                        const win::button& btn,
+                        const std::string& text);
+
+      void flat_button (const draw::graphics& g,
+                        const core::rectangle& r,
+                        const std::string& text,
+                        bool enabled = true,
+                        bool pushed = false,
+                        bool hilited = false,
+                        os::color foreground = color::white,
+                        os::color background = color::dark_gray);
+
+      void flat_button (const draw::graphics& graph,
+                        const win::button& btn,
+                        const std::string& text,
+                        os::color foreground = color::white,
+                        os::color background = color::dark_gray);
+
+      void radio_button (const draw::graphics& graph,
+                         const core::rectangle& area,
+                         const std::string& text,
+                         bool enabled = true,
+                         bool focused = false,
+                         bool pushed = false,
+                         bool checked = false);
+
+      void radio_button (const draw::graphics& graph,
+                         const win::button& btn,
+                         const std::string& text);
+
+      void check_box (const draw::graphics& graph,
+                      const core::rectangle& area,
+                      const std::string& text,
+                      bool enabled = true,
+                      bool focused = false,
+                      bool pushed = false,
+                      bool checked = false);
+
+      void check_box (const draw::graphics& graph,
+                      const win::button& btn,
+                      const std::string& text);
     }
 
     // --------------------------------------------------------------------------
@@ -123,22 +169,37 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<bool Keep = false>
     class toggle_button : public button {
     public:
       typedef button super;
 
       toggle_button ();
-
     };
+
+    template<>
+    toggle_button<false>::toggle_button ();
+
+    template<>
+    toggle_button<true>::toggle_button ();
 
     // --------------------------------------------------------------------------
     class text_push_button : public push_button {
     public:
       typedef push_button super;
 
+      text_push_button (const std::string& t = std::string())
+        : text(t)
+      {}
+
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(parent, place);
+      }
+
+      void create (const container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
         set_text(txt);
       }
@@ -161,34 +222,54 @@ namespace gui {
     public:
       typedef text_push_button super;
 
-      text_button ();
-
+      text_button (const std::string& t = std::string()) {
+        register_event_handler(paint_event([&] (const draw::graphics& graph) {
+          paint::push_button(graph, *this, get_text());
+        }));
+      }
     };
 
     // --------------------------------------------------------------------------
+    template<os::color C = color::light_gray, os::color B = color::dark_gray>
     class flat_button : public text_push_button {
     public:
       typedef text_push_button super;
 
-      flat_button ();
+      flat_button (const std::string& t = std::string())
+        : super(t)
+      {
+        register_event_handler(paint_event([&] (const draw::graphics& graph) {
+          paint::flat_button(graph, *this, get_text(), C, B);
+        }));
+      }
 
     };
 
     // --------------------------------------------------------------------------
-    class text_toggle_button : public toggle_button {
+    template<bool Keep = false>
+    class text_toggle_button : public toggle_button<Keep> {
     public:
-      typedef toggle_button super;
+      typedef toggle_button<Keep> super;
+
+      text_toggle_button (const std::string& t = std::string())
+        : text(t)
+      {}
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(parent, place);
+      }
+
+      void create (const container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
         set_text(txt);
       }
 
       void set_text (const std::string& t) {
         text = t;
-        redraw_later();
+        super::redraw_later();
       }
 
       const std::string& get_text () const {
@@ -200,21 +281,46 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class radio_button : public text_toggle_button {
+    template<bool Keep = false>
+    class radio_button : public text_toggle_button<Keep> {
     public:
-      typedef text_toggle_button super;
+      typedef text_toggle_button<Keep> super;
 
-      radio_button ();
+      radio_button (const std::string& t = std::string()) {
+        super::register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
+          paint::radio_button(graph, *this, super::get_text());
+        }));
+      }
 
     };
 
     // --------------------------------------------------------------------------
-    class check_box : public text_toggle_button {
+    template<bool Keep = false>
+    class check_box : public text_toggle_button<Keep> {
     public:
-      typedef text_toggle_button super;
+      typedef text_toggle_button<Keep> super;
 
-      check_box ();
+      check_box (const std::string& t = std::string()) {
+        super::register_event_handler(win::paint_event([&] (const draw::graphics& graph) {
+          paint::check_box(graph, *this, super::get_text());
+        }));
+      }
 
+    };
+
+    // --------------------------------------------------------------------------
+    template<os::color C = color::light_gray, os::color B = color::dark_gray, bool Keep = false>
+    class flat_toggle_button : public text_toggle_button<Keep> {
+    public:
+      typedef text_toggle_button<Keep> super;
+
+      flat_toggle_button (const std::string& t = std::string())
+        : super(t)
+      {
+        super::register_event_handler(paint_event([&] (const draw::graphics& graph) {
+          paint::flat_button(graph, super::client_area(), super::get_text(), super::is_enabled(), super::is_checked(), super::is_hilited(), C, B);
+        }));
+      }
     };
 
     // --------------------------------------------------------------------------
@@ -245,7 +351,7 @@ namespace gui {
     };
 
     typedef custom_button<push_button> custom_push_button;
-    typedef custom_button<toggle_button> custom_toggle_button;
+    typedef custom_button<toggle_button<>> custom_toggle_button;
 
   } // win
 

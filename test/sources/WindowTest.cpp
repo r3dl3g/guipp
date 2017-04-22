@@ -7,6 +7,7 @@
 #include "split_view.h"
 #include "edit.h"
 #include "column_list.h"
+#include "separator.h"
 #include "dbg_win_message.h"
 
 
@@ -82,6 +83,9 @@ private:
   win::client_window window1;
   win::client_window window2;
 
+  win::hseparator hseparator;
+  win::vseparator vseparator;
+
   win::text_button calc_button;
   win::text_button inc_button;
   win::text_button dec_button;
@@ -90,7 +94,10 @@ private:
   win::text_button del_button;
   win::text_button clear_button;
 
-  win::group_window<layout::horizontal_adaption<5, 10>> btn_group;
+  win::vseparator btn_sep1;
+  win::vseparator btn_sep2;
+
+  win::group_window<layout::horizontal_adaption<5, 10>, color::light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
   win::group_window<layout::horizontal_adaption<5, 5>> group_group;
@@ -107,8 +114,8 @@ private:
   win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
   win::label grid_adaption_labels[4];
 
-  win::radio_button radio_button, radio_button2;
-  win::check_box check_box;
+  win::radio_button<> radio_button, radio_button2;
+  win::check_box<> check_box;
   win::label label;
   win::labelT<win::alignment_center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
@@ -140,7 +147,7 @@ private:
   win::vscroll_bar vscroll;
   win::hscroll_bar hscroll;
 
-  win::check_box scroll_check_box;
+  win::check_box<> scroll_check_box;
 
   win::hslider hslider;
   win::vslider vslider;
@@ -184,7 +191,7 @@ int gui_main(const std::vector<std::string>& args) {
   size_t cln_size = sizeof(win::client_window);
   size_t btn_size = sizeof(win::button);
   size_t push_size = sizeof(win::push_button);
-  size_t tgl_size = sizeof(win::toggle_button);
+  size_t tgl_size = sizeof(win::toggle_button<>);
   size_t tbtn_size = sizeof(win::text_button);
   size_t pnt_size = sizeof(win::paint_event);
 
@@ -287,16 +294,16 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     LogDebug << "Button Lost Focus";
   }));
 
-  register_event_handler(win::left_btn_down_event([&] (const core::point& p) {
+  register_event_handler(win::left_btn_down_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Down at " << p;
   }));
-  register_event_handler(win::left_btn_up_event([&] (const core::point& p) {
+  register_event_handler(win::left_btn_up_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Up at " << p;
   }));
-  register_event_handler(win::right_btn_down_event([&] (const core::point& p) {
+  register_event_handler(win::right_btn_down_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Down at " << p;
   }));
-  register_event_handler(win::right_btn_up_event([&] (const core::point& p) {
+  register_event_handler(win::right_btn_up_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Up at " << p;
   }));
   window1.register_event_handler(win::wheel_x_event([&] (core::point::type delta,
@@ -314,31 +321,31 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  window1.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+  window1.register_event_handler(win::left_btn_down_event([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
     LogDebug << "Window1 Mouse down at " << p;
   }));
-  window1.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+  window1.register_event_handler(win::left_btn_up_event([&](os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
   }));
 
-  window2.register_event_handler(win::left_btn_down_event([&](const core::point& p) {
+  window2.register_event_handler(win::left_btn_down_event([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
     LogDebug << "Window2 Mouse down at " << p;
   }));
-  window2.register_event_handler(win::left_btn_up_event([&](const core::point& p) {
+  window2.register_event_handler(win::left_btn_up_event([&](os::key_state, const core::point& p) {
     window2.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
   }));
 
-  window1.register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+  window1.register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                             const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -347,7 +354,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
       window1.move(window1.position() + delta);
     }
   }));
-  window2.register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+  window2.register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                             const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -357,13 +364,12 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  window1.register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
+  window1.register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   }));
 
-
-  register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
+  register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Double Click up at " << p;
 
     core::point pos = window1.position();
@@ -382,7 +388,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     core::rectangle car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  register_event_handler(win::right_btn_dblclk_event([&] (const core::point& p) {
+  register_event_handler(win::right_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     window1.move({50, 50});
   }));
 
@@ -390,7 +396,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   at_paint1 = true;
 
-  window2.register_event_handler(win::left_btn_dblclk_event([&] (const core::point& p) {
+  window2.register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
@@ -484,9 +490,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   list1.set_drawer(list_drawer);
   list1.register_event_handler(win::selection_changed_event([&] () {
-    std::ostringstream strm;
-    strm << "List1 item " << list1.get_selection();
-    labelC.set_text(strm.str());
+    labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
+  }));
+  list1.register_event_handler(win::selection_commit_event([&] () {
+    labelC.set_text(ostreamfmt("List1 commited " << list1.get_selection()));
   }));
 
   up_button.register_event_handler(win::button_clicked_event([&] () {
@@ -517,11 +524,15 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
     labelC.set_text(strm.str());
   }));
+  list2.register_event_handler(win::selection_commit_event([&] () {
+    labelC.set_text(ostreamfmt("List2 commited " << list2.get_selection()));
+  }));
 
   column_list.list.register_event_handler(win::selection_changed_event([&] () {
-    std::ostringstream strm;
-    strm << "column_list item " << column_list.list.get_selection();
-    labelC.set_text(strm.str());
+    labelC.set_text(ostreamfmt("column_list item " << column_list.list.get_selection()));
+  }));
+  column_list.list.register_event_handler(win::selection_commit_event([&] () {
+    labelC.set_text(ostreamfmt("column_list commited " << column_list.list.get_selection()));
   }));
 
   ok_button.register_event_handler(win::button_clicked_event([&] () {
@@ -682,12 +693,18 @@ void my_main_window::created_children () {
   window2.create(view, core::rectangle(120, 10, 200, 280));
   window2.set_visible();
 
-  calc_button.create(main, core::rectangle(330, 20, 60, 25), "Calc");
+  hseparator.create(main, core::rectangle(330, 10, 300, 2));
+  hseparator.set_visible();
+
+  vseparator.create(main, core::rectangle(310, 20, 2, 300));
+  vseparator.set_visible();
+
+  calc_button.create(main, "Calc", core::rectangle(330, 20, 60, 25));
   calc_button.set_visible();
 
-  inc_button.create(main, core::rectangle(400, 20, 25, 25), "+");
+  inc_button.create(main, "+", core::rectangle(400, 20, 25, 25));
   inc_button.set_visible();
-  dec_button.create(main, core::rectangle(435, 20, 25, 25), "-");
+  dec_button.create(main, "-", core::rectangle(435, 20, 25, 25));
   dec_button.set_visible();
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
@@ -773,13 +790,13 @@ void my_main_window::created_children () {
   vscroll.set_step(List1::item_size);
   vscroll.set_visible();
 
-  up_button.create(main, core::rectangle(330, 305, 47, 25), "Up");
+  up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));
   up_button.set_visible();
 
-  down_button.create(main, core::rectangle(383, 305, 47, 25), "Down");
+  down_button.create(main, "Down", core::rectangle(383, 305, 47, 25));
   down_button.set_visible();
 
-  scroll_check_box.create(main, core::rectangle(440, 305, 100, 20), "Enable");
+  scroll_check_box.create(main, "Enable", core::rectangle(440, 305, 100, 20));
   scroll_check_box.set_checked(true);
   scroll_check_box.set_visible();
 
@@ -806,15 +823,15 @@ void my_main_window::created_children () {
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
   chck_group.set_visible();
 
-  radio_button.create(chck_group, core::rectangle::def, "Radio");
+  radio_button.create(chck_group, "Radio");
   radio_button.set_visible();
   radio_button.redraw_later();
 
-  radio_button2.create(chck_group, core::rectangle(0, 20, 100, 20), "Radio2");
+  radio_button2.create(chck_group, "Radio2", core::rectangle(0, 20, 100, 20));
   radio_button2.set_visible();
   radio_button2.redraw_later();
 
-  check_box.create(chck_group, core::rectangle(0, 40, 100, 20), "Check");
+  check_box.create(chck_group, "Check", core::rectangle(0, 40, 100, 20));
   check_box.set_visible();
   check_box.redraw_later();
 
@@ -826,17 +843,17 @@ void my_main_window::created_children () {
   edit_btn_group.create(main, core::rectangle(290, 380, 100, 16));
   edit_btn_group.set_visible();
 
-  cur_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "c-");
+  cur_minus.create(edit_btn_group, "c-");
   cur_minus.set_visible();
-  cur_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "c+");
+  cur_plus.create(edit_btn_group, "c+");
   cur_plus.set_visible();
-  sel_first_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "f-");
+  sel_first_minus.create(edit_btn_group, "f-");
   sel_first_minus.set_visible();
-  sel_first_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "f+");
+  sel_first_plus.create(edit_btn_group, "f+");
   sel_first_plus.set_visible();
-  sel_last_minus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "l-");
+  sel_last_minus.create(edit_btn_group, "l-");
   sel_last_minus.set_visible();
-  sel_last_plus.create(edit_btn_group, core::rectangle(0, 0, 16, 16), "l+");
+  sel_last_plus.create(edit_btn_group, "l+");
   sel_last_plus.set_visible();
 
   edit_btn_group.layout();
@@ -851,28 +868,33 @@ void my_main_window::created_children () {
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
   btn_group.set_visible();
 
-  ok_button.create(btn_group, core::rectangle(380, 350, 100, 25), "Ok");
+  ok_button.create(btn_group, "Ok");
   ok_button.set_visible();
-  ok_button.redraw_later();
 
-  del_button.create(btn_group, core::rectangle(490, 350, 100, 25), "Del");
+  del_button.create(btn_group, "Del");
   del_button.set_visible();
-  del_button.redraw_later();
 
-  clear_button.create(btn_group, core::rectangle(600, 350, 100, 25), "Clear");
+  clear_button.create(btn_group, "Clear");
   clear_button.set_visible();
-  clear_button.redraw_later();
 
-  min_button.create(btn_group, core::rectangle(180, 400, 60, 25), "Min");
+  btn_sep1.create(btn_group);
+  btn_group.get_layout().add_separator(&btn_sep1);
+  btn_sep1.set_visible();
+
+  min_button.create(btn_group, "Min");
   min_button.set_visible();
 
-  max_button.create(btn_group, core::rectangle(250, 400, 60, 25), "Max");
+  max_button.create(btn_group, "Max");
   max_button.set_visible();
 
-  norm_button.create(btn_group, core::rectangle(320, 400, 60, 25), "Norm");
+  norm_button.create(btn_group, "Norm");
   norm_button.set_visible();
 
-  info_button.create(btn_group, core::rectangle(390, 400, 90, 25), "Info");
+  btn_sep2.create(btn_group);
+  btn_group.get_layout().add_separator(&btn_sep2);
+  btn_sep2.set_visible();
+
+  info_button.create(btn_group, "Info");
   info_button.set_visible();
 
   btn_group.layout();

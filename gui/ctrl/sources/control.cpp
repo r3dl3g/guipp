@@ -46,6 +46,7 @@ namespace gui {
 #ifdef X11
       Atom SCROLLBAR_MESSAGE = 0;
       Atom SELECTION_CHANGE_MESSAGE = 0;
+      Atom SELECTION_COMMIT_MESSAGE = 0;
       Atom SLIDER_MESSAGE = 0;
       Atom BN_CLICKED_MESSAGE = 0;
       Atom BN_PUSHED_MESSAGE = 0;

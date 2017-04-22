@@ -403,6 +403,14 @@ namespace gui {
         return {(core::size::type)(br.x() - tl.x()), (core::size::type)(br.y() - tl.y())};
       }
 
+      inline rectangle with_width (const core::size::type w) const {
+        return {tl, core::point(tl.x() + w, br.y())};
+      }
+
+      inline rectangle with_height (const core::size::type h) const {
+        return {tl, core::point(br.x(), tl.y() + h)};
+      }
+
       inline rectangle operator- (const core::size& sz) const {
         return {tl, br - sz};
       }

@@ -36,6 +36,7 @@ namespace gui {
   namespace core {
 
     void event_container::register_event_handler (event_handler_function handler) {
+      event_handlers.reserve(8);
       event_handlers.push_back(handler);
     }
 

@@ -252,11 +252,11 @@ namespace gui {
 
       inline layout_type& get_layout() {
         return layouter;
-      };
+      }
 
       inline const layout_type& get_layout() const {
         return layouter;
-      };
+      }
 
     private:
       layout_type layouter;
@@ -283,7 +283,7 @@ namespace gui {
     window_class group_window<L, B>::clazz(create_group_window_clazz(B));
 
     // --------------------------------------------------------------------------
-    class main_window : public container {
+    class overlapped_window : public container {
     public:
       void set_title (const std::string&);
 
@@ -311,7 +311,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout>
-    class layout_main_window : public main_window {
+    class layout_main_window : public overlapped_window {
     public:
       typedef L layout_type;
 
@@ -325,11 +325,11 @@ namespace gui {
 
       inline layout_type& get_layout () {
         return layouter;
-      };
+      }
 
       inline const layout_type& get_layout () const {
         return layouter;
-      };
+      }
 
     protected:
       layout_type layouter;

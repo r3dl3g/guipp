@@ -1,9 +1,9 @@
 
 #include "window.h"
-#include "button.h"
 #include "label.h"
 #include "list.h"
 #include "scroll_view.h"
+#include "toggle_group.h"
 #include "graphics.h"
 
 
@@ -17,6 +17,10 @@ using namespace gui::win;
 using namespace gui::layout;
 using namespace gui::draw;
 
+const os::color nero = color::rgb_color<64,66,68>::value;
+const os::color silver = color::rgb_color<0xC3,0xC6,0xC7>::value;
+
+
 class my_main_window : public layout_main_window<border_layout<34, 30, 100, 100>> {
 public:
   my_main_window ();
@@ -24,18 +28,24 @@ public:
   void onCreated (window*, const core::rectangle&);
 
 private:
-  group_window<horizontal_lineup<30, 2, 5>, color::rgb_gray<128>::value> tool_bar;
-  flat_button buttons[10];
+  group_window<horizontal_lineup<30, 2, 0>, nero> tool_bar;
+
+  typedef flat_button<silver, nero> tool_bar_button;
+  tool_bar_button buttons[10];
+  separator_t<false, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
   typedef labelT<alignment_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[3];
 
-  vlist<50> left_list;
+  vlist<50, color::rgb_gray<224>::value> left_list;
 
   group_window<vertical_adaption<5, 5>, color::rgb_gray<160>::value> right_bar;
 
-  group_window<standard_layout, color::rgb_gray<224>::value> client_view;
+  group_window<attach, color::rgb_gray<224>::value> client_view;
+
+  htoggle_group<color::black, color::light_gray> segmented;
+  vtoggle_group<color::light_gray, color::gray> vsegmented;
 
   client_window window1;
 };
@@ -54,9 +64,13 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   tool_bar.create(*this);
 
   int i = 1;
-  for (flat_button& b : buttons) {
+  for (tool_bar_button& b : buttons) {
     b.create(tool_bar);
     b.set_text(ostreamfmt(i++));
+    if (i % 4 == 3) {
+      separators[i / 4].create(tool_bar);
+      tool_bar.get_layout().add_separator(&(separators[i / 4]));
+    }
   }
 
   status_bar.create(*this);
@@ -83,7 +97,24 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   left_list.set_count(10);
 
   client_view.create(*this);
-  window1.create(client_view, core::rectangle(10, 10, 600, 400));
+
+  window1.create(client_view, core::rectangle(100, 40, 600, 400));
+  window1.set_visible();
+
+  segmented.add_buttons({"first", "second", "third", "fourth"});
+  segmented.create(client_view, core::rectangle(100, 10, 300, 25));
+  segmented.set_visible();
+
+  vsegmented.add_buttons({"one", "two", "three", "four"});
+  vsegmented.create(client_view, core::rectangle(10, 40, 80, 200));
+  vsegmented.set_visible();
+
+  client_view.get_layout().attach_relative<What::right, make_relative(0.9)>(&segmented, &client_view);
+
+  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented, &client_view);
+
+  client_view.get_layout().attach_fix<What::right, Where::width, -10>(&window1, &client_view);
+  client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(&window1, &client_view);
 
   get_layout().set_center_top_bottom_left_right(&client_view, &tool_bar, &status_bar, &left_list, &right_bar);
   set_children_visible();

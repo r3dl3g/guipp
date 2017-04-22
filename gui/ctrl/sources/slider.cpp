@@ -69,7 +69,7 @@ namespace gui {
 
       template <>
       slider_t<false>::slider_t () {
-        register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+        register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
@@ -86,7 +86,7 @@ namespace gui {
 
       template <>
       slider_t<true>::slider_t () {
-        register_event_handler(win::mouse_move_event([&] (unsigned int keys,
+        register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point pt = position();
@@ -111,13 +111,13 @@ namespace gui {
           detail::SLIDER_MESSAGE = XInternAtom(core::global::get_instance(), "SLIDER_MESSAGE", False);
         }
 #endif // X11
-        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
           last_mouse_point = pt;
         }));
-        register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           uncapture_pointer();
 #endif // NO_CAPTURE

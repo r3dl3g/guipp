@@ -394,34 +394,43 @@ namespace gui {
                            TRUE>                                              sizing_event;
 
     typedef event_handler<WM_LBUTTONDOWN, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 left_btn_down_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 left_btn_down_event;
     typedef event_handler<WM_LBUTTONUP, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 left_btn_up_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 left_btn_up_event;
     typedef event_handler<WM_LBUTTONDBLCLK, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 left_btn_dblclk_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 left_btn_dblclk_event;
 
     typedef event_handler<WM_RBUTTONDOWN, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 right_btn_down_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 right_btn_down_event;
     typedef event_handler<WM_RBUTTONUP, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 right_btn_up_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 right_btn_up_event;
     typedef event_handler<WM_RBUTTONDBLCLK, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 right_btn_dblclk_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 right_btn_dblclk_event;
 
     typedef event_handler<WM_MBUTTONDOWN, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 middle_btn_down_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 middle_btn_down_event;
     typedef event_handler<WM_MBUTTONUP, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 middle_btn_up_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 middle_btn_up_event;
     typedef event_handler<WM_MBUTTONDBLCLK, 0,
-                           Params<core::point>::
-                           caller<get_param<1, core::point>>>                 middle_btn_dblclk_event;
+                           Params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_param<1, core::point>>>                 middle_btn_dblclk_event;
 
     typedef event_handler<WM_MOUSEMOVE, 0,
                            Params<os::key_state, core::point>::
@@ -681,38 +690,44 @@ namespace gui {
                                   get_param<core::point, XMotionEvent>>>            mouse_move_event;
 
     typedef event_handler<ButtonPress, ButtonPressMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button1, 0>>             left_btn_down_event;
 
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
 
     typedef event_handler<ButtonPress, ButtonPressMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button3, 0>>             right_btn_down_event;
 
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
 
     typedef event_handler<ButtonPress, ButtonPressMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonPress, Button2, 0>>             middle_btn_down_event;
 
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button2, Button3Mask>> middle_btn_up_event;
 
@@ -738,18 +753,21 @@ namespace gui {
     template<os::event_id B> std::map<Window, Time> double_click_matcher<B>::s_last_up;
 
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            double_click_matcher<Button1>>                           left_btn_dblclk_event;
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            double_click_matcher<Button3>>                           right_btn_dblclk_event;
     typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<core::point>::
-                           caller<get_param<core::point, XButtonEvent>>,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
                            0,
                            double_click_matcher<Button2>>                           middle_btn_dblclk_event;
 

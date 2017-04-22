@@ -220,7 +220,7 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), true, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             take_focus();
             last_mouse_point = pt;
@@ -245,7 +245,7 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
@@ -280,7 +280,7 @@ namespace gui {
             set_value(get_value() - dx, true);
           }
         }));
-        register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
+        register_event_handler(mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
             if (get_state() == Thumb_button_pressed) {
@@ -333,7 +333,7 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), false, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&](const core::point& pt) {
+        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             take_focus();
             last_mouse_point = pt;
@@ -358,7 +358,7 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(left_btn_up_event([&](const core::point& pt) {
+        register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
@@ -393,7 +393,7 @@ namespace gui {
             set_value(get_value() - dy, true);
           }
         }));
-        register_event_handler(mouse_move_event([&](unsigned int keys, const core::point& pt) {
+        register_event_handler(mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
             if (get_state() == Thumb_button_pressed) {

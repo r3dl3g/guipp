@@ -54,6 +54,7 @@ namespace gui {
       , cursor_type(0)
       , style(0)
       , ex_style(0)
+      , class_style(0)
       , is_initialized(false)
     {}
 
@@ -62,6 +63,7 @@ namespace gui {
       , background(rhs.background)
       , cursor(rhs.cursor)
       , cursor_type(rhs.cursor_type)
+      , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
       , is_initialized(rhs.is_initialized)
@@ -71,11 +73,13 @@ namespace gui {
                                 os::color background,
                                 os::cursor_type cursor_t,
                                 os::style style,
-                                os::style ex_style)
+                                os::style ex_style,
+                                os::style class_style)
       : class_name(cls_name)
       , background(background)
       , cursor(0)
       , cursor_type(cursor_t)
+      , class_style(class_style)
       , style(style)
       , ex_style(ex_style)
       , is_initialized(false)
@@ -104,6 +108,11 @@ namespace gui {
     const os::cursor window_class::get_cursor () const {
       register_class();
       return cursor;
+    }
+
+    const os::style window_class::get_class_style () const {
+      register_class();
+      return class_style;
     }
 
     const os::style window_class::get_style () const {
@@ -141,7 +150,7 @@ namespace gui {
 
       WNDCLASS wc = {
         /* Register the window class. */
-        CS_DBLCLKS,
+        class_style,
         detail::WindowEventProc,
         0,
         sizeof(window_class*),

@@ -50,27 +50,26 @@ public:
   static const int item_height = 20;
 
   void popup_at (const core::point& pt, main_menu& parent) {
-    core::size sz(calc_width (), data.size() * item_height);
-    create(core::rectangle(pt, sz));
-    list.register_event_handler(show_event([&]() {
-      list.capture_pointer();
+    items.register_event_handler(show_event([&]() {
+      items.capture_pointer();
     }));
-    list.register_event_handler(hide_event([&]() {
-      list.uncapture_pointer();
+    items.register_event_handler(hide_event([&]() {
+      items.uncapture_pointer();
     }));
-    list.register_event_handler(selection_changed_event([&]() {
+    items.register_event_handler(selection_changed_event([&]() {
       parent.clear_selection();
       end_modal();
     }));
-    list.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-      if (!list.place().is_inside(pt)) {
+    items.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+      if (!items.place().is_inside(pt)) {
         parent.clear_selection();
         end_modal();
       }
     }));
-    list.register_event_handler(mouse_move_event([&](os::key_state, const core::point& p) {
-      core::point pt = window_to_screen(p);
-      if (parent.absolute_place().is_inside(pt)) {
+    items.register_event_handler(mouse_move_event([&](os::key_state, const core::point& p) {
+      core::point pt = items.window_to_screen(p);
+      core::rectangle r = parent.absolute_place();
+      if (r.is_inside(pt)) {
         int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
         if (parent.get_selection() != new_idx) {
           end_modal();
@@ -79,12 +78,16 @@ public:
       }
     }));
 
+    core::size sz(calc_width(), data.size() * item_height);
+
     register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
-      list.create(*this, core::rectangle(sz), data);
+      items.create(*this, core::rectangle(sz), data);
     }));
     register_event_handler(show_event([&]() {
-      list.set_visible();
+      items.set_visible();
     }));
+
+    create(core::rectangle(pt, sz));
     set_visible();
     run_modal();
   }
@@ -106,7 +109,7 @@ private:
   typedef vlist<item_height, color::light_gray> list_type;
   typedef simple_list_data<std::string, paint::menu_item> data_type;
 
-  list_type list;
+  list_type items;
   data_type data;
 };
 

@@ -761,8 +761,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    void overlapped_window::create (const core::rectangle& place) {
-      window::create(clazz, GetDesktopWindow(), place);
+    void overlapped_window::create (const window_class& type,
+                                    const core::rectangle& place) {
+      window::create(type, GetDesktopWindow(), place);
     }
 
     void overlapped_window::set_title (const std::string& title) {
@@ -964,6 +965,7 @@ namespace gui {
     void modal_window::run_modal () {
       LogDebug << "Enter modal loop";
 #ifdef WIN32
+      is_modal = true;
       MSG msg;
       while (is_modal && GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
@@ -999,6 +1001,15 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      popup_window_class::popup_window_class ()
+        : window_class("POPUP",
+          color::light_gray,
+          IF_WIN32(IDC_ARROW) IF_X11(0),
+          IF_X11(0) IF_WIN32(WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN),
+          IF_X11(0) IF_WIN32(WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED),
+          IF_X11(0) IF_WIN32(CS_DBLCLKS | CS_DROPSHADOW))
+      {}
+
       void popup_window_class::prepare (window* w) const {
         window_class::prepare(w);
 #ifdef X11

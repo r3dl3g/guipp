@@ -342,20 +342,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       class popup_window_class : public window_class {
       public:
-        popup_window_class ()
-        {}
-
-        popup_window_class (const window_class& rhs)
-          : window_class(rhs)
-        {}
-
-        popup_window_class (const std::string& cls_name,
-                            os::color background = color::light_gray,
-                            os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
-                            os::style style = IF_X11(0) IF_WIN32(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN),
-                            os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED))
-          : window_class(cls_name, background, cursor, style, ex_style)
-        {}
+        popup_window_class ();
 
         void prepare (window*) const override;
       };

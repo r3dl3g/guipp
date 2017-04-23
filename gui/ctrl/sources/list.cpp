@@ -38,19 +38,11 @@ namespace gui {
       list::list ()
         : item_count(0)
         , selection(-1)
+        , hilite(-1)
         , moved(false)
       {
 #ifdef X11
-        if (!detail::SELECTION_CHANGE_MESSAGE) {
-          detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(),
-                                                         "SELECTION_CHANGE_MESSAGE",
-                                                         False);
-        }
-        if (!detail::SELECTION_COMMIT_MESSAGE) {
-          detail::SELECTION_CHANGE_MESSAGE = XInternAtom(core::global::get_instance(),
-                                                         "SELECTION_CHANGE_MESSAGE",
-                                                         False);
-        }
+        detail::init_control_messages();
 #endif // X11
         register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
           last_mouse_point = pt;
@@ -66,9 +58,10 @@ namespace gui {
                             const draw::graphics& g,
                             const core::rectangle& place,
                             const draw::brush& background,
-                            bool selected) const {
+                            bool selected,
+                            bool hilited) const {
         if (drawer) {
-          drawer(idx, g, place, background, selected);
+          drawer(idx, g, place, background, selected, hilited);
         }
       }
 

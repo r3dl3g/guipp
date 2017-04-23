@@ -43,6 +43,9 @@ namespace gui {
     typedef event_handler<detail::SELECTION_COMMIT_MESSAGE, 0,
                           Params<>::caller<>>
             selection_commit_event;
+    typedef event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+                          Params<bool>::caller<get_param<0, bool>>>
+            hilite_changed_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
 
@@ -55,6 +58,10 @@ namespace gui {
                           Params<>::caller<>, 0,
                           client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>
             selection_commit_event;
+    typedef event_handler<ClientMessage, 0,
+                          Params<bool>::caller<get_client_data<0, bool>>, 0,
+                          client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>
+            hilite_changed_event;
 #endif // X11
 
     namespace detail {
@@ -76,11 +83,16 @@ namespace gui {
           return selection;
         }
 
+        int get_hilite () const {
+          return hilite;
+        }
+
         typedef void(draw_list_item) (int idx,
                                       const draw::graphics&,
                                       const core::rectangle& place,
                                       const draw::brush& background,
-                                      bool selected);
+                                      bool selected,
+                                      bool hilited);
 
         void set_drawer (std::function<draw_list_item> drawer);
 
@@ -89,11 +101,12 @@ namespace gui {
                         const draw::graphics&,
                         const core::rectangle& place,
                         const draw::brush& background,
-                        bool selected) const;
+                        bool selected,
+                        bool hilited) const;
 
         size_t item_count;
-
         int selection;
+        int hilite;
         bool moved;
         core::point last_mouse_point;
 
@@ -195,7 +208,8 @@ namespace gui {
                            const draw::graphics& g,
                            const core::rectangle& place,
                            const draw::brush& background,
-                           bool selected) {
+                           bool selected,
+                           bool hilited) {
       paint::text_item(convert_to_string<T>(t), g, place, background, selected, O);
       if (!selected) {
         F(g, place);
@@ -209,6 +223,7 @@ namespace gui {
                      const draw::graphics&,
                      const core::rectangle&,
                      const draw::brush&,
+                     bool,
                      bool) = list_item_drawer<T>>
     struct simple_list_data : public std::vector<T> {
       typedef std::vector<T> super;
@@ -240,8 +255,9 @@ namespace gui {
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected) {
-        F(super::at(idx), g, place, background, selected);
+                       bool selected,
+                       bool hilited) {
+        F(super::at(idx), g, place, background, selected, hilited);
       }
 
     };
@@ -260,8 +276,7 @@ namespace gui {
         }));
         super::register_event_handler(left_btn_up_event([&](os::key_state keys, const core::point& pt) {
           if (!super::moved) {
-            const int new_selection = static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
-
+            const int new_selection = get_index_at_point(pt);
             if (new_selection != super::get_selection()) {
               set_selection(new_selection);
             } else if (control_key_bit_mask::is_set(keys)) {
@@ -287,13 +302,16 @@ namespace gui {
         }
         super::register_event_handler(mouse_move_event([&](os::key_state keys,
                                                     const core::point& pt) {
-          if (left_button_bit_mask::is_set(keys)) {
+          const core::rectangle r = super::place();
+          if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
             if (super::last_mouse_point != core::point::undefined) {
               pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
               set_scroll_pos(super::get_scroll_pos() + delta);
               super::moved = true;
             }
             super::last_mouse_point = pt;
+          } else {
+            set_hilite(get_index_at_point(pt));
           }
         }));
         super::register_event_handler(size_event([&](const core::size&){
@@ -350,6 +368,9 @@ namespace gui {
               break;
           }
         }));
+          super::register_event_handler(mouse_leave_event([&]() {
+            set_hilite(-1);
+          }));
       }
 
       void create (const container& parent,
@@ -363,13 +384,13 @@ namespace gui {
                        const draw::graphics&,
                        const core::rectangle&,
                        const draw::brush&,
+                       bool,
                        bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
-                   simple_list_data<T, F> data,
-                   int item_height = 20) {
-        set_data(data, item_height);
-        create(clazz, parent, place);
+                   simple_list_data<T, F> data) {
+        super::create(clazz, parent, place);
+        set_data(data);
       }
 
       template<typename T,
@@ -377,6 +398,7 @@ namespace gui {
                        const draw::graphics&,
                        const core::rectangle&,
                        const draw::brush&,
+                       bool,
                        bool) = list_item_drawer<T>>
       void set_data (simple_list_data<T, F> data) {
         super::set_drawer(data);
@@ -396,11 +418,36 @@ namespace gui {
         super::redraw_later();
       }
 
+      int get_index_at_point(const core::point& pt) {
+        if (super::place().is_inside(pt)) {
+          return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
+        }
+        return -1;
+      }
+
       void set_selection (int sel) {
-        super::selection = std::min(std::max(0, sel),
-                                    static_cast<int>(super::get_count()) - 1);
+        int new_selection = std::max(-1, sel);
+        if (new_selection >= super::get_count()) {
+          new_selection = -1;
+        }
+        if (super::selection != new_selection) {
+          super::selection = new_selection;
+          make_selection_visible();
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          super::redraw_later();
+        }
+      }
+
+      void clear_selection () {
+        if (super::selection != -1) {
+          super::selection = -1;
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          super::redraw_later();
+        }
+      }
+
+      void make_selection_visible () {
         if (super::selection > -1) {
-          // Make selection visible
           const pos_t sel_pos = static_cast<pos_t>(S * super::selection);
           const pos_t sz = super::get_list_size();
 
@@ -410,14 +457,16 @@ namespace gui {
             set_scroll_pos(sel_pos + S - sz);
           }
         }
-        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-        super::redraw_later();
       }
 
-      void clear_selection () {
-        if (super::selection != -1) {
-          super::selection = -1;
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+      void set_hilite (int sel) {
+        int new_hilite = std::max(-1, sel);
+        if (new_hilite >= super::get_count()) {
+          new_hilite = -1;
+        }
+        if (super::hilite != new_hilite) {
+          super::hilite = new_hilite;
+          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
           super::redraw_later();
         }
       }
@@ -442,7 +491,7 @@ namespace gui {
         super::set_dimension(place, S * first - super::get_scroll_pos(), S);
 
         for(int idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
-          super::draw_item(idx, graph, place, background, super::get_selection() == idx);
+          super::draw_item(idx, graph, place, background, super::get_selection() == idx, super::get_hilite() == idx);
           super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
         }
 

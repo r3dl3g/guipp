@@ -50,7 +50,7 @@ namespace gui {
 
     } // detail
 
-    int run_main_loop();
+    int run_main_loop ();
 
   } // win
 

@@ -558,6 +558,8 @@ namespace gui {
     namespace detail {
       extern Atom WM_CREATE_WINDOW;
       extern std::map<Window, XIC> s_window_ic_map;
+
+      void init_message (Atom& message, const char* name);
     }
 
     template <os::event_id id, os::event_id btn, int sts>
@@ -638,14 +640,15 @@ namespace gui {
       return const_cast<T*>(&(cast_event_type<T>(e)));
     }
     // --------------------------------------------------------------------------
-    template<typename T, int I = 0>
+    template<int I, typename T>
     inline T get_client_data(const core::event& e) {
       return (T)e.xclient.data.l[I];
     }
     // --------------------------------------------------------------------------
     core::rectangle get_client_data_rect(const core::event& e);
     // --------------------------------------------------------------------------
-    window* get_client_data_window(const core::event& e);
+    template<>
+    window* get_client_data<0, window*>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T, typename C>
     inline T get_param (const core::event& e) {
@@ -666,7 +669,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
                            Params<window*, core::rectangle>::
-                           caller<get_client_data_window,
+                           caller<get_client_data<0, window*>,
                                   get_client_data_rect>,
                            0,
                            client_message_matcher<detail::WM_CREATE_WINDOW>>        create_event;

@@ -47,11 +47,25 @@ namespace gui {
       Atom SCROLLBAR_MESSAGE = 0;
       Atom SELECTION_CHANGE_MESSAGE = 0;
       Atom SELECTION_COMMIT_MESSAGE = 0;
+      Atom HILITE_CHANGE_MESSAGE = 0;
       Atom SLIDER_MESSAGE = 0;
       Atom BN_CLICKED_MESSAGE = 0;
       Atom BN_PUSHED_MESSAGE = 0;
       Atom BN_UNPUSHED_MESSAGE = 0;
       Atom BN_STATE_MESSAGE = 0;
+
+      void init_control_messages () {
+        init_message(SCROLLBAR_MESSAGE, "SCROLLBAR_MESSAGE");
+        init_message(SELECTION_CHANGE_MESSAGE, "SELECTION_CHANGE_MESSAGE");
+        init_message(SELECTION_COMMIT_MESSAGE, "SELECTION_COMMIT_MESSAGE");
+        init_message(HILITE_CHANGE_MESSAGE, "HILITE_CHANGE_MESSAGE");
+        init_message(SLIDER_MESSAGE, "SLIDER_MESSAGE");
+        init_message(BN_CLICKED_MESSAGE, "BN_CLICKED_MESSAGE");
+        init_message(BN_PUSHED_MESSAGE, "BN_PUSHED_MESSAGE");
+        init_message(BN_UNPUSHED_MESSAGE, "BN_UNPUSHED_MESSAGE");
+        init_message(BN_STATE_MESSAGE, "BN_STATE_MESSAGE");
+      }
+
 #endif // X11
     } // detail
 

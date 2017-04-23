@@ -48,7 +48,7 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
-                          Params<core::point::type>::caller<get_client_data<core::point::type, 0>>, 0,
+                          Params<core::point::type>::caller<get_client_data<0, core::point::type>>, 0,
                           client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
     // --------------------------------------------------------------------------

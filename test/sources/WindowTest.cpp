@@ -479,7 +479,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
-                         bool selected) {
+                         bool selected,
+                         bool hilited) {
     using namespace draw;
 
     std::ostringstream strm;
@@ -512,8 +513,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
                         const draw::graphics& g,
                         const core::rectangle& place,
                         const draw::brush& background,
-                        bool selected) {
-    data(idx, g, place, background, selected);
+                        bool selected,
+                        bool hilited) {
+    data(idx, g, place, background, selected, hilited);
   });
 
   list2.register_event_handler(win::selection_changed_event([&] () {
@@ -749,7 +751,7 @@ void my_main_window::created_children () {
   };
 
   column_list_drawer = {
-    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, draw::text_origin align) {
+    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, draw::text_origin align) {
       win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, draw::center);
       draw::frame::raised_relief(g, r);
     },
@@ -758,7 +760,7 @@ void my_main_window::created_children () {
     win::cell_drawer<float, draw::frame::sunken_relief>,
     win::cell_drawer<int, draw::frame::sunken_relief>,
 
-    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, draw::text_origin align) {
+    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, draw::text_origin align) {
       std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
       win::paint::text_item(text, g, r, b, s, align);
       draw::frame::sunken_relief(g, r);

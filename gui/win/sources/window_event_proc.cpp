@@ -149,16 +149,19 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
+    Atom wmDeleteMessage = 0;
 
     int run_main_loop () {
-      Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
+      os::instance display = core::global::get_instance();
+
+      detail::init_message(wmDeleteMessage, "WM_DELETE_WINDOW");
 
       os::event_result resultValue = 0;
       core::event e;
       bool running = true;
       while (running) {
 //        while (XPending(core::global::get_instance())) {
-          XNextEvent(core::global::get_instance(), &e);
+          XNextEvent(display, &e);
           win::window* win = win::detail::get_window(e.xany.window);
           if (win && win->is_valid()) {
             if (e.type == CreateNotify) {
@@ -179,7 +182,6 @@ namespace gui {
       }
       return resultValue;
     }
-
 #endif // X11
 
   } // win

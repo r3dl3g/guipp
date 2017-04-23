@@ -425,6 +425,7 @@ namespace gui {
                        const core::rectangle& place,
                        const draw::brush& background,
                        bool selected,
+                       bool hilited,
                        draw::text_origin align) {
         paint::text_item(convert_to_string(super::at(row_id).at(col_id)), g, place, background, selected, align);
         if (!selected) {
@@ -446,6 +447,7 @@ namespace gui {
                               const core::rectangle& place,
                               const draw::brush& background,
                               bool selected,
+                              bool hilited,
                               draw::text_origin align);
 
 
@@ -471,14 +473,15 @@ namespace gui {
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected) {
+                       bool selected,
+                       bool hilited) {
         if (drawer) {
           core::rectangle r = place;
           std::size_t count = this->get_column_layout().get_column_count();
           for (int i = 0; i < count; ++i) {
             core::size::type w = this->get_column_layout().get_column_width(i);
             r.width(w);
-            drawer(idx, i, g, r, background, selected, this->get_column_layout().get_column_align(i));
+            drawer(idx, i, g, r, background, selected, hilited, this->get_column_layout().get_column_align(i));
             r.move_x(w);
           }
           if (r.x() < place.x2()) {
@@ -537,6 +540,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       bool selected,
+                      bool hilited,
                       draw::text_origin align) {
       paint::text_item(convert_to_string(t), g, place, background, selected, align);
       if (!selected) {
@@ -551,6 +555,7 @@ namespace gui {
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    bool selected,
+                                   bool hilited,
                                    draw::text_origin align);
 
     // --------------------------------------------------------------------------
@@ -601,7 +606,8 @@ namespace gui {
                       const draw::graphics& g,
                       core::rectangle place,
                       const draw::brush& background,
-                      bool selected) {
+                      bool selected,
+                      bool hilited) {
       }
 
       template<int I, typename T, typename... Args>
@@ -610,14 +616,15 @@ namespace gui {
                       const draw::graphics& g,
                       core::rectangle place,
                       const draw::brush& background, 
-                      bool selected) {
+                      bool selected,
+                      bool hilited) {
         core::size::type width = l.get_column_width(I);
         draw::text_origin align = l.get_column_align(I);
 
         place.width(width);
-        std::get<I>(*this)(std::get<I>(data), g, place, background, selected, align);
+        std::get<I>(*this)(std::get<I>(data), g, place, background, selected, hilited, align);
         place.move_x(width);
-        draw_cell<I + 1, Args...>(data, l, g, place, background, selected);
+        draw_cell<I + 1, Args...>(data, l, g, place, background, selected, hilited);
       }
 
       void operator() (const row& data,
@@ -625,8 +632,9 @@ namespace gui {
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected) {
-        draw_cell<0, Arguments...>(data, l, g, place, background, selected);
+                       bool selected,
+                       bool hilited) {
+        draw_cell<0, Arguments...>(data, l, g, place, background, selected, hilited);
       }
     };
 
@@ -675,7 +683,8 @@ namespace gui {
                                      const draw::graphics& g,
                                      const core::rectangle& place,
                                      const draw::brush& background,
-                                     bool selected);
+                                     bool selected,
+                                     bool hilited);
 
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
@@ -699,8 +708,9 @@ namespace gui {
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
-                         bool selected) {
-        drawer(data(row_id), this->get_column_layout(), g, place, background, selected);
+                         bool selected,
+                         bool hilited) {
+        drawer(data(row_id), this->get_column_layout(), g, place, background, selected, hilited);
       }
 
       data_drawer drawer;

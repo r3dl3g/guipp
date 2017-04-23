@@ -303,16 +303,83 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const core::rectangle& place = core::rectangle::def);
+      void create (const window_class& type,
+                   const core::rectangle& place = core::rectangle::def);
+
+    };
+
+    // --------------------------------------------------------------------------
+    class modal_window : public overlapped_window {
+    public:
+      typedef overlapped_window super;
+
+      modal_window ()
+        : is_modal(false)
+      {}
+
+      void end_modal ();
+      void run_modal ();
 
     private:
+      volatile bool is_modal;
+    };
+
+    // --------------------------------------------------------------------------
+    class main_window : public overlapped_window {
+      public:
+        typedef overlapped_window super;
+
+      void create (const core::rectangle& place = core::rectangle::def) {
+          super::create(clazz, place);
+      }
+
+    protected:
       static window_class clazz;
+    };
+
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      class popup_window_class : public window_class {
+      public:
+        popup_window_class ()
+        {}
+
+        popup_window_class (const window_class& rhs)
+          : window_class(rhs)
+        {}
+
+        popup_window_class (const std::string& cls_name,
+                            os::color background = color::light_gray,
+                            os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
+                            os::style style = IF_X11(0) IF_WIN32(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN),
+                            os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED))
+          : window_class(cls_name, background, cursor, style, ex_style)
+        {}
+
+        void prepare (window*) const override;
+      };
+
+    }
+
+    // --------------------------------------------------------------------------
+    class popup_window : public modal_window {
+    public:
+      typedef overlapped_window super;
+
+      void create (const core::rectangle& place = core::rectangle::def) {
+          super::create(clazz, place);
+      }
+
+    protected:
+      static detail::popup_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout>
-    class layout_main_window : public overlapped_window {
+    class layout_main_window : public main_window {
     public:
+      typedef main_window super;
       typedef L layout_type;
 
       layout_main_window ()
@@ -334,6 +401,7 @@ namespace gui {
     protected:
       layout_type layouter;
     };
+
     // --------------------------------------------------------------------------
   } // win
 

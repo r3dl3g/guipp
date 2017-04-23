@@ -93,6 +93,8 @@ namespace gui {
         case COLOR_BTNHIGHLIGHT:  return rgb_color<248, 248, 248>::value;
         case COLOR_WINDOW:        return white;
         case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
+        case COLOR_MENU:          return light_gray;
+        case COLOR_MENUTEXT:      return black;
 
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

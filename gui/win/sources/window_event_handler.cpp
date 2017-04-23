@@ -196,6 +196,12 @@ namespace gui {
     namespace detail {
       Atom WM_CREATE_WINDOW = 0;
       std::map<Window, XIC> s_window_ic_map;
+
+      void init_message (Atom& message, const char* name) {
+        if (!message) {
+          message = XInternAtom(core::global::get_instance(), name, False);
+        }
+      }
     }
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
@@ -275,7 +281,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    window* get_client_data_window(const core::event& e) {
+    template<>
+    window* get_client_data<0, window*>(const core::event& e) {
       os::window id = e.xclient.data.l[0];
       return detail::get_window(id);
     }

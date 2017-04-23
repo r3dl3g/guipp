@@ -53,9 +53,7 @@ namespace gui {
       , state(Nothing_pressed)
     {
 #ifdef X11
-      if (!detail::SCROLLBAR_MESSAGE) {
-        detail::SCROLLBAR_MESSAGE = XInternAtom(core::global::get_instance(), "SCROLLBAR_MESSAGE", False);
-      }
+      detail::init_control_messages();
 #endif // X11
     }
 

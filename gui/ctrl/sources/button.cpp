@@ -39,18 +39,7 @@ namespace gui {
       , checked(false)
     {
 #ifdef X11
-      if (!detail::BN_CLICKED_MESSAGE) {
-        detail::BN_CLICKED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_CLICKED_MESSAGE", False);
-      }
-      if (!detail::BN_PUSHED_MESSAGE) {
-        detail::BN_PUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_PUSHED_MESSAGE", False);
-      }
-      if (!detail::BN_UNPUSHED_MESSAGE) {
-        detail::BN_UNPUSHED_MESSAGE = XInternAtom(core::global::get_instance(), "BN_UNPUSHED_MESSAGE", False);
-      }
-      if (!detail::BN_STATE_MESSAGE) {
-        detail::BN_STATE_MESSAGE = XInternAtom(core::global::get_instance(), "BN_STATE_MESSAGE", False);
-      }
+      detail::init_control_messages();
 #endif // X11
       register_event_handler(set_focus_event([&](window*){
         redraw_later();
@@ -67,8 +56,11 @@ namespace gui {
     }
 
     void button::set_hilited (bool h) {
-      hilited = h;
-      redraw_later();
+      if (hilited != h) {
+        hilited = h;
+        send_client_message(this, detail::HILITE_CHANGE_MESSAGE, hilited);
+        redraw_later();
+      }
     }
 
     void button::set_pushed (bool h) {

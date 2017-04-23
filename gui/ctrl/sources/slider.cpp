@@ -107,9 +107,7 @@ namespace gui {
         , max(std::numeric_limits<type>::max())
       {
 #ifdef X11
-        if (!detail::SLIDER_MESSAGE) {
-          detail::SLIDER_MESSAGE = XInternAtom(core::global::get_instance(), "SLIDER_MESSAGE", False);
-        }
+        detail::init_control_messages();
 #endif // X11
         register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE

@@ -345,9 +345,7 @@ namespace gui {
       , redraw_disabled(false)
       , window_disabled(false)
     {
-      if (!detail::WM_CREATE_WINDOW) {
-        detail::WM_CREATE_WINDOW = XInternAtom(core::global::get_instance(), "WM_CREATE_WINDOW", False);
-      }
+      detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
     }
 
     window::~window () {
@@ -387,6 +385,17 @@ namespace gui {
       create(type, parent.get_id(), place);
     }
 
+    void window::destroy () {
+      if (get_id()) {
+        check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
+        detail::unset_window(get_id());
+        id = 0;
+      }
+    }
+
+    void window::quit () {
+    }
+
     const window_class* window::get_window_class() const {
       return cls;
     }
@@ -410,8 +419,8 @@ namespace gui {
     }
 
     bool window::has_focus() const {
-      Window focus;
-      int revert_to;
+      Window focus = 0;
+      int revert_to = 0;
       if (is_valid()) {
         if (check_xlib_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
           return focus == get_id();
@@ -421,10 +430,10 @@ namespace gui {
     }
 
     bool window::is_child () const {
-      Window root;
-      Window parent;
-      Window *children;
-      unsigned int nchildren;
+      Window root = 0;
+      Window parent = 0;
+      Window *children = 0;
+      unsigned int nchildren = 0;
 
       check_xlib_status(XQueryTree(core::global::get_instance(),
                  get_id(),
@@ -436,10 +445,10 @@ namespace gui {
     }
 
     bool window::is_toplevel () const {
-      Window root;
-      Window parent;
-      Window *children;
-      unsigned int nchildren;
+      Window root = 0;
+      Window parent = 0;
+      Window *children = 0;
+      unsigned int nchildren = 0;
 
       check_xlib_status(XQueryTree(core::global::get_instance(),
                  get_id(),
@@ -455,20 +464,9 @@ namespace gui {
     }
 
     bool window::has_border () const {
-      XWindowAttributes a;
+      XWindowAttributes a = { 0 };
       return (check_xlib_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
               (a.border_width > 0));
-    }
-
-    void window::destroy () {
-      if (get_id()) {
-        check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
-        detail::unset_window(get_id());
-        id = 0;
-      }
-    }
-
-    void window::quit () {
     }
 
     void window::set_parent (const container& parent) {
@@ -478,10 +476,10 @@ namespace gui {
     }
 
     container* window::get_parent () const {
-      Window root_return;
-      Window parent_return;
-      Window *children_return;
-      unsigned int nchildren_return;
+      Window root_return = 0;
+      Window parent_return = 0;
+      Window *children_return = 0;
+      unsigned int nchildren_return = 0;
 
       check_xlib_return(XQueryTree(core::global::get_instance(),
                                    get_id(),
@@ -510,7 +508,7 @@ namespace gui {
 
         if (get_window_class()->get_cursor()) {
           unsigned long mask = CWCursor;
-          XSetWindowAttributes wa;
+          XSetWindowAttributes wa = { 0 };
           wa.cursor = on ? get_window_class()->get_cursor()
                          : XCreateFontCursor(core::global::get_instance(), XC_arrow);
           check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
@@ -548,7 +546,7 @@ namespace gui {
     }
 
     core::size window::size () const {
-      Window root;
+      Window root = 0;
       int x = 0, y = 0;
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
@@ -561,7 +559,7 @@ namespace gui {
     }
 
     core::point window::position () const {
-      Window root;
+      Window root = 0;
       int x = 0, y = 0;
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
@@ -574,7 +572,7 @@ namespace gui {
     }
 
     core::rectangle window::place () const {
-      Window root;
+      Window root = 0;
       int x = 0, y = 0;
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
@@ -719,10 +717,10 @@ namespace gui {
       std::vector<window*> list;
 
       if (is_visible()) {
-        Window root;
-        Window parent;
-        Window *children;
-        unsigned int nchildren;
+        Window root = 0;
+        Window parent = 0;
+        Window *children = 0;
+        unsigned int nchildren = 0;
 
         if (check_xlib_status(XQueryTree(core::global::get_instance(),
                                          get_id(),
@@ -750,19 +748,6 @@ namespace gui {
     std::string window_with_text::get_text() const {
       return text;
     }
-
-    // --------------------------------------------------------------------------
-    window_class overlapped_window::clazz("overlapped_window",
-#ifdef WIN32
-                                    (os::color)(COLOR_APPWORKSPACE + 1),
-                                    IDC_ARROW,
-                                    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
-                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
-#endif // WIN32
-#ifdef X11
-                                    color::workSpaceColor()
-#endif
-    );
 
     // --------------------------------------------------------------------------
     const window_class client_window::clazz("client_window",
@@ -823,8 +808,9 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void overlapped_window::create (const core::rectangle& place) {
-      window::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
+    void overlapped_window::create (const window_class& type,
+                                    const core::rectangle& place) {
+      window::create(type, DefaultRootWindow(core::global::get_instance()), place);
     }
 
     void overlapped_window::set_title (const std::string& title) {
@@ -857,24 +843,12 @@ namespace gui {
     void init_for_net_wm_state () {
       auto dpy = core::global::get_instance();
 
-      if (!NET_WM_STATE) {
-        NET_WM_STATE = XInternAtom(dpy, "_NET_WM_STATE", false);
-      }
-      if (!NET_WM_STATE_MAXIMIZED_HORZ) {
-        NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", false);
-      }
-      if (!NET_WM_STATE_MAXIMIZED_VERT) {
-        NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", false);
-      }
-      if (!NET_WM_STATE_ABOVE) {
-        NET_WM_STATE_ABOVE = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", false);
-      }
-      if (!NET_WM_STATE_HIDDEN) {
-        NET_WM_STATE_HIDDEN = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", false);
-      }
-      if (!ATOM_ATOM) {
-        ATOM_ATOM = XInternAtom(dpy, "ATOM", false);
-      }
+      detail::init_message(NET_WM_STATE, "_NET_WM_STATE");
+      detail::init_message(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
+      detail::init_message(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
+      detail::init_message(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
+      detail::init_message(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
+      detail::init_message(ATOM_ATOM, "ATOM");
     }
 
     bool query_net_wm_state (os::window id,
@@ -979,6 +953,79 @@ namespace gui {
       static int group_window_id = 0;
       return win::window_class(ostreamfmt("group_window-" << group_window_id++), v);
     }
+
+    void modal_window::end_modal () {
+      is_modal = false;
+#ifdef X11
+      XFlush(core::global::get_instance());
+#endif // X11
+    }
+
+    void modal_window::run_modal () {
+      LogDebug << "Enter modal loop";
+#ifdef WIN32
+      MSG msg;
+      while (is_modal && GetMessage(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+      }
+#endif // WIN32
+#ifdef X11
+      os::instance display = core::global::get_instance();
+
+      XFlush(display);
+      os::event_result resultValue = 0;
+      core::event e;
+      is_modal = true;
+      while (is_modal) {
+        XNextEvent(display, &e);
+
+        win::window* win = win::detail::get_window(e.xany.window);
+        if (win && win->is_valid()) {
+          try {
+            win->handle_event(core::event(e), resultValue);
+            XFlush(e.xany.display);
+          } catch (std::exception e) {
+            LogFatal << "exception in run_modal_loop:" << e;
+          } catch (...) {
+            LogFatal << "Unknown exception in run_modal_loop()";
+          }
+        }
+      }
+#endif // X11
+      LogDebug << "Exit modal loop";
+    }
+
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      void popup_window_class::prepare (window* w) const {
+        window_class::prepare(w);
+#ifdef X11
+        os::instance display = core::global::get_instance();
+        Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+        Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False);
+        XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+#endif
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    detail::popup_window_class popup_window::clazz;
+
+    // --------------------------------------------------------------------------
+    window_class main_window::clazz("main_window",
+#ifdef WIN32
+                                    (os::color)(COLOR_APPWORKSPACE + 1),
+                                    IDC_ARROW,
+                                    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
+#endif // WIN32
+#ifdef X11
+                                    color::workSpaceColor()
+#endif
+    );
+
 
   } // win
 

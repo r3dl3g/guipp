@@ -64,7 +64,7 @@ namespace gui {
                           client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
                           button_released_event;
     typedef event_handler<ClientMessage, 0,
-                           Params<bool>::caller<get_client_data<bool, 0>>, 0,
+                           Params<bool>::caller<get_client_data<0, bool>>, 0,
                            client_message_matcher<detail::BN_STATE_MESSAGE>>
                            button_state_event;
     // --------------------------------------------------------------------------

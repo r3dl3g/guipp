@@ -45,7 +45,6 @@ namespace gui {
       window_class (const std::string& cls_name,
                     os::color background = color::white,
                     os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
-                    os::style class_style = IF_WIN32(CS_DBLCLKS) IF_X11(0),
                     os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),
                     os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY));
 
@@ -54,7 +53,6 @@ namespace gui {
       const std::string& get_class_name () const;
       const os::color get_background () const;
       const os::cursor get_cursor () const;
-      const os::style get_class_style () const;
       const os::style get_style () const;
       const os::style get_ex_style () const;
 
@@ -74,7 +72,6 @@ namespace gui {
       mutable os::color background;
       mutable os::cursor cursor;
       os::cursor_type cursor_type;
-      mutable os::style class_style;
       os::style style;
       os::style ex_style;
       mutable bool is_initialized;

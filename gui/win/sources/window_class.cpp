@@ -49,8 +49,7 @@ namespace gui {
     }
 
     window_class::window_class ()
-      : class_style(0)
-      , background(0)
+      : background(0)
       , cursor(0)
       , cursor_type(0)
       , style(0)
@@ -63,7 +62,6 @@ namespace gui {
       , background(rhs.background)
       , cursor(rhs.cursor)
       , cursor_type(rhs.cursor_type)
-      , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
       , is_initialized(rhs.is_initialized)
@@ -72,25 +70,18 @@ namespace gui {
     window_class::window_class (const std::string& cls_name,
                                 os::color background,
                                 os::cursor_type cursor_t,
-                                os::style class_style,
                                 os::style style,
                                 os::style ex_style)
       : class_name(cls_name)
       , background(background)
       , cursor(0)
       , cursor_type(cursor_t)
-      , class_style(class_style)
       , style(style)
       , ex_style(ex_style)
       , is_initialized(false)
     {}
 
     void window_class::prepare (window* win) const {
-#ifdef WIN32
-      if (callback) {
-        SetWindowLongPtr(win->get_id(), GWLP_WNDPROC, (LONG_PTR)detail::WindowEventProc);
-      }
-#endif // WIN32
 #ifdef X11
       if (get_cursor()) {
         XSetWindowAttributes wa;
@@ -113,11 +104,6 @@ namespace gui {
     const os::cursor window_class::get_cursor () const {
       register_class();
       return cursor;
-    }
-
-    const os::style window_class::get_class_style () const {
-      register_class();
-      return class_style;
     }
 
     const os::style window_class::get_style () const {

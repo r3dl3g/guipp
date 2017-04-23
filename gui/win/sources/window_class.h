@@ -47,8 +47,7 @@ namespace gui {
                     os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
                     os::style class_style = IF_WIN32(CS_DBLCLKS) IF_X11(0),
                     os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),
-                    os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY),
-                    os::event_callback callback = nullptr);
+                    os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY));
 
       virtual void prepare (window*) const;
 
@@ -58,7 +57,6 @@ namespace gui {
       const os::style get_class_style () const;
       const os::style get_style () const;
       const os::style get_ex_style () const;
-      const os::event_callback get_callback () const;
 
       bool is_valid () const;
 
@@ -79,7 +77,6 @@ namespace gui {
       mutable os::style class_style;
       os::style style;
       os::style ex_style;
-      mutable os::event_callback callback;
       mutable bool is_initialized;
     };
 

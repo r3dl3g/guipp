@@ -55,7 +55,6 @@ namespace gui {
       , cursor_type(0)
       , style(0)
       , ex_style(0)
-      , callback(0)
       , is_initialized(false)
     {}
 
@@ -67,7 +66,6 @@ namespace gui {
       , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
-      , callback(rhs.callback)
       , is_initialized(rhs.is_initialized)
     {}
 
@@ -76,8 +74,7 @@ namespace gui {
                                 os::cursor_type cursor_t,
                                 os::style class_style,
                                 os::style style,
-                                os::style ex_style,
-                                os::event_callback callback)
+                                os::style ex_style)
       : class_name(cls_name)
       , background(background)
       , cursor(0)
@@ -85,7 +82,6 @@ namespace gui {
       , class_style(class_style)
       , style(style)
       , ex_style(ex_style)
-      , callback(callback)
       , is_initialized(false)
     {}
 
@@ -134,11 +130,6 @@ namespace gui {
       return ex_style;
     }
 
-    const os::event_callback window_class::get_callback () const {
-      register_class();
-      return callback;
-    }
-
     bool window_class::is_valid () const {
       return !class_name.empty();
     }
@@ -154,7 +145,7 @@ namespace gui {
     }
 
     void window_class::register_class () const {
-      if (is_initialized || callback) {
+      if (is_initialized) {
         return;
       }
 #ifdef WIN32
@@ -192,7 +183,7 @@ namespace gui {
     }
 
     void window_class::unregister_class () {
-      if (is_initialized && !callback) {
+      if (is_initialized) {
         is_initialized = false;
 #ifdef WIN32
         BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());

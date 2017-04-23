@@ -76,9 +76,8 @@ namespace gui {
                              os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
                              os::style class_style = IF_WIN32(CS_DBLCLKS) IF_X11(0),
                              os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),
-                             os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY),
-                             os::event_callback callback = nullptr)
-        :window_class(cls_name, background, cursor, class_style, style, ex_style, callback)
+                             os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY))
+        :window_class(cls_name, background, cursor, class_style, style, ex_style)
       {}
 
       void prepare (window*) const override;

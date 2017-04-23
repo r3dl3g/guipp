@@ -50,7 +50,7 @@ namespace gui {
         }));
       }
 
-      void list::set_drawer (std::function<draw_list_item> drawer) {
+      void list::set_drawer (const std::function<draw_list_item>& drawer) {
         this->drawer = drawer;
       }
 

@@ -1,7 +1,7 @@
 
 #include "window.h"
 #include "label.h"
-#include "list.h"
+#include "menu.h"
 #include "scroll_view.h"
 #include "toggle_group.h"
 #include "graphics.h"
@@ -17,114 +17,6 @@ using namespace gui::win;
 using namespace gui::layout;
 using namespace gui::draw;
 
-
-namespace gui {
-  namespace win {
-    namespace paint {
-      void menu_item (const std::string& t,
-                      const draw::graphics& g,
-                      const core::rectangle& r,
-                      const draw::brush& b,
-                      bool s,
-                      bool h) {
-        if (s) {
-          g.fill(rectangle(r), color::dark_gray);
-        } else if (h) {
-          g.fill(rectangle(r), color::very_light_gray);
-        } else {
-          g.fill(rectangle(r), b);
-        }
-        core::rectangle r2 = r + core::point(5, 0);
-        g.text(text_box(t, r2, vcenter_left), font::system(), s ? color::white : color::dark_gray);
-      }
-    }
-  }
-}
-
-typedef hlist<50, color::light_gray> main_menu;
-
-// --------------------------------------------------------------------------
-class popup_menu : public popup_window {
-public:
-  typedef popup_window super;
-  static const int item_height = 20;
-
-  void popup_at (const core::point& pt, main_menu& parent) {
-    items.register_event_handler(show_event([&]() {
-      items.capture_pointer();
-    }));
-    items.register_event_handler(hide_event([&]() {
-      items.uncapture_pointer();
-    }));
-    items.register_event_handler(selection_changed_event([&]() {
-      parent.clear_selection();
-      end_modal();
-    }));
-    items.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-      if (!items.place().is_inside(pt)) {
-        parent.clear_selection();
-        end_modal();
-      }
-    }));
-    items.register_event_handler(mouse_move_event([&](os::key_state, const core::point& p) {
-      core::point pt = items.window_to_screen(p);
-      core::rectangle r = parent.absolute_place();
-      if (r.is_inside(pt)) {
-        int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
-        if (parent.get_selection() != new_idx) {
-          end_modal();
-          parent.set_selection(new_idx);
-        }
-      }
-    }));
-
-    core::size sz(calc_width(), data.size() * item_height);
-
-    register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
-      items.create(*this, core::rectangle(sz), data);
-    }));
-    register_event_handler(show_event([&]() {
-      items.set_visible();
-    }));
-
-    create(core::rectangle(pt, sz));
-    set_visible();
-    run_modal();
-  }
-
-  void add_entries (const std::initializer_list<std::string>& labels) {
-    data.insert(data.end(), labels);
-  }
-
-private:
-  core::size_type calc_width () {
-    core::size_type w = 20;
-    const font& f = font::system();
-    for (std::string& s : data) {
-      w = std::max(w, f.get_text_size(s).width() + 40);
-    }
-    return w;
-  }
-
-  typedef vlist<item_height, color::light_gray> list_type;
-  typedef simple_list_data<std::string, paint::menu_item> data_type;
-
-  list_type items;
-  data_type data;
-};
-
-// --------------------------------------------------------------------------
-//window_class popup_menu::clazz("popup_menu",
-//#ifdef WIN32
-//  (os::color)(COLOR_MENU + 1),
-//  IDC_ARROW,
-//  WS_OVERLAPPEDWINDOW | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
-//  0
-//#endif // WIN32
-//#ifdef X11
-//  color::menuColor()
-//#endif
-//);
 
 // --------------------------------------------------------------------------
 const os::color nero = color::rgb_color<64,66,68>::value;
@@ -177,17 +69,38 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
   menu.create(top_view);
-  menu.set_data(simple_list_data<std::string, paint::menu_item>({ "File", "Edit", "Help"}));
-  menu.register_event_handler(selection_changed_event([&]() {
-    int idx = menu.get_selection();
-    if (idx > -1) {
-      popup_menu sub_menu;
-      sub_menu.add_entries({"one", "two", "three"});
-      auto r = menu.absolute_position();
-      int sz = menu.item_size;
-      sub_menu.popup_at(r + core::point(idx * sz, menu.size().height()), menu);
-    }
-  }));
+  menu.add_entries({ {"File", true, [&](int i) {
+    popup_menu sub_menu;
+    sub_menu.add_entries({{"open", [](int) {
+
+    }}, {"close", [](int){
+
+    }}, {"select", true, [&](int i) {
+      popup_menu sub_menu2;
+      sub_menu2.add_entries({{"item 1", [](int){}}, {"item 1", [](int){}}});
+      sub_menu2.popup_at(sub_menu.sub_menu_position(i), sub_menu);
+    }}, {"exit", [](int){
+
+    }}});
+    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+  }}, {"Edit", true, [&](int i) {
+    popup_menu sub_menu;
+    sub_menu.add_entries({ {"cut", [](int) {
+
+    }}, {"copy", [](int) {
+
+    }}, {"paste", [](int) {
+
+    }} });
+    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+  }}, {"Help", true, [&](int i) {
+    popup_menu sub_menu;
+    sub_menu.add_entries({ {"about", [](int) {
+
+    }} });
+    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+  }}});
+  menu.prepare();
 
   tool_bar.create(top_view);
 

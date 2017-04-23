@@ -94,7 +94,7 @@ namespace gui {
                                       bool selected,
                                       bool hilited);
 
-        void set_drawer (std::function<draw_list_item> drawer);
+        void set_drawer (const std::function<draw_list_item>& drawer);
 
       protected:
         void draw_item (int idx,
@@ -121,13 +121,15 @@ namespace gui {
         typedef list super;
         typedef super::pos_t pos_t;
 
-        list_t () {
+        list_t (bool grab_focus = true) {
           scrollbar.register_event_handler(win::scroll_event([&] (pos_t) {
             super::redraw_later();
           }));
-          super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
-            super::take_focus();
-          }));
+          if (grab_focus) {
+              super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+                super::take_focus();
+              }));
+          }
         }
 
         void create (const window_class& type,
@@ -270,7 +272,9 @@ namespace gui {
       typedef typename super::pos_t pos_t;
       static const int item_size = S;
 
-      list_t () {
+      list_t (bool grab_focus = true)
+        : super(grab_focus)
+      {
         super::register_event_handler(paint_event([&](const draw::graphics& g) {
           paint(g);
         }));
@@ -388,7 +392,7 @@ namespace gui {
                        bool) = list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
-                   simple_list_data<T, F> data) {
+                   const simple_list_data<T, F>& data) {
         super::create(clazz, parent, place);
         set_data(data);
       }
@@ -400,7 +404,7 @@ namespace gui {
                        const draw::brush&,
                        bool,
                        bool) = list_item_drawer<T>>
-      void set_data (simple_list_data<T, F> data) {
+      void set_data (const simple_list_data<T, F>& data) {
         super::set_drawer(data);
         set_count(data.size());
       }

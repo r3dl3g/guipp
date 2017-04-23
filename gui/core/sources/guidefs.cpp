@@ -125,9 +125,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
 #ifdef X11
 int main(int argc, char* argv[]) {
-//  ibr::log::core::instance().addSink(&std::cerr,
-//                                     ibr::log::level::debug,
-//                                     ibr::log::core::instance().getConsoleFormatter());
+  ibr::log::core::instance().addSink(&std::cerr,
+                                     ibr::log::level::debug,
+                                     ibr::log::core::instance().getConsoleFormatter());
 
   std::vector<std::string> args;
   for(int i = 0; i < argc; ++i) {

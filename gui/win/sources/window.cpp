@@ -43,6 +43,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
+    std::vector<os::window> capture_stack;
+
+
 #ifdef WIN32
 
     window::window()
@@ -254,11 +257,19 @@ namespace gui {
     }
 
     void window::capture_pointer() {
+      LogDebug << "capture_pointer:" << get_id();
+      capture_stack.push_back(get_id());
       SetCapture(get_id());
     }
 
     void window::uncapture_pointer() {
+      LogDebug << "uncapture_pointer:" << get_id() << " back:(" << capture_stack.back() << ")";
       ReleaseCapture();
+      capture_stack.pop_back();
+      if (!capture_stack.empty()) {
+        LogDebug << "re-capture_pointer:" << capture_stack.back();
+        SetCapture(capture_stack.back());
+      }
     }
 
     os::style window::get_style (os::style mask) const {
@@ -673,15 +684,26 @@ namespace gui {
       return screen_to_window(pt);
     }
 
-    void window::capture_pointer() {
+    void window::capture_pointer () {
+      LogDebug << "capture_pointer:" << get_id();
+      capture_stack.push_back(get_id());
       check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
                                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
     }
 
-    void window::uncapture_pointer() {
+    void window::uncapture_pointer () {
+    LogDebug << "uncapture_pointer:" << get_id() << " back:(" << capture_stack.back() << ")";
       check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+      capture_stack.pop_back();
+      if (!capture_stack.empty()) {
+        LogDebug << "re-capture_pointer:" << capture_stack.back();
+        check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
+                                       False,
+                                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                       GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+      }
     }
 
     void window::prepare_for_event (os::event_id mask) {
@@ -958,6 +980,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
+      redraw_later();
       XFlush(core::global::get_instance());
 #endif // X11
     }
@@ -979,6 +1002,7 @@ namespace gui {
       os::event_result resultValue = 0;
       core::event e;
       is_modal = true;
+      redraw_later();
       while (is_modal) {
         XNextEvent(display, &e);
 

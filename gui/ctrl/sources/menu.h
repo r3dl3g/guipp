@@ -125,60 +125,71 @@ namespace gui {
     class popup_menu : public popup_window {
     public:
       typedef popup_window super;
+      typedef void(close_fn)();
+      typedef void(check_fn)(const core::point&);
+      typedef std::function<close_fn> close_function;
+      typedef std::function<check_fn> check_selection;
 
       static const int item_height = 20;
       typedef vlist<item_height, color::light_gray> list_type;
 
       popup_menu ();
 
-      template<class T>
-      void popup_at_list (const core::point& pt, T& main_list) {
-        items.register_event_handler(selection_changed_event([&]() {
-          int idx = items.get_selection();
-          if (idx > -1) {
-            menu_entry& e = data[idx];
-            if (!e.is_sub_menu()) {
-              main_list.clear_selection();
-              end_modal();
-              e.select(idx);
-            }
-          }
-        }));
-        items.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-          if (!items.place().is_inside(pt)) {
-            main_list.clear_selection();
-            end_modal();
-          }
-        }));
-        items.register_event_handler(mouse_move_event([&](os::key_state, const core::point& p) {
-          core::point pt = items.window_to_screen(p);
-          core::rectangle r = main_list.absolute_place();
-          if (r.is_inside(pt)) {
-            int new_idx = main_list.get_index_at_point(main_list.screen_to_window(pt));
-            if (main_list.get_selection() > -1) {
-              if (main_list.get_selection() != new_idx) {
-                end_modal();
-                main_list.set_selection(new_idx);
-              }
-            } else if (main_list.get_hilite() > -1) {
-              if (main_list.get_hilite() != new_idx) {
-                main_list.set_hilite(new_idx);
-                end_modal();
-              }
-            }
-          }
-        }));
-      }
-
       void popup_at (const core::point& pt, popup_menu& parent) {
-        popup_at_list(pt, parent.items);
+        call_check_selection = [&](const core::point& pt) {
+          core::rectangle r = parent.items.absolute_place();
+          if (r.is_inside(pt)) {
+            int new_idx = parent.items.get_index_at_point(parent.items.screen_to_window(pt));
+            if (parent.items.get_selection() > -1) {
+              if (parent.items.get_selection() != new_idx) {
+                parent.items.set_selection(new_idx);
+                close();
+              }
+            } else if (parent.items.get_hilite() > -1) {
+              if (parent.items.get_hilite() != new_idx) {
+                parent.items.set_hilite(new_idx);
+                close();
+              }
+            }
+          }
+        };
+
+        call_close_function = [&]() {
+          parent.call_close_function();
+          close();
+        };
+
         popup_at(pt);
       }
 
       void popup_at (const core::point& pt, main_menu& parent) {
-        popup_at_list(pt, parent);
+        call_check_selection = [&](const core::point& pt) {
+          core::rectangle r = parent.absolute_place();
+          if (r.is_inside(pt)) {
+            int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
+            if (parent.get_selection() > -1) {
+              if (parent.get_selection() != new_idx) {
+                parent.set_selection(new_idx);
+                close();
+              }
+            } else if (parent.get_hilite() > -1) {
+              if (parent.get_hilite() != new_idx) {
+                parent.set_hilite(new_idx);
+                close();
+              }
+            }
+          }
+        };
+
+        call_close_function = [&]() {
+          parent.clear_selection();
+          close();
+        };
+
         popup_at(pt);
       }
+
+      void close ();
 
       core::point sub_menu_position (int idx);
 
@@ -196,6 +207,8 @@ namespace gui {
       void popup_at (const core::point& pt);
 
       core::size_type calc_width ();
+      close_function call_close_function;
+      check_selection call_check_selection;
 
       typedef simple_list_data<menu_entry, paint::menu_item> data_type;
 

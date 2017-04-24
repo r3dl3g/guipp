@@ -366,7 +366,9 @@ namespace gui {
     void window::create (const window_class& type,
                          os::window parent_id,
                          const core::rectangle& place) {
-      destroy();
+      if (get_id()) {
+        destroy();
+      }
       cls = &type;
       os::instance display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
@@ -399,12 +401,18 @@ namespace gui {
     void window::destroy () {
       if (get_id()) {
         check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
+        XSync(core::global::get_instance(), False);
         detail::unset_window(get_id());
         id = 0;
       }
     }
 
     void window::quit () {
+      Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
+      Atom message = XInternAtom(core::global::get_instance(), "WM_PROTOCOLS", False);
+
+      send_client_message(this, message, wmDeleteMessage);
+//      XSync(core::global::get_instance(), False);
     }
 
     const window_class* window::get_window_class() const {
@@ -694,7 +702,11 @@ namespace gui {
     }
 
     void window::uncapture_pointer () {
-    LogDebug << "uncapture_pointer:" << get_id() << " back:(" << capture_stack.back() << ")";
+      if (capture_stack.back() != get_id()) {
+        LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
+      } else {
+        LogDebug << "uncapture_pointer:" << get_id();
+      }
       check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
       capture_stack.pop_back();
       if (!capture_stack.empty()) {
@@ -981,7 +993,7 @@ namespace gui {
       is_modal = false;
 #ifdef X11
       redraw_later();
-      XFlush(core::global::get_instance());
+      XSync(core::global::get_instance(), False);
 #endif // X11
     }
 
@@ -998,7 +1010,6 @@ namespace gui {
 #ifdef X11
       os::instance display = core::global::get_instance();
 
-      XFlush(display);
       os::event_result resultValue = 0;
       core::event e;
       is_modal = true;
@@ -1018,6 +1029,7 @@ namespace gui {
           }
         }
       }
+
 #endif // X11
       LogDebug << "Exit modal loop";
     }

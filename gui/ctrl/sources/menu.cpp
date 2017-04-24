@@ -73,8 +73,53 @@ namespace gui {
     }
 
     popup_menu::popup_menu ()
-      : items(false)
-    {}
+      : items(false) {
+
+      items.register_event_handler(mouse_move_event([&](os::key_state, const core::point& p) {
+        if (call_check_selection) {
+          call_check_selection(items.window_to_screen(p));
+        }
+      }));
+
+      items.register_event_handler(selection_changed_event([&]() {
+        int idx = items.get_selection();
+        if (idx > -1) {
+          menu_entry& e = data[idx];
+          if (!e.is_sub_menu()) {
+            if (call_close_function) {
+              call_close_function();
+            }
+            e.select(idx);
+          }
+        }
+      }));
+
+      items.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        if (!items.place().is_inside(pt) && call_close_function) {
+          call_close_function();
+        }
+      }));
+
+      items.register_event_handler(hilite_changed_event([&](bool on) {
+        if (on) {
+          int idx = items.get_hilite();
+          if (idx > -1) {
+            menu_entry& e = data[idx];
+            e.hilite(idx);
+          }
+        }
+      }));
+
+      register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
+        items.create(*this, core::rectangle(core::size(calc_width(), data.size() * item_height)), data);
+      }));
+
+      register_event_handler(show_event([&]() {
+        items.set_visible();
+        items.capture_pointer();
+      }));
+
+    }
 
     core::point popup_menu::sub_menu_position (int idx) {
       auto r = absolute_position();
@@ -82,42 +127,21 @@ namespace gui {
     }
 
     void popup_menu::popup_at (const core::point& pt) {
+      items.clear_selection();
+      items.clear_hilite();
       items.set_drawer(data);
       items.set_count(data.size());
 
-//      items.register_event_handler(show_event([&]() {
-//        items.capture_pointer();
-//      }));
-//      items.register_event_handler(hide_event([&]() {
-//        items.uncapture_pointer();
-//      }));
-      items.register_event_handler(hilite_changed_event([&](bool on) {
-        if (on) {
-          int idx = items.get_hilite();
-          if (idx > -1) {
-            menu_entry& e = data[idx];
-            if (e.is_sub_menu()) {
-              e.hilite(idx);
-            }
-          }
-        }
-      }));
-
-      core::size sz(calc_width(), data.size() * item_height);
-
-      register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
-        items.create(*this, core::rectangle(sz), data);
-      }));
-      register_event_handler(show_event([&]() {
-        items.set_visible();
-        items.capture_pointer();
-      }));
-
-      create(core::rectangle(pt, sz));
+      create(core::rectangle(pt, core::size(calc_width(), data.size() * item_height)));
       set_visible();
       run_modal();
+    }
+
+    void popup_menu::close () {
       items.uncapture_pointer();
+      items.destroy();
       destroy();
+      end_modal();
     }
 
     core::size_type popup_menu::calc_width () {

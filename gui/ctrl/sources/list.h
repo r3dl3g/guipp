@@ -87,6 +87,11 @@ namespace gui {
           return hilite;
         }
 
+        bool is_scroll_bar_enabled () const {
+          return scroll_bar_enabled;
+        }
+
+
         typedef void(draw_list_item) (int idx,
                                       const draw::graphics&,
                                       const core::rectangle& place,
@@ -108,6 +113,7 @@ namespace gui {
         int selection;
         int hilite;
         bool moved;
+        bool scroll_bar_enabled;
         core::point last_mouse_point;
 
       private:
@@ -136,18 +142,23 @@ namespace gui {
                      const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           super::create(type, parent, place);
-          scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
         }
 
         core::size client_size () const;
 
-        void enable_scroll_bar (bool enable) {
-          scrollbar.enable(enable);
-          scrollbar.set_visible(enable && scrollbar.get_max());
+        void create_scroll_bar () {
+          if (!scrollbar.is_valid()) {
+            scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+          }
         }
 
-        bool is_scroll_bar_enabled () const {
-          return scrollbar.is_enabled();
+        void enable_scroll_bar (bool enable) {
+          scroll_bar_enabled = enable;
+          if (scroll_bar_enabled) {
+            create_scroll_bar();
+          }
+          scrollbar.enable(scroll_bar_enabled);
+          scrollbar.set_visible(scroll_bar_enabled && scrollbar.get_max());
         }
 
         bool is_scroll_bar_visible () const {
@@ -319,7 +330,9 @@ namespace gui {
           }
         }));
         super::register_event_handler(size_event([&](const core::size&){
-          super::scrollbar.place(super::get_scroll_bar_area());
+          if (super::scrollbar.is_valid()) {
+            super::scrollbar.place(super::get_scroll_bar_area());
+          }
           adjust_scroll_bar();
         }));
         super::register_event_handler(key_down_event([&](os::key_state,
@@ -373,7 +386,7 @@ namespace gui {
           }
         }));
           super::register_event_handler(mouse_leave_event([&]() {
-            set_hilite(-1);
+            clear_hilite();
           }));
       }
 
@@ -415,9 +428,13 @@ namespace gui {
         const pos_t sz = super::get_list_size();
         const pos_t visible = (S * (int)super::item_count) - sz;
 
-        const pos_t zero = pos_t(0);
         super::scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
-        super::scrollbar.set_visible((visible > zero) && super::is_scroll_bar_enabled());
+
+        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
+        if (show_scroll) {
+          super::create_scroll_bar();
+        }
+        super::scrollbar.set_visible(show_scroll);
 
         super::redraw_later();
       }
@@ -475,6 +492,14 @@ namespace gui {
         }
       }
 
+      void clear_hilite () {
+        if (super::hilite != -1) {
+          super::hilite = -1;
+          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
+          super::redraw_later();
+        }
+      }
+
       void set_scroll_pos (pos_t pos) {
         const pos_t max_delta =
           std::max(zero, (S * (pos_t)super::get_count()) - super::get_list_size());
@@ -511,7 +536,12 @@ namespace gui {
         scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
 
         super::scrollbar.set_max(std::max(visible, zero));
-        super::scrollbar.set_visible((visible > zero) && super::is_scroll_bar_enabled());
+
+        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
+        if (show_scroll) {
+          super::create_scroll_bar();
+        }
+        super::scrollbar.set_visible(show_scroll);
       }
 
       const pos_t zero = pos_t(0);

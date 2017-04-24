@@ -40,6 +40,7 @@ namespace gui {
         , selection(-1)
         , hilite(-1)
         , moved(false)
+        , scroll_bar_enabled(true)
       {
 #ifdef X11
         detail::init_control_messages();

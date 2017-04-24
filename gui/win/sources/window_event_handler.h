@@ -741,8 +741,8 @@ namespace gui {
         if ((e.type == ButtonRelease) && (e.xbutton.button == B)) {
           Time last_up = s_last_up[e.xbutton.window];
           Time diff = e.xbutton.time - last_up;
-          LogDebug << "double_click_matcher(" << e.xbutton.button
-                   << ") at:" << e.xbutton.time << " last:" << last_up << " diff:" << diff;
+//          LogDebug << "double_click_matcher(" << e.xbutton.button
+//                   << ") at:" << e.xbutton.time << " last:" << last_up << " diff:" << diff;
           s_last_up[e.xbutton.window] = e.xbutton.time;
           return (diff < 300);
         }

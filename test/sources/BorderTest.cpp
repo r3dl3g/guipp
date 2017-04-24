@@ -31,8 +31,13 @@ public:
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
-  main_menu menu;
   group_window<horizontal_lineup<30, 2, 0>, nero> tool_bar;
+
+  main_menu menu;
+  popup_menu file_sub_menu;
+  popup_menu edit_sub_menu;
+  popup_menu help_sub_menu;
+  popup_menu select_sub_menu;
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
@@ -68,37 +73,50 @@ my_main_window::my_main_window () {
 void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
+  select_sub_menu.add_entry({"item 1", [&](int){
+    labels[0].set_text("item 1");
+  }});
+
+  select_sub_menu.add_entries({{"item 2", [&](int){
+    labels[0].set_text("item 2");
+  }}, {"item 3", true, [&](int){
+    labels[0].set_text("item 3");
+  }}});
+
+  file_sub_menu.add_entries({{"open", [&](int) {
+    labels[0].set_text("open");
+  }}, {"close", [&](int){
+    labels[0].set_text("close");
+  }}, {"select", true, [&](int i) {
+    labels[0].set_text("select...");
+    select_sub_menu.popup_at(file_sub_menu.sub_menu_position(i), file_sub_menu);
+  }}, {"exit", [&](int){
+    labels[0].set_text("exit");
+    quit();
+  }}});
+
+  edit_sub_menu.add_entries({ {"cut", [&](int) {
+    labels[0].set_text("cut");
+  }}, {"copy", [&](int) {
+    labels[0].set_text("copy");
+  }}, {"paste", [&](int) {
+    labels[0].set_text("paste");
+  }} });
+
+  help_sub_menu.add_entries({ {"about", [&](int) {
+    labels[0].set_text("about");
+  }} });
+
   menu.create(top_view);
   menu.add_entries({ {"File", true, [&](int i) {
-    popup_menu sub_menu;
-    sub_menu.add_entries({{"open", [](int) {
-
-    }}, {"close", [](int){
-
-    }}, {"select", true, [&](int i) {
-      popup_menu sub_menu2;
-      sub_menu2.add_entries({{"item 1", [](int){}}, {"item 1", [](int){}}});
-      sub_menu2.popup_at(sub_menu.sub_menu_position(i), sub_menu);
-    }}, {"exit", [](int){
-
-    }}});
-    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    labels[0].set_text("File...");
+    file_sub_menu.popup_at(menu.sub_menu_position(i), menu);
   }}, {"Edit", true, [&](int i) {
-    popup_menu sub_menu;
-    sub_menu.add_entries({ {"cut", [](int) {
-
-    }}, {"copy", [](int) {
-
-    }}, {"paste", [](int) {
-
-    }} });
-    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    labels[0].set_text("Edit...");
+    edit_sub_menu.popup_at(menu.sub_menu_position(i), menu);
   }}, {"Help", true, [&](int i) {
-    popup_menu sub_menu;
-    sub_menu.add_entries({ {"about", [](int) {
-
-    }} });
-    sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    labels[0].set_text("Help...");
+    help_sub_menu.popup_at(menu.sub_menu_position(i), menu);
   }}});
   menu.prepare();
 
@@ -204,5 +222,7 @@ int gui_main(const std::vector<std::string>& args) {
 
   main.set_visible();
 
-  return win::run_main_loop();
+  int ret = win::run_main_loop();
+  LogDebug << "run_main_loop finished!";
+  return ret;
 }

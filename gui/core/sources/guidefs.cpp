@@ -77,13 +77,24 @@ namespace gui {
       }
 
       void fini () {
+        if (global_instance) {
 #ifdef X11
-        XFlush(core::global::get_instance());
-        XCloseDisplay(core::global::get_instance());
-        global_screen = 0;
+          XSync(global_instance, False);
+          XCloseDisplay(global_instance);
+          global_screen = 0;
 #endif // X11
-        global_instance = 0;
+          global_instance = 0;
+        }
       }
+
+      void sync () {
+        if (global_instance) {
+#ifdef X11
+          XSync(global_instance, False);
+#endif // X11
+        }
+      }
+
 
 #ifdef X11
 

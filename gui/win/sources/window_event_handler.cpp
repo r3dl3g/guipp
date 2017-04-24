@@ -259,6 +259,7 @@ namespace gui {
       /* Send the data off to the other process */
       Status s = XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
 
+      core::global::sync();
 //      int r = XFlush(display);
     }
 

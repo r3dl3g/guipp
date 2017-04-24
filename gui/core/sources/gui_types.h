@@ -316,27 +316,26 @@ namespace gui {
       inline rectangle (const point& pos = point::zero,
                         const size& sz = size::zero)
         : tl(pos)
-        , br(pos.x() + sz.width(), pos.y() + sz.height()) {
-      }
+        , br(pos.x() + sz.width(), pos.y() + sz.height())
+      {}
 
       inline explicit rectangle (const size& sz)
-        : br(sz.width()
-        , sz.height()) {
-      }
+        : br(sz.width(), sz.height())
+      {}
 
       inline rectangle (const point& topleft,
                         const point& bottomright)
         : tl(topleft)
-        , br(bottomright) {
-      }
+        , br(bottomright)
+      {}
 
       inline rectangle (point::type x,
                         point::type y,
                         size::type width,
                         size::type height)
         : tl(x, y)
-        , br(x + width, y + height) {
-      }
+        , br(x + width, y + height)
+      {}
 
       explicit rectangle (const os::rectangle& r);
 

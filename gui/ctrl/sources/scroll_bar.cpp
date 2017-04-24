@@ -352,7 +352,9 @@ namespace gui {
             } else {
               set_state(Nothing_pressed);
             }
-            capture_pointer();
+            if (get_state() != Nothing_pressed) {
+              capture_pointer();
+            }
             redraw_later();
           }
         }));
@@ -381,8 +383,10 @@ namespace gui {
                 }
                 break;
             }
-            set_state(Nothing_pressed);
-            uncapture_pointer();
+            if (get_state() != Nothing_pressed) {
+              set_state(Nothing_pressed);
+              uncapture_pointer();
+            }
             redraw_later();
           }
         }));

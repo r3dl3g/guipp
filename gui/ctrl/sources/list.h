@@ -132,9 +132,9 @@ namespace gui {
             super::redraw_later();
           }));
           if (grab_focus) {
-              super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
-                super::take_focus();
-              }));
+            super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+              super::take_focus();
+            }));
           }
         }
 
@@ -385,9 +385,9 @@ namespace gui {
               break;
           }
         }));
-          super::register_event_handler(mouse_leave_event([&]() {
-            clear_hilite();
-          }));
+        super::register_event_handler(mouse_leave_event([&]() {
+          clear_hilite();
+        }));
       }
 
       void create (const container& parent,
@@ -508,6 +508,7 @@ namespace gui {
       }
 
       void paint (const draw::graphics& graph) {
+        core::global::sync();
         core::rectangle area(super::client_size());
         core::rectangle place = area;
 
@@ -533,15 +534,15 @@ namespace gui {
     private:
 
       void adjust_scroll_bar () {
-        scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
-
-        super::scrollbar.set_max(std::max(visible, zero));
-
-        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
-        if (show_scroll) {
-          super::create_scroll_bar();
+        if (super::is_scroll_bar_enabled()) {
+          scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
+          const bool show_scroll = (visible > zero);
+          if (show_scroll) {
+            super::create_scroll_bar();
+          }
+          super::scrollbar.set_max(std::max(visible, zero));
+          super::scrollbar.set_visible(show_scroll);
         }
-        super::scrollbar.set_visible(show_scroll);
       }
 
       const pos_t zero = pos_t(0);

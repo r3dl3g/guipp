@@ -263,12 +263,18 @@ namespace gui {
     }
 
     void window::uncapture_pointer() {
-      LogDebug << "uncapture_pointer:" << get_id() << " back:(" << capture_stack.back() << ")";
-      ReleaseCapture();
-      capture_stack.pop_back();
       if (!capture_stack.empty()) {
-        LogDebug << "re-capture_pointer:" << capture_stack.back();
-        SetCapture(capture_stack.back());
+        if (capture_stack.back() != get_id()) {
+          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
+        } else {
+          LogDebug << "uncapture_pointer:" << get_id();
+        }
+        ReleaseCapture();
+        capture_stack.pop_back();
+        if (!capture_stack.empty()) {
+          LogDebug << "re-capture_pointer:" << capture_stack.back();
+          SetCapture(capture_stack.back());
+        }
       }
     }
 
@@ -315,6 +321,9 @@ namespace gui {
 #define XLIB_ERROR_CODE(a) case a: LogFatal << #a; break;
 
     bool check_xlib_return (int r) {
+#ifndef NDEBUG
+      core::global::sync();
+#endif
       switch (r) {
         case Success:
         case True:
@@ -369,6 +378,7 @@ namespace gui {
       if (get_id()) {
         destroy();
       }
+
       cls = &type;
       os::instance display = core::global::get_instance();
       id = XCreateSimpleWindow(display,
@@ -381,6 +391,8 @@ namespace gui {
                                0,
                                type.get_background());
       detail::set_window(id, this);
+
+      core::global::sync();
 
       type.prepare(this);
 
@@ -401,7 +413,6 @@ namespace gui {
     void window::destroy () {
       if (get_id()) {
         check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
-        XSync(core::global::get_instance(), False);
         detail::unset_window(get_id());
         id = 0;
       }
@@ -412,7 +423,6 @@ namespace gui {
       Atom message = XInternAtom(core::global::get_instance(), "WM_PROTOCOLS", False);
 
       send_client_message(this, message, wmDeleteMessage);
-//      XSync(core::global::get_instance(), False);
     }
 
     const window_class* window::get_window_class() const {
@@ -514,10 +524,12 @@ namespace gui {
     }
 
     void window::set_visible (bool s) {
-      if (s) {
-        check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
-      } else {
-        check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));
+      if (get_id()) {
+        if (s) {
+          check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
+        } else {
+          check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));
+        }
       }
     }
 
@@ -554,14 +566,18 @@ namespace gui {
     }
 
     void window::redraw_now () {
-      check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                   0, 0, 0, 0, true));
-      XFlush(core::global::get_instance());
+      if (get_id()) {
+        check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                     0, 0, 0, 0, true));
+        core::global::sync();
+      }
     }
 
     void window::redraw_later () {
-      check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                   0, 0, 0, 0, true));
+      if (get_id()) {
+              check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                           0, 0, 0, 0, true));
+      }
     }
 
     core::size window::size () const {
@@ -570,8 +586,9 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (check_xlib_status(XGetGeometry(core::global::get_instance(), get_id(),
-                            &root, &x, &y, &width, &height, &border_width, &depth))) {
+      Window wid = get_id();
+      if (wid && check_xlib_status(XGetGeometry(core::global::get_instance(), wid,
+                                   &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::size::type(width), core::size::type(height)};
       }
       return core::size::zero;
@@ -702,19 +719,21 @@ namespace gui {
     }
 
     void window::uncapture_pointer () {
-      if (capture_stack.back() != get_id()) {
-        LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
-      } else {
-        LogDebug << "uncapture_pointer:" << get_id();
-      }
-      check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
-      capture_stack.pop_back();
       if (!capture_stack.empty()) {
-        LogDebug << "re-capture_pointer:" << capture_stack.back();
-        check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
-                                       False,
-                                       ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                                       GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+        if (capture_stack.back() != get_id()) {
+          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
+        } else {
+          LogDebug << "uncapture_pointer:" << get_id();
+        }
+        check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+        capture_stack.pop_back();
+        if (!capture_stack.empty()) {
+          LogDebug << "re-capture_pointer:" << capture_stack.back();
+          check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
+                                         False,
+                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                         GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+        }
       }
     }
 
@@ -993,12 +1012,13 @@ namespace gui {
       is_modal = false;
 #ifdef X11
       redraw_later();
-      XSync(core::global::get_instance(), False);
 #endif // X11
+      core::global::sync();
     }
 
     void modal_window::run_modal () {
       LogDebug << "Enter modal loop";
+      core::global::sync();
 #ifdef WIN32
       is_modal = true;
       MSG msg;
@@ -1021,7 +1041,7 @@ namespace gui {
         if (win && win->is_valid()) {
           try {
             win->handle_event(core::event(e), resultValue);
-            XFlush(e.xany.display);
+            core::global::sync();
           } catch (std::exception e) {
             LogFatal << "exception in run_modal_loop:" << e;
           } catch (...) {
@@ -1031,6 +1051,7 @@ namespace gui {
       }
 
 #endif // X11
+      core::global::sync();
       LogDebug << "Exit modal loop";
     }
 

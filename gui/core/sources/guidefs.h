@@ -166,6 +166,7 @@ namespace gui {
       os::instance get_instance();
 
       void fini();
+      void sync ();
 
 #ifdef X11
       os::x11::screen get_screen();

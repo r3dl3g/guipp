@@ -1,4 +1,4 @@
-
+﻿
 #include "window.h"
 #include "label.h"
 #include "menu.h"
@@ -34,10 +34,6 @@ private:
   group_window<horizontal_lineup<30, 2, 0>, nero> tool_bar;
 
   main_menu menu;
-  popup_menu file_sub_menu;
-  popup_menu edit_sub_menu;
-  popup_menu help_sub_menu;
-  popup_menu select_sub_menu;
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
@@ -73,52 +69,60 @@ my_main_window::my_main_window () {
 void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
-  select_sub_menu.add_entry({"item 1", [&](int){
-    labels[0].set_text("item 1");
-  }});
-
-  select_sub_menu.add_entries({{"item 2", [&](int){
-    labels[0].set_text("item 2");
-  }}, {"item 3", true, [&](int){
-    labels[0].set_text("item 3");
-  }}});
-
-  file_sub_menu.add_entries({{"open", [&](int) {
-    labels[0].set_text("open");
-  }}, {"close", [&](int){
-    labels[0].set_text("close");
-  }}, {"select", true, [&](int i) {
-    labels[0].set_text("select...");
-    select_sub_menu.popup_at(file_sub_menu.sub_menu_position(i), file_sub_menu);
-  }}, {"exit", [&](int){
-    labels[0].set_text("exit");
-    quit();
-  }}});
-
-  edit_sub_menu.add_entries({ {"cut", [&](int) {
-    labels[0].set_text("cut");
-  }}, {"copy", [&](int) {
-    labels[0].set_text("copy");
-  }}, {"paste", [&](int) {
-    labels[0].set_text("paste");
-  }} });
-
-  help_sub_menu.add_entries({ {"about", [&](int) {
-    labels[0].set_text("about");
-  }} });
-
+  menu.add_entries({
+    sub_menu_entry("File", [&](int i) {
+      labels[0].set_text("File...");
+      popup_menu file_sub_menu;
+      file_sub_menu.add_entries({
+        menu_entry("open", [&](int) { labels[0].set_text("open"); }, "Strg+O"),
+        menu_entry("close", [&](int) { labels[0].set_text("close"); } ), 
+        sub_menu_entry("select", [&](int i) {
+          labels[0].set_text("select...");
+          popup_menu select_sub_menu;
+          select_sub_menu.add_entry(
+            menu_entry( "item 1", [&](int) { labels[0].set_text("item 1"); })
+          );
+          select_sub_menu.add_entries({
+            menu_entry("item 2", [&](int) { labels[0].set_text("item 2"); }), 
+            sub_menu_entry("item 3", [&](int) {
+              labels[0].set_text("item 3...");
+              popup_menu sub_sub_menu;
+              sub_sub_menu.add_entry(
+                menu_entry("item 3-1", [&](int i) { labels[0].set_text("item 3-1"); })
+              );
+              sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(i), select_sub_menu);
+            })
+          });
+          select_sub_menu.popup_at(file_sub_menu.sub_menu_position(i), file_sub_menu);
+        }, true),
+        menu_entry("exit", [&](int) {
+          labels[0].set_text("exit");
+          quit();
+        }, "Alt+F4", true)
+      });
+      file_sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    }), 
+    sub_menu_entry("Edit", [&](int i) {
+      labels[0].set_text("Edit...");
+      popup_menu edit_sub_menu;
+      edit_sub_menu.add_entries({
+        menu_entry("cut", [&](int) { labels[0].set_text("cut"); }, "Strg+X", false, u8"♠"),
+        menu_entry("copy", [&](int) { labels[0].set_text("copy"); }, "Strg+C", false, u8"♣"),
+        menu_entry("paste", [&](int) { labels[0].set_text("paste"); }, "Strg+V", false, u8"♥"),
+        menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
+      });
+      edit_sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    }),
+    sub_menu_entry("Help", [&](int i) {
+      labels[0].set_text("Help...");
+      popup_menu help_sub_menu;
+      help_sub_menu.add_entry( 
+        menu_entry("about", [&](int) { labels[0].set_text("about"); })
+      );
+      help_sub_menu.popup_at(menu.sub_menu_position(i), menu);
+    })
+  });
   menu.create(top_view);
-  menu.add_entries({ {"File", true, [&](int i) {
-    labels[0].set_text("File...");
-    file_sub_menu.popup_at(menu.sub_menu_position(i), menu);
-  }}, {"Edit", true, [&](int i) {
-    labels[0].set_text("Edit...");
-    edit_sub_menu.popup_at(menu.sub_menu_position(i), menu);
-  }}, {"Help", true, [&](int i) {
-    labels[0].set_text("Help...");
-    help_sub_menu.popup_at(menu.sub_menu_position(i), menu);
-  }}});
-  menu.prepare();
 
   tool_bar.create(top_view);
 

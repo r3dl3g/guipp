@@ -63,6 +63,12 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
+    os::font_type get_menu_font () {
+      NONCLIENTMETRICS metrics = {sizeof(NONCLIENTMETRICS), 0 };
+      SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
+      return metrics.lfMenuFont;
+    }
+
     const font& font::system() {
         static font f((os::font)GetStockObject(SYSTEM_FONT));
         return f;
@@ -70,6 +76,10 @@ namespace gui {
     const font& font::system_bold() {
         static font f = font::system().with_thickness(font::bold);
         return f;
+    }
+    const font& font::menu() {
+      static font f(get_menu_font());
+      return f;
     }
     const font& font::monospace() {
         static font f((os::font)GetStockObject(SYSTEM_FIXED_FONT));
@@ -88,6 +98,11 @@ namespace gui {
       : id(id) {
       GetObject(id, sizeof(os::font_type), &info);
     }
+
+    font::font (os::font_type info)
+      : id(CreateFontIndirect(&info))
+      , info(info)
+    {}
 
     font::font(const std::string& name,
                font::size_type size,
@@ -219,6 +234,11 @@ namespace gui {
       return f;
     }
 
+    const font& font::menu() {
+      static font f("FreeSans", STD_FONT_SIZE);
+      return f;
+    }
+
     const font& font::system_bold () {
       static font f("FreeSans", STD_FONT_SIZE, font::bold);
       return f;
@@ -242,6 +262,10 @@ namespace gui {
     font::font (os::font id) {
       info = XftFontOpenPattern(core::global::get_instance(), id);
     }
+
+    font::font (os::font_type id)
+      : info(id)
+    {}
 
     font::font (const std::string& name,
                 font::size_type size,

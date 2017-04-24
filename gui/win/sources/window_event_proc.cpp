@@ -170,7 +170,7 @@ namespace gui {
           }
           try {
             win->handle_event(core::event(e), resultValue);
-            XFlush(e.xany.display);
+            core::global::sync();
           } catch (std::exception e) {
             LogFatal << "exception in run_main_loop:" << e;
           } catch (...) {

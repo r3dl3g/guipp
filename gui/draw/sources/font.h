@@ -40,6 +40,7 @@ namespace gui {
 
       static const font& system();
       static const font& system_bold();
+      static const font& menu();
       static const font& monospace();
       static const font& serif();
       static const font& sans_serif();
@@ -86,6 +87,7 @@ namespace gui {
       font& operator= (const font& rhs);
 
       font(os::font id);
+      font(os::font_type id);
 
       operator os::font() const;
       os::font_type font_type () const;

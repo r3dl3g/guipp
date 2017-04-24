@@ -37,26 +37,37 @@ namespace gui {
       typedef void(menu_action)(int idx);
 
       menu_entry (const std::string& label,
-                  const std::function<menu_action>& action)
+                  const std::function<menu_action>& action,
+                  const std::string& hotkey = std::string(),
+                  bool separator = false,
+                  const std::string& icon = std::string(),
+                  bool sub_menu = false)
         : label(label)
-        , action(action)
-        , sub_menu(false)
-      {}
-
-      menu_entry (const std::string& label,
-                  bool sub_menu,
-                  const std::function<menu_action>& action)
-        : label(label)
+        , hotkey(hotkey)
+        , icon(icon)
         , action(action)
         , sub_menu(sub_menu)
+        , separator(separator)
       {}
 
       const std::string& get_label () const {
         return label;
       }
 
+      const std::string& get_hotkey () const {
+        return hotkey;
+      }
+
+      const std::string& get_icon () const {
+        return icon;
+      }
+
       bool is_sub_menu () const {
         return sub_menu;
+      }
+
+      bool has_separator () const {
+        return separator;
       }
 
       void select (int idx) {
@@ -73,8 +84,21 @@ namespace gui {
 
     private:
       std::string label;
+      std::string hotkey;
+      std::string icon;
       std::function<menu_action> action;
       bool sub_menu;
+      bool separator;
+    };
+
+    struct sub_menu_entry : public menu_entry {
+    public:
+      sub_menu_entry (const std::string& label,
+                      const std::function<menu_action>& action,
+                      bool separator = false,
+                      const std::string& icon = std::string())
+        : menu_entry(label, action, std::string(), separator, icon, true)
+      {}
     };
 
     namespace paint {
@@ -82,6 +106,8 @@ namespace gui {
       void menu_item (const menu_entry& e,
                       const draw::graphics& g,
                       const core::rectangle& r,
+                      core::point_type text_pos,
+                      core::point_type hotkey_pos,
                       const draw::brush& background,
                       bool selected,
                       bool hilited);
@@ -126,7 +152,7 @@ namespace gui {
     public:
       typedef popup_window super;
       typedef void(close_fn)();
-      typedef void(check_fn)(const core::point&);
+      typedef void(check_fn)(os::key_state, const core::point&);
       typedef std::function<close_fn> close_function;
       typedef std::function<check_fn> check_selection;
 
@@ -136,22 +162,8 @@ namespace gui {
       popup_menu ();
 
       void popup_at (const core::point& pt, popup_menu& parent) {
-        call_check_selection = [&](const core::point& pt) {
-          core::rectangle r = parent.items.absolute_place();
-          if (r.is_inside(pt)) {
-            int new_idx = parent.items.get_index_at_point(parent.items.screen_to_window(pt));
-            if (parent.items.get_selection() > -1) {
-              if (parent.items.get_selection() != new_idx) {
-                parent.items.set_selection(new_idx);
-                close();
-              }
-            } else if (parent.items.get_hilite() > -1) {
-              if (parent.items.get_hilite() != new_idx) {
-                parent.items.set_hilite(new_idx);
-                close();
-              }
-            }
-          }
+        call_check_selection = [&](os::key_state state, const core::point& p) {
+          check_mouse_action<popup_menu::list_type, false>(parent.items, state, p);
         };
 
         call_close_function = [&]() {
@@ -163,26 +175,13 @@ namespace gui {
       }
 
       void popup_at (const core::point& pt, main_menu& parent) {
-        call_check_selection = [&](const core::point& pt) {
-          core::rectangle r = parent.absolute_place();
-          if (r.is_inside(pt)) {
-            int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
-            if (parent.get_selection() > -1) {
-              if (parent.get_selection() != new_idx) {
-                parent.set_selection(new_idx);
-                close();
-              }
-            } else if (parent.get_hilite() > -1) {
-              if (parent.get_hilite() != new_idx) {
-                parent.set_hilite(new_idx);
-                close();
-              }
-            }
-          }
+        call_check_selection = [&](os::key_state state, const core::point& p) {
+          check_mouse_action<main_menu, true>(parent, state, p);
         };
 
         call_close_function = [&]() {
           parent.clear_selection();
+          parent.clear_hilite();
           close();
         };
 
@@ -204,13 +203,49 @@ namespace gui {
       list_type items;
 
     private:
+      template<class T, bool M>
+      void check_mouse_action(T& parent, os::key_state state, const core::point& p) {
+        core::point pt = items.window_to_screen(p);
+        core::rectangle r = parent.absolute_place();
+        if (r.is_inside(pt)) {
+          int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
+          if (parent.get_selection() > -1) {
+            if (parent.get_selection() != new_idx) {
+              close();
+              if (M) {
+                parent.clear_hilite();
+              }
+              parent.set_selection(new_idx);
+            }
+          } else if (parent.get_hilite() > -1) {
+            if (parent.get_hilite() != new_idx) {
+              close();
+              parent.set_hilite(new_idx);
+            }
+          } else if (new_idx < 0) {
+            parent.clear_hilite();
+          }
+        } else if (state && !items.place().is_inside(p) && call_close_function) {
+          call_close_function();
+        }
+      }
+
+      void draw_menu_item (int idx,
+                           const draw::graphics& g,
+                           const core::rectangle& r,
+                           const draw::brush& background,
+                           bool selected,
+                           bool hilited);
+
       void popup_at (const core::point& pt);
 
       core::size_type calc_width ();
       close_function call_close_function;
       check_selection call_check_selection;
+      core::point_type text_pos;
+      core::point_type hotkey_pos;
 
-      typedef simple_list_data<menu_entry, paint::menu_item> data_type;
+      typedef std::vector<menu_entry> data_type;
 
       data_type data;
     };

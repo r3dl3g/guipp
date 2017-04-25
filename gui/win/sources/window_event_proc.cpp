@@ -170,12 +170,12 @@ namespace gui {
           }
           try {
             win->handle_event(core::event(e), resultValue);
-            core::global::sync();
           } catch (std::exception e) {
             LogFatal << "exception in run_main_loop:" << e;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
           }
+          core::global::sync();
         }
       }
       return resultValue;

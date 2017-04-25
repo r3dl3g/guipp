@@ -606,8 +606,10 @@ namespace gui {
     template<typename T, os::event_id E, typename C>
     struct move_size_matcher {
       bool operator() (const core::event& e) {
-        if (e.type == E) {
-          T& o = s_last_place[e.xany.window];
+        os::event_id t = e.type;
+        if (t == E) {
+          Window w = e.xany.window;
+          T& o = s_last_place[w];
           T n = T(cast_event_type<C>(e));
           if (o != n) {
             //LogDebug << "move_size_matcher " << o << " -> " << n;

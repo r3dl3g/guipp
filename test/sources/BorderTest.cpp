@@ -28,6 +28,7 @@ public:
   my_main_window ();
 
   void onCreated (window*, const core::rectangle&);
+  void copy ();
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
@@ -83,7 +84,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
             menu_entry( "item 1", [&](int) { labels[0].set_text("item 1"); })
           );
           select_sub_menu.add_entries({
-            menu_entry("item 2", [&](int) { labels[0].set_text("item 2"); }), 
+            menu_entry("item 2", [&](int) { labels[0].set_text("item 2"); }),
             sub_menu_entry("item 3", [&](int) {
               labels[0].set_text("item 3...");
               popup_menu sub_sub_menu;
@@ -107,7 +108,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       popup_menu edit_sub_menu;
       edit_sub_menu.add_entries({
         menu_entry("cut", [&](int) { labels[0].set_text("cut"); }, "Strg+X", false, u8"♠"),
-        menu_entry("copy", [&](int) { labels[0].set_text("copy"); }, "Strg+C", false, u8"♣"),
+        menu_entry("copy", [&](int) {
+          labels[0].set_text("copy");
+          copy();
+        }, "Strg+C", false, u8"♣"),
         menu_entry("paste", [&](int) { labels[0].set_text("paste"); }, "Strg+V", false, u8"♥"),
         menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
       });
@@ -214,6 +218,36 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   get_layout().set_center_top_bottom_left_right(&client_view, &top_view, &status_bar, &left_list, &right_bar);
   set_children_visible();
+}
+
+void my_main_window::copy () {
+#ifdef X11
+  auto display = core::global::get_instance();
+  auto screen = core::global::get_screen();
+  auto r = left_list.client_area();
+  unsigned int w = r.os_width();
+  unsigned int h = r.os_height();
+  auto gc = DefaultGC(display, screen);
+  XImage* im = XGetImage(display, left_list.get_id(), r.os_x(), r.os_y(), w, h, AllPlanes, ZPixmap);
+  Pixmap pm = XCreatePixmap(display, left_list.get_id(), w, h, DisplayPlanes(display, screen));
+  XPutImage(display, pm, gc, im, 0, 0, 0, 0, w, h);
+  XWriteBitmapFile(display, "left_list.bitmap", pm, w, h, -1, -1);
+
+  XPutImage(display, window1.get_id(), gc, im, 0, 0, 0, 0, w, h);
+  XCopyArea(display, left_list.get_id(), window1.get_id(), gc, 0, 0, w, h, 120, 20);
+  XCopyArea(display, pm, window1.get_id(), gc, 0, 0, w, h, 240, 20);
+
+
+  XDestroyImage(im);
+  XFreePixmap(display, pm);
+
+  int x, y;
+  Pixmap pm2;
+  XReadBitmapFile(display, window1.get_id(), "left_list.bitmap", &w, &h, &pm2, &x, &y);
+
+  XCopyArea(display, pm2, window1.get_id(), gc, 0, 0, w, h, 360, 20);
+  XFreePixmap(display, pm2);
+#endif
 }
 
 // --------------------------------------------------------------------------

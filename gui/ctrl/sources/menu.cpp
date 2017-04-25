@@ -128,7 +128,7 @@ namespace gui {
 
       items.register_event_handler(left_btn_down_event([&](os::key_state state, const core::point& pt) {
         if (call_check_selection) {
-          call_check_selection(state, pt);
+          call_check_selection(state | Button1Mask, pt);
         }
       }));
 

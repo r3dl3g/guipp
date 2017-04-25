@@ -317,7 +317,7 @@ namespace gui {
         }
         super::register_event_handler(mouse_move_event([&](os::key_state keys,
                                                     const core::point& pt) {
-          const core::rectangle r = super::place();
+          const core::rectangle r = super::client_area();
           if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
             if (super::last_mouse_point != core::point::undefined) {
               pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
@@ -440,7 +440,7 @@ namespace gui {
       }
 
       int get_index_at_point(const core::point& pt) {
-        if (super::place().is_inside(pt)) {
+        if (super::client_area().is_inside(pt)) {
           return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
         }
         return -1;
@@ -508,7 +508,6 @@ namespace gui {
       }
 
       void paint (const draw::graphics& graph) {
-        core::global::sync();
         core::rectangle area(super::client_size());
         core::rectangle place = area;
 

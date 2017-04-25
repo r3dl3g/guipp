@@ -392,7 +392,7 @@ namespace gui {
                                type.get_background());
       detail::set_window(id, this);
 
-      core::global::sync();
+//      core::global::sync();
 
       type.prepare(this);
 
@@ -714,7 +714,7 @@ namespace gui {
       capture_stack.push_back(get_id());
       check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
-                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
     }
 
@@ -731,7 +731,7 @@ namespace gui {
           LogDebug << "re-capture_pointer:" << capture_stack.back();
           check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
                                          False,
-                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
         }
       }
@@ -1011,14 +1011,12 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
-      redraw_later();
+      redraw_now();
 #endif // X11
-      core::global::sync();
     }
 
     void modal_window::run_modal () {
       LogDebug << "Enter modal loop";
-      core::global::sync();
 #ifdef WIN32
       is_modal = true;
       MSG msg;
@@ -1051,7 +1049,6 @@ namespace gui {
       }
 
 #endif // X11
-      core::global::sync();
       LogDebug << "Exit modal loop";
     }
 

@@ -45,6 +45,10 @@ namespace gui {
 
       int XErrorHandler (Display* dpy,
                          XErrorEvent* errev) {
+        if ((errev->error_code == 143) && (errev->request_code == 139)) {
+          return 0;
+        }
+
         char buffer[256];
         XGetErrorText(dpy, errev->error_code, buffer, sizeof(buffer));
 

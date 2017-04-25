@@ -54,12 +54,24 @@ namespace gui {
         return label;
       }
 
+      void set_label (const std::string& l) {
+        label = l;
+      }
+
       const std::string& get_hotkey () const {
         return hotkey;
       }
 
+      void set_hotkey (const std::string& h) {
+        hotkey = h;
+      }
+
       const std::string& get_icon () const {
         return icon;
+      }
+
+      void set_icon (const std::string& i) {
+        icon = i;
       }
 
       bool is_sub_menu () const {
@@ -200,6 +212,14 @@ namespace gui {
         data.push_back(entry);
       }
 
+      menu_entry& get_menu_entry (int i) {
+        return data[i];
+      }
+
+      std::size_t get_menu_entry_count () const {
+        return data.size();
+      }
+
       list_type items;
 
     private:
@@ -222,10 +242,11 @@ namespace gui {
               close();
               parent.set_hilite(new_idx);
             }
-          } else if (new_idx < 0) {
+          } else if (M && (new_idx < 0)) {
             parent.clear_hilite();
           }
-        } else if (state && !items.place().is_inside(p) && call_close_function) {
+        } else if (left_button_bit_mask::is_set(state) &&
+                   !items.place().is_inside(p) && call_close_function) {
           call_close_function();
         }
       }

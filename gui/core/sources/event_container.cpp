@@ -61,7 +61,6 @@ namespace gui {
         try {
           const event_handler_function& fn = event_handlers[i];
           result |= fn(ev, resultValue);
-          core::global::sync();
         } catch (std::exception e) {
           LogFatal << "exception in event_container::handle_event:" << e.what();
         } catch (...) {

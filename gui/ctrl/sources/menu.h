@@ -214,12 +214,12 @@ namespace gui {
               if ((new_idx > -1) && (parent.get_selection() != new_idx)) {
                 close();
                 parent.set_selection(new_idx);
-              } else if (left_button_bit_mask::is_set(state)) {
+              } else if (state) {
                 close();
                 parent.clear_selection();
               }
             }
-          } else if (left_button_bit_mask::is_set(state) &&
+          } else if (state &&
                      !items.client_area().is_inside(p) &&
                      call_close_function) {
             call_close_function();
@@ -274,10 +274,8 @@ namespace gui {
               parent.set_hilite(new_idx);
             }
           }
-        } else if (!items.client_area().is_inside(p) && call_close_function) {
-          if (left_button_bit_mask::is_set(state)) {
-            call_close_function();
-          }
+        } else if (state && !items.client_area().is_inside(p) && call_close_function) {
+          call_close_function();
         }
       }
 

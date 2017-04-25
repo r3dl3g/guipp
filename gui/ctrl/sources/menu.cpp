@@ -205,7 +205,7 @@ namespace gui {
 
       items.register_event_handler(mouse_move_event([&](os::key_state state, const core::point& pt) {
         if (call_check_selection) {
-          call_check_selection(state, pt);
+          call_check_selection(0, pt);
         }
       }));
 
@@ -224,7 +224,7 @@ namespace gui {
 
       items.register_event_handler(left_btn_down_event([&](os::key_state state, const core::point& pt) {
         if (call_check_selection) {
-          call_check_selection(state | Button1Mask, pt);
+          call_check_selection(1, pt);
         }
       }));
 
@@ -252,7 +252,7 @@ namespace gui {
 
     core::point popup_menu::sub_menu_position (int idx) {
       auto r = absolute_position();
-      return (r + core::point(size().width() - 2, static_cast<core::point_type>(idx * item_height)));
+      return (r + core::point(size().width() - 1, static_cast<core::point_type>(idx * item_height + 1)));
     }
 
     void popup_menu::popup_at (const core::point& pt) {

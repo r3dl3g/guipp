@@ -28,7 +28,8 @@ public:
   my_main_window ();
 
   void onCreated (window*, const core::rectangle&);
-  void copy ();
+  void copy (int);
+  void quit (int);
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
@@ -88,18 +89,33 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
             sub_menu_entry("item 3", [&](int) {
               labels[0].set_text("item 3...");
               popup_menu sub_sub_menu;
+              sub_sub_menu.add_entries({
+                menu_entry("item 3-1", [&](int) { labels[0].set_text("item 3-1"); }),
+                menu_entry("item 3-2", [&](int) { labels[0].set_text("item 3-2"); }),
+                sub_menu_entry("item 3-3", [&](int i) {
+                  labels[0].set_text("item 3-3...");
+                  popup_menu sub_sub_menu2;
+                  sub_sub_menu2.add_entry(
+                    menu_entry("item 3-3-1", [&](int) { labels[0].set_text("item 3-3-1"); })
+                  );
+                  sub_sub_menu2.popup_at(sub_sub_menu.sub_menu_position(i), sub_sub_menu);
+                }),
+                menu_entry("item 3-4", [&](int i) { labels[0].set_text("item 3-4"); })
+              });
+              sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(i), select_sub_menu);
+            }),
+            sub_menu_entry("item 4", [&](int i) {
+              labels[0].set_text("item 4...");
+              popup_menu sub_sub_menu;
               sub_sub_menu.add_entry(
-                menu_entry("item 3-1", [&](int i) { labels[0].set_text("item 3-1"); })
+                menu_entry("item 4-1", [&](int) { labels[0].set_text("item 4-1"); })
               );
               sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(i), select_sub_menu);
             })
           });
           select_sub_menu.popup_at(file_sub_menu.sub_menu_position(i), file_sub_menu);
         }, true),
-        menu_entry("exit", [&](int) {
-          labels[0].set_text("exit");
-          quit();
-        }, "Alt+F4", true)
+        menu_entry("exit", core::bind_method(this, &my_main_window::quit), "Alt+F4", true)
       });
       file_sub_menu.popup_at(menu.sub_menu_position(i), menu);
     }), 
@@ -108,10 +124,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       popup_menu edit_sub_menu;
       edit_sub_menu.add_entries({
         menu_entry("cut", [&](int) { labels[0].set_text("cut"); }, "Strg+X", false, u8"♠"),
-        menu_entry("copy", [&](int) {
-          labels[0].set_text("copy");
-          copy();
-        }, "Strg+C", false, u8"♣"),
+        menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, u8"♣"),
         menu_entry("paste", [&](int) { labels[0].set_text("paste"); }, "Strg+V", false, u8"♥"),
         menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
       });
@@ -220,7 +233,13 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   set_children_visible();
 }
 
-void my_main_window::copy () {
+void my_main_window::quit (int) {
+  labels[0].set_text("exit");
+  super::quit();
+}
+
+void my_main_window::copy (int) {
+  labels[0].set_text("copy");
 #ifdef X11
   auto display = core::global::get_instance();
   auto screen = core::global::get_screen();

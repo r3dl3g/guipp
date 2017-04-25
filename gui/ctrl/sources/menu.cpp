@@ -24,7 +24,7 @@ namespace gui {
 
     namespace paint {
 
-
+      // --------------------------------------------------------------------------
       void main_menu_item (const menu_entry& e,
                            const draw::graphics& g,
                            const core::rectangle& r,
@@ -38,10 +38,11 @@ namespace gui {
         } else {
           g.fill(draw::rectangle(r), b);
         }
-        core::rectangle r2 = r + core::point(5, 0);
+        core::rectangle r2 = r + core::point(10, 0);
         g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left), draw::font::menu(), s ? color::white : color::dark_gray);
       }
 
+      // --------------------------------------------------------------------------
       void menu_item (const menu_entry& e,
                       const draw::graphics& g,
                       const core::rectangle& r,
@@ -83,24 +84,119 @@ namespace gui {
 
     }
 
-    main_menu::main_menu () {
-      register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
-        super::set_drawer(data);
-        super::set_count(data.size());
+    // --------------------------------------------------------------------------
+    const window_class main_menu::clazz("main_menu", color::light_gray);
+
+    main_menu::main_menu ()
+      : selection(-1)
+      , hilite(-1)
+      , is_open(false)
+    {
+      register_event_handler(paint_event([&](const draw::graphics& g) {
+        auto max = std::min(data.size(), widths.size());
+        draw::brush background(color::light_gray);
+        const core::rectangle area = client_area();
+        core::rectangle r = area;
+        for (int i = 0; i < max; ++i) {
+          auto w = widths[i];
+          r.width(w);
+          paint::main_menu_item(data[i], g, r, background, (i == selection), (i == hilite));
+          r.move_x(w);
+        }
+        if (r.x() < area.x2()) {
+          g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), background);
+        }
       }));
+
+      register_event_handler(mouse_move_event([&](os::key_state state, const core::point& pt) {
+        auto new_hilite = get_index_at_point(pt);
+        if (hilite != new_hilite) {
+          hilite = new_hilite;
+          redraw_later();
+        }
+      }));
+
+      register_event_handler(mouse_leave_event([&](){
+        hilite = -1;
+        if (!is_open) {
+          clear_selection();
+        }
+      }));
+
       register_event_handler(selection_changed_event([&]() {
         int idx = get_selection();
         if (idx > -1) {
-          data[idx].hilite(idx);
+          is_open = true;
+          data[selection].select(selection);
+          is_open = false;
         }
+      }));
+
+      register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        set_selection(get_index_at_point(pt));
       }));
     }
 
-    core::point main_menu::sub_menu_position (int idx) {
-      auto r = absolute_position();
-      return (r + core::point(static_cast<core::point_type>(idx * item_size), size().height()));
+    int main_menu::get_index_at_point (const core::point& pt) const {
+      if (client_area().is_inside(pt)) {
+        core::point_type pos = 0;
+        auto max = widths.size();
+        for (int i = 0; i < max; ++i) {
+          pos += widths[i];
+          if (pt.x() < pos) {
+            return i;
+          }
+        }
+      }
+      return -1;
     }
 
+    int main_menu::get_selection () const {
+      return selection;
+    }
+
+    void main_menu::set_selection (int i) {
+      if ((i > -2) && (i < data.size()) && (i != selection)) {
+        selection = i;
+        redraw_later();
+        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+      }
+    }
+
+    void main_menu::clear_selection () {
+      hilite = -1;
+      if (selection != -1) {
+        selection = -1;
+        redraw_later();
+        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+      }
+    }
+
+    core::point main_menu::sub_menu_position (std::size_t idx) const {
+      auto r = absolute_position();
+      core::point_type pos = 0;
+      auto max = std::min(idx, widths.size());
+      for (int i = 0; i < max; ++i) {
+        pos += widths[i];
+      }
+      return (r + core::point(pos, size().height()));
+    }
+
+    void main_menu::add_entries (const std::initializer_list<menu_entry>& menu_entries) {
+      data.insert(data.end(), menu_entries);
+      const draw::font& f = draw::font::menu();
+      for (const menu_entry& e : menu_entries) {
+        widths.push_back(f.get_text_size(e.get_label()).width() + 20);
+      }
+    }
+
+    void main_menu::add_entry (const menu_entry& entry) {
+      data.push_back(entry);
+      const draw::font& f = draw::font::menu();
+      widths.push_back(f.get_text_size(entry.get_label()).width() + 20);
+    }
+
+    // --------------------------------------------------------------------------
     popup_menu::popup_menu ()
       : items(false) 
       , text_pos(10)
@@ -156,7 +252,7 @@ namespace gui {
 
     core::point popup_menu::sub_menu_position (int idx) {
       auto r = absolute_position();
-      return (r + core::point(size().width(), static_cast<core::point_type>(idx * item_height)));
+      return (r + core::point(size().width() - 2, static_cast<core::point_type>(idx * item_height)));
     }
 
     void popup_menu::popup_at (const core::point& pt) {
@@ -187,7 +283,7 @@ namespace gui {
       }
       text_pos = 36;
       hotkey_pos = text_pos + label_width + 20;
-      return hotkey_pos + hotkey_width + 10 + (has_sub ? 20 : 0);
+      return hotkey_pos + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
     }
 
     void popup_menu::draw_menu_item (int idx,
@@ -198,6 +294,8 @@ namespace gui {
                                      bool h) {
       paint::menu_item(data.at(idx), g, r, text_pos, hotkey_pos, b, s, h);
     }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

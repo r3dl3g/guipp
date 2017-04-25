@@ -33,6 +33,7 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     struct menu_entry {
       typedef void(menu_action)(int idx);
 
@@ -83,7 +84,7 @@ namespace gui {
       }
 
       void select (int idx) {
-        if (!sub_menu && action) {
+        if (action) {
           action(idx);
         }
       }
@@ -103,6 +104,7 @@ namespace gui {
       bool separator;
     };
 
+    // --------------------------------------------------------------------------
     struct sub_menu_entry : public menu_entry {
     public:
       sub_menu_entry (const std::string& label,
@@ -115,6 +117,7 @@ namespace gui {
 
     namespace paint {
 
+      // --------------------------------------------------------------------------
       void menu_item (const menu_entry& e,
                       const draw::graphics& g,
                       const core::rectangle& r,
@@ -124,6 +127,7 @@ namespace gui {
                       bool selected,
                       bool hilited);
 
+      // --------------------------------------------------------------------------
       void main_menu_item (const menu_entry& e,
                            const draw::graphics& g,
                            const core::rectangle& r,
@@ -133,30 +137,44 @@ namespace gui {
 
     }
 
-    class main_menu : public hlist<50, color::light_gray> {
+    // --------------------------------------------------------------------------
+    class main_menu : public window {
     public:
-      typedef hlist<50, color::light_gray> super;
+      typedef window super;
 
       main_menu ();
 
-      core::point sub_menu_position (int idx);
-
-      void add_entries (const std::initializer_list<menu_entry>& menu_entries) {
-        data.insert(data.end(), menu_entries);
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def) {
+        window::create(clazz, parent, place);
       }
 
-      void add_entry (const menu_entry& entry) {
-        data.push_back(entry);
+      core::point sub_menu_position (std::size_t idx) const;
+
+      void add_entries (const std::initializer_list<menu_entry>& menu_entries);
+      void add_entry (const menu_entry& entry);
+      int get_index_at_point (const core::point& pt) const;
+
+      menu_entry& get_menu_entry (int i) {
+        return data[i];
       }
 
-      void prepare () {
-        super::set_drawer(data);
-        super::set_count(data.size());
+      std::size_t get_menu_entry_count () const {
+        return data.size();
       }
+
+      int get_selection () const;
+      void set_selection (int);
+      void clear_selection ();
 
     private:
-      typedef simple_list_data<menu_entry, paint::main_menu_item> data_type;
-      data_type data;
+      int selection;
+      int hilite;
+      bool is_open;
+      std::vector<menu_entry> data;
+      std::vector<core::size_type> widths;
+
+      static const window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -175,12 +193,12 @@ namespace gui {
 
       void popup_at (const core::point& pt, popup_menu& parent) {
         call_check_selection = [&](os::key_state state, const core::point& p) {
-          check_mouse_action<popup_menu::list_type, false>(parent.items, state, p);
+          check_mouse_action<list_type>(parent.items, state, p);
         };
 
         call_close_function = [&]() {
-          parent.call_close_function();
           close();
+          parent.call_close_function();
         };
 
         popup_at(pt);
@@ -188,13 +206,29 @@ namespace gui {
 
       void popup_at (const core::point& pt, main_menu& parent) {
         call_check_selection = [&](os::key_state state, const core::point& p) {
-          check_mouse_action<main_menu, true>(parent, state, p);
+          core::point pt = items.window_to_screen(p);
+          core::rectangle r = parent.absolute_place();
+          if (r.is_inside(pt)) {
+            int new_idx = parent.get_index_at_point(parent.screen_to_window(pt));
+            if (parent.get_selection() > -1) {
+              if ((new_idx > -1) && (parent.get_selection() != new_idx)) {
+                close();
+                parent.set_selection(new_idx);
+              } else if (left_button_bit_mask::is_set(state)) {
+                close();
+                parent.clear_selection();
+              }
+            }
+          } else if (left_button_bit_mask::is_set(state) &&
+                     !items.client_area().is_inside(p) &&
+                     call_close_function) {
+            call_close_function();
+          }
         };
 
         call_close_function = [&]() {
-          parent.clear_selection();
-          parent.clear_hilite();
           close();
+          parent.clear_selection();
         };
 
         popup_at(pt);
@@ -223,7 +257,7 @@ namespace gui {
       list_type items;
 
     private:
-      template<class T, bool M>
+      template<class T>
       void check_mouse_action(T& parent, os::key_state state, const core::point& p) {
         core::point pt = items.window_to_screen(p);
         core::rectangle r = parent.absolute_place();
@@ -232,9 +266,6 @@ namespace gui {
           if (parent.get_selection() > -1) {
             if (parent.get_selection() != new_idx) {
               close();
-              if (M) {
-                parent.clear_hilite();
-              }
               parent.set_selection(new_idx);
             }
           } else if (parent.get_hilite() > -1) {
@@ -242,12 +273,11 @@ namespace gui {
               close();
               parent.set_hilite(new_idx);
             }
-          } else if (M && (new_idx < 0)) {
-            parent.clear_hilite();
           }
-        } else if (left_button_bit_mask::is_set(state) &&
-                   !items.place().is_inside(p) && call_close_function) {
-          call_close_function();
+        } else if (!items.client_area().is_inside(p) && call_close_function) {
+          if (left_button_bit_mask::is_set(state)) {
+            call_close_function();
+          }
         }
       }
 
@@ -271,6 +301,7 @@ namespace gui {
       data_type data;
     };
 
+    // --------------------------------------------------------------------------
 
   } // win
 

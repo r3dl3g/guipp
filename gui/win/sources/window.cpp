@@ -714,7 +714,7 @@ namespace gui {
       capture_stack.push_back(get_id());
       check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
-                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask,
+                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask/* | KeyPressMask | KeyReleaseMask*/,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
     }
 
@@ -731,7 +731,7 @@ namespace gui {
           LogDebug << "re-capture_pointer:" << capture_stack.back();
           check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
                                          False,
-                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask,
+                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask/* | KeyPressMask | KeyReleaseMask*/,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
         }
       }

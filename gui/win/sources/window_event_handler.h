@@ -557,6 +557,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
       extern Atom WM_CREATE_WINDOW;
+      extern Atom WM_DELETE_WINDOW;
       extern std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name);

@@ -255,10 +255,10 @@ namespace gui {
       return (r + core::point(size().width() - 1, static_cast<core::point_type>(idx * item_height + 1)));
     }
 
-    void popup_menu::popup_at (const core::point& pt) {
+    void popup_menu::popup_at (window& parent, const core::point& pt) {
       items.clear_selection();
       items.clear_hilite();
-      create(core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
+      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
       set_visible();
       run_modal();
     }

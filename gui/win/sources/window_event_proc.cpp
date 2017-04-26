@@ -154,7 +154,7 @@ namespace gui {
     int run_main_loop () {
       os::instance display = core::global::get_instance();
 
-      detail::init_message(wmDeleteMessage, "WM_DELETE_WINDOW");
+      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
 
       os::event_result resultValue = 0;
       core::event e;
@@ -163,11 +163,10 @@ namespace gui {
         XNextEvent(display, &e);
         win::window* win = win::detail::get_window(e.xany.window);
         if (win && win->is_valid()) {
-          if (e.type == CreateNotify) {
-            XSetWMProtocols(e.xany.display, e.xany.window, &wmDeleteMessage, 1);
-          } else if ((e.type == ClientMessage) && (e.xclient.data.l[0] == wmDeleteMessage)) {
+          if ((e.type == ClientMessage) && (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
             running = false;
           }
+
           try {
             win->handle_event(core::event(e), resultValue);
           } catch (std::exception e) {

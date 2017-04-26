@@ -83,7 +83,7 @@ namespace gui {
         :window_class(cls_name, background, cursor, style, ex_style)
       {}
 
-      void prepare (window*) const override;
+      void prepare (window*, os::window) const override;
 
     protected:
       os::brush get_background_brush () const override;

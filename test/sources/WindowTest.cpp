@@ -670,7 +670,7 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
 template<int T>
 void create_buttons (win::container& m, win::label labels[T]) {
   for (int i = 0; i < T; ++i) {
-    labels[i].create(m, core::rectangle::def, ostreamfmt("No. " << (i + 1)));
+    labels[i].create(m, ostreamfmt("No. " << (i + 1)));
     labels[i].set_visible();
   }
 }
@@ -802,7 +802,7 @@ void my_main_window::created_children () {
   scroll_check_box.set_checked(true);
   scroll_check_box.set_visible();
 
-  label.create(main, core::rectangle(50, 350, 120, 20), "Text");
+  label.create(main, "Text", core::rectangle(50, 350, 120, 20));
   label.set_visible();
   label.redraw_later();
 

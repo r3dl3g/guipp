@@ -50,6 +50,7 @@ namespace gui {
       {}
     };
 
+    // --------------------------------------------------------------------------
     class layout_base {
     public:
       inline void add_separator (const win::window* w) {
@@ -91,140 +92,15 @@ namespace gui {
       separator_list separators;
     };
 
-    template<unsigned short width, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
-    class horizontal_lineup : public layout_base {
-    public:
-      typedef core::size::type type;
-      typedef layout_base super;
-
-      horizontal_lineup (win::container* m)
-        : super(m)
-      {
-        super::init(core::bind_method(this, &horizontal_lineup::layout), [&](){
-          layout(get_main_size());
-        });
-      }
-
-      void layout (const core::size& sz) {
-        std::vector<win::window*> children = get_children();
-        const type border2 = (border * 2);
-        const type space = sz.width() - border2;
-
-        if (children.size()) {
-          if (space > 0) {
-            const type height = sz.height() - border2;
-            const type offset = width + gap;
-            const type sep_offset = gap + sep;
-
-            core::rectangle area(border, border, width, height);
-            for(win::window* win : children) {
-              if (is_separator(win)) {
-                place_child(win, area.with_width(sep));
-                area.move_x(sep_offset);
-              } else {
-                place_child(win, area);
-                area.move_x(offset);
-              }
-            }
-          } else {
-            hide_children(children);
-          }
-        }
-        update();
-      }
-    };
-
-    template<unsigned short height, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
-    class vertical_lineup : public layout_base {
-    public:
-      typedef core::size::type type;
-      typedef layout_base super;
-
-      vertical_lineup (win::container* m)
-        :super(m)
-      {
-        super::init(core::bind_method(this, &vertical_lineup::layout), [&](){
-          layout(get_main_size());
-        });
-      }
-
-      void layout (const core::size& sz) {
-        std::vector<win::window*> children = get_children();
-        const type border2 = (border * 2);
-        const type space = sz.height() - border2;
-
-        if (children.size()) {
-          if (space > 0) {
-            const type width = sz.width() - (border * 2);
-            const type offset = height + gap;
-            const type sep_offset = gap + sep;
-
-            core::rectangle area(border, border, width, height);
-            for(win::window* win : children) {
-              if (is_separator(win)) {
-                place_child(win, area.with_height(sep));
-                area.move_y(sep_offset);
-              } else {
-                place_child(win, area);
-                area.move_y(offset);
-              }
-            }
-          } else {
-            hide_children(children);
-          }
-        }
-        update();
-      }
-    };
-
-    template<unsigned short width, unsigned short height, unsigned short border = 0, unsigned short gap = 0>
-    class grid_lineup : public layout_base {
-    public:
-      typedef core::size::type type;
-      typedef layout_base super;
-
-      grid_lineup (win::container* m)
-        : super(m)
-      {
-        super::init(core::bind_method(this, &grid_lineup::layout), [&](){
-          layout(get_main_size());
-        });
-      }
-
-      void layout (const core::size& sz) {
-        std::vector<win::window*> children = get_children();
-        const type xmax = sz.width() - border;
-        const type ymax = sz.height() - border;
-
-        if (children.size()) {
-          if ((xmax > border) && (ymax > border)) {
-            const type xoffset = width + gap;
-            const type yoffset = height + gap;
-            core::rectangle area(border, border, width, height);
-            for(win::window* win : children) {
-              place_child(win, area);
-              area.move_x(xoffset);
-              if (area.x2() > xmax) {
-                area.move_to_x(border);
-                area.move_y(yoffset);
-              }
-            }
-          } else {
-            hide_children(children);
-          }
-        }
-        update();
-      }
-    };
-
     namespace detail {
 
+      // --------------------------------------------------------------------------
       template<bool H>
-      class adaption_base : public layout_base {
+      class base : public layout_base {
       public:
         typedef core::size::type type;
 
-        adaption_base (win::container* m)
+        base (win::container* m)
           :layout_base(m)
         {}
 
@@ -235,12 +111,13 @@ namespace gui {
         void move_area (core::rectangle& area, type offs);
       };
 
+      // --------------------------------------------------------------------------
       template<>
-      class adaption_base<true> : public layout_base {
+      class base<true> : public layout_base {
       public:
         typedef core::size::type type;
 
-        adaption_base (win::container* m)
+        base (win::container* m)
           :layout_base(m)
         {}
 
@@ -265,12 +142,13 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
       template<>
-      class adaption_base<false> : public layout_base {
+      class base<false> : public layout_base {
       public:
         typedef core::size::type type;
 
-        adaption_base (win::container* m)
+        base (win::container* m)
           :layout_base(m)
         {}
 
@@ -295,13 +173,150 @@ namespace gui {
         }
       };
 
+      // --------------------------------------------------------------------------
+      template<bool H, bool R>
+      class lineup_base : public base<H> {
+      public:
+        typedef base<H> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size&, const core::size&);
+        void move_area (core::rectangle& area, type offs);
+      };
+
+      template<bool H>
+      class lineup_base<H, false> : public base<H> {
+      public:
+        typedef base<H> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+          return core::rectangle(core::point(border, border), is);
+        }
+
+        void move_area (core::rectangle& area, type offs) {
+          super::move_area(area, offs);
+        }
+      };
+
+      template<>
+      class lineup_base<true, true> : public base<true> {
+      public:
+        typedef base<true> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+          return core::rectangle(core::point(sz.width() - is.width() - border, border), is);
+        }
+
+        void move_area (core::rectangle& area, type offs) {
+          super::move_area(area, -offs);
+        }
+      };
+
+      template<>
+      class lineup_base<false, true> : public base<false> {
+      public:
+        typedef base<false> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+          return core::rectangle(core::point(border, sz.height() - is.height() - border), is);
+        }
+
+        void move_area (core::rectangle& area, type offs) {
+          super::move_area(area, -offs);
+        }
+      };
     }
 
-    template<bool H, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
-    class adaption_layout : public detail::adaption_base<H> {
+    // --------------------------------------------------------------------------
+    template<bool H,
+             unsigned short dim1,
+             unsigned short border = 0,
+             unsigned short gap = 0,
+             unsigned short sep = 2,
+             bool R = false>
+    class lineup_layout : public detail::lineup_base<H, R> {
     public:
       typedef core::size::type type;
-      typedef detail::adaption_base<H> super;
+      typedef detail::lineup_base<H, R> super;
+
+      lineup_layout (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &lineup_layout::layout), [&](){
+          layout(super::get_main_size());
+        });
+      }
+
+      void layout (const core::size& sz) {
+        std::vector<win::window*> children = super::get_children();
+        const type border2 = (border * 2);
+        const type space = super::get_dimension1(sz) - border2;
+
+        if (children.size()) {
+          if (space > 0) {
+            const type dim2 = super::get_dimension2(sz) - border2;
+            const type offset = dim1 + gap;
+            const type sep_offset = gap + sep;
+
+            core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz);
+            for(win::window* win : children) {
+              if (super::is_separator(win)) {
+                super::place_child(win, super::get_sep_area(area, sep));
+                super::move_area(area, sep_offset);
+              } else {
+                super::place_child(win, area);
+                super::move_area(area, offset);
+              }
+            }
+          } else {
+            super::hide_children(children);
+          }
+        }
+        super::update();
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<unsigned short dim1,
+             unsigned short border = 0,
+             unsigned short gap = 0,
+             unsigned short sep = 2,
+             bool R = false>
+    using horizontal_lineup = lineup_layout<true, dim1, border, gap, sep, R>;
+
+    // --------------------------------------------------------------------------
+    template<unsigned short dim1,
+             unsigned short border = 0,
+             unsigned short gap = 0,
+             unsigned short sep = 2,
+             bool R = false>
+    using vertical_lineup = lineup_layout<false, dim1, border, gap, sep, R>;
+
+    // --------------------------------------------------------------------------
+    template<bool H, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
+    class adaption_layout : public detail::base<H> {
+    public:
+      typedef core::size::type type;
+      typedef detail::base<H> super;
 
       adaption_layout (win::container* m)
         : super(m)
@@ -343,12 +358,56 @@ namespace gui {
       }
     };
 
+    // --------------------------------------------------------------------------
     template<unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
     using horizontal_adaption = adaption_layout<true, border, gap, sep>;
 
+    // --------------------------------------------------------------------------
     template<unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
     using vertical_adaption = adaption_layout<false, border, gap, sep>;
 
+    // --------------------------------------------------------------------------
+    template<unsigned short width, unsigned short height, unsigned short border = 0, unsigned short gap = 0>
+    class grid_lineup : public layout_base {
+    public:
+      typedef core::size::type type;
+      typedef layout_base super;
+
+      grid_lineup (win::container* m)
+        : super(m)
+      {
+        super::init(core::bind_method(this, &grid_lineup::layout), [&](){
+          layout(get_main_size());
+        });
+      }
+
+      void layout (const core::size& sz) {
+        std::vector<win::window*> children = get_children();
+        const type xmax = sz.width() - border;
+        const type ymax = sz.height() - border;
+
+        if (children.size()) {
+          if ((xmax > border) && (ymax > border)) {
+            const type xoffset = width + gap;
+            const type yoffset = height + gap;
+            core::rectangle area(border, border, width, height);
+            for(win::window* win : children) {
+              place_child(win, area);
+              area.move_x(xoffset);
+              if (area.x2() > xmax) {
+                area.move_to_x(border);
+                area.move_y(yoffset);
+              }
+            }
+          } else {
+            hide_children(children);
+          }
+        }
+        update();
+      }
+    };
+
+    // --------------------------------------------------------------------------
     template<unsigned short columns, unsigned short rows, unsigned short border = 0, unsigned short gap = 0>
     class grid_adaption : public layout_base {
     public:
@@ -397,7 +456,7 @@ namespace gui {
       }
     };
 
-
+    // --------------------------------------------------------------------------
     template<int top_height, int bottom_height, int left_width, int right_width>
     class border_layout : public layout_base {
     public:
@@ -447,20 +506,20 @@ namespace gui {
         core::rectangle r(core::point::zero, sz);
         if (top && is_child_visible(top)) {
           place_child(top, core::rectangle(0, 0, sz.width(), top_height));
-          r.y(top_height);
         }
+        r.y(top_height);
         if (bottom && is_child_visible(bottom)) {
           place_child(bottom, core::rectangle(0, sz.height() - bottom_height, sz.width(), bottom_height));
-          r.y2(r.y2() - bottom_height);
         }
+        r.y2(r.y2() - bottom_height);
         if (left && is_child_visible(left)) {
           place_child(left, core::rectangle(r.top_left(), core::point(left_width, r.y2())));
-          r.x(left_width);
         }
+        r.x(left_width);
         if (right && is_child_visible(right)) {
           place_child(right, core::rectangle(core::point(r.x2() - right_width, r.y()), r.bottom_right()));
-          r.x2(r.x2() - right_width);
         }
+        r.x2(r.x2() - right_width);
         if (center && is_child_visible(center)) {
           place_child(center, r);
         }
@@ -475,6 +534,7 @@ namespace gui {
       win::window* right;
     };
 
+    // --------------------------------------------------------------------------
     enum class What {
       left,
       right,
@@ -482,6 +542,7 @@ namespace gui {
       bottom
     };
 
+    // --------------------------------------------------------------------------
     enum class Where {
       x,
       x2,
@@ -627,6 +688,7 @@ namespace gui {
       return static_cast<int>(r * 10000.0);
     }
 
+    // --------------------------------------------------------------------------
     class attach {
     public:
       attach (win::container*);

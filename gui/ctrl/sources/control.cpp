@@ -69,8 +69,8 @@ namespace gui {
 #endif // X11
     } // detail
 
-    void no_erase_window_class::prepare (window* win) const {
-      window_class::prepare(win);
+    void no_erase_window_class::prepare (window* win, os::window parent_id) const {
+      window_class::prepare(win, parent_id);
 #ifdef X11
       unsigned long mask = CWBackPixmap;
       XSetWindowAttributes wa;

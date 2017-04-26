@@ -234,8 +234,39 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 }
 
 void my_main_window::quit (int) {
-  labels[0].set_text("exit");
-  super::quit();
+  labels[0].set_text("quit");
+
+  layout_dialog_window<layout::border_layout<20, 55, 20, 20>> dialog;
+  group_window<horizontal_lineup<80, 15, 10, 2, true>, color::light_gray> buttons;
+  labelT<alignment_center, draw::frame::sunken_relief, color::black, color::light_gray> message;
+  text_button yes, no;
+
+  bool result = false;
+  yes.register_event_handler(button_clicked_event([&](){
+    result = true;
+    dialog.end_modal();
+  }));
+  no.register_event_handler(button_clicked_event([&](){
+    result = false;
+    dialog.end_modal();
+  }));
+
+  dialog.create(*this, core::rectangle(300, 200, 400, 300));
+  dialog.set_title("Question!");
+  buttons.create(dialog);
+  message.create(dialog, "Do you realy want to exit?");
+  yes.create(buttons, "Yes");
+  no.create(buttons, "No");
+  dialog.get_layout().set_center_top_bottom_left_right(&message, nullptr, &buttons, nullptr, nullptr);
+  dialog.set_children_visible();
+  dialog.set_visible();
+  disable();
+  dialog.run_modal();
+  enable();
+
+  if (result) {
+    super::quit();
+  }
 }
 
 void my_main_window::copy (int) {
@@ -255,7 +286,6 @@ void my_main_window::copy (int) {
   XPutImage(display, window1.get_id(), gc, im, 0, 0, 0, 0, w, h);
   XCopyArea(display, left_list.get_id(), window1.get_id(), gc, 0, 0, w, h, 120, 20);
   XCopyArea(display, pm, window1.get_id(), gc, 0, 0, w, h, 240, 20);
-
 
   XDestroyImage(im);
   XFreePixmap(display, pm);

@@ -75,7 +75,7 @@ namespace gui {
                           NULL,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
-      type.prepare(this);
+      type.prepare(this, parent_id);
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
     }
 
@@ -366,6 +366,7 @@ namespace gui {
       , window_disabled(false)
     {
       detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
+      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
     }
 
     window::~window () {
@@ -394,7 +395,7 @@ namespace gui {
 
 //      core::global::sync();
 
-      type.prepare(this);
+      type.prepare(this, parent_id);
 
       window_event_mask_map::iterator i = window_event_mask.find(this);
       if (i != window_event_mask.end()) {
@@ -402,6 +403,7 @@ namespace gui {
       }
 
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
+      XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
     }
 
     void window::create (const window_class& type,
@@ -421,7 +423,6 @@ namespace gui {
     void window::quit () {
       Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
       Atom message = XInternAtom(core::global::get_instance(), "WM_PROTOCOLS", False);
-
       send_client_message(this, message, wmDeleteMessage);
     }
 
@@ -815,6 +816,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 #ifdef WIN32
     void overlapped_window::create (const window_class& type,
+                                    const window&,
                                     const core::rectangle& place) {
       window::create(type, GetDesktopWindow(), place);
     }
@@ -862,18 +864,31 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void overlapped_window::create (const window_class& type,
+    void overlapped_window::create (const window_class& clazz,
                                     const core::rectangle& place) {
-      window::create(type, DefaultRootWindow(core::global::get_instance()), place);
+      super::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
+    }
+
+    void overlapped_window::create (const window_class& clazz,
+                                    const window& parent,
+                                    const core::rectangle& place) {
+#ifdef WIN32
+      super::create(clazz, parent, place);
+#endif // WIN32
+#ifdef X11
+      os::instance display = core::global::get_instance();
+      super::create(clazz, DefaultRootWindow(display), place);
+      XSetTransientForHint(display, get_id(), parent.get_id());
+#endif
     }
 
     void overlapped_window::set_title (const std::string& title) {
-      XStoreName(core::global::get_instance(), get_id(), title.c_str());
+      check_xlib_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
     }
 
     std::string overlapped_window::get_title () const {
       char *window_name;
-      XFetchName(core::global::get_instance(), get_id(), &window_name);
+      check_xlib_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
       return std::string(window_name);
     }
 
@@ -1028,6 +1043,8 @@ namespace gui {
 #ifdef X11
       os::instance display = core::global::get_instance();
 
+      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+
       os::event_result resultValue = 0;
       core::event e;
       is_modal = true;
@@ -1037,6 +1054,9 @@ namespace gui {
 
         win::window* win = win::detail::get_window(e.xany.window);
         if (win && win->is_valid()) {
+          if ((e.type == ClientMessage) && (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
+            is_modal = false;
+          }
           try {
             win->handle_event(core::event(e), resultValue);
             core::global::sync();
@@ -1055,42 +1075,84 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      popup_window_class::popup_window_class ()
-        : window_class("POPUP",
-          color::light_gray,
-          IF_WIN32(IDC_ARROW) IF_X11(0),
-          IF_X11(0) IF_WIN32(WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN),
-          IF_X11(0) IF_WIN32(WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED),
-          IF_X11(0) IF_WIN32(CS_DBLCLKS | CS_DROPSHADOW))
+      main_window_class::main_window_class ()
+        : window_class("main_window",
+#ifdef WIN32
+                       (os::color)(COLOR_APPWORKSPACE + 1),
+                       IDC_ARROW,
+                       WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                       WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
+#endif // WIN32
+#ifdef X11
+                       color::workSpaceColor()
+#endif
+         )
       {}
 
-      void popup_window_class::prepare (window* w) const {
-        window_class::prepare(w);
+      void main_window_class::prepare (window* w, os::window parent_id) const {
+        window_class::prepare(w, parent_id);
+#ifdef X11
+        os::instance display = core::global::get_instance();
+        Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+        Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+        XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+#endif
+      }
+
+      // --------------------------------------------------------------------------
+      popup_window_class::popup_window_class ()
+        : window_class("POPUP",
+                       color::light_gray,
+                       IF_WIN32(IDC_ARROW) IF_X11(0),
+                       IF_X11(0) IF_WIN32(WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN),
+                       IF_X11(0) IF_WIN32(WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED),
+                       IF_X11(0) IF_WIN32(CS_DBLCLKS | CS_DROPSHADOW))
+      {}
+
+      void popup_window_class::prepare (window* w, os::window parent_id) const {
+        window_class::prepare(w, parent_id);
 #ifdef X11
         os::instance display = core::global::get_instance();
         Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
         Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False);
         XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+        XSetWindowAttributes wa;
+        wa.override_redirect = 1;
+        XChangeWindowAttributes(display, w->get_id(), CWOverrideRedirect, &wa);
 #endif
       }
+
+      dialog_window_class::dialog_window_class ()
+        : window_class("dialog_window",
+                       color::light_gray,
+                       IF_WIN32(IDC_ARROW) IF_X11(0),
+                       IF_X11(0) IF_WIN32(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_DIALOGFRAME),
+                       IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED))
+      {}
+
+      void dialog_window_class::prepare (window* w, os::window parent_id) const  {
+        window_class::prepare(w, parent_id);
+#ifdef X11
+        os::instance display = core::global::get_instance();
+        Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+        Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+        XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+        type = XInternAtom(display, "_NET_WM_STATE", False);
+        value = XInternAtom(display, "_NET_WM_STATE_MODAL", False),
+        XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+#endif
+      }
+
     }
 
     // --------------------------------------------------------------------------
     detail::popup_window_class popup_window::clazz;
+    detail::dialog_window_class dialog_window::clazz;
+    detail::main_window_class main_window::clazz;
 
     // --------------------------------------------------------------------------
-    window_class main_window::clazz("main_window",
-#ifdef WIN32
-                                    (os::color)(COLOR_APPWORKSPACE + 1),
-                                    IDC_ARROW,
-                                    WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
-                                    WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
-#endif // WIN32
-#ifdef X11
-                                    color::workSpaceColor()
-#endif
-    );
-
 
   } // win
 

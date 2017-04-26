@@ -85,7 +85,7 @@ namespace gui {
       , is_initialized(false)
     {}
 
-    void window_class::prepare (window* win) const {
+    void window_class::prepare (window* win, os::window) const {
 #ifdef X11
       if (get_cursor()) {
         XSetWindowAttributes wa;

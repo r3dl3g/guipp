@@ -195,6 +195,7 @@ namespace gui {
 #ifdef X11
     namespace detail {
       Atom WM_CREATE_WINDOW = 0;
+      Atom WM_DELETE_WINDOW = 0;
       std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name) {

@@ -71,8 +71,13 @@ namespace gui {
       }
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def,
-                   const std::string& txt = std::string()) {
+                   const core::rectangle& place = core::rectangle::def) {
+        super::create(clazz, parent, place);
+      }
+
+      void create (const container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def) {
         super::create(clazz, parent, place);
         set_text(txt);
       }

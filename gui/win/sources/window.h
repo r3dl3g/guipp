@@ -285,6 +285,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     class overlapped_window : public container {
     public:
+      typedef container super;
+
       void set_title (const std::string&);
 
       std::string get_title () const;
@@ -304,8 +306,11 @@ namespace gui {
       void set_top_most (bool toplevel);
 
       void create (const window_class& type,
+                   const window& parent,
                    const core::rectangle& place = core::rectangle::def);
 
+      void create (const window_class& type,
+                   const core::rectangle& place = core::rectangle::def);
     };
 
     // --------------------------------------------------------------------------
@@ -324,42 +329,45 @@ namespace gui {
       volatile bool is_modal;
     };
 
-    // --------------------------------------------------------------------------
-    class main_window : public overlapped_window {
-      public:
-        typedef overlapped_window super;
-
-      void create (const core::rectangle& place = core::rectangle::def) {
-          super::create(clazz, place);
-      }
-
-    protected:
-      static window_class clazz;
-    };
-
     namespace detail {
+
+      // --------------------------------------------------------------------------
+      class main_window_class : public window_class {
+      public:
+        main_window_class ();
+
+        void prepare (window*, os::window) const override;
+      };
 
       // --------------------------------------------------------------------------
       class popup_window_class : public window_class {
       public:
         popup_window_class ();
 
-        void prepare (window*) const override;
+        void prepare (window*, os::window) const override;
+      };
+
+      // --------------------------------------------------------------------------
+      class dialog_window_class : public window_class {
+      public:
+        dialog_window_class ();
+
+        void prepare (window*, os::window) const override;
       };
 
     }
 
     // --------------------------------------------------------------------------
-    class popup_window : public modal_window {
-    public:
-      typedef overlapped_window super;
+    class main_window : public overlapped_window {
+      public:
+        typedef overlapped_window super;
 
       void create (const core::rectangle& place = core::rectangle::def) {
-          super::create(clazz, place);
+        super::create(clazz, place);
       }
 
     protected:
-      static detail::popup_window_class clazz;
+      static detail::main_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -370,6 +378,59 @@ namespace gui {
       typedef L layout_type;
 
       layout_main_window ()
+        : layouter(this)
+      {}
+
+      void layout () {
+        layouter.layout(size());
+      }
+
+      inline layout_type& get_layout () {
+        return layouter;
+      }
+
+      inline const layout_type& get_layout () const {
+        return layouter;
+      }
+
+    protected:
+      layout_type layouter;
+    };
+
+    // --------------------------------------------------------------------------
+    class popup_window : public modal_window {
+    public:
+      typedef modal_window super;
+
+      void create (const window& parent, const core::rectangle& place = core::rectangle::def) {
+        super::create(clazz, parent, place);
+      }
+
+    protected:
+      static detail::popup_window_class clazz;
+    };
+
+    // --------------------------------------------------------------------------
+    class dialog_window : public modal_window {
+    public:
+      typedef modal_window super;
+
+      void create (const window& parent, const core::rectangle& place = core::rectangle::def) {
+        super::create(clazz, parent, place);
+      }
+
+    protected:
+      static detail::dialog_window_class clazz;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename L = layout::standard_layout>
+    class layout_dialog_window : public dialog_window {
+    public:
+      typedef dialog_window super;
+      typedef L layout_type;
+
+      layout_dialog_window ()
         : layouter(this)
       {}
 

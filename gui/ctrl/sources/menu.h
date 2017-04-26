@@ -201,7 +201,7 @@ namespace gui {
           parent.call_close_function();
         };
 
-        popup_at(pt);
+        popup_at(parent, pt);
       }
 
       void popup_at (const core::point& pt, main_menu& parent) {
@@ -231,7 +231,7 @@ namespace gui {
           parent.clear_selection();
         };
 
-        popup_at(pt);
+        popup_at(parent, pt);
       }
 
       void close ();
@@ -286,7 +286,7 @@ namespace gui {
                            bool selected,
                            bool hilited);
 
-      void popup_at (const core::point& pt);
+      void popup_at (window& parent, const core::point& pt);
 
       core::size_type calc_width ();
       close_function call_close_function;

@@ -49,7 +49,7 @@ namespace gui {
                     os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY),
                     os::style class_style = IF_X11(0) IF_WIN32(CS_DBLCLKS));
 
-      virtual void prepare (window*) const;
+      virtual void prepare (window*, os::window) const;
 
       const std::string& get_class_name () const;
       const os::color get_background () const;

@@ -28,9 +28,79 @@
 // Library includes
 //
 #include "bitmap.h"
+#include "graphics.h"
 
 
 namespace gui {
+
+  namespace core {
+
+    void load_ppm_p6 (std::istream& in, std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) {
+      std::string p6;
+      std::getline(in, p6);
+      if (p6 != "P6") {
+        throw std::runtime_error("stream contains no P6 ppm");
+      }
+      std::skipws(in);
+      while (in.peek() == '#') {
+        std::string tmp;
+        std::getline(in, tmp);
+      }
+      std::skipws(in);
+      int max;
+      in >> w >> h >> max;
+
+      if (w < 1) {
+        throw std::runtime_error("invalid ppm image width");
+      }
+      if (h < 1) {
+        throw std::runtime_error("invalid ppm image height");
+      }
+      if (max > 255) {
+        throw std::runtime_error("invalid ppm max value");
+      }
+
+      if (bpp == 24) {
+        bpl = w * 3;
+        std::size_t n = bpl * h;
+        data.resize(n);
+        in.read(data.data(), n);
+      } else {
+        bpp = 32;
+        bpl = w * 4;
+        std::size_t n = bpl * h;
+        data.resize(n);
+        for (int i = 0; i < h; ++i) {
+          char* d = (data.data() + (i * bpl));
+          for (int j = 0; j < w; ++j) {
+            in.read(d, 3);
+            d += 4;
+          }
+        }
+      }
+
+    }
+
+    void save_ppm_p6(std::ostream& out, char* data, int width, int height, int bpl, int bpp) {
+      out << "P6\n"
+        << "# XImage created RGB ppm file\n"
+        << width << ' ' << height << " 255\n";
+      if (32 == bpp) {
+        for (int h = 0; h < height; ++h) {
+          char* d = (data + (h * bpl));
+          for (int w = 0; w < width; ++w) {
+            out.write(d, 3);
+            d += 4;
+          }
+        }
+      }
+      else if (24 == bpp) {
+        std::size_t n = bpl * height;
+        out.write(data, n);
+      }
+    }
+
+  }
 
   namespace draw {
 
@@ -44,21 +114,27 @@ namespace gui {
       return in;
     }
 
-    void bitmap::clear () {
-      auto display = core::global::get_instance();
-      if (gc) {
-#if WIN32
-        ReleaseDC(id, gc);
-#endif
-#ifdef X11
-        XFreeGC(display, gc);
-#endif
-        gc = 0;
+    bitmap::bitmap (const bitmap& rhs)
+      : id(0)
+    {
+      operator=(rhs);
+    }
+
+    void bitmap::operator= (const bitmap& rhs) {
+      if (&rhs != this) {
+        core::size sz = rhs.size();
+        create(sz);
+        draw::graphics(*this).copy_from(rhs, core::rectangle(sz));
       }
+    }
+
+    void bitmap::clear () {
       if (id) {
 #if WIN32
+        DeleteObject(id);
 #endif
 #ifdef X11
+        auto display = core::global::get_instance();
         XFreePixmap(display, id);
 #endif
         id = 0;
@@ -66,31 +142,38 @@ namespace gui {
     }
 
     void bitmap::create (const core::size& sz) {
+      create(sz.os_width(), sz.os_height());
+    }
+
+    void bitmap::create (int w, int h) {
       clear();
+#if WIN32
+      HDC dc = GetDC(NULL);
+      id = CreateCompatibleBitmap(dc, w, h);
+      ReleaseDC(NULL, dc);
+#endif
 #ifdef X11
       auto display = core::global::get_instance();
       auto screen = core::global::get_screen();
       auto visual = DefaultRootWindow(display);
-      id = XCreatePixmap(display, visual, sz.width(), sz.height(), DisplayPlanes(display, screen));
+      id = XCreatePixmap(display, visual, w, h, DisplayPlanes(display, screen));
 #endif
-    }
-
-    os::graphics bitmap::get_gc () {
-      if (!gc && id) {
-#if WIN32
-        gc = GetDC(id);
-#endif
-#ifdef X11
-        auto display = core::global::get_instance();
-        gc = XCreateGC(display, id, 0, nullptr);
-#endif
+      if (!id) {
+        throw std::runtime_error("create image failed");
       }
-      return gc;
     }
 
     core::size bitmap::size () const {
-      unsigned int w = 0, h = 0;
+#if WIN32
+      if (id) {
+        BITMAP bmp;
+        GetObject(id, sizeof(BITMAP), &bmp);
+        return core::size(static_cast<core::size_type>(bmp.bmWidth), static_cast<core::size_type>(bmp.bmHeight));
+      }
+      return core::size::zero;
+#endif
 #ifdef X11
+      unsigned int w = 0, h = 0;
       if (id) {
         Window root;
         int x, y;
@@ -98,129 +181,137 @@ namespace gui {
         auto display = core::global::get_instance();
         XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
       }
-#endif
       return core::size(w, h);
+#endif
     }
 
-    void bitmap::load_ppm (std::istream& in) {
-      clear();
+    void bitmap::create (const std::vector<char>& data, int w, int h, int bpl, int bpp) {
+#if WIN32
+      if (core::global::get_device_bits_per_pixel() == bpp) {
+        id = CreateBitmap(w, h, 1, bpp, data.data());
+      } else {
+        create(w, h);
 
-      std::string p6;
-      std::getline(in, p6);
-      if (p6 != "P6") {
-        throw std::runtime_error("stream contains no P6 ppm");
-      }
-      std::skipws(in);
-      while (in.peek() == '#') {
-        std::string tmp;
-        std::getline(in, tmp);
-      }
-      std::skipws(in);
-      int w, h, max;
-      in >> w >> h >> max;
+        HDC gdc = GetDC(NULL);
+        HDC gc = CreateCompatibleDC(gdc);
+        ReleaseDC(NULL, gdc);
 
-      if (w < 1) {
-        throw std::runtime_error("invalid ppm image width");
-      }
-      if (h < 1) {
-        throw std::runtime_error("invalid ppm image height");
-      }
-      if (max > 255) {
-        throw std::runtime_error("invalid ppm max value");
-      }
-      int bpl = w * 4;
-      std::size_t sz = bpl * h;
-      char* data = new char[sz];
+        SelectObject(gc, id);
 
-      for (int i = 0; i < h; ++i) {
-        char* d = (data + (i * bpl));
-        for (int j = 0; j < w; ++j) {
-          in.read(d, 3);
-          d += 4;
-        }
+        BITMAPINFOHEADER bi = {
+          sizeof(BITMAPINFOHEADER),
+          w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, 0, 0
+        };
+
+        StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, data.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS, SRCCOPY);
+        DeleteDC(gc);
+      }
+      if (!id) {
+        throw std::runtime_error("create image failed");
       }
 
-      create(core::size(w, h));
-
+#endif
 #ifdef X11
       auto display = core::global::get_instance();
       auto screen = core::global::get_screen();
+      auto visual = DefaultRootWindow(display);
+      id = XCreatePixmap(display, visual, w, h, DisplayPlanes(display, screen));
+      if (!id) {
+        throw std::runtime_error("create image failed");
+      }
       auto gc = DefaultGC(display, screen);
 
-      XImage* im = XCreateImage(display, DefaultVisual(display, screen), 24, ZPixmap, 0, data, w, h, 32, bpl);
+      XImage* im = XCreateImage(display, DefaultVisual(display, screen), bpp, ZPixmap, 0, data.data(), w, h, 32, bpl);
       if (im) {
         XPutImage(display, id, gc, im, 0, 0, 0, 0, w, h);
         XDestroyImage(im);
-      } else {
+      }
+      else {
         throw std::runtime_error("create image failed");
       }
 #endif
     }
 
-    void save_ppm_p6 (std::ostream& out, char* data, int width, int height, int bpl, int bpp) {
-      out << "P6\n"
-        << "# XImage created RGB ppm file\n"
-        << width << ' ' << height << " 255\n";
-      if (32 == bpp) {
-        for (int h = 0; h < height; ++h) {
-          char* d = (data + (h * bpl));
-          for (int w = 0; w < width; ++w) {
-            out.write(d, 3);
-            d += 4;
-          }
-        }
-      } else if (24 == bpp) {
-        std::size_t n = bpl * height;
-        out.write(data, n);
-      }
-    }
+    void bitmap::get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const {
+#if WIN32
+      BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), 0 };
 
-    void bitmap::save_ppm (std::ostream& out) const {
-      core::size sz = size();
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+
+      HGDIOBJ old = SelectObject(gc, id);
+
+      int ret = GetDIBits(gc, id, 0, 0, nullptr, reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS);
+      if (!ret) {
+        throw std::runtime_error("get image info failed");
+      }
+
+      const int n = bi.biSizeImage;
+      w = bi.biWidth;
+      h = bi.biHeight;
+      bpl = n / h;
+      bpp = bi.biBitCount;
+
+      data.resize(n);
+
+      // positiv numbers give a bottom up bitmap.
+      bi.biHeight = -std::abs(bi.biHeight);
+      bi.biCompression = BI_RGB;
+
+      ret = GetDIBits(gc, id, 0, h, data.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS);
+      if (ret != h) {
+        throw std::runtime_error("get image data failed");
+      }
+
+      SelectObject(gc, old);
+      DeleteDC(gc);
+
+#endif
 #ifdef X11
+      core::size sz = size();
       auto display = core::global::get_instance();
       XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
       if (im) {
-        save_ppm_p6(out, im->data, im->width, im->height, im->bytes_per_line, im->bits_per_pixel);
+        int n = im->height * im->bytes_per_line;
+        data.assign(im->data, im->data + n);
+        w = im->width;
+        h = im->height;
+        bpl = im->bytes_per_line;
+        bpp = im->bits_per_pixel;
         XDestroyImage(im);
-      } else {
+      }
+      else {
         throw std::runtime_error("get image failed");
       }
 #endif
     }
 
-    void bitmap::copy_from (os::drawable w, const core::rectangle& r) {
-      if (id) {
-#ifdef X11
-        auto display = core::global::get_instance();
-        auto screen = core::global::get_screen();
-        auto gc = DefaultGC(display, screen);
-        XCopyArea(display, w, id, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), 0, 0);
-#endif
-      }
+    void bitmap::load_ppm (std::istream& in) {
+      int w, h, bpl, bpp = 32;
+      std::vector<char> data;
+      core::load_ppm_p6(in, data, w, h, bpl, bpp);
+      create(data, w, h, bpl, bpp);
     }
 
-    void bitmap::copy_to (os::drawable w, const core::rectangle& r) const {
-      if (id) {
-#ifdef X11
-        auto display = core::global::get_instance();
-        auto screen = core::global::get_screen();
-        auto gc = DefaultGC(display, screen);
-        XCopyArea(display, id, w, gc, 0, 0, r.os_width(), r.os_height(), r.os_x(), r.os_y());
+    void bitmap::save_ppm(std::ostream& out) const {
+#if WIN32
+      int w, h, bpl, bpp;
+      std::vector<char> data;
+      get_data(data, w, h, bpl, bpp);
+      core::save_ppm_p6(out, data.data(), w, h, bpl, bpp);
 #endif
-      }
-    }
-
-    void bitmap::copy_to (os::drawable w, const core::point& pt) const {
-      if (id) {
+#ifdef X11
       core::size sz = size();
-#ifdef X11
-        auto display = core::global::get_instance();
-        auto screen = core::global::get_screen();
-        auto gc = DefaultGC(display, screen);
-        XCopyArea(display, id, w, gc, 0, 0, sz.os_width(), sz.os_height(), pt.os_x(), pt.os_y());
-#endif
+      auto display = core::global::get_instance();
+      XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
+      if (im) {
+        core::save_ppm_p6(out, im->data, im->width, im->height, im->bytes_per_line, im->bits_per_pixel);
+        XDestroyImage(im);
+      } else {
+        throw std::runtime_error("get image failed");
       }
+#endif
     }
 
   }

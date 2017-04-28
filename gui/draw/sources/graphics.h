@@ -52,6 +52,11 @@ namespace gui {
     class graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
+      graphics (os::drawable target);
+      graphics (const graphics&);
+      ~graphics();
+
+      void operator= (const graphics&);
 
       void draw_pixel (const core::point& pt,
                        os::color color) const;
@@ -66,7 +71,10 @@ namespace gui {
       void draw (std::function<drawable>, const brush& brush, const pen& pen) const;
       void text (std::function<textable>, const font& font, os::color color) const;
 
-      void copy_from (os::drawable, const core::rectangle& src, const core::point& dest) const;
+      void copy_from (os::drawable, const core::rectangle& src,
+                      const core::point& dest = core::point::zero) const;
+      void stretch_from (os::drawable, const core::rectangle& src,
+                         const core::rectangle& dest) const;
 
       void invert (const core::rectangle&) const;
       void flush () const;
@@ -95,8 +103,12 @@ namespace gui {
       void pop_clip_rectangle () const;
 
     private:
+      void destroy();
+
       os::graphics gc;
       os::drawable target;
+      bool own_gc;
+      bool ref_gc;
 #ifdef WIN32
       mutable std::vector<HRGN> clipping_rectangles;
 #endif // WIN32

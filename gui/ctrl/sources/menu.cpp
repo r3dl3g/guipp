@@ -34,12 +34,12 @@ namespace gui {
         if (s) {
           g.fill(draw::rectangle(r), color::highLightColor());
         } else if (h) {
-          g.fill(draw::rectangle(r), color::very_very_light_gray);
+          g.fill(draw::rectangle(r), color::menuColorHighlight());
         } else {
           g.fill(draw::rectangle(r), b);
         }
 
-        os::color col = e.is_disabled() ? color::gray
+        os::color col = e.is_disabled() ? color::disabledTextColor()
                                         : s ? color::highLightTextColor()
                                             : color::black;
 
@@ -58,11 +58,19 @@ namespace gui {
                       bool s,
                       bool h) {
         if (s) {
-          g.fill(draw::rectangle(r.with_height(2)), b);
-          g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
+          if (e.has_separator()) {
+            g.fill(draw::rectangle(r.with_height(2)), b);
+            g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
+          } else {
+            g.fill(draw::rectangle(r), color::highLightColor());
+          }
         } else if (h) {
-          g.fill(draw::rectangle(r.with_height(2)), b);
-          g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::very_very_light_gray);
+          if (e.has_separator()) {
+            g.fill(draw::rectangle(r.with_height(2)), b);
+            g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::menuColorHighlight());
+          } else {
+            g.fill(draw::rectangle(r), color::menuColorHighlight());
+          }
         } else {
           g.fill(draw::rectangle(r), b);
         }
@@ -75,7 +83,7 @@ namespace gui {
           r2 += core::point(0, 2);
         }
 
-        os::color col = e.is_disabled() ? color::gray
+        os::color col = e.is_disabled() ? color::disabledTextColor()
                                         : s ? color::highLightTextColor()
                                             : color::black;
 
@@ -158,18 +166,20 @@ namespace gui {
 
     void menu_data::rotate_selection (int delta) {
       const int last = get_selection();
-      int next = rotate<int>(last, delta, size());
+      const int sz = static_cast<int>(size());
+      int next = rotate<int>(last, delta, sz);
       while (data[next].is_disabled() && (next != last)) {
-        next = rotate<int>(next, delta, size());
+        next = rotate<int>(next, delta, sz);
       }
       set_selection(next);
     }
 
     void menu_data::rotate_hilite (int delta) {
       const int last = get_hilite();
-      int next = rotate<int>(last, delta, size());
+      const int sz = static_cast<int>(size());
+      int next = rotate<int>(last, delta, sz);
       while (data[next].is_disabled() && (next != last)) {
-        next = rotate<int>(next, delta, size());
+        next = rotate<int>(next, delta, sz);
       }
       set_hilite(next);
     }
@@ -268,7 +278,7 @@ namespace gui {
       register_event_handler(paint_event(core::bind_method(this, &main_menu::paint)));
 
       register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, window_to_screen(pt));
+        data.handle_mouse(false, client_to_screen(pt));
       }));
 
       register_event_handler(mouse_leave_event([&]() {
@@ -290,7 +300,7 @@ namespace gui {
 
       register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
         take_focus();
-        data.handle_mouse(true, window_to_screen(pt));
+        data.handle_mouse(true, client_to_screen(pt));
       }));
 
       register_event_handler(key_down_event([&](os::key_state,
@@ -410,7 +420,7 @@ namespace gui {
       register_event_handler(paint_event(core::bind_method(this, &popup_menu::paint)));
 
       register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, window_to_screen(pt));
+        data.handle_mouse(false, client_to_screen(pt));
       }));
 
       register_event_handler(mouse_leave_event([&](){
@@ -428,7 +438,7 @@ namespace gui {
       }));
 
       register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(true, window_to_screen(pt));
+        data.handle_mouse(true, client_to_screen(pt));
       }));
 
       register_event_handler(lost_focus_event([&](window*) {
@@ -549,7 +559,7 @@ namespace gui {
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
       if (client_area().is_inside(pt)) {
-        return pt.y() / item_height;
+        return static_cast<int>(pt.y() / item_height);
       }
       return -1;
     }
@@ -568,10 +578,10 @@ namespace gui {
       core::rectangle r = area;
       const auto count = data.size();
       for (int i = 0; i < count; ++i) {
-        r.height(item_height);
+        r.height(static_cast<core::size_type>(item_height));
         paint::menu_item(data[i], g, r, text_pos, hotkey_pos, background,
                          (i == data.get_selection()), (i == data.get_hilite()));
-        r.move_y(item_height);
+        r.move_y(static_cast<core::size_type>(item_height));
       }
     }
 

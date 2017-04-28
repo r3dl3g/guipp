@@ -303,6 +303,7 @@ namespace gui {
     os::color scrollBarColor();
     os::color menuColor();
     os::color menuTextColor();
+    os::color menuColorHighlight();
     os::color backGroundColor();
     os::color activeCaptionColor();
     os::color inActiveCaptionColor();

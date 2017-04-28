@@ -79,7 +79,8 @@ namespace gui {
       COLOR_BTNFACE,
       COLOR_BTNSHADOW,
       COLOR_BTNTEXT,
-      COLOR_BTNHIGHLIGHT
+      COLOR_BTNHIGHLIGHT,
+      COLOR_MENUHILIGHT
     };
 
     os::color get_sys_color(SystemColor c) {
@@ -95,6 +96,7 @@ namespace gui {
         case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
         case COLOR_MENU:          return very_light_gray;
         case COLOR_MENUTEXT:      return black;
+        case COLOR_MENUHILIGHT:   return very_very_light_gray;
 
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);
@@ -108,6 +110,7 @@ namespace gui {
     DEFINE_SYS_COLOR(scrollBarColor, COLOR_SCROLLBAR)
     DEFINE_SYS_COLOR(menuColor, COLOR_MENU)
     DEFINE_SYS_COLOR(menuTextColor, COLOR_MENUTEXT)
+    DEFINE_SYS_COLOR(menuColorHighlight, COLOR_MENUHILIGHT)
     DEFINE_SYS_COLOR(backGroundColor, COLOR_BACKGROUND)
     DEFINE_SYS_COLOR(activeCaptionColor, COLOR_ACTIVECAPTION)
     DEFINE_SYS_COLOR(inActiveCaptionColor, COLOR_INACTIVECAPTION)

@@ -170,6 +170,8 @@ namespace gui {
       void fini();
       void sync ();
 
+      int get_device_bits_per_pixel ();
+
 #ifdef X11
       os::x11::screen get_screen();
       void set_screen(os::x11::screen);

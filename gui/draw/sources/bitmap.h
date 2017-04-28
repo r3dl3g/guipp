@@ -27,10 +27,15 @@
 //
 // Library includes
 //
-#include "gui_types.h"
+#include "graphics.h"
 
 
 namespace gui {
+
+  namespace core {
+    void save_ppm_p6(std::ostream& out, char* data, int width, int height, int bpl, int bpp);
+    void load_ppm_p6(std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+  }
 
   namespace draw {
 
@@ -38,45 +43,54 @@ namespace gui {
     public:
       bitmap (os::bitmap id = 0)
         : id(id)
-        , gc(0)
       {}
 
       bitmap (const core::size& sz)
         : id(0)
-        , gc(0)
       {
         create(sz);
       }
 
+      bitmap (const bitmap&);
+
       ~bitmap () {
         clear();
+      }
+
+      void operator= (const bitmap&);
+
+      bool is_valid () const {
+        return id != 0;
+      }
+
+      operator bool () const {
+        return is_valid();
       }
 
       os::bitmap get_id () const {
         return id;
       }
 
-      os::graphics get_gc ();
-
       operator os::drawable () const {
         return id;
       }
 
       void create (const core::size&);
+      void create (int w, int h);
+      void create (const std::vector<char>& data, int w, int h, int bpl, int bpp);
+
       void clear ();
+
+      void get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const;
 
       core::size size () const;
 
       void load_ppm (std::istream&);
       void save_ppm (std::ostream&) const;
 
-      void copy_from (os::drawable, const core::rectangle&);
-      void copy_to (os::drawable, const core::rectangle&) const;
-      void copy_to (os::drawable, const core::point&) const;
-
     private:
       os::bitmap id;
-      os::graphics gc;
+
     };
 
     std::ostream& operator<< (std::ostream& out, const bitmap& bmp);

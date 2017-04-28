@@ -61,15 +61,28 @@ private:
   vtoggle_group<color::light_gray, color::gray> vsegmented;
 
   client_window window1;
+  bitmap bmp;
 };
 
 // --------------------------------------------------------------------------
 my_main_window::my_main_window () {
   register_event_handler(win::create_event(core::bind_method(this, &my_main_window::onCreated)));
 
+  register_event_handler(win::destroy_event([&]() {
+    LogDebug << "Destroyed!";
+    super::quit();
+  }));
+
   window1.register_event_handler(paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
+    if (bmp) {
+      if (segmented.get_button(0).is_checked()) {
+        graph.stretch_from(bmp, core::rectangle(bmp.size()), place);
+      } else {
+        graph.copy_from(bmp, core::rectangle(bmp.size()), core::point::zero);
+      }
+    }
   }));
 }
 
@@ -165,9 +178,28 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     b.register_event_handler(hilite_changed_event([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
     }));
-    b.register_event_handler(button_clicked_event([&, i]() {
-      labels[3].set_text(ostreamfmt("button " << i << " clicked"));
-    }));
+    switch (i) {
+    case 1:
+      b.register_event_handler(button_clicked_event([&, i]() {
+        cut(i);
+      }));
+      break;
+    case 2:
+      b.register_event_handler(button_clicked_event([&, i]() {
+        copy(i);
+      }));
+      break;
+    case 3:
+      b.register_event_handler(button_clicked_event([&, i]() {
+        paste(i);
+      }));
+      break;
+    default:
+      b.register_event_handler(button_clicked_event([&, i]() {
+        labels[3].set_text(ostreamfmt("button " << i << " clicked"));
+      }));
+      break;
+    }
   }
 
   status_bar.create(*this);
@@ -286,45 +318,34 @@ void my_main_window::quit (int) {
 
 void my_main_window::copy (int) {
   labels[0].set_text("copy");
-#ifdef X11
-  auto display = core::global::get_instance();
-  auto screen = core::global::get_screen();
-  auto r = left_list.client_area();
-  unsigned int w = r.os_width();
-  unsigned int h = r.os_height();
-  auto gc = DefaultGC(display, screen);
-  XImage* im = XGetImage(display, left_list.get_id(), r.os_x(), r.os_y(), w, h, AllPlanes, ZPixmap);
-  Pixmap pm = XCreatePixmap(display, left_list.get_id(), w, h, DisplayPlanes(display, screen));
+  core::rectangle r = left_list.client_area();
 
-  XPutImage(display, window1.get_id(), gc, im, 0, 0, 0, 0, w, h);
+  bitmap bmp2(r.size());
+  draw::graphics(bmp2).copy_from(left_list, r);
 
-  XCopyArea(display, left_list.get_id(), window1.get_id(), gc, 0, 0, w, h, 120, 10);
+  bmp.create(window1.client_size());
+  draw::graphics(bmp).copy_from(bmp2, r);
 
-  XPutImage(display, pm, gc, im, 0, 0, 0, 0, w, h);
-  XCopyArea(display, pm, window1.get_id(), gc, 0, 0, w, h, 240, 20);
-
-  XDestroyImage(im);
-  XFreePixmap(display, pm);
-#endif
+  window1.redraw_later();
 }
 
 void my_main_window::del (int) {
   labels[0].set_text("del");
+  bmp.clear();
   window1.redraw_later();
 }
 
 void my_main_window::cut (int) {
   labels[0].set_text("cut");
   bitmap bmp(left_list.client_size());
-  bmp.copy_from(left_list, left_list.client_area());
+  draw::graphics(bmp).copy_from(left_list, left_list.client_area());
   std::ofstream("left_list.ppm") << bmp;
 }
 
 void my_main_window::paste (int) {
   labels[0].set_text("paste");
-  bitmap bmp;
   std::ifstream("left_list.ppm") >> bmp;
-  bmp.copy_to(window1, core::point::zero);
+  window1.redraw_later();
 }
 
 // --------------------------------------------------------------------------

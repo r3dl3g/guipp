@@ -99,6 +99,17 @@ namespace gui {
         }
       }
 
+      int get_device_bits_per_pixel () {
+#ifdef WIN32
+        HDC gdc = GetDC(NULL);
+        int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
+        ReleaseDC(NULL, gdc);
+        return dbpp;
+#endif // WIN32
+#ifdef X11
+        return DisplayPlanes(get_instance(), get_screen());
+#endif // X11
+      }
 
 #ifdef X11
 

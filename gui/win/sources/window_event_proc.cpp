@@ -74,18 +74,6 @@ namespace gui {
             SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
             set_window_id(lParam, hwnd);
             break;
-          case WM_DESTROY: {
-            os::event_result result = 0;
-            if (handle_by_window(hwnd, msg, wParam, lParam, result)) {
-              return result;
-            } else {
-              LONG style = GetWindowLong(hwnd, GWL_STYLE);
-              if (!(style & (WS_CHILD | WS_POPUP))) {
-                PostQuitMessage(0);
-              }
-            }
-            return 0;
-          }
           case WM_CREATE: {
             CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);

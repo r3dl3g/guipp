@@ -811,7 +811,12 @@ namespace gui {
     // --------------------------------------------------------------------------
 #ifdef WIN32
     void overlapped_window::create (const window_class& type,
-                                    const window&,
+                                    const window& parent,
+                                    const core::rectangle& place) {
+      window::create(type, parent.get_id(), place);
+    }
+
+    void overlapped_window::create (const window_class& type,
                                     const core::rectangle& place) {
       window::create(type, GetDesktopWindow(), place);
     }
@@ -1122,7 +1127,7 @@ namespace gui {
         : window_class("dialog_window",
                        color::light_gray,
                        IF_WIN32(IDC_ARROW) IF_X11(0),
-                       IF_X11(0) IF_WIN32(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_DIALOGFRAME),
+                       IF_X11(0) IF_WIN32(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_DLGFRAME),
                        IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED))
       {}
 

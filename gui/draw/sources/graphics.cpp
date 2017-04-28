@@ -349,7 +349,69 @@ namespace gui {
     graphics::graphics (os::drawable target, os::graphics gc)
       : gc(gc)
       , target(target)
+      , own_gc(false)
+      , ref_gc(false)
     {}
+
+    graphics::graphics (os::drawable target)
+      : gc(0)
+      , target(target)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      gc = GetDC((HWND)target);
+      if (!gc) {
+        HDC gdc = GetDC(NULL);
+        gc = CreateCompatibleDC(gdc);
+        ReleaseDC(NULL, gdc);
+        SelectObject(gc, target);
+        own_gc = true;
+      } else {
+        ref_gc = true;
+      }
+    }
+
+    graphics::graphics (const graphics& rhs)
+      : gc(0)
+      , target(0)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      operator=(rhs);
+    }
+
+    graphics::~graphics () {
+      destroy();
+    }
+
+    void graphics::destroy () {
+      if (gc) {
+        if (own_gc) {
+          DeleteDC(gc);
+        } else if (ref_gc) {
+          ReleaseDC((HWND)target, gc);
+        }
+      }
+      gc = 0;
+      own_gc = false;
+      ref_gc = false;
+    }
+
+    void graphics::operator= (const graphics& rhs) {
+      if (&rhs != this) {
+        destroy();
+        target = rhs.target;
+        own_gc = rhs.own_gc;
+        ref_gc = rhs.ref_gc;
+        if (own_gc) {
+          gc = CreateCompatibleDC(rhs.gc);
+        } else if (ref_gc) {
+          gc = GetDC((HWND)target);
+        } else {
+          gc = rhs.gc;
+        }
+      }
+    }
 
     void graphics::draw_pixel (const core::point& pt,
                               os::color c) const {
@@ -375,9 +437,46 @@ namespace gui {
     }
 
     void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
-      HDC target_dc = GetDC(w);
-      BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), target_dc, d.os_x(), d.os_y());
-      ReleaseDC(w, target_dc);
+      HDC source_gc = GetDC((HWND)w);
+      if (!source_gc) {
+        source_gc = CreateCompatibleDC(gc);
+        HGDIOBJ old = SelectObject(source_gc, w);
+        if (!BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(),
+                    source_gc, d.os_x(), d.os_y(), SRCCOPY)) {
+          throw std::runtime_error("graphics::copy_from failed");
+        }
+        SelectObject(source_gc, old);
+        DeleteDC(source_gc);
+      } else {
+        if (!BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(),
+                    source_gc, d.os_x(), d.os_y(), SRCCOPY)) {
+          throw std::runtime_error("graphics::copy_from failed");
+        }
+        ReleaseDC((HWND)w, source_gc);
+      }
+    }
+
+    void graphics::stretch_from (os::drawable w,
+                                 const core::rectangle& src,
+                                 const core::rectangle& dst) const {
+      HDC source_gc = GetDC((HWND)w);
+      if (!source_gc) {
+        source_gc = CreateCompatibleDC(gc);
+        HGDIOBJ old = SelectObject(source_gc, w);
+        if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
+                        source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
+          throw std::runtime_error("graphics::copy_from failed");
+        }
+        SelectObject(source_gc, old);
+        DeleteDC(source_gc);
+      }
+      else {
+        if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
+                        source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
+          throw std::runtime_error("graphics::copy_from failed");
+        }
+        ReleaseDC((HWND)w, source_gc);
+      }
     }
 
     void graphics::invert (const core::rectangle& r) const {

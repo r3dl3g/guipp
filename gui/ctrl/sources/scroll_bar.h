@@ -270,12 +270,12 @@ namespace gui {
 
       template<>
       inline core::point scroll_barT<true>::build_pos (type pos) {
-        return { pos, 0 };
+        return core::point(pos, 0);
       }
 
       template<>
       inline core::point scroll_barT<false>::build_pos (type pos) {
-        return { 0, pos };
+        return core::point(0, pos);
       }
 
     }

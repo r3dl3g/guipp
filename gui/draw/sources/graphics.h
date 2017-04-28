@@ -51,7 +51,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class graphics {
     public:
-      graphics (os::window win, os::graphics gc);
+      graphics (os::drawable target, os::graphics gc);
 
       void draw_pixel (const core::point& pt,
                        os::color color) const;
@@ -66,6 +66,8 @@ namespace gui {
       void draw (std::function<drawable>, const brush& brush, const pen& pen) const;
       void text (std::function<textable>, const font& font, os::color color) const;
 
+      void copy_from (os::drawable, const core::rectangle& src, const core::point& dest) const;
+
       void invert (const core::rectangle&) const;
       void flush () const;
 
@@ -77,8 +79,8 @@ namespace gui {
         return gc;
       }
 
-      inline operator os::window () const {
-        return win;
+      inline operator os::drawable () const {
+        return target;
       }
 
 #ifdef X11
@@ -94,7 +96,7 @@ namespace gui {
 
     private:
       os::graphics gc;
-      os::window win;
+      os::drawable target;
 #ifdef WIN32
       mutable std::vector<HRGN> clipping_rectangles;
 #endif // WIN32

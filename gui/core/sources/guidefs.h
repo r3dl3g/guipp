@@ -56,6 +56,7 @@ namespace gui {
     typedef COLORREF color;
     typedef UINT style;
 
+    typedef HBITMAP bitmap;
     typedef HICON icon;
     typedef HCURSOR cursor;
     typedef HBRUSH brush;
@@ -115,6 +116,7 @@ namespace gui {
     typedef unsigned long color;
     typedef unsigned int style;
 
+    typedef Pixmap bitmap;
     typedef Pixmap icon;
     typedef Cursor cursor;
     typedef color brush;

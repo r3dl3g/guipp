@@ -68,6 +68,10 @@ namespace gui {
         return id;
       }
 
+      inline operator os::drawable () const {
+        return id;
+      }
+
       bool is_valid () const;
 
       bool is_visible () const;
@@ -138,37 +142,28 @@ namespace gui {
                   bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
-
       core::point screen_to_window (const core::point&) const;
 
       core::point client_to_screen (const core::point&) const;
-
       core::point screen_to_client (const core::point&) const;
 
       const window_class* get_window_class () const;
 
       void capture_pointer ();
-
       void uncapture_pointer ();
 
-      void register_event_handler(event_handler_function f, os::event_id mask) {
-        events.register_event_handler(f);
-        prepare_for_event(mask);
-      }
+      void register_event_handler(event_handler_function f, os::event_id mask);
+      void unregister_event_handler(event_handler_function f);
 
       template<typename H>
       void register_event_handler(H h) {
         register_event_handler(h, h.mask);
       }
 
-      void unregister_event_handler(event_handler_function f) {
-        events.unregister_event_handler(f);
-      }
-
       template<typename T>
       void register_event_handler(T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
         register_event_handler(core::bind_method(t, method), mask);
-      };
+      }
 
       inline bool handle_event (const core::event& e, os::event_result& result) {
         return events.handle_event(e, result);

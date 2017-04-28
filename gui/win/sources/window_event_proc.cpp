@@ -169,8 +169,8 @@ namespace gui {
 
           try {
             win->handle_event(core::event(e), resultValue);
-          } catch (std::exception e) {
-            LogFatal << "exception in run_main_loop:" << e;
+          } catch (std::exception& e) {
+            LogFatal << "exception in run_main_loop: " << e;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
           }

@@ -53,10 +53,6 @@ namespace gui {
       , cls(nullptr)
     {}
 
-    window::~window() {
-      destroy();
-    }
-
     void window::create (const window_class& type,
                          os::window parent_id,
                          const core::rectangle& place) {
@@ -77,16 +73,6 @@ namespace gui {
                           (LPVOID)this);
       type.prepare(this, parent_id);
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
-    }
-
-    void window::create (const window_class& type,
-                         const container& parent,
-                         const core::rectangle& place) {
-      create(type, parent.get_id(), place);
-    }
-
-    const window_class* window::get_window_class() const {
-      return cls;
     }
 
     bool window::is_valid() const {
@@ -317,6 +303,29 @@ namespace gui {
 
 #endif // WIN32
 
+    window::~window () {
+      destroy();
+    }
+
+    void window::create (const window_class& type,
+                         const container& parent,
+                         const core::rectangle& place) {
+      create(type, parent.get_id(), place);
+    }
+
+    const window_class* window::get_window_class() const {
+      return cls;
+    }
+
+    void window::register_event_handler(event_handler_function f, os::event_id mask) {
+      events.register_event_handler(f);
+      prepare_for_event(mask);
+    }
+
+    void window::unregister_event_handler(event_handler_function f) {
+      events.unregister_event_handler(f);
+    }
+
 #ifdef X11
 #define XLIB_ERROR_CODE(a) case a: LogFatal << #a; break;
 
@@ -369,10 +378,6 @@ namespace gui {
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
     }
 
-    window::~window () {
-      destroy();
-    }
-
     void window::create (const window_class& type,
                          os::window parent_id,
                          const core::rectangle& place) {
@@ -406,12 +411,6 @@ namespace gui {
       XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
     }
 
-    void window::create (const window_class& type,
-                         const container& parent,
-                         const core::rectangle& place) {
-      create(type, parent.get_id(), place);
-    }
-
     void window::destroy () {
       if (get_id()) {
         check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
@@ -424,10 +423,6 @@ namespace gui {
       Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
       Atom message = XInternAtom(core::global::get_instance(), "WM_PROTOCOLS", False);
       send_client_message(this, message, wmDeleteMessage);
-    }
-
-    const window_class* window::get_window_class() const {
-      return cls;
     }
 
     bool window::is_valid () const {
@@ -551,7 +546,7 @@ namespace gui {
 
     void window::take_focus () {
       check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
-                                       RevertToParent, CurrentTime));
+                                       RevertToNone, CurrentTime));
     }
 
     void window::to_front () {
@@ -1060,8 +1055,8 @@ namespace gui {
           try {
             win->handle_event(core::event(e), resultValue);
             core::global::sync();
-          } catch (std::exception e) {
-            LogFatal << "exception in run_modal_loop:" << e;
+          } catch (std::exception& e) {
+            LogFatal << "exception in run_modal_loop: " << e;
           } catch (...) {
             LogFatal << "Unknown exception in run_modal_loop()";
           }

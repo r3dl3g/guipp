@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
   int ret = 0;
   try {
     ret = gui_main(args);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     LogFatal << e;
     ret = 1;
   }

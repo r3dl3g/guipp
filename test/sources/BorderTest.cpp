@@ -5,7 +5,9 @@
 #include "scroll_view.h"
 #include "toggle_group.h"
 #include "graphics.h"
+#include "bitmap.h"
 
+#include <fstream>
 
 #define NO_EXPORT
 
@@ -28,7 +30,10 @@ public:
   my_main_window ();
 
   void onCreated (window*, const core::rectangle&);
+  void cut (int);
   void copy (int);
+  void paste (int);
+  void del (int);
   void quit (int);
 
 private:
@@ -36,6 +41,7 @@ private:
   group_window<horizontal_lineup<30, 2, 0>, nero> tool_bar;
 
   main_menu menu;
+  popup_menu edit_sub_menu;
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
@@ -71,31 +77,31 @@ my_main_window::my_main_window () {
 void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
-  menu.add_entries({
-    sub_menu_entry("File", [&](int i) {
+  menu.data.add_entries({
+    main_menu_entry("File", [&](int i) {
       labels[0].set_text("File...");
       popup_menu file_sub_menu;
-      file_sub_menu.add_entries({
+      file_sub_menu.data.add_entries({
         menu_entry("open", [&](int) { labels[0].set_text("open"); }, "Strg+O"),
         menu_entry("close", [&](int) { labels[0].set_text("close"); } ), 
         sub_menu_entry("select", [&](int i) {
           labels[0].set_text("select...");
           popup_menu select_sub_menu;
-          select_sub_menu.add_entry(
+          select_sub_menu.data.add_entry(
             menu_entry( "item 1", [&](int) { labels[0].set_text("item 1"); })
           );
-          select_sub_menu.add_entries({
+          select_sub_menu.data.add_entries({
             menu_entry("item 2", [&](int) { labels[0].set_text("item 2"); }),
             sub_menu_entry("item 3", [&](int) {
               labels[0].set_text("item 3...");
               popup_menu sub_sub_menu;
-              sub_sub_menu.add_entries({
+              sub_sub_menu.data.add_entries({
                 menu_entry("item 3-1", [&](int) { labels[0].set_text("item 3-1"); }),
                 menu_entry("item 3-2", [&](int) { labels[0].set_text("item 3-2"); }),
                 sub_menu_entry("item 3-3", [&](int i) {
                   labels[0].set_text("item 3-3...");
                   popup_menu sub_sub_menu2;
-                  sub_sub_menu2.add_entry(
+                  sub_sub_menu2.data.add_entry(
                     menu_entry("item 3-3-1", [&](int) { labels[0].set_text("item 3-3-1"); })
                   );
                   sub_sub_menu2.popup_at(sub_sub_menu.sub_menu_position(i), sub_sub_menu);
@@ -107,7 +113,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
             sub_menu_entry("item 4", [&](int i) {
               labels[0].set_text("item 4...");
               popup_menu sub_sub_menu;
-              sub_sub_menu.add_entry(
+              sub_sub_menu.data.add_entry(
                 menu_entry("item 4-1", [&](int) { labels[0].set_text("item 4-1"); })
               );
               sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(i), select_sub_menu);
@@ -119,27 +125,32 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       });
       file_sub_menu.popup_at(menu.sub_menu_position(i), menu);
     }), 
-    sub_menu_entry("Edit", [&](int i) {
+    main_menu_entry("Edit", [&](int i) {
       labels[0].set_text("Edit...");
-      popup_menu edit_sub_menu;
-      edit_sub_menu.add_entries({
-        menu_entry("cut", [&](int) { labels[0].set_text("cut"); }, "Strg+X", false, u8"♠"),
-        menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, u8"♣"),
-        menu_entry("paste", [&](int) { labels[0].set_text("paste"); }, "Strg+V", false, u8"♥"),
-        menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
-      });
       edit_sub_menu.popup_at(menu.sub_menu_position(i), menu);
     }),
-    sub_menu_entry("Help", [&](int i) {
+    main_menu_entry("Window", [&](int) {
+      labels[0].set_text("Window...");
+    }, true),
+    main_menu_entry("Help", [&](int i) {
       labels[0].set_text("Help...");
       popup_menu help_sub_menu;
-      help_sub_menu.add_entry( 
+      help_sub_menu.data.add_entry(
         menu_entry("about", [&](int) { labels[0].set_text("about"); })
       );
       help_sub_menu.popup_at(menu.sub_menu_position(i), menu);
     })
   });
   menu.create(top_view);
+
+  edit_sub_menu.data.add_entries({
+    menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, u8"♠"),
+    menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, u8"♣"),
+    menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, u8"♥"),
+    menu_entry("del", core::bind_method(this, &my_main_window::del), "del"),
+    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, std::string(), true),
+    menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
+  });
 
   tool_bar.create(top_view);
 
@@ -194,6 +205,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   client_view.create(*this);
 
+  window1.register_event_handler(right_btn_up_event([&](os::key_state, const core::point& pt){
+    edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
+  }));
+
   window1.create(client_view, core::rectangle(100, 40, 600, 400));
   window1.set_visible();
 
@@ -236,7 +251,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 void my_main_window::quit (int) {
   labels[0].set_text("quit");
 
-  layout_dialog_window<layout::border_layout<20, 55, 20, 20>> dialog;
+  layout_dialog_window<layout::border_layout<20, 55, 15, 15>> dialog;
   group_window<horizontal_lineup<80, 15, 10, 2, true>, color::light_gray> buttons;
   labelT<alignment_center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
@@ -280,23 +295,36 @@ void my_main_window::copy (int) {
   auto gc = DefaultGC(display, screen);
   XImage* im = XGetImage(display, left_list.get_id(), r.os_x(), r.os_y(), w, h, AllPlanes, ZPixmap);
   Pixmap pm = XCreatePixmap(display, left_list.get_id(), w, h, DisplayPlanes(display, screen));
-  XPutImage(display, pm, gc, im, 0, 0, 0, 0, w, h);
-  XWriteBitmapFile(display, "left_list.bitmap", pm, w, h, -1, -1);
 
   XPutImage(display, window1.get_id(), gc, im, 0, 0, 0, 0, w, h);
-  XCopyArea(display, left_list.get_id(), window1.get_id(), gc, 0, 0, w, h, 120, 20);
+
+  XCopyArea(display, left_list.get_id(), window1.get_id(), gc, 0, 0, w, h, 120, 10);
+
+  XPutImage(display, pm, gc, im, 0, 0, 0, 0, w, h);
   XCopyArea(display, pm, window1.get_id(), gc, 0, 0, w, h, 240, 20);
 
   XDestroyImage(im);
   XFreePixmap(display, pm);
-
-  int x, y;
-  Pixmap pm2;
-  XReadBitmapFile(display, window1.get_id(), "left_list.bitmap", &w, &h, &pm2, &x, &y);
-
-  XCopyArea(display, pm2, window1.get_id(), gc, 0, 0, w, h, 360, 20);
-  XFreePixmap(display, pm2);
 #endif
+}
+
+void my_main_window::del (int) {
+  labels[0].set_text("del");
+  window1.redraw_later();
+}
+
+void my_main_window::cut (int) {
+  labels[0].set_text("cut");
+  bitmap bmp(left_list.client_size());
+  bmp.copy_from(left_list, left_list.client_area());
+  std::ofstream("left_list.ppm") << bmp;
+}
+
+void my_main_window::paste (int) {
+  labels[0].set_text("paste");
+  bitmap bmp;
+  std::ifstream("left_list.ppm") >> bmp;
+  bmp.copy_to(window1, core::point::zero);
 }
 
 // --------------------------------------------------------------------------

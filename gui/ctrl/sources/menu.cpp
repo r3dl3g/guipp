@@ -32,14 +32,20 @@ namespace gui {
                            bool s,
                            bool h) {
         if (s) {
-          g.fill(draw::rectangle(r), color::dark_gray);
+          g.fill(draw::rectangle(r), color::highLightColor());
         } else if (h) {
-          g.fill(draw::rectangle(r), color::very_light_gray);
+          g.fill(draw::rectangle(r), color::very_very_light_gray);
         } else {
           g.fill(draw::rectangle(r), b);
         }
+
+        os::color col = e.is_disabled() ? color::gray
+                                        : s ? color::highLightTextColor()
+                                            : color::black;
+
         core::rectangle r2 = r + core::point(10, 0);
-        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left), draw::font::menu(), s ? color::white : color::dark_gray);
+        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
+               draw::font::menu(), col);
       }
 
       // --------------------------------------------------------------------------
@@ -52,97 +58,314 @@ namespace gui {
                       bool s,
                       bool h) {
         if (s) {
-          g.fill(draw::rectangle(r), color::dark_gray);
+          g.fill(draw::rectangle(r.with_height(2)), b);
+          g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
         } else if (h) {
-          g.fill(draw::rectangle(r), color::very_light_gray);
+          g.fill(draw::rectangle(r.with_height(2)), b);
+          g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::very_very_light_gray);
         } else {
           g.fill(draw::rectangle(r), b);
         }
 
-        if (!e.get_icon().empty()) {
-          g.text(draw::text_box(e.get_icon(), r.with_width(text_pos - 6), draw::center), draw::font::menu(), s ? color::white : color::dark_gray);
-        }
         core::rectangle r2 = r + core::point(text_pos, 0);
+
         if (e.has_separator()) {
-          core::rectangle r3 = r2.with_height(2);
-          r3.move_x(-2);
+          core::rectangle r3(core::point(text_pos - 2, r.y()), core::point(r.x2(), r.y() + 2));
           draw::frame::hgroove(g, r3);
+          r2 += core::point(0, 2);
         }
 
-        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left), draw::font::menu(), s ? color::white : color::dark_gray);
+        os::color col = e.is_disabled() ? color::gray
+                                        : s ? color::highLightTextColor()
+                                            : color::black;
+
+        if (!e.get_icon().empty()) {
+          g.text(draw::text_box(e.get_icon(), r.with_width(text_pos - 6), draw::center),
+                 draw::font::menu(), col);
+        }
+        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
+               draw::font::menu(), col);
 
         if (!e.get_hotkey().empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(e.get_hotkey(), r2, draw::vcenter_left), draw::font::menu(), s ? color::white : color::dark_gray);
+          g.text(draw::text_box(e.get_hotkey(), r2, draw::vcenter_left),
+                 draw::font::menu(), col);
         }
         if (e.is_sub_menu()) {
           core::point_type y = r.center_y();
           core::point_type x = r.x2() - 8;
-          g.fill(draw::polygon({ core::point(x, y - 4), core::point(x, y + 4), core::point(x + 4, y)}), color::black);
+          g.fill(draw::polygon({ core::point(x, y - 4),
+                                 core::point(x, y + 4),
+                                 core::point(x + 4, y)}), color::black);
         }
       }
 
     }
 
     // --------------------------------------------------------------------------
-    const window_class main_menu::clazz("main_menu", color::light_gray);
+    void menu_data::add_entries (const std::initializer_list<menu_entry>& menu_entries) {
+      vector::size_type last = data.size();
+      data.insert(data.end(), menu_entries);
+      const draw::font& f = draw::font::menu();
+
+      for (iterator i = data.begin() + last, e = data.end(); i != e; ++i) {
+        i->set_width(f.get_text_size(i->get_label()).width());
+      }
+    }
+
+    void menu_data::add_entry (const menu_entry& entry) {
+      data.push_back(entry);
+      menu_entry& e = data.back();
+      const draw::font& f = draw::font::menu();
+      e.set_width(f.get_text_size(e.get_label()).width());
+    }
+
+    int menu_data::get_selection () const {
+      return selection;
+    }
+
+    void menu_data::set_selection (int sel) {
+      int new_selection = std::max(-1, sel);
+      if (new_selection >= size()) {
+        new_selection = -1;
+      }
+      if ((new_selection != -1) && data[new_selection].is_disabled()) {
+        return;
+      }
+      if (new_selection != selection) {
+        close();
+        selection = new_selection;
+        hilite = new_selection;
+        win->redraw_later();
+        send_client_message(win, detail::SELECTION_CHANGE_MESSAGE);
+      }
+    }
+
+    void menu_data::clear_selection () {
+      set_selection(-1);
+    }
+
+    template<typename T>
+    T rotate (T n, T delta, T max) {
+      n += delta;
+      if (n < 0) {
+        n = max - 1;
+      } else if (n > max - 1) {
+        n = 0;
+      }
+      return n;
+    }
+
+    void menu_data::rotate_selection (int delta) {
+      const int last = get_selection();
+      int next = rotate<int>(last, delta, size());
+      while (data[next].is_disabled() && (next != last)) {
+        next = rotate<int>(next, delta, size());
+      }
+      set_selection(next);
+    }
+
+    void menu_data::rotate_hilite (int delta) {
+      const int last = get_hilite();
+      int next = rotate<int>(last, delta, size());
+      while (data[next].is_disabled() && (next != last)) {
+        next = rotate<int>(next, delta, size());
+      }
+      set_hilite(next);
+    }
+
+    int menu_data::get_hilite () const {
+      return hilite;
+    }
+
+    void menu_data::set_hilite (int sel) {
+      int new_hilite = std::max(-1, sel);
+      if (new_hilite >= size()) {
+        new_hilite = -1;
+      }
+      if ((new_hilite != -1) && data[new_hilite].is_disabled()) {
+        return;
+      }
+      if (hilite != new_hilite) {
+        close();
+        hilite = new_hilite;
+        win->redraw_later();
+        send_client_message(win, detail::HILITE_CHANGE_MESSAGE, true);
+      }
+    }
+
+    void menu_data::clear_hilite () {
+      hilite = -1;
+      win->redraw_later();
+      send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
+    }
+
+    void menu_data::set_close_function (close_call fn) {
+      close_caller = fn;
+    }
+
+    void menu_data::clear_close_function () {
+      close_caller = nullptr;
+      key_caller = nullptr;
+    }
+
+    void menu_data::set_mouse_function (mouse_call fn) {
+      mouse_caller = fn;
+    }
+
+    void menu_data::clear_mouse_function () {
+      mouse_caller = nullptr;
+    }
+
+    void menu_data::set_key_function (key_call fn) {
+      key_caller = fn;
+    }
+
+    bool menu_data::is_open () {
+      return (bool)close_caller;
+    }
+
+    void menu_data::close () {
+      if (close_caller) {
+        close_caller();
+      }
+      selection = -1;
+      hilite = -1;
+      close_caller = nullptr;
+      key_caller = nullptr;
+      win->redraw_later();
+    }
+
+    void menu_data::handle_mouse (bool b, const core::point& pt) {
+      if (mouse_caller) {
+        mouse_caller(b, pt);
+      }
+    }
+
+    bool menu_data::handle_key (os::key_symbol k) {
+      if (key_caller) {
+        return key_caller(k);
+      }
+      return false;
+    }
+
+    void menu_data::init () {
+      selection = -1;
+      hilite = -1;
+      close_caller = nullptr;
+      key_caller = nullptr;
+      mouse_caller = nullptr;
+    }
+
+    // --------------------------------------------------------------------------
+    const window_class main_menu::clazz("main_menu", color::very_light_gray);
 
     main_menu::main_menu ()
-      : selection(-1)
-      , hilite(-1)
-      , is_open(false)
+      : data(this)
     {
-      register_event_handler(paint_event([&](const draw::graphics& g) {
-        auto max = std::min(data.size(), widths.size());
-        draw::brush background(color::light_gray);
-        const core::rectangle area = client_area();
-        core::rectangle r = area;
-        for (int i = 0; i < max; ++i) {
-          auto w = widths[i];
-          r.width(w);
-          paint::main_menu_item(data[i], g, r, background, (i == selection), (i == hilite));
-          r.move_x(w);
-        }
-        if (r.x() < area.x2()) {
-          g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), background);
-        }
+      data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
+
+      register_event_handler(paint_event(core::bind_method(this, &main_menu::paint)));
+
+      register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
+        data.handle_mouse(false, window_to_screen(pt));
       }));
 
-      register_event_handler(mouse_move_event([&](os::key_state state, const core::point& pt) {
-        auto new_hilite = get_index_at_point(pt);
-        if (hilite != new_hilite) {
-          hilite = new_hilite;
-          redraw_later();
-        }
+      register_event_handler(mouse_leave_event([&]() {
+        data.clear_hilite();
       }));
 
-      register_event_handler(mouse_leave_event([&](){
-        hilite = -1;
-        if (!is_open) {
-          clear_selection();
+      register_event_handler(set_focus_event([&](window*) {
+        if (data.get_hilite() == -1) {
+          data.set_hilite(0);
         }
       }));
 
       register_event_handler(selection_changed_event([&]() {
-        int idx = get_selection();
+        int idx = data.get_selection();
         if (idx > -1) {
-          is_open = true;
-          data[selection].select(selection);
-          is_open = false;
+          data[idx].select(idx);
         }
       }));
 
       register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-        set_selection(get_index_at_point(pt));
+        take_focus();
+        data.handle_mouse(true, window_to_screen(pt));
       }));
+
+      register_event_handler(key_down_event([&](os::key_state,
+                                                os::key_symbol key,
+                                                const std::string&){
+        handle_key(key);
+      }));
+    }
+
+    void main_menu::handle_mouse (bool btn, const core::point& gpt){
+      if (absolute_place().is_inside(gpt)) {
+        const auto idx = get_index_at_point(screen_to_client(gpt));
+        if (btn) {
+          if (idx == data.get_selection()) {
+            data.clear_selection();
+          } else {
+            data.set_selection(idx);
+          }
+        } else {
+          if (data.is_open()) {
+            if (idx != -1) {
+              data.set_selection(idx);
+            }
+          } else {
+            data.set_hilite(idx);
+          }
+        }
+      } else if (btn) {
+        data.close();
+      }
+    }
+
+    bool main_menu::handle_key (os::key_symbol key) {
+      if (data.handle_key(key)) {
+        return true;
+      }
+      switch (key) {
+        case keys::left:
+        case keys::numpad::left:
+          if (data.is_open()) {
+            data.rotate_selection(-1);
+          } else {
+            data.rotate_hilite(-1);
+          }
+          return true;
+
+        case keys::right:
+        case keys::numpad::right:
+          if (data.is_open()) {
+            data.rotate_selection(1);
+          } else {
+            data.rotate_hilite(1);
+          }
+          return true;
+
+        case keys::escape:
+          data.close();
+          redraw_later();
+          return true;
+
+        case keys::enter:
+          if (!data.is_open() && (data.get_hilite() > -1)) {
+            data.set_selection(data.get_hilite());
+          }
+          return true;
+      }
+      return false;
     }
 
     int main_menu::get_index_at_point (const core::point& pt) const {
       if (client_area().is_inside(pt)) {
         core::point_type pos = 0;
-        auto max = widths.size();
+        auto max = data.size();
         for (int i = 0; i < max; ++i) {
-          pos += widths[i];
+          pos += data[i].get_width() + 20;
           if (pt.x() < pos) {
             return i;
           }
@@ -151,103 +374,172 @@ namespace gui {
       return -1;
     }
 
-    int main_menu::get_selection () const {
-      return selection;
-    }
-
-    void main_menu::set_selection (int i) {
-      if ((i > -2) && (i < data.size()) && (i != selection)) {
-        selection = i;
-        redraw_later();
-        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-      }
-    }
-
-    void main_menu::clear_selection () {
-      hilite = -1;
-      if (selection != -1) {
-        selection = -1;
-        redraw_later();
-        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-      }
-    }
-
     core::point main_menu::sub_menu_position (std::size_t idx) const {
       auto r = absolute_position();
       core::point_type pos = 0;
-      auto max = std::min(idx, widths.size());
+      auto max = std::min(idx, data.size());
       for (int i = 0; i < max; ++i) {
-        pos += widths[i];
+        pos += data[i].get_width() + 20;
       }
       return (r + core::point(pos, size().height()));
     }
 
-    void main_menu::add_entries (const std::initializer_list<menu_entry>& menu_entries) {
-      data.insert(data.end(), menu_entries);
-      const draw::font& f = draw::font::menu();
-      for (const menu_entry& e : menu_entries) {
-        widths.push_back(f.get_text_size(e.get_label()).width() + 20);
+    void main_menu::paint (const draw::graphics& g) {
+      auto max = data.size();
+      draw::brush background(color::menuColor());
+      const core::rectangle area = client_area();
+      core::rectangle r = area;
+      for (int i = 0; i < max; ++i) {
+        auto w = data[i].get_width() + 20;
+        r.width(w);
+        paint::main_menu_item(data[i], g, r, background,
+                              (i == data.get_selection()), (i == data.get_hilite()));
+        r.move_x(w);
       }
-    }
-
-    void main_menu::add_entry (const menu_entry& entry) {
-      data.push_back(entry);
-      const draw::font& f = draw::font::menu();
-      widths.push_back(f.get_text_size(entry.get_label()).width() + 20);
+      if (r.x() < area.x2()) {
+        g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), background);
+      }
     }
 
     // --------------------------------------------------------------------------
     popup_menu::popup_menu ()
-      : items(false) 
+      : data(this)
       , text_pos(10)
       , hotkey_pos(0)
     {
+      register_event_handler(paint_event(core::bind_method(this, &popup_menu::paint)));
 
-      items.register_event_handler(mouse_move_event([&](os::key_state state, const core::point& pt) {
-        if (call_check_selection) {
-          call_check_selection(0, pt);
-        }
+      register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
+        data.handle_mouse(false, window_to_screen(pt));
       }));
 
-      items.register_event_handler(selection_changed_event([&]() {
-        int idx = items.get_selection();
+      register_event_handler(mouse_leave_event([&](){
+        data.clear_hilite();
+      }));
+
+      register_event_handler(selection_changed_event([&]() {
+        int idx = data.get_selection();
         if (idx > -1) {
-          menu_entry& e = data[idx];
-          if (!e.is_sub_menu()) {
-            if (call_close_function) {
-              call_close_function();
-            }
-            e.select(idx);
+          if (!data[idx].is_sub_menu()) {
+            data.handle_mouse(true, core::point::zero);
           }
+          data[idx].select(idx);
         }
       }));
 
-      items.register_event_handler(left_btn_down_event([&](os::key_state state, const core::point& pt) {
-        if (call_check_selection) {
-          call_check_selection(1, pt);
-        }
+      register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        data.handle_mouse(true, window_to_screen(pt));
       }));
 
-      items.register_event_handler(hilite_changed_event([&](bool on) {
-        if (on) {
-          int idx = items.get_hilite();
-          if (idx > -1) {
-            data[idx].hilite(idx);
-          }
-        }
+      register_event_handler(lost_focus_event([&](window*) {
+        redraw_later();
       }));
 
-      register_event_handler(create_event([&](win::window* w, const core::rectangle& r) {
-        items.create(*this, core::rectangle(r.size()));
-        items.set_drawer(core::bind_method(this, &popup_menu::draw_menu_item));
-        items.set_count(data.size());
+      register_event_handler(key_down_event([&](os::key_state,
+                                                os::key_symbol key,
+                                                const std::string&){
+        handle_key(key);
       }));
 
       register_event_handler(show_event([&]() {
-        items.set_visible();
-        items.capture_pointer();
+        capture_pointer();
       }));
 
+    }
+
+    bool popup_menu::handle_key (os::key_symbol key) {
+      if (data.handle_key(key)) {
+        return true;
+      }
+      switch (key) {
+        case keys::left:
+        case keys::numpad::left:
+        case keys::escape:
+          if (data.is_open()) {
+            int idx = data.get_hilite();
+            data.close();
+            data.set_hilite(idx);
+            redraw_later();
+            return true;
+          }
+          break;
+        case keys::up:
+        case keys::numpad::up:
+          data.rotate_hilite(-1);
+          return true;
+
+        case keys::right:
+        case keys::numpad::right: {
+          int idx = data.get_hilite();
+          if (!data.is_open() && (idx != -1) && data[idx].is_sub_menu()) {
+            data.set_selection(idx);
+            return true;
+          }
+          break;
+        }
+        case keys::down:
+        case keys::numpad::down:
+          data.rotate_hilite(1);
+          return true;
+
+        case keys::enter:
+          if (data.get_hilite() > -1) {
+            data.set_selection(data.get_hilite());
+          }
+          return true;
+      }
+      return false;
+    }
+
+    void popup_menu::handle_mouse (bool btn, const core::point& gpt) {
+      const auto idx = get_index_at_point(screen_to_client(gpt));
+      if (btn) {
+        if (!data.is_open() || (idx != data.get_hilite())) {
+          data.set_selection(idx);
+        }
+      } else {
+        if (data[idx].is_sub_menu()) {
+          data.set_selection(idx);
+        } else {
+          data.set_hilite(idx);
+        }
+      }
+    }
+
+    void popup_menu::popup_at (const core::point& pt, window& parent) {
+      data.init();
+      data.set_hilite(0);
+      data.set_mouse_function([&](bool btn, const core::point& gpt) {
+        if (absolute_place().is_inside(gpt)) {
+          handle_mouse(btn, gpt);
+        } else if (btn) {
+          close();
+      }
+      });
+      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
+      set_visible();
+      run_modal();
+    }
+
+    void popup_menu::popup_at (window& parent, menu_data& parent_data, const core::point& pt) {
+      data.init();
+      data.set_hilite(0);
+      parent_data.set_close_function([&]() {
+        close();
+        parent_data.clear_close_function();
+      });
+      parent_data.set_key_function(core::bind_method(this, &popup_menu::handle_key));
+
+      data.set_mouse_function([&](bool btn, const core::point& gpt) {
+        if (absolute_place().is_inside(gpt)) {
+          handle_mouse(btn, gpt);
+        } else {
+          parent_data.handle_mouse(btn, gpt);
+        }
+      });
+      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
+      set_visible();
+      run_modal();
     }
 
     core::point popup_menu::sub_menu_position (int idx) {
@@ -255,20 +547,32 @@ namespace gui {
       return (r + core::point(size().width() - 1, static_cast<core::point_type>(idx * item_height + 1)));
     }
 
-    void popup_menu::popup_at (window& parent, const core::point& pt) {
-      items.clear_selection();
-      items.clear_hilite();
-      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
-      set_visible();
-      run_modal();
+    int popup_menu::get_index_at_point (const core::point& pt) const {
+      if (client_area().is_inside(pt)) {
+        return pt.y() / item_height;
+      }
+      return -1;
     }
 
     void popup_menu::close () {
-      items.uncapture_pointer();
+      data.close();
+      uncapture_pointer();
       set_visible(false);
-      items.destroy();
       destroy();
       end_modal();
+    }
+
+    void popup_menu::paint (const draw::graphics& g) {
+      draw::brush background(color::menuColor());
+      const core::rectangle area = client_area();
+      core::rectangle r = area;
+      const auto count = data.size();
+      for (int i = 0; i < count; ++i) {
+        r.height(item_height);
+        paint::menu_item(data[i], g, r, text_pos, hotkey_pos, background,
+                         (i == data.get_selection()), (i == data.get_hilite()));
+        r.move_y(item_height);
+      }
     }
 
     core::size_type popup_menu::calc_width () {
@@ -276,23 +580,16 @@ namespace gui {
       core::size_type hotkey_width = 0;
       bool has_sub = false;
       const draw::font& f = draw::font::menu();
-      for (const menu_entry& e : data) {
-        label_width = std::max(label_width, f.get_text_size(e.get_label()).width());
+      const auto count = data.size();
+      for (int i = 0; i < count; ++i) {
+        const menu_entry& e = data[i];
+        label_width = std::max(label_width, e.get_width());
         has_sub |= e.is_sub_menu();
         hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hotkey()).width());
       }
       text_pos = 36;
       hotkey_pos = text_pos + label_width + 20;
       return hotkey_pos + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
-    }
-
-    void popup_menu::draw_menu_item (int idx,
-                                     const draw::graphics& g,
-                                     const core::rectangle& r,
-                                     const draw::brush& b,
-                                     bool s,
-                                     bool h) {
-      paint::menu_item(data.at(idx), g, r, text_pos, hotkey_pos, b, s, h);
     }
 
     // --------------------------------------------------------------------------

@@ -346,9 +346,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    graphics::graphics (os::window win, os::graphics gc)
+    graphics::graphics (os::drawable target, os::graphics gc)
       : gc(gc)
-      , win(win)
+      , target(target)
     {}
 
     void graphics::draw_pixel (const core::point& pt,
@@ -372,6 +372,12 @@ namespace gui {
           LineTo(gc, pt.os_x(), pt.os_y());
         }
       }
+    }
+
+    void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
+      HDC target_dc = GetDC(w);
+      BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), target_dc, d.os_x(), d.os_y());
+      ReleaseDC(w, target_dc);
     }
 
     void graphics::invert (const core::rectangle& r) const {
@@ -453,16 +459,16 @@ namespace gui {
     XftDraw* graphics::s_xft = nullptr;
 
     // --------------------------------------------------------------------------
-    graphics::graphics (os::window win, os::graphics gc)
+    graphics::graphics (os::drawable target, os::graphics gc)
       : gc(gc)
-      , win(win)
+      , target(target)
     {
       if (!s_xft) {
         Visual* visual = DefaultVisual(core::global::get_instance(), core::global::get_screen());
         Colormap colormap = DefaultColormap(core::global::get_instance(), core::global::get_screen());
-        s_xft = XftDrawCreate(core::global::get_instance(), win, visual, colormap);
+        s_xft = XftDrawCreate(core::global::get_instance(), target, visual, colormap);
       } else {
-        XftDrawChange(s_xft, win);
+        XftDrawChange(s_xft, target);
       }
     }
 
@@ -942,7 +948,7 @@ namespace gui {
     void graphics::draw_pixel (const core::point& pt,
                                os::color c) const {
       Use<pen> pn(gc, pen(c));
-      XDrawPoint(core::global::get_instance(), win, gc, pt.os_x(), pt.os_y());
+      XDrawPoint(core::global::get_instance(), target, gc, pt.os_x(), pt.os_y());
     }
 
     os::color graphics::get_pixel (const core::point& pt) const {
@@ -958,9 +964,14 @@ namespace gui {
       std::for_each(pts.begin(), pts.end(), [&](const core::point& pt){
         points.push_back(pt.os());
       });
-      XDrawLines(core::global::get_instance(), win, gc,
+      XDrawLines(core::global::get_instance(), target, gc,
                  points.data(), (int)points.size(),
                  CoordModeOrigin);
+    }
+
+    void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
+      auto display = core::global::get_instance();
+      XCopyArea(display, w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), d.os_x(), d.os_y());
     }
 
     void graphics::invert (const core::rectangle& r) const {

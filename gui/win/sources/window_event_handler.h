@@ -563,10 +563,10 @@ namespace gui {
       void init_message (Atom& message, const char* name);
     }
 
-    template <os::event_id id, os::event_id btn, int sts>
+    template <os::event_id id, os::event_id btn>
     struct event_button_match {
       bool operator() (const core::event& e) {
-        return (e.type == id) && (e.xbutton.button == btn) && ((e.xbutton.state & sts) == sts);
+        return (e.type == id) && (e.xbutton.button == btn);
       }
     };
 
@@ -700,42 +700,42 @@ namespace gui {
                            caller<get_state<XButtonEvent>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
-                           event_button_match<ButtonPress, Button1, 0>>             left_btn_down_event;
+                           event_button_match<ButtonPress, Button1>>             left_btn_down_event;
 
-    typedef event_handler<ButtonRelease, ButtonReleaseMask,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask|ButtonPressMask,
                            Params<os::key_state, core::point>::
                            caller<get_state<XButtonEvent>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
-                           event_button_match<ButtonRelease, Button1, Button1Mask>> left_btn_up_event;
-
-    typedef event_handler<ButtonPress, ButtonPressMask,
-                           Params<os::key_state, core::point>::
-                           caller<get_state<XButtonEvent>,
-                                  get_param<core::point, XButtonEvent>>,
-                           0,
-                           event_button_match<ButtonPress, Button3, 0>>             right_btn_down_event;
-
-    typedef event_handler<ButtonRelease, ButtonReleaseMask,
-                           Params<os::key_state, core::point>::
-                           caller<get_state<XButtonEvent>,
-                                  get_param<core::point, XButtonEvent>>,
-                           0,
-                           event_button_match<ButtonRelease, Button3, Button3Mask>> right_btn_up_event;
+                           event_button_match<ButtonRelease, Button1>>           left_btn_up_event;
 
     typedef event_handler<ButtonPress, ButtonPressMask,
                            Params<os::key_state, core::point>::
                            caller<get_state<XButtonEvent>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
-                           event_button_match<ButtonPress, Button2, 0>>             middle_btn_down_event;
+                           event_button_match<ButtonPress, Button3>>             right_btn_down_event;
 
-    typedef event_handler<ButtonRelease, ButtonReleaseMask,
+    typedef event_handler<ButtonRelease, ButtonReleaseMask|ButtonPressMask,
                            Params<os::key_state, core::point>::
                            caller<get_state<XButtonEvent>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
-                           event_button_match<ButtonRelease, Button2, Button3Mask>> middle_btn_up_event;
+                           event_button_match<ButtonRelease, Button3>>           right_btn_up_event;
+
+    typedef event_handler<ButtonPress, ButtonPressMask,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonPress, Button2>>             middle_btn_down_event;
+
+    typedef event_handler<ButtonRelease, ButtonReleaseMask|ButtonPressMask,
+                           Params<os::key_state, core::point>::
+                           caller<get_state<XButtonEvent>,
+                                  get_param<core::point, XButtonEvent>>,
+                           0,
+                           event_button_match<ButtonRelease, Button2>>           middle_btn_up_event;
 
     template<os::event_id B>
     struct double_click_matcher {

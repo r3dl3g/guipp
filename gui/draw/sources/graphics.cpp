@@ -561,6 +561,8 @@ namespace gui {
     graphics::graphics (os::drawable target, os::graphics gc)
       : gc(gc)
       , target(target)
+      , own_gc(false)
+      , ref_gc(false)
     {
       if (!s_xft) {
         Visual* visual = DefaultVisual(core::global::get_instance(), core::global::get_screen());
@@ -568,6 +570,54 @@ namespace gui {
         s_xft = XftDrawCreate(core::global::get_instance(), target, visual, colormap);
       } else {
         XftDrawChange(s_xft, target);
+      }
+    }
+
+    graphics::graphics (os::drawable target)
+      : gc(0)
+      , target(target)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      gc = XCreateGC(core::global::get_instance(), target, 0, 0);
+      own_gc = true;
+    }
+
+    graphics::graphics (const graphics& rhs)
+      : gc(0)
+      , target(0)
+      , own_gc(false)
+      , ref_gc(false)
+    {
+      operator=(rhs);
+    }
+
+    graphics::~graphics () {
+      destroy();
+    }
+
+    void graphics::destroy () {
+      if (gc) {
+        if (own_gc) {
+          XFreeGC(core::global::get_instance(), gc);
+        }
+      }
+      gc = 0;
+      own_gc = false;
+      ref_gc = false;
+    }
+
+    void graphics::operator= (const graphics& rhs) {
+      if (&rhs != this) {
+        destroy();
+        target = rhs.target;
+        own_gc = rhs.own_gc;
+        ref_gc = rhs.ref_gc;
+        if (own_gc) {
+          gc = XCreateGC(core::global::get_instance(), target, 0, 0);
+        } else {
+          gc = rhs.gc;
+        }
       }
     }
 
@@ -1069,6 +1119,11 @@ namespace gui {
     }
 
     void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
+      auto display = core::global::get_instance();
+      XCopyArea(display, w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), d.os_x(), d.os_y());
+    }
+
+    void graphics::stretch_from (os::drawable w, const core::rectangle& r, const core::rectangle& d) const {
       auto display = core::global::get_instance();
       XCopyArea(display, w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), d.os_x(), d.os_y());
     }

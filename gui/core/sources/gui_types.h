@@ -346,7 +346,8 @@ namespace gui {
 
       template<typename T>
       explicit rectangle (const T& rhs)
-        : tl(rhs.x, rhs.y), br(rhs.x + rhs.width, rhs.y + rhs.height) {}
+        : rectangle(core::point(rhs), core::size(rhs))
+      {}
 
 #endif // X11
 

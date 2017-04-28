@@ -156,13 +156,21 @@ namespace gui {
           }
 
           try {
-            win->handle_event(core::event(e), resultValue);
-          } catch (std::exception& e) {
-            LogFatal << "exception in run_main_loop: " << e;
+            win->handle_event(e, resultValue);
+          } catch (std::exception& ex) {
+            LogFatal << "exception in run_main_loop: " << ex;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
           }
           core::global::sync();
+
+          switch (e.type) {
+            case ConfigureNotify:
+              get_last_place<core::size>(e.xconfigure.window) = core::size(e.xconfigure);
+              get_last_place<core::point>(e.xconfigure.window) = core::point(e.xconfigure);
+              get_last_place<core::rectangle>(e.xconfigure.window) = core::rectangle(e.xconfigure);
+            break;
+          }
         }
       }
       return resultValue;

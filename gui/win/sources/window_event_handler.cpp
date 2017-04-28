@@ -289,6 +289,27 @@ namespace gui {
       return detail::get_window(id);
     }
 
+    // --------------------------------------------------------------------------
+    std::map<Window, core::size> s_last_size;
+    std::map<Window, core::point> s_last_pos;
+    std::map<Window, core::rectangle> s_last_place;
+
+    template<>
+    core::size& get_last_place<core::size>(Window w) {
+      return s_last_size[w];
+    }
+
+    template<>
+    core::point& get_last_place<core::point>(Window w) {
+      return s_last_pos[w];
+    }
+
+    template<>
+    core::rectangle& get_last_place<core::rectangle>(Window w) {
+      return s_last_place[w];
+    }
+
+
 #endif // X11
 
   } // win

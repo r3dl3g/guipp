@@ -70,10 +70,18 @@ namespace gui {
         bpl = w * 4;
         std::size_t n = bpl * h;
         data.resize(n);
+#ifndef NDEBUG
+        char* end = data.data() + n;
+#endif // NDEBUG
         for (int i = 0; i < h; ++i) {
           char* d = (data.data() + (i * bpl));
           for (int j = 0; j < w; ++j) {
             in.read(d, 3);
+#ifndef NDEBUG
+            if (d > end) {
+              throw std::out_of_range("access beyond boundary!");
+            }
+#endif // NDEBUG
             d += 4;
           }
         }
@@ -221,14 +229,32 @@ namespace gui {
       }
       auto gc = DefaultGC(display, screen);
 
-      XImage* im = XCreateImage(display, DefaultVisual(display, screen), bpp, ZPixmap, 0, data.data(), w, h, 32, bpl);
-      if (im) {
-        XPutImage(display, id, gc, im, 0, 0, 0, 0, w, h);
-        XDestroyImage(im);
-      }
-      else {
-        throw std::runtime_error("create image failed");
-      }
+      XImage im = {
+          w, h,                             /* size of image */
+          0,                                /* number of pixels offset in X direction */
+          ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
+          const_cast<char*>(data.data()),   /* pointer to image data */
+          LSBFirst,                         /* data byte order, LSBFirst, MSBFirst */
+          bpp,                              /* quant. of scanline 8, 16, 32 */
+          LSBFirst,                         /* LSBFirst, MSBFirst */
+          bpp,                              /* 8, 16, 32 either XY or ZPixmap */
+          24,                               /* depth of image */
+          bpl,                              /* accelarator to next line */
+          bpp,                              /* bits per pixel (ZPixmap) */
+          0                                 /* bits in z arrangment */
+      };
+
+      XInitImage(&im);
+      XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+
+//      XImage* im = XCreateImage(display, DefaultVisual(display, screen), bpp, ZPixmap, 0, const_cast<char*>(data.data()), w, h, 32, bpl);
+//      if (im) {
+//        XPutImage(display, id, gc, im, 0, 0, 0, 0, w, h);
+//        XDestroyImage(im);
+//      }
+//      else {
+//        throw std::runtime_error("create image failed");
+//      }
 #endif
     }
 

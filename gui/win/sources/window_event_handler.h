@@ -604,28 +604,30 @@ namespace gui {
       return e.xconfigurerequest;
     }
     // --------------------------------------------------------------------------
+    template<typename T>
+    T& get_last_place(Window);
+
+    template<>
+    core::size& get_last_place<core::size>(Window);
+
+    template<>
+    core::point& get_last_place<core::point>(Window);
+
+    template<>
+    core::rectangle& get_last_place<core::rectangle>(Window);
+
+    // --------------------------------------------------------------------------
     template<typename T, os::event_id E, typename C>
     struct move_size_matcher {
       bool operator() (const core::event& e) {
         os::event_id t = e.type;
         if (t == E) {
-          Window w = e.xany.window;
-          T& o = s_last_place[w];
-          T n = T(cast_event_type<C>(e));
-          if (o != n) {
-            //LogDebug << "move_size_matcher " << o << " -> " << n;
-            o = n;
-            return true;
-          }
+          const C& c = cast_event_type<C>(e);
+          return (get_last_place<T>(c.window) != T(c));
         }
         return false;
       }
-    private:
-      static std::map<Window, T> s_last_place;
     };
-
-    template<typename T, os::event_id E, typename C>
-    std::map<Window, T> move_size_matcher<T, E, C>::s_last_place;
 
     // --------------------------------------------------------------------------
     template<typename T>

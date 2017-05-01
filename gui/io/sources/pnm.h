@@ -82,8 +82,8 @@ namespace gui {
         return ((i - 1) % 3 == 0 ? pbm : ((i - 1) % 3 == 1 ? pgm : ppm));
       }
 
-      static constexpr int get_open_mode (int i) {
-        return (i > 3 ? std::ios::binary : 0);
+      static constexpr std::ios::openmode get_open_mode (int i) {
+        return (i > 3 ? std::ios::binary : std::ios::openmode(0));
       }
 
       template<typename T>
@@ -102,8 +102,8 @@ namespace gui {
     template<int i>
     struct pnm : public pnm_const {
       static constexpr const char*const suffix = get_suffix(i);
-      static const int i_open_mode = std::ios::in | get_open_mode(i);
-      static const int o_open_mode = std::ios::out | get_open_mode(i);
+      static const std::ios::openmode i_open_mode = std::ios::in | get_open_mode(i);
+      static const std::ios::openmode o_open_mode = std::ios::out | get_open_mode(i);
       static const bool bin = is_bin(i);
 
       template<typename T>
@@ -216,23 +216,23 @@ namespace gui {
       {}
 
       ofpnm(const char* fname)
-        : super(build_filename(fname), o_open_mode)
+        : super(pnm<i>::build_filename(fname), pnm<i>::o_open_mode)
       {}
 
       ofpnm(const std::string& fname)
-        : super(build_filename(fname), o_open_mode)
+        : super(pnm<i>::build_filename(fname), pnm<i>::o_open_mode)
       {}
 
       void open(const char* fname) {
-        super::open(build_filename(fname), o_open_mode)
+        super::open(pnm<i>::build_filename(fname), pnm<i>::o_open_mode);
       }
 
       void open(const std::string& fname) {
-        super::open(build_filename(fname), o_open_mode)
+        super::open(pnm<i>::build_filename(fname), pnm<i>::o_open_mode);
       }
 
       void operator<< (const draw::bitmap& b) {
-        opnm<pnm::bin>(b).write(*this);
+        opnm<pnm<i>::bin>(b).write(*this);
       }
 
     };
@@ -247,19 +247,19 @@ namespace gui {
       {}
 
       ifpnm(const char* fname)
-        : super(build_filename(fname), i_open_mode)
+        : super(pnm<i>::build_filename(fname), pnm<i>::i_open_mode)
       {}
 
       ifpnm(const std::string& fname)
-        : super(build_filename(fname), i_open_mode)
+        : super(pnm<i>::build_filename(fname), pnm<i>::i_open_mode)
       {}
 
       void open(const char* fname) {
-        super::open(build_filename(fname), i_open_mode)
+        super::open(pnm<i>::build_filename(fname), pnm<i>::i_open_mode);
       }
 
       void open(const std::string& fname) {
-        super::open(build_filename(fname), i_open_mode)
+        super::open(pnm<i>::build_filename(fname), pnm<i>::i_open_mode);
       }
 
       void operator>> (draw::bitmap& b) {

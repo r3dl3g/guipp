@@ -237,7 +237,7 @@ namespace gui {
             line[x] = i[x] ^ 0xff;
 #endif // WIN32
 #ifdef X11
-            line[x] = reverse_bit_order(i[w]) ^ 0xff;
+            line[x] = reverse_bit_order(i[x]) ^ 0xff;
 #endif // X11
           }
           out.write(reinterpret_cast<char*>(line.data()), bytes);

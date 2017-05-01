@@ -50,7 +50,7 @@ namespace gui {
 
     template<>
     byte get<1> (cbyteptr in, int x) {
-      int shift = 7 - x % 8;
+      int shift = IF_WIN32(7 -) x % 8;
       int bit = (in[x / 8] & (0x01 << shift)) >> shift;
       return byte_values[bit];
     }

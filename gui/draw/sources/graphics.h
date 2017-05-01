@@ -69,12 +69,13 @@ namespace gui {
       const graphics& draw_lines (std::initializer_list<core::point> points,
                                   const pen& pen) const;
 
-      const graphics& frame (std::function<frameable>, const pen& pen) const;
-      const graphics& fill (std::function<fillable>, const brush& brush) const;
-      const graphics& draw (std::function<drawable>, const brush& brush, const pen& pen) const;
-      const graphics& text (std::function<textable>, const font& font, os::color color) const;
-      const graphics& copy (std::function<copyable>, const core::point&) const;
+      const graphics& frame (const std::function<frameable>&, const pen& pen) const;
+      const graphics& fill (const std::function<fillable>&, const brush& brush) const;
+      const graphics& draw (const std::function<drawable>&, const brush& brush, const pen& pen) const;
+      const graphics& text (const std::function<textable>&, const font& font, os::color color) const;
+      const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
+      const graphics& copy_from(const draw::bitmap&, const core::point& dest = core::point::zero) const;
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero) const;
       const graphics& stretch_from (os::drawable, const core::rectangle& src,

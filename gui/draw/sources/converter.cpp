@@ -50,8 +50,8 @@ namespace gui {
 
     template<>
     byte get<1> (cbyteptr in, int x) {
-      int shift = x % 8;
-      int bit = (in[x / 8] & bit_mask[shift]) >> shift;
+      int shift = 7 - x % 8;
+      int bit = (in[x / 8] & (0x01 << shift)) >> shift;
       return byte_values[bit];
     }
 
@@ -75,13 +75,27 @@ namespace gui {
 
     void line_converter<24, 32>::convert (cbyteptr in, byteptr out, int w) {
       for (int x = 0; x < w; ++x) {
+#ifdef WIN32
+        out[x * 4] = in[x * 3 + 2];
+        out[x * 4 + 1] = in[x * 3 + 1];
+        out[x * 4 + 2] = in[x * 3];
+#endif // WIN32
+#ifdef X11
         reinterpret_cast<uint32_t*>(out)[x] = *reinterpret_cast<const uint32_t*>(in + x * 3) & 0x00ffffff;
+#endif // X11
       }
     }
 
     void line_converter<32, 24>::convert (cbyteptr in, byteptr out, int w) {
       for (int x = 0; x < w; ++x) {
+#ifdef WIN32
+        out[x * 3] = in[x * 4 + 2];
+        out[x * 3 + 1] = in[x * 4 + 1];
+        out[x * 3 + 2] = in[x * 4];
+#endif // WIN32
+#ifdef X11
         memcpy(out + x * 3, in + x * 4, 3);
+#endif // X11
       }
     }
 

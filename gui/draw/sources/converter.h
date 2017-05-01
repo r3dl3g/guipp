@@ -37,7 +37,8 @@ namespace gui {
     typedef uint8_t byte;
     typedef byte* byteptr;
     typedef const byte* cbyteptr;
-    const byte bit_mask[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
+    constexpr byte bit_mask[8] = IF_X11({ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 })
+                                 IF_WIN32({ 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 });
 
     template<int W>
     void set (byteptr out, int x, byte v);
@@ -87,14 +88,14 @@ namespace gui {
 //          for (int s = 0; s < 8; ++s) {
 //            ovalue = ovalue | ((get<From>(in, x + s) > 0x7f) ? 0x01 << s : 0);
 //          }
-          byte ovalue = (get<From>(in, x + 0) ? 0x01 : 0)
-                      | (get<From>(in, x + 1) ? 0x02 : 0)
-                      | (get<From>(in, x + 2) ? 0x04 : 0)
-                      | (get<From>(in, x + 3) ? 0x08 : 0)
-                      | (get<From>(in, x + 4) ? 0x10 : 0)
-                      | (get<From>(in, x + 5) ? 0x20 : 0)
-                      | (get<From>(in, x + 6) ? 0x40 : 0)
-                      | (get<From>(in, x + 7) ? 0x80 : 0);
+          byte ovalue = (get<From>(in, x + 0) ? bit_mask[0] : 0)
+                      | (get<From>(in, x + 1) ? bit_mask[1] : 0)
+                      | (get<From>(in, x + 2) ? bit_mask[2] : 0)
+                      | (get<From>(in, x + 3) ? bit_mask[3] : 0)
+                      | (get<From>(in, x + 4) ? bit_mask[4] : 0)
+                      | (get<From>(in, x + 5) ? bit_mask[5] : 0)
+                      | (get<From>(in, x + 6) ? bit_mask[6] : 0)
+                      | (get<From>(in, x + 7) ? bit_mask[7] : 0);
           out[x / 8] = ovalue;
         }
       }

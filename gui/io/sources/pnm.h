@@ -23,6 +23,7 @@
 // Common includes
 //
 #include <iostream>
+#include <fstream>
 
 // --------------------------------------------------------------------------
 //
@@ -40,6 +41,19 @@ namespace gui {
 
     template<int i>
     void save_pnm (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+
+    template<>
+    void save_pnm<1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    template<>
+    void save_pnm<2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    template<>
+    void save_pnm<3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    template<>
+    void save_pnm<4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    template<>
+    void save_pnm<5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    template<>
+    void save_pnm<6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
 
     // --------------------------------------------------------------------------
     template<int i>
@@ -59,10 +73,49 @@ namespace gui {
     void load_pnm<6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
 
     // --------------------------------------------------------------------------
-    template<int i>
-    struct pnm {
-      static char const* suffix;
+    struct pnm_const {
+      static constexpr const char*const ppm = "ppm";
+      static constexpr const char*const pgm = "pgm";
+      static constexpr const char*const pbm = "pbm";
+
+      static constexpr const char*const get_suffix (int i) {
+        return ((i - 1) % 3 == 0 ? pbm : ((i - 1) % 3 == 1 ? pgm : ppm));
+      }
+
+      static constexpr int get_open_mode (int i) {
+        return (i > 3 ? std::ios::binary : 0);
+      }
+
+      template<typename T>
+      static std::string build_filename(T t, int i) {
+        std::string fname = ostreamfmt(t << "." << get_suffix(i));
+        return fname;
+      }
+
+      static constexpr bool is_bin (int i) {
+        return i > 3;
+      }
+
     };
+
+    // --------------------------------------------------------------------------
+    template<int i>
+    struct pnm : public pnm_const {
+      static constexpr const char*const suffix = get_suffix(i);
+      static const int i_open_mode = std::ios::in | get_open_mode(i);
+      static const int o_open_mode = std::ios::out | get_open_mode(i);
+      static const bool bin = is_bin(i);
+
+      template<typename T>
+      static std::string build_filename(T t) {
+        std::string fname = ostreamfmt(t << "." << suffix);
+        return fname;
+      }
+
+    };
+
+    void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary = true);
+    void load_pnm (std::istream& in, draw::bitmap& bmp);
 
     // --------------------------------------------------------------------------
     template<bool BIN>
@@ -72,7 +125,7 @@ namespace gui {
         : bmp(bmp)
       {}
 
-      void save (std::ostream& out) const {
+      void write (std::ostream& out) const {
         int w, h, bpl, bpp;
         std::vector<char> data;
         bmp.get_data(data, w, h, bpl, bpp);
@@ -103,7 +156,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<bool BIN>
     inline std::ostream& operator<< (std::ostream& out, const opnm<BIN>& p) {
-      p.save(out);
+      p.write(out);
       return out;
     }
 
@@ -152,6 +205,67 @@ namespace gui {
       p.read(in);
       return in;
     }
+
+    // --------------------------------------------------------------------------
+    template<int i>
+    struct ofpnm : public std::ofstream, pnm<i> {
+      typedef std::ofstream super;
+
+      ofpnm()
+        : super()
+      {}
+
+      ofpnm(const char* fname)
+        : super(build_filename(fname), o_open_mode)
+      {}
+
+      ofpnm(const std::string& fname)
+        : super(build_filename(fname), o_open_mode)
+      {}
+
+      void open(const char* fname) {
+        super::open(build_filename(fname), o_open_mode)
+      }
+
+      void open(const std::string& fname) {
+        super::open(build_filename(fname), o_open_mode)
+      }
+
+      void operator<< (const draw::bitmap& b) {
+        opnm<pnm::bin>(b).write(*this);
+      }
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<int i>
+    struct ifpnm : public std::ifstream, pnm<i> {
+      typedef std::ifstream super;
+
+      ifpnm()
+        : super()
+      {}
+
+      ifpnm(const char* fname)
+        : super(build_filename(fname), i_open_mode)
+      {}
+
+      ifpnm(const std::string& fname)
+        : super(build_filename(fname), i_open_mode)
+      {}
+
+      void open(const char* fname) {
+        super::open(build_filename(fname), i_open_mode)
+      }
+
+      void open(const std::string& fname) {
+        super::open(build_filename(fname), i_open_mode)
+      }
+
+      void operator>> (draw::bitmap& b) {
+        ipnm(b).read(*this);
+      }
+    };
 
     // --------------------------------------------------------------------------
   }

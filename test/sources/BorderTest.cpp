@@ -88,7 +88,7 @@ my_main_window::my_main_window () {
     for (int i = 0; i < 2; ++i) {
       try {
         if (bw[i]) {
-          graph.copy_from(bw[i], core::rectangle(bw[i].size()), core::point(x, 1));
+          graph.copy_from(bw[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
@@ -96,7 +96,7 @@ my_main_window::my_main_window () {
       x += 110;
       try {
         if (gray[i]) {
-          graph.copy_from(gray[i], core::rectangle(gray[i].size()), core::point(x, 1));
+          graph.copy_from(gray[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
@@ -104,7 +104,7 @@ my_main_window::my_main_window () {
       x += 110;
       try {
         if (bmp[i]) {
-          graph.copy_from(bmp[i], core::rectangle(bmp[i].size()), core::point(x, 1));
+          graph.copy_from(bmp[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
@@ -365,6 +365,7 @@ void my_main_window::copy (int) {
   gray[0].put(bmp[0]);
   bw[0].put(bmp[0]);
 
+  bmp[0].make_compatible();
   gray[0].make_compatible();
   bw[0].make_compatible();
 
@@ -404,61 +405,65 @@ void my_main_window::cut (int) {
   gray[0].put(bmp[0]);
   bw[0].put(bmp[0]);
 
-  std::ofstream("left_list.p6.ppm") << io::opnm<true>(bmp[0]);
-  std::ofstream("left_list.p3.ppm") << io::opnm<false>(bmp[0]);
+  io::ofpnm<6>("left_list.p6") << io::opnm<true>(bmp[0]);
+  io::ofpnm<3>("left_list.p3") << io::opnm<false>(bmp[0]);
 
-  std::ofstream("left_list.p5.pgm") << io::opnm<true>(gray[0]);
-  std::ofstream("left_list.p2.pgm") << io::opnm<false>(gray[0]);
+  io::ofpnm<5>("left_list.p5") << io::opnm<true>(gray[0]);
+  io::ofpnm<2>("left_list.p2") << io::opnm<false>(gray[0]);
 
-  std::ofstream("left_list.p4.pbm") << io::opnm<true>(bw[0]);
-  std::ofstream("left_list.p1.pbm") << io::opnm<false>(bw[0]);
+  io::ofpnm<4>("left_list.p4") << io::opnm<true>(bw[0]);
+  io::ofpnm<1>("left_list.p1") << io::opnm<false>(bw[0]);
 
   drawer(bmp[1]);
 
-  std::ofstream(ostreamfmt("p6." << io::pnm<6>::suffix)) << io::opnm<true>(bmp[1]);
-  std::ofstream(ostreamfmt("p3." << io::pnm<3>::suffix)) << io::opnm<false>(bmp[1]);
+  io::ofpnm<6>("p6") << io::opnm<true>(bmp[1]);
+  io::ofpnm<3>("p3") << io::opnm<false>(bmp[1]);
 
-  drawer(gray[1]);
+  gray[1].put(bmp[1]);
+  //drawer(gray[1]);
 
-  std::ofstream("p5.pgm") << io::opnm<true>(gray[1]);
-  std::ofstream("p2.pgm") << io::opnm<false>(gray[1]);
+  io::ofpnm<5>("p5") << io::opnm<true>(gray[1]);
+  io::ofpnm<2>("p2") << io::opnm<false>(gray[1]);
 
   drawer(bw[1]);
 
-  std::ofstream("p4.pbm") << io::opnm<true>(bw[1]);
-  std::ofstream("p1.pbm") << io::opnm<false>(bw[1]);
+  io::ofpnm<4>("p4") << io::opnm<true>(bw[1]);
+  io::ofpnm<1>("p1") << io::opnm<false>(bw[1]);
 
+  bmp[0].make_compatible();
   gray[0].make_compatible();
   bw[0].make_compatible();
 
+  bmp[1].make_compatible();
   gray[1].make_compatible();
   bw[1].make_compatible();
 
   window1.redraw_later();
 }
 
+template<int i>
+void read_write (bitmap& bm) {
+  try {
+    std::string iname = ostreamfmt("p" << i);
+    std::string oname = ostreamfmt("test.p" << i);
+    io::ifpnm<i>(iname) >> bm;
+    io::ofpnm<i>(oname) << bm;
+    bm.make_compatible();
+  }
+  catch (std::exception& ex) {
+    LogFatal << ex;
+  }
+}
+
 void my_main_window::paste (int) {
   labels[0].set_text("paste");
 
-  for (int i = 0; i < 2; ++i) {
-
-    io::ipnm in1(bw[i]);
-    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 1) << ".pbm")) >> in1;
-    std::ofstream(ostreamfmt("test.p" << (i * 3 + 1) << ".pbm")) << io::opnm<false>(bw[i]);
-
-    io::ipnm in2(gray[i]);
-    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 2) << ".pgm")) >> in2;
-    std::ofstream(ostreamfmt("test.p" << (i * 3 + 2) << ".pgm")) << io::opnm<false>(gray[i]);
-
-    io::ipnm in3(bmp[i]);
-    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 3) << ".ppm")) >> in3;
-    std::ofstream(ostreamfmt("test.p" << (i * 3 + 3) << ".ppm")) << io::opnm<false>(bmp[i]);
-
-    bw[i].make_compatible();
-    gray[i].make_compatible();
-    bmp[i].make_compatible();
-
-  }
+  read_write<1>(bw[0]);
+  read_write<2>(gray[0]);
+  read_write<3>(bmp[0]);
+  read_write<4>(bw[1]);
+  read_write<5>(gray[1]);
+  read_write<6>(bmp[1]);
 
   window1.redraw_later();
 }

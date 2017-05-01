@@ -35,6 +35,57 @@ namespace gui {
 
   namespace draw {
 
+#if WIN32
+    struct bitmap_info : public BITMAPINFO {
+
+      bitmap_info () {
+        memset(this, 0, sizeof(bitmap_info));
+        bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        init_gray_colors();
+      }
+
+      bitmap_info (int w, int h, int bpl, int bpp) {
+        bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+        bmiHeader = {
+          sizeof(BITMAPINFOHEADER),
+          w, h, 1, (WORD)bpp,
+          BI_RGB,
+          (DWORD)(h * bpl), 
+          0, 0, 
+          cols, 
+          cols
+        };
+        init_gray_colors();
+      }
+
+      void init_colors () {
+        HDC dc = GetDC(NULL);
+        GetDIBColorTable(dc, 0, 256, bmiColors);
+        ReleaseDC(NULL, dc);
+      }
+
+      void init_gray_colors () {
+        for (int i = 0; i < 256; ++i) {
+          bmiColors[i] = { (BYTE)i, (BYTE)i, (BYTE)i, 0 };
+        }
+      }
+
+      void set_gray_colors(HBITMAP id) {
+        HDC gdc = GetDC(NULL);
+        HDC gc = CreateCompatibleDC(gdc);
+        ReleaseDC(NULL, gdc);
+        SelectObject(gc, id);
+
+        SetDIBColorTable(gc, 0, 256, bmiColors);
+        DeleteDC(gc);
+      }
+
+    private:
+      RGBQUAD moreColors[255];
+    };
+#endif
+
     bitmap::bitmap (const bitmap& rhs)
       : id(0)
     {
@@ -117,13 +168,13 @@ namespace gui {
     }
 
     void bitmap::create (int w, int h) {
-      clear();
 #if WIN32
       HDC dc = GetDC(NULL);
       id = CreateCompatibleBitmap(dc, w, h);
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
+      clear();
       auto display = core::global::get_instance();
       auto screen = core::global::get_screen();
       auto visual = DefaultRootWindow(display);
@@ -137,9 +188,11 @@ namespace gui {
     void bitmap::create (int w, int h, int bpp) {
       clear();
 #if WIN32
-      HDC dc = GetDC(NULL);
       id = CreateBitmap(w, h, 1, bpp, NULL);
-      ReleaseDC(NULL, dc);
+      if (id && (8 == bpp)) {
+        bitmap_info bi;
+        bi.set_gray_colors(id);
+      }
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
@@ -156,6 +209,10 @@ namespace gui {
       id = CreateBitmap(w, h, 1, bpp, data.data());
       if (!id) {
         throw std::runtime_error("create image failed");
+      }
+      if (8 == bpp) {
+        bitmap_info bi;
+        bi.set_gray_colors(id);
       }
 #endif
 #ifdef X11
@@ -178,101 +235,121 @@ namespace gui {
       }
     }
 
-    template<int M>
+    template<int D, int M>
     int up_modulo (int v) {
-      return v + v % M;
+      int r = (v + D - 1) / D;
+      return r + r % M;
     }
 
     int bitmap::calc_bytes_per_line (int w, int bpp) {
       switch (bpp) {
+#ifdef WIN32
         case 1:
-          return up_modulo<8>(w / 8);
+          return up_modulo<8, 2>(w);
         case 8:
-          return up_modulo<4>(w);
+          return up_modulo<1, 2>(w);
         case 24:
-          return up_modulo<4>(w * 3);
+          return up_modulo<1, 2>(w * 3);
         case 32:
-          return up_modulo<4>(w * 4);
+          return up_modulo<1, 2>(w * 4);
+#endif // WIN32
+#ifdef X11
+        case 1:
+          return up_modulo<8, 16>(w);
+        case 8:
+          return up_modulo<1, 4>(w);
+        case 24:
+          return up_modulo<1, 4>(w * 3);
+        case 32:
+          return up_modulo<1, 4>(w * 4);
+#endif // X11
       }
       return -1;
     }
 
-    void bitmap::put (const std::vector<char>& src, int w, int h, int bpl, int bpp) {
+    void put_data (os::bitmap id, const std::vector<char>& src, int w, int h, int bpl, int bpp) {
 #if WIN32
-      HDC gdc = GetDC(NULL);
-      HDC gc = CreateCompatibleDC(gdc);
-      ReleaseDC(NULL, gdc);
-
-      SelectObject(gc, id);
-
-      int usage = bpp > 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS;
-      BITMAPINFOHEADER bi = {
-        sizeof(BITMAPINFOHEADER),
-        w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, (bpp == 8) ? 256u : 0, 0
-      };
-
-      int ret = StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), reinterpret_cast<BITMAPINFO*>(&bi), usage, SRCCOPY);
-      if (ret != h) {
-        throw std::runtime_error("put image data failed");
-      }
-      DeleteDC(gc);
+      int ret = SetBitmapBits(id, (DWORD)src.size(), src.data());
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
-      int my_bpp = depth();
-      if (my_bpp == bpp) {
+      XImage im = {
+        w, h,                             /* size of image */
+        0,                                /* number of pixels offset in X direction */
+        ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
+        const_cast<char*>(src.data()),   /* pointer to image data */
+        ImageByteOrder(display),          /* data byte order, LSBFirst, MSBFirst */
+        BitmapUnit(display),              /* quant. of scanline 8, 16, 32 */
+        BitmapBitOrder(display),          /* LSBFirst, MSBFirst */
+        BitmapPad(display),               /* 8, 16, 32 either XY or ZPixmap */
+        bpp,                              /* depth of image */
+        bpl,                              /* accelarator to next line */
+        bpp,                              /* bits per pixel (ZPixmap) */
+        0                                 /* bits in z arrangment */
+      };
 
-        XImage im = {
-            w, h,                             /* size of image */
-            0,                                /* number of pixels offset in X direction */
-            ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
-            const_cast<char*>(src.data()),   /* pointer to image data */
-            ImageByteOrder(display),          /* data byte order, LSBFirst, MSBFirst */
-            BitmapUnit(display),              /* quant. of scanline 8, 16, 32 */
-            BitmapBitOrder(display),          /* LSBFirst, MSBFirst */
-            BitmapPad(display),               /* 8, 16, 32 either XY or ZPixmap */
-            bpp,                              /* depth of image */
-            bpl,                              /* accelarator to next line */
-            bpp,                              /* bits per pixel (ZPixmap) */
-            0                                 /* bits in z arrangment */
-        };
+      XInitImage(&im);
+      XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+      XFreeGC(display, gc);
+#endif
+    }
 
-        XInitImage(&im);
-        XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+    void bitmap::put (const std::vector<char>& src, int w, int h, int bpl, int bpp) {
+//#if WIN32
+      //if (depth() == core::global::get_device_bits_per_pixel()) {
+      //  HDC gdc = GetDC(NULL);
+      //  HDC gc = CreateCompatibleDC(gdc);
+      //  ReleaseDC(NULL, gdc);
 
+      //  SelectObject(gc, id);
+
+      //  bitmap_info bi(w, h, bpl, bpp);
+
+      //  int ret = StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
+      //  DeleteDC(gc);
+      //  if (ret == h) {
+      //    return;
+      //  }
+      //}
+      //// fall back to amnual mode.
+//#endif
+
+      int dst_bpp = depth();
+      if (dst_bpp == bpp) {
+        put_data(id, src, w, h, bpl, bpp);
       } else {
         std::vector<char> dst;
-        int dst_bpl = calc_bytes_per_line(w, my_bpp);
+        int dst_bpl = calc_bytes_per_line(w, dst_bpp);
         dst.resize(dst_bpl * h);
 
         using namespace convert;
 
         switch (bpp) {
           case 1:
-            switch (my_bpp) {
+            switch (dst_bpp) {
               case 8:  converter<1, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 24: converter<1, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 32: converter<1, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case 8:
-            switch (my_bpp) {
+            switch (dst_bpp) {
               case 1:  converter<8, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 24: converter<8, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 32: converter<8, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case 24:
-            switch (my_bpp) {
+            switch (dst_bpp) {
               case 1:  converter<24, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 8:  converter<24, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 32: converter<24, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case 32:
-            switch (my_bpp) {
+            switch (dst_bpp) {
               case 1:  converter<32, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 8:  converter<32, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case 24: converter<32, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
@@ -280,26 +357,9 @@ namespace gui {
           break;
         }
 
-        XImage im = {
-            w, h,                           /* size of image */
-            0,                              /* number of pixels offset in X direction */
-            ZPixmap,                        /* XYBitmap, XYPixmap, ZPixmap */
-            const_cast<char*>(dst.data()),  /* pointer to image data */
-            ImageByteOrder(display),        /* data byte order, LSBFirst, MSBFirst */
-            BitmapUnit(display),            /* quant. of scanline 8, 16, 32 */
-            BitmapBitOrder(display),        /* LSBFirst, MSBFirst */
-            BitmapPad(display),             /* 8, 16, 32 either XY or ZPixmap */
-            my_bpp,                         /* depth of image */
-            dst_bpl,                        /* accelarator to next line */
-            my_bpp,                         /* bits per pixel (ZPixmap) */
-            0                               /* bits in z arrangment */
-        };
+        put_data(id, dst, w, h, dst_bpl, dst_bpp);
 
-        XInitImage(&im);
-        XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
       }
-      XFreeGC(display, gc);
-#endif
     }
 
     void bitmap::put (const bitmap& rhs) {
@@ -309,48 +369,55 @@ namespace gui {
       put(data, w, h, bpl, bpp);
     }
 
-    struct save_bitmapinfo : public BITMAPINFO {
-      RGBQUAD moreColors[255];
-    };
-
     void bitmap::get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const {
 #if WIN32
-      save_bitmapinfo bi;
-      memset(&bi, 0, sizeof(save_bitmapinfo));
-      bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+      BITMAP bmp;
+      GetObject(id, sizeof(BITMAP), &bmp);
+      //if (bmp.bmBitsPixel == 8) {
+        w = bmp.bmWidth;
+        h = bmp.bmHeight;
+        bpl = bmp.bmWidthBytes;
+        bpp = bmp.bmBitsPixel;
+        data.resize(bpl * h);
+        int dst_bpl = calc_bytes_per_line(w, bpp);
+        int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
+        if (ret != data.size()) {
+          throw std::runtime_error("get image data failed");
+        }
+      //} else {
+      //  bitmap_info bi;
 
-      HDC gdc = GetDC(NULL);
-      HDC gc = CreateCompatibleDC(gdc);
-      ReleaseDC(NULL, gdc);
+      //  HDC gdc = GetDC(NULL);
+      //  HDC gc = CreateCompatibleDC(gdc);
+      //  ReleaseDC(NULL, gdc);
 
-      HGDIOBJ old = SelectObject(gc, id);
+      //  HGDIOBJ old = SelectObject(gc, id);
 
-      int ret = GetDIBits(gc, id, 0, 0, nullptr, &bi, DIB_RGB_COLORS);
-      if (!ret) {
-        throw std::runtime_error("get image info failed");
-      }
+      //  int ret = GetDIBits(gc, id, 0, 0, nullptr, &bi, DIB_RGB_COLORS);
+      //  if (!ret) {
+      //    throw std::runtime_error("get image info failed");
+      //  }
 
-      const int n = bi.bmiHeader.biSizeImage;
-      w = bi.bmiHeader.biWidth;
-      h = bi.bmiHeader.biHeight;
-      bpl = n / h;
-      bpp = bi.bmiHeader.biBitCount;
-      bi.bmiHeader.biClrUsed = (bpp == 8) ? 256 : 0;
-      int usage = bpp > 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS;
+      //  const int n = bi.bmiHeader.biSizeImage;
+      //  w = bi.bmiHeader.biWidth;
+      //  h = bi.bmiHeader.biHeight;
+      //  bpl = n / h;
+      //  bpp = bi.bmiHeader.biBitCount;
 
-      data.resize(n);
+      //  data.resize(n);
 
-      // positiv numbers give a bottom up bitmap.
-      bi.bmiHeader.biHeight = -std::abs(bi.bmiHeader.biHeight);
-      bi.bmiHeader.biCompression = BI_RGB;
+      //  // positiv numbers give a bottom up bitmap.
+      //  bi.bmiHeader.biHeight = -std::abs(bi.bmiHeader.biHeight);
+      //  bi.bmiHeader.biCompression = BI_RGB;
 
-      ret = GetDIBits(gc, id, 0, h, data.data(), &bi, usage);
-      if (ret != h) {
-        throw std::runtime_error("get image data failed");
-      }
+      //  ret = GetDIBits(gc, id, 0, h, data.data(), &bi, DIB_RGB_COLORS);
+      //  if (ret != h) {
+      //    throw std::runtime_error("get image data failed");
+      //  }
 
-      SelectObject(gc, old);
-      DeleteDC(gc);
+      //  SelectObject(gc, old);
+      //  DeleteDC(gc);
+      //}
 
 #endif
 #ifdef X11

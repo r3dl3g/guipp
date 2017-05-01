@@ -39,44 +39,33 @@ namespace gui {
     typedef byte* byteptr;
     const byte bit_mask[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
 
-    byte lookup[16] = {
+    byte reverse_lookup[16] = {
         0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
         0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
     };
 
     byte reverse_bit_order (byte n) {
        // Reverse the top and bottom nibble then swap them.
-       return (lookup[n&0b1111] << 4) | lookup[n>>4];
+       return (reverse_lookup[n & 0b1111] << 4) | reverse_lookup[n >> 4];
     }
-
-    // --------------------------------------------------------------------------
-    template<>
-    char const* pnm<1>::suffix = "pbm";
-
-    template<>
-    char const* pnm<2>::suffix = "pgm";
-
-    template<>
-    char const* pnm<3>::suffix = "ppm";
-
-    template<>
-    char const* pnm<4>::suffix = "pbm";
-
-    template<>
-    char const* pnm<5>::suffix = "pgm";
-
-    template<>
-    char const* pnm<6>::suffix = "ppm";
 
     // --------------------------------------------------------------------------
     void save_pnm_header (std::ostream& out, int magic_num, int width, int height, int max) {
       out << 'P' << magic_num << '\n';
       out << "# pnm created by gui++\n";
+//      out.write("\n", 1);
       out << width << ' ' << height;
       if (max) {
         out << ' ' << max;
       }
+      // In Win32 \n will create 0d 0a when the ofstream is create in text mode.
+      // even when use write("\n", 1)!
+      std::streampos p1 = out.tellp();
       out << '\n';
+      std::streampos p2 = out.tellp();
+      if (p2 - p1 > 1) {
+        out.seekp(p1 + std::streamoff(1));
+      }
     }
 
     // --------------------------------------------------------------------------
@@ -123,21 +112,6 @@ namespace gui {
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<6> data size missmatch");
       }
-#ifdef WIN32
-      if (32 == bpp) {
-        for (int h = 0; h < height; ++h) {
-          const char* d = (data.data() + (h * bpl));
-          for (int w = 0; w < width; ++w) {
-            out.write(d, 3);
-            d += 4;
-          }
-        }
-      }
-      else if (24 == bpp) {
-        out.write(data.data(), n);
-      }
-#endif // WIN32
-#ifdef X11
       if (32 == bpp) {
         for (int h = 0; h < height; ++h) {
           const char* d = (data.data() + (h * bpl));
@@ -152,15 +126,20 @@ namespace gui {
       else if (24 == bpp) {
         for (int h = 0; h < height; ++h) {
           const char* d = (data.data() + (h * bpl));
+#ifdef WIN32
+          out.write(d, width * 3);
+
+#endif // WIN32
+#ifdef X11
           for (int w = 0; w < width; ++w) {
             out.write(d + 2, 1);
             out.write(d + 1, 1);
             out.write(d, 1);
             d += 3;
           }
+#endif // X11
         }
       }
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -175,7 +154,10 @@ namespace gui {
       std::noskipws(in);
 #ifdef WIN32
       if (bpp == 24) {
-        in.read(data.data(), n);
+        for (int y = 0; y < height; ++y) {
+          char* d = (data.data() + (y * bpl));
+          in.read(d, width * 3);
+        }
       } else {
         for (int y = 0; y < height; ++y) {
           char* d = (data.data() + (y * bpl));
@@ -247,12 +229,18 @@ namespace gui {
          out.write(data.data(), n);
       } else {
         int bytes = (width + 7) / 8;
-        for (int h = 0; h < height; ++h) {
-          const char* i = data.data() + (h * bpl);
-          for (int w = 0; w < bytes; ++w) {
-            byte v = reverse_bit_order(i[w]) ^ 0xff;
-            out.write(reinterpret_cast<char*>(&v), 1);
+        for (int y = 0; y < height; ++y) {
+          cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bpl));
+          std::vector<byte> line(bytes);
+          for (int x = 0; x < bytes; ++x) {
+#ifdef WIN32
+            line[x] = i[x] ^ 0xff;
+#endif // WIN32
+#ifdef X11
+            line[x] = reverse_bit_order(i[w]) ^ 0xff;
+#endif // X11
           }
+          out.write(reinterpret_cast<char*>(line.data()), bytes);
         }
       }
     }
@@ -269,13 +257,17 @@ namespace gui {
          in.read(data.data(), n);
       } else {
         int bytes = (width + 7) / 8;
-        std::vector<byte> line;
-        line.resize(bytes);
+        std::vector<byte> line(bytes);
         for (int y = 0; y < height; ++y) {
           byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bpl));
           in.read(reinterpret_cast<char*>(line.data()), bytes);
           for (int x = 0; x < bytes; ++x) {
+#ifdef WIN32
+            i[x] = line[x] ^ 0xff;
+#endif // WIN32
+#ifdef X11
             i[x] = reverse_bit_order(line[x]) ^ 0xff;
+#endif // X11
           }
         }
       }
@@ -294,12 +286,7 @@ namespace gui {
           cbyteptr i = bdata + (h * bpl);
           for (int w = 0; w < width; ++w) {
             cbyteptr d = i + w * 4;
-#ifdef WIN32
-            out << static_cast<int>(d[0]) << ' ' <<  static_cast<int>(d[1]) << ' ' <<  static_cast<int>(d[2]) << ' ';
-#endif // WIN32
-#ifdef X11
             out << static_cast<int>(d[2]) << ' ' <<  static_cast<int>(d[1]) << ' ' <<  static_cast<int>(d[0]) << ' ';
-#endif // X11
           }
         } else {
           for (cbyteptr i = bdata + (h * bpl), e = i + bpl; i < e; ++i) {
@@ -403,7 +390,12 @@ namespace gui {
         cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (h * bpl));
         for (int w = 0; w < width; ++w) {
           byte v = i[w / 8];
+#ifdef WIN32
+          byte bit = bit_mask[7 - w % 8];
+#endif // WIN32
+#ifdef X11
           byte bit = bit_mask[w % 8];
+#endif // X11
           out << (v & bit ? '0' : '1') << ' ';
         }
         out << std::endl;
@@ -426,7 +418,7 @@ namespace gui {
           int v;
           in >> v;
           int s = x % 8;
-          value = value | (v << s);
+          value = value | (v << (IF_WIN32(7 - ) s));
           if (s == 7) {
             i[x / 8] = static_cast<byte>(value) ^ 0xff;
             value = 0;
@@ -437,6 +429,72 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary) {
+      int w, h, bpl, bpp;
+      std::vector<char> data;
+      bmp.get_data(data, w, h, bpl, bpp);
+      switch (bpp) {
+      case 1:
+        if (binary) {
+          save_pnm_header(out, 4, w, h, 0);
+          save_pnm<4>(out, data, w, h, bpl, bpp);
+        } else {
+          save_pnm_header(out, 1, w, h, 0);
+          save_pnm<1>(out, data, w, h, bpl, bpp);
+        }
+        break;
+      case 8:
+        if (binary) {
+          save_pnm_header(out, 5, w, h, 0);
+          save_pnm<5>(out, data, w, h, bpl, bpp);
+        } else {
+          save_pnm_header(out, 2, w, h, 0);
+          save_pnm<2>(out, data, w, h, bpl, bpp);
+        }
+        break;
+      case 24:
+      case 32:
+        if (binary) {
+          save_pnm_header(out, 6, w, h, 0);
+          save_pnm<6>(out, data, w, h, bpl, bpp);
+        } else {
+          save_pnm_header(out, 3, w, h, 0);
+          save_pnm<3>(out, data, w, h, bpl, bpp);
+        }
+        break;
+      default:
+        throw std::invalid_argument("unsupportet bit per pixel value");
+      }
+    }
+
+    void load_pnm (std::istream& in, draw::bitmap& bmp) {
+      int magic_num, w, h, max;
+      load_pnm_header(in, magic_num, w, h, max);
+
+      int bpl, bpp = 24;
+      std::vector<char> data;
+      switch (magic_num) {
+      case 1:
+        load_pnm<1>(in, data, w, h, bpl, bpp);
+        break;
+      case 2:
+        load_pnm<2>(in, data, w, h, bpl, bpp);
+        break;
+      case 3:
+        load_pnm<3>(in, data, w, h, bpl, bpp);
+        break;
+      case 4:
+        load_pnm<4>(in, data, w, h, bpl, bpp);
+        break;
+      case 5:
+        load_pnm<5>(in, data, w, h, bpl, bpp);
+        break;
+      case 6:
+        load_pnm<6>(in, data, w, h, bpl, bpp);
+        break;
+      }
+      bmp.create(data, w, h, bpl, bpp);
+    }
 
   } // io
 

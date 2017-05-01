@@ -442,20 +442,20 @@ namespace gui {
 
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
-                                         const core::point& d) const {
+                                         const core::point& pt) const {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
         HGDIOBJ old = SelectObject(source_gc, w);
-        if (!BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(),
-                    source_gc, d.os_x(), d.os_y(), SRCCOPY)) {
+        if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
+                    source_gc, r.os_x(), r.os_y(), SRCCOPY)) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
       } else {
-        if (!BitBlt(gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(),
-                    source_gc, d.os_x(), d.os_y(), SRCCOPY)) {
+        if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
+                    source_gc, r.os_x(), r.os_y(), SRCCOPY)) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         ReleaseDC((HWND)w, source_gc);
@@ -1213,33 +1213,38 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::frame (std::function<frameable> drawer,
+    const graphics& graphics::copy_from(const draw::bitmap& bmp, const core::point& pt) const {
+      return copy_from(bmp, core::rectangle(bmp.size()), pt);
+    }
+
+    const graphics& graphics::frame (const std::function<frameable>& drawer,
                                      const pen& p) const {
       drawer(*this, p);
       return *this;
     }
 
-    const graphics& graphics::fill (std::function<fillable> drawer,
+    const graphics& graphics::fill (const std::function<fillable>& drawer,
                                     const brush& b) const {
       drawer(*this, b);
       return *this;
     }
 
-    const graphics& graphics::draw (std::function<drawable> drawer,
+    const graphics& graphics::draw (const std::function<drawable>& drawer,
                                     const brush& b,
                                     const pen& p) const {
       drawer(*this, b, p);
       return *this;
     }
 
-    const graphics& graphics::text (std::function<textable> drawer,
+    const graphics& graphics::text (const std::function<textable>& drawer,
                                     const font& f,
                                     os::color c) const {
       drawer(*this, f, c);
       return *this;
     }
 
-    const graphics& graphics::copy (std::function<copyable> drawer, const core::point& pt) const {
+    const graphics& graphics::copy (const std::function<copyable>& drawer,
+                                    const core::point& pt) const {
       drawer(*this, pt);
       return *this;
     }

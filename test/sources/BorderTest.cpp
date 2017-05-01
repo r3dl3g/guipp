@@ -84,7 +84,7 @@ my_main_window::my_main_window () {
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
-    int x = 1;
+    core::point_type x = 1;
     for (int i = 0; i < 2; ++i) {
       try {
         if (bw[i]) {
@@ -188,9 +188,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   bitmap cut_icon(16, 16);
   bitmap copy_icon(16, 16);
   bitmap paste_icon(16, 16);
-  graphics(cut_icon).clear(color::black).text(text_box(u8"♠", icon_rect, center), font::menu(), color::dark_red);
-  graphics(copy_icon).clear(color::black).text(text_box(u8"♣", icon_rect, center), font::menu(), color::dark_blue);
-  graphics(paste_icon).clear(color::black).text(text_box(u8"♥", icon_rect, center), font::menu(), color::dark_green);
+  graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, center), font::menu(), color::dark_red);
+  graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, center), font::menu(), color::dark_blue);
+  graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, center), font::menu(), color::dark_green);
 
   edit_sub_menu.data.add_entries({
     menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, cut_icon),
@@ -363,7 +363,7 @@ void my_main_window::copy (int) {
 
   draw::graphics(bmp[0]).copy_from(left_list, r);
   gray[0].put(bmp[0]);
-  bw[0].put(gray[0]);
+  bw[0].put(bmp[0]);
 
   gray[0].make_compatible();
   bw[0].make_compatible();
@@ -402,7 +402,7 @@ void my_main_window::cut (int) {
 
   draw::graphics(bmp[0]).copy_from(left_list, r);
   gray[0].put(bmp[0]);
-  bw[0].put(gray[0]);
+  bw[0].put(bmp[0]);
 
   std::ofstream("left_list.p6.ppm") << io::opnm<true>(bmp[0]);
   std::ofstream("left_list.p3.ppm") << io::opnm<false>(bmp[0]);

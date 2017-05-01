@@ -1123,13 +1123,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const graphics& graphics::clear (os::color color) const {
-      os::instance display = get_instance();
-      rectangle r(core::rectangle(0, 0, 0xffff, 0xffff));
-      r.operator()(*this, brush(color));
-      return *this;
-    }
-
     const graphics& graphics::draw_pixel (const core::point& pt,
                                           os::color c) const {
       Use<pen> pn(gc, pen(c));
@@ -1214,6 +1207,12 @@ namespace gui {
     }
 
 #endif // X11
+    const graphics& graphics::clear(os::color color) const {
+      rectangle r(core::rectangle(0, 0, 0xffff, 0xffff));
+      r.operator()(*this, brush(color));
+      return *this;
+    }
+
     const graphics& graphics::frame (std::function<frameable> drawer,
                                      const pen& p) const {
       drawer(*this, p);

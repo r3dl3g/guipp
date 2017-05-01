@@ -138,7 +138,7 @@ namespace gui {
       clear();
 #if WIN32
       HDC dc = GetDC(NULL);
-      id = CreateBitmap(dc, w, h, 1, bpp, NULL);
+      id = CreateBitmap(w, h, 1, bpp, NULL);
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
@@ -205,12 +205,16 @@ namespace gui {
 
       SelectObject(gc, id);
 
+      int usage = bpp > 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS;
       BITMAPINFOHEADER bi = {
         sizeof(BITMAPINFOHEADER),
-        w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, 0, 0
+        w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, (bpp == 8) ? 256u : 0, 0
       };
 
-      StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS, SRCCOPY);
+      int ret = StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), reinterpret_cast<BITMAPINFO*>(&bi), usage, SRCCOPY);
+      if (ret != h) {
+        throw std::runtime_error("put image data failed");
+      }
       DeleteDC(gc);
 #endif
 #ifdef X11
@@ -305,9 +309,15 @@ namespace gui {
       put(data, w, h, bpl, bpp);
     }
 
+    struct save_bitmapinfo : public BITMAPINFO {
+      RGBQUAD moreColors[255];
+    };
+
     void bitmap::get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const {
 #if WIN32
-      BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), 0 };
+      save_bitmapinfo bi;
+      memset(&bi, 0, sizeof(save_bitmapinfo));
+      bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
       HDC gdc = GetDC(NULL);
       HDC gc = CreateCompatibleDC(gdc);
@@ -315,24 +325,26 @@ namespace gui {
 
       HGDIOBJ old = SelectObject(gc, id);
 
-      int ret = GetDIBits(gc, id, 0, 0, nullptr, reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS);
+      int ret = GetDIBits(gc, id, 0, 0, nullptr, &bi, DIB_RGB_COLORS);
       if (!ret) {
         throw std::runtime_error("get image info failed");
       }
 
-      const int n = bi.biSizeImage;
-      w = bi.biWidth;
-      h = bi.biHeight;
+      const int n = bi.bmiHeader.biSizeImage;
+      w = bi.bmiHeader.biWidth;
+      h = bi.bmiHeader.biHeight;
       bpl = n / h;
-      bpp = bi.biBitCount;
+      bpp = bi.bmiHeader.biBitCount;
+      bi.bmiHeader.biClrUsed = (bpp == 8) ? 256 : 0;
+      int usage = bpp > 1 ? DIB_RGB_COLORS : DIB_PAL_COLORS;
 
       data.resize(n);
 
       // positiv numbers give a bottom up bitmap.
-      bi.biHeight = -std::abs(bi.biHeight);
-      bi.biCompression = BI_RGB;
+      bi.bmiHeader.biHeight = -std::abs(bi.bmiHeader.biHeight);
+      bi.bmiHeader.biCompression = BI_RGB;
 
-      ret = GetDIBits(gc, id, 0, h, data.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS);
+      ret = GetDIBits(gc, id, 0, h, data.data(), &bi, usage);
       if (ret != h) {
         throw std::runtime_error("get image data failed");
       }
@@ -382,13 +394,16 @@ namespace gui {
     }
 
     void transparent_bitmap::operator() (const graphics& g, const core::point& pt) const {
+#ifdef WIN32
+      g.copy_from(*this, core::rectangle(size()), pt);
+#endif // WIN32
 #ifdef X11
       auto display = core::global::get_instance();
       XSetClipMask(display, g, mask);
       XSetClipOrigin(display, g, pt.os_x(), pt.os_y());
-#endif
       g.copy_from(*this, core::rectangle(size()), pt);
       XSetClipMask(display, g, None);
+#endif
     }
   }
 

@@ -90,8 +90,8 @@ namespace gui {
 
         if (e.get_icon()) {
           core::size sz = e.get_icon().size();
-          int x = (text_pos - sz.width()) / 2;
-          int y = r.y() + (r.height() - sz.height()) / 2;
+          core::point_type x = (text_pos - sz.width()) / 2;
+          core::point_type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy(e.get_icon(), core::point(x, y));
         }
         g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),

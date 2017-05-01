@@ -104,7 +104,9 @@ namespace gui {
 #endif // X11
 
     protected:
+#ifdef X11
       XftDraw* get_xft () const;
+#endif // X11
 
       friend struct clip;
       void push_clip_rectangle (const core::rectangle&) const;

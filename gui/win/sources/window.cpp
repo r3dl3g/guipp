@@ -386,7 +386,28 @@ namespace gui {
       }
 
       cls = &type;
-      os::instance display = core::global::get_instance();
+
+      auto display = core::global::get_instance();
+//      auto visual = core::global::get_visual();
+
+//      XSetWindowAttributes attr;
+//      attr.colormap = XCreateColormap(display, DefaultRootWindow(display), visual->visual, AllocNone);
+//      attr.border_pixel = 0;//type.get_background();
+//      attr.background_pixel = 0;//type.get_background();
+
+//      id = XCreateWindow(display,
+//                         parent_id,
+//                         place.os_x(),
+//                         place.os_y(),
+//                         place.os_width(),
+//                         place.os_height(),
+//                         0,
+//                         visual->depth,
+//                         InputOutput,
+//                         visual->visual,
+//                         CWColormap | CWBorderPixel | CWBackPixel,
+//                         &attr);
+
       id = XCreateSimpleWindow(display,
                                parent_id,
                                place.os_x(),

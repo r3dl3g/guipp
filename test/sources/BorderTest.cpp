@@ -6,6 +6,7 @@
 #include "toggle_group.h"
 #include "graphics.h"
 #include "bitmap.h"
+#include "pnm.h"
 
 #include <fstream>
 
@@ -61,7 +62,13 @@ private:
   vtoggle_group<color::light_gray, color::gray> vsegmented;
 
   client_window window1;
-  bitmap bmp;
+  bitmap bmp[2];
+  bitmap gray[2];
+  bitmap bw[2];
+
+  bitmap cut_icon;
+  bitmap copy_icon;
+  bitmap paste_icon;
 };
 
 // --------------------------------------------------------------------------
@@ -76,12 +83,33 @@ my_main_window::my_main_window () {
   window1.register_event_handler(paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
-    if (bmp) {
-      if (segmented.get_button(0).is_checked()) {
-        graph.stretch_from(bmp, core::rectangle(bmp.size()), place);
-      } else {
-        graph.copy_from(bmp, core::rectangle(bmp.size()), core::point::zero);
+
+    int x = 1;
+    for (int i = 0; i < 2; ++i) {
+      try {
+        if (bw[i]) {
+          graph.copy_from(bw[i], core::rectangle(bw[i].size()), core::point(x, 1));
+        }
+      } catch (std::exception& ex) {
+        LogFatal << ex;
       }
+      x += 110;
+      try {
+        if (gray[i]) {
+          graph.copy_from(gray[i], core::rectangle(gray[i].size()), core::point(x, 1));
+        }
+      } catch (std::exception& ex) {
+        LogFatal << ex;
+      }
+      x += 110;
+      try {
+        if (bmp[i]) {
+          graph.copy_from(bmp[i], core::rectangle(bmp[i].size()), core::point(x, 1));
+        }
+      } catch (std::exception& ex) {
+        LogFatal << ex;
+      }
+      x += 110;
     }
   }));
 }
@@ -156,12 +184,20 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   });
   menu.create(top_view);
 
+  core::rectangle icon_rect(0, 0, 16, 16);
+  bitmap cut_icon(16, 16);
+  bitmap copy_icon(16, 16);
+  bitmap paste_icon(16, 16);
+  graphics(cut_icon).clear(color::black).text(text_box(u8"♠", icon_rect, center), font::menu(), color::dark_red);
+  graphics(copy_icon).clear(color::black).text(text_box(u8"♣", icon_rect, center), font::menu(), color::dark_blue);
+  graphics(paste_icon).clear(color::black).text(text_box(u8"♥", icon_rect, center), font::menu(), color::dark_green);
+
   edit_sub_menu.data.add_entries({
-    menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, u8"♠"),
-    menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, u8"♣"),
-    menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, u8"♥"),
+    menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, cut_icon),
+    menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, copy_icon),
+    menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, paste_icon),
     menu_entry("del", core::bind_method(this, &my_main_window::del), "del"),
-    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, std::string(), true),
+    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, bitmap(), true),
     menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
   });
 
@@ -218,11 +254,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
                           const brush& background,
                           bool selected,
                           bool hilited) {
-    g.fill(rectangle(place), selected ? color::gray : (hilited ? color::very_light_gray : color::light_gray));
+    g.fill(rectangle(place), selected ? color::dark_red : (hilited ? color::very_light_gray : color::light_gray));
     if (!selected) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, center), font::system(), selected ? color::white : color::dark_gray);
+    g.text(text_box(ostreamfmt("Item " << idx), place, center), font::system(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
   left_list.register_event_handler(hilite_changed_event([&](bool){
@@ -298,7 +334,7 @@ void my_main_window::quit (int) {
     dialog.end_modal();
   }));
 
-  dialog.create(*this, core::rectangle(300, 200, 400, 300));
+  dialog.create(*this, core::rectangle(300, 200, 400, 200));
   dialog.set_title("Question!");
   buttons.create(dialog);
   message.create(dialog, "Do you realy want to exit?");
@@ -319,32 +355,111 @@ void my_main_window::quit (int) {
 void my_main_window::copy (int) {
   labels[0].set_text("copy");
   core::rectangle r = left_list.client_area();
+  core::size sz = r.size();
 
-  bitmap bmp2(r.size());
-  draw::graphics(bmp2).copy_from(left_list, r);
+  bmp[0].create(sz);
+  gray[0].create(sz, 8);
+  bw[0].create(sz, 1);
 
-  bmp.create(window1.client_size());
-  draw::graphics(bmp).copy_from(bmp2, r);
+  draw::graphics(bmp[0]).copy_from(left_list, r);
+  gray[0].put(bmp[0]);
+  bw[0].put(gray[0]);
+
+  gray[0].make_compatible();
+  bw[0].make_compatible();
 
   window1.redraw_later();
 }
 
 void my_main_window::del (int) {
   labels[0].set_text("del");
-  bmp.clear();
+  for (int i = 0; i < 2; ++i) {
+    bmp[i].clear();
+    gray[i].clear();
+    bw[i].clear();
+  }
   window1.redraw_later();
 }
 
 void my_main_window::cut (int) {
   labels[0].set_text("cut");
-  bitmap bmp(left_list.client_size());
-  draw::graphics(bmp).copy_from(left_list, left_list.client_area());
-  std::ofstream("left_list.ppm") << bmp;
+
+  core::rectangle r = left_list.client_area();
+  core::size sz = r.size();
+
+  auto drawer = [&](bitmap& b) {
+    graphics g(b);
+    g.fill(draw::rectangle(r), color::white);
+    g.draw(draw::ellipse(r.shrinked({20, 20})), color::light_blue, draw::pen(color::dark_green, 5));
+    g.fill(draw::ellipse(r.with_size({50, 50})), color::black);
+  };
+
+  for (int i = 0; i < 2; ++i) {
+    bmp[i].create(sz);
+    gray[i].create(sz, 8);
+    bw[i].create(sz, 1);
+  }
+
+  draw::graphics(bmp[0]).copy_from(left_list, r);
+  gray[0].put(bmp[0]);
+  bw[0].put(gray[0]);
+
+  std::ofstream("left_list.p6.ppm") << io::opnm<true>(bmp[0]);
+  std::ofstream("left_list.p3.ppm") << io::opnm<false>(bmp[0]);
+
+  std::ofstream("left_list.p5.pgm") << io::opnm<true>(gray[0]);
+  std::ofstream("left_list.p2.pgm") << io::opnm<false>(gray[0]);
+
+  std::ofstream("left_list.p4.pbm") << io::opnm<true>(bw[0]);
+  std::ofstream("left_list.p1.pbm") << io::opnm<false>(bw[0]);
+
+  drawer(bmp[1]);
+
+  std::ofstream(ostreamfmt("p6." << io::pnm<6>::suffix)) << io::opnm<true>(bmp[1]);
+  std::ofstream(ostreamfmt("p3." << io::pnm<3>::suffix)) << io::opnm<false>(bmp[1]);
+
+  drawer(gray[1]);
+
+  std::ofstream("p5.pgm") << io::opnm<true>(gray[1]);
+  std::ofstream("p2.pgm") << io::opnm<false>(gray[1]);
+
+  drawer(bw[1]);
+
+  std::ofstream("p4.pbm") << io::opnm<true>(bw[1]);
+  std::ofstream("p1.pbm") << io::opnm<false>(bw[1]);
+
+  gray[0].make_compatible();
+  bw[0].make_compatible();
+
+  gray[1].make_compatible();
+  bw[1].make_compatible();
+
+  window1.redraw_later();
 }
 
 void my_main_window::paste (int) {
   labels[0].set_text("paste");
-  std::ifstream("left_list.ppm") >> bmp;
+
+  for (int i = 0; i < 2; ++i) {
+
+    io::ipnm in1(bw[i]);
+    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 1) << ".pbm")) >> in1;
+    std::ofstream(ostreamfmt("test.p" << (i * 3 + 1) << ".pbm")) << io::opnm<false>(bw[i]);
+
+    io::ipnm in2(gray[i]);
+    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 2) << ".pgm")) >> in2;
+    std::ofstream(ostreamfmt("test.p" << (i * 3 + 2) << ".pgm")) << io::opnm<false>(gray[i]);
+
+    io::ipnm in3(bmp[i]);
+    std::ifstream(ostreamfmt("left_list.p" << (i * 3 + 3) << ".ppm")) >> in3;
+    std::ofstream(ostreamfmt("test.p" << (i * 3 + 3) << ".ppm")) << io::opnm<false>(bmp[i]);
+
+    bw[i].make_compatible();
+    gray[i].make_compatible();
+    bmp[i].make_compatible();
+
+  }
+
   window1.redraw_later();
 }
 

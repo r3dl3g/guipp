@@ -21,13 +21,15 @@
 // Common includes
 //
 #include <memory.h>
+#include <logger.h>
+#include <ostreamfmt.h>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include "graphics.h"
-#include <logger.h>
+#include "bitmap.h"
 #ifdef WIN32
 #include <string_util.h>
 #endif // WIN32
@@ -413,17 +415,18 @@ namespace gui {
       }
     }
 
-    void graphics::draw_pixel (const core::point& pt,
-                              os::color c) const {
+    const graphics& graphics::draw_pixel (const core::point& pt,
+                                          os::color c) const {
       SetPixel(gc, pt.os_x(), pt.os_y(), c);
+      return *this;
     }
 
     os::color graphics::get_pixel (const core::point& pt) const {
       return GetPixel(gc, pt.os_x(), pt.os_y());
     }
 
-    void graphics::draw_lines (std::initializer_list<core::point> points,
-                              const pen& p) const {
+    const graphics& graphics::draw_lines (std::initializer_list<core::point> points,
+                                          const pen& p) const {
       Use<pen> pn(gc, p);
       bool first = true;
       for (core::point pt : points) {
@@ -434,9 +437,12 @@ namespace gui {
           LineTo(gc, pt.os_x(), pt.os_y());
         }
       }
+      return *this;
     }
 
-    void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
+    const graphics& graphics::copy_from (os::drawable w,
+                                         const core::rectangle& r,
+                                         const core::point& d) const {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
@@ -454,18 +460,19 @@ namespace gui {
         }
         ReleaseDC((HWND)w, source_gc);
       }
+      return *this;
     }
 
-    void graphics::stretch_from (os::drawable w,
-                                 const core::rectangle& src,
-                                 const core::rectangle& dst) const {
+    const graphics& graphics::stretch_from (os::drawable w,
+                                            const core::rectangle& src,
+                                            const core::rectangle& dst) const {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
         HGDIOBJ old = SelectObject(source_gc, w);
         if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
                         source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
-          throw std::runtime_error("graphics::copy_from failed");
+          throw std::runtime_error("graphics::stretch_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
@@ -473,10 +480,11 @@ namespace gui {
       else {
         if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
                         source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
-          throw std::runtime_error("graphics::copy_from failed");
+          throw std::runtime_error("graphics::stretch_from failed");
         }
         ReleaseDC((HWND)w, source_gc);
       }
+      return *this;
     }
 
     void graphics::invert (const core::rectangle& r) const {
@@ -510,6 +518,8 @@ namespace gui {
 
 #ifdef X11
 
+    using namespace core::global;
+
     // --------------------------------------------------------------------------
     template<typename T>
     struct Use {
@@ -526,7 +536,7 @@ namespace gui {
 
     template<>
     void Use<pen>::set (const pen& p) {
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetForeground(display, g, p.color());
       XSetLineAttributes(display, g, p.size(), p.style() & 0x0F, CapButt, JoinMiter);
       if (p.style() & 0x0F0) {
@@ -549,13 +559,62 @@ namespace gui {
 
     template<>
     void Use<brush>::set (const brush& b) {
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetForeground(display, g, b.color());
       XSetFillStyle(display, g, b.style());
     }
 
     // --------------------------------------------------------------------------
-    XftDraw* graphics::s_xft = nullptr;
+
+    XftDraw* get_xft_draw (os::drawable target) {
+      static XftDraw* s_xft = nullptr;
+
+      if (!s_xft) {
+        auto display = get_instance();
+        auto screen = get_screen();
+        auto visual = get_visual();
+        auto colormap = DefaultColormap(display, screen);
+        s_xft = XftDrawCreate(display, target, visual, colormap);
+      } else {
+        XftDrawChange(s_xft, target);
+      }
+      return s_xft;
+    }
+
+    XftDraw* graphics::get_xft () const {
+      return get_xft_draw(target);
+    }
+
+    graphics::operator XftDraw* () const {
+      return get_xft();
+    }
+
+    // --------------------------------------------------------------------------
+    struct render_color : XRenderColor {
+      render_color (os::color c)
+        : XRenderColor({
+          (unsigned short)(color::extract_red(c) << 8),
+          (unsigned short)(color::extract_green(c) << 8),
+          (unsigned short)(color::extract_blue(c) << 8),
+          (unsigned short)((color::extract_alpha(c) << 8) ^ 0xffff)
+        })
+      {}
+    };
+
+    // --------------------------------------------------------------------------
+    struct xft_color : public XftColor {
+      xft_color (os::color c, XftDraw* xft)
+        :xft(xft) {
+        render_color xrcolor(c);
+        XftColorAllocValue(get_instance(), XftDrawVisual(xft), XftDrawColormap(xft), &xrcolor, this);
+      }
+
+      ~xft_color () {
+        XftColorFree(get_instance(), XftDrawVisual(xft), XftDrawColormap(xft), this);
+      }
+
+      XftDraw* xft;
+    };
 
     // --------------------------------------------------------------------------
     graphics::graphics (os::drawable target, os::graphics gc)
@@ -564,13 +623,7 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
-      if (!s_xft) {
-        Visual* visual = DefaultVisual(core::global::get_instance(), core::global::get_screen());
-        Colormap colormap = DefaultColormap(core::global::get_instance(), core::global::get_screen());
-        s_xft = XftDrawCreate(core::global::get_instance(), target, visual, colormap);
-      } else {
-        XftDrawChange(s_xft, target);
-      }
+      get_xft();
     }
 
     graphics::graphics (os::drawable target)
@@ -579,8 +632,9 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
-      gc = XCreateGC(core::global::get_instance(), target, 0, 0);
+      gc = XCreateGC(get_instance(), target, 0, 0);
       own_gc = true;
+      get_xft();
     }
 
     graphics::graphics (const graphics& rhs)
@@ -589,6 +643,7 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
+      get_xft();
       operator=(rhs);
     }
 
@@ -599,7 +654,7 @@ namespace gui {
     void graphics::destroy () {
       if (gc) {
         if (own_gc) {
-          XFreeGC(core::global::get_instance(), gc);
+          XFreeGC(get_instance(), gc);
         }
       }
       gc = 0;
@@ -614,7 +669,7 @@ namespace gui {
         own_gc = rhs.own_gc;
         ref_gc = rhs.ref_gc;
         if (own_gc) {
-          gc = XCreateGC(core::global::get_instance(), target, 0, 0);
+          gc = XCreateGC(get_instance(), target, 0, 0);
         } else {
           gc = rhs.gc;
         }
@@ -624,15 +679,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       Use<pen> pn(g, p);
-      XDrawLine(core::global::get_instance(), g, g, from.os_x(), from.os_y(), to.os_x(), to.os_y());
+      XDrawLine(get_instance(), g, g, from.os_x(), from.os_y(), to.os_x(), to.os_y());
     }
 
     // --------------------------------------------------------------------------
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
+      os::instance display = get_instance();
+
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -643,7 +699,7 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
       Use<pen> pn(g, p);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -652,7 +708,7 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const brush& b) const {
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -674,7 +730,7 @@ namespace gui {
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
 
@@ -688,7 +744,7 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
 
@@ -699,7 +755,7 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       const core::point& pt = rect.top_left();
       core::size sz(rect.size() - core::size::one);
 
@@ -761,7 +817,7 @@ namespace gui {
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetArcMode(display, g, ArcChord);
 
       std::array<XArc, 4> arcs;
@@ -776,7 +832,7 @@ namespace gui {
     void round_rectangle::operator() (const graphics& g,
                                       const brush& b) const {
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
       std::array<XArc, 4> arcs;
@@ -796,7 +852,7 @@ namespace gui {
                                       const brush& b,
                                       const pen& p) const {
       Use<brush> br(g, b);
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
       std::array<XArc, 4> arcs;
@@ -832,7 +888,7 @@ namespace gui {
       int x = pos.os_x() - radius;
       int y = pos.os_y() - radius;
       unsigned int sz = radius * 2;
-      XDrawArc(core::global::get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
+      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
 
       int istart = int(startrad * 1000.0F) % 360000;
       int iend = int(endrad * 1000.0F) % 360000;
@@ -846,7 +902,7 @@ namespace gui {
         pt[1].y = short(pos.y());
         pt[2].x = short(pos.x() + int(radius * cos(end)));
         pt[2].y = short(pos.y() - int(radius * sin(end)));
-        XDrawLines(core::global::get_instance(), g, g, pt, 3, CoordModeOrigin);
+        XDrawLines(get_instance(), g, g, pt, 3, CoordModeOrigin);
       }
     }
 
@@ -861,11 +917,11 @@ namespace gui {
       int y = pos.os_y() - radius;
       unsigned int sz = radius * 2;
 
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
       XFillArc(display, g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
 
-      XDrawArc(core::global::get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
+      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
     }
 
     void arc::operator() (const graphics& g,
@@ -907,7 +963,7 @@ namespace gui {
                               const brush& b,
                               const pen& p) const {
       Use<brush> br(g, b);
-      XFillPolygon(core::global::get_instance(),
+      XFillPolygon(get_instance(),
                    g,
                    g,
                    (XPoint*)points.data(),
@@ -915,19 +971,19 @@ namespace gui {
                    0,
                    CoordModeOrigin);
       Use<pen> pn(g, p);
-      XDrawLines(core::global::get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
     void polygon::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
-      XDrawLines(core::global::get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
     void polygon::operator() (const graphics& g,
                               const brush& b) const {
       Use<brush> br(g, b);
-      XFillPolygon(core::global::get_instance(),
+      XFillPolygon(get_instance(),
                    g,
                    g,
                    const_cast<XPoint*>(points.data()),
@@ -936,14 +992,14 @@ namespace gui {
                    CoordModeOrigin);
       pen p(b.color());
       Use<pen> pn(g, p);
-      XDrawLines(core::global::get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
+      XDrawLines(get_instance(), g, g, const_cast<XPoint*>(points.data()), (int)points.size(), CoordModeOrigin);
     }
 
     // --------------------------------------------------------------------------
     void text_box::operator() (const graphics& g,
                                const font& f,
                                os::color c) const {
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -976,31 +1032,17 @@ namespace gui {
         py += rect.size().height() - height;
       }
 
-      Visual* visual = XftDrawVisual(g);
-      Colormap colormap = XftDrawColormap(g);
-
-      /* Xft text color */
-      XRenderColor xrcolor = {
-        (unsigned short)(color::extract_red(c) << 8),
-        (unsigned short)(color::extract_green(c) << 8),
-        (unsigned short)(color::extract_blue(c) << 8),
-        0xffff
-      };
-      XftColor xftcolor;
-      XftColorAllocValue(display, visual, colormap, &xrcolor, &xftcolor);
-
+      xft_color xftcolor(c, g);
       clip clp(g, rect);
 
       XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
-
-      XftColorFree(display, visual, colormap, &xftcolor);
     }
 
     // --------------------------------------------------------------------------
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
                                    os::color c) const {
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -1041,7 +1083,7 @@ namespace gui {
     void text::operator() (const graphics& g,
                            const font& f,
                            os::color c) const {
-      os::instance display = core::global::get_instance();
+      os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -1075,37 +1117,32 @@ namespace gui {
         py -= height;
       }
 
-      Visual* visual = XftDrawVisual(g);
-      Colormap colormap = XftDrawColormap(g);
-
-      /* Xft text color */
-      XRenderColor xrcolor = {
-        (unsigned short)(color::extract_red(c) << 8),
-        (unsigned short)(color::extract_green(c) << 8),
-        (unsigned short)(color::extract_blue(c) << 8),
-        0xffff
-      };
-      XftColor xftcolor;
-      XftColorAllocValue(display, visual, colormap, &xrcolor, &xftcolor);
+      xft_color xftcolor(c, g);
 
       XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
-
-      XftColorFree(display, visual, colormap, &xftcolor);
     }
 
     // --------------------------------------------------------------------------
-    void graphics::draw_pixel (const core::point& pt,
-                               os::color c) const {
+    const graphics& graphics::clear (os::color color) const {
+      os::instance display = get_instance();
+      rectangle r(core::rectangle(0, 0, 0xffff, 0xffff));
+      r.operator()(*this, brush(color));
+      return *this;
+    }
+
+    const graphics& graphics::draw_pixel (const core::point& pt,
+                                          os::color c) const {
       Use<pen> pn(gc, pen(c));
-      XDrawPoint(core::global::get_instance(), target, gc, pt.os_x(), pt.os_y());
+      XDrawPoint(get_instance(), target, gc, pt.os_x(), pt.os_y());
+      return *this;
     }
 
     os::color graphics::get_pixel (const core::point& pt) const {
       return color::black;
     }
 
-    void graphics::draw_lines (std::initializer_list<core::point> pts,
-                               const pen& p) const {
+    const graphics& graphics::draw_lines (std::initializer_list<core::point> pts,
+                                          const pen& p) const {
 
       Use<pen> pn(gc, p);
       std::vector<os::point> points;
@@ -1113,68 +1150,99 @@ namespace gui {
       std::for_each(pts.begin(), pts.end(), [&](const core::point& pt){
         points.push_back(pt.os());
       });
-      XDrawLines(core::global::get_instance(), target, gc,
+      XDrawLines(get_instance(), target, gc,
                  points.data(), (int)points.size(),
                  CoordModeOrigin);
+      return *this;
     }
 
-    void graphics::copy_from (os::drawable w, const core::rectangle& r, const core::point& d) const {
-      auto display = core::global::get_instance();
-      XCopyArea(display, w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), d.os_x(), d.os_y());
+    const graphics& graphics::copy_from (os::drawable w,
+                                         const core::rectangle& r,
+                                         const core::point& pt) const {
+      int dd = get_drawable_depth(w);
+      int md = depth();
+      if (dd == md) {
+        XCopyArea(get_instance(), w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
+      } else {
+        throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
+      }
+      return *this;
     }
 
-    void graphics::stretch_from (os::drawable w, const core::rectangle& r, const core::rectangle& d) const {
-      auto display = core::global::get_instance();
-      XCopyArea(display, w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), d.os_x(), d.os_y());
+    const graphics& graphics::stretch_from (os::drawable w,
+                                            const core::rectangle& r,
+                                            const core::rectangle& pt) const {
+      return copy_from(w, r, pt.position());
     }
 
     void graphics::invert (const core::rectangle& r) const {
     }
 
     void graphics::flush () const {
-//      XFlushGC(core::global::get_instance(), gc);
+      XFlushGC(get_instance(), gc);
+    }
+
+    int graphics::depth () const {
+      return get_drawable_depth(target);
+    }
+
+    int graphics::get_drawable_depth (os::drawable t) {
+      Window root;
+      int x, y;
+      unsigned int w, h, b, d;
+      XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
+      return d;
     }
 
     void graphics::push_clip_rectangle (const core::rectangle& rect) const {
       os::rectangle r = rect;
       clipping_rectangles.push_back(r);
-      XSetClipRectangles(core::global::get_instance(), gc, 0, 0, &r, 1, Unsorted);
-      XftDrawSetClipRectangles(s_xft, 0, 0, &r, 1);
+      XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
+      XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
     }
 
     void graphics::pop_clip_rectangle () const {
       clipping_rectangles.pop_back();
       if (clipping_rectangles.size()) {
         os::rectangle& r = clipping_rectangles.back();
-        XSetClipRectangles(core::global::get_instance(), gc, 0, 0, &r, 1, Unsorted);
-        XftDrawSetClipRectangles(s_xft, 0, 0, &r, 1);
+        XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
+        XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
       } else {
-        XSetClipMask(core::global::get_instance(), gc, None);
-        XftDrawSetClip(s_xft, None);
+        XSetClipMask(get_instance(), gc, None);
+        XftDrawSetClip(get_xft(), None);
       }
     }
 
 #endif // X11
-    void graphics::frame (std::function<frameable> drawer,
-                          const pen& p) const {
+    const graphics& graphics::frame (std::function<frameable> drawer,
+                                     const pen& p) const {
       drawer(*this, p);
+      return *this;
     }
 
-    void graphics::fill (std::function<fillable> drawer,
-                         const brush& b) const {
+    const graphics& graphics::fill (std::function<fillable> drawer,
+                                    const brush& b) const {
       drawer(*this, b);
+      return *this;
     }
 
-    void graphics::draw (std::function<drawable> drawer,
-                         const brush& b,
-                         const pen& p) const {
+    const graphics& graphics::draw (std::function<drawable> drawer,
+                                    const brush& b,
+                                    const pen& p) const {
       drawer(*this, b, p);
+      return *this;
     }
 
-    void graphics::text (std::function<textable> drawer,
-                         const font& f,
-                         os::color c) const {
+    const graphics& graphics::text (std::function<textable> drawer,
+                                    const font& f,
+                                    os::color c) const {
       drawer(*this, f, c);
+      return *this;
+    }
+
+    const graphics& graphics::copy (std::function<copyable> drawer, const core::point& pt) const {
+      drawer(*this, pt);
+      return *this;
     }
 
     namespace frame {

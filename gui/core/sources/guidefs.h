@@ -144,6 +144,7 @@ namespace gui {
 
     namespace x11 {
       typedef int screen;
+      typedef Visual* visual;
     }
 
 #define IF_WIN32(...)
@@ -175,6 +176,8 @@ namespace gui {
 #ifdef X11
       os::x11::screen get_screen();
       void set_screen(os::x11::screen);
+
+      os::x11::visual get_visual();
 #endif // X11
 
     }

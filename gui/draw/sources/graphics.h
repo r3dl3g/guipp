@@ -42,11 +42,13 @@ namespace gui {
   namespace draw {
 
     class graphics;
+    class bitmap;
 
     typedef void (drawable) (const graphics&, const brush&, const pen&);
     typedef void (frameable) (const graphics&, const pen&);
     typedef void (fillable) (const graphics&, const brush&);
     typedef void (textable) (const graphics&, const font& font, os::color color);
+    typedef void (copyable) (const graphics&, const core::point&);
 
     // --------------------------------------------------------------------------
     class graphics {
@@ -58,26 +60,30 @@ namespace gui {
 
       void operator= (const graphics&);
 
-      void draw_pixel (const core::point& pt,
-                       os::color color) const;
+      const graphics& clear (os::color color) const;
+      const graphics& draw_pixel (const core::point& pt,
+                                  os::color color) const;
 
       os::color get_pixel (const core::point&) const;
 
-      void draw_lines (std::initializer_list<core::point> points,
-                       const pen& pen) const;
+      const graphics& draw_lines (std::initializer_list<core::point> points,
+                                  const pen& pen) const;
 
-      void frame (std::function<frameable>, const pen& pen) const;
-      void fill (std::function<fillable>, const brush& brush) const;
-      void draw (std::function<drawable>, const brush& brush, const pen& pen) const;
-      void text (std::function<textable>, const font& font, os::color color) const;
+      const graphics& frame (std::function<frameable>, const pen& pen) const;
+      const graphics& fill (std::function<fillable>, const brush& brush) const;
+      const graphics& draw (std::function<drawable>, const brush& brush, const pen& pen) const;
+      const graphics& text (std::function<textable>, const font& font, os::color color) const;
+      const graphics& copy (std::function<copyable>, const core::point&) const;
 
-      void copy_from (os::drawable, const core::rectangle& src,
-                      const core::point& dest = core::point::zero) const;
-      void stretch_from (os::drawable, const core::rectangle& src,
-                         const core::rectangle& dest) const;
+      const graphics& copy_from (os::drawable, const core::rectangle& src,
+                                 const core::point& dest = core::point::zero) const;
+      const graphics& stretch_from (os::drawable, const core::rectangle& src,
+                                    const core::rectangle& dest) const;
 
       void invert (const core::rectangle&) const;
       void flush () const;
+
+      int depth () const;
 
       inline os::graphics os () const {
         return gc;
@@ -91,13 +97,15 @@ namespace gui {
         return target;
       }
 
+      static int get_drawable_depth (os::drawable);
+
 #ifdef X11
-      inline operator XftDraw* () const {
-        return s_xft;
-      }
+      operator XftDraw* () const;
 #endif // X11
 
     protected:
+      XftDraw* get_xft () const;
+
       friend struct clip;
       void push_clip_rectangle (const core::rectangle&) const;
       void pop_clip_rectangle () const;
@@ -114,7 +122,6 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       mutable std::vector<os::rectangle> clipping_rectangles;
-      static XftDraw* s_xft;
 #endif // X11
     };
 

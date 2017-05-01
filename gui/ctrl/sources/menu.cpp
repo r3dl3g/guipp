@@ -17,6 +17,7 @@
 */
 
 #include "menu.h"
+#include "converter.h"
 
 namespace gui {
 
@@ -87,9 +88,11 @@ namespace gui {
                                         : s ? color::highLightTextColor()
                                             : color::black;
 
-        if (!e.get_icon().empty()) {
-          g.text(draw::text_box(e.get_icon(), r.with_width(text_pos - 6), draw::center),
-                 draw::font::menu(), col);
+        if (e.get_icon()) {
+          core::size sz = e.get_icon().size();
+          int x = (text_pos - sz.width()) / 2;
+          int y = r.y() + (r.height() - sz.height()) / 2;
+          g.copy(e.get_icon(), core::point(x, y));
         }
         g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
                draw::font::menu(), col);

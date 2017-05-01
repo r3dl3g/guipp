@@ -20,8 +20,7 @@
 //
 // Common includes
 //
-#include <ostream>
-#include <logger.h>
+#include <limits>
 
 // --------------------------------------------------------------------------
 //
@@ -29,98 +28,12 @@
 //
 #include "bitmap.h"
 #include "graphics.h"
+#include "converter.h"
 
 
 namespace gui {
 
-  namespace core {
-
-    void load_ppm_p6 (std::istream& in, std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) {
-      std::string p6;
-      std::getline(in, p6);
-      if (p6 != "P6") {
-        throw std::runtime_error("stream contains no P6 ppm");
-      }
-      std::skipws(in);
-      while (in.peek() == '#') {
-        std::string tmp;
-        std::getline(in, tmp);
-      }
-      std::skipws(in);
-      int max;
-      in >> w >> h >> max;
-
-      if (w < 1) {
-        throw std::runtime_error("invalid ppm image width");
-      }
-      if (h < 1) {
-        throw std::runtime_error("invalid ppm image height");
-      }
-      if (max > 255) {
-        throw std::runtime_error("invalid ppm max value");
-      }
-
-      if (bpp == 24) {
-        bpl = w * 3;
-        std::size_t n = bpl * h;
-        data.resize(n);
-        in.read(data.data(), n);
-      } else {
-        bpp = 32;
-        bpl = w * 4;
-        std::size_t n = bpl * h;
-        data.resize(n);
-#ifndef NDEBUG
-        char* end = data.data() + n;
-#endif // NDEBUG
-        for (int i = 0; i < h; ++i) {
-          char* d = (data.data() + (i * bpl));
-          for (int j = 0; j < w; ++j) {
-            in.read(d, 3);
-#ifndef NDEBUG
-            if (d > end) {
-              throw std::out_of_range("access beyond boundary!");
-            }
-#endif // NDEBUG
-            d += 4;
-          }
-        }
-      }
-
-    }
-
-    void save_ppm_p6(std::ostream& out, char* data, int width, int height, int bpl, int bpp) {
-      out << "P6\n"
-        << "# XImage created RGB ppm file\n"
-        << width << ' ' << height << " 255\n";
-      if (32 == bpp) {
-        for (int h = 0; h < height; ++h) {
-          char* d = (data + (h * bpl));
-          for (int w = 0; w < width; ++w) {
-            out.write(d, 3);
-            d += 4;
-          }
-        }
-      }
-      else if (24 == bpp) {
-        std::size_t n = bpl * height;
-        out.write(data, n);
-      }
-    }
-
-  }
-
   namespace draw {
-
-    std::ostream& operator<< (std::ostream& out, const bitmap& bmp) {
-      bmp.save_ppm(out);
-      return out;
-    }
-
-    std::istream& operator>> (std::istream& in, bitmap& bmp) {
-      bmp.load_ppm(in);
-      return in;
-    }
 
     bitmap::bitmap (const bitmap& rhs)
       : id(0)
@@ -130,9 +43,11 @@ namespace gui {
 
     void bitmap::operator= (const bitmap& rhs) {
       if (&rhs != this) {
-        core::size sz = rhs.size();
-        create(sz);
-        draw::graphics(*this).copy_from(rhs, core::rectangle(sz));
+        clear();
+        if (rhs) {
+          create(rhs.size(), rhs.depth());
+          put(rhs);
+        }
       }
     }
 
@@ -143,31 +58,9 @@ namespace gui {
 #endif
 #ifdef X11
         auto display = core::global::get_instance();
-        XFreePixmap(display, id);
+        int res = XFreePixmap(display, id);
 #endif
         id = 0;
-      }
-    }
-
-    void bitmap::create (const core::size& sz) {
-      create(sz.os_width(), sz.os_height());
-    }
-
-    void bitmap::create (int w, int h) {
-      clear();
-#if WIN32
-      HDC dc = GetDC(NULL);
-      id = CreateCompatibleBitmap(dc, w, h);
-      ReleaseDC(NULL, dc);
-#endif
-#ifdef X11
-      auto display = core::global::get_instance();
-      auto screen = core::global::get_screen();
-      auto visual = DefaultRootWindow(display);
-      id = XCreatePixmap(display, visual, w, h, DisplayPlanes(display, screen));
-#endif
-      if (!id) {
-        throw std::runtime_error("create image failed");
       }
     }
 
@@ -187,75 +80,229 @@ namespace gui {
         int x, y;
         unsigned int b, d;
         auto display = core::global::get_instance();
-        XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
+        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
       }
       return core::size(w, h);
 #endif
     }
 
-    void bitmap::create (const std::vector<char>& data, int w, int h, int bpl, int bpp) {
+    int bitmap::depth () const {
 #if WIN32
-      if (core::global::get_device_bits_per_pixel() == bpp) {
-        id = CreateBitmap(w, h, 1, bpp, data.data());
-      } else {
-        create(w, h);
-
-        HDC gdc = GetDC(NULL);
-        HDC gc = CreateCompatibleDC(gdc);
-        ReleaseDC(NULL, gdc);
-
-        SelectObject(gc, id);
-
-        BITMAPINFOHEADER bi = {
-          sizeof(BITMAPINFOHEADER),
-          w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, 0, 0
-        };
-
-        StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, data.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS, SRCCOPY);
-        DeleteDC(gc);
+      if (id) {
+        BITMAP bmp;
+        GetObject(id, sizeof(BITMAP), &bmp);
+        return bmp.bmBitsPixel;
       }
-      if (!id) {
-        throw std::runtime_error("create image failed");
+#endif
+#ifdef X11
+      unsigned int w = 0, h = 0;
+      if (id) {
+        Window root;
+        int x, y;
+        unsigned int b, d;
+        auto display = core::global::get_instance();
+        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
+        return d;
       }
+#endif
+      return 0;
+    }
 
+    void bitmap::create (const core::size& sz) {
+      create(sz.os_width(), sz.os_height());
+    }
+
+    void bitmap::create (const core::size& sz, int bpp) {
+      create(sz.os_width(), sz.os_height(), bpp);
+    }
+
+    void bitmap::create (int w, int h) {
+      clear();
+#if WIN32
+      HDC dc = GetDC(NULL);
+      id = CreateCompatibleBitmap(dc, w, h);
+      ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
       auto screen = core::global::get_screen();
       auto visual = DefaultRootWindow(display);
-      id = XCreatePixmap(display, visual, w, h, DisplayPlanes(display, screen));
+      id = XCreatePixmap(display, visual, w, h, DefaultDepth(display, screen));
+#endif
       if (!id) {
         throw std::runtime_error("create image failed");
       }
-      auto gc = DefaultGC(display, screen);
+    }
 
-      XImage im = {
-          w, h,                             /* size of image */
-          0,                                /* number of pixels offset in X direction */
-          ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
-          const_cast<char*>(data.data()),   /* pointer to image data */
-          LSBFirst,                         /* data byte order, LSBFirst, MSBFirst */
-          bpp,                              /* quant. of scanline 8, 16, 32 */
-          LSBFirst,                         /* LSBFirst, MSBFirst */
-          bpp,                              /* 8, 16, 32 either XY or ZPixmap */
-          24,                               /* depth of image */
-          bpl,                              /* accelarator to next line */
-          bpp,                              /* bits per pixel (ZPixmap) */
-          0                                 /* bits in z arrangment */
+    void bitmap::create (int w, int h, int bpp) {
+      clear();
+#if WIN32
+      HDC dc = GetDC(NULL);
+      id = CreateBitmap(dc, w, h, 1, bpp, NULL);
+      ReleaseDC(NULL, dc);
+#endif
+#ifdef X11
+      auto display = core::global::get_instance();
+      auto visual = DefaultRootWindow(display);
+      id = XCreatePixmap(display, visual, w, h, bpp);
+#endif
+      if (!id) {
+        throw std::runtime_error("create image failed");
+      }
+    }
+
+    void bitmap::create (const std::vector<char>& data, int w, int h, int bpl, int bpp) {
+#if WIN32
+      id = CreateBitmap(w, h, 1, bpp, data.data());
+      if (!id) {
+        throw std::runtime_error("create image failed");
+      }
+#endif
+#ifdef X11
+      create(w, h, bpp);
+      put(data, w, h, bpl, bpp);
+#endif
+    }
+
+    void bitmap::create_compatible (const bitmap& rhs) {
+      int w, h, bpl, bpp;
+      std::vector<char> data;
+      rhs.get_data(data, w, h, bpl, bpp);
+      create(w, h);
+      put(data, w, h, bpl, bpp);
+    }
+
+    void bitmap::make_compatible () {
+      if (depth() != core::global::get_device_bits_per_pixel()) {
+        create_compatible(*this);
+      }
+    }
+
+    template<int M>
+    int up_modulo (int v) {
+      return v + v % M;
+    }
+
+    int bitmap::calc_bytes_per_line (int w, int bpp) {
+      switch (bpp) {
+        case 1:
+          return up_modulo<8>(w / 8);
+        case 8:
+          return up_modulo<4>(w);
+        case 24:
+          return up_modulo<4>(w * 3);
+        case 32:
+          return up_modulo<4>(w * 4);
+      }
+      return -1;
+    }
+
+    void bitmap::put (const std::vector<char>& src, int w, int h, int bpl, int bpp) {
+#if WIN32
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+
+      SelectObject(gc, id);
+
+      BITMAPINFOHEADER bi = {
+        sizeof(BITMAPINFOHEADER),
+        w, -h, 1, (WORD)bpp, BI_RGB, (DWORD)(h * bpl), 0, 0, 0, 0
       };
 
-      XInitImage(&im);
-      XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
-
-//      XImage* im = XCreateImage(display, DefaultVisual(display, screen), bpp, ZPixmap, 0, const_cast<char*>(data.data()), w, h, 32, bpl);
-//      if (im) {
-//        XPutImage(display, id, gc, im, 0, 0, 0, 0, w, h);
-//        XDestroyImage(im);
-//      }
-//      else {
-//        throw std::runtime_error("create image failed");
-//      }
+      StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), reinterpret_cast<BITMAPINFO*>(&bi), DIB_RGB_COLORS, SRCCOPY);
+      DeleteDC(gc);
 #endif
+#ifdef X11
+      auto display = core::global::get_instance();
+      auto gc = XCreateGC(display, id, 0, nullptr);
+
+      int my_bpp = depth();
+      if (my_bpp == bpp) {
+
+        XImage im = {
+            w, h,                             /* size of image */
+            0,                                /* number of pixels offset in X direction */
+            ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
+            const_cast<char*>(src.data()),   /* pointer to image data */
+            ImageByteOrder(display),          /* data byte order, LSBFirst, MSBFirst */
+            BitmapUnit(display),              /* quant. of scanline 8, 16, 32 */
+            BitmapBitOrder(display),          /* LSBFirst, MSBFirst */
+            BitmapPad(display),               /* 8, 16, 32 either XY or ZPixmap */
+            bpp,                              /* depth of image */
+            bpl,                              /* accelarator to next line */
+            bpp,                              /* bits per pixel (ZPixmap) */
+            0                                 /* bits in z arrangment */
+        };
+
+        XInitImage(&im);
+        XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+
+      } else {
+        std::vector<char> dst;
+        int dst_bpl = calc_bytes_per_line(w, my_bpp);
+        dst.resize(dst_bpl * h);
+
+        using namespace convert;
+
+        switch (bpp) {
+          case 1:
+            switch (my_bpp) {
+              case 8:  converter<1, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 24: converter<1, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 32: converter<1, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
+            }
+          break;
+          case 8:
+            switch (my_bpp) {
+              case 1:  converter<8, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 24: converter<8, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 32: converter<8, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
+            }
+          break;
+          case 24:
+            switch (my_bpp) {
+              case 1:  converter<24, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 8:  converter<24, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 32: converter<24, 32>::convert(src, dst, w, h, bpl, dst_bpl); break;
+            }
+          break;
+          case 32:
+            switch (my_bpp) {
+              case 1:  converter<32, 1>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 8:  converter<32, 8>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case 24: converter<32, 24>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              }
+          break;
+        }
+
+        XImage im = {
+            w, h,                           /* size of image */
+            0,                              /* number of pixels offset in X direction */
+            ZPixmap,                        /* XYBitmap, XYPixmap, ZPixmap */
+            const_cast<char*>(dst.data()),  /* pointer to image data */
+            ImageByteOrder(display),        /* data byte order, LSBFirst, MSBFirst */
+            BitmapUnit(display),            /* quant. of scanline 8, 16, 32 */
+            BitmapBitOrder(display),        /* LSBFirst, MSBFirst */
+            BitmapPad(display),             /* 8, 16, 32 either XY or ZPixmap */
+            my_bpp,                         /* depth of image */
+            dst_bpl,                        /* accelarator to next line */
+            my_bpp,                         /* bits per pixel (ZPixmap) */
+            0                               /* bits in z arrangment */
+        };
+
+        XInitImage(&im);
+        XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+      }
+      XFreeGC(display, gc);
+#endif
+    }
+
+    void bitmap::put (const bitmap& rhs) {
+      int w, h, bpl, bpp;
+      std::vector<char> data;
+      rhs.get_data(data, w, h, bpl, bpp);
+      put(data, w, h, bpl, bpp);
     }
 
     void bitmap::get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const {
@@ -313,33 +360,36 @@ namespace gui {
 #endif
     }
 
-    void bitmap::load_ppm (std::istream& in) {
-      int w, h, bpl, bpp = 32;
-      std::vector<char> data;
-      core::load_ppm_p6(in, data, w, h, bpl, bpp);
-      create(data, w, h, bpl, bpp);
+    void bitmap::operator() (const graphics& g, const core::point& pt) const {
+      g.copy_from(*this, core::rectangle(size()), pt);
     }
 
-    void bitmap::save_ppm(std::ostream& out) const {
-#if WIN32
-      int w, h, bpl, bpp;
-      std::vector<char> data;
-      get_data(data, w, h, bpl, bpp);
-      core::save_ppm_p6(out, data.data(), w, h, bpl, bpp);
-#endif
-#ifdef X11
-      core::size sz = size();
-      auto display = core::global::get_instance();
-      XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
-      if (im) {
-        core::save_ppm_p6(out, im->data, im->width, im->height, im->bytes_per_line, im->bits_per_pixel);
-        XDestroyImage(im);
-      } else {
-        throw std::runtime_error("get image failed");
+    transparent_bitmap::transparent_bitmap (const bitmap& b)
+      : bitmap(b)
+    {
+      if (is_valid()) {
+        mask.create(size(), 1);
+        mask.put(*this);
       }
-#endif
     }
 
+    void transparent_bitmap::operator= (const bitmap& bmp) {
+      bitmap::operator=(bmp);
+      if (is_valid()) {
+        mask.create(size(), 1);
+        mask.put(*this);
+      }
+    }
+
+    void transparent_bitmap::operator() (const graphics& g, const core::point& pt) const {
+#ifdef X11
+      auto display = core::global::get_instance();
+      XSetClipMask(display, g, mask);
+      XSetClipOrigin(display, g, pt.os_x(), pt.os_y());
+#endif
+      g.copy_from(*this, core::rectangle(size()), pt);
+      XSetClipMask(display, g, None);
+    }
   }
 
 }

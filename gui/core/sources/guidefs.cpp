@@ -107,7 +107,7 @@ namespace gui {
         return dbpp;
 #endif // WIN32
 #ifdef X11
-        return DisplayPlanes(get_instance(), get_screen());
+        return DefaultDepth(get_instance(), get_screen());
 #endif // X11
       }
 
@@ -119,6 +119,10 @@ namespace gui {
 
       void set_screen (os::x11::screen screen) {
         global_screen = screen;
+      }
+
+      os::x11::visual get_visual () {
+        return DefaultVisual(global_instance, global_screen);
       }
 
 #endif // X11
@@ -151,9 +155,9 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
 #ifdef X11
 int main(int argc, char* argv[]) {
-  ibr::log::core::instance().addSink(&std::cerr,
-                                     ibr::log::level::debug,
-                                     ibr::log::core::instance().getConsoleFormatter());
+//  ibr::log::core::instance().addSink(&std::cerr,
+//                                     ibr::log::level::debug,
+//                                     ibr::log::core::instance().getConsoleFormatter());
 
   std::vector<std::string> args;
   for(int i = 0; i < argc; ++i) {
@@ -174,7 +178,7 @@ int main(int argc, char* argv[]) {
   gui::core::global::fini();
 
 #ifdef X11
-  ibr::log::core::instance().removeSink(&std::cerr);
+//  ibr::log::core::instance().removeSink(&std::cerr);
 #endif
 
   ibr::log::core::instance().finish();

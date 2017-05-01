@@ -1,29 +1,29 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("ctrl" CXX)
+project("gui_ctrl" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-add_subdirectory(./../win win)
-add_subdirectory(./../draw draw)
+add_subdirectory(./../win gui_win)
+add_subdirectory(./../draw gui_draw)
 
-set (ctrl_Include
+set (gui_ctrl_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
-     ${draw_Include}
-     ${win_Include}
+     ${gui_win_Include}
+     ${gui_draw_Include}
 )
-set (ctrl_Include ${ctrl_Include} PARENT_SCOPE)
+set (gui_ctrl_Include ${gui_ctrl_Include} PARENT_SCOPE)
 
-if(NOT TARGET ctrl)
+if(NOT TARGET gui_ctrl)
 
-include_directories(${ctrl_Include})
+include_directories(${gui_ctrl_Include})
 
 file(GLOB SOURCE_FILES "sources/*.*")
 
-link_directories(${ctrl_Lib})
+link_directories(${gui_ctrl_Lib})
 
-add_library(ctrl ${SOURCE_FILES})
+add_library(gui_ctrl ${SOURCE_FILES})
 
-target_link_libraries(ctrl win draw core)
+target_link_libraries(gui_ctrl gui_win gui_draw)
 
 endif()

@@ -36,55 +36,55 @@ namespace gui {
 #ifdef WIN32
     const pen pen::default_pen((os::pen)GetStockObject(BLACK_PEN));
 
-    pen::pen(os::pen id)
+    pen::pen (os::pen id)
       :id(id)
     {
       GetObject(id, sizeof(os::win32::pen_type), &info);
     }
 
-    pen::pen(const os::color& color, Style style, size_type width)
+    pen::pen (const os::color& color, size_type width, Style style)
       : id(CreatePen(style, width, color))
     {
       GetObject(id, sizeof(os::win32::pen_type), &info);
     }
 
-    pen::pen(const pen& rhs)
+    pen::pen (const pen& rhs)
       : id(CreatePenIndirect(&rhs.info))
       , info(rhs.info)
     {}
 
-    pen::~pen() {
+    pen::~pen () {
       if (id) {
         DeleteObject(id);
         id = 0;
       }
     }
 
-    os::color pen::color() const {
+    os::color pen::color () const {
       return info.lopnColor;
     }
 
-    pen::size_type pen::size() const {
+    pen::size_type pen::size () const {
       return info.lopnWidth.x;
     }
 
-    pen::Style pen::style() const {
+    pen::Style pen::style () const {
       return (pen::Style)info.lopnStyle;
     }
 
-    pen pen::with_size(size_type sz) const {
+    pen pen::with_size (size_type sz) const {
       os::win32::pen_type newType = info;
       newType.lopnWidth = { sz, sz };
       return pen(CreatePenIndirect(&newType));
     }
 
-    pen pen::with_style(Style s) const {
+    pen pen::with_style (Style s) const {
       os::win32::pen_type newType = info;
       newType.lopnStyle = s;
       return pen(CreatePenIndirect(&newType));
     }
 
-    pen pen::with_color(const os::color& c) const {
+    pen pen::with_color (const os::color& c) const {
       os::win32::pen_type newType = info;
       newType.lopnColor = c;
       return pen(CreatePenIndirect(&newType));
@@ -101,43 +101,43 @@ namespace gui {
 #ifdef X11
     const pen pen::default_pen;
 
-    pen::pen(const os::color& color, Style style, size_type size)
+    pen::pen (const os::color& color, size_type size, Style style)
       : m_color(color)
-      , m_style(style)
       , m_size(size)
+      , m_style(style)
     {}
 
-    pen::pen(const pen& rhs)
+    pen::pen (const pen& rhs)
       : m_color(rhs.m_color)
-      , m_style(rhs.m_style)
       , m_size(rhs.m_size)
+      , m_style(rhs.m_style)
     {}
 
-    pen::~pen() {
+    pen::~pen () {
     }
 
-    os::color pen::color() const {
+    os::color pen::color () const {
       return m_color;
     }
 
-    pen::size_type pen::size() const {
+    pen::size_type pen::size () const {
       return m_size;
     }
 
-    pen::Style pen::style() const {
+    pen::Style pen::style () const {
       return m_style;
     }
 
-    pen pen::with_size(size_type sz) const {
-      return pen(m_color, m_style, sz);
+    pen pen::with_size (size_type sz) const {
+      return pen(m_color, sz, m_style);
     }
 
-    pen pen::with_style(Style s) const {
-      return pen(m_color, s, m_size);
+    pen pen::with_style (Style s) const {
+      return pen(m_color, m_size, s);
     }
 
-    pen pen::with_color(const os::color& c) const {
-      return pen(c, m_style, m_size);
+    pen pen::with_color (const os::color& c) const {
+      return pen(c, m_size, m_style);
     }
 
     bool pen::operator== (const pen& rhs) const {

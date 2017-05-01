@@ -4,17 +4,19 @@ project("gui" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-add_subdirectory(core core)
-add_subdirectory(draw draw)
-add_subdirectory(win win)
-add_subdirectory(ctrl ctrl)
+add_subdirectory(core gui_core)
+add_subdirectory(draw gui_draw)
+add_subdirectory(io gui_io)
+add_subdirectory(win gui_win)
+add_subdirectory(ctrl gui_ctrl)
 
 set (gui_Include
-        ${ctrl_Include}
-        "../boost"
-	${CMAKE_CURRENT_BINARY_DIR}
+     ${gui_ctrl_Include}
+     ${gui_io_Include}
+     "../boost"
+     ${CMAKE_CURRENT_BINARY_DIR}
 )
-set (ctrl_Include ${ctrl_Include} PARENT_SCOPE)
+set (gui_Include ${gui_Include} PARENT_SCOPE)
 
 if(NOT TARGET gui)
 
@@ -28,6 +30,5 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/Version.h.in"
   "${PROJECT_BINARY_DIR}/gui_version.h"
 )
-
 
 endif()

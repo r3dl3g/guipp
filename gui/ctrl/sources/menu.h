@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "list.h"
+#include "bitmap.h"
 
 namespace gui {
 
@@ -36,12 +37,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct menu_entry {
       typedef void(menu_action)(int idx);
+      typedef draw::transparent_bitmap icon_type;
 
       menu_entry (const std::string& label,
                   const std::function<menu_action>& action,
                   const std::string& hotkey = std::string(),
                   bool separator = false,
-                  const std::string& icon = std::string(),
+                  const icon_type& icon = icon_type(),
                   bool disabled = false)
         : label(label)
         , hotkey(hotkey)
@@ -61,7 +63,7 @@ namespace gui {
         return hotkey;
       }
 
-      const std::string& get_icon () const {
+      const icon_type& get_icon () const {
         return icon;
       }
 
@@ -85,7 +87,7 @@ namespace gui {
         label = l;
       }
 
-      void set_icon (const std::string& i) {
+      void set_icon (const icon_type& i) {
         icon = i;
       }
 
@@ -109,7 +111,7 @@ namespace gui {
                   const std::function<menu_action>& action,
                   const std::string& hotkey,
                   bool separator,
-                  const std::string& icon,
+                  const icon_type& icon,
                   bool disabled)
         : label(label)
         , hotkey(hotkey)
@@ -124,7 +126,7 @@ namespace gui {
     private:
       std::string label;
       std::string hotkey;
-      std::string icon;
+      icon_type icon;
       std::function<menu_action> action;
       core::size_type width;
       bool separator;
@@ -138,7 +140,7 @@ namespace gui {
       sub_menu_entry (const std::string& label,
                       const std::function<menu_action>& action,
                       bool separator = false,
-                      const std::string& icon = std::string(),
+                      const icon_type& icon = icon_type(),
                       bool disabled = false)
         : menu_entry(true, label, action, std::string(), separator, icon, disabled)
       {}
@@ -150,7 +152,7 @@ namespace gui {
       main_menu_entry (const std::string& label,
                        const std::function<menu_action>& action,
                        bool disabled = false)
-        : menu_entry(true, label, action, std::string(), false, std::string(), disabled)
+        : menu_entry(true, label, action, std::string(), false, icon_type(), disabled)
       {}
     };
 

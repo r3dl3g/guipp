@@ -1,27 +1,26 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project("draw" CXX)
+project("gui_draw" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-add_subdirectory(./../core core)
+add_subdirectory(./../core gui_core)
 
-set (draw_Include
+set (gui_draw_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
-     "../../boost"
-     ${core_Include}
+     ${gui_core_Include}
 )
 
-set (draw_Include ${draw_Include} PARENT_SCOPE)
+set (gui_draw_Include ${gui_draw_Include} PARENT_SCOPE)
 
-if(NOT TARGET draw)
+if(NOT TARGET gui_draw)
 
-include_directories(${draw_Include})
+include_directories(${gui_draw_Include})
 
 file(GLOB SOURCE_FILES "sources/*.*")
 
-link_directories(${draw_Lib})
+link_directories(${gui_draw_Lib})
 
-add_library(draw ${SOURCE_FILES})
+add_library(gui_draw ${SOURCE_FILES})
 
 endif()

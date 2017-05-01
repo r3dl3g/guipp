@@ -70,25 +70,25 @@ namespace gui {
 #endif // WIN32
       };
 
-      pen(const os::color& = color::black, Style = solid, size_type = 1);
-      pen(const pen&);
-      ~pen();
+      pen (const os::color& = color::black, size_type = 1, Style = solid);
+      pen (const pen&);
+      ~pen ();
 
 #ifdef WIN32
-      pen(os::pen);
+      pen (os::pen);
 
-      inline operator os::pen() const {
+      inline operator os::pen () const {
         return id;
       }
 #endif // WIN32
 
-      os::color color() const;
-      size_type size() const;
-      Style style() const;
+      os::color color () const;
+      size_type size () const;
+      Style style () const;
 
-      pen with_size(size_type) const;
-      pen with_style(Style) const;
-      pen with_color(const os::color&) const;
+      pen with_size (size_type) const;
+      pen with_style (Style) const;
+      pen with_color (const os::color&) const;
 
       bool operator== (const pen&) const;
 
@@ -100,8 +100,8 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       const os::color m_color;
-      const Style m_style;
       const size_type m_size;
+      const Style m_style;
 #endif // X11
 
     };

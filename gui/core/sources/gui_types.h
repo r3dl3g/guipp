@@ -411,12 +411,20 @@ namespace gui {
         return {tl, core::point(br.x(), tl.y() + h)};
       }
 
+      inline rectangle with_size (const core::size& sz) const {
+        return {tl, tl + sz};
+      }
+
       inline rectangle with_x (const core::size::type x) const {
         return {core::point(x, tl.y()), br};
       }
 
       inline rectangle with_y (const core::size::type y) const {
         return {core::point(tl.x(), y), br};
+      }
+
+      inline rectangle with_pos (const core::point& pt) const {
+        return {pt, pt + size()};
       }
 
       inline rectangle operator- (const core::size& sz) const {

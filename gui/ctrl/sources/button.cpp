@@ -159,7 +159,7 @@ namespace gui {
         graph.text(text_box(text, area, center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
         if (enabled && focused) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::dot));
         }
       }
 

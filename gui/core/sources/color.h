@@ -258,6 +258,8 @@ namespace gui {
              static_cast<int>(calc_weigth_gray(rhs));
     }
 
+    const os::color transparent = rgba_gray<0, 0xff>::value;
+
     const os::color black = rgb_gray<0>::value;
     const os::color white = rgb_gray<0xff>::value;
     const os::color gray = rgb_gray<0x80>::value;

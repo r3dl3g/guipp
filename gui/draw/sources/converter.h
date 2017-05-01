@@ -96,7 +96,7 @@ namespace gui {
                       | (get<From>(in, x + 5) ? bit_mask[5] : 0)
                       | (get<From>(in, x + 6) ? bit_mask[6] : 0)
                       | (get<From>(in, x + 7) ? bit_mask[7] : 0);
-          out[x / 8] = ovalue;
+          out[x / 8] = ovalue IF_WIN32(^ 0xff);
         }
       }
     };

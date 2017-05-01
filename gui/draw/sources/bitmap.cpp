@@ -462,7 +462,14 @@ namespace gui {
 
     void transparent_bitmap::operator() (const graphics& g, const core::point& pt) const {
 #ifdef WIN32
-      g.copy_from(*this, core::rectangle(size()), pt);
+      core::size sz = size();
+      HDC mem_dc = CreateCompatibleDC(g);
+      HGDIOBJ old = SelectObject(mem_dc, mask.get_id());
+      BitBlt(g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
+      SelectObject(mem_dc, get_id());
+      BitBlt(g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
+      SelectObject(mem_dc, old);
+      DeleteDC(mem_dc);
 #endif // WIN32
 #ifdef X11
       auto display = core::global::get_instance();

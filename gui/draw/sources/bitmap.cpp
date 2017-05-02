@@ -94,7 +94,9 @@ namespace gui {
 
     bitmap::bitmap (bitmap&& rhs)
       : id(std::move(rhs.id))
-    {}
+    {
+      rhs.id = 0;
+    }
 
     void bitmap::operator= (const bitmap& rhs) {
       if (&rhs != this) {
@@ -110,6 +112,7 @@ namespace gui {
       if (&rhs != this) {
         clear();
         id = std::move(rhs.id);
+        rhs.id = 0;
       }
     }
 

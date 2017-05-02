@@ -1057,6 +1057,7 @@ namespace gui {
 #endif // X11
     }
 
+#ifdef X11
     bool is_deeper_window (os::window main, os::window sub) {
       if (sub == main) {
         return false;
@@ -1072,6 +1073,7 @@ namespace gui {
       }
       return true;
     }
+#endif // X11
 
     void modal_window::run_modal () {
       LogDebug << "Enter modal loop";

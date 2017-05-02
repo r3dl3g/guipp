@@ -159,7 +159,7 @@ namespace gui {
         graph.text(text_box(text, area, center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
         if (enabled && focused) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }
       }
 
@@ -243,7 +243,7 @@ namespace gui {
         if (focused) {
           graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }
       }
 
@@ -293,7 +293,7 @@ namespace gui {
         if (focused) {
           graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, pen::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }
       }
     }

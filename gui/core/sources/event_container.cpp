@@ -35,12 +35,17 @@ namespace gui {
 
   namespace core {
 
-    void event_container::register_event_handler (event_handler_function handler) {
+    void event_container::register_event_handler (const event_handler_function& handler) {
       event_handlers.reserve(8);
       event_handlers.push_back(handler);
     }
 
-    void event_container::unregister_event_handler (event_handler_function handler) {
+    void event_container::register_event_handler (event_handler_function&& handler) {
+      event_handlers.reserve(8);
+      event_handlers.push_back(std::move(handler));
+    }
+
+    void event_container::unregister_event_handler (const event_handler_function& handler) {
         const auto end = event_handlers.end();
         const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_function& rhs) {
           return (rhs.target_type() == handler.target_type());

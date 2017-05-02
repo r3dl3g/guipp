@@ -100,6 +100,7 @@ namespace gui {
                                       bool hilited);
 
         void set_drawer (const std::function<draw_list_item>& drawer);
+        void set_drawer (std::function<draw_list_item>&& drawer);
 
       protected:
         void draw_item (int idx,

@@ -152,12 +152,19 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      void register_event_handler(event_handler_function f, os::event_id mask);
-      void unregister_event_handler(event_handler_function f);
+      void register_event_handler(const event_handler_function& f, os::event_id mask);
+      void register_event_handler(event_handler_function&& f, os::event_id mask);
+
+      void unregister_event_handler(const event_handler_function& f);
 
       template<typename H>
-      void register_event_handler(H h) {
+      void register_event_handler(const H& h) {
         register_event_handler(h, h.mask);
+      }
+
+      template<typename H>
+      void register_event_handler(H&& h) {
+        register_event_handler(std::move(h), h.mask);
       }
 
       template<typename T>

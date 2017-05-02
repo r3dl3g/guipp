@@ -267,8 +267,12 @@ namespace gui {
         using callback = void(Ts...);
         typedef std::function<callback> function;
 
-        caller (const function f)
+        caller (const function& f)
           :f(f)
+        {}
+
+        caller (function&& f)
+          :f(std::move(f))
         {}
 
         template<class C>
@@ -302,6 +306,16 @@ namespace gui {
 
       event_handler (const function cb)
         : caller(cb)
+      {}
+
+      event_handler (const event_handler& rhs)
+        : caller(rhs.caller)
+        , matcher(rhs.matcher)
+      {}
+
+      event_handler (event_handler&& rhs)
+        : caller(std::move(rhs.caller))
+        , matcher(std::move(rhs.matcher))
       {}
 
       bool operator() (const core::event& e, os::event_result& result) {

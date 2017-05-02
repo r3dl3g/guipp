@@ -187,30 +187,51 @@ namespace gui {
           draw::clip clp(graph, area);
           core::point_type y1 = area.y() + 2;
           core::point_type y2 = area.y2() - 2;
+
           if (selection.first < selection.last) {
             gui::core::rectangle a1 = area;
+            int begin = scroll_pos;
+            core::point_type left = area.x();
             if (selection.first > scroll_pos) {
-              graph.text(draw::bounding_box(text.substr(scroll_pos, selection.first - scroll_pos), a1, origin),
-                         font::system(), color::black);
+              std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);
+              begin = selection.first;
+              graph.text(draw::bounding_box(t1, a1, origin), font::system(), color::black);
+              left = a1.x2();
+              graph.text(draw::text_box(t1, core::rectangle(core::point(area.x(), y1), core::point(left, y2)), origin),
+                         font::system(), color::windowTextColor());
             } else {
               a1.x2(a1.x());
             }
-            gui::core::rectangle a2 = area;
-            graph.text(draw::bounding_box(text.substr(scroll_pos, selection.last - scroll_pos), a2, origin),
-                       font::system(), color::black);
-            graph.fill(draw::rectangle(core::point(a1.x2(), y1),
-                                       core::point(a2.x2(), y2)),
-                       color::light_blue);
+
+            gui::core::rectangle a2 = area.with_x(left);
+            if (selection.last > scroll_pos) {
+              std::string t2 = text.substr(begin, selection.last - begin);
+              graph.text(draw::bounding_box(t2, a2, origin), font::system(), color::black);
+              left = a2.x2();
+              a2 = core::rectangle(core::point(a2.x(), y1), core::point(left, y2));
+              graph.fill(draw::rectangle(a2), color::highLightColor());
+              graph.text(draw::text_box(t2, core::rectangle(a2), origin), font::system(), color::highLightTextColor());
+              begin = selection.last;
+            }
+
+            if (begin < text.length()) {
+              std::string t3 = text.substr(begin);
+              graph.text(draw::text_box(t3, core::rectangle(core::point(left, y1), core::point(area.x2(), y2)), origin),
+                         font::system(), color::windowTextColor());
+            }
+
+          } else {
+            graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::windowTextColor());
           }
+
           if (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max()) {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
                        font::system(), color::black);
             graph.frame(line(core::point(cursor_area.x2(), y1),
                              core::point(cursor_area.x2(), y2)),
-                             color::black);
+                             color::windowTextColor());
           }
-          graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::black);
 #ifdef SHOW_TEXT_AREA
           graph.text(draw::bounding_box(text, area, origin), font::system(), color::black);
           graph.frame(draw::rectangle(area), draw::pen(color::black, draw::pen::dot));

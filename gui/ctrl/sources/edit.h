@@ -55,6 +55,10 @@ namespace gui {
             , last(l)
           {}
 
+          bool is_inside (pos_t i) const {
+            return (i > first) && (i < last);
+          }
+
           void sort () {
             if (first > last) {
               std::swap(first, last);

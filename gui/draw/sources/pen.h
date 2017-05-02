@@ -46,7 +46,7 @@ namespace gui {
       typedef unsigned int size_type;
 #endif // X11
 
-      enum Style {
+      enum struct Style : int {
 #ifdef WIN32
         solid = PS_SOLID,
         dash = PS_DASH,
@@ -70,7 +70,7 @@ namespace gui {
 #endif // WIN32
       };
 
-      pen (const os::color& = color::black, size_type = 1, Style = solid);
+      pen (const os::color& = color::black, size_type = 1, Style = Style::solid);
       pen (const pen&);
       ~pen ();
 

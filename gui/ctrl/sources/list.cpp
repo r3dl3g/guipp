@@ -56,6 +56,10 @@ namespace gui {
         this->drawer = drawer;
       }
 
+      void list::set_drawer (std::function<draw_list_item>&& drawer) {
+        this->drawer = std::move(drawer);
+      }
+
       void list::draw_item (int idx,
                             const draw::graphics& g,
                             const core::rectangle& place,

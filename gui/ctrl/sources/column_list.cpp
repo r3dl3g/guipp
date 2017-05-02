@@ -73,11 +73,11 @@ namespace gui {
       void column_list_layout::set_columns(std::initializer_list<column_info> infos, bool update) {
         set_column_count(infos.size());
 
-        typedef std::initializer_list<column_info>::iterator iterator;
         int idx = 0;
-        for (iterator i = infos.begin(), e = infos.end(); i != e; ++i, ++idx) {
-          aligns[idx] = i->align;
-          widths[idx] = i->width;
+        for (const column_info& i : infos) {
+          aligns[idx] = i.align;
+          widths[idx] = i.width;
+          ++idx;
         }
         if (update) {
           update_views();
@@ -140,12 +140,12 @@ namespace gui {
     void simple_column_list_layout::set_columns(std::initializer_list<simple_column_info> infos, bool update) {
       set_column_count(infos.size());
 
-      typedef std::initializer_list<simple_column_info>::iterator iterator;
       int idx = 0;
-      for (iterator i = infos.begin(), e = infos.end(); i != e; ++i, ++idx) {
-        aligns[idx] = i->align;
-        widths[idx] = i->width;
-        min_widths[idx] = i->min_width;
+      for (const simple_column_info& i : infos) {
+        aligns[idx] = i.align;
+        widths[idx] = i.width;
+        min_widths[idx] = i.min_width;
+        ++idx;
       }
       if (update) {
         update_views();
@@ -156,13 +156,13 @@ namespace gui {
     void weight_column_list_layout::set_columns(std::initializer_list<weight_column_info> infos, bool update) {
       set_column_count(infos.size());
 
-      typedef std::initializer_list<weight_column_info>::iterator iterator;
       int idx = 0;
-      for (iterator i = infos.begin(), e = infos.end(); i != e; ++i, ++idx) {
-        aligns[idx] = i->align;
-        widths[idx] = i->width;
-        min_widths[idx] = i->min_width;
-        weights[idx] = i->weight;
+      for (const weight_column_info& i : infos) {
+        aligns[idx] = i.align;
+        widths[idx] = i.width;
+        min_widths[idx] = i.min_width;
+        weights[idx] = i.weight;
+        ++idx;
       }
       if (update) {
         update_views();

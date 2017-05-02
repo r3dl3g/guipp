@@ -317,12 +317,17 @@ namespace gui {
       return cls;
     }
 
-    void window::register_event_handler(event_handler_function f, os::event_id mask) {
+    void window::register_event_handler(const event_handler_function& f, os::event_id mask) {
       events.register_event_handler(f);
       prepare_for_event(mask);
     }
 
-    void window::unregister_event_handler(event_handler_function f) {
+    void window::register_event_handler(event_handler_function&& f, os::event_id mask) {
+      events.register_event_handler(std::move(f));
+      prepare_for_event(mask);
+    }
+
+    void window::unregister_event_handler(const event_handler_function& f) {
       events.unregister_event_handler(f);
     }
 

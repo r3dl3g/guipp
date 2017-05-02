@@ -151,8 +151,8 @@ private:
 
   win::hslider hslider;
   win::vslider vslider;
-  win::paint_event paint1;
-  win::paint_event paint2;
+  const win::paint_event paint1;
+  const win::paint_event paint2;
 
   win::edit edit1;
 

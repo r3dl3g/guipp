@@ -22,8 +22,8 @@ using namespace gui::draw;
 
 
 // --------------------------------------------------------------------------
-const os::color nero = color::rgb_color<64,66,68>::value;
-const os::color silver = color::rgb_color<0xC3,0xC6,0xC7>::value;
+const os::color nero = color::rgb<64,66,68>::value;
+const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
 // --------------------------------------------------------------------------
 class my_main_window : public layout_main_window<border_layout<40, 30, 100, 100>> {

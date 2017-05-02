@@ -219,16 +219,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     polygon::polygon (const std::vector<core::point>& pts) {
       points.reserve(pts.size() + 1);
-      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt) {
+      for(const core::point& pt : pts){
         points.push_back(pt.os());
-      });
+      }
     }
 
     polygon::polygon (std::initializer_list<core::point> pts) {
       points.reserve(pts.size() + 1);
-      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt) {
+      for(const core::point& pt : pts){
         points.push_back(pt.os());
-      });
+      }
     }
 
     void polygon::operator() (const graphics& g,
@@ -429,7 +429,7 @@ namespace gui {
                                           const pen& p) const {
       Use<pen> pn(gc, p);
       bool first = true;
-      for (core::point pt : points) {
+      for (const core::point& pt : points) {
         if (first) {
           first = false;
           MoveToEx(gc, pt.os_x(), pt.os_y(), nullptr);
@@ -538,18 +538,18 @@ namespace gui {
     void Use<pen>::set (const pen& p) {
       os::instance display = get_instance();
       XSetForeground(display, g, p.color());
-      XSetLineAttributes(display, g, p.size(), p.style() & 0x0F, CapButt, JoinMiter);
-      if (p.style() & 0x0F0) {
+      XSetLineAttributes(display, g, p.size(), static_cast<int>(p.style()) & 0x0F, CapButt, JoinMiter);
+      if (static_cast<int>(p.style()) & 0x0F0) {
         switch (p.style()) {
-          case pen::dot:
+          case pen::Style::dot:
             static const char dots[] = {1, 1};
             XSetDashes(display, g, 0, dots, 2);
             break;
-          case pen::dashDot:
+          case pen::Style::dashDot:
             static const char dash_dots[] = {4, 4, 1, 4};
             XSetDashes(display, g, 0, dash_dots, 4);
             break;
-          case pen::dashDotDot:
+          case pen::Style::dashDotDot:
             static const char dash_dot_dots[] = {4, 4, 1, 2, 1, 4};
             XSetDashes(display, g, 0, dash_dot_dots, 6);
             break;
@@ -593,10 +593,10 @@ namespace gui {
     struct render_color : XRenderColor {
       render_color (os::color c)
         : XRenderColor({
-          (unsigned short)(color::extract_red(c) << 8),
-          (unsigned short)(color::extract_green(c) << 8),
-          (unsigned short)(color::extract_blue(c) << 8),
-          (unsigned short)((color::extract_alpha(c) << 8) ^ 0xffff)
+          (unsigned short)(color::extract<color::part::red>(c) << 8),
+          (unsigned short)(color::extract<color::part::green>(c) << 8),
+          (unsigned short)(color::extract<color::part::blue>(c) << 8),
+          (unsigned short)((color::extract<color::part::alpha>(c) << 8) ^ 0xffff)
         })
       {}
     };
@@ -953,9 +953,9 @@ namespace gui {
 
     polygon::polygon (std::initializer_list<core::point> pts) {
       points.reserve(pts.size() + 1);
-      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt){
+      for(const core::point& pt : pts) {
         points.push_back(pt.os());
-      });
+      }
       points.push_back(pts.begin()->os());
     }
 
@@ -1010,10 +1010,11 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
+        auto fi = f.font_type();
+        height = fi->ascent - fi->descent;
         width = extents.width;
-        height = extents.height;
-        dx = extents.x;
-        dy = extents.y;
+        dx = 0;//extents.x;
+        dy = height;//extents.y;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1053,10 +1054,11 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        width = extents.xOff - extents.x;
-        height = extents.height;
-        dx = extents.x;
-        dy = extents.y;
+        auto fi = f.font_type();
+        height = fi->ascent - fi->descent;
+        width = extents.xOff;// - extents.x;
+        dx = 0;//extents.x;
+        dy = height;//extents.y;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1094,10 +1096,11 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
+        auto fi = f.font_type();
+        height = fi->ascent - fi->descent;
         width = extents.width;
-        height = extents.height;
         dx = extents.x;
-        dy = extents.y;
+        dy = height;//extents.y;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1140,9 +1143,9 @@ namespace gui {
       Use<pen> pn(gc, p);
       std::vector<os::point> points;
       points.reserve(pts.size());
-      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt){
+      for(const core::point& pt : pts) {
         points.push_back(pt.os());
-      });
+      }
       XDrawLines(get_instance(), target, gc,
                  points.data(), (int)points.size(),
                  CoordModeOrigin);

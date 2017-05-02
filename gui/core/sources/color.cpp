@@ -86,12 +86,12 @@ namespace gui {
     os::color get_sys_color(SystemColor c) {
       switch (c) {
 
-        case COLOR_APPWORKSPACE:  return rgb_color<160, 160, 160>::value;
+        case COLOR_APPWORKSPACE:  return rgb<160, 160, 160>::value;
         case COLOR_WINDOWTEXT:    return black;
-        case COLOR_HIGHLIGHT:     return rgb_color<48, 140, 198>::value;
+        case COLOR_HIGHLIGHT:     return rgb<48, 140, 198>::value;
         case COLOR_HIGHLIGHTTEXT: return white;
-        case COLOR_BTNFACE:       return rgb_color<240, 240, 240>::value;
-        case COLOR_BTNHIGHLIGHT:  return rgb_color<248, 248, 248>::value;
+        case COLOR_BTNFACE:       return rgb<240, 240, 240>::value;
+        case COLOR_BTNHIGHLIGHT:  return rgb<248, 248, 248>::value;
         case COLOR_WINDOW:        return white;
         case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
         case COLOR_MENU:          return very_light_gray;

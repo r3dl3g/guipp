@@ -41,6 +41,7 @@ namespace gui {
         , hilite(-1)
         , moved(false)
         , scroll_bar_enabled(true)
+        , last_mouse_point(core::point::undefined)
       {
 #ifdef X11
         detail::init_control_messages();

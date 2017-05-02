@@ -63,12 +63,14 @@ namespace gui {
       }
 
       bitmap (const bitmap&);
+      bitmap (bitmap&&);
 
       ~bitmap () {
         clear();
       }
 
       void operator= (const bitmap&);
+      void operator= (bitmap&&);
 
       bool is_valid () const {
         return id != 0;
@@ -108,6 +110,7 @@ namespace gui {
       static int calc_bytes_per_line (int w, int bpp);
 
       void operator() (const graphics&, const core::point&) const;
+      void draw (const graphics&, const core::point&) const;
 
     private:
       os::bitmap id;
@@ -116,13 +119,25 @@ namespace gui {
 
     class transparent_bitmap : public bitmap {
     public:
+      typedef bitmap super;
+
       transparent_bitmap ()
       {}
+
+      transparent_bitmap (const transparent_bitmap&);
+      void operator= (const transparent_bitmap& rhs);
+
+      transparent_bitmap (transparent_bitmap&&);
+      void operator= (transparent_bitmap&&);
 
       transparent_bitmap (const bitmap& bmp);
       void operator= (const bitmap& bmp);
 
+      transparent_bitmap (bitmap&& bmp);
+      void operator= (bitmap&& bmp);
+
       void operator() (const graphics&, const core::point&) const;
+      void draw (const graphics&, const core::point&) const;
 
     private:
       bitmap mask;

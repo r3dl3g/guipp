@@ -118,6 +118,7 @@ namespace gui {
       }
 
       void unset_window (os::window id) {
+        clear_last_place(id);
         global_window_map.erase(id);
       }
 
@@ -125,31 +126,38 @@ namespace gui {
 
     } // detail
 
+
+    int run_loop (volatile bool& running, detail::filter_call filter) {
+
+      running = true;
+
 #ifdef WIN32
-    int run_main_loop() {
       MSG msg;
-      while (GetMessage(&msg, nullptr, 0, 0)) {
+      while (running && GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
       }
       return (int)msg.wParam;
-    }
 #endif // WIN32
 
 #ifdef X11
-    Atom wmDeleteMessage = 0;
-
-    int run_main_loop () {
       os::instance display = core::global::get_instance();
 
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
 
       os::event_result resultValue = 0;
+
       core::event e;
-      bool running = true;
+
       while (running) {
         XNextEvent(display, &e);
+
+        if (filter && filter(e)) {
+          continue;
+        }
+
         win::window* win = win::detail::get_window(e.xany.window);
+
         if (win && win->is_valid()) {
           if ((e.type == ClientMessage) && (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
             running = false;
@@ -162,20 +170,26 @@ namespace gui {
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
           }
+
           core::global::sync();
 
-          switch (e.type) {
-            case ConfigureNotify:
-              get_last_place<core::size>(e.xconfigure.window) = core::size(e.xconfigure);
-              get_last_place<core::point>(e.xconfigure.window) = core::point(e.xconfigure);
-              get_last_place<core::rectangle>(e.xconfigure.window) = core::rectangle(e.xconfigure);
-            break;
+          if (e.type == ConfigureNotify) {
+              update_last_place(e.xconfigure.window, core::rectangle(e.xconfigure));
           }
         }
       }
       return resultValue;
-    }
 #endif // X11
+    }
+
+    int run_main_loop () {
+      bool running = true;
+
+      return run_loop(running, [](const core::event&) -> bool {
+        return false;
+      });
+
+    }
 
   } // win
 

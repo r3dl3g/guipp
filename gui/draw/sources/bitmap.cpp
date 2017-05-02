@@ -92,6 +92,10 @@ namespace gui {
       operator=(rhs);
     }
 
+    bitmap::bitmap (bitmap&& rhs)
+      : id(std::move(rhs.id))
+    {}
+
     void bitmap::operator= (const bitmap& rhs) {
       if (&rhs != this) {
         clear();
@@ -99,6 +103,13 @@ namespace gui {
           create(rhs.size(), rhs.depth());
           put(rhs);
         }
+      }
+    }
+
+    void bitmap::operator= (bitmap&& rhs) {
+      if (&rhs != this) {
+        clear();
+        id = std::move(rhs.id);
       }
     }
 
@@ -440,7 +451,35 @@ namespace gui {
     }
 
     void bitmap::operator() (const graphics& g, const core::point& pt) const {
+      draw(g, pt);
+    }
+
+    void bitmap::draw (const graphics& g, const core::point& pt) const {
       g.copy_from(*this, core::rectangle(size()), pt);
+    }
+
+    transparent_bitmap::transparent_bitmap (const transparent_bitmap& rhs)
+      : super(rhs)
+      , mask(rhs.mask)
+    {}
+
+    void transparent_bitmap::operator= (const transparent_bitmap& rhs) {
+      if (&rhs != this) {
+        super::operator=(rhs);
+        mask = rhs.mask;
+      }
+    }
+
+    transparent_bitmap::transparent_bitmap (transparent_bitmap&& rhs)
+      : super(std::move(rhs))
+      , mask(std::move(rhs.mask))
+    {}
+
+    void transparent_bitmap::operator= (transparent_bitmap&& rhs) {
+      if (&rhs != this) {
+        super::operator =(std::move(rhs));
+        mask = std::move(rhs.mask);
+      }
     }
 
     transparent_bitmap::transparent_bitmap (const bitmap& b)
@@ -460,7 +499,28 @@ namespace gui {
       }
     }
 
+    transparent_bitmap::transparent_bitmap (bitmap&& b)
+      : bitmap(std::move(b))
+    {
+      if (is_valid()) {
+        mask.create(size(), 1);
+        mask.put(*this);
+      }
+    }
+
+    void transparent_bitmap::operator= (bitmap&& bmp) {
+      bitmap::operator=(std::move(bmp));
+      if (is_valid()) {
+        mask.create(size(), 1);
+        mask.put(*this);
+      }
+    }
+
     void transparent_bitmap::operator() (const graphics& g, const core::point& pt) const {
+      draw(g, pt);
+    }
+
+    void transparent_bitmap::draw (const graphics& g, const core::point& pt) const {
 #ifdef WIN32
       core::size sz = size();
       HDC mem_dc = CreateCompatibleDC(g);

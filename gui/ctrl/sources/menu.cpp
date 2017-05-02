@@ -92,7 +92,9 @@ namespace gui {
           core::size sz = e.get_icon().size();
           core::point_type x = (text_pos - sz.width()) / 2;
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
-          g.copy(e.get_icon(), core::point(x, y));
+          g.copy([&](const draw::graphics& g, const core::point& pt) {
+            e.get_icon().draw(g, pt);
+          }, core::point(x, y));
         }
         g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
                draw::font::menu(), col);
@@ -114,18 +116,104 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void menu_data::add_entries (const std::initializer_list<menu_entry>& menu_entries) {
-      vector::size_type last = data.size();
-      data.insert(data.end(), menu_entries);
+    menu_entry::menu_entry (const menu_entry& rhs)
+      : label(rhs.label)
+      , hotkey(rhs.hotkey)
+      , icon(rhs.icon)
+      , action(rhs.action)
+      , width(rhs.width)
+      , separator(rhs.separator)
+      , disabled(rhs.disabled)
+      , sub_menu(rhs.sub_menu)
+    {}
+
+    void menu_entry::operator= (const menu_entry& rhs) {
+      if (this != &rhs) {
+        label = rhs.label;
+        hotkey = rhs.hotkey;
+        icon = rhs.icon;
+        action = rhs.action;
+        width = rhs.width;
+        separator = rhs.separator;
+        disabled = rhs.disabled;
+        sub_menu = rhs.sub_menu;
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    menu_entry::menu_entry (menu_entry&& rhs)
+      : label(std::move(rhs.label))
+      , hotkey(std::move(rhs.hotkey))
+      , icon(std::move(rhs.icon))
+      , action(std::move(rhs.action))
+      , width(rhs.width)
+      , separator(rhs.separator)
+      , disabled(rhs.disabled)
+      , sub_menu(rhs.sub_menu)
+    {}
+
+    void menu_entry::operator= (const menu_entry&& rhs) {
+      if (this != &rhs) {
+        label = std::move(rhs.label);
+        hotkey = std::move(rhs.hotkey);
+        icon = std::move(rhs.icon);
+        action = std::move(rhs.action);
+        width = rhs.width;
+        separator = rhs.separator;
+        disabled = rhs.disabled;
+        sub_menu = rhs.sub_menu;
+      }
+    }
+
+    template<typename T>
+    class in {
+    public:
+      in (const T& t)
+        : value(t)
+        , rval(false)
+      {}
+
+      in (T&& t)
+        : value(t)
+        , rval(true)
+      {}
+
+      bool rvalue () const        { return rval;  }
+      bool lvalue () const        { return !rval; }
+
+      operator const T& () const  { return value; }
+      const T& get () const       { return value; }
+      T&& rget () const           { return std::move(const_cast<T&>(value)); }
+
+    private:
+      const T& value;
+      bool rval;
+    };
+
+    // --------------------------------------------------------------------------
+    void menu_data::add_entries (std::initializer_list<menu_entry> new_entries) {
       const draw::font& f = draw::font::menu();
 
-      for (iterator i = data.begin() + last, e = data.end(); i != e; ++i) {
-        i->set_width(f.get_text_size(i->get_label()).width());
+      for (const in<menu_entry>& i : new_entries) {
+        if (i.rvalue()) {
+          data.push_back(i.rget());
+        } else {
+          data.emplace_back(i.get());
+        }
+        menu_entry& entry = data.back();
+        entry.set_width(f.get_text_size(entry.get_label()).width());
       }
     }
 
     void menu_data::add_entry (const menu_entry& entry) {
       data.push_back(entry);
+      menu_entry& e = data.back();
+      const draw::font& f = draw::font::menu();
+      e.set_width(f.get_text_size(e.get_label()).width());
+    }
+
+    void menu_data::add_entry (menu_entry&& entry) {
+      data.push_back(std::move(entry));
       menu_entry& e = data.back();
       const draw::font& f = draw::font::menu();
       e.set_width(f.get_text_size(e.get_label()).width());

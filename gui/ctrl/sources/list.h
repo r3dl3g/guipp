@@ -290,7 +290,7 @@ namespace gui {
           paint(g);
         }));
         super::register_event_handler(left_btn_up_event([&](os::key_state keys, const core::point& pt) {
-          if (!super::moved) {
+          if (!super::moved && (super::last_mouse_point != core::point::undefined)) {
             const int new_selection = get_index_at_point(pt);
             if (new_selection != super::get_selection()) {
               set_selection(new_selection);

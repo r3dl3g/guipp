@@ -309,6 +309,18 @@ namespace gui {
       return s_last_place[w];
     }
 
+    void update_last_place (os::window w, const core::rectangle& r) {
+      get_last_place<core::size>(w) = r.size();
+      get_last_place<core::point>(w) = r.position();
+      get_last_place<core::rectangle>(w) = r;
+    }
+
+    void clear_last_place (os::window w) {
+      s_last_size.erase(w);
+      s_last_pos.erase(w);
+      s_last_place.erase(w);
+    }
+
 
 #endif // X11
 

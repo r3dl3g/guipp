@@ -616,6 +616,9 @@ namespace gui {
     template<>
     core::rectangle& get_last_place<core::rectangle>(Window);
 
+    void update_last_place (os::window, const core::rectangle&);
+    void clear_last_place (os::window);
+
     // --------------------------------------------------------------------------
     template<typename T, os::event_id E, typename C>
     struct move_size_matcher {

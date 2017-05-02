@@ -48,7 +48,13 @@ namespace gui {
       void set_window (os::window id, window* win);
       void unset_window (os::window id);
 
+      typedef bool(filter_fn)(const core::event&);
+
+      typedef std::function<filter_fn> filter_call;
+
     } // detail
+
+    int run_loop (volatile bool& running, detail::filter_call filter);
 
     int run_main_loop ();
 

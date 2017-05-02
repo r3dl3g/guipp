@@ -429,7 +429,13 @@ namespace gui {
       }
 
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
-      XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
+      //XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
+      Atom protocols[] = {
+        XInternAtom(display, "WM_TAKE_FOCUS", False),
+        detail::WM_DELETE_WINDOW,
+      };
+      XSetWMProtocols(display, id, protocols, 2);
+
     }
 
     void window::destroy () {
@@ -1051,45 +1057,48 @@ namespace gui {
 #endif // X11
     }
 
+    bool is_deeper_window (os::window main, os::window sub) {
+      if (sub == main) {
+        return false;
+      }
+
+      Window root = 0, parent = 0;
+      Window *children = 0;
+      unsigned int nchildren = 0;
+
+      XQueryTree(core::global::get_instance(), sub, &root, &parent, &children, &nchildren);
+      if (parent) {
+        return is_deeper_window(main, parent);
+      }
+      return true;
+    }
+
     void modal_window::run_modal () {
       LogDebug << "Enter modal loop";
-#ifdef WIN32
-      is_modal = true;
-      MSG msg;
-      while (is_modal && GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
-#endif // WIN32
-#ifdef X11
-      os::instance display = core::global::get_instance();
 
-      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+      os::window win = get_id();
 
-      os::event_result resultValue = 0;
-      core::event e;
-      is_modal = true;
       redraw_later();
-      while (is_modal) {
-        XNextEvent(display, &e);
 
-        win::window* win = win::detail::get_window(e.xany.window);
-        if (win && win->is_valid()) {
-          if ((e.type == ClientMessage) && (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
-            is_modal = false;
-          }
-          try {
-            win->handle_event(core::event(e), resultValue);
-            core::global::sync();
-          } catch (std::exception& e) {
-            LogFatal << "exception in run_modal_loop: " << e;
-          } catch (...) {
-            LogFatal << "Unknown exception in run_modal_loop()";
-          }
+      is_modal = true;
+
+      run_loop(is_modal, [win](const core::event& e) -> bool {
+#ifdef X11
+        switch (e.type) {
+          case MotionNotify:
+          case ButtonPress:
+          case ButtonRelease:
+          case FocusIn:
+          case FocusOut:
+          case EnterNotify:
+          case LeaveNotify:
+            return is_deeper_window(win, e.xany.window);
+          break;
         }
-      }
-
 #endif // X11
+        return false;
+      });
+
       LogDebug << "Exit modal loop";
     }
 
@@ -1163,6 +1172,10 @@ namespace gui {
         type = XInternAtom(display, "_NET_WM_STATE", False);
         value = XInternAtom(display, "_NET_WM_STATE_MODAL", False),
         XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+        type = XInternAtom(display, "WM_CLIENT_LEADER", False);
+        XChangeProperty(display, w->get_id(), type, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&parent_id), 1);
+
 #endif
       }
 

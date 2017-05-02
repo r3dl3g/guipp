@@ -55,6 +55,11 @@ namespace gui {
         , sub_menu(false)
       {}
 
+      menu_entry (menu_entry&&);
+      menu_entry (const menu_entry&);
+      void operator= (const menu_entry&);
+      void operator= (const menu_entry&&);
+
       const std::string& get_label () const {
         return label;
       }
@@ -197,8 +202,9 @@ namespace gui {
         , win(win)
       {}
 
-      void add_entries (const std::initializer_list<menu_entry>& menu_entries);
+      void add_entries (std::initializer_list<menu_entry> menu_entries);
       void add_entry (const menu_entry& entry);
+      void add_entry (menu_entry&& entry);
 
       inline menu_entry& operator[] (int i) {
         return data[i];

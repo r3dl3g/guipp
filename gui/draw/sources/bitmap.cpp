@@ -38,24 +38,18 @@ namespace gui {
     bitmap::bitmap (const bitmap& rhs)
       : id(0)
     {
-      operator=(rhs);
+      if (rhs) {
+        core::size sz = rhs.size();
+        BPP bpp = rhs.bits_per_pixel();
+        create(sz.os_width(), sz.os_height(), bpp);
+        put(rhs);
+      }
     }
 
     bitmap::bitmap (bitmap&& rhs)
       : id(std::move(rhs.id))
     {
       rhs.id = 0;
-    }
-
-    void bitmap::operator= (const bitmap& rhs) {
-      if (&rhs != this) {
-        clear();
-        if (rhs) {
-          core::size sz = rhs.size();
-          create(sz.os_width(), sz.os_height(), rhs.bpp());
-          put(rhs);
-        }
-      }
     }
 
     void bitmap::operator= (bitmap&& rhs) {
@@ -122,12 +116,12 @@ namespace gui {
       return 0;
     }
 
-    BPP bitmap::bpp () const {
+    BPP bitmap::bits_per_pixel () const {
       return BPP(depth());
     }
 
 
-    void bitmap::create (int w, int h) {
+    void bitmap::create_compatible (int w, int h) {
 #if WIN32
       HDC dc = GetDC(NULL);
       id = CreateCompatibleBitmap(dc, w, h);
@@ -146,6 +140,10 @@ namespace gui {
     }
 
     void bitmap::create (int w, int h, BPP bpp) {
+      auto sz = size();
+      if ((sz.os_width() == w) && (sz.os_height() == h) && (bits_per_pixel() == bpp)) {
+        return;
+      }
       clear();
 #if WIN32
       id = CreateBitmap(w, h, 1, static_cast<int>(bpp), NULL);
@@ -178,7 +176,7 @@ namespace gui {
       BPP bpp;
       std::vector<char> data;
       rhs.get_data(data, w, h, bpl, bpp);
-      create(w, h);
+      create(w, h, bpp);
       put_data(data, w, h, bpl, bpp);
     }
 
@@ -254,10 +252,10 @@ namespace gui {
 #endif
     }
 
-    void bitmap::put_data (const std::vector<char>& src, int w, int h, int bpl, BPP src_bpp) {
-      BPP dst_bpp = bpp();
-      if (dst_bpp == src_bpp) {
-        put_bmp_data(id, src, w, h, bpl, src_bpp);
+    void bitmap::put_data (const std::vector<char>& src, int w, int h, int bpl, BPP bpp) {
+      BPP dst_bpp = bits_per_pixel();
+      if (dst_bpp == bpp) {
+        put_bmp_data(id, src, w, h, bpl, bpp);
       } else {
         std::vector<char> dst;
         int dst_bpl = calc_bytes_per_line(w, dst_bpp);
@@ -265,7 +263,7 @@ namespace gui {
 
         using namespace convert;
 
-        switch (src_bpp) {
+        switch (bpp) {
           case BPP::BW:
             switch (dst_bpp) {
               case BPP::BW:   converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
@@ -335,31 +333,31 @@ namespace gui {
 #endif
     }
 
-    transparent_bitmap::transparent_bitmap (const transparent_bitmap& rhs)
+    masked_bitmap::masked_bitmap (const masked_bitmap& rhs)
       : super(rhs)
       , mask(rhs.mask)
     {}
 
-    void transparent_bitmap::operator= (const transparent_bitmap& rhs) {
+    void masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
         super::operator=(rhs);
         mask = rhs.mask;
       }
     }
 
-    transparent_bitmap::transparent_bitmap (transparent_bitmap&& rhs)
+    masked_bitmap::masked_bitmap (masked_bitmap&& rhs)
       : super(std::move(rhs))
       , mask(std::move(rhs.mask))
     {}
 
-    void transparent_bitmap::operator= (transparent_bitmap&& rhs) {
+    void masked_bitmap::operator= (masked_bitmap&& rhs) {
       if (&rhs != this) {
         super::operator =(std::move(rhs));
         mask = std::move(rhs.mask);
       }
     }
 
-    transparent_bitmap::transparent_bitmap (const memmap& b)
+    masked_bitmap::masked_bitmap (const memmap& b)
       : super(b)
     {
       if (is_valid()) {
@@ -368,15 +366,15 @@ namespace gui {
       }
     }
 
-    void transparent_bitmap::operator= (const memmap& bmp) {
-      bitmap::operator=(bmp);
+    void masked_bitmap::operator= (const memmap& bmp) {
+      super::operator=(bmp);
       if (is_valid()) {
         mask.create(size());
         mask.put(*this);
       }
     }
 
-    transparent_bitmap::transparent_bitmap (memmap&& b)
+    masked_bitmap::masked_bitmap (memmap&& b)
       : super(std::move(b))
     {
       if (is_valid()) {
@@ -385,8 +383,8 @@ namespace gui {
       }
     }
 
-    void transparent_bitmap::operator= (memmap&& bmp) {
-      bitmap::operator=(std::move(bmp));
+    void masked_bitmap::operator= (memmap&& bmp) {
+      super::operator=(std::move(bmp));
       if (is_valid()) {
         mask.create(size());
         mask.put(*this);

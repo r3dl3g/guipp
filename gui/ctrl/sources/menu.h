@@ -37,7 +37,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct menu_entry {
       typedef void(menu_action)(int idx);
-      typedef draw::transparent_bitmap icon_type;
+      typedef draw::masked_bitmap icon_type;
 
       menu_entry (const std::string& label,
                   const std::function<menu_action>& action,

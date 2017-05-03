@@ -464,6 +464,11 @@ namespace gui {
 
       border_layout (win::container* m)
         : super(m)
+        , center(nullptr)
+        , top(nullptr)
+        , bottom(nullptr)
+        , left(nullptr)
+        , right(nullptr)
       {
         super::init(core::bind_method(this, &border_layout::layout), [&](){
           layout(get_main_size());

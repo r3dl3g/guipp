@@ -44,7 +44,7 @@ namespace gui {
     class graphics;
     class memmap;
     class bitmap;
-    class transparent_bitmap;
+    class masked_bitmap;
 
     typedef void (drawable) (const graphics&, const brush&, const pen&);
     typedef void (frameable) (const graphics&, const pen&);
@@ -78,7 +78,7 @@ namespace gui {
       const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
       const graphics& copy_from(const draw::bitmap&, const core::point& dest = core::point::zero) const;
-      const graphics& copy_from(const draw::transparent_bitmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from(const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero) const;

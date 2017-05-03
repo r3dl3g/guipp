@@ -380,25 +380,20 @@ void my_main_window::cut (int) {
   core::rectangle r = left_list.client_area();
   core::size sz = r.size();
 
-  auto drawer = [&](bitmap& b) {
-    memmap img(b.size());
+  auto drawer = [&](core::size& sz) -> memmap {
+    memmap img(sz);
     graphics g(img);
     g.fill(draw::rectangle(r), color::white);
     g.draw(draw::ellipse(r.shrinked({20, 20})), color::light_blue, draw::pen(color::dark_green, 5));
     g.fill(draw::ellipse(r.with_size({50, 50})), color::black);
-    b.put(img);
+    return img;
   };
 
-  for (int i = 0; i < 2; ++i) {
-    bmp[i].create(sz);
-    gray[i].create(sz);
-    bw[i].create(sz);
-  }
-
   memmap img(sz);
-  bmp[0].put(img);
-  gray[0].put(img);
-  bw[0].put(img);
+  draw::graphics(img).copy_from(left_list, r);
+  bmp[0] = img;
+  gray[0] = img;
+  bw[0] = img;
 
   io::ofpnm<io::PNM::P6>("left_list.p6") << bmp[0];
   io::ofpnm<io::PNM::P3>("left_list.p3") << bmp[0];
@@ -409,18 +404,21 @@ void my_main_window::cut (int) {
   io::ofpnm<io::PNM::P4>("left_list.p4") << bw[0];
   io::ofpnm<io::PNM::P1>("left_list.p1") << bw[0];
 
-  drawer(bmp[1]);
+  bmp[1].create(sz);
+  gray[1].create(sz);
+  bw[1].create(sz);
+
+  bmp[1] = drawer(sz);
 
   io::ofpnm<io::PNM::P6>("p6") << bmp[1];
   io::ofpnm<io::PNM::P3>("p3") << bmp[1];
 
-  //gray[1].put(bmp[1]);
-  drawer(gray[1]);
+  gray[1] = drawer(sz);
 
   io::ofpnm<io::PNM::P5>("p5") << gray[1];
   io::ofpnm<io::PNM::P2>("p2") << gray[1];
 
-  drawer(bw[1]);
+  bw[1] = drawer(sz);
 
   io::ofpnm<io::PNM::P4>("p4") << bw[1];
   io::ofpnm<io::PNM::P1>("p1") << bw[1];
@@ -431,8 +429,8 @@ void my_main_window::cut (int) {
 template<io::PNM i>
 void read_write (datamap<io::PNM2BPP<i>::bpp>& bm) {
   try {
-    std::string iname = ostreamfmt("p" << i);
-    std::string oname = ostreamfmt("test.p" << i);
+    std::string iname = ostreamfmt(i);
+    std::string oname = ostreamfmt("test." << i);
     io::ifpnm<i>(iname) >> bm;
     io::ofpnm<i>(oname) << bm;
   }
@@ -462,45 +460,56 @@ void my_main_window::test_rgb () {
   graphics(green).clear(color::green);
   graphics(blue).clear(color::blue);
 
-  red24.put(red);
-  green24.put(green);
-  blue24.put(blue);
+  red24 = red;
+  green24 = green;
+  blue24 = blue;
 
   io::ofpnm<io::PNM::P3>("red32") << red;
-  io::ofpnm<io::PNM::P3>("green32") << green;
-  io::ofpnm<io::PNM::P3>("blue32") << blue;
-
   io::ofpnm<io::PNM::P3>("red24") << red24;
+
+  io::ofpnm<io::PNM::P3>("green32") << green;
   io::ofpnm<io::PNM::P3>("green24") << green24;
+
+  io::ofpnm<io::PNM::P3>("blue32") << blue;
   io::ofpnm<io::PNM::P3>("blue24") << blue24;
 
-  //io::ifpnm<3>("red32") >> bw[0];
-  //io::ifpnm<3>("green32") >> gray[0];
-  //io::ifpnm<3>("blue32") >> bmp[0];
+  io::ifpnm<io::PNM::P3>("red32") >> red;
+  io::ifpnm<io::PNM::P3>("red24") >> red24;
 
-  //io::ifpnm<3>("red24") >> bw[1];
-  //io::ifpnm<3>("green24") >> gray[1];
-  //io::ifpnm<3>("blue24") >> bmp[1];
+  bw[0] = red;
+  bw[1] = red24;
+
+  io::ifpnm<io::PNM::P3>("green32") >> green;
+  io::ifpnm<io::PNM::P3>("green24") >> green24;
+
+  gray[0] = green;
+  gray[1] = green24;
+
+  io::ifpnm<io::PNM::P3>("blue32") >> blue;
+  io::ifpnm<io::PNM::P3>("blue24") >> blue24;
+
+  bmp[0] = blue;
+  bmp[1] = blue24;
 
   window1.redraw_later();
 }
 
 void my_main_window::save_all_bin () {
-  std::ofstream("bmp0.b.ppm")  << io::opnm<true>(bmp[0]);
-  std::ofstream("bmp1.b.ppm")  << io::opnm<true>(bmp[1]);
-  std::ofstream("bw0.b.ppm")   << io::opnm<true>(bw[0]);
-  std::ofstream("bw1.b.ppm")   << io::opnm<true>(bw[1]);
-  std::ofstream("gray0.b.ppm") << io::opnm<true>(gray[0]);
-  std::ofstream("gray1.b.ppm") << io::opnm<true>(gray[1]);
+  io::ofpnm<io::PNM::P6>("bmp0.b")  << bmp[0];
+  io::ofpnm<io::PNM::P6>("bmp1.b")  << bmp[1];
+  io::ofpnm<io::PNM::P5>("gray0.b") << gray[0];
+  io::ofpnm<io::PNM::P5>("gray1.b") << gray[1];
+  io::ofpnm<io::PNM::P4>("bw0.b")   << bw[0];
+  io::ofpnm<io::PNM::P4>("bw1.b")   << bw[1];
 }
   
 void my_main_window::save_all_ascii () {
-  std::ofstream("bmp0.a.ppm")  << io::opnm<false>(bmp[0]);
-  std::ofstream("bmp1.a.ppm")  << io::opnm<false>(bmp[1]);
-  std::ofstream("bw0.a.ppm")   << io::opnm<false>(bw[0]);
-  std::ofstream("bw1.a.ppm")   << io::opnm<false>(bw[1]);
-  std::ofstream("gray0.a.ppm") << io::opnm<false>(gray[0]);
-  std::ofstream("gray1.a.ppm") << io::opnm<false>(gray[1]);
+  io::ofpnm<io::PNM::P3>("bmp0.b") << bmp[0];
+  io::ofpnm<io::PNM::P3>("bmp1.b") << bmp[1];
+  io::ofpnm<io::PNM::P2>("gray0.b") << gray[0];
+  io::ofpnm<io::PNM::P2>("gray1.b") << gray[1];
+  io::ofpnm<io::PNM::P1>("bw0.b") << bw[0];
+  io::ofpnm<io::PNM::P1>("bw1.b") << bw[1];
 }
 
 // --------------------------------------------------------------------------

@@ -48,7 +48,6 @@ namespace gui {
         clear();
       }
 
-      void operator= (const bitmap&);
       void operator= (bitmap&&);
 
       bool is_valid () const {
@@ -73,7 +72,7 @@ namespace gui {
 
       core::size size () const;
       int depth () const;
-      BPP bpp () const;
+      BPP bits_per_pixel () const;
 
       static int calc_bytes_per_line (int w, BPP bpp);
 
@@ -81,7 +80,7 @@ namespace gui {
       bitmap (const bitmap&);
       bitmap (bitmap&&);
 
-      void create (int w, int h);
+      void create_compatible (int w, int h);
       void create (int w, int h, BPP bpp);
       void copy_from (const bitmap&);
 
@@ -104,12 +103,26 @@ namespace gui {
         create(sz);
       }
 
+      void operator= (const bitmap& rhs) {
+        if (this != &rhs) {
+          create(rhs.size());
+          put(rhs);
+        }
+      }
+
+      void operator= (const memmap& rhs) {
+        if (this != &rhs) {
+          create(rhs.size());
+          put(rhs);
+        }
+      }
+
       operator os::drawable () const {
         return id;
       }
 
       inline void create (int w, int h) {
-        super::create(w, h);
+        create_compatible(w, h);
       }
 
       inline void create (const core::size& sz) {
@@ -133,6 +146,20 @@ namespace gui {
         create(sz);
       }
 
+      void operator= (const bitmap& rhs) {
+        if (this != &rhs) {
+          create(rhs.size());
+          put(rhs);
+        }
+      }
+
+      void operator= (const datamap& rhs) {
+        if (this != &rhs) {
+          create(rhs.size());
+          put(rhs);
+        }
+      }
+
       inline void create (int w, int h) {
         super::create(w, h, T);
       }
@@ -148,23 +175,23 @@ namespace gui {
     typedef datamap<BPP::RGBA> rgbamap;
 
 
-    class transparent_bitmap : public memmap {
+    class masked_bitmap : public memmap {
     public:
       typedef memmap super;
 
-      transparent_bitmap ()
+      masked_bitmap ()
       {}
 
-      transparent_bitmap (const transparent_bitmap&);
-      void operator= (const transparent_bitmap& rhs);
+      masked_bitmap (const masked_bitmap&);
+      void operator= (const masked_bitmap& rhs);
 
-      transparent_bitmap (transparent_bitmap&&);
-      void operator= (transparent_bitmap&&);
+      masked_bitmap (masked_bitmap&&);
+      void operator= (masked_bitmap&&);
 
-      transparent_bitmap (const memmap& bmp);
+      masked_bitmap (const memmap& bmp);
       void operator= (const memmap& bmp);
 
-      transparent_bitmap (memmap&& bmp);
+      masked_bitmap (memmap&& bmp);
       void operator= (memmap&& bmp);
 
       maskmap mask;

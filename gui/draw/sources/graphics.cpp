@@ -1373,7 +1373,7 @@ namespace gui {
       }
     }
 
-    const graphics& graphics::copy_from(const draw::transparent_bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
 #ifdef WIN32
       core::size sz = bmp.size();
       HDC mem_dc = CreateCompatibleDC(gc);

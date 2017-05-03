@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "graphics.h"
+#include "gui_types.h"
 
 
 namespace gui {
@@ -35,6 +35,25 @@ namespace gui {
   namespace draw {
 
 #if WIN32
+    struct log_palette : public LOGPALETTE {
+      log_palette (int bpp);
+
+    private:
+      PALETTEENTRY moreEntries[255];
+    };
+
+    struct palette {
+      palette (const log_palette&);
+      ~palette ();
+
+      HPALETTE get_id() const {
+        return id;
+      }
+
+//    private:
+      HPALETTE id;
+    };
+
     struct bitmap_info : public BITMAPINFO {
 
       bitmap_info();
@@ -42,8 +61,12 @@ namespace gui {
 
       void init_colors();
       void init_gray_colors();
+      void init_bw_colors();
 
       void set_gray_colors(HBITMAP id);
+      void set_gray_colors(HDC id);
+      void set_bw_colors(HBITMAP id);
+      void set_bw_colors(HDC id);
 
     private:
       RGBQUAD moreColors[255];
@@ -125,9 +148,6 @@ namespace gui {
 
       static int calc_bytes_per_line (int w, int bpp);
 
-      void operator() (const graphics&, const core::point&) const;
-      void draw (const graphics&, const core::point&) const;
-
     private:
       os::bitmap id;
 
@@ -152,10 +172,6 @@ namespace gui {
       transparent_bitmap (bitmap&& bmp);
       void operator= (bitmap&& bmp);
 
-      void operator() (const graphics&, const core::point&) const;
-      void draw (const graphics&, const core::point&) const;
-
-    private:
       bitmap mask;
     };
 

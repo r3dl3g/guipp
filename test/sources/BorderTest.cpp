@@ -360,8 +360,8 @@ void my_main_window::copy (int) {
   bw[0].create(sz, 1);
 
   draw::graphics(bmp[0]).copy_from(left_list, r);
-  gray[0].put(bmp[0]);
-  bw[0].put(bmp[0]);
+  draw::graphics(gray[0]).copy_from(left_list, r);
+  draw::graphics(bw[0]).copy_from(left_list, r);
 
   bmp[0].make_compatible();
   gray[0].make_compatible();
@@ -400,8 +400,8 @@ void my_main_window::cut (int) {
   }
 
   draw::graphics(bmp[0]).copy_from(left_list, r);
-  gray[0].put(bmp[0]);
-  bw[0].put(bmp[0]);
+  draw::graphics(gray[0]).copy_from(left_list, r);
+  draw::graphics(bw[0]).copy_from(left_list, r);
 
   io::ofpnm<6>("left_list.p6") << io::opnm<true>(bmp[0]);
   io::ofpnm<3>("left_list.p3") << io::opnm<false>(bmp[0]);
@@ -417,8 +417,8 @@ void my_main_window::cut (int) {
   io::ofpnm<6>("p6") << io::opnm<true>(bmp[1]);
   io::ofpnm<3>("p3") << io::opnm<false>(bmp[1]);
 
-  gray[1].put(bmp[1]);
-  //drawer(gray[1]);
+  //gray[1].put(bmp[1]);
+  drawer(gray[1]);
 
   io::ofpnm<5>("p5") << io::opnm<true>(gray[1]);
   io::ofpnm<2>("p2") << io::opnm<false>(gray[1]);

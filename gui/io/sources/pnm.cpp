@@ -190,7 +190,7 @@ namespace gui {
           std::vector<byte> line(bytes);
           for (int x = 0; x < bytes; ++x) {
 #ifdef WIN32
-            line[x] = i[x] ^ 0xff;
+            line[x] = i[x];// ^ 0xff;
 #endif // WIN32
 #ifdef X11
             line[x] = reverse_bit_order(i[x]) ^ 0xff;
@@ -219,7 +219,7 @@ namespace gui {
           in.read(reinterpret_cast<char*>(line.data()), bytes);
           for (int x = 0; x < bytes; ++x) {
 #ifdef WIN32
-            i[x] = line[x] ^ 0xff;
+            i[x] = line[x];// ^ 0xff;
 #endif // WIN32
 #ifdef X11
             i[x] = reverse_bit_order(line[x]) ^ 0xff;
@@ -322,7 +322,7 @@ namespace gui {
       for (int h = 0; h < height; ++h) {
         cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (h * bpl));
         for (int w = 0; w < width; ++w) {
-          byte v = i[w / 8];
+          byte v = i[w / 8] ^ 0xff;
 #ifdef WIN32
           byte bit = bit_mask[7 - w % 8];
 #endif // WIN32
@@ -353,11 +353,11 @@ namespace gui {
           int s = x % 8;
           value = value | (v << (IF_WIN32(7 - ) s));
           if (s == 7) {
-            i[x / 8] = static_cast<byte>(value) ^ 0xff;
+            i[x / 8] = static_cast<byte>(value) IF_X11(^ 0xff);
             value = 0;
           }
         }
-        i[(width - 1)/ 8] = static_cast<byte>(value) ^ 0xff;
+        i[(width - 1)/ 8] = static_cast<byte>(value) IF_X11(^ 0xff);
       }
     }
 

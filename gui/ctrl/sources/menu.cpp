@@ -92,9 +92,7 @@ namespace gui {
           core::size sz = e.get_icon().size();
           core::point_type x = (text_pos - sz.width()) / 2;
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
-          g.copy([&](const draw::graphics& g, const core::point& pt) {
-            e.get_icon().draw(g, pt);
-          }, core::point(x, y));
+          g.copy_from(e.get_icon(), core::point(x, y));
         }
         g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
                draw::font::menu(), col);

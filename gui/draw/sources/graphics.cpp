@@ -355,22 +355,28 @@ namespace gui {
       , ref_gc(false)
     {}
 
-    graphics::graphics (os::drawable target)
+    graphics::graphics (draw::bitmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
       , ref_gc(false)
     {
-      gc = GetDC((HWND)target);
-      if (!gc) {
-        HDC gdc = GetDC(NULL);
-        gc = CreateCompatibleDC(gdc);
-        ReleaseDC(NULL, gdc);
-        SelectObject(gc, target);
-        own_gc = true;
-      } else {
-        ref_gc = true;
-      }
+      HDC gdc = GetDC(NULL);
+      gc = CreateCompatibleDC(gdc);
+      own_gc = true;
+      ReleaseDC(NULL, gdc);
+
+      SelectObject(gc, target.get_id());
+
+      //int raster_caps = GetDeviceCaps(gc, RASTERCAPS);
+      //if (raster_caps & RC_PALETTE) {
+        int bpp = target.depth();
+        log_palette lp(bpp);
+        palette p(lp);
+        HPALETTE old = SelectPalette(gc, p.get_id(), FALSE);
+        RealizePalette(gc);
+        p.id = 0;
+      //}
     }
 
     graphics::graphics (const graphics& rhs)
@@ -1229,8 +1235,19 @@ namespace gui {
         bmp.get_data(data, w, h, bpl, bpp);
         if (!data.empty()) {
 #ifdef WIN32
+          log_palette lp(bpp);
+          palette p(lp);
+          HPALETTE old = SelectPalette(gc, p.get_id(), FALSE);
+          RealizePalette(gc);
           bitmap_info bi(w, h, bpl, bpp);
-          int ret = StretchDIBits(gc, pt.os_x(), pt.os_y(), w, h, 0, 0, w, h, data.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
+          int ret = StretchDIBits(gc, pt.os_x(), pt.os_y(), w, h,
+                                  0, 0, w, h, data.data(), &bi, 
+                                  DIB_RGB_COLORS, SRCCOPY);
+          SelectPalette(gc, old, FALSE);
+          RealizePalette(gc);
+          if (ret != h) {
+            LogError << "StretchDIBits returned " << ret;
+          }
 #endif // WIN32
 #ifdef X11
           bitmap compatible(w, h);
@@ -1240,6 +1257,27 @@ namespace gui {
         }
         return *this;
       }
+    }
+
+    const graphics& graphics::copy_from(const draw::transparent_bitmap& bmp, const core::point& pt) const {
+#ifdef WIN32
+      core::size sz = bmp.size();
+      HDC mem_dc = CreateCompatibleDC(gc);
+      HGDIOBJ old = SelectObject(mem_dc, bmp.mask);
+      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
+      SelectObject(mem_dc, bmp);
+      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
+      SelectObject(mem_dc, old);
+      DeleteDC(mem_dc);
+#endif // WIN32
+#ifdef X11
+      auto display = core::global::get_instance();
+      XSetClipMask(display, gc, mask);
+      XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
+      copy_from(bmp, core::rectangle(size()), pt);
+      XSetClipMask(display, gc, None);
+#endif
+      return *this;
     }
 
     const graphics& graphics::frame (const std::function<frameable>& drawer,

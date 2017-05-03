@@ -43,6 +43,7 @@ namespace gui {
 
     class graphics;
     class bitmap;
+    class transparent_bitmap;
 
     typedef void (drawable) (const graphics&, const brush&, const pen&);
     typedef void (frameable) (const graphics&, const pen&);
@@ -54,7 +55,7 @@ namespace gui {
     class graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
-      graphics (os::drawable target);
+      graphics (draw::bitmap& target);
       graphics (const graphics&);
       ~graphics();
 
@@ -76,6 +77,8 @@ namespace gui {
       const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
       const graphics& copy_from(const draw::bitmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from(const draw::transparent_bitmap&, const core::point& dest = core::point::zero) const;
+
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero) const;
       const graphics& stretch_from (os::drawable, const core::rectangle& src,
@@ -319,7 +322,7 @@ namespace gui {
       const text_origin origin;
 
       // Not implemented!
-      void operator= (const bounding_box&);
+      void operator= (const bounding_box&) = delete;
     };
 
     // --------------------------------------------------------------------------

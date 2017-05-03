@@ -26,8 +26,8 @@
 //
 // Library includes
 //
+#include "logger.h"
 #include "bitmap.h"
-#include "graphics.h"
 #include "converter.h"
 
 
@@ -36,6 +36,32 @@ namespace gui {
   namespace draw {
 
 #if WIN32
+
+    log_palette::log_palette(int bpp) {
+      palVersion = 0x300;
+      palNumEntries = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+      if (bpp == 8) {
+        for (int i = 0; i < 256; ++i) {
+          palPalEntry[i] = { (BYTE)i, (BYTE)i, (BYTE)i, PC_NOCOLLAPSE };
+        }
+      }
+      else if (bpp == 1) {
+        palPalEntry[0] = { 0, 0, 0, PC_NOCOLLAPSE };
+        palPalEntry[1] = { 0xff, 0xff, 0xff, PC_NOCOLLAPSE };
+      }
+    }
+
+    palette::palette(const log_palette& pal) {
+      id = CreatePalette(&pal);
+    }
+
+    palette::~palette() {
+      if (id) {
+        DeleteObject(id);
+        id = NULL;
+      }
+    }
+
     bitmap_info::bitmap_info () {
       memset(this, 0, sizeof(bitmap_info));
       bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -43,18 +69,21 @@ namespace gui {
     }
 
     bitmap_info::bitmap_info (int w, int h, int bpl, int bpp) {
-      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
       DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
       bmiHeader = {
         sizeof(BITMAPINFOHEADER),
-        w, h, 1, (WORD)bpp,
+        w, -h, 1, (WORD)bpp,
         BI_RGB,
         (DWORD)(h * bpl), 
-        0, 0, 
-        cols, 
-        cols
+        0, 0,
+        cols,
+        0
       };
-      init_gray_colors();
+      if (bpp == 8) {
+        init_gray_colors();
+      } else if (bpp == 1) {
+        init_bw_colors();
+      }
     }
 
     void bitmap_info::init_colors () {
@@ -69,14 +98,43 @@ namespace gui {
       }
     }
 
+    void bitmap_info::init_bw_colors() {
+      bmiColors[1] = { 0, 0, 0, 0 };
+      bmiColors[0] = { 0xff, 0xff, 0xff, 0 };
+    }
+
     void bitmap_info::set_gray_colors(HBITMAP id) {
       HDC gdc = GetDC(NULL);
       HDC gc = CreateCompatibleDC(gdc);
       ReleaseDC(NULL, gdc);
       SelectObject(gc, id);
-
-      SetDIBColorTable(gc, 0, 256, bmiColors);
+      set_gray_colors(gc);
       DeleteDC(gc);
+    }
+
+    void bitmap_info::set_gray_colors(HDC gc) {
+      init_gray_colors();
+      UINT ret = SetDIBColorTable(gc, 0, 256, bmiColors);
+      if (ret != 256) {
+        LogError << "SetDIBColorTable returned " << ret << " (expected 256)";
+      }
+    }
+
+    void bitmap_info::set_bw_colors(HBITMAP id) {
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+      SelectObject(gc, id);
+      set_bw_colors(gc);
+      DeleteDC(gc);
+    }
+
+    void bitmap_info::set_bw_colors(HDC gc) {
+      init_bw_colors();
+      UINT ret = SetDIBColorTable(gc, 0, 2, bmiColors);
+      if (ret != 2) {
+        LogError << "SetDIBColorTable returned " << ret << " (expected 2)";
+      }
     }
 
 #endif
@@ -198,10 +256,6 @@ namespace gui {
       clear();
 #if WIN32
       id = CreateBitmap(w, h, 1, bpp, NULL);
-      if (id && (8 == bpp)) {
-        bitmap_info bi;
-        bi.set_gray_colors(id);
-      }
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
@@ -218,10 +272,6 @@ namespace gui {
       id = CreateBitmap(w, h, 1, bpp, data.data());
       if (!id) {
         throw std::runtime_error("create image failed");
-      }
-      if (8 == bpp) {
-        bitmap_info bi;
-        bi.set_gray_colors(id);
       }
 #endif
 #ifdef X11
@@ -251,8 +301,8 @@ namespace gui {
     }
 
     int bitmap::calc_bytes_per_line (int w, int bpp) {
-      switch (bpp) {
 #ifdef WIN32
+      switch (bpp) {
         case 1:
           return up_modulo<8, 2>(w);
         case 8:
@@ -261,8 +311,11 @@ namespace gui {
           return up_modulo<1, 2>(w * 3);
         case 32:
           return up_modulo<1, 2>(w * 4);
+      }
+      return ((((w * bpp) + 31) & ~31) >> 3);
 #endif // WIN32
 #ifdef X11
+      switch (bpp) {
         case 1:
           return up_modulo<8, 16>(w);
         case 8:
@@ -271,9 +324,9 @@ namespace gui {
           return up_modulo<1, 4>(w * 3);
         case 32:
           return up_modulo<1, 4>(w * 4);
-#endif // X11
       }
       return -1;
+#endif // X11
     }
 
     void put_data (os::bitmap id, const std::vector<char>& src, int w, int h, int bpl, int bpp) {
@@ -393,14 +446,6 @@ namespace gui {
 #endif
     }
 
-    void bitmap::operator() (const graphics& g, const core::point& pt) const {
-      draw(g, pt);
-    }
-
-    void bitmap::draw (const graphics& g, const core::point& pt) const {
-      g.copy_from(*this, pt);
-    }
-
     transparent_bitmap::transparent_bitmap (const transparent_bitmap& rhs)
       : super(rhs)
       , mask(rhs.mask)
@@ -457,30 +502,6 @@ namespace gui {
         mask.create(size(), 1);
         mask.put(*this);
       }
-    }
-
-    void transparent_bitmap::operator() (const graphics& g, const core::point& pt) const {
-      draw(g, pt);
-    }
-
-    void transparent_bitmap::draw (const graphics& g, const core::point& pt) const {
-#ifdef WIN32
-      core::size sz = size();
-      HDC mem_dc = CreateCompatibleDC(g);
-      HGDIOBJ old = SelectObject(mem_dc, mask.get_id());
-      BitBlt(g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-      SelectObject(mem_dc, get_id());
-      BitBlt(g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
-      SelectObject(mem_dc, old);
-      DeleteDC(mem_dc);
-#endif // WIN32
-#ifdef X11
-      auto display = core::global::get_instance();
-      XSetClipMask(display, g, mask);
-      XSetClipOrigin(display, g, pt.os_x(), pt.os_y());
-      g.copy_from(*this, core::rectangle(size()), pt);
-      XSetClipMask(display, g, None);
-#endif
     }
   }
 

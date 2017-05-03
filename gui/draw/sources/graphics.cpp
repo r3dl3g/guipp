@@ -1228,8 +1228,15 @@ namespace gui {
         std::vector<char> data;
         bmp.get_data(data, w, h, bpl, bpp);
         if (!data.empty()) {
+#ifdef WIN32
           bitmap_info bi(w, h, bpl, bpp);
           int ret = StretchDIBits(gc, pt.os_x(), pt.os_y(), w, h, 0, 0, w, h, data.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
+#endif // WIN32
+#ifdef X11
+          bitmap compatible(w, h);
+          compatible.put(data, w, h, bpl, bpp);
+          return copy_from(compatible, core::rectangle(0, 0, w, h), pt);
+#endif // X11
         }
         return *this;
       }

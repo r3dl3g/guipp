@@ -636,7 +636,7 @@ namespace gui {
       get_xft();
     }
 
-    graphics::graphics (os::drawable target)
+    graphics::graphics (draw::bitmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -1272,9 +1272,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
       auto display = core::global::get_instance();
-      XSetClipMask(display, gc, mask);
+      XSetClipMask(display, gc, bmp.mask);
       XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
-      copy_from(bmp, core::rectangle(size()), pt);
+      copy_from(bmp, core::rectangle(bmp.size()), pt);
       XSetClipMask(display, gc, None);
 #endif
       return *this;

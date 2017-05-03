@@ -33,7 +33,7 @@ namespace gui {
 
   namespace convert {
 
-    const byte byte_values[] = { 0, 0xff };
+    const byte byte_values[] = IF_WIN32({ 0xff, 0 }) IF_X11({ 0, 0xff });
 
     template<>
     void set<24> (byteptr out, int x, byte v) {

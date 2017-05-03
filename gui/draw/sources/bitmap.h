@@ -34,45 +34,6 @@ namespace gui {
 
   namespace draw {
 
-#if WIN32
-    struct log_palette : public LOGPALETTE {
-      log_palette (int bpp);
-
-    private:
-      PALETTEENTRY moreEntries[255];
-    };
-
-    struct palette {
-      palette (const log_palette&);
-      ~palette ();
-
-      HPALETTE get_id() const {
-        return id;
-      }
-
-//    private:
-      HPALETTE id;
-    };
-
-    struct bitmap_info : public BITMAPINFO {
-
-      bitmap_info();
-      bitmap_info(int w, int h, int bpl, int bpp);
-
-      void init_colors();
-      void init_gray_colors();
-      void init_bw_colors();
-
-      void set_gray_colors(HBITMAP id);
-      void set_gray_colors(HDC id);
-      void set_bw_colors(HBITMAP id);
-      void set_bw_colors(HDC id);
-
-    private:
-      RGBQUAD moreColors[255];
-    };
-#endif
-
     class bitmap {
     public:
       bitmap ()
@@ -82,27 +43,6 @@ namespace gui {
       explicit bitmap (os::bitmap id)
         : id(id)
       {}
-
-      bitmap (const core::size& sz)
-        : id(0)
-      {
-        create(sz);
-      }
-
-      bitmap (int w, int h)
-        : id(0)
-      {
-        create(w, h);
-      }
-
-      bitmap (const core::size& sz, int bpp)
-        : id(0)
-      {
-        create(sz, bpp);
-      }
-
-      bitmap (const bitmap&);
-      bitmap (bitmap&&);
 
       ~bitmap () {
         clear();
@@ -123,39 +63,94 @@ namespace gui {
         return id;
       }
 
-      operator os::drawable () const {
-        return id;
-      }
-
-      void create (const core::size&);
-      void create (const core::size&, int bpp);
-      void create (int w, int h);
-      void create (int w, int h, int bpp);
-      void create_compatible (const bitmap&);
-      void create (const std::vector<char>& data, int w, int h, int bpl, int bpp);
-
-      void put (const std::vector<char>& data, int w, int h, int bpl, int bpp);
-      void put (const bitmap& rhs);
-
-      void make_compatible ();
-
+      void create (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
       void clear ();
 
-      void get_data (std::vector<char>& data, int& w, int& h, int& bpl, int& bpp) const;
+      void put_data (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
+      void get_data (std::vector<char>& data, int& w, int& h, int& bpl, BPP& bpp) const;
+
+      void put (const bitmap& rhs);
 
       core::size size () const;
       int depth () const;
+      BPP bpp () const;
 
-      static int calc_bytes_per_line (int w, int bpp);
+      static int calc_bytes_per_line (int w, BPP bpp);
 
-    private:
+    protected:
+      bitmap (const bitmap&);
+      bitmap (bitmap&&);
+
+      void create (int w, int h);
+      void create (int w, int h, BPP bpp);
+      void copy_from (const bitmap&);
+
       os::bitmap id;
 
     };
 
-    class transparent_bitmap : public bitmap {
+    class memmap : public bitmap {
     public:
       typedef bitmap super;
+
+      memmap ()
+      {}
+
+      memmap (int w, int h) {
+        create(w, h);
+      }
+
+      memmap (const core::size& sz) {
+        create(sz);
+      }
+
+      operator os::drawable () const {
+        return id;
+      }
+
+      inline void create (int w, int h) {
+        super::create(w, h);
+      }
+
+      inline void create (const core::size& sz) {
+        create(sz.os_width(), sz.os_height());
+      }
+    };
+
+    template<BPP T>
+    class datamap : public bitmap {
+    public:
+      typedef bitmap super;
+
+      datamap ()
+      {}
+
+      datamap (int w, int h) {
+        create(w, h);
+      }
+
+      datamap (const core::size& sz) {
+        create(sz);
+      }
+
+      inline void create (int w, int h) {
+        super::create(w, h, T);
+      }
+
+      inline void create (const core::size& sz) {
+        create(sz.os_width(), sz.os_height());
+      }
+    };
+
+    typedef datamap<BPP::BW> maskmap;
+    typedef datamap<BPP::GRAY> graymap;
+    typedef datamap<BPP::RGB> rgbmap;
+    typedef datamap<BPP::RGBA> rgbamap;
+
+
+    class transparent_bitmap : public memmap {
+    public:
+      typedef memmap super;
 
       transparent_bitmap ()
       {}
@@ -166,13 +161,13 @@ namespace gui {
       transparent_bitmap (transparent_bitmap&&);
       void operator= (transparent_bitmap&&);
 
-      transparent_bitmap (const bitmap& bmp);
-      void operator= (const bitmap& bmp);
+      transparent_bitmap (const memmap& bmp);
+      void operator= (const memmap& bmp);
 
-      transparent_bitmap (bitmap&& bmp);
-      void operator= (bitmap&& bmp);
+      transparent_bitmap (memmap&& bmp);
+      void operator= (memmap&& bmp);
 
-      bitmap mask;
+      maskmap mask;
     };
 
   }

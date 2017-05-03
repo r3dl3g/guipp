@@ -49,9 +49,32 @@ namespace gui {
        return (reverse_lookup[n & 0b1111] << 4) | reverse_lookup[n >> 4];
     }
 
+    std::ostream& operator<< (std::ostream& out, const PNM& pnm) {
+      out << 'P' << static_cast<int>(pnm);
+      return out;
+    }
+
+    std::istream& operator >> (std::istream& in, PNM& pnm) {
+      char magic_char;
+      in >> magic_char;
+      if (magic_char != 'P') {
+        throw std::runtime_error("stream contains no pnm");
+      }
+      std::skipws(in);
+      int magic_num;
+      in >> magic_num;
+      if ((magic_num < 1) || (magic_num > 6)) {
+        throw std::runtime_error("stream contains no valid pnm magic number");
+      }
+      pnm = PNM(magic_num);
+      in.get(); // ending whitespace
+      return in;
+    }
+
+
     // --------------------------------------------------------------------------
-    void save_pnm_header (std::ostream& out, int magic_num, int width, int height, int max) {
-      out << 'P' << magic_num << '\n';
+    void save_pnm_header (std::ostream& out, PNM pnm, int width, int height, int max) {
+      out << pnm << '\n';
       out << "# pnm created by gui++\n";
       out << width << ' ' << height;
       if (max) {
@@ -68,24 +91,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void load_pnm_header (std::istream& in, int& magic_num, int& w, int& h, int& max) {
-      char magic_char;
-      in >> magic_char;
-      if (magic_char != 'P') {
-        throw std::runtime_error("stream contains no pnm");
-      }
-      std::skipws(in);
-      in >> magic_num;
-      if ((magic_num < 1) || (magic_num > 6)) {
-        throw std::runtime_error("stream contains no valid pnm magic number");
-      }
-      in.get(); // ending whitespace
+    void load_pnm_header (std::istream& in, PNM& pnm, int& w, int& h, int& max) {
+      in >> pnm;
       while (in.peek() == '#') {
         std::string tmp;
         std::getline(in, tmp);
       }
       in >> w >> h;
-      if ((magic_num != 1) && (magic_num != 4)) {
+      if ((pnm != PNM::P1) && (pnm != PNM::P4)) {
         in >> max;
       } else {
         max = 1;
@@ -106,12 +119,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp) {
+    void save_pnm<PNM::P6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp) {
       const std::size_t n = bpl * height;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<6> data size missmatch");
       }
-      int step = bpp / 8;
+      int step = static_cast<int>(bpp) / 8;
       for (int h = 0; h < height; ++h) {
         const char* d = (data.data() + (h * bpl));
         for (int w = 0; w < width; ++w) {
@@ -125,22 +138,22 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      if (bpp != 24) {
-        bpp = 32;
+    void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      if (bpp != BPP::RGB) {
+        bpp = BPP::RGBA;
       }
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       std::size_t n = bpl * height;
       data.resize(n);
       std::noskipws(in);
-      int step = bpp / 8;
+      int step = static_cast<int>(bpp) / 8;
       for (int y = 0; y < height; ++y) {
         char* d = (data.data() + (y * bpl));
         for (int x = 0; x < width; ++x) {
           in.read(d + 2, 1);
           in.read(d + 1, 1);
           in.read(d, 1);
-          if (bpp == 32) {
+          if (bpp == BPP::RGBA) {
             d[3] = 0;
           }
           d += step;
@@ -150,7 +163,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int) {
+    void save_pnm<PNM::P5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<5> data size missmatch");
@@ -160,8 +173,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      bpp = 8;
+    void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      bpp = BPP::GRAY;
       bpl = width;
       const std::size_t n = bpl * height;
       data.resize(n);
@@ -176,7 +189,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int) {
+    void save_pnm<PNM::P4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<4> data size missmatch");
@@ -203,8 +216,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      bpp = 1;
+    void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      bpp = BPP::BW;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
       data.resize(n);
@@ -231,13 +244,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp) {
+    void save_pnm<PNM::P3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp) {
       const std::size_t n = bpl * height;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<3> data size missmatch");
       }
       cbyteptr bdata = reinterpret_cast<cbyteptr>(data.data());
-      int step = bpp / 8;
+      int step = static_cast<int>(bpp) / 8;
       for (int h = 0; h < height; ++h) {
         cbyteptr i = bdata + (h * bpl);
         for (int w = 0; w < width; ++w) {
@@ -250,9 +263,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      if (bpp != 24) {
-        bpp = 32;
+    void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      if (bpp != BPP::RGB) {
+        bpp = BPP::RGBA;
       }
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
@@ -260,7 +273,7 @@ namespace gui {
 
       std::skipws(in);
       byteptr bdata = reinterpret_cast<byteptr>(data.data());
-      int step = bpp / 8;
+      int step = static_cast<int>(bpp) / 8;
       for (int y = 0; y < height; ++y) {
         byteptr i = bdata + (y * bpl);
         for (int x = 0; x < width; ++x) {
@@ -270,7 +283,7 @@ namespace gui {
           d[0] = static_cast<byte>(d0);
           d[1] = static_cast<byte>(d1);
           d[2] = static_cast<byte>(d2);
-          if (32 == bpp) {
+          if (BPP::RGBA == bpp) {
             d[3] = 0;
           }
         } 
@@ -279,7 +292,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int) {
+    void save_pnm<PNM::P2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<2> data size missmatch");
@@ -295,8 +308,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      bpp = 8;
+    void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      bpp = BPP::GRAY;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
       data.resize(n);
@@ -314,7 +327,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int) {
+    void save_pnm<PNM::P1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height ;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<1> data size missmatch");
@@ -337,8 +350,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp) {
-      bpp = 1;
+    void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+      bpp = BPP::BW;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
       data.resize(n);
@@ -363,37 +376,38 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary) {
-      int w, h, bpl, bpp;
+      int w, h, bpl;
+      BPP bpp;
       std::vector<char> data;
       bmp.get_data(data, w, h, bpl, bpp);
       switch (bpp) {
-      case 1:
-        if (binary) {
-          save_pnm_header(out, 4, w, h, 0);
-          save_pnm<4>(out, data, w, h, bpl, bpp);
-        } else {
-          save_pnm_header(out, 1, w, h, 0);
-          save_pnm<1>(out, data, w, h, bpl, bpp);
-        }
-        break;
-      case 8:
-        if (binary) {
-          save_pnm_header(out, 5, w, h, 0);
-          save_pnm<5>(out, data, w, h, bpl, bpp);
-        } else {
-          save_pnm_header(out, 2, w, h, 0);
-          save_pnm<2>(out, data, w, h, bpl, bpp);
-        }
-        break;
-      case 24:
-      case 32:
-        if (binary) {
-          save_pnm_header(out, 6, w, h, 0);
-          save_pnm<6>(out, data, w, h, bpl, bpp);
-        } else {
-          save_pnm_header(out, 3, w, h, 0);
-          save_pnm<3>(out, data, w, h, bpl, bpp);
-        }
+        case BPP::BW:
+          if (binary) {
+            save_pnm_header(out, PNM::P4, w, h, 0);
+            save_pnm<PNM::P4>(out, data, w, h, bpl, bpp);
+          } else {
+            save_pnm_header(out, PNM::P1, w, h, 0);
+            save_pnm<PNM::P1>(out, data, w, h, bpl, bpp);
+          }
+          break;
+        case BPP::GRAY:
+          if (binary) {
+            save_pnm_header(out, PNM::P5, w, h, 0);
+            save_pnm<PNM::P5>(out, data, w, h, bpl, bpp);
+          } else {
+            save_pnm_header(out, PNM::P2, w, h, 0);
+            save_pnm<PNM::P2>(out, data, w, h, bpl, bpp);
+          }
+          break;
+        case BPP::RGB:
+        case BPP::RGBA:
+          if (binary) {
+            save_pnm_header(out, PNM::P6, w, h, 0);
+            save_pnm<PNM::P6>(out, data, w, h, bpl, bpp);
+          } else {
+            save_pnm_header(out, PNM::P3, w, h, 0);
+            save_pnm<PNM::P3>(out, data, w, h, bpl, bpp);
+          }
         break;
       default:
         throw std::invalid_argument("unsupportet bit per pixel value");
@@ -401,29 +415,31 @@ namespace gui {
     }
 
     void load_pnm (std::istream& in, draw::bitmap& bmp) {
-      int magic_num, w, h, max;
-      load_pnm_header(in, magic_num, w, h, max);
+      int w, h, max;
+      PNM pnm;
+      load_pnm_header(in, pnm, w, h, max);
 
-      int bpl, bpp = 24;
+      int bpl;
+      BPP bpp = BPP::RGB;
       std::vector<char> data;
-      switch (magic_num) {
-      case 1:
-        load_pnm<1>(in, data, w, h, bpl, bpp);
+      switch (pnm) {
+      case PNM::P1:
+        load_pnm<PNM::P1>(in, data, w, h, bpl, bpp);
         break;
-      case 2:
-        load_pnm<2>(in, data, w, h, bpl, bpp);
+      case PNM::P2:
+        load_pnm<PNM::P2>(in, data, w, h, bpl, bpp);
         break;
-      case 3:
-        load_pnm<3>(in, data, w, h, bpl, bpp);
+      case PNM::P3:
+        load_pnm<PNM::P3>(in, data, w, h, bpl, bpp);
         break;
-      case 4:
-        load_pnm<4>(in, data, w, h, bpl, bpp);
+      case PNM::P4:
+        load_pnm<PNM::P4>(in, data, w, h, bpl, bpp);
         break;
-      case 5:
-        load_pnm<5>(in, data, w, h, bpl, bpp);
+      case PNM::P5:
+        load_pnm<PNM::P5>(in, data, w, h, bpl, bpp);
         break;
-      case 6:
-        load_pnm<6>(in, data, w, h, bpl, bpp);
+      case PNM::P6:
+        load_pnm<PNM::P6>(in, data, w, h, bpl, bpp);
         break;
       }
       bmp.create(data, w, h, bpl, bpp);

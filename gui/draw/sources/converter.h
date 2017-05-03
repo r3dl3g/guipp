@@ -40,38 +40,38 @@ namespace gui {
     constexpr byte bit_mask[8] = IF_X11({ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 })
                                  IF_WIN32({ 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 });
 
-    template<int W>
+    template<BPP W>
     void set (byteptr out, int x, byte v);
 
     template<>
-    inline void set<8> (byteptr out, int x, byte v) {
+    inline void set<BPP::GRAY> (byteptr out, int x, byte v) {
       out[x] = v;
     }
 
     template<>
-    void set<24> (byteptr out, int x, byte v);
+    void set<BPP::RGB> (byteptr out, int x, byte v);
 
     template<>
-    void set<32> (byteptr out, int x, byte v);
+    void set<BPP::RGBA> (byteptr out, int x, byte v);
 
-    template<int W>
+    template<BPP W>
     byte get (cbyteptr in, int x);
 
     template<>
-    byte get<1> (cbyteptr in, int x);
+    byte get<BPP::BW> (cbyteptr in, int x);
 
     template<>
-    inline byte get<8> (cbyteptr in, int x) {
+    inline byte get<BPP::GRAY> (cbyteptr in, int x) {
       return in[x];
     }
 
     template<>
-    byte get<24> (cbyteptr in, int x);
+    byte get<BPP::RGB> (cbyteptr in, int x);
 
     template<>
-    byte get<32> (cbyteptr in, int x);
+    byte get<BPP::RGBA> (cbyteptr in, int x);
 
-    template<int From, int To>
+    template<BPP From, BPP To>
     struct line_converter {
       static void convert (cbyteptr in, byteptr out, int w) {
         for (int x = 0; x < w; ++x) {
@@ -80,8 +80,18 @@ namespace gui {
       }
     };
 
-    template<int From>
-    struct line_converter<From, 1> {
+    template<>
+    struct line_converter<BPP::RGB, BPP::RGBA> {
+      static void convert (cbyteptr in, byteptr out, int w);
+    };
+
+    template<>
+    struct line_converter<BPP::RGBA, BPP::RGB> {
+      static void convert (cbyteptr in, byteptr out, int w);
+    };
+
+    template<BPP From>
+    struct line_converter<From, BPP::BW> {
       static void convert (cbyteptr in, byteptr out, int w) {
         for (int x = 0; x < w; x += 8) {
           byte ovalue = (get<From>(in, x + 0) ? bit_mask[0] : 0)
@@ -97,22 +107,13 @@ namespace gui {
       }
     };
 
-    template<>
-    struct line_converter<24, 32> {
-      static void convert (cbyteptr in, byteptr out, int w);
-    };
-
-    template<>
-    struct line_converter<32, 24> {
-      static void convert (cbyteptr in, byteptr out, int w);
-    };
-
-    template<int From, int To>
+    template<BPP From, BPP To>
     struct converter {
+      typedef line_converter<From, To> my_line_converter;
       static void convert (const std::vector<char>& src, std::vector<char>& dst, int w, int h, int src_bpl, int dst_bpl) {
         for (int y = 0; y < h; ++y) {
-          line_converter<From, To>::convert(reinterpret_cast<cbyteptr>(src.data() + (y * src_bpl)),
-                                            reinterpret_cast<byteptr>(dst.data() + (y * dst_bpl)), w);
+          my_line_converter::convert(reinterpret_cast<cbyteptr>(src.data() + (y * src_bpl)),
+                                     reinterpret_cast<byteptr>(dst.data() + (y * dst_bpl)), w);
         }
       }
     };

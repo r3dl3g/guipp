@@ -184,6 +184,14 @@ namespace gui {
 
   } // core
 
+  enum class BPP : int {
+    BW = 1,
+    GRAY = 8,
+    RGB = 24,
+    RGBA = 32
+  };
+
+
 } //gui
 
 // this is the main function that has to be defined in every application

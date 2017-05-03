@@ -42,6 +42,7 @@ namespace gui {
   namespace draw {
 
     class graphics;
+    class memmap;
     class bitmap;
     class transparent_bitmap;
 
@@ -55,7 +56,7 @@ namespace gui {
     class graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
-      graphics (draw::bitmap& target);
+      graphics (draw::memmap& target);
       graphics (const graphics&);
       ~graphics();
 

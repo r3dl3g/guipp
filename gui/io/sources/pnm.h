@@ -36,41 +36,55 @@ namespace gui {
 
   namespace io {
 
-    void save_pnm_header (std::ostream& out, int magic_num, int w, int h, int max);
-    void load_pnm_header (std::istream& in, int& magic_num, int& w, int& h, int& max);
+    // --------------------------------------------------------------------------
+    enum class PNM : int {
+      P1 = 1,
+      P2 = 2,
+      P3 = 3,
+      P4 = 4,
+      P5 = 5,
+      P6 = 6
+    };
 
-    template<int i>
-    void save_pnm (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-
-    template<>
-    void save_pnm<1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-    template<>
-    void save_pnm<2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-    template<>
-    void save_pnm<3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-    template<>
-    void save_pnm<4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-    template<>
-    void save_pnm<5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
-    template<>
-    void save_pnm<6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int bpp);
+    std::ostream& operator<< (std::ostream&, const PNM&);
+    std::istream& operator>> (std::istream&, PNM&);
 
     // --------------------------------------------------------------------------
-    template<int i>
-    void load_pnm (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm_header (std::ostream& out, PNM magic_num, int w, int h, int max);
+    void load_pnm_header (std::istream& in, PNM& magic_num, int& w, int& h, int& max);
+
+    template<PNM i>
+    void save_pnm (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
 
     template<>
-    void load_pnm<1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
     template<>
-    void load_pnm<2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
     template<>
-    void load_pnm<3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
     template<>
-    void load_pnm<4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
     template<>
-    void load_pnm<5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
     template<>
-    void load_pnm<6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, int& bpp);
+    void save_pnm<PNM::P6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+
+    // --------------------------------------------------------------------------
+    template<PNM i>
+    void load_pnm (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+
+    template<>
+    void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<>
+    void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<>
+    void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<>
+    void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<>
+    void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<>
+    void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -78,28 +92,28 @@ namespace gui {
       static constexpr const char*const pgm = "pgm";
       static constexpr const char*const pbm = "pbm";
 
-      static constexpr const char*const get_suffix (int i) {
-        return ((i - 1) % 3 == 0 ? pbm : ((i - 1) % 3 == 1 ? pgm : ppm));
+      static constexpr const char*const get_suffix (PNM i) {
+        return ((static_cast<int>(i) - 1) % 3 == 0 ? pbm : ((static_cast<int>(i) - 1) % 3 == 1 ? pgm : ppm));
       }
 
-      static constexpr std::ios::openmode get_open_mode (int i) {
-        return (i > 3 ? std::ios::binary : std::ios::openmode(0));
+      static constexpr std::ios::openmode get_open_mode (PNM i) {
+        return (static_cast<int>(i) > 3 ? std::ios::binary : std::ios::openmode(0));
       }
 
       template<typename T>
-      static std::string build_filename(T t, int i) {
+      static std::string build_filename(T t, PNM i) {
         std::string fname = ostreamfmt(t << "." << get_suffix(i));
         return fname;
       }
 
-      static constexpr bool is_bin (int i) {
-        return i > 3;
+      static constexpr bool is_bin (PNM i) {
+        return static_cast<int>(i) > 3;
       }
 
     };
 
     // --------------------------------------------------------------------------
-    template<int i>
+    template<PNM i>
     struct pnm : public pnm_const {
       static constexpr const char*const suffix = get_suffix(i);
       static const std::ios::openmode i_open_mode = std::ios::in | get_open_mode(i);
@@ -117,6 +131,82 @@ namespace gui {
     void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary = true);
     void load_pnm (std::istream& in, draw::bitmap& bmp);
 
+    template<PNM>
+    struct PNM2BPP {};
+
+    template<>
+    struct PNM2BPP<PNM::P1> {
+      static constexpr BPP bpp = BPP::BW;
+    };
+
+    template<>
+    struct PNM2BPP<PNM::P2> {
+      static constexpr BPP bpp = BPP::GRAY;
+    };
+
+    template<>
+    struct PNM2BPP<PNM::P3> {
+      static constexpr BPP bpp = BPP::RGB;
+    };
+
+    template<>
+    struct PNM2BPP<PNM::P4> {
+      static constexpr BPP bpp = BPP::BW;
+    };
+
+    template<>
+    struct PNM2BPP<PNM::P5> {
+      static constexpr BPP bpp = BPP::GRAY;
+    };
+
+    template<>
+    struct PNM2BPP<PNM::P6> {
+      static constexpr BPP bpp = BPP::RGB;
+    };
+
+    template<BPP, bool>
+    struct BPP2PNM {};
+
+    template<>
+    struct BPP2PNM<BPP::BW, false> {
+      static constexpr PNM pnm = PNM::P1;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::GRAY, false> {
+      static constexpr PNM pnm = PNM::P2;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::RGB, false> {
+      static constexpr PNM pnm = PNM::P3;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::RGBA, false> {
+      static constexpr PNM pnm = PNM::P3;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::BW, true> {
+      static constexpr PNM pnm = PNM::P4;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::GRAY, true> {
+      static constexpr PNM pnm = PNM::P5;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::RGB, true> {
+      static constexpr PNM pnm = PNM::P6;
+    };
+
+    template<>
+    struct BPP2PNM<BPP::RGBA, true> {
+      static constexpr PNM pnm = PNM::P6;
+    };
+
     // --------------------------------------------------------------------------
     template<bool BIN>
     class opnm {
@@ -126,23 +216,26 @@ namespace gui {
       {}
 
       void write (std::ostream& out) const {
-        int w, h, bpl, bpp;
+        int w, h, bpl;
+        BPP bpp;
         std::vector<char> data;
         bmp.get_data(data, w, h, bpl, bpp);
-        constexpr int offset = BIN ? 3 : 0;
         switch (bpp) {
-          case 1:
-            save_pnm_header(out, offset + 1, w, h, 0);
-            save_pnm<offset + 1>(out, data, w, h, bpl, bpp);
+          case BPP::BW:
+            save_pnm_header(out, BPP2PNM<BPP::BW, BIN>::pnm, w, h, 0);
+            save_pnm<BPP2PNM<BPP::BW, BIN>::pnm>(out, data, w, h, bpl, bpp);
             break;
-          case 8:
-            save_pnm_header(out, offset + 2, w, h, 255);
-            save_pnm<offset + 2>(out, data, w, h, bpl, bpp);
+          case BPP::GRAY:
+            save_pnm_header(out, BPP2PNM<BPP::GRAY, BIN>::pnm, w, h, 255);
+            save_pnm<BPP2PNM<BPP::GRAY, BIN>::pnm>(out, data, w, h, bpl, bpp);
             break;
-          case 24:
-          case 32:
-            save_pnm_header(out, offset + 3, w, h, 255);
-            save_pnm<offset + 3>(out, data, w, h, bpl, bpp);
+          case BPP::RGB:
+            save_pnm_header(out, BPP2PNM<BPP::RGB, BIN>::pnm, w, h, 255);
+            save_pnm<BPP2PNM<BPP::RGB, BIN>::pnm>(out, data, w, h, bpl, bpp);
+            break;
+          case BPP::RGBA:
+            save_pnm_header(out, BPP2PNM<BPP::RGBA, BIN>::pnm, w, h, 255);
+            save_pnm<BPP2PNM<BPP::RGBA, BIN>::pnm>(out, data, w, h, bpl, bpp);
             break;
           default:
             throw std::invalid_argument("unsupportet bit per pixel value");
@@ -168,29 +261,31 @@ namespace gui {
       {}
 
       void read (std::istream& in) {
-        int magic_num, w, h, max;
-        load_pnm_header(in, magic_num, w, h, max);
+        int w, h, max;
+        PNM pnm;
+        load_pnm_header(in, pnm, w, h, max);
 
-        int bpl, bpp = 24;
+        int bpl;
+        BPP bpp = BPP::RGB;
         std::vector<char> data;
-        switch (magic_num) {
-          case 1:
-            load_pnm<1>(in, data, w, h, bpl, bpp);
+        switch (pnm) {
+          case PNM::P1:
+            load_pnm<PNM::P1>(in, data, w, h, bpl, bpp);
             break;
-          case 2:
-            load_pnm<2>(in, data, w, h, bpl, bpp);
+          case PNM::P2:
+            load_pnm<PNM::P2>(in, data, w, h, bpl, bpp);
             break;
-          case 3:
-            load_pnm<3>(in, data, w, h, bpl, bpp);
+          case PNM::P3:
+            load_pnm<PNM::P3>(in, data, w, h, bpl, bpp);
             break;
-          case 4:
-            load_pnm<4>(in, data, w, h, bpl, bpp);
+          case PNM::P4:
+            load_pnm<PNM::P4>(in, data, w, h, bpl, bpp);
             break;
-          case 5:
-            load_pnm<5>(in, data, w, h, bpl, bpp);
+          case PNM::P5:
+            load_pnm<PNM::P5>(in, data, w, h, bpl, bpp);
             break;
-          case 6:
-            load_pnm<6>(in, data, w, h, bpl, bpp);
+          case PNM::P6:
+            load_pnm<PNM::P6>(in, data, w, h, bpl, bpp);
             break;
         }
         bmp.create(data, w, h, bpl, bpp);
@@ -207,64 +302,76 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<int i>
-    struct ofpnm : public std::ofstream, pnm<i> {
-      typedef std::ofstream super;
+    template<PNM i>
+    struct ofpnm : public pnm<i> {
+      typedef pnm<i> super;
 
       ofpnm()
-        : super()
       {}
 
       ofpnm(const char* fname)
-        : super(pnm<i>::build_filename(fname), pnm<i>::o_open_mode)
+        : out(super::build_filename(fname), super::o_open_mode)
       {}
 
       ofpnm(const std::string& fname)
-        : super(pnm<i>::build_filename(fname), pnm<i>::o_open_mode)
+        : out(super::build_filename(fname), super::o_open_mode)
       {}
 
       void open(const char* fname) {
-        super::open(pnm<i>::build_filename(fname), pnm<i>::o_open_mode);
+        out.open(super::build_filename(fname), super::o_open_mode);
       }
 
       void open(const std::string& fname) {
-        super::open(pnm<i>::build_filename(fname), pnm<i>::o_open_mode);
+        out.open(super::build_filename(fname), super::o_open_mode);
       }
 
-      void operator<< (const draw::bitmap& b) {
-        opnm<pnm<i>::bin>(b).write(*this);
+      void operator<< (const draw::memmap& b) {
+        opnm<super::bin>(b).write(out);
       }
 
+      void operator<< (const draw::datamap<PNM2BPP<i>::bpp>& b) {
+        opnm<super::bin>(b).write(out);
+      }
+
+    private:
+      std::ofstream out;
     };
 
     // --------------------------------------------------------------------------
-    template<int i>
-    struct ifpnm : public std::ifstream, pnm<i> {
-      typedef std::ifstream super;
+    template<PNM i>
+    struct ifpnm : public pnm<i> {
+      typedef pnm<i> super;
 
       ifpnm()
         : super()
       {}
 
       ifpnm(const char* fname)
-        : super(pnm<i>::build_filename(fname), pnm<i>::i_open_mode)
+        : in(super::build_filename(fname), super::i_open_mode)
       {}
 
       ifpnm(const std::string& fname)
-        : super(pnm<i>::build_filename(fname), pnm<i>::i_open_mode)
+        : in(super::build_filename(fname), super::i_open_mode)
       {}
 
       void open(const char* fname) {
-        super::open(pnm<i>::build_filename(fname), pnm<i>::i_open_mode);
+        in.open(super::build_filename(fname), super::i_open_mode);
       }
 
       void open(const std::string& fname) {
-        super::open(pnm<i>::build_filename(fname), pnm<i>::i_open_mode);
+        in.open(super::build_filename(fname), super::i_open_mode);
       }
 
-      void operator>> (draw::bitmap& b) {
-        ipnm(b).read(*this);
+      void operator>> (draw::memmap& b) {
+        ipnm(b).read(in);
       }
+
+      void operator >> (draw::datamap<PNM2BPP<i>::bpp>& b) {
+        ipnm(b).read(in);
+      }
+
+    private:
+      std::ifstream in;
     };
 
     // --------------------------------------------------------------------------

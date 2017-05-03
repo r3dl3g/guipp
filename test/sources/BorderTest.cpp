@@ -65,13 +65,9 @@ private:
   vtoggle_group<color::light_gray, color::gray> vsegmented;
 
   client_window window1;
-  bitmap bmp[2];
-  bitmap gray[2];
-  bitmap bw[2];
-
-  bitmap cut_icon;
-  bitmap copy_icon;
-  bitmap paste_icon;
+  rgbmap bmp[2];
+  graymap gray[2];
+  maskmap bw[2];
 };
 
 // --------------------------------------------------------------------------
@@ -188,9 +184,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.create(top_view);
 
   core::rectangle icon_rect(0, 0, 16, 16);
-  bitmap cut_icon(16, 16);
-  bitmap copy_icon(16, 16);
-  bitmap paste_icon(16, 16);
+  memmap cut_icon(16, 16);
+  memmap copy_icon(16, 16);
+  memmap paste_icon(16, 16);
   graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, center), font::menu(), color::dark_red);
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, center), font::menu(), color::dark_green);
@@ -200,7 +196,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, copy_icon),
     menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, paste_icon),
     menu_entry("del", core::bind_method(this, &my_main_window::del), "del"),
-    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, bitmap(), true),
+    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, memmap(), true),
     menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
   });
 
@@ -356,16 +352,14 @@ void my_main_window::copy (int) {
   core::size sz = r.size();
 
   bmp[0].create(sz);
-  gray[0].create(sz, 8);
-  bw[0].create(sz, 1);
+  gray[0].create(sz);
+  bw[0].create(sz);
 
-  draw::graphics(bmp[0]).copy_from(left_list, r);
-  draw::graphics(gray[0]).copy_from(left_list, r);
-  draw::graphics(bw[0]).copy_from(left_list, r);
-
-  bmp[0].make_compatible();
-  gray[0].make_compatible();
-  bw[0].make_compatible();
+  memmap img(sz);
+  draw::graphics(img).copy_from(left_list, r);
+  bmp[0].put(img);
+  gray[0].put(img);
+  bw[0].put(img);
 
   window1.redraw_later();
 }
@@ -387,66 +381,60 @@ void my_main_window::cut (int) {
   core::size sz = r.size();
 
   auto drawer = [&](bitmap& b) {
-    graphics g(b);
+    memmap img(b.size());
+    graphics g(img);
     g.fill(draw::rectangle(r), color::white);
     g.draw(draw::ellipse(r.shrinked({20, 20})), color::light_blue, draw::pen(color::dark_green, 5));
     g.fill(draw::ellipse(r.with_size({50, 50})), color::black);
+    b.put(img);
   };
 
   for (int i = 0; i < 2; ++i) {
     bmp[i].create(sz);
-    gray[i].create(sz, 8);
-    bw[i].create(sz, 1);
+    gray[i].create(sz);
+    bw[i].create(sz);
   }
 
-  draw::graphics(bmp[0]).copy_from(left_list, r);
-  draw::graphics(gray[0]).copy_from(left_list, r);
-  draw::graphics(bw[0]).copy_from(left_list, r);
+  memmap img(sz);
+  bmp[0].put(img);
+  gray[0].put(img);
+  bw[0].put(img);
 
-  io::ofpnm<6>("left_list.p6") << io::opnm<true>(bmp[0]);
-  io::ofpnm<3>("left_list.p3") << io::opnm<false>(bmp[0]);
+  io::ofpnm<io::PNM::P6>("left_list.p6") << bmp[0];
+  io::ofpnm<io::PNM::P3>("left_list.p3") << bmp[0];
 
-  io::ofpnm<5>("left_list.p5") << io::opnm<true>(gray[0]);
-  io::ofpnm<2>("left_list.p2") << io::opnm<false>(gray[0]);
+  io::ofpnm<io::PNM::P5>("left_list.p5") << gray[0];
+  io::ofpnm<io::PNM::P2>("left_list.p2") << gray[0];
 
-  io::ofpnm<4>("left_list.p4") << io::opnm<true>(bw[0]);
-  io::ofpnm<1>("left_list.p1") << io::opnm<false>(bw[0]);
+  io::ofpnm<io::PNM::P4>("left_list.p4") << bw[0];
+  io::ofpnm<io::PNM::P1>("left_list.p1") << bw[0];
 
   drawer(bmp[1]);
 
-  io::ofpnm<6>("p6") << io::opnm<true>(bmp[1]);
-  io::ofpnm<3>("p3") << io::opnm<false>(bmp[1]);
+  io::ofpnm<io::PNM::P6>("p6") << bmp[1];
+  io::ofpnm<io::PNM::P3>("p3") << bmp[1];
 
   //gray[1].put(bmp[1]);
   drawer(gray[1]);
 
-  io::ofpnm<5>("p5") << io::opnm<true>(gray[1]);
-  io::ofpnm<2>("p2") << io::opnm<false>(gray[1]);
+  io::ofpnm<io::PNM::P5>("p5") << gray[1];
+  io::ofpnm<io::PNM::P2>("p2") << gray[1];
 
   drawer(bw[1]);
 
-  io::ofpnm<4>("p4") << io::opnm<true>(bw[1]);
-  io::ofpnm<1>("p1") << io::opnm<false>(bw[1]);
-
-  bmp[0].make_compatible();
-  gray[0].make_compatible();
-  bw[0].make_compatible();
-
-  bmp[1].make_compatible();
-  gray[1].make_compatible();
-  bw[1].make_compatible();
+  io::ofpnm<io::PNM::P4>("p4") << bw[1];
+  io::ofpnm<io::PNM::P1>("p1") << bw[1];
 
   window1.redraw_later();
 }
 
-template<int i>
-void read_write (bitmap& bm) {
+template<io::PNM i>
+void read_write (datamap<io::PNM2BPP<i>::bpp>& bm) {
   try {
     std::string iname = ostreamfmt("p" << i);
     std::string oname = ostreamfmt("test.p" << i);
     io::ifpnm<i>(iname) >> bm;
     io::ofpnm<i>(oname) << bm;
-    bm.make_compatible();
   }
   catch (std::exception& ex) {
     LogFatal << ex;
@@ -456,39 +444,35 @@ void read_write (bitmap& bm) {
 void my_main_window::paste (int) {
   labels[0].set_text("paste");
 
-  read_write<1>(bw[0]);
-  read_write<2>(gray[0]);
-  read_write<3>(bmp[0]);
-  read_write<4>(bw[1]);
-  read_write<5>(gray[1]);
-  read_write<6>(bmp[1]);
+  read_write<io::PNM::P1>(bw[0]);
+  read_write<io::PNM::P2>(gray[0]);
+  read_write<io::PNM::P3>(bmp[0]);
+  read_write<io::PNM::P4>(bw[1]);
+  read_write<io::PNM::P5>(gray[1]);
+  read_write<io::PNM::P6>(bmp[1]);
 
   window1.redraw_later();
 }
 
 void my_main_window::test_rgb () {
-  bw[0].create(100, 100, 32);
-  gray[0].create(100, 100, 32);
-  bmp[0].create(100, 100, 32);
-  bw[1].create(100, 100, 24);
-  gray[1].create(100, 100, 24);
-  bmp[1].create(100, 100, 24);
+  memmap red(100, 100), blue(100, 100), green(100, 100);
+  rgbmap red24(100, 100), blue24(100, 100), green24(100, 100);
 
-  graphics(bw[0]).clear(color::red);
-  graphics(gray[0]).clear(color::green);
-  graphics(bmp[0]).clear(color::blue);
+  graphics(red).clear(color::red);
+  graphics(green).clear(color::green);
+  graphics(blue).clear(color::blue);
 
-  bw[1].put(bw[0]);
-  gray[1].put(gray[0]);
-  bmp[1].put(bmp[0]);
+  red24.put(red);
+  green24.put(green);
+  blue24.put(blue);
 
-  io::ofpnm<3>("red32") << bw[0];
-  io::ofpnm<3>("green32") << gray[0];
-  io::ofpnm<3>("blue32") << bmp[0];
+  io::ofpnm<io::PNM::P3>("red32") << red;
+  io::ofpnm<io::PNM::P3>("green32") << green;
+  io::ofpnm<io::PNM::P3>("blue32") << blue;
 
-  io::ofpnm<3>("red24") << bw[1];
-  io::ofpnm<3>("green24") << gray[1];
-  io::ofpnm<3>("blue24") << bmp[1];
+  io::ofpnm<io::PNM::P3>("red24") << red24;
+  io::ofpnm<io::PNM::P3>("green24") << green24;
+  io::ofpnm<io::PNM::P3>("blue24") << blue24;
 
   //io::ifpnm<3>("red32") >> bw[0];
   //io::ifpnm<3>("green32") >> gray[0];
@@ -497,13 +481,6 @@ void my_main_window::test_rgb () {
   //io::ifpnm<3>("red24") >> bw[1];
   //io::ifpnm<3>("green24") >> gray[1];
   //io::ifpnm<3>("blue24") >> bmp[1];
-
-  //bmp[0].make_compatible();
-  //gray[0].make_compatible();
-  //bw[0].make_compatible();
-  //bmp[1].make_compatible();
-  //gray[1].make_compatible();
-  //bw[1].make_compatible();
 
   window1.redraw_later();
 }

@@ -355,7 +355,7 @@ namespace gui {
       , ref_gc(false)
     {}
 
-    graphics::graphics (draw::bitmap& target)
+    graphics::graphics (draw::memmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -367,16 +367,6 @@ namespace gui {
       ReleaseDC(NULL, gdc);
 
       SelectObject(gc, target.get_id());
-
-      //int raster_caps = GetDeviceCaps(gc, RASTERCAPS);
-      //if (raster_caps & RC_PALETTE) {
-        int bpp = target.depth();
-        log_palette lp(bpp);
-        palette p(lp);
-        HPALETTE old = SelectPalette(gc, p.get_id(), FALSE);
-        RealizePalette(gc);
-        p.id = 0;
-      //}
     }
 
     graphics::graphics (const graphics& rhs)
@@ -636,7 +626,7 @@ namespace gui {
       get_xft();
     }
 
-    graphics::graphics (draw::bitmap& target)
+    graphics::graphics (draw::memmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -1226,34 +1216,158 @@ namespace gui {
       return *this;
     }
 
+#if WIN32
+    struct log_palette : public LOGPALETTE {
+      log_palette (int bpp);
+
+    private:
+      PALETTEENTRY moreEntries[255];
+    };
+
+    struct palette {
+      palette (const log_palette&);
+      ~palette ();
+
+      HPALETTE get_id() const {
+        return id;
+      }
+
+      //    private:
+      HPALETTE id;
+    };
+
+    struct bitmap_info : public BITMAPINFO {
+
+      bitmap_info();
+      bitmap_info(int w, int h, int bpl, int bpp);
+
+      void init_colors();
+      void init_gray_colors();
+      void init_bw_colors();
+
+      void set_gray_colors(HBITMAP id);
+      void set_gray_colors(HDC id);
+      void set_bw_colors(HBITMAP id);
+      void set_bw_colors(HDC id);
+
+    private:
+      RGBQUAD moreColors[255];
+    };
+
+    log_palette::log_palette(int bpp) {
+      palVersion = 0x300;
+      palNumEntries = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+      if (bpp == 8) {
+        for (int i = 0; i < 256; ++i) {
+          palPalEntry[i] = {(BYTE)i, (BYTE)i, (BYTE)i, PC_NOCOLLAPSE};
+        }
+      } else if (bpp == 1) {
+        palPalEntry[0] = {0, 0, 0, PC_NOCOLLAPSE};
+        palPalEntry[1] = {0xff, 0xff, 0xff, PC_NOCOLLAPSE};
+      }
+    }
+
+    palette::palette(const log_palette& pal) {
+      id = CreatePalette(&pal);
+    }
+
+    palette::~palette() {
+      if (id) {
+        DeleteObject(id);
+        id = NULL;
+      }
+    }
+
+    bitmap_info::bitmap_info () {
+      memset(this, 0, sizeof(bitmap_info));
+      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+      init_gray_colors();
+    }
+
+    bitmap_info::bitmap_info (int w, int h, int bpl, int bpp) {
+      DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+      bmiHeader = {
+        sizeof(BITMAPINFOHEADER),
+        w, -h, 1, (WORD)bpp,
+        BI_RGB,
+        (DWORD)(h * bpl),
+        0, 0,
+        cols,
+        0
+      };
+      if (bpp == 8) {
+        init_gray_colors();
+      } else if (bpp == 1) {
+        init_bw_colors();
+      }
+    }
+
+    void bitmap_info::init_colors () {
+      HDC dc = GetDC(NULL);
+      GetDIBColorTable(dc, 0, 256, bmiColors);
+      ReleaseDC(NULL, dc);
+    }
+
+    void bitmap_info::init_gray_colors () {
+      for (int i = 0; i < 256; ++i) {
+        bmiColors[i] = {(BYTE)i, (BYTE)i, (BYTE)i, 0};
+      }
+    }
+
+    void bitmap_info::init_bw_colors() {
+      bmiColors[1] = {0, 0, 0, 0};
+      bmiColors[0] = {0xff, 0xff, 0xff, 0};
+    }
+
+    void bitmap_info::set_gray_colors(HBITMAP id) {
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+      SelectObject(gc, id);
+      set_gray_colors(gc);
+      DeleteDC(gc);
+    }
+
+    void bitmap_info::set_gray_colors(HDC gc) {
+      init_gray_colors();
+      UINT ret = SetDIBColorTable(gc, 0, 256, bmiColors);
+      if (ret != 256) {
+        LogError << "SetDIBColorTable returned " << ret << " (expected 256)";
+      }
+    }
+
+    void bitmap_info::set_bw_colors(HBITMAP id) {
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+      SelectObject(gc, id);
+      set_bw_colors(gc);
+      DeleteDC(gc);
+    }
+
+    void bitmap_info::set_bw_colors(HDC gc) {
+      init_bw_colors();
+      UINT ret = SetDIBColorTable(gc, 0, 2, bmiColors);
+      if (ret != 2) {
+        LogError << "SetDIBColorTable returned " << ret << " (expected 2)";
+      }
+    }
+
+#endif
+
+
     const graphics& graphics::copy_from(const draw::bitmap& bmp, const core::point& pt) const {
       if (bmp.depth() == depth()) {
-        return copy_from(bmp, core::rectangle(bmp.size()), pt);
+        return copy_from(bmp.get_id(), core::rectangle(bmp.size()), pt);
       } else {
-        int w, h, bpl, bpp;
+        int w, h, bpl;
+        BPP bpp;
         std::vector<char> data;
         bmp.get_data(data, w, h, bpl, bpp);
         if (!data.empty()) {
-#ifdef WIN32
-          log_palette lp(bpp);
-          palette p(lp);
-          HPALETTE old = SelectPalette(gc, p.get_id(), FALSE);
-          RealizePalette(gc);
-          bitmap_info bi(w, h, bpl, bpp);
-          int ret = StretchDIBits(gc, pt.os_x(), pt.os_y(), w, h,
-                                  0, 0, w, h, data.data(), &bi, 
-                                  DIB_RGB_COLORS, SRCCOPY);
-          SelectPalette(gc, old, FALSE);
-          RealizePalette(gc);
-          if (ret != h) {
-            LogError << "StretchDIBits returned " << ret;
-          }
-#endif // WIN32
-#ifdef X11
-          bitmap compatible(w, h);
-          compatible.put(data, w, h, bpl, bpp);
-          return copy_from(compatible, core::rectangle(0, 0, w, h), pt);
-#endif // X11
+          memmap compatible(w, h);
+          compatible.put_data(data, w, h, bpl, bpp);
+          return copy_from(compatible.get_id(), core::rectangle(0, 0, (core::size_type)w, (core::size_type)h), pt);
         }
         return *this;
       }
@@ -1263,9 +1377,9 @@ namespace gui {
 #ifdef WIN32
       core::size sz = bmp.size();
       HDC mem_dc = CreateCompatibleDC(gc);
-      HGDIOBJ old = SelectObject(mem_dc, bmp.mask);
+      HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
       BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-      SelectObject(mem_dc, bmp);
+      SelectObject(mem_dc, bmp.get_id());
       BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
       SelectObject(mem_dc, old);
       DeleteDC(mem_dc);

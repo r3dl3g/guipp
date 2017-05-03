@@ -36,27 +36,27 @@ namespace gui {
     const byte byte_values[] = IF_WIN32({ 0xff, 0 }) IF_X11({ 0, 0xff });
 
     template<>
-    void set<24> (byteptr out, int x, byte v) {
+    void set<BPP::RGB> (byteptr out, int x, byte v) {
       int p = x * 3;
       out[p + 2] = out[p + 1] = out[p] = v;
     }
 
     template<>
-    void set<32> (byteptr out, int x, byte v) {
+    void set<BPP::RGBA> (byteptr out, int x, byte v) {
       int p = x * 4;
       out[p + 2] = out[p + 1] = out[p] = v;
       out[p + 3] = 0;
     }
 
     template<>
-    byte get<1> (cbyteptr in, int x) {
+    byte get<BPP::BW> (cbyteptr in, int x) {
       int shift = IF_WIN32(7 -) x % 8;
       int bit = (in[x / 8] & (0x01 << shift)) >> shift;
       return byte_values[bit];
     }
 
     template<>
-    byte get<24> (cbyteptr in, int x) {
+    byte get<BPP::RGB> (cbyteptr in, int x) {
       int spos = x * 3;
       int v0 = (int)in[spos];
       int v1 = (int)in[spos + 1];
@@ -65,7 +65,7 @@ namespace gui {
     }
 
     template<>
-    byte get<32> (cbyteptr in, int x) {
+    byte get<BPP::RGBA> (cbyteptr in, int x) {
       int spos = x * 4;
       int v0 = (int)in[spos];
       int v1 = (int)in[spos + 1];
@@ -73,13 +73,13 @@ namespace gui {
       return (v0 + v1 + v2) / 3;
     }
 
-    void line_converter<24, 32>::convert (cbyteptr in, byteptr out, int w) {
+    void line_converter<BPP::RGB, BPP::RGBA>::convert (cbyteptr in, byteptr out, int w) {
       for (int x = 0; x < w; ++x) {
         reinterpret_cast<uint32_t*>(out)[x] = *reinterpret_cast<const uint32_t*>(in + x * 3) & 0x00ffffff;
       }
     }
 
-    void line_converter<32, 24>::convert (cbyteptr in, byteptr out, int w) {
+    void line_converter<BPP::RGBA, BPP::RGB>::convert (cbyteptr in, byteptr out, int w) {
       for (int x = 0; x < w; ++x) {
         memcpy(out + x * 3, in + x * 4, 3);
       }

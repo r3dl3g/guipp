@@ -36,10 +36,13 @@ public:
   void paste (int);
   void del (int);
   void quit (int);
+  void test_rgb ();
+  void save_all_bin ();
+  void save_all_ascii ();
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
-  group_window<horizontal_lineup<30, 2, 0>, nero> tool_bar;
+  group_window<horizontal_lineup<80, 2, 0>, nero> tool_bar;
 
   main_menu menu;
   popup_menu edit_sub_menu;
@@ -206,7 +209,6 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   int i = 0;
   for (tool_bar_button& b : buttons) {
     b.create(tool_bar);
-    b.set_text(ostreamfmt(++i));
     if (i % 4 == 3) {
       separators[i / 4].create(tool_bar);
       tool_bar.get_layout().add_separator(&(separators[i / 4]));
@@ -214,28 +216,24 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     b.register_event_handler(hilite_changed_event([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
     }));
-    switch (i) {
-    case 1:
-      b.register_event_handler(button_clicked_event([&, i]() {
-        cut(i);
-      }));
-      break;
-    case 2:
-      b.register_event_handler(button_clicked_event([&, i]() {
-        copy(i);
-      }));
-      break;
-    case 3:
-      b.register_event_handler(button_clicked_event([&, i]() {
-        paste(i);
-      }));
-      break;
-    default:
-      b.register_event_handler(button_clicked_event([&, i]() {
-        labels[3].set_text(ostreamfmt("button " << i << " clicked"));
-      }));
-      break;
-    }
+    ++i;
+  }
+
+  buttons[0].set_text("cut");
+  buttons[0].register_event_handler(button_clicked_event([&]() { cut(0); }));
+  buttons[1].set_text("copy");
+  buttons[1].register_event_handler(button_clicked_event([&]() { copy(1); }));
+  buttons[2].set_text("paste");
+  buttons[2].register_event_handler(button_clicked_event([&]() { paste(2); }));
+  buttons[3].set_text("rgb");
+  buttons[3].register_event_handler(button_clicked_event([&]() { test_rgb(); }));
+  buttons[4].set_text("bin");
+  buttons[4].register_event_handler(button_clicked_event([&]() { save_all_bin(); }));
+  buttons[5].set_text("ascii");
+  buttons[5].register_event_handler(button_clicked_event([&]() { save_all_ascii(); }));
+
+  for (i = 6; i < 10; ++i) {
+    buttons[i].set_text(ostreamfmt(i));
   }
 
   status_bar.create(*this);
@@ -466,6 +464,66 @@ void my_main_window::paste (int) {
   read_write<6>(bmp[1]);
 
   window1.redraw_later();
+}
+
+void my_main_window::test_rgb () {
+  bw[0].create(100, 100, 32);
+  gray[0].create(100, 100, 32);
+  bmp[0].create(100, 100, 32);
+  bw[1].create(100, 100, 24);
+  gray[1].create(100, 100, 24);
+  bmp[1].create(100, 100, 24);
+
+  graphics(bw[0]).clear(color::red);
+  graphics(gray[0]).clear(color::green);
+  graphics(bmp[0]).clear(color::blue);
+
+  bw[1].put(bw[0]);
+  gray[1].put(gray[0]);
+  bmp[1].put(bmp[0]);
+
+  io::ofpnm<3>("red32") << bw[0];
+  io::ofpnm<3>("green32") << gray[0];
+  io::ofpnm<3>("blue32") << bmp[0];
+
+  io::ofpnm<3>("red24") << bw[1];
+  io::ofpnm<3>("green24") << gray[1];
+  io::ofpnm<3>("blue24") << bmp[1];
+
+  //io::ifpnm<3>("red32") >> bw[0];
+  //io::ifpnm<3>("green32") >> gray[0];
+  //io::ifpnm<3>("blue32") >> bmp[0];
+
+  //io::ifpnm<3>("red24") >> bw[1];
+  //io::ifpnm<3>("green24") >> gray[1];
+  //io::ifpnm<3>("blue24") >> bmp[1];
+
+  //bmp[0].make_compatible();
+  //gray[0].make_compatible();
+  //bw[0].make_compatible();
+  //bmp[1].make_compatible();
+  //gray[1].make_compatible();
+  //bw[1].make_compatible();
+
+  window1.redraw_later();
+}
+
+void my_main_window::save_all_bin () {
+  std::ofstream("bmp0.b.ppm")  << io::opnm<true>(bmp[0]);
+  std::ofstream("bmp1.b.ppm")  << io::opnm<true>(bmp[1]);
+  std::ofstream("bw0.b.ppm")   << io::opnm<true>(bw[0]);
+  std::ofstream("bw1.b.ppm")   << io::opnm<true>(bw[1]);
+  std::ofstream("gray0.b.ppm") << io::opnm<true>(gray[0]);
+  std::ofstream("gray1.b.ppm") << io::opnm<true>(gray[1]);
+}
+  
+void my_main_window::save_all_ascii () {
+  std::ofstream("bmp0.a.ppm")  << io::opnm<false>(bmp[0]);
+  std::ofstream("bmp1.a.ppm")  << io::opnm<false>(bmp[1]);
+  std::ofstream("bw0.a.ppm")   << io::opnm<false>(bw[0]);
+  std::ofstream("bw1.a.ppm")   << io::opnm<false>(bw[1]);
+  std::ofstream("gray0.a.ppm") << io::opnm<false>(gray[0]);
+  std::ofstream("gray1.a.ppm") << io::opnm<false>(gray[1]);
 }
 
 // --------------------------------------------------------------------------

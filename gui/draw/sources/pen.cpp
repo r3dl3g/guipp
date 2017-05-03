@@ -43,7 +43,7 @@ namespace gui {
     }
 
     pen::pen (const os::color& color, size_type width, Style style)
-      : id(CreatePen(style, width, color))
+      : id(CreatePen(static_cast<int>(style), width, color))
     {
       GetObject(id, sizeof(os::win32::pen_type), &info);
     }
@@ -80,7 +80,7 @@ namespace gui {
 
     pen pen::with_style (Style s) const {
       os::win32::pen_type newType = info;
-      newType.lopnStyle = s;
+      newType.lopnStyle = static_cast<int>(s);
       return pen(CreatePenIndirect(&newType));
     }
 

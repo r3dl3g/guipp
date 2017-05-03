@@ -492,8 +492,12 @@ namespace gui {
       InvertRect(gc, &rect);
     }
 
-    void graphics::flush() const {
+    void graphics::flush () const {
       GdiFlush();
+    }
+
+    int graphics::depth () const {
+      return GetDeviceCaps(gc, BITSPIXEL);
     }
 
     void graphics::push_clip_rectangle (const core::rectangle& r) const {
@@ -1217,7 +1221,18 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from(const draw::bitmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::rectangle(bmp.size()), pt);
+      if (bmp.depth() == depth()) {
+        return copy_from(bmp, core::rectangle(bmp.size()), pt);
+      } else {
+        int w, h, bpl, bpp;
+        std::vector<char> data;
+        bmp.get_data(data, w, h, bpl, bpp);
+        if (!data.empty()) {
+          bitmap_info bi(w, h, bpl, bpp);
+          int ret = StretchDIBits(gc, pt.os_x(), pt.os_y(), w, h, 0, 0, w, h, data.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
+        }
+        return *this;
+      }
     }
 
     const graphics& graphics::frame (const std::function<frameable>& drawer,

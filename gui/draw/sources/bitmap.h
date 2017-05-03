@@ -34,6 +34,22 @@ namespace gui {
 
   namespace draw {
 
+#if WIN32
+    struct bitmap_info : public BITMAPINFO {
+
+      bitmap_info();
+      bitmap_info(int w, int h, int bpl, int bpp);
+
+      void init_colors();
+      void init_gray_colors();
+
+      void set_gray_colors(HBITMAP id);
+
+    private:
+      RGBQUAD moreColors[255];
+    };
+#endif
+
     class bitmap {
     public:
       bitmap ()

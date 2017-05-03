@@ -53,13 +53,12 @@ namespace gui {
     void save_pnm_header (std::ostream& out, int magic_num, int width, int height, int max) {
       out << 'P' << magic_num << '\n';
       out << "# pnm created by gui++\n";
-//      out.write("\n", 1);
       out << width << ' ' << height;
       if (max) {
         out << ' ' << max;
       }
       // In Win32 \n will create 0d 0a when the ofstream is create in text mode.
-      // even when use write("\n", 1)!
+      // even when we write("\n", 1)!
       std::streampos p1 = out.tellp();
       out << '\n';
       std::streampos p2 = out.tellp();
@@ -112,32 +111,14 @@ namespace gui {
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<6> data size missmatch");
       }
-      if (32 == bpp) {
-        for (int h = 0; h < height; ++h) {
-          const char* d = (data.data() + (h * bpl));
-          for (int w = 0; w < width; ++w) {
-            out.write(d + 2, 1);
-            out.write(d + 1, 1);
-            out.write(d, 1);
-            d += 4;
-          }
-        }
-      }
-      else if (24 == bpp) {
-        for (int h = 0; h < height; ++h) {
-          const char* d = (data.data() + (h * bpl));
-#ifdef WIN32
-          out.write(d, width * 3);
-
-#endif // WIN32
-#ifdef X11
-          for (int w = 0; w < width; ++w) {
-            out.write(d + 2, 1);
-            out.write(d + 1, 1);
-            out.write(d, 1);
-            d += 3;
-          }
-#endif // X11
+      int step = bpp / 8;
+      for (int h = 0; h < height; ++h) {
+        const char* d = (data.data() + (h * bpl));
+        for (int w = 0; w < width; ++w) {
+          out.write(d + 2, 1);
+          out.write(d + 1, 1);
+          out.write(d, 1);
+          d += step;
         }
       }
     }
@@ -152,44 +133,19 @@ namespace gui {
       std::size_t n = bpl * height;
       data.resize(n);
       std::noskipws(in);
-#ifdef WIN32
-      if (bpp == 24) {
-        for (int y = 0; y < height; ++y) {
-          char* d = (data.data() + (y * bpl));
-          in.read(d, width * 3);
-        }
-      } else {
-        for (int y = 0; y < height; ++y) {
-          char* d = (data.data() + (y * bpl));
-          for (int x = 0; x < width; ++x) {
-            in.read(d, 3);
-            d[3] = 0;
-            d += 4;
-          }
-        }
-      }
-#endif // WIN32
-#ifdef X11
+      int step = bpp / 8;
       for (int y = 0; y < height; ++y) {
         char* d = (data.data() + (y * bpl));
-        if (bpp == 24) {
-          for (int x = 0; x < width; ++x) {
-            in.read(d + 2, 1);
-            in.read(d + 1, 1);
-            in.read(d, 1);
-            d += 3;
-          }
-        } else {
-          for (int x = 0; x < width; ++x) {
-            in.read(d + 2, 1);
-            in.read(d + 1, 1);
-            in.read(d, 1);
+        for (int x = 0; x < width; ++x) {
+          in.read(d + 2, 1);
+          in.read(d + 1, 1);
+          in.read(d, 1);
+          if (bpp == 32) {
             d[3] = 0;
-            d += 4;
           }
+          d += step;
         }
       }
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -281,17 +237,12 @@ namespace gui {
         throw std::invalid_argument("save_pnm<3> data size missmatch");
       }
       cbyteptr bdata = reinterpret_cast<cbyteptr>(data.data());
+      int step = bpp / 8;
       for (int h = 0; h < height; ++h) {
-        if (32 == bpp) {
-          cbyteptr i = bdata + (h * bpl);
-          for (int w = 0; w < width; ++w) {
-            cbyteptr d = i + w * 4;
-            out << static_cast<int>(d[2]) << ' ' <<  static_cast<int>(d[1]) << ' ' <<  static_cast<int>(d[0]) << ' ';
-          }
-        } else {
-          for (cbyteptr i = bdata + (h * bpl), e = i + bpl; i < e; ++i) {
-            out << static_cast<int>(*i) << ' ';
-          }
+        cbyteptr i = bdata + (h * bpl);
+        for (int w = 0; w < width; ++w) {
+          cbyteptr d = i + w * step;
+          out << static_cast<int>(d[2]) << ' ' <<  static_cast<int>(d[1]) << ' ' <<  static_cast<int>(d[0]) << ' ';
         }
         out << std::endl;
       }
@@ -309,38 +260,20 @@ namespace gui {
 
       std::skipws(in);
       byteptr bdata = reinterpret_cast<byteptr>(data.data());
+      int step = bpp / 8;
       for (int y = 0; y < height; ++y) {
         byteptr i = bdata + (y * bpl);
-        if (32 == bpp) {
-          for (int x = 0; x < width; ++x) {
-            byteptr d = i + x * 4;
-            int d0, d1, d2;
-#ifdef WIN32
-            in >> d0 >> d1 >> d2;
-#endif // WIN32
-#ifdef X11
-            in >> d2 >> d1 >> d0;
-#endif // X11
-            d[0] = static_cast<byte>(d0);
-            d[1] = static_cast<byte>(d1);
-            d[2] = static_cast<byte>(d2);
+        for (int x = 0; x < width; ++x) {
+          byteptr d = i + x * step;
+          int d0, d1, d2;
+          in >> d2 >> d1 >> d0;
+          d[0] = static_cast<byte>(d0);
+          d[1] = static_cast<byte>(d1);
+          d[2] = static_cast<byte>(d2);
+          if (32 == bpp) {
             d[3] = 0;
           }
-        } else {
-          for (int x = 0; x < width; ++x) {
-            byteptr d = i + x * 3;
-            int d0, d1, d2;
-#ifdef WIN32
-            in >> d0 >> d1 >> d2;
-#endif // WIN32
-#ifdef X11
-            in >> d2 >> d1 >> d0;
-#endif // X11
-            d[0] = static_cast<byte>(d0);
-            d[1] = static_cast<byte>(d1);
-            d[2] = static_cast<byte>(d2);
-          }
-        }
+        } 
       }
     }
 

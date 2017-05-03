@@ -190,7 +190,7 @@ namespace gui {
 
           if (selection.first < selection.last) {
             gui::core::rectangle a1 = area;
-            int begin = scroll_pos;
+            auto begin = scroll_pos;
             core::point_type left = area.x();
             if (selection.first > scroll_pos) {
               std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);

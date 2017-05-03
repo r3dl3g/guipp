@@ -84,10 +84,6 @@ namespace gui {
     struct line_converter<From, 1> {
       static void convert (cbyteptr in, byteptr out, int w) {
         for (int x = 0; x < w; x += 8) {
-//          byte ovalue = 0;
-//          for (int s = 0; s < 8; ++s) {
-//            ovalue = ovalue | ((get<From>(in, x + s) > 0x7f) ? 0x01 << s : 0);
-//          }
           byte ovalue = (get<From>(in, x + 0) ? bit_mask[0] : 0)
                       | (get<From>(in, x + 1) ? bit_mask[1] : 0)
                       | (get<From>(in, x + 2) ? bit_mask[2] : 0)

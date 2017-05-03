@@ -36,54 +36,49 @@ namespace gui {
   namespace draw {
 
 #if WIN32
-    struct bitmap_info : public BITMAPINFO {
+    bitmap_info::bitmap_info () {
+      memset(this, 0, sizeof(bitmap_info));
+      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+      init_gray_colors();
+    }
 
-      bitmap_info () {
-        memset(this, 0, sizeof(bitmap_info));
-        bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        init_gray_colors();
+    bitmap_info::bitmap_info (int w, int h, int bpl, int bpp) {
+      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+      DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+      bmiHeader = {
+        sizeof(BITMAPINFOHEADER),
+        w, h, 1, (WORD)bpp,
+        BI_RGB,
+        (DWORD)(h * bpl), 
+        0, 0, 
+        cols, 
+        cols
+      };
+      init_gray_colors();
+    }
+
+    void bitmap_info::init_colors () {
+      HDC dc = GetDC(NULL);
+      GetDIBColorTable(dc, 0, 256, bmiColors);
+      ReleaseDC(NULL, dc);
+    }
+
+    void bitmap_info::init_gray_colors () {
+      for (int i = 0; i < 256; ++i) {
+        bmiColors[i] = { (BYTE)i, (BYTE)i, (BYTE)i, 0 };
       }
+    }
 
-      bitmap_info (int w, int h, int bpl, int bpp) {
-        bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
-        bmiHeader = {
-          sizeof(BITMAPINFOHEADER),
-          w, h, 1, (WORD)bpp,
-          BI_RGB,
-          (DWORD)(h * bpl), 
-          0, 0, 
-          cols, 
-          cols
-        };
-        init_gray_colors();
-      }
+    void bitmap_info::set_gray_colors(HBITMAP id) {
+      HDC gdc = GetDC(NULL);
+      HDC gc = CreateCompatibleDC(gdc);
+      ReleaseDC(NULL, gdc);
+      SelectObject(gc, id);
 
-      void init_colors () {
-        HDC dc = GetDC(NULL);
-        GetDIBColorTable(dc, 0, 256, bmiColors);
-        ReleaseDC(NULL, dc);
-      }
+      SetDIBColorTable(gc, 0, 256, bmiColors);
+      DeleteDC(gc);
+    }
 
-      void init_gray_colors () {
-        for (int i = 0; i < 256; ++i) {
-          bmiColors[i] = { (BYTE)i, (BYTE)i, (BYTE)i, 0 };
-        }
-      }
-
-      void set_gray_colors(HBITMAP id) {
-        HDC gdc = GetDC(NULL);
-        HDC gc = CreateCompatibleDC(gdc);
-        ReleaseDC(NULL, gdc);
-        SelectObject(gc, id);
-
-        SetDIBColorTable(gc, 0, 256, bmiColors);
-        DeleteDC(gc);
-      }
-
-    private:
-      RGBQUAD moreColors[255];
-    };
 #endif
 
     bitmap::bitmap (const bitmap& rhs)
@@ -311,25 +306,6 @@ namespace gui {
     }
 
     void bitmap::put (const std::vector<char>& src, int w, int h, int bpl, int bpp) {
-//#if WIN32
-      //if (depth() == core::global::get_device_bits_per_pixel()) {
-      //  HDC gdc = GetDC(NULL);
-      //  HDC gc = CreateCompatibleDC(gdc);
-      //  ReleaseDC(NULL, gdc);
-
-      //  SelectObject(gc, id);
-
-      //  bitmap_info bi(w, h, bpl, bpp);
-
-      //  int ret = StretchDIBits(gc, 0, 0, w, h, 0, 0, w, h, src.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
-      //  DeleteDC(gc);
-      //  if (ret == h) {
-      //    return;
-      //  }
-      //}
-      //// fall back to amnual mode.
-//#endif
-
       int dst_bpp = depth();
       if (dst_bpp == bpp) {
         put_data(id, src, w, h, bpl, bpp);
@@ -387,52 +363,16 @@ namespace gui {
 #if WIN32
       BITMAP bmp;
       GetObject(id, sizeof(BITMAP), &bmp);
-      //if (bmp.bmBitsPixel == 8) {
-        w = bmp.bmWidth;
-        h = bmp.bmHeight;
-        bpl = bmp.bmWidthBytes;
-        bpp = bmp.bmBitsPixel;
-        data.resize(bpl * h);
-        int dst_bpl = calc_bytes_per_line(w, bpp);
-        int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
-        if (ret != data.size()) {
-          throw std::runtime_error("get image data failed");
-        }
-      //} else {
-      //  bitmap_info bi;
-
-      //  HDC gdc = GetDC(NULL);
-      //  HDC gc = CreateCompatibleDC(gdc);
-      //  ReleaseDC(NULL, gdc);
-
-      //  HGDIOBJ old = SelectObject(gc, id);
-
-      //  int ret = GetDIBits(gc, id, 0, 0, nullptr, &bi, DIB_RGB_COLORS);
-      //  if (!ret) {
-      //    throw std::runtime_error("get image info failed");
-      //  }
-
-      //  const int n = bi.bmiHeader.biSizeImage;
-      //  w = bi.bmiHeader.biWidth;
-      //  h = bi.bmiHeader.biHeight;
-      //  bpl = n / h;
-      //  bpp = bi.bmiHeader.biBitCount;
-
-      //  data.resize(n);
-
-      //  // positiv numbers give a bottom up bitmap.
-      //  bi.bmiHeader.biHeight = -std::abs(bi.bmiHeader.biHeight);
-      //  bi.bmiHeader.biCompression = BI_RGB;
-
-      //  ret = GetDIBits(gc, id, 0, h, data.data(), &bi, DIB_RGB_COLORS);
-      //  if (ret != h) {
-      //    throw std::runtime_error("get image data failed");
-      //  }
-
-      //  SelectObject(gc, old);
-      //  DeleteDC(gc);
-      //}
-
+      w = bmp.bmWidth;
+      h = bmp.bmHeight;
+      bpl = bmp.bmWidthBytes;
+      bpp = bmp.bmBitsPixel;
+      data.resize(bpl * h);
+      int dst_bpl = calc_bytes_per_line(w, bpp);
+      int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
+      if (ret != data.size()) {
+        throw std::runtime_error("get image data failed");
+      }
 #endif
 #ifdef X11
       core::size sz = size();
@@ -458,7 +398,7 @@ namespace gui {
     }
 
     void bitmap::draw (const graphics& g, const core::point& pt) const {
-      g.copy_from(*this, core::rectangle(size()), pt);
+      g.copy_from(*this, pt);
     }
 
     transparent_bitmap::transparent_bitmap (const transparent_bitmap& rhs)

@@ -122,7 +122,7 @@ namespace gui {
 
       };
 
-      template<bool V>
+      template<orientation V>
       class list_t : public list {
       public:
         typedef list super;
@@ -177,45 +177,45 @@ namespace gui {
         pos_t get_list_size () const;
         core::rectangle get_scroll_bar_area () const;
 
-        detail::scroll_barT<!V> scrollbar;
+        detail::scroll_barT<V> scrollbar;
       };
 
       // --------------------------------------------------------------------------
       template<>
-      core::rectangle list_t<false>::get_scroll_bar_area () const;
+      core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const;
 
       template<>
-      list::pos_t list_t<false>::get_list_size () const;
+      list::pos_t list_t<orientation::horizontal>::get_list_size () const;
 
       template<>
-      list::pos_t list_t<false>::get_dimension (const core::point&) const;
+      list::pos_t list_t<orientation::horizontal>::get_dimension (const core::point&) const;
 
       template<>
-      void list_t<false>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
+      void list_t<orientation::horizontal>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
 
       template<>
-      core::size list_t<false>::client_size() const;
+      core::size list_t<orientation::horizontal>::client_size() const;
 
       // --------------------------------------------------------------------------
       template<>
-      core::rectangle list_t<true>::get_scroll_bar_area () const;
+      core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const;
 
       template<>
-      list::pos_t list_t<true>::get_list_size () const;
+      list::pos_t list_t<orientation::vertical>::get_list_size () const;
 
       template<>
-      list::pos_t list_t<true>::get_dimension (const core::point&) const;
+      list::pos_t list_t<orientation::vertical>::get_dimension (const core::point&) const;
 
       template<>
-      void list_t<true>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
+      void list_t<orientation::vertical>::set_dimension (core::rectangle&, list::pos_t, list::pos_t) const;
 
       template<>
-      core::size list_t<true>::client_size() const;
+      core::size list_t<orientation::vertical>::client_size() const;
 
     }
 
     template<typename T,
-             draw::text_origin O = draw::vcenter_left,
+             draw::text_origin O = draw::text_origin::vcenter_left,
              void(F)(const draw::graphics&,
                      const core::rectangle&) = draw::frame::no_frame>
     void list_item_drawer (const T& t,
@@ -277,7 +277,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool V, int S, os::color B>
+    template<orientation V, int S, os::color B>
     class list_t : public detail::list_t<V> {
     public:
       typedef detail::list_t<V> super;
@@ -305,7 +305,7 @@ namespace gui {
         super::register_event_handler(left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         }));
-        if (V) {
+        if (V == orientation::vertical) {
           super::register_event_handler(wheel_y_event([&](const pos_t delta, const core::point&){
             set_scroll_pos(super::get_scroll_pos() - S * delta);
             super::moved = true;
@@ -339,7 +339,7 @@ namespace gui {
         super::register_event_handler(key_down_event([&](os::key_state,
                                                          os::key_symbol key,
                                                          const std::string&){
-          if (V) {
+          if (V == orientation::vertical) {
             switch (key) {
               case keys::up:
               case keys::numpad::up:
@@ -550,15 +550,15 @@ namespace gui {
       static no_erase_window_class clazz;
     };
 
-    template<bool V, int S, os::color B>
+    template<orientation V, int S, os::color B>
     no_erase_window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
 
     // --------------------------------------------------------------------------
     template<int S = 20, os::color B = color::white>
-    using hlist = list_t<false, S, B>;
+    using hlist = list_t<orientation::horizontal, S, B>;
 
     template<int S = 20, os::color B = color::white>
-    using vlist = list_t<true, S, B>;
+    using vlist = list_t<orientation::vertical, S, B>;
 
     using list = vlist<20, color::white>;
 

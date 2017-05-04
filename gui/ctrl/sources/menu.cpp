@@ -45,7 +45,7 @@ namespace gui {
                                             : color::black;
 
         core::rectangle r2 = r + core::point(10, 0);
-        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
+        g.text(draw::text_box(e.get_label(), r2, draw::text_origin::vcenter_left),
                draw::font::menu(), col);
       }
 
@@ -94,12 +94,12 @@ namespace gui {
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(e.get_icon(), core::point(x, y));
         }
-        g.text(draw::text_box(e.get_label(), r2, draw::vcenter_left),
+        g.text(draw::text_box(e.get_label(), r2, draw::text_origin::vcenter_left),
                draw::font::menu(), col);
 
         if (!e.get_hotkey().empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(e.get_hotkey(), r2, draw::vcenter_left),
+          g.text(draw::text_box(e.get_hotkey(), r2, draw::text_origin::vcenter_left),
                  draw::font::menu(), col);
         }
         if (e.is_sub_menu()) {

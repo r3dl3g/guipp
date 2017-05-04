@@ -191,6 +191,84 @@ namespace gui {
     RGBA = 32
   };
 
+  enum class orientation {
+    vertical,
+    horizontal
+  };
+
+  constexpr orientation operator! (orientation o) {
+    return (o == orientation::vertical) ? orientation::horizontal : orientation::vertical;
+  }
+
+  enum class origin {
+    start,
+    center,
+    end
+  };
+
+  enum class alignment {
+    left,
+    hcenter,
+    right,
+    top,
+    vcenter,
+    bottom
+  };
+
+
+  template<alignment> struct alignment_orientation {};
+
+  template<> struct alignment_orientation<alignment::left> {
+    static constexpr orientation value = orientation::horizontal;
+  };
+
+  template<> struct alignment_orientation<alignment::hcenter> {
+    static constexpr orientation value = orientation::horizontal;
+  };
+
+  template<> struct alignment_orientation<alignment::right> {
+    static constexpr orientation value = orientation::horizontal;
+  };
+
+  template<> struct alignment_orientation<alignment::top> {
+    static constexpr orientation value = orientation::vertical;
+  };
+
+  template<> struct alignment_orientation<alignment::vcenter> {
+    static constexpr orientation value = orientation::vertical;
+  };
+
+  template<> struct alignment_orientation<alignment::bottom> {
+    static constexpr orientation value = orientation::vertical;
+  };
+
+
+  template<alignment> struct alignment_origin {};
+
+  template<> struct alignment_origin<alignment::left> {
+    static constexpr origin value = origin::start;
+  };
+
+  template<> struct alignment_origin<alignment::hcenter> {
+    static constexpr origin value = origin::center;
+  };
+
+  template<> struct alignment_origin<alignment::right> {
+    static constexpr origin value = origin::end;
+  };
+
+  template<> struct alignment_origin<alignment::top> {
+    static constexpr origin value = origin::start;
+  };
+
+  template<> struct alignment_origin<alignment::vcenter> {
+    static constexpr origin value = origin::center;
+  };
+
+  template<> struct alignment_origin<alignment::bottom> {
+    static constexpr origin value = origin::end;
+  };
+
 
 } //gui
 

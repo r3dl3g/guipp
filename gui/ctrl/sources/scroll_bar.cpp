@@ -196,18 +196,18 @@ namespace gui {
     namespace detail {
 
       template<>
-      scroll_bar_class<false>::scroll_bar_class ()
+      scroll_bar_class<orientation::vertical>::scroll_bar_class ()
         : no_erase_window_class("VSCROLLBAR++", color::very_light_gray)
       {}
 
       template<>
-      scroll_bar_class<true>::scroll_bar_class ()
+      scroll_bar_class<orientation::horizontal>::scroll_bar_class ()
         : no_erase_window_class("HSCROLLBAR++", color::very_light_gray)
       {}
 
       // --------------------------------------------------------------------------
       template<>
-      scroll_barT<true>::scroll_barT ()
+      scroll_barT<orientation::horizontal>::scroll_barT ()
         : last_position(0) {
         register_event_handler(paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
@@ -320,7 +320,7 @@ namespace gui {
       }
 
       template<>
-      scroll_barT<false>::scroll_barT ()
+      scroll_barT<orientation::vertical>::scroll_barT ()
         : last_position(0) {
         register_event_handler(paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();

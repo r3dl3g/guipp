@@ -272,7 +272,7 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-    enum text_origin : unsigned int {
+    enum class text_origin : unsigned int {
       top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
       top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
       top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
@@ -291,7 +291,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct text_box {
-      text_box (const std::string& str, const core::rectangle& rect, text_origin origin = top_left, bool clear_background = false)
+      text_box (const std::string& str, const core::rectangle& rect, text_origin origin = text_origin::top_left, bool clear_background = false)
         : str(str)
         , rect(rect)
         , origin(origin)
@@ -309,7 +309,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct bounding_box {
-      bounding_box (const std::string& str, core::rectangle& rect, text_origin origin = top_left)
+      bounding_box (const std::string& str, core::rectangle& rect, text_origin origin = text_origin::top_left)
               : str(str)
               , rect(rect)
               , origin(origin)
@@ -328,7 +328,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct text {
-      text(const std::string& str, const core::point& pos, text_origin origin = top_left, bool clear_background = false)
+      text(const std::string& str, const core::point& pos, text_origin origin = text_origin::top_left, bool clear_background = false)
         : str(str)
         , pos(pos)
         , origin(origin)

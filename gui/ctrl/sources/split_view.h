@@ -35,7 +35,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    template<bool H>
+    template<orientation H>
     class split_view : protected layout_base {
     public:
       split_view (win::container* m)
@@ -100,33 +100,33 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     template<>
-    double split_view<false>::get_split_pos (const core::size&) const;
+    double split_view<orientation::vertical>::get_split_pos (const core::size&) const;
 
     template<>
-    core::rectangle split_view<false>::get_first_place (const core::size&,
+    core::rectangle split_view<orientation::vertical>::get_first_place (const core::size&,
                                                         double);
 
     template<>
-    core::rectangle split_view<false>::get_second_place (const core::size&,
+    core::rectangle split_view<orientation::vertical>::get_second_place (const core::size&,
                                                          double);
 
     template<>
-    core::rectangle split_view<false>::get_slider_place (const core::size&, double);
+    core::rectangle split_view<orientation::vertical>::get_slider_place (const core::size&, double);
 
     // --------------------------------------------------------------------------
     template<>
-    double split_view<true>::get_split_pos (const core::size&) const;
+    double split_view<orientation::horizontal>::get_split_pos (const core::size&) const;
 
     template<>
-    core::rectangle split_view<true>::get_first_place (const core::size&,
+    core::rectangle split_view<orientation::horizontal>::get_first_place (const core::size&,
                                                        double);
 
     template<>
-    core::rectangle split_view<true>::get_second_place (const core::size&,
+    core::rectangle split_view<orientation::horizontal>::get_second_place (const core::size&,
                                                         double);
 
     template<>
-    core::rectangle split_view<true>::get_slider_place (const core::size&, double);
+    core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::size&, double);
     // --------------------------------------------------------------------------
   }
 
@@ -135,7 +135,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation H>
       class split_view : public layout_container<layout::split_view<H>> {
       public:
         typedef layout_container<layout::split_view<H>> super;
@@ -168,16 +168,16 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      split_view<false>::split_view ();
+      split_view<orientation::vertical>::split_view ();
 
       // --------------------------------------------------------------------------
       template<>
-      split_view<true>::split_view ();
+      split_view<orientation::horizontal>::split_view ();
 
     }
 
     // --------------------------------------------------------------------------
-    template<bool H, typename First, typename Second>
+    template<orientation H, typename First, typename Second>
     class split_view_t : public detail::split_view<H> {
     public:
       typedef detail::split_view<H> super;

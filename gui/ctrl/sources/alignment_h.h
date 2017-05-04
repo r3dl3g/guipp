@@ -36,9 +36,9 @@ namespace gui {
   namespace win {
 // --------------------------------------------------------------------------
     enum alignment_h : unsigned short {
-      alignment_left   = gui::draw::vcenter_left,
-      alignment_center = gui::draw::center,
-      alignment_right  = gui::draw::vcenter_right
+      alignment_left   = static_cast<unsigned short>(gui::draw::text_origin::vcenter_left),
+      alignment_center = static_cast<unsigned short>(gui::draw::text_origin::center),
+      alignment_right  = static_cast<unsigned short>(gui::draw::text_origin::vcenter_right)
     };
 
   } // win

@@ -125,14 +125,14 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation H>
       class scroll_bar_class : public no_erase_window_class {
       public:
         scroll_bar_class ();
       };
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation H>
       class scroll_barT : public scroll_bar {
       public:
         typedef scroll_bar super;
@@ -227,61 +227,61 @@ namespace gui {
         type last_position;
       };
 
-      template<bool H>
+      template<orientation H>
       scroll_bar_class<H> scroll_barT<H>::clazz;
 
       template<>
-      scroll_barT<false>::scroll_barT ();
+      scroll_barT<orientation::vertical>::scroll_barT ();
 
       template<>
-      scroll_barT<true>::scroll_barT ();
+      scroll_barT<orientation::horizontal>::scroll_barT ();
 
       template<>
-      inline scroll_bar::type scroll_barT<true>::length (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<orientation::horizontal>::length (const core::size& sz) {
         return sz.width();
       }
 
       template<>
-      inline scroll_bar::type scroll_barT<false>::length (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<orientation::vertical>::length (const core::size& sz) {
         return sz.height();
       }
 
       template<>
-      inline scroll_bar::type scroll_barT<true>::thickness  (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<orientation::horizontal>::thickness  (const core::size& sz) {
         return sz.height();
       }
 
       template<>
-      inline scroll_bar::type scroll_barT<false>::thickness  (const core::size& sz) {
+      inline scroll_bar::type scroll_barT<orientation::vertical>::thickness  (const core::size& sz) {
         return sz.width();
       }
 
       template<>
-      inline core::size scroll_barT<true>::build_size (type pos,
+      inline core::size scroll_barT<orientation::horizontal>::build_size (type pos,
                                                        type thickness) {
         return core::size(pos, thickness);
       }
 
       template<>
-      inline core::size scroll_barT<false>::build_size (type pos,
+      inline core::size scroll_barT<orientation::vertical>::build_size (type pos,
                                                         type thickness) {
         return core::size(thickness, pos);
       }
 
       template<>
-      inline core::point scroll_barT<true>::build_pos (type pos) {
+      inline core::point scroll_barT<orientation::horizontal>::build_pos (type pos) {
         return core::point(pos, 0);
       }
 
       template<>
-      inline core::point scroll_barT<false>::build_pos (type pos) {
+      inline core::point scroll_barT<orientation::vertical>::build_pos (type pos) {
         return core::point(0, pos);
       }
 
     }
 
-    typedef detail::scroll_barT<false> vscroll_bar;
-    typedef detail::scroll_barT<true> hscroll_bar;
+    typedef detail::scroll_barT<orientation::vertical> vscroll_bar;
+    typedef detail::scroll_barT<orientation::horizontal> hscroll_bar;
 
   } // win
 

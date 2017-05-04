@@ -43,6 +43,7 @@ namespace gui {
 
   namespace layout {
 
+
     // --------------------------------------------------------------------------
     class standard_layout {
     public:
@@ -95,7 +96,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation>
       class base : public layout_base {
       public:
         typedef core::size::type type;
@@ -113,7 +114,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      class base<true> : public layout_base {
+      class base<orientation::horizontal> : public layout_base {
       public:
         typedef core::size::type type;
 
@@ -144,7 +145,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      class base<false> : public layout_base {
+      class base<orientation::vertical> : public layout_base {
       public:
         typedef core::size::type type;
 
@@ -174,7 +175,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<bool H, bool R>
+      template<orientation H, origin R>
       class lineup_base : public base<H> {
       public:
         typedef base<H> super;
@@ -184,12 +185,12 @@ namespace gui {
           : super(m)
         {}
 
-        core::rectangle init_area (type border, const core::size&, const core::size&);
+        core::rectangle init_area (type border, const core::size&, const core::size&, int gap, std::size_t count);
         void move_area (core::rectangle& area, type offs);
       };
 
-      template<bool H>
-      class lineup_base<H, false> : public base<H> {
+      template<orientation H>
+      class lineup_base<H, origin::start> : public base<H> {
       public:
         typedef base<H> super;
         typedef core::size::type type;
@@ -198,7 +199,7 @@ namespace gui {
           : super(m)
         {}
 
-        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
           return core::rectangle(core::point(border, border), is);
         }
 
@@ -208,16 +209,16 @@ namespace gui {
       };
 
       template<>
-      class lineup_base<true, true> : public base<true> {
+      class lineup_base<orientation::horizontal, origin::end> : public base<orientation::horizontal> {
       public:
-        typedef base<true> super;
+        typedef base<orientation::horizontal> super;
         typedef core::size::type type;
 
         lineup_base (win::container* m)
           : super(m)
         {}
 
-        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
           return core::rectangle(core::point(sz.width() - is.width() - border, border), is);
         }
 
@@ -227,16 +228,16 @@ namespace gui {
       };
 
       template<>
-      class lineup_base<false, true> : public base<false> {
+      class lineup_base<orientation::vertical, origin::end> : public base<orientation::vertical> {
       public:
-        typedef base<false> super;
+        typedef base<orientation::vertical> super;
         typedef core::size::type type;
 
         lineup_base (win::container* m)
           : super(m)
         {}
 
-        core::rectangle init_area (type border, const core::size& is, const core::size& sz) {
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
           return core::rectangle(core::point(border, sz.height() - is.height() - border), is);
         }
 
@@ -244,15 +245,54 @@ namespace gui {
           super::move_area(area, -offs);
         }
       };
+
+      template<>
+      class lineup_base<orientation::horizontal, origin::center> : public base<orientation::horizontal> {
+      public:
+        typedef base<orientation::horizontal> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz, int gap, std::size_t count) {
+          return core::rectangle(core::point((sz.width() - (is.width() * count + (count - 1) * gap)) / 2, border), is);
+        }
+
+        void move_area (core::rectangle& area, type offs) {
+          super::move_area(area, offs);
+        }
+      };
+
+      template<>
+      class lineup_base<orientation::vertical, origin::center> : public base<orientation::vertical> {
+      public:
+        typedef base<orientation::vertical> super;
+        typedef core::size::type type;
+
+        lineup_base (win::container* m)
+          : super(m)
+        {}
+
+        core::rectangle init_area (type border, const core::size& is, const core::size& sz, int gap, std::size_t count) {
+          return core::rectangle(core::point(border, (sz.height() - (is.height() * count + (count - 1) * gap)) / 2), is);
+        }
+
+        void move_area (core::rectangle& area, type offs) {
+          super::move_area(area, offs);
+        }
+      };
+
     }
 
     // --------------------------------------------------------------------------
-    template<bool H,
+    template<orientation H,
              unsigned short dim1,
              unsigned short border = 0,
              unsigned short gap = 0,
              unsigned short sep = 2,
-             bool R = false>
+             origin R = origin::start>
     class lineup_layout : public detail::lineup_base<H, R> {
     public:
       typedef core::size::type type;
@@ -271,13 +311,14 @@ namespace gui {
         const type border2 = (border * 2);
         const type space = super::get_dimension1(sz) - border2;
 
-        if (children.size()) {
+        auto count = children.size();
+        if (count) {
           if (space > 0) {
             const type dim2 = super::get_dimension2(sz) - border2;
             const type offset = dim1 + gap;
             const type sep_offset = gap + sep;
 
-            core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz);
+            core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz, gap, count);
             for(win::window* win : children) {
               if (super::is_separator(win)) {
                 super::place_child(win, super::get_sep_area(area, sep));
@@ -300,19 +341,33 @@ namespace gui {
              unsigned short border = 0,
              unsigned short gap = 0,
              unsigned short sep = 2,
-             bool R = false>
-    using horizontal_lineup = lineup_layout<true, dim1, border, gap, sep, R>;
+             origin R = origin::start>
+    using horizontal_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
     template<unsigned short dim1,
              unsigned short border = 0,
              unsigned short gap = 0,
              unsigned short sep = 2,
-             bool R = false>
-    using vertical_lineup = lineup_layout<false, dim1, border, gap, sep, R>;
+             origin R = origin::start>
+    using vertical_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
-    template<bool H, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
+    template<unsigned short dim1,
+             unsigned short border = 0,
+             unsigned short gap = 0,
+             unsigned short sep = 2>
+    using vertical_center_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, origin::center>;
+
+    // --------------------------------------------------------------------------
+    template<unsigned short dim1,
+             unsigned short border = 0,
+             unsigned short gap = 0,
+             unsigned short sep = 2>
+    using horizontal_center_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, origin::center>;
+
+    // --------------------------------------------------------------------------
+    template<orientation H, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
     class adaption_layout : public detail::base<H> {
     public:
       typedef core::size::type type;
@@ -360,11 +415,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
-    using horizontal_adaption = adaption_layout<true, border, gap, sep>;
+    using horizontal_adaption = adaption_layout<orientation::horizontal, border, gap, sep>;
 
     // --------------------------------------------------------------------------
     template<unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>
-    using vertical_adaption = adaption_layout<false, border, gap, sep>;
+    using vertical_adaption = adaption_layout<orientation::vertical, border, gap, sep>;
 
     // --------------------------------------------------------------------------
     template<unsigned short width, unsigned short height, unsigned short border = 0, unsigned short gap = 0>

@@ -36,7 +36,7 @@ namespace gui {
 
   namespace win {
 
-    template<bool H,
+    template<orientation H,
              os::color B = color::dark_gray,
              os::color C = color::light_gray,
              typename button_type = flat_toggle_button<B, C, true>>
@@ -114,12 +114,12 @@ namespace gui {
     template<os::color B = color::dark_gray,
              os::color C = color::light_gray,
              typename button_type = flat_toggle_button<B, C, true>>
-    using htoggle_group = toggle_group<true, B, C, button_type>;
+    using htoggle_group = toggle_group<orientation::horizontal, B, C, button_type>;
 
     template<os::color B = color::dark_gray,
              os::color C = color::light_gray,
              typename button_type = flat_toggle_button<B, C, true>>
-    using vtoggle_group = toggle_group<false, B, C, button_type>;
+    using vtoggle_group = toggle_group<orientation::vertical, B, C, button_type>;
 
   } // win
 

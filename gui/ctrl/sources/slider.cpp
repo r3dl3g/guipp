@@ -40,7 +40,7 @@ namespace gui {
     namespace detail {
 
       template<>
-      slider_class<false>::slider_class ()
+      slider_class<orientation::vertical>::slider_class ()
         : no_erase_window_class("VSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
@@ -54,7 +54,7 @@ namespace gui {
       {}
 
       template<>
-      slider_class<true>::slider_class ()
+      slider_class<orientation::horizontal>::slider_class ()
         : no_erase_window_class("HSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
@@ -68,7 +68,7 @@ namespace gui {
       {}
 
       template <>
-      slider_t<false>::slider_t () {
+      slider_t<orientation::vertical>::slider_t () {
         register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -85,7 +85,7 @@ namespace gui {
       }
 
       template <>
-      slider_t<true>::slider_t () {
+      slider_t<orientation::horizontal>::slider_t () {
         register_event_handler(win::mouse_move_event([&] (os::key_state keys,
                                                           const core::point& p) {
           if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {

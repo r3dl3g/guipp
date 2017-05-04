@@ -51,7 +51,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<bool Horizontal, bool Sunken = true, os::color B = color::light_gray>
+    template<orientation Horizontal, bool Sunken = true, os::color B = color::light_gray>
     class separator_t : public detail::separator_base {
     public:
       separator_t ();
@@ -59,7 +59,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    class separator_t<false, false, B> : public detail::separator_base {
+    class separator_t<orientation::vertical, false, B> : public detail::separator_base {
     public:
       separator_t () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
@@ -72,7 +72,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    class separator_t<false, true, B> : public detail::separator_base {
+    class separator_t<orientation::vertical, true, B> : public detail::separator_base {
     public:
       separator_t () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
@@ -85,7 +85,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    class separator_t<true, false, B> : public detail::separator_base {
+    class separator_t<orientation::horizontal, false, B> : public detail::separator_base {
     public:
       separator_t () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
@@ -98,7 +98,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::color B>
-    class separator_t<true, true, B> : public detail::separator_base {
+    class separator_t<orientation::horizontal, true, B> : public detail::separator_base {
     public:
       separator_t () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
@@ -110,8 +110,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using hseparator = separator_t<true>;
-    using vseparator = separator_t<false>;
+    using hseparator = separator_t<orientation::horizontal>;
+    using vseparator = separator_t<orientation::vertical>;
 
   } // win
 

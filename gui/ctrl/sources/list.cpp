@@ -73,39 +73,39 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      list::pos_t list_t<false>::get_dimension (const core::point& pt) const {
+      list::pos_t list_t<orientation::horizontal>::get_dimension (const core::point& pt) const {
         return pt.x();
       }
 
       template<>
-      void list_t<false>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+      void list_t<orientation::horizontal>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
         r.x(v);
         r.width(s);
       }
 
       template<>
-      list::pos_t list_t<true>::get_dimension (const core::point& pt) const {
+      list::pos_t list_t<orientation::vertical>::get_dimension (const core::point& pt) const {
         return pt.y();
       }
 
       template<>
-      void list_t<true>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+      void list_t<orientation::vertical>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
         r.y(v);
         r.height(s);
       }
 
       template<>
-      list::pos_t list_t<false>::get_list_size () const {
+      list::pos_t list_t<orientation::horizontal>::get_list_size () const {
         return size().width();
       }
 
       template<>
-      list::pos_t list_t<true>::get_list_size () const {
+      list::pos_t list_t<orientation::vertical>::get_list_size () const {
         return size().height();
       }
 
       template<>
-      core::size list_t<false>::client_size () const {
+      core::size list_t<orientation::horizontal>::client_size () const {
         core::size sz = super::client_size();
         if (is_scroll_bar_visible()) {
           sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
@@ -114,7 +114,7 @@ namespace gui {
       }
 
       template<>
-      core::size list_t<true>::client_size() const {
+      core::size list_t<orientation::vertical>::client_size() const {
         core::size sz = super::client_size();
         if (is_scroll_bar_visible()) {
           sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
@@ -123,7 +123,7 @@ namespace gui {
       }
 
       template<>
-      core::rectangle list_t<false>::get_scroll_bar_area () const {
+      core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const {
         core::rectangle r(super::client_size());
         r.y(r.y2() - scroll_bar::get_scroll_bar_width());
         r.height(scroll_bar::get_scroll_bar_width());
@@ -131,7 +131,7 @@ namespace gui {
       }
 
       template<>
-      core::rectangle list_t<true>::get_scroll_bar_area () const {
+      core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const {
         core::rectangle r(super::client_size());
         r.x(r.x2() - pos_t(scroll_bar::get_scroll_bar_width()));
         r.width(scroll_bar::get_scroll_bar_width());

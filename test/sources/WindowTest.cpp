@@ -100,7 +100,7 @@ private:
   win::group_window<layout::horizontal_adaption<5, 10>, color::light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
-  win::group_window<layout::horizontal_adaption<5, 5>> group_group;
+  win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group;
 
   win::group_window<layout::horizontal_lineup<30, 5, 5>> h_lineup_group;
   win::label h_lineup_labels[4];
@@ -113,6 +113,12 @@ private:
 
   win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
   win::label grid_adaption_labels[4];
+
+  win::group_window<layout::horizontal_center_lineup<30, 5, 5>> hc_lineup_group;
+  win::label hc_lineup_labels[4];
+
+  win::group_window<layout::vertical_center_lineup<30, 5, 5>> vc_lineup_group;
+  win::label vc_lineup_labels[4];
 
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
@@ -135,11 +141,11 @@ private:
   List2& list2;
   List3& list3;
 
-  typedef win::split_view_t<false, List2, List3> list_split_view;
+  typedef win::split_view_t<orientation::vertical, List2, List3> list_split_view;
   typedef win::simple_column_list<layout::simple_column_list_layout, 16, color::very_light_gray> simple_list;
-  typedef win::split_view_t<false, win::hlist<20>, simple_list> column_list_split_view;
+  typedef win::split_view_t<orientation::vertical, win::hlist<20>, simple_list> column_list_split_view;
 
-  win::split_view_t<true, list_split_view, column_list_split_view> vsplit_view;
+  win::split_view_t<orientation::horizontal, list_split_view, column_list_split_view> vsplit_view;
 
   win::text_button up_button;
   win::text_button down_button;
@@ -716,9 +722,9 @@ void my_main_window::created_children () {
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
   auto columns = {
-    layout::simple_column_info{ 30, draw::vcenter_right, 20 },
-    layout::simple_column_info{ 30, draw::center, 20 },
-    layout::simple_column_info{ 30, draw::vcenter_left, 20 }
+    layout::simple_column_info{ 30, draw::text_origin::vcenter_right, 20 },
+    layout::simple_column_info{ 30, draw::text_origin::center, 20 },
+    layout::simple_column_info{ 30, draw::text_origin::vcenter_left, 20 }
   };
 
   win::simple_column_list_data<int, draw::frame::lines> col_data = {
@@ -743,16 +749,16 @@ void my_main_window::created_children () {
   //                                                    std::make_tuple(3, "drei", 3.3F) };
 
   auto weight_columns = {
-    layout::weight_column_info{ 30, draw::vcenter_left, 20, 0.0F },
-    layout::weight_column_info{ 30, draw::vcenter_right, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::center, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::center, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::center, 20, 1.0F }
+    layout::weight_column_info{ 30, draw::text_origin::vcenter_left, 20, 0.0F },
+    layout::weight_column_info{ 30, draw::text_origin::vcenter_right, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F },
+    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F }
   };
 
   column_list_drawer = {
     [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, draw::text_origin align) {
-      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, draw::center);
+      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, draw::text_origin::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -773,7 +779,7 @@ void my_main_window::created_children () {
     using namespace draw;
     g.fill(rectangle(r), background);
     frame::raised_deep_relief(g, r);
-    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, center), font::system(), color::windowTextColor());
+    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, text_origin::center), font::system(), color::windowTextColor());
   });
   column_list.set_drawer(column_list_drawer);
   column_list.get_column_layout().set_columns(weight_columns);
@@ -814,13 +820,13 @@ void my_main_window::created_children () {
   labelR.set_visible();
   labelR.redraw_later();
 
-  hslider.create(main, core::rectangle(5, 335, 500, 5));
+  hslider.create(main, core::rectangle(5, 470, 500, 5));
   hslider.set_visible();
-  hslider.set_min_max(330, 345);
+  hslider.set_min_max(420, 600);
 
   vslider.create(main, core::rectangle(750, 5, 5, 500));
   vslider.set_visible();
-  vslider.set_min_max(570, 1200);
+  vslider.set_min_max(570, 1800);
 
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
   chck_group.set_visible();
@@ -906,6 +912,8 @@ void my_main_window::created_children () {
   create_group<4>(group_group, v_lineup_group, v_lineup_labels);
   create_group<4>(group_group, grid_lineup_group, grid_lineup_labels);
   create_group<4>(group_group, grid_adaption_group, grid_adaption_labels);
+  create_group<4>(group_group, hc_lineup_group, hc_lineup_labels);
+  create_group<4>(group_group, vc_lineup_group, vc_lineup_labels);
   group_group.set_visible();
   group_group.layout();
 
@@ -925,7 +933,7 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vslider);
 
   get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
-  get_layout().attach_fix<What::top, Where::y2, 4>(&group_group, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -4>(&group_group, &hslider);
 
   layout();
 }
@@ -968,63 +976,63 @@ win::paint_event my_main_window::create_paint1 () {
 
     core::rectangle r(10, 155, 50, 18);
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TL", r, top_left), font::system(), color::red);
+    graph.text(text_box("TL", r, text_origin::top_left), font::system(), color::red);
     r= {70, 155, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TC", r, top_hcenter), font::system(), color::red);
+    graph.text(text_box("TC", r, text_origin::top_hcenter), font::system(), color::red);
     r= {130, 155, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TR", r, top_right), font::system(), color::red);
+    graph.text(text_box("TR", r, text_origin::top_right), font::system(), color::red);
 
     r= {10, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CL", r, vcenter_left), font::system(), color::red);
+    graph.text(text_box("CL", r, text_origin::vcenter_left), font::system(), color::red);
     r= {70, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CC", r, center), font::system(), color::red);
+    graph.text(text_box("CC", r, text_origin::center), font::system(), color::red);
     r= {130, 175, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CR", r, vcenter_right), font::system(), color::red);
+    graph.text(text_box("CR", r, text_origin::vcenter_right), font::system(), color::red);
 
     r= {10, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BL", r, bottom_left), font::system(), color::red);
+    graph.text(text_box("BL", r, text_origin::bottom_left), font::system(), color::red);
     r= {70, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BC", r, bottom_hcenter), font::system(), color::red);
+    graph.text(text_box("BC", r, text_origin::bottom_hcenter), font::system(), color::red);
     r= {130, 195, 50, 18};
     graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BR", r, bottom_right), font::system(), color::red);
+    graph.text(text_box("BR", r, text_origin::bottom_right), font::system(), color::red);
 
     pt = {10, 215};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TL", pt, top_left), font::system(), color::red);
+    graph.text(text("TL", pt, text_origin::top_left), font::system(), color::red);
     pt = {70, 215};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TC", pt, top_hcenter), font::system(), color::red);
+    graph.text(text("TC", pt, text_origin::top_hcenter), font::system(), color::red);
     pt = {130, 215};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TR", pt, top_right), font::system(), color::red);
+    graph.text(text("TR", pt, text_origin::top_right), font::system(), color::red);
 
     pt = {10, 235};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CL", pt, vcenter_left), font::system(), color::red);
+    graph.text(text("CL", pt, text_origin::vcenter_left), font::system(), color::red);
     pt = {70, 235};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CC", pt, center), font::system(), color::red);
+    graph.text(text("CC", pt, text_origin::center), font::system(), color::red);
     pt = {130, 235};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CR", pt, vcenter_right), font::system(), color::red);
+    graph.text(text("CR", pt, text_origin::vcenter_right), font::system(), color::red);
 
     pt = {10, 255};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BL", pt, bottom_left), font::system(), color::red);
+    graph.text(text("BL", pt, text_origin::bottom_left), font::system(), color::red);
     pt = {70, 255};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BC", pt, bottom_hcenter), font::system(), color::red);
+    graph.text(text("BC", pt, text_origin::bottom_hcenter), font::system(), color::red);
     pt = {130, 255};
     graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BR", pt, bottom_right), font::system(), color::red);
+    graph.text(text("BR", pt, text_origin::bottom_right), font::system(), color::red);
   });
 }
 

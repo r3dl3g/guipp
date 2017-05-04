@@ -265,14 +265,14 @@ namespace gui {
 
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
-      if ((origin & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
+      if ((static_cast<unsigned int>(origin) & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();
         Rect.top = ((rect.size().os_height() - h) / 2);
         Rect.bottom = Rect.top + h;
       }
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, static_cast<unsigned int>(origin));
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);
     }
@@ -297,43 +297,43 @@ namespace gui {
       int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
       int px = pos.os_x();
       int py = pos.os_y();
-      UINT old_align = top_left;
+      unsigned int old_align = static_cast<unsigned int>(text_origin::top_left);
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
       switch (origin) {
-        case top_left:
+        case text_origin::top_left:
           old_align = SetTextAlign(g, TA_LEFT | TA_TOP | TA_NOUPDATECP);
           break;
-        case top_right:
+        case text_origin::top_right:
           old_align = SetTextAlign(g, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
           break;
-        case top_hcenter:
+        case text_origin::top_hcenter:
           old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
           break;
-        case bottom_left:
+        case text_origin::bottom_left:
           old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
-        case bottom_right:
+        case text_origin::bottom_right:
           old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
-        case bottom_hcenter:
+        case text_origin::bottom_hcenter:
           old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
           break;
-        case vcenter_right: {
+        case text_origin::vcenter_right: {
           SIZE sz;
           GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;
           old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
           break;
         }
-        case vcenter_left: {
+        case text_origin::vcenter_left: {
           SIZE sz;
           GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;
           old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
           break;
         }
-        case center: {
+        case text_origin::center: {
           SIZE sz;
           GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
           py -= sz.cy / 2;

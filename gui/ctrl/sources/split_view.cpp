@@ -34,61 +34,63 @@ namespace gui {
   namespace layout {
 
     template<>
-    core::size::type split_view<false>::get_slider_width () {
+    core::size::type split_view<orientation::vertical>::get_slider_width () {
       return 8;
     }
 
     template<>
-    core::size::type split_view<true>::get_slider_width () {
+    core::size::type split_view<orientation::horizontal>::get_slider_width () {
       return 8;
     }
 
     template<>
-    double split_view<false>::get_split_pos (const core::size& sz) const {
+    double split_view<orientation::vertical>::get_split_pos (const core::size& sz) const {
       return double(slider->position().x() + get_slider_width() / 2) / (double)sz.width();
     }
 
     template<>
-    double split_view<true>::get_split_pos (const core::size& sz) const {
+    double split_view<orientation::horizontal>::get_split_pos (const core::size& sz) const {
       return double(slider->position().y() + get_slider_width() / 2) / (double)sz.height();
     }
 
     template<>
-    core::rectangle split_view<false>::get_first_place (const core::size& sz,
-                                                        double pos) {
+    core::rectangle split_view<orientation::vertical>::get_first_place (const core::size& sz,
+                                                                        double pos) {
       const core::point::type x = core::point::type(sz.width() * pos - get_slider_width() / 2);
       return core::rectangle(core::point::zero, core::point(x, sz.height()));
     }
 
     template<>
-    core::rectangle split_view<false>::get_second_place (const core::size& sz,
-                                                         double pos) {
+    core::rectangle split_view<orientation::vertical>::get_second_place (const core::size& sz,
+                                                                         double pos) {
       const core::point::type x2 = core::point::type(sz.width() * pos + get_slider_width() / 2);
       return core::rectangle(core::point(x2, 0), core::point(sz.width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<false>::get_slider_place (const core::size& sz, double pos) {
+    core::rectangle split_view<orientation::vertical>::get_slider_place (const core::size& sz,
+                                                                         double pos) {
       const core::point::type x = core::point::type(sz.width() * pos - get_slider_width() / 2);
       return core::rectangle(core::point(x, 0), core::size(get_slider_width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<true>::get_first_place (const core::size& sz,
-                                                       double pos) {
+    core::rectangle split_view<orientation::horizontal>::get_first_place (const core::size& sz,
+                                                                          double pos) {
       const core::point::type y = core::point::type(sz.height() * pos - get_slider_width() / 2);
       return core::rectangle(core::point::zero, core::point(sz.width(), y));
     }
 
     template<>
-    core::rectangle split_view<true>::get_second_place (const core::size& sz,
-                                                        double pos) {
+    core::rectangle split_view<orientation::horizontal>::get_second_place (const core::size& sz,
+                                                                           double pos) {
       const core::point::type y2 = core::point::type(sz.height() * pos + get_slider_width() / 2);
       return core::rectangle(core::point(0, y2), core::point(sz.width(), sz.height()));
     }
 
     template<>
-    core::rectangle split_view<true>::get_slider_place (const core::size& sz, double pos) {
+    core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::size& sz,
+                                                                           double pos) {
       const core::point::type y = core::point::type(sz.height() * pos - get_slider_width() / 2);
       return core::rectangle(core::point(0, y), core::size(sz.width(), get_slider_width()));
     }
@@ -100,7 +102,7 @@ namespace gui {
     namespace detail {
 
       template<>
-      window_class split_view<false>::clazz("vsplit_view",
+      window_class split_view<orientation::vertical>::clazz("vsplit_view",
 #ifdef WIN32
                                             (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
@@ -110,7 +112,7 @@ namespace gui {
       );
 
       template<>
-      window_class split_view<true>::clazz("hsplit_view",
+      window_class split_view<orientation::horizontal>::clazz("hsplit_view",
 #ifdef WIN32
                                            (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
@@ -120,7 +122,7 @@ namespace gui {
       );
 
       template<>
-      split_view<false>::split_view () {
+      split_view<orientation::vertical>::split_view () {
         get_layout().set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
           get_layout().layout(size());
@@ -128,7 +130,7 @@ namespace gui {
       }
 
       template<>
-      split_view<true>::split_view () {
+      split_view<orientation::horizontal>::split_view () {
         get_layout().set_slider(&slider);
         slider.register_event_handler(win::slider_event([&] (int) {
           get_layout().layout(size());

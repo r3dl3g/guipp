@@ -49,7 +49,7 @@ private:
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
-  separator_t<false, true, nero> separators[2];
+  separator_t<orientation::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
   typedef labelT<alignment_left, frame::sunken_relief> StatusLabel;
@@ -187,9 +187,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   memmap cut_icon(16, 16);
   memmap copy_icon(16, 16);
   memmap paste_icon(16, 16);
-  graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, center), font::menu(), color::dark_red);
-  graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, center), font::menu(), color::dark_blue);
-  graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, center), font::menu(), color::dark_green);
+  graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, text_origin::center), font::menu(), color::dark_red);
+  graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
+  graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
   edit_sub_menu.data.add_entries({
     menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, cut_icon),
@@ -252,7 +252,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     if (!selected) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, center), font::system(), selected ? color::light_yellow : color::black);
+    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
   left_list.register_event_handler(hilite_changed_event([&](bool){
@@ -314,7 +314,7 @@ void my_main_window::quit (int) {
   labels[0].set_text("quit");
 
   layout_dialog_window<layout::border_layout<20, 55, 15, 15>> dialog;
-  group_window<horizontal_lineup<80, 15, 10, 2, true>, color::light_gray> buttons;
+  group_window<horizontal_lineup<80, 15, 10, 2, origin::center>, color::light_gray> buttons;
   labelT<alignment_center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
 

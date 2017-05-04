@@ -48,7 +48,7 @@ namespace gui {
       public:
         typedef layout_base super;
         typedef win::detail::slider slider;
-        typedef win::detail::list_t<true> list_type;
+        typedef win::detail::list_t<orientation::vertical> list_type;
 
         typedef std::vector<slider*>(create_sliders)(size_t);
 
@@ -217,7 +217,7 @@ namespace gui {
       class base_column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
-        typedef win::detail::list_t<true> list_type;
+        typedef win::detail::list_t<orientation::vertical> list_type;
 
         base_column_list_layout(win::container* m)
           : super(m)
@@ -255,7 +255,7 @@ namespace gui {
       using namespace draw;
       g.fill(rectangle(r), background);
       frame::raised_relief(g, r);
-      g.text(text_box(ostreamfmt((i + 1) << '.'), r, center), font::system(), color::windowTextColor());
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r, text_origin::center), font::system(), color::windowTextColor());
     }
 
     // --------------------------------------------------------------------------
@@ -265,7 +265,7 @@ namespace gui {
       typedef Layout layout_type;
       typedef layout_container<Layout> super;
 
-      typedef framed_slider_t<false, draw::frame::vgroove> slider_type;
+      typedef framed_slider_t<orientation::vertical, draw::frame::vgroove> slider_type;
 
       typedef void(cell_draw)(int idx,
                               const draw::graphics&,
@@ -376,7 +376,7 @@ namespace gui {
         }
 
         column_list_header<layout_type> header;
-        win::list_t<true, S, B> list;
+        win::list_t<orientation::vertical, S, B> list;
 
       private:
         static no_erase_window_class clazz;

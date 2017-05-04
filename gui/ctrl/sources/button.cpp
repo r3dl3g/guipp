@@ -156,7 +156,7 @@ namespace gui {
           area.shrink({1, 1});
         }
         frame::deep_relief(graph, area, pushed);
-        graph.text(text_box(text, area, center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
+        graph.text(text_box(text, area, text_origin::center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
         if (enabled && focused) {
           area.shrink({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
@@ -212,7 +212,7 @@ namespace gui {
         } else {
           f = color::darker(foreground);
         }
-        g.text(draw::text_box(text, r, draw::center), draw::font::system(), f);
+        g.text(draw::text_box(text, r, draw::text_origin::center), draw::font::system(), f);
       }
 
       // --------------------------------------------------------------------------
@@ -239,9 +239,9 @@ namespace gui {
           graph.fill(ellipse(r), pushed ? color::dark_gray : col);
         }
         area.x(20);
-        graph.text(text_box(text, area, vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
         if (focused) {
-          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
+          graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }
@@ -289,9 +289,9 @@ namespace gui {
           graph.fill(rectangle(r), pushed ? color::dark_gray : col);
         }
         area.x(20);
-        graph.text(text_box(text, area, vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
         if (focused) {
-          graph.text(bounding_box(text, area, vcenter_left), font::system(), color::black);
+          graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }

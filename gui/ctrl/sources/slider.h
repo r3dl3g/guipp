@@ -80,14 +80,14 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation H>
       class slider_class : public no_erase_window_class {
       public:
         slider_class();
       };
 
       // --------------------------------------------------------------------------
-      template<bool H>
+      template<orientation H>
       class slider_t : public slider {
       public:
         typedef slider super;
@@ -103,19 +103,19 @@ namespace gui {
         static slider_class<H> clazz;
       };
 
-      template<bool H>
+      template<orientation H>
       slider_class<H> slider_t<H>::clazz;
 
       template<>
-      slider_t<false>::slider_t ();
+      slider_t<orientation::vertical>::slider_t ();
 
       template<>
-      slider_t<true>::slider_t ();
+      slider_t<orientation::horizontal>::slider_t ();
 
     }
 
     // --------------------------------------------------------------------------
-    template<bool H,
+    template<orientation H,
              void(F)(const draw::graphics&, const core::rectangle&)>
     class framed_slider_t : public detail::slider_t<H> {
     public:
@@ -131,8 +131,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef framed_slider_t<false, draw::frame::raised_relief> vslider;
-    typedef framed_slider_t<true, draw::frame::raised_relief> hslider;
+    typedef framed_slider_t<orientation::vertical, draw::frame::raised_relief> vslider;
+    typedef framed_slider_t<orientation::horizontal, draw::frame::raised_relief> hslider;
 
   } // win
 

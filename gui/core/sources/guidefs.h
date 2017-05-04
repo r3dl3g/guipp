@@ -275,3 +275,13 @@ namespace gui {
 // this is the main function that has to be defined in every application
 extern int gui_main(const std::vector<std::string>& args);
 
+#ifndef NDEBUG
+#define IF_DEBUG(a) a
+#define IF_NDEBUG(a)
+#define IF_DEBUG_ELSE(a, b) a
+#else
+#define IF_DEBUG(a)
+#define IF_NDEBUG(a) a
+#define IF_DEBUG_ELSE(a, b) b
+#endif // NDEBUG
+

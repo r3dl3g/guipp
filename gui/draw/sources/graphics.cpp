@@ -1022,14 +1022,14 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 
-      if ((origin & DT_CENTER) == DT_CENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
         px += (rect.size().width() - width) / 2;
-      } else if ((origin & DT_RIGHT) == DT_RIGHT) {
+      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
         px += rect.size().width() - width;
       }
-      if ((origin & DT_VCENTER) == DT_VCENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
         py += (rect.size().height() - height) / 2;
-      } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
+      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py += rect.size().height() - height;
       }
 
@@ -1066,14 +1066,14 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 
-      if ((origin & DT_CENTER) == DT_CENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
         px += (rect.size().width() - width) / 2;
-      } else if ((origin & DT_RIGHT) == DT_RIGHT) {
+      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
         px += rect.size().width() - width;
       }
-      if ((origin & DT_VCENTER) == DT_VCENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
         py += (rect.size().height() - height) / 2;
-      } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
+      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py += rect.size().height() - height;
       }
 
@@ -1108,15 +1108,15 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
 
-      if ((origin & DT_CENTER) == DT_CENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
         px -= width / 2;
-      } else if ((origin & DT_RIGHT) == DT_RIGHT) {
+      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
         px -= width;
       }
 
-      if ((origin & DT_VCENTER) == DT_VCENTER) {
+      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
         py -= height / 2;
-      } else if ((origin & DT_BOTTOM) == DT_BOTTOM) {
+      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py -= height;
       }
 
@@ -1157,8 +1157,9 @@ namespace gui {
                                          const core::point& pt) const {
       int dd = get_drawable_depth(w);
       int md = depth();
+      int res = 0;
       if (dd == md) {
-        XCopyArea(get_instance(), w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
+        res = XCopyArea(get_instance(), w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
       } else {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
@@ -1379,17 +1380,24 @@ namespace gui {
       HDC mem_dc = CreateCompatibleDC(gc);
       HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
       BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-      SelectObject(mem_dc, bmp.get_id());
+      SelectObject(mem_dc, bmp.image.get_id());
       BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
       SelectObject(mem_dc, old);
       DeleteDC(mem_dc);
 #endif // WIN32
 #ifdef X11
       auto display = core::global::get_instance();
-      XSetClipMask(display, gc, bmp.mask);
-      XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
-      copy_from(bmp, core::rectangle(bmp.size()), pt);
-      XSetClipMask(display, gc, None);
+      int res = 0;
+      if (bmp.mask) {
+        BPP bpp = bmp.mask.bits_per_pixel();
+        res = XSetClipMask(display, gc, bmp.mask);
+        res = XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
+      }
+      if (bmp.image) {
+        BPP bpp = bmp.image.bits_per_pixel();
+        copy_from(bmp.image, core::rectangle(bmp.image.size()), pt);
+      }
+      res = XSetClipMask(display, gc, None);
 #endif
       return *this;
     }

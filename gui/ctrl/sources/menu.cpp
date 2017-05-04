@@ -89,7 +89,7 @@ namespace gui {
                                             : color::black;
 
         if (e.get_icon()) {
-          core::size sz = e.get_icon().size();
+          core::size sz = e.get_icon().image.size();
           core::point_type x = (text_pos - sz.width()) / 2;
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(e.get_icon(), core::point(x, y));

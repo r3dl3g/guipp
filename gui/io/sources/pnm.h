@@ -130,6 +130,8 @@ namespace gui {
 
     void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary = true);
     void load_pnm (std::istream& in, draw::bitmap& bmp);
+    void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary = true);
+    void load_pnm (const std::string& name, draw::bitmap& bmp);
 
     template<PNM>
     struct PNM2BPP {};

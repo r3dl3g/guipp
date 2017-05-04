@@ -77,7 +77,7 @@ namespace gui {
       static int calc_bytes_per_line (int w, BPP bpp);
 
     protected:
-      bitmap (const bitmap&);
+      bitmap (const bitmap&) = delete;
       bitmap (bitmap&&);
 
       void create_compatible (int w, int h);
@@ -95,6 +95,14 @@ namespace gui {
       memmap ()
       {}
 
+      memmap (const memmap& rhs) {
+        operator=(rhs);
+      }
+
+      memmap (memmap&& rhs)
+        : super(std::move(rhs))
+      {}
+
       memmap (int w, int h) {
         create(w, h);
       }
@@ -103,18 +111,23 @@ namespace gui {
         create(sz);
       }
 
+      void operator= (const memmap& rhs) {
+        operator=(static_cast<const bitmap&>(rhs));
+      }
+
       void operator= (const bitmap& rhs) {
         if (this != &rhs) {
-          create(rhs.size());
-          put(rhs);
+          if (rhs) {
+            create(rhs.size());
+            put(rhs);
+          } else {
+            clear();
+          }
         }
       }
 
-      void operator= (const memmap& rhs) {
-        if (this != &rhs) {
-          create(rhs.size());
-          put(rhs);
-        }
+      void operator= (memmap&& rhs) {
+        super::operator=(std::move(rhs));
       }
 
       operator os::drawable () const {
@@ -138,6 +151,14 @@ namespace gui {
       datamap ()
       {}
 
+      datamap (const datamap& rhs) {
+        operator=(rhs);
+      }
+
+      datamap (datamap&& rhs)
+        : super(std::move(rhs))
+      {}
+
       datamap (int w, int h) {
         create(w, h);
       }
@@ -146,18 +167,23 @@ namespace gui {
         create(sz);
       }
 
+      void operator= (const datamap& rhs) {
+        operator=(static_cast<const bitmap&>(rhs));
+      }
+
       void operator= (const bitmap& rhs) {
         if (this != &rhs) {
-          create(rhs.size());
-          put(rhs);
+          if (rhs) {
+            create(rhs.size());
+            put(rhs);
+          } else {
+            clear();
+          }
         }
       }
 
-      void operator= (const datamap& rhs) {
-        if (this != &rhs) {
-          create(rhs.size());
-          put(rhs);
-        }
+      void operator= (datamap&& rhs) {
+        super::operator=(std::move(rhs));
       }
 
       inline void create (int w, int h) {
@@ -175,7 +201,7 @@ namespace gui {
     typedef datamap<BPP::RGBA> rgbamap;
 
 
-    class masked_bitmap : public memmap {
+    class masked_bitmap {
     public:
       typedef memmap super;
 
@@ -194,6 +220,15 @@ namespace gui {
       masked_bitmap (memmap&& bmp);
       void operator= (memmap&& bmp);
 
+      bool is_valid () const {
+        return image.is_valid();
+      }
+
+      operator bool () const {
+        return image.is_valid();
+      }
+
+      memmap image;
       maskmap mask;
     };
 

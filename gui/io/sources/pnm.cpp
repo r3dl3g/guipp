@@ -376,73 +376,26 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary) {
-      int w, h, bpl;
-      BPP bpp;
-      std::vector<char> data;
-      bmp.get_data(data, w, h, bpl, bpp);
-      switch (bpp) {
-        case BPP::BW:
-          if (binary) {
-            save_pnm_header(out, PNM::P4, w, h, 0);
-            save_pnm<PNM::P4>(out, data, w, h, bpl, bpp);
-          } else {
-            save_pnm_header(out, PNM::P1, w, h, 0);
-            save_pnm<PNM::P1>(out, data, w, h, bpl, bpp);
-          }
-          break;
-        case BPP::GRAY:
-          if (binary) {
-            save_pnm_header(out, PNM::P5, w, h, 0);
-            save_pnm<PNM::P5>(out, data, w, h, bpl, bpp);
-          } else {
-            save_pnm_header(out, PNM::P2, w, h, 0);
-            save_pnm<PNM::P2>(out, data, w, h, bpl, bpp);
-          }
-          break;
-        case BPP::RGB:
-        case BPP::RGBA:
-          if (binary) {
-            save_pnm_header(out, PNM::P6, w, h, 0);
-            save_pnm<PNM::P6>(out, data, w, h, bpl, bpp);
-          } else {
-            save_pnm_header(out, PNM::P3, w, h, 0);
-            save_pnm<PNM::P3>(out, data, w, h, bpl, bpp);
-          }
-        break;
-      default:
-        throw std::invalid_argument("unsupportet bit per pixel value");
+      if (binary) {
+        out << opnm<true>(bmp);
+      } else {
+        out << opnm<false>(bmp);
       }
     }
 
     void load_pnm (std::istream& in, draw::bitmap& bmp) {
-      int w, h, max;
-      PNM pnm;
-      load_pnm_header(in, pnm, w, h, max);
+      ipnm i(bmp);
+      in >> i;
+    }
 
-      int bpl;
-      BPP bpp = BPP::RGB;
-      std::vector<char> data;
-      switch (pnm) {
-      case PNM::P1:
-        load_pnm<PNM::P1>(in, data, w, h, bpl, bpp);
-        break;
-      case PNM::P2:
-        load_pnm<PNM::P2>(in, data, w, h, bpl, bpp);
-        break;
-      case PNM::P3:
-        load_pnm<PNM::P3>(in, data, w, h, bpl, bpp);
-        break;
-      case PNM::P4:
-        load_pnm<PNM::P4>(in, data, w, h, bpl, bpp);
-        break;
-      case PNM::P5:
-        load_pnm<PNM::P5>(in, data, w, h, bpl, bpp);
-        break;
-      case PNM::P6:
-        load_pnm<PNM::P6>(in, data, w, h, bpl, bpp);
-        break;
-      }
-      bmp.create(data, w, h, bpl, bpp);
+    void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary) {
+      std::ofstream out(name);
+      save_pnm(out, bmp, binary);
+    }
+
+    void load_pnm (const std::string& name, draw::bitmap& bmp) {
+      std::ifstream in(name);
+      load_pnm(in, bmp);
     }
 
   } // io

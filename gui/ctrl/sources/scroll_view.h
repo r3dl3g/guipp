@@ -62,8 +62,8 @@ namespace gui {
 
     private:
 
-      win::move_event me;
-      win::size_event se;
+      const win::move_event me;
+      const win::size_event se;
 
       bool in_scroll_event;
 

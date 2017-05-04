@@ -29,22 +29,22 @@
 #include "logger.h"
 #include "bitmap.h"
 #include "converter.h"
-
+#ifndef NDEBUG
+#include "../../gui/io/sources/pnm.h"
+#include "ostreamfmt.h"
+#endif // NDEBUG
 
 namespace gui {
 
   namespace draw {
 
-    bitmap::bitmap (const bitmap& rhs)
-      : id(0)
-    {
-      if (rhs) {
-        core::size sz = rhs.size();
-        BPP bpp = rhs.bits_per_pixel();
-        create(sz.os_width(), sz.os_height(), bpp);
-        put(rhs);
-      }
-    }
+//    bitmap::bitmap (const bitmap& rhs)
+//      : id(0)
+//    {
+//      if (rhs) {
+//        copy_from(rhs);
+//      }
+//    }
 
     bitmap::bitmap (bitmap&& rhs)
       : id(std::move(rhs.id))
@@ -151,7 +151,7 @@ namespace gui {
 #ifdef X11
       auto display = core::global::get_instance();
       auto visual = DefaultRootWindow(display);
-      id = XCreatePixmap(display, visual, w, h, bpp);
+      id = XCreatePixmap(display, visual, w, h, static_cast<int>(bpp));
 #endif
       if (!id) {
         throw std::runtime_error("create image failed");
@@ -172,26 +172,36 @@ namespace gui {
     }
 
     void bitmap::copy_from (const bitmap& rhs) {
-      int w, h, bpl;
-      BPP bpp;
-      std::vector<char> data;
-      rhs.get_data(data, w, h, bpl, bpp);
-      create(w, h, bpp);
-      put_data(data, w, h, bpl, bpp);
+      if (rhs) {
+        int w, h, bpl;
+        BPP bpp;
+        std::vector<char> data;
+        rhs.get_data(data, w, h, bpl, bpp);
+        create(w, h, bpp);
+        put_data(data, w, h, bpl, bpp);
+      } else {
+        clear();
+      }
     }
 
     void bitmap::put (const bitmap& rhs) {
-      int w, h, bpl;
-      BPP bpp;
-      std::vector<char> data;
-      rhs.get_data(data, w, h, bpl, bpp);
-      put_data(data, w, h, bpl, bpp);
+      if (rhs) {
+        int w, h, bpl;
+        BPP bpp;
+        std::vector<char> data;
+        rhs.get_data(data, w, h, bpl, bpp);
+        put_data(data, w, h, bpl, bpp);
+      } else {
+        clear();
+      }
     }
 
     template<int D, int M>
     int up_modulo (int v) {
       int r = (v + D - 1) / D;
-      return r + r % M;
+      int m = r % M;
+      int s = r + m;
+      return s;
     }
 
     int bitmap::calc_bytes_per_line (int w, BPP bpp) {
@@ -211,7 +221,7 @@ namespace gui {
 #ifdef X11
       switch (bpp) {
         case BPP::BW:
-          return up_modulo<8, 16>(w);
+          return up_modulo<8, 4>(w);
         case BPP::GRAY:
           return up_modulo<1, 4>(w);
         case BPP::RGB:
@@ -229,12 +239,14 @@ namespace gui {
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
-      auto gc = XCreateGC(display, id, 0, nullptr);
+      auto screen = core::global::get_screen();
+      auto gc = DefaultGC(display, screen);
+//      auto gc = XCreateGC(display, id, 0, nullptr);
 
       XImage im = {
         w, h,                             /* size of image */
         0,                                /* number of pixels offset in X direction */
-        ZPixmap,                          /* XYBitmap, XYPixmap, ZPixmap */
+        /*(bpp == BPP::BW)? XYBitmap : */ZPixmap, /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(src.data()),    /* pointer to image data */
         ImageByteOrder(display),          /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),              /* quant. of scanline 8, 16, 32 */
@@ -246,9 +258,9 @@ namespace gui {
         0                                 /* bits in z arrangment */
       };
 
-      XInitImage(&im);
-      XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
-      XFreeGC(display, gc);
+      Status st = XInitImage(&im);
+      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, w, h);
+//      res = XFreeGC(display, gc);
 #endif
     }
 
@@ -324,7 +336,7 @@ namespace gui {
         w = im->width;
         h = im->height;
         bpl = im->bytes_per_line;
-        bpp = im->bits_per_pixel;
+        bpp = BPP(im->bits_per_pixel);
         XDestroyImage(im);
       }
       else {
@@ -334,60 +346,62 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (const masked_bitmap& rhs)
-      : super(rhs)
+      : image(rhs.image)
       , mask(rhs.mask)
     {}
 
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
-        super::operator=(rhs);
+        image = rhs.image;
         mask = rhs.mask;
       }
     }
 
     masked_bitmap::masked_bitmap (masked_bitmap&& rhs)
-      : super(std::move(rhs))
+      : image(std::move(rhs.image))
       , mask(std::move(rhs.mask))
     {}
 
     void masked_bitmap::operator= (masked_bitmap&& rhs) {
       if (&rhs != this) {
-        super::operator =(std::move(rhs));
+        image = std::move(rhs.image);
         mask = std::move(rhs.mask);
       }
     }
 
-    masked_bitmap::masked_bitmap (const memmap& b)
-      : super(b)
-    {
-      if (is_valid()) {
-        mask.create(size());
-        mask.put(*this);
+#ifndef NDEBUG
+    static int masked_bitmap_counter = 0;
+
+    void save_masked_bitmap(const masked_bitmap& bmp) {
+      io::save_pnm(ostreamfmt("pict-" << masked_bitmap_counter << ".ppm"), bmp.image, false);
+      io::save_pnm(ostreamfmt("mask-" << masked_bitmap_counter++ << ".pbm"), bmp.mask, false);
+    }
+#endif // NDEBUG
+
+
+    masked_bitmap::masked_bitmap (const memmap& rhs) {
+      operator =(rhs);
+    }
+
+    void masked_bitmap::operator= (const memmap& rhs) {
+      image = rhs;
+      if (image.is_valid()) {
+        mask.create(image.size());
+        mask.put(image);
+        IF_DEBUG(save_masked_bitmap(*this);)
       }
     }
 
-    void masked_bitmap::operator= (const memmap& bmp) {
-      super::operator=(bmp);
-      if (is_valid()) {
-        mask.create(size());
-        mask.put(*this);
-      }
+    masked_bitmap::masked_bitmap (memmap&& rhs) {
+      operator =(rhs);
     }
 
-    masked_bitmap::masked_bitmap (memmap&& b)
-      : super(std::move(b))
-    {
-      if (is_valid()) {
-        mask.create(size());
-        mask.put(*this);
-      }
-    }
-
-    void masked_bitmap::operator= (memmap&& bmp) {
-      super::operator=(std::move(bmp));
-      if (is_valid()) {
-        mask.create(size());
-        mask.put(*this);
+    void masked_bitmap::operator= (memmap&& rhs) {
+      image = std::move(rhs);
+      if (image.is_valid()) {
+        mask.create(image.size());
+        mask.put(image);
+        IF_DEBUG(save_masked_bitmap(*this);)
       }
     }
   }

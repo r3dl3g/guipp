@@ -215,7 +215,7 @@ namespace gui {
     }
 
     template<typename T,
-             draw::text_origin O = draw::text_origin::vcenter_left,
+             text_origin O = text_origin::vcenter_left,
              void(F)(const draw::graphics&,
                      const core::rectangle&) = draw::frame::no_frame>
     void list_item_drawer (const T& t,

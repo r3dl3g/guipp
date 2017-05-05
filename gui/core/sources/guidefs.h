@@ -44,9 +44,20 @@
 
 namespace gui {
 
+  typedef uint8_t byte;
+  typedef byte* byteptr;
+  typedef const byte* cbyteptr;
+
+  enum class bit_order : bool {
+    lsb,
+    msb
+  };
+
   namespace os {
 
 #ifdef WIN32
+
+    const bit_order bitmap_bit_order = bit_order::msb;
 
     typedef HINSTANCE instance;
     typedef HWND window;
@@ -107,6 +118,8 @@ namespace gui {
 #endif
 
 #elif X11
+
+    const bit_order bitmap_bit_order = bit_order::lsb;
 
     typedef Display* instance;
     typedef Window window;
@@ -184,7 +197,71 @@ namespace gui {
 
   } // core
 
-  enum class BPP : int {
+  template<byte bit>
+  struct msb_bit_mask {
+    static constexpr byte shift = 7 - bit;
+    static constexpr byte value = 0x01 << shift;
+  };
+
+  template<byte bit>
+  struct lsb_bit_mask {
+    static constexpr byte shift = bit;
+    static constexpr byte value = 0x01 << shift;
+  };
+
+  template<byte bit, bit_order O = os::bitmap_bit_order> struct bitmap_bit_mask {};
+
+  template<byte bit> struct bitmap_bit_mask<bit, bit_order::lsb> : lsb_bit_mask<bit> {};
+  template<byte bit> struct bitmap_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
+
+
+  template<bit_order O = os::bitmap_bit_order> struct bw_bits {};
+
+  template<> struct bw_bits<bit_order::lsb> {
+    static constexpr byte value[2] = { 0, 0xff };
+  };
+
+  template<> struct bw_bits<bit_order::msb> {
+    static constexpr byte value[2] = { 0xff, 0 };
+  };
+
+
+  struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {
+    static constexpr byte mask[8] = {
+      bitmap_bit_mask<0>::value,
+      bitmap_bit_mask<1>::value,
+      bitmap_bit_mask<2>::value,
+      bitmap_bit_mask<3>::value,
+      bitmap_bit_mask<4>::value,
+      bitmap_bit_mask<5>::value,
+      bitmap_bit_mask<6>::value,
+      bitmap_bit_mask<7>::value
+    };
+    static constexpr byte shift[8] = {
+      bitmap_bit_mask<0>::shift,
+      bitmap_bit_mask<1>::shift,
+      bitmap_bit_mask<2>::shift,
+      bitmap_bit_mask<3>::shift,
+      bitmap_bit_mask<4>::shift,
+      bitmap_bit_mask<5>::shift,
+      bitmap_bit_mask<6>::shift,
+      bitmap_bit_mask<7>::shift
+    };
+  };
+
+
+  constexpr byte reverse_lookup_table[16] = {
+      0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+      0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
+  };
+
+  constexpr byte reverse_bit_order (byte n) {
+     // Reverse the top and bottom nibble then swap them.
+     return (reverse_lookup_table[n & 0b1111] << 4) | reverse_lookup_table[n >> 4];
+  }
+
+
+  enum class BPP : unsigned char {
     Undefined = 0,
     BW = 1,
     GRAY = 8,
@@ -192,7 +269,7 @@ namespace gui {
     RGBA = 32
   };
 
-  enum class orientation {
+  enum class orientation : bool {
     vertical,
     horizontal
   };
@@ -201,13 +278,13 @@ namespace gui {
     return (o == orientation::vertical) ? orientation::horizontal : orientation::vertical;
   }
 
-  enum class origin {
+  enum class origin : unsigned char {
     start,
     center,
     end
   };
 
-  enum class alignment {
+  enum class alignment : unsigned char {
     left,
     hcenter,
     right,

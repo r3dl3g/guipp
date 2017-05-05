@@ -483,6 +483,18 @@ namespace gui {
       return *this;
     }
 
+    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
+      core::size sz = bmp.size();
+      HDC mem_dc = CreateCompatibleDC(gc);
+      HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
+      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
+      SelectObject(mem_dc, bmp.image.get_id());
+      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
+      SelectObject(mem_dc, old);
+      DeleteDC(mem_dc);
+      return *this;
+    }
+
     void graphics::invert (const core::rectangle& r) const {
       RECT rect = r;
       InvertRect(gc, &rect);
@@ -496,22 +508,28 @@ namespace gui {
       return GetDeviceCaps(gc, BITSPIXEL);
     }
 
-    void graphics::push_clip_rectangle (const core::rectangle& r) const {
+    void graphics::push_clipping (const core::rectangle& r) const {
       HRGN hr = CreateRectRgn(r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
       SelectClipRgn(gc, hr);
-      clipping_rectangles.push_back(hr);
+      clipping_stack.push_back(hr);
     }
 
-    void graphics::pop_clip_rectangle () const {
-      if (clipping_rectangles.size()) {
-        HRGN hr = clipping_rectangles.back();
+    void graphics::pop_clipping () const {
+      if (!clipping_stack.empty()) {
+        HRGN hr = clipping_stack.back();
         DeleteObject(hr);
-        clipping_rectangles.pop_back();
-        if (clipping_rectangles.size()) {
-          SelectClipRgn(gc, clipping_rectangles.back());
-        }
+        clipping_stack.pop_back();
       }
+      restore_clipping();
     }
+
+    void graphics::restore_clipping () const {
+      if (clipping_stack.size()) {
+        SelectClipRgn(gc, clipping_stack.back());
+      }
+      SelectClipRgn(gc, NULL);
+    }
+
     // --------------------------------------------------------------------------
 
 #endif // WIN32
@@ -1155,8 +1173,8 @@ namespace gui {
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
                                          const core::point& pt) const {
-      int dd = get_drawable_depth(w);
-      int md = depth();
+      const int dd = get_drawable_depth(w);
+      const int md = depth();
       int res = 0;
       if (dd == md) {
         res = XCopyArea(get_instance(), w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
@@ -1170,6 +1188,20 @@ namespace gui {
                                             const core::rectangle& r,
                                             const core::rectangle& pt) const {
       return copy_from(w, r, pt.position());
+    }
+
+    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
+      auto display = core::global::get_instance();
+      int res = 0;
+      if (bmp.mask) {
+        res = XSetClipMask(display, gc, bmp.mask.get_id());
+        res = XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
+      }
+      if (bmp.image) {
+        copy_from(bmp.image, core::rectangle(bmp.image.size()), pt);
+      }
+      res = XSetClipMask(display, gc, None);
+      return *this;
     }
 
     void graphics::invert (const core::rectangle& r) const {
@@ -1191,22 +1223,28 @@ namespace gui {
       return d;
     }
 
-    void graphics::push_clip_rectangle (const core::rectangle& rect) const {
+    void graphics::push_clipping (const core::rectangle& rect) const {
       os::rectangle r = rect;
-      clipping_rectangles.push_back(r);
+      clipping_stack.push_back(r);
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
     }
 
-    void graphics::pop_clip_rectangle () const {
-      clipping_rectangles.pop_back();
-      if (clipping_rectangles.size()) {
-        os::rectangle& r = clipping_rectangles.back();
-        XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
-        XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
-      } else {
+    void graphics::pop_clipping () const {
+      if (!clipping_stack.empty()) {
+        clipping_stack.pop_back();
+      }
+      restore_clipping();
+    }
+
+    void graphics::restore_clipping () const {
+      if (clipping_stack.empty()) {
         XSetClipMask(get_instance(), gc, None);
         XftDrawSetClip(get_xft(), None);
+      } else {
+        os::rectangle& r = clipping_stack.back();
+        XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
+        XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);
       }
     }
 
@@ -1217,186 +1255,155 @@ namespace gui {
       return *this;
     }
 
-#if WIN32
-    struct log_palette : public LOGPALETTE {
-      log_palette (int bpp);
+//#if WIN32
+//    struct log_palette : public LOGPALETTE {
+//      log_palette (int bpp);
 
-    private:
-      PALETTEENTRY moreEntries[255];
-    };
+//    private:
+//      PALETTEENTRY moreEntries[255];
+//    };
 
-    struct palette {
-      palette (const log_palette&);
-      ~palette ();
+//    struct palette {
+//      palette (const log_palette&);
+//      ~palette ();
 
-      HPALETTE get_id() const {
-        return id;
-      }
+//      HPALETTE get_id() const {
+//        return id;
+//      }
 
-      //    private:
-      HPALETTE id;
-    };
+//      //    private:
+//      HPALETTE id;
+//    };
 
-    struct bitmap_info : public BITMAPINFO {
+//    struct bitmap_info : public BITMAPINFO {
 
-      bitmap_info();
-      bitmap_info(int w, int h, int bpl, int bpp);
+//      bitmap_info();
+//      bitmap_info(int w, int h, int bpl, int bpp);
 
-      void init_colors();
-      void init_gray_colors();
-      void init_bw_colors();
+//      void init_colors();
+//      void init_gray_colors();
+//      void init_bw_colors();
 
-      void set_gray_colors(HBITMAP id);
-      void set_gray_colors(HDC id);
-      void set_bw_colors(HBITMAP id);
-      void set_bw_colors(HDC id);
+//      void set_gray_colors(HBITMAP id);
+//      void set_gray_colors(HDC id);
+//      void set_bw_colors(HBITMAP id);
+//      void set_bw_colors(HDC id);
 
-    private:
-      RGBQUAD moreColors[255];
-    };
+//    private:
+//      RGBQUAD moreColors[255];
+//    };
 
-    log_palette::log_palette(int bpp) {
-      palVersion = 0x300;
-      palNumEntries = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
-      if (bpp == 8) {
-        for (int i = 0; i < 256; ++i) {
-          palPalEntry[i] = {(BYTE)i, (BYTE)i, (BYTE)i, PC_NOCOLLAPSE};
-        }
-      } else if (bpp == 1) {
-        palPalEntry[0] = {0, 0, 0, PC_NOCOLLAPSE};
-        palPalEntry[1] = {0xff, 0xff, 0xff, PC_NOCOLLAPSE};
-      }
-    }
+//    log_palette::log_palette(int bpp) {
+//      palVersion = 0x300;
+//      palNumEntries = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+//      if (bpp == 8) {
+//        for (int i = 0; i < 256; ++i) {
+//          palPalEntry[i] = {(BYTE)i, (BYTE)i, (BYTE)i, PC_NOCOLLAPSE};
+//        }
+//      } else if (bpp == 1) {
+//        palPalEntry[0] = {0, 0, 0, PC_NOCOLLAPSE};
+//        palPalEntry[1] = {0xff, 0xff, 0xff, PC_NOCOLLAPSE};
+//      }
+//    }
 
-    palette::palette(const log_palette& pal) {
-      id = CreatePalette(&pal);
-    }
+//    palette::palette(const log_palette& pal) {
+//      id = CreatePalette(&pal);
+//    }
 
-    palette::~palette() {
-      if (id) {
-        DeleteObject(id);
-        id = NULL;
-      }
-    }
+//    palette::~palette() {
+//      if (id) {
+//        DeleteObject(id);
+//        id = NULL;
+//      }
+//    }
 
-    bitmap_info::bitmap_info () {
-      memset(this, 0, sizeof(bitmap_info));
-      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-      init_gray_colors();
-    }
+//    bitmap_info::bitmap_info () {
+//      memset(this, 0, sizeof(bitmap_info));
+//      bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+//      init_gray_colors();
+//    }
 
-    bitmap_info::bitmap_info (int w, int h, int bpl, int bpp) {
-      DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
-      bmiHeader = {
-        sizeof(BITMAPINFOHEADER),
-        w, -h, 1, (WORD)bpp,
-        BI_RGB,
-        (DWORD)(h * bpl),
-        0, 0,
-        cols,
-        0
-      };
-      if (bpp == 8) {
-        init_gray_colors();
-      } else if (bpp == 1) {
-        init_bw_colors();
-      }
-    }
+//    bitmap_info::bitmap_info (int w, int h, int bpl, int bpp) {
+//      DWORD cols = (DWORD)(bpp < 24 ? (0x01 << bpp) : 0);
+//      bmiHeader = {
+//        sizeof(BITMAPINFOHEADER),
+//        w, -h, 1, (WORD)bpp,
+//        BI_RGB,
+//        (DWORD)(h * bpl),
+//        0, 0,
+//        cols,
+//        0
+//      };
+//      if (bpp == 8) {
+//        init_gray_colors();
+//      } else if (bpp == 1) {
+//        init_bw_colors();
+//      }
+//    }
 
-    void bitmap_info::init_colors () {
-      HDC dc = GetDC(NULL);
-      GetDIBColorTable(dc, 0, 256, bmiColors);
-      ReleaseDC(NULL, dc);
-    }
+//    void bitmap_info::init_colors () {
+//      HDC dc = GetDC(NULL);
+//      GetDIBColorTable(dc, 0, 256, bmiColors);
+//      ReleaseDC(NULL, dc);
+//    }
 
-    void bitmap_info::init_gray_colors () {
-      for (int i = 0; i < 256; ++i) {
-        bmiColors[i] = {(BYTE)i, (BYTE)i, (BYTE)i, 0};
-      }
-    }
+//    void bitmap_info::init_gray_colors () {
+//      for (int i = 0; i < 256; ++i) {
+//        bmiColors[i] = {(BYTE)i, (BYTE)i, (BYTE)i, 0};
+//      }
+//    }
 
-    void bitmap_info::init_bw_colors() {
-      bmiColors[1] = {0, 0, 0, 0};
-      bmiColors[0] = {0xff, 0xff, 0xff, 0};
-    }
+//    void bitmap_info::init_bw_colors() {
+//      bmiColors[1] = {0, 0, 0, 0};
+//      bmiColors[0] = {0xff, 0xff, 0xff, 0};
+//    }
 
-    void bitmap_info::set_gray_colors(HBITMAP id) {
-      HDC gdc = GetDC(NULL);
-      HDC gc = CreateCompatibleDC(gdc);
-      ReleaseDC(NULL, gdc);
-      SelectObject(gc, id);
-      set_gray_colors(gc);
-      DeleteDC(gc);
-    }
+//    void bitmap_info::set_gray_colors(HBITMAP id) {
+//      HDC gdc = GetDC(NULL);
+//      HDC gc = CreateCompatibleDC(gdc);
+//      ReleaseDC(NULL, gdc);
+//      SelectObject(gc, id);
+//      set_gray_colors(gc);
+//      DeleteDC(gc);
+//    }
 
-    void bitmap_info::set_gray_colors(HDC gc) {
-      init_gray_colors();
-      UINT ret = SetDIBColorTable(gc, 0, 256, bmiColors);
-      if (ret != 256) {
-        LogError << "SetDIBColorTable returned " << ret << " (expected 256)";
-      }
-    }
+//    void bitmap_info::set_gray_colors(HDC gc) {
+//      init_gray_colors();
+//      UINT ret = SetDIBColorTable(gc, 0, 256, bmiColors);
+//      if (ret != 256) {
+//        LogError << "SetDIBColorTable returned " << ret << " (expected 256)";
+//      }
+//    }
 
-    void bitmap_info::set_bw_colors(HBITMAP id) {
-      HDC gdc = GetDC(NULL);
-      HDC gc = CreateCompatibleDC(gdc);
-      ReleaseDC(NULL, gdc);
-      SelectObject(gc, id);
-      set_bw_colors(gc);
-      DeleteDC(gc);
-    }
+//    void bitmap_info::set_bw_colors(HBITMAP id) {
+//      HDC gdc = GetDC(NULL);
+//      HDC gc = CreateCompatibleDC(gdc);
+//      ReleaseDC(NULL, gdc);
+//      SelectObject(gc, id);
+//      set_bw_colors(gc);
+//      DeleteDC(gc);
+//    }
 
-    void bitmap_info::set_bw_colors(HDC gc) {
-      init_bw_colors();
-      UINT ret = SetDIBColorTable(gc, 0, 2, bmiColors);
-      if (ret != 2) {
-        LogError << "SetDIBColorTable returned " << ret << " (expected 2)";
-      }
-    }
+//    void bitmap_info::set_bw_colors(HDC gc) {
+//      init_bw_colors();
+//      UINT ret = SetDIBColorTable(gc, 0, 2, bmiColors);
+//      if (ret != 2) {
+//        LogError << "SetDIBColorTable returned " << ret << " (expected 2)";
+//      }
+//    }
 
-#endif
+//#endif
 
 
     const graphics& graphics::copy_from(const draw::bitmap& bmp, const core::point& pt) const {
-      if (bmp.depth() == depth()) {
-        return copy_from(bmp.get_id(), core::rectangle(bmp.size()), pt);
-      } else {
-        int w, h, bpl;
-        BPP bpp;
-        std::vector<char> data;
-        bmp.get_data(data, w, h, bpl, bpp);
-        if (!data.empty()) {
-          memmap compatible(w, h);
-          compatible.put_data(data, w, h, bpl, bpp);
-          return copy_from(compatible.get_id(), core::rectangle(0, 0, (core::size_type)w, (core::size_type)h), pt);
+      if (bmp) {
+        int dep = bmp.depth();
+        if (dep == depth()) {
+          return copy_from(bmp.get_id(), core::rectangle(bmp.size()), pt);
+        } else {
+          return copy_from(memmap(bmp), core::rectangle(bmp.size()), pt);
         }
-        return *this;
       }
-    }
-
-    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
-#ifdef WIN32
-      core::size sz = bmp.size();
-      HDC mem_dc = CreateCompatibleDC(gc);
-      HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
-      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-      SelectObject(mem_dc, bmp.image.get_id());
-      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
-      SelectObject(mem_dc, old);
-      DeleteDC(mem_dc);
-#endif // WIN32
-#ifdef X11
-      auto display = core::global::get_instance();
-      int res = 0;
-      if (bmp.mask) {
-        res = XSetClipMask(display, gc, bmp.mask.get_id());
-        res = XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
-      }
-      if (bmp.image) {
-        copy_from(bmp.image, core::rectangle(bmp.image.size()), pt);
-      }
-      res = XSetClipMask(display, gc, None);
-#endif
       return *this;
     }
 

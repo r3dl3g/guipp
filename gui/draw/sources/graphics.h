@@ -39,6 +39,31 @@
 
 namespace gui {
 
+#ifdef X11
+#   define DT_TOP           0x0000
+#   define DT_LEFT          0x0000
+#   define DT_CENTER        0x0001
+#   define DT_RIGHT         0x0002
+#   define DT_VCENTER       0x0004
+#   define DT_BOTTOM        0x0008
+#   define DT_WORDBREAK     0x0010
+#   define DT_SINGLELINE    0x0020
+#endif // X11
+
+  // --------------------------------------------------------------------------
+  enum class text_origin : unsigned int {
+    top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
+    top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
+    top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
+    bottom_left = DT_BOTTOM | DT_SINGLELINE | DT_LEFT,
+    bottom_hcenter = DT_BOTTOM | DT_SINGLELINE | DT_CENTER,
+    bottom_right = DT_BOTTOM | DT_SINGLELINE | DT_RIGHT,
+    vcenter_left = DT_SINGLELINE | DT_VCENTER | DT_LEFT,
+    vcenter_right = DT_SINGLELINE | DT_VCENTER | DT_RIGHT,
+    center = DT_SINGLELINE | DT_VCENTER | DT_CENTER,
+    undefined = 0xFFFF
+  };
+
   namespace draw {
 
     class graphics;
@@ -114,8 +139,9 @@ namespace gui {
 #endif // X11
 
       friend struct clip;
-      void push_clip_rectangle (const core::rectangle&) const;
-      void pop_clip_rectangle () const;
+      void push_clipping (const core::rectangle&) const;
+      void pop_clipping () const;
+      void restore_clipping () const;
 
     private:
       void destroy();
@@ -125,10 +151,10 @@ namespace gui {
       bool own_gc;
       bool ref_gc;
 #ifdef WIN32
-      mutable std::vector<HRGN> clipping_rectangles;
+      mutable std::vector<HRGN> clipping_stack;
 #endif // WIN32
 #ifdef X11
-      mutable std::vector<os::rectangle> clipping_rectangles;
+      mutable std::vector<os::rectangle> clipping_stack;
 #endif // X11
     };
 
@@ -136,11 +162,11 @@ namespace gui {
     struct clip {
       inline clip (const graphics& g, const core::rectangle& r)
         : g(g) {
-        g.push_clip_rectangle(r);
+        g.push_clipping(r);
       }
 
       inline ~clip () {
-        g.pop_clip_rectangle();
+        g.pop_clipping();
       }
 
     private:
@@ -254,39 +280,6 @@ namespace gui {
 
     private:
       std::vector<os::point> points;
-    };
-
-#ifdef X11
-#     define DT_TOP           0x0000
-#     define DT_LEFT          0x0000
-#     define DT_CENTER        0x0001
-#     define DT_RIGHT         0x0002
-#     define DT_VCENTER       0x0004
-#     define DT_BOTTOM        0x0008
-#     define DT_WORDBREAK     0x0010
-#     define DT_SINGLELINE    0x0020
-#     define DT_EXPANDTABS    0x0040
-#     define DT_END_ELLIPSIS  0x0100
-#     define DT_PATH_ELLIPSIS 0x0200
-#     define DT_WORD_ELLIPSIS 0x0400
-#endif // X11
-
-    // --------------------------------------------------------------------------
-    enum class text_origin : unsigned int {
-      top_left = DT_TOP | DT_LEFT | DT_WORDBREAK,
-      top_hcenter = DT_TOP | DT_CENTER | DT_WORDBREAK,
-      top_right = DT_TOP | DT_RIGHT | DT_WORDBREAK,
-      bottom_left = DT_BOTTOM | DT_SINGLELINE | DT_LEFT,
-      bottom_hcenter = DT_BOTTOM | DT_SINGLELINE | DT_CENTER,
-      bottom_right = DT_BOTTOM | DT_SINGLELINE | DT_RIGHT,
-      vcenter_left = DT_SINGLELINE | DT_VCENTER | DT_LEFT,
-      vcenter_right = DT_SINGLELINE | DT_VCENTER | DT_RIGHT,
-      center = DT_SINGLELINE | DT_VCENTER | DT_CENTER,
-      end_ellipsis = DT_END_ELLIPSIS,
-      path_ellipsis = DT_PATH_ELLIPSIS,
-      word_ellipsis = DT_WORD_ELLIPSIS,
-      expand_tabs = DT_EXPANDTABS,
-      undefined = 0xFFFF
     };
 
     // --------------------------------------------------------------------------

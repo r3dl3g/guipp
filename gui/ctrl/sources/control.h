@@ -141,7 +141,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       bool selected,
-                      draw::text_origin origin = draw::text_origin::vcenter_left);
+                      text_origin origin = text_origin::vcenter_left);
     }
 
   } // win

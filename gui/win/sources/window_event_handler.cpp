@@ -241,27 +241,26 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
-      os::instance display = core::global::get_instance();
+      if (win && win->is_valid()) {
+        XClientMessageEvent client;
 
-      XClientMessageEvent client;
+        client.type         = ClientMessage;
+        client.serial       = 0;
+        client.display      = core::global::get_instance();
+        client.window       = win->get_id();
+        client.message_type = message;
+        client.format       = 32;
+        client.data.l[0]    = l1;
+        client.data.l[1]    = l2;
+        client.data.l[2]    = l3;
+        client.data.l[3]    = l4;
+        client.data.l[4]    = l5;
 
-      client.type         = ClientMessage;
-      client.serial       = 0;
-      client.display      = display;
-      client.window       = win->get_id();
-      client.message_type = message;
-      client.format       = 32;
-      client.data.l[0]    = l1;
-      client.data.l[1]    = l2;
-      client.data.l[2]    = l3;
-      client.data.l[3]    = l4;
-      client.data.l[4]    = l5;
+        /* Send the data off to the other process */
+        XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
 
-      /* Send the data off to the other process */
-      Status s = XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
-
-      core::global::sync();
-//      int r = XFlush(display);
+        core::global::sync();
+      }
     }
 
     void send_client_message (window* win, Atom message, window* w, const core::rectangle& rect) {

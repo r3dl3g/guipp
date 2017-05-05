@@ -93,7 +93,7 @@ namespace gui {
         }
       }
 
-      void column_list_layout::set_column_align(std::size_t i, draw::text_origin a) {
+      void column_list_layout::set_column_align(std::size_t i, text_origin a) {
         aligns[i] = a;
         list->redraw_later();
       }

@@ -270,30 +270,30 @@ namespace gui {
         switch (bpp) {
           case BPP::BW:
             switch (dst_bpp) {
-              case BPP::BW:   converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::BW:   bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case BPP::GRAY:
             switch (dst_bpp) {
-              case BPP::BW:   converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case BPP::RGB:
             switch (dst_bpp) {
-              case BPP::BW:   converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
           case BPP::RGBA:
             switch (dst_bpp) {
-              case BPP::BW:   converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               }
           break;
         }

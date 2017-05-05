@@ -114,16 +114,16 @@ private:
   win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
   win::label grid_adaption_labels[4];
 
-  win::group_window<layout::horizontal_center_lineup<30, 5, 5>> hc_lineup_group;
+  win::group_window<layout::horizontal_lineup<30, 5, 5, 2, origin::center>> hc_lineup_group;
   win::label hc_lineup_labels[4];
 
-  win::group_window<layout::vertical_center_lineup<30, 5, 5>> vc_lineup_group;
+  win::group_window<layout::vertical_lineup<30, 5, 5, 2, origin::center>> vc_lineup_group;
   win::label vc_lineup_labels[4];
 
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
   win::label label;
-  win::labelT<win::alignment_center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  win::labelT<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
 
   win::text_button min_button;
@@ -722,9 +722,9 @@ void my_main_window::created_children () {
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
   auto columns = {
-    layout::simple_column_info{ 30, draw::text_origin::vcenter_right, 20 },
-    layout::simple_column_info{ 30, draw::text_origin::center, 20 },
-    layout::simple_column_info{ 30, draw::text_origin::vcenter_left, 20 }
+    layout::simple_column_info{ 30, text_origin::vcenter_right, 20 },
+    layout::simple_column_info{ 30, text_origin::center, 20 },
+    layout::simple_column_info{ 30, text_origin::vcenter_left, 20 }
   };
 
   win::simple_column_list_data<int, draw::frame::lines> col_data = {
@@ -749,16 +749,16 @@ void my_main_window::created_children () {
   //                                                    std::make_tuple(3, "drei", 3.3F) };
 
   auto weight_columns = {
-    layout::weight_column_info{ 30, draw::text_origin::vcenter_left, 20, 0.0F },
-    layout::weight_column_info{ 30, draw::text_origin::vcenter_right, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F },
-    layout::weight_column_info{ 30, draw::text_origin::center, 20, 1.0F }
+    layout::weight_column_info{ 30, text_origin::vcenter_left, 20, 0.0F },
+    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F }
   };
 
   column_list_drawer = {
-    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, draw::text_origin align) {
-      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, draw::text_origin::center);
+    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, text_origin align) {
+      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -766,7 +766,7 @@ void my_main_window::created_children () {
     win::cell_drawer<float, draw::frame::sunken_relief>,
     win::cell_drawer<int, draw::frame::sunken_relief>,
 
-    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, draw::text_origin align) {
+    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
       std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
       win::paint::text_item(text, g, r, b, s, align);
       draw::frame::sunken_relief(g, r);

@@ -212,7 +212,7 @@ namespace gui {
         } else {
           f = color::darker(foreground);
         }
-        g.text(draw::text_box(text, r, draw::text_origin::center), draw::font::system(), f);
+        g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
       }
 
       // --------------------------------------------------------------------------

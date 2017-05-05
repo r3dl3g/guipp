@@ -34,21 +34,6 @@ namespace gui {
 
   namespace io {
 
-    typedef uint8_t byte;
-    typedef const byte* cbyteptr;
-    typedef byte* byteptr;
-    const byte bit_mask[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-
-    byte reverse_lookup[16] = {
-        0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-        0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
-    };
-
-    byte reverse_bit_order (byte n) {
-       // Reverse the top and bottom nibble then swap them.
-       return (reverse_lookup[n & 0b1111] << 4) | reverse_lookup[n >> 4];
-    }
-
     std::ostream& operator<< (std::ostream& out, const PNM& pnm) {
       out << 'P' << static_cast<int>(pnm);
       return out;
@@ -188,6 +173,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<bit_order O>
+    void write_pnm4_line (std::ostream& out, const char* data, int bytes);
+
+    template<>
+    void write_pnm4_line<bit_order::msb> (std::ostream& out, const char* data, int bytes) {
+      out.write(data, bytes);
+    }
+
+    template<>
+    void write_pnm4_line<bit_order::lsb> (std::ostream& out, const char* data, int bytes) {
+      cbyteptr i = reinterpret_cast<cbyteptr>(data);
+      std::vector<byte> line(bytes);
+      for (int x = 0; x < bytes; ++x) {
+        line[x] = reverse_bit_order(i[x]) ^ 0xff;
+      }
+      out.write(reinterpret_cast<char*>(line.data()), bytes);
+    }
+
+    // --------------------------------------------------------------------------
     template<>
     void save_pnm<PNM::P4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height;
@@ -199,19 +203,26 @@ namespace gui {
       } else {
         int bytes = (width + 7) / 8;
         for (int y = 0; y < height; ++y) {
-#ifdef WIN32
-          char* i = data.data() + (y * bpl);
-          out.write(i, bytes);
-#endif // WIN32
-#ifdef X11
-          cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bpl));
-          std::vector<byte> line(bytes);
-          for (int x = 0; x < bytes; ++x) {
-            line[x] = reverse_bit_order(i[x]) ^ 0xff;
-          }
-          out.write(reinterpret_cast<char*>(line.data()), bytes);
-#endif // X11
+          write_pnm4_line<os::bitmap_bit_order>(out, data.data() + (y * bpl), bytes);
         }
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<bit_order O>
+    void load_pnm4_line (std::istream& in, char* data, int bytes);
+
+    template<>
+    void load_pnm4_line<bit_order::msb> (std::istream& in, char* data, int bytes) {
+      in.read(data, bytes);
+    }
+
+    template<>
+    void load_pnm4_line<bit_order::lsb> (std::istream& in, char* data, int bytes) {
+      in.read(data, bytes);
+      byteptr i = reinterpret_cast<byteptr>(data);
+      for (int x = 0; x < bytes; ++x) {
+        i[x] = reverse_bit_order(i[x]) ^ 0xff;
       }
     }
 
@@ -227,22 +238,9 @@ namespace gui {
          in.read(data.data(), n);
       } else {
         int bytes = (width + 7) / 8;
-#ifdef WIN32
         for (int y = 0; y < height; ++y) {
-          char* i = data.data() + (y * bpl);
-          in.read(i, bytes);
+          load_pnm4_line<os::bitmap_bit_order>(in, data.data() + (y * bpl), bytes);
         }
-#endif // WIN32
-#ifdef X11
-        std::vector<byte> line(bytes);
-        for (int y = 0; y < height; ++y) {
-          byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bpl));
-          in.read(reinterpret_cast<char*>(line.data()), bytes);
-          for (int x = 0; x < bytes; ++x) {
-            i[x] = reverse_bit_order(line[x]) ^ 0xff;
-          }
-        }
-#endif // X11
       }
     }
 
@@ -330,26 +328,47 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<bit_order O>
+    void write_pnm1_line (std::ostream& out, byte value, byte bit);
+
+    template<>
+    void write_pnm1_line<bit_order::msb> (std::ostream& out, byte value, byte bit) {
+      out << (value & bit ? '1' : '0') << ' ';
+    }
+
+    template<>
+    void write_pnm1_line<bit_order::lsb> (std::ostream& out, byte value, byte bit) {
+      out << (value & bit ? '0' : '1') << ' ';
+    }
+
+    // --------------------------------------------------------------------------
     template<>
     void save_pnm<PNM::P1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP) {
       const std::size_t n = bpl * height ;
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<1> data size missmatch");
       }
-      for (int h = 0; h < height; ++h) {
-        cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (h * bpl));
-        for (int w = 0; w < width; ++w) {
-          byte v = i[w / 8] ^ 0xff;
-#ifdef WIN32
-          byte bit = bit_mask[7 - w % 8];
-#endif // WIN32
-#ifdef X11
-          byte bit = bit_mask[w % 8];
-#endif // X11
-          out << (v & bit ? '0' : '1') << ' ';
+      for (int y = 0; y < height; ++y) {
+        cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bpl));
+        for (int x = 0; x < width; ++x) {
+          write_pnm1_line<os::bitmap_bit_order>(out, i[x / 8], system_bw_bits::mask[x % 8]);
         }
         out << std::endl;
       }
+    }
+
+    // --------------------------------------------------------------------------
+    template<bit_order O>
+    void set_pnm1_value (byteptr i, int x, byte value);
+
+    template<>
+    void set_pnm1_value<bit_order::msb> (byteptr i, int x, byte value) {
+      i[x / 8] = static_cast<byte>(value);
+    }
+
+    template<>
+    void set_pnm1_value<bit_order::lsb> (byteptr i, int x, byte value) {
+      i[x / 8] = static_cast<byte>(value) ^ 0xff;
     }
 
     // --------------------------------------------------------------------------
@@ -367,14 +386,15 @@ namespace gui {
         for (int x = 0; x < width; ++x) {
           int v;
           in >> v;
-          int s = x % 8;
-          value = value | (v << (IF_WIN32(7 - ) s));
+          const int s = x % 8;
+          const byte bit = v ? system_bw_bits::mask[s] : 0;
+          value = value | bit;
           if (s == 7) {
-            i[x / 8] = static_cast<byte>(value) IF_X11(^ 0xff);
+            set_pnm1_value<os::bitmap_bit_order>(i, x, value);
             value = 0;
           }
         }
-        i[(width - 1)/ 8] = static_cast<byte>(value) IF_X11(^ 0xff);
+        set_pnm1_value<os::bitmap_bit_order>(i, (width - 1), value);
       }
     }
 

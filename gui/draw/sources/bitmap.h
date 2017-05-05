@@ -103,6 +103,10 @@ namespace gui {
         operator=(rhs);
       }
 
+      datamap (const bitmap& rhs) {
+        operator=(rhs);
+      }
+
       datamap (datamap&& rhs)
         : super(std::move(rhs))
       {}
@@ -156,6 +160,10 @@ namespace gui {
       {}
 
       memmap (const memmap& rhs) {
+        operator=(rhs);
+      }
+
+      memmap (const bitmap& rhs) {
         operator=(rhs);
       }
 

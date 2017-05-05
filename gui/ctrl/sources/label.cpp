@@ -44,7 +44,7 @@ namespace gui {
                   const std::string& text,
                   os::color foreground,
                   os::color background,
-                  draw::text_origin origin) {
+                  text_origin origin) {
         using namespace gui::draw;
         gui::core::rectangle area = win.client_area();
         graph.fill(draw::rectangle(area), background);

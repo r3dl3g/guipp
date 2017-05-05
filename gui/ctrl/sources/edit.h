@@ -28,7 +28,6 @@
 // Library includes
 //
 #include "control.h"
-#include "alignment_h.h"
 
 
 namespace gui {
@@ -94,7 +93,7 @@ namespace gui {
         void replace_selection (const std::string &new_text);
 
       protected:
-        void register_handler (alignment_h);
+        void register_handler (text_origin);
 
         void prepare_input ();
         pos_t get_char_at_point (const core::point& pt);
@@ -119,14 +118,14 @@ namespace gui {
       void edit_box(const draw::graphics& graph,
                     const win::window& btn,
                     const std::string& text,
-                    draw::text_origin origin,
+                    text_origin origin,
                     const detail::edit_base::range& selection,
                     detail::edit_base::pos_t cursor_pos,
                     detail::edit_base::pos_t scroll_pos);
 
     }
 
-    template<alignment_h A>
+    template<text_origin A>
     class editT : public detail::edit_base {
     public:
       typedef detail::edit_base super;
@@ -137,10 +136,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef editT<alignment_left> edit_left;
+    typedef editT<text_origin::vcenter_left> edit_left;
     typedef edit_left edit;
-    typedef editT<alignment_right> edit_right;
-    typedef editT<alignment_center> edit_center;
+    typedef editT<text_origin::vcenter_right> edit_right;
+    typedef editT<text_origin::center> edit_center;
 
   } // win
 

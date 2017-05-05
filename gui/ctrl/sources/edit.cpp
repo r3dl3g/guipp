@@ -176,7 +176,7 @@ namespace gui {
         void edit_box(const draw::graphics& graph,
                       const win::window& win,
                       const std::string& text,
-                      draw::text_origin origin,
+                      text_origin origin,
                       const detail::edit_base::range& selection,
                       detail::edit_base::pos_t cursor_pos,
                       detail::edit_base::pos_t scroll_pos) {
@@ -264,9 +264,9 @@ namespace gui {
         }
       }
 
-      void edit_base::register_handler (alignment_h alignment) {
+      void edit_base::register_handler (text_origin alignment) {
         register_event_handler(paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          paint::edit_box(graph, *this, text, (draw::text_origin)alignment, selection, cursor_pos, scroll_pos);
+          paint::edit_box(graph, *this, text, alignment, selection, cursor_pos, scroll_pos);
         }));
         register_event_handler(key_down_event([&] (os::key_state keystate,
                                                    os::key_symbol keycode,

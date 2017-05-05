@@ -39,7 +39,7 @@ namespace gui {
 
     struct column_info {
       column_size_type width;
-      draw::text_origin align;
+      text_origin align;
     };
 
     namespace detail {
@@ -71,7 +71,7 @@ namespace gui {
 
         void set_column_count(std::size_t i);
 
-        inline draw::text_origin get_column_align(std::size_t i) const {
+        inline text_origin get_column_align(std::size_t i) const {
           return aligns[i];
         }
 
@@ -90,7 +90,7 @@ namespace gui {
         column_size_type get_column_left_pos(std::size_t i) const;
         column_size_type get_column_right_pos(std::size_t i) const;
 
-        void set_column_align(std::size_t i, draw::text_origin a);
+        void set_column_align(std::size_t i, text_origin a);
 
         void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
@@ -115,7 +115,7 @@ namespace gui {
         std::function<create_sliders> slider_creator;
 
         std::vector<column_size_type> widths;
-        std::vector<draw::text_origin> aligns;
+        std::vector<text_origin> aligns;
         std::vector<slider*> sliders;
 
         list_type* list;
@@ -126,7 +126,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct simple_column_info {
       column_size_type width;
-      draw::text_origin align;
+      text_origin align;
       column_size_type min_width;
     };
 
@@ -169,7 +169,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct weight_column_info {
       column_size_type width;
-      draw::text_origin align;
+      text_origin align;
       column_size_type min_width;
       float weight;
     };
@@ -426,7 +426,7 @@ namespace gui {
                        const draw::brush& background,
                        bool selected,
                        bool hilited,
-                       draw::text_origin align) {
+                       text_origin align) {
         paint::text_item(convert_to_string(super::at(row_id).at(col_id)), g, place, background, selected, align);
         if (!selected) {
           F(g, place);
@@ -448,7 +448,7 @@ namespace gui {
                               const draw::brush& background,
                               bool selected,
                               bool hilited,
-                              draw::text_origin align);
+                              text_origin align);
 
 
       void set_drawer (std::function<cell_draw> drawer) {
@@ -541,7 +541,7 @@ namespace gui {
                       const draw::brush& background,
                       bool selected,
                       bool hilited,
-                      draw::text_origin align) {
+                      text_origin align) {
       paint::text_item(convert_to_string(t), g, place, background, selected, align);
       if (!selected) {
         F(g, place);
@@ -556,7 +556,7 @@ namespace gui {
                                    const draw::brush& background,
                                    bool selected,
                                    bool hilited,
-                                   draw::text_origin align);
+                                   text_origin align);
 
     // --------------------------------------------------------------------------
     template<typename... Arguments>
@@ -619,7 +619,7 @@ namespace gui {
                       bool selected,
                       bool hilited) {
         core::size::type width = l.get_column_width(I);
-        draw::text_origin align = l.get_column_align(I);
+        text_origin align = l.get_column_align(I);
 
         place.width(width);
         std::get<I>(*this)(std::get<I>(data), g, place, background, selected, hilited, align);

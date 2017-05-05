@@ -353,18 +353,12 @@ namespace gui {
     using vertical_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
-    template<unsigned short dim1,
+    template<alignment a,
+             unsigned short dim1,
              unsigned short border = 0,
              unsigned short gap = 0,
              unsigned short sep = 2>
-    using vertical_center_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, origin::center>;
-
-    // --------------------------------------------------------------------------
-    template<unsigned short dim1,
-             unsigned short border = 0,
-             unsigned short gap = 0,
-             unsigned short sep = 2>
-    using horizontal_center_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, origin::center>;
+    using lineup = lineup_layout<alignment_orientation<a>::value, dim1, border, gap, sep, alignment_origin<a>::value>;
 
     // --------------------------------------------------------------------------
     template<orientation H, unsigned short border = 0, unsigned short gap = 0, unsigned short sep = 2>

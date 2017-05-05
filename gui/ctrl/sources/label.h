@@ -28,7 +28,6 @@
 // Library includes
 //
 #include "control.h"
-#include "alignment_h.h"
 
 namespace gui {
 
@@ -50,11 +49,11 @@ namespace gui {
                   const std::string& text,
                   os::color foreground,
                   os::color background,
-                  draw::text_origin origin);
+                  text_origin origin);
 
     }
 
-    template<alignment_h A,
+    template<text_origin A,
              void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
              os::color FC = color::black,
              os::color BC = color::very_light_gray>
@@ -65,7 +64,7 @@ namespace gui {
       labelT () {
         register_event_handler(paint_event([&] (const draw::graphics& graph) {
           gui::core::rectangle place = client_area();
-          paint::label(graph, *this, get_text(), FC, BC, (draw::text_origin)A);
+          paint::label(graph, *this, get_text(), FC, BC, A);
           F(graph, place);
         }));
       }
@@ -84,13 +83,22 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using label_left = labelT<alignment_left, draw::frame::no_frame, color::black, color::very_light_gray>;
+    using label_left = labelT<text_origin::vcenter_left,
+                              draw::frame::no_frame,
+                              color::black,
+                              color::very_light_gray>;
 
     using label = label_left;
 
-    using label_right = labelT<alignment_right, draw::frame::no_frame, color::black, color::very_light_gray>;
+    using label_right = labelT<text_origin::vcenter_right,
+                               draw::frame::no_frame,
+                               color::black,
+                               color::very_light_gray>;
 
-    using label_center = labelT<alignment_center, draw::frame::no_frame, color::black, color::very_light_gray>;
+    using label_center = labelT<text_origin::center,
+                                draw::frame::no_frame,
+                                color::black,
+                                color::very_light_gray>;
 
   } // win
 

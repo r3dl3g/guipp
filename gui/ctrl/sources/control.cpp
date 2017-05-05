@@ -118,7 +118,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       bool selected,
-                      draw::text_origin origin) {
+                      text_origin origin) {
         using namespace draw;
         g.fill(rectangle(place), selected ? color::highLightColor() : background);
         g.text(text_box(text, place, origin), font::system(),

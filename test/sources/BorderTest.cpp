@@ -52,7 +52,7 @@ private:
   separator_t<orientation::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
-  typedef labelT<alignment_left, frame::sunken_relief> StatusLabel;
+  typedef labelT<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
   vlist<50, color::rgb_gray<224>::value> left_list;
@@ -250,7 +250,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     if (!selected) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system(), selected ? color::light_yellow : color::black);
+    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
   left_list.register_event_handler(hilite_changed_event([&](bool){
@@ -312,8 +312,8 @@ void my_main_window::quit (int) {
   labels[0].set_text("quit");
 
   layout_dialog_window<layout::border_layout<20, 55, 15, 15>> dialog;
-  group_window<horizontal_lineup<80, 15, 10, 2, origin::center>, color::light_gray> buttons;
-  labelT<alignment_center, draw::frame::sunken_relief, color::black, color::light_gray> message;
+  group_window<lineup<alignment::right, 80, 15, 10, 2>, color::light_gray> buttons;
+  labelT<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
 
   bool result = false;
@@ -424,13 +424,14 @@ void my_main_window::cut (int) {
   window1.redraw_later();
 }
 
-template<io::PNM i>
-void read_write (datamap<io::PNM2BPP<i>::bpp>& bm) {
+template<io::PNM P>
+void read_write (datamap<io::PNM2BPP<P>::bpp>& bm) {
   try {
-    std::string iname = ostreamfmt(i);
-    std::string oname = ostreamfmt("test." << i);
-    io::ifpnm<i>(iname) >> bm;
-    io::ofpnm<i>(oname) << bm;
+    int i = static_cast<int>(P);
+    std::string iname = ostreamfmt("p" << i);
+    std::string oname = ostreamfmt("test.p" << i);
+    io::ifpnm<P>(iname) >> bm;
+    io::ofpnm<P>(oname) << bm;
   }
   catch (std::exception& ex) {
     LogFatal << ex;

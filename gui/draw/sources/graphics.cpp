@@ -484,14 +484,20 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
-      core::size sz = bmp.size();
-      HDC mem_dc = CreateCompatibleDC(gc);
-      HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
-      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-      SelectObject(mem_dc, bmp.image.get_id());
-      BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
-      SelectObject(mem_dc, old);
-      DeleteDC(mem_dc);
+      if (bmp.image) {
+        core::size sz = bmp.image.size();
+        if (bmp.mask) {
+          HDC mem_dc = CreateCompatibleDC(gc);
+          HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
+          SelectObject(mem_dc, bmp.image.get_id());
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
+          SelectObject(mem_dc, old);
+          DeleteDC(mem_dc);
+        } else {
+          copy_from(bmp.image, core::rectangle(sz), pt);
+        }
+      }
       return *this;
     }
 

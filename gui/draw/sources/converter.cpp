@@ -51,18 +51,12 @@ namespace gui {
 
       template<>
       byte get<BPP::BW> (cbyteptr in, int x) {
-#ifdef WIN32_OLD
-        int shift = IF_WIN32(7 -) x % 8;
-        int bit = (in[x / 8] & (0x01 << shift)) >> shift;
-        return byte_values[bit];
-#else
         const byte value = in[x / 8];
         const byte bit = x % 8;
         const byte bit_mask = system_bw_bits::mask[bit];
         const byte shift = system_bw_bits::shift[bit];
         const int b = (value & bit_mask) >> shift;
         return system_bw_bits::value[b];
-#endif // X11
       }
 
       template<>

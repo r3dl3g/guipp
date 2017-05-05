@@ -219,10 +219,16 @@ namespace gui {
 
   template<> struct bw_bits<bit_order::lsb> {
     static constexpr byte value[2] = { 0, 0xff };
+    static constexpr byte adapt (byte v) {
+      return v;
+    }
   };
 
   template<> struct bw_bits<bit_order::msb> {
     static constexpr byte value[2] = { 0xff, 0 };
+    static constexpr byte adapt(byte v) {
+      return v ^ 0xff;
+    }
   };
 
 

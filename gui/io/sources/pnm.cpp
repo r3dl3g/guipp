@@ -199,17 +199,18 @@ namespace gui {
       } else {
         int bytes = (width + 7) / 8;
         for (int y = 0; y < height; ++y) {
+#ifdef WIN32
+          char* i = data.data() + (y * bpl);
+          out.write(i, bytes);
+#endif // WIN32
+#ifdef X11
           cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bpl));
           std::vector<byte> line(bytes);
           for (int x = 0; x < bytes; ++x) {
-#ifdef WIN32
-            line[x] = i[x];// ^ 0xff;
-#endif // WIN32
-#ifdef X11
             line[x] = reverse_bit_order(i[x]) ^ 0xff;
-#endif // X11
           }
           out.write(reinterpret_cast<char*>(line.data()), bytes);
+#endif // X11
         }
       }
     }
@@ -226,19 +227,22 @@ namespace gui {
          in.read(data.data(), n);
       } else {
         int bytes = (width + 7) / 8;
+#ifdef WIN32
+        for (int y = 0; y < height; ++y) {
+          char* i = data.data() + (y * bpl);
+          in.read(i, bytes);
+        }
+#endif // WIN32
+#ifdef X11
         std::vector<byte> line(bytes);
         for (int y = 0; y < height; ++y) {
           byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bpl));
           in.read(reinterpret_cast<char*>(line.data()), bytes);
           for (int x = 0; x < bytes; ++x) {
-#ifdef WIN32
-            i[x] = line[x];// ^ 0xff;
-#endif // WIN32
-#ifdef X11
             i[x] = reverse_bit_order(line[x]) ^ 0xff;
-#endif // X11
           }
         }
+#endif // X11
       }
     }
 

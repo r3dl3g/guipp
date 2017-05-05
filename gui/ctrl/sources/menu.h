@@ -55,10 +55,11 @@ namespace gui {
         , sub_menu(false)
       {}
 
-      menu_entry (menu_entry&&);
       menu_entry (const menu_entry&);
       void operator= (const menu_entry&);
-      void operator= (const menu_entry&&);
+
+      menu_entry (menu_entry&&);
+      void operator= (menu_entry&&);
 
       const std::string& get_label () const {
         return label;

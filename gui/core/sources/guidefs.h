@@ -185,6 +185,7 @@ namespace gui {
   } // core
 
   enum class BPP : int {
+    Undefined = 0,
     BW = 1,
     GRAY = 8,
     RGB = 24,

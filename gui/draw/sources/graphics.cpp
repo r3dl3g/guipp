@@ -1389,12 +1389,10 @@ namespace gui {
       auto display = core::global::get_instance();
       int res = 0;
       if (bmp.mask) {
-        BPP bpp = bmp.mask.bits_per_pixel();
-        res = XSetClipMask(display, gc, bmp.mask);
+        res = XSetClipMask(display, gc, bmp.mask.get_id());
         res = XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
       }
       if (bmp.image) {
-        BPP bpp = bmp.image.bits_per_pixel();
         copy_from(bmp.image, core::rectangle(bmp.image.size()), pt);
       }
       res = XSetClipMask(display, gc, None);

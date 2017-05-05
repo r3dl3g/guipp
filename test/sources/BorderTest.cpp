@@ -191,14 +191,12 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entries({
-    menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, cut_icon),
-    menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, copy_icon),
-    menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, paste_icon),
-    menu_entry("del", core::bind_method(this, &my_main_window::del), "del"),
-    menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, memmap(), true),
-    menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true)
-  });
+  edit_sub_menu.data.add_entry(menu_entry("cut", core::bind_method(this, &my_main_window::cut), "Strg+X", false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("copy", core::bind_method(this, &my_main_window::copy), "Strg+C", false, copy_icon));
+  edit_sub_menu.data.add_entry(menu_entry("paste", core::bind_method(this, &my_main_window::paste), "Strg+V", false, paste_icon));
+  edit_sub_menu.data.add_entry(menu_entry("del", core::bind_method(this, &my_main_window::del), "del"));
+  edit_sub_menu.data.add_entry(menu_entry("settings", [&](int) { labels[0].set_text("settings"); }, std::string(), false, memmap(), true));
+  edit_sub_menu.data.add_entry(menu_entry("options", [&](int) { labels[0].set_text("options"); }, std::string(), true));
 
   tool_bar.create(top_view);
 

@@ -48,8 +48,6 @@ namespace gui {
         clear();
       }
 
-      void operator= (bitmap&&);
-
       bool is_valid () const {
         return id != 0;
       }
@@ -77,70 +75,20 @@ namespace gui {
       static int calc_bytes_per_line (int w, BPP bpp);
 
     protected:
-      bitmap (const bitmap&) = delete;
-      bitmap (bitmap&&);
+      bitmap (bitmap&& rhs);
+      void operator= (bitmap&&);
 
       void create_compatible (int w, int h);
       void create (int w, int h, BPP bpp);
       void copy_from (const bitmap&);
 
+    private:
+      void set_id (os::bitmap);
+
       os::bitmap id;
+      bitmap (const bitmap&) = delete;
 
-    };
 
-    class memmap : public bitmap {
-    public:
-      typedef bitmap super;
-
-      memmap ()
-      {}
-
-      memmap (const memmap& rhs) {
-        operator=(rhs);
-      }
-
-      memmap (memmap&& rhs)
-        : super(std::move(rhs))
-      {}
-
-      memmap (int w, int h) {
-        create(w, h);
-      }
-
-      memmap (const core::size& sz) {
-        create(sz);
-      }
-
-      void operator= (const memmap& rhs) {
-        operator=(static_cast<const bitmap&>(rhs));
-      }
-
-      void operator= (const bitmap& rhs) {
-        if (this != &rhs) {
-          if (rhs) {
-            create(rhs.size());
-            put(rhs);
-          } else {
-            clear();
-          }
-        }
-      }
-
-      void operator= (memmap&& rhs) {
-        super::operator=(std::move(rhs));
-      }
-
-      operator os::drawable () const {
-        return id;
-      }
-
-      inline void create (int w, int h) {
-        create_compatible(w, h);
-      }
-
-      inline void create (const core::size& sz) {
-        create(sz.os_width(), sz.os_height());
-      }
     };
 
     template<BPP T>
@@ -199,6 +147,61 @@ namespace gui {
     typedef datamap<BPP::GRAY> graymap;
     typedef datamap<BPP::RGB> rgbmap;
     typedef datamap<BPP::RGBA> rgbamap;
+
+    class memmap : public bitmap {
+    public:
+      typedef bitmap super;
+
+      memmap ()
+      {}
+
+      memmap (const memmap& rhs) {
+        operator=(rhs);
+      }
+
+      memmap (memmap&& rhs)
+        : super(std::move(rhs))
+      {}
+
+      memmap (int w, int h) {
+        create(w, h);
+      }
+
+      memmap (const core::size& sz) {
+        create(sz);
+      }
+
+      void operator= (const memmap& rhs) {
+        operator=(static_cast<const bitmap&>(rhs));
+      }
+
+      void operator= (const bitmap& rhs) {
+        if (this != &rhs) {
+          if (rhs) {
+            create(rhs.size());
+            put(rhs);
+          } else {
+            clear();
+          }
+        }
+      }
+
+      void operator= (memmap&& rhs) {
+        super::operator=(std::move(rhs));
+      }
+
+      operator os::drawable () const {
+        return get_id();
+      }
+
+      inline void create (int w, int h) {
+        create_compatible(w, h);
+      }
+
+      inline void create (const core::size& sz) {
+        create(sz.os_width(), sz.os_height());
+      }
+    };
 
 
     class masked_bitmap {

@@ -56,35 +56,23 @@ namespace gui {
     template<PNM i>
     void save_pnm (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
 
-    template<>
-    void save_pnm<PNM::P1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
-    template<>
-    void save_pnm<PNM::P2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
-    template<>
-    void save_pnm<PNM::P3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
-    template<>
-    void save_pnm<PNM::P4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
-    template<>
-    void save_pnm<PNM::P5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
-    template<>
-    void save_pnm<PNM::P6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P1> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P2> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P3> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P4> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P5> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
+    template<> void save_pnm<PNM::P6> (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, BPP bpp);
 
     // --------------------------------------------------------------------------
     template<PNM i>
     void load_pnm (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
 
-    template<>
-    void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<>
-    void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<>
-    void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<>
-    void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<>
-    void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<>
-    void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -133,81 +121,26 @@ namespace gui {
     void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary = true);
     void load_pnm (const std::string& name, draw::bitmap& bmp);
 
-    template<PNM>
-    struct PNM2BPP {};
+    template<PNM> struct PNM2BPP {};
 
-    template<>
-    struct PNM2BPP<PNM::P1> {
-      static constexpr BPP bpp = BPP::BW;
-    };
+    template<> struct PNM2BPP<PNM::P1> { static constexpr BPP bpp = BPP::BW;   };
+    template<> struct PNM2BPP<PNM::P2> { static constexpr BPP bpp = BPP::GRAY; };
+    template<> struct PNM2BPP<PNM::P3> { static constexpr BPP bpp = BPP::RGB;  };
+    template<> struct PNM2BPP<PNM::P4> { static constexpr BPP bpp = BPP::BW;   };
+    template<> struct PNM2BPP<PNM::P5> { static constexpr BPP bpp = BPP::GRAY; };
+    template<> struct PNM2BPP<PNM::P6> { static constexpr BPP bpp = BPP::RGB;  };
 
-    template<>
-    struct PNM2BPP<PNM::P2> {
-      static constexpr BPP bpp = BPP::GRAY;
-    };
+    template<BPP, bool> struct BPP2PNM {};
 
-    template<>
-    struct PNM2BPP<PNM::P3> {
-      static constexpr BPP bpp = BPP::RGB;
-    };
+    template<> struct BPP2PNM<BPP::BW, false>   { static constexpr PNM pnm = PNM::P1; };
+    template<> struct BPP2PNM<BPP::GRAY, false> { static constexpr PNM pnm = PNM::P2; };
+    template<> struct BPP2PNM<BPP::RGB, false>  { static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<BPP::RGBA, false> { static constexpr PNM pnm = PNM::P3; };
 
-    template<>
-    struct PNM2BPP<PNM::P4> {
-      static constexpr BPP bpp = BPP::BW;
-    };
-
-    template<>
-    struct PNM2BPP<PNM::P5> {
-      static constexpr BPP bpp = BPP::GRAY;
-    };
-
-    template<>
-    struct PNM2BPP<PNM::P6> {
-      static constexpr BPP bpp = BPP::RGB;
-    };
-
-    template<BPP, bool>
-    struct BPP2PNM {};
-
-    template<>
-    struct BPP2PNM<BPP::BW, false> {
-      static constexpr PNM pnm = PNM::P1;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::GRAY, false> {
-      static constexpr PNM pnm = PNM::P2;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::RGB, false> {
-      static constexpr PNM pnm = PNM::P3;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::RGBA, false> {
-      static constexpr PNM pnm = PNM::P3;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::BW, true> {
-      static constexpr PNM pnm = PNM::P4;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::GRAY, true> {
-      static constexpr PNM pnm = PNM::P5;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::RGB, true> {
-      static constexpr PNM pnm = PNM::P6;
-    };
-
-    template<>
-    struct BPP2PNM<BPP::RGBA, true> {
-      static constexpr PNM pnm = PNM::P6;
-    };
+    template<> struct BPP2PNM<BPP::BW, true>    { static constexpr PNM pnm = PNM::P4; };
+    template<> struct BPP2PNM<BPP::GRAY, true>  { static constexpr PNM pnm = PNM::P5; };
+    template<> struct BPP2PNM<BPP::RGB, true>   { static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<BPP::RGBA, true>  { static constexpr PNM pnm = PNM::P6; };
 
     // --------------------------------------------------------------------------
     template<bool BIN>

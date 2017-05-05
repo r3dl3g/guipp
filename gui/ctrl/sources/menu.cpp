@@ -150,7 +150,7 @@ namespace gui {
       , sub_menu(rhs.sub_menu)
     {}
 
-    void menu_entry::operator= (const menu_entry&& rhs) {
+    void menu_entry::operator= (menu_entry&& rhs) {
       if (this != &rhs) {
         label = std::move(rhs.label);
         hotkey = std::move(rhs.hotkey);

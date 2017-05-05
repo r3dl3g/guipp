@@ -236,6 +236,11 @@ namespace gui {
       return in;
     }
 
+    inline std::istream &operator>> (std::istream& in, ipnm&& p) {
+      p.read(in);
+      return in;
+    }
+
     // --------------------------------------------------------------------------
     template<PNM i>
     struct ofpnm : public pnm<i> {
@@ -298,11 +303,11 @@ namespace gui {
       }
 
       void operator>> (draw::memmap& b) {
-        ipnm(b).read(in);
+        in >> ipnm(b);
       }
 
       void operator >> (draw::datamap<PNM2BPP<i>::bpp>& b) {
-        ipnm(b).read(in);
+        in >> ipnm(b);
       }
 
     private:

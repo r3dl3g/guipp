@@ -408,8 +408,7 @@ namespace gui {
     }
 
     void load_pnm (std::istream& in, draw::bitmap& bmp) {
-      ipnm i(bmp);
-      in >> i;
+      in >> ipnm(bmp);
     }
 
     void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary) {

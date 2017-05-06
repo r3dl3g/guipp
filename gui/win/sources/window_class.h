@@ -1,5 +1,5 @@
 /**
-* @copyright (c) 2015-2016 Ing. Buero Rothfuss
+* @copyright (c) 2016-2017 Ing. Buero Rothfuss
 *                          Riedlinger Str. 8
 *                          70327 Stuttgart
 *                          Germany
@@ -35,6 +35,25 @@ namespace gui {
 
   namespace win {
 
+    template<os::platform P>
+    struct window_class_defaults {};
+
+    template<>
+    struct window_class_defaults<os::platform::win32> {
+      static constexpr os::cursor_type cursor = IF_WIN32_ELSE(IDC_ARROW, 0);
+      static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
+      static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, 0);
+      static constexpr os::style class_style = IF_WIN32_ELSE(CS_DBLCLKS, 0);
+    };
+
+    template<>
+    struct window_class_defaults<os::platform::x11> {
+      static constexpr os::cursor_type cursor = 0;
+      static constexpr os::style style = 0;
+      static constexpr os::style ex_style = 0;
+      static constexpr os::style class_style = 0;
+    };
+
     class window;
 
     class window_class {
@@ -43,11 +62,11 @@ namespace gui {
       window_class (const window_class&);
 
       window_class (const std::string& cls_name,
-                    os::color background = color::white,
-                    os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
-                    os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP),
-                    os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY),
-                    os::style class_style = IF_X11(0) IF_WIN32(CS_DBLCLKS));
+                    os::color background =    color::white,
+                    os::cursor_type cursor =  window_class_defaults<os::system_platform>::cursor,
+                    os::style style =         window_class_defaults<os::system_platform>::style,
+                    os::style ex_style =      window_class_defaults<os::system_platform>::ex_style,
+                    os::style class_style =   window_class_defaults<os::system_platform>::class_style);
 
       virtual void prepare (window*, os::window) const;
 

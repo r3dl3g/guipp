@@ -77,9 +77,9 @@ namespace gui {
 
       no_erase_window_class (const std::string& cls_name,
                              os::color background = color::white,
-                             os::cursor_type cursor = IF_WIN32(IDC_ARROW) IF_X11(0),
-                             os::style style = IF_X11(0) IF_WIN32(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP),
-                             os::style ex_style = IF_X11(0) IF_WIN32(WS_EX_NOPARENTNOTIFY))
+                             os::cursor_type cursor = window_class_defaults<os::system_platform>::cursor,
+                             os::style style = window_class_defaults<os::system_platform>::style,
+                             os::style ex_style = window_class_defaults<os::system_platform>::ex_style)
         :window_class(cls_name, background, cursor, style, ex_style)
       {}
 

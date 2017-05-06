@@ -8,8 +8,15 @@ add_subdirectory(./../../ibr_std_lib ibr_std_lib)
 set (gui_core_Include
      ${CMAKE_CURRENT_SOURCE_DIR}/sources
      ${ibr_std_lib_Include}
+)
+
+if(UNIX)
+set (gui_core_Include
+     ${gui_core_Include}
      /usr/include/freetype2
 )
+endif(UNIX)
+
 set (gui_core_Include ${gui_core_Include} PARENT_SCOPE)
 
 if(NOT TARGET gui_core)

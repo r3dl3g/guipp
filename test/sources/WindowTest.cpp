@@ -33,7 +33,7 @@ public:
     if ((result == 0x0) &&
         !win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      LogDebug << "Message: " << win::EventId(e) IF_WIN32(<< " (" << std::hex << e.param_1 << ", " << e.param_2 << ")");
+      LogDebug << "Message: " << win::EventId(e) << IF_WIN32_ELSE(" (" << std::hex << e.param_1 << ", " << e.param_2 << ")", "");
     }
     return false;
   }
@@ -767,7 +767,7 @@ void my_main_window::created_children () {
     win::cell_drawer<int, draw::frame::sunken_relief>,
 
     [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
-      std::string text = v ? IF_NOT_VC12(u8"\u25C9" : u8"\u25CB") IF_VC12("X" : "-");
+      std::string text = v ? u8"♣" : u8"♥";
       win::paint::text_item(text, g, r, b, s, align);
       draw::frame::sunken_relief(g, r);
     }

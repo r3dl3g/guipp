@@ -596,7 +596,7 @@ namespace gui {
           data.set_selection(idx);
         }
       } else {
-        if (data[idx].is_sub_menu()) {
+        if ((idx > -1) && data[idx].is_sub_menu()) {
           data.set_selection(idx);
         } else {
           data.set_hilite(idx);
@@ -614,7 +614,7 @@ namespace gui {
           close();
       }
       });
-      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
+      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
     }
@@ -635,19 +635,19 @@ namespace gui {
           parent_data.handle_mouse(btn, gpt);
         }
       });
-      create(parent, core::rectangle(pt, core::size(calc_width(), static_cast<core::size_type>(data.size() * item_height))));
+      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
     }
 
     core::point popup_menu::sub_menu_position (int idx) {
       auto r = absolute_position();
-      return (r + core::point(size().width() - 1, static_cast<core::point_type>(idx * item_height + 1)));
+      return (r + core::point(size().width(), static_cast<core::point_type>(idx * item_height)));
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
-      if (client_area().is_inside(pt)) {
-        return static_cast<int>(pt.y() / item_height);
+      if (client_area().shrinked({ 1, 1 }).is_inside(pt)) {
+        return std::min(static_cast<int>(data.size()), static_cast<int>((pt.y() - 1) / item_height));
       }
       return -1;
     }
@@ -663,7 +663,8 @@ namespace gui {
     void popup_menu::paint (const draw::graphics& g) {
       draw::brush background(color::menuColor());
       const core::rectangle area = client_area();
-      core::rectangle r = area;
+      draw::frame::raised_relief(g, area);
+      core::rectangle r = area.shrinked({1, 1});
       const auto count = data.size();
       for (int i = 0; i < count; ++i) {
         r.height(static_cast<core::size_type>(item_height));

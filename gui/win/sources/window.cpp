@@ -1142,7 +1142,7 @@ namespace gui {
       template<>
       struct popup_window_class_defaults<os::platform::win32> {
         static constexpr os::style style = IF_WIN32_ELSE(WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
-        static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED, 0);
+        static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_PALETTEWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED, 0);
         static constexpr os::style class_style = IF_WIN32_ELSE(CS_DBLCLKS | CS_DROPSHADOW, 0);
       };
 

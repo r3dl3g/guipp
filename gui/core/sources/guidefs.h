@@ -30,6 +30,8 @@
 //
 // Library includes
 //
+#include <bits.h>
+
 #ifdef WIN32
 
 #include "win32defs.h"

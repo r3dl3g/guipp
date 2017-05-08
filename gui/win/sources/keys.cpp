@@ -40,9 +40,9 @@ namespace gui {
       , modifiers(modifiers)
     {
 #ifdef WIN32
-      if (islower(key)) {
-        key = toupper(key);
-      }
+      //if (islower(key)) {
+      //  key = toupper(key);
+      //}
 #endif // WIN32
 #ifdef X11
       if (isupper(key)) {

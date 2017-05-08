@@ -248,7 +248,8 @@ namespace gui {
 #ifdef X11
         if (e.type == KeyPress) {
 #endif // X11
-          auto i = detail::hot_keys.find(hot_key(get_key_symbol(e), get_key_state(e)));
+          hot_key hk(get_key_symbol(e), get_key_state(e));
+          auto i = detail::hot_keys.find(hk);
           if (i != detail::hot_keys.end()) {
             i->second();
             return true;

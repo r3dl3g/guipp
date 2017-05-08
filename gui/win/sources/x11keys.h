@@ -110,14 +110,14 @@ namespace gui {
       const os::key_symbol f23 = XK_F23;
       const os::key_symbol f24 = XK_F24;
 
-      const os::key_symbol control = XK_CONTROL;
-      const os::key_symbol alt = XK_MENU;
-      const os::key_symbol shift = XK_SHIFT;
-      const os::key_symbol system = XK_LWIN;
+      const os::key_symbol control = XK_Control_L;
+      const os::key_symbol alt = XK_Alt_L;
+      const os::key_symbol shift = XK_Shift_L;
+      const os::key_symbol system = XK_Super_L;
 
-      const os::key_symbol num_lock = XK_NUMLOCK;
-      const os::key_symbol scroll_lock = XK_SCROLL;
-      const os::key_symbol caps_lock = XK_CAPITAL;
+      const os::key_symbol num_lock = XK_Num_Lock;
+      const os::key_symbol scroll_lock = XK_Scroll_Lock;
+      const os::key_symbol caps_lock = XK_Caps_Lock;
 
     }
 

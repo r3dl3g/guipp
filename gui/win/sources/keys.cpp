@@ -22,6 +22,7 @@
 // Common includes
 //
 #include <sstream>
+#include <ctype.h>
 
 // --------------------------------------------------------------------------
 //
@@ -32,6 +33,23 @@
 namespace gui {
 
   namespace win {
+
+    hot_key::hot_key (os::key_symbol k,
+             os::key_state modifiers)
+      : key(k)
+      , modifiers(modifiers)
+    {
+#ifdef WIN32
+      if (islower(key)) {
+        key = toupper(key);
+      }
+#endif // WIN32
+#ifdef X11
+      if (isupper(key)) {
+        key = tolower(key);
+      }
+#endif // X11
+    }
 
     std::string key_symbol_to_string (os::key_symbol key) {
 #ifdef WIN32
@@ -65,20 +83,37 @@ namespace gui {
           str = (char)key;
         }
       }
+      return str;
 #endif // WIN32
 #ifdef X11
-      std::string str = XKeysymToString(key);
+      switch (key) {
+        case XK_Control_L:
+        case XK_Control_R:
+        case XK_Alt_L:
+        case XK_Alt_R:
+        case XK_Shift_L:
+        case XK_Shift_R:
+        case XK_Super_L:
+        case XK_Super_R:
+        {
+          std::string str = XKeysymToString(key);
+          auto i = str.find_last_of('_');
+          if (i != std::string::npos) {
+            str = str.substr(0, i);
+          }
+          return str;
+        }
+        break;
+
+        default:
+          return XKeysymToString(key);
+        break;
+      }
 #endif // X11
-      return str;
     }
 
     std::string key_state_to_string(os::key_state m) {
-#ifdef WIN32
       return key_symbol_to_string(m);
-#endif // WIN32
-#ifdef X11
-      return XKeysymToString(m);
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -120,7 +155,8 @@ namespace gui {
 
     bool hot_key::operator< (const hot_key& rhs) const {
       if (key == rhs.key) {
-        return (modifiers < rhs.modifiers);
+        os::key_state m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);
+        return (modifiers < m);
       }
       return key < rhs.key;
     }

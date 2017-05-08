@@ -40,51 +40,51 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     bool get_param<0, bool>(const core::event& e) {
-      return LOWORD(e.param_1) != 0;
+      return LOWORD(e.wParam) != 0;
     }
     // --------------------------------------------------------------------------
     template<>
     unsigned int get_param<0, unsigned int>(const core::event& e) {
-      return (unsigned int)e.param_1;
+      return (unsigned int)e.wParam;
     }
     // --------------------------------------------------------------------------
     template<>
     int get_param<0, int>(const core::event& e) {
-      return (int)e.param_1;
+      return (int)e.wParam;
     }
     // --------------------------------------------------------------------------
     template<>
     window* get_param<0, window*>(const core::event& e) {
-      return detail::get_window((os::window)e.param_1);
+      return detail::get_window((os::window)e.wParam);
     }
     // --------------------------------------------------------------------------
     template<>
     os::graphics get_param<0, os::graphics>(const core::event& e) {
-      return (os::graphics)e.param_1;
+      return (os::graphics)e.wParam;
     }
     // --------------------------------------------------------------------------
     template<>
     window* get_param<1, window*>(const core::event& e) {
-      return detail::get_window((os::window)e.param_2);
+      return detail::get_window((os::window)e.lParam);
     }
     // --------------------------------------------------------------------------
     template<>
     core::point get_param<1, core::point>(const core::event& e) {
-      return core::point(e.param_2);
+      return core::point(e.lParam);
     }
     // --------------------------------------------------------------------------
     template<>
     core::size get_param<1, core::size>(const core::event& e) {
-      return core::size(e.param_2);
+      return core::size(e.lParam);
     }
     // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e) {
-      CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.param_2);
+      CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.lParam);
       return detail::get_window(cs->hwndParent);
     }
     // --------------------------------------------------------------------------
     unsigned int get_flags_from_wp(const core::event& e) {
-      WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.param_2);
+      WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.lParam);
       return p->flags;
     }
     // --------------------------------------------------------------------------
@@ -98,16 +98,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     int get_key_repeat_count (const core::event& e) {
-      return e.param_2 & 0x0ffff;
+      return e.lParam & 0x0ffff;
     }
     // --------------------------------------------------------------------------
     unsigned int get_key_scan_code (const core::event& e) {
-      UINT sc = (e.param_2 >> 16) & 0x01FF;
+      UINT sc = (e.lParam >> 16) & 0x01FF;
       return sc;
     }
     // --------------------------------------------------------------------------
     os::key_symbol get_key_symbol (const core::event& e) {
-      return (os::key_symbol)e.param_1;
+      return (os::key_symbol)e.wParam;
     }
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
@@ -123,9 +123,9 @@ namespace gui {
       //WORD buffer = 0;
       //int len2 = ToAscii(vk, sc, kb, &buffer, 0);
 
-      //UINT sc2 = MapVirtualKey(e.param_1, MAPVK_VK_TO_VSC);
+      //UINT sc2 = MapVirtualKey(e.wParam, MAPVK_VK_TO_VSC);
       //UINT vk2 = MapVirtualKey(sc, MAPVK_VSC_TO_VK);
-      //wchar_t ch = MapVirtualKey(e.param_1, MAPVK_VK_TO_CHAR);
+      //wchar_t ch = MapVirtualKey(e.wParam, MAPVK_VK_TO_CHAR);
       return ibr::string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
     // --------------------------------------------------------------------------
@@ -163,7 +163,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void pos_changing_caller::operator() (const core::event& e) {
       if (f) {
-        LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.param_2);
+        LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.lParam);
         core::rectangle r = get_rect<WINDOWPOS>(e);
         f(r);
         p->x = r.os_x();
@@ -176,7 +176,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void get_minmax_caller::operator() (const core::event& e) {
       if (callback) {
-        LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.param_2);
+        LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.lParam);
         core::size mi(info->ptMinTrackSize);
         core::size ma(info->ptMaxTrackSize);
         core::size sz(info->ptMaxSize);

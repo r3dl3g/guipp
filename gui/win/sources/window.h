@@ -96,6 +96,8 @@ namespace gui {
 
       container* get_parent () const;
 
+      container* get_root () const;
+
       bool is_child_of (const container& parent) const;
 
       void set_visible (bool s = true);

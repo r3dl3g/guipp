@@ -71,8 +71,8 @@ namespace gui {
     typedef WNDPROC event_callback;
 
     namespace win32 {
-      typedef WPARAM event_param_1;
-      typedef LPARAM event_param_2;
+      typedef WPARAM wParam;
+      typedef LPARAM lParam;
 
       typedef LOGBRUSH brush_type;
       typedef LOGPEN pen_type;

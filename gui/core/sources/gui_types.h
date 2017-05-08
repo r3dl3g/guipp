@@ -76,8 +76,8 @@ namespace gui {
       explicit size (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit size(const os::win32::event_param_1& p);
-      explicit size(const os::win32::event_param_2& p);
+      explicit size(const os::win32::wParam& p);
+      explicit size(const os::win32::lParam& p);
 #endif // WIN32
 #ifdef X11
 
@@ -187,7 +187,7 @@ namespace gui {
       explicit point (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit point(const os::win32::event_param_2& p);
+      explicit point(const os::win32::lParam& p);
 #endif // WIN32
 #ifdef X11
 
@@ -340,7 +340,7 @@ namespace gui {
       explicit rectangle (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit rectangle(const os::win32::event_param_2& p);
+      explicit rectangle(const os::win32::lParam& p);
 #endif // WIN32
 #ifdef X11
 

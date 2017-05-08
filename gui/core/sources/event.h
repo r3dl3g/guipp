@@ -38,18 +38,25 @@ namespace gui {
     struct event {
       inline event(os::window id,
                    os::event_id e,
-                   os::win32::event_param_1 p1,
-                   os::win32::event_param_2 p2)
+                   os::win32::wParam p1,
+                   os::win32::lParam p2)
         : id(id)
         , type(e)
-        , param_1(p1)
-        , param_2(p2)
+        , wParam(p1)
+        , lParam(p2)
       {}
 
-      os::window               id;
-      os::event_id             type;
-      os::win32::event_param_1 param_1;
-      os::win32::event_param_2 param_2;
+      inline event(const MSG& msg)
+        : id(msg.hwnd)
+        , type(msg.message)
+        , wParam(msg.wParam)
+        , lParam(msg.lParam)
+      {}
+
+      os::window        id;
+      os::event_id      type;
+      os::win32::wParam wParam;
+      os::win32::lParam lParam;
     };
 
 #endif // Win32

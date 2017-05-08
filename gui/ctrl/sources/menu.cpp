@@ -98,7 +98,7 @@ namespace gui {
 
         if (!e.get_hotkey().empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(e.get_hotkey(), r2, text_origin::vcenter_left),
+          g.text(draw::text_box(e.get_hotkey().get_key_string(), r2, text_origin::vcenter_left),
                  draw::font::menu(), col);
         }
         if (e.is_sub_menu()) {
@@ -137,7 +137,6 @@ namespace gui {
       }
     }
 
-    // --------------------------------------------------------------------------
     menu_entry::menu_entry (menu_entry&& rhs)
       : label(std::move(rhs.label))
       , hotkey(std::move(rhs.hotkey))
@@ -162,6 +161,13 @@ namespace gui {
       }
     }
 
+    void menu_entry::check_hotkey (os::key_state m, os::key_symbol k) {
+      if (action && hotkey.match(m, k)) {
+        action();
+      }
+    }
+
+    // --------------------------------------------------------------------------
     template<typename T>
     class in {
     public:
@@ -355,6 +361,28 @@ namespace gui {
       mouse_caller = nullptr;
     }
 
+    void menu_data::check_hotkey (os::key_state st, os::key_symbol sym) {
+      for (menu_entry& e : data) {
+        e.check_hotkey(st, sym);
+      }
+    }
+
+    void menu_data::register_hotkeys () {
+      for (menu_entry& e : data) {
+        if (!e.get_hotkey().empty()) {
+          global::register_hot_key(e.get_hotkey(), e.get_action());
+        }
+      }
+    }
+
+    void menu_data::unregister_hotkeys () {
+      for (const menu_entry& e : data) {
+        if (!e.get_hotkey().empty()) {
+          global::unregister_hot_key(e.get_hotkey());
+        }
+      }
+    }
+
     // --------------------------------------------------------------------------
     const window_class main_menu::clazz("main_menu", color::very_light_gray);
 
@@ -382,7 +410,7 @@ namespace gui {
       register_event_handler(selection_changed_event([&]() {
         int idx = data.get_selection();
         if (idx > -1) {
-          data[idx].select(idx);
+          data[idx].select();
         }
       }));
 
@@ -444,11 +472,15 @@ namespace gui {
           }
           return true;
 
+        case keys::up:
+        case keys::numpad::up:
         case keys::escape:
           data.close();
           redraw_later();
           return true;
 
+        case keys::down:
+        case keys::numpad::down:
         case keys::enter:
           if (!data.is_open() && (data.get_hilite() > -1)) {
             data.set_selection(data.get_hilite());
@@ -521,7 +553,7 @@ namespace gui {
           if (!data[idx].is_sub_menu()) {
             data.handle_mouse(true, core::point::zero);
           }
-          data[idx].select(idx);
+          data[idx].select();
         }
       }));
 
@@ -684,7 +716,7 @@ namespace gui {
         const menu_entry& e = data[i];
         label_width = std::max(label_width, e.get_width());
         has_sub |= e.is_sub_menu();
-        hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hotkey()).width());
+        hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hotkey().get_key_string()).width());
       }
       text_pos = 36;
       hotkey_pos = text_pos + label_width + 20;

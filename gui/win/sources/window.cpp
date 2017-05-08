@@ -123,6 +123,14 @@ namespace gui {
       return is_valid() ? (container*)detail::get_window(GetParent(get_id())) : nullptr;
     }
 
+    container* window::get_root () const {
+      container* parent = get_parent();
+      if (parent) {
+        return parent->get_root();
+      }
+      return (container*)this;
+    }
+
     bool window::is_child_of(const container& parent) const {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
     }
@@ -545,6 +553,21 @@ namespace gui {
                                    &children_return,
                                    &nchildren_return));
       return (container*)detail::get_window(parent_return);
+    }
+
+    container* window::get_root () const {
+      Window root_return = 0;
+      Window parent_return = 0;
+      Window *children_return = 0;
+      unsigned int nchildren_return = 0;
+
+      check_xlib_return(XQueryTree(core::global::get_instance(),
+                                   get_id(),
+                                   &root_return,
+                                   &parent_return,
+                                   &children_return,
+                                   &nchildren_return));
+      return (container*)detail::get_window(root_return);
     }
 
     bool window::is_child_of (const container& parent) const {

@@ -126,7 +126,94 @@ namespace gui {
 
     } // detail
 
+    // --------------------------------------------------------------------------
+    bool hot_key::match (os::key_state m, os::key_symbol k) const {
+      return (key && (key == k) && ((m & modifiers) == modifiers));
+    }
 
+    std::string hot_key::get_key_string () const {
+      if (key && key_string.empty()) {
+        std::ostringstream s;
+        if (control_key_bit_mask::is_set(modifiers)) {
+          s << "Ctrl+";
+        }
+        if (alt_key_bit_mask::is_set(modifiers)) {
+          s << "Alt+";
+        }
+        if (system_key_bit_mask::is_set(modifiers)) {
+          s << "Win+";
+        }
+        if (shift_key_bit_mask::is_set(modifiers)) {
+          s << "Shift+";
+        }
+#ifdef WIN32
+        std::string str = GetKeyNameText(key);
+#endif // WIN32
+#ifdef X11
+        std::string str = XKeysymToString(key);
+#endif // X11
+        if (str.length() == 1) {
+          for (auto& c: str) {
+            c = toupper(c);
+          }
+        }
+        s << str;
+        key_string = s.str();
+      }
+      return key_string;
+    }
+
+    // --------------------------------------------------------------------------
+    bool hot_key::operator== (const hot_key& rhs) const {
+      return (key == rhs.key) && (modifiers == rhs.modifiers);
+    }
+
+    bool hot_key::operator< (const hot_key& rhs) const {
+      if (key == rhs.key) {
+        return (modifiers < rhs.modifiers);
+      }
+      return key < rhs.key;
+    }
+
+    // --------------------------------------------------------------------------
+    namespace detail {
+
+      typedef std::map<hot_key, hot_key::call> hot_key_map;
+      hot_key_map hot_keys;
+
+    }
+
+    namespace global {
+
+      // --------------------------------------------------------------------------
+      void register_hot_key (const hot_key& hk, const hot_key::call& fn) {
+        detail::hot_keys[hk] = fn;
+
+#ifdef WIN32
+        RegisterHotKey(NULL, hk.get_key(), hk.get_modifiers() | MOD_NOREPEAT, hk.get_key());
+#endif // WIN32
+#ifdef X11
+        auto dpy = core::global::get_instance();
+        os::window root = DefaultRootWindow(dpy);
+        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root, False, GrabModeAsync, GrabModeAsync);
+        XSelectInput(dpy, root, KeyPressMask );
+#endif // X11
+      }
+
+      void unregister_hot_key (const hot_key& hk) {
+        detail::hot_keys.erase(hk);
+
+#ifdef WIN32
+#endif // WIN32
+#ifdef X11
+        auto dpy = core::global::get_instance();
+        os::window root = DefaultRootWindow(dpy);
+        XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root);
+#endif // X11
+      }
+    }
+
+    // --------------------------------------------------------------------------
     int run_loop (volatile bool& running, detail::filter_call filter) {
 
       running = true;
@@ -135,6 +222,11 @@ namespace gui {
       MSG msg;
       while (running && GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
+
+        if (filter && filter(msg)) {
+          continue;
+        }
+
         DispatchMessage(&msg);
       }
       return (int)msg.wParam;
@@ -185,7 +277,19 @@ namespace gui {
     int run_main_loop () {
       bool running = true;
 
-      return run_loop(running, [](const core::event&) -> bool {
+      return run_loop(running, [] (const core::event& e) -> bool {
+#ifdef WIN32
+        if (e.type == WM_HOTKEY) {
+#endif // WIN32
+#ifdef X11
+        if (e.type == KeyPress) {
+#endif // X11
+          auto i = detail::hot_keys.find(hot_key(get_key_symbol(e), get_key_state(e)));
+          if (i != detail::hot_keys.end()) {
+            i->second();
+            return true;
+          }
+        }
         return false;
       });
 

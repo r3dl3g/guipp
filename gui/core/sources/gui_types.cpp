@@ -73,12 +73,12 @@ namespace gui {
       , m_h(static_cast<type>(r.bottom - r.top))
     {}
 
-    size::size(const os::win32::event_param_1& p) {
+    size::size(const os::win32::wParam& p) {
       m_w = static_cast<type>(GET_X_LPARAM(p));
       m_h = static_cast<type>(GET_Y_LPARAM(p));
     }
 
-    size::size(const os::win32::event_param_2& p) {
+    size::size(const os::win32::lParam& p) {
       m_w = static_cast<type>(GET_X_LPARAM(p));
       m_h = static_cast<type>(GET_Y_LPARAM(p));
     }
@@ -114,7 +114,7 @@ namespace gui {
       , m_y(static_cast<type>(rhs.top))
     {}
 
-    point::point(const os::win32::event_param_2& p) {
+    point::point(const os::win32::lParam& p) {
       m_x = static_cast<type>(GET_X_LPARAM(p));
       m_y = static_cast<type>(GET_Y_LPARAM(p));
     }
@@ -146,7 +146,7 @@ namespace gui {
     {}
 
 #ifdef WIN32
-    rectangle::rectangle(const os::win32::event_param_2& p)
+    rectangle::rectangle(const os::win32::lParam& p)
       : rectangle(*reinterpret_cast<LPRECT>(p)) {
     }
 #endif // WIN32

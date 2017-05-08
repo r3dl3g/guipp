@@ -66,14 +66,20 @@ namespace gui {
 # define MK_SYTEM 0x0100
 #endif // MK_MENU
 
-    using left_button_bit_mask = detail::bit_mask<os::key_state, MK_LBUTTON>;
-    using middle_button_bit_mask = detail::bit_mask<os::key_state, MK_MBUTTON>;
-    using right_button_bit_mask = detail::bit_mask<os::key_state, MK_RBUTTON>;
+    namespace state {
+      const os::key_state left_button = MK_LBUTTON;
+      const os::key_state middle_button = MK_MBUTTON;
+      const os::key_state right_button = MK_RBUTTON;
 
-    using shift_key_bit_mask = detail::bit_mask<os::key_state, MK_SHIFT>;
-    using control_key_bit_mask = detail::bit_mask<os::key_state, MK_CONTROL>;
-    using alt_key_bit_mask = detail::bit_mask<os::key_state, MK_MENU>;
-    using system_key_bit_mask = detail::bit_mask<os::key_state, MK_SYTEM>;
+      const os::key_state control = MK_CONTROL;
+      const os::key_state shift = MK_SHIFT;
+      const os::key_state alt = MK_MENU;
+      const os::key_state system = MK_SYTEM;
+
+      const os::key_state num_lock = Mod2Mask;
+      const os::key_state scroll_lock = Mod3Mask;
+      const os::key_state caps_lock = LockMask;
+    }
 
     namespace keys {
       const os::key_symbol left = VK_LEFT;
@@ -110,19 +116,50 @@ namespace gui {
       const os::key_symbol back_space = VK_BACK;
       const os::key_symbol tab = VK_TAB;
       const os::key_symbol print = VK_PRINT;
+
+      const os::key_symbol f1  = VK_F1;
+      const os::key_symbol f2  = VK_F2;
+      const os::key_symbol f3  = VK_F3;
+      const os::key_symbol f4  = VK_F4;
+      const os::key_symbol f5  = VK_F5;
+      const os::key_symbol f6  = VK_F6;
+      const os::key_symbol f7  = VK_F7;
+      const os::key_symbol f8  = VK_F8;
+      const os::key_symbol f9  = VK_F9;
+      const os::key_symbol f10 = VK_F10;
+      const os::key_symbol f11 = VK_F11;
+      const os::key_symbol f12 = VK_F12;
+      const os::key_symbol f13 = VK_F13;
+      const os::key_symbol f14 = VK_F14;
+      const os::key_symbol f15 = VK_F15;
+      const os::key_symbol f16 = VK_F16;
+      const os::key_symbol f17 = VK_F17;
+      const os::key_symbol f18 = VK_F18;
+      const os::key_symbol f19 = VK_F19;
+      const os::key_symbol f20 = VK_F20;
+      const os::key_symbol f21 = VK_F21;
+      const os::key_symbol f22 = VK_F22;
+      const os::key_symbol f23 = VK_F23;
+      const os::key_symbol f24 = VK_F24;
     }
 
 #endif // WIN32
 
 #ifdef X11
-    typedef detail::bit_mask<os::key_state, Button1Mask> left_button_bit_mask;
-    typedef detail::bit_mask<os::key_state, Button2Mask> middle_button_bit_mask;
-    typedef detail::bit_mask<os::key_state, Button3Mask> right_button_bit_mask;
+    namespace state {
+      const os::key_state left_button = Button1Mask;
+      const os::key_state middle_button = Button2Mask;
+      const os::key_state right_button = Button3Mask;
 
-    typedef detail::bit_mask<os::key_state, ShiftMask> shift_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, ControlMask> control_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, Mod1Mask> alt_key_bit_mask;
-    typedef detail::bit_mask<os::key_state, Mod2Mask> system_key_bit_mask;
+      const os::key_state control = ControlMask;
+      const os::key_state shift = ShiftMask;
+      const os::key_state alt = Mod1Mask;
+      const os::key_state system = Mod4Mask;
+
+      const os::key_state num_lock = Mod2Mask;
+      const os::key_state scroll_lock = Mod3Mask;
+      const os::key_state caps_lock = LockMask;
+    }
 
     namespace keys {
       const os::key_symbol left = XK_Left;
@@ -159,8 +196,46 @@ namespace gui {
       const os::key_symbol back_space = XK_BackSpace;
       const os::key_symbol tab = XK_Tab;
       const os::key_symbol print = XK_Print;
+
+      const os::key_symbol f1  = XK_F1;
+      const os::key_symbol f2  = XK_F2;
+      const os::key_symbol f3  = XK_F3;
+      const os::key_symbol f4  = XK_F4;
+      const os::key_symbol f5  = XK_F5;
+      const os::key_symbol f6  = XK_F6;
+      const os::key_symbol f7  = XK_F7;
+      const os::key_symbol f8  = XK_F8;
+      const os::key_symbol f9  = XK_F9;
+      const os::key_symbol f10 = XK_F10;
+      const os::key_symbol f11 = XK_F11;
+      const os::key_symbol f12 = XK_F12;
+      const os::key_symbol f13 = XK_F13;
+      const os::key_symbol f14 = XK_F14;
+      const os::key_symbol f15 = XK_F15;
+      const os::key_symbol f16 = XK_F16;
+      const os::key_symbol f17 = XK_F17;
+      const os::key_symbol f18 = XK_F18;
+      const os::key_symbol f19 = XK_F19;
+      const os::key_symbol f20 = XK_F20;
+      const os::key_symbol f21 = XK_F21;
+      const os::key_symbol f22 = XK_F22;
+      const os::key_symbol f23 = XK_F23;
+      const os::key_symbol f24 = XK_F24;
   }
 #endif // X11
+
+    typedef detail::bit_mask<os::key_state, state::left_button> left_button_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::middle_button> middle_button_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::right_button> right_button_bit_mask;
+
+    typedef detail::bit_mask<os::key_state, state::control> control_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::shift> shift_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::alt> alt_key_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::system> system_key_bit_mask;
+
+    typedef detail::bit_mask<os::key_state, state::num_lock> num_lock_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::scroll_lock> scroll_lock_bit_mask;
+    typedef detail::bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
     class window;
 
@@ -172,13 +247,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     T get_param1_low (const core::event& e) {
-      return static_cast<T>((SHORT)LOWORD(e.param_1));
+      return static_cast<T>((SHORT)LOWORD(e.wParam));
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
     T get_param1_high (const core::event& e) {
-      return static_cast<T>((SHORT)HIWORD(e.param_1));
+      return static_cast<T>((SHORT)HIWORD(e.wParam));
     }
 
     // --------------------------------------------------------------------------
@@ -208,7 +283,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect(const core::event& e) {
-      T& p = *reinterpret_cast<T*>(e.param_2);
+      T& p = *reinterpret_cast<T*>(e.lParam);
       return core::rectangle(static_cast<core::point::type>(p.x),
                              static_cast<core::point::type>(p.y),
                              static_cast<core::size::type>(p.cx),

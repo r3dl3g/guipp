@@ -36,7 +36,7 @@ namespace gui {
 #ifdef WIN32
     template<>
     float get_param<0, float>(const core::event& e) {
-      return (float)e.param_1;
+      return (float)e.wParam;
     }
 #endif //WIN32
 

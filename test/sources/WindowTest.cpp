@@ -33,7 +33,7 @@ public:
     if ((result == 0x0) &&
         !win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      LogDebug << "Message: " << win::EventId(e) << IF_WIN32_ELSE(" (" << std::hex << e.param_1 << ", " << e.param_2 << ")", "");
+      LogDebug << "Message: " << win::EventId(e) << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
     }
     return false;
   }

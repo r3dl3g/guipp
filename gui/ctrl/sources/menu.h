@@ -36,20 +36,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct menu_entry {
-      typedef void(menu_action)(int idx);
+      typedef void(menu_action)();
       typedef draw::masked_bitmap icon_type;
 
       menu_entry (const std::string& label,
                   const std::function<menu_action>& action,
-                  const std::string& hotkey = std::string(),
+                  const hot_key& hotkey = hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
                   bool disabled = false)
-        : label(label)
+        : width(0)
+        , label(label)
         , hotkey(hotkey)
         , icon(icon)
         , action(action)
-        , width(0)
         , separator(separator)
         , disabled(disabled)
         , sub_menu(false)
@@ -65,7 +65,7 @@ namespace gui {
         return label;
       }
 
-      const std::string& get_hotkey () const {
+      const hot_key& get_hotkey () const {
         return hotkey;
       }
 
@@ -75,6 +75,10 @@ namespace gui {
 
       core::size_type get_width () const {
         return width;
+      }
+
+      const std::function<menu_action>& get_action () const {
+        return action;
       }
 
       bool is_sub_menu () const {
@@ -105,33 +109,42 @@ namespace gui {
         width = w;
       }
 
-      void select (int idx) {
+      void select () {
         if (!disabled && action) {
-          action(idx);
+          action();
         }
       }
+
+      void check_hotkey (os::key_state, os::key_symbol);
 
     protected:
       menu_entry (bool sub_menu,
                   const std::string& label,
                   const std::function<menu_action>& action,
-                  const std::string& hotkey,
+                  const hot_key& hotkey,
                   bool separator,
                   const icon_type& icon,
                   bool disabled)
-        : label(label)
+        : width(0)
+        , label(label)
         , hotkey(hotkey)
         , icon(icon)
         , action(action)
-        , width(0)
         , separator(separator)
         , disabled(disabled)
         , sub_menu(sub_menu)
       {}
 
+      menu_entry ()
+        : width(0)
+        , separator(false)
+        , disabled(false)
+        , sub_menu(false)
+      {}
+
     private:
       std::string label;
-      std::string hotkey;
+      hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
       core::size_type width;
@@ -148,7 +161,7 @@ namespace gui {
                       bool separator = false,
                       const icon_type& icon = icon_type(),
                       bool disabled = false)
-        : menu_entry(true, label, action, std::string(), separator, icon, disabled)
+        : menu_entry(true, label, action, hot_key(), separator, icon, disabled)
       {}
     };
 
@@ -158,7 +171,7 @@ namespace gui {
       main_menu_entry (const std::string& label,
                        const std::function<menu_action>& action,
                        bool disabled = false)
-        : menu_entry(true, label, action, std::string(), false, icon_type(), disabled)
+        : menu_entry(true, label, action, hot_key(), false, icon_type(), disabled)
       {}
     };
 
@@ -203,6 +216,10 @@ namespace gui {
         , win(win)
       {}
 
+      ~menu_data () {
+        unregister_hotkeys();
+      }
+
       void add_entries (std::initializer_list<menu_entry> menu_entries);
       void add_entry (const menu_entry& entry);
       void add_entry (menu_entry&& entry);
@@ -244,6 +261,11 @@ namespace gui {
       bool handle_key (os::key_symbol);
 
       void init ();
+
+      void register_hotkeys ();
+      void unregister_hotkeys ();
+
+      void check_hotkey (os::key_state st, os::key_symbol sym);
 
     private:
       int selection;
@@ -290,6 +312,11 @@ namespace gui {
       static const int item_height = 20;
 
       popup_menu ();
+
+      popup_menu (std::initializer_list<menu_entry> entries)
+        : popup_menu() {
+        data.add_entries(entries);
+      }
 
       void close ();
 

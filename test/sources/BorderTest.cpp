@@ -142,8 +142,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.create(top_view);
 
   file_sub_menu.data.add_entries({
-    menu_entry("open", [&]() { labels[0].set_text("open"); }, hot_key('o', state::control)),
-    menu_entry("close", [&]() { labels[0].set_text("close"); } ),
+    menu_entry("open", [&]() { labels[0].set_text("open"); }, hot_key('O', state::control)),
+    menu_entry("close", [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("select", [&]() {
       labels[0].set_text("select...");
       popup_menu select_sub_menu;
@@ -181,6 +181,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       });
       select_sub_menu.popup_at(file_sub_menu.sub_menu_position(2), file_sub_menu);
     }, true),
+    menu_entry("info", [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
     menu_entry("exit", core::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
   file_sub_menu.data.register_hotkeys();
@@ -193,9 +194,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("cut", core::bind_method(this, &my_main_window::cut), hot_key('a', state::control), false, cut_icon));
-  edit_sub_menu.data.add_entry(menu_entry("copy", core::bind_method(this, &my_main_window::copy), hot_key('c', state::control), false, copy_icon));
-  edit_sub_menu.data.add_entry(menu_entry("paste", core::bind_method(this, &my_main_window::paste), hot_key('v', state::control), false, paste_icon));
+  edit_sub_menu.data.add_entry(menu_entry("cut", core::bind_method(this, &my_main_window::cut), hot_key('A', state::control), false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("copy", core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
+  edit_sub_menu.data.add_entry(menu_entry("paste", core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("del", core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
   edit_sub_menu.data.add_entry(menu_entry("settings", [&]() { labels[0].set_text("settings"); }, hot_key(), false, memmap(), true));
   edit_sub_menu.data.add_entry(menu_entry("options", [&]() { labels[0].set_text("options"); }, hot_key(), true));

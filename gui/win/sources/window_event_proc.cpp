@@ -127,55 +127,6 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    bool hot_key::match (os::key_state m, os::key_symbol k) const {
-      return (key && (key == k) && ((m & modifiers) == modifiers));
-    }
-
-    std::string hot_key::get_key_string () const {
-      if (key && key_string.empty()) {
-        std::ostringstream s;
-        if (control_key_bit_mask::is_set(modifiers)) {
-          s << "Ctrl+";
-        }
-        if (alt_key_bit_mask::is_set(modifiers)) {
-          s << "Alt+";
-        }
-        if (system_key_bit_mask::is_set(modifiers)) {
-          s << "Win+";
-        }
-        if (shift_key_bit_mask::is_set(modifiers)) {
-          s << "Shift+";
-        }
-#ifdef WIN32
-        std::string str = GetKeyNameText(key);
-#endif // WIN32
-#ifdef X11
-        std::string str = XKeysymToString(key);
-#endif // X11
-        if (str.length() == 1) {
-          for (auto& c: str) {
-            c = toupper(c);
-          }
-        }
-        s << str;
-        key_string = s.str();
-      }
-      return key_string;
-    }
-
-    // --------------------------------------------------------------------------
-    bool hot_key::operator== (const hot_key& rhs) const {
-      return (key == rhs.key) && (modifiers == rhs.modifiers);
-    }
-
-    bool hot_key::operator< (const hot_key& rhs) const {
-      if (key == rhs.key) {
-        return (modifiers < rhs.modifiers);
-      }
-      return key < rhs.key;
-    }
-
-    // --------------------------------------------------------------------------
     namespace detail {
 
       typedef std::map<hot_key, hot_key::call> hot_key_map;
@@ -190,7 +141,20 @@ namespace gui {
         detail::hot_keys[hk] = fn;
 
 #ifdef WIN32
-        RegisterHotKey(NULL, hk.get_key(), hk.get_modifiers() | MOD_NOREPEAT, hk.get_key());
+        UINT modifiers = MOD_NOREPEAT;
+        if (control_key_bit_mask::is_set(hk.get_modifiers())) {
+          modifiers |= MOD_CONTROL;
+        }
+        if (alt_key_bit_mask::is_set(hk.get_modifiers())) {
+          modifiers |= MOD_ALT;
+        }
+        if (system_key_bit_mask::is_set(hk.get_modifiers())) {
+          modifiers |= MOD_WIN;
+        }
+        if (shift_key_bit_mask::is_set(hk.get_modifiers())) {
+          modifiers |= MOD_SHIFT;
+      }
+        RegisterHotKey(NULL, hk.get_key(), modifiers, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();

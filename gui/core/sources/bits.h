@@ -49,6 +49,18 @@ namespace gui {
   };
 
 
+  template<typename T, T mask>
+  struct bit_mask {
+    static bool is_set(T value) {
+      return (value & mask) == mask;
+    }
+
+    static bool is_not_set(T value) {
+      return (value & mask) == 0;
+    }
+  };
+
+
   template<byte bit>
   struct msb_bit_mask {
     static constexpr byte shift = 7 - bit;

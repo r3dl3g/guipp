@@ -553,8 +553,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   del_button.register_event_handler(win::button_clicked_event([&] () {
     LogDebug << "Del Button clicked";
     label.set_text("Del Clicked!");
-    data.erase(data.begin());
-    data.update_list(list2);
+    if (!data.empty()) {
+      data.erase(data.begin());
+      data.update_list(list2);
+    }
   }));
 
   clear_button.register_event_handler(win::button_clicked_event([&] () {

@@ -24,6 +24,34 @@ namespace gui {
 
     namespace paint {
 
+      void draw_menu_label (const draw::graphics& g,
+                           const core::rectangle& r,
+                           const std::string& l,
+                           char k,
+                           os::color c) {
+        const draw::font& f = draw::font::menu();
+        g.text(draw::text_box(l, r, text_origin::vcenter_left), f, c);
+
+        if (k) {
+          auto i = l.find(k);
+          if (i != std::string::npos) {
+            core::rectangle r1 = r;
+            g.text(draw::bounding_box(l.substr(0, i + 1), r1, text_origin::vcenter_left), f, c);
+            core::point_type x1 = r.x() + 1;
+            core::point_type x2 = r1.x2() - 1;
+            core::point_type y = r1.y2() +2;
+            if (i > 0) {
+              core::rectangle r0 = r;
+              g.text(draw::bounding_box(l.substr(0, i), r0, text_origin::vcenter_left), f, c);
+              x1 = r0.x2();
+            } else {
+            }
+            g.draw_lines({core::point(x1, y), core::point(x2, y)}, c);
+          }
+        }
+
+      }
+
       // --------------------------------------------------------------------------
       void main_menu_item (const menu_entry& e,
                            const draw::graphics& g,
@@ -44,8 +72,7 @@ namespace gui {
                                             : color::black;
 
         core::rectangle r2 = r + core::point(10, 0);
-        g.text(draw::text_box(e.get_label(), r2, text_origin::vcenter_left),
-               draw::font::menu(), col);
+        draw_menu_label(g, r2, e.get_label(), e.get_menu_key(), col);
       }
 
       // --------------------------------------------------------------------------
@@ -93,12 +120,11 @@ namespace gui {
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(e.get_icon(), core::point(x, y));
         }
-        g.text(draw::text_box(e.get_label(), r2, text_origin::vcenter_left),
-               draw::font::menu(), col);
+        draw_menu_label(g, r2, e.get_label(), e.get_menu_key(), col);
 
-        if (!e.get_hotkey().empty()) {
+        if (!e.get_hot_key().empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(e.get_hotkey().get_key_string(), r2, text_origin::vcenter_left),
+          g.text(draw::text_box(e.get_hot_key().get_key_string(), r2, text_origin::vcenter_left),
                  draw::font::menu(), col);
         }
         if (e.is_sub_menu()) {
@@ -118,9 +144,10 @@ namespace gui {
       , hotkey(rhs.hotkey)
       , icon(rhs.icon)
       , action(rhs.action)
+      , menu_key(rhs.menu_key)
       , width(rhs.width)
       , separator(rhs.separator)
-      , disabled(rhs.disabled)
+      , state(rhs.state)
       , sub_menu(rhs.sub_menu)
     {}
 
@@ -130,9 +157,10 @@ namespace gui {
         hotkey = rhs.hotkey;
         icon = rhs.icon;
         action = rhs.action;
+        menu_key = rhs.menu_key;
         width = rhs.width;
         separator = rhs.separator;
-        disabled = rhs.disabled;
+        state = rhs.state;
         sub_menu = rhs.sub_menu;
       }
     }
@@ -142,9 +170,10 @@ namespace gui {
       , hotkey(std::move(rhs.hotkey))
       , icon(std::move(rhs.icon))
       , action(std::move(rhs.action))
+      , menu_key(rhs.menu_key)
       , width(rhs.width)
       , separator(rhs.separator)
-      , disabled(rhs.disabled)
+      , state(rhs.state)
       , sub_menu(rhs.sub_menu)
     {}
 
@@ -154,55 +183,26 @@ namespace gui {
         hotkey = std::move(rhs.hotkey);
         icon = std::move(rhs.icon);
         action = std::move(rhs.action);
+        menu_key = rhs.menu_key;
         width = rhs.width;
         separator = rhs.separator;
-        disabled = rhs.disabled;
+        state = rhs.state;
         sub_menu = rhs.sub_menu;
       }
     }
 
-    void menu_entry::check_hotkey (os::key_state m, os::key_symbol k) {
+    void menu_entry::check_hot_key (os::key_state m, os::key_symbol k) {
       if (action && hotkey.match(m, k)) {
         action();
       }
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    class in {
-    public:
-      in (const T& t)
-        : value(t)
-        , rval(false)
-      {}
-
-      in (T&& t)
-        : value(t)
-        , rval(true)
-      {}
-
-      bool rvalue () const        { return rval;  }
-      bool lvalue () const        { return !rval; }
-
-      operator const T& () const  { return value; }
-      const T& get () const       { return value; }
-      T&& rget () const           { return std::move(const_cast<T&>(value)); }
-
-    private:
-      const T& value;
-      bool rval;
-    };
-
-    // --------------------------------------------------------------------------
     void menu_data::add_entries (std::initializer_list<menu_entry> new_entries) {
       const draw::font& f = draw::font::menu();
 
-      for (const in<menu_entry>& i : new_entries) {
-        if (i.rvalue()) {
-          data.push_back(i.rget());
-        } else {
-          data.emplace_back(i.get());
-        }
+      for (auto& i : new_entries) {
+        data.push_back(i);
         menu_entry& entry = data.back();
         entry.set_width(f.get_text_size(entry.get_label()).width());
       }
@@ -361,24 +361,40 @@ namespace gui {
       mouse_caller = nullptr;
     }
 
-    void menu_data::check_hotkey (os::key_state st, os::key_symbol sym) {
+    void menu_data::check_hot_key (os::key_state st, os::key_symbol sym) {
       for (menu_entry& e : data) {
-        e.check_hotkey(st, sym);
+        e.check_hot_key(st, sym);
       }
     }
 
-    void menu_data::register_hotkeys () {
+    void menu_data::register_hot_keys () {
       for (menu_entry& e : data) {
-        if (!e.get_hotkey().empty()) {
-          global::register_hot_key(e.get_hotkey(), e.get_action());
+        if (!e.get_hot_key().empty()) {
+          global::register_hot_key(e.get_hot_key(), e.get_action());
         }
       }
     }
 
-    void menu_data::unregister_hotkeys () {
+    void menu_data::unregister_hot_keys () {
       for (const menu_entry& e : data) {
-        if (!e.get_hotkey().empty()) {
-          global::unregister_hot_key(e.get_hotkey());
+        if (!e.get_hot_key().empty()) {
+          global::unregister_hot_key(e.get_hot_key());
+        }
+      }
+    }
+
+    void menu_data::register_menu_keys () {
+      for (menu_entry& e : data) {
+        if (e.get_menu_key()) {
+          global::register_hot_key(hot_key(e.get_menu_key(), state::alt), e.get_action());
+        }
+      }
+    }
+
+    void menu_data::unregister_menu_keys () {
+      for (menu_entry& e : data) {
+        if (e.get_menu_key()) {
+          global::unregister_hot_key(hot_key(e.get_menu_key(), state::alt));
         }
       }
     }
@@ -423,6 +439,10 @@ namespace gui {
                                                 os::key_symbol key,
                                                 const std::string&){
         handle_key(key);
+      }));
+
+      register_event_handler(create_event([&](window*, const core::rectangle&){
+        data.register_menu_keys();
       }));
     }
 
@@ -575,6 +595,9 @@ namespace gui {
         capture_pointer();
       }));
 
+//      register_event_handler(create_event([&](window*, const core::rectangle&){
+//        data.register_menu_keys();
+//      }));
     }
 
     bool popup_menu::handle_key (os::key_symbol key) {
@@ -617,6 +640,18 @@ namespace gui {
             data.set_selection(data.get_hilite());
           }
           return true;
+
+//        default: {
+//          int idx = 0;
+//          for (auto& e : data) {
+//            if (key == e.get_menu_key()) {
+//              data.set_selection(idx);
+//              return true;
+//            }
+//            ++idx;
+//          }
+//          break;
+//        }
       }
       return false;
     }
@@ -716,7 +751,7 @@ namespace gui {
         const menu_entry& e = data[i];
         label_width = std::max(label_width, e.get_width());
         has_sub |= e.is_sub_menu();
-        hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hotkey().get_key_string()).width());
+        hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hot_key().get_key_string()).width());
       }
       text_pos = 36;
       hotkey_pos = text_pos + label_width + 20;

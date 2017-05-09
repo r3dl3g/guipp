@@ -1126,6 +1126,15 @@ namespace gui {
           break;
         }
 #endif // X11
+
+#ifdef WIN32
+        if (e.type == WM_HOTKEY) {
+#endif // WIN32
+#ifdef X11
+        if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
+#endif // X11
+          return check_hot_key(e);
+        }
         return false;
       });
 

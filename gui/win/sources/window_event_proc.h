@@ -56,12 +56,14 @@ namespace gui {
 
     namespace global {
 
-      void register_hot_key (const hot_key&, const hot_key::call&);
-      void unregister_hot_key (const hot_key&);
+      void register_hot_key (const hot_key&, const hot_key::call&, window* = nullptr);
+      void unregister_hot_key (const hot_key&, window* = nullptr);
 
     }
 
-    int run_loop (volatile bool& running, detail::filter_call filter);
+    bool check_hot_key (const core::event& e);
+
+    int run_loop (volatile bool& running, detail::filter_call filter = nullptr);
 
     int run_main_loop ();
 

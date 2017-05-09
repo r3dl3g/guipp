@@ -119,22 +119,22 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
   menu.data.add_entries({
-    main_menu_entry("File", [&]() {
+    main_menu_entry("File", 'F', [&]() {
       labels[0].set_text("File...");
       file_sub_menu.popup_at(menu.sub_menu_position(0), menu);
     }), 
-    main_menu_entry("Edit", [&]() {
+    main_menu_entry("Edit", 'E', [&]() {
       labels[0].set_text("Edit...");
       edit_sub_menu.popup_at(menu.sub_menu_position(1), menu);
     }),
-    main_menu_entry("Window", [&]() {
+    main_menu_entry("Window", 'W', [&]() {
       labels[0].set_text("Window...");
-    }, true),
-    main_menu_entry("Help", [&]() {
+    }, menu_state::disabled),
+    main_menu_entry("Help", 'H', [&]() {
       labels[0].set_text("Help...");
       popup_menu help_sub_menu;
       help_sub_menu.data.add_entry(
-        menu_entry("about", [&]() { labels[0].set_text("about"); })
+        menu_entry("About", 'A', [&]() { labels[0].set_text("about"); })
       );
       help_sub_menu.popup_at(menu.sub_menu_position(3), menu);
     })
@@ -142,49 +142,49 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.create(top_view);
 
   file_sub_menu.data.add_entries({
-    menu_entry("open", [&]() { labels[0].set_text("open"); }, hot_key('O', state::control)),
-    menu_entry("close", [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
-    sub_menu_entry("select", [&]() {
+    menu_entry("Open", 'O', [&]() { labels[0].set_text("open"); }, hot_key('O', state::control)),
+    menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
+    sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
       popup_menu select_sub_menu;
       select_sub_menu.data.add_entry(
-        menu_entry( "item 1", [&]() { labels[0].set_text("item 1"); })
+        menu_entry( "item 1", '1', [&]() { labels[0].set_text("item 1"); })
       );
       select_sub_menu.data.add_entries({
-        menu_entry("item 2", [&]() { labels[0].set_text("item 2"); }),
-        sub_menu_entry("item 3", [&]() {
+        menu_entry("item 2", '2', [&]() { labels[0].set_text("item 2"); }),
+        sub_menu_entry("item 3", '3', [&]() {
           labels[0].set_text("item 3...");
           popup_menu sub_sub_menu;
           sub_sub_menu.data.add_entries({
-            menu_entry("item 3-1", [&]() { labels[0].set_text("item 3-1"); }),
-            menu_entry("item 3-2", [&]() { labels[0].set_text("item 3-2"); }),
-            sub_menu_entry("item 3-3", [&]() {
+            menu_entry("item 3-1", '1', [&]() { labels[0].set_text("item 3-1"); }),
+            menu_entry("item 3-2", '2', [&]() { labels[0].set_text("item 3-2"); }),
+            sub_menu_entry("item 3-3", '3', [&]() {
               labels[0].set_text("item 3-3...");
               popup_menu sub_sub_menu2;
               sub_sub_menu2.data.add_entry(
-                menu_entry("item 3-3-1", [&]() { labels[0].set_text("item 3-3-1"); })
+                menu_entry("item 3-3-1", '1', [&]() { labels[0].set_text("item 3-3-1"); })
               );
               sub_sub_menu2.popup_at(sub_sub_menu.sub_menu_position(2), sub_sub_menu);
             }),
-            menu_entry("item 3-4", [&]() { labels[0].set_text("item 3-4"); })
+            menu_entry("item 3-4", '4', [&]() { labels[0].set_text("item 3-4"); })
           });
           sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(2), select_sub_menu);
         }),
-        sub_menu_entry("item 4", [&]() {
+        sub_menu_entry("item 4", '4', [&]() {
           labels[0].set_text("item 4...");
           popup_menu sub_sub_menu;
           sub_sub_menu.data.add_entry(
-            menu_entry("item 4-1", [&]() { labels[0].set_text("item 4-1"); })
+            menu_entry("item 4-1", '1', [&]() { labels[0].set_text("item 4-1"); })
           );
           sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(3), select_sub_menu);
         })
       });
       select_sub_menu.popup_at(file_sub_menu.sub_menu_position(2), file_sub_menu);
     }, true),
-    menu_entry("info", [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
-    menu_entry("exit", core::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
+    menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
+    menu_entry("Exit", 'x', core::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
-  file_sub_menu.data.register_hotkeys();
+  file_sub_menu.data.register_hot_keys();
 
   core::rectangle icon_rect(0, 0, 16, 16);
   memmap cut_icon(16, 16);
@@ -194,15 +194,17 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("cut", core::bind_method(this, &my_main_window::cut), hot_key('A', state::control), false, cut_icon));
-  edit_sub_menu.data.add_entry(menu_entry("copy", core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
-  edit_sub_menu.data.add_entry(menu_entry("paste", core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
-  edit_sub_menu.data.add_entry(menu_entry("del", core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("settings", [&]() { labels[0].set_text("settings"); }, hot_key(), false, memmap(), true));
-  edit_sub_menu.data.add_entry(menu_entry("options", [&]() { labels[0].set_text("options"); }, hot_key(), true));
-  edit_sub_menu.data.register_hotkeys();
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', core::bind_method(this, &my_main_window::cut), hot_key('A', state::control), false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
+  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, memmap(), menu_state::disabled));
+  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
+  edit_sub_menu.data.register_hot_keys();
 
   tool_bar.create(top_view);
+
+  global::register_hot_key(hot_key(keys::f7), core::bind_method(this, &my_main_window::test_rgb));
 
   int i = 0;
   for (tool_bar_button& b : buttons) {
@@ -330,7 +332,9 @@ void my_main_window::quit () {
     dialog.end_modal();
   }));
 
-  dialog.create(*this, core::rectangle(300, 200, 400, 200));
+  dialog.register_event_handler(set_focus_event([&](window*){ yes.take_focus(); }));
+
+  dialog.create(*this, core::rectangle(300, 200, 400, 170));
   dialog.set_title("Question!");
   buttons.create(dialog);
   message.create(dialog, "Do you realy want to exit?");

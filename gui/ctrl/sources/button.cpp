@@ -53,6 +53,11 @@ namespace gui {
       register_event_handler(win::mouse_leave_event([&]() {
         set_hilited(false);
       }));
+      register_event_handler(win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
+        if (k == keys::enter) {
+          set_pushed(true);
+        }
+      }));
     }
 
     void button::set_hilited (bool h) {
@@ -95,6 +100,14 @@ namespace gui {
           }
         }
       }));
+      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (k == keys::enter) {
+          if (is_pushed()) {
+            set_pushed(false);
+            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------
@@ -110,6 +123,15 @@ namespace gui {
         if (is_pushed()) {
           set_pushed(false);
           if (client_area().is_inside(pos)) {
+            set_checked(!is_checked());
+            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (k == keys::enter) {
+          if (is_pushed()) {
+            set_pushed(false);
             set_checked(!is_checked());
             send_client_message(this, detail::BN_CLICKED_MESSAGE);
           }
@@ -132,6 +154,17 @@ namespace gui {
           if (!is_checked() && client_area().is_inside(pos)) {
             set_checked(true);
             send_client_message(this, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (k == keys::enter) {
+          if (is_pushed()) {
+            set_pushed(false);
+            if (!is_checked()) {
+              set_checked(true);
+              send_client_message(this, detail::BN_CLICKED_MESSAGE);
+            }
           }
         }
       }));

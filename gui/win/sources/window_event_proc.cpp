@@ -137,7 +137,7 @@ namespace gui {
     namespace global {
 
       // --------------------------------------------------------------------------
-      void register_hot_key (const hot_key& hk, const hot_key::call& fn) {
+      void register_hot_key (const hot_key& hk, const hot_key::call& fn, window* win) {
         detail::hot_keys[hk] = fn;
 
 #ifdef WIN32
@@ -153,28 +153,47 @@ namespace gui {
         }
         if (shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
-      }
-        RegisterHotKey(NULL, hk.get_key(), modifiers, hk.get_key());
+        }
+        RegisterHotKey(win ? win->get_id() : NULL, hk.get_key(), modifiers, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
-        os::window root = DefaultRootWindow(dpy);
+        os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root, False, GrabModeAsync, GrabModeAsync);
         XSelectInput(dpy, root, KeyPressMask );
 #endif // X11
       }
 
-      void unregister_hot_key (const hot_key& hk) {
+      void unregister_hot_key (const hot_key& hk, window* win) {
         detail::hot_keys.erase(hk);
 
 #ifdef WIN32
+        RegisterHotKey(win ? win->get_id() : NULL, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
-        os::window root = DefaultRootWindow(dpy);
+        os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root);
 #endif // X11
       }
+    }
+
+    // --------------------------------------------------------------------------
+    bool check_hot_key (const core::event& e) {
+#ifdef WIN32
+      if (e.type == WM_HOTKEY) {
+#endif // WIN32
+#ifdef X11
+      if (e.type == KeyPress) {
+#endif // X11
+        hot_key hk(get_key_symbol(e), get_key_state(e));
+        auto i = detail::hot_keys.find(hk);
+        if (i != detail::hot_keys.end()) {
+          i->second();
+          return true;
+        }
+      }
+      return false;
     }
 
     // --------------------------------------------------------------------------
@@ -241,21 +260,8 @@ namespace gui {
     int run_main_loop () {
       bool running = true;
 
-      return run_loop(running, [] (const core::event& e) -> bool {
-#ifdef WIN32
-        if (e.type == WM_HOTKEY) {
-#endif // WIN32
-#ifdef X11
-        if (e.type == KeyPress) {
-#endif // X11
-          hot_key hk(get_key_symbol(e), get_key_state(e));
-          auto i = detail::hot_keys.find(hk);
-          if (i != detail::hot_keys.end()) {
-            i->second();
-            return true;
-          }
-        }
-        return false;
+      return run_loop(running, [](const core::event& e) {
+        return check_hot_key(e);
       });
 
     }

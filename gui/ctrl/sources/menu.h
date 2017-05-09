@@ -34,24 +34,31 @@ namespace gui {
 
   namespace win {
 
+    enum class menu_state : bool {
+      disabled,
+      enabled
+    };
+
     // --------------------------------------------------------------------------
     struct menu_entry {
       typedef void(menu_action)();
       typedef draw::masked_bitmap icon_type;
 
       menu_entry (const std::string& label,
+                  char menu_key,
                   const std::function<menu_action>& action,
                   const hot_key& hotkey = hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
-                  bool disabled = false)
-        : width(0)
-        , label(label)
+                  menu_state state = menu_state::enabled)
+        : label(label)
         , hotkey(hotkey)
         , icon(icon)
         , action(action)
+        , width(0)
         , separator(separator)
-        , disabled(disabled)
+        , state(state)
+        , menu_key(menu_key)
         , sub_menu(false)
       {}
 
@@ -65,7 +72,7 @@ namespace gui {
         return label;
       }
 
-      const hot_key& get_hotkey () const {
+      const hot_key& get_hot_key () const {
         return hotkey;
       }
 
@@ -75,6 +82,10 @@ namespace gui {
 
       core::size_type get_width () const {
         return width;
+      }
+
+      char get_menu_key () const {
+        return menu_key;
       }
 
       const std::function<menu_action>& get_action () const {
@@ -90,7 +101,11 @@ namespace gui {
       }
 
       bool is_disabled () const {
-        return disabled;
+        return state == menu_state::disabled;
+      }
+
+      bool is_enabled () const {
+        return state == menu_state::enabled;
       }
 
       void set_label (const std::string& l) {
@@ -101,44 +116,47 @@ namespace gui {
         icon = i;
       }
 
-      void set_disabled (bool d) {
-        disabled = d;
+      void set_enabled (bool d) {
+        state = d ? menu_state::enabled : menu_state::disabled;
       }
 
       void set_width (core::size_type w) {
         width = w;
       }
 
-      void select () {
-        if (!disabled && action) {
+      void select () const {
+        if (is_enabled() && action) {
           action();
         }
       }
 
-      void check_hotkey (os::key_state, os::key_symbol);
+      void check_hot_key (os::key_state, os::key_symbol);
 
     protected:
       menu_entry (bool sub_menu,
                   const std::string& label,
+                  char menu_key,
                   const std::function<menu_action>& action,
                   const hot_key& hotkey,
                   bool separator,
                   const icon_type& icon,
-                  bool disabled)
-        : width(0)
-        , label(label)
+                  menu_state state)
+        : label(label)
         , hotkey(hotkey)
         , icon(icon)
         , action(action)
+        , menu_key(menu_key)
+        , width(0)
         , separator(separator)
-        , disabled(disabled)
+        , state(state)
         , sub_menu(sub_menu)
       {}
 
       menu_entry ()
-        : width(0)
+        : menu_key(0)
+        , width(0)
         , separator(false)
-        , disabled(false)
+        , state(menu_state::enabled)
         , sub_menu(false)
       {}
 
@@ -147,9 +165,10 @@ namespace gui {
       hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
+      char menu_key;
       core::size_type width;
       bool separator;
-      bool disabled;
+      menu_state state;
       bool sub_menu;
     };
 
@@ -157,11 +176,12 @@ namespace gui {
     struct sub_menu_entry : public menu_entry {
     public:
       sub_menu_entry (const std::string& label,
+                      char menu_key,
                       const std::function<menu_action>& action,
                       bool separator = false,
                       const icon_type& icon = icon_type(),
-                      bool disabled = false)
-        : menu_entry(true, label, action, hot_key(), separator, icon, disabled)
+                      menu_state state = menu_state::enabled)
+        : menu_entry(true, label, menu_key, action, hot_key(), separator, icon, state)
       {}
     };
 
@@ -169,13 +189,21 @@ namespace gui {
     struct main_menu_entry : public menu_entry {
     public:
       main_menu_entry (const std::string& label,
+                       char menu_key,
                        const std::function<menu_action>& action,
-                       bool disabled = false)
-        : menu_entry(true, label, action, hot_key(), false, icon_type(), disabled)
+                       menu_state state = menu_state::enabled)
+        : menu_entry(true, label, menu_key, action, hot_key(), false, icon_type(), state)
       {}
     };
 
     namespace paint {
+
+      // --------------------------------------------------------------------------
+      void draw_menu_label (const draw::graphics& g,
+                           const core::rectangle& r,
+                           const std::string& label,
+                           char menu_key,
+                           os::color color);
 
       // --------------------------------------------------------------------------
       void menu_item (const menu_entry& e,
@@ -201,6 +229,7 @@ namespace gui {
     public:
       typedef std::vector<menu_entry> vector;
       typedef vector::iterator iterator;
+      typedef vector::const_iterator const_iterator;
 
       typedef void(close_fn)();
       typedef void(mouse_fn)(bool, const core::point&);
@@ -217,7 +246,8 @@ namespace gui {
       {}
 
       ~menu_data () {
-        unregister_hotkeys();
+        unregister_hot_keys();
+        unregister_menu_keys();
       }
 
       void add_entries (std::initializer_list<menu_entry> menu_entries);
@@ -234,6 +264,14 @@ namespace gui {
 
       inline std::size_t size () const {
         return data.size();
+      }
+
+      const_iterator begin () const {
+        return data.begin();
+      }
+
+      const_iterator end () const {
+        return data.end();
       }
 
       int get_selection () const;
@@ -262,10 +300,13 @@ namespace gui {
 
       void init ();
 
-      void register_hotkeys ();
-      void unregister_hotkeys ();
+      void register_hot_keys ();
+      void unregister_hot_keys ();
 
-      void check_hotkey (os::key_state st, os::key_symbol sym);
+      void register_menu_keys ();
+      void unregister_menu_keys ();
+
+      void check_hot_key (os::key_state st, os::key_symbol sym);
 
     private:
       int selection;

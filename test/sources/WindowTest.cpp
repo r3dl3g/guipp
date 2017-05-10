@@ -983,7 +983,7 @@ win::paint_event my_main_window::create_paint1 () {
       g.frame(rectangle(r), color::blue);
       core::rectangle rb = r;
       g.text(bounding_box(t, rb, o), font::system(), color::red);
-      g.frame(rectangle(rb), color::cyan);
+      g.frame(rectangle(rb), color::dark_green);
       g.text(text_box(t, r, o), font::system(), color::red);
     };
 
@@ -996,9 +996,9 @@ win::paint_event my_main_window::create_paint1 () {
     };
 
     std::string texte[] = {
-      "TL", "TC", "TR",
-      "CL", "CC", "CR",
-      "BR", "BC", "BR"
+      "TLg", "TCg", "TRg",
+      "CLg", "CCg", "CRg",
+      "BRg", "BCg", "BRg"
     };
     text_origin origins[] = {
       text_origin::top_left, text_origin::top_hcenter, text_origin::top_right,

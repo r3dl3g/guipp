@@ -1039,10 +1039,10 @@ namespace gui {
                            int(str.size()),
                            &extents);
         auto fi = f.font_type();
-        height = fi->ascent - fi->descent;
+        height = fi->ascent;
         width = extents.width;
-        dx = 0;//extents.x;
-        dy = height;//extents.y;
+        dx = 0;
+        dy = fi->ascent - fi->descent;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1056,7 +1056,7 @@ namespace gui {
         px += rect.size().width() - width;
       }
       if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
-        py += (rect.size().height() - height) / 2;
+        py += (rect.size().height() - dy) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py += rect.size().height() - height;
       }
@@ -1083,10 +1083,10 @@ namespace gui {
                            int(str.size()),
                            &extents);
         auto fi = f.font_type();
-        height = fi->ascent - fi->descent;
-        width = extents.xOff;// - extents.x;
-        dx = 0;//extents.x;
-        dy = height;//extents.y;
+        height = fi->ascent;
+        width = extents.width;
+        dx = 0;
+        dy = fi->ascent - fi->descent;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1100,12 +1100,12 @@ namespace gui {
         px += rect.size().width() - width;
       }
       if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
-        py += (rect.size().height() - height) / 2;
+        py += (rect.size().height() - dy) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py += rect.size().height() - height;
       }
 
-      rect.top_left({core::point::type(px + dx), core::point::type(py + dy - height)});
+      rect.top_left({core::point::type(px + dx), core::point::type(py)});
       rect.set_size({core::size::type(width), core::size::type(height)});
     }
 
@@ -1125,10 +1125,10 @@ namespace gui {
                            int(str.size()),
                            &extents);
         auto fi = f.font_type();
-        height = fi->ascent - fi->descent;
+        height = fi->ascent;
         width = extents.width;
         dx = extents.x;
-        dy = height;//extents.y;
+        dy = fi->ascent - fi->descent;
       } else {
         LogError << "font_type is zero!";
       }
@@ -1143,7 +1143,7 @@ namespace gui {
       }
 
       if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
-        py -= height / 2;
+        py -= dy / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
         py -= height;
       }

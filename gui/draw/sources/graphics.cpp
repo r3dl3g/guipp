@@ -265,14 +265,15 @@ namespace gui {
 
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
-      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(static_cast<unsigned int>(origin))) {
-        int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
+      unsigned int o = static_cast<unsigned int>(origin);
+      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
+        int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();
         Rect.top = ((rect.size().os_height() - h) / 2);
         Rect.bottom = Rect.top + h;
       }
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, static_cast<unsigned int>(origin));
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o);
       SetBkMode(g, old_mode);
       SetTextColor(g, old_color);
     }
@@ -284,7 +285,7 @@ namespace gui {
       Use<font> fn(g, f);
       RECT r = rect;
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, (UINT)origin | DT_CALCRECT);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(origin) | DT_CALCRECT);
       rect = core::rectangle(r);
       //auto sz = f.get_text_size(str);
       //if (rect.size() != sz) {
@@ -315,13 +316,13 @@ namespace gui {
           old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
           break;
         case text_origin::bottom_left:
-          old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
+          old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
           break;
         case text_origin::bottom_right:
-          old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
+          old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
           break;
         case text_origin::bottom_hcenter:
-          old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP | TA_BASELINE);
+          old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
           break;
         case text_origin::vcenter_right: {
           SIZE sz;

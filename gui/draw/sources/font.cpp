@@ -38,6 +38,12 @@
 //
 #include "font.h"
 
+#ifdef WIN32
+
+#include <string_util.h>
+
+#endif // WIN32
+
 #ifdef X11
 
 #include <boost/algorithm/string.hpp>
@@ -219,7 +225,8 @@ namespace gui {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
       SIZE sz = { 0 };
-      GetTextExtentPoint32(hdc, str.c_str(), static_cast<int>(str.length()), &sz);
+      std::wstring wstr = ibr::string::utf8_to_utf16(str);
+      GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);
       return core::size(sz);

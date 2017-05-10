@@ -426,7 +426,15 @@ namespace gui {
       register_event_handler(selection_changed_event([&]() {
         int idx = data.get_selection();
         if (idx > -1) {
+#ifdef X11
+          XGrabKeyboard(core::global::get_instance(), get_id(),
+                        False, GrabModeAsync, GrabModeAsync, CurrentTime);
+#endif // X11
           data[idx].select();
+#ifdef X11
+        } else {
+          XUngrabKeyboard(core::global::get_instance(), CurrentTime);
+#endif // X11
         }
       }));
 
@@ -641,17 +649,17 @@ namespace gui {
           }
           return true;
 
-//        default: {
-//          int idx = 0;
-//          for (auto& e : data) {
-//            if (key == e.get_menu_key()) {
-//              data.set_selection(idx);
-//              return true;
-//            }
-//            ++idx;
-//          }
-//          break;
-//        }
+        default: {
+          int idx = 0;
+          for (auto& e : data) {
+            if (key == tolower(e.get_menu_key())) {
+              data.set_selection(idx);
+              return true;
+            }
+            ++idx;
+          }
+          break;
+        }
       }
       return false;
     }

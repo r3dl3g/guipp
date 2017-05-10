@@ -39,7 +39,13 @@ namespace gui {
             g.text(draw::bounding_box(l.substr(0, i + 1), r1, text_origin::vcenter_left), f, c);
             core::point_type x1 = r.x() + 1;
             core::point_type x2 = r1.x2() - 1;
-            core::point_type y = r1.y2() +2;
+            core::point_type y = 
+#ifdef WIN32
+              r1.y2();
+#endif // WIN32
+#ifdef X11
+              r1.y2() + 2;
+#endif // X11
             if (i > 0) {
               core::rectangle r0 = r;
               g.text(draw::bounding_box(l.substr(0, i), r0, text_origin::vcenter_left), f, c);

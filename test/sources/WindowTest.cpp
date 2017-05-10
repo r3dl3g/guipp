@@ -976,65 +976,44 @@ win::paint_event my_main_window::create_paint1 () {
     graph.fill(arc(pt, 2, 0, 360), color::blue);
     graph.text(text("Hello World 6!", pt), font::sans_serif().with_size(18), color::blue);
 
-    core::rectangle r(10, 155, 50, 18);
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TL", r, text_origin::top_left), font::system(), color::red);
-    r= {70, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TC", r, text_origin::top_hcenter), font::system(), color::red);
-    r= {130, 155, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("TR", r, text_origin::top_right), font::system(), color::red);
+    auto draw_text_box = [](const draw::graphics& g,
+                            const std::string& t,
+                            core::rectangle r,
+                            text_origin o) {
+      g.frame(rectangle(r), color::blue);
+      core::rectangle rb = r;
+      g.text(bounding_box(t, rb, o), font::system(), color::red);
+      g.frame(rectangle(rb), color::cyan);
+      g.text(text_box(t, r, o), font::system(), color::red);
+    };
 
-    r= {10, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CL", r, text_origin::vcenter_left), font::system(), color::red);
-    r= {70, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CC", r, text_origin::center), font::system(), color::red);
-    r= {130, 175, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("CR", r, text_origin::vcenter_right), font::system(), color::red);
+    auto draw_text = [](const draw::graphics& g,
+      const std::string& t,
+      const core::point& p,
+      text_origin o) {
+      g.fill(arc(p, 2, 0, 360), color::blue);
+      g.text(text(t, p, o), font::system(), color::red);
+    };
 
-    r= {10, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BL", r, text_origin::bottom_left), font::system(), color::red);
-    r= {70, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BC", r, text_origin::bottom_hcenter), font::system(), color::red);
-    r= {130, 195, 50, 18};
-    graph.frame(rectangle(r), color::blue);
-    graph.text(text_box("BR", r, text_origin::bottom_right), font::system(), color::red);
+    std::string texte[] = {
+      "TL", "TC", "TR",
+      "CL", "CC", "CR",
+      "BR", "BC", "BR"
+    };
+    text_origin origins[] = {
+      text_origin::top_left, text_origin::top_hcenter, text_origin::top_right,
+      text_origin::vcenter_left, text_origin::center, text_origin::vcenter_right,
+      text_origin::bottom_left, text_origin::bottom_hcenter, text_origin::bottom_right
+    };
 
-    pt = {10, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TL", pt, text_origin::top_left), font::system(), color::red);
-    pt = {70, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TC", pt, text_origin::top_hcenter), font::system(), color::red);
-    pt = {130, 215};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("TR", pt, text_origin::top_right), font::system(), color::red);
+    for (int y = 0; y < 3; ++y) {
+      for (int x = 0; x < 3; ++x) {
+        int i = y * 3 + x;
+        draw_text_box(graph, texte[i], { core::point_type(10 + x * 55), core::point_type(155 + y * 25), 50, 22 }, origins[i]);
+        draw_text(graph, texte[i], { core::point_type(10 + x * 80), core::point_type(235 + y * 20) }, origins[i]);
+      }
+    }
 
-    pt = {10, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CL", pt, text_origin::vcenter_left), font::system(), color::red);
-    pt = {70, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CC", pt, text_origin::center), font::system(), color::red);
-    pt = {130, 235};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("CR", pt, text_origin::vcenter_right), font::system(), color::red);
-
-    pt = {10, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BL", pt, text_origin::bottom_left), font::system(), color::red);
-    pt = {70, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BC", pt, text_origin::bottom_hcenter), font::system(), color::red);
-    pt = {130, 255};
-    graph.fill(arc(pt, 2, 0, 360), color::blue);
-    graph.text(text("BR", pt, text_origin::bottom_right), font::system(), color::red);
   });
 }
 

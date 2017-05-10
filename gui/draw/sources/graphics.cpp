@@ -265,7 +265,7 @@ namespace gui {
 
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
-      if ((static_cast<unsigned int>(origin) & (DT_WORDBREAK | DT_VCENTER)) == (DT_WORDBREAK | DT_VCENTER)) {
+      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(static_cast<unsigned int>(origin))) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();
@@ -282,10 +282,14 @@ namespace gui {
                                    const font& f,
                                    os::color c) const {
       Use<font> fn(g, f);
-      RECT Rect = rect;
+      RECT r = rect;
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
-      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, (UINT)origin | DT_CALCRECT);
-      rect = core::rectangle(Rect);
+      DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, (UINT)origin | DT_CALCRECT);
+      rect = core::rectangle(r);
+      //auto sz = f.get_text_size(str);
+      //if (rect.size() != sz) {
+      //  LogDebug << "Text size differs: DT_CALCRECT:" << rect.size() << ", GetTextExtentPoint32:" << sz;
+      //}
     }
 
     // --------------------------------------------------------------------------

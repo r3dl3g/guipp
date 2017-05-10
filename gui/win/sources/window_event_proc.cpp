@@ -168,7 +168,7 @@ namespace gui {
         detail::hot_keys.erase(hk);
 
 #ifdef WIN32
-        RegisterHotKey(win ? win->get_id() : NULL, hk.get_key());
+        UnregisterHotKey(win ? win->get_id() : NULL, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();

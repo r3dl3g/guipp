@@ -119,6 +119,16 @@ namespace gui {
                         const win::button& btn,
                         const std::string& text);
 
+      void push_button (const draw::graphics& graph,
+                        const core::rectangle& r,
+                        bool enabled,
+                        bool focused,
+                        bool hilited,
+                        bool pushed);
+
+      void push_button (const draw::graphics& graph,
+                        const win::button& btn);
+
       void flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,

@@ -137,7 +137,7 @@ namespace gui {
       public:
         typedef scroll_bar super;
 
-        scroll_barT ();
+        scroll_barT (bool grab_focus = true);
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
@@ -231,10 +231,10 @@ namespace gui {
       scroll_bar_class<H> scroll_barT<H>::clazz;
 
       template<>
-      scroll_barT<orientation::vertical>::scroll_barT ();
+      scroll_barT<orientation::vertical>::scroll_barT (bool);
 
       template<>
-      scroll_barT<orientation::horizontal>::scroll_barT ();
+      scroll_barT<orientation::horizontal>::scroll_barT (bool);
 
       template<>
       inline scroll_bar::type scroll_barT<orientation::horizontal>::length (const core::size& sz) {

@@ -8,6 +8,8 @@
 #include "edit.h"
 #include "column_list.h"
 #include "separator.h"
+#include "menu.h"
+#include "drop_down.h"
 #include "dbg_win_message.h"
 
 
@@ -16,6 +18,7 @@ std::ostream& operator<<(std::ostream& out, const bool& b) {
   return out;
 }
 
+#include <iomanip>
 #include <logger.h>
 
 #define NO_EXPORT
@@ -65,6 +68,32 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
   };
 }
 
+namespace gui {
+  namespace win {
+    template<>
+    inline std::string convert_to_string<os::color>(const os::color& c) {
+      return ostreamfmt("#" << std::setfill('0') << std::setw(6) << std::hex << c);
+    }
+
+    template<>
+    void drop_down_item_drawer<os::color> (const os::color& c,
+                                           const draw::graphics& graph,
+                                           const core::rectangle& place,
+                                           const draw::brush&,
+                                           bool selected,
+                                           bool hilited) {
+      graph.fill(draw::rectangle(place), c);
+      graph.text(draw::text_box(convert_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
+
+      if (hilited) {
+        graph.frame(draw::rectangle(place), color::highLightColor());
+      } else if (selected) {
+        graph.frame(draw::rectangle(place), color::black);
+      }
+    }
+
+  }
+}
 
 class my_main_window : public win::layout_main_window<layout::attach> {
 public:
@@ -171,6 +200,8 @@ private:
   win::text_button sel_last_minus;
 
   win::custom_push_button custom_button;
+  win::drop_down_list<std::string> drop_down;
+  win::drop_down_list<os::color> color_drop_down;
 
   typedef win::column_list_t<layout::weight_column_list_layout, 20, color::very_very_light_gray, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
@@ -874,6 +905,29 @@ void my_main_window::created_children () {
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
   custom_button.set_visible();
+
+  drop_down.set_data([](int i) {
+    return ostreamfmt("Item " << i);
+  }, 10);
+  drop_down.create(main, core::rectangle(290, 445, 100, 20));
+  drop_down.set_visible_items(8);
+  drop_down.set_visible();
+
+  color_drop_down.set_data([&](int i) {
+    static const os::color colors[] = {
+      color::red,
+      color::blue,
+      color::green,
+      color::cyan,
+      color::yellow,
+      color::magenta
+    };
+
+    return colors[i % 6];
+  }, 20);
+
+  color_drop_down.create(main, core::rectangle(290, 475, 100, 20));
+  color_drop_down.set_visible();
 
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
   btn_group.set_visible();

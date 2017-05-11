@@ -59,81 +59,89 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void main_menu_item (const menu_entry& e,
-                           const draw::graphics& g,
+      void main_menu_item (const draw::graphics& g,
                            const core::rectangle& r,
-                           const draw::brush& b,
-                           bool s,
-                           bool h) {
-        if (s) {
+                           const draw::brush& background,
+                           const std::string& label,
+                           char menu_key,
+                           bool selected,
+                           bool hilited,
+                           bool disabled) {
+        if (selected) {
           g.fill(draw::rectangle(r), color::highLightColor());
-        } else if (h) {
+        } else if (hilited) {
           g.fill(draw::rectangle(r), color::menuColorHighlight());
         } else {
-          g.fill(draw::rectangle(r), b);
+          g.fill(draw::rectangle(r), background);
         }
 
-        os::color col = e.is_disabled() ? color::disabledTextColor()
-                                        : s ? color::highLightTextColor()
+        os::color col = disabled ? color::disabledTextColor()
+                                 : selected ? color::highLightTextColor()
                                             : color::black;
 
         core::rectangle r2 = r + core::point(10, 0);
-        draw_menu_label(g, r2, e.get_label(), e.get_menu_key(), col);
+        draw_menu_label(g, r2, label, menu_key, col);
       }
 
       // --------------------------------------------------------------------------
-      void menu_item (const menu_entry& e,
-                      const draw::graphics& g,
+      void menu_item (const draw::graphics& g,
                       const core::rectangle& r,
+                      const draw::brush& background,
                       core::point_type text_pos,
                       core::point_type hotkey_pos,
-                      const draw::brush& b,
-                      bool s,
-                      bool h) {
-        if (s) {
-          if (e.has_separator()) {
-            g.fill(draw::rectangle(r.with_height(2)), b);
+                      const std::string& label,
+                      char menu_key,
+                      const draw::masked_bitmap& icon,
+                      const hot_key& hotkey,
+                      bool is_sub_menu,
+                      bool separator,
+                      bool selected,
+                      bool hilited,
+                      bool disabled) {
+        if (selected) {
+          if (separator = separator) {
+            g.fill(draw::rectangle(r.with_height(2)), background);
             g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
           } else {
             g.fill(draw::rectangle(r), color::highLightColor());
           }
-        } else if (h) {
-          if (e.has_separator()) {
-            g.fill(draw::rectangle(r.with_height(2)), b);
+        } else if (hilited) {
+          if (separator) {
+            g.fill(draw::rectangle(r.with_height(2)), background);
             g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::menuColorHighlight());
           } else {
             g.fill(draw::rectangle(r), color::menuColorHighlight());
           }
         } else {
-          g.fill(draw::rectangle(r), b);
+          g.fill(draw::rectangle(r), background);
         }
 
         core::rectangle r2 = r + core::point(text_pos, 0);
 
-        if (e.has_separator()) {
+        if (separator) {
           core::rectangle r3(core::point(text_pos - 2, r.y()), core::point(r.x2(), r.y() + 2));
           draw::frame::hgroove(g, r3);
           r2 += core::point(0, 2);
         }
 
-        os::color col = e.is_disabled() ? color::disabledTextColor()
-                                        : s ? color::highLightTextColor()
+        os::color col = disabled ? color::disabledTextColor()
+                                        : selected ? color::highLightTextColor()
                                             : color::black;
 
-        if (e.get_icon()) {
-          core::size sz = e.get_icon().image.size();
+        if (icon) {
+          core::size sz = icon.image.size();
           core::point_type x = (text_pos - sz.width()) / 2;
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
-          g.copy_from(e.get_icon(), core::point(x, y));
+          g.copy_from(icon, core::point(x, y));
         }
-        draw_menu_label(g, r2, e.get_label(), e.get_menu_key(), col);
+        draw_menu_label(g, r2, label, menu_key, col);
 
-        if (!e.get_hot_key().empty()) {
+        if (!hotkey.empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(e.get_hot_key().get_key_string(), r2, text_origin::vcenter_left),
+          g.text(draw::text_box(hotkey.get_key_string(), r2, text_origin::vcenter_left),
                  draw::font::menu(), col);
         }
-        if (e.is_sub_menu()) {
+        if (is_sub_menu) {
           core::point_type y = r.center_y();
           core::point_type x = r.x2() - 8;
           g.fill(draw::polygon({ core::point(x, y - 4),
@@ -556,7 +564,7 @@ namespace gui {
       for (int i = 0; i < max; ++i) {
         auto w = data[i].get_width() + 20;
         r.width(w);
-        paint::main_menu_item(data[i], g, r, background,
+        paint::main_menu_item(g, r, background, data[i],
                               (i == data.get_selection()), (i == data.get_hilite()));
         r.move_x(w);
       }
@@ -749,7 +757,7 @@ namespace gui {
       const auto count = data.size();
       for (int i = 0; i < count; ++i) {
         r.height(static_cast<core::size_type>(item_height));
-        paint::menu_item(data[i], g, r, text_pos, hotkey_pos, background,
+        paint::menu_item(g, r, background, text_pos, hotkey_pos, data[i],
                          (i == data.get_selection()), (i == data.get_hilite()));
         r.move_y(static_cast<core::size_type>(item_height));
       }

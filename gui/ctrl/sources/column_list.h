@@ -352,7 +352,9 @@ namespace gui {
         typedef Layout layout_type;
         typedef layout_container<layout::detail::base_column_list_layout> super;
 
-        base_column_list () {
+        base_column_list (bool grab_focus = true)
+          : list(grab_focus)
+        {
           super::get_layout().set_header_and_list(&header, &list);
           get_column_layout().set_list(&list);
         }
@@ -450,6 +452,9 @@ namespace gui {
                               bool hilited,
                               text_origin align);
 
+      simple_column_list (bool grab_focus = true)
+        : super(grab_focus)
+      {}
 
       void set_drawer (std::function<cell_draw> drawer) {
         this->drawer = drawer;
@@ -689,7 +694,9 @@ namespace gui {
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
 
-      column_list_t () {
+      column_list_t (bool grab_focus = true)
+        : super(grab_focus)
+      {
         this->get_column_layout().set_column_count(size);
       }
 

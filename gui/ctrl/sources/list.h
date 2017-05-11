@@ -35,35 +35,6 @@ namespace gui {
 
   namespace win {
 
-    // --------------------------------------------------------------------------
-#ifdef WIN32
-    typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
-                          Params<>::caller<>>
-            selection_changed_event;
-    typedef event_handler<detail::SELECTION_COMMIT_MESSAGE, 0,
-                          Params<>::caller<>>
-            selection_commit_event;
-    typedef event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                          Params<bool>::caller<get_param<0, bool>>>
-            hilite_changed_event;
-    // --------------------------------------------------------------------------
-#endif //WIN32
-
-#ifdef X11
-    typedef event_handler<ClientMessage, 0,
-                          Params<>::caller<>, 0,
-                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
-            selection_changed_event;
-    typedef event_handler<ClientMessage, 0,
-                          Params<>::caller<>, 0,
-                          client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>
-            selection_commit_event;
-    typedef event_handler<ClientMessage, 0,
-                          Params<bool>::caller<get_client_data<0, bool>>, 0,
-                          client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>
-            hilite_changed_event;
-#endif // X11
-
     namespace detail {
 
       // --------------------------------------------------------------------------
@@ -75,7 +46,7 @@ namespace gui {
         // --------------------------------------------------------------------------
         list ();
 
-        size_t get_count () const {
+        std::size_t get_count () const {
           return item_count;
         }
 
@@ -110,7 +81,7 @@ namespace gui {
                         bool selected,
                         bool hilited) const;
 
-        size_t item_count;
+        std::size_t item_count;
         int selection;
         int hilite;
         bool moved;
@@ -128,7 +99,9 @@ namespace gui {
         typedef list super;
         typedef super::pos_t pos_t;
 
-        list_t (bool grab_focus = true) {
+        list_t (bool grab_focus = true)
+          : scrollbar(grab_focus)
+        {
           scrollbar.register_event_handler(win::scroll_event([&] (pos_t) {
             super::redraw_later();
           }));
@@ -214,20 +187,14 @@ namespace gui {
 
     }
 
-    template<typename T,
-             text_origin O = text_origin::vcenter_left,
-             void(F)(const draw::graphics&,
-                     const core::rectangle&) = draw::frame::no_frame>
+    template<typename T>
     void list_item_drawer (const T& t,
                            const draw::graphics& g,
                            const core::rectangle& place,
                            const draw::brush& background,
                            bool selected,
                            bool hilited) {
-      paint::text_item(convert_to_string<T>(t), g, place, background, selected, O);
-      if (!selected) {
-        F(g, place);
-      }
+      paint::text_item(convert_to_string<T>(t), g, place, background, selected, text_origin::vcenter_left);
     }
 
     // static data for list.
@@ -282,7 +249,8 @@ namespace gui {
     public:
       typedef detail::list_t<V> super;
       typedef typename super::pos_t pos_t;
-      static const int item_size = S;
+
+      static constexpr int item_size = S;
 
       list_t (bool grab_focus = true)
         : super(grab_focus)
@@ -423,7 +391,7 @@ namespace gui {
         set_count(data.size());
       }
 
-      void set_count (size_t count) {
+      void set_count (std::size_t count) {
         super::item_count = count;
 
         const pos_t sz = super::get_list_size();
@@ -431,13 +399,14 @@ namespace gui {
 
         super::scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
-        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
-        if (show_scroll) {
-          super::create_scroll_bar();
+        if (super::is_valid()) {
+          const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
+          if (show_scroll) {
+            super::create_scroll_bar();
+          }
+          super::scrollbar.set_visible(show_scroll);
+          super::redraw_later();
         }
-        super::scrollbar.set_visible(show_scroll);
-
-        super::redraw_later();
       }
 
       int get_index_at_point(const core::point& pt) {
@@ -447,7 +416,7 @@ namespace gui {
         return -1;
       }
 
-      void set_selection (int sel) {
+      void set_selection (int sel, bool notify = true) {
         int new_selection = std::max(-1, sel);
         if (new_selection >= super::get_count()) {
           new_selection = -1;
@@ -455,16 +424,20 @@ namespace gui {
         if (super::selection != new_selection) {
           super::selection = new_selection;
           make_selection_visible();
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-          super::redraw_later();
+          if (notify) {
+            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+            super::redraw_later();
+          }
         }
       }
 
-      void clear_selection () {
+      void clear_selection (bool notify = true) {
         if (super::selection != -1) {
           super::selection = -1;
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
-          super::redraw_later();
+          if (notify) {
+            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+            super::redraw_later();
+          }
         }
       }
 
@@ -481,23 +454,27 @@ namespace gui {
         }
       }
 
-      void set_hilite (int sel) {
+      void set_hilite (int sel, bool notify = true) {
         int new_hilite = std::max(-1, sel);
         if (new_hilite >= super::get_count()) {
           new_hilite = -1;
         }
         if (super::hilite != new_hilite) {
           super::hilite = new_hilite;
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
-          super::redraw_later();
+          if (notify) {
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
+            super::redraw_later();
+          }
         }
       }
 
-      void clear_hilite () {
+      void clear_hilite (bool notify = true) {
         if (super::hilite != -1) {
           super::hilite = -1;
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
-          super::redraw_later();
+          if (notify) {
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
+            super::redraw_later();
+          }
         }
       }
 
@@ -531,8 +508,6 @@ namespace gui {
 
       }
 
-    private:
-
       void adjust_scroll_bar () {
         if (super::is_scroll_bar_enabled()) {
           scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
@@ -545,6 +520,7 @@ namespace gui {
         }
       }
 
+    private:
       const pos_t zero = pos_t(0);
 
       static no_erase_window_class clazz;

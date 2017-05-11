@@ -174,7 +174,6 @@ namespace gui {
       // --------------------------------------------------------------------------
       void push_button (const draw::graphics& graph,
                         const core::rectangle& r,
-                        const std::string& text,
                         bool enabled,
                         bool focused,
                         bool hilited,
@@ -189,11 +188,31 @@ namespace gui {
           area.shrink({1, 1});
         }
         frame::deep_relief(graph, area, pushed);
-        graph.text(text_box(text, area, text_origin::center), font::system(), enabled ? color::windowTextColor() : color::disabledTextColor());
         if (enabled && focused) {
           area.shrink({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
         }
+      }
+
+      // --------------------------------------------------------------------------
+      void push_button (const draw::graphics& graph, const win::button& btn) {
+        push_button(graph, btn.client_area(), btn.is_enabled(),
+                    btn.has_focus(), btn.is_hilited(), btn.is_pushed());
+      }
+
+      // --------------------------------------------------------------------------
+      void push_button (const draw::graphics& graph,
+                        const core::rectangle& r,
+                        const std::string& text,
+                        bool enabled,
+                        bool focused,
+                        bool hilited,
+                        bool pushed) {
+        push_button (graph, r, enabled, focused, hilited, pushed);
+
+        using namespace draw;
+        graph.text(text_box(text, r, text_origin::center), font::system(),
+                   enabled ? color::windowTextColor() : color::disabledTextColor());
       }
 
       // --------------------------------------------------------------------------

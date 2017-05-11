@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "list.h"
+#include "control.h"
 #include "bitmap.h"
 
 namespace gui {
@@ -206,23 +206,56 @@ namespace gui {
                            os::color color);
 
       // --------------------------------------------------------------------------
-      void menu_item (const menu_entry& e,
-                      const draw::graphics& g,
+      void menu_item (const draw::graphics& g,
                       const core::rectangle& r,
+                      const draw::brush& background,
                       core::point_type text_pos,
                       core::point_type hotkey_pos,
-                      const draw::brush& background,
+                      const std::string& label,
+                      char menu_key,
+                      const draw::masked_bitmap& icon,
+                      const hot_key& hotkey,
+                      bool is_sub_menu,
+                      bool separator,
                       bool selected,
-                      bool hilited);
+                      bool hilited,
+                      bool disabled);
+
+      inline void menu_item (const draw::graphics& g,
+                             const core::rectangle& r,
+                             const draw::brush& background,
+                             core::point_type text_pos,
+                             core::point_type hotkey_pos,
+                             const menu_entry& e,
+                             bool selected,
+                             bool hilited) {
+        menu_item(g, r, background, text_pos, hotkey_pos,
+                  e.get_label(), e.get_menu_key(), e.get_icon(),
+                  e.get_hot_key(), e.is_sub_menu(), e.has_separator(),
+                  selected, hilited, e.is_disabled());
+      }
 
       // --------------------------------------------------------------------------
-      void main_menu_item (const menu_entry& e,
-                           const draw::graphics& g,
+      void main_menu_item (const draw::graphics& g,
                            const core::rectangle& r,
                            const draw::brush& background,
+                           const std::string& label,
+                           char menu_key,
                            bool selected,
-                           bool hilited);
+                           bool hilited,
+                           bool disabled);
 
+      inline void main_menu_item (const draw::graphics& g,
+                                  const core::rectangle& r,
+                                  const draw::brush& background,
+                                  const menu_entry& e,
+                                  bool selected,
+                                  bool hilited) {
+        main_menu_item(g, r, background, e.get_label(), e.get_menu_key(),
+                       selected, hilited, e.is_disabled());
+      }
+
+      // --------------------------------------------------------------------------
     }
 
     class menu_data {

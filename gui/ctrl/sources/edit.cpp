@@ -24,6 +24,9 @@
 #ifdef WIN32
 #include <windowsx.h>
 #endif // WIN32
+#ifdef X11
+#include <X11/cursorfont.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -39,7 +42,14 @@ namespace gui {
 
     namespace detail {
 
-      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white);
+      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white,
+#ifdef WIN32
+                       IDC_IBEAM
+#endif // WIN32
+#ifdef X11
+                       XC_xterm
+#endif // X11
+      );
 
       const std::string white_space = " (){}[],.;:'\"!@#$%^&/*-+";
 

@@ -496,6 +496,11 @@ namespace gui {
       return e.xconfigurerequest;
     }
     // --------------------------------------------------------------------------
+    template <>
+    inline const XCrossingEvent& cast_event_type<XCrossingEvent>(const core::event& e) {
+      return e.xcrossing;
+    }
+    // --------------------------------------------------------------------------
     template<typename T>
     T& get_last_place(Window);
 
@@ -521,6 +526,13 @@ namespace gui {
           return (get_last_place<T>(c.window) != T(c));
         }
         return false;
+      }
+    };
+
+    template<int M, os::event_id E, typename C>
+    struct mode_matcher {
+      bool operator() (const core::event& e) {
+        return (e.type == E) && (cast_event_type<C>(e).mode == M);
       }
     };
 
@@ -713,8 +725,14 @@ namespace gui {
                            Params<window*>::
                            caller<get_window<XFocusChangeEvent>>>                   lost_focus_event;
 
-    typedef event_handler<EnterNotify, EnterWindowMask>                             mouse_enter_event;
-    typedef event_handler<LeaveNotify, LeaveWindowMask>                             mouse_leave_event;
+    typedef event_handler<EnterNotify, EnterWindowMask,
+                          Params<>::caller<>,
+                          0,
+                          mode_matcher<NotifyNormal, EnterNotify, XCrossingEvent>>  mouse_enter_event;
+    typedef event_handler<LeaveNotify, LeaveWindowMask,
+                          Params<>::caller<>,
+                          0,
+                          mode_matcher<NotifyNormal, LeaveNotify, XCrossingEvent>>  mouse_leave_event;
 
     typedef event_handler<ConfigureNotify, StructureNotifyMask,
                            Params<core::point>::

@@ -207,7 +207,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      scroll_barT<orientation::horizontal>::scroll_barT ()
+      scroll_barT<orientation::horizontal>::scroll_barT (bool grab_focus)
         : last_position(0) {
         register_event_handler(paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
@@ -218,9 +218,11 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), true, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
           if (is_enabled()) {
-            take_focus();
+            if (grab_focus) {
+              take_focus();
+            }
             last_mouse_point = pt;
             last_position = get_value();
 
@@ -320,7 +322,7 @@ namespace gui {
       }
 
       template<>
-      scroll_barT<orientation::vertical>::scroll_barT ()
+      scroll_barT<orientation::vertical>::scroll_barT (bool grab_focus)
         : last_position(0) {
         register_event_handler(paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
@@ -331,9 +333,11 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), false, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
           if (is_enabled()) {
-            take_focus();
+            if (grab_focus) {
+              take_focus();
+            }
             last_mouse_point = pt;
             last_position = get_value();
 

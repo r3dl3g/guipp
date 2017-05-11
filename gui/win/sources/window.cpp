@@ -765,7 +765,7 @@ namespace gui {
       capture_stack.push_back(get_id());
       check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
-                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask/* | KeyPressMask | KeyReleaseMask*/,
+                                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
     }
 
@@ -782,7 +782,7 @@ namespace gui {
           LogDebug << "re-capture_pointer:" << capture_stack.back();
           check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
                                          False,
-                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask/* | KeyPressMask | KeyReleaseMask*/,
+                                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
         }
       }
@@ -1168,7 +1168,7 @@ namespace gui {
 #endif
       }
 
-      template<os::platform P>
+      template<os::platform P = os::system_platform>
       struct popup_window_class_defaults {};
 
       template<>
@@ -1189,10 +1189,10 @@ namespace gui {
       popup_window_class::popup_window_class ()
         : window_class("POPUP",
                        color::light_gray,
-                       window_class_defaults<os::system_platform>::cursor,
-                       popup_window_class_defaults<os::system_platform>::style,
-                       popup_window_class_defaults<os::system_platform>::ex_style,
-                       popup_window_class_defaults<os::system_platform>::class_style)
+                       window_class_defaults<>::cursor,
+                       popup_window_class_defaults<>::style,
+                       popup_window_class_defaults<>::ex_style,
+                       popup_window_class_defaults<>::class_style)
       {}
 
       void popup_window_class::prepare (window* w, os::window parent_id) const {
@@ -1209,7 +1209,7 @@ namespace gui {
 #endif
       }
 
-      template<os::platform P>
+      template<os::platform P = os::system_platform>
       struct dialog_window_class_defaults {};
 
       template<>
@@ -1227,9 +1227,9 @@ namespace gui {
       dialog_window_class::dialog_window_class ()
         : window_class("dialog_window",
                        color::light_gray,
-                       window_class_defaults<os::system_platform>::cursor,
-                       dialog_window_class_defaults<os::system_platform>::style,
-                       dialog_window_class_defaults<os::system_platform>::ex_style)
+                       window_class_defaults<>::cursor,
+                       dialog_window_class_defaults<>::style,
+                       dialog_window_class_defaults<>::ex_style)
       {}
 
       void dialog_window_class::prepare (window* w, os::window parent_id) const  {

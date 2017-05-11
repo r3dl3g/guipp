@@ -36,6 +36,29 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
       class label_base : public gui::win::window_with_text {
+      public:
+        typedef gui::win::window_with_text super;
+
+        void create (const container& parent,
+                     const core::rectangle& place = core::rectangle::def) {
+          super::create(clazz, parent, place);
+        }
+
+        template<typename T>
+        void operator<< (const T& t) {
+          set_text(convert_to_string(t));
+        }
+
+        template<typename T>
+        void operator>> (T& t) const {
+          t = get_text();
+        }
+
+        template<typename T>
+        void operator>> (T&& t) const {
+          t = get_text();
+        }
+
       protected:
         static no_erase_window_class clazz;
       };
@@ -71,13 +94,13 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+        super::create(parent, place);
       }
 
       void create (const container& parent,
                    const std::string& txt,
                    const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+        create(parent, place);
         set_text(txt);
       }
     };

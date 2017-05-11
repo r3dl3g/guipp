@@ -125,15 +125,42 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef event_handler<WM_PAINT, 0, paint_caller> paint_event;
 
-#endif // WIN32
 
+    typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+                          Params<>::caller<>>
+            selection_changed_event;
+
+    typedef event_handler<detail::SELECTION_COMMIT_MESSAGE, 0,
+                          Params<>::caller<>>
+            selection_commit_event;
+
+    typedef event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+                          Params<bool>::caller<get_param<0, bool>>>
+            hilite_changed_event;
+
+#endif //WIN32
+    // --------------------------------------------------------------------------
 #ifdef X11
-
     typedef event_handler<Expose, ExposureMask,
                           Params<draw::graphics>::
                           caller<get_param<0, draw::graphics>>>   paint_event;
 
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
+            selection_changed_event;
+
+    typedef event_handler<ClientMessage, 0,
+                          Params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>
+            selection_commit_event;
+
+    typedef event_handler<ClientMessage, 0,
+                          Params<bool>::caller<get_client_data<0, bool>>, 0,
+                          client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>
+            hilite_changed_event;
 #endif // X11
+    // --------------------------------------------------------------------------
 
     namespace paint {
       void text_item (const std::string& text,

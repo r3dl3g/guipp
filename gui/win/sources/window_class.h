@@ -35,7 +35,7 @@ namespace gui {
 
   namespace win {
 
-    template<os::platform P>
+    template<os::platform P = os::system_platform>
     struct window_class_defaults {};
 
     template<>
@@ -63,10 +63,10 @@ namespace gui {
 
       window_class (const std::string& cls_name,
                     os::color background =    color::white,
-                    os::cursor_type cursor =  window_class_defaults<os::system_platform>::cursor,
-                    os::style style =         window_class_defaults<os::system_platform>::style,
-                    os::style ex_style =      window_class_defaults<os::system_platform>::ex_style,
-                    os::style class_style =   window_class_defaults<os::system_platform>::class_style);
+                    os::cursor_type cursor =  window_class_defaults<>::cursor,
+                    os::style style =         window_class_defaults<>::style,
+                    os::style ex_style =      window_class_defaults<>::ex_style,
+                    os::style class_style =   window_class_defaults<>::class_style);
 
       virtual void prepare (window*, os::window) const;
 

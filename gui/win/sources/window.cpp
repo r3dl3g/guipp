@@ -48,7 +48,7 @@ namespace gui {
 
 #ifdef WIN32
 
-    window::window()
+    window::window ()
       : id(0)
       , cls(nullptr)
     {}
@@ -75,71 +75,63 @@ namespace gui {
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
     }
 
-    bool window::is_valid() const {
+    bool window::is_valid () const {
       return IsWindow(get_id()) != FALSE;
     }
 
-    bool window::is_visible() const {
+    bool window::is_visible () const {
       return is_valid() && IsWindowVisible(get_id());
     }
 
-    bool window::is_enabled() const {
+    bool window::is_enabled () const {
       return is_valid() && IsWindowEnabled(get_id());
     }
 
-    bool window::has_focus() const {
+    bool window::has_focus () const {
       return is_valid() && (GetFocus() == get_id());
     }
 
-    bool window::is_child() const {
+    bool window::is_child () const {
       return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
-    bool window::is_popup() const {
+    bool window::is_popup () const {
       return (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
     }
 
-    bool window::is_toplevel() const {
+    bool window::is_toplevel () const {
       return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
-    bool window::has_border() const {
+    bool window::has_border () const {
       return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
     }
 
-    void window::destroy() {
+    void window::destroy () {
       DestroyWindow(get_id());
     }
 
-    void window::quit() {
+    void window::quit () {
       PostQuitMessage(0);
     }
 
-    void window::set_parent(const container& parent) {
+    void window::set_parent (const container& parent) {
       SetParent(get_id(), parent.get_id());
     }
 
-    container* window::get_parent() const {
+    container* window::get_parent () const {
       return is_valid() ? (container*)detail::get_window(GetParent(get_id())) : nullptr;
     }
 
-    container* window::get_root () const {
-      container* parent = get_parent();
-      if (parent) {
-        return parent->get_root();
-      }
-      return (container*)this;
-    }
-
-    bool window::is_child_of(const container& parent) const {
+    bool window::is_child_of (const container& parent) const {
       return is_valid() && parent.is_valid() && IsChild(parent.get_id(), get_id()) != FALSE;
     }
 
-    void window::set_visible(bool s) {
+    void window::set_visible (bool s) {
       ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
     }
 
-    void window::enable(bool on) {
+    void window::enable (bool on) {
       EnableWindow(get_id(), on);
       redraw_later();
     }
@@ -157,106 +149,106 @@ namespace gui {
       SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
 
-    void window::enable_redraw(bool on) {
+    void window::enable_redraw (bool on) {
       SendMessage(get_id(), WM_SETREDRAW, on, 0);
     }
 
-    void window::redraw_now() {
+    void window::redraw_now () {
       RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
     }
 
-    void window::redraw_later() {
+    void window::redraw_later () {
       InvalidateRect(get_id(), nullptr, TRUE);
     }
 
-    core::size window::size() const {
+    core::size window::size () const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return core::size(r);
     }
 
-    core::point window::position() const {
+    core::point window::position () const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return screen_to_window(core::point(os::point{ r.left, r.top }));
     }
 
-    core::rectangle window::place() const {
+    core::rectangle window::place () const {
       const core::rectangle pl = absolute_place();
       return core::rectangle(screen_to_window(pl.position()), pl.size());
     }
 
-    core::rectangle window::absolute_place() const {
+    core::rectangle window::absolute_place () const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return core::rectangle(r);
     }
 
-    core::point window::absolute_position() const {
+    core::point window::absolute_position () const {
       RECT r;
       GetWindowRect(get_id(), &r);
       return core::point(r);
     }
 
-    core::size window::client_size() const {
+    core::size window::client_size () const {
       RECT r;
       GetClientRect(get_id(), &r);
       return core::size(r);//
     }
 
-    core::rectangle window::client_area() const {
+    core::rectangle window::client_area () const {
       RECT r;
       GetClientRect(get_id(), &r);
       return core::rectangle(r);//
     }
 
-    void window::move(const core::point& pt, bool repaint) {
+    void window::move (const core::point& pt, bool repaint) {
       SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
       if (repaint) {
         redraw_later();
       }
     }
 
-    void window::resize(const core::size& sz, bool repaint) {
+    void window::resize (const core::size& sz, bool repaint) {
       SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
       if (repaint) {
         redraw_later();
       }
     }
 
-    void window::place(const core::rectangle& r, bool repaint) {
+    void window::place (const core::rectangle& r, bool repaint) {
       MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
     }
 
-    core::point window::window_to_screen(const core::point& pt) const {
+    core::point window::window_to_screen (const core::point& pt) const {
       window* p = get_parent();
       return p ? p->client_to_screen(pt) : pt;
     }
 
-    core::point window::screen_to_window(const core::point& pt) const {
+    core::point window::screen_to_window (const core::point& pt) const {
       window* p = get_parent();
       return p ? p->screen_to_client(pt) : pt;
     }
 
-    core::point window::client_to_screen(const core::point& pt) const {
+    core::point window::client_to_screen (const core::point& pt) const {
       POINT Point = pt;
       ClientToScreen(get_id(), &Point);
       return core::point(Point);
     }
 
-    core::point window::screen_to_client(const core::point& pt) const {
+    core::point window::screen_to_client (const core::point& pt) const {
       POINT Point = pt;
       ScreenToClient(get_id(), &Point);
       return core::point(Point);
     }
 
-    void window::capture_pointer() {
+    void window::capture_pointer () {
       LogDebug << "capture_pointer:" << get_id();
       capture_stack.push_back(get_id());
       SetCapture(get_id());
     }
 
-    void window::uncapture_pointer() {
+    void window::uncapture_pointer () {
       if (!capture_stack.empty()) {
         if (capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
@@ -288,7 +280,7 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    bool container::is_parent_of(const window& child) const {
+    bool container::is_parent_of (const window& child) const {
       return is_valid() && child.is_valid() && IsChild(get_id(), child.get_id()) != FALSE;
     }
 
@@ -302,7 +294,7 @@ namespace gui {
       return list;
     }
 
-    void container::set_children_visible(bool show) {
+    void container::set_children_visible (bool show) {
       std::vector<window*> children = get_children();
       for (window* win : children) {
         win->set_visible(show);
@@ -321,22 +313,30 @@ namespace gui {
       create(type, parent.get_id(), place);
     }
 
-    const window_class* window::get_window_class() const {
+    const window_class* window::get_window_class () const {
       return cls;
     }
 
-    void window::register_event_handler(const event_handler_function& f, os::event_id mask) {
+    void window::register_event_handler (const event_handler_function& f, os::event_id mask) {
       events.register_event_handler(f);
       prepare_for_event(mask);
     }
 
-    void window::register_event_handler(event_handler_function&& f, os::event_id mask) {
+    void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
       events.register_event_handler(std::move(f));
       prepare_for_event(mask);
     }
 
-    void window::unregister_event_handler(const event_handler_function& f) {
+    void window::unregister_event_handler (const event_handler_function& f) {
       events.unregister_event_handler(f);
+    }
+
+    container* window::get_root () const {
+      container* parent = get_parent();
+      if (parent) {
+        return parent->get_root();
+      }
+      return (container*)this;
     }
 
 #ifdef X11
@@ -553,21 +553,6 @@ namespace gui {
                                    &children_return,
                                    &nchildren_return));
       return (container*)detail::get_window(parent_return);
-    }
-
-    container* window::get_root () const {
-      Window root_return = 0;
-      Window parent_return = 0;
-      Window *children_return = 0;
-      unsigned int nchildren_return = 0;
-
-      check_xlib_return(XQueryTree(core::global::get_instance(),
-                                   get_id(),
-                                   &root_return,
-                                   &parent_return,
-                                   &children_return,
-                                   &nchildren_return));
-      return (container*)detail::get_window(root_return);
     }
 
     bool window::is_child_of (const container& parent) const {

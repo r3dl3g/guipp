@@ -37,14 +37,14 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
-                           Params<int>::caller<get_client_data<0, int>>, 0,
+                           params<int>::caller<get_client_data<0, int>>, 0,
                            client_message_matcher<detail::SLIDER_MESSAGE>>
             slider_event;
     // --------------------------------------------------------------------------
 #endif // X11
 #ifdef WIN32
     typedef event_handler<detail::SLIDER_MESSAGE, 0,
-                          Params<int>::
+                          params<int>::
                           caller<get_param<0, int>>>
             slider_event;
     // --------------------------------------------------------------------------

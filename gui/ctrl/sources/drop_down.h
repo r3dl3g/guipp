@@ -111,6 +111,11 @@ namespace gui {
         , selection(-1)
         , visible_items(5)
         , filter_id(-1)
+        , me([&](const core::point&) {
+          if (popup.is_visible()) {
+            popup.place(get_popup_place());
+          }
+        })
       {
         super::get_layout().init(&button);
 
@@ -165,15 +170,19 @@ namespace gui {
         items.set_count(count);
       }
 
+      core::rectangle get_popup_place () const {
+        core::rectangle place = super::absolute_place();
+        place.move_y(place.height());
+        place.height(core::size_type(visible_items * list_type::item_size));
+        return place;
+      }
+
       void show_popup (bool show) {
         if (show) {
-          core::rectangle place = super::absolute_place();
-          place.move_y(place.height());
-          place.height(core::size_type(visible_items * list_type::item_size));
           if (!popup.is_valid()) {
-            create_popup(place);
+            create_popup(get_popup_place());
           } else {
-            popup.place(place);
+            popup.place(get_popup_place());
           }
           items.set_selection(selection, false);
           items.make_selection_visible();
@@ -195,10 +204,7 @@ namespace gui {
       void set_visible_items (int n) {
         visible_items = n;
         if (popup.is_visible()) {
-          core::rectangle place = super::absolute_place();
-          place.move_y(place.height());
-          place.height(core::size_type(visible_items * list_type::item_size));
-          popup.place(place);
+          popup.place(get_popup_place());
         }
       }
 
@@ -224,6 +230,13 @@ namespace gui {
 
       inline void set_count (std::size_t n) {
         items.set_count(n);
+      }
+
+      ~drop_down_list () {
+        auto* root = super::get_root();
+        if (root) {
+          root->unregister_event_handler(me);
+        }
       }
 
     private:
@@ -256,6 +269,12 @@ namespace gui {
           }
         }));
         popup.create(*this, place);
+
+        auto* root = super::get_root();
+        if (root) {
+          root->register_event_handler(me);
+        }
+
       }
 
       data_provider data;
@@ -265,6 +284,7 @@ namespace gui {
       int selection;
       int visible_items;
       int filter_id;
+      const move_event me;
 
     };
 

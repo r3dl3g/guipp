@@ -77,9 +77,9 @@ namespace gui {
 
       no_erase_window_class (const std::string& cls_name,
                              os::color background = color::white,
-                             os::cursor_type cursor = window_class_defaults<os::system_platform>::cursor,
-                             os::style style = window_class_defaults<os::system_platform>::style,
-                             os::style ex_style = window_class_defaults<os::system_platform>::ex_style)
+                             os::cursor_type cursor = window_class_defaults<>::cursor,
+                             os::style style = window_class_defaults<>::style,
+                             os::style ex_style = window_class_defaults<>::ex_style)
         :window_class(cls_name, background, cursor, style, ex_style)
       {}
 
@@ -106,8 +106,8 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    struct paint_caller : Params<draw::graphics>::caller<get_param<0, draw::graphics>> {
-      typedef Params<draw::graphics>::caller<get_param<0, draw::graphics>> super;
+    struct paint_caller : params<draw::graphics>::caller<get_param<0, draw::graphics>> {
+      typedef params<draw::graphics>::caller<get_param<0, draw::graphics>> super;
       typedef super::function function;
 
       paint_caller(const function cb)
@@ -123,42 +123,34 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef event_handler<WM_PAINT, 0, paint_caller> paint_event;
+    using paint_event = event_handler<WM_PAINT, 0, paint_caller>;
 
 
-    typedef event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
-                          Params<>::caller<>>
-            selection_changed_event;
+    using selection_changed_event = event_handler<detail::SELECTION_CHANGE_MESSAGE>;
 
-    typedef event_handler<detail::SELECTION_COMMIT_MESSAGE, 0,
-                          Params<>::caller<>>
-            selection_commit_event;
+    using selection_commit_event = event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
-    typedef event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                          Params<bool>::caller<get_param<0, bool>>>
-            hilite_changed_event;
+    using hilite_changed_event = event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+                                               params<bool>::caller<get_param<0, bool>>>;
 
 #endif //WIN32
     // --------------------------------------------------------------------------
 #ifdef X11
-    typedef event_handler<Expose, ExposureMask,
-                          Params<draw::graphics>::
-                          caller<get_param<0, draw::graphics>>>   paint_event;
+    using paint_event = event_handler<Expose, ExposureMask,
+                          params<draw::graphics>::
+                          caller<get_param<0, draw::graphics>>>;
 
-    typedef event_handler<ClientMessage, 0,
-                          Params<>::caller<>, 0,
-                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>
-            selection_changed_event;
+    using selection_changed_event = event_handler<ClientMessage, 0,
+                          params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>;
 
-    typedef event_handler<ClientMessage, 0,
-                          Params<>::caller<>, 0,
-                          client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>
-            selection_commit_event;
+    using selection_commit_event = event_handler<ClientMessage, 0,
+                          params<>::caller<>, 0,
+                          client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>;
 
-    typedef event_handler<ClientMessage, 0,
-                          Params<bool>::caller<get_client_data<0, bool>>, 0,
-                          client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>
-            hilite_changed_event;
+    using hilite_changed_event = event_handler<ClientMessage, 0,
+                          params<bool>::caller<get_client_data<0, bool>>, 0,
+                          client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>;
 #endif // X11
     // --------------------------------------------------------------------------
 

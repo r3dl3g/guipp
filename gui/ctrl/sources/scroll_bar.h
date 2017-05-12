@@ -40,7 +40,7 @@ namespace gui {
     float get_param<0, float>(const core::event& e);
 
     typedef event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                          Params<core::point_type>::caller<get_param<0, core::point_type>>>
+                          params<core::point_type>::caller<get_param<0, core::point_type>>>
             scroll_event;
     // --------------------------------------------------------------------------
 #endif //WIN32
@@ -48,7 +48,7 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     typedef event_handler<ClientMessage, 0,
-                          Params<core::point::type>::caller<get_client_data<0, core::point::type>>, 0,
+                          params<core::point::type>::caller<get_client_data<0, core::point::type>>, 0,
                           client_message_matcher<detail::SCROLLBAR_MESSAGE>>
             scroll_event;
     // --------------------------------------------------------------------------

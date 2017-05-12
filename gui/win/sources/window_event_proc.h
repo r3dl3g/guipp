@@ -59,8 +59,12 @@ namespace gui {
       void register_hot_key (const hot_key&, const hot_key::call&, window* = nullptr);
       void unregister_hot_key (const hot_key&, window* = nullptr);
 
+      int register_message_filter (detail::filter_call filter);
+      void unregister_message_filter (int& id);
+
     }
 
+    bool is_button_event_outside (const window& w, const core::event& e);
     bool check_hot_key (const core::event& e);
 
     int run_loop (volatile bool& running, detail::filter_call filter = nullptr);

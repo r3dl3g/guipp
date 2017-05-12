@@ -132,6 +132,12 @@ namespace gui {
       typedef std::map<hot_key, hot_key::call> hot_key_map;
       hot_key_map hot_keys;
 
+      static int g_next_filter_id = 1;
+
+      typedef std::pair<int, filter_call> filter_call_entry;
+      typedef std::vector<filter_call_entry> filter_list;
+      filter_list message_filters;
+
     }
 
     namespace global {
@@ -176,6 +182,35 @@ namespace gui {
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root);
 #endif // X11
       }
+
+      int register_message_filter (detail::filter_call filter) {
+        detail::message_filters.emplace_back(std::make_pair(detail::g_next_filter_id, filter));
+        return detail::g_next_filter_id++;
+      }
+
+      void unregister_message_filter (int& id) {
+        auto e = detail::message_filters.end();
+        auto b = detail::message_filters.begin();
+        auto i = std::find_if(b, e, [id](const detail::filter_call_entry& e) -> bool {
+          return e.first == id;
+        });
+        if (i != e) {
+          detail::message_filters.erase(i);
+        }
+        id = 0;
+      }
+
+    } // global
+
+    // --------------------------------------------------------------------------
+    bool check_message_filter (const core::event& ev) {
+      for (std::size_t i = 0, e = detail::message_filters.size(); i != e; ++i) {
+        detail::filter_call& f = detail::message_filters[i].second;
+        if (f(ev)) {
+          return true;
+        }
+      }
+      return false;
     }
 
     // --------------------------------------------------------------------------
@@ -195,6 +230,54 @@ namespace gui {
       }
       return false;
     }
+
+#ifdef WIN32
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      switch (e.type) {
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_LBUTTONDBLCLK:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_RBUTTONDBLCLK:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MBUTTONDBLCLK:
+        {
+          POINT pt = { GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam) };
+          ClientToScreen(e.id, &pt);
+          RECT r;
+          GetWindowRect(w.get_id(), &r);
+          return !PtInRect(&r, pt);
+        }
+      }
+      return false;
+    }
+#endif // WIN32
+#ifdef X11
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      switch (e.type) {
+        case ButtonPress:
+        case ButtonRelease: {
+          if (e.xbutton.window == w.get_id()) {
+            return false;
+          }
+          int x, y;
+          Window child;
+          auto display = core::global::get_instance();
+          XTranslateCoordinates(display,
+                                e.xbutton.window,
+                                DefaultRootWindow(display),
+                                e.xbutton.x, e.xbutton.y,
+                                &x, &y, &child);
+
+          core::rectangle area = w.absolute_place();
+          return !area.is_inside(core::point(x, y));
+        }
+      }
+      return false;
+    }
+#endif // X11
 
     // --------------------------------------------------------------------------
     int run_loop (volatile bool& running, detail::filter_call filter) {
@@ -261,7 +344,7 @@ namespace gui {
       bool running = true;
 
       return run_loop(running, [](const core::event& e) {
-        return check_hot_key(e);
+        return check_message_filter(e) || check_hot_key(e);
       });
 
     }

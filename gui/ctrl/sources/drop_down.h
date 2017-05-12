@@ -110,6 +110,7 @@ namespace gui {
         : items(false)
         , selection(-1)
         , visible_items(5)
+        , filter_id(-1)
       {
         super::get_layout().init(&button);
 
@@ -229,7 +230,7 @@ namespace gui {
       void create_children(window*, const core::rectangle&) {
         button.create(*this);
         button.set_visible();
-        layout();
+        super::layout();
       }
 
       void create_popup (const core::rectangle& place) {
@@ -240,50 +241,20 @@ namespace gui {
           items.create(popup, core::rectangle(r.size()));
           items.set_visible();
         }));
-#ifdef X11
-        popup.register_event_handler(mouse_enter_event([&]() {
-          popup.uncapture_pointer();
-        }));
-        popup.register_event_handler(mouse_leave_event([&]() {
-          if (popup.is_visible()) {
-            popup.capture_pointer();
-          }
-        }));
         popup.register_event_handler(show_event([&]() {
-          popup.capture_pointer();
+          filter_id = global::register_message_filter([&](const core::event& e) -> bool {
+            if (is_button_event_outside(popup, e)) {
+              show_popup(false);
+              return true;
+            }
+            return false;
+          });
         }));
         popup.register_event_handler(hide_event([&]() {
-          popup.uncapture_pointer();
-        }));
-        popup.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-          if (!popup.client_area().is_inside(pt)) {
-            show_popup(false);
+          if (filter_id) {
+            global::unregister_message_filter(filter_id);
           }
         }));
-#endif // X11
-#ifdef WIN32
-        //items.register_event_handler(mouse_enter_event([&]() {
-        //  LogInfo << "items.mouse_enter_event";
-        //  items.uncapture_pointer();
-        //}));
-        //items.register_event_handler(mouse_leave_event([&]() {
-        //  LogInfo << "items.mouse_leave_event";
-        //  if (popup.is_visible()) {
-        //    items.capture_pointer();
-        //  }
-        //}));
-        popup.register_event_handler(show_event([&]() {
-          items.capture_pointer();
-        }));
-        popup.register_event_handler(hide_event([&]() {
-          items.uncapture_pointer();
-        }));
-        items.register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
-          if (!popup.client_area().is_inside(pt)) {
-            show_popup(false);
-          }
-        }));
-#endif // WIN32
         popup.create(*this, place);
       }
 
@@ -293,6 +264,7 @@ namespace gui {
       list_type items;
       int selection;
       int visible_items;
+      int filter_id;
 
     };
 

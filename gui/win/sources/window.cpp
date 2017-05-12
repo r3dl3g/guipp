@@ -725,10 +725,10 @@ namespace gui {
     core::point window::window_to_screen (const core::point& pt) const {
         int x, y;
         Window child_return;
-        check_xlib_return(XTranslateCoordinates(core::global::get_instance(),
+        auto display = core::global::get_instance();
+        check_xlib_return(XTranslateCoordinates(display,
                                                 get_id(),
-                                                RootWindow(core::global::get_instance(),
-                                                           DefaultScreen(core::global::get_instance())),
+                                                DefaultRootWindow(display),
                                                 pt.os_x(),
                                                 pt.os_y(),
                                                 &x,
@@ -740,9 +740,9 @@ namespace gui {
     core::point window::screen_to_window (const core::point& pt) const {
         int x, y;
         Window child_return;
-        check_xlib_return(XTranslateCoordinates(core::global::get_instance(),
-                                                RootWindow(core::global::get_instance(),
-                                                           DefaultScreen(core::global::get_instance())),
+        auto display = core::global::get_instance();
+        check_xlib_return(XTranslateCoordinates(display,
+                                                DefaultRootWindow(display),
                                                 get_id(),
                                                 pt.os_x(),
                                                 pt.os_y(),

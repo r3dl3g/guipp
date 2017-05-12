@@ -24,10 +24,10 @@
 #include <algorithm>
 
 #ifdef WIN32
-#include <windowsx.h>
+# include <windowsx.h>
 #endif
 #ifdef X11
-#include <X11/Xlib.h>
+# include <X11/Xlib.h>
 #endif // X11
 
 // --------------------------------------------------------------------------

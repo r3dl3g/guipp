@@ -22,6 +22,9 @@
 // Common includes
 //
 #include <logger.h>
+#ifdef WIN32
+# include <windowsx.h>
+#endif
 
 // --------------------------------------------------------------------------
 //

@@ -193,7 +193,7 @@ namespace gui {
     template<int D, int M>
     int up_modulo (int v) {
       int r = (v + D - 1) / D;
-      return r + r % M;
+      return r + (r % M ? M - r % M: 0);
     }
 
     int bitmap::calc_bytes_per_line (int w, BPP bpp) {
@@ -213,7 +213,7 @@ namespace gui {
 #ifdef X11
       switch (bpp) {
         case BPP::BW:
-          return up_modulo<8, 16>(w);
+          return up_modulo<8, 4>(w);
         case BPP::GRAY:
           return up_modulo<1, 4>(w);
         case BPP::RGB:
@@ -258,11 +258,11 @@ namespace gui {
 
     void bitmap::put_data (const std::vector<char>& src, int w, int h, int bpl, BPP bpp) {
       BPP dst_bpp = bits_per_pixel();
-      if (dst_bpp == bpp) {
+      int dst_bpl = calc_bytes_per_line(w, dst_bpp);
+      if ((dst_bpp == bpp) && (dst_bpl == bpl)) {
         put_bmp_data(get_id(), src, w, h, bpl, bpp);
       } else {
         std::vector<char> dst;
-        int dst_bpl = calc_bytes_per_line(w, dst_bpp);
         dst.resize(dst_bpl * h);
 
         using namespace convert;
@@ -270,7 +270,8 @@ namespace gui {
         switch (bpp) {
           case BPP::BW:
             switch (dst_bpp) {
-              case BPP::BW:   bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
@@ -278,6 +279,7 @@ namespace gui {
           case BPP::GRAY:
             switch (dst_bpp) {
               case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
@@ -286,6 +288,7 @@ namespace gui {
             switch (dst_bpp) {
               case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
             }
           break;
@@ -294,6 +297,7 @@ namespace gui {
               case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
               }
           break;
         }
@@ -335,6 +339,17 @@ namespace gui {
         throw std::runtime_error("get image failed");
       }
 #endif
+    }
+
+    void bitmap::invert () {
+      int w, h, bpl;
+      BPP bpp;
+      std::vector<char> data;
+      get_data(data, w, h, bpl, bpp);
+      for (char& c : data) {
+        c = ~c;
+      }
+      put_data(data, w, h, bpl, bpp);
     }
 
     masked_bitmap::masked_bitmap (const masked_bitmap& rhs)
@@ -382,6 +397,16 @@ namespace gui {
         mask.create(image.size());
         mask.put(image);
       }
+    }
+
+    masked_bitmap::masked_bitmap (const memmap& image, const maskmap& mask)
+    : image(image)
+    , mask(mask)
+    {}
+
+    masked_bitmap::masked_bitmap (memmap&& img, maskmap&& msk) {
+      std::swap(image, img);
+      std::swap(mask, msk);
     }
 
   }

@@ -62,6 +62,7 @@ namespace gui {
 
       void create (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
       void clear ();
+      void invert ();
 
       void put_data (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
       void get_data (std::vector<char>& data, int& w, int& h, int& bpl, BPP& bpp) const;
@@ -113,6 +114,10 @@ namespace gui {
 
       datamap (int w, int h) {
         create(w, h);
+      }
+
+      datamap (int w, int h, int bpl, const std::vector<char>& data) {
+        super::create(data, w, h, bpl, T);
       }
 
       datamap (const core::size& sz) {
@@ -230,6 +235,9 @@ namespace gui {
 
       masked_bitmap (memmap&& bmp);
       void operator= (memmap&& bmp);
+
+      masked_bitmap (const memmap& bmp, const maskmap& mask);
+      masked_bitmap (memmap&& bmp, maskmap&& mask);
 
       bool is_valid () const {
         return image.is_valid();

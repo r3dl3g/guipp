@@ -128,6 +128,7 @@ namespace gui {
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(icon, core::point(x, y));
         }
+
         draw_menu_label(g, r2, label, menu_key, col);
 
         if (!hotkey.empty()) {

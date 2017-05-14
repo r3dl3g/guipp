@@ -2,14 +2,16 @@
 #include "window.h"
 #include "label.h"
 #include "menu.h"
-#include "list.h"
+#include "tree.h"
 #include "scroll_view.h"
+#include "split_view.h"
 #include "toggle_group.h"
 #include "graphics.h"
 #include "bitmap.h"
 #include "pnm.h"
 
 #include <fstream>
+#include <experimental/filesystem>
 
 #define NO_EXPORT
 
@@ -26,8 +28,57 @@ using namespace gui::draw;
 const os::color nero = color::rgb<64,66,68>::value;
 const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
+namespace gui {
+  namespace win {
+    namespace tree {
+
+      using namespace std::experimental::filesystem;
+
+      template<>
+      struct node_info<path> {
+        typedef path type;
+        typedef directory_iterator iterator;
+        typedef path reference;
+      };
+
+      template<>
+      inline bool has_sub_nodes<path> (path const& n) {
+        return is_directory(n);
+      }
+
+      template<>
+      inline node_info<path>::iterator begin<path> (path const& n) {
+        return begin(directory_iterator(n, directory_options::skip_permission_denied));
+      }
+
+      template<>
+      inline node_info<path>::iterator end<path> (path const& n) {
+        return end(directory_iterator(n, directory_options::skip_permission_denied));
+      }
+
+      template<>
+      inline node_info<path>::reference make_reference<path> (path const& n) {
+        return n;
+      }
+
+      template<>
+      inline const path& dereference<path> (node_info<path>::reference const& r) {
+        return r;
+      }
+
+      template<>
+      inline std::string get_label<path> (path const& n) {
+        return n.filename();
+      }
+
+    }
+  }
+}
+
+using namespace std::experimental;
+
 // --------------------------------------------------------------------------
-class my_main_window : public layout_main_window<border_layout<40, 30, 100, 100>> {
+class my_main_window : public layout_main_window<border_layout<40, 30, 100, 200>> {
 public:
   my_main_window ();
 
@@ -59,7 +110,9 @@ private:
 
   vlist<50, color::rgb_gray<224>::value> left_list;
 
-  group_window<vertical_adaption<5, 5>, color::rgb_gray<160>::value> right_bar;
+  typedef tree_view<20, color::very_light_gray> simple_tree;
+  typedef tree::tree<filesystem::path, 20, color::very_light_gray> file_tree;
+  win::hsplit_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
@@ -245,7 +298,31 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     l.set_text(ostreamfmt("Status " << i++));
   }
 
-  right_bar.create(*this);
+  right_view.create(*this, core::rectangle(0, 0, 200, 600));
+  right_view.first.root.label = "root";
+  right_view.first.root.add_nodes({
+    tree::node("leaf 1"),
+    tree::node("sub 2", {
+      tree::node("sub 2.1", {
+        tree::node("leaf 2.1.1"),
+        tree::node("leaf 2.1.2")
+      }),
+      tree::node("sub 2.2", {
+        tree::node("leaf 2.2.1"),
+        tree::node("leaf 2.2.2"),
+        tree::node("leaf 2.2.3")
+      }),
+      tree::node("leaf 2.3")
+    }),
+    tree::node("leaf 3")
+  });
+  right_view.first.open_all();
+  right_view.first.update_node_list();
+  right_view.second.root = filesystem::path("/");
+  right_view.second.update_node_list();
+  right_view.set_visible();
+
+
   left_list.create(*this);
   left_list.set_drawer([](int idx,
                           const graphics& g,
@@ -311,7 +388,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   client_view.get_layout().attach_fix<What::right, Where::width, -10>(&window1, &client_view);
   client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(&window1, &client_view);
 
-  get_layout().set_center_top_bottom_left_right(&client_view, &top_view, &status_bar, &left_list, &right_bar);
+  get_layout().set_center_top_bottom_left_right(&client_view, &top_view, &status_bar, &left_list, &right_view);
   set_children_visible();
 }
 

@@ -113,10 +113,10 @@ namespace gui {
 
     namespace paint {
       // --------------------------------------------------------------------------
-      void text_item (const std::string& text,
-                      const draw::graphics& g,
+      void text_item (const draw::graphics& g,
                       const core::rectangle& place,
                       const draw::brush& background,
+                      const std::string& text,
                       bool selected,
                       text_origin origin) {
         using namespace draw;

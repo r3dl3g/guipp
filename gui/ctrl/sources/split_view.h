@@ -203,6 +203,12 @@ namespace gui {
       Second second;
     };
 
+    template<typename First, typename Second>
+    using vsplit_view = split_view_t<orientation::vertical, First, Second>;
+
+    template<typename First, typename Second>
+    using hsplit_view = split_view_t<orientation::horizontal, First, Second>;
+
   } // win
 
 } // gui

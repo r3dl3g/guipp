@@ -123,7 +123,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       if (bpp != BPP::RGB) {
         bpp = BPP::RGBA;
       }
@@ -158,7 +158,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       bpp = BPP::GRAY;
       bpl = width;
       const std::size_t n = bpl * height;
@@ -228,7 +228,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       bpp = BPP::BW;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
@@ -265,7 +265,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       if (bpp != BPP::RGB) {
         bpp = BPP::RGBA;
       }
@@ -310,7 +310,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       bpp = BPP::GRAY;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
@@ -373,7 +373,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp) {
+    void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp) {
       bpp = BPP::BW;
       bpl = draw::bitmap::calc_bytes_per_line(width, bpp);
       const std::size_t n = bpl * height;
@@ -384,10 +384,10 @@ namespace gui {
         byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bpl));
         int value = 0;
         for (int x = 0; x < width; ++x) {
-          int v;
+          char v;
           in >> v;
           const int s = x % 8;
-          const byte bit = v ? system_bw_bits::mask[s] : 0;
+          const byte bit = v == '1' ? system_bw_bits::mask[s] : 0;
           value = value | bit;
           if (s == 7) {
             set_pnm1_value<os::bitmap_bit_order>(i, x, value);

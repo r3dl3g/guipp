@@ -103,6 +103,14 @@ namespace gui {
         }
       };
 
+      template<>
+      struct line_converter<BPP::BW, BPP::BW> {
+        static void convert (cbyteptr in, byteptr out, int w) {
+          for (int x = 0; x < w; x += 8) {
+            out[x / 8] = in[x / 8];
+          }
+        }
+      };
     }
 
     template<BPP From, BPP To>

@@ -193,8 +193,8 @@ namespace gui {
                            const core::rectangle& place,
                            const draw::brush& background,
                            bool selected,
-                           bool hilited) {
-      paint::text_item(convert_to_string<T>(t), g, place, background, selected, text_origin::vcenter_left);
+                           bool) {
+      paint::text_item(g, place, background, convert_to_string<T>(t), selected, text_origin::vcenter_left);
     }
 
     // static data for list.

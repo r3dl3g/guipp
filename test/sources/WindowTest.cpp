@@ -170,11 +170,11 @@ private:
   List2& list2;
   List3& list3;
 
-  typedef win::split_view_t<orientation::vertical, List2, List3> list_split_view;
+  typedef win::vsplit_view<List2, List3> list_split_view;
   typedef win::simple_column_list<layout::simple_column_list_layout, 16, color::very_light_gray> simple_list;
-  typedef win::split_view_t<orientation::vertical, win::hlist<20>, simple_list> column_list_split_view;
+  typedef win::vsplit_view<win::hlist<20>, simple_list> column_list_split_view;
 
-  win::split_view_t<orientation::horizontal, list_split_view, column_list_split_view> vsplit_view;
+  win::hsplit_view<list_split_view, column_list_split_view> main_split_view;
 
   win::text_button up_button;
   win::text_button down_button;
@@ -269,8 +269,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , paint2(p2)
   , at_paint1(true)
   , at_drag(false)
-  , list2(vsplit_view.first.first)
-  , list3(vsplit_view.first.second)
+  , list2(main_split_view.first.first)
+  , list3(main_split_view.first.second)
 {
   register_event_handler(init_result_handler(), 0);
 
@@ -523,7 +523,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    win::paint::text_item(strm.str(), g, place, background, selected);
+    win::paint::text_item(g, place, background, strm.str(), selected);
   };
 
   list1.set_drawer(list_drawer);
@@ -627,10 +627,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   hscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
-    vsplit_view.set_split_pos((double)pos / 100.0);
+    main_split_view.set_split_pos((double)pos / 100.0);
   }));
-  vsplit_view.slider.register_event_handler(win::move_event([&](const core::point&){
-    hscroll.set_value(static_cast<win::scroll_bar::type>(vsplit_view.get_split_pos() * hscroll.get_max()));
+  main_split_view.slider.register_event_handler(win::move_event([&](const core::point&){
+    hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
   }));
 
   cur_plus.register_event_handler(win::button_clicked_event([&] () {
@@ -768,12 +768,12 @@ void my_main_window::created_children () {
     { 9, 10, 11 }
   };
 
-  vsplit_view.create(main, core::rectangle(410, 50, 160, 250));
-  vsplit_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-  vsplit_view.second.first.set_data(win::simple_list_data<float>(floats));
-  vsplit_view.second.second.get_column_layout().set_columns(columns);
-  vsplit_view.second.second.set_data(col_data);
-  vsplit_view.set_visible();
+  main_split_view.create(main, core::rectangle(410, 50, 160, 250));
+  main_split_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+  main_split_view.second.first.set_data(win::simple_list_data<float>(floats));
+  main_split_view.second.second.get_column_layout().set_columns(columns);
+  main_split_view.second.second.set_data(col_data);
+  main_split_view.set_visible();
 
   data.update_list(list2);
 
@@ -791,7 +791,7 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, text_origin align) {
-      win::paint::text_item(ostreamfmt(v), g, r, color::buttonColor(), false, text_origin::center);
+      win::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -801,7 +801,7 @@ void my_main_window::created_children () {
 
     [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
       std::string text = v ? u8"♣" : u8"♥";
-      win::paint::text_item(text, g, r, b, s, align);
+      win::paint::text_item(g, r, b, text, s, align);
       draw::frame::sunken_relief(g, r);
     }
   };

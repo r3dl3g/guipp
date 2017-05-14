@@ -65,14 +65,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PNM i>
-    void load_pnm (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    void load_pnm (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
 
-    template<> void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<> void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<> void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<> void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<> void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
-    template<> void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int& width, int& height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P1> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P2> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P3> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P4> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P5> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
+    template<> void load_pnm<PNM::P6> (std::istream& in, std::vector<char>& data, int width, int height, int& bpl, BPP& bpp);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -192,6 +192,10 @@ namespace gui {
     class ipnm {
     public:
       ipnm (draw::bitmap& bmp)
+        : bmp(bmp)
+      {}
+
+      ipnm (draw::bitmap&& bmp)
         : bmp(bmp)
       {}
 

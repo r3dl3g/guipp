@@ -423,15 +423,15 @@ namespace gui {
       }
 
       void operator() (int row_id, int col_id,
-                       const draw::graphics& g,
+                       const draw::graphics& graph,
                        const core::rectangle& place,
                        const draw::brush& background,
                        bool selected,
-                       bool hilited,
+                       bool,
                        text_origin align) {
-        paint::text_item(convert_to_string(super::at(row_id).at(col_id)), g, place, background, selected, align);
+        paint::text_item(graph, place, background, convert_to_string(super::at(row_id).at(col_id)), selected, align);
         if (!selected) {
-          F(g, place);
+          F(graph, place);
         }
       }
 
@@ -541,15 +541,15 @@ namespace gui {
     template<typename T,
              void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
     void cell_drawer (const T& t,
-                      const draw::graphics& g,
+                      const draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
                       bool selected,
-                      bool hilited,
+                      bool,
                       text_origin align) {
-      paint::text_item(convert_to_string(t), g, place, background, selected, align);
+      paint::text_item(graph, place, background, convert_to_string(t), selected, align);
       if (!selected) {
-        F(g, place);
+        F(graph, place);
       }
     }
 

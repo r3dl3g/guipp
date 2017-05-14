@@ -87,13 +87,7 @@ namespace gui {
         if (icon) {
           core::size sz = icon.image.size();
           core::point_type y = r.y() + (r.height() - sz.height()) / 2;
-          if (selected) {
-            draw::masked_bitmap invers(icon.image, icon.mask);
-            invers.image.invert();
-            graph.copy_from(invers, core::point(r.x(), y));
-          } else {
-            graph.copy_from(icon, core::point(r.x(), y));
-          }
+          graph.copy_from(icon, core::point(r.x(), y));
           r += core::point(sz.width() + 5, 0);
         }
 
@@ -112,51 +106,51 @@ namespace gui {
 
       static const byte file_icon_bits[] = {
        'P', '4', '\n', '2', '0',' ', '2', '0', '\t',
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00011111, 0b10000000, 0,
-       0b00010000, 0b11000000, 0,
-       0b00010000, 0b10100000, 0,
-       0b00010000, 0b11110000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00010000, 0b00010000, 0,
-       0b00011111, 0b11110000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0};
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00011111, 0b10000000, 0b00000000,
+       0b00010000, 0b11000000, 0b00000000,
+       0b00010000, 0b10100000, 0b00000000,
+       0b00010000, 0b11110000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00010000, 0b00010000, 0b00000000,
+       0b00011111, 0b11110000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000};
 
       static const std::string file_icon_data((const char*)file_icon_bits, sizeof(file_icon_bits));
 
       static const byte close_folder_bits[] = {
        'P', '4', '\n', '2', '0',' ', '2', '0', '\t',
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00011111, 0b00000000, 0,
-       0b00100000, 0b10000000, 0,
-       0b11111111, 0b11111111, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b10000000, 0b00000001, 0,
-       0b11111111, 0b11111111, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0,
-       0b00000000, 0b00000000, 0};
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00011111, 0b00000000, 0b00000000,
+       0b00100000, 0b10000000, 0b00000000,
+       0b11111111, 0b11111111, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b10000000, 0b00000001, 0b00000000,
+       0b11111111, 0b11111111, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000,
+       0b00000000, 0b00000000, 0b00000000};
 
       static const std::string close_folder_data((const char*)close_folder_bits, sizeof(close_folder_bits));
 
@@ -203,7 +197,7 @@ namespace gui {
         return dummy;
       }
 
-      draw::masked_bitmap build_tree_icon (tree_icon type) {
+      draw::masked_bitmap build_tree_icon (tree_icon type, bool selected) {
         draw::maskmap mask;
         std::istringstream in(get_icon_chars(type));
         io::load_pnm(in, mask);
@@ -211,7 +205,9 @@ namespace gui {
         mask.invert();
         draw::memmap icon(mask.size());
         icon = mask;
-        icon.invert();
+        if (!selected) {
+          icon.invert();
+        }
         return draw::masked_bitmap(icon, mask);
       }
 
@@ -220,19 +216,22 @@ namespace gui {
 
     namespace tree {
 
-      const draw::masked_bitmap& open_folder_icon () {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::open_folder));
-        return icon;
+      const draw::masked_bitmap& open_folder_icon (bool selected) {
+        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::open_folder, false));
+        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::open_folder, true));
+        return selected ? icon_selected : icon;
       }
 
-      const draw::masked_bitmap& closed_folder_icon () {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::closed_folder));
-        return icon;
+      const draw::masked_bitmap& closed_folder_icon (bool selected) {
+        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::closed_folder, false));
+        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::closed_folder, true));
+        return selected ? icon_selected : icon;
       }
 
-      const draw::masked_bitmap& file_icon () {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::file));
-        return icon;
+      const draw::masked_bitmap& file_icon (bool selected) {
+        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::file, false));
+        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::file, true));
+        return selected ? icon_selected : icon;
       }
 
     } // tree

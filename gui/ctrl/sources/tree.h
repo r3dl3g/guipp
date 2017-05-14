@@ -57,9 +57,9 @@ namespace gui {
     namespace tree {
 
       // --------------------------------------------------------------------------
-      const draw::masked_bitmap& open_folder_icon ();
-      const draw::masked_bitmap& closed_folder_icon ();
-      const draw::masked_bitmap& file_icon ();
+      const draw::masked_bitmap& open_folder_icon (bool selected);
+      const draw::masked_bitmap& closed_folder_icon (bool selected);
+      const draw::masked_bitmap& file_icon (bool selected);
 
       // --------------------------------------------------------------------------
       template<typename T>
@@ -88,11 +88,11 @@ namespace gui {
       std::string get_label (T const& n);
 
       template<typename T>
-      const draw::masked_bitmap& get_icon (T const&, bool has_children, bool is_open) {
+      const draw::masked_bitmap& get_icon (T const&, bool has_children, bool is_open, bool selected) {
         if (has_children) {
-          return is_open ? open_folder_icon() : closed_folder_icon();
+          return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
         }
-        return file_icon();
+        return file_icon(selected);
       }
 
       // --------------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace gui {
                              bool hilited) {
         paint::tree_node(g, r, b, depth,
                          get_label<T>(t),
-                         get_icon<T>(t, has_children, is_open),
+                         get_icon<T>(t, has_children, is_open, selected),
                          has_children, is_open, selected, hilited);
       }
 
@@ -138,7 +138,6 @@ namespace gui {
               }
             }
           }));
-
         }
 
         bool is_open (const reference n) {

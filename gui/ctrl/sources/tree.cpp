@@ -75,7 +75,7 @@ namespace gui {
           graph.fill(draw::rectangle(area), background);
         }
 
-        core::rectangle r = area + core::point(depth * 16, 0);
+        core::rectangle r = area + core::point(core::point_type(depth * 16), 0);
 
         if (has_children) {
           r.width(16);

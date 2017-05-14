@@ -48,12 +48,22 @@ namespace gui {
 
       template<>
       inline node_info<path>::iterator begin<path> (path const& n) {
+#ifdef WIN32
+        return begin(directory_iterator(n));
+#endif // WIN32
+#ifdef X11
         return begin(directory_iterator(n, directory_options::skip_permission_denied));
+#endif // X11
       }
 
       template<>
       inline node_info<path>::iterator end<path> (path const& n) {
+#ifdef WIN32
+        return end(directory_iterator(n));
+#endif // WIN32
+#ifdef X11
         return end(directory_iterator(n, directory_options::skip_permission_denied));
+#endif // X11
       }
 
       template<>
@@ -68,7 +78,7 @@ namespace gui {
 
       template<>
       inline std::string get_label<path> (path const& n) {
-        return n.filename();
+        return n.filename().string();
       }
 
     }
@@ -318,7 +328,14 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   });
   right_view.first.open_all();
   right_view.first.update_node_list();
-  right_view.second.root = filesystem::path("/");
+  right_view.second.root = 
+#ifdef WIN32
+    filesystem::path("c:\\");
+#endif // WIN32
+#ifdef X11
+    filesystem::path("/");
+#endif // X11
+
   right_view.second.update_node_list();
   right_view.set_visible();
 

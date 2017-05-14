@@ -492,13 +492,15 @@ namespace gui {
       if (bmp.image) {
         core::size sz = bmp.image.size();
         if (bmp.mask) {
-          HDC mem_dc = CreateCompatibleDC(gc);
-          HGDIOBJ old = SelectObject(mem_dc, bmp.mask.get_id());
-          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCAND);
-          SelectObject(mem_dc, bmp.image.get_id());
-          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mem_dc, 0, 0, SRCPAINT);
-          SelectObject(mem_dc, old);
-          DeleteDC(mem_dc);
+          HDC mask_dc = CreateCompatibleDC(gc);
+          SelectObject(mask_dc, bmp.mask.get_id());
+          HDC img_dc = CreateCompatibleDC(gc);
+          SelectObject(img_dc, bmp.image.get_id());
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCINVERT);
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mask_dc, 0, 0, SRCAND);
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCINVERT);
+          DeleteDC(img_dc);
+          DeleteDC(mask_dc);
         } else {
           copy_from(bmp.image, core::rectangle(sz), pt);
         }

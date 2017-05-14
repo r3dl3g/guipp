@@ -107,8 +107,8 @@ namespace gui {
                              bool selected,
                              bool hilited) {
         paint::tree_node(g, r, b, depth,
-                         tree::get_label(t),
-                         tree::get_icon(t, has_children, is_open),
+                         get_label<T>(t),
+                         get_icon<T>(t, has_children, is_open),
                          has_children, is_open, selected, hilited);
       }
 
@@ -132,7 +132,7 @@ namespace gui {
             int idx = super::get_index_at_point(pt);
             if (idx > -1) {
               const depth_info& i = nodes[idx];
-              core::point_type x = i.depth * 16;
+              core::point_type x = core::point_type(i.depth * 16);
               if ((x <= pt.x()) && (x + 16 >= pt.x())) {
                 toggle_node(idx);
               }

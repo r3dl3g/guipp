@@ -40,7 +40,7 @@ namespace gui {
 
     template<>
     struct window_class_defaults<os::platform::win32> {
-      static constexpr os::cursor_type cursor = IF_WIN32_ELSE(IDC_ARROW, 0);
+      static constexpr os::cursor_type cursor = IF_WIN32_ELSE((ULONG_PTR)IDC_ARROW, 0);
       static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
       static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, 0);
       static constexpr os::style class_style = IF_WIN32_ELSE(CS_DBLCLKS, 0);

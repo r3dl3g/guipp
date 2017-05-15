@@ -145,7 +145,7 @@ namespace gui {
       }
 #ifdef WIN32
       if (cursor_type && !cursor) {
-        cursor = LoadCursor(nullptr, cursor_type);
+        cursor = LoadCursor(nullptr, (LPCSTR)cursor_type);
       }
 
       WNDCLASS wc = {

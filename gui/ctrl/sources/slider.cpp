@@ -44,7 +44,7 @@ namespace gui {
         : no_erase_window_class("VSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
-                       IDC_SIZEWE
+                       (ULONG_PTR)IDC_SIZEWE
 #endif // WIN32
 #ifdef X11
                        color::buttonColor(),
@@ -58,7 +58,7 @@ namespace gui {
         : no_erase_window_class("HSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
-                       IDC_SIZENS
+                       (ULONG_PTR)IDC_SIZENS
 #endif // WIN32
 #ifdef X11
                        color::buttonColor(),

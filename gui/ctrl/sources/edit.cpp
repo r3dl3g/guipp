@@ -44,7 +44,7 @@ namespace gui {
 
       window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white,
 #ifdef WIN32
-                       IDC_IBEAM
+                       (ULONG_PTR)IDC_IBEAM
 #endif // WIN32
 #ifdef X11
                        XC_xterm

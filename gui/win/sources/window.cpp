@@ -1133,7 +1133,7 @@ namespace gui {
         : window_class("main_window",
 #ifdef WIN32
                        (os::color)(COLOR_APPWORKSPACE + 1),
-                       IDC_ARROW,
+                       (ULONG_PTR)IDC_ARROW,
                        WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
                        WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED
 #endif // WIN32

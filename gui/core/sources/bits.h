@@ -101,4 +101,21 @@ namespace gui {
      return (reverse_lookup_table[n & 0b1111] << 4) | reverse_lookup_table[n >> 4];
   }
 
+  // the honour goes to user79758 : http://stackoverflow.com/a/4609795
+  template <typename T>
+  constexpr int signum (T x, std::false_type is_signed) {
+    return T(0) < x;
+  }
+
+  template <typename T>
+  constexpr int signum (T x, std::true_type is_signed) {
+      return (T(0) < x) - (x < T(0));
+  }
+
+  template <typename T>
+  constexpr int signum (T x) {
+    return signum(x, std::is_signed<T>());
+  }
+
+
 } //gui

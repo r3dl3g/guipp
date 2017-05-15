@@ -55,7 +55,6 @@ namespace gui {
       void init(os::instance instance);
       os::instance get_instance();
 
-      void fini();
       void sync ();
 
       int get_device_bits_per_pixel ();

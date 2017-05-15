@@ -37,12 +37,7 @@ namespace gui {
 
     namespace global {
 
-      bool is_global_initialized = false;
-      os::instance global_instance = 0;
-
 #ifdef X11
-      os::x11::screen global_screen = 0;
-
       int XErrorHandler (Display* dpy,
                          XErrorEvent* errev) {
         if ((errev->error_code == 143) && (errev->request_code == 139)) {
@@ -61,40 +56,61 @@ namespace gui {
                     " Text: " << buffer;
         return 0;
       }
-
 #endif // X11
+
+      struct gui_init {
+        gui_init ()
+          : instance(nullptr)
+#ifdef X11
+          , screen(0)
+#endif // X11
+        {}
+
+        void init (os::instance i) {
+          instance = i;
+#ifdef X11
+          screen = DefaultScreen(instance);
+          XSetErrorHandler(XErrorHandler);
+#endif // X11
+        }
+
+        bool is_initialized () const {
+          return (instance > 0);
+        }
+
+        ~gui_init () {
+#ifdef X11
+          XSync(instance, False);
+          XCloseDisplay(instance);
+          screen = 0;
+#endif // X11
+        }
+
+        os::instance instance;
+
+#ifdef X11
+        os::x11::screen screen;
+#endif // X11
+      };
+
+      gui_init gui_static;
+
 
       void init (os::instance instance) {
-        global_instance = instance;
-#ifdef X11
-        global_screen = DefaultScreen(global_instance);
-        XSetErrorHandler(XErrorHandler);
-#endif // X11
-        is_global_initialized = true;
+        gui_static.init(instance);
       }
 
       os::instance get_instance () {
-        if (!is_global_initialized) {
+        if (!gui_static.is_initialized()) {
           throw std::runtime_error("gui::core::global::init must be called before first use!");
         }
-        return global_instance;
-      }
-
-      void fini () {
-        if (global_instance) {
-#ifdef X11
-          XSync(global_instance, False);
-          XCloseDisplay(global_instance);
-          global_screen = 0;
-#endif // X11
-          global_instance = 0;
-        }
+        return gui_static.instance;
       }
 
       void sync () {
-        if (global_instance) {
+        if (gui_static.is_initialized()) {
 #ifdef X11
-          XSync(global_instance, False);
+          XSync(gui_static.instance, False);
 #endif // X11
         }
       }
@@ -112,19 +128,17 @@ namespace gui {
       }
 
 #ifdef X11
-
       os::x11::screen get_screen () {
-        return global_screen;
+        return gui_static.screen;
       }
 
       void set_screen (os::x11::screen screen) {
-        global_screen = screen;
+        gui_static.screen = screen;
       }
 
       os::x11::visual get_visual () {
-        return DefaultVisual(global_instance, global_screen);
+        return DefaultVisual(get_instance(), get_screen());
       }
-
 #endif // X11
 
     }
@@ -180,8 +194,6 @@ int main(int argc, char* argv[]) {
     LogFatal << e;
     ret = 1;
   }
-
-  gui::core::global::fini();
 
 #ifdef X11
 //  ibr::log::core::instance().removeSink(&std::cerr);

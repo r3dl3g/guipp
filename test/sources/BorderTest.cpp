@@ -2,16 +2,15 @@
 #include "window.h"
 #include "label.h"
 #include "menu.h"
-#include "tree.h"
 #include "scroll_view.h"
 #include "split_view.h"
 #include "toggle_group.h"
 #include "graphics.h"
 #include "bitmap.h"
 #include "pnm.h"
+#include "file_tree.h"
 
 #include <fstream>
-#include <experimental/filesystem>
 
 #define NO_EXPORT
 
@@ -28,67 +27,9 @@ using namespace gui::draw;
 const os::color nero = color::rgb<64,66,68>::value;
 const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
-namespace gui {
-  namespace win {
-    namespace tree {
-
-      using namespace std::experimental::filesystem;
-
-      template<>
-      struct node_info<path> {
-        typedef path type;
-        typedef directory_iterator iterator;
-        typedef path reference;
-      };
-
-      template<>
-      inline bool has_sub_nodes<path> (path const& n) {
-        return is_directory(n);
-      }
-
-      template<>
-      inline node_info<path>::iterator begin<path> (path const& n) {
-#ifdef WIN32
-        return begin(directory_iterator(n));
-#endif // WIN32
-#ifdef X11
-        return begin(directory_iterator(n, directory_options::skip_permission_denied));
-#endif // X11
-      }
-
-      template<>
-      inline node_info<path>::iterator end<path> (path const& n) {
-#ifdef WIN32
-        return end(directory_iterator(n));
-#endif // WIN32
-#ifdef X11
-        return end(directory_iterator(n, directory_options::skip_permission_denied));
-#endif // X11
-      }
-
-      template<>
-      inline node_info<path>::reference make_reference<path> (path const& n) {
-        return n;
-      }
-
-      template<>
-      inline const path& dereference<path> (node_info<path>::reference const& r) {
-        return r;
-      }
-
-      template<>
-      inline std::string get_label<path> (path const& n) {
-        return n.filename().string();
-      }
-
-    }
-  }
-}
-
-using namespace std::experimental;
 
 // --------------------------------------------------------------------------
-class my_main_window : public layout_main_window<border_layout<40, 30, 100, 200>> {
+class my_main_window : public layout_main_window<border_layout<40, 30, 100, 250>> {
 public:
   my_main_window ();
 
@@ -121,7 +62,7 @@ private:
   vlist<50, color::rgb_gray<224>::value> left_list;
 
   typedef tree_view<20, color::very_light_gray> simple_tree;
-  typedef tree::tree<filesystem::path, 20, color::very_light_gray> file_tree;
+  typedef win::file_tree<20, color::very_light_gray> file_tree;
   win::hsplit_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
@@ -308,7 +249,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     l.set_text(ostreamfmt("Status " << i++));
   }
 
-  right_view.create(*this, core::rectangle(0, 0, 200, 600));
+  right_view.create(*this, core::rectangle(0, 0, 200, 400));
   right_view.first.root.label = "root";
   right_view.first.root.add_nodes({
     tree::node("leaf 1"),
@@ -330,10 +271,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   right_view.first.update_node_list();
   right_view.second.root = 
 #ifdef WIN32
-    filesystem::path("c:\\");
+    sys_fs::path("c:\\");
 #endif // WIN32
 #ifdef X11
-    filesystem::path("/");
+    sys_fs::path("/");
 #endif // X11
 
   right_view.second.update_node_list();

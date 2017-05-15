@@ -37,6 +37,7 @@ namespace gui {
 
     namespace paint {
 
+      // --------------------------------------------------------------------------
       void tree_button (const draw::graphics& graph,
                         const core::rectangle& area,
                         bool is_open);
@@ -63,20 +64,51 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      bool has_sub_nodes (const T& n);
-
-      template<typename T>
       struct node_info {
         typedef T type;
         typedef T iterator;
         typedef T reference;
       };
 
+      // --------------------------------------------------------------------------
       template<typename T>
-      typename node_info<T>::iterator begin (T const&);
+      struct range {
+        typedef typename node_info<T>::iterator iterator;
+
+        range (const iterator& b, const iterator& e)
+          : start(b)
+          , finish(e)
+        {}
+
+        range (iterator&& b, iterator&& e) {
+          std::swap(start, b);
+          std::swap(finish, e);
+        }
+
+        range (const range& rhs)
+          : start(rhs.start)
+          , finish(rhs.finish)
+        {}
+
+        range (range&& rhs) {
+          std::swap(start, rhs.start);
+          std::swap(finish, rhs.finish);
+        }
+
+        iterator begin () const { return start; }
+        iterator end () const { return finish; }
+
+      private:
+        iterator start;
+        iterator finish;
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      bool has_sub_nodes (const T& n);
 
       template<typename T>
-      typename node_info<T>::iterator end (T const&);
+      range<T> sub_nodes (T const&);
 
       template<typename T>
       typename node_info<T>::reference make_reference (T const&);
@@ -85,10 +117,10 @@ namespace gui {
       typename node_info<T>::type const& dereference (typename node_info<T>::reference const&);
 
       template<typename T>
-      std::string get_label (T const& n);
+      std::string label (T const& n);
 
       template<typename T>
-      const draw::masked_bitmap& get_icon (T const&, bool has_children, bool is_open, bool selected) {
+      const draw::masked_bitmap& icon (T const&, bool has_children, bool is_open, bool selected) {
         if (has_children) {
           return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
         }
@@ -107,8 +139,8 @@ namespace gui {
                              bool selected,
                              bool hilited) {
         paint::tree_node(g, r, b, depth,
-                         get_label<T>(t),
-                         get_icon<T>(t, has_children, is_open, selected),
+                         label<T>(t),
+                         icon<T>(t, has_children, is_open, selected),
                          has_children, is_open, selected, hilited);
       }
 
@@ -159,8 +191,8 @@ namespace gui {
 
         void open_sub (const type& n) {
           open_nodes.insert(make_reference<T>(n));
-          for (auto i = begin(n), e = end(n); i != e; ++i) {
-            open_sub(*i);
+          for (const auto& i : sub_nodes(n)) {
+            open_sub(i);
           }
         }
 
@@ -182,8 +214,8 @@ namespace gui {
         void collect_children (const type& n, int depth = 0) {
           nodes.emplace_back(depth_info(make_reference<T>(n), depth));
           if (is_open(make_reference<T>(n))) {
-            for (auto i = begin(n), e = end(n); i != e; ++i) {
-              collect_children(*i, depth + 1);
+            for (const auto& i : sub_nodes(n)) {
+              collect_children(i, depth + 1);
             }
           }
         }
@@ -292,13 +324,8 @@ namespace gui {
       };
 
       template<>
-      inline node::iterator begin<node> (node const& n) {
-        return n.begin();
-      }
-
-      template<>
-      inline node::iterator end<node> (node const& n) {
-        return n.end();
+      inline range<node> sub_nodes (node const& n) {
+        return range<node>(n.begin(), n.end());
       }
 
       template<>
@@ -312,7 +339,7 @@ namespace gui {
       }
 
       template<>
-      inline std::string get_label<node> (node const& n) {
+      inline std::string label<node> (node const& n) {
         return n.label;
       }
 

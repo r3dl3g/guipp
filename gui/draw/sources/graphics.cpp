@@ -1087,7 +1087,7 @@ namespace gui {
                            &extents);
         auto fi = f.font_type();
         height = fi->ascent;
-        width = extents.width;
+        width = extents.xOff;
         dx = 0;
         dy = fi->ascent - fi->descent;
       } else {
@@ -1129,7 +1129,7 @@ namespace gui {
                            &extents);
         auto fi = f.font_type();
         height = fi->ascent;
-        width = extents.width;
+        width = extents.xOff;
         dx = extents.x;
         dy = fi->ascent - fi->descent;
       } else {

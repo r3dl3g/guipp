@@ -60,7 +60,7 @@ namespace gui {
       void tree_node (const draw::graphics& graph,
                       const core::rectangle& area,
                       const draw::brush& background,
-                      int depth,
+                      std::size_t depth,
                       const std::string& label,
                       const draw::masked_bitmap& icon,
                       bool has_children,

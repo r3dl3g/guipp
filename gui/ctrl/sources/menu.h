@@ -287,11 +287,11 @@ namespace gui {
       void add_entry (const menu_entry& entry);
       void add_entry (menu_entry&& entry);
 
-      inline menu_entry& operator[] (int i) {
+      inline menu_entry& operator[] (std::size_t i) {
         return data[i];
       }
 
-      inline const menu_entry& operator[] (int i) const {
+      inline const menu_entry& operator[] (std::size_t i) const {
         return data[i];
       }
 

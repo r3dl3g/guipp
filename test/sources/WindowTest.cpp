@@ -512,7 +512,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     query_state();
   }));
 
-  auto list_drawer = [] (int idx,
+  auto list_drawer = [] (std::size_t idx,
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
@@ -546,7 +546,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
-  list2.set_drawer([&] (int idx,
+  list2.set_drawer([&] (std::size_t idx,
                         const draw::graphics& g,
                         const core::rectangle& place,
                         const draw::brush& background,
@@ -808,7 +808,7 @@ void my_main_window::created_children () {
 
 //  column_list.set_data(column_list_data, column_list_data.size());
   column_list.create(main, core::rectangle(580, 50, 140, 250));
-  column_list.header.set_cell_drawer([](int i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
+  column_list.header.set_cell_drawer([](std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
     using namespace draw;
     g.fill(rectangle(r), background);
     frame::raised_deep_relief(g, r);
@@ -816,8 +816,8 @@ void my_main_window::created_children () {
   });
   column_list.set_drawer(column_list_drawer);
   column_list.get_column_layout().set_columns(weight_columns);
-  column_list.set_data([](int i){
-    return std::make_tuple(i, ostreamfmt(i << '-' << i), (1.1F * (float)i), i * i, i % 2 == 1);
+  column_list.set_data([](std::size_t i){
+    return std::make_tuple(static_cast<int>(i), ostreamfmt(i << '-' << i), (1.1F * (float)i), static_cast<int>(i * i), i % 2 == 1);
   }, 20);
   column_list.set_visible();
 //  column_list.get_column_layout().get_slider(0)->disable();
@@ -906,14 +906,14 @@ void my_main_window::created_children () {
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
   custom_button.set_visible();
 
-  drop_down.set_data([](int i) {
+  drop_down.set_data([](std::size_t i) {
     return ostreamfmt("Item " << i);
   }, 10);
   drop_down.create(main, core::rectangle(290, 445, 100, 20));
   drop_down.set_visible_items(8);
   drop_down.set_visible();
 
-  color_drop_down.set_data([&](int i) {
+  color_drop_down.set_data([&](std::size_t i) {
     static const os::color colors[] = {
       color::red,
       color::blue,

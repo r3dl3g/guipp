@@ -60,7 +60,7 @@ namespace gui {
         this->drawer = std::move(drawer);
       }
 
-      void list::draw_item (int idx,
+      void list::draw_item (std::size_t idx,
                             const draw::graphics& g,
                             const core::rectangle& place,
                             const draw::brush& background,

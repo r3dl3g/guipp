@@ -45,7 +45,7 @@ namespace gui {
       void tree_node (const draw::graphics& graph,
                       const core::rectangle& area,
                       const draw::brush& background,
-                      int depth,
+                      std::size_t depth,
                       const std::string& label,
                       const draw::masked_bitmap& icon,
                       bool has_children,
@@ -133,7 +133,7 @@ namespace gui {
                              const core::rectangle& r,
                              const draw::brush& b,
                              const T& t,
-                             int depth,
+                             std::size_t depth,
                              bool has_children,
                              bool is_open,
                              bool selected,
@@ -211,7 +211,7 @@ namespace gui {
           super::redraw_later();
         }
 
-        void collect_children (const type& n, int depth = 0) {
+        void collect_children (const type& n, std::size_t depth = 0) {
           nodes.emplace_back(depth_info(make_reference<T>(n), depth));
           if (is_open(make_reference<T>(n))) {
             for (const auto& i : sub_nodes(n)) {
@@ -220,7 +220,7 @@ namespace gui {
           }
         }
 
-        void draw_list_item (int idx,
+        void draw_list_item (std::size_t idx,
                              const draw::graphics& g,
                              const core::rectangle& r,
                              const draw::brush& b,
@@ -235,13 +235,13 @@ namespace gui {
 
       private:
         struct depth_info {
-          depth_info(reference node, int depth)
+          depth_info(reference node, std::size_t depth)
             : node(node)
             , depth(depth)
           {}
 
           reference node;
-          int depth;
+          std::size_t depth;
         };
 
         typedef std::vector<depth_info> node_list;

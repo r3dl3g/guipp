@@ -177,12 +177,12 @@ namespace gui {
     void write_pnm4_line (std::ostream& out, const char* data, int bytes);
 
     template<>
-    void write_pnm4_line<bit_order::msb> (std::ostream& out, const char* data, int bytes) {
+    inline void write_pnm4_line<bit_order::msb> (std::ostream& out, const char* data, int bytes) {
       out.write(data, bytes);
     }
 
     template<>
-    void write_pnm4_line<bit_order::lsb> (std::ostream& out, const char* data, int bytes) {
+    inline void write_pnm4_line<bit_order::lsb> (std::ostream& out, const char* data, int bytes) {
       cbyteptr i = reinterpret_cast<cbyteptr>(data);
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
@@ -213,12 +213,12 @@ namespace gui {
     void load_pnm4_line (std::istream& in, char* data, int bytes);
 
     template<>
-    void load_pnm4_line<bit_order::msb> (std::istream& in, char* data, int bytes) {
+    inline void load_pnm4_line<bit_order::msb> (std::istream& in, char* data, int bytes) {
       in.read(data, bytes);
     }
 
     template<>
-    void load_pnm4_line<bit_order::lsb> (std::istream& in, char* data, int bytes) {
+    inline void load_pnm4_line<bit_order::lsb> (std::istream& in, char* data, int bytes) {
       in.read(data, bytes);
       byteptr i = reinterpret_cast<byteptr>(data);
       for (int x = 0; x < bytes; ++x) {

@@ -282,7 +282,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
 
   left_list.create(*this);
-  left_list.set_drawer([](int idx,
+  left_list.set_drawer([](std::size_t idx,
                           const graphics& g,
                           const core::rectangle& place,
                           const brush& background,

@@ -103,7 +103,7 @@ namespace gui {
       typedef group_window<layout::drop_down, B> super;
       typedef vlist<S, B> list_type;
 
-      typedef T(get_data_t)(int);
+      typedef T(get_data_t)(std::size_t);
       typedef std::function<get_data_t> data_provider;
 
       drop_down_list ()
@@ -142,7 +142,7 @@ namespace gui {
           }
         }));
 
-        items.set_drawer([&](int idx,
+        items.set_drawer([&](std::size_t idx,
                              const draw::graphics& g,
                              const core::rectangle& r,
                              const draw::brush& b,

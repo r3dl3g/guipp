@@ -248,7 +248,7 @@ namespace gui {
 
   namespace win {
 
-    inline void default_cell_drawer (int i,
+    inline void default_cell_drawer (std::size_t i,
                                      const draw::graphics& g,
                                      const core::rectangle& r,
                                      const draw::brush& background) {
@@ -267,7 +267,7 @@ namespace gui {
 
       typedef framed_slider_t<orientation::vertical, draw::frame::vgroove> slider_type;
 
-      typedef void(cell_draw)(int idx,
+      typedef void(cell_draw)(std::size_t idx,
                               const draw::graphics&,
                               const core::rectangle& place,
                               const draw::brush& background);
@@ -285,8 +285,8 @@ namespace gui {
           core::rectangle r = area;
           draw::brush background(B);
 
-          std::size_t count = this->get_layout().get_column_count();
-          for (int i = 0; i < count; ++i) {
+          auto count = this->get_layout().get_column_count();
+          for (decltype(count) i = 0; i < count; ++i) {
             layout::column_size_type w = this->get_layout().get_column_width(i);
             r.width(w);
             if (cell_drawer) {
@@ -311,7 +311,7 @@ namespace gui {
         core::rectangle r(-1, 1, 2, this->size().height() - 2);
         sliders.resize(count);
         std::vector<detail::slider*> v;
-        for (int i = 0; i < count; ++i) {
+        for (decltype(count) i = 0; i < count; ++i) {
           slider_type& s = sliders[i];
           v.push_back(&s);
           r.move_x(this->get_layout().get_column_width(i));
@@ -422,7 +422,7 @@ namespace gui {
         l.set_count(super::size());
       }
 
-      void operator() (int row_id, int col_id,
+      void operator() (std::size_t row_id, std::size_t col_id,
                        const draw::graphics& graph,
                        const core::rectangle& place,
                        const draw::brush& background,
@@ -444,7 +444,7 @@ namespace gui {
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type, S, B> super;
 
-      typedef void(cell_draw)(int row_id, int col_id,
+      typedef void(cell_draw)(std::size_t row_id, std::size_t col_id,
                               const draw::graphics&,
                               const core::rectangle& place,
                               const draw::brush& background,
@@ -474,7 +474,7 @@ namespace gui {
       }
 
     protected:
-      void draw_cells (int idx,
+      void draw_cells (std::size_t idx,
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
@@ -482,8 +482,8 @@ namespace gui {
                        bool hilited) {
         if (drawer) {
           core::rectangle r = place;
-          std::size_t count = this->get_column_layout().get_column_count();
-          for (int i = 0; i < count; ++i) {
+          auto count = this->get_column_layout().get_column_count();
+          for (decltype(count) i = 0; i < count; ++i) {
             core::size::type w = this->get_column_layout().get_column_width(i);
             r.width(w);
             drawer(idx, i, g, r, background, selected, hilited, this->get_column_layout().get_column_align(i));
@@ -531,7 +531,7 @@ namespace gui {
         l.set_count(super::size());
       }
 
-      row operator() (int row_id) const {
+      row operator() (std::size_t row_id) const {
         return super::at(row_id);
       }
 
@@ -605,7 +605,7 @@ namespace gui {
         super::operator=(rhs);
       }
 
-      template<int I>
+      template<std::size_t I>
       void draw_cell (const row& data,
                       const layout_type& l,
                       const draw::graphics& g,
@@ -615,7 +615,7 @@ namespace gui {
                       bool hilited) {
       }
 
-      template<int I, typename T, typename... Args>
+      template<std::size_t I, typename T, typename... Args>
       void draw_cell (const row& data,
                       const layout_type& l,
                       const draw::graphics& g,
@@ -681,7 +681,7 @@ namespace gui {
       //typedef column_list_row_drawer_t<layout_type, cell_drawer<Arguments>...> standard_drawer;
       typedef column_list_row_drawer_t<layout_type, Arguments...> row_drawer;
 
-      typedef row (get_row_data_t)(int idy);
+      typedef row (get_row_data_t)(std::size_t idy);
 
       typedef void (draw_row_data_t)(const row&,
                                      const layout_type& l,
@@ -711,7 +711,7 @@ namespace gui {
       }
 
     protected:
-      void draw_cells_t (int row_id,
+      void draw_cells_t (std::size_t row_id,
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,

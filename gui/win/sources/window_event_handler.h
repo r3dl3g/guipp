@@ -48,44 +48,32 @@ namespace gui {
     T get_param (const core::event& e);
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    T get_param1_low (const core::event& e) {
-      return static_cast<T>((SHORT)LOWORD(e.wParam));
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    T get_param1_high (const core::event& e) {
-      return static_cast<T>((SHORT)HIWORD(e.wParam));
-    }
+    template<>
+    bool get_param<0, bool> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    bool get_param<0, bool>(const core::event& e);
+    unsigned int get_param<0, unsigned int> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    unsigned int get_param<0, unsigned int>(const core::event& e);
+    int get_param<0, int> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    int get_param<0, int>(const core::event& e);
+    window* get_param<1, window*> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    window* get_param<1, window*>(const core::event& e);
+    core::point get_param<1, core::point> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    core::point get_param<1, core::point>(const core::event& e);
-
-    // --------------------------------------------------------------------------
-    template<>
-    core::size get_param<1, core::size>(const core::event& e);
+    core::size get_param<1, core::size> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<typename T>
-    core::rectangle get_rect(const core::event& e) {
+    core::rectangle get_rect (const core::event& e) {
       T& p = *reinterpret_cast<T*>(e.lParam);
       return core::rectangle(static_cast<core::point::type>(p.x),
                              static_cast<core::point::type>(p.y),
@@ -94,10 +82,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    window* get_window_from_cs(const core::event& e);
+    window* get_window_from_cs (const core::event& e);
 
     // --------------------------------------------------------------------------
-    unsigned int get_flags_from_wp(const core::event& e);
+    unsigned int get_flags_from_wp (const core::event& e);
+
+    // --------------------------------------------------------------------------
+    core::point_type get_wheel_delta (const core::event& e);
 
 #endif // Win32
 #ifdef X11
@@ -337,12 +328,12 @@ namespace gui {
     using mouse_leave_event = event_handler<WM_MOUSELEAVE>;
 
     using wheel_x_event = event_handler<WM_MOUSEHWHEEL, 0,
-                           params<core::point::type, core::point>::
-                           caller<get_param1_high<core::point_type>,
+                           params<core::point_type, core::point>::
+                           caller<get_wheel_delta,
                                   get_param<1, core::point>>>;
     using wheel_y_event = event_handler<WM_MOUSEWHEEL, 0,
-                           params<core::point::type, core::point>::
-                           caller<get_param1_high<core::point_type>,
+                           params<core::point_type, core::point>::
+                           caller<get_wheel_delta,
                                   get_param<1, core::point>>>;
 
     // --------------------------------------------------------------------------
@@ -429,13 +420,6 @@ namespace gui {
     using os_paint_event = event_handler<WM_PAINT, 0, os_paint_caller>;
 
     // --------------------------------------------------------------------------
-    template <WORD N>
-    struct command_matcher {
-      bool operator() (const core::event& e) {
-        return (e.type == WM_COMMAND) && (get_param1_high<WORD>(e) == N);
-      }
-    };
-
     void send_client_message (window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
 
@@ -691,13 +675,13 @@ namespace gui {
     };
 
     using wheel_x_event = event_handler<ButtonRelease, ButtonReleaseMask,
-                           params<core::point::type, core::point>::
+                           params<core::point_type, core::point>::
                            caller<get_wheel_delta<6, 7>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
                            wheel_button_match<6, 7>>;
     using wheel_y_event = event_handler<ButtonRelease, ButtonReleaseMask,
-                           params<core::point::type,  core::point>::
+                           params<core::point_type,  core::point>::
                            caller<get_wheel_delta<Button4, Button5>,
                                   get_param<core::point, XButtonEvent>>,
                            0,

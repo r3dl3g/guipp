@@ -88,6 +88,10 @@ namespace gui {
       return p->flags;
     }
     // --------------------------------------------------------------------------
+    core::point_type get_wheel_delta(const core::event& e) {
+      return static_cast<core::point_type>(GET_WHEEL_DELTA_WPARAM(e.wParam));
+    }
+    // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
       return static_cast<os::key_state>((GetKeyState(VK_SHIFT) & 0x8000 ? MK_SHIFT : 0) |
                                         (GetKeyState(VK_CONTROL) & 0x8000 ? MK_CONTROL : 0) |

@@ -43,7 +43,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       column_size_type column_list_layout::get_column_left_pos(std::size_t i) const {
         column_size_type w = 0;
-        for (int j = 0; j < i; ++j) {
+        for (decltype(i) j = 0; j < i; ++j) {
           w += get_column_width(j);
         }
         return w;
@@ -113,11 +113,11 @@ namespace gui {
 
       void column_list_layout::layout(const core::size& new_size) {
         core::rectangle r(-1, 1, 2, new_size.height() - 2);
-        std::size_t count = get_column_count();
+        auto count = get_column_count();
         if (count != sliders.size()) {
           sliders = slider_creator(count);
         }
-        for (std::size_t i = 0; i < count; ++i) {
+        for (decltype(count) i = 0; i < count; ++i) {
           slider* s = sliders[i];
           r.move_x(get_column_width(i));
           s->place(r);
@@ -170,7 +170,7 @@ namespace gui {
     }
 
     void weight_column_list_layout::set_column_width(std::size_t i, column_size_type w, bool update) {
-      std::size_t count = get_column_count();
+      auto count = get_column_count();
 
       // adjust only the columns on the right
 
@@ -178,7 +178,7 @@ namespace gui {
       column_size_type right_width = 0;
       column_size_type right_min_width = 0;
 
-      for (std::size_t j = i + 1; j < count; ++j) {
+      for (decltype(count) j = i + 1; j < count; ++j) {
         right_weigth += get_column_weight(j);
         right_width += get_column_width(j);
         right_min_width += get_column_min_width(j);
@@ -204,7 +204,7 @@ namespace gui {
       if (old_w != new_w) {
         const column_size_type open_space = available_width - left - new_w - right_width;
 
-        for (std::size_t j = i + 1; j < count; ++j) {
+        for (decltype(count) j = i + 1; j < count; ++j) {
           column_size_type cw = get_column_width(j) + static_cast<column_size_type>(open_space * get_column_weight(j) / right_weigth);
           super::set_column_width(j, cw, false);
         }
@@ -216,12 +216,12 @@ namespace gui {
     }
 
     void weight_column_list_layout::layout (const core::size& sz) {
-      std::size_t count = get_column_count();
+      auto count = get_column_count();
 
       float full_weigth = 0.0F;
       column_size_type full_width = 0;
 
-      for (std::size_t i = 0; i < count; ++i) {
+      for (decltype(count) i = 0; i < count; ++i) {
         full_weigth += get_column_weight(i);
         full_width += get_column_width(i);
       }
@@ -234,7 +234,7 @@ namespace gui {
       column_size_type space = available_width - full_width;
 
 
-      for (std::size_t i = 0; i < count; ++i) {
+      for (decltype(count) i = 0; i < count; ++i) {
         column_size_type w = get_column_width(i) + static_cast<column_size_type>(space * get_column_weight(i) / full_weigth);
         super::set_column_width(i, w, false);
       }

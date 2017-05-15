@@ -84,7 +84,8 @@ namespace gui {
         /* figure out which styles the IM can support */
         XGetIMValues(im, XNQueryInputStyle, &im_supported_styles, NULL);
         XIMStyle best_style = 0x0F1F;
-        for (int i = 0; i < im_supported_styles->count_styles; ++i) {
+        auto count = im_supported_styles->count_styles;
+        for (decltype(count) i = 0; i < count; ++i) {
           XIMStyle style = im_supported_styles->supported_styles[i];
           if ((style & app_supported_styles) == style) {/* if we can handle it */
             best_style = std::min(style, best_style);

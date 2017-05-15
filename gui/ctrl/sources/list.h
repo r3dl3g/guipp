@@ -63,7 +63,7 @@ namespace gui {
         }
 
 
-        typedef void(draw_list_item) (int idx,
+        typedef void(draw_list_item) (std::size_t idx,
                                       const draw::graphics&,
                                       const core::rectangle& place,
                                       const draw::brush& background,
@@ -74,7 +74,7 @@ namespace gui {
         void set_drawer (std::function<draw_list_item>&& drawer);
 
       protected:
-        void draw_item (int idx,
+        void draw_item (std::size_t idx,
                         const draw::graphics&,
                         const core::rectangle& place,
                         const draw::brush& background,
@@ -232,7 +232,7 @@ namespace gui {
         l.set_count(super::size());
       }
 
-      void operator() (int idx,
+      void operator() (std::size_t idx,
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
@@ -347,7 +347,7 @@ namespace gui {
               break;
             case keys::end:
             case keys::numpad::end:
-              set_selection((int)super::get_count() - 1);
+              set_selection(static_cast<int>(super::get_count()) - 1);
               break;
             case keys::enter:
               send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
@@ -395,7 +395,7 @@ namespace gui {
         super::item_count = count;
 
         const pos_t sz = super::get_list_size();
-        const pos_t visible = (S * (int)super::item_count) - sz;
+        const pos_t visible = (S * static_cast<pos_t>(count)) - sz;
 
         super::scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
@@ -418,7 +418,7 @@ namespace gui {
 
       void set_selection (int sel, bool notify = true) {
         int new_selection = std::max(-1, sel);
-        if (new_selection >= super::get_count()) {
+        if (new_selection >= static_cast<int>(super::get_count())) {
           new_selection = -1;
         }
         if (super::selection != new_selection) {
@@ -456,7 +456,7 @@ namespace gui {
 
       void set_hilite (int sel, bool notify = true) {
         int new_hilite = std::max(-1, sel);
-        if (new_hilite >= super::get_count()) {
+        if (new_hilite >= static_cast<int>(super::get_count())) {
           new_hilite = -1;
         }
         if (super::hilite != new_hilite) {
@@ -492,12 +492,12 @@ namespace gui {
         draw::brush background(B);
 
         const pos_t list_sz = super::get_list_size();
-        const int last = (int)super::get_count();
-        const int first = int(super::get_scroll_pos() / S);
+        const auto last = super::get_count();
+        const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / S);
 
         super::set_dimension(place, S * first - super::get_scroll_pos(), S);
 
-        for(int idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
+        for(auto idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, background, super::get_selection() == idx, super::get_hilite() == idx);
           super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
         }

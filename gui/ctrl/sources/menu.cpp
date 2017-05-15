@@ -237,7 +237,7 @@ namespace gui {
 
     void menu_data::set_selection (int sel) {
       int new_selection = std::max(-1, sel);
-      if (new_selection >= size()) {
+      if (new_selection >= static_cast<int>(size())) {
         new_selection = -1;
       }
       if ((new_selection != -1) && data[new_selection].is_disabled()) {
@@ -293,7 +293,7 @@ namespace gui {
 
     void menu_data::set_hilite (int sel) {
       int new_hilite = std::max(-1, sel);
-      if (new_hilite >= size()) {
+      if (new_hilite >= static_cast<int>(size())) {
         new_hilite = -1;
       }
       if ((new_hilite != -1) && data[new_hilite].is_disabled()) {
@@ -530,11 +530,11 @@ namespace gui {
     int main_menu::get_index_at_point (const core::point& pt) const {
       if (client_area().is_inside(pt)) {
         core::point_type pos = 0;
-        auto max = data.size();
-        for (int i = 0; i < max; ++i) {
+        auto count = data.size();
+        for (decltype(count) i = 0; i < count; ++i) {
           pos += data[i].get_width() + 20;
           if (pt.x() < pos) {
-            return i;
+            return static_cast<int>(i);
           }
         }
       }
@@ -544,19 +544,19 @@ namespace gui {
     core::point main_menu::sub_menu_position (std::size_t idx) const {
       auto r = absolute_position();
       core::point_type pos = 0;
-      auto max = std::min(idx, data.size());
-      for (int i = 0; i < max; ++i) {
+      auto count = std::min(idx, data.size());
+      for (decltype(count) i = 0; i < count; ++i) {
         pos += data[i].get_width() + 20;
       }
       return (r + core::point(pos, size().height()));
     }
 
     void main_menu::paint (const draw::graphics& g) {
-      auto max = data.size();
       draw::brush background(color::menuColor());
       const core::rectangle area = client_area();
       core::rectangle r = area;
-      for (int i = 0; i < max; ++i) {
+      auto count = data.size();
+      for (decltype(count) i = 0; i < count; ++i) {
         auto w = data[i].get_width() + 20;
         r.width(w);
         paint::main_menu_item(g, r, background, data[i],
@@ -641,7 +641,7 @@ namespace gui {
         case keys::right:
         case keys::numpad::right: {
           int idx = data.get_hilite();
-          if (!data.is_open() && (idx != -1) && data[idx].is_sub_menu()) {
+          if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
             data.set_selection(idx);
             return true;
           }
@@ -749,8 +749,8 @@ namespace gui {
       const core::rectangle area = client_area();
       draw::frame::raised_relief(g, area);
       core::rectangle r = area.shrinked({1, 1});
-      const auto count = data.size();
-      for (int i = 0; i < count; ++i) {
+      auto count = data.size();
+      for (decltype(count) i = 0; i < count; ++i) {
         r.height(static_cast<core::size_type>(item_height));
         paint::menu_item(g, r, background, text_pos, hotkey_pos, data[i],
                          (i == data.get_selection()), (i == data.get_hilite()));
@@ -763,8 +763,8 @@ namespace gui {
       core::size_type hotkey_width = 0;
       bool has_sub = false;
       const draw::font& f = draw::font::menu();
-      const auto count = data.size();
-      for (int i = 0; i < count; ++i) {
+      auto count = data.size();
+      for (decltype(count) i = 0; i < count; ++i) {
         const menu_entry& e = data[i];
         label_width = std::max(label_width, e.get_width());
         has_sub |= e.is_sub_menu();

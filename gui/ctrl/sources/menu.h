@@ -307,6 +307,8 @@ namespace gui {
         return data.end();
       }
 
+      int get_index_of (const menu_entry&) const;
+
       int get_selection () const;
       void set_selection (int);
       void clear_selection ();

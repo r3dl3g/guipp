@@ -371,44 +371,57 @@ namespace gui {
     }
 
     void menu_data::check_hot_key (os::key_state st, os::key_symbol sym) {
-      for (menu_entry& e : data) {
-        e.check_hot_key(st, sym);
+      for (auto& i : data) {
+        i.check_hot_key(st, sym);
       }
     }
 
     void menu_data::register_hot_keys () {
-      for (menu_entry& e : data) {
-        if (!e.get_hot_key().empty()) {
-          global::register_hot_key(e.get_hot_key(), e.get_action());
+      for (auto& i : data) {
+        if (!i.get_hot_key().empty()) {
+          global::register_hot_key(i.get_hot_key(), i.get_action());
         }
       }
     }
 
     void menu_data::unregister_hot_keys () {
-      for (const menu_entry& e : data) {
-        if (!e.get_hot_key().empty()) {
-          global::unregister_hot_key(e.get_hot_key());
+      for (auto& i : data) {
+        if (!i.get_hot_key().empty()) {
+          global::unregister_hot_key(i.get_hot_key());
         }
       }
     }
 
     void menu_data::register_menu_keys () {
-      for (menu_entry& e : data) {
-        if (e.get_menu_key()) {
-          global::register_hot_key(hot_key(e.get_menu_key(), state::alt), [&]() {
+      int idx = -1;
+      for (auto& i : data) {
+        ++idx;
+        if (i.get_menu_key()) {
+          global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
             win->take_focus();
-            e.select();
+            set_selection(idx);
           });
         }
       }
     }
 
     void menu_data::unregister_menu_keys () {
-      for (menu_entry& e : data) {
-        if (e.get_menu_key()) {
-          global::unregister_hot_key(hot_key(e.get_menu_key(), state::alt));
+      for (auto& i : data) {
+        if (i.get_menu_key()) {
+          global::unregister_hot_key(hot_key(i.get_menu_key(), state::alt));
         }
       }
+    }
+
+    int menu_data::get_index_of (const menu_entry& e) const {
+      int idx = -1;
+      for (auto& i : data) {
+        ++idx;
+        if (&i == &e) {
+          return idx;
+        }
+      }
+      return idx;
     }
 
     // --------------------------------------------------------------------------
@@ -438,15 +451,7 @@ namespace gui {
       register_event_handler(selection_changed_event([&]() {
         int idx = data.get_selection();
         if (idx > -1) {
-#ifdef X11
-          XGrabKeyboard(core::global::get_instance(), get_id(),
-                        False, GrabModeAsync, GrabModeAsync, CurrentTime);
-#endif // X11
           data[idx].select();
-#ifdef X11
-        } else {
-          XUngrabKeyboard(core::global::get_instance(), CurrentTime);
-#endif // X11
         }
       }));
 
@@ -533,11 +538,12 @@ namespace gui {
     int main_menu::get_index_at_point (const core::point& pt) const {
       if (client_area().is_inside(pt)) {
         core::point_type pos = 0;
-        auto count = data.size();
-        for (decltype(count) i = 0; i < count; ++i) {
-          pos += data[i].get_width() + 20;
+        int idx = -1;
+        for (auto& i : data) {
+          ++idx;
+          pos += i.get_width() + 20;
           if (pt.x() < pos) {
-            return static_cast<int>(i);
+            return idx;
           }
         }
       }
@@ -547,9 +553,12 @@ namespace gui {
     core::point main_menu::sub_menu_position (std::size_t idx) const {
       auto r = absolute_position();
       core::point_type pos = 0;
-      auto count = std::min(idx, data.size());
-      for (decltype(count) i = 0; i < count; ++i) {
-        pos += data[i].get_width() + 20;
+      for (auto& i : data) {
+        if (idx < 1) {
+          break;
+        }
+        pos += i.get_width() + 20;
+        --idx;
       }
       return (r + core::point(pos, size().height()));
     }
@@ -558,12 +567,13 @@ namespace gui {
       draw::brush background(color::menuColor());
       const core::rectangle area = client_area();
       core::rectangle r = area;
-      auto count = data.size();
-      for (decltype(count) i = 0; i < count; ++i) {
-        auto w = data[i].get_width() + 20;
+      int idx = -1;
+      for (auto& i : data) {
+        ++idx;
+        auto w = i.get_width() + 20;
         r.width(w);
-        paint::main_menu_item(g, r, background, data[i],
-                              (i == data.get_selection()), (i == data.get_hilite()));
+        paint::main_menu_item(g, r, background, i,
+                              (idx == data.get_selection()), (idx == data.get_hilite()));
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
@@ -666,13 +676,13 @@ namespace gui {
           return true;
 
         default: {
-          int idx = 0;
-          for (auto& e : data) {
-            if (compare_menu_key(key, e)) {
+          int idx = -1;
+          for (auto& i : data) {
+            ++idx;
+            if (compare_menu_key(key, i)) {
               data.set_selection(idx);
               return true;
             }
-            ++idx;
           }
           break;
         }
@@ -756,11 +766,12 @@ namespace gui {
       const core::rectangle area = client_area();
       draw::frame::raised_relief(g, area);
       core::rectangle r = area.shrinked({1, 1});
-      auto count = data.size();
-      for (decltype(count) i = 0; i < count; ++i) {
+      int idx = -1;
+      for (auto& i : data) {
+        ++idx;
         r.height(static_cast<core::size_type>(item_height));
-        paint::menu_item(g, r, background, text_pos, hotkey_pos, data[i],
-                         (i == data.get_selection()), (i == data.get_hilite()));
+        paint::menu_item(g, r, background, text_pos, hotkey_pos, i,
+                         (idx == data.get_selection()), (idx == data.get_hilite()));
         r.move_y(static_cast<core::size_type>(item_height));
       }
     }
@@ -770,12 +781,10 @@ namespace gui {
       core::size_type hotkey_width = 0;
       bool has_sub = false;
       const draw::font& f = draw::font::menu();
-      auto count = data.size();
-      for (decltype(count) i = 0; i < count; ++i) {
-        const menu_entry& e = data[i];
-        label_width = std::max(label_width, e.get_width());
-        has_sub |= e.is_sub_menu();
-        hotkey_width = std::max(hotkey_width, f.get_text_size(e.get_hot_key().get_key_string()).width());
+      for (auto& i : data) {
+        label_width = std::max(label_width, i.get_width());
+        has_sub |= i.is_sub_menu();
+        hotkey_width = std::max(hotkey_width, f.get_text_size(i.get_hot_key().get_key_string()).width());
       }
       text_pos = 36;
       hotkey_pos = text_pos + label_width + 20;

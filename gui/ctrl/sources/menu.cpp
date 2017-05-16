@@ -395,7 +395,10 @@ namespace gui {
     void menu_data::register_menu_keys () {
       for (menu_entry& e : data) {
         if (e.get_menu_key()) {
-          global::register_hot_key(hot_key(e.get_menu_key(), state::alt), e.get_action());
+          global::register_hot_key(hot_key(e.get_menu_key(), state::alt), [&]() {
+            win->take_focus();
+            e.select();
+          });
         }
       }
     }
@@ -618,12 +621,7 @@ namespace gui {
     }
 
     bool compare_menu_key (os::key_symbol key, const menu_entry& e) {
-#ifdef WIN32
       return toupper(key) == toupper(e.get_menu_key());
-#endif // WIN32
-#ifdef X11
-      return (key == tolower(e.get_menu_key())
-#endif // X11
     }
 
     bool popup_menu::handle_key (os::key_symbol key) {

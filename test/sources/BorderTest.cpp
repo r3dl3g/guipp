@@ -8,6 +8,7 @@
 #include "graphics.h"
 #include "bitmap.h"
 #include "pnm.h"
+#include "pnm_to_src.h"
 #include "file_tree.h"
 
 #include <fstream>
@@ -42,6 +43,7 @@ public:
   void test_rgb ();
   void save_all_bin ();
   void save_all_ascii ();
+  void save_all_src ();
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
@@ -236,8 +238,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   buttons[4].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
   buttons[5].set_text("ascii");
   buttons[5].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
+  buttons[6].set_text("src");
+  buttons[6].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
 
-  for (i = 6; i < 10; ++i) {
+  for (i = 7; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
   }
 
@@ -545,14 +549,23 @@ void my_main_window::save_all_bin () {
   io::ofpnm<io::PNM::P4>("bw0.b")   << bw[0];
   io::ofpnm<io::PNM::P4>("bw1.b")   << bw[1];
 }
-  
-void my_main_window::save_all_ascii () {
+
+void my_main_window::save_all_ascii() {
   io::ofpnm<io::PNM::P3>("bmp0.b") << bmp[0];
   io::ofpnm<io::PNM::P3>("bmp1.b") << bmp[1];
   io::ofpnm<io::PNM::P2>("gray0.b") << gray[0];
   io::ofpnm<io::PNM::P2>("gray1.b") << gray[1];
   io::ofpnm<io::PNM::P1>("bw0.b") << bw[0];
   io::ofpnm<io::PNM::P1>("bw1.b") << bw[1];
+}
+
+void my_main_window::save_all_src () {
+  io::src::save_pnm_src("bmp0.h", bmp[0], "bmp0");
+  io::src::save_pnm_src("bmp1.h", bmp[1], "bmp1");
+  io::src::save_pnm_src("gray0.h", gray[0], "gray0");
+  io::src::save_pnm_src("gray1.h", gray[1], "gray1");
+  io::src::save_pnm_src("bw0.h", bw[0], "bw0");
+  io::src::save_pnm_src("bw1.h", bw[1], "bw1");
 }
 
 // --------------------------------------------------------------------------

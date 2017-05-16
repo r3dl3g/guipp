@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: bitmap definition
+* @brief     C++ API: save/load bitmap to/from pnm file or stream.
 *
 * @file
 */

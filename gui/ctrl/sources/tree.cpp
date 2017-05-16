@@ -30,8 +30,15 @@
 #include "bitmap.h"
 #include "pnm.h"
 
-
 namespace gui {
+
+  namespace image_data {
+
+#include "file_icon.h"
+#include "close_folder_icon.h"
+#include "open_folder_icon.h"
+
+  } // image_data
 
   namespace win {
 
@@ -99,87 +106,7 @@ namespace gui {
 
     } // paint
 
-
     namespace detail {
-
-      namespace image_data {
-
-      static const byte file_icon_bits[] = {
-       'P', '4', '\n', '2', '0',' ', '2', '0', '\t',
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00011111, 0b10000000, 0b00000000,
-       0b00010000, 0b11000000, 0b00000000,
-       0b00010000, 0b10100000, 0b00000000,
-       0b00010000, 0b11110000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00010000, 0b00010000, 0b00000000,
-       0b00011111, 0b11110000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000};
-
-      static const std::string file_icon_data((const char*)file_icon_bits, sizeof(file_icon_bits));
-
-      static const byte close_folder_bits[] = {
-       'P', '4', '\n', '2', '0',' ', '2', '0', '\t',
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00011111, 0b00000000, 0b00000000,
-       0b00100000, 0b10000000, 0b00000000,
-       0b11111111, 0b11111111, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b11111111, 0b11111111, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000};
-
-      static const std::string close_folder_data((const char*)close_folder_bits, sizeof(close_folder_bits));
-
-      static const byte open_folder_bits[] = {
-       'P', '4', '\n', '2', '0',' ', '2', '0', '\t',
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00011111, 0b00000000, 0b00000000,
-       0b00100000, 0b10000000, 0b00000000,
-       0b11100000, 0b11111111, 0b00000000,
-       0b10000000, 0b00000001, 0b00000000,
-       0b10001111, 0b11111111, 0b11110000,
-       0b10001000, 0b00000000, 0b00010000,
-       0b10010000, 0b00000000, 0b00100000,
-       0b10010000, 0b00000000, 0b00100000,
-       0b10100000, 0b00000000, 0b01000000,
-       0b10100000, 0b00000000, 0b01000000,
-       0b11000000, 0b00000000, 0b10000000,
-       0b11000000, 0b00000000, 0b10000000,
-       0b11111111, 0b11111111, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000,
-       0b00000000, 0b00000000, 0b00000000};
-
-      static const std::string open_folder_data((const char*)open_folder_bits, sizeof(open_folder_bits));
-
-      } // image_data
 
       enum class tree_icon {
         file,
@@ -187,14 +114,18 @@ namespace gui {
         open_folder
       };
 
-      const std::string& get_icon_chars(tree_icon type) {
+      template<typename T, size_t N>
+      inline std::string make_string (T(&t)[N]) {
+        return std::string((const char*)t, sizeof(t));
+      }
+
+      std::string get_icon_chars (tree_icon type) {
         switch (type) {
-          case tree_icon::file:           return image_data::file_icon_data;
-          case tree_icon::closed_folder:  return image_data::close_folder_data;
-          case tree_icon::open_folder:    return image_data::open_folder_data;
+          case tree_icon::file:           return make_string(image_data::file_icon_bits);
+          case tree_icon::closed_folder:  return make_string(image_data::close_folder_icon_bits);
+          case tree_icon::open_folder:    return make_string(image_data::open_folder_icon_bits);
         }
-        static std::string dummy;
-        return dummy;
+        return std::string();
       }
 
       draw::masked_bitmap build_tree_icon (tree_icon type, bool selected) {

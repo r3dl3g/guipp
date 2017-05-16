@@ -132,7 +132,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      typedef std::map<hot_key, hot_key::call> hot_key_map;
+      typedef std::pair<os::window, hot_key::call> hot_key_entry;
+      typedef std::map<hot_key, hot_key_entry> hot_key_map;
       hot_key_map hot_keys;
 
       static int g_next_filter_id = 1;
@@ -147,8 +148,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void register_hot_key (const hot_key& hk, const hot_key::call& fn, window* win) {
-        detail::hot_keys[hk] = fn;
-
 #ifdef WIN32
         UINT modifiers = MOD_NOREPEAT;
         if (control_key_bit_mask::is_set(hk.get_modifiers())) {
@@ -163,27 +162,38 @@ namespace gui {
         if (shift_key_bit_mask::is_set(hk.get_modifiers())) {
           modifiers |= MOD_SHIFT;
         }
-        RegisterHotKey(win ? win->get_id() : NULL, hk.get_key(), modifiers, hk.get_key());
+        os::window root = win ? win->get_id() : NULL;
+        RegisterHotKey(root, hk.get_key(), modifiers, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
         os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root, False, GrabModeAsync, GrabModeAsync);
-        XSelectInput(dpy, root, KeyPressMask );
+        if (win && win->is_valid()) {
+          win->prepare_for_event(KeyPressMask);
+        }
 #endif // X11
+
+        detail::hot_keys.emplace(hk, std::make_pair(root, fn));
       }
 
-      void unregister_hot_key (const hot_key& hk, window* win) {
-        detail::hot_keys.erase(hk);
+      void unregister_hot_key (const hot_key& hk) {
+        auto i = detail::hot_keys.find(hk);
+        if (i == detail::hot_keys.end()) {
+          return;
+        }
+
+        os::window root = i->second.first;
 
 #ifdef WIN32
-        UnregisterHotKey(win ? win->get_id() : NULL, hk.get_key());
+        UnregisterHotKey(root, hk.get_key());
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
-        os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
         XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root);
 #endif // X11
+
+        detail::hot_keys.erase(i);
       }
 
       int register_message_filter (detail::filter_call filter) {
@@ -227,7 +237,7 @@ namespace gui {
         hot_key hk(get_key_symbol(e), get_key_state(e));
         auto i = detail::hot_keys.find(hk);
         if (i != detail::hot_keys.end()) {
-          i->second();
+          i->second.second();
           return true;
         }
       }

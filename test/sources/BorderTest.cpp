@@ -64,7 +64,7 @@ private:
   vlist<50, color::rgb_gray<224>::value> left_list;
 
   typedef tree_view<20, color::very_light_gray> simple_tree;
-  typedef win::file_tree<20, color::very_light_gray> file_tree;
+  typedef win::sorted_file_tree<20, color::very_light_gray> file_tree;
   win::hsplit_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
@@ -147,6 +147,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     })
   });
   menu.create(top_view);
+  menu.set_visible();
 
   file_sub_menu.data.add_entries({
     menu_entry("Open", 'O', [&]() { labels[0].set_text("open"); }, hot_key('O', state::control)),
@@ -191,7 +192,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
     menu_entry("Exit", 'x', core::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
-  file_sub_menu.data.register_hot_keys();
+  file_sub_menu.data.register_hot_keys(this);
 
   core::rectangle icon_rect(0, 0, 16, 16);
   memmap cut_icon(16, 16);
@@ -207,11 +208,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
   edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, memmap(), menu_state::disabled));
   edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
-  edit_sub_menu.data.register_hot_keys();
+  edit_sub_menu.data.register_hot_keys(this);
 
   tool_bar.create(top_view);
 
-  global::register_hot_key(hot_key(keys::f7), core::bind_method(this, &my_main_window::test_rgb));
+  global::register_hot_key(hot_key(keys::f7), core::bind_method(this, &my_main_window::test_rgb), this);
 
   int i = 0;
   for (tool_bar_button& b : buttons) {

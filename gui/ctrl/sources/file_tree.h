@@ -131,19 +131,7 @@ namespace gui {
 
   namespace win {
 
-    namespace tree {
-
-      template<>
-      struct node_info<sys_fs::path> {
-        typedef sys_fs::path type;
-        typedef fs::filtered_iterator iterator;
-        typedef sys_fs::path reference;
-      };
-
-      template<>
-      inline bool has_sub_nodes<sys_fs::path> (sys_fs::path const& n) {
-        return is_directory(n);
-      }
+    namespace path_tree {
 
       inline sys_fs::directory_iterator path_iterator (sys_fs::path const& n) {
 #ifdef WIN32
@@ -154,35 +142,77 @@ namespace gui {
 #endif // X11
       }
 
-      template<>
-      inline range<sys_fs::path> sub_nodes (sys_fs::path const& n) {
-        return range<sys_fs::path>(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
-                              const bool is_hidden = ibr::string::starts_with(i.path().filename().string(), ".");
-                              return is_hidden;
-                           }),
-                           fs::filtered_iterator(sys_fs::end(path_iterator(n))));
-      }
+      struct path_info {
+        typedef sys_fs::path type;
+        typedef fs::filtered_iterator iterator;
+        typedef sys_fs::path reference;
 
-      template<>
-      inline node_info<sys_fs::path>::reference make_reference<sys_fs::path> (sys_fs::path const& n) {
-        return n;
-      }
+        static bool has_sub_nodes (type const& n) {
+          return sys_fs::is_directory(n);
+        }
 
-      template<>
-      inline const sys_fs::path& dereference<sys_fs::path> (node_info<sys_fs::path>::reference const& r) {
-        return r;
-      }
+        static reference make_reference (type const& n) {
+          return n;
+        }
 
-      template<>
-      inline std::string label<sys_fs::path> (sys_fs::path const& n) {
-        return n.filename().string();
-      }
+        static type const& dereference (reference const& r) {
+          return r;
+        }
+
+        static std::string label (type const& n) {
+          return n.filename().string();
+        }
+
+        static const draw::masked_bitmap& icon (type const&, bool has_children, bool is_open, bool selected) {
+          return tree::standard_icon(has_children, is_open, selected);
+        }
+      };
+
+      struct unsorted_path_info : public path_info {
+        typedef tree::range<iterator> range;
+
+        static range sub_nodes (type const& n) {
+          return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
+                          const bool is_hidden = ibr::string::starts_with(i.path().filename().string(), ".");
+                          return is_hidden;
+                       }),
+                       fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+        }
+
+      };
+
+
+      struct sorted_path_info : public path_info {
+        typedef std::vector<type> range;
+
+        static range sub_nodes (type const& n) {
+          range v;
+          for (auto i = sys_fs::begin(path_iterator(n)),
+               e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+            const bool is_hidden = ibr::string::starts_with(i->path().filename().string(), ".");
+            if (!is_hidden) {
+              v.emplace_back(*i);
+            }
+          }
+          std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
+            bool l_is_dir = sys_fs::is_directory(lhs);
+            bool r_is_dir = sys_fs::is_directory(rhs);
+            return ((l_is_dir == r_is_dir) && (lhs.filename() < rhs.filename())) || (l_is_dir > r_is_dir);
+          });
+          return v;
+        }
+
+      };
+
 
     } // tree
 
     // --------------------------------------------------------------------------
     template<int S = 20, os::color B = color::white>
-    using file_tree = tree::tree<sys_fs::path, S, B>;
+    using file_tree = tree::tree<path_tree::unsorted_path_info, S, B>;
+
+    template<int S = 20, os::color B = color::white>
+    using sorted_file_tree = tree::tree<path_tree::sorted_path_info, S, B>;
 
   } // win
 

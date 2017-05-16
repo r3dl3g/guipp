@@ -335,10 +335,10 @@ namespace gui {
 
       void init ();
 
-      void register_hot_keys ();
+      void register_hot_keys (window*);
       void unregister_hot_keys ();
 
-      void register_menu_keys ();
+      void register_menu_keys (window*);
       void unregister_menu_keys ();
 
       void check_hot_key (os::key_state st, os::key_symbol sym);

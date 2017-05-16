@@ -62,65 +62,7 @@ namespace gui {
       const draw::masked_bitmap& closed_folder_icon (bool selected);
       const draw::masked_bitmap& file_icon (bool selected);
 
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct node_info {
-        typedef T type;
-        typedef T iterator;
-        typedef T reference;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      struct range {
-        typedef typename node_info<T>::iterator iterator;
-
-        range (const iterator& b, const iterator& e)
-          : start(b)
-          , finish(e)
-        {}
-
-        range (iterator&& b, iterator&& e) {
-          std::swap(start, b);
-          std::swap(finish, e);
-        }
-
-        range (const range& rhs)
-          : start(rhs.start)
-          , finish(rhs.finish)
-        {}
-
-        range (range&& rhs) {
-          std::swap(start, rhs.start);
-          std::swap(finish, rhs.finish);
-        }
-
-        iterator begin () const { return start; }
-        iterator end () const { return finish; }
-
-      private:
-        iterator start;
-        iterator finish;
-      };
-
-      // --------------------------------------------------------------------------
-      template<typename T>
-      bool has_sub_nodes (const T& n);
-
-      template<typename T>
-      range<T> sub_nodes (T const&);
-
-      template<typename T>
-      typename node_info<T>::reference make_reference (T const&);
-
-      template<typename T>
-      typename node_info<T>::type const& dereference (typename node_info<T>::reference const&);
-
-      template<typename T>
-      std::string label (T const& n);
-
-      template<typename T>
-      const draw::masked_bitmap& icon (T const&, bool has_children, bool is_open, bool selected) {
+      inline const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected) {
         if (has_children) {
           return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
         }
@@ -128,30 +70,31 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T>
+      template<typename I>
       void tree_node_drawer (const draw::graphics& g,
                              const core::rectangle& r,
                              const draw::brush& b,
-                             const T& t,
+                             const typename I::type& t,
                              std::size_t depth,
                              bool has_children,
                              bool is_open,
                              bool selected,
                              bool hilited) {
         paint::tree_node(g, r, b, depth,
-                         label<T>(t),
-                         icon<T>(t, has_children, is_open, selected),
+                         I::label(t),
+                         I::icon(t, has_children, is_open, selected),
                          has_children, is_open, selected, hilited);
       }
 
       // --------------------------------------------------------------------------
-      template<typename T, int S = 20, os::color B = color::white>
+      template<typename I, int S = 20, os::color B = color::white>
       class tree : public vlist<S, B> {
       public:
         typedef vlist<S, B> super;
 
-        typedef typename node_info<T>::type type;
-        typedef typename node_info<T>::reference reference;
+        typedef I tree_info;
+        typedef typename tree_info::type type;
+        typedef typename tree_info::reference reference;
 
         type root;
 
@@ -162,7 +105,7 @@ namespace gui {
           }));
           super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
             int idx = super::get_index_at_point(pt);
-            if (idx > -1) {
+            if ((idx > -1) && (idx < nodes.size())) {
               const depth_info& i = nodes[idx];
               core::point_type x = core::point_type(i.depth * 16);
               if ((x <= pt.x()) && (x + 16 >= pt.x())) {
@@ -172,15 +115,15 @@ namespace gui {
           }));
         }
 
-        bool is_open (const reference n) {
-          return open_nodes.find(n) != open_nodes.end();
+        bool is_open (const reference r) {
+          return open_nodes.find(r) != open_nodes.end();
         }
 
-        void set_open (const reference n, bool o) {
+        void set_open (const reference r, bool o) {
           if (o) {
-            open_nodes.insert(n);
+            open_nodes.insert(r);
           } else {
-            open_nodes.erase(n);
+            open_nodes.erase(r);
           }
         }
 
@@ -190,16 +133,16 @@ namespace gui {
         }
 
         void open_sub (const type& n) {
-          open_nodes.insert(make_reference<T>(n));
-          for (const auto& i : sub_nodes(n)) {
+          open_nodes.insert(tree_info::make_reference(n));
+          for (const auto& i : tree_info::sub_nodes(n)) {
             open_sub(i);
           }
         }
 
         void toggle_node (int idx) {
-          if (idx > -1) {
-            const reference node = nodes[idx].node;
-            set_open(node, !is_open(node));
+          if ((idx > -1) && (idx < nodes.size())) {
+            const reference ref = nodes[idx].ref;
+            set_open(ref, !is_open(ref));
             update_node_list();
           }
         }
@@ -212,9 +155,9 @@ namespace gui {
         }
 
         void collect_children (const type& n, std::size_t depth = 0) {
-          nodes.emplace_back(depth_info(make_reference<T>(n), depth));
-          if (is_open(make_reference<T>(n))) {
-            for (const auto& i : sub_nodes(n)) {
+          nodes.emplace_back(depth_info(tree_info::make_reference(n), depth));
+          if (is_open(tree_info::make_reference(n))) {
+            for (const auto& i : tree_info::sub_nodes(n)) {
               collect_children(i, depth + 1);
             }
           }
@@ -227,20 +170,20 @@ namespace gui {
                              bool selected,
                              bool hilited) {
           const depth_info& i = nodes[idx];
-          const type& n = dereference<T>(i.node);
-          tree_node_drawer<type>(g, r, b, n, i.depth,
-                                 has_sub_nodes(n), is_open(i.node),
-                                 selected, hilited);
+          const type& n = tree_info::dereference(i.ref);
+          tree_node_drawer<I>(g, r, b, n, i.depth,
+                              tree_info::has_sub_nodes(n), is_open(i.ref),
+                              selected, hilited);
         }
 
       private:
         struct depth_info {
-          depth_info(reference node, std::size_t depth)
-            : node(node)
+          depth_info (reference ref, std::size_t depth)
+            : ref(ref)
             , depth(depth)
           {}
 
-          reference node;
+          reference ref;
           std::size_t depth;
         };
 
@@ -311,42 +254,76 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<>
-      inline bool has_sub_nodes<node> (const node& n) {
-        return !n.nodes().empty();
-      }
+      template<typename I>
+      struct range {
+        typedef I iterator;
 
-      template<>
-      struct node_info<node> {
+        range (const iterator& b, const iterator& e)
+          : start(b)
+          , finish(e)
+        {}
+
+        range (iterator&& b, iterator&& e) {
+          std::swap(start, b);
+          std::swap(finish, e);
+        }
+
+        range (const range& rhs)
+          : start(rhs.start)
+          , finish(rhs.finish)
+        {}
+
+        range (range&& rhs) {
+          std::swap(start, rhs.start);
+          std::swap(finish, rhs.finish);
+        }
+
+        iterator begin () const { return start; }
+        iterator end () const { return finish; }
+
+      private:
+        iterator start;
+        iterator finish;
+      };
+
+      // --------------------------------------------------------------------------
+      struct default_node_info {
         typedef node type;
         typedef node::iterator iterator;
         typedef const node* reference;
+        typedef range<iterator> node_range;
+
+        static bool has_sub_nodes (const node& n) {
+          return !n.nodes().empty();
+        }
+
+        static node_range sub_nodes (node const& n) {
+          return node_range(n.begin(), n.end());
+        }
+
+        static reference make_reference (node const& n) {
+          return &n;
+        }
+
+        static type const& dereference (reference const& r) {
+          return *r;
+        }
+
+        static std::string label (node const& n) {
+          return n.label;
+        }
+
+        static const draw::masked_bitmap& icon (type const&, bool has_children, bool is_open, bool selected) {
+          return standard_icon(has_children, is_open, selected);
+        }
       };
 
-      template<>
-      inline range<node> sub_nodes (node const& n) {
-        return range<node>(n.begin(), n.end());
-      }
-
-      template<>
-      inline node_info<node>::reference make_reference<node> (node const& n) {
-        return &n;
-      }
-
-      template<>
-      inline const node& dereference<node> (node_info<node>::reference const& r) {
-        return *r;
-      }
-
-      template<>
-      inline std::string label<node> (node const& n) {
-        return n.label;
-      }
+      // --------------------------------------------------------------------------
 
     } // tree
 
     template<int S = 20, os::color B = color::white>
-    using tree_view = tree::tree<tree::node, S, B>;
+    using tree_view = tree::tree<tree::default_node_info, S, B>;
 
   } // win
 

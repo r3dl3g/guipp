@@ -57,7 +57,7 @@ namespace gui {
     namespace global {
 
       void register_hot_key (const hot_key&, const hot_key::call&, window* = nullptr);
-      void unregister_hot_key (const hot_key&, window* = nullptr);
+      void unregister_hot_key (const hot_key&);
 
       int register_message_filter (detail::filter_call filter);
       void unregister_message_filter (int& id);

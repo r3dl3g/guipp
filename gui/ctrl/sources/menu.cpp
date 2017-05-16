@@ -376,10 +376,10 @@ namespace gui {
       }
     }
 
-    void menu_data::register_hot_keys () {
+    void menu_data::register_hot_keys (window* w) {
       for (auto& i : data) {
         if (!i.get_hot_key().empty()) {
-          global::register_hot_key(i.get_hot_key(), i.get_action());
+          global::register_hot_key(i.get_hot_key(), i.get_action(), w);
         }
       }
     }
@@ -392,7 +392,7 @@ namespace gui {
       }
     }
 
-    void menu_data::register_menu_keys () {
+    void menu_data::register_menu_keys (window* w) {
       int idx = -1;
       for (auto& i : data) {
         ++idx;
@@ -400,7 +400,7 @@ namespace gui {
           global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
             win->take_focus();
             set_selection(idx);
-          });
+          }, w);
         }
       }
     }
@@ -467,7 +467,7 @@ namespace gui {
       }));
 
       register_event_handler(create_event([&](window*, const core::rectangle&){
-        data.register_menu_keys();
+        data.register_menu_keys(this);
       }));
     }
 

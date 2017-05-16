@@ -178,6 +178,8 @@ namespace gui {
         return events.handle_event(e, result);
       }
 
+      void prepare_for_event (os::event_id mask);
+
     protected:
       void create (const window_class& type,
                    const container& parent,
@@ -195,8 +197,6 @@ namespace gui {
 
     private:
       friend void detail::set_id (window*, os::window);
-
-      void prepare_for_event (os::event_id mask);
 
       os::window id;
       const window_class* cls;

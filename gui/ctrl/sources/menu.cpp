@@ -617,6 +617,15 @@ namespace gui {
 //      }));
     }
 
+    bool compare_menu_key (os::key_symbol key, const menu_entry& e) {
+#ifdef WIN32
+      return toupper(key) == toupper(e.get_menu_key());
+#endif // WIN32
+#ifdef X11
+      return (key == tolower(e.get_menu_key())
+#endif // X11
+    }
+
     bool popup_menu::handle_key (os::key_symbol key) {
       if (data.handle_key(key)) {
         return true;
@@ -661,7 +670,7 @@ namespace gui {
         default: {
           int idx = 0;
           for (auto& e : data) {
-            if (key == tolower(e.get_menu_key())) {
+            if (compare_menu_key(key, e)) {
               data.set_selection(idx);
               return true;
             }

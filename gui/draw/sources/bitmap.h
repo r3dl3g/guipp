@@ -239,11 +239,15 @@ namespace gui {
       masked_bitmap (const memmap& bmp, const maskmap& mask);
       masked_bitmap (memmap&& bmp, maskmap&& mask);
 
-      bool is_valid () const {
+      inline core::size size () const {
+        return image.size();
+      }
+
+      inline bool is_valid () const {
         return image.is_valid();
       }
 
-      operator bool () const {
+      inline operator bool () const {
         return image.is_valid();
       }
 

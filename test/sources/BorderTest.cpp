@@ -10,8 +10,11 @@
 #include "pnm.h"
 #include "pnm_to_src.h"
 #include "file_tree.h"
+#include "column_list.h"
+#include "time_util.h"
 
 #include <fstream>
+#include <iomanip>
 
 #define NO_EXPORT
 
@@ -44,6 +47,7 @@ public:
   void save_all_bin ();
   void save_all_ascii ();
   void save_all_src ();
+  void open ();
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
@@ -150,7 +154,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.set_visible();
 
   file_sub_menu.data.add_entries({
-    menu_entry("Open", 'O', [&]() { labels[0].set_text("open"); }, hot_key('O', state::control)),
+    menu_entry("Open", 'O', core::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
@@ -391,6 +395,130 @@ void my_main_window::quit () {
   if (result) {
     super::quit();
   }
+}
+
+void my_main_window::open () {
+  labels[0].set_text("open");
+
+  layout_dialog_window<layout::border_layout<10, 45, 10, 10>> dialog;
+  group_window<lineup<alignment::right, 80, 10, 10, 2>, color::light_gray> buttons;
+
+  text_button open, cancel;
+
+  bool result = false;
+  open.register_event_handler(button_clicked_event([&](){
+    result = true;
+    dialog.end_modal();
+  }));
+  cancel.register_event_handler(button_clicked_event([&](){
+    result = false;
+    dialog.end_modal();
+  }));
+
+  dialog.register_event_handler(set_focus_event([&](window*){ open.take_focus(); }));
+
+  typedef tree::tree<path_tree::sorted_dir_info, 20, color::white> dir_tree_type;
+  typedef win::column_list_t<layout::weight_column_list_layout, 20, color::white,
+    draw::masked_bitmap, std::string, uintmax_t, sys_fs::file_time_type> file_column_list_type;
+
+  win::vsplit_view<dir_tree_type, file_column_list_type> main_view;
+
+  dir_tree_type& dir_tree = main_view.first;
+
+  dir_tree.root =
+#ifdef WIN32
+    sys_fs::path("c:\\");
+#endif // WIN32
+#ifdef X11
+    sys_fs::path("/");
+#endif // X11
+
+  dir_tree.update_node_list();
+
+
+  file_column_list_type& file_list = main_view.second;
+  file_column_list_type::row_drawer file_list_drawer;
+
+  auto weight_columns = {
+    layout::weight_column_info{ 24, text_origin::center, 24, 0.0F },
+    layout::weight_column_info{ 60, text_origin::vcenter_left, 20, 2.0F },
+    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F }
+  };
+
+  file_list_drawer = {
+    [](const draw::masked_bitmap& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin) {
+      g.fill(draw::image<draw::masked_bitmap>(img, r), s ? color::highLightColor() : b);
+    },
+    win::cell_drawer<std::string>,
+    win::cell_drawer<uintmax_t>,
+    [](const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
+      win::paint::text_item(g, r, b, ibr::time::format_time(tp), false, align);
+    }
+  };
+
+  file_list.header.set_cell_drawer([](std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
+    static std::string title[] = { "", "Name", "Size", "Changed" };
+    g.fill(draw::rectangle(r), background);
+    draw::frame::raised_relief(g, r);
+    g.text(draw::text_box(title[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
+  });
+
+  file_list.set_drawer(file_list_drawer);
+
+  std::vector<sys_fs::path> current_dir;
+
+  file_list.set_data([&](std::size_t i) {
+    auto sel = (i == file_list.list.get_selection());
+    if (i < current_dir.size()) {
+      const sys_fs::path& f = current_dir[i];
+//      if (sys_fs::is_directory(f)) {
+//        return std::make_tuple(tree::closed_folder_icon(sel),
+//                               f.filename().string(),
+//                               uintmax_t(),
+//                               sys_fs::last_write_time(f));
+//      } else {
+        return std::make_tuple(tree::file_icon(sel),
+                               f.filename().string(),
+                               sys_fs::file_size(f),
+                               sys_fs::last_write_time(f));
+//      }
+    } else {
+      const draw::masked_bitmap& img = tree::file_icon(sel);
+      return std::make_tuple<const draw::masked_bitmap&, std::string, uintmax_t, sys_fs::file_time_type>(
+             img, std::string(), uintmax_t(), sys_fs::file_time_type());
+    }
+  }, 0);
+
+  dir_tree.register_event_handler(win::selection_changed_event([&]() {
+    int idx = dir_tree.get_selection();
+    if (idx > -1) {
+      sys_fs::path dir = dir_tree.get_item(idx);
+      current_dir = path_tree::sorted_file_info::sub_nodes(dir);
+      file_list.list.set_count(current_dir.size());
+      file_list.redraw_later();
+    }
+  }));
+
+  dialog.create(*this, core::rectangle(300, 200, 600, 400));
+  dialog.set_title("Open File");
+
+  main_view.create(dialog, core::rectangle(0, 0, 600, 300));
+  main_view.set_split_pos(0.3);
+  file_list.get_column_layout().set_columns(weight_columns);
+  dir_tree.open();
+
+  buttons.create(dialog);
+  open.create(buttons, "Open");
+  cancel.create(buttons, "Cancel");
+
+  dialog.get_layout().set_center_top_bottom_left_right(&main_view, nullptr, &buttons, nullptr, nullptr);
+
+  dialog.set_children_visible();
+  dialog.set_visible();
+  disable();
+  dialog.run_modal();
+  enable();
 }
 
 void my_main_window::copy () {

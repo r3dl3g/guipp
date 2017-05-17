@@ -463,6 +463,24 @@ namespace gui {
         return *this;
       }
 
+      inline rectangle operator- (const rectangle& r) const {
+        return {tl - r.tl, size() - r.size()};
+      }
+
+      inline rectangle& operator-= (const rectangle& r) {
+        operator= (*this - r);
+        return *this;
+      }
+
+      inline rectangle operator+ (const rectangle& r) const {
+        return {tl + r.tl, size() + r.size()};
+      }
+
+      inline rectangle& operator+= (const rectangle& r) {
+        operator= (*this + r);
+        return *this;
+      }
+
       inline bool operator== (const rectangle& rhs) const {
         return (tl == rhs.tl) && (br == rhs.br);
       }

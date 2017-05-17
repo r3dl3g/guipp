@@ -76,7 +76,8 @@ namespace gui {
         type min;
         type max;
 
-        core::point last_mouse_point;
+        core::point start_mouse_point;
+        core::point start_window_point;
       };
 
       // --------------------------------------------------------------------------

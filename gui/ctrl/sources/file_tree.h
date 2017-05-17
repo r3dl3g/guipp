@@ -173,14 +173,35 @@ namespace gui {
 
         static range sub_nodes (type const& n) {
           return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
-                          const bool is_hidden = ibr::string::starts_with(i.path().filename().string(), ".");
-                          return is_hidden;
+                          return ibr::string::starts_with(i.path().filename().string(), ".");
                        }),
                        fs::filtered_iterator(sys_fs::end(path_iterator(n))));
         }
 
       };
 
+      struct unsorted_dir_info : public path_info {
+        typedef tree::range<iterator> range;
+
+        static range sub_nodes (type const& n) {
+          return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
+                         return !sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                       }),
+                       fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+        }
+
+      };
+
+      struct unsorted_file_info : public path_info {
+        typedef tree::range<iterator> range;
+
+        static range sub_nodes (type const& n) {
+          return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
+                         return sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                       }),
+                       fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+        }
+      };
 
       struct sorted_path_info : public path_info {
         typedef std::vector<type> range;
@@ -188,7 +209,7 @@ namespace gui {
         static range sub_nodes (type const& n) {
           range v;
           for (auto i = sys_fs::begin(path_iterator(n)),
-               e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+                    e = sys_fs::end(path_iterator(n)); i != e; ++i) {
             const bool is_hidden = ibr::string::starts_with(i->path().filename().string(), ".");
             if (!is_hidden) {
               v.emplace_back(*i);
@@ -201,7 +222,42 @@ namespace gui {
           });
           return v;
         }
+      };
 
+      struct sorted_dir_info : public path_info {
+        typedef std::vector<type> range;
+
+        static range sub_nodes (type const& n) {
+          range v;
+          for (auto i = sys_fs::begin(path_iterator(n)),
+                    e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+            if (sys_fs::is_directory(i->path()) && !ibr::string::starts_with(i->path().filename().string(), ".")) {
+              v.emplace_back(*i);
+            }
+          }
+          std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
+            return (lhs.filename() < rhs.filename());
+          });
+          return v;
+        }
+      };
+
+      struct sorted_file_info : public path_info {
+        typedef std::vector<type> range;
+
+        static range sub_nodes (type const& n) {
+          range v;
+          for (auto i = sys_fs::begin(path_iterator(n)),
+                    e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+            if (!(sys_fs::is_directory(i->path()) || ibr::string::starts_with(i->path().filename().string(), "."))) {
+              v.emplace_back(*i);
+            }
+          }
+          std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
+            return (lhs.filename() < rhs.filename());
+          });
+          return v;
+        }
       };
 
 

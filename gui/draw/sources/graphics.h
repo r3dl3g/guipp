@@ -338,6 +338,41 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<typename I>
+    struct image {
+      image (const I& img, const core::rectangle& rect, text_origin origin = text_origin::center)
+        : img(img)
+        , rect(rect)
+        , origin(origin)
+      {}
+
+      void operator() (const graphics& g, const brush& b) const {
+        g.fill(draw::rectangle(rect), b);
+
+        auto sz = img.size();
+        core::point_type px = rect.x();
+        core::point_type py = rect.y();
+
+        if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
+          px += (rect.width() - sz.width()) / 2;
+        } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
+          px += rect.width() - sz.width();
+        }
+        if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
+          py += (rect.height() - sz.height()) / 2;
+        } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
+          py += rect.height() - sz.height();
+        }
+        g.copy_from(img, core::point(px, py));
+      }
+
+    private:
+      const I& img;
+      const core::rectangle rect;
+      const text_origin origin;
+    };
+
+    // --------------------------------------------------------------------------
     namespace frame {
 
       inline void no_frame (const draw::graphics&, const core::rectangle&)

@@ -70,14 +70,13 @@ namespace gui {
       template <>
       slider_t<orientation::vertical>::slider_t () {
         register_event_handler(win::mouse_move_event([&] (os::key_state keys,
-                                                          const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point pt = position();
-            core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, pt.x() + p.x() - last_mouse_point.x()));
-            core::point::type dx = new_x - pt.x();
+                                                          const core::point& pt) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
+            core::point p = window_to_screen(pt);
+            core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
+            core::point_type dx = new_x - start_window_point.x();
             if (dx != 0) {
-              pt.x(new_x);
-              move(pt);
+              move(core::point(new_x, start_window_point.y()));
               send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dx));
             }
           }
@@ -87,14 +86,13 @@ namespace gui {
       template <>
       slider_t<orientation::horizontal>::slider_t () {
         register_event_handler(win::mouse_move_event([&] (os::key_state keys,
-                                                          const core::point& p) {
-          if ((last_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point pt = position();
-            core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, pt.y() + p.y() - last_mouse_point.y()));
-            core::point::type dy = new_y - pt.y();
+                                                          const core::point& pt) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
+            core::point p = window_to_screen(pt);
+            core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
+            core::point_type dy = new_y - start_window_point.y();
             if (dy != 0) {
-              pt.y(new_y);
-              move(pt);
+              move(core::point(start_window_point.x(), new_y));
               send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dy));
             }
            }
@@ -113,13 +111,15 @@ namespace gui {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
-          last_mouse_point = pt;
+          start_mouse_point = window_to_screen(pt);
+          start_window_point = position();
         }));
         register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           uncapture_pointer();
 #endif // NO_CAPTURE
-          last_mouse_point = core::point::undefined;
+          start_mouse_point = core::point::undefined;
+          start_window_point = core::point::undefined;
         }));
       }
 

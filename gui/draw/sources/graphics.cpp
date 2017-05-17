@@ -1054,14 +1054,14 @@ namespace gui {
       int py = rect.os_y();
 
       if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
-        px += (rect.size().width() - width) / 2;
+        px += (rect.width() - width) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
-        px += rect.size().width() - width;
+        px += rect.width() - width;
       }
       if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
-        py += (rect.size().height() - dy) / 2;
+        py += (rect.height() - dy) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
-        py += rect.size().height() - height;
+        py += rect.height() - height;
       }
 
       xft_color xftcolor(c, g);
@@ -1098,14 +1098,14 @@ namespace gui {
       int py = rect.os_y();
 
       if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
-        px += (rect.size().width() - width) / 2;
+        px += (rect.width() - width) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
-        px += rect.size().width() - width;
+        px += rect.width() - width;
       }
       if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
-        py += (rect.size().height() - dy) / 2;
+        py += (rect.height() - dy) / 2;
       } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
-        py += rect.size().height() - height;
+        py += rect.height() - height;
       }
 
       rect.top_left({core::point::type(px + dx), core::point::type(py)});

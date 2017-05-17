@@ -132,6 +132,11 @@ namespace gui {
           open_sub(root);
         }
 
+        void open () {
+          open_nodes.clear();
+          open_nodes.insert(tree_info::make_reference(root));
+        }
+
         void open_sub (const type& n) {
           open_nodes.insert(tree_info::make_reference(n));
           for (const auto& i : tree_info::sub_nodes(n)) {
@@ -161,6 +166,10 @@ namespace gui {
               collect_children(i, depth + 1);
             }
           }
+        }
+
+        const reference get_item (int idx) const {
+          return nodes[idx].ref;
         }
 
         void draw_list_item (std::size_t idx,

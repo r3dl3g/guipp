@@ -29,6 +29,7 @@
 #include "window.h"
 #ifdef WIN32
 #include <string_util.h>
+#include <windowsx.h>
 #endif // WIN32
 
 

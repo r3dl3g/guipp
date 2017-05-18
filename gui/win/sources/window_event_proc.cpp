@@ -234,7 +234,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     bool check_expose (const core::event& e) {
+#ifdef WIN32
+      return false;
+#endif // WIN32
+#ifdef X11
       return (e.type == Expose) && (e.xexpose.count > 0);
+#endif // X11
     }
 
     // --------------------------------------------------------------------------

@@ -113,7 +113,7 @@ namespace gui {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
-          start_mouse_point = window_to_screen(pt);
+          start_mouse_point = client_to_screen(pt);
           start_window_point = position();
         }));
         register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {

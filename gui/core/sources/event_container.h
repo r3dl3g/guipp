@@ -37,6 +37,14 @@
 #include "bind_method.h"
 
 
+#ifndef __PRETTY_FUNCTION__
+# ifdef __FUNCSIG__
+#  define __PRETTY_FUNCTION__ __FUNCSIG__
+# else
+#  define __PRETTY_FUNCTION__ __func__
+# endif // __FUNCSIG__
+#endif // !__PRETTY_FUNCTION__
+
 namespace gui {
 
   namespace core {

@@ -109,6 +109,8 @@ namespace gui {
     os::key_symbol get_key_symbol (const core::event& e);
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e);
+    // --------------------------------------------------------------------------
+    core::point get_root_mouse_pos(const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
@@ -551,8 +553,6 @@ namespace gui {
     inline window* get_window (const core::event& e) {
       return detail::get_window(cast_event_type<T>(e).window);
     }
-    // --------------------------------------------------------------------------
-    core::point get_root_mouse_pos (const core::event& e);
     // --------------------------------------------------------------------------
     template <Atom& M>
     struct client_message_matcher {

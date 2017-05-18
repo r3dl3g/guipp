@@ -84,14 +84,14 @@ private:
 
 // --------------------------------------------------------------------------
 my_main_window::my_main_window () {
-  register_event_handler(win::create_event(core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(__PRETTY_FUNCTION__, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
 
-  register_event_handler(win::destroy_event([&]() {
+  register_event_handler(__PRETTY_FUNCTION__, win::destroy_event([&]() {
     LogDebug << "Destroyed!";
     super::quit();
   }));
 
-  window1.register_event_handler(paint_event([&](const graphics& graph){
+  window1.register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
@@ -225,26 +225,26 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       separators[i / 4].create(tool_bar);
       tool_bar.get_layout().add_separator(&(separators[i / 4]));
     }
-    b.register_event_handler(hilite_changed_event([&, i](bool b) {
+    b.register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
     }));
     ++i;
   }
 
   buttons[0].set_text("cut");
-  buttons[0].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::cut)));
+  buttons[0].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::cut)));
   buttons[1].set_text("copy");
-  buttons[1].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::copy)));
+  buttons[1].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::copy)));
   buttons[2].set_text("paste");
-  buttons[2].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::paste)));
+  buttons[2].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::paste)));
   buttons[3].set_text("rgb");
-  buttons[3].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::test_rgb)));
+  buttons[3].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::test_rgb)));
   buttons[4].set_text("bin");
-  buttons[4].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
+  buttons[4].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
   buttons[5].set_text("ascii");
-  buttons[5].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
+  buttons[5].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
   buttons[6].set_text("src");
-  buttons[6].register_event_handler(button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
+  buttons[6].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
 
   for (i = 7; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
@@ -304,19 +304,19 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
-  left_list.register_event_handler(hilite_changed_event([&](bool){
+  left_list.register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&](bool){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
   }));
-  left_list.register_event_handler(selection_changed_event([&](){
+  left_list.register_event_handler(__PRETTY_FUNCTION__, selection_changed_event([&](){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " selected"));
   }));
-  left_list.register_event_handler(selection_commit_event([&](){
+  left_list.register_event_handler(__PRETTY_FUNCTION__, selection_commit_event([&](){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " commited"));
   }));
 
   client_view.create(*this);
 
-  window1.register_event_handler(right_btn_up_event([&](os::key_state, const core::point& pt){
+  window1.register_event_handler(__PRETTY_FUNCTION__, right_btn_up_event([&](os::key_state, const core::point& pt){
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
   }));
 
@@ -332,16 +332,16 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   vsegmented.set_visible();
 
   for (int i = 0; i < 4; ++i) {
-    vsegmented.get_button(i).register_event_handler(button_clicked_event([&, i]() {
+    vsegmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&, i]() {
       labels[1].set_text(ostreamfmt("vsegment " << i << " selected"));
     }));
-    vsegmented.get_button(i).register_event_handler(hilite_changed_event([&, i](bool b) {
+    vsegmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
       labels[1].set_text(ostreamfmt("vsegment " << i << (b ? " " : " un") << "hilited"));
     }));
-    segmented.get_button(i).register_event_handler(button_clicked_event([&, i]() {
+    segmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&, i]() {
       labels[2].set_text(ostreamfmt("hsegment " << i << " selected"));
     }));
-    segmented.get_button(i).register_event_handler(hilite_changed_event([&, i](bool b) {
+    segmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
       labels[2].set_text(ostreamfmt("hsegment " << i << (b ? " " : " un") << "hilited"));
     }));
   }
@@ -368,16 +368,16 @@ void my_main_window::quit () {
   text_button yes, no;
 
   bool result = false;
-  yes.register_event_handler(button_clicked_event([&](){
+  yes.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
     result = true;
     dialog.end_modal();
   }));
-  no.register_event_handler(button_clicked_event([&](){
+  no.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
     result = false;
     dialog.end_modal();
   }));
 
-  dialog.register_event_handler(set_focus_event([&](window*){ yes.take_focus(); }));
+  dialog.register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){ yes.take_focus(); }));
 
   dialog.create(*this, core::rectangle(300, 200, 400, 170));
   dialog.set_title("Question!");
@@ -406,20 +406,20 @@ void my_main_window::open () {
   text_button open, cancel;
 
   bool result = false;
-  open.register_event_handler(button_clicked_event([&](){
+  open.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
     result = true;
     dialog.end_modal();
   }));
-  cancel.register_event_handler(button_clicked_event([&](){
+  cancel.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
     result = false;
     dialog.end_modal();
   }));
 
-  dialog.register_event_handler(set_focus_event([&](window*){ open.take_focus(); }));
+  dialog.register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){ open.take_focus(); }));
 
   typedef tree::tree<path_tree::sorted_dir_info, 20, color::white> dir_tree_type;
   typedef win::column_list_t<layout::weight_column_list_layout, 20, color::white,
-    draw::masked_bitmap, std::string, uintmax_t, sys_fs::file_time_type> file_column_list_type;
+    const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> file_column_list_type;
 
   win::vsplit_view<dir_tree_type, file_column_list_type> main_view;
 
@@ -439,21 +439,21 @@ void my_main_window::open () {
   file_column_list_type& file_list = main_view.second;
   file_column_list_type::row_drawer file_list_drawer;
 
-  auto weight_columns = {
+  auto columns = {
     layout::weight_column_info{ 24, text_origin::center, 24, 0.0F },
-    layout::weight_column_info{ 60, text_origin::vcenter_left, 20, 2.0F },
-    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F },
-    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F }
+    layout::weight_column_info{ 120, text_origin::vcenter_left, 20, 1.0F },
+    layout::weight_column_info{ 60, text_origin::vcenter_right, 20, 0.0F },
+    layout::weight_column_info{ 100, text_origin::vcenter_right, 20, 0.1F }
   };
 
   file_list_drawer = {
-    [](const draw::masked_bitmap& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin) {
-      g.fill(draw::image<draw::masked_bitmap>(img, r), s ? color::highLightColor() : b);
+    [](const draw::masked_bitmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin) {
+      g.fill(draw::image<draw::masked_bitmap>(*img, r), s ? color::highLightColor() : b);
     },
     win::cell_drawer<std::string>,
     win::cell_drawer<uintmax_t>,
     [](const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
-      win::paint::text_item(g, r, b, ibr::time::format_time(tp), false, align);
+      win::paint::text_item(g, r, b, ibr::time::format_time(tp), s, align);
     }
   };
 
@@ -472,25 +472,24 @@ void my_main_window::open () {
     auto sel = (i == file_list.list.get_selection());
     if (i < current_dir.size()) {
       const sys_fs::path& f = current_dir[i];
-//      if (sys_fs::is_directory(f)) {
-//        return std::make_tuple(tree::closed_folder_icon(sel),
-//                               f.filename().string(),
-//                               uintmax_t(),
-//                               sys_fs::last_write_time(f));
-//      } else {
-        return std::make_tuple(tree::file_icon(sel),
+      if (sys_fs::is_directory(f)) {
+        return std::make_tuple(&(tree::closed_folder_icon(sel)),
+                               f.filename().string(),
+                               uintmax_t(),
+                               sys_fs::last_write_time(f));
+      } else {
+        return std::make_tuple(&(tree::file_icon(sel)),
                                f.filename().string(),
                                sys_fs::file_size(f),
                                sys_fs::last_write_time(f));
-//      }
+      }
     } else {
-      const draw::masked_bitmap& img = tree::file_icon(sel);
-      return std::make_tuple<const draw::masked_bitmap&, std::string, uintmax_t, sys_fs::file_time_type>(
-             img, std::string(), uintmax_t(), sys_fs::file_time_type());
+      return std::make_tuple<const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type>(
+             &(tree::file_icon(sel)), std::string(), uintmax_t(), sys_fs::file_time_type());
     }
   }, 0);
 
-  dir_tree.register_event_handler(win::selection_changed_event([&]() {
+  dir_tree.register_event_handler(__PRETTY_FUNCTION__, win::selection_changed_event([&]() {
     int idx = dir_tree.get_selection();
     if (idx > -1) {
       sys_fs::path dir = dir_tree.get_item(idx);
@@ -505,8 +504,9 @@ void my_main_window::open () {
 
   main_view.create(dialog, core::rectangle(0, 0, 600, 300));
   main_view.set_split_pos(0.3);
-  file_list.get_column_layout().set_columns(weight_columns);
+  file_list.get_column_layout().set_columns(columns);
   dir_tree.open();
+  dir_tree.update_node_list();
 
   buttons.create(dialog);
   open.create(buttons, "Open");

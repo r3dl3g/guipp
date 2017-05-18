@@ -45,12 +45,12 @@ namespace gui {
     public:
       typedef std::function<event_handler_callback> event_handler_function;
 
-      void register_event_handler(const event_handler_function&);
-      void register_event_handler(event_handler_function&&);
+      void register_event_handler (char const name[], const event_handler_function&);
+      void register_event_handler (char const name[], event_handler_function&&);
 
       template<typename T>
-      void register_event_handler(T* t, bool(T::*method)(const core::event&, os::event_result& result)) {
-        register_event_handler(bind_method(t, method));
+      void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result)) {
+        register_event_handler (name, bind_method(t, method));
       }
 
       void unregister_event_handler(const event_handler_function&);
@@ -58,7 +58,26 @@ namespace gui {
       bool handle_event(const event& e, os::event_result& result);
 
     private:
-      typedef std::vector<event_handler_function> event_handler_list;
+      struct event_handler_info {
+        inline event_handler_info (char const* n, event_handler_function fn)
+          : cb(fn)
+          , name(n)
+        {}
+
+        inline bool operator() (const event& ev, os::event_result& res) const {
+          return cb(ev, res);
+        }
+
+        inline const std::type_info& target_type () const {
+          return cb.target_type();
+        }
+
+        event_handler_function cb;
+        char const* name;
+      };
+
+
+      typedef std::vector<event_handler_info> event_handler_list;
 
       event_handler_list event_handlers;
     };

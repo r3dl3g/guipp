@@ -41,19 +41,19 @@ namespace gui {
 #ifdef X11
       detail::init_control_messages();
 #endif // X11
-      register_event_handler(set_focus_event([&](window*){
+      register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){
         redraw_later();
       }));
-      register_event_handler(lost_focus_event([&](window*){
+      register_event_handler(__PRETTY_FUNCTION__, lost_focus_event([&](window*){
         redraw_later();
       }));
-      register_event_handler(win::mouse_enter_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, win::mouse_enter_event([&]() {
         set_hilited(true);
       }));
-      register_event_handler(win::mouse_leave_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, win::mouse_leave_event([&]() {
         set_hilited(false);
       }));
-      register_event_handler(win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
+      register_event_handler(__PRETTY_FUNCTION__, win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
         if (k == keys::enter) {
           set_pushed(true);
         }
@@ -86,13 +86,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     push_button::push_button () {
-      register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (client_area().is_inside(pos)) {
@@ -100,7 +100,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);
@@ -113,13 +113,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     toggle_button<false>::toggle_button () {
-      register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (client_area().is_inside(pos)) {
@@ -128,7 +128,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);
@@ -142,13 +142,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     toggle_button<true>::toggle_button () {
-      register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (!is_checked() && client_area().is_inside(pos)) {
@@ -157,7 +157,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);

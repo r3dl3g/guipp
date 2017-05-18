@@ -57,12 +57,12 @@ namespace gui {
     }
 
     void layout_base::init (std::function<size_callback> f1) {
-      main->register_event_handler(win::size_event(f1));
+//      main->register_event_handler(__PRETTY_FUNCTION__, win::size_event(f1));
     }
 
     void layout_base::init (std::function<size_callback> f1, std::function<show_callback> f2) {
-      main->register_event_handler(win::size_event(f1));
-      main->register_event_handler(win::show_event(f2));
+//      main->register_event_handler(__PRETTY_FUNCTION__, win::size_event(f1));
+      main->register_event_handler(__PRETTY_FUNCTION__, win::show_event(f2));
     }
 
     void layout_base::update () {
@@ -70,8 +70,8 @@ namespace gui {
     }
 
     attach::attach (win::container* main) {
-      main->register_event_handler(win::size_event(core::bind_method(this, &attach::layout)));
-      main->register_event_handler(win::show_event([&, main](){
+//      main->register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(this, &attach::layout)));
+      main->register_event_handler(__PRETTY_FUNCTION__, win::show_event([&, main](){
         layout(main->client_size());
       }));
     }

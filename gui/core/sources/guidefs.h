@@ -33,17 +33,14 @@
 #include <bits.h>
 
 #ifdef WIN32
-
 #include "win32defs.h"
-
-#elif X11
-
+#endif // WIN32
+#ifdef X11
 #include "x11defs.h"
+#endif
 
-#else
-
+#if !defined(WIN32) && !defined(X11)
 #pragma error "Unknown target system"
-
 #endif
 
 namespace gui {

@@ -55,7 +55,8 @@ namespace gui {
         dashDotDot = PS_DASHDOTDOT,
         hairLine = PS_NULL,
         insideFrame = PS_INSIDEFRAME
-#elif X11
+#endif // WIN32
+#ifdef X11
         solid = LineSolid,
         dash = LineOnOffDash,
         dot = LineOnOffDash | 0x010,
@@ -63,11 +64,7 @@ namespace gui {
         dashDotDot = LineOnOffDash | 0x030,
         hairLine = LineSolid | 0x040,
         insideFrame = LineSolid | 0x050
-#else
-
-#pragma error "Unknown target system"
-
-#endif // WIN32
+#endif // X11
       };
 
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid);

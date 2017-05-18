@@ -100,10 +100,10 @@ namespace gui {
 
         tree () {
           super::set_drawer(core::bind_method(this, &tree::draw_list_item));
-          super::register_event_handler(selection_commit_event([&]() {
+          super::register_event_handler(__PRETTY_FUNCTION__, selection_commit_event([&]() {
             toggle_node(super::get_selection());
           }));
-          super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+          super::register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
             int idx = super::get_index_at_point(pt);
             if ((idx > -1) && (idx < nodes.size())) {
               const depth_info& i = nodes[idx];

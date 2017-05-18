@@ -125,6 +125,12 @@ namespace gui {
         global_window_map.erase(id);
       }
 
+      inline win::window* get_event_window (const core::event& e) {
+        switch (e.type) {
+          case 22: return get_window(e.xconfigure.window);
+          default: return get_window(e.xany.window);
+        }
+      }
 #endif // X11
 
     } // detail
@@ -227,6 +233,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    bool check_expose (const core::event& e) {
+      return (e.type == Expose) && (e.xexpose.count > 0);
+    }
+
+    // --------------------------------------------------------------------------
     bool check_hot_key (const core::event& e) {
 #ifdef WIN32
       if (e.type == WM_HOTKEY) {
@@ -315,6 +326,7 @@ namespace gui {
       os::instance display = core::global::get_instance();
 
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+      detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
 
       os::event_result resultValue = 0;
 
@@ -327,10 +339,12 @@ namespace gui {
           continue;
         }
 
-        win::window* win = win::detail::get_window(e.xany.window);
+        win::window* win = win::detail::get_event_window(e);
 
         if (win && win->is_valid()) {
-          if ((e.type == ClientMessage) && (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
+          if ((e.type == ClientMessage) &&
+              (e.xclient.message_type == detail::WM_PROTOCOLS) &&
+              (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
             running = false;
           }
 
@@ -357,7 +371,7 @@ namespace gui {
       bool running = true;
 
       return run_loop(running, [](const core::event& e) {
-        return check_message_filter(e) || check_hot_key(e);
+        return check_expose(e) || check_message_filter(e) || check_hot_key(e);
       });
 
     }

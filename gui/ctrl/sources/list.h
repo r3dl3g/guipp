@@ -29,6 +29,7 @@
 //
 #include "window_event_handler.h"
 #include "scroll_bar.h"
+#include "logger.h"
 
 
 namespace gui {
@@ -102,11 +103,11 @@ namespace gui {
         list_t (bool grab_focus = true)
           : scrollbar(grab_focus)
         {
-          scrollbar.register_event_handler(win::scroll_event([&] (pos_t) {
+          scrollbar.register_event_handler(__PRETTY_FUNCTION__, win::scroll_event([&] (pos_t) {
             super::redraw_later();
           }));
           if (grab_focus) {
-            super::register_event_handler(left_btn_down_event([&](os::key_state, const core::point&) {
+            super::register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
               super::take_focus();
             }));
           }
@@ -255,10 +256,10 @@ namespace gui {
       list_t (bool grab_focus = true)
         : super(grab_focus)
       {
-        super::register_event_handler(paint_event([&](const draw::graphics& g) {
+        super::register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const draw::graphics& g) {
           paint(g);
         }));
-        super::register_event_handler(left_btn_up_event([&](os::key_state keys, const core::point& pt) {
+        super::register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state keys, const core::point& pt) {
           if (!super::moved && (super::last_mouse_point != core::point::undefined)) {
             const int new_selection = get_index_at_point(pt);
             if (new_selection != super::get_selection()) {
@@ -270,21 +271,21 @@ namespace gui {
           }
           super::last_mouse_point = core::point::undefined;
         }));
-        super::register_event_handler(left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
+        super::register_event_handler(__PRETTY_FUNCTION__, left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         }));
         if (V == orientation::vertical) {
-          super::register_event_handler(wheel_y_event([&](const pos_t delta, const core::point&){
+          super::register_event_handler(__PRETTY_FUNCTION__, wheel_y_event([&](const pos_t delta, const core::point&){
             set_scroll_pos(super::get_scroll_pos() - S * delta);
             super::moved = true;
           }));
         } else {
-          super::register_event_handler(wheel_x_event([&](const pos_t delta, const core::point&){
+          super::register_event_handler(__PRETTY_FUNCTION__, wheel_x_event([&](const pos_t delta, const core::point&){
             set_scroll_pos(super::get_scroll_pos() - S * delta);
             super::moved = true;
           }));
         }
-        super::register_event_handler(mouse_move_event([&](os::key_state keys,
+        super::register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys,
                                                     const core::point& pt) {
           const core::rectangle r = super::client_area();
           if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
@@ -298,13 +299,13 @@ namespace gui {
             set_hilite(get_index_at_point(pt));
           }
         }));
-        super::register_event_handler(size_event([&](const core::size&){
+        super::register_event_handler(__PRETTY_FUNCTION__, size_event([&](const core::size&){
           if (super::scrollbar.is_valid()) {
             super::scrollbar.place(super::get_scroll_bar_area());
           }
           adjust_scroll_bar();
         }));
-        super::register_event_handler(key_down_event([&](os::key_state,
+        super::register_event_handler(__PRETTY_FUNCTION__, key_down_event([&](os::key_state,
                                                          os::key_symbol key,
                                                          const std::string&){
           if (V == orientation::vertical) {
@@ -354,7 +355,7 @@ namespace gui {
               break;
           }
         }));
-        super::register_event_handler(mouse_leave_event([&]() {
+        super::register_event_handler(__PRETTY_FUNCTION__, mouse_leave_event([&]() {
           clear_hilite();
         }));
       }

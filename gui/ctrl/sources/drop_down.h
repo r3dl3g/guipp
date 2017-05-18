@@ -119,21 +119,21 @@ namespace gui {
       {
         super::get_layout().init(&button);
 
-        super::register_event_handler(win::paint_event([&](const draw::graphics& graph) {
+        super::register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&](const draw::graphics& graph) {
           draw::frame::sunken_deep_relief(graph, super::client_area());
           if (selection > -1) {
             D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, false);
           }
         }));
-        super::register_event_handler(win::create_event(core::bind_method(this, &drop_down_list::create_children)));
+        super::register_event_handler(__PRETTY_FUNCTION__, win::create_event(core::bind_method(this, &drop_down_list::create_children)));
 
-        button.register_event_handler(win::paint_event([&](const draw::graphics& graph) {
+        button.register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&](const draw::graphics& graph) {
           paint::drop_down_button(graph, button, popup.is_visible());
         }));
-        button.register_event_handler(win::button_clicked_event(
+        button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event(
           core::bind_method(this, &drop_down_list::toggle_popup)));
 
-        items.register_event_handler(selection_changed_event([&]() {
+        items.register_event_handler(__PRETTY_FUNCTION__, selection_changed_event([&]() {
           int idx = items.get_selection();
           if (idx > -1) {
             selection = idx;
@@ -247,14 +247,14 @@ namespace gui {
       }
 
       void create_popup (const core::rectangle& place) {
-        popup.register_event_handler(size_event([&](const core::size& sz) {
+        popup.register_event_handler(__PRETTY_FUNCTION__, size_event([&](const core::size& sz) {
           items.place(core::rectangle(sz));
         }));
-        popup.register_event_handler(create_event([&](window*, const core::rectangle& r) {
+        popup.register_event_handler(__PRETTY_FUNCTION__, create_event([&](window*, const core::rectangle& r) {
           items.create(popup, core::rectangle(r.size()));
           items.set_visible();
         }));
-        popup.register_event_handler(show_event([&]() {
+        popup.register_event_handler(__PRETTY_FUNCTION__, show_event([&]() {
           filter_id = global::register_message_filter([&](const core::event& e) -> bool {
             if (is_button_event_outside(popup, e)) {
               show_popup(false);
@@ -263,7 +263,7 @@ namespace gui {
             return false;
           });
         }));
-        popup.register_event_handler(hide_event([&]() {
+        popup.register_event_handler(__PRETTY_FUNCTION__, hide_event([&]() {
           if (filter_id) {
             global::unregister_message_filter(filter_id);
           }
@@ -272,7 +272,7 @@ namespace gui {
 
         auto* root = super::get_root();
         if (root) {
-          root->register_event_handler(me);
+          root->register_event_handler(__PRETTY_FUNCTION__, me);
         }
 
       }

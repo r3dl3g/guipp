@@ -41,7 +41,7 @@ namespace gui {
 
     namespace detail {
       // --------------------------------------------------------------------------
-      column_size_type column_list_layout::get_column_left_pos(std::size_t i) const {
+      column_size_type column_list_layout::get_column_left_pos (std::size_t i) const {
         column_size_type w = 0;
         for (decltype(i) j = 0; j < i; ++j) {
           w += get_column_width(j);
@@ -49,28 +49,28 @@ namespace gui {
         return w;
       }
 
-      column_size_type column_list_layout::get_column_right_pos(std::size_t i) const {
+      column_size_type column_list_layout::get_column_right_pos (std::size_t i) const {
         return get_column_left_pos(i + 1);
       }
 
-      core::size::type column_list_layout::get_available_width(const core::size& sz) const {
+      core::size::type column_list_layout::get_available_width (const core::size& sz) const {
         return sz.width() - (list && list->is_scroll_bar_visible() ? win::scroll_bar::get_scroll_bar_width() : 0);
       }
 
-      core::size::type column_list_layout::get_available_width() const {
+      core::size::type column_list_layout::get_available_width () const {
         if (list) {
           return get_available_width(main->client_size());
         }
         return 0;
       }
 
-      void column_list_layout::set_column_count(std::size_t i) {
+      void column_list_layout::set_column_count (std::size_t i) {
         widths.resize(i);
         aligns.resize(i);
-        sliders.clear(); // forece rebuild
+        sliders.clear(); // force rebuild
       }
 
-      void column_list_layout::set_columns(std::initializer_list<column_info> infos, bool update) {
+      void column_list_layout::set_columns (std::initializer_list<column_info> infos, bool update) {
         set_column_count(infos.size());
 
         int idx = 0;
@@ -84,7 +84,7 @@ namespace gui {
         }
       }
 
-      void column_list_layout::set_column_width(std::size_t i, column_size_type w, bool update) {
+      void column_list_layout::set_column_width (std::size_t i, column_size_type w, bool update) {
         if (widths[i] != w) {
           widths[i] = w;
           if (update) {
@@ -93,25 +93,21 @@ namespace gui {
         }
       }
 
-      void column_list_layout::set_column_align(std::size_t i, text_origin a) {
+      void column_list_layout::set_column_align (std::size_t i, text_origin a) {
         aligns[i] = a;
         list->redraw_later();
       }
 
-      void column_list_layout::set_slider(std::size_t i, win::detail::slider* s) {
-        sliders[i] = s;
-      }
-
-      void column_list_layout::set_column_info(std::size_t i, const column_info& info, bool update) {
+      void column_list_layout::set_column_info (std::size_t i, const column_info& info, bool update) {
         aligns[i] = info.align;
         set_column_width(i, info.width, update);
       }
 
-      void column_list_layout::set_slider_creator(std::function<create_sliders> sc) {
+      void column_list_layout::set_slider_creator (std::function<create_sliders> sc) {
         slider_creator = sc;
       }
 
-      void column_list_layout::layout(const core::size& new_size) {
+      void column_list_layout::layout (const core::size& new_size) {
         core::rectangle r(-1, 1, 2, new_size.height() - 2);
         auto count = get_column_count();
         if (count != sliders.size()) {
@@ -121,23 +117,22 @@ namespace gui {
           slider* s = sliders[i];
           r.move_x(get_column_width(i));
           s->place(r);
-//          r.move_x(1);
         }
       }
 
-      void column_list_layout::update_views() {
+      void column_list_layout::update_views () {
         layout(main->size());
         redraw_views();
       }
 
-      void column_list_layout::redraw_views() {
+      void column_list_layout::redraw_views () {
         main->redraw_later();
         list->redraw_later();
       }
     }
 
     // --------------------------------------------------------------------------
-    void simple_column_list_layout::set_columns(std::initializer_list<simple_column_info> infos, bool update) {
+    void simple_column_list_layout::set_columns (std::initializer_list<simple_column_info> infos, bool update) {
       set_column_count(infos.size());
 
       int idx = 0;
@@ -153,7 +148,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void weight_column_list_layout::set_columns(std::initializer_list<weight_column_info> infos, bool update) {
+    void weight_column_list_layout::set_columns (std::initializer_list<weight_column_info> infos, bool update) {
       set_column_count(infos.size());
 
       int idx = 0;
@@ -169,7 +164,7 @@ namespace gui {
       }
     }
 
-    void weight_column_list_layout::set_column_width(std::size_t i, column_size_type w, bool update) {
+    void weight_column_list_layout::set_column_width (std::size_t i, column_size_type w, bool update) {
       auto count = get_column_count();
 
       // adjust only the columns on the right

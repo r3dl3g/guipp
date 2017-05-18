@@ -85,7 +85,7 @@ namespace gui {
       typedef detail::label_base super;
 
       labelT () {
-        register_event_handler(paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
           gui::core::rectangle place = client_area();
           paint::label(graph, *this, get_text(), FC, BC, A);
           F(graph, place);

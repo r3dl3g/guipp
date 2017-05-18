@@ -209,7 +209,7 @@ namespace gui {
       template<>
       scroll_barT<orientation::horizontal>::scroll_barT (bool grab_focus)
         : last_position(0) {
-        register_event_handler(paint_event([&](const draw::graphics& g){
+        register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
           auto down = down_button_place(geo);
@@ -218,7 +218,7 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), true, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             if (grab_focus) {
               take_focus();
@@ -245,7 +245,7 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
@@ -275,12 +275,12 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(wheel_x_event([&](const core::point::type dx, const core::point&){
+        register_event_handler(__PRETTY_FUNCTION__, wheel_x_event([&](const core::point::type dx, const core::point&){
           if (is_enabled()) {
             set_value(get_value() - dx, true);
           }
         }));
-        register_event_handler(mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
             if (get_state() == Thumb_button_pressed) {
@@ -289,7 +289,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(__PRETTY_FUNCTION__, key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::left:
@@ -324,7 +324,7 @@ namespace gui {
       template<>
       scroll_barT<orientation::vertical>::scroll_barT (bool grab_focus)
         : last_position(0) {
-        register_event_handler(paint_event([&](const draw::graphics& g){
+        register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
           auto down = down_button_place(geo);
@@ -333,7 +333,7 @@ namespace gui {
           auto page_down = page_down_place(geo);
           paint::scrollbar(g, get_state(), is_enabled(), false, up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             if (grab_focus) {
               take_focus();
@@ -362,7 +362,7 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
@@ -394,12 +394,12 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(wheel_y_event([&](const core::point::type dy, const core::point&){
+        register_event_handler(__PRETTY_FUNCTION__, wheel_y_event([&](const core::point::type dy, const core::point&){
           if (is_enabled()) {
             set_value(get_value() - dy, true);
           }
         }));
-        register_event_handler(mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
             if (get_state() == Thumb_button_pressed) {
@@ -408,7 +408,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(__PRETTY_FUNCTION__, key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::up:

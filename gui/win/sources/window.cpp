@@ -317,13 +317,13 @@ namespace gui {
       return cls;
     }
 
-    void window::register_event_handler (const event_handler_function& f, os::event_id mask) {
-      events.register_event_handler(f);
+    void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
+      events.register_event_handler(name, f);
       prepare_for_event(mask);
     }
 
-    void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
-      events.register_event_handler(std::move(f));
+    void window::register_event_handler (char const name[], event_handler_function&& f, os::event_id mask) {
+      events.register_event_handler(name, std::move(f));
       prepare_for_event(mask);
     }
 
@@ -389,6 +389,7 @@ namespace gui {
     {
       detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+      detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
     }
 
     void window::create (const window_class& type,
@@ -444,8 +445,7 @@ namespace gui {
       send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
       //XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
       Atom protocols[] = {
-        XInternAtom(display, "WM_TAKE_FOCUS", False),
-        detail::WM_DELETE_WINDOW,
+        XInternAtom(display, "WM_TAKE_FOCUS", False), detail::WM_DELETE_WINDOW,
       };
       XSetWMProtocols(display, id, protocols, 2);
 
@@ -460,9 +460,7 @@ namespace gui {
     }
 
     void window::quit () {
-      Atom wmDeleteMessage = XInternAtom(core::global::get_instance(), "WM_DELETE_WINDOW", False);
-      Atom message = XInternAtom(core::global::get_instance(), "WM_PROTOCOLS", False);
-      send_client_message(this, message, wmDeleteMessage);
+      send_client_message(this, detail::WM_PROTOCOLS, detail::WM_DELETE_WINDOW);
     }
 
     bool window::is_valid () const {
@@ -604,15 +602,15 @@ namespace gui {
     void window::redraw_now () {
       if (get_id()) {
         check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                     0, 0, 0, 0, true));
+                                     0, 0, 1, 1, true));
         core::global::sync();
       }
     }
 
     void window::redraw_later () {
       if (get_id()) {
-              check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                           0, 0, 0, 0, true));
+        check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                     0, 0, 1, 1, true));
       }
     }
 
@@ -674,10 +672,12 @@ namespace gui {
     }
 
     void window::move (const core::point& pt, bool repaint) {
-      check_xlib_return(XMoveWindow(core::global::get_instance(), get_id(),
-                                    pt.os_x(), pt.os_y()));
-      if (repaint) {
-        redraw_later();
+      if (position() != pt) {
+        check_xlib_return(XMoveWindow(core::global::get_instance(), get_id(),
+                                      pt.os_x(), pt.os_y()));
+        if (repaint) {
+          redraw_later();
+        }
       }
     }
 
@@ -686,10 +686,12 @@ namespace gui {
         set_visible(false);
       } else {
         set_visible();
-        check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
-                                      sz.os_width(), sz.os_height()));
-        if (repaint) {
-          redraw_later();
+        if (size() != sz) {
+          check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
+                                        sz.os_width(), sz.os_height()));
+          if (repaint) {
+            redraw_later();
+          }
         }
       }
     }
@@ -699,10 +701,12 @@ namespace gui {
         set_visible(false);
       } else {
         set_visible();
-        check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
-                                          r.os_x(), r.os_y(), r.os_width(), r.os_height()));
-        if (repaint) {
-          redraw_later();
+        if (place() != r) {
+          check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
+                                            r.os_x(), r.os_y(), r.os_width(), r.os_height()));
+          if (repaint) {
+            redraw_later();
+          }
         }
       }
     }

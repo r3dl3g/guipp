@@ -137,11 +137,11 @@ namespace gui {
       void move (const core::point&,
                  bool repaint = true);
 
-      void resize (const core::size&,
-                   bool repaint = true);
+      virtual void resize (const core::size&,
+                           bool repaint = true);
 
-      void place (const core::rectangle&,
-                  bool repaint = true);
+      virtual void place (const core::rectangle&,
+                          bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
       core::point screen_to_window (const core::point&) const;
@@ -154,24 +154,24 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      void register_event_handler(const event_handler_function& f, os::event_id mask);
-      void register_event_handler(event_handler_function&& f, os::event_id mask);
+      void register_event_handler (char const name[], const event_handler_function& f, os::event_id mask);
+      void register_event_handler (char const name[], event_handler_function&& f, os::event_id mask);
 
-      void unregister_event_handler(const event_handler_function& f);
+      void unregister_event_handler (const event_handler_function& f);
 
       template<typename H>
-      void register_event_handler(const H& h) {
-        register_event_handler(h, h.mask);
+      void register_event_handler (char const name[], const H& h) {
+        register_event_handler(name, h, h.mask);
       }
 
       template<typename H>
-      void register_event_handler(H&& h) {
-        register_event_handler(std::move(h), h.mask);
+      void register_event_handler (char const name[], H&& h) {
+        register_event_handler(name, std::move(h), h.mask);
       }
 
       template<typename T>
-      void register_event_handler(T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
-        register_event_handler(core::bind_method(t, method), mask);
+      void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
+        register_event_handler(name, core::bind_method(t, method), mask);
       }
 
       inline bool handle_event (const core::event& e, os::event_result& result) {
@@ -244,6 +244,7 @@ namespace gui {
     template<typename L = layout::standard_layout>
     class layout_container : public container {
     public:
+      typedef container super;
       typedef L layout_type;
 
       layout_container ()
@@ -260,6 +261,16 @@ namespace gui {
 
       inline const layout_type& get_layout() const {
         return layouter;
+      }
+
+      void resize (const core::size& sz, bool repaint = true) {
+        super::resize(sz, repaint);
+        layouter.layout(sz);
+      }
+
+      void place (const core::rectangle& p, bool repaint = true) {
+        super::place(p, repaint);
+        layouter.layout(p.size());
       }
 
     private:
@@ -383,7 +394,9 @@ namespace gui {
 
       layout_main_window ()
         : layouter(this)
-      {}
+      {
+        register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
+      }
 
       void layout () {
         layouter.layout(size());
@@ -436,7 +449,9 @@ namespace gui {
 
       layout_dialog_window ()
         : layouter(this)
-      {}
+      {
+        register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
+      }
 
       void layout () {
         layouter.layout(size());

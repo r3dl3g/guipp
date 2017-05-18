@@ -42,13 +42,10 @@ namespace gui {
       enum Style {
 #ifdef WIN32
         solid = BS_SOLID
-#elif X11
-        solid = FillSolid
-#else
-
-#pragma error "Unknown target system"
-
 #endif // WIN32
+#ifdef X11
+        solid = FillSolid
+#endif // X11
       };
 
       brush(const os::color& = color::black, Style = solid);

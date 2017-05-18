@@ -244,7 +244,7 @@ int gui_main(const std::vector<std::string>& args) {
            << ", paint_event:" << pnt_size;
 
 //#ifdef WIN32
-//  main.register_event_handler(win::get_minmax_event([](const core::size& sz,
+//  main.register_event_handler(__PRETTY_FUNCTION__, win::get_minmax_event([](const core::size& sz,
 //    const core::point& pos,
 //    core::size& mi, core::size& ma) {
 //    mi = { 300, 200 };
@@ -272,85 +272,85 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
 {
-  register_event_handler(init_result_handler(), 0);
+  register_event_handler(__PRETTY_FUNCTION__, init_result_handler(), 0);
 
-  register_event_handler(win::destroy_event([&] () {
+  register_event_handler(__PRETTY_FUNCTION__, win::destroy_event([&] () {
     LogDebug << "Destroyed!";
     quit();
   }));
 
 
 //#ifdef WIN32
-//  register_event_handler(win::close_event([&]() {
+//  register_event_handler(__PRETTY_FUNCTION__, win::close_event([&]() {
 //    LogDebug << "Close!";
 //    destroy();
 //  }));
-//  register_event_handler(win::enable_event([](bool on) {
+//  register_event_handler(__PRETTY_FUNCTION__, win::enable_event([](bool on) {
 //    LogDebug << (on ? "Enableed" : "Disabled");
 //  }));
-//  register_event_handler(win::activate_event([](bool on, win::window* win) {
+//  register_event_handler(__PRETTY_FUNCTION__, win::activate_event([](bool on, win::window* win) {
 //    LogDebug << "Main " << (on ? "activate" : "deactivate");
 //  }));
-//  register_event_handler(win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
-//  register_event_handler(win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-//  register_event_handler(win::activate_app_event([](bool on) {
+//  register_event_handler(__PRETTY_FUNCTION__, win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
+//  register_event_handler(__PRETTY_FUNCTION__, win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
+//  register_event_handler(__PRETTY_FUNCTION__, win::activate_app_event([](bool on) {
 //    LogDebug << (on ? "A" : "Dea") << "ctivate App";
 //  }));
 
 //#endif
 
-  register_event_handler(win::moving_event([] (const core::point& r) {
+  register_event_handler(__PRETTY_FUNCTION__, win::moving_event([] (const core::point& r) {
     LogDebug << "Main moving: " << r;
   }));
-  register_event_handler(win::sizing_event([] (const core::size& r) {
+  register_event_handler(__PRETTY_FUNCTION__, win::sizing_event([] (const core::size& r) {
     LogDebug << "Main sizing: " << r;
   }));
-  register_event_handler(win::placing_event([] (const core::rectangle& r) {
+  register_event_handler(__PRETTY_FUNCTION__, win::placing_event([] (const core::rectangle& r) {
     LogDebug << "Main placing: " << r;
   }));
 
-  register_event_handler(win::move_event([] (const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::move_event([] (const core::point& p) {
     LogDebug << "Main move: " << p;
   }));
-  register_event_handler(win::size_event([] (const core::size& s) {
+  register_event_handler(__PRETTY_FUNCTION__, win::size_event([] (const core::size& s) {
     LogDebug << "Main size: " << s;
   }));
-  register_event_handler(win::place_event([] (const core::rectangle& r) {
+  register_event_handler(__PRETTY_FUNCTION__, win::place_event([] (const core::rectangle& r) {
     LogDebug << "Main place: " << r;
   }));
 
 //#ifdef WIN32
-//  ok_button.register_event_handler(win::activate_event([](bool on, win::window* win) {
+//  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::activate_event([](bool on, win::window* win) {
 //    LogDebug << "Button " << (on ? "" : "de") << "activate";
 //  }));
 //#endif
-  ok_button.register_event_handler(win::set_focus_event([] (win::window* win) {
+  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::set_focus_event([] (win::window* win) {
     LogDebug << "Button Set Focus";
   }));
-  ok_button.register_event_handler(win::lost_focus_event([&] (win::window* win) {
+  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::lost_focus_event([&] (win::window* win) {
     LogDebug << "Button Lost Focus";
   }));
 
-  register_event_handler(win::left_btn_down_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::left_btn_down_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Down at " << p;
   }));
-  register_event_handler(win::left_btn_up_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::left_btn_up_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Up at " << p;
   }));
-  register_event_handler(win::right_btn_down_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::right_btn_down_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Down at " << p;
   }));
-  register_event_handler(win::right_btn_up_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::right_btn_up_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Up at " << p;
   }));
-  window1.register_event_handler(win::wheel_x_event([&] (core::point::type delta,
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::wheel_x_event([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   }));
-  window1.register_event_handler(win::wheel_y_event([&] (core::point::type delta,
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::wheel_y_event([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
@@ -358,31 +358,31 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  window1.register_event_handler(win::left_btn_down_event([&](os::key_state, const core::point& p) {
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_down_event([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
     LogDebug << "Window1 Mouse down at " << p;
   }));
-  window1.register_event_handler(win::left_btn_up_event([&](os::key_state, const core::point& p) {
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_up_event([&](os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
   }));
 
-  window2.register_event_handler(win::left_btn_down_event([&](os::key_state, const core::point& p) {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_down_event([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
     LogDebug << "Window2 Mouse down at " << p;
   }));
-  window2.register_event_handler(win::left_btn_up_event([&](os::key_state, const core::point& p) {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_up_event([&](os::key_state, const core::point& p) {
     window2.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
   }));
 
-  window1.register_event_handler(win::mouse_move_event([&] (os::key_state keys,
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::mouse_move_event([&] (os::key_state keys,
                                                             const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -391,7 +391,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
       window1.move(window1.position() + delta);
     }
   }));
-  window2.register_event_handler(win::mouse_move_event([&] (os::key_state keys,
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::mouse_move_event([&] (os::key_state keys,
                                                             const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -401,12 +401,12 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  window1.register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   }));
 
-  register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Double Click up at " << p;
 
     core::point pos = window1.position();
@@ -425,64 +425,64 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     core::rectangle car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  register_event_handler(win::right_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(__PRETTY_FUNCTION__, win::right_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     window1.move({50, 50});
   }));
 
-  window2.register_event_handler(paint1);
+  window2.register_event_handler(__PRETTY_FUNCTION__, paint1);
 
   at_paint1 = true;
 
-  window2.register_event_handler(win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
     LogDebug << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
       window2.unregister_event_handler(paint1);
-      window2.register_event_handler(paint2);
+      window2.register_event_handler(__PRETTY_FUNCTION__, paint2);
     } else {
       at_paint1 = true;
       window2.unregister_event_handler(paint2);
-      window2.register_event_handler(paint1);
+      window2.register_event_handler(__PRETTY_FUNCTION__, paint1);
     }
     window2.redraw_later();
   }));
-  window2.register_event_handler(win::show_event([] () {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::show_event([] () {
     LogDebug << "Window2 show:";
   }));
-  window2.register_event_handler(win::hide_event([] () {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::hide_event([] () {
     LogDebug << "Window2 hide:";
   }));
 
 //#ifdef WIN32
-//  ok_button.register_event_handler(win::button_state_event([](bool state) {
+//  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::button_state_event([](bool state) {
 //    LogDebug << "Button " << (state ? "hilited" : "unhilited");
 //  }));
 //#endif // WIN32
-  ok_button.register_event_handler(win::button_pushed_event([&] () {
+  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::button_pushed_event([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
     label.redraw_now();
   }));
-  ok_button.register_event_handler(win::button_released_event([&] () {
+  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::button_released_event([&] () {
     LogDebug << "Button released";
     label.set_text("Released!");
     label.redraw_now();
   }));
-  radio_button.register_event_handler(win::button_clicked_event([&] () {
+  radio_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Radio clicked";
     labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   }));
-  radio_button2.register_event_handler(win::button_clicked_event([&] () {
+  radio_button2.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Radio2 clicked";
     labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   }));
-  check_box.register_event_handler(win::button_state_event([&] (bool on) {
+  check_box.register_event_handler(__PRETTY_FUNCTION__, win::button_state_event([&] (bool on) {
     LogDebug << "Check clicked";
     label.set_text("Check clicked!");
     radio_button.enable(on);
@@ -492,22 +492,22 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     hscroll.enable(on);
   }));
 
-  min_button.register_event_handler(win::button_clicked_event([&] () {
+  min_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Min clicked";
     minimize();
     query_state();
   }));
-  max_button.register_event_handler(win::button_clicked_event([&] () {
+  max_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Max clicked";
     maximize();
     query_state();
   }));
-  norm_button.register_event_handler(win::button_clicked_event([&] () {
+  norm_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Norm clicked";
     restore();
     query_state();
   }));
-  info_button.register_event_handler(win::button_clicked_event([&] () {
+  info_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Info clicked";
     query_state();
   }));
@@ -527,19 +527,19 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   };
 
   list1.set_drawer(list_drawer);
-  list1.register_event_handler(win::selection_changed_event([&] () {
+  list1.register_event_handler(__PRETTY_FUNCTION__, win::selection_changed_event([&] () {
     labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
   }));
-  list1.register_event_handler(win::selection_commit_event([&] () {
+  list1.register_event_handler(__PRETTY_FUNCTION__, win::selection_commit_event([&] () {
     labelC.set_text(ostreamfmt("List1 commited " << list1.get_selection()));
   }));
 
-  up_button.register_event_handler(win::button_clicked_event([&] () {
+  up_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     list1.set_selection(list1.get_selection() - 1);
     list2.set_selection(list2.get_selection() - 1);
     list3.set_selection(list3.get_selection() - 1);
   }));
-  down_button.register_event_handler(win::button_clicked_event([&] () {
+  down_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     list1.set_selection(list1.get_selection() + 1);
     list2.set_selection(list2.get_selection() + 1);
     list3.set_selection(list3.get_selection() + 1);
@@ -555,7 +555,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     data(idx, g, place, background, selected, hilited);
   });
 
-  list2.register_event_handler(win::selection_changed_event([&] () {
+  list2.register_event_handler(__PRETTY_FUNCTION__, win::selection_changed_event([&] () {
     std::ostringstream strm;
     strm << "List2 item " << list2.get_selection() << ": ";
     if (list2.get_selection() > -1) {
@@ -563,25 +563,25 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
     labelC.set_text(strm.str());
   }));
-  list2.register_event_handler(win::selection_commit_event([&] () {
+  list2.register_event_handler(__PRETTY_FUNCTION__, win::selection_commit_event([&] () {
     labelC.set_text(ostreamfmt("List2 commited " << list2.get_selection()));
   }));
 
-  column_list.list.register_event_handler(win::selection_changed_event([&] () {
+  column_list.list.register_event_handler(__PRETTY_FUNCTION__, win::selection_changed_event([&] () {
     labelC.set_text(ostreamfmt("column_list item " << column_list.list.get_selection()));
   }));
-  column_list.list.register_event_handler(win::selection_commit_event([&] () {
+  column_list.list.register_event_handler(__PRETTY_FUNCTION__, win::selection_commit_event([&] () {
     labelC.set_text(ostreamfmt("column_list commited " << column_list.list.get_selection()));
   }));
 
-  ok_button.register_event_handler(win::button_clicked_event([&] () {
+  ok_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     data.update_list(list2);
   }));
 
-  del_button.register_event_handler(win::button_clicked_event([&] () {
+  del_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Del Button clicked";
     label.set_text("Del Clicked!");
     if (!data.empty()) {
@@ -590,75 +590,75 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  clear_button.register_event_handler(win::button_clicked_event([&] () {
+  clear_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     LogDebug << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
     data.update_list(list2);
   }));
 
-  scroll_check_box.register_event_handler(win::button_state_event([&] (bool on) {
+  scroll_check_box.register_event_handler(__PRETTY_FUNCTION__, win::button_state_event([&] (bool on) {
     list1.enable_scroll_bar(on);
     list2.enable_scroll_bar(on);
   }));
 
-  vscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
+  vscroll.register_event_handler(__PRETTY_FUNCTION__, win::scroll_event([&](core::point::type pos) {
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
   }));
 
-  calc_button.register_event_handler(win::button_clicked_event([&] () {
+  calc_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     view.layout();
   }));
 
-  inc_button.register_event_handler(win::button_clicked_event([&] () {
+  inc_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     view.resize(view.size() + core::size{5, 5});
   }));
-  dec_button.register_event_handler(win::button_clicked_event([&] () {
+  dec_button.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     view.resize(view.size() - core::size{5, 5});
   }));
 
-  vslider.register_event_handler(win::move_event([&](const core::point&) {
+  vslider.register_event_handler(__PRETTY_FUNCTION__, win::move_event([&](const core::point&) {
     layout();
   }));
-  hslider.register_event_handler(win::move_event([&](const core::point&) {
+  hslider.register_event_handler(__PRETTY_FUNCTION__, win::move_event([&](const core::point&) {
     layout();
   }));
 
-  hscroll.register_event_handler(win::scroll_event([&](core::point::type pos) {
+  hscroll.register_event_handler(__PRETTY_FUNCTION__, win::scroll_event([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);
   }));
-  main_split_view.slider.register_event_handler(win::move_event([&](const core::point&){
+  main_split_view.slider.register_event_handler(__PRETTY_FUNCTION__, win::move_event([&](const core::point&){
     hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
   }));
 
-  cur_plus.register_event_handler(win::button_clicked_event([&] () {
+  cur_plus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     edit1.set_cursor_pos(edit1.get_cursor_pos() + 1);
   }));
-  cur_minus.register_event_handler(win::button_clicked_event([&] () {
+  cur_minus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     if (edit1.get_cursor_pos() > 0) {
       edit1.set_cursor_pos(edit1.get_cursor_pos() - 1);
     }
   }));
-  sel_first_plus.register_event_handler(win::button_clicked_event([&] () {
+  sel_first_plus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     (r.first)++;
     edit1.set_selection(r);
   }));
-  sel_first_minus.register_event_handler(win::button_clicked_event([&] () {
+  sel_first_minus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     if (r.first > 0) {
       (r.first)--;
       edit1.set_selection(r);
     }
   }));
-  sel_last_plus.register_event_handler(win::button_clicked_event([&] () {
+  sel_last_plus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     (r.last)++;
     edit1.set_selection(r);
   }));
-  sel_last_minus.register_event_handler(win::button_clicked_event([&] () {
+  sel_last_minus.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     if (r.last > 0) {
       (r.last)--;
@@ -666,29 +666,29 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     }
   }));
 
-  custom_button.register_event_handler(win::mouse_enter_event([&]() {
+  custom_button.register_event_handler(__PRETTY_FUNCTION__, win::mouse_enter_event([&]() {
     custom_button.set_hilited(true);
   }));
-  custom_button.register_event_handler(win::mouse_leave_event([&]() {
+  custom_button.register_event_handler(__PRETTY_FUNCTION__, win::mouse_leave_event([&]() {
     custom_button.set_hilited(false);
   }));
 
   /*
-    window2.register_event_handler(win::mouse_enter_event([]() {
+    window2.register_event_handler(__PRETTY_FUNCTION__, win::mouse_enter_event([]() {
     LogDebug << "Window2 mouse enter";
   }));
-  window2.register_event_handler(win::mouse_leave_event([]() {
+  window2.register_event_handler(__PRETTY_FUNCTION__, win::mouse_leave_event([]() {
     LogDebug << "Window2 mouse leave";
   }));
-  window1.register_event_handler(win::move_event([](const core::point& p) {
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::move_event([](const core::point& p) {
     LogDebug << "Window1 move: " << p;
   }));
-  window1.register_event_handler(win::size_event([](const core::size& s) {
+  window1.register_event_handler(__PRETTY_FUNCTION__, win::size_event([](const core::size& s) {
     LogDebug << "Window1 size: " << s;
   }));
   */
 
-  register_event_handler(win::create_event(core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(__PRETTY_FUNCTION__, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
 }
 
 void my_main_window::query_state () {

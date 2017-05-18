@@ -46,7 +46,7 @@ namespace gui {
 #ifdef X11
         detail::init_control_messages();
 #endif // X11
-        register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
           last_mouse_point = pt;
           moved = false;
         }));

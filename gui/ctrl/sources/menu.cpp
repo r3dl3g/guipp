@@ -432,41 +432,41 @@ namespace gui {
     {
       data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
 
-      register_event_handler(paint_event(core::bind_method(this, &main_menu::paint)));
+      register_event_handler(__PRETTY_FUNCTION__, paint_event(core::bind_method(this, &main_menu::paint)));
 
-      register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, client_to_screen(pt));
+      register_event_handler(__PRETTY_FUNCTION__, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
+        data.handle_mouse(false, pt);
       }));
 
-      register_event_handler(mouse_leave_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, mouse_leave_event([&]() {
         data.clear_hilite();
       }));
 
-      register_event_handler(set_focus_event([&](window*) {
+      register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*) {
         if (data.get_hilite() == -1) {
           data.set_hilite(0);
         }
       }));
 
-      register_event_handler(selection_changed_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, selection_changed_event([&]() {
         int idx = data.get_selection();
         if (idx > -1) {
           data[idx].select();
         }
       }));
 
-      register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
         take_focus();
         data.handle_mouse(true, client_to_screen(pt));
       }));
 
-      register_event_handler(key_down_event([&](os::key_state,
+      register_event_handler(__PRETTY_FUNCTION__, key_down_event([&](os::key_state,
                                                 os::key_symbol key,
                                                 const std::string&){
         handle_key(key);
       }));
 
-      register_event_handler(create_event([&](window*, const core::rectangle&){
+      register_event_handler(__PRETTY_FUNCTION__, create_event([&](window*, const core::rectangle&){
         data.register_menu_keys(this);
       }));
     }
@@ -587,17 +587,17 @@ namespace gui {
       , text_pos(10)
       , hotkey_pos(0)
     {
-      register_event_handler(paint_event(core::bind_method(this, &popup_menu::paint)));
+      register_event_handler(__PRETTY_FUNCTION__, paint_event(core::bind_method(this, &popup_menu::paint)));
 
-      register_event_handler(mouse_move_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, client_to_screen(pt));
+      register_event_handler(__PRETTY_FUNCTION__, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
+        data.handle_mouse(false, pt);
       }));
 
-      register_event_handler(mouse_leave_event([&](){
+      register_event_handler(__PRETTY_FUNCTION__, mouse_leave_event([&](){
         data.clear_hilite();
       }));
 
-      register_event_handler(selection_changed_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, selection_changed_event([&]() {
         int idx = data.get_selection();
         if (idx > -1) {
           if (!data[idx].is_sub_menu()) {
@@ -607,25 +607,25 @@ namespace gui {
         }
       }));
 
-      register_event_handler(left_btn_down_event([&](os::key_state, const core::point& pt) {
+      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
         data.handle_mouse(true, client_to_screen(pt));
       }));
 
-      register_event_handler(lost_focus_event([&](window*) {
+      register_event_handler(__PRETTY_FUNCTION__, lost_focus_event([&](window*) {
         redraw_later();
       }));
 
-      register_event_handler(key_down_event([&](os::key_state,
+      register_event_handler(__PRETTY_FUNCTION__, key_down_event([&](os::key_state,
                                                 os::key_symbol key,
                                                 const std::string&){
         handle_key(key);
       }));
 
-      register_event_handler(show_event([&]() {
+      register_event_handler(__PRETTY_FUNCTION__, show_event([&]() {
         capture_pointer();
       }));
 
-//      register_event_handler(create_event([&](window*, const core::rectangle&){
+//      register_event_handler(__PRETTY_FUNCTION__, create_event([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
 //      }));
     }

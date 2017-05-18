@@ -78,6 +78,12 @@ namespace gui {
       return core::size(e.lParam);
     }
     // --------------------------------------------------------------------------
+    core::point get_root_mouse_pos (const core::event& e) {
+      POINT pt = { GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam) };
+      ClientToScreen(e.id, &pt);
+      return core::point(pt);
+    }
+    // --------------------------------------------------------------------------
     window* get_window_from_cs(const core::event& e) {
       CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.lParam);
       return detail::get_window(cs->hwndParent);
@@ -200,6 +206,7 @@ namespace gui {
     namespace detail {
       Atom WM_CREATE_WINDOW = 0;
       Atom WM_DELETE_WINDOW = 0;
+      Atom WM_PROTOCOLS = 0;
       std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name) {
@@ -263,7 +270,7 @@ namespace gui {
         /* Send the data off to the other process */
         XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
 
-        core::global::sync();
+//        core::global::sync();
       }
     }
 
@@ -290,6 +297,12 @@ namespace gui {
     window* get_client_data<0, window*>(const core::event& e) {
       os::window id = e.xclient.data.l[0];
       return detail::get_window(id);
+    }
+
+    // --------------------------------------------------------------------------
+    core::point get_root_mouse_pos (const core::event& e) {
+      auto me = (cast_event_type<XMotionEvent>(e));
+      return core::point(me.x_root, me.y_root);
     }
 
     // --------------------------------------------------------------------------

@@ -47,11 +47,11 @@ namespace gui {
     scroll_view::scroll_view () {
       get_layout().init(&vscroll, &hscroll, &edge);
 
-      vscroll.register_event_handler(scroll_event([&](core::point::type y) {
+      vscroll.register_event_handler(__PRETTY_FUNCTION__, scroll_event([&](core::point::type y) {
                                        move_children(core::point(0, y - get_layout().get_current_pos().y()));
                                      }));
 
-      hscroll.register_event_handler(scroll_event([&](core::point::type x) {
+      hscroll.register_event_handler(__PRETTY_FUNCTION__, scroll_event([&](core::point::type x) {
                                        move_children(core::point(x - get_layout().get_current_pos().x(), 0));
                                      }));
     }
@@ -286,8 +286,8 @@ namespace gui {
 
       for(win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-          win->register_event_handler(me);
-          win->register_event_handler(se);
+          win->register_event_handler(__PRETTY_FUNCTION__, me);
+          win->register_event_handler(__PRETTY_FUNCTION__, se);
         }
       }
     }

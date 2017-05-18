@@ -29,6 +29,7 @@
 // Library includes
 //
 #include "keys.h"
+#include "logger.h"
 
 namespace gui {
 
@@ -45,8 +46,14 @@ namespace gui {
       //}
 #endif // WIN32
 #ifdef X11
-      if (isupper(key)) {
-        key = tolower(key);
+      try {
+        if (((int)key < 0xFF) && isupper(key)) {
+          key = tolower(key);
+        }
+      } catch (std::exception& ex) {
+        LogFatal << "Exception in isupper(0x" << std::hex << (int)key << "):" << ex.what();
+      } catch (...) {
+        LogFatal << "Unknown exception in isupper(0x" << std::hex << (int)key << "):";
       }
 #endif // X11
     }

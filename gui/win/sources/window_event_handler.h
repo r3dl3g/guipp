@@ -316,6 +316,10 @@ namespace gui {
                            caller<get_param<0, os::key_state>,
                                   get_param<1, core::point>>>;
 
+    using mouse_move_abs_event = event_handler<WM_MOUSEMOVE, 0,
+                           params<os::key_state, core::point>::
+                           caller<get_param<0, os::key_state>,
+                                  get_root_mouse_pos>>;
 
     struct mouse_enter_matcher {
       bool operator() (const core::event& e);
@@ -430,6 +434,7 @@ namespace gui {
     namespace detail {
       extern Atom WM_CREATE_WINDOW;
       extern Atom WM_DELETE_WINDOW;
+      extern Atom WM_PROTOCOLS;
       extern std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name);
@@ -547,6 +552,8 @@ namespace gui {
       return detail::get_window(cast_event_type<T>(e).window);
     }
     // --------------------------------------------------------------------------
+    core::point get_root_mouse_pos (const core::event& e);
+    // --------------------------------------------------------------------------
     template <Atom& M>
     struct client_message_matcher {
       bool operator() (const core::event& e) {
@@ -574,6 +581,11 @@ namespace gui {
                            params<os::key_state, core::point>::
                            caller<get_state<XMotionEvent>,
                                   get_param<core::point, XMotionEvent>>>;
+
+    using mouse_move_abs_event = event_handler<MotionNotify, PointerMotionMask,
+                           params<os::key_state, core::point>::
+                           caller<get_state<XMotionEvent>,
+                                  get_root_mouse_pos>>;
 
     using left_btn_down_event = event_handler<ButtonPress, ButtonPressMask,
                            params<os::key_state, core::point>::

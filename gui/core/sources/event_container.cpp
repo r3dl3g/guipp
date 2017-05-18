@@ -35,14 +35,14 @@ namespace gui {
 
   namespace core {
 
-    void event_container::register_event_handler (const event_handler_function& handler) {
+    void event_container::register_event_handler (char const name[], const event_handler_function& handler) {
       event_handlers.reserve(8);
-      event_handlers.push_back(handler);
+      event_handlers.emplace_back(name, handler);
     }
 
-    void event_container::register_event_handler (event_handler_function&& handler) {
+    void event_container::register_event_handler (char const name[], event_handler_function&& handler) {
       event_handlers.reserve(8);
-      event_handlers.push_back(std::move(handler));
+      event_handlers.emplace_back(name, handler);
     }
 
     void event_container::unregister_event_handler (const event_handler_function& handler) {

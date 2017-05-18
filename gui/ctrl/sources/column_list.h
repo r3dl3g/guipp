@@ -94,8 +94,6 @@ namespace gui {
 
         void set_column_width(std::size_t i, column_size_type w, bool update = true);
 
-        void set_slider(std::size_t i, win::detail::slider*);
-
         void set_column_info(std::size_t i, const column_info& info, bool update = true);
 
         void set_columns(std::initializer_list<column_info> infos, bool update = true);
@@ -278,7 +276,7 @@ namespace gui {
         this->get_layout().set_slider_creator([&](std::size_t i) {
           return create_slider(i);
         });
-        this->register_event_handler(win::paint_event([&](const draw::graphics& g) {
+        this->register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&](const draw::graphics& g) {
           using namespace draw;
 
           core::rectangle area = this->client_area();
@@ -318,11 +316,16 @@ namespace gui {
           if (!s.is_valid()) {
             s.create(*this, r);
             s.set_visible();
-            s.register_event_handler(win::slider_event([=](int dx) {
-              this->get_layout().set_column_width(i, this->get_layout().get_column_width(i) + dx);
+            s.register_event_handler(__PRETTY_FUNCTION__, win::slider_event([=](int) {
+              slider_type& s = sliders[i];
+              auto new_w = s.position().x();
+              if (i > 0) {
+                slider_type& s0 = sliders[i - 1];
+                new_w -= s0.position().x();
+              }
+              this->get_layout().set_column_width(i, new_w);
             }));
           }
-//          r.move_x(1);
         }
         return v;
       }
@@ -609,27 +612,31 @@ namespace gui {
       void draw_cell (const row& data,
                       const layout_type& l,
                       const draw::graphics& g,
-                      core::rectangle place,
+                      const core::rectangle& place,
+                      core::point_type x,
                       const draw::brush& background,
                       bool selected,
                       bool hilited) {
+        if (x < place.x2()) {
+          g.fill(draw::rectangle(core::point(x, place.y()), place.bottom_right()), background);
+        }
       }
 
       template<std::size_t I, typename T, typename... Args>
       void draw_cell (const row& data,
                       const layout_type& l,
                       const draw::graphics& g,
-                      core::rectangle place,
-                      const draw::brush& background, 
+                      const core::rectangle& r,
+                      core::point_type x,
+                      const draw::brush& background,
                       bool selected,
                       bool hilited) {
         core::size::type width = l.get_column_width(I);
         text_origin align = l.get_column_align(I);
 
-        place.width(width);
+        core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
         std::get<I>(*this)(std::get<I>(data), g, place, background, selected, hilited, align);
-        place.move_x(width);
-        draw_cell<I + 1, Args...>(data, l, g, place, background, selected, hilited);
+        draw_cell<I + 1, Args...>(data, l, g, r, x + width, background, selected, hilited);
       }
 
       void operator() (const row& data,
@@ -639,7 +646,7 @@ namespace gui {
                        const draw::brush& background,
                        bool selected,
                        bool hilited) {
-        draw_cell<0, Arguments...>(data, l, g, place, background, selected, hilited);
+        draw_cell<0, Arguments...>(data, l, g, place, place.x(), background, selected, hilited);
       }
     };
 

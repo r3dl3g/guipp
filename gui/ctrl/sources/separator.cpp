@@ -24,6 +24,9 @@ namespace gui {
 
     namespace detail {
 
+      separator_base::separator_base ()
+      {}
+
       no_erase_window_class separator_base::clazz("SEPARATOR++");
 
     } // detail

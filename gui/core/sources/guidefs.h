@@ -56,6 +56,8 @@ namespace gui {
 
       int get_device_bits_per_pixel ();
 
+      os::key_state get_key_state ();
+
     }
 
   } // core

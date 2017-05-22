@@ -26,8 +26,8 @@ namespace gui {
       : main(m)
       , button(nullptr)
     {
-      main->register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(this, &drop_down::layout)));
-      main->register_event_handler(__PRETTY_FUNCTION__, win::show_event([&](){
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(this, &drop_down::layout)));
+      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
         layout(main->client_size());
       }));
     }
@@ -83,9 +83,10 @@ namespace gui {
                              const core::rectangle& area,
                              bool is_open,
                              bool enabled,
+                             bool focused,
                              bool hilited,
                              bool pushed) {
-        win::paint::push_button(graph, area, enabled, false, hilited, pushed);
+        win::paint::push_button(graph, area, enabled, focused, hilited, pushed);
         core::rectangle r = area.shrinked(core::size(4, 5));
         if (!r.empty()) {
           std::vector<core::point> p;
@@ -102,7 +103,7 @@ namespace gui {
                              const win::button& btn,
                              bool is_open) {
         drop_down_button(graph, btn.client_area(), is_open,
-                         btn.is_enabled(), btn.is_hilited(), btn.is_pushed());
+                         btn.is_enabled(), btn.has_focus(), btn.is_hilited(), btn.is_pushed());
       }
 
     } // paint

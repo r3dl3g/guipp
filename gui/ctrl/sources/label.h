@@ -39,6 +39,8 @@ namespace gui {
       public:
         typedef gui::win::window_with_text super;
 
+        label_base ();
+
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           super::create(clazz, parent, place);
@@ -85,7 +87,7 @@ namespace gui {
       typedef detail::label_base super;
 
       labelT () {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           gui::core::rectangle place = client_area();
           paint::label(graph, *this, get_text(), FC, BC, A);
           F(graph, place);

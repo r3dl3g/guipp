@@ -219,6 +219,23 @@ namespace gui {
         id = 0;
       }
 
+#ifdef WIN32
+      window* get_current_focus_window () {
+        return detail::get_window(GetFocus());
+      }
+#endif // WIN32
+
+#ifdef X11
+      window* get_current_focus_window () {
+        Window focus = 0;
+        int revert_to = 0;
+        if (XGetInputFocus(core::global::get_instance(), &focus, &revert_to) < BadValue) {
+          return detail::get_window(focus);
+        }
+        return nullptr;
+      }
+#endif // X11
+
     } // global
 
     // --------------------------------------------------------------------------

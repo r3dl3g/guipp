@@ -80,7 +80,7 @@ namespace gui {
       void add_button (const std::string& label) {
         button* b = new button(label, buttons.empty());
         buttons.push_back(b);
-        b->btn.register_event_handler(__PRETTY_FUNCTION__, win::button_clicked_event([&, b] () {
+        b->btn.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&, b] () {
           uncheck_buttons(b);
         }));
       }

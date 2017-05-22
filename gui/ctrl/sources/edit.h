@@ -115,13 +115,14 @@ namespace gui {
 
     namespace paint {
 
-      void edit_box(const draw::graphics& graph,
-                    const win::window& btn,
-                    const std::string& text,
-                    text_origin origin,
-                    const detail::edit_base::range& selection,
-                    detail::edit_base::pos_t cursor_pos,
-                    detail::edit_base::pos_t scroll_pos);
+      void edit_line (const draw::graphics& graph,
+                      const win::window& btn,
+                      const std::string& text,
+                      text_origin origin,
+                      const detail::edit_base::range& selection,
+                      detail::edit_base::pos_t cursor_pos,
+                      detail::edit_base::pos_t scroll_pos,
+                      bool has_focus);
 
     }
 

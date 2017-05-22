@@ -124,7 +124,7 @@ namespace gui {
       template<>
       split_view<orientation::vertical>::split_view () {
         get_layout().set_slider(&slider);
-        slider.register_event_handler(__PRETTY_FUNCTION__, win::slider_event([&] (int) {
+        slider.register_event_handler(REGISTER_FUNCTION, win::slider_event([&] (int) {
           get_layout().layout(size());
         }));
       }
@@ -132,7 +132,7 @@ namespace gui {
       template<>
       split_view<orientation::horizontal>::split_view () {
         get_layout().set_slider(&slider);
-        slider.register_event_handler(__PRETTY_FUNCTION__, win::slider_event([&] (int) {
+        slider.register_event_handler(REGISTER_FUNCTION, win::slider_event([&] (int) {
           get_layout().layout(size());
         }));
       }

@@ -58,11 +58,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     class window {
     public:
-      typedef std::function<core::event_handler_callback> event_handler_function;
+      typedef core::event_container::event_handler_function event_handler_function;
 
       window ();
 
-      ~window ();
+      virtual ~window ();
 
       inline os::window get_id () const {
         return id;
@@ -108,7 +108,9 @@ namespace gui {
         enable(false);
       }
 
-      void take_focus ();
+      virtual void take_focus ();
+
+      void shift_focus (bool backward = false);
 
       void to_front ();
 
@@ -137,11 +139,11 @@ namespace gui {
       void move (const core::point&,
                  bool repaint = true);
 
-      virtual void resize (const core::size&,
-                           bool repaint = true);
+      void resize (const core::size&,
+                   bool repaint = true);
 
-      virtual void place (const core::rectangle&,
-                          bool repaint = true);
+      void place (const core::rectangle&,
+                  bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
       core::point screen_to_window (const core::point&) const;
@@ -174,16 +176,22 @@ namespace gui {
         register_event_handler(name, core::bind_method(t, method), mask);
       }
 
-      inline bool handle_event (const core::event& e, os::event_result& result) {
-        return events.handle_event(e, result);
-      }
+      bool handle_event (const core::event&, os::event_result&);
 
       void prepare_for_event (os::event_id mask);
 
+      inline bool accept_focus () const {
+        return is_enabled() && focus_accepting;
+      }
+
+      inline void set_accept_focus (bool a) {
+        focus_accepting = a;
+      }
+
     protected:
-      void create (const window_class& type,
-                   const container& parent,
-                   const core::rectangle& place = core::rectangle::def);
+      void create (const window_class&,
+                   const container&,
+                   const core::rectangle& = core::rectangle::def);
 
 #ifdef WIN32
       void set_style (os::style mask, bool);
@@ -191,9 +199,9 @@ namespace gui {
                                      std::numeric_limits<os::style>::max()) const;
 #endif // WIN32
 
-      void create (const window_class& type,
-                   os::window parent_id,
-                   const core::rectangle& place);
+      void create (const window_class&,
+                   os::window parent,
+                   const core::rectangle&);
 
     private:
       friend void detail::set_id (window*, os::window);
@@ -201,6 +209,8 @@ namespace gui {
       os::window id;
       const window_class* cls;
       core::event_container events;
+
+      bool focus_accepting;
 
 #ifdef X11
       bool redraw_disabled;
@@ -211,11 +221,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     class container : public window {
     public:
+      typedef window super;
+
+      container ();
+
       bool is_parent_of (const window& parent) const;
+
+      bool is_sub_window (const window* child) const;
 
       void set_children_visible (bool = true);
 
       std::vector<window*> get_children () const;
+
+      void shift_focus (window&, bool backward = false);
+      void take_focus () override;
+      void forward_focus ();
+
     };
 
     // --------------------------------------------------------------------------
@@ -233,8 +254,8 @@ namespace gui {
     class client_window : public window {
     public:
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        window::create(clazz, parent, place);
+                   const core::rectangle& r = core::rectangle::def) {
+        window::create(clazz, parent, r);
       }
 
       static const window_class clazz;
@@ -263,16 +284,6 @@ namespace gui {
         return layouter;
       }
 
-      void resize (const core::size& sz, bool repaint = true) {
-        super::resize(sz, repaint);
-        layouter.layout(sz);
-      }
-
-      void place (const core::rectangle& p, bool repaint = true) {
-        super::place(p, repaint);
-        layouter.layout(p.size());
-      }
-
     private:
       layout_type layouter;
     };
@@ -286,8 +297,8 @@ namespace gui {
       typedef layout_container<L> super;
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+                   const core::rectangle& r = core::rectangle::def) {
+        super::create(clazz, parent, r);
       }
 
     private:
@@ -320,12 +331,12 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const window_class& type,
-                   const window& parent,
-                   const core::rectangle& place = core::rectangle::def);
+      void create (const window_class&,
+                   const window&,
+                   const core::rectangle& = core::rectangle::def);
 
-      void create (const window_class& type,
-                   const core::rectangle& place = core::rectangle::def);
+      void create (const window_class&,
+                   const core::rectangle& = core::rectangle::def);
     };
 
     // --------------------------------------------------------------------------
@@ -377,8 +388,8 @@ namespace gui {
       public:
         typedef overlapped_window super;
 
-      void create (const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, place);
+      void create (const core::rectangle& r = core::rectangle::def) {
+        super::create(clazz, r);
       }
 
     protected:
@@ -395,7 +406,7 @@ namespace gui {
       layout_main_window ()
         : layouter(this)
       {
-        register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
+        //register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
       }
 
       void layout () {
@@ -419,8 +430,8 @@ namespace gui {
     public:
       typedef modal_window super;
 
-      void create (const window& parent, const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+      void create (const window& parent, const core::rectangle& r = core::rectangle::def) {
+        super::create(clazz, parent, r);
       }
 
     protected:
@@ -432,8 +443,8 @@ namespace gui {
     public:
       typedef modal_window super;
 
-      void create (const window& parent, const core::rectangle& place = core::rectangle::def) {
-        super::create(clazz, parent, place);
+      void create (const window& parent, const core::rectangle& r = core::rectangle::def) {
+        super::create(clazz, parent, r);
       }
 
     protected:
@@ -450,7 +461,7 @@ namespace gui {
       layout_dialog_window ()
         : layouter(this)
       {
-        register_event_handler(__PRETTY_FUNCTION__, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
+        //register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
       }
 
       void layout () {

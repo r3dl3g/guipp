@@ -62,6 +62,8 @@ namespace gui {
       int register_message_filter (detail::filter_call filter);
       void unregister_message_filter (int& id);
 
+      window* get_current_focus_window ();
+
     }
 
     bool is_button_event_outside (const window& w, const core::event& e);

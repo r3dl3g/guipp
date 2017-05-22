@@ -43,12 +43,14 @@ namespace gui {
         , scroll_bar_enabled(true)
         , last_mouse_point(core::point::undefined)
       {
+        set_accept_focus(true);
 #ifdef X11
         detail::init_control_messages();
 #endif // X11
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           last_mouse_point = pt;
           moved = false;
+          take_focus();
         }));
       }
 

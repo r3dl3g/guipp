@@ -167,12 +167,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<os::event_id E,
              os::event_id Mask = 0,
-             typename Caller = params<>::caller<>,
+             typename C = params<>::caller<>,
              os::event_result R = 0,
-             typename Matcher = event_type_match<E>>
+             typename M = event_type_match<E>>
     struct event_handler {
       static const os::event_id mask = Mask;
 
+      typedef M Matcher;
+      typedef C Caller;
       typedef typename Caller::function function;
 
       event_handler (const function cb)
@@ -554,6 +556,8 @@ namespace gui {
       return detail::get_window(cast_event_type<T>(e).window);
     }
     // --------------------------------------------------------------------------
+    window* get_current_focus_window (const core::event&);
+    // --------------------------------------------------------------------------
     template <Atom& M>
     struct client_message_matcher {
       bool operator() (const core::event& e) {
@@ -704,10 +708,10 @@ namespace gui {
 
     using set_focus_event = event_handler<FocusIn, FocusChangeMask,
                            params<window*>::
-                           caller<get_window<XFocusChangeEvent>>>;
+                           caller<get_current_focus_window>>;
     using lost_focus_event = event_handler<FocusOut, FocusChangeMask,
                            params<window*>::
-                           caller<get_window<XFocusChangeEvent>>>;
+                           caller<get_current_focus_window>>;
 
     using mouse_enter_event = event_handler<EnterNotify, EnterWindowMask,
                           params<>::caller<>,

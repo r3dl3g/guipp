@@ -39,6 +39,8 @@ namespace gui {
       public:
         typedef window super;
 
+        separator_base ();
+
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           super::create(clazz, parent, place);
@@ -62,7 +64,7 @@ namespace gui {
     class separator_t<orientation::vertical, false, B> : public detail::separator_base {
     public:
       separator_t () {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           core::rectangle r = client_area() - core::size(1, 0);
           graph.frame(draw::line(r.top_left(), r.bottom_left()), color::lighter(B));
           graph.frame(draw::line(r.top_right(), r.bottom_right()), color::darker(B));
@@ -75,7 +77,7 @@ namespace gui {
     class separator_t<orientation::vertical, true, B> : public detail::separator_base {
     public:
       separator_t () {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           core::rectangle r = client_area() - core::size(1, 0);
           graph.frame(draw::line(r.top_left(), r.bottom_left()), color::darker(B));
           graph.frame(draw::line(r.top_right(), r.bottom_right()), color::lighter(B));
@@ -88,7 +90,7 @@ namespace gui {
     class separator_t<orientation::horizontal, false, B> : public detail::separator_base {
     public:
       separator_t () {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           core::rectangle r = client_area() - core::size(0, 1);
           graph.frame(draw::line(r.top_left(), r.top_right()), color::lighter(B));
           graph.frame(draw::line(r.bottom_right(), r.bottom_left()), color::darker(B));
@@ -101,7 +103,7 @@ namespace gui {
     class separator_t<orientation::horizontal, true, B> : public detail::separator_base {
     public:
       separator_t () {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           core::rectangle r = client_area() - core::size(0, 1);
           graph.frame(draw::line(r.top_left(), r.top_right()), color::darker(B));
           graph.frame(draw::line(r.bottom_right(), r.bottom_left()), color::lighter(B));

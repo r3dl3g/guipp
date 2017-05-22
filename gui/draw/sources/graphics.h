@@ -378,6 +378,11 @@ namespace gui {
       inline void no_frame (const draw::graphics&, const core::rectangle&)
       {}
 
+      void black (const draw::graphics&, const core::rectangle&);
+      void white (const draw::graphics&, const core::rectangle&);
+
+      void dots (const draw::graphics&, const core::rectangle&);
+
       void lines (const draw::graphics&, const core::rectangle&);
       void vline (const draw::graphics&, const core::rectangle&);
       void hline (const draw::graphics&, const core::rectangle&);

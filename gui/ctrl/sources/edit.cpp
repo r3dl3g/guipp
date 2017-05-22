@@ -62,7 +62,9 @@ namespace gui {
         , ic(0)
 #endif // X11
         , last_mouse_point(core::point::undefined)
-      {}
+      {
+        set_accept_focus(true);
+      }
 
       edit_base::~edit_base () {
 #ifdef X11
@@ -184,22 +186,26 @@ namespace gui {
       }
 
       namespace paint {
-        void edit_box(const draw::graphics& graph,
-                      const win::window& win,
-                      const std::string& text,
-                      text_origin origin,
-                      const detail::edit_base::range& selection,
-                      detail::edit_base::pos_t cursor_pos,
-                      detail::edit_base::pos_t scroll_pos) {
+        void edit_line (const draw::graphics& graph,
+                        const win::window& win,
+                        const std::string& text,
+                        text_origin origin,
+                        const detail::edit_base::range& selection,
+                        detail::edit_base::pos_t cursor_pos,
+                        detail::edit_base::pos_t scroll_pos,
+                        bool has_focus) {
           using namespace gui::draw;
           gui::core::rectangle area = win.client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           draw::clip clp(graph, area);
+
+          graph.fill(draw::rectangle(area), color::white);
+
           core::point_type y1 = area.y() + 2;
           core::point_type y2 = area.y2() - 2;
 
-          if (selection.first < selection.last) {
+          if (has_focus && (selection.first < selection.last)) {
             gui::core::rectangle a1 = area;
             auto begin = scroll_pos;
             core::point_type left = area.x();
@@ -235,7 +241,7 @@ namespace gui {
             graph.text(draw::text_box(text.substr(scroll_pos), area, origin), font::system(), color::windowTextColor());
           }
 
-          if (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max()) {
+          if (has_focus && (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max())) {
             gui::core::rectangle cursor_area = area;
             graph.text(draw::bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
                        font::system(), color::black);
@@ -276,10 +282,10 @@ namespace gui {
       }
 
       void edit_base::register_handler (text_origin alignment) {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          paint::edit_box(graph, *this, text, alignment, selection, cursor_pos, scroll_pos);
+        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
+          paint::edit_line(graph, *this, text, alignment, selection, cursor_pos, scroll_pos, has_focus());
         }));
-        register_event_handler(__PRETTY_FUNCTION__, key_down_event([&] (os::key_state keystate,
+        register_event_handler(REGISTER_FUNCTION, key_down_event([&] (os::key_state keystate,
                                                    os::key_symbol keycode,
                                                    const std::string& chars) {
           bool shift = shift_key_bit_mask::is_set(keystate);
@@ -384,15 +390,15 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           take_focus();
           last_mouse_point = pt;
           set_cursor_pos(get_char_at_point(pt));
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
           last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
           take_focus();
           last_mouse_point = pt;
           pos_t p = get_char_at_point(pt);
@@ -401,7 +407,7 @@ namespace gui {
           pos_t r = find_right_space(text, p);
           set_selection(range(l, r));
         }));
-        register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_char_at_point(pt), true);
           }

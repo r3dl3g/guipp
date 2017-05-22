@@ -37,13 +37,15 @@
 #include "bind_method.h"
 
 
-#ifndef __PRETTY_FUNCTION__
-# ifdef __FUNCSIG__
-#  define __PRETTY_FUNCTION__ __FUNCSIG__
+#ifndef REGISTER_FUNCTION
+# ifdef __PRETTY_FUNCTION__
+#  define REGISTER_FUNCTION __PRETTY_FUNCTION__
+# elif __FUNCSIG__
+#  define REGISTER_FUNCTION __FUNCSIG__
 # else
-#  define __PRETTY_FUNCTION__ __func__
+#  define REGISTER_FUNCTION __func__
 # endif // __FUNCSIG__
-#endif // !__PRETTY_FUNCTION__
+#endif // !REGISTER_FUNCTION
 
 namespace gui {
 

@@ -35,6 +35,9 @@ namespace gui {
 #endif // X11
       );
 
+      label_base::label_base ()
+      {}
+
     } // detail
 
     namespace paint {
@@ -57,7 +60,7 @@ namespace gui {
 #endif // SHOW_TEXT_AREA
       }
 
-    }
+    } //paint
 
   } // win
 

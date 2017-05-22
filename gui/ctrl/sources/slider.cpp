@@ -69,8 +69,8 @@ namespace gui {
 
       template <>
       slider_t<orientation::vertical>::slider_t () {
-        register_event_handler(__PRETTY_FUNCTION__, win::mouse_move_abs_event([&] (os::key_state keys,
-                                                              const core::point& p) {
+        register_event_handler(REGISTER_FUNCTION, win::mouse_move_abs_event([&](os::key_state keys,
+                                                                                const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
             core::point_type dx = new_x - start_window_point.x();
@@ -82,12 +82,42 @@ namespace gui {
             }
           }
         }));
+        register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+          core::point_type dx = 0;
+          switch (key) {
+           case keys::left:
+              dx = -1 ;
+           break;
+           case keys::right:
+              dx = 1;
+           break;
+           case keys::home:
+              dx = -100000;
+           break;
+           case keys::end:
+              dx = 100000;
+           break;
+          }
+          if (dx) {
+            if (control_key_bit_mask::is_set(state)) {
+              dx *= 10;
+            }
+            core::point pos = position();
+            core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, pos.x() + dx));
+            dx = new_x - pos.x();
+            if (dx) {
+              pos.x(new_x);
+              move(pos);
+              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dx));
+            }
+          }
+        }));
       }
 
       template <>
       slider_t<orientation::horizontal>::slider_t () {
-        register_event_handler(__PRETTY_FUNCTION__, win::mouse_move_abs_event([&] (os::key_state keys,
-                                                              const core::point& p) {
+        register_event_handler(REGISTER_FUNCTION, win::mouse_move_abs_event([&](os::key_state keys,
+                                                                                const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
             core::point_type dy = new_y - start_window_point.y();
@@ -100,23 +130,55 @@ namespace gui {
            }
           return;
         }));
+        register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+          core::point_type dy = 0;
+          switch (key) {
+           case keys::up:
+              dy = -1 ;
+           break;
+           case keys::down:
+              dy = 1;
+           break;
+           case keys::home:
+              dy = -100000;
+           break;
+           case keys::end:
+              dy = 100000;
+           break;
+          }
+          if (dy) {
+            if (control_key_bit_mask::is_set(state)) {
+              dy *= 10;
+            }
+            core::point pos = position();
+            core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, pos.y() + dy));
+            dy = new_y - pos.y();
+            if (dy) {
+              pos.y(new_y);
+              move(pos);
+              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dy));
+            }
+          }
+        }));
       }
 
       slider::slider ()
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
+        set_accept_focus(true);
 #ifdef X11
         detail::init_control_messages();
 #endif // X11
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
           start_mouse_point = client_to_screen(pt);
           start_window_point = position();
+          take_focus();
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           uncapture_pointer();
 #endif // NO_CAPTURE

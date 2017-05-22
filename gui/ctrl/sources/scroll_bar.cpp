@@ -50,8 +50,9 @@ namespace gui {
       , max(100)
       , step(10)
       , value(0)
-      , state(Nothing_pressed)
+      , state(State::Nothing_pressed)
     {
+      set_accept_focus(true);
 #ifdef X11
       detail::init_control_messages();
 #endif // X11
@@ -144,23 +145,26 @@ namespace gui {
                       scroll_bar::State state,
                       bool is_enabled,
                       bool horizontal,
+                      bool has_focus,
                       const core::rectangle& up,
                       const core::rectangle& down,
                       const core::rectangle& thumb,
                       const core::rectangle& page_up,
                       const core::rectangle& page_down) {
         if (!page_up.empty()) {
-          g.fill(draw::rectangle(page_up), state == scroll_bar::Page_up_pressed ? color::light_gray
-                                                                                : color::very_light_gray);
+          g.fill(draw::rectangle(page_up),
+            state == scroll_bar::State::Page_up_pressed ? color::light_gray
+                                                        : color::very_light_gray);
         }
         if (!page_down.empty()) {
-          g.fill(draw::rectangle(page_down + core::size::one), state == scroll_bar::Page_down_pressed ? color::light_gray
-                                                                                    : color::very_light_gray);
+          g.fill(draw::rectangle(page_down + core::size::one),
+                 state == scroll_bar::State::Page_down_pressed ? color::light_gray
+                                                               : color::very_light_gray);
         }
         os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
           g.fill(draw::rectangle(up), color::buttonColor());
-          draw::frame::relief(g, up, state == scroll_bar::Up_button_pressed);
+          draw::frame::relief(g, up, state == scroll_bar::State::Up_button_pressed);
           core::rectangle r = up.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -174,7 +178,7 @@ namespace gui {
         }
         if (!down.empty()) {
           g.fill(draw::rectangle(down), color::buttonColor());
-          draw::frame::relief(g, down, state == scroll_bar::Down_button_pressed);
+          draw::frame::relief(g, down, state == scroll_bar::State::Down_button_pressed);
           core::rectangle r = down.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -189,6 +193,9 @@ namespace gui {
         if (!thumb.empty()) {
           g.fill(draw::rectangle(thumb), color::buttonColor());
           draw::frame::raised_relief(g, thumb);
+          if (has_focus) {
+            draw::frame::dots(g, thumb);
+          }
         }
       }
     } // paint
@@ -209,18 +216,19 @@ namespace gui {
       template<>
       scroll_barT<orientation::horizontal>::scroll_barT (bool grab_focus)
         : last_position(0) {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const draw::graphics& g){
+        set_accept_focus(grab_focus);
+        register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
           auto down = down_button_place(geo);
           auto thumb = thumb_button_place(geo);
           auto page_up = page_up_place(geo);
           auto page_down = page_down_place(geo);
-          paint::scrollbar(g, get_state(), is_enabled(), true, up, down, thumb, page_up, page_down);
+          paint::scrollbar(g, get_state(), is_enabled(), true, has_focus(), up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
-            if (grab_focus) {
+            if (accept_focus()) {
               take_focus();
             }
             last_mouse_point = pt;
@@ -229,67 +237,67 @@ namespace gui {
             auto geo = get_geometry();
 
             if (up_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Up_button_pressed);
+              set_state(State::Up_button_pressed);
             } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Down_button_pressed);
+              set_state(State::Down_button_pressed);
             } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Thumb_button_pressed);
+              set_state(State::Thumb_button_pressed);
             } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-              set_state(Page_up_pressed);
+              set_state(State::Page_up_pressed);
             } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-              set_state(Page_down_pressed);
+              set_state(State::Page_down_pressed);
             } else {
-              set_state(Nothing_pressed);
+              set_state(State::Nothing_pressed);
             }
             capture_pointer();
             redraw_later();
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
-              case Up_button_pressed:
+              case State::Up_button_pressed:
                 if (up_button_place(geo).is_inside(pt)) {
                   set_value(get_value() - 1, true);
                 }
                 break;
-              case Down_button_pressed:
+              case State::Down_button_pressed:
                 if (down_button_place(geo).is_inside(pt)) {
                   set_value(get_value() + 1, true);
                 }
                 break;
-              case Page_up_pressed:
+              case State::Page_up_pressed:
                 if (page_up_place(geo).is_inside(pt)) {
                   set_value(get_value() - get_step(), true);
                 }
                 break;
-              case Page_down_pressed:
+              case State::Page_down_pressed:
                 if (page_down_place(geo).is_inside(pt)) {
                   set_value(get_value() + get_step(), true);
                 }
                 break;
             }
-            set_state(Nothing_pressed);
+            set_state(State::Nothing_pressed);
             uncapture_pointer();
             redraw_later();
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, wheel_x_event([&](const core::point::type dx, const core::point&){
+        register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type dx, const core::point&){
           if (is_enabled()) {
             set_value(get_value() - dx, true);
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
-            if (get_state() == Thumb_button_pressed) {
+            if (get_state() == State::Thumb_button_pressed) {
               type delta = (pt.x() - last_mouse_point.x()) / get_scale();
               set_value(last_position + delta, true);
             }
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::left:
@@ -324,18 +332,19 @@ namespace gui {
       template<>
       scroll_barT<orientation::vertical>::scroll_barT (bool grab_focus)
         : last_position(0) {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const draw::graphics& g){
+        set_accept_focus(grab_focus);
+        register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
           auto down = down_button_place(geo);
           auto thumb = thumb_button_place(geo);
           auto page_up = page_up_place(geo);
           auto page_down = page_down_place(geo);
-          paint::scrollbar(g, get_state(), is_enabled(), false, up, down, thumb, page_up, page_down);
+          paint::scrollbar(g, get_state(), is_enabled(), false, has_focus(), up, down, thumb, page_up, page_down);
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&, grab_focus](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
-            if (grab_focus) {
+            if (accept_focus()) {
               take_focus();
             }
             last_mouse_point = pt;
@@ -344,71 +353,71 @@ namespace gui {
             auto geo = get_geometry();
 
             if (up_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Up_button_pressed);
+              set_state(State::Up_button_pressed);
             } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Down_button_pressed);
+              set_state(State::Down_button_pressed);
             } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(Thumb_button_pressed);
+              set_state(State::Thumb_button_pressed);
             } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-              set_state(Page_up_pressed);
+              set_state(State::Page_up_pressed);
             } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-              set_state(Page_down_pressed);
+              set_state(State::Page_down_pressed);
             } else {
-              set_state(Nothing_pressed);
+              set_state(State::Nothing_pressed);
             }
-            if (get_state() != Nothing_pressed) {
+            if (get_state() != State::Nothing_pressed) {
               capture_pointer();
             }
             redraw_later();
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
-              case Up_button_pressed:
+              case State::Up_button_pressed:
                 if (up_button_place(geo).is_inside(pt)) {
                   set_value(get_value() - 1, true);
                 }
                 break;
-              case Down_button_pressed:
+              case State::Down_button_pressed:
                 if (down_button_place(geo).is_inside(pt)) {
                   set_value(get_value() + 1, true);
                 }
                 break;
-              case Page_up_pressed:
+              case State::Page_up_pressed:
                 if (page_up_place(geo).is_inside(pt)) {
                   set_value(get_value() - get_step(), true);
                 }
                 break;
-              case Page_down_pressed:
+              case State::Page_down_pressed:
                 if (page_down_place(geo).is_inside(pt)) {
                   set_value(get_value() + get_step(), true);
                 }
                 break;
             }
-            if (get_state() != Nothing_pressed) {
-              set_state(Nothing_pressed);
+            if (get_state() != State::Nothing_pressed) {
+              set_state(State::Nothing_pressed);
               uncapture_pointer();
             }
             redraw_later();
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, wheel_y_event([&](const core::point::type dy, const core::point&){
+        register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type dy, const core::point&){
           if (is_enabled()) {
             set_value(get_value() - dy, true);
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
-            if (get_state() == Thumb_button_pressed) {
+            if (get_state() == State::Thumb_button_pressed) {
               type delta = (pt.y() - last_mouse_point.y()) / get_scale();
               set_value(last_position + delta, true);
             }
           }
         }));
-        register_event_handler(__PRETTY_FUNCTION__, key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::up:

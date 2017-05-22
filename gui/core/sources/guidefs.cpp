@@ -24,7 +24,9 @@
 #include <logger.h>
 #include <dbgstream.h>
 #include <iterator>
-
+#ifdef X11
+#include <X11/XKBlib.h>
+#endif
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -127,7 +129,23 @@ namespace gui {
 #endif // X11
       }
 
+#ifdef WIN32
+      os::key_state get_key_state () {
+        return static_cast<os::key_state>((GetKeyState(VK_SHIFT) & 0x8000 ? MK_SHIFT : 0) |
+                                          (GetKeyState(VK_CONTROL) & 0x8000 ? MK_CONTROL : 0) |
+                                          (GetKeyState(VK_MENU) & 0x8000 ? MK_MENU : 0) |
+                                          (GetKeyState(VK_LWIN) & 0x8000 ? MK_SYTEM : 0) |
+                                          (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
+      }
+#endif // WIN32
+
 #ifdef X11
+      os::key_state get_key_state () {
+        XkbStateRec state;
+        XkbGetState(get_instance(), XkbUseCoreKbd, &state);
+        return state.base_mods;
+      }
+
       os::x11::screen get_screen () {
         return gui_static.screen;
       }

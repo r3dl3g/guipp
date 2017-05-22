@@ -84,14 +84,14 @@ private:
 
 // --------------------------------------------------------------------------
 my_main_window::my_main_window () {
-  register_event_handler(__PRETTY_FUNCTION__, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(REGISTER_FUNCTION, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
 
-  register_event_handler(__PRETTY_FUNCTION__, win::destroy_event([&]() {
+  register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
     LogDebug << "Destroyed!";
     super::quit();
   }));
 
-  window1.register_event_handler(__PRETTY_FUNCTION__, paint_event([&](const graphics& graph){
+  window1.register_event_handler(REGISTER_FUNCTION, paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
@@ -225,26 +225,26 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       separators[i / 4].create(tool_bar);
       tool_bar.get_layout().add_separator(&(separators[i / 4]));
     }
-    b.register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
+    b.register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
     }));
     ++i;
   }
 
   buttons[0].set_text("cut");
-  buttons[0].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::cut)));
+  buttons[0].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::cut)));
   buttons[1].set_text("copy");
-  buttons[1].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::copy)));
+  buttons[1].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::copy)));
   buttons[2].set_text("paste");
-  buttons[2].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::paste)));
+  buttons[2].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::paste)));
   buttons[3].set_text("rgb");
-  buttons[3].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::test_rgb)));
+  buttons[3].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::test_rgb)));
   buttons[4].set_text("bin");
-  buttons[4].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
+  buttons[4].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
   buttons[5].set_text("ascii");
-  buttons[5].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
+  buttons[5].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
   buttons[6].set_text("src");
-  buttons[6].register_event_handler(__PRETTY_FUNCTION__, button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
+  buttons[6].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
 
   for (i = 7; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
@@ -304,19 +304,19 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
-  left_list.register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&](bool){
+  left_list.register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&](bool){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
   }));
-  left_list.register_event_handler(__PRETTY_FUNCTION__, selection_changed_event([&](){
+  left_list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " selected"));
   }));
-  left_list.register_event_handler(__PRETTY_FUNCTION__, selection_commit_event([&](){
+  left_list.register_event_handler(REGISTER_FUNCTION, selection_commit_event([&](){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " commited"));
   }));
 
   client_view.create(*this);
 
-  window1.register_event_handler(__PRETTY_FUNCTION__, right_btn_up_event([&](os::key_state, const core::point& pt){
+  window1.register_event_handler(REGISTER_FUNCTION, right_btn_up_event([&](os::key_state, const core::point& pt){
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
   }));
 
@@ -332,16 +332,16 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   vsegmented.set_visible();
 
   for (int i = 0; i < 4; ++i) {
-    vsegmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&, i]() {
+    vsegmented.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
       labels[1].set_text(ostreamfmt("vsegment " << i << " selected"));
     }));
-    vsegmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
+    vsegmented.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
       labels[1].set_text(ostreamfmt("vsegment " << i << (b ? " " : " un") << "hilited"));
     }));
-    segmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&, i]() {
+    segmented.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
       labels[2].set_text(ostreamfmt("hsegment " << i << " selected"));
     }));
-    segmented.get_button(i).register_event_handler(__PRETTY_FUNCTION__, hilite_changed_event([&, i](bool b) {
+    segmented.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
       labels[2].set_text(ostreamfmt("hsegment " << i << (b ? " " : " un") << "hilited"));
     }));
   }
@@ -368,16 +368,16 @@ void my_main_window::quit () {
   text_button yes, no;
 
   bool result = false;
-  yes.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
+  yes.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     result = true;
     dialog.end_modal();
   }));
-  no.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
+  no.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     result = false;
     dialog.end_modal();
   }));
 
-  dialog.register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){ yes.take_focus(); }));
+  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ yes.take_focus(); }));
 
   dialog.create(*this, core::rectangle(300, 200, 400, 170));
   dialog.set_title("Question!");
@@ -394,6 +394,8 @@ void my_main_window::quit () {
 
   if (result) {
     super::quit();
+  } else {
+    take_focus();
   }
 }
 
@@ -406,16 +408,16 @@ void my_main_window::open () {
   text_button open, cancel;
 
   bool result = false;
-  open.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
+  open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     result = true;
     dialog.end_modal();
   }));
-  cancel.register_event_handler(__PRETTY_FUNCTION__, button_clicked_event([&](){
+  cancel.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     result = false;
     dialog.end_modal();
   }));
 
-  dialog.register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){ open.take_focus(); }));
+  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ open.take_focus(); }));
 
   typedef tree::tree<path_tree::sorted_dir_info, 20, color::white> dir_tree_type;
   typedef win::column_list_t<layout::weight_column_list_layout, 20, color::white,
@@ -489,7 +491,7 @@ void my_main_window::open () {
     }
   }, 0);
 
-  dir_tree.register_event_handler(__PRETTY_FUNCTION__, win::selection_changed_event([&]() {
+  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&]() {
     int idx = dir_tree.get_selection();
     if (idx > -1) {
       sys_fs::path dir = dir_tree.get_item(idx);
@@ -519,6 +521,7 @@ void my_main_window::open () {
   disable();
   dialog.run_modal();
   enable();
+  take_focus();
 }
 
 void my_main_window::copy () {

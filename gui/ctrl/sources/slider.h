@@ -123,8 +123,12 @@ namespace gui {
       typedef detail::slider_t<H> super;
 
       framed_slider_t () {
-        super::register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&](const draw::graphics& g) {
+        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& g) {
           core::rectangle place = super::client_area();
+          if (super::has_focus()) {
+            draw::frame::black(g, place);
+            place.shrink({1, 1});
+          }
           g.fill(draw::rectangle(place), color::buttonColor());
           F(g, place);
         }));

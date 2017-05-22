@@ -133,8 +133,9 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         bool enabled = true,
-                        bool pushed = false,
+                        bool focused = false,
                         bool hilited = false,
+                        bool pushed = false,
                         os::color foreground = color::white,
                         os::color background = color::dark_gray);
 
@@ -233,7 +234,7 @@ namespace gui {
       typedef text_push_button super;
 
       text_button (const std::string& t = std::string()) {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::push_button(graph, *this, get_text());
         }));
       }
@@ -248,7 +249,7 @@ namespace gui {
       flat_button (const std::string& t = std::string())
         : super(t)
       {
-        register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::flat_button(graph, *this, get_text(), C, B);
         }));
       }
@@ -297,7 +298,7 @@ namespace gui {
       typedef text_toggle_button<Keep> super;
 
       radio_button (const std::string& t = std::string()) {
-        super::register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
           paint::radio_button(graph, *this, super::get_text());
         }));
       }
@@ -311,7 +312,7 @@ namespace gui {
       typedef text_toggle_button<Keep> super;
 
       check_box (const std::string& t = std::string()) {
-        super::register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
           paint::check_box(graph, *this, super::get_text());
         }));
       }
@@ -327,8 +328,8 @@ namespace gui {
       flat_toggle_button (const std::string& t = std::string())
         : super(t)
       {
-        super::register_event_handler(__PRETTY_FUNCTION__, paint_event([&] (const draw::graphics& graph) {
-          paint::flat_button(graph, super::client_area(), super::get_text(), super::is_enabled(), super::is_checked(), super::is_hilited(), C, B);
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
+          paint::flat_button(graph, super::client_area(), super::get_text(), super::is_enabled(), super::has_focus(), super::is_checked(), super::is_hilited(), C, B);
         }));
       }
     };
@@ -340,7 +341,7 @@ namespace gui {
       typedef void (button_drawer)(const draw::graphics&, const custom_button&);
 
       custom_button () {
-        super::register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
           if (drawer) {
             drawer(graph, *this);
           }

@@ -41,6 +41,23 @@ namespace gui {
 
   namespace win {
 
+    struct log_hierarchy {
+      log_hierarchy (window* win)
+        :win(win)
+      {}
+
+      window* win;
+    };
+
+    inline std::ostream& operator<< (std::ostream& out, const log_hierarchy& lh) {
+      const window* w = lh.win;
+      while (w) {
+        out << " -> " << w->get_id();
+        w = w->get_parent();
+      }
+      return out;
+    }
+
     // --------------------------------------------------------------------------
 
     std::vector<os::window> capture_stack;
@@ -51,11 +68,12 @@ namespace gui {
     window::window ()
       : id(0)
       , cls(nullptr)
+      , focus_accepting(false)
     {}
 
     void window::create (const window_class& type,
                          os::window parent_id,
-                         const core::rectangle& place) {
+                         const core::rectangle& r) {
 
       this->cls = &type;
 
@@ -63,16 +81,27 @@ namespace gui {
                           type.get_class_name().c_str(),  // address of registered class name
                           nullptr,                        // address of window text
                           type.get_style(),               // window style
-                          place.os_x(),                   // horizontal position of window
-                          place.os_y(),                   // vertical position of window
-                          place.os_width(),               // window width
-                          place.os_height(),              // window height
+                          r.os_x(),                       // horizontal position of window
+                          r.os_y(),                       // vertical position of window
+                          r.os_width(),                   // window width
+                          r.os_height(),                  // window height
                           parent_id,                      // handle of parent window
                           NULL,                           // handle of menu or child-window identifier
                           core::global::get_instance(),   // handle of application instance
                           (LPVOID)this);
       type.prepare(this, parent_id);
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
+    }
+
+    void window::destroy () {
+      if (get_id()) {
+        DestroyWindow(get_id());
+        id = 0;
+      }
+    }
+
+    void window::quit () {
+      PostQuitMessage(0);
     }
 
     bool window::is_valid () const {
@@ -105,14 +134,6 @@ namespace gui {
 
     bool window::has_border () const {
       return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
-    }
-
-    void window::destroy () {
-      DestroyWindow(get_id());
-    }
-
-    void window::quit () {
-      PostQuitMessage(0);
     }
 
     void window::set_parent (const container& parent) {
@@ -220,16 +241,6 @@ namespace gui {
       MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
     }
 
-    core::point window::window_to_screen (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->client_to_screen(pt) : pt;
-    }
-
-    core::point window::screen_to_window (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->screen_to_client(pt) : pt;
-    }
-
     core::point window::client_to_screen (const core::point& pt) const {
       POINT Point = pt;
       ClientToScreen(get_id(), &Point);
@@ -302,15 +313,24 @@ namespace gui {
     }
 
 #endif // WIN32
-
     window::~window () {
       destroy();
     }
 
     void window::create (const window_class& type,
                          const container& parent,
-                         const core::rectangle& place) {
-      create(type, parent.get_id(), place);
+                         const core::rectangle& r) {
+      create(type, parent.get_id(), r);
+    }
+
+    core::point window::window_to_screen (const core::point& pt) const {
+      window* p = get_parent();
+      return p ? p->client_to_screen(pt) : pt;
+    }
+
+    core::point window::screen_to_window (const core::point& pt) const {
+      window* p = get_parent();
+      return p ? p->screen_to_client(pt) : pt;
     }
 
     const window_class* window::get_window_class () const {
@@ -337,6 +357,27 @@ namespace gui {
         return parent->get_root();
       }
       return (container*)this;
+    }
+
+    bool window::handle_event (const core::event& e, os::event_result& result) {
+      static win::key_down_event::Matcher matcher;
+      if (matcher(e)) {
+        os::key_symbol key = get_key_symbol(e);
+        if (key == keys::tab) {
+          os::key_state state = get_key_state(e);
+          shift_focus(shift_key_bit_mask::is_set(state));
+          return true;
+        }
+      }
+      return events.handle_event(e, result);
+    }
+
+    void window::shift_focus (bool backward) {
+      container* parent = get_parent();
+      if (parent) {
+        parent->shift_focus(*this, backward);
+        redraw_later();
+      }
     }
 
 #ifdef X11
@@ -386,15 +427,17 @@ namespace gui {
       : id(0)
       , redraw_disabled(false)
       , window_disabled(false)
+      , focus_accepting(false)
     {
       detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
       detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
+      prepare_for_event(KeyPressMask);
     }
 
     void window::create (const window_class& type,
                          os::window parent_id,
-                         const core::rectangle& place) {
+                         const core::rectangle& r) {
       if (get_id()) {
         destroy();
       }
@@ -411,10 +454,10 @@ namespace gui {
 
 //      id = XCreateWindow(display,
 //                         parent_id,
-//                         place.os_x(),
-//                         place.os_y(),
-//                         place.os_width(),
-//                         place.os_height(),
+//                         r.os_x(),
+//                         r.os_y(),
+//                         r.os_width(),
+//                         r.os_height(),
 //                         0,
 //                         visual->depth,
 //                         InputOutput,
@@ -424,10 +467,10 @@ namespace gui {
 
       id = XCreateSimpleWindow(display,
                                parent_id,
-                               place.os_x(),
-                               place.os_y(),
-                               place.os_width(),
-                               place.os_height(),
+                               r.os_x(),
+                               r.os_y(),
+                               r.os_width(),
+                               r.os_height(),
                                0,
                                0,
                                type.get_background());
@@ -442,7 +485,7 @@ namespace gui {
         check_xlib_return(XSelectInput(display, id, i->second));
       }
 
-      send_client_message(this, detail::WM_CREATE_WINDOW, this, place);
+      send_client_message(this, detail::WM_CREATE_WINDOW, this, r);
       //XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
       Atom protocols[] = {
         XInternAtom(display, "WM_TAKE_FOCUS", False), detail::WM_DELETE_WINDOW,
@@ -481,7 +524,7 @@ namespace gui {
       return !window_disabled;
     }
 
-    bool window::has_focus() const {
+    bool window::has_focus () const {
       Window focus = 0;
       int revert_to = 0;
       if (is_valid()) {
@@ -585,6 +628,7 @@ namespace gui {
     void window::take_focus () {
       check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToNone, CurrentTime));
+      redraw_later();
     }
 
     void window::to_front () {
@@ -660,7 +704,7 @@ namespace gui {
     }
 
     core::point window::absolute_position () const {
-      return window_to_screen(core::point::zero);
+      return client_to_screen(core::point::zero);
     }
 
     core::size window::client_size () const {
@@ -711,42 +755,34 @@ namespace gui {
       }
     }
 
-    core::point window::window_to_screen (const core::point& pt) const {
-        int x, y;
-        Window child_return;
-        auto display = core::global::get_instance();
-        check_xlib_return(XTranslateCoordinates(display,
-                                                get_id(),
-                                                DefaultRootWindow(display),
-                                                pt.os_x(),
-                                                pt.os_y(),
-                                                &x,
-                                                &y,
-                                                &child_return));
-        return {core::point::type(x), core::point::type(y)};
-    }
-
-    core::point window::screen_to_window (const core::point& pt) const {
-        int x, y;
-        Window child_return;
-        auto display = core::global::get_instance();
-        check_xlib_return(XTranslateCoordinates(display,
-                                                DefaultRootWindow(display),
-                                                get_id(),
-                                                pt.os_x(),
-                                                pt.os_y(),
-                                                &x,
-                                                &y,
-                                                &child_return));
-        return {core::point::type(x), core::point::type(y)};
-    }
-
     core::point window::client_to_screen (const core::point& pt) const {
-      return window_to_screen(pt);
+        int x, y;
+        Window child_return;
+        auto display = core::global::get_instance();
+        check_xlib_return(XTranslateCoordinates(display,
+                                                get_id(),
+                                                DefaultRootWindow(display),
+                                                pt.os_x(),
+                                                pt.os_y(),
+                                                &x,
+                                                &y,
+                                                &child_return));
+        return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
-      return screen_to_window(pt);
+        int x, y;
+        Window child_return;
+        auto display = core::global::get_instance();
+        check_xlib_return(XTranslateCoordinates(display,
+                                                DefaultRootWindow(display),
+                                                get_id(),
+                                                pt.os_x(),
+                                                pt.os_y(),
+                                                &x,
+                                                &y,
+                                                &child_return));
+        return {core::point::type(x), core::point::type(y)};
     }
 
     void window::capture_pointer () {
@@ -829,8 +865,101 @@ namespace gui {
       return list;
     }
 
-
 #endif // X11
+    container::container () {
+      set_accept_focus(true);
+    }
+
+    bool container::is_sub_window (const window* child) const {
+      if (!child) {
+        return false;
+      }
+      if (child == this) {
+        return true;
+      }
+      is_sub_window(child->get_parent());
+    }
+
+    typedef std::vector<window*>::const_iterator child_iterator;
+
+    child_iterator next_focusable_window (child_iterator i, child_iterator begin, child_iterator end) {
+      do {
+        ++i;
+        if ((i != end) && (*i)->accept_focus()) {
+          return i;
+        }
+      } while (i != end);
+      return end;
+    }
+
+    child_iterator prev_focusable_window (child_iterator i, child_iterator begin, child_iterator end) {
+      while (i != begin) {
+        --i;
+        if ((*i)->accept_focus()) {
+          return i;
+        }
+      }
+      return end;
+    }
+
+    void container::shift_focus (window& focus, bool backward) {
+      std::vector<window*> children = get_children();
+      if (children.size() > 0) {
+        child_iterator begin = children.begin();
+        child_iterator end = children.end();
+        child_iterator i = std::find(begin, end, &focus);
+        if (i != end) {
+          if (backward) {
+            i = prev_focusable_window(i, begin, end);
+          } else {
+            i = next_focusable_window(i, begin, end);
+          }
+          if (i != end) {
+            window* next = *i;
+            if (next && (next != &focus)) {
+              next->take_focus();
+              return;
+            }
+          }
+        }
+      } else {
+        set_accept_focus(false);
+      }
+      auto parent = get_parent();
+      if (parent) {
+        parent->shift_focus(*this, backward);
+      } else {
+        forward_focus();
+      }
+    }
+
+    void container::take_focus () {
+      forward_focus();
+    }
+
+    void container::forward_focus () {
+      std::vector<window*> children = get_children();
+      if (children.size() > 0) {
+        child_iterator begin = children.begin();
+        child_iterator end = children.end();
+        bool backward = shift_key_bit_mask::is_set(core::global::get_key_state());
+        child_iterator i = end;
+        if (backward) {
+          i = prev_focusable_window(end, begin, end);
+        } else {
+          i = next_focusable_window(begin - 1, begin, end);
+        }
+        if (i != end) {
+          window* next = *i;
+          if (next->accept_focus()) {
+            next->take_focus();
+            return;
+          }
+        }
+      }
+      set_accept_focus(false);
+      window::shift_focus();
+    }
 
     // --------------------------------------------------------------------------
     void window_with_text::set_text(const std::string& t) {
@@ -856,13 +985,13 @@ namespace gui {
 #ifdef WIN32
     void overlapped_window::create (const window_class& type,
                                     const window& parent,
-                                    const core::rectangle& place) {
-      window::create(type, parent.get_id(), place);
+                                    const core::rectangle& r) {
+      window::create(type, parent.get_id(), r);
     }
 
     void overlapped_window::create (const window_class& type,
-                                    const core::rectangle& place) {
-      window::create(type, GetDesktopWindow(), place);
+                                    const core::rectangle& r) {
+      window::create(type, GetDesktopWindow(), r);
     }
 
     void overlapped_window::set_title (const std::string& title) {
@@ -909,19 +1038,19 @@ namespace gui {
 
 #ifdef X11
     void overlapped_window::create (const window_class& clazz,
-                                    const core::rectangle& place) {
-      super::create(clazz, DefaultRootWindow(core::global::get_instance()), place);
+                                    const core::rectangle& r) {
+      super::create(clazz, DefaultRootWindow(core::global::get_instance()), r);
     }
 
     void overlapped_window::create (const window_class& clazz,
                                     const window& parent,
-                                    const core::rectangle& place) {
+                                    const core::rectangle& r) {
 #ifdef WIN32
-      super::create(clazz, parent, place);
+      super::create(clazz, parent, r);
 #endif // WIN32
 #ifdef X11
       os::instance display = core::global::get_instance();
-      super::create(clazz, DefaultRootWindow(display), place);
+      super::create(clazz, DefaultRootWindow(display), r);
       XSetTransientForHint(display, get_id(), parent.get_id());
 #endif
     }

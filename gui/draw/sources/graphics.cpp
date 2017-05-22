@@ -1455,6 +1455,21 @@ namespace gui {
     namespace frame {
 
       // --------------------------------------------------------------------------
+      void black (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.frame(draw::rectangle(r), color::black);
+      }
+
+      void white (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.frame(draw::rectangle(r), color::white);
+      }
+
+      void dots (const draw::graphics& g, const core::rectangle& place) {
+        core::rectangle r = place - core::size::one;
+        g.frame(draw::rectangle(r), pen(color::black, 1, pen::Style::dot));
+      }
+
       void lines (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
         g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::very_light_gray);

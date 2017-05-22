@@ -47,7 +47,7 @@ namespace gui {
 
     void event_container::unregister_event_handler (const event_handler_function& handler) {
         const auto end = event_handlers.end();
-        const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_function& rhs) {
+        const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_info& rhs) {
           return (rhs.target_type() == handler.target_type());
         });
         if (k != end) {

@@ -79,8 +79,8 @@ namespace gui {
 
       static type get_scroll_bar_width ();
 
-      enum State {
-        Nothing_pressed = 0,
+      enum class State {
+        Nothing_pressed,
         Up_button_pressed,
         Page_up_pressed,
         Thumb_button_pressed,
@@ -115,6 +115,7 @@ namespace gui {
                       scroll_bar::State state,
                       bool is_enabled,
                       bool horizontal,
+                      bool has_focus,
                       const core::rectangle& up,
                       const core::rectangle& down,
                       const core::rectangle& thumb,

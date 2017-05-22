@@ -271,12 +271,13 @@ namespace gui {
                               const draw::brush& background);
 
       column_list_header() {
+        super::set_accept_focus(false);
         set_cell_drawer(default_cell_drawer);
         this->get_layout().init_auto_layout();
         this->get_layout().set_slider_creator([&](std::size_t i) {
           return create_slider(i);
         });
-        this->register_event_handler(__PRETTY_FUNCTION__, win::paint_event([&](const draw::graphics& g) {
+        this->register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& g) {
           using namespace draw;
 
           core::rectangle area = this->client_area();
@@ -316,7 +317,7 @@ namespace gui {
           if (!s.is_valid()) {
             s.create(*this, r);
             s.set_visible();
-            s.register_event_handler(__PRETTY_FUNCTION__, win::slider_event([=](int) {
+            s.register_event_handler(REGISTER_FUNCTION, win::slider_event([=](int) {
               slider_type& s = sliders[i];
               auto new_w = s.position().x();
               if (i > 0) {

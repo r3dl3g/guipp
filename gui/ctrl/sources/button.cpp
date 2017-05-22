@@ -38,22 +38,23 @@ namespace gui {
       , pushed(false)
       , checked(false)
     {
+      set_accept_focus(true);
 #ifdef X11
       detail::init_control_messages();
 #endif // X11
-      register_event_handler(__PRETTY_FUNCTION__, set_focus_event([&](window*){
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
         redraw_later();
       }));
-      register_event_handler(__PRETTY_FUNCTION__, lost_focus_event([&](window*){
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
         redraw_later();
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::mouse_enter_event([&]() {
+      register_event_handler(REGISTER_FUNCTION, win::mouse_enter_event([&]() {
         set_hilited(true);
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::mouse_leave_event([&]() {
+      register_event_handler(REGISTER_FUNCTION, win::mouse_leave_event([&]() {
         set_hilited(false);
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
+      register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
         if (k == keys::enter) {
           set_pushed(true);
         }
@@ -86,13 +87,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     push_button::push_button () {
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (client_area().is_inside(pos)) {
@@ -100,7 +101,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);
@@ -113,13 +114,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     toggle_button<false>::toggle_button () {
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (client_area().is_inside(pos)) {
@@ -128,7 +129,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);
@@ -142,13 +143,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     toggle_button<true>::toggle_button () {
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point&) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
           set_pushed(true);
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, left_btn_up_event([&](os::key_state, const core::point& pos) {
+      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (is_pushed()) {
           set_pushed(false);
           if (!is_checked() && client_area().is_inside(pos)) {
@@ -157,7 +158,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(__PRETTY_FUNCTION__, win::key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
         if (k == keys::enter) {
           if (is_pushed()) {
             set_pushed(false);
@@ -227,8 +228,8 @@ namespace gui {
                         const std::string& text,
                         os::color foreground,
                         os::color background) {
-        flat_button(graph, btn.client_area(), text, btn.is_enabled(),
-                    btn.is_pushed(), btn.is_hilited(), foreground, background);
+        flat_button(graph, btn.client_area(), text, btn.is_enabled(), btn.has_focus(),
+                    btn.is_hilited(), btn.is_pushed(), foreground, background);
       }
 
       // --------------------------------------------------------------------------
@@ -236,8 +237,9 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         bool enabled,
-                        bool pushed,
+                        bool focused,
                         bool hilited,
+                        bool pushed,
                         os::color foreground,
                         os::color background) {
         os::color b = background;
@@ -265,6 +267,9 @@ namespace gui {
           f = color::darker(foreground);
         }
         g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
+        if (enabled && focused) {
+          g.frame(draw::rectangle(r.shrinked({1, 1})), draw::pen(f, 1, draw::pen::Style::dot));
+        }
       }
 
       // --------------------------------------------------------------------------

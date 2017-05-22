@@ -100,11 +100,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
-      return static_cast<os::key_state>((GetKeyState(VK_SHIFT) & 0x8000 ? MK_SHIFT : 0) |
-                                        (GetKeyState(VK_CONTROL) & 0x8000 ? MK_CONTROL : 0) |
-                                        (GetKeyState(VK_MENU) & 0x8000 ? MK_MENU : 0) |
-                                        (GetKeyState(VK_LWIN) & 0x8000 ? MK_SYTEM : 0) |
-                                        (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
+      return core::global::get_key_state();
     }
 
     // --------------------------------------------------------------------------
@@ -298,6 +294,11 @@ namespace gui {
     window* get_client_data<0, window*>(const core::event& e) {
       os::window id = e.xclient.data.l[0];
       return detail::get_window(id);
+    }
+
+    // --------------------------------------------------------------------------
+    window* get_current_focus_window (const core::event&) {
+      return global::get_current_focus_window();
     }
 
     // --------------------------------------------------------------------------

@@ -100,10 +100,11 @@ namespace gui {
 
         tree () {
           super::set_drawer(core::bind_method(this, &tree::draw_list_item));
-          super::register_event_handler(__PRETTY_FUNCTION__, selection_commit_event([&]() {
+          super::register_event_handler(REGISTER_FUNCTION, selection_commit_event([&]() {
             toggle_node(super::get_selection());
           }));
-          super::register_event_handler(__PRETTY_FUNCTION__, left_btn_down_event([&](os::key_state, const core::point& pt) {
+          super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state,
+                                                                                   const core::point& pt) {
             int idx = super::get_index_at_point(pt);
             if ((idx > -1) && (idx < nodes.size())) {
               const depth_info& i = nodes[idx];
@@ -111,6 +112,20 @@ namespace gui {
               if ((x <= pt.x()) && (x + 16 >= pt.x())) {
                 toggle_node(idx);
               }
+            }
+          }));
+          super::register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
+                                                                              os::key_symbol key,
+                                                                              const std::string&){
+            switch (key) {
+              case keys::left:
+              case keys::numpad::left:
+                close_node(super::get_selection());
+                break;
+              case keys::right:
+              case keys::numpad::right:
+                open_node(super::get_selection());
+                break;
             }
           }));
         }
@@ -147,8 +162,35 @@ namespace gui {
         void toggle_node (int idx) {
           if ((idx > -1) && (idx < nodes.size())) {
             const reference ref = nodes[idx].ref;
-            set_open(ref, !is_open(ref));
+            auto i = open_nodes.find(ref);
+            if (i != open_nodes.end()) {
+              open_nodes.erase(i);
+            } else {
+              open_nodes.insert(ref);
+            }
             update_node_list();
+          }
+        }
+
+        void open_node (int idx) {
+          if ((idx > -1) && (idx < nodes.size())) {
+            const reference ref = nodes[idx].ref;
+            auto i = open_nodes.find(ref);
+            if (i == open_nodes.end()) {
+              open_nodes.insert(ref);
+              update_node_list();
+            }
+          }
+        }
+
+        void close_node (int idx) {
+          if ((idx > -1) && (idx < nodes.size())) {
+            const reference ref = nodes[idx].ref;
+            auto i = open_nodes.find(ref);
+            if (i != open_nodes.end()) {
+              open_nodes.erase(i);
+              update_node_list();
+            }
           }
         }
 

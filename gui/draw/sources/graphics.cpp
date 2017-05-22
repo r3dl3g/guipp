@@ -49,12 +49,11 @@ namespace gui {
 
     template<typename T>
     struct Use {
-      Use(os::graphics g, HGDIOBJ t)
+      Use(os::graphics g, const T& t)
         : g(g)
         , obj(t)
-        , old(set(t)) {
-        set(t);
-      }
+        , old(set(t)) 
+      {}
 
       HGDIOBJ set(HGDIOBJ t) {
         return SelectObject(g, t);

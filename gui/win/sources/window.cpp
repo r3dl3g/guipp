@@ -877,49 +877,34 @@ namespace gui {
       if (child == this) {
         return true;
       }
-      is_sub_window(child->get_parent());
+      return is_sub_window(child->get_parent());
     }
 
-    typedef std::vector<window*>::const_iterator child_iterator;
-
-    child_iterator next_focusable_window (child_iterator i, child_iterator begin, child_iterator end) {
-      do {
-        ++i;
-        if ((i != end) && (*i)->accept_focus()) {
-          return i;
-        }
-      } while (i != end);
-      return end;
-    }
-
-    child_iterator prev_focusable_window (child_iterator i, child_iterator begin, child_iterator end) {
-      while (i != begin) {
-        --i;
-        if ((*i)->accept_focus()) {
-          return i;
+    template<typename iterator>
+    bool iterate_focus (iterator begin, iterator end, const window* focus) {
+      auto i = std::find(begin, end, focus);
+      if (i != end) {
+        do {
+          ++i;
+        } while ((i != end) && !(*i)->accept_focus());
+        if (i != end) {
+          (*i)->take_focus();
+          return true;
         }
       }
-      return end;
+      return false;
     }
 
     void container::shift_focus (window& focus, bool backward) {
       std::vector<window*> children = get_children();
       if (children.size() > 0) {
-        child_iterator begin = children.begin();
-        child_iterator end = children.end();
-        child_iterator i = std::find(begin, end, &focus);
-        if (i != end) {
-          if (backward) {
-            i = prev_focusable_window(i, begin, end);
-          } else {
-            i = next_focusable_window(i, begin, end);
+        if (backward) {
+          if (iterate_focus(children.rbegin(), children.rend(), &focus)) {
+            return;
           }
-          if (i != end) {
-            window* next = *i;
-            if (next && (next != &focus)) {
-              next->take_focus();
-              return;
-            }
+        } else {
+          if (iterate_focus(children.begin(), children.end(), &focus)) {
+            return;
           }
         }
       } else {
@@ -940,20 +925,22 @@ namespace gui {
     void container::forward_focus () {
       std::vector<window*> children = get_children();
       if (children.size() > 0) {
-        child_iterator begin = children.begin();
-        child_iterator end = children.end();
         bool backward = shift_key_bit_mask::is_set(core::global::get_key_state());
-        child_iterator i = end;
         if (backward) {
-          i = prev_focusable_window(end, begin, end);
+          for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
+            window* next = *i;
+            if (next->accept_focus()) {
+              next->take_focus();
+              return;
+            }
+          }
         } else {
-          i = next_focusable_window(begin - 1, begin, end);
-        }
-        if (i != end) {
-          window* next = *i;
-          if (next->accept_focus()) {
-            next->take_focus();
-            return;
+          for (auto i = children.begin(), e = children.end(); i != e; ++i) {
+            window* next = *i;
+            if (next->accept_focus()) {
+              next->take_focus();
+              return;
+            }
           }
         }
       }

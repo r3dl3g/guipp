@@ -123,9 +123,10 @@ namespace gui {
         super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& graph) {
           core::rectangle area = super::client_area();
           draw::frame::sunken_deep_relief(graph, area);
+          bool has_f = button.has_focus();
           if (selection > -1) {
-            D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, button.has_focus());
-          } if (button.has_focus()) {
+            D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, has_f);
+          } else if (has_f) {
             draw::frame::dots(graph, area);
           }
         }));

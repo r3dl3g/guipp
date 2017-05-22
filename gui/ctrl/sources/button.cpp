@@ -55,7 +55,7 @@ namespace gui {
         set_hilited(false);
       }));
       register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
-        if (k == keys::enter) {
+        if ((k == keys::enter) || (k == keys::space)) {
           set_pushed(true);
         }
       }));
@@ -102,11 +102,9 @@ namespace gui {
         }
       }));
       register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (k == keys::enter) {
-          if (is_pushed()) {
-            set_pushed(false);
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
-          }
+        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
+          set_pushed(false);
+          send_client_message(this, detail::BN_CLICKED_MESSAGE);
         }
       }));
     }
@@ -130,12 +128,10 @@ namespace gui {
         }
       }));
       register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (k == keys::enter) {
-          if (is_pushed()) {
-            set_pushed(false);
-            set_checked(!is_checked());
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
-          }
+        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
+          set_pushed(false);
+          set_checked(!is_checked());
+          send_client_message(this, detail::BN_CLICKED_MESSAGE);
         }
       }));
     }
@@ -159,19 +155,21 @@ namespace gui {
         }
       }));
       register_event_handler(REGISTER_FUNCTION, win::key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (k == keys::enter) {
-          if (is_pushed()) {
-            set_pushed(false);
-            if (!is_checked()) {
-              set_checked(true);
-              send_client_message(this, detail::BN_CLICKED_MESSAGE);
-            }
+        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
+          set_pushed(false);
+          if (!is_checked()) {
+            set_checked(true);
+            send_client_message(this, detail::BN_CLICKED_MESSAGE);
           }
         }
       }));
     }
 
     namespace paint {
+
+      const int dot_line_width = 1;
+      const draw::pen::Style dot_line_style = draw::pen::Style::dot;
+
       // --------------------------------------------------------------------------
       void push_button (const draw::graphics& graph,
                         const core::rectangle& r,
@@ -191,7 +189,7 @@ namespace gui {
         frame::deep_relief(graph, area, pushed);
         if (enabled && focused) {
           area.shrink({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }
       }
 
@@ -268,7 +266,7 @@ namespace gui {
         }
         g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
         if (enabled && focused) {
-          g.frame(draw::rectangle(r.shrinked({1, 1})), draw::pen(f, 1, draw::pen::Style::dot));
+          g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
         }
       }
 
@@ -300,7 +298,7 @@ namespace gui {
         if (focused) {
           graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }
       }
 
@@ -350,7 +348,7 @@ namespace gui {
         if (focused) {
           graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
-          graph.frame(draw::rectangle(area), pen(color::black, 1, pen::Style::dot));
+          graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }
       }
     }

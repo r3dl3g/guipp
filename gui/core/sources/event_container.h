@@ -40,7 +40,7 @@
 #ifndef REGISTER_FUNCTION
 # ifdef __PRETTY_FUNCTION__
 #  define REGISTER_FUNCTION __PRETTY_FUNCTION__
-# elif __FUNCSIG__
+# elif defined(__FUNCSIG__)
 #  define REGISTER_FUNCTION __FUNCSIG__
 # else
 #  define REGISTER_FUNCTION __func__

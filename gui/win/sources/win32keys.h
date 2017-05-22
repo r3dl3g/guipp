@@ -34,22 +34,6 @@ namespace gui {
 
   namespace win {
 
-#ifndef MK_MENU
-# define MK_MENU 0x0080
-#endif // MK_MENU
-#ifndef MK_SYTEM
-# define MK_SYTEM 0x0100
-#endif // MK_SYTEM
-#ifndef MK_NUM_LOCK
-# define MK_NUM_LOCK 0x0200
-#endif // MK_NUM_LOCK
-#ifndef MK_SCROLL_LOCK
-# define MK_SCROLL_LOCK 0x0400
-#endif // MK_SCROLL_LOCK
-#ifndef MK_CAPS_LOCK
-# define MK_CAPS_LOCK 0x0800
-#endif // MK_CAPS_LOCK
-
     namespace state {
       const os::key_state left_button = MK_LBUTTON;
       const os::key_state middle_button = MK_MBUTTON;

@@ -43,9 +43,19 @@ namespace gui {
     }
 
     pen::pen (const os::color& color, size_type width, Style style)
-      : id(CreatePen(static_cast<int>(style), width, color))
+      : id(nullptr)
     {
-      GetObject(id, sizeof(os::win32::pen_type), &info);
+      info.lopnColor = color;
+      info.lopnStyle = static_cast<int>(style);
+      info.lopnWidth = { width, width };
+      if (style == gui::draw::pen::Style::dot) {
+        LOGBRUSH LogBrush;
+        LogBrush.lbColor = color;
+        LogBrush.lbStyle = PS_SOLID;
+        id = ExtCreatePen(PS_COSMETIC | PS_ALTERNATE, 1, &LogBrush, 0, NULL);
+      } else {
+        id = CreatePenIndirect(&info);
+      }
     }
 
     pen::pen (const pen& rhs)
@@ -73,21 +83,15 @@ namespace gui {
     }
 
     pen pen::with_size (size_type sz) const {
-      os::win32::pen_type newType = info;
-      newType.lopnWidth = { sz, sz };
-      return pen(CreatePenIndirect(&newType));
+      return pen(info.lopnColor, sz, Style(info.lopnStyle));
     }
 
     pen pen::with_style (Style s) const {
-      os::win32::pen_type newType = info;
-      newType.lopnStyle = static_cast<int>(s);
-      return pen(CreatePenIndirect(&newType));
+      return pen(info.lopnColor, info.lopnWidth.x, s);
     }
 
     pen pen::with_color (const os::color& c) const {
-      os::win32::pen_type newType = info;
-      newType.lopnColor = c;
-      return pen(CreatePenIndirect(&newType));
+      return pen(c, info.lopnWidth.x, Style(info.lopnStyle));
     }
 
     bool pen::operator== (const pen& rhs) const {

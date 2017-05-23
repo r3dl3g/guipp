@@ -1186,9 +1186,11 @@ namespace gui {
     modal_window::modal_window ()
       : is_modal(false)
     {
+#ifdef WIN32
       register_event_handler(REGISTER_FUNCTION, close_event([&]() {
         is_modal = false;
       }));
+#endif // WIN32
     }
 
     void modal_window::end_modal () {

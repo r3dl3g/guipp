@@ -1183,6 +1183,14 @@ namespace gui {
       return win::window_class(ostreamfmt("group_window-" << group_window_id++), v);
     }
 
+    modal_window::modal_window ()
+      : is_modal(false)
+    {
+      register_event_handler(REGISTER_FUNCTION, close_event([&]() {
+        is_modal = false;
+      }));
+    }
+
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
@@ -1217,7 +1225,7 @@ namespace gui {
 
       is_modal = true;
 
-      run_loop(is_modal, [win](const core::event& e) -> bool {
+      run_loop(is_modal, [&, win](const core::event& e) -> bool {
 #ifdef X11
         switch (e.type) {
           case MotionNotify:
@@ -1319,7 +1327,8 @@ namespace gui {
 
       template<>
       struct dialog_window_class_defaults<os::platform::win32> {
-        static constexpr os::style style = IF_WIN32_ELSE(WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_DLGFRAME, 0);
+        static constexpr os::style style = IF_WIN32_ELSE(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU | 
+                                                         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME, 0);
         static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED, 0);
       };
 

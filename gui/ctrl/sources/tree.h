@@ -106,7 +106,7 @@ namespace gui {
           super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state,
                                                                                    const core::point& pt) {
             int idx = super::get_index_at_point(pt);
-            if ((idx > -1) && (idx < nodes.size())) {
+            if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
               const depth_info& i = nodes[idx];
               core::point_type x = core::point_type(i.depth * 16);
               if ((x <= pt.x()) && (x + 16 >= pt.x())) {
@@ -160,7 +160,7 @@ namespace gui {
         }
 
         void toggle_node (int idx) {
-          if ((idx > -1) && (idx < nodes.size())) {
+          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
             const reference ref = nodes[idx].ref;
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {
@@ -173,7 +173,7 @@ namespace gui {
         }
 
         void open_node (int idx) {
-          if ((idx > -1) && (idx < nodes.size())) {
+          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
             const reference ref = nodes[idx].ref;
             auto i = open_nodes.find(ref);
             if (i == open_nodes.end()) {
@@ -184,7 +184,7 @@ namespace gui {
         }
 
         void close_node (int idx) {
-          if ((idx > -1) && (idx < nodes.size())) {
+          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
             const reference ref = nodes[idx].ref;
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {

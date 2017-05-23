@@ -344,9 +344,7 @@ namespace gui {
     public:
       typedef overlapped_window super;
 
-      modal_window ()
-        : is_modal(false)
-      {}
+      modal_window ();
 
       void end_modal ();
       void run_modal ();

@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: file tree view
+* @brief     C++ API: file tree/list view
 *
 * @file
 */
@@ -38,6 +38,7 @@ namespace sys_fs = boost::filesystem;
 #endif
 
 #include "tree.h"
+#include "column_list.h"
 #include "string_util.h"
 
 
@@ -269,6 +270,53 @@ namespace gui {
 
     template<int S = 20, os::color B = color::white>
     using sorted_file_tree = tree::tree<path_tree::sorted_path_info, S, B>;
+
+    // --------------------------------------------------------------------------
+    namespace detail {
+      void init_file_list_layout (layout::weight_column_list_layout&);
+      void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
+
+      typedef column_list_row_drawer_t<layout::weight_column_list_layout,
+                                       const draw::masked_bitmap*, std::string, uintmax_t,
+                                       sys_fs::file_time_type> file_list_row_drawer;
+
+      file_list_row_drawer create_file_list_row_drawer();
+
+      typedef column_list_row_t<const draw::masked_bitmap*, std::string, uintmax_t,
+                                sys_fs::file_time_type> file_list_row;
+
+      file_list_row build_file_list_row (const sys_fs::path&, bool selected);
+
+    } // detail
+
+    template<int S = 20, os::color B = color::white>
+    class file_list : public win::column_list_t<layout::weight_column_list_layout, S, B,
+                                                const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> {
+    public:
+      typedef win::column_list_t<layout::weight_column_list_layout, S, B,
+                                 const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> super;
+
+      file_list () {
+        detail::init_file_list_layout(super::get_column_layout());
+        detail::init_file_list_header(super::header);
+        super::set_drawer(detail::create_file_list_row_drawer());
+        super::set_data([&](std::size_t i) {
+          return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
+        }, 0);
+      }
+
+      void set_path (const sys_fs::path& dir) {
+        current_dir = path_tree::sorted_file_info::sub_nodes(dir);
+        super::list.set_count(current_dir.size());
+        super::list.clear_selection(false);
+        super::list.set_scroll_pos(0);
+        super::redraw_later();
+      }
+
+    private:
+      std::vector<sys_fs::path> current_dir;
+
+    };
 
   } // win
 

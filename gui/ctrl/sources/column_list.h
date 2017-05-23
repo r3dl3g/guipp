@@ -355,6 +355,8 @@ namespace gui {
       public:
         typedef Layout layout_type;
         typedef layout_container<layout::detail::base_column_list_layout> super;
+        typedef column_list_header<layout_type> header_type;
+        typedef win::list_t<orientation::vertical, S, B> list_type;
 
         base_column_list (bool grab_focus = true)
           : list(grab_focus)
@@ -381,8 +383,8 @@ namespace gui {
           header.layout();
         }
 
-        column_list_header<layout_type> header;
-        win::list_t<orientation::vertical, S, B> list;
+        header_type header;
+        list_type list;
 
       private:
         static no_erase_window_class clazz;

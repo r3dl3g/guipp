@@ -106,7 +106,7 @@ namespace gui {
           super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state,
                                                                                    const core::point& pt) {
             int idx = super::get_index_at_point(pt);
-            if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
+            if ((idx > -1) && (idx < size())) {
               const depth_info& i = nodes[idx];
               core::point_type x = core::point_type(i.depth * 16);
               if ((x <= pt.x()) && (x + 16 >= pt.x())) {
@@ -119,9 +119,22 @@ namespace gui {
                                                                               const std::string&){
             switch (key) {
               case keys::left:
-              case keys::numpad::left:
-                close_node(super::get_selection());
+              case keys::numpad::left: {
+                int idx = super::get_selection();
+                if (is_valid(idx)) {
+                  const reference ref = get_item(idx);
+                  auto i = open_nodes.find(ref);
+                  if (i != open_nodes.end()) {
+                    open_nodes.erase(i);
+                    update_node_list();
+                  } else {
+                    idx = get_parent_item_of(idx);
+                    close_node(idx);
+                    super::set_selection(idx);
+                  }
+                }
                 break;
+              }
               case keys::right:
               case keys::numpad::right:
                 open_node(super::get_selection());
@@ -130,15 +143,27 @@ namespace gui {
           }));
         }
 
-        bool is_open (const reference r) {
-          return open_nodes.find(r) != open_nodes.end();
+        bool is_open (const reference ref) const {
+          return open_nodes.find(ref) != open_nodes.end();
         }
 
-        void set_open (const reference r, bool o) {
-          if (o) {
-            open_nodes.insert(r);
-          } else {
-            open_nodes.erase(r);
+        bool is_open (int idx) const {
+          if (is_valid(idx)) {
+            const reference ref = get_item(idx);
+            auto i = open_nodes.find(ref);
+            return i != open_nodes.end();
+          }
+          return false;
+        }
+
+        void set_open (int idx, bool o) {
+          if (is_valid(idx)) {
+            const reference r = get_item(idx);
+            if (o) {
+              open_nodes.insert(r);
+            } else {
+              open_nodes.erase(r);
+            }
           }
         }
 
@@ -147,7 +172,7 @@ namespace gui {
           open_sub(root);
         }
 
-        void open () {
+        void open_root () {
           open_nodes.clear();
           open_nodes.insert(tree_info::make_reference(root));
         }
@@ -160,8 +185,8 @@ namespace gui {
         }
 
         void toggle_node (int idx) {
-          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
-            const reference ref = nodes[idx].ref;
+          if (is_valid(idx)) {
+            const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {
               open_nodes.erase(i);
@@ -173,8 +198,8 @@ namespace gui {
         }
 
         void open_node (int idx) {
-          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
-            const reference ref = nodes[idx].ref;
+          if (is_valid(idx)) {
+            const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i == open_nodes.end()) {
               open_nodes.insert(ref);
@@ -184,8 +209,8 @@ namespace gui {
         }
 
         void close_node (int idx) {
-          if ((idx > -1) && (idx < static_cast<int>(nodes.size()))) {
-            const reference ref = nodes[idx].ref;
+          if (is_valid(idx)) {
+            const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {
               open_nodes.erase(i);
@@ -210,10 +235,30 @@ namespace gui {
           }
         }
 
-        const reference get_item (int idx) const {
+        inline const reference get_item (int idx) const {
           return nodes[idx].ref;
         }
 
+        inline int size () const {
+          return static_cast<int>(nodes.size());
+        }
+
+        inline bool is_valid (int idx) const {
+          return (idx > -1) && (idx < size());
+        }
+
+        int get_parent_item_of (int idx) {
+          if (is_valid(idx)) {
+            const std::size_t depth = nodes[idx].depth;
+            do {
+              --idx;
+            } while ((idx > -1) && (nodes[idx].depth >= depth));
+            return idx;
+          }
+          return -1;
+        }
+
+      protected:
         void draw_list_item (std::size_t idx,
                              const draw::graphics& g,
                              const core::rectangle& r,

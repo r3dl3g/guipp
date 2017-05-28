@@ -113,47 +113,31 @@ namespace gui {
         , visible_items(5)
         , filter_id(-1)
         , me([&](const core::point&) {
-          if (popup.is_visible()) {
+          if (is_popup_visible()) {
             popup.place(get_popup_place());
           }
         })
       {
         super::get_layout().init(&button);
 
-        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& graph) {
-          core::rectangle area = super::client_area();
-          draw::frame::sunken_deep_relief(graph, area);
-          bool has_f = button.has_focus();
-          if (selection > -1) {
-            D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, has_f);
-          } else if (has_f) {
-            draw::frame::dots(graph, area);
-          }
-        }));
-        super::register_event_handler(REGISTER_FUNCTION, win::left_btn_down_event([&](os::key_state, const core::point& pt) {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &drop_down_list::paint));
+        super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
           toggle_popup();
           super::take_focus();
           super::redraw_later();
         }));
-        super::register_event_handler(REGISTER_FUNCTION, win::create_event(core::bind_method(this, &drop_down_list::create_children)));
+        super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
 
-        button.register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& graph) {
-          paint::drop_down_button(graph, button, popup.is_visible());
+        button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
+          paint::drop_down_button(graph, button, is_popup_visible());
         }));
-        button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event(
-          core::bind_method(this, &drop_down_list::toggle_popup)));
+        button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
 
-        items.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&]() {
-          int idx = items.get_selection();
-          if (idx > -1) {
-            selection = idx;
-            super::redraw_later();
-            show_popup(false);
-          }
-        }));
-        button.register_event_handler(REGISTER_FUNCTION, win::lost_focus_event([&](window*) {
+        items.register_event_handler(REGISTER_FUNCTION, selection_changed_event(this, &drop_down_list::handle_selection_changed));
+        button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
           super::redraw_later();
         }));
+        button.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &drop_down_list::handle_key));
 
         items.set_drawer([&](std::size_t idx,
                              const draw::graphics& g,
@@ -163,6 +147,46 @@ namespace gui {
                              bool hilited) {
           D(data(idx), g, r, b, selected, hilited);
         });
+      }
+
+      void paint (const draw::graphics& graph) {
+        core::rectangle area = super::client_area();
+        draw::frame::sunken_deep_relief(graph, area);
+        bool has_f = button.has_focus();
+        if (selection > -1) {
+          D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, has_f);
+        } else if (has_f) {
+          draw::frame::dots(graph, area);
+        }
+      }
+
+      void handle_key (os::key_state state,
+                       os::key_symbol key,
+                       const std::string& t) {
+        if (is_popup_visible()) {
+          if (key == keys::tab) {
+            hide_popup();
+          }
+          items.handle_key(state, key, t);
+        } else {
+          switch (key) {
+            case keys::down:
+            case keys::numpad::down:
+              show_popup();
+              break;
+          }
+        }
+      }
+
+      void handle_selection_changed (event_source src) {
+        int idx = items.get_selection();
+        if (idx > -1) {
+          selection = idx;
+          super::redraw_later();
+          if (src == event_source::mouse) {
+            hide_popup();
+          }
+        }
       }
 
       T get_selected_item () const {
@@ -190,38 +214,38 @@ namespace gui {
         return place;
       }
 
-      void show_popup (bool show) {
-        if (show) {
-          if (!popup.is_valid()) {
-            create_popup(get_popup_place());
-          } else {
-            popup.place(get_popup_place());
-          }
-          items.set_selection(selection, false);
-          items.make_selection_visible();
-          popup.set_visible();
-          button.redraw_later();
+      void show_popup () {
+        if (!popup.is_valid()) {
+          create_popup(get_popup_place());
         } else {
-          popup.set_visible(false);
-          button.redraw_later();
+          popup.place(get_popup_place());
         }
+        items.set_selection(selection, event_source::logic);
+        items.make_selection_visible();
+        popup.set_visible();
+        button.redraw_later();
       }
 
-      void set_selection (int idx) {
+      void hide_popup () {
+        popup.set_visible(false);
+        button.redraw_later();
+      }
+
+      void set_selection (int idx, event_source src) {
         selection = idx;
-        if (popup.is_visible()) {
-          items.set_selection(idx);
+        if (is_popup_visible()) {
+          items.set_selection(idx, src);
         }
       }
 
       void set_visible_items (int n) {
         visible_items = n;
-        if (popup.is_visible()) {
+        if (is_popup_visible()) {
           popup.place(get_popup_place());
         }
       }
 
-      int get_selection () const {
+      inline int get_selection () const {
         return selection;
       }
 
@@ -229,8 +253,16 @@ namespace gui {
         return visible_items;
       }
 
-      void toggle_popup () {
-        show_popup(!popup.is_visible());
+      inline bool is_popup_visible () const {
+        return popup.is_visible();
+      }
+
+      inline void toggle_popup () {
+        if (is_popup_visible()) {
+          hide_popup();
+        } else {
+          show_popup();
+        }
       }
 
       inline void set_drawer (const std::function<win::list::draw_list_item>& drawer) {
@@ -270,7 +302,7 @@ namespace gui {
         popup.register_event_handler(REGISTER_FUNCTION, show_event([&]() {
           filter_id = global::register_message_filter([&](const core::event& e) -> bool {
             if (is_button_event_outside(popup, e)) {
-              show_popup(false);
+              hide_popup();
               return true;
             }
             return false;

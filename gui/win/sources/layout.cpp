@@ -70,7 +70,7 @@ namespace gui {
     }
 
     attach::attach (win::container* main) {
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(this, &attach::layout)));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &attach::layout));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, main](){
         layout(main->client_size());
       }));

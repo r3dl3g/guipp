@@ -80,7 +80,9 @@ namespace gui {
           set_text(txt);
         }
 
-        void set_selection (const range& sel);
+        void handle_key (os::key_state, os::key_symbol, const std::string&);
+
+        void set_selection (const range& sel, event_source);
         range get_selection () const;
 
         pos_t get_cursor_pos () const;

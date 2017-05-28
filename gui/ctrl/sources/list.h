@@ -103,7 +103,7 @@ namespace gui {
         list_t (bool grab_focus = true)
           : scrollbar(grab_focus)
         {
-          scrollbar.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&] (pos_t) {
+          scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (pos_t) {
             super::redraw_later();
           }));
           if (grab_focus) {
@@ -144,6 +144,8 @@ namespace gui {
           return scrollbar.get_value();
         }
 
+        void handle_key (os::key_symbol key);
+
       protected:
         pos_t get_dimension (const core::point&) const;
         void set_dimension (core::rectangle&, pos_t, pos_t) const;
@@ -170,6 +172,9 @@ namespace gui {
       template<>
       core::size list_t<orientation::horizontal>::client_size() const;
 
+      template<>
+      void list_t<orientation::horizontal>::handle_key (os::key_symbol key);
+
       // --------------------------------------------------------------------------
       template<>
       core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const;
@@ -185,6 +190,9 @@ namespace gui {
 
       template<>
       core::size list_t<orientation::vertical>::client_size() const;
+
+      template<>
+      void list_t<orientation::vertical>::handle_key (os::key_symbol key);
 
     }
 
@@ -256,108 +264,113 @@ namespace gui {
       list_t (bool grab_focus = true)
         : super(grab_focus)
       {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g) {
-          paint(g);
-        }));
-        super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state keys, const core::point& pt) {
-          if (!super::moved && (super::last_mouse_point != core::point::undefined)) {
-            const int new_selection = get_index_at_point(pt);
-            if (new_selection != super::get_selection()) {
-              set_selection(new_selection);
-            } else if (control_key_bit_mask::is_set(keys)) {
-              clear_selection();
-            }
-            super::redraw_later();
-          }
-          super::last_mouse_point = core::point::undefined;
-        }));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &list_t::paint));
+        super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &list_t::handle_left_btn_up));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         }));
         if (V == orientation::vertical) {
-          super::register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const pos_t delta, const core::point&){
-            set_scroll_pos(super::get_scroll_pos() - S * delta);
-            super::moved = true;
-          }));
+          super::register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &list_t::handle_wheel));
         } else {
-          super::register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const pos_t delta, const core::point&){
-            set_scroll_pos(super::get_scroll_pos() - S * delta);
-            super::moved = true;
-          }));
+          super::register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &list_t::handle_wheel));
         }
-        super::register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys,
-                                                    const core::point& pt) {
-          const core::rectangle r = super::client_area();
-          if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-            if (super::last_mouse_point != core::point::undefined) {
-              pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
-              set_scroll_pos(super::get_scroll_pos() + delta);
-              super::moved = true;
-            }
-            super::last_mouse_point = pt;
-          } else {
-            set_hilite(get_index_at_point(pt));
-          }
-        }));
+        super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &list_t::handle_mouse_move));
+        super::register_event_handler(REGISTER_FUNCTION, key_down_event(this, &list_t::handle_key));
         super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size&){
           if (super::scrollbar.is_valid()) {
             super::scrollbar.place(super::get_scroll_bar_area());
           }
           adjust_scroll_bar();
         }));
-        super::register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
-                                                         os::key_symbol key,
-                                                         const std::string&){
-          if (V == orientation::vertical) {
-            switch (key) {
-              case keys::up:
-              case keys::numpad::up:
-                set_selection(super::get_selection() - 1);
-                break;
-              case keys::down:
-              case keys::numpad::down:
-                set_selection(super::get_selection() + 1);
-                break;
-            }
-          } else {
-            switch (key) {
-              case keys::left:
-              case keys::numpad::left:
-                set_selection(super::get_selection() - 1);
-                break;
-              case keys::right:
-              case keys::numpad::right:
-                set_selection(super::get_selection() + 1);
-                break;
-            }
-          }
-          switch (key) {
-            case keys::page_up:
-            case keys::numpad::page_up:
-              set_selection(super::get_selection() -
-                            static_cast<int>(super::get_list_size() / S));
-              break;
-            case keys::page_down:
-            case keys::numpad::page_down:
-              set_selection(super::get_selection() +
-                            static_cast<int>(super::get_list_size() / S));
-              break;
-            case keys::home:
-            case keys::numpad::home:
-              set_selection(0);
-              break;
-            case keys::end:
-            case keys::numpad::end:
-              set_selection(static_cast<int>(super::get_count()) - 1);
-              break;
-            case keys::enter:
-              send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-              break;
-          }
-        }));
         super::register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
           clear_hilite();
         }));
+      }
+
+      void handle_wheel(const pos_t delta, const core::point&) {
+        set_scroll_pos(super::get_scroll_pos() - S * delta);
+        super::moved = true;
+      }
+
+      void handle_left_btn_up (os::key_state keys, const core::point& pt) {
+        if (!super::moved && (super::last_mouse_point != core::point::undefined)) {
+          const int new_selection = get_index_at_point(pt);
+          if (new_selection != super::get_selection()) {
+            set_selection(new_selection, event_source::mouse);
+          } else if (control_key_bit_mask::is_set(keys)) {
+            clear_selection(event_source::mouse);
+          }
+          super::redraw_later();
+        }
+        super::last_mouse_point = core::point::undefined;
+      }
+
+      void handle_mouse_move(os::key_state keys, const core::point& pt) {
+        const core::rectangle r = super::client_area();
+        if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+          if (super::last_mouse_point != core::point::undefined) {
+            pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
+            set_scroll_pos(super::get_scroll_pos() + delta);
+            super::moved = true;
+          }
+          super::last_mouse_point = pt;
+        } else {
+          set_hilite(get_index_at_point(pt));
+        }
+      }
+
+      void handle_key (os::key_state,
+                       os::key_symbol key,
+                       const std::string&) {
+        if (V == orientation::vertical) {
+          switch (key) {
+            case keys::up:
+            case keys::numpad::up:
+              set_selection(super::get_selection() - 1, event_source::keyboard);
+              break;
+            case keys::down:
+            case keys::numpad::down:
+              set_selection(super::get_selection() + 1, event_source::keyboard);
+              break;
+          }
+        } else {
+          switch (key) {
+            case keys::left:
+            case keys::numpad::left:
+              set_selection(super::get_selection() - 1, event_source::keyboard);
+              break;
+            case keys::right:
+            case keys::numpad::right:
+              set_selection(super::get_selection() + 1, event_source::keyboard);
+              break;
+          }
+        }
+        switch (key) {
+          case keys::page_up:
+          case keys::numpad::page_up:
+            set_selection(super::get_selection() -
+                          static_cast<int>(super::get_list_size() / S),
+                          event_source::keyboard);
+            break;
+          case keys::page_down:
+          case keys::numpad::page_down:
+            set_selection(super::get_selection() +
+                          static_cast<int>(super::get_list_size() / S),
+                          event_source::keyboard);
+            break;
+          case keys::home:
+          case keys::numpad::home:
+            set_selection(0, event_source::keyboard);
+            break;
+          case keys::end:
+          case keys::numpad::end:
+            set_selection(static_cast<int>(super::get_count()) - 1,
+                          event_source::keyboard);
+            break;
+          case keys::enter:
+            send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+            break;
+        }
       }
 
       void create (const container& parent,
@@ -417,7 +430,7 @@ namespace gui {
         return -1;
       }
 
-      void set_selection (int sel, bool notify = true) {
+      void set_selection (int sel, event_source notify) {
         int new_selection = std::max(-1, sel);
         if (new_selection >= static_cast<int>(super::get_count())) {
           new_selection = -1;
@@ -425,18 +438,18 @@ namespace gui {
         if (super::selection != new_selection) {
           super::selection = new_selection;
           make_selection_visible();
-          if (notify) {
-            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          if (notify != event_source::logic) {
+            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
             super::redraw_later();
           }
         }
       }
 
-      void clear_selection (bool notify = true) {
+      void clear_selection (event_source notify) {
         if (super::selection != -1) {
           super::selection = -1;
-          if (notify) {
-            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+          if (notify != event_source::logic) {
+            send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
             super::redraw_later();
           }
         }

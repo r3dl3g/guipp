@@ -308,7 +308,7 @@ namespace gui {
       void set_path (const sys_fs::path& dir) {
         current_dir = path_tree::sorted_file_info::sub_nodes(dir);
         super::list.set_count(current_dir.size());
-        super::list.clear_selection(false);
+        super::list.clear_selection(event_source::logic);
         super::list.set_scroll_pos(0);
         super::redraw_later();
       }

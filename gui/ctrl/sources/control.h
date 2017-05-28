@@ -104,6 +104,11 @@ namespace gui {
     template<>
     draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
+    enum class event_source {
+      keyboard,
+      mouse,
+      logic
+    };
 #ifdef WIN32
     // --------------------------------------------------------------------------
     struct paint_caller : params<draw::graphics>::caller<get_param<0, draw::graphics>> {
@@ -126,7 +131,9 @@ namespace gui {
     using paint_event = event_handler<WM_PAINT, 0, paint_caller>;
 
 
-    using selection_changed_event = event_handler<detail::SELECTION_CHANGE_MESSAGE>;
+    using selection_changed_event = event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+                                                  params<event_source>::
+                                                  caller<get_param<0, event_source>>>;
 
     using selection_commit_event = event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
@@ -141,7 +148,8 @@ namespace gui {
                           caller<get_param<0, draw::graphics>>>;
 
     using selection_changed_event = event_handler<ClientMessage, 0,
-                          params<>::caller<>, 0,
+                          params<event_source>::
+                          caller<get_client_data<0, event_source>>, 0,
                           client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>;
 
     using selection_commit_event = event_handler<ClientMessage, 0,

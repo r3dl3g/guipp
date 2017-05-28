@@ -84,7 +84,7 @@ private:
 
 // --------------------------------------------------------------------------
 my_main_window::my_main_window () {
-  register_event_handler(REGISTER_FUNCTION, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
     LogDebug << "Destroyed!";
@@ -232,19 +232,19 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   }
 
   buttons[0].set_text("cut");
-  buttons[0].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::cut)));
+  buttons[0].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::cut));
   buttons[1].set_text("copy");
-  buttons[1].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::copy)));
+  buttons[1].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::copy));
   buttons[2].set_text("paste");
-  buttons[2].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::paste)));
+  buttons[2].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::paste));
   buttons[3].set_text("rgb");
-  buttons[3].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::test_rgb)));
+  buttons[3].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::test_rgb));
   buttons[4].set_text("bin");
-  buttons[4].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_bin)));
+  buttons[4].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_bin));
   buttons[5].set_text("ascii");
-  buttons[5].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_ascii)));
+  buttons[5].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_ascii));
   buttons[6].set_text("src");
-  buttons[6].register_event_handler(REGISTER_FUNCTION, button_clicked_event(core::bind_method(this, &my_main_window::save_all_src)));
+  buttons[6].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_src));
 
   for (i = 7; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
@@ -307,7 +307,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   left_list.register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&](bool){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
   }));
-  left_list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](){
+  left_list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " selected"));
   }));
   left_list.register_event_handler(REGISTER_FUNCTION, selection_commit_event([&](){
@@ -438,7 +438,7 @@ void my_main_window::open () {
 
   dir_tree.update_node_list();
 
-  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&]() {
+  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
     int idx = dir_tree.get_selection();
     if (idx > -1) {
       file_list.set_path(dir_tree.get_item(idx));

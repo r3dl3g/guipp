@@ -26,7 +26,7 @@ namespace gui {
       : main(m)
       , button(nullptr)
     {
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(this, &drop_down::layout)));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &drop_down::layout));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
         layout(main->client_size());
       }));

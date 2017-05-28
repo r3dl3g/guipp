@@ -366,7 +366,6 @@ namespace gui {
         if (key == keys::tab) {
           os::key_state state = get_key_state(e);
           shift_focus(shift_key_bit_mask::is_set(state));
-          return true;
         }
       }
       return events.handle_event(e, result);
@@ -378,6 +377,10 @@ namespace gui {
         parent->shift_focus(*this, backward);
         redraw_later();
       }
+    }
+
+    bool window::accept_focus () const {
+      return focus_accepting && is_enabled() && is_visible();
     }
 
 #ifdef X11
@@ -907,25 +910,22 @@ namespace gui {
             return;
           }
         }
-      } else {
-        set_accept_focus(false);
       }
       auto parent = get_parent();
       if (parent) {
         parent->shift_focus(*this, backward);
       } else {
-        forward_focus();
+        forward_focus(backward);
       }
     }
 
     void container::take_focus () {
-      forward_focus();
+      forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
     }
 
-    void container::forward_focus () {
+    void container::forward_focus (bool backward) {
       std::vector<window*> children = get_children();
       if (children.size() > 0) {
-        bool backward = shift_key_bit_mask::is_set(core::global::get_key_state());
         if (backward) {
           for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
             window* next = *i;
@@ -944,8 +944,7 @@ namespace gui {
           }
         }
       }
-      set_accept_focus(false);
-      window::shift_focus();
+      window::shift_focus(backward);
     }
 
     // --------------------------------------------------------------------------

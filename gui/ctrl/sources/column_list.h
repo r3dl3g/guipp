@@ -277,28 +277,29 @@ namespace gui {
         this->get_layout().set_slider_creator([&](std::size_t i) {
           return create_slider(i);
         });
-        this->register_event_handler(REGISTER_FUNCTION, win::paint_event([&](const draw::graphics& g) {
-          using namespace draw;
+        this->register_event_handler(REGISTER_FUNCTION, paint_event(this, &column_list_header::paint));
+      }
 
-          core::rectangle area = this->client_area();
-          core::rectangle r = area;
-          draw::brush background(B);
+      void paint (const draw::graphics& g) {
+        using namespace draw;
 
-          auto count = this->get_layout().get_column_count();
-          for (decltype(count) i = 0; i < count; ++i) {
-            layout::column_size_type w = this->get_layout().get_column_width(i);
-            r.width(w);
-            if (cell_drawer) {
-              cell_drawer(i, g, r, background);
-            }
-            r.move_x(w);
+        core::rectangle area = this->client_area();
+        core::rectangle r = area;
+        draw::brush background(B);
+
+        auto count = this->get_layout().get_column_count();
+        for (decltype(count) i = 0; i < count; ++i) {
+          layout::column_size_type w = this->get_layout().get_column_width(i);
+          r.width(w);
+          if (cell_drawer) {
+            cell_drawer(i, g, r, background);
           }
+          r.move_x(w);
+        }
 
-          if (r.x() < area.x2()) {
-            g.fill(rectangle(r.top_left(), area.bottom_right()), background);
-          }
-
-        }));
+        if (r.x() < area.x2()) {
+          g.fill(rectangle(r.top_left(), area.bottom_right()), background);
+        }
       }
 
       void create (const container& parent,
@@ -317,7 +318,7 @@ namespace gui {
           if (!s.is_valid()) {
             s.create(*this, r);
             s.set_visible();
-            s.register_event_handler(REGISTER_FUNCTION, win::slider_event([=](int) {
+            s.register_event_handler(REGISTER_FUNCTION, slider_event([=](int) {
               slider_type& s = sliders[i];
               auto new_w = s.position().x();
               if (i > 0) {

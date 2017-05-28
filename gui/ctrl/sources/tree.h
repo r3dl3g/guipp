@@ -130,7 +130,7 @@ namespace gui {
                   } else {
                     idx = get_parent_item_of(idx);
                     close_node(idx);
-                    super::set_selection(idx);
+                    super::set_selection(idx, event_source::keyboard);
                   }
                 }
                 break;

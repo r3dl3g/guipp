@@ -298,7 +298,7 @@ namespace gui {
       typedef text_toggle_button<Keep> super;
 
       radio_button (const std::string& t = std::string()) {
-        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::radio_button(graph, *this, super::get_text());
         }));
       }
@@ -312,7 +312,7 @@ namespace gui {
       typedef text_toggle_button<Keep> super;
 
       check_box (const std::string& t = std::string()) {
-        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::check_box(graph, *this, super::get_text());
         }));
       }
@@ -341,7 +341,7 @@ namespace gui {
       typedef void (button_drawer)(const draw::graphics&, const custom_button&);
 
       custom_button () {
-        super::register_event_handler(REGISTER_FUNCTION, win::paint_event([&] (const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           if (drawer) {
             drawer(graph, *this);
           }

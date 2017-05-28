@@ -310,8 +310,8 @@ namespace gui {
       int get_index_of (const menu_entry&) const;
 
       int get_selection () const;
-      void set_selection (int);
-      void clear_selection ();
+      void set_selection (int, event_source);
+      void clear_selection (event_source);
       void rotate_selection (int delta = 1);
 
       int get_hilite () const;

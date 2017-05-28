@@ -527,7 +527,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   };
 
   list1.set_drawer(list_drawer);
-  list1.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] () {
+  list1.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
     labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
   }));
   list1.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
@@ -535,14 +535,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   up_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    list1.set_selection(list1.get_selection() - 1);
-    list2.set_selection(list2.get_selection() - 1);
-    list3.set_selection(list3.get_selection() - 1);
+    list1.set_selection(list1.get_selection() - 1, win::event_source::mouse);
+    list2.set_selection(list2.get_selection() - 1, win::event_source::mouse);
+    list3.set_selection(list3.get_selection() - 1, win::event_source::mouse);
   }));
   down_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    list1.set_selection(list1.get_selection() + 1);
-    list2.set_selection(list2.get_selection() + 1);
-    list3.set_selection(list3.get_selection() + 1);
+    list1.set_selection(list1.get_selection() + 1, win::event_source::mouse);
+    list2.set_selection(list2.get_selection() + 1, win::event_source::mouse);
+    list3.set_selection(list3.get_selection() + 1, win::event_source::mouse);
   }));
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
@@ -555,7 +555,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     data(idx, g, place, background, selected, hilited);
   });
 
-  list2.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] () {
+  list2.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
     std::ostringstream strm;
     strm << "List2 item " << list2.get_selection() << ": ";
     if (list2.get_selection() > -1) {
@@ -567,7 +567,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     labelC.set_text(ostreamfmt("List2 commited " << list2.get_selection()));
   }));
 
-  column_list.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] () {
+  column_list.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
     labelC.set_text(ostreamfmt("column_list item " << column_list.list.get_selection()));
   }));
   column_list.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
@@ -644,25 +644,25 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   sel_first_plus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     (r.first)++;
-    edit1.set_selection(r);
+    edit1.set_selection(r, win::event_source::mouse);
   }));
   sel_first_minus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     if (r.first > 0) {
       (r.first)--;
-      edit1.set_selection(r);
+      edit1.set_selection(r, win::event_source::mouse);
     }
   }));
   sel_last_plus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     (r.last)++;
-    edit1.set_selection(r);
+    edit1.set_selection(r, win::event_source::mouse);
   }));
   sel_last_minus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     auto r = edit1.get_selection();
     if (r.last > 0) {
       (r.last)--;
-      edit1.set_selection(r);
+      edit1.set_selection(r, win::event_source::mouse);
     }
   }));
 
@@ -688,7 +688,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
   */
 
-  register_event_handler(REGISTER_FUNCTION, win::create_event(core::bind_method(this, &my_main_window::onCreated)));
+  register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 }
 
 void my_main_window::query_state () {

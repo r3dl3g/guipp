@@ -87,11 +87,13 @@ namespace gui {
       typedef detail::label_base super;
 
       labelT () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          gui::core::rectangle place = client_area();
-          paint::label(graph, *this, get_text(), FC, BC, A);
-          F(graph, place);
-        }));
+        register_event_handler(REGISTER_FUNCTION, paint_event(this, &labelT::paint));
+      }
+
+      void paint (const draw::graphics& graph) {
+        gui::core::rectangle place = client_area();
+        paint::label(graph, *this, get_text(), FC, BC, A);
+        F(graph, place);
       }
 
       void create (const container& parent,

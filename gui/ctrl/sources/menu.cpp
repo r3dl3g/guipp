@@ -235,7 +235,7 @@ namespace gui {
       return selection;
     }
 
-    void menu_data::set_selection (int sel) {
+    void menu_data::set_selection (int sel, event_source src) {
       int new_selection = std::max(-1, sel);
       if (new_selection >= static_cast<int>(size())) {
         new_selection = -1;
@@ -248,12 +248,12 @@ namespace gui {
         selection = new_selection;
         hilite = new_selection;
         win->redraw_later();
-        send_client_message(win, detail::SELECTION_CHANGE_MESSAGE);
+        send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
     }
 
-    void menu_data::clear_selection () {
-      set_selection(-1);
+    void menu_data::clear_selection (event_source src) {
+      set_selection(-1, src);
     }
 
     template<typename T>
@@ -274,7 +274,7 @@ namespace gui {
       while (data[next].is_disabled() && (next != last)) {
         next = rotate<int>(next, delta, sz);
       }
-      set_selection(next);
+      set_selection(next, event_source::keyboard);
     }
 
     void menu_data::rotate_hilite (int delta) {
@@ -399,7 +399,7 @@ namespace gui {
         if (i.get_menu_key()) {
           global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
             win->take_focus();
-            set_selection(idx);
+            set_selection(idx, event_source::keyboard);
           }, w);
         }
       }
@@ -433,15 +433,13 @@ namespace gui {
       set_accept_focus(true);
       data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
 
-      register_event_handler(REGISTER_FUNCTION, paint_event(core::bind_method(this, &main_menu::paint)));
+      register_event_handler(REGISTER_FUNCTION, paint_event(this, &main_menu::paint));
 
       register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
         data.handle_mouse(false, pt);
       }));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
-        data.clear_hilite();
-      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {
         if (data.get_hilite() == -1) {
@@ -455,7 +453,7 @@ namespace gui {
         }
       }));
 
-      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&]() {
+      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
           data[idx].select();
@@ -468,8 +466,8 @@ namespace gui {
       }));
 
       register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
-                                                os::key_symbol key,
-                                                const std::string&){
+                                                               os::key_symbol key,
+                                                               const std::string&){
         handle_key(key);
       }));
 
@@ -483,14 +481,14 @@ namespace gui {
         const auto idx = get_index_at_point(screen_to_client(gpt));
         if (btn) {
           if (idx == data.get_selection()) {
-            data.clear_selection();
+            data.clear_selection(event_source::mouse);
           } else {
-            data.set_selection(idx);
+            data.set_selection(idx, event_source::mouse);
           }
         } else {
           if (data.is_open()) {
             if (idx != -1) {
-              data.set_selection(idx);
+              data.set_selection(idx, event_source::mouse);
             }
           } else {
             data.set_hilite(idx);
@@ -535,7 +533,7 @@ namespace gui {
         case keys::numpad::down:
         case keys::enter:
           if (!data.is_open() && (data.get_hilite() > -1)) {
-            data.set_selection(data.get_hilite());
+            data.set_selection(data.get_hilite(), event_source::keyboard);
           }
           return true;
       }
@@ -594,17 +592,15 @@ namespace gui {
       , text_pos(10)
       , hotkey_pos(0)
     {
-      register_event_handler(REGISTER_FUNCTION, paint_event(core::bind_method(this, &popup_menu::paint)));
+      register_event_handler(REGISTER_FUNCTION, paint_event(this, &popup_menu::paint));
 
       register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
         data.handle_mouse(false, pt);
       }));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&](){
-        data.clear_hilite();
-      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
-      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&]() {
+      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
           if (!data[idx].is_sub_menu()) {
@@ -666,7 +662,7 @@ namespace gui {
         case keys::numpad::right: {
           int idx = data.get_hilite();
           if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
-            data.set_selection(idx);
+            data.set_selection(idx, event_source::keyboard);
             return true;
           }
           break;
@@ -678,7 +674,7 @@ namespace gui {
 
         case keys::enter:
           if (data.get_hilite() > -1) {
-            data.set_selection(data.get_hilite());
+            data.set_selection(data.get_hilite(), event_source::keyboard);
           }
           return true;
 
@@ -687,7 +683,7 @@ namespace gui {
           for (auto& i : data) {
             ++idx;
             if (compare_menu_key(key, i)) {
-              data.set_selection(idx);
+              data.set_selection(idx, event_source::keyboard);
               return true;
             }
           }
@@ -701,11 +697,11 @@ namespace gui {
       const auto idx = get_index_at_point(screen_to_client(gpt));
       if (btn) {
         if (!data.is_open() || (idx != data.get_hilite())) {
-          data.set_selection(idx);
+          data.set_selection(idx, event_source::mouse);
         }
       } else {
         if ((idx > -1) && data[idx].is_sub_menu()) {
-          data.set_selection(idx);
+          data.set_selection(idx, event_source::mouse);
         } else {
           data.set_hilite(idx);
         }

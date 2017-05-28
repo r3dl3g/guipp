@@ -180,9 +180,7 @@ namespace gui {
 
       void prepare_for_event (os::event_id mask);
 
-      inline bool accept_focus () const {
-        return is_enabled() && focus_accepting;
-      }
+      bool accept_focus () const;
 
       inline void set_accept_focus (bool a) {
         focus_accepting = a;
@@ -235,7 +233,7 @@ namespace gui {
 
       void shift_focus (window&, bool backward = false);
       void take_focus () override;
-      void forward_focus ();
+      void forward_focus (bool backward = false);
 
     };
 

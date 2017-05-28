@@ -104,7 +104,7 @@ namespace gui {
 #endif // X11
       }
 
-      void edit_base::set_selection (const edit_base::range& sel) {
+      void edit_base::set_selection (const edit_base::range& sel, event_source) {
         selection = sel;
         redraw_later();
       }
@@ -164,7 +164,7 @@ namespace gui {
       void edit_base::replace_selection (const std::string &new_text) {
         range sel = get_selection();
         text.replace(sel.first, sel.last - sel.first, new_text);
-        set_selection(range(sel.first + new_text.size()));
+        set_selection(range(sel.first + new_text.size()), event_source::logic);
         redraw_later();
       }
 
@@ -281,115 +281,117 @@ namespace gui {
         }
       }
 
-      void edit_base::register_handler (text_origin alignment) {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          paint::edit_line(graph, *this, text, alignment, selection, cursor_pos, scroll_pos, has_focus());
-        }));
-        register_event_handler(REGISTER_FUNCTION, key_down_event([&] (os::key_state keystate,
-                                                   os::key_symbol keycode,
-                                                   const std::string& chars) {
-          bool shift = shift_key_bit_mask::is_set(keystate);
-          bool ctrl = control_key_bit_mask::is_set(keystate);
+      void edit_base::handle_key (os::key_state keystate,
+                                  os::key_symbol keycode,
+                                  const std::string& chars) {
+        bool shift = shift_key_bit_mask::is_set(keystate);
+        bool ctrl = control_key_bit_mask::is_set(keystate);
 
-          switch (keycode) {
-            case keys::left:
-            case keys::numpad::left:
-              if (ctrl) {
-                // next word begin
-                if (cursor_pos > 1) {
-                  std::string::size_type pos = find_left_space(text, cursor_pos);
-                  if (pos != std::string::npos) {
-                    set_cursor_pos(pos, shift);
-                    return;
-                  }
+        switch (keycode) {
+          case keys::left:
+          case keys::numpad::left:
+            if (ctrl) {
+              // next word begin
+              if (cursor_pos > 1) {
+                std::string::size_type pos = find_left_space(text, cursor_pos);
+                if (pos != std::string::npos) {
+                  set_cursor_pos(pos, shift);
+                  return;
                 }
-              } else if (cursor_pos > 0) {
+              }
+            } else if (cursor_pos > 0) {
+              std::size_t cp = cursor_pos - 1;
+              while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
+                --cp;
+              }
+              set_cursor_pos(cp, shift);
+              return;
+            }
+            set_cursor_pos(0, shift);
+            break;
+          case keys::right:
+          case keys::numpad::right:
+            if (ctrl) {
+              set_cursor_pos(find_right_space(text, cursor_pos), shift);
+            } else if (cursor_pos < get_text_length ()) {
+              std::size_t cp = cursor_pos + 1;
+              while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+                ++cp;
+              }
+              set_cursor_pos(cp, shift);
+            }
+            break;
+          case keys::home:
+          case keys::numpad::home:
+            set_cursor_pos(0, shift);
+            break;
+          case keys::end:
+          case keys::numpad::end:
+            set_cursor_pos(get_text_length(), shift);
+            break;
+          case keys::del:
+          case keys::numpad::del:
+            if (selection.empty()) {
+              std::size_t cp = cursor_pos + 1;
+              while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+                ++cp;
+              }
+              text.replace(cursor_pos, cp - cursor_pos, std::string());
+              redraw_later();
+            } else {
+              replace_selection(std::string());
+              set_cursor_pos(selection.first, false);
+            }
+            break;
+          case keys::back_space:
+            if (selection.empty()) {
+              if (cursor_pos > 0) {
                 std::size_t cp = cursor_pos - 1;
                 while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
                   --cp;
                 }
-                set_cursor_pos(cp, shift);
-                return;
+                text.replace(cp, cursor_pos - cp, std::string());
+                set_cursor_pos(cp, false);
               }
-              set_cursor_pos(0, shift);
-              break;
-            case keys::right:
-            case keys::numpad::right:
-              if (ctrl) {
-                set_cursor_pos(find_right_space(text, cursor_pos), shift);
-              } else if (cursor_pos < get_text_length ()) {
-                std::size_t cp = cursor_pos + 1;
-                while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
-                  ++cp;
-                }
-                set_cursor_pos(cp, shift);
-              }
-              break;
-            case keys::home:
-            case keys::numpad::home:
-              set_cursor_pos(0, shift);
-              break;
-            case keys::end:
-            case keys::numpad::end:
-              set_cursor_pos(get_text_length(), shift);
-              break;
-            case keys::del:
-            case keys::numpad::del:
-              if (selection.empty()) {
-                std::size_t cp = cursor_pos + 1;
-                while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
-                  ++cp;
-                }
-                text.replace(cursor_pos, cp - cursor_pos, std::string());
-                redraw_later();
-              } else {
-                replace_selection(std::string());
-                set_cursor_pos(selection.first, false);
-              }
-              break;
-            case keys::back_space:
-              if (selection.empty()) {
-                if (cursor_pos > 0) {
-                  std::size_t cp = cursor_pos - 1;
-                  while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
-                    --cp;
-                  }
-                  text.replace(cp, cursor_pos - cp, std::string());
-                  set_cursor_pos(cp, false);
-                }
-              } else {
-                replace_selection(std::string());
-                set_cursor_pos(selection.first, false);
-              }
-              break;
-            case keys::escape:
-              set_selection(range());
-              break;
-            case keys::clear:
-              set_selection(range(0, text.size()));
+            } else {
               replace_selection(std::string());
-              set_cursor_pos(0, false);
-              break;
-            case keys::tab:
-            case keys::enter:
-              break;
-            // TBD: cut, copy, paste
-            case 'a':
-              if (ctrl) {
-                // select all
-                set_selection(range(0, text.size()));
-              }
-              // fall throught
-            default: {
-              if (ctrl) {
-                LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
-              } else if (chars.size()) {
-                replace_selection(chars);
-                set_cursor_pos(selection.last, false);
-              }
+              set_cursor_pos(selection.first, false);
+            }
+            break;
+          case keys::escape:
+            set_selection(range(), event_source::keyboard);
+            break;
+          case keys::clear:
+            set_selection(range(0, text.size()), event_source::keyboard);
+            replace_selection(std::string());
+            set_cursor_pos(0, false);
+            break;
+          case keys::tab:
+          case keys::enter:
+            break;
+          // TBD: cut, copy, paste
+          case 'a':
+            if (ctrl) {
+              // select all
+              set_selection(range(0, text.size()), event_source::keyboard);
+            }
+            // fall throught
+          default: {
+            if (ctrl) {
+              LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+            } else if (chars.size()) {
+              replace_selection(chars);
+              set_cursor_pos(selection.last, false);
             }
           }
+        }
+      }
+
+      void edit_base::register_handler (text_origin alignment) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
+          paint::edit_line(graph, *this, text, alignment, selection, cursor_pos, scroll_pos, has_focus());
         }));
+        register_event_handler(REGISTER_FUNCTION, key_down_event(this, &edit_base::handle_key));
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           take_focus();
           last_mouse_point = pt;
@@ -405,7 +407,7 @@ namespace gui {
           set_cursor_pos(p);
           pos_t l = find_left_space(text, p);
           pos_t r = find_right_space(text, p);
-          set_selection(range(l, r));
+          set_selection(range(l, r), event_source::mouse);
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {

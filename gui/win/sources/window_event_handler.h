@@ -181,6 +181,11 @@ namespace gui {
         : caller(cb)
       {}
 
+      template<typename T, typename F>
+      event_handler (T* t, F f)
+        : caller(core::bind_method(t, f))
+      {}
+
       event_handler (const event_handler& rhs)
         : caller(rhs.caller)
         , matcher(rhs.matcher)

@@ -69,7 +69,7 @@ namespace gui {
 
       template <>
       slider_t<orientation::vertical>::slider_t () {
-        register_event_handler(REGISTER_FUNCTION, win::mouse_move_abs_event([&](os::key_state keys,
+        register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                                 const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
@@ -82,7 +82,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+        register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
           core::point_type dx = 0;
           switch (key) {
            case keys::left:
@@ -116,7 +116,7 @@ namespace gui {
 
       template <>
       slider_t<orientation::horizontal>::slider_t () {
-        register_event_handler(REGISTER_FUNCTION, win::mouse_move_abs_event([&](os::key_state keys,
+        register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                                 const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
             core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
@@ -130,7 +130,7 @@ namespace gui {
            }
           return;
         }));
-        register_event_handler(REGISTER_FUNCTION, win::key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+        register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
           core::point_type dy = 0;
           switch (key) {
            case keys::up:

@@ -92,6 +92,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    event_source get_param<0, event_source>(const core::event& e) {
+      return event_source(e.wParam);
+    }
+
+    // --------------------------------------------------------------------------
     void paint_caller::operator()(const core::event& e) {
       if (f) {
         PAINTSTRUCT ps;

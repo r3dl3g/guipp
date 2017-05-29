@@ -109,7 +109,11 @@ namespace gui {
       mouse,
       logic
     };
+
 #ifdef WIN32
+    template<>
+    event_source get_param<0, event_source>(const core::event& e);
+
     // --------------------------------------------------------------------------
     struct paint_caller : params<draw::graphics>::caller<get_param<0, draw::graphics>> {
       typedef params<draw::graphics>::caller<get_param<0, draw::graphics>> super;

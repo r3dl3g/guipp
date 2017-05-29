@@ -418,7 +418,7 @@ void my_main_window::open () {
     dialog.end_modal();
   }));
 
-  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ open.take_focus(); }));
+//  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ open.take_focus(); }));
 
   typedef sorted_file_tree<20, color::white> dir_tree_type;
   typedef file_list<20, color::white> file_list_type;

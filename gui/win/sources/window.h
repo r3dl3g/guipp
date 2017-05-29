@@ -62,7 +62,7 @@ namespace gui {
 
       window ();
 
-      virtual ~window ();
+      ~window ();
 
       inline os::window get_id () const {
         return id;
@@ -108,7 +108,7 @@ namespace gui {
         enable(false);
       }
 
-      virtual void take_focus ();
+      void take_focus ();
 
       void shift_focus (bool backward = false);
 
@@ -232,7 +232,6 @@ namespace gui {
       std::vector<window*> get_children () const;
 
       void shift_focus (window&, bool backward = false);
-      void take_focus () override;
       void forward_focus (bool backward = false);
 
     };
@@ -401,9 +400,7 @@ namespace gui {
 
       layout_main_window ()
         : layouter(this)
-      {
-        //register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
-      }
+      {}
 
       void layout () {
         layouter.layout(size());

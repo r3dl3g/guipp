@@ -489,11 +489,6 @@ namespace gui {
       }
 
       send_client_message(this, detail::WM_CREATE_WINDOW, this, r);
-      //XSetWMProtocols(display, id, &detail::WM_DELETE_WINDOW, 1);
-      Atom protocols[] = {
-        XInternAtom(display, "WM_TAKE_FOCUS", False), detail::WM_DELETE_WINDOW,
-      };
-      XSetWMProtocols(display, id, protocols, 2);
 
     }
 
@@ -630,7 +625,7 @@ namespace gui {
 
     void window::take_focus () {
       check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
-                                       RevertToNone, CurrentTime));
+                                       RevertToParent, CurrentTime));
       redraw_later();
     }
 
@@ -871,6 +866,9 @@ namespace gui {
 #endif // X11
     container::container () {
       set_accept_focus(true);
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+        forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+      }));
     }
 
     bool container::is_sub_window (const window* child) const {
@@ -917,10 +915,6 @@ namespace gui {
       } else {
         forward_focus(backward);
       }
-    }
-
-    void container::take_focus () {
-      forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
     }
 
     void container::forward_focus (bool backward) {
@@ -1279,6 +1273,19 @@ namespace gui {
         Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
         Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
         XChangeProperty(display, w->get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+        Atom protocols[] = {
+          XInternAtom(display, "WM_TAKE_FOCUS", False),
+          detail::WM_DELETE_WINDOW,
+        };
+        XSetWMProtocols(display, w->get_id(), protocols, 2);
+        XWMHints* hints = XGetWMHints(display, w->get_id());
+        if (!hints) {
+          hints = XAllocWMHints();
+        }
+        hints->flags |= InputHint;
+        hints->input = True;
+        XSetWMHints(display, w->get_id(), hints);
 #endif
       }
 
@@ -1361,7 +1368,6 @@ namespace gui {
 
         type = XInternAtom(display, "WM_CLIENT_LEADER", False);
         XChangeProperty(display, w->get_id(), type, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&parent_id), 1);
-
 #endif
       }
 

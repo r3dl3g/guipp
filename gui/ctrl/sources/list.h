@@ -495,8 +495,11 @@ namespace gui {
       void set_scroll_pos (pos_t pos) {
         const pos_t max_delta =
           std::max(zero, (S * (pos_t)super::get_count()) - super::get_list_size());
-        super::scrollbar.set_value(std::min(std::max(zero, pos), max_delta));
-        super::redraw_later();
+        auto value = std::min(std::max(zero, pos), max_delta);
+        if (value != super::scrollbar.get_value()) {
+          super::scrollbar.set_value(value);
+          super::redraw_later();
+        }
       }
 
       void paint (const draw::graphics& graph) {

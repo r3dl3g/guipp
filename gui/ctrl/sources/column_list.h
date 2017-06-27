@@ -257,7 +257,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename Layout, os::color B = color::very_very_light_gray>
+    template<typename Layout, os::color background = color::very_very_light_gray>
     class column_list_header : public layout_container<Layout> {
     public:
       typedef Layout layout_type;
@@ -270,7 +270,7 @@ namespace gui {
                               const core::rectangle& place,
                               const draw::brush& background);
 
-      column_list_header() {
+      column_list_header () {
         super::set_accept_focus(false);
         set_cell_drawer(default_cell_drawer);
         this->get_layout().init_auto_layout();
@@ -285,20 +285,20 @@ namespace gui {
 
         core::rectangle area = this->client_area();
         core::rectangle r = area;
-        draw::brush background(B);
+        draw::brush back_brush(background);
 
         auto count = this->get_layout().get_column_count();
         for (decltype(count) i = 0; i < count; ++i) {
           layout::column_size_type w = this->get_layout().get_column_width(i);
           r.width(w);
           if (cell_drawer) {
-            cell_drawer(i, g, r, background);
+            cell_drawer(i, g, r, back_brush);
           }
           r.move_x(w);
         }
 
         if (r.x() < area.x2()) {
-          g.fill(rectangle(r.top_left(), area.bottom_right()), background);
+          g.fill(rectangle(r.top_left(), area.bottom_right()), back_brush);
         }
       }
 
@@ -345,19 +345,19 @@ namespace gui {
       void operator= (column_list_header&) = delete;
     };
 
-    template<typename L, os::color B>
-    no_erase_window_class column_list_header<L, B>::clazz = create_group_window_clazz(B);
+    template<typename L, os::color background>
+    no_erase_window_class column_list_header<L, background>::clazz = create_group_window_clazz(background);
 
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename Layout, int S, os::color B>
+      template<typename Layout, int S, os::color background>
       class base_column_list : public layout_container<layout::detail::base_column_list_layout> {
       public:
         typedef Layout layout_type;
         typedef layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef win::list_t<orientation::vertical, S, B> list_type;
+        typedef win::list_t<orientation::vertical, S, background> list_type;
 
         base_column_list (bool grab_focus = true)
           : list(grab_focus)
@@ -392,8 +392,8 @@ namespace gui {
 
       };
 
-      template<typename L, int S, os::color B>
-      no_erase_window_class base_column_list<L, S, B>::clazz = create_group_window_clazz(B);
+      template<typename L, int S, os::color background>
+      no_erase_window_class base_column_list<L, S, background>::clazz = create_group_window_clazz(background);
 
     }
 
@@ -445,11 +445,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S = 20, os::color B = color::white>
-    class simple_column_list : public detail::base_column_list<Layout, S, B> {
+    template<typename Layout, int S = 20, os::color background = color::white>
+    class simple_column_list : public detail::base_column_list<Layout, S, background> {
     public:
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S, B> super;
+      typedef detail::base_column_list<layout_type, S, background> super;
 
       typedef void(cell_draw)(std::size_t row_id, std::size_t col_id,
                               const draw::graphics&,
@@ -677,13 +677,13 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S, os::color B, typename... Arguments>
-    class column_list_t : public detail::base_column_list<Layout, S, B> {
+    template<typename Layout, int S, os::color background, typename... Arguments>
+    class column_list_t : public detail::base_column_list<Layout, S, background> {
     public:
       static const std::size_t size = sizeof...(Arguments);
 
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S, B> super;
+      typedef detail::base_column_list<layout_type, S, background> super;
 
       typedef column_list_row_t<Arguments...> row;
 

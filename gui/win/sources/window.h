@@ -288,7 +288,7 @@ namespace gui {
     window_class create_group_window_clazz (os::color);
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, os::color B = color::white>
+    template<typename L = layout::standard_layout, os::color background = color::white>
     class group_window : public layout_container<L> {
     public:
       typedef layout_container<L> super;
@@ -302,8 +302,8 @@ namespace gui {
       static window_class clazz;
     };
 
-    template<typename L, os::color B>
-    window_class group_window<L, B>::clazz(create_group_window_clazz(B));
+    template<typename L, os::color background>
+    window_class group_window<L, background>::clazz(create_group_window_clazz(background));
 
     // --------------------------------------------------------------------------
     class overlapped_window : public container {

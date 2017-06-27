@@ -180,7 +180,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool Keep = false>
+    template<bool keep_state = false>
     class toggle_button : public button {
     public:
       typedef button super;
@@ -241,7 +241,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::color C = color::light_gray, os::color B = color::dark_gray>
+    template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
     class flat_button : public text_push_button {
     public:
       typedef text_push_button super;
@@ -250,17 +250,17 @@ namespace gui {
         : super(t)
       {
         register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::flat_button(graph, *this, get_text(), C, B);
+          paint::flat_button(graph, *this, get_text(), foreground, background);
         }));
       }
 
     };
 
     // --------------------------------------------------------------------------
-    template<bool Keep = false>
-    class text_toggle_button : public toggle_button<Keep> {
+    template<bool keep_state = false>
+    class text_toggle_button : public toggle_button<keep_state> {
     public:
-      typedef toggle_button<Keep> super;
+      typedef toggle_button<keep_state> super;
 
       text_toggle_button (const std::string& t = std::string())
         : text(t)
@@ -292,10 +292,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool Keep = false>
-    class radio_button : public text_toggle_button<Keep> {
+    template<bool keep_state = false>
+    class radio_button : public text_toggle_button<keep_state> {
     public:
-      typedef text_toggle_button<Keep> super;
+      typedef text_toggle_button<keep_state> super;
 
       radio_button (const std::string& t = std::string()) {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
@@ -306,10 +306,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool Keep = false>
-    class check_box : public text_toggle_button<Keep> {
+    template<bool keep_state = false>
+    class check_box : public text_toggle_button<keep_state> {
     public:
-      typedef text_toggle_button<Keep> super;
+      typedef text_toggle_button<keep_state> super;
 
       check_box (const std::string& t = std::string()) {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
@@ -320,16 +320,21 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::color C = color::light_gray, os::color B = color::dark_gray, bool Keep = false>
-    class flat_toggle_button : public text_toggle_button<Keep> {
+    template<os::color foreground = color::light_gray,
+             os::color background = color::dark_gray,
+             bool keep_state = false>
+    class flat_toggle_button : public text_toggle_button<keep_state> {
     public:
-      typedef text_toggle_button<Keep> super;
+      typedef text_toggle_button<keep_state> super;
 
       flat_toggle_button (const std::string& t = std::string())
         : super(t)
       {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::flat_button(graph, super::client_area(), super::get_text(), super::is_enabled(), super::has_focus(), super::is_checked(), super::is_hilited(), C, B);
+          paint::flat_button(graph, super::client_area(), super::get_text(),
+                             super::is_enabled(), super::has_focus(),
+                             super::is_checked(), super::is_hilited(),
+                             foreground, background);
         }));
       }
     };
@@ -361,8 +366,8 @@ namespace gui {
       std::function<button_drawer> drawer;
     };
 
-    typedef custom_button<push_button> custom_push_button;
-    typedef custom_button<toggle_button<>> custom_toggle_button;
+    using custom_push_button = custom_button<push_button>;
+    using custom_toggle_button = custom_button<toggle_button<>>;
 
   } // win
 

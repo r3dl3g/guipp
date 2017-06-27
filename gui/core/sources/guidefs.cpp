@@ -180,7 +180,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   ibr::odebugstream dbgStrm;
-  ibr::log::core::instance().addSink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().getConsoleFormatter());
+  ibr::log::core::instance().add_sink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().get_console_formatter());
 
 
   std::vector<std::string> args{

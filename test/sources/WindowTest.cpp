@@ -152,7 +152,7 @@ private:
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
   win::label label;
-  win::labelT<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  win::label_t<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
 
   win::text_button min_button;

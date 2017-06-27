@@ -36,14 +36,14 @@ namespace gui {
 
   namespace win {
 
-    template<orientation H,
-             os::color B = color::dark_gray,
-             os::color C = color::light_gray,
-             typename button_type = flat_toggle_button<B, C, true>>
-    class toggle_group : public group_window<layout::adaption_layout<H, 0, 0, 2>, C> {
+    template<orientation O,
+             os::color foreground = color::dark_gray,
+             os::color background = color::light_gray,
+             typename button_type = flat_toggle_button<foreground, background, true>>
+    class toggle_group : public group_window<layout::adaption_layout<O, 0, 0, 2>, background> {
     public:
-      typedef group_window<layout::adaption_layout<H, 0, 0, 2>, C> super;
-      typedef separator_t<!H, true, C> separator_type;
+      typedef group_window<layout::adaption_layout<O, 0, 0, 2>, background> super;
+      typedef separator_t<!O, true, background> separator_type;
 
       struct button {
         button (const std::string& label, bool first)
@@ -111,15 +111,15 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::color B = color::dark_gray,
-             os::color C = color::light_gray,
-             typename button_type = flat_toggle_button<B, C, true>>
-    using htoggle_group = toggle_group<orientation::horizontal, B, C, button_type>;
+    template<os::color foreground = color::dark_gray,
+             os::color background = color::light_gray,
+             typename button_type = flat_toggle_button<foreground, background, true>>
+    using htoggle_group = toggle_group<orientation::horizontal, foreground, background, button_type>;
 
-    template<os::color B = color::dark_gray,
-             os::color C = color::light_gray,
-             typename button_type = flat_toggle_button<B, C, true>>
-    using vtoggle_group = toggle_group<orientation::vertical, B, C, button_type>;
+    template<os::color foreground = color::dark_gray,
+             os::color background = color::light_gray,
+             typename button_type = flat_toggle_button<foreground, background, true>>
+    using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type>;
 
   } // win
 

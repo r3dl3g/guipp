@@ -93,16 +93,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T,
              int S = 20,
-             os::color B = color::white,
+             os::color background = color::white,
              void (D)(const T&,
                       const draw::graphics&,
                       const core::rectangle&,
                       const draw::brush&,
                       bool, bool) = drop_down_item_drawer<T>>
-    class drop_down_list : public group_window<layout::drop_down, B> {
+    class drop_down_list : public group_window<layout::drop_down, background> {
     public:
-      typedef group_window<layout::drop_down, B> super;
-      typedef vlist<S, B> list_type;
+      typedef group_window<layout::drop_down, background> super;
+      typedef vlist<S, background> list_type;
 
       typedef T(get_data_t)(std::size_t);
       typedef std::function<get_data_t> data_provider;
@@ -154,7 +154,7 @@ namespace gui {
         draw::frame::sunken_deep_relief(graph, area);
         bool has_f = button.has_focus();
         if (selection > -1) {
-          D(data(selection), graph, super::get_layout().label_place(super::client_size()), B, false, has_f);
+          D(data(selection), graph, super::get_layout().label_place(super::client_size()), background, false, has_f);
         } else if (has_f) {
           draw::frame::dots(graph, area);
         }

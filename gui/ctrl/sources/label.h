@@ -78,21 +78,21 @@ namespace gui {
 
     }
 
-    template<text_origin A,
+    template<text_origin alignment,
              void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
-             os::color FC = color::black,
-             os::color BC = color::very_light_gray>
-    class labelT : public detail::label_base {
+             os::color foreground = color::black,
+             os::color background = color::very_light_gray>
+    class label_t : public detail::label_base {
     public:
       typedef detail::label_base super;
 
-      labelT () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(this, &labelT::paint));
+      label_t () {
+        register_event_handler(REGISTER_FUNCTION, paint_event(this, &label_t::paint));
       }
 
       void paint (const draw::graphics& graph) {
         gui::core::rectangle place = client_area();
-        paint::label(graph, *this, get_text(), FC, BC, A);
+        paint::label(graph, *this, get_text(), foreground, background, alignment);
         F(graph, place);
       }
 
@@ -110,19 +110,19 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using label_left = labelT<text_origin::vcenter_left,
+    using label_left = label_t<text_origin::vcenter_left,
                               draw::frame::no_frame,
                               color::black,
                               color::very_light_gray>;
 
     using label = label_left;
 
-    using label_right = labelT<text_origin::vcenter_right,
+    using label_right = label_t<text_origin::vcenter_right,
                                draw::frame::no_frame,
                                color::black,
                                color::very_light_gray>;
 
-    using label_center = labelT<text_origin::center,
+    using label_center = label_t<text_origin::center,
                                 draw::frame::no_frame,
                                 color::black,
                                 color::very_light_gray>;

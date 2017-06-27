@@ -253,7 +253,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V, int S, os::color B>
+    template<orientation V, int S, os::color background>
     class list_t : public detail::list_t<V> {
     public:
       typedef detail::list_t<V> super;
@@ -506,7 +506,7 @@ namespace gui {
         const core::rectangle area(super::client_size());
         core::rectangle place = area;
 
-        draw::brush background(B);
+        draw::brush back_brush(background);
 
         const pos_t list_sz = super::get_list_size();
         const auto last = super::get_count();
@@ -515,12 +515,12 @@ namespace gui {
         super::set_dimension(place, S * first - super::get_scroll_pos(), S);
 
         for(auto idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
-          super::draw_item(idx, graph, place, background, super::get_selection() == idx, super::get_hilite() == idx);
+          super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
           super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
         }
 
         if (place.y() < area.y2()) {
-          graph.fill(draw::rectangle(core::rectangle(place.top_left(), area.bottom_right())), background);
+          graph.fill(draw::rectangle(core::rectangle(place.top_left(), area.bottom_right())), back_brush);
         }
 
         if (super::has_focus()) {
@@ -547,15 +547,15 @@ namespace gui {
       static no_erase_window_class clazz;
     };
 
-    template<orientation V, int S, os::color B>
-    no_erase_window_class list_t<V, S, B>::clazz = create_group_window_clazz(B);
+    template<orientation V, int S, os::color background>
+    no_erase_window_class list_t<V, S, background>::clazz = create_group_window_clazz(background);
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color B = color::white>
-    using hlist = list_t<orientation::horizontal, S, B>;
+    template<int S = 20, os::color background = color::white>
+    using hlist = list_t<orientation::horizontal, S, background>;
 
-    template<int S = 20, os::color B = color::white>
-    using vlist = list_t<orientation::vertical, S, B>;
+    template<int S = 20, os::color background = color::white>
+    using vlist = list_t<orientation::vertical, S, background>;
 
     using list = vlist<20, color::white>;
 

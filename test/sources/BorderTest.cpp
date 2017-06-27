@@ -62,7 +62,7 @@ private:
   separator_t<orientation::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
-  typedef labelT<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
+  typedef label_t<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
   vlist<50, color::rgb_gray<224>::value> left_list;
@@ -364,7 +364,7 @@ void my_main_window::quit () {
 
   layout_dialog_window<layout::border_layout<20, 55, 15, 15>> dialog;
   group_window<lineup<alignment::right, 80, 15, 10, 2>, color::light_gray> buttons;
-  labelT<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
+  label_t<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
 
   bool result = false;

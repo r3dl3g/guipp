@@ -129,20 +129,20 @@ namespace gui {
     }
 
     template<text_origin A>
-    class editT : public detail::edit_base {
+    class edit_t : public detail::edit_base {
     public:
       typedef detail::edit_base super;
 
-      editT () {
+      edit_t () {
         register_handler(A);
       }
     };
 
     // --------------------------------------------------------------------------
-    typedef editT<text_origin::vcenter_left> edit_left;
+    using edit_left = edit_t<text_origin::vcenter_left>;
     typedef edit_left edit;
-    typedef editT<text_origin::vcenter_right> edit_right;
-    typedef editT<text_origin::center> edit_center;
+    using edit_right = edit_t<text_origin::vcenter_right>;
+    using edit_center = edit_t<text_origin::center>;
 
   } // win
 

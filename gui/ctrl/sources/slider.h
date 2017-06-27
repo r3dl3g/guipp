@@ -81,14 +81,14 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<orientation H>
+      template<orientation O>
       class slider_class : public no_erase_window_class {
       public:
         slider_class();
       };
 
       // --------------------------------------------------------------------------
-      template<orientation H>
+      template<orientation O>
       class slider_t : public slider {
       public:
         typedef slider super;
@@ -101,11 +101,11 @@ namespace gui {
         }
 
       private:
-        static slider_class<H> clazz;
+        static slider_class<O> clazz;
       };
 
-      template<orientation H>
-      slider_class<H> slider_t<H>::clazz;
+      template<orientation O>
+      slider_class<O> slider_t<O>::clazz;
 
       template<>
       slider_t<orientation::vertical>::slider_t ();
@@ -116,11 +116,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H,
+    template<orientation O,
              void(F)(const draw::graphics&, const core::rectangle&)>
-    class framed_slider_t : public detail::slider_t<H> {
+    class framed_slider_t : public detail::slider_t<O> {
     public:
-      typedef detail::slider_t<H> super;
+      typedef detail::slider_t<O> super;
 
       framed_slider_t () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g) {

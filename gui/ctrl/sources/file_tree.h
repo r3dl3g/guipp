@@ -265,11 +265,11 @@ namespace gui {
     } // tree
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color B = color::white>
-    using file_tree = tree::tree<path_tree::unsorted_path_info, S, B>;
+    template<int S = 20, os::color background = color::white>
+    using file_tree = tree::tree<path_tree::unsorted_path_info, S, background>;
 
-    template<int S = 20, os::color B = color::white>
-    using sorted_file_tree = tree::tree<path_tree::sorted_path_info, S, B>;
+    template<int S = 20, os::color background = color::white>
+    using sorted_file_tree = tree::tree<path_tree::sorted_path_info, S, background>;
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -289,11 +289,11 @@ namespace gui {
 
     } // detail
 
-    template<int S = 20, os::color B = color::white>
-    class file_list : public win::column_list_t<layout::weight_column_list_layout, S, B,
+    template<int S = 20, os::color background = color::white>
+    class file_list : public win::column_list_t<layout::weight_column_list_layout, S, background,
                                                 const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> {
     public:
-      typedef win::column_list_t<layout::weight_column_list_layout, S, B,
+      typedef win::column_list_t<layout::weight_column_list_layout, S, background,
                                  const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> super;
 
       file_list () {

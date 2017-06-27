@@ -35,7 +35,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    template<orientation H>
+    template<orientation O>
     class split_view : protected layout_base {
     public:
       split_view (win::container* m)
@@ -135,10 +135,10 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<orientation H>
-      class split_view : public layout_container<layout::split_view<H>> {
+      template<orientation O>
+      class split_view : public layout_container<layout::split_view<O>> {
       public:
-        typedef layout_container<layout::split_view<H>> super;
+        typedef layout_container<layout::split_view<O>> super;
         typedef typename super::layout_type layout_type;
 
         split_view ();
@@ -160,7 +160,7 @@ namespace gui {
           super::layout();
         }
 
-        win::framed_slider_t<H, draw::frame::raised_relief> slider;
+        win::framed_slider_t<O, draw::frame::raised_relief> slider;
 
       private:
         static window_class clazz;
@@ -177,10 +177,10 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H, typename First, typename Second>
-    class split_view_t : public detail::split_view<H> {
+    template<orientation O, typename First, typename Second>
+    class split_view_t : public detail::split_view<O> {
     public:
-      typedef detail::split_view<H> super;
+      typedef detail::split_view<O> super;
       typedef typename super::layout_type layout_type;
 
       split_view_t () {

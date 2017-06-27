@@ -569,7 +569,7 @@ namespace gui {
     }
 
     void main_menu::paint (const draw::graphics& g) {
-      draw::brush background(color::menuColor());
+      draw::brush back_brush(color::menuColor());
       const core::rectangle area = client_area();
       core::rectangle r = area;
       int idx = -1;
@@ -577,12 +577,12 @@ namespace gui {
         ++idx;
         auto w = i.get_width() + 20;
         r.width(w);
-        paint::main_menu_item(g, r, background, i,
+        paint::main_menu_item(g, r, back_brush, i,
                               (idx == data.get_selection()), (idx == data.get_hilite()));
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
-        g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), background);
+        g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), back_brush);
       }
     }
 
@@ -765,7 +765,7 @@ namespace gui {
     }
 
     void popup_menu::paint (const draw::graphics& g) {
-      draw::brush background(color::menuColor());
+      draw::brush back_brush(color::menuColor());
       const core::rectangle area = client_area();
       draw::frame::raised_relief(g, area);
       core::rectangle r = area.shrinked({1, 1});
@@ -773,7 +773,7 @@ namespace gui {
       for (auto& i : data) {
         ++idx;
         r.height(static_cast<core::size_type>(item_height));
-        paint::menu_item(g, r, background, text_pos, hotkey_pos, i,
+        paint::menu_item(g, r, back_brush, text_pos, hotkey_pos, i,
                          (idx == data.get_selection()), (idx == data.get_hilite()));
         r.move_y(static_cast<core::size_type>(item_height));
       }

@@ -87,10 +87,10 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename I, int S = 20, os::color B = color::white>
-      class tree : public vlist<S, B> {
+      template<typename I, int S = 20, os::color background = color::white>
+      class tree : public vlist<S, background> {
       public:
-        typedef vlist<S, B> super;
+        typedef vlist<S, background> super;
 
         typedef I tree_info;
         typedef typename tree_info::type type;
@@ -418,8 +418,8 @@ namespace gui {
 
     } // tree
 
-    template<int S = 20, os::color B = color::white>
-    using tree_view = tree::tree<tree::default_node_info, S, B>;
+    template<int S = 20, os::color background = color::white>
+    using tree_view = tree::tree<tree::default_node_info, S, background>;
 
   } // win
 

@@ -265,10 +265,10 @@ namespace gui {
 
       typedef framed_slider_t<orientation::vertical, draw::frame::vgroove> slider_type;
 
-      typedef void(cell_draw)(std::size_t idx,
-                              const draw::graphics&,
-                              const core::rectangle& place,
-                              const draw::brush& background);
+      typedef void(cell_draw)(std::size_t,            // idx
+                              const draw::graphics&,  // gc
+                              const core::rectangle&, // place
+                              const draw::brush&);    // background
 
       column_list_header () {
         super::set_accept_focus(false);
@@ -451,13 +451,14 @@ namespace gui {
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type, S, background> super;
 
-      typedef void(cell_draw)(std::size_t row_id, std::size_t col_id,
-                              const draw::graphics&,
-                              const core::rectangle& place,
-                              const draw::brush& background,
-                              bool selected,
-                              bool hilited,
-                              text_origin align);
+      typedef void(cell_draw)(std::size_t,            // row_id
+                              std::size_t,            // col_id
+                              const draw::graphics&,  // g
+                              const core::rectangle&, // place
+                              const draw::brush&,     // background
+                              bool,                   // selected
+                              bool,                   // hilited
+                              text_origin);           // align
 
       simple_column_list (bool grab_focus = true)
         : super(grab_focus)
@@ -484,7 +485,7 @@ namespace gui {
       void draw_cells (std::size_t idx,
                        const draw::graphics& g,
                        const core::rectangle& place,
-                       const draw::brush& background,
+                       const draw::brush& back,
                        bool selected,
                        bool hilited) {
         if (drawer) {
@@ -493,7 +494,7 @@ namespace gui {
           for (decltype(count) i = 0; i < count; ++i) {
             core::size::type w = this->get_column_layout().get_column_width(i);
             r.width(w);
-            drawer(idx, i, g, r, background, selected, hilited, this->get_column_layout().get_column_align(i));
+            drawer(idx, i, g, r, back, selected, hilited, this->get_column_layout().get_column_align(i));
             r.move_x(w);
           }
           if (r.x() < place.x2()) {
@@ -694,13 +695,13 @@ namespace gui {
 
       typedef row (get_row_data_t)(std::size_t idy);
 
-      typedef void (draw_row_data_t)(const row&,
-                                     const layout_type& l,
-                                     const draw::graphics& g,
-                                     const core::rectangle& place,
-                                     const draw::brush& background,
-                                     bool selected,
-                                     bool hilited);
+      typedef void (draw_row_data_t)(const row&,            // r
+                                     const layout_type&,    // l
+                                     const draw::graphics&, // g
+                                     const core::rectangle&,// place
+                                     const draw::brush&,    // background
+                                     bool,                  // selected
+                                     bool);                 // hilited
 
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
@@ -725,10 +726,10 @@ namespace gui {
       void draw_cells_t (std::size_t row_id,
                          const draw::graphics& g,
                          const core::rectangle& place,
-                         const draw::brush& background,
+                         const draw::brush& back,
                          bool selected,
                          bool hilited) {
-        drawer(data(row_id), this->get_column_layout(), g, place, background, selected, hilited);
+        drawer(data(row_id), this->get_column_layout(), g, place, back, selected, hilited);
       }
 
       data_drawer drawer;

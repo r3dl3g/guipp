@@ -619,12 +619,12 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     view.resize(view.size() - core::size{5, 5});
   }));
 
-//  vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
-//    layout();
-//  }));
-//  hslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
-//    layout();
-//  }));
+  vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
+    layout();
+  }));
+  hslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
+    layout();
+  }));
 
   hscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);

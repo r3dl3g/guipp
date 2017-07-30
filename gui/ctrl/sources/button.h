@@ -199,33 +199,43 @@ namespace gui {
     public:
       typedef push_button super;
 
-      text_push_button (const std::string& t = std::string())
+      text_push_button (const text_source& t = const_text())
         : text(t)
       {}
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
       }
 
-      void create (const container& parent,
-                   const std::string& txt,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const std::string& txt,
+                          const core::rectangle& place = core::rectangle::def) {
+        create(parent, const_text(txt), place);
+      }
+
+      inline void create (const container& parent,
+                          const text_source& txt,
+                          const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
         set_text(txt);
       }
 
-      void set_text (const std::string& t) {
+      inline void set_text (const std::string& t) {
+        set_text(const_text(t));
+      }
+
+      void set_text (const text_source& t) {
         text = t;
         redraw_later();
       }
 
-      const std::string& get_text () const {
-        return text;
+      inline std::string get_text () const {
+        return text();
       }
 
     private:
-      std::string text;
+      text_source text;
     };
 
     // --------------------------------------------------------------------------
@@ -233,7 +243,9 @@ namespace gui {
     public:
       typedef text_push_button super;
 
-      text_button (const std::string& t = std::string()) {
+      text_button (const text_source& t = const_text())
+        : super(t)
+      {
         register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::push_button(graph, *this, get_text());
         }));
@@ -246,7 +258,7 @@ namespace gui {
     public:
       typedef text_push_button super;
 
-      flat_button (const std::string& t = std::string())
+      flat_button (const text_source& t = const_text())
         : super(t)
       {
         register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
@@ -262,33 +274,43 @@ namespace gui {
     public:
       typedef toggle_button<keep_state> super;
 
-      text_toggle_button (const std::string& t = std::string())
+      inline text_toggle_button (const text_source& t = const_text())
         : text(t)
       {}
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
       }
 
-      void create (const container& parent,
-                   const std::string& txt,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const text_source& txt,
+                          const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
         set_text(txt);
       }
 
+      inline void create (const container& parent,
+                          const std::string& txt,
+                          const core::rectangle& place = core::rectangle::def) {
+        create(parent, const_text(txt), place);
+      }
+
       void set_text (const std::string& t) {
+        set_text(const_text(t));
+      }
+
+      void set_text (const text_source& t) {
         text = t;
         super::redraw_later();
       }
 
-      const std::string& get_text () const {
-        return text;
+      std::string get_text () const {
+        return text();
       }
 
     private:
-      std::string text;
+      text_source text;
     };
 
     // --------------------------------------------------------------------------
@@ -297,7 +319,9 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      radio_button (const std::string& t = std::string()) {
+      radio_button (const text_source& t = const_text())
+        : super(t)
+      {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::radio_button(graph, *this, super::get_text());
         }));
@@ -311,7 +335,9 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      check_box (const std::string& t = std::string()) {
+      check_box (const text_source& t = const_text())
+        : super(t) 
+      {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::check_box(graph, *this, super::get_text());
         }));
@@ -327,7 +353,7 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      flat_toggle_button (const std::string& t = std::string())
+      flat_toggle_button (const text_source& t = const_text())
         : super(t)
       {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {

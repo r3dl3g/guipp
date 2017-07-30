@@ -211,6 +211,8 @@ private:
   bool at_paint1;
   bool at_drag;
   core::point last_pos;
+
+  bool calc_pressed;
 };
 
 int gui_main(const std::vector<std::string>& args) {
@@ -271,6 +273,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , at_drag(false)
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
+  , calc_pressed(false)
 {
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 
@@ -609,6 +612,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   calc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    calc_pressed = true;
     view.layout();
   }));
 
@@ -709,7 +713,7 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
 template<int T>
 void create_buttons (win::container& m, win::label labels[T]) {
   for (int i = 0; i < T; ++i) {
-    labels[i].create(m, ostreamfmt("No. " << (i + 1)));
+    labels[i].create(m, const_text(ostreamfmt("No. " << (i + 1))));
     labels[i].set_visible();
   }
 }
@@ -742,7 +746,9 @@ void my_main_window::created_children () {
   vseparator.create(main, core::rectangle(310, 20, 2, 300));
   vseparator.set_visible();
 
-  calc_button.create(main, "Calc", core::rectangle(330, 20, 60, 25));
+  calc_button.create(main, [&]() {
+    return calc_pressed ? "Recalc" : "Calc";
+  }, core::rectangle(330, 20, 60, 25));
   calc_button.set_visible();
 
   inc_button.create(main, "+", core::rectangle(400, 20, 25, 25));

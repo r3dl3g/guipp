@@ -96,17 +96,24 @@ namespace gui {
         F(graph, place);
       }
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
       }
 
-      void create (const container& parent,
-                   const std::string& txt,
-                   const core::rectangle& place = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const text_source& txt,
+                          const core::rectangle& place = core::rectangle::def) {
         create(parent, place);
         set_text(txt);
       }
+
+      inline void create (const container& parent,
+                          const std::string& txt,
+                          const core::rectangle& place = core::rectangle::def) {
+        create(parent, const_text(txt), place);
+      }
+
     };
 
     // --------------------------------------------------------------------------

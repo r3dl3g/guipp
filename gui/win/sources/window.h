@@ -39,6 +39,28 @@
 
 namespace gui {
 
+  // --------------------------------------------------------------------------
+  typedef std::string (text_source_fn)();
+  typedef std::function<text_source_fn> text_source;
+
+  // --------------------------------------------------------------------------
+  struct const_text {
+    const_text ()
+    {}
+
+    const_text (const std::string& text)
+      :text(text)
+    {}
+
+    std::string operator() () const {
+      return text;
+    }
+
+  private:
+    std::string text;
+  };
+
+  // --------------------------------------------------------------------------
   namespace win {
 
     class window;
@@ -239,12 +261,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     class window_with_text : public window {
     public:
+      void set_text (const text_source&);
       void set_text (const std::string&);
 
       std::string get_text () const;
 
     protected:
-      std::string text;
+      text_source text;
     };
 
     // --------------------------------------------------------------------------

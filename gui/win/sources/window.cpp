@@ -942,13 +942,17 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void window_with_text::set_text(const std::string& t) {
+    void window_with_text::set_text (const std::string& t) {
+      set_text(const_text(t));
+    }
+
+    void window_with_text::set_text(const text_source& t) {
       text = t;
       redraw_later();
     }
 
     std::string window_with_text::get_text() const {
-      return text;
+      return text();
     }
 
     // --------------------------------------------------------------------------

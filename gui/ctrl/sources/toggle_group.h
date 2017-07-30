@@ -46,7 +46,7 @@ namespace gui {
       typedef separator_t<!O, true, background> separator_type;
 
       struct button {
-        button (const std::string& label, bool first)
+        button (const text_source& label, bool first)
           : btn(label)
           , first(first)
         {}
@@ -78,6 +78,10 @@ namespace gui {
       }
 
       void add_button (const std::string& label) {
+        add_button(const_text(label));
+      }
+
+      void add_button (const text_source& label) {
         button* b = new button(label, buttons.empty());
         buttons.push_back(b);
         b->btn.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, b] () {

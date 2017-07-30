@@ -76,6 +76,15 @@ namespace gui {
 #endif // X11
       }
 
+      void edit_base::set_text (const std::string& t) {
+        text = t;
+        redraw_later();
+      }
+
+      const std::string& edit_base::get_text() const {
+        return text;
+      }
+
       void edit_base::prepare_input () {
 #ifdef X11
         im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);

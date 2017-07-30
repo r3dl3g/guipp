@@ -35,9 +35,9 @@ namespace gui {
   namespace win {
 
     namespace detail {
-      class edit_base : public gui::win::window_with_text {
+      class edit_base : public window {
       public:
-        typedef gui::win::window_with_text super;
+        typedef window super;
         typedef size_t pos_t;
 
         struct range {
@@ -72,13 +72,16 @@ namespace gui {
         edit_base ();
         ~edit_base ();
 
-        void create(const container& parent,
-          const core::rectangle& place = core::rectangle::def,
-          const std::string& txt = std::string()) {
+        void create (const container& parent,
+                     const core::rectangle& place = core::rectangle::def,
+                     const std::string& txt = std::string()) {
           super::create(clazz, parent, place);
           prepare_input();
           set_text(txt);
         }
+
+        void set_text (const std::string&);
+        const std::string& get_text () const;
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
@@ -99,6 +102,8 @@ namespace gui {
 
         void prepare_input ();
         pos_t get_char_at_point (const core::point& pt);
+
+        std::string text;
 
         range selection;
         pos_t cursor_pos;

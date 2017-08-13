@@ -40,10 +40,6 @@ namespace gui {
     }
 #endif //WIN32
 
-    scroll_bar::type scroll_bar::get_scroll_bar_width () {
-      return scroll_bar::type(17);
-    }
-
     // --------------------------------------------------------------------------
     scroll_bar::scroll_bar ()
       : min(0)
@@ -118,10 +114,6 @@ namespace gui {
     void scroll_bar::set_min_max_step_value(type mi, type ma, type s, type v) {
       set_min_max_step(mi, ma, s);
       set_value(v);
-    }
-
-    void scroll_bar::set_value (type v) {
-      set_value(v, false);
     }
 
     void scroll_bar::set_value (type v, bool notify) {

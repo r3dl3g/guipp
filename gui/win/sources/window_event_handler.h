@@ -691,17 +691,17 @@ namespace gui {
     template <int D, int U>
     struct wheel_button_match {
       bool operator() (const core::event& e) {
-        return (e.type == ButtonRelease) && ((e.xbutton.button == D) || (e.xbutton.button == U));
+        return (e.type == ButtonPress) && ((e.xbutton.button == D) || (e.xbutton.button == U));
       }
     };
 
-    using wheel_x_event = event_handler<ButtonRelease, ButtonReleaseMask,
+    using wheel_x_event = event_handler<ButtonPress, ButtonPressMask,
                            params<core::point_type, core::point>::
                            caller<get_wheel_delta<6, 7>,
                                   get_param<core::point, XButtonEvent>>,
                            0,
                            wheel_button_match<6, 7>>;
-    using wheel_y_event = event_handler<ButtonRelease, ButtonReleaseMask,
+    using wheel_y_event = event_handler<ButtonPress, ButtonPressMask,
                            params<core::point_type,  core::point>::
                            caller<get_wheel_delta<Button4, Button5>,
                                   get_param<core::point, XButtonEvent>>,

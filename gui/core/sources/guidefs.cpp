@@ -110,11 +110,11 @@ namespace gui {
       }
 
       void sync () {
-        if (gui_static.is_initialized()) {
 #ifdef X11
-          XSync(gui_static.instance, False);
-#endif // X11
+        if (gui_static.is_initialized()) {
+          XFlush(gui_static.instance);
         }
+#endif // X11
       }
 
       int get_device_bits_per_pixel () {

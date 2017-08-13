@@ -403,7 +403,7 @@ void my_main_window::quit () {
 void my_main_window::open () {
   labels[0].set_text("open");
 
-  layout_dialog_window<layout::border_layout<0, 45, 0, 0>> dialog;
+  layout_dialog_window<layout::border_layout> dialog(0, 45, 0, 0);
   group_window<lineup<alignment::right, 80, 10, 10, 2>, color::light_gray> buttons;
 
   text_button open, cancel;

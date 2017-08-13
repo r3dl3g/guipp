@@ -10,6 +10,7 @@
 #include "separator.h"
 #include "menu.h"
 #include "drop_down.h"
+#include "table.h"
 #include "dbg_win_message.h"
 
 
@@ -70,6 +71,7 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
 
 namespace gui {
   namespace win {
+
     template<>
     inline std::string convert_to_string<os::color>(const os::color& c) {
       return ostreamfmt("#" << std::setfill('0') << std::setw(6) << std::hex << c);
@@ -93,6 +95,7 @@ namespace gui {
     }
 
   }
+
 }
 
 class my_main_window : public win::layout_main_window<layout::attach> {
@@ -208,6 +211,8 @@ private:
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
 
+  win::table_view table_view;
+
   bool at_paint1;
   bool at_drag;
   core::point last_pos;
@@ -274,6 +279,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
   , calc_pressed(false)
+  , table_view(50, 20, 80, 20, text_origin::center, color::black, color::white)
 {
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 
@@ -725,6 +731,18 @@ void create_group (win::container& m, C& c, win::label labels[T]) {
   c.set_visible();
 }
 
+std::string build_column_name (int column) {
+  std::string buffer;
+
+  do {
+    int col = column % 26;
+    buffer.insert(0, 1, (char)('A' + col));
+    column = (column - col) / 26 - 1;
+  } while (column > -1);
+
+  return buffer;
+}
+
 void my_main_window::created_children () {
 
   my_main_window& main = *this;
@@ -830,6 +848,29 @@ void my_main_window::created_children () {
   column_list.set_visible();
 //  column_list.get_column_layout().get_slider(0)->disable();
   column_list.layout();
+
+  table_view.create(main, core::rectangle(740, 50, 150, 250));
+
+  table_view.data.set_drawer(win::table::default_data_drawer([](std::size_t column, std::size_t row) -> std::string {
+    return ostreamfmt(build_column_name(column) << ':' << (row + 1));
+  }));
+  table_view.data.foregrounds.set_column(1, color::blue);
+  table_view.data.foregrounds.set_column(2, color::red);
+  table_view.data.foregrounds.set_row(3, color::dark_green);
+  table_view.data.foregrounds.set_cell(2, 3, color::black);
+  table_view.data.backgrounds.set_cell(2, 3, color::yellow);
+  table_view.data.foregrounds.set_cell(3, 4, color::blue);
+
+  table_view.columns.set_drawer(win::table::default_header_drawer([](std::size_t column, std::size_t row) -> std::string {
+    return build_column_name(column);
+  }));
+  table_view.geometrie.widths.set_size(2, 40);
+
+  table_view.rows.set_drawer(win::table::default_header_drawer([](std::size_t column, std::size_t row) -> std::string {
+    return ostreamfmt((1 + row));
+  }));
+
+  table_view.edge.set_text("0:0");
 
   hscroll.create(main, core::rectangle(550, 305, 130, win::scroll_bar::get_scroll_bar_width()));
   hscroll.set_visible();
@@ -998,6 +1039,9 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
   get_layout().attach_fix<What::bottom, Where::y2, -4>(&group_group, &hslider);
+
+  get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&table_view, this);
 
   layout();
 }

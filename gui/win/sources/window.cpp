@@ -866,8 +866,10 @@ namespace gui {
 #endif // X11
     container::container () {
       set_accept_focus(true);
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
-        forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window* w){
+        if (w == this) {
+          forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+        }
       }));
     }
 
@@ -942,6 +944,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    window_with_text::window_with_text (const std::string& t)
+      : text(const_text(t))
+    {}
+
+    window_with_text::window_with_text (const text_source& t)
+      : text(t)
+    {}
+
     void window_with_text::set_text (const std::string& t) {
       set_text(const_text(t));
     }

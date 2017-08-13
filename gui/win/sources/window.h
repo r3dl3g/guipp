@@ -261,6 +261,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     class window_with_text : public window {
     public:
+      window_with_text (const std::string& = std::string());
+      window_with_text (const text_source&);
+
       void set_text (const text_source&);
       void set_text (const std::string&);
 
@@ -282,14 +285,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout>
+    template<typename L = layout::standard_layout, typename... Args>
     class layout_container : public container {
     public:
       typedef container super;
       typedef L layout_type;
 
-      layout_container ()
-        : layouter(this)
+      layout_container (const Args&... args)
+        : layouter(this, args...)
       {}
 
       void layout () {
@@ -311,10 +314,14 @@ namespace gui {
     window_class create_group_window_clazz (os::color);
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, os::color background = color::white>
-    class group_window : public layout_container<L> {
+    template<typename L = layout::standard_layout, os::color background = color::white, typename... Args>
+    class group_window : public layout_container<L, Args...> {
     public:
-      typedef layout_container<L> super;
+      typedef layout_container<L, Args...> super;
+
+      group_window (const Args&... args)
+        : super(args...)
+      {}
 
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def) {
@@ -325,8 +332,8 @@ namespace gui {
       static window_class clazz;
     };
 
-    template<typename L, os::color background>
-    window_class group_window<L, background>::clazz(create_group_window_clazz(background));
+    template<typename L, os::color background, typename... Args>
+    window_class group_window<L, background, Args...>::clazz(create_group_window_clazz(background));
 
     // --------------------------------------------------------------------------
     class overlapped_window : public container {
@@ -415,14 +422,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout>
+    template<typename L = layout::standard_layout, typename... Args>
     class layout_main_window : public main_window {
     public:
       typedef main_window super;
       typedef L layout_type;
 
-      layout_main_window ()
-        : layouter(this)
+      layout_main_window (const Args&... args)
+        : layouter(this, args...)
       {}
 
       void layout () {
@@ -468,17 +475,15 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout>
+    template<typename L = layout::standard_layout, typename... Args>
     class layout_dialog_window : public dialog_window {
     public:
       typedef dialog_window super;
       typedef L layout_type;
 
-      layout_dialog_window ()
-        : layouter(this)
-      {
-        //register_event_handler(REGISTER_FUNCTION, win::size_event(core::bind_method(&layouter, &layout_type::layout)));
-      }
+      layout_dialog_window (const Args&... args)
+        : layouter(this, args...)
+      {}
 
       void layout () {
         layouter.layout(size());

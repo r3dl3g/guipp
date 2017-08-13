@@ -72,12 +72,16 @@ namespace gui {
       void set_max (type);
       void set_min_max (type, type);
       void set_step (type);
-      void set_value (type);
+      void set_value (type, bool notify = false);
 
       void set_min_max_step (type, type, type);
       void set_min_max_step_value (type, type, type, type);
 
-      static type get_scroll_bar_width ();
+      static constexpr int scroll_bar_width = 17;
+
+      static constexpr int get_scroll_bar_width () {
+        return scroll_bar_width;
+      }
 
       enum class State {
         Nothing_pressed,
@@ -92,8 +96,6 @@ namespace gui {
 
     protected:
       scroll_bar ();
-
-      void set_value (type v, bool notify);
 
       void create (const window_class& type,
                    const container& parent,

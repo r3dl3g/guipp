@@ -506,18 +506,156 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<int top_height, int bottom_height, int left_width, int right_width>
+    enum class border_layout_type {
+      all_symmetric,
+      top_bottom_maximize,
+      left_right_maximize,
+      top_left_maximize,
+      bottom_right_maximize
+    };
+
+    // --------------------------------------------------------------------------
+    template<border_layout_type T>
+    struct border_layout_geometrie {
+      typedef std::pair<core::point::type, core::point::type> points;
+      static points get_top_position (const core::rectangle&, const core::size&);
+      static points get_bottom_position (const core::rectangle&, const core::size&);
+      static points get_left_position (const core::rectangle&, const core::size&);
+      static points get_right_position (const core::rectangle&, const core::size&);
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct border_layout_geometrie<border_layout_type::all_symmetric> {
+      typedef std::pair<core::point::type, core::point::type> points;
+
+      static points get_top_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_bottom_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_left_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.y(), r.height());
+      }
+
+      static points get_right_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.y(), r.height());
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct border_layout_geometrie<border_layout_type::top_bottom_maximize> {
+      typedef std::pair<core::point::type, core::point::type> points;
+
+      static points get_top_position (const core::rectangle&, const core::size& sz) {
+        return std::make_pair(0, sz.width());
+      }
+
+      static points get_bottom_position (const core::rectangle&, const core::size& sz) {
+        return std::make_pair(0, sz.width());
+      }
+
+      static points get_left_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.y(), r.height());
+      }
+
+      static points get_right_position (const core::rectangle& r, const core::size&) {
+        return std::make_pair(r.y(), r.height());
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct border_layout_geometrie<border_layout_type::left_right_maximize> {
+      typedef std::pair<core::point::type, core::point::type> points;
+
+      static points get_top_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_bottom_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_left_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(0, sz.height());
+      }
+
+      static points get_right_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(0, sz.height());
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct border_layout_geometrie<border_layout_type::top_left_maximize> {
+      typedef std::pair<core::point::type, core::point::type> points;
+
+      static points get_top_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.x(), sz.width() - r.x());
+      }
+
+      static points get_bottom_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_left_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.y(), sz.height() - r.y());
+      }
+
+      static points get_right_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.y(), r.height());
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct border_layout_geometrie<border_layout_type::bottom_right_maximize> {
+      typedef std::pair<core::point::type, core::point::type> points;
+
+      static points get_top_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.x(), r.width());
+      }
+
+      static points get_bottom_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(0, r.width() + r.x());
+      }
+
+      static points get_left_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(r.y(), r.height());
+      }
+
+      static points get_right_position (const core::rectangle& r, const core::size& sz) {
+        return std::make_pair(0, r.height() + r.y());
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<border_layout_type type = border_layout_type::top_bottom_maximize>
     class border_layout : public layout_base {
     public:
       typedef layout_base super;
+      typedef border_layout_geometrie<type> geometrie;
 
-      border_layout (win::container* m)
+      border_layout (win::container* m,
+                     int top_height,
+                     int bottom_height,
+                     int left_width,
+                     int right_width)
         : super(m)
         , center(nullptr)
         , top(nullptr)
         , bottom(nullptr)
         , left(nullptr)
         , right(nullptr)
+        , top_height(top_height)
+        , bottom_height(bottom_height)
+        , left_width(left_width)
+        , right_width(right_width)
       {
         super::init(core::bind_method(this, &border_layout::layout), [&](){
           layout(get_main_size());
@@ -557,28 +695,39 @@ namespace gui {
       }
 
       void layout (const core::size& sz) {
-        core::rectangle r(core::point::zero, sz);
+        core::rectangle r = core::rectangle(core::point(left_width, top_height),
+                                            core::point(sz.width() - right_width, sz.height() - bottom_height));
         if (top && is_child_visible(top)) {
-          place_child(top, core::rectangle(0, 0, sz.width(), top_height));
+          const typename geometrie::points pt = geometrie::get_top_position(r, sz);
+          place_child(top, core::rectangle(pt.first, 0, pt.second, top_height));
         }
-        r.y(top_height);
         if (bottom && is_child_visible(bottom)) {
-          place_child(bottom, core::rectangle(0, sz.height() - bottom_height, sz.width(), bottom_height));
+          const typename geometrie::points pt = geometrie::get_bottom_position(r, sz);
+          place_child(bottom, core::rectangle(pt.first, r.y2(), pt.second, bottom_height));
         }
-        r.y2(r.y2() - bottom_height);
         if (left && is_child_visible(left)) {
-          place_child(left, core::rectangle(r.top_left(), core::point(left_width, r.y2())));
+          const typename geometrie::points pt = geometrie::get_left_position(r, sz);
+          place_child(left, core::rectangle(0, pt.first, left_width, pt.second));
         }
-        r.x(left_width);
         if (right && is_child_visible(right)) {
-          place_child(right, core::rectangle(core::point(r.x2() - right_width, r.y()), r.bottom_right()));
+          const typename geometrie::points pt = geometrie::get_right_position(r, sz);
+          place_child(right, core::rectangle(r.x2(), pt.first, right_width, pt.second));
         }
-        r.x2(r.x2() - right_width);
         if (center && is_child_visible(center)) {
           place_child(center, r);
         }
         update();
       }
+
+      inline int get_top_height () const    { return top_height; }
+      inline int get_bottom_height () const { return bottom_height; }
+      inline int get_left_width () const    { return left_width; }
+      inline int get_right_width () const   { return right_width; }
+
+      inline void set_top_height (int v)     { top_height = v; }
+      inline void set_bottom_height (int v)  { bottom_height = v; }
+      inline void set_left_width (int v)     { left_width = v; }
+      inline void set_right_width (int v)    { right_width = v; }
 
     private:
       win::window* center;
@@ -586,7 +735,13 @@ namespace gui {
       win::window* bottom;
       win::window* left;
       win::window* right;
+
+      int top_height;
+      int bottom_height;
+      int left_width;
+      int right_width;
     };
+
 
     // --------------------------------------------------------------------------
     enum class What {

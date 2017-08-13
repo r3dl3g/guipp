@@ -58,17 +58,20 @@ namespace gui {
                       const os::color& background,
                       bool selected,
                       bool hilited) {
-        using namespace draw;
-        const os::color back = (selected ? color::highLightColor()
-                                         : (hilited ? color::darker(background)
-                                                    : background));
-        const os::color fore = (selected ? color::highLightTextColor()
-                                         : (hilited ? color::lighter(foreground)
-                                                    : foreground));
-        graph.fill(rectangle(place), back);
-        graph.text(text_box(convert_to_string(t), place, align), font::system(), fore);
+        text_cell<std::string, draw::frame::no_frame>(convert_to_string(t), graph, place, align,
+                                                      foreground, background, selected, hilited);
         F(graph, place);
       }
+
+      template<>
+      void text_cell<std::string, draw::frame::no_frame> (const std::string& t,
+                                                          const draw::graphics& graph,
+                                                          const core::rectangle& place,
+                                                          const text_origin align,
+                                                          const os::color& foreground,
+                                                          const os::color& background,
+                                                          bool selected,
+                                                          bool hilited);
 
     }
 
@@ -228,18 +231,18 @@ namespace gui {
         }
 
         inline bool is_row (std::size_t r) const {
-          return (column < 0) && (row == static_cast<int>(r));
+          return (row == static_cast<int>(r)) && (column < 0);
         }
 
-		inline bool operator == (const cell_position& rhs) const {
-			return (column == rhs.column) && (row == rhs.row);
-		}
+        inline bool operator == (const cell_position& rhs) const {
+          return (column == rhs.column) && (row == rhs.row);
+        }
 
-		inline bool operator != (const cell_position& rhs) const {
-			return !operator==(rhs);
-		}
-		
-		int column;
+        inline bool operator != (const cell_position& rhs) const {
+          return !operator==(rhs);
+        }
+
+        int column;
         int row;
       };
 
@@ -319,6 +322,10 @@ namespace gui {
 
         void set_drawer (std::function<table_cell_drawer>&& drawer);
 
+        inline const std::function<table_cell_drawer>& get_drawer () const {
+          return drawer;
+        }
+
         inline text_origin get_default_align () const {
           return aligns.get_default_data();
         }
@@ -345,21 +352,6 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class data_view : public cell_view {
-      public:
-        typedef cell_view super;
-
-        data_view (cell_geometrie& geometrie,
-                   text_origin align = text_origin::center,
-                   os::color foreground = color::black,
-                   os::color background = color::very_very_light_gray);
-
-        void paint (const draw::graphics& graph);
-
-        cell_position get_index_at_point (const core::point& pt) const;
-      };
-
-      // --------------------------------------------------------------------------
       typedef std::string (table_data_source)(std::size_t,  // column
                                               std::size_t); // row)
 
@@ -367,6 +359,86 @@ namespace gui {
       std::function<table_cell_drawer> default_header_drawer (const std::function<table_data_source>& src);
 
       // --------------------------------------------------------------------------
+      namespace filter {
+
+        typedef bool (selection_and_hilite)(const cell_position&, const cell_geometrie&);
+
+        // --------------------------------------------------------------------------
+        inline bool data_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+          return geometrie.selection == cell;
+        }
+
+        inline bool data_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+          return (geometrie.hilite == cell) ||
+                  geometrie.selection.is_column(cell.column) ||
+                  geometrie.selection.is_row(cell.row);
+        }
+
+        // --------------------------------------------------------------------------
+        inline bool column_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+          return geometrie.selection.is_column(cell.column);
+        }
+
+        inline bool column_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+          return geometrie.hilite.is_column(cell.column) || (geometrie.selection.column == cell.column);
+        }
+
+        // --------------------------------------------------------------------------
+        inline bool row_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+          return geometrie.selection.is_row(cell.row);
+        }
+
+        inline bool row_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+          return geometrie.hilite.is_row(cell.row) || (geometrie.selection.row == cell.row);
+        }
+
+      } // filter
+
+      // --------------------------------------------------------------------------
+      namespace paint {
+
+        void draw_table_data (const draw::graphics& graph,
+                              const table::cell_view& data,
+                              filter::selection_and_hilite selection_filter,
+                              filter::selection_and_hilite hilite_filter);
+
+        void draw_table_column (const draw::graphics& graph,
+                                const table::cell_view& data,
+                                filter::selection_and_hilite selection_filter,
+                                filter::selection_and_hilite hilite_filter);
+
+        void draw_table_row (const draw::graphics& graph,
+                             const table::cell_view& data,
+                             filter::selection_and_hilite selection_filter,
+                             filter::selection_and_hilite hilite_filter);
+      }
+
+      // --------------------------------------------------------------------------
+      template<filter::selection_and_hilite sf = filter::data_selection,
+               filter::selection_and_hilite hf = filter::data_hilite>
+      class data_view : public cell_view {
+      public:
+        typedef cell_view super;
+
+        data_view (cell_geometrie& geometrie,
+                   text_origin align = text_origin::center,
+                   os::color foreground = color::black,
+                   os::color background = color::very_very_light_gray)
+          : super(geometrie, align, foreground, background) {
+          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+            paint::draw_table_data(graph, *this, sf, hf);
+          }));
+        }
+
+        cell_position get_index_at_point (const core::point& pt) const {
+          return cell_position(geometrie.widths.index_at(pt.x()),
+                               geometrie.heights.index_at(pt.y()));
+        }
+      };
+
+      // --------------------------------------------------------------------------
+      template<filter::selection_and_hilite sf = filter::column_selection,
+               filter::selection_and_hilite hf = filter::column_hilite>
       class column_view : public cell_view {
       public:
         typedef cell_view super;
@@ -374,14 +446,21 @@ namespace gui {
         column_view (cell_geometrie& geometrie,
                      text_origin align = text_origin::center,
                      os::color foreground = color::black,
-                     os::color background = color::very_very_light_gray);
+                     os::color background = color::very_very_light_gray)
+          : super(geometrie, align, foreground, background) {
+          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+            paint::draw_table_column(graph, *this, sf, hf);
+          }));
+        }
 
-        void paint (const draw::graphics& graph);
-
-        cell_position get_index_at_point (const core::point& pt) const;
+        cell_position get_index_at_point (const core::point& pt) const {
+          return cell_position(geometrie.widths.index_at(pt.x()), -1);
+        }
       };
 
       // --------------------------------------------------------------------------
+      template<filter::selection_and_hilite sf = filter::row_selection,
+               filter::selection_and_hilite hf = filter::row_hilite>
       class row_view : public cell_view {
       public:
         typedef cell_view super;
@@ -389,11 +468,16 @@ namespace gui {
         row_view (cell_geometrie& geometrie,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
-                  os::color background = color::very_very_light_gray);
+                  os::color background = color::very_very_light_gray)
+          : super(geometrie, align, foreground, background) {
+          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+            paint::draw_table_row(graph, *this, sf, hf);
+          }));
+        }
 
-        void paint (const draw::graphics& graph);
-
-        cell_position get_index_at_point (const core::point& pt) const;
+        cell_position get_index_at_point (const core::point& pt) const {
+          return cell_position(-1, geometrie.heights.index_at(pt.y()));
+        }
       };
 
     } // table
@@ -411,7 +495,7 @@ namespace gui {
                   core::size_type column_height = 20,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
-                  os::color background = color::very_very_light_gray,
+                  os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);
 
       core::point get_scroll_pos () const;
@@ -434,20 +518,20 @@ namespace gui {
       void handle_row_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_row_mouse_move (os::key_state keys, const core::point& pt);
 
-	  core::size_type row_width () const;
-	  core::size_type column_height () const;
+      core::size_type row_width () const;
+      core::size_type column_height () const;
 
       table::cell_geometrie geometrie;
-      table::data_view      data;
-      table::column_view    columns;
-      table::row_view       rows;
+      table::data_view<>    data;
+      table::column_view<>  columns;
+      table::row_view<>     rows;
       vscroll_bar           vscroll;
       hscroll_bar           hscroll;
 
       typedef label_t<text_origin::center,
-                      draw::frame::raised_relief,
-                      color::black,
-                      color::very_very_light_gray> edge_view;
+      draw::frame::raised_relief,
+      color::black,
+      color::very_very_light_gray> edge_view;
 
       edge_view edge;
 

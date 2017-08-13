@@ -279,7 +279,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
   , calc_pressed(false)
-  , table_view(50, 20, 80, 20, text_origin::center, color::black, color::white)
+  , table_view(50, 20)
 {
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 

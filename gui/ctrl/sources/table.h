@@ -219,19 +219,27 @@ namespace gui {
           , row(r)
         {}
 
-        inline bool is_cell (int c, int r) const {
-          return (column == c) && (row == r);
+        inline bool is_cell (std::size_t c, std::size_t r) const {
+          return (column == static_cast<int>(c)) && (row == static_cast<int>(r));
         }
 
-        inline bool is_column (int c) const {
-          return (column == c) && (row < 0);
+        inline bool is_column (std::size_t c) const {
+          return (column == static_cast<int>(c)) && (row < 0);
         }
 
-        inline bool is_row (int r) const {
-          return (column < 0) && (row == r);
+        inline bool is_row (std::size_t r) const {
+          return (column < 0) && (row == static_cast<int>(r));
         }
 
-        int column;
+		inline bool operator == (const cell_position& rhs) const {
+			return (column == rhs.column) && (row == rhs.row);
+		}
+
+		inline bool operator != (const cell_position& rhs) const {
+			return !operator==(rhs);
+		}
+		
+		int column;
         int row;
       };
 
@@ -268,7 +276,7 @@ namespace gui {
         void set_size (std::size_t idx, core::size_type size);
         void set_offset (core::point_type offset);
 
-        std::size_t index_at (core::point_type pt) const;
+        int index_at (core::point_type pt) const;
 
         void calc ();
 
@@ -392,10 +400,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     class table_view : public group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
-                                           color::very_very_light_gray, int, int, int, int> {
+                                           color::very_very_light_gray, float, float, float, float> {
     public:
       typedef group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
-                           color::very_very_light_gray, int, int, int, int> super;
+                           color::very_very_light_gray, float, float, float, float> super;
 
       table_view (core::size_type default_width = 80,
                   core::size_type default_height = 20,
@@ -426,8 +434,8 @@ namespace gui {
       void handle_row_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_row_mouse_move (os::key_state keys, const core::point& pt);
 
-      int row_width () const;
-      int column_height () const;
+	  core::size_type row_width () const;
+	  core::size_type column_height () const;
 
       table::cell_geometrie geometrie;
       table::data_view      data;

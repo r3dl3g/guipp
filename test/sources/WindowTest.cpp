@@ -731,7 +731,7 @@ void create_group (win::container& m, C& c, win::label labels[T]) {
   c.set_visible();
 }
 
-std::string build_column_name (int column) {
+std::string build_column_name (std::size_t column) {
   std::string buffer;
 
   do {
@@ -871,11 +871,12 @@ void my_main_window::created_children () {
   }));
 
   table_view.edge.set_text("0:0");
+  table_view.set_visible();
 
-  hscroll.create(main, core::rectangle(550, 305, 130, win::scroll_bar::get_scroll_bar_width()));
+  hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
   hscroll.set_visible();
 
-  vscroll.create(main, core::rectangle(700, 50, win::scroll_bar::get_scroll_bar_width(), 250));
+  vscroll.create(main, core::rectangle(700, 50, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()), 250));
   vscroll.set_max((int)list1.get_count() * List1::item_size - list1.size().height());
   vscroll.set_step(static_cast<win::scroll_bar::type>(List1::item_size));
   vscroll.set_visible();

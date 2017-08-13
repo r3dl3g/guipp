@@ -33,8 +33,9 @@ const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
 
 // --------------------------------------------------------------------------
-class my_main_window : public layout_main_window<border_layout<40, 30, 100, 250>> {
+class my_main_window : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
+  typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
   my_main_window ();
 
   void onCreated (window*, const core::rectangle&);
@@ -83,7 +84,9 @@ private:
 };
 
 // --------------------------------------------------------------------------
-my_main_window::my_main_window () {
+my_main_window::my_main_window ()
+  : super(40, 30, 100, 250)
+{
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
@@ -362,7 +365,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 void my_main_window::quit () {
   labels[0].set_text("quit");
 
-  layout_dialog_window<layout::border_layout<20, 55, 15, 15>> dialog;
+  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(20, 55, 15, 15);
   group_window<lineup<alignment::right, 80, 15, 10, 2>, color::light_gray> buttons;
   label_t<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
@@ -403,7 +406,7 @@ void my_main_window::quit () {
 void my_main_window::open () {
   labels[0].set_text("open");
 
-  layout_dialog_window<layout::border_layout> dialog(0, 45, 0, 0);
+  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
   group_window<lineup<alignment::right, 80, 10, 10, 2>, color::light_gray> buttons;
 
   text_button open, cancel;

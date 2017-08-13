@@ -128,7 +128,7 @@ namespace gui {
       core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const {
         core::rectangle r(super::client_size());
         r.y(r.y2() - scroll_bar::get_scroll_bar_width());
-        r.height(scroll_bar::get_scroll_bar_width());
+        r.height(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
         return r;
       }
 
@@ -136,7 +136,7 @@ namespace gui {
       core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const {
         core::rectangle r(super::client_size());
         r.x(r.x2() - pos_t(scroll_bar::get_scroll_bar_width()));
-        r.width(scroll_bar::get_scroll_bar_width());
+        r.width(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
         return r;
       }
 

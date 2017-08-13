@@ -177,7 +177,7 @@ namespace gui {
     core::rectangle scroll_view::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
       core::rectangle r(sz);
       r.x(r.x2() - win::scroll_bar::get_scroll_bar_width());
-      r.width(win::scroll_bar::get_scroll_bar_width());
+      r.width(static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
       if (hscroll_bar_enabled) {
         r.height(r.height() - win::scroll_bar::get_scroll_bar_width());
       }
@@ -187,7 +187,7 @@ namespace gui {
     core::rectangle scroll_view::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
       core::rectangle r(sz);
       r.y(r.y2() - win::scroll_bar::get_scroll_bar_width());
-      r.height(win::scroll_bar::get_scroll_bar_width());
+      r.height(static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
       if (vscroll_bar_enabled) {
         r.width(r.width() - win::scroll_bar::get_scroll_bar_width());
       }
@@ -195,15 +195,15 @@ namespace gui {
     }
 
     core::rectangle scroll_view::get_visible_area (const core::size& sz) {
-      return core::rectangle(sz - core::size{ win::scroll_bar::get_scroll_bar_width(),
-                                              win::scroll_bar::get_scroll_bar_width() });
+      return core::rectangle(sz - core::size{ static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()),
+                                              static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()) });
     }
 
     core::rectangle scroll_view::get_edge_area (const core::size& sz) {
       return core::rectangle(sz.width() - win::scroll_bar::get_scroll_bar_width(),
                              sz.height() - win::scroll_bar::get_scroll_bar_width(),
-                             win::scroll_bar::get_scroll_bar_width(),
-                             win::scroll_bar::get_scroll_bar_width());
+                             static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()),
+							 static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
     }
 
     void scroll_view::layout (const core::size& new_size) {

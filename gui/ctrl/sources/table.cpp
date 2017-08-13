@@ -42,9 +42,9 @@ namespace gui {
         }
       }
 
-      std::size_t cell_layout::index_at (core::point_type pt) const {
+      int cell_layout::index_at (core::point_type pt) const {
         core::point_type pos = -get_offset();
-        std::size_t idx = 0;
+        int idx = 0;
         while (pos <= pt) {
           pos += get_size(idx);
           ++idx;
@@ -72,8 +72,7 @@ namespace gui {
         : geometrie(geometrie)
         , aligns(align)
         , foregrounds(foreground)
-        , backgrounds(background)
-      {}
+        , backgrounds(background) {}
 
       void cell_view::create (const container& parent,
                               const core::rectangle& place) {
@@ -96,8 +95,7 @@ namespace gui {
                             text_origin align,
                             os::color foreground,
                             os::color background)
-        : super(geometrie, align, foreground, background)
-      {
+        : super(geometrie, align, foreground, background) {
         super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &data_view::paint));
       }
 
@@ -147,8 +145,7 @@ namespace gui {
                                 text_origin align,
                                 os::color foreground,
                                 os::color background)
-        : super(geometrie, align, foreground, background)
-      {
+        : super(geometrie, align, foreground, background) {
         super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &column_view::paint));
       }
 
@@ -188,8 +185,7 @@ namespace gui {
                           text_origin align,
                           os::color foreground,
                           os::color background)
-        : super(geometrie, align, foreground, background)
-      {
+        : super(geometrie, align, foreground, background) {
         super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &row_view::paint));
       }
 
@@ -227,33 +223,33 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       std::function<table_cell_drawer> default_data_drawer (const std::function<table_data_source>& src) {
-        return [src] (std::size_t column,
-                      std::size_t row,
-                      const draw::graphics& graph,
-                      const core::rectangle& place,
-                      const text_origin align,
-                      const os::color& foreground,
-                      const os::color& background,
-                      bool selected,
-                      bool hilited) {
+        return[src] (std::size_t column,
+                     std::size_t row,
+                     const draw::graphics& graph,
+                     const core::rectangle& place,
+                     const text_origin align,
+                     const os::color& foreground,
+                     const os::color& background,
+                     bool selected,
+                     bool hilited) {
           paint::text_cell<std::string, draw::frame::lines>(src(column, row), graph, place, align,
-                                                      foreground, background, selected, hilited);
+                                                            foreground, background, selected, hilited);
         };
       }
 
       // --------------------------------------------------------------------------
       std::function<table_cell_drawer> default_header_drawer (const std::function<table_data_source>& src) {
-        return [src] (std::size_t column,
-                      std::size_t row,
-                      const draw::graphics& graph,
-                      const core::rectangle& place,
-                      const text_origin align,
-                      const os::color& foreground,
-                      const os::color& background,
-                      bool selected,
-                      bool hilited) {
+        return[src] (std::size_t column,
+                     std::size_t row,
+                     const draw::graphics& graph,
+                     const core::rectangle& place,
+                     const text_origin align,
+                     const os::color& foreground,
+                     const os::color& background,
+                     bool selected,
+                     bool hilited) {
           paint::text_cell<std::string, draw::frame::raised_relief>(src(column, row), graph, place, align,
-                                                              foreground, background, selected, hilited);
+                                                                    foreground, background, selected, hilited);
         };
       }
 
@@ -268,23 +264,23 @@ namespace gui {
                             os::color foreground,
                             os::color background,
                             os::color header_background)
-      : super(column_height, scroll_bar::get_scroll_bar_width(), row_width, scroll_bar::get_scroll_bar_width())
+      : super(column_height, static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()),
+              row_width, static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()))
       , geometrie(default_width, default_height)
       , data(geometrie, align, foreground, background)
       , columns(geometrie, align, foreground, header_background)
       , rows(geometrie, align, foreground, header_background)
       , last_mouse_point(core::point::undefined)
-      , moved(false)
-    {
+      , moved(false) {
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
       register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
       register_event_handler(REGISTER_FUNCTION, win::size_event(this, &table_view::handle_size));
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type pos) {
+      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
         geometrie.heights.set_offset(pos);
         data.redraw_later();
         rows.redraw_later();
       }));
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type pos) {
+      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
         geometrie.widths.set_offset(pos);
         data.redraw_later();
         columns.redraw_later();
@@ -327,11 +323,11 @@ namespace gui {
       columns.redraw_later();
     }
 
-    int table_view::row_width () const {
+    core::size_type table_view::row_width () const {
       return get_layout().get_left_width();
     }
 
-    int table_view::column_height () const {
+    core::size_type table_view::column_height () const {
       return get_layout().get_top_height();
     }
 
@@ -340,8 +336,8 @@ namespace gui {
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
       columns.create(*this, core::rectangle(row_width(), 0, 160, column_height()));
       rows.create(*this, core::rectangle(0, row_width(), column_height(), 80));
-      vscroll.create(*this, core::rectangle(240, 0, win::scroll_bar::scroll_bar_width, 80));
-      hscroll.create(*this, core::rectangle(0, 100, 240, win::scroll_bar::scroll_bar_width));
+      vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width), 80));
+      hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width)));
 
       vscroll.set_max(place.height() * 2);
       vscroll.set_step(column_height());
@@ -381,12 +377,15 @@ namespace gui {
       data.take_focus();
     }
 
-    void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
+    void table_view::handle_left_btn_up(os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
-        geometrie.selection = data.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_selection = data.get_index_at_point(pt);
+        if (geometrie.selection != new_selection) {
+          geometrie.selection = new_selection;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
       last_mouse_point = core::point::undefined;
     }
@@ -401,19 +400,25 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        geometrie.hilite = data.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_hilite = data.get_index_at_point(pt);
+        if (geometrie.hilite != new_hilite) {
+          geometrie.hilite = new_hilite;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
     }
 
-    void table_view::handle_column_left_btn_up (os::key_state keys, const core::point& pt) {
+    void table_view::handle_column_left_btn_up(os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
-        geometrie.selection = columns.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_selection = columns.get_index_at_point(pt);
+        if (geometrie.selection != new_selection) {
+          geometrie.selection = new_selection;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
       last_mouse_point = core::point::undefined;
     }
@@ -428,19 +433,25 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        geometrie.hilite = columns.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_hilite = columns.get_index_at_point(pt);
+        if (geometrie.hilite != new_hilite) {
+          geometrie.hilite = new_hilite;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
     }
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
-        geometrie.selection = rows.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_selection = rows.get_index_at_point(pt);
+        if (geometrie.selection != new_selection) {
+          geometrie.selection = new_selection;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
       last_mouse_point = core::point::undefined;
     }
@@ -455,10 +466,13 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        geometrie.hilite = rows.get_index_at_point(pt);
-        data.redraw_later();
-        columns.redraw_later();
-        rows.redraw_later();
+        const auto new_hilite = rows.get_index_at_point(pt);
+        if (geometrie.hilite != new_hilite) {
+          geometrie.hilite = new_hilite;
+          data.redraw_later();
+          columns.redraw_later();
+          rows.redraw_later();
+        }
       }
     }
 

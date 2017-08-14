@@ -217,7 +217,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       struct cell_position {
-        cell_position (int c = -1, int r = -1)
+        inline cell_position (int c = -1, int r = -1)
           : column(c)
           , row(r)
         {}
@@ -240,6 +240,15 @@ namespace gui {
 
         inline bool operator != (const cell_position& rhs) const {
           return !operator==(rhs);
+        }
+
+        inline bool is_empty () const {
+          return (column < 0) && (row < 0);
+        }
+
+        inline void clear () {
+          column = -1;
+          row = -1;
         }
 
         int column;
@@ -501,6 +510,8 @@ namespace gui {
       core::point get_scroll_pos () const;
       void set_scroll_pos (const core::point& pos);
 
+      void clear_selection (event_source notify);
+
       void handle_created (win::window* win, const core::rectangle& place);
       void handle_size (const core::size& sz);
 
@@ -536,6 +547,8 @@ namespace gui {
       edge_view edge;
 
     private:
+      void redraw_all ();
+
       bool moved;
       core::point last_mouse_point;
 

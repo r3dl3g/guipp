@@ -299,6 +299,20 @@ namespace gui {
         vscroll.set_value(pos.y());
         geometrie.heights.set_offset(pos.y());
       }
+      redraw_all();
+    }
+
+    void table_view::clear_selection (event_source notify) {
+      if (!geometrie.selection.is_empty()) {
+        geometrie.selection.clear();
+        if (notify != event_source::logic) {
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          redraw_all();
+        }
+      }
+    }
+
+    void table_view::redraw_all () {
       data.redraw_later();
       rows.redraw_later();
       columns.redraw_later();
@@ -361,10 +375,10 @@ namespace gui {
         const auto new_selection = data.get_index_at_point(pt);
         if (geometrie.selection != new_selection) {
           geometrie.selection = new_selection;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        } else if (control_key_bit_mask::is_set(keys)) {
+          clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
@@ -383,9 +397,7 @@ namespace gui {
         const auto new_hilite = data.get_index_at_point(pt);
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
         }
       }
@@ -396,10 +408,10 @@ namespace gui {
         const auto new_selection = columns.get_index_at_point(pt);
         if (geometrie.selection != new_selection) {
           geometrie.selection = new_selection;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        } else if (control_key_bit_mask::is_set(keys)) {
+          clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
@@ -418,9 +430,7 @@ namespace gui {
         const auto new_hilite = columns.get_index_at_point(pt);
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
         }
       }
@@ -431,10 +441,10 @@ namespace gui {
         const auto new_selection = rows.get_index_at_point(pt);
         if (geometrie.selection != new_selection) {
           geometrie.selection = new_selection;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        } else if (control_key_bit_mask::is_set(keys)) {
+          clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
@@ -453,9 +463,7 @@ namespace gui {
         const auto new_hilite = rows.get_index_at_point(pt);
         if (geometrie.hilite != new_hilite) {
           geometrie.hilite = new_hilite;
-          data.redraw_later();
-          columns.redraw_later();
-          rows.redraw_later();
+          redraw_all();
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
         }
       }

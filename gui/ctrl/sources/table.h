@@ -315,59 +315,6 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class cell_view : public window {
-      public:
-        typedef window super;
-
-        cell_view (cell_geometrie& geometrie,
-                   text_origin align = text_origin::center,
-                   os::color foreground = color::black,
-                   os::color background = color::very_very_light_gray);
-
-        void create (const container& parent,
-                     const core::rectangle& r = core::rectangle::def);
-
-        void set_drawer (const std::function<table_cell_drawer>& drawer);
-
-        void set_drawer (std::function<table_cell_drawer>&& drawer);
-
-        inline const std::function<table_cell_drawer>& get_drawer () const {
-          return drawer;
-        }
-
-        inline text_origin get_default_align () const {
-          return aligns.get_default_data();
-        }
-
-        inline os::color get_default_foreground () const {
-          return foregrounds.get_default_data();
-        }
-
-        inline os::color get_default_background () const {
-          return backgrounds.get_default_data();
-        }
-
-        cell_geometrie& geometrie;
-        data::matrix<text_origin> aligns;
-        data::matrix<os::color> foregrounds;
-        data::matrix<os::color> backgrounds;
-
-      protected:
-        std::function<table_cell_drawer> drawer;
-
-      private:
-        static no_erase_window_class clazz;
-
-      };
-
-      // --------------------------------------------------------------------------
-      typedef std::string (table_data_source)(std::size_t,  // column
-                                              std::size_t); // row)
-
-      std::function<table_cell_drawer> default_data_drawer (const std::function<table_data_source>& src);
-      std::function<table_cell_drawer> default_header_drawer (const std::function<table_data_source>& src);
-
-      // --------------------------------------------------------------------------
       namespace filter {
 
         typedef bool (selection_and_hilite)(const cell_position&, const cell_geometrie&);
@@ -404,27 +351,93 @@ namespace gui {
       } // filter
 
       // --------------------------------------------------------------------------
+      class cell_view : public window {
+      public:
+        typedef window super;
+
+        cell_view (cell_geometrie& geometrie,
+                   text_origin align = text_origin::center,
+                   os::color foreground = color::black,
+                   os::color background = color::very_very_light_gray,
+                   const std::function<filter::selection_and_hilite>& selection_filter = filter::data_selection,
+                   const std::function<filter::selection_and_hilite>& hilite_filter = filter::data_hilite);
+
+        void create (const container& parent,
+                     const core::rectangle& r = core::rectangle::def);
+
+        void set_drawer (const std::function<table_cell_drawer>& drawer);
+
+        void set_drawer (std::function<table_cell_drawer>&& drawer);
+
+        inline const std::function<table_cell_drawer>& get_drawer () const {
+          return drawer;
+        }
+
+        inline text_origin get_default_align () const {
+          return aligns.get_default_data();
+        }
+
+        inline os::color get_default_foreground () const {
+          return foregrounds.get_default_data();
+        }
+
+        inline os::color get_default_background () const {
+          return backgrounds.get_default_data();
+        }
+
+        inline const std::function<filter::selection_and_hilite>& get_selection_filter () const {
+          return selection_filter;
+        }
+
+        inline const std::function<filter::selection_and_hilite>& get_hilite_filter () const {
+          return hilite_filter;
+        }
+
+        void set_selection_filter (const std::function<filter::selection_and_hilite>& f);
+        void set_hilite_filter (const std::function<filter::selection_and_hilite>& f);
+
+        cell_geometrie& geometrie;
+        data::matrix<text_origin> aligns;
+        data::matrix<os::color> foregrounds;
+        data::matrix<os::color> backgrounds;
+
+      protected:
+        std::function<table_cell_drawer> drawer;
+        std::function<filter::selection_and_hilite> selection_filter;
+        std::function<filter::selection_and_hilite> hilite_filter;
+
+      private:
+        static no_erase_window_class clazz;
+
+      };
+
+      // --------------------------------------------------------------------------
+      typedef std::string (table_data_source)(std::size_t,  // column
+                                              std::size_t); // row)
+
+      std::function<table_cell_drawer> default_data_drawer (const std::function<table_data_source>& src);
+      std::function<table_cell_drawer> default_header_drawer (const std::function<table_data_source>& src);
+
+      // --------------------------------------------------------------------------
       namespace paint {
 
         void draw_table_data (const draw::graphics& graph,
                               const table::cell_view& data,
-                              filter::selection_and_hilite selection_filter,
-                              filter::selection_and_hilite hilite_filter);
+                              const std::function<filter::selection_and_hilite>& selection_filter,
+                              const std::function<filter::selection_and_hilite>& hilite_filter);
 
         void draw_table_column (const draw::graphics& graph,
                                 const table::cell_view& data,
-                                filter::selection_and_hilite selection_filter,
-                                filter::selection_and_hilite hilite_filter);
+                                const std::function<filter::selection_and_hilite>& selection_filter,
+                                const std::function<filter::selection_and_hilite>& hilite_filter);
 
         void draw_table_row (const draw::graphics& graph,
                              const table::cell_view& data,
-                             filter::selection_and_hilite selection_filter,
-                             filter::selection_and_hilite hilite_filter);
+                             const std::function<filter::selection_and_hilite>& selection_filter,
+                             const std::function<filter::selection_and_hilite>& hilite_filter);
       }
 
       // --------------------------------------------------------------------------
-      template<filter::selection_and_hilite sf = filter::data_selection,
-               filter::selection_and_hilite hf = filter::data_hilite>
       class data_view : public cell_view {
       public:
         typedef cell_view super;
@@ -433,9 +446,9 @@ namespace gui {
                    text_origin align = text_origin::center,
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background) {
+          : super(geometrie, align, foreground, background, filter::data_selection, filter::data_hilite) {
           super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_data(graph, *this, sf, hf);
+            paint::draw_table_data(graph, *this, selection_filter, hilite_filter);
           }));
         }
 
@@ -446,8 +459,6 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<filter::selection_and_hilite sf = filter::column_selection,
-               filter::selection_and_hilite hf = filter::column_hilite>
       class column_view : public cell_view {
       public:
         typedef cell_view super;
@@ -456,9 +467,9 @@ namespace gui {
                      text_origin align = text_origin::center,
                      os::color foreground = color::black,
                      os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background) {
+          : super(geometrie, align, foreground, background, filter::column_selection, filter::column_hilite) {
           super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_column(graph, *this, sf, hf);
+            paint::draw_table_column(graph, *this, selection_filter, hilite_filter);
           }));
         }
 
@@ -468,8 +479,6 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<filter::selection_and_hilite sf = filter::row_selection,
-               filter::selection_and_hilite hf = filter::row_hilite>
       class row_view : public cell_view {
       public:
         typedef cell_view super;
@@ -478,9 +487,9 @@ namespace gui {
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
                   os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background) {
+          : super(geometrie, align, foreground, background, filter::row_selection, filter::row_hilite) {
           super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_row(graph, *this, sf, hf);
+            paint::draw_table_row(graph, *this, selection_filter, hilite_filter);
           }));
         }
 
@@ -533,9 +542,9 @@ namespace gui {
       core::size_type column_height () const;
 
       table::cell_geometrie geometrie;
-      table::data_view<>    data;
-      table::column_view<>  columns;
-      table::row_view<>     rows;
+      table::data_view      data;
+      table::column_view    columns;
+      table::row_view       rows;
       vscroll_bar           vscroll;
       hscroll_bar           hscroll;
 

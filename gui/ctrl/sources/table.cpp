@@ -92,11 +92,16 @@ namespace gui {
       cell_view::cell_view (cell_geometrie& geometrie,
                             text_origin align,
                             os::color foreground,
-                            os::color background)
+                            os::color background,
+                            const std::function<filter::selection_and_hilite>& selection_filter,
+                            const std::function<filter::selection_and_hilite>& hilite_filter)
         : geometrie(geometrie)
         , aligns(align)
         , foregrounds(foreground)
-        , backgrounds(background) {}
+        , backgrounds(background)
+        , selection_filter(selection_filter)
+        , hilite_filter(hilite_filter)
+      {}
 
       void cell_view::create (const container& parent,
                               const core::rectangle& place) {
@@ -111,6 +116,14 @@ namespace gui {
         this->drawer = std::move(drawer);
       }
 
+      void cell_view::set_selection_filter (const std::function<filter::selection_and_hilite>& f) {
+        selection_filter = f;
+      }
+
+      void cell_view::set_hilite_filter (const std::function<filter::selection_and_hilite>& f) {
+        hilite_filter = f;
+      }
+
       // --------------------------------------------------------------------------
       no_erase_window_class cell_view::clazz = create_group_window_clazz(color::very_very_light_gray);
 
@@ -118,8 +131,8 @@ namespace gui {
 
         void draw_table_data (const draw::graphics& graph,
                               const table::cell_view& data,
-                              filter::selection_and_hilite selection_filter,
-                              filter::selection_and_hilite hilite_filter) {
+                              const std::function<filter::selection_and_hilite>& selection_filter,
+                              const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (data.get_drawer()) {
             const core::size max_sz = data.client_size();
             std::size_t row = data.geometrie.heights.get_first_idx();
@@ -152,8 +165,8 @@ namespace gui {
 
         void draw_table_column (const draw::graphics& graph,
                                 const table::cell_view& data,
-                                filter::selection_and_hilite selection_filter,
-                                filter::selection_and_hilite hilite_filter) {
+                                const std::function<filter::selection_and_hilite>& selection_filter,
+                                const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (data.get_drawer()) {
             const core::size max_sz = data.client_size();
             std::size_t column = data.geometrie.widths.get_first_idx();
@@ -177,8 +190,8 @@ namespace gui {
 
         void draw_table_row (const draw::graphics& graph,
                              const table::cell_view& data,
-                             filter::selection_and_hilite selection_filter,
-                             filter::selection_and_hilite hilite_filter) {
+                             const std::function<filter::selection_and_hilite>& selection_filter,
+                             const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (data.get_drawer()) {
             const core::size max_sz = data.client_size();
             std::size_t row = data.geometrie.heights.get_first_idx();

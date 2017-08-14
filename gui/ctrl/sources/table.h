@@ -234,11 +234,11 @@ namespace gui {
           return (row == static_cast<int>(r)) && (column < 0);
         }
 
-        inline bool operator == (const cell_position& rhs) const {
+        inline bool operator== (const cell_position& rhs) const {
           return (column == rhs.column) && (row == rhs.row);
         }
 
-        inline bool operator != (const cell_position& rhs) const {
+        inline bool operator!= (const cell_position& rhs) const {
           return !operator==(rhs);
         }
 
@@ -249,6 +249,14 @@ namespace gui {
         inline void clear () {
           column = -1;
           row = -1;
+        }
+
+        inline cell_position operator+ (const cell_position& rhs) const {
+          return cell_position(column + rhs.column, row + rhs.row);
+        }
+
+        inline cell_position operator- (const cell_position& rhs) const {
+          return cell_position(column - rhs.column, row - rhs.row);
         }
 
         int column;
@@ -289,6 +297,7 @@ namespace gui {
         void set_offset (core::point_type offset);
 
         int index_at (core::point_type pt) const;
+        core::point_type position_of (int idx) const;
 
         void calc ();
 
@@ -307,6 +316,34 @@ namespace gui {
           : widths(default_width)
           , heights(default_height)
         {}
+
+        inline core::point position_of (const cell_position& cell) const {
+          return core::point(widths.position_of(cell.column), heights.position_of(cell.row));
+        }
+
+        inline cell_position index_at (const core::point& pt) const {
+          return cell_position(widths.index_at(pt.x()), heights.index_at(pt.y()));
+        }
+
+        inline core::size get_size (const cell_position& cell) const {
+          return core::size(widths.get_size(cell.column), heights.get_size(cell.row));
+        }
+
+        inline core::size get_default_size () const {
+          return core::size(widths.get_default_size(), heights.get_default_size());
+        }
+
+        inline cell_position get_first_idx () const {
+          return cell_position(widths.get_first_idx(), heights.get_first_idx());
+        }
+
+        inline core::point get_offset () const {
+          return core::point(widths.get_offset(), heights.get_offset());
+        }
+
+        inline core::point get_first_offset () const {
+          return core::point(widths.get_first_offset(), heights.get_first_offset());
+        }
 
         cell_layout widths;
         cell_layout heights;
@@ -520,6 +557,10 @@ namespace gui {
       void set_scroll_pos (const core::point& pos);
 
       void clear_selection (event_source notify);
+      void set_selection (table::cell_position selection, event_source notify);
+      const table::cell_position& get_selection () const;
+
+      void make_selection_visible ();
 
       void handle_created (win::window* win, const core::rectangle& place);
       void handle_size (const core::size& sz);
@@ -537,6 +578,10 @@ namespace gui {
 
       void handle_row_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_row_mouse_move (os::key_state keys, const core::point& pt);
+
+      void handle_key (os::key_state,
+                       os::key_symbol key,
+                       const std::string&);
 
       core::size_type row_width () const;
       core::size_type column_height () const;

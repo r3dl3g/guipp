@@ -76,6 +76,14 @@ namespace gui {
         return idx - 1;
       }
 
+      core::point_type cell_layout::position_of (int idx) const {
+        core::point_type pos = -get_offset();
+        for (int i = 0; i < idx; ++i) {
+          pos += get_size(i);
+        }
+        return pos;
+      }
+
       void cell_layout::calc () {
         core::point_type pos = -get_offset();
         first_idx = 0;
@@ -280,19 +288,21 @@ namespace gui {
         columns.redraw_later();
       }));
 
+      data.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &table_view::handle_key));
+      data.set_accept_focus(true);
+
       data.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
       data.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
-      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
-      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
-
       data.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_mouse_move));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_left_btn_up));
 
+      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
       columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
 
+      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
       rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_row_left_btn_up));
@@ -306,11 +316,11 @@ namespace gui {
     void table_view::set_scroll_pos (const core::point& pos) {
       if (hscroll.is_enabled()) {
         hscroll.set_value(pos.x());
-        geometrie.widths.set_offset(pos.x());
+        geometrie.widths.set_offset(hscroll.get_value());
       }
       if (vscroll.is_enabled()) {
         vscroll.set_value(pos.y());
-        geometrie.heights.set_offset(pos.y());
+        geometrie.heights.set_offset(vscroll.get_value());
       }
       redraw_all();
     }
@@ -323,6 +333,48 @@ namespace gui {
           redraw_all();
         }
       }
+    }
+
+    void table_view::set_selection (table::cell_position selection, event_source notify) {
+      if (selection.column < -1) {
+        selection.column = -1;
+      }
+      if (selection.row < -1) {
+        selection.row = -1;
+      }
+      if (geometrie.selection != selection) {
+        geometrie.selection = selection;
+        make_selection_visible();
+        redraw_all();
+        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+      }
+    }
+
+    const table::cell_position& table_view::get_selection () const {
+      return geometrie.selection;
+    }
+
+    void table_view::make_selection_visible () {
+      const core::point pt = geometrie.position_of(geometrie.selection);
+      const core::size sz = geometrie.get_size(geometrie.selection);
+      const auto space = data.client_size();
+
+      core::point delta;
+      if (pt.x() < 0) {
+        delta.x(pt.x());
+      } else if ((pt.x() + sz.width()) > space.width()) {
+        delta.x((pt.x() + sz.width()) - space.width());
+      }
+      if (pt.y() < 0) {
+        delta.y(pt.y());
+      } else if ((pt.y() + sz.height()) > space.height()) {
+        delta.y((pt.y() + sz.height()) - space.height());
+      }
+
+      if (delta != core::point::zero) {
+        set_scroll_pos(get_scroll_pos() + delta);
+      }
+
     }
 
     void table_view::redraw_all () {
@@ -347,9 +399,9 @@ namespace gui {
       vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width), 80));
       hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width)));
 
-      vscroll.set_max(place.height() * 2);
+      vscroll.set_max(place.height() * 10);
       vscroll.set_step(column_height());
-      hscroll.set_max(place.width() * 2);
+      hscroll.set_max(place.width() * 10);
       hscroll.set_step(row_width());
 
       edge.set_visible();
@@ -361,8 +413,8 @@ namespace gui {
     }
 
     void table_view::handle_size (const core::size& sz) {
-      vscroll.set_max(sz.height());
-      hscroll.set_max(sz.width());
+      vscroll.set_max(sz.height() * 10);
+      hscroll.set_max(sz.width() * 10);
     }
 
     void table_view::handle_wheel_x (const core::point_type delta, const core::point&) {
@@ -386,10 +438,8 @@ namespace gui {
     void table_view::handle_left_btn_up(os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = data.get_index_at_point(pt);
-        if (geometrie.selection != new_selection) {
-          geometrie.selection = new_selection;
-          redraw_all();
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        if (get_selection() != new_selection) {
+          set_selection(new_selection, event_source::mouse);
         } else if (control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
@@ -419,10 +469,8 @@ namespace gui {
     void table_view::handle_column_left_btn_up(os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = columns.get_index_at_point(pt);
-        if (geometrie.selection != new_selection) {
-          geometrie.selection = new_selection;
-          redraw_all();
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        if (get_selection() != new_selection) {
+          set_selection(new_selection, event_source::mouse);
         } else if (control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
@@ -452,10 +500,8 @@ namespace gui {
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = rows.get_index_at_point(pt);
-        if (geometrie.selection != new_selection) {
-          geometrie.selection = new_selection;
-          redraw_all();
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        if (get_selection() != new_selection) {
+          set_selection(new_selection, event_source::mouse);
         } else if (control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
@@ -479,6 +525,63 @@ namespace gui {
           redraw_all();
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
         }
+      }
+    }
+
+    void table_view::handle_key (os::key_state state,
+                                 os::key_symbol key,
+                                 const std::string&) {
+      switch (key) {
+        case keys::up:
+        case keys::numpad::up:
+          set_selection(get_selection() - table::cell_position(0, 1), event_source::keyboard);
+        break;
+        case keys::down:
+        case keys::numpad::down:
+          set_selection(get_selection() + table::cell_position(0, 1), event_source::keyboard);
+        break;
+        case keys::left:
+        case keys::numpad::left:
+          set_selection(get_selection() - table::cell_position(1, 0), event_source::keyboard);
+        break;
+        case keys::right:
+        case keys::numpad::right:
+          set_selection(get_selection() + table::cell_position(1, 0), event_source::keyboard);
+        break;
+        case keys::page_up:
+        case keys::numpad::page_up: {
+            const core::point pt = geometrie.position_of(geometrie.selection);
+            core::size sz = data.client_size();
+            if (alt_key_bit_mask::is_set(state)) {
+              sz.height(0);
+            } else {
+              sz.width(0);
+            }
+            set_scroll_pos(get_scroll_pos() - sz);
+            set_selection(geometrie.index_at(pt), event_source::logic);
+            break;
+          }
+        case keys::page_down:
+        case keys::numpad::page_down: {
+            const core::point pt = geometrie.position_of(geometrie.selection);
+            core::size sz = data.client_size();
+            if (alt_key_bit_mask::is_set(state)) {
+              sz.height(0);
+            } else {
+              sz.width(0);
+            }
+            set_scroll_pos(get_scroll_pos() + sz);
+            set_selection(geometrie.index_at(pt), event_source::logic);
+            break;
+          }
+        break;
+        case keys::home:
+        case keys::numpad::home:
+          set_selection(table::cell_position(0, 0), event_source::keyboard);
+        break;
+        case keys::enter:
+          send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        break;
       }
     }
 

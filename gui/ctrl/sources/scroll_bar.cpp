@@ -277,7 +277,7 @@ namespace gui {
         }));
         register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type dx, const core::point&){
           if (is_enabled()) {
-            set_value(get_value() - dx, true);
+            set_value(get_value() - dx * get_step(), true);
           }
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
@@ -397,7 +397,7 @@ namespace gui {
         }));
         register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type dy, const core::point&){
           if (is_enabled()) {
-            set_value(get_value() - dy, true);
+            set_value(get_value() - dy * get_step(), true);
           }
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {

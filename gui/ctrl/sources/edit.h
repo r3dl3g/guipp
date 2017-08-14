@@ -32,6 +32,40 @@
 
 namespace gui {
 
+  namespace core {
+
+    template<typename T>
+    struct range {
+      T first;
+      T last;
+
+      range (T v = 0)
+        : first(v)
+        , last(v)
+      {}
+
+      range (T f, T l)
+        : first(f)
+        , last(l)
+      {}
+
+      bool is_inside (T i) const {
+        return (i > first) && (i < last);
+      }
+
+      void sort () {
+        if (first > last) {
+          std::swap(first, last);
+        }
+      }
+
+      bool empty () const {
+        return first >= last;
+      }
+    };
+
+  }
+
   namespace win {
 
     namespace detail {
@@ -40,34 +74,7 @@ namespace gui {
         typedef window super;
         typedef size_t pos_t;
 
-        struct range {
-          pos_t first;
-          pos_t last;
-
-          range (pos_t v = 0)
-            : first(v)
-            , last(v)
-          {}
-
-          range (pos_t f, pos_t l)
-            : first(f)
-            , last(l)
-          {}
-
-          bool is_inside (pos_t i) const {
-            return (i > first) && (i < last);
-          }
-
-          void sort () {
-            if (first > last) {
-              std::swap(first, last);
-            }
-          }
-
-          bool empty () const {
-            return first >= last;
-          }
-        };
+        typedef core::range<pos_t> range;
 
         edit_base ();
         ~edit_base ();
@@ -123,7 +130,7 @@ namespace gui {
     namespace paint {
 
       void edit_line (const draw::graphics& graph,
-                      const win::window& btn,
+                      const core::rectangle& area,
                       const std::string& text,
                       text_origin origin,
                       const detail::edit_base::range& selection,

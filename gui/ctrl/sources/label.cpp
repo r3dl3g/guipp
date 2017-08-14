@@ -43,13 +43,12 @@ namespace gui {
     namespace paint {
 
       void label (const draw::graphics& graph,
-                  const win::window& win,
+                  const core::rectangle& area,
                   const std::string& text,
                   os::color foreground,
                   os::color background,
                   text_origin origin) {
         using namespace gui::draw;
-        gui::core::rectangle area = win.client_area();
         graph.fill(draw::rectangle(area), background);
         graph.text(draw::text_box(text, area, origin),
                    font::system(),

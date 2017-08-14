@@ -196,7 +196,7 @@ namespace gui {
 
       namespace paint {
         void edit_line (const draw::graphics& graph,
-                        const win::window& win,
+                        const core::rectangle& place,
                         const std::string& text,
                         text_origin origin,
                         const detail::edit_base::range& selection,
@@ -204,7 +204,7 @@ namespace gui {
                         detail::edit_base::pos_t scroll_pos,
                         bool has_focus) {
           using namespace gui::draw;
-          gui::core::rectangle area = win.client_area();
+          core::rectangle area(place);
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           draw::clip clp(graph, area);
@@ -398,7 +398,7 @@ namespace gui {
 
       void edit_base::register_handler (text_origin alignment) {
         register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          paint::edit_line(graph, *this, text, alignment, selection, cursor_pos, scroll_pos, has_focus());
+          paint::edit_line(graph, client_area(), text, alignment, selection, cursor_pos, scroll_pos, has_focus());
         }));
         register_event_handler(REGISTER_FUNCTION, key_down_event(this, &edit_base::handle_key));
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {

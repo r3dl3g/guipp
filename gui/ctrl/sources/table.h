@@ -216,8 +216,8 @@ namespace gui {
       } // data
 
       // --------------------------------------------------------------------------
-      struct cell_position {
-        inline cell_position (int c = -1, int r = -1)
+      struct position {
+        inline position (int c = -1, int r = -1)
           : column(c)
           , row(r)
         {}
@@ -234,11 +234,11 @@ namespace gui {
           return (row == static_cast<int>(r)) && (column < 0);
         }
 
-        inline bool operator== (const cell_position& rhs) const {
+        inline bool operator== (const position& rhs) const {
           return (column == rhs.column) && (row == rhs.row);
         }
 
-        inline bool operator!= (const cell_position& rhs) const {
+        inline bool operator!= (const position& rhs) const {
           return !operator==(rhs);
         }
 
@@ -251,12 +251,12 @@ namespace gui {
           row = -1;
         }
 
-        inline cell_position operator+ (const cell_position& rhs) const {
-          return cell_position(column + rhs.column, row + rhs.row);
+        inline position operator+ (const position& rhs) const {
+          return position(column + rhs.column, row + rhs.row);
         }
 
-        inline cell_position operator- (const cell_position& rhs) const {
-          return cell_position(column - rhs.column, row - rhs.row);
+        inline position operator- (const position& rhs) const {
+          return position(column - rhs.column, row - rhs.row);
         }
 
         int column;
@@ -264,9 +264,9 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class cell_layout {
+      class layout {
       public:
-        cell_layout (core::size_type default_size)
+        layout (core::size_type default_size)
           : first_idx(0)
           , offset(0)
           , first_offset(0)
@@ -310,22 +310,23 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      struct cell_geometrie {
-        cell_geometrie (core::size_type default_width,
+      class metric {
+      public:
+        metric (core::size_type default_width,
                         core::size_type default_height)
           : widths(default_width)
           , heights(default_height)
         {}
 
-        inline core::point position_of (const cell_position& cell) const {
+        inline core::point position_of (const position& cell) const {
           return core::point(widths.position_of(cell.column), heights.position_of(cell.row));
         }
 
-        inline cell_position index_at (const core::point& pt) const {
-          return cell_position(widths.index_at(pt.x()), heights.index_at(pt.y()));
+        inline position index_at (const core::point& pt) const {
+          return position(widths.index_at(pt.x()), heights.index_at(pt.y()));
         }
 
-        inline core::size get_size (const cell_position& cell) const {
+        inline core::size get_size (const position& cell) const {
           return core::size(widths.get_size(cell.column), heights.get_size(cell.row));
         }
 
@@ -333,8 +334,8 @@ namespace gui {
           return core::size(widths.get_default_size(), heights.get_default_size());
         }
 
-        inline cell_position get_first_idx () const {
-          return cell_position(widths.get_first_idx(), heights.get_first_idx());
+        inline position get_first_idx () const {
+          return position(widths.get_first_idx(), heights.get_first_idx());
         }
 
         inline core::point get_offset () const {
@@ -345,43 +346,43 @@ namespace gui {
           return core::point(widths.get_first_offset(), heights.get_first_offset());
         }
 
-        cell_layout widths;
-        cell_layout heights;
-        cell_position selection;
-        cell_position hilite;
+        layout widths;
+        layout heights;
+        position selection;
+        position hilite;
       };
 
       // --------------------------------------------------------------------------
       namespace filter {
 
-        typedef bool (selection_and_hilite)(const cell_position&, const cell_geometrie&);
+        typedef bool (selection_and_hilite)(const position&, const metric&);
 
         // --------------------------------------------------------------------------
-        inline bool data_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool data_selection (const position& cell, const metric& geometrie) {
           return geometrie.selection == cell;
         }
 
-        inline bool data_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool data_hilite (const position& cell, const metric& geometrie) {
           return (geometrie.hilite == cell) ||
                   geometrie.selection.is_column(cell.column) ||
                   geometrie.selection.is_row(cell.row);
         }
 
         // --------------------------------------------------------------------------
-        inline bool column_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool column_selection (const position& cell, const metric& geometrie) {
           return geometrie.selection.is_column(cell.column);
         }
 
-        inline bool column_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool column_hilite (const position& cell, const metric& geometrie) {
           return geometrie.hilite.is_column(cell.column) || (geometrie.selection.column == cell.column);
         }
 
         // --------------------------------------------------------------------------
-        inline bool row_selection (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool row_selection (const position& cell, const metric& geometrie) {
           return geometrie.selection.is_row(cell.row);
         }
 
-        inline bool row_hilite (const cell_position& cell, const cell_geometrie& geometrie) {
+        inline bool row_hilite (const position& cell, const metric& geometrie) {
           return geometrie.hilite.is_row(cell.row) || (geometrie.selection.row == cell.row);
         }
 
@@ -392,7 +393,7 @@ namespace gui {
       public:
         typedef window super;
 
-        cell_view (cell_geometrie& geometrie,
+        cell_view (metric& geometrie,
                    text_origin align = text_origin::center,
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray,
@@ -433,7 +434,7 @@ namespace gui {
         void set_selection_filter (const std::function<filter::selection_and_hilite>& f);
         void set_hilite_filter (const std::function<filter::selection_and_hilite>& f);
 
-        cell_geometrie& geometrie;
+        metric& geometrie;
         data::matrix<text_origin> aligns;
         data::matrix<os::color> foregrounds;
         data::matrix<os::color> backgrounds;
@@ -479,7 +480,7 @@ namespace gui {
       public:
         typedef cell_view super;
 
-        data_view (cell_geometrie& geometrie,
+        data_view (metric& geometrie,
                    text_origin align = text_origin::center,
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray)
@@ -489,8 +490,8 @@ namespace gui {
           }));
         }
 
-        cell_position get_index_at_point (const core::point& pt) const {
-          return cell_position(geometrie.widths.index_at(pt.x()),
+        table::position get_index_at_point (const core::point& pt) const {
+          return table::position(geometrie.widths.index_at(pt.x()),
                                geometrie.heights.index_at(pt.y()));
         }
       };
@@ -500,7 +501,7 @@ namespace gui {
       public:
         typedef cell_view super;
 
-        column_view (cell_geometrie& geometrie,
+        column_view (metric& geometrie,
                      text_origin align = text_origin::center,
                      os::color foreground = color::black,
                      os::color background = color::very_very_light_gray)
@@ -510,8 +511,8 @@ namespace gui {
           }));
         }
 
-        cell_position get_index_at_point (const core::point& pt) const {
-          return cell_position(geometrie.widths.index_at(pt.x()), -1);
+        table::position get_index_at_point (const core::point& pt) const {
+          return table::position(geometrie.widths.index_at(pt.x()), -1);
         }
       };
 
@@ -520,7 +521,7 @@ namespace gui {
       public:
         typedef cell_view super;
 
-        row_view (cell_geometrie& geometrie,
+        row_view (metric& geometrie,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
                   os::color background = color::very_very_light_gray)
@@ -530,8 +531,8 @@ namespace gui {
           }));
         }
 
-        cell_position get_index_at_point (const core::point& pt) const {
-          return cell_position(-1, geometrie.heights.index_at(pt.y()));
+        table::position get_index_at_point (const core::point& pt) const {
+          return table::position(-1, geometrie.heights.index_at(pt.y()));
         }
       };
 
@@ -557,8 +558,8 @@ namespace gui {
       void set_scroll_pos (const core::point& pos);
 
       void clear_selection (event_source notify);
-      void set_selection (table::cell_position selection, event_source notify);
-      const table::cell_position& get_selection () const;
+      void set_selection (table::position selection, event_source notify);
+      const table::position& get_selection () const;
 
       void make_selection_visible ();
 
@@ -586,7 +587,7 @@ namespace gui {
       core::size_type row_width () const;
       core::size_type column_height () const;
 
-      table::cell_geometrie geometrie;
+      table::metric         geometrie;
       table::data_view      data;
       table::column_view    columns;
       table::row_view       rows;
@@ -594,11 +595,11 @@ namespace gui {
       hscroll_bar           hscroll;
 
       typedef label_t<text_origin::center,
-      draw::frame::raised_relief,
-      color::black,
-      color::very_very_light_gray> edge_view;
+                      draw::frame::raised_relief,
+                      color::black,
+                      color::very_very_light_gray> edge_view;
 
-      edge_view edge;
+      edge_view             edge;
 
     private:
       void redraw_all ();

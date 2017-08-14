@@ -49,14 +49,14 @@ namespace gui {
     namespace table {
 
       // --------------------------------------------------------------------------
-      void cell_layout::set_size (std::size_t idx, core::size_type size) {
+      void layout::set_size (std::size_t idx, core::size_type size) {
         if (sizes[idx] != size) {
           sizes[idx] = size;
           calc();
         }
       }
 
-      void cell_layout::set_offset (core::point_type offset) {
+      void layout::set_offset (core::point_type offset) {
         if (offset < 0) {
           offset = 0;
         }
@@ -66,7 +66,7 @@ namespace gui {
         }
       }
 
-      int cell_layout::index_at (core::point_type pt) const {
+      int layout::index_at (core::point_type pt) const {
         core::point_type pos = -get_offset();
         int idx = 0;
         while (pos <= pt) {
@@ -76,7 +76,7 @@ namespace gui {
         return idx - 1;
       }
 
-      core::point_type cell_layout::position_of (int idx) const {
+      core::point_type layout::position_of (int idx) const {
         core::point_type pos = -get_offset();
         for (int i = 0; i < idx; ++i) {
           pos += get_size(i);
@@ -84,7 +84,7 @@ namespace gui {
         return pos;
       }
 
-      void cell_layout::calc () {
+      void layout::calc () {
         core::point_type pos = -get_offset();
         first_idx = 0;
         first_offset = 0;
@@ -97,7 +97,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      cell_view::cell_view (cell_geometrie& geometrie,
+      cell_view::cell_view (metric& geometrie,
                             text_origin align,
                             os::color foreground,
                             os::color background,
@@ -159,8 +159,8 @@ namespace gui {
                                   data.aligns.get_cell(column, row),
                                   data.foregrounds.get_cell(column, row),
                                   data.backgrounds.get_cell(column, row),
-                                  selection_filter(cell_position(column, row), data.geometrie),
-                                  hilite_filter(cell_position(column, row), data.geometrie));
+                                  selection_filter(position(column, row), data.geometrie),
+                                  hilite_filter(position(column, row), data.geometrie));
 
                 x += width;
                 ++column;
@@ -187,8 +187,8 @@ namespace gui {
                                 data.aligns.get_cell(column, 0),
                                 data.foregrounds.get_cell(column, 0),
                                 data.backgrounds.get_cell(column, 0),
-                                selection_filter(cell_position(column, 0), data.geometrie),
-                                hilite_filter(cell_position(column, 0), data.geometrie));
+                                selection_filter(position(column, 0), data.geometrie),
+                                hilite_filter(position(column, 0), data.geometrie));
 
               x += width;
               ++column;
@@ -213,8 +213,8 @@ namespace gui {
                                 data.aligns.get_cell(0, row),
                                 data.foregrounds.get_cell(0, row),
                                 data.backgrounds.get_cell(0, row),
-                                selection_filter(cell_position(0, row), data.geometrie),
-                                hilite_filter(cell_position(0, row), data.geometrie));
+                                selection_filter(position(0, row), data.geometrie),
+                                hilite_filter(position(0, row), data.geometrie));
 
               y += height;
               ++row;
@@ -335,7 +335,7 @@ namespace gui {
       }
     }
 
-    void table_view::set_selection (table::cell_position selection, event_source notify) {
+    void table_view::set_selection (table::position selection, event_source notify) {
       if (selection.column < -1) {
         selection.column = -1;
       }
@@ -350,7 +350,7 @@ namespace gui {
       }
     }
 
-    const table::cell_position& table_view::get_selection () const {
+    const table::position& table_view::get_selection () const {
       return geometrie.selection;
     }
 
@@ -419,13 +419,13 @@ namespace gui {
 
     void table_view::handle_wheel_x (const core::point_type delta, const core::point&) {
       if (hscroll.is_enabled()) {
-        hscroll.set_value(hscroll.get_value() - delta, true);
+        hscroll.set_value(hscroll.get_value() - delta * vscroll.get_step(), true);
       }
     }
 
     void table_view::handle_wheel_y (const core::point_type delta, const core::point&) {
       if (vscroll.is_enabled()) {
-        vscroll.set_value(vscroll.get_value() - delta, true);
+        vscroll.set_value(vscroll.get_value() - delta * vscroll.get_step(), true);
       }
     }
 
@@ -534,19 +534,19 @@ namespace gui {
       switch (key) {
         case keys::up:
         case keys::numpad::up:
-          set_selection(get_selection() - table::cell_position(0, 1), event_source::keyboard);
+          set_selection(get_selection() - table::position(0, 1), event_source::keyboard);
         break;
         case keys::down:
         case keys::numpad::down:
-          set_selection(get_selection() + table::cell_position(0, 1), event_source::keyboard);
+          set_selection(get_selection() + table::position(0, 1), event_source::keyboard);
         break;
         case keys::left:
         case keys::numpad::left:
-          set_selection(get_selection() - table::cell_position(1, 0), event_source::keyboard);
+          set_selection(get_selection() - table::position(1, 0), event_source::keyboard);
         break;
         case keys::right:
         case keys::numpad::right:
-          set_selection(get_selection() + table::cell_position(1, 0), event_source::keyboard);
+          set_selection(get_selection() + table::position(1, 0), event_source::keyboard);
         break;
         case keys::page_up:
         case keys::numpad::page_up: {
@@ -577,7 +577,7 @@ namespace gui {
         break;
         case keys::home:
         case keys::numpad::home:
-          set_selection(table::cell_position(0, 0), event_source::keyboard);
+          set_selection(table::position(0, 0), event_source::keyboard);
         break;
         case keys::enter:
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);

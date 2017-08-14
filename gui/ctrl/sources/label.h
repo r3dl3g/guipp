@@ -70,7 +70,7 @@ namespace gui {
     namespace paint {
 
       void label (const draw::graphics& graph,
-                  const win::window& win,
+                  const core::rectangle& area,
                   const std::string& text,
                   os::color foreground,
                   os::color background,
@@ -92,7 +92,7 @@ namespace gui {
 
       void paint (const draw::graphics& graph) {
         gui::core::rectangle place = client_area();
-        paint::label(graph, *this, get_text(), foreground, background, alignment);
+        paint::label(graph, client_area(), get_text(), foreground, background, alignment);
         F(graph, place);
       }
 

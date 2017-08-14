@@ -698,8 +698,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
   */
 
-  table_view.columns.set_selection_filter([] (const win::table::cell_position& cell,
-                                             const win::table::cell_geometrie& geo) {
+  table_view.columns.set_selection_filter([] (const win::table::position& cell,
+                                              const win::table::metric& geo) {
     return (geo.selection.column == cell.column);
   });
 

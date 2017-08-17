@@ -96,71 +96,37 @@ namespace gui {
         --first_idx;
       }
 
-      // --------------------------------------------------------------------------
-      cell_view::cell_view (metric& geometrie,
-                            text_origin align,
-                            os::color foreground,
-                            os::color background,
-                            const std::function<filter::selection_and_hilite>& selection_filter,
-                            const std::function<filter::selection_and_hilite>& hilite_filter)
-        : geometrie(geometrie)
-        , aligns(align)
-        , foregrounds(foreground)
-        , backgrounds(background)
-        , selection_filter(selection_filter)
-        , hilite_filter(hilite_filter)
-      {}
-
-      void cell_view::create (const container& parent,
-                              const core::rectangle& place) {
-        window::create(clazz, parent, place);
-      }
-
-      void cell_view::set_drawer (const std::function<table_cell_drawer>& drawer) {
-        this->drawer = drawer;
-      }
-
-      void cell_view::set_drawer (std::function<table_cell_drawer>&& drawer) {
-        this->drawer = std::move(drawer);
-      }
-
-      void cell_view::set_selection_filter (const std::function<filter::selection_and_hilite>& f) {
-        selection_filter = f;
-      }
-
-      void cell_view::set_hilite_filter (const std::function<filter::selection_and_hilite>& f) {
-        hilite_filter = f;
-      }
-
-      // --------------------------------------------------------------------------
-      no_erase_window_class cell_view::clazz = create_group_window_clazz(color::very_very_light_gray);
-
       namespace paint {
 
         void draw_table_data (const draw::graphics& graph,
-                              const table::cell_view& data,
+                              const core::rectangle& place,
+                              const metric& geometrie,
+                              const data::matrix<text_origin>& aligns,
+                              const data::matrix<os::color>& foregrounds,
+                              const data::matrix<os::color>& backgrounds,
+                              const std::function<table_cell_drawer>& drawer,
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter) {
-          if (data.get_drawer()) {
-            const core::size max_sz = data.client_size();
-            std::size_t row = data.geometrie.heights.get_first_idx();
-            core::point_type y = data.geometrie.heights.get_first_offset();
+          if (drawer) {
+            const core::size max_sz = place.size();
+            std::size_t row = geometrie.heights.get_first_idx();
+            core::point_type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {
-              const core::size_type height = data.geometrie.heights.get_size(row);
+              const core::size_type height = geometrie.heights.get_size(row);
 
-              std::size_t column = data.geometrie.widths.get_first_idx();
-              core::point_type x = data.geometrie.widths.get_first_offset();
+              std::size_t column = geometrie.widths.get_first_idx();
+              core::point_type x = geometrie.widths.get_first_offset();
 
               while (x < max_sz.width()) {
-                const core::size_type width = data.geometrie.widths.get_size(column);
-                data.get_drawer()(column, row, graph,
-                                  core::rectangle(x, y, width, height),
-                                  data.aligns.get_cell(column, row),
-                                  data.foregrounds.get_cell(column, row),
-                                  data.backgrounds.get_cell(column, row),
-                                  selection_filter(position(column, row), data.geometrie),
-                                  hilite_filter(position(column, row), data.geometrie));
+                const core::size_type width = geometrie.widths.get_size(column);
+                drawer(column, row, graph,
+                       core::rectangle(x, y, width, height),
+                       aligns.get_cell(column, row),
+                       foregrounds.get_cell(column, row),
+                       backgrounds.get_cell(column, row),
+                       selection_filter(position(column, row), geometrie),
+                       hilite_filter(position(column, row), geometrie));
 
                 x += width;
                 ++column;
@@ -172,23 +138,28 @@ namespace gui {
         }
 
         void draw_table_column (const draw::graphics& graph,
-                                const table::cell_view& data,
+                                const core::rectangle& place,
+                                const metric& geometrie,
+                                const data::vector<text_origin>& aligns,
+                                const data::vector<os::color>& foregrounds,
+                                const data::vector<os::color>& backgrounds,
+                                const std::function<table_cell_drawer>& drawer,
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter) {
-          if (data.get_drawer()) {
-            const core::size max_sz = data.client_size();
-            std::size_t column = data.geometrie.widths.get_first_idx();
-            core::point_type x = data.geometrie.widths.get_first_offset();
+          if (drawer) {
+            const core::size max_sz = place.size();
+            std::size_t column = geometrie.widths.get_first_idx();
+            core::point_type x = geometrie.widths.get_first_offset();
 
             while (x < max_sz.width()) {
-              const core::size_type width = data.geometrie.widths.get_size(column);
-              data.get_drawer()(column, 0, graph,
-                                core::rectangle(x, 0, width, max_sz.height()),
-                                data.aligns.get_cell(column, 0),
-                                data.foregrounds.get_cell(column, 0),
-                                data.backgrounds.get_cell(column, 0),
-                                selection_filter(position(column, 0), data.geometrie),
-                                hilite_filter(position(column, 0), data.geometrie));
+              const core::size_type width = geometrie.widths.get_size(column);
+              drawer(column, 0, graph,
+                     core::rectangle(x, 0, width, max_sz.height()),
+                     aligns.get(column),
+                     foregrounds.get(column),
+                     backgrounds.get(column),
+                     selection_filter(position(column, 0), geometrie),
+                     hilite_filter(position(column, 0), geometrie));
 
               x += width;
               ++column;
@@ -197,24 +168,29 @@ namespace gui {
         }
 
         void draw_table_row (const draw::graphics& graph,
-                             const table::cell_view& data,
+                             const core::rectangle& place,
+                             const metric& geometrie,
+                             const data::vector<text_origin>& aligns,
+                             const data::vector<os::color>& foregrounds,
+                             const data::vector<os::color>& backgrounds,
+                             const std::function<table_cell_drawer>& drawer,
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter) {
-          if (data.get_drawer()) {
-            const core::size max_sz = data.client_size();
-            std::size_t row = data.geometrie.heights.get_first_idx();
-            core::point_type y = data.geometrie.heights.get_first_offset();
+          if (drawer) {
+            const core::size max_sz = place.size();
+            std::size_t row = geometrie.heights.get_first_idx();
+            core::point_type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {
-              const core::size_type height = data.geometrie.heights.get_size(row);
+              const core::size_type height = geometrie.heights.get_size(row);
 
-              data.get_drawer()(0, row, graph,
-                                core::rectangle(0, y, max_sz.width(), height),
-                                data.aligns.get_cell(0, row),
-                                data.foregrounds.get_cell(0, row),
-                                data.backgrounds.get_cell(0, row),
-                                selection_filter(position(0, row), data.geometrie),
-                                hilite_filter(position(0, row), data.geometrie));
+              drawer(0, row, graph,
+                     core::rectangle(0, y, max_sz.width(), height),
+                     aligns.get(row),
+                     foregrounds.get(row),
+                     backgrounds.get(row),
+                     selection_filter(position(0, row), geometrie),
+                     hilite_filter(position(0, row), geometrie));
 
               y += height;
               ++row;

@@ -718,6 +718,7 @@ void my_main_window::query_state () {
 
 void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
   LogDebug << "Main created: this:" << std::hex << this << ", w:" << w << ", rect:" << std::dec << r;
+  set_visible();
   created_children();
 }
 
@@ -736,7 +737,7 @@ void create_group (win::container& m, C& c, win::label labels[T]) {
   c.set_visible();
 }
 
-std::string build_column_name (std::size_t column) {
+std::string build_column_name (int column) {
   std::string buffer;
 
   do {

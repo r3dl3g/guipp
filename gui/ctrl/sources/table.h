@@ -217,9 +217,15 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       struct position {
-        inline position (int c = -1, int r = -1)
-          : column(c)
-          , row(r)
+        inline position ()
+          : column(-1)
+          , row(-1)
+        {}
+
+        template<typename T, typename U>
+        inline position(T c, U r)
+          : column(static_cast<int>(c))
+          , row(static_cast<int>(r))
         {}
 
         inline bool is_cell (std::size_t c, std::size_t r) const {

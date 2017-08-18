@@ -344,12 +344,12 @@ namespace gui {
                                          params<os::key_state, core::point>::
                                          caller<get_param<0, os::key_state>,
                                                 get_param<1, core::point>>,
-                                         0, any_button_match>;
+                                         0, any_button_match<true>>;
     using btn_up_event = event_handler<WM_LBUTTONUP, 0,
                                        params<os::key_state, core::point>::
                                        caller<get_param<0, os::key_state>,
                                               get_param<1, core::point>>,
-                                       0, any_button_match>;
+                                       0, any_button_match<false>>;
 
     using mouse_move_event = event_handler<WM_MOUSEMOVE, 0,
                            params<os::key_state, core::point>::

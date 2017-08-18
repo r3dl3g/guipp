@@ -62,8 +62,45 @@ namespace gui {
 
     std::vector<os::window> capture_stack;
 
-
 #ifdef WIN32
+
+    struct disable_wheel_hook {
+      disable_wheel_hook ()
+        : hook_id(0)
+      {}
+
+      void enable ();
+      void disable ();
+
+    private:
+      HHOOK hook_id;
+    };
+
+    disable_wheel_hook s_wheel_hook;
+
+    LRESULT CALLBACK mouseInputHook (int nCode, WPARAM wParam, LPARAM lParam) {
+      //"if nCode is less than zero, the hook procedure must pass the message to the CallNextHookEx function
+      //without further processing and should return the value returned by CallNextHookEx"
+      if ((nCode >= 0) && ((wParam == WM_MOUSEWHEEL || wParam == WM_MOUSEHWHEEL))) {
+        return -1;
+      }
+
+      return ::CallNextHookEx(nullptr, nCode, wParam, lParam);
+    }
+
+    void disable_wheel_hook::enable () {
+      if (!hook_id) {
+        hook_id = SetWindowsHookEx(WH_MOUSE_LL, mouseInputHook, NULL, 0);
+      }
+    }
+
+    void disable_wheel_hook::disable () {
+      if (hook_id) {
+        UnhookWindowsHookEx(hook_id);
+        hook_id = 0;
+      }
+    }
+
 
     window::window ()
       : id(0)
@@ -257,6 +294,7 @@ namespace gui {
       LogDebug << "capture_pointer:" << get_id();
       capture_stack.push_back(get_id());
       SetCapture(get_id());
+      s_wheel_hook.enable();
     }
 
     void window::uncapture_pointer () {
@@ -271,6 +309,8 @@ namespace gui {
         if (!capture_stack.empty()) {
           LogDebug << "re-capture_pointer:" << capture_stack.back();
           SetCapture(capture_stack.back());
+        } else {
+          s_wheel_hook.disable();
         }
       }
     }

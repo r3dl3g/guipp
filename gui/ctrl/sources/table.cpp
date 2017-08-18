@@ -115,7 +115,7 @@ namespace gui {
             while (y < max_sz.height()) {
               const core::size_type height = geometrie.heights.get_size(cell.row);
 
-              cell.column = geometrie.widths.get_first_idx();
+              cell.column = static_cast<int>(geometrie.widths.get_first_idx());
               core::point_type x = geometrie.widths.get_first_offset();
 
               while (x < max_sz.width()) {

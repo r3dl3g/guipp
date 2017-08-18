@@ -241,7 +241,9 @@ namespace gui {
             } else {
               set_state(State::Nothing_pressed);
             }
-            capture_pointer();
+            if (get_state() != State::Nothing_pressed) {
+              capture_pointer();
+            }
             redraw_later();
           }
         }));

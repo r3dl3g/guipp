@@ -211,7 +211,8 @@ private:
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
 
-  win::table_view table_view;
+  win::table_edit table_view;
+  win::table::data::matrix<std::string> table_data;
 
   bool at_paint1;
   bool at_drag;
@@ -240,15 +241,15 @@ int gui_main(const std::vector<std::string>& args) {
   size_t pnt_size = sizeof(win::paint_event);
 
   LogInfo << "Sizes: "
-           <<   "std::string:" << str_size
-           << ", event_container:" << evc_size
-           << ", window:" << win_size
-           << ", client_window:" << cln_size
-           << ", button:" << btn_size
-           << ", push_button:" << push_size
-           << ", toggle_button:" << tgl_size
-           << ", text_button:" << tbtn_size
-           << ", paint_event:" << pnt_size;
+          <<   "std::string:" << str_size
+          << ", event_container:" << evc_size
+          << ", window:" << win_size
+          << ", client_window:" << cln_size
+          << ", button:" << btn_size
+          << ", push_button:" << push_size
+          << ", toggle_button:" << tgl_size
+          << ", text_button:" << tbtn_size
+          << ", paint_event:" << pnt_size;
 
 //#ifdef WIN32
 //  main.register_event_handler(REGISTER_FUNCTION, win::get_minmax_event([](const core::size& sz,
@@ -280,6 +281,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , list3(main_split_view.first.second)
   , calc_pressed(false)
   , table_view(50, 20)
+  , table_data(std::string())
 {
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 
@@ -703,6 +705,13 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     return (geo.selection.column == cell.column);
   });
 
+  table_view.set_data_source_and_target([&](const win::table::position& cell) -> std::string {
+    return table_data.get_cell(cell);
+  }, [&](const win::table::position& cell, const std::string& s) {
+    table_data.set_cell(cell, s);
+  });
+
+
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 }
 
@@ -734,19 +743,6 @@ void create_group (win::container& m, C& c, win::label labels[T]) {
   c.create(m);
   create_buttons<T>(c, labels);
   c.set_visible();
-}
-
-std::string build_column_name (std::size_t c) {
-  std::string buffer;
-  int column = static_cast<int>(c);
-
-  do {
-    int col = column % 26;
-    buffer.insert(0, 1, (char)('A' + col));
-    column = (column - col) / 26 - 1;
-  } while (column > -1);
-
-  return buffer;
 }
 
 void my_main_window::created_children () {
@@ -857,23 +853,23 @@ void my_main_window::created_children () {
 
   table_view.create(main, core::rectangle(740, 50, 150, 250));
 
-  table_view.data.set_drawer(win::table::default_data_drawer([](std::size_t column, std::size_t row) -> std::string {
-    return ostreamfmt(build_column_name(column) << ':' << (row + 1));
+  table_view.data.set_drawer(win::table::default_data_drawer([&](const win::table::position& cell) -> std::string {
+    return table_data.get_cell(cell);//ostreamfmt(win::table::build_std_column_name(column) << ':' << (row + 1));
   }));
   table_view.data.foregrounds.set_column(1, color::blue);
   table_view.data.foregrounds.set_column(2, color::red);
   table_view.data.foregrounds.set_row(3, color::dark_green);
-  table_view.data.foregrounds.set_cell(2, 3, color::black);
-  table_view.data.backgrounds.set_cell(2, 3, color::yellow);
-  table_view.data.foregrounds.set_cell(3, 4, color::blue);
+  table_view.data.foregrounds.set_cell(win::table::position(2, 3), color::black);
+  table_view.data.backgrounds.set_cell(win::table::position(2, 3), color::yellow);
+  table_view.data.foregrounds.set_cell(win::table::position(3, 4), color::blue);
 
-  table_view.columns.set_drawer(win::table::default_header_drawer([](std::size_t column, std::size_t row) -> std::string {
-    return build_column_name(column);
+  table_view.columns.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
+    return win::table::build_std_column_name(cell.column);
   }));
   table_view.geometrie.widths.set_size(2, 40);
 
-  table_view.rows.set_drawer(win::table::default_header_drawer([](std::size_t column, std::size_t row) -> std::string {
-    return ostreamfmt((1 + row));
+  table_view.rows.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
+    return ostreamfmt((1 + cell.row));
   }));
 
   table_view.edge.set_text("0:0");

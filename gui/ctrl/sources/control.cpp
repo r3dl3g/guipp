@@ -53,6 +53,7 @@ namespace gui {
       Atom BN_PUSHED_MESSAGE = 0;
       Atom BN_UNPUSHED_MESSAGE = 0;
       Atom BN_STATE_MESSAGE = 0;
+      Atom SELECTION_CANCEL_MESSAGE = 0;
 
       void init_control_messages () {
         init_message(SCROLLBAR_MESSAGE, "SCROLLBAR_MESSAGE");
@@ -64,6 +65,7 @@ namespace gui {
         init_message(BN_PUSHED_MESSAGE, "BN_PUSHED_MESSAGE");
         init_message(BN_UNPUSHED_MESSAGE, "BN_UNPUSHED_MESSAGE");
         init_message(BN_STATE_MESSAGE, "BN_STATE_MESSAGE");
+        init_message(SELECTION_CANCEL_MESSAGE, "SELECTION_CANCEL_MESSAGE");
       }
 
 #endif // X11

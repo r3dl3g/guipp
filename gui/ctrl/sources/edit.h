@@ -62,6 +62,10 @@ namespace gui {
       bool empty () const {
         return first >= last;
       }
+
+      void clear () {
+        first = last = 0;
+      }
     };
 
   }

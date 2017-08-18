@@ -90,6 +90,26 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::point_type get_wheel_delta (const core::event& e);
 
+    // --------------------------------------------------------------------------
+    template<bool down>
+    struct any_button_match {
+      bool operator() (const core::event& e);
+    };
+
+    template<>
+    struct any_button_match<true> {
+      bool operator() (const core::event& e) {
+        return (e.type == WM_LBUTTONDOWN) || (e.type == WM_RBUTTONDOWN) || (e.type == WM_MBUTTONDOWN);
+      }
+    };
+
+    template<>
+    struct any_button_match<false> {
+      bool operator() (const core::event& e) {
+        return (e.type == WM_LBUTTONUP) || (e.type == WM_RBUTTONUP) || (e.type == WM_MBUTTONUP);
+      }
+    };
+
 #endif // Win32
 #ifdef X11
 
@@ -319,6 +339,17 @@ namespace gui {
                            params<os::key_state, core::point>::
                            caller<get_param<0, os::key_state>,
                                   get_param<1, core::point>>>;
+
+    using btn_down_event = event_handler<WM_LBUTTONDOWN, 0,
+                                         params<os::key_state, core::point>::
+                                         caller<get_param<0, os::key_state>,
+                                                get_param<1, core::point>>,
+                                         0, any_button_match>;
+    using btn_up_event = event_handler<WM_LBUTTONUP, 0,
+                                       params<os::key_state, core::point>::
+                                       caller<get_param<0, os::key_state>,
+                                              get_param<1, core::point>>,
+                                       0, any_button_match>;
 
     using mouse_move_event = event_handler<WM_MOUSEMOVE, 0,
                            params<os::key_state, core::point>::
@@ -637,6 +668,16 @@ namespace gui {
                                   get_param<core::point, XButtonEvent>>,
                            0,
                            event_button_match<ButtonRelease, Button2>>;
+
+    using btn_down_event = event_handler<ButtonPress, ButtonPressMask,
+                                         params<os::key_state, core::point>::
+                                         caller<get_state<XButtonEvent>,
+                                                get_param<core::point, XButtonEvent>>>;
+
+    using btn_up_event = event_handler<ButtonRelease, ButtonReleaseMask|ButtonPressMask,
+                                       params<os::key_state, core::point>::
+                                       caller<get_state<XButtonEvent>,
+                                              get_param<core::point, XButtonEvent>>>;
 
     template<os::event_id B>
     struct double_click_matcher {

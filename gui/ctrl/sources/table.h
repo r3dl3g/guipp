@@ -29,21 +29,11 @@
 //
 #include "scroll_bar.h"
 #include "label.h"
+#include "edit.h"
 
 namespace gui {
 
   namespace win {
-
-    // --------------------------------------------------------------------------
-    typedef void (table_cell_drawer)(std::size_t,           // column
-                                     std::size_t,           // row
-                                     const draw::graphics&, // graph
-                                     const core::rectangle&,// place
-                                     const text_origin,     // align
-                                     const os::color&,      // foreground
-                                     const os::color&,      // background
-                                     bool,                  // selected
-                                     bool);                 // hilited
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -77,6 +67,70 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace table {
+
+      // --------------------------------------------------------------------------
+      struct position {
+        inline position ()
+          : column(-1)
+          , row(-1)
+        {}
+
+        template<typename T, typename U>
+        inline position(T c, U r)
+          : column(static_cast<int>(c))
+          , row(static_cast<int>(r))
+        {}
+
+        inline bool is_cell (std::size_t c, std::size_t r) const {
+          return (column == static_cast<int>(c)) && (row == static_cast<int>(r));
+        }
+
+        inline bool is_column (std::size_t c) const {
+          return (column == static_cast<int>(c)) && (row < 0);
+        }
+
+        inline bool is_row (std::size_t r) const {
+          return (row == static_cast<int>(r)) && (column < 0);
+        }
+
+        inline bool operator== (const position& rhs) const {
+          return (column == rhs.column) && (row == rhs.row);
+        }
+
+        inline bool operator!= (const position& rhs) const {
+          return !operator==(rhs);
+        }
+
+        inline bool is_empty () const {
+          return (column < 0) && (row < 0);
+        }
+
+        inline void clear () {
+          column = -1;
+          row = -1;
+        }
+
+        inline position operator+ (const position& rhs) const {
+          return position(column + rhs.column, row + rhs.row);
+        }
+
+        inline position operator- (const position& rhs) const {
+          return position(column - rhs.column, row - rhs.row);
+        }
+
+        int column;
+        int row;
+      };
+
+      // --------------------------------------------------------------------------
+      typedef void (cell_drawer) (const position&,       // position
+                                  const draw::graphics&, // graph
+                                  const core::rectangle&,// place
+                                  const text_origin,     // align
+                                  const os::color&,      // foreground
+                                  const os::color&,      // background
+                                  bool,                  // selected
+                                  bool);                 // hilited
 
       // --------------------------------------------------------------------------
       namespace data {
@@ -140,30 +194,30 @@ namespace gui {
             , row_data(default_data)
           {}
 
-          const T& get_cell (std::size_t column, std::size_t row) const {
-            if (column < data.size()) {
-              const std::vector<T>& c = data[column];
-              if (row < c.size()) {
-                return c[row];
+          const T& get_cell (const position& cell) const {
+            if (cell.column < data.size()) {
+              const std::vector<T>& c = data[cell.column];
+              if (cell.row < c.size()) {
+                return c[cell.row];
               }
             }
-            return get_column_row_cell(column, row);
+            return get_column_row_cell(cell);
           }
 
-          void set_cell (std::size_t column, std::size_t row, const T& t) {
+          void set_cell (const position& cell, const T& t) {
             const std::size_t data_size = data.size();
-            if (data_size <= column) {
-              data.resize(column + 1);
+            if (data_size <= cell.column) {
+              data.resize(cell.column + 1);
             }
-            std::vector<T>& c = data[column];
+            std::vector<T>& c = data[cell.column];
             const std::size_t rows = c.size();
-            if (rows <= row) {
-              c.resize(row + 1, column_data.get(column));
-              for (std::size_t r = rows; r < row; ++r) {
-                c[r] = get_column_row_cell(column, r);
+            if (rows <= cell.row) {
+              c.resize(cell.row + 1, column_data.get(cell.column));
+              for (std::size_t r = rows; r < cell.row; ++r) {
+                c[r] = get_column_row_cell(position(cell.column, r));
               }
             }
-            c[row] = t;
+            c[cell.row] = t;
           }
 
           void set_column (std::size_t column, const T& t) {
@@ -182,7 +236,7 @@ namespace gui {
             }
             const std::size_t column_data_size = column_data.size();
             for (std::size_t c = 0; c < column_data_size; ++c) {
-              set_cell(c, row, t);
+              set_cell(position(c, row), t);
             }
           }
 
@@ -197,11 +251,11 @@ namespace gui {
           }
 
         protected:
-          inline const T& get_column_row_cell (std::size_t column, std::size_t row) const {
-            if (column < column_data.size()) {
-              return column_data[column];
+          inline const T& get_column_row_cell (const position& cell) const {
+            if (cell.column < column_data.size()) {
+              return column_data[cell.column];
             }
-            return row_data[row];
+            return row_data[cell.row];
           }
 
         private:
@@ -214,60 +268,6 @@ namespace gui {
         };
 
       } // data
-
-      // --------------------------------------------------------------------------
-      struct position {
-        inline position ()
-          : column(-1)
-          , row(-1)
-        {}
-
-        template<typename T, typename U>
-        inline position(T c, U r)
-          : column(static_cast<int>(c))
-          , row(static_cast<int>(r))
-        {}
-
-        inline bool is_cell (std::size_t c, std::size_t r) const {
-          return (column == static_cast<int>(c)) && (row == static_cast<int>(r));
-        }
-
-        inline bool is_column (std::size_t c) const {
-          return (column == static_cast<int>(c)) && (row < 0);
-        }
-
-        inline bool is_row (std::size_t r) const {
-          return (row == static_cast<int>(r)) && (column < 0);
-        }
-
-        inline bool operator== (const position& rhs) const {
-          return (column == rhs.column) && (row == rhs.row);
-        }
-
-        inline bool operator!= (const position& rhs) const {
-          return !operator==(rhs);
-        }
-
-        inline bool is_empty () const {
-          return (column < 0) && (row < 0);
-        }
-
-        inline void clear () {
-          column = -1;
-          row = -1;
-        }
-
-        inline position operator+ (const position& rhs) const {
-          return position(column + rhs.column, row + rhs.row);
-        }
-
-        inline position operator- (const position& rhs) const {
-          return position(column - rhs.column, row - rhs.row);
-        }
-
-        int column;
-        int row;
-      };
 
       // --------------------------------------------------------------------------
       class layout {
@@ -319,7 +319,7 @@ namespace gui {
       class metric {
       public:
         metric (core::size_type default_width,
-                        core::size_type default_height)
+                core::size_type default_height)
           : widths(default_width)
           , heights(default_height)
         {}
@@ -403,7 +403,7 @@ namespace gui {
                               const data::matrix<text_origin>& aligns,
                               const data::matrix<os::color>& foregrounds,
                               const data::matrix<os::color>& backgrounds,
-                              const std::function<table_cell_drawer>& drawer,
+                              const std::function<cell_drawer>& drawer,
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter);
 
@@ -413,7 +413,7 @@ namespace gui {
                                 const data::vector<text_origin>& aligns,
                                 const data::vector<os::color>& foregrounds,
                                 const data::vector<os::color>& backgrounds,
-                                const std::function<table_cell_drawer>& drawer,
+                                const std::function<cell_drawer>& drawer,
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter);
 
@@ -423,7 +423,7 @@ namespace gui {
                              const data::vector<text_origin>& aligns,
                              const data::vector<os::color>& foregrounds,
                              const data::vector<os::color>& backgrounds,
-                             const std::function<table_cell_drawer>& drawer,
+                             const std::function<cell_drawer>& drawer,
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter);
       }
@@ -453,15 +453,15 @@ namespace gui {
           window::create(clazz, parent, place);
         }
 
-        void set_drawer (const std::function<table_cell_drawer>& drawer) {
+        void set_drawer (const std::function<cell_drawer>& drawer) {
           this->drawer = drawer;
         }
 
-        void set_drawer (std::function<table_cell_drawer>&& drawer) {
+        void set_drawer (std::function<cell_drawer>&& drawer) {
           this->drawer = std::move(drawer);
         }
 
-        inline const std::function<table_cell_drawer>& get_drawer () const {
+        inline const std::function<cell_drawer>& get_drawer () const {
           return drawer;
         }
 
@@ -499,7 +499,7 @@ namespace gui {
         T<os::color> backgrounds;
 
       protected:
-        std::function<table_cell_drawer> drawer;
+        std::function<cell_drawer> drawer;
         std::function<filter::selection_and_hilite> selection_filter;
         std::function<filter::selection_and_hilite> hilite_filter;
 
@@ -512,11 +512,12 @@ namespace gui {
       no_erase_window_class cell_view<T>::clazz = create_group_window_clazz(color::very_very_light_gray);
 
       // --------------------------------------------------------------------------
-      typedef std::string (table_data_source)(std::size_t,  // column
-                                              std::size_t); // row)
+      typedef std::string (data_source) (const position&);
 
-      std::function<table_cell_drawer> default_data_drawer (const std::function<table_data_source>& src);
-      std::function<table_cell_drawer> default_header_drawer (const std::function<table_data_source>& src);
+      typedef void (data_target) (const position&, const std::string&);
+
+      std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src);
+      std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src);
 
       // --------------------------------------------------------------------------
       class data_view : public cell_view<data::matrix> {
@@ -578,6 +579,8 @@ namespace gui {
           return table::position(-1, geometrie.heights.index_at(pt.y()));
         }
       };
+
+      std::string build_std_column_name (std::size_t c);
 
     } // table
 
@@ -644,11 +647,37 @@ namespace gui {
 
       edge_view             edge;
 
-    private:
+    protected:
       void redraw_all ();
 
       bool moved;
       core::point last_mouse_point;
+
+    };
+
+    // --------------------------------------------------------------------------
+    class table_edit : public table_view {
+    public:    
+      table_edit (core::size_type default_width = 80,
+                  core::size_type default_height = 20,
+                  core::size_type row_width = 80,
+                  core::size_type column_height = 20,
+                  text_origin align = text_origin::center,
+                  os::color foreground = color::black,
+                  os::color background = color::white,
+                  os::color header_background = color::very_very_light_gray);
+
+      void enter_edit ();
+      void commit_edit ();
+      void cancel_edit ();
+
+      void set_data_source_and_target (const std::function<table::data_source>& data_source,
+                                       const std::function<table::data_target>& data_target);
+
+    protected:
+      win::edit cell_edit;
+      std::function<table::data_source> data_source;
+      std::function<table::data_target> data_target;
 
     };
 

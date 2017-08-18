@@ -667,6 +667,14 @@ namespace gui {
                   os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);
 
+      void set_enable_edit (bool enable) {
+        enable_edit = enable;
+      }
+
+      bool is_edit_enabled () const {
+        return enable_edit;
+      }
+
       void enter_edit ();
       void commit_edit ();
       void cancel_edit ();
@@ -678,6 +686,7 @@ namespace gui {
       win::edit cell_edit;
       std::function<table::data_source> data_source;
       std::function<table::data_target> data_target;
+      bool enable_edit;
 
     };
 

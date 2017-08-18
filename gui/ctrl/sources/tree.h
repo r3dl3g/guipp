@@ -121,7 +121,7 @@ namespace gui {
               case keys::left:
               case keys::numpad::left: {
                 int idx = super::get_selection();
-                if (is_valid(idx)) {
+                if (is_valid_idx(idx)) {
                   const reference ref = get_item(idx);
                   auto i = open_nodes.find(ref);
                   if (i != open_nodes.end()) {
@@ -148,7 +148,7 @@ namespace gui {
         }
 
         bool is_open (int idx) const {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             return i != open_nodes.end();
@@ -157,7 +157,7 @@ namespace gui {
         }
 
         void set_open (int idx, bool o) {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const reference r = get_item(idx);
             if (o) {
               open_nodes.insert(r);
@@ -185,7 +185,7 @@ namespace gui {
         }
 
         void toggle_node (int idx) {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {
@@ -198,7 +198,7 @@ namespace gui {
         }
 
         void open_node (int idx) {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i == open_nodes.end()) {
@@ -209,7 +209,7 @@ namespace gui {
         }
 
         void close_node (int idx) {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const reference ref = get_item(idx);
             auto i = open_nodes.find(ref);
             if (i != open_nodes.end()) {
@@ -243,12 +243,12 @@ namespace gui {
           return static_cast<int>(nodes.size());
         }
 
-        inline bool is_valid (int idx) const {
+        inline bool is_valid_idx (int idx) const {
           return (idx > -1) && (idx < size());
         }
 
         int get_parent_item_of (int idx) {
-          if (is_valid(idx)) {
+          if (is_valid_idx(idx)) {
             const std::size_t depth = nodes[idx].depth;
             do {
               --idx;

@@ -599,6 +599,7 @@ namespace gui {
                             os::color header_background)
       : table_view(default_width, default_height, row_width, column_height,
                    align, foreground, background, header_background)
+      , enable_edit(true)
     {
       register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::enter_edit));
 
@@ -611,10 +612,24 @@ namespace gui {
 
       cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &table_edit::cancel_edit));
       cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::commit_edit));
+
+      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
+        if (cell_edit.is_visible()) {
+          cell_edit.move(geometrie.position_of(get_selection()));
+        }
+      }));
+      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
+        if (cell_edit.is_visible()) {
+          cell_edit.move(geometrie.position_of(get_selection()));
+        }
+      }));
+
+      register_event_handler(REGISTER_FUNCTION, win::selection_changed_event(this, &table_edit::commit_edit));
+
     }
 
     void table_edit::enter_edit () {
-      if (data_source) {
+      if (enable_edit && data_source) {
         auto cell = get_selection();
         auto pt = geometrie.position_of(cell);
         auto sz = geometrie.get_size(cell);
@@ -625,12 +640,11 @@ namespace gui {
         cell_edit.set_text(data_source(cell));
         cell_edit.set_visible();
         cell_edit.take_focus();
-        cell_edit.capture_pointer();
       }
     }
 
     void table_edit::commit_edit () {
-      if (data_target) {
+      if (data_target && cell_edit.is_visible()) {
         auto pos = cell_edit.position();
         auto cell = geometrie.index_at(pos);
         data_target(cell, cell_edit.get_text());
@@ -639,7 +653,6 @@ namespace gui {
     }
 
     void table_edit::cancel_edit () {
-      cell_edit.uncapture_pointer();
       cell_edit.set_visible(false);
       data.take_focus();
     }

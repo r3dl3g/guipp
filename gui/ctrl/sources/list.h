@@ -29,7 +29,7 @@
 //
 #include "window_event_handler.h"
 #include "scroll_bar.h"
-#include "logger.h"
+#include "edit.h"
 
 
 namespace gui {
@@ -47,20 +47,24 @@ namespace gui {
         // --------------------------------------------------------------------------
         list ();
 
-        std::size_t get_count () const {
+        inline std::size_t get_count () const {
           return item_count;
         }
 
-        int get_selection () const {
+        inline int get_selection () const {
           return selection;
         }
 
-        int get_hilite () const {
+        inline int get_hilite () const {
           return hilite;
         }
 
-        bool is_scroll_bar_enabled () const {
+        inline bool is_scroll_bar_enabled () const {
           return scroll_bar_enabled;
+        }
+
+        inline bool is_valid_idx (int idx) const {
+          return (idx > -1) && (idx < static_cast<int>(get_count()));
         }
 
 
@@ -423,11 +427,20 @@ namespace gui {
         }
       }
 
-      int get_index_at_point(const core::point& pt) {
+      int get_index_at_point (const core::point& pt) {
         if (super::client_area().is_inside(pt)) {
           return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
         }
         return -1;
+      }
+
+      core::rectangle get_place_of_index (int idx) {
+        if (super::is_valid_idx(idx)) {
+          core::rectangle place = super::client_area();
+          super::set_dimension(place, S * idx - super::get_scroll_pos(), S);
+          return place;
+        }
+        return core::rectangle::zero;
       }
 
       void set_selection (int sel, event_source notify) {
@@ -558,6 +571,90 @@ namespace gui {
     using vlist = list_t<orientation::vertical, S, background>;
 
     using list = vlist<20, color::white>;
+
+    // --------------------------------------------------------------------------
+    template<int S = 20, os::color background = color::white>
+    class edit_list : public list_t<orientation::vertical, S, background> {
+    public:
+      typedef list_t<orientation::vertical, S, background> super;
+
+      typedef std::string (source) (int);
+      typedef void (target) (int, const std::string&);
+
+      edit_list ()
+        : enable_edit(true) {
+
+        super::register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::enter_edit));
+
+        cell_edit.register_event_handler(REGISTER_FUNCTION,
+                                         win::btn_down_event([&](os::key_state, const core::point& pt) {
+          if(!cell_edit.client_area().is_inside(pt)) {
+            commit_edit();
+          }
+        }));
+
+        cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
+        cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
+
+        super::scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
+          if (cell_edit.is_visible()) {
+            cell_edit.place(super::get_place_of_index(super::get_selection()));
+          }
+        }));
+
+        super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event(this, &edit_list::commit_edit));
+
+      }
+
+      void set_enable_edit (bool enable) {
+        enable_edit = enable;
+      }
+
+      bool is_edit_enabled () const {
+        return enable_edit;
+      }
+
+      void enter_edit () {
+        if (enable_edit && data_source) {
+          auto cell = super::get_selection();
+          auto area = super::get_place_of_index(cell);
+          if (!cell_edit.is_valid()) {
+            cell_edit.create(*reinterpret_cast<container*>(this), area);
+          }
+          cell_edit.place(area);
+          cell_edit.set_text(data_source(cell));
+          cell_edit.set_visible();
+          cell_edit.take_focus();
+        }
+      }
+
+      void commit_edit () {
+        if (data_target && cell_edit.is_visible()) {
+          auto pos = cell_edit.position();
+          auto cell = super::get_index_at_point(pos);
+          data_target(cell, cell_edit.get_text());
+        }
+        cancel_edit();
+      }
+
+      void cancel_edit () {
+        cell_edit.set_visible(false);
+        super::take_focus();
+      }
+
+      void set_data_source_and_target (const std::function<source>& data_source,
+                                       const std::function<target>& data_target) {
+        this->data_source = data_source;
+        this->data_target = data_target;
+      }
+
+    protected:
+      win::edit cell_edit;
+      std::function<source> data_source;
+      std::function<target> data_target;
+      bool enable_edit;
+
+    };
 
   } // win
 

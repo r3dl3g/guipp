@@ -166,7 +166,7 @@ private:
   win::simple_list_data<std::string> data;
 
   typedef win::vlist<25> List1;
-  typedef win::list List2;
+  typedef win::edit_list<> List2;
   typedef win::vlist<20, color::light_gray> List3;
 
   List1 list1;
@@ -501,6 +501,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     ok_button.enable(on);
     vscroll.enable(on);
     hscroll.enable(on);
+    table_view.set_enable_edit(on);
   }));
 
   min_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
@@ -564,6 +565,11 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
                         bool selected,
                         bool hilited) {
     data(idx, g, place, background, selected, hilited);
+  });
+  list2.set_data_source_and_target([&](int idx) {
+    return data[idx];
+  }, [&](int idx, const std::string& s) {
+    data[idx] = s;
   });
 
   list2.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
@@ -700,10 +706,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
   */
 
-  table_view.columns.set_selection_filter([] (const win::table::position& cell,
-                                              const win::table::metric& geo) {
-    return (geo.selection.column == cell.column);
-  });
+//  table_view.columns.set_selection_filter([] (const win::table::position& cell,
+//                                              const win::table::metric& geo) {
+//    return (geo.selection.column == cell.column);
+//  });
 
   table_view.set_data_source_and_target([&](const win::table::position& cell) -> std::string {
     return table_data.get_cell(cell);

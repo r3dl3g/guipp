@@ -436,7 +436,7 @@ namespace gui {
 
       core::rectangle get_place_of_index (int idx) {
         if (super::is_valid_idx(idx)) {
-          core::rectangle place = super::client_area();
+          core::rectangle place(super::client_size());
           super::set_dimension(place, S * idx - super::get_scroll_pos(), S);
           return place;
         }
@@ -510,8 +510,7 @@ namespace gui {
           std::max(zero, (S * (pos_t)super::get_count()) - super::get_list_size());
         auto value = std::min(std::max(zero, pos), max_delta);
         if (value != super::scrollbar.get_value()) {
-          super::scrollbar.set_value(value);
-          super::redraw_later();
+          super::scrollbar.set_value(value, true);
         }
       }
 

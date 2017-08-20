@@ -5,7 +5,7 @@
         "name": "x86-Debug",
         "generator": "Visual Studio 15 2017",
         "configurationType" : "Debug",
-        "buildRoot":  "${ProjectDir}\\build-vc15\\${name}",
+        "buildRoot":  "${ProjectDir}\\build\\vc15\\${name}",
         "cmakeCommandArgs":  "",
         "buildCommandArgs": "-m -v:minimal"
         },
@@ -13,7 +13,7 @@
         "name": "x86-Release",
         "generator": "Visual Studio 15 2017",
         "configurationType": "Release",
-        "buildRoot": "${ProjectDir}\\build-vc15\\${name}",
+        "buildRoot": "${ProjectDir}\\build\\vc15\\${name}",
         "cmakeCommandArgs": "",
         "buildCommandArgs": "-m -v:minimal"
       },
@@ -21,7 +21,7 @@
         "name": "x64-Debug",
         "generator": "Visual Studio 15 2017 Win64",
         "configurationType": "Debug",
-        "buildRoot": "${ProjectDir}\\build-vc15\\${name}",
+        "buildRoot": "${ProjectDir}\\build\\vc15\\${name}",
         "cmakeCommandArgs": "",
         "buildCommandArgs": "-m -v:minimal"
       },
@@ -29,7 +29,7 @@
         "name": "x64-Release",
         "generator": "Visual Studio 15 2017 Win64",
         "configurationType": "Release",
-        "buildRoot": "${ProjectDir}\\build-vc15\\${name}",
+        "buildRoot": "${ProjectDir}\\build\\vc15\\${name}",
         "cmakeCommandArgs": "",
         "buildCommandArgs": "-m -v:minimal"
       }

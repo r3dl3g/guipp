@@ -1,0 +1,3 @@
+[submodule "ibr_std_lib"]
+	path = ibr_std_lib
+	url = git@red-space.de:/srv/git/ibr_std_lib.git

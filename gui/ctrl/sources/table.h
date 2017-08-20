@@ -683,7 +683,7 @@ namespace gui {
                                        const std::function<table::data_target>& data_target);
 
     protected:
-      win::edit cell_edit;
+      win::edit editor;
       std::function<table::data_source> data_source;
       std::function<table::data_target> data_target;
       bool enable_edit;

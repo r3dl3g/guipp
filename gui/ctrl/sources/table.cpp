@@ -603,24 +603,24 @@ namespace gui {
     {
       register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::enter_edit));
 
-      cell_edit.register_event_handler(REGISTER_FUNCTION,
+      editor.register_event_handler(REGISTER_FUNCTION,
                                        win::btn_down_event([&](os::key_state, const core::point& pt) {
-        if(!cell_edit.client_area().is_inside(pt)) {
+        if(!editor.client_area().is_inside(pt)) {
           commit_edit();
         }
       }));
 
-      cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &table_edit::cancel_edit));
-      cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::commit_edit));
+      editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &table_edit::cancel_edit));
+      editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::commit_edit));
 
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-        if (cell_edit.is_visible()) {
-          cell_edit.move(geometrie.position_of(get_selection()));
+        if (editor.is_visible()) {
+          editor.move(geometrie.position_of(get_selection()));
         }
       }));
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-        if (cell_edit.is_visible()) {
-          cell_edit.move(geometrie.position_of(get_selection()));
+        if (editor.is_visible()) {
+          editor.move(geometrie.position_of(get_selection()));
         }
       }));
 
@@ -633,27 +633,27 @@ namespace gui {
         auto cell = get_selection();
         auto pt = geometrie.position_of(cell);
         auto sz = geometrie.get_size(cell);
-        if (!cell_edit.is_valid()) {
-          cell_edit.create(*reinterpret_cast<container*>(&data), core::rectangle(0, 0, 10, 10));
+        if (!editor.is_valid()) {
+          editor.create(*reinterpret_cast<container*>(&data), core::rectangle(0, 0, 10, 10));
         }
-        cell_edit.place(core::rectangle(pt, sz));
-        cell_edit.set_text(data_source(cell));
-        cell_edit.set_visible();
-        cell_edit.take_focus();
+        editor.place(core::rectangle(pt, sz));
+        editor.set_text(data_source(cell));
+        editor.set_visible();
+        editor.take_focus();
       }
     }
 
     void table_edit::commit_edit () {
-      if (data_target && cell_edit.is_visible()) {
-        auto pos = cell_edit.position();
+      if (data_target && editor.is_visible()) {
+        auto pos = editor.position();
         auto cell = geometrie.index_at(pos);
-        data_target(cell, cell_edit.get_text());
+        data_target(cell, editor.get_text());
       }
       cancel_edit();
     }
 
     void table_edit::cancel_edit () {
-      cell_edit.set_visible(false);
+      editor.set_visible(false);
       data.take_focus();
     }
 

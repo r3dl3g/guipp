@@ -585,19 +585,19 @@ namespace gui {
 
         super::register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::enter_edit));
 
-        cell_edit.register_event_handler(REGISTER_FUNCTION,
+        editor.register_event_handler(REGISTER_FUNCTION,
                                          win::btn_down_event([&](os::key_state, const core::point& pt) {
-          if(!cell_edit.client_area().is_inside(pt)) {
+          if(!editor.client_area().is_inside(pt)) {
             commit_edit();
           }
         }));
 
-        cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
-        cell_edit.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
+        editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
+        editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
 
         super::scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-          if (cell_edit.is_visible()) {
-            cell_edit.place(super::get_place_of_index(super::get_selection()));
+          if (editor.is_visible()) {
+            editor.place(super::get_place_of_index(super::get_selection()));
           }
         }));
 
@@ -617,27 +617,27 @@ namespace gui {
         if (enable_edit && data_source) {
           auto cell = super::get_selection();
           auto area = super::get_place_of_index(cell);
-          if (!cell_edit.is_valid()) {
-            cell_edit.create(*reinterpret_cast<container*>(this), area);
+          if (!editor.is_valid()) {
+            editor.create(*reinterpret_cast<container*>(this), area);
           }
-          cell_edit.place(area);
-          cell_edit.set_text(data_source(cell));
-          cell_edit.set_visible();
-          cell_edit.take_focus();
+          editor.place(area);
+          editor.set_text(data_source(cell));
+          editor.set_visible();
+          editor.take_focus();
         }
       }
 
       void commit_edit () {
-        if (data_target && cell_edit.is_visible()) {
-          auto pos = cell_edit.position();
+        if (data_target && editor.is_visible()) {
+          auto pos = editor.position();
           auto cell = super::get_index_at_point(pos);
-          data_target(cell, cell_edit.get_text());
+          data_target(cell, editor.get_text());
         }
         cancel_edit();
       }
 
       void cancel_edit () {
-        cell_edit.set_visible(false);
+        editor.set_visible(false);
         super::take_focus();
       }
 
@@ -648,7 +648,7 @@ namespace gui {
       }
 
     protected:
-      win::edit cell_edit;
+      win::edit editor;
       std::function<source> data_source;
       std::function<target> data_target;
       bool enable_edit;

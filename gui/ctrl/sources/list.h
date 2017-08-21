@@ -39,6 +39,18 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
+      struct list_data {
+        list_data ();
+
+        std::size_t item_count;
+        int selection;
+        int hilite;
+        bool moved;
+        bool scroll_bar_enabled;
+        core::point last_mouse_point;
+      };
+
+      // --------------------------------------------------------------------------
       class list : public window {
       public:
         typedef window super;
@@ -46,21 +58,31 @@ namespace gui {
 
         // --------------------------------------------------------------------------
         list ();
+        list (const list&);
+        list (list&&);
 
         inline std::size_t get_count () const {
-          return item_count;
+          return data.item_count;
         }
 
         inline int get_selection () const {
-          return selection;
+          return data.selection;
         }
 
         inline int get_hilite () const {
-          return hilite;
+          return data.hilite;
         }
 
         inline bool is_scroll_bar_enabled () const {
-          return scroll_bar_enabled;
+          return data.scroll_bar_enabled;
+        }
+
+        inline bool is_moved () const {
+          return data.moved;
+        }
+
+        inline core::point get_last_mouse_point () const {
+          return data.last_mouse_point;
         }
 
         inline bool is_valid_idx (int idx) const {
@@ -86,14 +108,11 @@ namespace gui {
                         bool selected,
                         bool hilited) const;
 
-        std::size_t item_count;
-        int selection;
-        int hilite;
-        bool moved;
-        bool scroll_bar_enabled;
-        core::point last_mouse_point;
+        list_data data;
 
       private:
+        void init ();
+
         std::function<draw_list_item> drawer;
 
       };
@@ -132,12 +151,12 @@ namespace gui {
         }
 
         void enable_scroll_bar (bool enable) {
-          scroll_bar_enabled = enable;
-          if (scroll_bar_enabled) {
+          super::data.scroll_bar_enabled = enable;
+          if (enable) {
             create_scroll_bar();
           }
-          scrollbar.enable(scroll_bar_enabled);
-          scrollbar.set_visible(scroll_bar_enabled && scrollbar.get_max());
+          scrollbar.enable(enable);
+          scrollbar.set_visible(enable && scrollbar.get_max());
         }
 
         bool is_scroll_bar_visible () const {
@@ -158,6 +177,9 @@ namespace gui {
         core::rectangle get_scroll_bar_area () const;
 
         detail::scroll_barT<V> scrollbar;
+
+      private:
+        void init ();
       };
 
       // --------------------------------------------------------------------------
@@ -297,11 +319,11 @@ namespace gui {
 
       void handle_wheel(const pos_t delta, const core::point&) {
         set_scroll_pos(super::get_scroll_pos() - item_size * delta);
-        super::moved = true;
+        super::data.moved = true;
       }
 
       void handle_left_btn_up (os::key_state keys, const core::point& pt) {
-        if (!super::moved && (super::last_mouse_point != core::point::undefined)) {
+        if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
           const int new_selection = get_index_at_point(pt);
           if (new_selection != super::get_selection()) {
             set_selection(new_selection, event_source::mouse);
@@ -310,18 +332,18 @@ namespace gui {
           }
           super::redraw_later();
         }
-        super::last_mouse_point = core::point::undefined;
+        super::data.last_mouse_point = core::point::undefined;
       }
 
       void handle_mouse_move(os::key_state keys, const core::point& pt) {
         const core::rectangle r = super::client_area();
         if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-          if (super::last_mouse_point != core::point::undefined) {
-            pos_t delta = super::get_dimension(super::last_mouse_point) - super::get_dimension(pt);
+          if (super::get_last_mouse_point() != core::point::undefined) {
+            pos_t delta = super::get_dimension(super::get_last_mouse_point()) - super::get_dimension(pt);
             set_scroll_pos(super::get_scroll_pos() + delta);
-            super::moved = true;
+            super::data.moved = true;
           }
-          super::last_mouse_point = pt;
+          super::data.last_mouse_point = pt;
         } else {
           set_hilite(get_index_at_point(pt));
         }
@@ -414,7 +436,7 @@ namespace gui {
       }
 
       void set_count (std::size_t count) {
-        super::item_count = count;
+        super::data.item_count = count;
 
         const pos_t sz = super::get_list_size();
         const pos_t visible = (item_size * static_cast<pos_t>(count)) - sz;
@@ -452,8 +474,8 @@ namespace gui {
         if (new_selection >= static_cast<int>(super::get_count())) {
           new_selection = -1;
         }
-        if (super::selection != new_selection) {
-          super::selection = new_selection;
+        if (super::data.selection != new_selection) {
+          super::data.selection = new_selection;
           make_selection_visible();
           if (notify != event_source::logic) {
             send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
@@ -463,8 +485,8 @@ namespace gui {
       }
 
       void clear_selection (event_source notify) {
-        if (super::selection != -1) {
-          super::selection = -1;
+        if (super::data.selection != -1) {
+          super::data.selection = -1;
           if (notify != event_source::logic) {
             send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
             super::redraw_later();
@@ -473,8 +495,8 @@ namespace gui {
       }
 
       void make_selection_visible () {
-        if (super::selection > -1) {
-          const pos_t sel_pos = static_cast<pos_t>(item_size * super::selection);
+        if (super::data.selection > -1) {
+          const pos_t sel_pos = static_cast<pos_t>(item_size * super::data.selection);
           const pos_t sz = super::get_list_size();
 
           if (sel_pos < super::get_scroll_pos()) {
@@ -490,8 +512,8 @@ namespace gui {
         if (new_hilite >= static_cast<int>(super::get_count())) {
           new_hilite = -1;
         }
-        if (super::hilite != new_hilite) {
-          super::hilite = new_hilite;
+        if (super::get_hilite() != new_hilite) {
+          super::data.hilite = new_hilite;
           if (notify) {
             send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
             super::redraw_later();
@@ -500,8 +522,8 @@ namespace gui {
       }
 
       void clear_hilite (bool notify = true) {
-        if (super::hilite != -1) {
-          super::hilite = -1;
+        if (super::get_hilite() != -1) {
+          super::data.hilite = -1;
           if (notify) {
             send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
             super::redraw_later();
@@ -547,7 +569,7 @@ namespace gui {
 
       void adjust_scroll_bar () {
         if (super::is_scroll_bar_enabled()) {
-          scroll_bar::type visible = (item_size * super::item_count) - super::get_list_size();
+          scroll_bar::type visible = (item_size * super::get_count()) - super::get_list_size();
           const bool show_scroll = (visible > zero);
           if (show_scroll) {
             super::create_scroll_bar();

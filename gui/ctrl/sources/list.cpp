@@ -34,22 +34,40 @@ namespace gui {
 
     namespace detail {
 
-      // --------------------------------------------------------------------------
-      list::list ()
+      list_data::list_data ()
         : item_count(0)
         , selection(-1)
         , hilite(-1)
         , moved(false)
         , scroll_bar_enabled(true)
         , last_mouse_point(core::point::undefined)
+      {}
+
+      // --------------------------------------------------------------------------
+      list::list () {
+        init();
+      }
+
+      list::list (const list& rhs)
+        : super(rhs)
       {
+        init();
+      }
+
+      list::list (list&& rhs)
+        : super(std::move(rhs))
+      {
+        init();
+      }
+
+      void list::init () {
         set_accept_focus(true);
 #ifdef X11
         detail::init_control_messages();
 #endif // X11
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-          last_mouse_point = pt;
-          moved = false;
+          data.last_mouse_point = pt;
+          data.moved = false;
           take_focus();
         }));
       }

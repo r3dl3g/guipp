@@ -229,6 +229,10 @@ namespace gui {
                    os::window parent,
                    const core::rectangle&);
 
+      inline bool is_focus_accepting () const {
+        return focus_accepting;
+      }
+
     private:
       friend void detail::set_id (window*, os::window);
 

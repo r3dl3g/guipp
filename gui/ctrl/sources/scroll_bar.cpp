@@ -40,14 +40,35 @@ namespace gui {
     }
 #endif //WIN32
 
-    // --------------------------------------------------------------------------
-    scroll_bar::scroll_bar ()
+    scroll_bar_data::scroll_bar_data ()
       : min(0)
       , max(100)
       , step(10)
       , value(0)
-      , state(State::Nothing_pressed)
+      , state(scrollbar_state::nothing)
+      , last_value(0)
+    {}
+
+    // --------------------------------------------------------------------------
+    scroll_bar::scroll_bar () {
+      init();
+    }
+
+    scroll_bar::scroll_bar (const scroll_bar& rhs)
+      : super(rhs)
+      , data(rhs.data)
     {
+      init();
+    }
+
+    scroll_bar::scroll_bar (scroll_bar&& rhs)
+      : super(std::move(rhs))
+      , data(std::move(rhs.data))
+    {
+      init();
+    }
+
+    void scroll_bar::init () {
       set_accept_focus(true);
 #ifdef X11
       detail::init_control_messages();
@@ -61,53 +82,53 @@ namespace gui {
     }
 
     scroll_bar::type scroll_bar::get_min () const {
-      return min;
+      return data.min;
     }
 
     scroll_bar::type scroll_bar::get_max () const {
-      return max;
+      return data.max;
     }
 
     scroll_bar::type scroll_bar::get_step () const {
-      return step;
+      return data.step;
     }
 
     scroll_bar::type scroll_bar::get_value () const {
-      return value;
+      return data.value;
     }
 
-    scroll_bar::State scroll_bar::get_state () {
-      return state;
+    scrollbar_state scroll_bar::get_state () {
+      return data.state;
     }
 
     void scroll_bar::set_min (type mi) {
-      min = mi;
-      value = std::max(value, min);
+      data.min = mi;
+      data.value = std::max(data.value, data.min);
       redraw_later();
     }
 
     void scroll_bar::set_max (type ma) {
-      max = ma;
-      value = std::min(value, max);
+      data.max = ma;
+      data.value = std::min(data.value, data.max);
       redraw_later();
     }
 
     void scroll_bar::set_min_max (type mi, type ma) {
-      min = mi;
-      max = ma;
-      value = std::max(value, min);
+      data.min = mi;
+      data.max = ma;
+      data.value = std::max(data.value, data.min);
       redraw_later();
     }
 
     void scroll_bar::set_step (type s) {
-      step = s;
+      data.step = s;
       redraw_later();
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {
-      min = mi;
-      max = ma;
-      step = s;
+      data.min = mi;
+      data.max = ma;
+      data.step = s;
       redraw_later();
     }
 
@@ -117,24 +138,41 @@ namespace gui {
     }
 
     void scroll_bar::set_value (type v, bool notify) {
-      v = std::min(std::max(v, min), max);
-      if (v != value) {
-        value = v;
+      v = std::min(std::max(v, data.min), data.max);
+      if (v != data.value) {
+        data.value = v;
         redraw_later();
         if (notify) {
-          send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(value));
+          send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
         }
       }
     }
 
-    void scroll_bar::set_state (State s) {
-      state = s;
+    void scroll_bar::set_state (scrollbar_state s) {
+      data.state = s;
     }
+
+    scroll_bar::type scroll_bar::get_last_value () const {
+      return data.last_value;
+    }
+
+    void scroll_bar::set_last_value(type last_value) {
+      data.last_value = last_value;
+    }
+
+    core::point scroll_bar::get_last_mouse_point () const {
+      return data.last_mouse_point;
+    }
+
+    void scroll_bar::set_last_mouse_point(core::point last_mouse_point) {
+      data.last_mouse_point = last_mouse_point;
+    }
+
 
     namespace paint {
       // --------------------------------------------------------------------------
       void scrollbar (const draw::graphics &g,
-                      scroll_bar::State state,
+                      scrollbar_state state,
                       bool is_enabled,
                       bool horizontal,
                       bool has_focus,
@@ -145,18 +183,18 @@ namespace gui {
                       const core::rectangle& page_down) {
         if (!page_up.empty()) {
           g.fill(draw::rectangle(page_up),
-            state == scroll_bar::State::Page_up_pressed ? color::light_gray
+            state == scrollbar_state::page_up ? color::light_gray
                                                         : color::very_light_gray);
         }
         if (!page_down.empty()) {
           g.fill(draw::rectangle(page_down + core::size::one),
-                 state == scroll_bar::State::Page_down_pressed ? color::light_gray
+                 state == scrollbar_state::page_down ? color::light_gray
                                                                : color::very_light_gray);
         }
         os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
           g.fill(draw::rectangle(up), color::buttonColor());
-          draw::frame::relief(g, up, state == scroll_bar::State::Up_button_pressed);
+          draw::frame::relief(g, up, state == scrollbar_state::up_button);
           core::rectangle r = up.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -170,7 +208,7 @@ namespace gui {
         }
         if (!down.empty()) {
           g.fill(draw::rectangle(down), color::buttonColor());
-          draw::frame::relief(g, down, state == scroll_bar::State::Down_button_pressed);
+          draw::frame::relief(g, down, state == scrollbar_state::down_button);
           core::rectangle r = down.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -206,9 +244,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      scroll_barT<orientation::horizontal>::scroll_barT (bool grab_focus)
-        : last_position(0) {
-        set_accept_focus(grab_focus);
+      void scroll_barT<orientation::horizontal>::init () {
         register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
@@ -223,25 +259,25 @@ namespace gui {
             if (accept_focus()) {
               take_focus();
             }
-            last_mouse_point = pt;
-            last_position = get_value();
+            set_last_mouse_point(pt);
+            set_last_value(get_value());
 
             auto geo = get_geometry();
 
-            if (up_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Up_button_pressed);
-            } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Down_button_pressed);
-            } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Thumb_button_pressed);
-            } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Page_up_pressed);
-            } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Page_down_pressed);
+            if (up_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::up_button);
+            } else if (down_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::down_button);
+            } else if (thumb_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::thumb_button);
+            } else if (page_up_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_up);
+            } else if (page_down_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_down);
             } else {
-              set_state(State::Nothing_pressed);
+              set_state(scrollbar_state::nothing);
             }
-            if (get_state() != State::Nothing_pressed) {
+            if (get_state() != scrollbar_state::nothing) {
               capture_pointer();
             }
             redraw_later();
@@ -251,28 +287,28 @@ namespace gui {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
-              case State::Up_button_pressed:
+              case scrollbar_state::up_button:
                 if (up_button_place(geo).is_inside(pt)) {
                   set_value(get_value() - 1, true);
                 }
                 break;
-              case State::Down_button_pressed:
+              case scrollbar_state::down_button:
                 if (down_button_place(geo).is_inside(pt)) {
                   set_value(get_value() + 1, true);
                 }
                 break;
-              case State::Page_up_pressed:
+              case scrollbar_state::page_up:
                 if (page_up_place(geo).is_inside(pt)) {
                   set_value(get_value() - get_step(), true);
                 }
                 break;
-              case State::Page_down_pressed:
+              case scrollbar_state::page_down:
                 if (page_down_place(geo).is_inside(pt)) {
                   set_value(get_value() + get_step(), true);
                 }
                 break;
             }
-            set_state(State::Nothing_pressed);
+            set_state(scrollbar_state::nothing);
             uncapture_pointer();
             redraw_later();
           }
@@ -285,9 +321,9 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
-            if (get_state() == State::Thumb_button_pressed) {
-              type delta = (pt.x() - last_mouse_point.x()) / get_scale();
-              set_value(last_position + delta, true);
+            if (get_state() == scrollbar_state::thumb_button) {
+              type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
+              set_value(get_last_value() + delta, true);
             }
           }
         }));
@@ -324,9 +360,7 @@ namespace gui {
       }
 
       template<>
-      scroll_barT<orientation::vertical>::scroll_barT (bool grab_focus)
-        : last_position(0) {
-        set_accept_focus(grab_focus);
+      void scroll_barT<orientation::vertical>::init () {
         register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
           auto geo = get_geometry();
           auto up = up_button_place(geo);
@@ -341,25 +375,25 @@ namespace gui {
             if (accept_focus()) {
               take_focus();
             }
-            last_mouse_point = pt;
-            last_position = get_value();
+            set_last_mouse_point(pt);
+            set_last_value(get_value());
 
             auto geo = get_geometry();
 
-            if (up_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Up_button_pressed);
-            } else if (down_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Down_button_pressed);
-            } else if (thumb_button_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Thumb_button_pressed);
-            } else if (page_up_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Page_up_pressed);
-            } else if (page_down_place(geo).is_inside(last_mouse_point)) {
-              set_state(State::Page_down_pressed);
+            if (up_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::up_button);
+            } else if (down_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::down_button);
+            } else if (thumb_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::thumb_button);
+            } else if (page_up_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_up);
+            } else if (page_down_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_down);
             } else {
-              set_state(State::Nothing_pressed);
+              set_state(scrollbar_state::nothing);
             }
-            if (get_state() != State::Nothing_pressed) {
+            if (get_state() != scrollbar_state::nothing) {
               capture_pointer();
             }
             redraw_later();
@@ -369,29 +403,29 @@ namespace gui {
           if (is_enabled()) {
             auto geo = get_geometry();
             switch (get_state()) {
-              case State::Up_button_pressed:
+              case scrollbar_state::up_button:
                 if (up_button_place(geo).is_inside(pt)) {
                   set_value(get_value() - 1, true);
                 }
                 break;
-              case State::Down_button_pressed:
+              case scrollbar_state::down_button:
                 if (down_button_place(geo).is_inside(pt)) {
                   set_value(get_value() + 1, true);
                 }
                 break;
-              case State::Page_up_pressed:
+              case scrollbar_state::page_up:
                 if (page_up_place(geo).is_inside(pt)) {
                   set_value(get_value() - get_step(), true);
                 }
                 break;
-              case State::Page_down_pressed:
+              case scrollbar_state::page_down:
                 if (page_down_place(geo).is_inside(pt)) {
                   set_value(get_value() + get_step(), true);
                 }
                 break;
             }
-            if (get_state() != State::Nothing_pressed) {
-              set_state(State::Nothing_pressed);
+            if (get_state() != scrollbar_state::nothing) {
+              set_state(scrollbar_state::nothing);
               uncapture_pointer();
             }
             redraw_later();
@@ -405,9 +439,9 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
             // check if on thumb
-            if (get_state() == State::Thumb_button_pressed) {
-              type delta = (pt.y() - last_mouse_point.y()) / get_scale();
-              set_value(last_position + delta, true);
+            if (get_state() == scrollbar_state::thumb_button) {
+              type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
+              set_value(get_last_value() + delta, true);
             }
           }
         }));

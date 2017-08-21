@@ -54,10 +54,35 @@ namespace gui {
     // --------------------------------------------------------------------------
 #endif // X11
 
+    enum class scrollbar_state {
+      nothing,
+      up_button,
+      page_up,
+      thumb_button,
+      page_down,
+      down_button
+    };
+
+    struct scroll_bar_data {
+      typedef core::point::type type;
+
+      scroll_bar_data ();
+
+      scrollbar_state state;
+
+      type min;
+      type max;
+      type step;
+      type value;
+
+      type last_value;
+      core::point last_mouse_point;
+    };
+
     class scroll_bar : public window {
     public:
       typedef window super;
-      typedef core::point::type type;
+      typedef scroll_bar_data::type type;
 
       type get_min () const;
       type get_max () const;
@@ -83,38 +108,35 @@ namespace gui {
         return scroll_bar_width;
       }
 
-      enum class State {
-        Nothing_pressed,
-        Up_button_pressed,
-        Page_up_pressed,
-        Thumb_button_pressed,
-        Page_down_pressed,
-        Down_button_pressed
-      };
-
-      State get_state ();
+      scrollbar_state get_state ();
 
     protected:
       scroll_bar ();
+      scroll_bar (const scroll_bar&);
+      scroll_bar (scroll_bar&&);
 
       void create (const window_class& type,
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void set_state (State);
+      void set_state (scrollbar_state);
+
+      type get_last_value () const;
+      void set_last_value(type last_value);
+
+      core::point get_last_mouse_point () const;
+      void set_last_mouse_point(core::point last_mouse_point);
 
     private:
-      State state;
-      type min;
-      type max;
-      type step;
-      type value;
+      void init ();
+
+      scroll_bar_data data;
 
     };
 
     namespace paint {
       void scrollbar (const draw::graphics &g,
-                      scroll_bar::State state,
+                      scrollbar_state state,
                       bool is_enabled,
                       bool horizontal,
                       bool has_focus,
@@ -140,7 +162,22 @@ namespace gui {
       public:
         typedef scroll_bar super;
 
-        scroll_barT (bool grab_focus = true);
+        scroll_barT (bool grab_focus = true) {
+          set_accept_focus(grab_focus);
+          init();
+        }
+
+        scroll_barT (const scroll_barT& rhs)
+          : super(rhs)
+        {
+          init();
+        }
+
+        scroll_barT (scroll_barT&& rhs)
+          : super(std::move(rhs))
+        {
+          init();
+        }
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
@@ -149,6 +186,8 @@ namespace gui {
 
       private:
         static scroll_bar_class<H> clazz;
+
+        void init ();
 
         struct geometry {
           type length;
@@ -226,18 +265,16 @@ namespace gui {
           return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
         }
 
-        core::point last_mouse_point;
-        type last_position;
       };
 
       template<orientation H>
       scroll_bar_class<H> scroll_barT<H>::clazz;
 
       template<>
-      scroll_barT<orientation::vertical>::scroll_barT (bool);
+      void scroll_barT<orientation::vertical>::init ();
 
       template<>
-      scroll_barT<orientation::horizontal>::scroll_barT (bool);
+      void scroll_barT<orientation::horizontal>::init ();
 
       template<>
       inline scroll_bar::type scroll_barT<orientation::horizontal>::length (const core::size& sz) {

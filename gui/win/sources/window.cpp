@@ -373,8 +373,8 @@ namespace gui {
       return p ? p->screen_to_client(pt) : pt;
     }
 
-    const window_class* window::get_window_class () const {
-      return cls;
+    const window_class& window::get_window_class () const {
+      return *cls;
     }
 
     void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
@@ -472,6 +472,36 @@ namespace gui {
       , window_disabled(false)
       , focus_accepting(false)
     {
+      init();
+    }
+
+    window::window (const window& rhs)
+      : id(0)
+      , redraw_disabled(rhs.redraw_disabled)
+      , window_disabled(rhs.window_disabled)
+      , focus_accepting(rhs.focus_accepting)
+    {
+      init();
+      if (rhs.is_valid()) {
+        container* parent = get_parent();
+        create(get_window_class(),
+               parent ? parent->get_id()
+                      : DefaultRootWindow(core::global::get_instance()),
+               place());
+      }
+    }
+
+    window::window (window&& rhs)
+      : id(0)
+      , redraw_disabled(rhs.redraw_disabled)
+      , window_disabled(rhs.window_disabled)
+      , focus_accepting(rhs.focus_accepting)
+      , cls(rhs.cls)
+    {
+      std::swap(id, rhs.id);
+    }
+
+    void window::init () {
       detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
       detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
       detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
@@ -652,10 +682,10 @@ namespace gui {
       if (window_disabled == on) {
         window_disabled = !on;
 
-        if (get_window_class()->get_cursor()) {
+        if (get_window_class().get_cursor()) {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa = { 0 };
-          wa.cursor = on ? get_window_class()->get_cursor()
+          wa.cursor = on ? get_window_class().get_cursor()
                          : XCreateFontCursor(core::global::get_instance(), XC_arrow);
           check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
         }
@@ -991,6 +1021,17 @@ namespace gui {
     window_with_text::window_with_text (const text_source& t)
       : text(t)
     {}
+
+    window_with_text::window_with_text (const window_with_text& rhs)
+      : super(rhs)
+      , text(rhs.text)
+    {}
+
+    window_with_text::window_with_text (window_with_text&& rhs)
+      : super(rhs)
+    {
+      std::swap(text, rhs.text);
+    }
 
     void window_with_text::set_text (const std::string& t) {
       set_text(const_text(t));

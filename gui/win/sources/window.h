@@ -173,7 +173,7 @@ namespace gui {
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
-      const window_class* get_window_class () const;
+      const window_class& get_window_class () const;
 
       void capture_pointer ();
       void uncapture_pointer ();
@@ -209,6 +209,12 @@ namespace gui {
       }
 
     protected:
+      window (const window&);
+      window (window&&);
+
+      window& operator=(const window&) = delete;
+      window& operator=(window&&) = delete;
+
       void create (const window_class&,
                    const container&,
                    const core::rectangle& = core::rectangle::def);
@@ -225,6 +231,8 @@ namespace gui {
 
     private:
       friend void detail::set_id (window*, os::window);
+
+      void init ();
 
       os::window id;
       const window_class* cls;
@@ -256,13 +264,21 @@ namespace gui {
       void shift_focus (window&, bool backward = false);
       void forward_focus (bool backward = false);
 
+    protected:
+      container (const container&) = delete;
+      container (container&&) = delete;
     };
 
     // --------------------------------------------------------------------------
     class window_with_text : public window {
     public:
+      typedef window super;
+
       window_with_text (const std::string& = std::string());
       window_with_text (const text_source&);
+
+      window_with_text (const window_with_text& rhs);
+      window_with_text (window_with_text&& rhs);
 
       void set_text (const text_source&);
       void set_text (const std::string&);
@@ -276,6 +292,19 @@ namespace gui {
     // --------------------------------------------------------------------------
     class client_window : public window {
     public:
+      typedef window super;
+
+      client_window ()
+      {}
+
+      client_window (const client_window& rhs)
+        : super(rhs)
+      {}
+
+      client_window (client_window&& rhs)
+        : super(rhs)
+      {}
+
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def) {
         window::create(clazz, parent, r);

@@ -657,7 +657,7 @@ namespace gui {
     };
 
     template<orientation V>
-    no_erase_window_class list_t<V>::clazz = no_erase_window_class("list++");
+    no_erase_window_class list_t<V>::clazz = no_erase_window_class(typeid(list_t<V>).name());
 
     // --------------------------------------------------------------------------
     typedef list_t<orientation::horizontal> hlist;

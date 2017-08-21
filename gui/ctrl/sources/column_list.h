@@ -475,7 +475,7 @@ namespace gui {
       };
 
       template<typename L>
-      no_erase_window_class base_column_list<L>::clazz = no_erase_window_class("column_list++");
+      no_erase_window_class base_column_list<L>::clazz = no_erase_window_class(typeid(base_column_list<L>).name());
 
     }
 

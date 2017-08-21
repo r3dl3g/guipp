@@ -917,49 +917,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    window_with_text::window_with_text (const std::string& t)
-      : text(const_text(t))
-    {}
-
-    window_with_text::window_with_text (const text_source& t)
-      : text(t)
-    {}
-
-    window_with_text::window_with_text (const window_with_text& rhs)
-      : super(rhs)
-      , text(rhs.text)
-    {}
-
-    window_with_text::window_with_text (window_with_text&& rhs)
-      : super(rhs)
-    {
-      std::swap(text, rhs.text);
-    }
-
-    void window_with_text::set_text (const std::string& t) {
-      set_text(const_text(t));
-    }
-
-    void window_with_text::set_text(const text_source& t) {
-      text = t;
-      redraw_later();
-    }
-
-    std::string window_with_text::get_text() const {
-      return text();
-    }
-
-    // --------------------------------------------------------------------------
-    const window_class client_window::clazz("client_window",
-#ifdef WIN32
-                                      (os::color)(COLOR_BTNFACE + 1)
-#endif // WIN32
-#ifdef X11
-                                      color::buttonColor()
-#endif
-    );
-
-    // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
       return child.get_parent() == this;
     }
@@ -1088,6 +1045,49 @@ namespace gui {
       }
       window::shift_focus(backward);
     }
+
+    // --------------------------------------------------------------------------
+    window_with_text::window_with_text (const std::string& t)
+      : text(const_text(t))
+    {}
+
+    window_with_text::window_with_text (const text_source& t)
+      : text(t)
+    {}
+
+    window_with_text::window_with_text (const window_with_text& rhs)
+      : super(rhs)
+      , text(rhs.text)
+    {}
+
+    window_with_text::window_with_text (window_with_text&& rhs)
+      : super(rhs)
+    {
+      std::swap(text, rhs.text);
+    }
+
+    void window_with_text::set_text (const std::string& t) {
+      set_text(const_text(t));
+    }
+
+    void window_with_text::set_text(const text_source& t) {
+      text = t;
+      redraw_later();
+    }
+
+    std::string window_with_text::get_text() const {
+      return text();
+    }
+
+    // --------------------------------------------------------------------------
+    const window_class client_window::clazz("client_window",
+#ifdef WIN32
+    (os::color)(COLOR_BTNFACE + 1)
+#endif // WIN32
+#ifdef X11
+                                            color::buttonColor()
+#endif
+    );
 
     // --------------------------------------------------------------------------
 #ifdef WIN32

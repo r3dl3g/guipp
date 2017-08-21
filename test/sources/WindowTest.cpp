@@ -277,18 +277,16 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , paint2(p2)
   , at_paint1(true)
   , at_drag(false)
-  , column_list(20, color::very_very_light_gray)
+  , column_list(my_column_list_t(20, color::very_very_light_gray))
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
   , calc_pressed(false)
   , table_view(50, 20)
   , table_data(std::string())
 {
-  main_split_view.second.second.list.set_item_size(16);
-  main_split_view.second.second.list.set_background(color::very_light_gray);
+  main_split_view.second.second.list.set_item_size_and_background(16, color::very_light_gray);
   list1.set_item_size(25);
-  list3.set_item_size(20);
-  list3.set_background(color::light_gray);
+  list3.set_item_size_and_background(20, color::light_gray);
 
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 

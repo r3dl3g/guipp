@@ -81,6 +81,9 @@ namespace gui {
         typedef core::range<pos_t> range;
 
         edit_base ();
+        edit_base (const edit_base&);
+        edit_base (edit_base&&);
+
         ~edit_base ();
 
         void create (const container& parent,
@@ -114,19 +117,25 @@ namespace gui {
         void prepare_input ();
         pos_t get_char_at_point (const core::point& pt);
 
-        std::string text;
+        struct data {
+          data ();
 
-        range selection;
-        pos_t cursor_pos;
-        pos_t text_limit;
-        pos_t scroll_pos;
-        core::point last_mouse_point;
+          std::string text;
+
+          range selection;
+          pos_t cursor_pos;
+          pos_t text_limit;
+          pos_t scroll_pos;
+          core::point last_mouse_point;
 #ifdef X11
-        XIM im;
-        XIC ic;
+          XIM im;
+          XIC ic;
 #endif // X11
+        } data;
 
       private:
+        void init ();
+
         static window_class clazz;
       };
     }
@@ -150,6 +159,18 @@ namespace gui {
       typedef detail::edit_base super;
 
       edit_t () {
+        register_handler(A);
+      }
+
+      edit_t (const edit_t& rhs)
+        : super(rhs)
+      {
+        register_handler(A);
+      }
+
+      edit_t (edit_t&& rhs)
+        : super(std::move(rhs))
+      {
         register_handler(A);
       }
     };

@@ -53,7 +53,7 @@ namespace gui {
 
       const std::string white_space = " (){}[],.;:'\"!@#$%^&/*-+";
 
-      edit_base::edit_base ()
+      edit_base::data::data ()
         : cursor_pos(0)
         , text_limit(std::numeric_limits<pos_t>::max())
         , scroll_pos(0)
@@ -62,45 +62,65 @@ namespace gui {
         , ic(0)
 #endif // X11
         , last_mouse_point(core::point::undefined)
+      {}
+
+      edit_base::edit_base () {
+        init();
+      }
+
+      edit_base::edit_base (const edit_base& rhs)
+        : super(rhs)
+        , data(rhs.data)
       {
+        init();
+      }
+
+      edit_base::edit_base (edit_base&& rhs)
+        : super(std::move(rhs))
+        , data(std::move(rhs.data))
+      {
+        init();
+      }
+
+      void edit_base::init () {
         set_accept_focus(true);
       }
 
       edit_base::~edit_base () {
 #ifdef X11
-        if (ic) {
+        if (data.ic) {
           detail::s_window_ic_map.erase(get_id());
-          XDestroyIC(ic);
-          ic = 0;
+          XDestroyIC(data.ic);
+          data.ic = 0;
         }
-        if (im) {
-          XCloseIM(im);
-          im = 0;
+        if (data.im) {
+          XCloseIM(data.im);
+          data.im = 0;
         }
 #endif // X11
       }
 
       void edit_base::set_text (const std::string& t) {
-        text = t;
-        cursor_pos = 0;
-        scroll_pos = 0;
-        selection.clear();
+        data.text = t;
+        data.cursor_pos = 0;
+        data.scroll_pos = 0;
+        data.selection.clear();
         redraw_later();
       }
 
       const std::string& edit_base::get_text() const {
-        return text;
+        return data.text;
       }
 
       void edit_base::prepare_input () {
 #ifdef X11
-        im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
+        data.im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
         XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
                                         XIMStatusNone | XIMStatusNothing | XIMStatusArea;
 
         XIMStyles *im_supported_styles;
         /* figure out which styles the IM can support */
-        XGetIMValues(im, XNQueryInputStyle, &im_supported_styles, NULL);
+        XGetIMValues(data.im, XNQueryInputStyle, &im_supported_styles, NULL);
         XIMStyle best_style = 0x0F1F;
         auto count = im_supported_styles->count_styles;
         for (decltype(count) i = 0; i < count; ++i) {
@@ -111,75 +131,75 @@ namespace gui {
         }
         XFree(im_supported_styles);
 
-        ic = XCreateIC(im,
-                       XNInputStyle, best_style,
-                       XNClientWindow, get_id(),
-                       NULL);
+        data.ic = XCreateIC(data.im,
+                            XNInputStyle, best_style,
+                            XNClientWindow, get_id(),
+                            NULL);
 
-        detail::s_window_ic_map[get_id()] = ic;
+        detail::s_window_ic_map[get_id()] = data.ic;
 #endif // X11
       }
 
       void edit_base::set_selection (const edit_base::range& sel, event_source) {
-        selection = sel;
+        data.selection = sel;
         redraw_later();
       }
 
       edit_base::range edit_base::get_selection () const {
-        return selection;
+        return data.selection;
       }
 
       void edit_base::set_cursor_pos (pos_t pos, bool shift) {
         pos_t new_pos = std::min(pos, get_text_length());
         if (shift) {
-          if (cursor_pos == selection.last) {
-            selection.last = new_pos;
-          } else if (cursor_pos == selection.first) {
-            selection.first = new_pos;
+          if (data.cursor_pos == data.selection.last) {
+            data.selection.last = new_pos;
+          } else if (data.cursor_pos == data.selection.first) {
+            data.selection.first = new_pos;
           } else {
-            selection = range(new_pos);
+            data.selection = range(new_pos);
           }
-          selection.sort();
+          data.selection.sort();
         } else {
-          selection = range(new_pos);
+          data.selection = range(new_pos);
         }
-        cursor_pos = new_pos;
+        data.cursor_pos = new_pos;
 
         // make cursor pos visible
-        if (cursor_pos < scroll_pos) {
-          scroll_pos = 0;
+        if (data.cursor_pos < data.scroll_pos) {
+          data.scroll_pos = 0;
         }
 
-        core::size sz = draw::font::system().get_text_size(text.substr(scroll_pos, cursor_pos - scroll_pos));
+        core::size sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         core::size max_sz = client_size();
         max_sz -= {6, 4};
-        while ((sz.width() > max_sz.width()) && (scroll_pos < cursor_pos)) {
-          ++scroll_pos;
-          sz = draw::font::system().get_text_size(text.substr(scroll_pos, cursor_pos - scroll_pos));
+        while ((sz.width() > max_sz.width()) && (data.scroll_pos < data.cursor_pos)) {
+          ++(data.scroll_pos);
+          sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         }
 
         redraw_later();
       }
 
       edit_base::pos_t edit_base::get_cursor_pos () const {
-        return cursor_pos;
+        return data.cursor_pos;
       }
 
       void edit_base::set_text_limit (pos_t max_chars) {
-        text_limit = max_chars;
+        data.text_limit = max_chars;
       }
 
       edit_base::pos_t edit_base::get_text_limit () const {
-        return text_limit;
+        return data.text_limit;
       }
 
       edit_base::pos_t edit_base::get_text_length () const {
-        return (pos_t)text.size();
+        return (pos_t)data.text.size();
       }
 
       void edit_base::replace_selection (const std::string &new_text) {
         range sel = get_selection();
-        text.replace(sel.first, sel.last - sel.first, new_text);
+        data.text.replace(sel.first, sel.last - sel.first, new_text);
         set_selection(range(sel.first + new_text.size()), event_source::logic);
         redraw_later();
       }
@@ -191,9 +211,9 @@ namespace gui {
       }
 
       edit_base::pos_t edit_base::get_char_at_point (const core::point& pt) {
-          pos_t max_chars = text.size();
-          for (pos_t i = scroll_pos + 1; i < max_chars; ++i) {
-            core::size sz = draw::font::system().get_text_size(text.substr(scroll_pos, i - scroll_pos));
+          pos_t max_chars = data.text.size();
+          for (pos_t i = data.scroll_pos + 1; i < max_chars; ++i) {
+            core::size sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, i - data.scroll_pos));
             if (sz.width() >= pt.x()) {
               return i - 1;
             }
@@ -308,16 +328,16 @@ namespace gui {
           case keys::numpad::left:
             if (ctrl) {
               // next word begin
-              if (cursor_pos > 1) {
-                std::string::size_type pos = find_left_space(text, cursor_pos);
+              if (data.cursor_pos > 1) {
+                std::string::size_type pos = find_left_space(data.text, data.cursor_pos);
                 if (pos != std::string::npos) {
                   set_cursor_pos(pos, shift);
                   return;
                 }
               }
-            } else if (cursor_pos > 0) {
-              std::size_t cp = cursor_pos - 1;
-              while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
+            } else if (data.cursor_pos > 0) {
+              std::size_t cp = data.cursor_pos - 1;
+              while ((cp > 0) && utf8::is_continuation_char(data.text.at(cp))) {
                 --cp;
               }
               set_cursor_pos(cp, shift);
@@ -328,10 +348,10 @@ namespace gui {
           case keys::right:
           case keys::numpad::right:
             if (ctrl) {
-              set_cursor_pos(find_right_space(text, cursor_pos), shift);
-            } else if (cursor_pos < get_text_length ()) {
-              std::size_t cp = cursor_pos + 1;
-              while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+              set_cursor_pos(find_right_space(data.text, data.cursor_pos), shift);
+            } else if (data.cursor_pos < get_text_length ()) {
+              std::size_t cp = data.cursor_pos + 1;
+              while ((cp < get_text_length ()) && utf8::is_continuation_char(data.text.at(cp))) {
                 ++cp;
               }
               set_cursor_pos(cp, shift);
@@ -347,31 +367,31 @@ namespace gui {
             break;
           case keys::del:
           case keys::numpad::del:
-            if (selection.empty()) {
-              std::size_t cp = cursor_pos + 1;
-              while ((cp < get_text_length ()) && utf8::is_continuation_char(text.at(cp))) {
+            if (data.selection.empty()) {
+              std::size_t cp = data.cursor_pos + 1;
+              while ((cp < get_text_length ()) && utf8::is_continuation_char(data.text.at(cp))) {
                 ++cp;
               }
-              text.replace(cursor_pos, cp - cursor_pos, std::string());
+              data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
               redraw_later();
             } else {
               replace_selection(std::string());
-              set_cursor_pos(selection.first, false);
+              set_cursor_pos(data.selection.first, false);
             }
             break;
           case keys::back_space:
-            if (selection.empty()) {
-              if (cursor_pos > 0) {
-                std::size_t cp = cursor_pos - 1;
-                while ((cp > 0) && utf8::is_continuation_char(text.at(cp))) {
+            if (data.selection.empty()) {
+              if (data.cursor_pos > 0) {
+                std::size_t cp = data.cursor_pos - 1;
+                while ((cp > 0) && utf8::is_continuation_char(data.text.at(cp))) {
                   --cp;
                 }
-                text.replace(cp, cursor_pos - cp, std::string());
+                data.text.replace(cp, data.cursor_pos - cp, std::string());
                 set_cursor_pos(cp, false);
               }
             } else {
               replace_selection(std::string());
-              set_cursor_pos(selection.first, false);
+              set_cursor_pos(data.selection.first, false);
             }
             break;
           case keys::escape:
@@ -379,7 +399,7 @@ namespace gui {
             send_client_message(this, detail::SELECTION_CANCEL_MESSAGE);
             break;
           case keys::clear:
-            set_selection(range(0, text.size()), event_source::keyboard);
+            set_selection(range(0, data.text.size()), event_source::keyboard);
             replace_selection(std::string());
             set_cursor_pos(0, false);
             break;
@@ -392,7 +412,7 @@ namespace gui {
           case 'a':
             if (ctrl) {
               // select all
-              set_selection(range(0, text.size()), event_source::keyboard);
+              set_selection(range(0, data.text.size()), event_source::keyboard);
             }
             // fall throught
           default: {
@@ -400,7 +420,7 @@ namespace gui {
               LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
             } else if (chars.size()) {
               replace_selection(chars);
-              set_cursor_pos(selection.last, false);
+              set_cursor_pos(data.selection.last, false);
             }
           }
         }
@@ -408,28 +428,28 @@ namespace gui {
 
       void edit_base::register_handler (text_origin alignment) {
         register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          paint::edit_line(graph, client_area(), text, alignment, selection, cursor_pos, scroll_pos, has_focus());
+          paint::edit_line(graph, client_area(), data.text, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
         }));
         register_event_handler(REGISTER_FUNCTION, key_down_event(this, &edit_base::handle_key));
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           take_focus();
-          last_mouse_point = pt;
+          data.last_mouse_point = pt;
           set_cursor_pos(get_char_at_point(pt));
         }));
         register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
-          last_mouse_point = core::point::undefined;
+          data.last_mouse_point = core::point::undefined;
         }));
         register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
           take_focus();
-          last_mouse_point = pt;
+          data.last_mouse_point = pt;
           pos_t p = get_char_at_point(pt);
           set_cursor_pos(p);
-          pos_t l = find_left_space(text, p);
-          pos_t r = find_right_space(text, p);
+          pos_t l = find_left_space(data.text, p);
+          pos_t r = find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
-          if ((last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+          if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_char_at_point(pt), true);
           }
         }));

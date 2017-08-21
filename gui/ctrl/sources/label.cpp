@@ -26,7 +26,7 @@ namespace gui {
 
     namespace detail {
 
-      no_erase_window_class label_base::clazz("STATIC++",
+      no_erase_window_class label_base::clazz("label++",
 #ifdef WIN32
         (COLOR_BTNFACE+1)
 #endif // WIN32
@@ -34,9 +34,6 @@ namespace gui {
         color::buttonColor()
 #endif // X11
       );
-
-      label_base::label_base ()
-      {}
 
     } // detail
 

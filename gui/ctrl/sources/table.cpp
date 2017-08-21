@@ -96,6 +96,7 @@ namespace gui {
         --first_idx;
       }
 
+      // --------------------------------------------------------------------------
       namespace paint {
 
         void draw_table_data (const draw::graphics& graph,
@@ -231,6 +232,7 @@ namespace gui {
         };
       }
 
+      // --------------------------------------------------------------------------
       std::string build_std_column_name (std::size_t c) {
         std::string buffer;
         int column = static_cast<int>(c);
@@ -244,6 +246,99 @@ namespace gui {
         return buffer;
       }
 
+      // --------------------------------------------------------------------------
+      data_view::data_view (metric& geometrie,
+                            text_origin align,
+                            os::color foreground,
+                            os::color background)
+        : super(geometrie, align, foreground, background, filter::data_selection, filter::data_hilite) {
+        init();
+      }
+
+      data_view::data_view (metric& geometrie,
+                            const data_view& rhs)
+        : super(geometrie, rhs) {
+        init();
+      }
+
+      data_view::data_view (metric& geometrie,
+                            data_view&& rhs)
+        : super(geometrie, std::move(rhs)) {
+        init();
+      }
+
+      table::position data_view::get_index_at_point (const core::point& pt) const {
+        return table::position(geometrie.widths.index_at(pt.x()),
+                               geometrie.heights.index_at(pt.y()));
+      }
+
+      void data_view::init () {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+          paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
+      }
+
+      // --------------------------------------------------------------------------
+      column_view::column_view (metric& geometrie,
+                                text_origin align,
+                                os::color foreground,
+                                os::color background)
+        : super(geometrie, align, foreground, background, filter::column_selection, filter::column_hilite) {
+        init();
+      }
+
+      column_view::column_view (metric& geometrie,
+                                const column_view& rhs)
+        : super(geometrie, rhs) {
+        init();
+      }
+
+      column_view::column_view (metric& geometrie,
+                                column_view&& rhs)
+        : super(geometrie, std::move(rhs)) {
+        init();
+      }
+
+      table::position column_view::get_index_at_point (const core::point& pt) const {
+        return table::position(geometrie.widths.index_at(pt.x()), -1);
+      }
+
+      void column_view::init () {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+            paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          }));
+      }
+
+      // --------------------------------------------------------------------------
+      row_view::row_view (metric& geometrie,
+                          text_origin align,
+                          os::color foreground,
+                          os::color background)
+        : super(geometrie, align, foreground, background, filter::row_selection, filter::row_hilite) {
+        init();
+      }
+
+      row_view::row_view (metric& geometrie,
+                          const row_view& rhs)
+        : super(geometrie, rhs) {
+        init();
+      }
+
+      row_view::row_view (metric& geometrie,
+                          row_view&& rhs)
+        : super(geometrie, std::move(rhs)) {
+        init();
+      }
+
+      table::position row_view::get_index_at_point (const core::point& pt) const {
+        return table::position(-1, geometrie.heights.index_at(pt.y()));
+      }
+
+      void row_view::init () {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+            paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+          }));
+      }
 
     } // table
 
@@ -264,6 +359,34 @@ namespace gui {
       , rows(geometrie, align, foreground, header_background)
       , last_mouse_point(core::point::undefined)
       , moved(false) {
+      init();
+    }
+
+    table_view::table_view (const table_view& rhs)
+      : super(rhs)
+      , geometrie(rhs.geometrie)
+      , data(geometrie, rhs.data)
+      , columns(geometrie, rhs.columns)
+      , rows(geometrie, rhs.rows)
+      , last_mouse_point(core::point::undefined)
+      , moved(false)
+    {
+      init();
+    }
+
+    table_view::table_view (table_view&& rhs)
+      : super(rhs)
+      , geometrie(std::move(rhs.geometrie))
+      , data(geometrie, std::move(rhs.data))
+      , columns(geometrie, std::move(rhs.columns))
+      , rows(geometrie, std::move(rhs.rows))
+      , last_mouse_point(core::point::undefined)
+      , moved(false)
+    {
+      init();
+    }
+
+    void table_view::init () {
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
       register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
       register_event_handler(REGISTER_FUNCTION, win::size_event(this, &table_view::handle_size));

@@ -273,9 +273,17 @@ namespace gui {
       typedef std::function<key_fn> key_call;
 
       menu_data (window* win)
-        : selection(-1)
-        , hilite(-1)
-        , win(win)
+        : win(win)
+      {}
+
+      menu_data (window* win, const menu_data& rhs)
+        : win(win)
+        , data(rhs.data)
+      {}
+
+      menu_data (window* win, menu_data&& rhs)
+        : win(win)
+        , data(std::move(rhs.data))
       {}
 
       ~menu_data () {
@@ -288,23 +296,23 @@ namespace gui {
       void add_entry (menu_entry&& entry);
 
       inline menu_entry& operator[] (std::size_t i) {
-        return data[i];
+        return data.items[i];
       }
 
       inline const menu_entry& operator[] (std::size_t i) const {
-        return data[i];
+        return data.items[i];
       }
 
       inline std::size_t size () const {
-        return data.size();
+        return data.items.size();
       }
 
       const_iterator begin () const {
-        return data.begin();
+        return data.items.begin();
       }
 
       const_iterator end () const {
-        return data.end();
+        return data.items.end();
       }
 
       int get_index_of (const menu_entry&) const;
@@ -344,15 +352,25 @@ namespace gui {
       void check_hot_key (os::key_state st, os::key_symbol sym);
 
     private:
-      int selection;
-      int hilite;
-
-      close_call close_caller;
-      mouse_call mouse_caller;
-      key_call key_caller;
-
       window* win;
-      vector data;
+
+      struct data {
+        data ()
+          : selection(-1)
+          , hilite(-1)
+        {}
+
+        vector items;
+
+        int selection;
+        int hilite;
+
+        close_call close_caller;
+        mouse_call mouse_caller;
+        key_call key_caller;
+
+      } data;
+
     };
 
     // --------------------------------------------------------------------------
@@ -361,6 +379,8 @@ namespace gui {
       typedef window super;
 
       main_menu ();
+      main_menu (const main_menu&);
+      main_menu (main_menu&&);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
@@ -377,6 +397,8 @@ namespace gui {
       menu_data data;
 
     private:
+      void init ();
+
       static const window_class clazz;
     };
 
@@ -388,6 +410,8 @@ namespace gui {
       static const int item_height = 20;
 
       popup_menu ();
+      popup_menu (const popup_menu&);
+      popup_menu (popup_menu&&);
 
       popup_menu (std::initializer_list<menu_entry> entries)
         : popup_menu() {
@@ -416,12 +440,22 @@ namespace gui {
       menu_data data;
 
     private:
+      void init ();
+
       void popup_at (window& parent, menu_data& parent_data, const core::point& pt);
 
       core::size_type calc_width ();
 
-      core::point_type text_pos;
-      core::point_type hotkey_pos;
+      struct positions {
+        positions ()
+          : text(10)
+          , hotkey(0)
+        {}
+
+        core::point_type text;
+        core::point_type hotkey;
+
+      } pos;
     };
 
     // --------------------------------------------------------------------------

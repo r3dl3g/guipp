@@ -22,13 +22,10 @@ namespace gui {
 
   namespace layout {
 
-    drop_down::drop_down (win::container* m)
-      : main(m)
-      , button(nullptr)
-    {
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &drop_down::layout));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
-        layout(main->client_size());
+    void drop_down::init () {
+      data.main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &drop_down::layout));
+      data.main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
+        layout(data.main->client_size());
       }));
     }
 
@@ -39,17 +36,17 @@ namespace gui {
 
     core::rectangle drop_down::button_place (const core::size& sz) {
       core::size_type h = sz.height() - 4;
-    return core::rectangle(core::point(sz.width() - h - 2, 2), core::size(h, h));
+      return core::rectangle(core::point(sz.width() - h - 2, 2), core::size(h, h));
     }
 
     void drop_down::layout (const core::size& sz) {
-      if (button) {
-        button->place(button_place(sz));
+      if (data.button) {
+        data.button->place(button_place(sz));
       }
     }
 
     void drop_down::init (win::window* b) {
-      button = b;
+      data.button = b;
     }
 
   } // layout

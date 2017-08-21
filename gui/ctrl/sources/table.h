@@ -137,9 +137,8 @@ namespace gui {
 
         // --------------------------------------------------------------------------
         template<typename T>
-        class vector {
-        public:
-          vector (const T& default_data)
+        struct vector {
+          inline vector (const T& default_data)
             : default_data(default_data)
           {}
 
@@ -187,9 +186,8 @@ namespace gui {
 
         // --------------------------------------------------------------------------
         template<typename T>
-        class matrix {
-        public:
-          matrix (const T& default_data)
+        struct matrix {
+          inline matrix (const T& default_data)
             : column_data(default_data)
             , row_data(default_data)
           {}
@@ -448,6 +446,29 @@ namespace gui {
           , hilite_filter(hilite_filter)
         {}
 
+        cell_view (metric& geometrie,
+                   const cell_view& rhs)
+          : geometrie(geometrie)
+          , aligns(rhs.aligns)
+          , foregrounds(rhs.foregrounds)
+          , backgrounds(rhs.backgrounds)
+          , selection_filter(rhs.selection_filter)
+          , hilite_filter(rhs.hilite_filter)
+        {}
+
+        cell_view (metric& geometrie,
+                   cell_view&& rhs)
+          : geometrie(geometrie)
+          , aligns(std::move(rhs.aligns))
+          , foregrounds(std::move(rhs.foregrounds))
+          , backgrounds(std::move(rhs.backgrounds))
+          , selection_filter(std::move(rhs.selection_filter))
+          , hilite_filter(std::move(rhs.hilite_filter))
+        {}
+
+        cell_view (const cell_view&) = delete;
+        cell_view (cell_view&&) = delete;
+
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           window::create(clazz, parent, place);
@@ -527,17 +548,15 @@ namespace gui {
         data_view (metric& geometrie,
                    text_origin align = text_origin::center,
                    os::color foreground = color::black,
-                   os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background, filter::data_selection, filter::data_hilite) {
-          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-          }));
-        }
+                   os::color background = color::very_very_light_gray);
 
-        table::position get_index_at_point (const core::point& pt) const {
-          return table::position(geometrie.widths.index_at(pt.x()),
-                                 geometrie.heights.index_at(pt.y()));
-        }
+        data_view (metric& geometrie, const data_view& rhs);
+        data_view (metric& geometrie, data_view&& rhs);
+
+        table::position get_index_at_point (const core::point& pt) const;
+
+      private:
+        void init ();
       };
 
       // --------------------------------------------------------------------------
@@ -548,16 +567,15 @@ namespace gui {
         column_view (metric& geometrie,
                      text_origin align = text_origin::center,
                      os::color foreground = color::black,
-                     os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background, filter::column_selection, filter::column_hilite) {
-          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-          }));
-        }
+                     os::color background = color::very_very_light_gray);
 
-        table::position get_index_at_point (const core::point& pt) const {
-          return table::position(geometrie.widths.index_at(pt.x()), -1);
-        }
+        column_view (metric& geometrie, const column_view& rhs);
+        column_view (metric& geometrie, column_view&& rhs);
+
+        table::position get_index_at_point (const core::point& pt) const;
+
+      private:
+        void init ();
       };
 
       // --------------------------------------------------------------------------
@@ -568,16 +586,15 @@ namespace gui {
         row_view (metric& geometrie,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
-                  os::color background = color::very_very_light_gray)
-          : super(geometrie, align, foreground, background, filter::row_selection, filter::row_hilite) {
-          super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-          }));
-        }
+                  os::color background = color::very_very_light_gray);
 
-        table::position get_index_at_point (const core::point& pt) const {
-          return table::position(-1, geometrie.heights.index_at(pt.y()));
-        }
+        row_view (metric& geometrie, const row_view& rhs);
+        row_view (metric& geometrie, row_view&& rhs);
+
+        table::position get_index_at_point (const core::point& pt) const;
+
+      private:
+        void init ();
       };
 
       std::string build_std_column_name (std::size_t c);
@@ -599,6 +616,9 @@ namespace gui {
                   os::color foreground = color::black,
                   os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);
+
+      table_view (const table_view&);
+      table_view (table_view&&);
 
       core::point get_scroll_pos () const;
       void set_scroll_pos (const core::point& pos);
@@ -653,6 +673,8 @@ namespace gui {
       bool moved;
       core::point last_mouse_point;
 
+    private:
+      void init ();
     };
 
     // --------------------------------------------------------------------------

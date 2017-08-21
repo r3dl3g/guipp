@@ -211,28 +211,28 @@ namespace gui {
       const draw::font& f = draw::font::menu();
 
       for (auto& i : new_entries) {
-        data.push_back(i);
-        menu_entry& entry = data.back();
+        data.items.push_back(i);
+        menu_entry& entry = data.items.back();
         entry.set_width(f.get_text_size(entry.get_label()).width());
       }
     }
 
     void menu_data::add_entry (const menu_entry& entry) {
-      data.push_back(entry);
-      menu_entry& e = data.back();
+      data.items.push_back(entry);
+      menu_entry& e = data.items.back();
       const draw::font& f = draw::font::menu();
       e.set_width(f.get_text_size(e.get_label()).width());
     }
 
     void menu_data::add_entry (menu_entry&& entry) {
-      data.push_back(std::move(entry));
-      menu_entry& e = data.back();
+      data.items.push_back(std::move(entry));
+      menu_entry& e = data.items.back();
       const draw::font& f = draw::font::menu();
       e.set_width(f.get_text_size(e.get_label()).width());
     }
 
     int menu_data::get_selection () const {
-      return selection;
+      return data.selection;
     }
 
     void menu_data::set_selection (int sel, event_source src) {
@@ -240,13 +240,13 @@ namespace gui {
       if (new_selection >= static_cast<int>(size())) {
         new_selection = -1;
       }
-      if ((new_selection != -1) && data[new_selection].is_disabled()) {
+      if ((new_selection != -1) && data.items[new_selection].is_disabled()) {
         return;
       }
-      if (new_selection != selection) {
+      if (new_selection != data.selection) {
         close();
-        selection = new_selection;
-        hilite = new_selection;
+        data.selection = new_selection;
+        data.hilite = new_selection;
         win->redraw_later();
         send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
@@ -271,7 +271,7 @@ namespace gui {
       const int last = get_selection();
       const int sz = static_cast<int>(size());
       int next = rotate<int>(last, delta, sz);
-      while (data[next].is_disabled() && (next != last)) {
+      while (data.items[next].is_disabled() && (next != last)) {
         next = rotate<int>(next, delta, sz);
       }
       set_selection(next, event_source::keyboard);
@@ -281,14 +281,14 @@ namespace gui {
       const int last = get_hilite();
       const int sz = static_cast<int>(size());
       int next = rotate<int>(last, delta, sz);
-      while (data[next].is_disabled() && (next != last)) {
+      while (data.items[next].is_disabled() && (next != last)) {
         next = rotate<int>(next, delta, sz);
       }
       set_hilite(next);
     }
 
     int menu_data::get_hilite () const {
-      return hilite;
+      return data.hilite;
     }
 
     void menu_data::set_hilite (int sel) {
@@ -296,88 +296,88 @@ namespace gui {
       if (new_hilite >= static_cast<int>(size())) {
         new_hilite = -1;
       }
-      if ((new_hilite != -1) && data[new_hilite].is_disabled()) {
+      if ((new_hilite != -1) && data.items[new_hilite].is_disabled()) {
         return;
       }
-      if (hilite != new_hilite) {
+      if (data.hilite != new_hilite) {
         close();
-        hilite = new_hilite;
+        data.hilite = new_hilite;
         win->redraw_later();
         send_client_message(win, detail::HILITE_CHANGE_MESSAGE, true);
       }
     }
 
     void menu_data::clear_hilite () {
-      hilite = -1;
+      data.hilite = -1;
       win->redraw_later();
       send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
     }
 
     void menu_data::set_close_function (close_call fn) {
-      close_caller = fn;
+      data.close_caller = fn;
     }
 
     void menu_data::clear_close_function () {
-      close_caller = nullptr;
-      key_caller = nullptr;
+      data.close_caller = nullptr;
+      data.key_caller = nullptr;
     }
 
     void menu_data::set_mouse_function (mouse_call fn) {
-      mouse_caller = fn;
+      data.mouse_caller = fn;
     }
 
     void menu_data::clear_mouse_function () {
-      mouse_caller = nullptr;
+      data.mouse_caller = nullptr;
     }
 
     void menu_data::set_key_function (key_call fn) {
-      key_caller = fn;
+      data.key_caller = fn;
     }
 
     bool menu_data::is_open () {
-      return (bool)close_caller;
+      return (bool)data.close_caller;
     }
 
     void menu_data::close () {
-      if (close_caller) {
-        close_caller();
+      if (data.close_caller) {
+        data.close_caller();
       }
-      selection = -1;
-      hilite = -1;
-      close_caller = nullptr;
-      key_caller = nullptr;
+      data.selection = -1;
+      data.hilite = -1;
+      data.close_caller = nullptr;
+      data.key_caller = nullptr;
       win->redraw_later();
     }
 
     void menu_data::handle_mouse (bool b, const core::point& pt) {
-      if (mouse_caller) {
-        mouse_caller(b, pt);
+      if (data.mouse_caller) {
+        data.mouse_caller(b, pt);
       }
     }
 
     bool menu_data::handle_key (os::key_symbol k) {
-      if (key_caller) {
-        return key_caller(k);
+      if (data.key_caller) {
+        return data.key_caller(k);
       }
       return false;
     }
 
     void menu_data::init () {
-      selection = -1;
-      hilite = -1;
-      close_caller = nullptr;
-      key_caller = nullptr;
-      mouse_caller = nullptr;
+      data.selection = -1;
+      data.hilite = -1;
+      data.close_caller = nullptr;
+      data.key_caller = nullptr;
+      data.mouse_caller = nullptr;
     }
 
     void menu_data::check_hot_key (os::key_state st, os::key_symbol sym) {
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         i.check_hot_key(st, sym);
       }
     }
 
     void menu_data::register_hot_keys (window* w) {
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         if (!i.get_hot_key().empty()) {
           global::register_hot_key(i.get_hot_key(), i.get_action(), w);
         }
@@ -385,7 +385,7 @@ namespace gui {
     }
 
     void menu_data::unregister_hot_keys () {
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         if (!i.get_hot_key().empty()) {
           global::unregister_hot_key(i.get_hot_key());
         }
@@ -394,7 +394,7 @@ namespace gui {
 
     void menu_data::register_menu_keys (window* w) {
       int idx = -1;
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         ++idx;
         if (i.get_menu_key()) {
           global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
@@ -406,7 +406,7 @@ namespace gui {
     }
 
     void menu_data::unregister_menu_keys () {
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         if (i.get_menu_key()) {
           global::unregister_hot_key(hot_key(i.get_menu_key(), state::alt));
         }
@@ -415,7 +415,7 @@ namespace gui {
 
     int menu_data::get_index_of (const menu_entry& e) const {
       int idx = -1;
-      for (auto& i : data) {
+      for (auto& i : data.items) {
         ++idx;
         if (&i == &e) {
           return idx;
@@ -430,6 +430,24 @@ namespace gui {
     main_menu::main_menu ()
       : data(this)
     {
+      init();
+    }
+
+    main_menu::main_menu (const main_menu& rhs)
+      : super(rhs)
+      , data(this, rhs.data)
+    {
+      init();
+    }
+
+    main_menu::main_menu (main_menu&& rhs)
+      : super(std::move(rhs))
+      , data(this, std::move(rhs.data))
+    {
+      init();
+    }
+
+    void main_menu::init () {
       set_accept_focus(true);
       data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
 
@@ -589,9 +607,25 @@ namespace gui {
     // --------------------------------------------------------------------------
     popup_menu::popup_menu ()
       : data(this)
-      , text_pos(10)
-      , hotkey_pos(0)
     {
+      init();
+    }
+
+    popup_menu::popup_menu (const popup_menu& rhs)
+      : super(rhs)
+      , data(this, rhs.data)
+    {
+      init();
+    }
+
+    popup_menu::popup_menu (popup_menu&& rhs)
+      : super(std::move(rhs))
+      , data(this, std::move(rhs.data))
+    {
+      init();
+    }
+
+    void popup_menu::init () {
       register_event_handler(REGISTER_FUNCTION, paint_event(this, &popup_menu::paint));
 
       register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
@@ -773,7 +807,7 @@ namespace gui {
       for (auto& i : data) {
         ++idx;
         r.height(static_cast<core::size_type>(item_height));
-        paint::menu_item(g, r, back_brush, text_pos, hotkey_pos, i,
+        paint::menu_item(g, r, back_brush, pos.text, pos.hotkey, i,
                          (idx == data.get_selection()), (idx == data.get_hilite()));
         r.move_y(static_cast<core::size_type>(item_height));
       }
@@ -789,9 +823,9 @@ namespace gui {
         has_sub |= i.is_sub_menu();
         hotkey_width = std::max(hotkey_width, f.get_text_size(i.get_hot_key().get_key_string()).width());
       }
-      text_pos = 36;
-      hotkey_pos = text_pos + label_width + 20;
-      return hotkey_pos + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
+      pos.text = 36;
+      pos.hotkey = pos.text + label_width + 20;
+      return pos.hotkey + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
     }
 
     // --------------------------------------------------------------------------

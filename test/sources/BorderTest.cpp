@@ -87,10 +87,10 @@ private:
 my_main_window::my_main_window ()
   : super(40, 30, 100, 250)
   , left_list(50, color::rgb_gray<224>::value)
-//  , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
+  , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
-  right_view.first.set_item_size_and_background(20, color::very_light_gray);
-  right_view.second.set_item_size_and_background(20, color::very_light_gray);
+//  right_view.first.set_item_size_and_background(20, color::very_light_gray);
+//  right_view.second.set_item_size_and_background(20, color::very_light_gray);
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {

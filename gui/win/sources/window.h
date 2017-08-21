@@ -208,6 +208,10 @@ namespace gui {
         focus_accepting = a;
       }
 
+      inline bool is_focus_accepting () const {
+        return focus_accepting;
+      }
+
     protected:
       window (const window&);
       window (window&&);
@@ -229,10 +233,6 @@ namespace gui {
                    os::window parent,
                    const core::rectangle&);
 
-      inline bool is_focus_accepting () const {
-        return focus_accepting;
-      }
-
     private:
       friend void detail::set_id (window*, os::window);
 
@@ -248,29 +248,6 @@ namespace gui {
       bool redraw_disabled;
       bool window_disabled;
 #endif // X11
-    };
-
-    // --------------------------------------------------------------------------
-    class container : public window {
-    public:
-      typedef window super;
-
-      container ();
-
-      bool is_parent_of (const window& parent) const;
-
-      bool is_sub_window (const window* child) const;
-
-      void set_children_visible (bool = true);
-
-      std::vector<window*> get_children () const;
-
-      void shift_focus (window&, bool backward = false);
-      void forward_focus (bool backward = false);
-
-    protected:
-      container (const container&) = delete;
-      container (container&&) = delete;
     };
 
     // --------------------------------------------------------------------------
@@ -318,6 +295,32 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class container : public window {
+    public:
+      typedef window super;
+
+      container ();
+
+      bool is_parent_of (const window& parent) const;
+
+      bool is_sub_window (const window* child) const;
+
+      void set_children_visible (bool = true);
+
+      std::vector<window*> get_children () const;
+
+      void shift_focus (window&, bool backward = false);
+      void forward_focus (bool backward = false);
+
+    protected:
+      container (const container&);
+      container (container&&);
+
+    private:
+      void init ();
+    };
+
+    // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, typename... Args>
     class layout_container : public container {
     public:
@@ -326,6 +329,16 @@ namespace gui {
 
       layout_container (const Args&... args)
         : layouter(this, args...)
+      {}
+
+      layout_container (const layout_container& rhs)
+        : super(rhs)
+        , layouter(this, rhs.layouter)
+      {}
+
+      layout_container (layout_container&& rhs)
+        : super(std::move(rhs))
+        , layouter(this, std::move(rhs.layouter))
       {}
 
       void layout () {
@@ -405,11 +418,15 @@ namespace gui {
       typedef overlapped_window super;
 
       modal_window ();
+      modal_window (const modal_window&);
+      modal_window (modal_window&&);
 
       void end_modal ();
       void run_modal ();
 
     private:
+      void init ();
+
       volatile bool is_modal;
     };
 

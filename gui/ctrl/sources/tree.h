@@ -103,6 +103,25 @@ namespace gui {
               bool grab_focus = true)
           : super(item_size, background, grab_focus)
         {
+          init();
+        }
+
+        tree (const tree& rhs)
+          : super(rhs)
+          , nodes(rhs.nodes)
+        {
+          init();
+        }
+
+        tree (tree&& rhs)
+          : super(std::move(rhs))
+          , nodes(std::move(rhs.nodes))
+          , open_nodes(std::move(rhs.open_nodes))
+        {
+          init();
+        }
+
+        void init () {
           super::set_drawer(core::bind_method(this, &tree::draw_list_item));
           super::register_event_handler(REGISTER_FUNCTION, selection_commit_event([&]() {
             toggle_node(super::get_selection());
@@ -303,16 +322,6 @@ namespace gui {
           : label(label)
         {}
 
-        node (const node& rhs)
-          : label(rhs.label)
-          , sub_nodes(rhs.sub_nodes)
-        {}
-
-        node (node&& rhs) {
-          std::swap(label, rhs.label);
-          std::swap(sub_nodes, rhs.sub_nodes);
-        }
-
         node (std::string&& label)
           : label(std::move(label))
         {}
@@ -366,16 +375,6 @@ namespace gui {
         range (iterator&& b, iterator&& e) {
           std::swap(start, b);
           std::swap(finish, e);
-        }
-
-        range (const range& rhs)
-          : start(rhs.start)
-          , finish(rhs.finish)
-        {}
-
-        range (range&& rhs) {
-          std::swap(start, rhs.start);
-          std::swap(finish, rhs.finish);
         }
 
         iterator begin () const { return start; }

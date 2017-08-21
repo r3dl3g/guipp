@@ -57,6 +57,22 @@ namespace gui {
           , list(nullptr)
         {}
 
+        column_list_layout (win::container* main, const column_list_layout& rhs)
+          : super(main, rhs)
+          , list(nullptr)
+          , widths(rhs.widths)
+          , aligns(rhs.aligns)
+          , slider_creator(rhs.slider_creator)
+        {}
+
+        column_list_layout (win::container* main, column_list_layout&& rhs)
+          : super(main, std::move(rhs))
+          , list(std::move(rhs.list))
+          , widths(std::move(rhs.widths))
+          , aligns(std::move(rhs.aligns))
+          , slider_creator(std::move(rhs.slider_creator))
+        {}
+
         void init_auto_layout () {
           super::init(core::bind_method(this, &column_list_layout::layout));
         }
@@ -137,6 +153,16 @@ namespace gui {
         : super(main)
       {}
 
+      simple_column_list_layout (win::container* main, const simple_column_list_layout& rhs)
+        : super(main, rhs)
+        , min_widths(rhs.min_widths)
+      {}
+
+      simple_column_list_layout (win::container* main, simple_column_list_layout&& rhs)
+        : super(main, std::move(rhs))
+        , min_widths(std::move(rhs.min_widths))
+      {}
+
       void set_column_width(std::size_t i, column_size_type w, bool update = true) {
         super::set_column_width(i, std::max(w, get_column_min_width(i)), update);
       }
@@ -181,6 +207,16 @@ namespace gui {
         : super(main)
       {}
 
+      weight_column_list_layout (win::container* main, const weight_column_list_layout& rhs)
+        : super(main, rhs)
+        , weights(rhs.weights)
+      {}
+
+      weight_column_list_layout (win::container* main, weight_column_list_layout&& rhs)
+        : super(main, std::move(rhs))
+        , weights(std::move(rhs.weights))
+      {}
+
       void init_auto_layout () {
         super::init(core::bind_method(this, &weight_column_list_layout::layout));
       }
@@ -217,27 +253,51 @@ namespace gui {
         typedef layout_base super;
         typedef win::detail::list_t<orientation::vertical> list_type;
 
-        base_column_list_layout(win::container* m)
+        base_column_list_layout (win::container* m)
           : super(m)
-          , header(nullptr)
-          , list(nullptr)
         {
-          super::init(core::bind_method(this, &base_column_list_layout::layout));
+          init();
+        }
+
+        base_column_list_layout (win::container* m, const base_column_list_layout& rhs)
+          : super(m, rhs)
+          , data(rhs.data)
+        {
+          init();
+        }
+
+        base_column_list_layout (win::container* m, base_column_list_layout&& rhs)
+          : super(m, std::move(rhs))
+          , data(std::move(rhs.data))
+        {
+          init();
         }
 
         void layout (const core::size& sz) {
-          header->resize(core::size(sz.width(), 20));
-          list->resize(sz - core::size(0, 20));
+          data.header->resize(core::size(sz.width(), 20));
+          data.list->resize(sz - core::size(0, 20));
         }
 
-        void set_header_and_list(win::container* h, list_type* l) {
-          list = l;
-          header = h;
+        void set_header_and_list(win::container* header, list_type* list) {
+          data.list = list;
+          data.header = header;
         }
 
       protected:
-        win::container* header;
-        list_type* list;
+        struct data {
+          data ()
+            : header(nullptr)
+            , list(nullptr)
+          {}
+
+          win::container* header;
+          list_type* list;
+        } data;
+
+      private:
+        void init () {
+          super::init(core::bind_method(this, &base_column_list_layout::layout));
+        }
       };
 
     } // detail
@@ -364,8 +424,23 @@ namespace gui {
                           bool grab_focus = true)
           : list(item_size, background, grab_focus)
         {
-          super::get_layout().set_header_and_list(&header, &list);
-          get_column_layout().set_list(&list);
+          init();
+        }
+
+        base_column_list (const base_column_list& rhs)
+          : super(rhs)
+          , list(rhs.list)
+          , header(rhs.header)
+        {
+          init();
+        }
+
+        base_column_list (base_column_list&& rhs)
+          : super(std::move(rhs))
+          , list(std::move(rhs.list))
+          , header(std::move(rhs.header))
+        {
+          init();
         }
 
         layout_type& get_column_layout() {
@@ -390,6 +465,11 @@ namespace gui {
         list_type list;
 
       private:
+        void init () {
+          super::get_layout().set_header_and_list(&header, &list);
+          get_column_layout().set_list(&list);
+        }
+
         static no_erase_window_class clazz;
 
       };

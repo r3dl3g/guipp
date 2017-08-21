@@ -32,12 +32,32 @@ namespace gui {
 #endif
     );
 
-    // --------------------------------------------------------------------------
-    button::button ()
+    button::data::data ()
       : hilited(false)
       , pushed(false)
       , checked(false)
+    {}
+
+    // --------------------------------------------------------------------------
+    button::button () {
+      init();
+    }
+
+    button::button (const button& rhs)
+      : super(rhs)
+      , data(rhs.data)
     {
+      init();
+    }
+
+    button::button (button&& rhs)
+      : super(std::move(rhs))
+      , data(std::move(rhs.data))
+    {
+      init();
+    }
+
+    void button::init() {
       set_accept_focus(true);
 #ifdef X11
       detail::init_control_messages();
@@ -62,31 +82,31 @@ namespace gui {
     }
 
     void button::set_hilited (bool h) {
-      if (hilited != h) {
-        hilited = h;
-        send_client_message(this, detail::HILITE_CHANGE_MESSAGE, hilited);
+      if (data.hilited != h) {
+        data.hilited = h;
+        send_client_message(this, detail::HILITE_CHANGE_MESSAGE, h);
         redraw_later();
       }
     }
 
     void button::set_pushed (bool h) {
-      if (pushed != h) {
-        pushed = h;
-        send_client_message(this, pushed ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
+      if (data.pushed != h) {
+        data.pushed = h;
+        send_client_message(this, h ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
         redraw_later();
       }
     }
 
     void button::set_checked (bool f) {
-      if (checked != f) {
-        checked = f;
+      if (data.checked != f) {
+        data.checked = f;
         send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
         redraw_later();
       }
     }
 
     // --------------------------------------------------------------------------
-    push_button::push_button () {
+    void push_button::init() {
       register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
@@ -111,7 +131,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    toggle_button<false>::toggle_button () {
+    void toggle_button<false>::init() {
       register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
@@ -136,9 +156,9 @@ namespace gui {
       }));
     }
 
-    // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------    
     template<>
-    toggle_button<true>::toggle_button () {
+    void toggle_button<true>::init() {
       register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
         if (is_enabled()) {
           take_focus();
@@ -165,6 +185,14 @@ namespace gui {
       }));
     }
 
+    // --------------------------------------------------------------------------
+    void text_button::init () {
+      register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
+        paint::push_button(graph, *this, get_text());
+      }));
+    }
+
+    // --------------------------------------------------------------------------
     namespace paint {
 
       const int dot_line_width = 1;

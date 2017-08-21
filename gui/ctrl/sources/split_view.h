@@ -35,40 +35,72 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
+    struct split_view_data {
+      split_view_data ()
+        : first(nullptr)
+        , second(nullptr)
+        , slider(nullptr)
+      {}
+
+      win::window* first;
+      win::window* second;
+      win::detail::slider* slider;
+    };
+
+    // --------------------------------------------------------------------------
     template<orientation O>
     class split_view : protected layout_base {
     public:
+      typedef layout_base super;
+
       split_view (win::container* m)
         : layout_base(m)
-        , first(nullptr)
-        , second(nullptr)
-        , slider(nullptr)
       {
-        init(core::bind_method(this, &split_view::layout));
+        init();
+      }
+
+      split_view (win::container* m, const split_view& rhs)
+        : layout_base(m, rhs.layout_base)
+      {
+        init();
+      }
+
+      split_view (win::container* m, split_view&& rhs)
+        : layout_base(m, std::move(rhs.layout_base))
+      {
+        init();
       }
 
       win::window* get_first () const {
-        return first;
+        return data.first;
       }
 
-      void set_first (win::window* left) {
-        split_view::first = left;
+      void set_first (win::window* first) {
+        data.first = first;
       }
 
       win::window* get_second () const {
-        return second;
+        return data.second;
       }
 
-      void set_second (win::window* right) {
-        split_view::second = right;
+      void set_second (win::window* second) {
+        data.second = second;
       }
 
       win::detail::slider* get_slider () const {
-        return slider;
+        return data.slider;
       }
 
       void set_slider (win::detail::slider* slider) {
-        split_view::slider = slider;
+        data.slider = slider;
+      }
+
+      void set (win::window* first,
+                win::window* second,
+                win::detail::slider* slider) {
+        data.first = first;
+        data.second = second;
+        data.slider = slider;
       }
 
       static core::rectangle get_first_place (const core::size&, double pos);
@@ -81,21 +113,23 @@ namespace gui {
 
       void layout (const core::size& sz) {
         double pos = get_split_pos(sz);
-        if (first) {
-          first->place(get_first_place(sz, pos));
+        if (data.first) {
+          data.first->place(get_first_place(sz, pos));
         }
-        if (second) {
-          second->place(get_second_place(sz, pos));
+        if (data.second) {
+          data.second->place(get_second_place(sz, pos));
         }
-        if (slider) {
-          slider->place(get_slider_place(sz, pos));
+        if (data.slider) {
+          data.slider->place(get_slider_place(sz, pos));
         }
       }
 
     private:
-      win::window* first;
-      win::window* second;
-      win::detail::slider* slider;
+      void init () {
+        super::init(core::bind_method(this, &split_view::layout));
+      }
+
+      split_view_data data;
     };
     // --------------------------------------------------------------------------
 
@@ -141,7 +175,25 @@ namespace gui {
         typedef layout_container<layout::split_view<O>> super;
         typedef typename super::layout_type layout_type;
 
-        split_view ();
+        typedef win::framed_slider_t<O, draw::frame::raised_relief> slider_type;
+
+        split_view () {
+          init();
+        }
+
+        split_view (const split_view& rhs)
+          : super(rhs)
+          , slider(rhs.slider)
+        {
+          init();
+        }
+
+        split_view (split_view&& rhs)
+          : super(std::move(rhs))
+        {
+          std:swap(slider, rhs.slider);
+          init();
+        }
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def,
@@ -160,19 +212,21 @@ namespace gui {
           super::layout();
         }
 
-        win::framed_slider_t<O, draw::frame::raised_relief> slider;
+        slider_type slider;
 
       private:
+        void init ();
+
         static window_class clazz;
       };
 
       // --------------------------------------------------------------------------
       template<>
-      split_view<orientation::vertical>::split_view ();
+      void split_view<orientation::vertical>::init ();
 
       // --------------------------------------------------------------------------
       template<>
-      split_view<orientation::horizontal>::split_view ();
+      void split_view<orientation::horizontal>::init ();
 
     }
 
@@ -184,16 +238,30 @@ namespace gui {
       typedef typename super::layout_type layout_type;
 
       split_view_t () {
-        super::get_layout().set_first(&first);
-        super::get_layout().set_second(&second);
+        super::get_layout().set(&first, &second, &(super::slider));
+      }
+
+      split_view_t (const split_view_t& rhs)
+        : super(rhs)
+        , first(rhs.first)
+        , second(rhs.second)
+      {
+        super::get_layout().set(&first, &second, &(super::slider));
+      }
+
+      split_view_t (split_view_t&& rhs)
+        : super(std::move(rhs))
+      {
+        std::swap(first, rhs.first);
+        std::swap(second, rhs.second);
+        super::get_layout().set(&first, &second, &(super::slider));
       }
 
       split_view_t (First&& first, Second&& second)
         : first(std::move(first))
         , second(std::move(second))
       {
-        super::get_layout().set_first(&this->first);
-        super::get_layout().set_second(&this->second);
+        super::get_layout().set(&(this->first), &(this->second), &(super::slider));
       }
 
       void create (const container& parent,

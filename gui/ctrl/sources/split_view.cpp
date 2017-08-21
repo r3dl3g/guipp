@@ -45,12 +45,12 @@ namespace gui {
 
     template<>
     double split_view<orientation::vertical>::get_split_pos (const core::size& sz) const {
-      return double(slider->position().x() + get_slider_width() / 2) / (double)sz.width();
+      return double(data.slider->position().x() + get_slider_width() / 2) / (double)sz.width();
     }
 
     template<>
     double split_view<orientation::horizontal>::get_split_pos (const core::size& sz) const {
-      return double(slider->position().y() + get_slider_width() / 2) / (double)sz.height();
+      return double(data.slider->position().y() + get_slider_width() / 2) / (double)sz.height();
     }
 
     template<>
@@ -122,16 +122,14 @@ namespace gui {
       );
 
       template<>
-      split_view<orientation::vertical>::split_view () {
-        get_layout().set_slider(&slider);
+      void split_view<orientation::vertical>::init () {
         slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
           get_layout().layout(size());
         }));
       }
 
       template<>
-      split_view<orientation::horizontal>::split_view () {
-        get_layout().set_slider(&slider);
+      void split_view<orientation::horizontal>::init () {
         slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
           get_layout().layout(size());
         }));

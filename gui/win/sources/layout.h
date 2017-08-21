@@ -75,6 +75,17 @@ namespace gui {
         : main(m)
       {}
 
+      layout_base (win::container* m, const layout_base&)
+        : main(m)
+      {}
+
+      layout_base (win::container* m, layout_base&&)
+        : main(m)
+      {}
+
+      layout_base (const layout_base&) = delete;
+      layout_base (layout_base&&) = delete;
+
       void init(std::function<size_callback> f1);
       void init(std::function<size_callback> f1, std::function<show_callback> f2);
 
@@ -99,10 +110,19 @@ namespace gui {
       template<orientation>
       class base : public layout_base {
       public:
+        typedef layout_base super;
         typedef core::size::type type;
 
         base (win::container* m)
-          :layout_base(m)
+          : super(m)
+        {}
+
+        base (win::container* m, const base& rhs)
+          : super(m, rhs)
+        {}
+
+        base (win::container* m, base&& rhs)
+          : super(m, std::move(rhs))
         {}
 
         type get_dimension1 (const core::size& sz);
@@ -114,65 +134,55 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      class base<orientation::horizontal> : public layout_base {
-      public:
-        typedef core::size::type type;
+      inline base<orientation::horizontal>::type base<orientation::horizontal>::get_dimension1 (const core::size& sz) {
+        return sz.width();
+      }
 
-        base (win::container* m)
-          :layout_base(m)
-        {}
+      template<>
+      inline base<orientation::horizontal>::type base<orientation::horizontal>::get_dimension2 (const core::size& sz) {
+        return sz.height();
+      }
 
-        type get_dimension1 (const core::size& sz) {
-          return sz.width();
-        }
+      template<>
+      inline core::size base<orientation::horizontal>::make_size (type dim1, type dim2) {
+        return core::size(dim1, dim2);
+      }
 
-        type get_dimension2 (const core::size& sz) {
-          return sz.height();
-        }
+      template<>
+      inline core::rectangle base<orientation::horizontal>::get_sep_area (const core::rectangle& area, unsigned short s) {
+        return area.with_width(s);
+      }
 
-        core::size make_size (type dim1, type dim2) {
-          return core::size(dim1, dim2);
-        }
-
-        core::rectangle get_sep_area (const core::rectangle& area, unsigned short s) {
-          return area.with_width(s);
-        }
-
-        void move_area (core::rectangle& area, type offs) {
-          area.move_x(offs);
-        }
-      };
+      template<>
+      inline void base<orientation::horizontal>::move_area (core::rectangle& area, type offs) {
+        area.move_x(offs);
+      }
 
       // --------------------------------------------------------------------------
       template<>
-      class base<orientation::vertical> : public layout_base {
-      public:
-        typedef core::size::type type;
+      inline base<orientation::vertical>::type base<orientation::vertical>::get_dimension1 (const core::size& sz) {
+        return sz.height();
+      }
 
-        base (win::container* m)
-          :layout_base(m)
-        {}
+      template<>
+      inline base<orientation::vertical>::type base<orientation::vertical>::get_dimension2 (const core::size& sz) {
+        return sz.width();
+      }
 
-        type get_dimension1 (const core::size& sz) {
-          return sz.height();
-        }
+      template<>
+      inline core::size base<orientation::vertical>::make_size (type dim1, type dim2) {
+        return core::size(dim2, dim1);
+      }
 
-        type get_dimension2 (const core::size& sz) {
-          return sz.width();
-        }
+      template<>
+      inline core::rectangle base<orientation::vertical>::get_sep_area (const core::rectangle& area, unsigned short s) {
+        return area.with_height(s);
+      }
 
-        core::size make_size (type dim1, type dim2) {
-          return core::size(dim2, dim1);
-        }
-
-        core::rectangle get_sep_area (const core::rectangle& area, unsigned short s) {
-          return area.with_height(s);
-        }
-
-        void move_area (core::rectangle& area, type offs) {
-          area.move_y(offs);
-        }
-      };
+      template<>
+      inline void base<orientation::vertical>::move_area (core::rectangle& area, type offs) {
+        area.move_y(offs);
+      }
 
       // --------------------------------------------------------------------------
       template<orientation H, origin R>
@@ -183,6 +193,14 @@ namespace gui {
 
         lineup_base (win::container* m)
           : super(m)
+        {}
+
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
         {}
 
         core::rectangle init_area (type border, const core::size&, const core::size&, int gap, std::size_t count);
@@ -197,6 +215,14 @@ namespace gui {
 
         lineup_base (win::container* m)
           : super(m)
+        {}
+
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
         {}
 
         core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
@@ -218,6 +244,14 @@ namespace gui {
           : super(m)
         {}
 
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
+        {}
+
         core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
           return core::rectangle(core::point(sz.width() - is.width() - border, border), is);
         }
@@ -235,6 +269,14 @@ namespace gui {
 
         lineup_base (win::container* m)
           : super(m)
+        {}
+
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
         {}
 
         core::rectangle init_area (type border, const core::size& is, const core::size& sz, int, std::size_t) {
@@ -256,6 +298,14 @@ namespace gui {
           : super(m)
         {}
 
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
+        {}
+
         core::rectangle init_area (type border, const core::size& is, const core::size& sz, int gap, std::size_t count) {
           return core::rectangle(core::point((sz.width() - (is.width() * count + (count - 1) * gap)) / 2, border), is);
         }
@@ -273,6 +323,14 @@ namespace gui {
 
         lineup_base (win::container* m)
           : super(m)
+        {}
+
+        lineup_base (win::container* m, const lineup_base& rhs)
+          : super(m, rhs)
+        {}
+
+        lineup_base (win::container* m, lineup_base&& rhs)
+          : super(m, std::move(rhs))
         {}
 
         core::rectangle init_area (type border, const core::size& is, const core::size& sz, int gap, std::size_t count) {
@@ -301,9 +359,19 @@ namespace gui {
       lineup_layout (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &lineup_layout::layout), [&](){
-          layout(super::get_main_size());
-        });
+        init();
+      }
+
+      lineup_layout (win::container* m, const lineup_layout& rhs)
+        : super(m, rhs)
+      {
+        init();
+      }
+
+      lineup_layout (win::container* m, lineup_layout&& rhs)
+        : super(m, std::move(rhs))
+      {
+        init();
       }
 
       void layout (const core::size& sz) {
@@ -333,6 +401,13 @@ namespace gui {
           }
         }
         super::update();
+      }
+
+    private:
+      void init () {
+        super::init(core::bind_method(this, &lineup_layout::layout), [&](){
+          layout(super::get_main_size());
+        });
       }
     };
 
@@ -370,9 +445,19 @@ namespace gui {
       adaption_layout (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &adaption_layout::layout), [&](){
-          layout(super::get_main_size());
-        });
+        init();
+      }
+
+      adaption_layout (win::container* m, const adaption_layout& rhs)
+        : super(m, rhs)
+      {
+        init();
+      }
+
+      adaption_layout (win::container* m, adaption_layout&& rhs)
+        : super(m, std::move(rhs))
+      {
+        init();
       }
 
       void layout (const core::size& sz) {
@@ -405,6 +490,13 @@ namespace gui {
         }
         super::update();
       }
+
+    private:
+      void init () {
+        super::init(core::bind_method(this, &adaption_layout::layout), [&](){
+          layout(super::get_main_size());
+        });
+      }
     };
 
     // --------------------------------------------------------------------------
@@ -425,9 +517,19 @@ namespace gui {
       grid_lineup (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &grid_lineup::layout), [&](){
-          layout(get_main_size());
-        });
+        init();
+      }
+
+      grid_lineup (win::container* m, const grid_lineup& rhs)
+        : super(m, rhs)
+      {
+        init();
+      }
+
+      grid_lineup (win::container* m, grid_lineup&& rhs)
+        : super(m, std::move(rhs))
+      {
+        init();
       }
 
       void layout (const core::size& sz) {
@@ -454,6 +556,13 @@ namespace gui {
         }
         update();
       }
+
+    private:
+      void init () {
+        super::init(core::bind_method(this, &grid_lineup::layout), [&](){
+          layout(get_main_size());
+        });
+      }
     };
 
     // --------------------------------------------------------------------------
@@ -466,9 +575,19 @@ namespace gui {
       grid_adaption (win::container* m)
         : super(m)
       {
-        super::init(core::bind_method(this, &grid_adaption::layout), [&](){
-          layout(get_main_size());
-        });
+        init();
+      }
+
+      grid_adaption (win::container* m, const grid_adaption& rhs)
+        : super(m, rhs)
+      {
+        init();
+      }
+
+      grid_adaption (win::container* m, grid_adaption&& rhs)
+        : super(m, std::move(rhs))
+      {
+        init();
       }
 
       void layout (const core::size& sz) {
@@ -503,6 +622,13 @@ namespace gui {
         }
         update();
       }
+
+    private:
+      void init () {
+        super::init(core::bind_method(this, &grid_adaption::layout), [&](){
+          layout(get_main_size());
+        });
+      }
     };
 
     // --------------------------------------------------------------------------
@@ -524,12 +650,14 @@ namespace gui {
       static points get_right_position (const core::rectangle&, const core::size&);
     };
 
-	namespace detail {
-		template<typename T1, typename T2>
-		inline std::pair<core::point_type, core::point_type> make_points (const T1& t1, const T2& t2) {
-		  return std::make_pair(static_cast<core::point_type>(t1), static_cast<core::point_type>(t2));
-		}
-	} // detail
+    namespace detail {
+
+      template<typename T1, typename T2>
+      inline std::pair<core::point_type, core::point_type> make_points (const T1& t1, const T2& t2) {
+        return std::make_pair(static_cast<core::point_type>(t1), static_cast<core::point_type>(t2));
+      }
+
+    } // detail
 
     // --------------------------------------------------------------------------
     template<>
@@ -641,6 +769,34 @@ namespace gui {
       }
     };
 
+    struct border_layout_data {
+      border_layout_data (float top_height = 0,
+                          float bottom_height = 0,
+                          float left_width = 0,
+                          float right_width = 0)
+        : center(nullptr)
+        , top(nullptr)
+        , bottom(nullptr)
+        , left(nullptr)
+        , right(nullptr)
+        , top_height(top_height)
+        , bottom_height(bottom_height)
+        , left_width(left_width)
+        , right_width(right_width)
+      {}
+
+      win::window* center;
+      win::window* top;
+      win::window* bottom;
+      win::window* left;
+      win::window* right;
+
+      float top_height;
+      float bottom_height;
+      float left_width;
+      float right_width;
+    };
+
     // --------------------------------------------------------------------------
     template<border_layout_type type = border_layout_type::top_bottom_maximize>
     class border_layout : public layout_base {
@@ -654,39 +810,43 @@ namespace gui {
                      float left_width,
                      float right_width)
         : super(m)
-        , center(nullptr)
-        , top(nullptr)
-        , bottom(nullptr)
-        , left(nullptr)
-        , right(nullptr)
-        , top_height(top_height)
-        , bottom_height(bottom_height)
-        , left_width(left_width)
-        , right_width(right_width)
+        , data(top_height, bottom_height, left_width, right_width)
       {
-        super::init(core::bind_method(this, &border_layout::layout), [&](){
-          layout(get_main_size());
-        });
+        init();
+      }
+
+      border_layout (win::container* m, const border_layout& rhs)
+        : super(m, rhs)
+        , data(rhs.data)
+      {
+        init();
+      }
+
+      border_layout (win::container* m, border_layout&& rhs)
+        : super(m, std::move(rhs))
+        , data(std::move(rhs.data))
+      {
+        init();
       }
 
       void set_center (win::window* center) {
-        this->center = center;
+        data.center = center;
       }
 
       void set_top (win::window* top) {
-        this->top = top;
+        data.top = top;
       }
 
       void set_bottom (win::window* bottom) {
-        this->bottom = bottom;
+        data.bottom = bottom;
       }
 
       void set_left (win::window* left) {
-        this->left = left;
+        data.left = left;
       }
 
       void set_right (win::window* right) {
-        this->right = right;
+        data.right = right;
       }
 
       void set_center_top_bottom_left_right (win::window* center,
@@ -694,59 +854,56 @@ namespace gui {
                                              win::window* bottom,
                                              win::window* left,
                                              win::window* right) {
-        this->center = center;
-        this->top = top;
-        this->bottom = bottom;
-        this->left = left;
-        this->right = right;
+        data.center = center;
+        data.top = top;
+        data.bottom = bottom;
+        data.left = left;
+        data.right = right;
       }
 
       void layout (const core::size& sz) {
-        core::rectangle r = core::rectangle(core::point(left_width, top_height),
-                                            core::point(sz.width() - right_width, sz.height() - bottom_height));
-        if (top && is_child_visible(top)) {
+        core::rectangle r = core::rectangle(core::point(data.left_width, data.top_height),
+                                            core::point(sz.width() - data.right_width, sz.height() - data.bottom_height));
+        if (data.top && is_child_visible(data.top)) {
           const typename geometrie::points pt = geometrie::get_top_position(r, sz);
-          place_child(top, core::rectangle(pt.first, 0, pt.second, top_height));
+          place_child(data.top, core::rectangle(pt.first, 0, pt.second, data.top_height));
         }
-        if (bottom && is_child_visible(bottom)) {
+        if (data.bottom && is_child_visible(data.bottom)) {
           const typename geometrie::points pt = geometrie::get_bottom_position(r, sz);
-          place_child(bottom, core::rectangle(pt.first, r.y2(), pt.second, bottom_height));
+          place_child(data.bottom, core::rectangle(pt.first, r.y2(), pt.second, data.bottom_height));
         }
-        if (left && is_child_visible(left)) {
+        if (data.left && is_child_visible(data.left)) {
           const typename geometrie::points pt = geometrie::get_left_position(r, sz);
-          place_child(left, core::rectangle(0, pt.first, left_width, pt.second));
+          place_child(data.left, core::rectangle(0, pt.first, data.left_width, pt.second));
         }
-        if (right && is_child_visible(right)) {
+        if (data.right && is_child_visible(data.right)) {
           const typename geometrie::points pt = geometrie::get_right_position(r, sz);
-          place_child(right, core::rectangle(r.x2(), pt.first, right_width, pt.second));
+          place_child(data.right, core::rectangle(r.x2(), pt.first, data.right_width, pt.second));
         }
-        if (center && is_child_visible(center)) {
-          place_child(center, r);
+        if (data.center && is_child_visible(data.center)) {
+          place_child(data.center, r);
         }
         update();
       }
 
-      inline float get_top_height () const    { return top_height; }
-      inline float get_bottom_height () const { return bottom_height; }
-      inline float get_left_width () const    { return left_width; }
-      inline float get_right_width () const   { return right_width; }
+      inline float get_top_height () const    { return data.top_height; }
+      inline float get_bottom_height () const { return data.bottom_height; }
+      inline float get_left_width () const    { return data.left_width; }
+      inline float get_right_width () const   { return data.right_width; }
 
-      inline void set_top_height (float v)     { top_height = v; }
-      inline void set_bottom_height (float v)  { bottom_height = v; }
-      inline void set_left_width (float v)     { left_width = v; }
-      inline void set_right_width (float v)    { right_width = v; }
+      inline void set_top_height (float v)     { data.top_height = v; }
+      inline void set_bottom_height (float v)  { data.bottom_height = v; }
+      inline void set_left_width (float v)     { data.left_width = v; }
+      inline void set_right_width (float v)    { data.right_width = v; }
 
     private:
-      win::window* center;
-      win::window* top;
-      win::window* bottom;
-      win::window* left;
-      win::window* right;
+      void init () {
+        super::init(core::bind_method(this, &border_layout::layout), [&](){
+          layout(get_main_size());
+        });
+      }
 
-      float top_height;
-      float bottom_height;
-      float left_width;
-      float right_width;
+      border_layout_data data;
     };
 
 
@@ -907,7 +1064,17 @@ namespace gui {
     // --------------------------------------------------------------------------
     class attach {
     public:
-      attach (win::container*);
+      attach (win::container* m) {
+        init(m);
+      }
+
+      attach (win::container* m, const attach&) {
+        init(m);
+      }
+
+      attach (win::container* m, attach&&) {
+        init(m);
+      }
 
       template<What what, Where where, int offset = 0>
       void attach_fix (win::window* target, win::window* source) {
@@ -923,6 +1090,8 @@ namespace gui {
       void layout (const core::size& sz);
 
     private:
+      void init (win::container*);
+
       std::vector<detail::attachment> attachments;
     };
 

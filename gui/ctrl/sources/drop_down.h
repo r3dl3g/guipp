@@ -38,7 +38,26 @@ namespace gui {
 
     class drop_down {
     public:
-      drop_down (win::container* m);
+      drop_down (win::container* m)
+        : data(m) {
+        init();
+      }
+
+      drop_down (win::container* m, const drop_down&)
+        : data(m) {
+        init();
+      }
+
+      drop_down (win::container* m, drop_down&&)
+        : data(m) {
+        init();
+      }
+
+      drop_down (const drop_down&) = delete;
+      drop_down (drop_down&&) = delete;
+
+      void operator= (const drop_down&) = delete;
+      void operator= (drop_down&&) = delete;
 
       void layout (const core::size& s);
       void init (win::window* button);
@@ -47,8 +66,18 @@ namespace gui {
       core::rectangle button_place (const core::size& s);
 
     private:
-      win::container* main;
-      win::window* button;
+      void init ();
+
+      struct data {
+        data (win::container* m)
+          : main(m)
+          , button(nullptr)
+        {}
+
+        win::container* main;
+        win::window* button;
+
+      } data;
     };
 
   } // layout
@@ -107,17 +136,30 @@ namespace gui {
 
       drop_down_list (core::size_type item_size = 20,
                       os::color background = color::white)
-        : items(item_size, background, false)
-        , selection(-1)
-        , visible_items(5)
-        , filter_id(-1)
-        , me([&](const core::point&) {
-          if (is_popup_visible()) {
-            popup.place(get_popup_place());
-          }
-        })
+        : data(item_size, background)
+        , me(this, &drop_down_list::handle_move)
       {
-        super::get_layout().init(&button);
+        init();
+      }
+
+      drop_down_list (const drop_down_list& rhs)
+        : super(rhs)
+        , data(rhs.data)
+        , me(this, &drop_down_list::handle_move)
+      {
+        init();
+      }
+
+      drop_down_list (drop_down_list&& rhs)
+        : super(std::move(rhs))
+        , data(std::move(rhs.data))
+        , me(this, &drop_down_list::handle_move)
+      {
+        init();
+      }
+
+      void init () {
+        super::get_layout().init(&(data.button));
 
         super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &drop_down_list::paint));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
@@ -127,33 +169,38 @@ namespace gui {
         }));
         super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
 
-        button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
-          paint::drop_down_button(graph, button, is_popup_visible());
+        data.button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
+          paint::drop_down_button(graph, data.button, is_popup_visible());
         }));
-        button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
+        data.button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
 
-        items.register_event_handler(REGISTER_FUNCTION, selection_changed_event(this, &drop_down_list::handle_selection_changed));
-        button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
+        data.items.register_event_handler(REGISTER_FUNCTION, selection_changed_event(this, &drop_down_list::handle_selection_changed));
+        data.button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
           super::redraw_later();
         }));
-        button.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &drop_down_list::handle_key));
+        data.button.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &drop_down_list::handle_key));
 
-        items.set_drawer([&](std::size_t idx,
-                             const draw::graphics& g,
-                             const core::rectangle& r,
-                             const draw::brush& b,
-                             bool selected,
-                             bool hilited) {
-          D(data(idx), g, r, b, selected, hilited);
+        data.items.set_drawer([&](std::size_t idx,
+                              const draw::graphics& g,
+                              const core::rectangle& r,
+                              const draw::brush& b,
+                              bool selected,
+                              bool hilited) {
+          D(data.source(idx), g, r, b, selected, hilited);
         });
       }
 
       void paint (const draw::graphics& graph) {
         core::rectangle area = super::client_area();
         draw::frame::sunken_deep_relief(graph, area);
-        bool has_f = button.has_focus();
-        if (selection > -1) {
-          D(data(selection), graph, super::get_layout().label_place(super::client_size()), items.get_background(), false, has_f);
+        bool has_f = data.button.has_focus();
+        if (data.selection > -1) {
+          D(data.source(data.selection),
+            graph,
+            super::get_layout().label_place(super::client_size()),
+            data.items.get_background(),
+            false,
+            has_f);
         } else if (has_f) {
           draw::frame::dots(graph, area);
         }
@@ -166,7 +213,7 @@ namespace gui {
           if (key == keys::tab) {
             hide_popup();
           }
-          items.handle_key(state, key, t);
+          data.items.handle_key(state, key, t);
         } else {
           switch (key) {
             case keys::down:
@@ -178,9 +225,9 @@ namespace gui {
       }
 
       void handle_selection_changed (event_source src) {
-        int idx = items.get_selection();
+        int idx = data.items.get_selection();
         if (idx > -1) {
-          selection = idx;
+          data.selection = idx;
           super::redraw_later();
           if (src == event_source::mouse) {
             hide_popup();
@@ -191,69 +238,69 @@ namespace gui {
       T get_selected_item () const {
         int idx = get_selection();
         if (idx > -1) {
-          return data(idx);
+          return data.source(idx);
         }
         return T();
       }
 
       void set_data (const data_provider& d, std::size_t count) {
-        data = d;
-        items.set_count(count);
+        data.source = d;
+        data.items.set_count(count);
       }
 
       void set_data (data_provider&& d, std::size_t count) {
-        std::swap(data, d);
-        items.set_count(count);
+        std::swap(data.source, d);
+        data.items.set_count(count);
       }
 
       core::rectangle get_popup_place () const {
         core::rectangle place = super::absolute_place();
         place.move_y(place.height());
-        place.height(core::size_type(visible_items * items.get_item_size()));
+        place.height(core::size_type(data.visible_items * data.items.get_item_size()));
         return place;
       }
 
       void show_popup () {
-        if (!popup.is_valid()) {
+        if (!data.popup.is_valid()) {
           create_popup(get_popup_place());
         } else {
-          popup.place(get_popup_place());
+          data.popup.place(get_popup_place());
         }
-        items.set_selection(selection, event_source::logic);
-        items.make_selection_visible();
-        popup.set_visible();
-        button.redraw_later();
+        data.items.set_selection(data.selection, event_source::logic);
+        data.items.make_selection_visible();
+        data.popup.set_visible();
+        data.button.redraw_later();
       }
 
       void hide_popup () {
-        popup.set_visible(false);
-        button.redraw_later();
+        data.popup.set_visible(false);
+        data.button.redraw_later();
       }
 
       void set_selection (int idx, event_source src) {
-        selection = idx;
+        data.selection = idx;
         if (is_popup_visible()) {
-          items.set_selection(idx, src);
+          data.items.set_selection(idx, src);
         }
       }
 
       void set_visible_items (int n) {
-        visible_items = n;
+        data.visible_items = n;
         if (is_popup_visible()) {
-          popup.place(get_popup_place());
+          data.popup.place(get_popup_place());
         }
       }
 
       inline int get_selection () const {
-        return selection;
+        return data.selection;
       }
 
       inline int get_visible_items () const {
-        return visible_items;
+        return data.visible_items;
       }
 
       inline bool is_popup_visible () const {
-        return popup.is_visible();
+        return data.popup.is_visible();
       }
 
       inline void toggle_popup () {
@@ -265,15 +312,15 @@ namespace gui {
       }
 
       inline void set_drawer (const std::function<win::list::draw_list_item>& drawer) {
-        items.set_drawer(drawer);
+        data.items.set_drawer(drawer);
       }
 
       inline void set_drawer (std::function<win::list::draw_list_item>&& drawer) {
-        items.set_drawer(std::move(drawer));
+        data.items.set_drawer(std::move(drawer));
       }
 
       inline void set_count (std::size_t n) {
-        items.set_count(n);
+        data.items.set_count(n);
       }
 
       ~drop_down_list () {
@@ -285,34 +332,34 @@ namespace gui {
 
     private:
       void create_children(window*, const core::rectangle&) {
-        button.create(*this);
-        button.set_visible();
+        data.button.create(*this);
+        data.button.set_visible();
         super::layout();
       }
 
       void create_popup (const core::rectangle& place) {
-        popup.register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size& sz) {
-          items.place(core::rectangle(sz));
+        data.popup.register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size& sz) {
+          data.items.place(core::rectangle(sz));
         }));
-        popup.register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle& r) {
-          items.create(popup, core::rectangle(r.size()));
-          items.set_visible();
+        data.popup.register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle& r) {
+          data.items.create(data.popup, core::rectangle(r.size()));
+          data.items.set_visible();
         }));
-        popup.register_event_handler(REGISTER_FUNCTION, show_event([&]() {
-          filter_id = global::register_message_filter([&](const core::event& e) -> bool {
-            if (is_button_event_outside(popup, e)) {
+        data.popup.register_event_handler(REGISTER_FUNCTION, show_event([&]() {
+          data.filter_id = global::register_message_filter([&](const core::event& e) -> bool {
+            if (is_button_event_outside(data.popup, e)) {
               hide_popup();
               return true;
             }
             return false;
           });
         }));
-        popup.register_event_handler(REGISTER_FUNCTION, hide_event([&]() {
-          if (filter_id) {
-            global::unregister_message_filter(filter_id);
+        data.popup.register_event_handler(REGISTER_FUNCTION, hide_event([&]() {
+          if (data.filter_id) {
+            global::unregister_message_filter(data.filter_id);
           }
         }));
-        popup.create(*this, place);
+        data.popup.create(*this, place);
 
         auto* root = super::get_root();
         if (root) {
@@ -321,14 +368,32 @@ namespace gui {
 
       }
 
-      data_provider data;
-      push_button button;
-      popup_window popup;
-      list_type items;
-      int selection;
-      int visible_items;
-      int filter_id;
-      const move_event me;
+      void handle_move (const core::point&) {
+        if (is_popup_visible()) {
+            data.popup.place(get_popup_place());
+          }
+      }
+
+      struct data {
+        data (core::size_type item_size = 20,
+              os::color background = color::white)
+          : items(item_size, background, false)
+          , selection(-1)
+          , visible_items(5)
+          , filter_id(-1)
+        {}
+
+        data_provider source;
+        push_button button;
+        popup_window popup;
+        list_type items;
+        int selection;
+        int visible_items;
+        int filter_id;
+
+      } data;
+
+      move_event me;
 
     };
 

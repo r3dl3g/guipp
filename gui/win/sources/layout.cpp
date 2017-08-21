@@ -33,6 +33,7 @@ namespace gui {
 
   namespace layout {
 
+    // --------------------------------------------------------------------------
     std::vector<win::window*> layout_base::get_children () {
       return main->get_children();
     }
@@ -69,7 +70,8 @@ namespace gui {
       main->redraw_now();
     }
 
-    attach::attach (win::container* main) {
+    // --------------------------------------------------------------------------
+    void attach::init (win::container* main) {
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &attach::layout));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, main](){
         layout(main->client_size());

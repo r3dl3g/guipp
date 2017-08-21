@@ -75,6 +75,8 @@ namespace gui {
       typedef window super;
 
       button ();
+      button (const button&);
+      button (button&&);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
@@ -82,15 +84,15 @@ namespace gui {
       }
 
       inline bool is_hilited () const {
-        return hilited;
+        return data.hilited;
       }
 
       inline bool is_pushed () const {
-        return pushed;
+        return data.pushed;
       }
 
       inline bool is_checked () const {
-        return checked;
+        return data.checked;
       }
 
       void set_hilited (bool b);
@@ -98,9 +100,15 @@ namespace gui {
       void set_checked (bool b);
 
     private:
-      bool hilited;
-      bool pushed;
-      bool checked;
+      void init ();
+
+      struct data {
+        data ();
+
+        bool hilited;
+        bool pushed;
+        bool checked;
+      } data;
 
       static no_erase_window_class clazz;
     };
@@ -175,8 +183,20 @@ namespace gui {
     public:
       typedef button super;
 
-      push_button ();
+      inline push_button () {
+        init();
+      }
 
+      inline push_button (const push_button& rhs) : super(rhs) {
+        init();
+      }
+
+      inline push_button (push_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init ();
     };
 
     // --------------------------------------------------------------------------
@@ -185,14 +205,27 @@ namespace gui {
     public:
       typedef button super;
 
-      toggle_button ();
+      inline toggle_button () {
+        init();
+      }
+
+      inline toggle_button (const toggle_button& rhs) : super(rhs) {
+        init();
+      }
+
+      inline toggle_button (toggle_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init ();
     };
 
     template<>
-    toggle_button<false>::toggle_button ();
+    void toggle_button<false>::init ();
 
     template<>
-    toggle_button<true>::toggle_button ();
+    void toggle_button<true>::init ();
 
     // --------------------------------------------------------------------------
     class text_push_button : public push_button {
@@ -243,13 +276,20 @@ namespace gui {
     public:
       typedef text_push_button super;
 
-      text_button (const text_source& t = const_text())
-        : super(t)
-      {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::push_button(graph, *this, get_text());
-        }));
+      text_button (const text_source& t = const_text()) : super(t) {
+        init();
       }
+
+      text_button (const text_button& rhs) : super(rhs) {
+        init();
+      }
+
+      text_button (text_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init ();
     };
 
     // --------------------------------------------------------------------------
@@ -258,14 +298,24 @@ namespace gui {
     public:
       typedef text_push_button super;
 
-      flat_button (const text_source& t = const_text())
-        : super(t)
-      {
+      flat_button (const text_source& t = const_text()) : super(t) {
+        init();
+      }
+
+      flat_button (const flat_button& rhs) : super(rhs) {
+        init();
+      }
+
+      flat_button (flat_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init () {
         register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::flat_button(graph, *this, get_text(), foreground, background);
         }));
       }
-
     };
 
     // --------------------------------------------------------------------------
@@ -319,14 +369,24 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      radio_button (const text_source& t = const_text())
-        : super(t)
-      {
+      radio_button (const text_source& t = const_text()) : super(t) {
+        init();
+      }
+
+      radio_button (const radio_button& rhs) : super(rhs) {
+        init();
+      }
+
+      radio_button (radio_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::radio_button(graph, *this, super::get_text());
         }));
       }
-
     };
 
     // --------------------------------------------------------------------------
@@ -335,9 +395,20 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      check_box (const text_source& t = const_text())
-        : super(t) 
-      {
+      check_box (const text_source& t = const_text()) : super(t) {
+        init();
+      }
+
+      check_box (const check_box& rhs) : super(rhs) {
+        init();
+      }
+
+      check_box (check_box&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::check_box(graph, *this, super::get_text());
         }));
@@ -353,9 +424,20 @@ namespace gui {
     public:
       typedef text_toggle_button<keep_state> super;
 
-      flat_toggle_button (const text_source& t = const_text())
-        : super(t)
-      {
+      flat_toggle_button (const text_source& t = const_text()) : super(t) {
+        init();
+      }
+
+      flat_toggle_button (const flat_toggle_button& rhs) : super(rhs) {
+        init();
+      }
+
+      flat_toggle_button (flat_toggle_button&& rhs) : super(std::move(rhs)) {
+        init();
+      }
+
+    private:
+      void init () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           paint::flat_button(graph, super::client_area(), super::get_text(),
                              super::is_enabled(), super::has_focus(),
@@ -372,11 +454,15 @@ namespace gui {
       typedef void (button_drawer)(const draw::graphics&, const custom_button&);
 
       custom_button () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          if (drawer) {
-            drawer(graph, *this);
-          }
-        }));
+        init();
+      }
+
+      custom_button (const custom_button& rhs) : super(rhs) {
+        init();
+      }
+
+      custom_button (custom_button&& rhs) : super(std::move(rhs)) {
+        init();
       }
 
       void create (const container& parent,
@@ -389,6 +475,14 @@ namespace gui {
       }
 
     private:
+      void init () {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
+          if (drawer) {
+            drawer(graph, *this);
+          }
+        }));
+      }
+
       std::function<button_drawer> drawer;
     };
 

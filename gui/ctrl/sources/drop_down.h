@@ -92,23 +92,22 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             int S = 20,
-             os::color background = color::white,
              void (D)(const T&,
                       const draw::graphics&,
                       const core::rectangle&,
                       const draw::brush&,
                       bool, bool) = drop_down_item_drawer<T>>
-    class drop_down_list : public group_window<layout::drop_down, background> {
+    class drop_down_list : public group_window<layout::drop_down> {
     public:
-      typedef group_window<layout::drop_down, background> super;
-      typedef vlist<S, background> list_type;
+      typedef group_window<layout::drop_down> super;
+      typedef vlist list_type;
 
       typedef T(get_data_t)(std::size_t);
       typedef std::function<get_data_t> data_provider;
 
-      drop_down_list ()
-        : items(false)
+      drop_down_list (core::size_type item_size = 20,
+                      os::color background = color::white)
+        : items(item_size, background, false)
         , selection(-1)
         , visible_items(5)
         , filter_id(-1)
@@ -154,7 +153,7 @@ namespace gui {
         draw::frame::sunken_deep_relief(graph, area);
         bool has_f = button.has_focus();
         if (selection > -1) {
-          D(data(selection), graph, super::get_layout().label_place(super::client_size()), background, false, has_f);
+          D(data(selection), graph, super::get_layout().label_place(super::client_size()), items.get_background(), false, has_f);
         } else if (has_f) {
           draw::frame::dots(graph, area);
         }
@@ -210,7 +209,7 @@ namespace gui {
       core::rectangle get_popup_place () const {
         core::rectangle place = super::absolute_place();
         place.move_y(place.height());
-        place.height(core::size_type(visible_items * list_type::item_size));
+        place.height(core::size_type(visible_items * items.get_item_size()));
         return place;
       }
 

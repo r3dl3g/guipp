@@ -351,16 +351,18 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename Layout, int S, os::color background>
+      template<typename Layout>
       class base_column_list : public layout_container<layout::detail::base_column_list_layout> {
       public:
         typedef Layout layout_type;
         typedef layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef win::list_t<orientation::vertical, S, background> list_type;
+        typedef win::list_t<orientation::vertical> list_type;
 
-        base_column_list (bool grab_focus = true)
-          : list(grab_focus)
+        base_column_list (core::size_type item_size = 20,
+                          os::color background = color::white,
+                          bool grab_focus = true)
+          : list(item_size, background, grab_focus)
         {
           super::get_layout().set_header_and_list(&header, &list);
           get_column_layout().set_list(&list);
@@ -392,8 +394,8 @@ namespace gui {
 
       };
 
-      template<typename L, int S, os::color background>
-      no_erase_window_class base_column_list<L, S, background>::clazz = create_group_window_clazz(background);
+      template<typename L>
+      no_erase_window_class base_column_list<L>::clazz = no_erase_window_class("column_list++");
 
     }
 
@@ -445,11 +447,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S = 20, os::color background = color::white>
-    class simple_column_list : public detail::base_column_list<Layout, S, background> {
+    template<typename Layout>
+    class simple_column_list : public detail::base_column_list<Layout> {
     public:
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S, background> super;
+      typedef detail::base_column_list<layout_type> super;
 
       typedef void(cell_draw)(std::size_t,            // row_id
                               std::size_t,            // col_id
@@ -460,8 +462,10 @@ namespace gui {
                               bool,                   // hilited
                               text_origin);           // align
 
-      simple_column_list (bool grab_focus = true)
-        : super(grab_focus)
+      simple_column_list (core::size_type item_size = 20,
+                          os::color background = color::white,
+                          bool grab_focus = true)
+        : super(item_size, background, grab_focus)
       {}
 
       void set_drawer (std::function<cell_draw> drawer) {
@@ -485,7 +489,7 @@ namespace gui {
       void draw_cells (std::size_t idx,
                        const draw::graphics& g,
                        const core::rectangle& place,
-                       const draw::brush& back,
+                       const draw::brush& background,
                        bool selected,
                        bool hilited) {
         if (drawer) {
@@ -494,7 +498,7 @@ namespace gui {
           for (decltype(count) i = 0; i < count; ++i) {
             core::size::type w = this->get_column_layout().get_column_width(i);
             r.width(w);
-            drawer(idx, i, g, r, back, selected, hilited, this->get_column_layout().get_column_align(i));
+            drawer(idx, i, g, r, background, selected, hilited, this->get_column_layout().get_column_align(i));
             r.move_x(w);
           }
           if (r.x() < place.x2()) {
@@ -678,13 +682,13 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename Layout, int S, os::color background, typename... Arguments>
-    class column_list_t : public detail::base_column_list<Layout, S, background> {
+    template<typename Layout, typename... Arguments>
+    class column_list_t : public detail::base_column_list<Layout> {
     public:
       static const std::size_t size = sizeof...(Arguments);
 
       typedef Layout layout_type;
-      typedef detail::base_column_list<layout_type, S, background> super;
+      typedef detail::base_column_list<layout_type> super;
 
       typedef column_list_row_t<Arguments...> row;
 
@@ -706,8 +710,10 @@ namespace gui {
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
 
-      column_list_t (bool grab_focus = true)
-        : super(grab_focus)
+      column_list_t (core::size_type item_size = 20,
+                     os::color background = color::white,
+                     bool grab_focus = true)
+        : super(item_size, background, grab_focus)
       {
         this->get_column_layout().set_column_count(size);
       }

@@ -265,11 +265,9 @@ namespace gui {
     } // tree
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color background = color::white>
-    using file_tree = tree::tree<path_tree::unsorted_path_info, S, background>;
+    typedef tree::tree<path_tree::unsorted_path_info> file_tree;
 
-    template<int S = 20, os::color background = color::white>
-    using sorted_file_tree = tree::tree<path_tree::sorted_path_info, S, background>;
+    typedef tree::tree<path_tree::sorted_path_info> sorted_file_tree;
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -289,14 +287,17 @@ namespace gui {
 
     } // detail
 
-    template<int S = 20, os::color background = color::white>
-    class file_list : public win::column_list_t<layout::weight_column_list_layout, S, background,
+    class file_list : public win::column_list_t<layout::weight_column_list_layout,
                                                 const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> {
     public:
-      typedef win::column_list_t<layout::weight_column_list_layout, S, background,
+      typedef win::column_list_t<layout::weight_column_list_layout,
                                  const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> super;
 
-      file_list () {
+      file_list (core::size_type item_size = 20,
+                 os::color background = color::white,
+                 bool grab_focus = true)
+        : super(item_size, background, grab_focus)
+      {
         detail::init_file_list_layout(super::get_column_layout());
         detail::init_file_list_header(super::header);
         super::set_drawer(detail::create_file_list_row_drawer());

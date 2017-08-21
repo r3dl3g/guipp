@@ -257,16 +257,20 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V, int S, os::color background>
+    template<orientation V>
     class list_t : public detail::list_t<V> {
     public:
       typedef detail::list_t<V> super;
       typedef typename super::pos_t pos_t;
 
-      static constexpr int item_size = S;
+      const pos_t zero = pos_t(0);
 
-      list_t (bool grab_focus = true)
+      list_t (core::size_type item_size = 20,
+              os::color background = color::white,
+              bool grab_focus = true)
         : super(grab_focus)
+        , item_size(item_size)
+        , background(background)
       {
         super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &list_t::paint));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &list_t::handle_left_btn_up));
@@ -292,7 +296,7 @@ namespace gui {
       }
 
       void handle_wheel(const pos_t delta, const core::point&) {
-        set_scroll_pos(super::get_scroll_pos() - S * delta);
+        set_scroll_pos(super::get_scroll_pos() - item_size * delta);
         super::moved = true;
       }
 
@@ -353,13 +357,13 @@ namespace gui {
           case keys::page_up:
           case keys::numpad::page_up:
             set_selection(super::get_selection() -
-                          static_cast<int>(super::get_list_size() / S),
+                          static_cast<int>(super::get_list_size() / item_size),
                           event_source::keyboard);
             break;
           case keys::page_down:
           case keys::numpad::page_down:
             set_selection(super::get_selection() +
-                          static_cast<int>(super::get_list_size() / S),
+                          static_cast<int>(super::get_list_size() / item_size),
                           event_source::keyboard);
             break;
           case keys::home:
@@ -413,7 +417,7 @@ namespace gui {
         super::item_count = count;
 
         const pos_t sz = super::get_list_size();
-        const pos_t visible = (S * static_cast<pos_t>(count)) - sz;
+        const pos_t visible = (item_size * static_cast<pos_t>(count)) - sz;
 
         super::scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
@@ -429,7 +433,7 @@ namespace gui {
 
       int get_index_at_point (const core::point& pt) {
         if (super::client_area().is_inside(pt)) {
-          return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / S);
+          return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / item_size);
         }
         return -1;
       }
@@ -437,7 +441,7 @@ namespace gui {
       core::rectangle get_place_of_index (int idx) {
         if (super::is_valid_idx(idx)) {
           core::rectangle place(super::client_size());
-          super::set_dimension(place, S * idx - super::get_scroll_pos(), S);
+          super::set_dimension(place, item_size * idx - super::get_scroll_pos(), item_size);
           return place;
         }
         return core::rectangle::zero;
@@ -470,13 +474,13 @@ namespace gui {
 
       void make_selection_visible () {
         if (super::selection > -1) {
-          const pos_t sel_pos = static_cast<pos_t>(S * super::selection);
+          const pos_t sel_pos = static_cast<pos_t>(item_size * super::selection);
           const pos_t sz = super::get_list_size();
 
           if (sel_pos < super::get_scroll_pos()) {
             set_scroll_pos(sel_pos);
-          } else if (sel_pos + S - super::get_scroll_pos() > sz) {
-            set_scroll_pos(sel_pos + S - sz);
+          } else if (sel_pos + item_size - super::get_scroll_pos() > sz) {
+            set_scroll_pos(sel_pos + item_size - sz);
           }
         }
       }
@@ -507,7 +511,7 @@ namespace gui {
 
       void set_scroll_pos (pos_t pos) {
         const pos_t max_delta =
-          std::max(zero, (S * (pos_t)super::get_count()) - super::get_list_size());
+          std::max(zero, (item_size * (pos_t)super::get_count()) - super::get_list_size());
         auto value = std::min(std::max(zero, pos), max_delta);
         if (value != super::scrollbar.get_value()) {
           super::scrollbar.set_value(value, true);
@@ -522,13 +526,13 @@ namespace gui {
 
         const pos_t list_sz = super::get_list_size();
         const auto last = super::get_count();
-        const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / S);
+        const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / item_size);
 
-        super::set_dimension(place, S * first - super::get_scroll_pos(), S);
+        super::set_dimension(place, item_size * first - super::get_scroll_pos(), item_size);
 
         for(auto idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
-          super::set_dimension(place, super::get_dimension(place.top_left()) + S, S);
+          super::set_dimension(place, super::get_dimension(place.top_left()) + item_size, item_size);
         }
 
         if (place.y() < area.y2()) {
@@ -543,7 +547,7 @@ namespace gui {
 
       void adjust_scroll_bar () {
         if (super::is_scroll_bar_enabled()) {
-          scroll_bar::type visible = (S * super::item_count) - super::get_list_size();
+          scroll_bar::type visible = (item_size * super::item_count) - super::get_list_size();
           const bool show_scroll = (visible > zero);
           if (show_scroll) {
             super::create_scroll_bar();
@@ -553,99 +557,65 @@ namespace gui {
         }
       }
 
-    private:
-      const pos_t zero = pos_t(0);
+      core::size_type get_item_size () const {
+        return item_size;
+      }
 
+      void set_item_size (core::size_type item_size) {
+        this->item_size = item_size;
+      }
+
+      os::color get_background () const {
+        return background;
+      }
+
+      void set_background (os::color background) {
+        this->background = background;
+      }
+
+      void set_item_size_and_background (core::size_type item_size, os::color background) {
+        this->item_size = item_size;
+        this->background = background;
+      }
+
+    protected:
+      core::size_type item_size;
+      os::color background;
+
+    private:
       static no_erase_window_class clazz;
     };
 
-    template<orientation V, int S, os::color background>
-    no_erase_window_class list_t<V, S, background>::clazz = create_group_window_clazz(background);
+    template<orientation V>
+    no_erase_window_class list_t<V>::clazz = no_erase_window_class("list++");
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color background = color::white>
-    using hlist = list_t<orientation::horizontal, S, background>;
-
-    template<int S = 20, os::color background = color::white>
-    using vlist = list_t<orientation::vertical, S, background>;
-
-    using list = vlist<20, color::white>;
+    typedef list_t<orientation::horizontal> hlist;
+    typedef list_t<orientation::vertical> vlist;
+    typedef vlist list;
 
     // --------------------------------------------------------------------------
-    template<int S = 20, os::color background = color::white>
-    class edit_list : public list_t<orientation::vertical, S, background> {
+    class edit_list : public list_t<orientation::vertical> {
     public:
-      typedef list_t<orientation::vertical, S, background> super;
+      typedef list_t<orientation::vertical> super;
 
       typedef std::string (source) (int);
       typedef void (target) (int, const std::string&);
 
-      edit_list ()
-        : enable_edit(true) {
+      edit_list (core::size_type item_size = 20,
+                 os::color background = color::white,
+                 bool grab_focus = true);
 
-        super::register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::enter_edit));
+      void set_enable_edit (bool enable);
 
-        editor.register_event_handler(REGISTER_FUNCTION,
-                                         win::btn_down_event([&](os::key_state, const core::point& pt) {
-          if(!editor.client_area().is_inside(pt)) {
-            commit_edit();
-          }
-        }));
+      bool is_edit_enabled () const;
 
-        editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
-        editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
-
-        super::scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-          if (editor.is_visible()) {
-            editor.place(super::get_place_of_index(super::get_selection()));
-          }
-        }));
-
-        super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event(this, &edit_list::commit_edit));
-
-      }
-
-      void set_enable_edit (bool enable) {
-        enable_edit = enable;
-      }
-
-      bool is_edit_enabled () const {
-        return enable_edit;
-      }
-
-      void enter_edit () {
-        if (enable_edit && data_source) {
-          auto cell = super::get_selection();
-          auto area = super::get_place_of_index(cell);
-          if (!editor.is_valid()) {
-            editor.create(*reinterpret_cast<container*>(this), area);
-          }
-          editor.place(area);
-          editor.set_text(data_source(cell));
-          editor.set_visible();
-          editor.take_focus();
-        }
-      }
-
-      void commit_edit () {
-        if (data_target && editor.is_visible()) {
-          auto pos = editor.position();
-          auto cell = super::get_index_at_point(pos);
-          data_target(cell, editor.get_text());
-        }
-        cancel_edit();
-      }
-
-      void cancel_edit () {
-        editor.set_visible(false);
-        super::take_focus();
-      }
+      void enter_edit ();
+      void commit_edit ();
+      void cancel_edit ();
 
       void set_data_source_and_target (const std::function<source>& data_source,
-                                       const std::function<target>& data_target) {
-        this->data_source = data_source;
-        this->data_target = data_target;
-      }
+                                       const std::function<target>& data_target);
 
     protected:
       win::edit editor;

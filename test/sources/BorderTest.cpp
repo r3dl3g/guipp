@@ -66,10 +66,10 @@ private:
   typedef label_t<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
-  vlist<50, color::rgb_gray<224>::value> left_list;
+  vlist left_list;
 
-  typedef tree_view<20, color::very_light_gray> simple_tree;
-  typedef win::sorted_file_tree<20, color::very_light_gray> file_tree;
+  typedef tree_view simple_tree;
+  typedef win::sorted_file_tree file_tree;
   win::hsplit_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
@@ -86,7 +86,11 @@ private:
 // --------------------------------------------------------------------------
 my_main_window::my_main_window ()
   : super(40, 30, 100, 250)
+  , left_list(50, color::rgb_gray<224>::value)
+//  , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
+  right_view.first.set_item_size_and_background(20, color::very_light_gray);
+  right_view.second.set_item_size_and_background(20, color::very_light_gray);
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
@@ -423,8 +427,8 @@ void my_main_window::open () {
 
 //  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ open.take_focus(); }));
 
-  typedef sorted_file_tree<20, color::white> dir_tree_type;
-  typedef file_list<20, color::white> file_list_type;
+  typedef sorted_file_tree dir_tree_type;
+  typedef file_list file_list_type;
 
   win::vsplit_view<dir_tree_type, file_list_type> main_view;
 

@@ -165,17 +165,17 @@ private:
 
   win::simple_list_data<std::string> data;
 
-  typedef win::vlist<25> List1;
-  typedef win::edit_list<> List2;
-  typedef win::vlist<20, color::light_gray> List3;
+  typedef win::vlist List1;
+  typedef win::edit_list List2;
+  typedef win::vlist List3;
 
   List1 list1;
   List2& list2;
   List3& list3;
 
   typedef win::vsplit_view<List2, List3> list_split_view;
-  typedef win::simple_column_list<layout::simple_column_list_layout, 16, color::very_light_gray> simple_list;
-  typedef win::vsplit_view<win::hlist<20>, simple_list> column_list_split_view;
+  typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
+  typedef win::vsplit_view<win::hlist, simple_list> column_list_split_view;
 
   win::hsplit_view<list_split_view, column_list_split_view> main_split_view;
 
@@ -206,7 +206,7 @@ private:
   win::drop_down_list<std::string> drop_down;
   win::drop_down_list<os::color> color_drop_down;
 
-  typedef win::column_list_t<layout::weight_column_list_layout, 20, color::very_very_light_gray, int, std::string, float, int, bool> my_column_list_t;
+  typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
@@ -277,12 +277,19 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   , paint2(p2)
   , at_paint1(true)
   , at_drag(false)
+  , column_list(20, color::very_very_light_gray)
   , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
   , calc_pressed(false)
   , table_view(50, 20)
   , table_data(std::string())
 {
+  main_split_view.second.second.list.set_item_size(16);
+  main_split_view.second.second.list.set_background(color::very_light_gray);
+  list1.set_item_size(25);
+  list3.set_item_size(20);
+  list3.set_background(color::light_gray);
+
   register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&] () {
@@ -885,8 +892,8 @@ void my_main_window::created_children () {
   hscroll.set_visible();
 
   vscroll.create(main, core::rectangle(700, 50, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()), 250));
-  vscroll.set_max((int)list1.get_count() * List1::item_size - list1.size().height());
-  vscroll.set_step(static_cast<win::scroll_bar::type>(List1::item_size));
+  vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());
+  vscroll.set_step(static_cast<win::scroll_bar::type>(list1.get_item_size()));
   vscroll.set_visible();
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));

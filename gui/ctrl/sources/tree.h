@@ -87,10 +87,10 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename I, int S = 20, os::color background = color::white>
-      class tree : public vlist<S, background> {
+      template<typename I>
+      class tree : public vlist {
       public:
-        typedef vlist<S, background> super;
+        typedef vlist super;
 
         typedef I tree_info;
         typedef typename tree_info::type type;
@@ -98,7 +98,11 @@ namespace gui {
 
         type root;
 
-        tree () {
+        tree (core::size_type item_size = 20,
+              os::color background = color::white,
+              bool grab_focus = true)
+          : super(item_size, background, grab_focus)
+        {
           super::set_drawer(core::bind_method(this, &tree::draw_list_item));
           super::register_event_handler(REGISTER_FUNCTION, selection_commit_event([&]() {
             toggle_node(super::get_selection());
@@ -418,8 +422,7 @@ namespace gui {
 
     } // tree
 
-    template<int S = 20, os::color background = color::white>
-    using tree_view = tree::tree<tree::default_node_info, S, background>;
+    typedef tree::tree<tree::default_node_info> tree_view;
 
   } // win
 

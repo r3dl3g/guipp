@@ -188,6 +188,14 @@ namespace gui {
         super::get_layout().set_second(&second);
       }
 
+      split_view_t (First&& first, Second&& second)
+        : first(std::move(first))
+        , second(std::move(second))
+      {
+        super::get_layout().set_first(&this->first);
+        super::get_layout().set_second(&this->second);
+      }
+
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def,
                    double split_pos = 0.5) {

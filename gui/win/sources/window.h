@@ -320,42 +320,50 @@ namespace gui {
       void init ();
     };
 
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<typename B, typename L = layout::standard_layout, typename... Args>
+      class layout_base : public B {
+      public:
+        typedef B super;
+        typedef L layout_type;
+
+        layout_base (const Args&... args)
+          : layouter(this, args...)
+        {}
+
+        layout_base (const layout_base& rhs)
+          : super(rhs)
+          , layouter(this, rhs.layouter)
+        {}
+
+        layout_base (layout_base&& rhs)
+          : super(std::move(rhs))
+          , layouter(this, std::move(rhs.layouter))
+        {}
+
+        void layout () {
+          layouter.layout(super::size());
+        }
+
+        inline layout_type& get_layout() {
+          return layouter;
+        }
+
+        inline const layout_type& get_layout() const {
+          return layouter;
+        }
+
+      private:
+        layout_type layouter;
+      };
+
+    } // detail
+
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, typename... Args>
-    class layout_container : public container {
-    public:
-      typedef container super;
-      typedef L layout_type;
-
-      layout_container (const Args&... args)
-        : layouter(this, args...)
-      {}
-
-      layout_container (const layout_container& rhs)
-        : super(rhs)
-        , layouter(this, rhs.layouter)
-      {}
-
-      layout_container (layout_container&& rhs)
-        : super(std::move(rhs))
-        , layouter(this, std::move(rhs.layouter))
-      {}
-
-      void layout () {
-        layouter.layout(size());
-      }
-
-      inline layout_type& get_layout() {
-        return layouter;
-      }
-
-      inline const layout_type& get_layout() const {
-        return layouter;
-      }
-
-    private:
-      layout_type layouter;
-    };
+    using layout_container = detail::layout_base<container, L, Args...>;
 
     window_class create_group_window_clazz (os::color);
 
@@ -473,30 +481,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, typename... Args>
-    class layout_main_window : public main_window {
-    public:
-      typedef main_window super;
-      typedef L layout_type;
-
-      layout_main_window (const Args&... args)
-        : layouter(this, args...)
-      {}
-
-      void layout () {
-        layouter.layout(size());
-      }
-
-      inline layout_type& get_layout () {
-        return layouter;
-      }
-
-      inline const layout_type& get_layout () const {
-        return layouter;
-      }
-
-    protected:
-      layout_type layouter;
-    };
+    using layout_main_window = detail::layout_base<main_window, L, Args...>;
 
     // --------------------------------------------------------------------------
     class popup_window : public modal_window {
@@ -510,6 +495,10 @@ namespace gui {
     protected:
       static detail::popup_window_class clazz;
     };
+
+    // --------------------------------------------------------------------------
+    template<typename L = layout::standard_layout, typename... Args>
+    using layout_popup_window = detail::layout_base<popup_window, L, Args...>;
 
     // --------------------------------------------------------------------------
     class dialog_window : public modal_window {
@@ -526,30 +515,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, typename... Args>
-    class layout_dialog_window : public dialog_window {
-    public:
-      typedef dialog_window super;
-      typedef L layout_type;
-
-      layout_dialog_window (const Args&... args)
-        : layouter(this, args...)
-      {}
-
-      void layout () {
-        layouter.layout(size());
-      }
-
-      inline layout_type& get_layout () {
-        return layouter;
-      }
-
-      inline const layout_type& get_layout () const {
-        return layouter;
-      }
-
-    protected:
-      layout_type layouter;
-    };
+    using layout_dialog_window = detail::layout_base<dialog_window, L, Args...>;
 
     // --------------------------------------------------------------------------
   } // win

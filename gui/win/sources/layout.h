@@ -665,7 +665,7 @@ namespace gui {
       typedef std::pair<core::point::type, core::point::type> points;
 
       static points get_top_position (const core::rectangle& r, const core::size&) {
-		return detail::make_points(r.x(), r.width());
+        return detail::make_points(r.x(), r.width());
       }
 
       static points get_bottom_position (const core::rectangle& r, const core::size&) {

@@ -11,7 +11,7 @@
 *
 * Customer   -
 *
-* @brief     C++ API: basic window
+* @brief     Calling method helper function
 *
 * @file
 */
@@ -24,35 +24,24 @@
 //
 #include <functional>
 
-// --------------------------------------------------------------------------
-//
-// Library includes
-//
-#include "indices.h"
-
 namespace gui {
 
   namespace core {
 
-    namespace detail {
-
-#ifdef X11
-# define _Ph _Placeholder
-#endif // X11
-
-      template<typename T, std::size_t... Is, typename F, typename... Args>
-      auto bind_method(T* t, indices<Is...>, F& f, Args&&... args)
-        -> decltype(std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...)) {
-        return std::bind(f, t, std::forward<Args>(args)..., std::_Ph < Is + 1 > {}...);
+    template <class T, typename R, typename ...FArgs>
+    std::function<R(FArgs...)> bind_method(T* t, R (T::*method)(FArgs...)) {
+      return [=](FArgs&&... args) {
+        return (t->*method)(std::forward<decltype(args)>(args)...);
       };
-
-    } // detail
-
-    template<typename T, typename R, typename... FArgs>
-    auto bind_method(T* t, R(T::*f)(FArgs...))
-      -> decltype(detail::bind_method(t, detail::build_indices < sizeof...(FArgs) > {}, f)) {
-      return detail::bind_method(t, detail::build_indices < sizeof...(FArgs) > {}, f);
     }
+
+    template <class T, typename R, typename ...FArgs>
+    std::function<R(FArgs...)> bind_method(const T* t, R (T::*method)(FArgs...) const) {
+      return [=](FArgs&&... args) {
+        return (t->*method)(std::forward<decltype(args)>(args)...);
+      };
+    }
+
 
   } // core
 

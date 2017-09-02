@@ -182,7 +182,9 @@ namespace gui {
         }
       }));
 
-      super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event(this, &edit_list::commit_edit));
+      super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+        commit_edit();
+      }));
 
     }
 

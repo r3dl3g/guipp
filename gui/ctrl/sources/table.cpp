@@ -747,7 +747,9 @@ namespace gui {
         }
       }));
 
-      register_event_handler(REGISTER_FUNCTION, win::selection_changed_event(this, &table_edit::commit_edit));
+      register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] (event_source) {
+        commit_edit();
+      }));
 
     }
 

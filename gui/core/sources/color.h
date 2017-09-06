@@ -148,7 +148,7 @@ namespace gui {
       }
     }
 
-    constexpr type calc_weigth_gray (os::color c) {
+    constexpr type calc_weight_gray (os::color c) {
       return static_cast<type>(detail::fast_div_16(detail::fast_mul_5(extract<part::red>(c)) +
                                                    detail::fast_mul_9(extract<part::green>(c)) +
                                                    detail::fast_mul_2(extract<part::blue>(c))));
@@ -218,9 +218,9 @@ namespace gui {
                static_cast<int>(extract<part::blue>(rhs))));
     }
 
-    constexpr int compare_weigth (os::color lhs, os::color rhs) {
-      return static_cast<int>(calc_weigth_gray(lhs)) -
-             static_cast<int>(calc_weigth_gray(rhs));
+    constexpr int compare_weight (os::color lhs, os::color rhs) {
+      return static_cast<int>(calc_weight_gray(lhs)) -
+             static_cast<int>(calc_weight_gray(rhs));
     }
 
     const os::color transparent = rgba_gray<0, 0xff>::value;

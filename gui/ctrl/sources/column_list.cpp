@@ -169,18 +169,18 @@ namespace gui {
 
       // adjust only the columns on the right
 
-      float right_weigth = 0.0F;
+      float right_weight = 0.0F;
       column_size_type right_width = 0;
       column_size_type right_min_width = 0;
 
       for (decltype(count) j = i + 1; j < count; ++j) {
-        right_weigth += get_column_weight(j);
+        right_weight += get_column_weight(j);
         right_width += get_column_width(j);
         right_min_width += get_column_min_width(j);
       }
 
-      if (0.0F == right_weigth) {
-        right_weigth = 1.0F / (count - i);
+      if (0.0F == right_weight) {
+        right_weight = 1.0F / (count - i);
       }
 
       const core::size::type available_width = get_available_width();
@@ -200,7 +200,7 @@ namespace gui {
         const column_size_type open_space = available_width - left - new_w - right_width;
 
         for (decltype(count) j = i + 1; j < count; ++j) {
-          column_size_type cw = get_column_width(j) + static_cast<column_size_type>(open_space * get_column_weight(j) / right_weigth);
+          column_size_type cw = get_column_width(j) + static_cast<column_size_type>(open_space * get_column_weight(j) / right_weight);
           super::set_column_width(j, cw, false);
         }
       }
@@ -213,16 +213,16 @@ namespace gui {
     void weight_column_list_layout::layout (const core::size& sz) {
       auto count = get_column_count();
 
-      float full_weigth = 0.0F;
+      float full_weight = 0.0F;
       column_size_type full_width = 0;
 
       for (decltype(count) i = 0; i < count; ++i) {
-        full_weigth += get_column_weight(i);
+        full_weight += get_column_weight(i);
         full_width += get_column_width(i);
       }
 
-      if (0.0F == full_weigth) {
-        full_weigth = 1.0F;
+      if (0.0F == full_weight) {
+        full_weight = 1.0F;
       }
 
       core::size::type available_width = get_available_width(sz);
@@ -230,7 +230,7 @@ namespace gui {
 
 
       for (decltype(count) i = 0; i < count; ++i) {
-        column_size_type w = get_column_width(i) + static_cast<column_size_type>(space * get_column_weight(i) / full_weigth);
+        column_size_type w = get_column_width(i) + static_cast<column_size_type>(space * get_column_weight(i) / full_weight);
         super::set_column_width(i, w, false);
       }
 

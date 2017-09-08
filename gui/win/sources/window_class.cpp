@@ -50,8 +50,6 @@ namespace gui {
 
     window_class::window_class ()
       : background(0)
-      , cursor(0)
-      , cursor_type(0)
       , style(0)
       , ex_style(0)
       , class_style(0)
@@ -62,7 +60,6 @@ namespace gui {
       : class_name(rhs.class_name)
       , background(rhs.background)
       , cursor(rhs.cursor)
-      , cursor_type(rhs.cursor_type)
       , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
@@ -71,14 +68,13 @@ namespace gui {
 
     window_class::window_class (const std::string& cls_name,
                                 os::color background,
-                                os::cursor_type cursor_t,
+                                win::cursor cursor,
                                 os::style style,
                                 os::style ex_style,
                                 os::style class_style)
       : class_name(cls_name)
       , background(background)
-      , cursor(0)
-      , cursor_type(cursor_t)
+      , cursor(cursor)
       , class_style(class_style)
       , style(style)
       , ex_style(ex_style)
@@ -105,7 +101,7 @@ namespace gui {
       return background;
     }
 
-    const os::cursor window_class::get_cursor () const {
+    const win::cursor& window_class::get_cursor () const {
       register_class();
       return cursor;
     }
@@ -144,10 +140,6 @@ namespace gui {
         return;
       }
 #ifdef WIN32
-      if (cursor_type && !cursor) {
-        cursor = LoadCursor(nullptr, (LPCSTR)cursor_type);
-      }
-
       WNDCLASS wc = {
         /* Register the window class. */
         class_style,
@@ -169,11 +161,6 @@ namespace gui {
         //throw std::runtime_error(msg);
       }
 #endif // WIN32
-#ifdef X11
-      if (cursor_type && !cursor) {
-        cursor = XCreateFontCursor(core::global::get_instance(), cursor_type);
-      }
-#endif
       is_initialized = true;
     }
 

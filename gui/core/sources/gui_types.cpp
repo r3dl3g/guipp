@@ -27,7 +27,9 @@
 # include <windowsx.h>
 #endif
 #ifdef X11
-# include <X11/Xlib.h>
+//# ifdef XLIB
+#  include <X11/Xlib.h>
+//# endif
 #endif // X11
 
 // --------------------------------------------------------------------------

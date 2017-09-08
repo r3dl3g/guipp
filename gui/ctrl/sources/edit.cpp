@@ -42,14 +42,7 @@ namespace gui {
 
     namespace detail {
 
-      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white,
-#ifdef WIN32
-                       (ULONG_PTR)IDC_IBEAM
-#endif // WIN32
-#ifdef X11
-                       XC_xterm
-#endif // X11
-      );
+      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white, cursor::ibeam());
 
       const std::string white_space = " (){}[],.;:'\"!@#$%^&/*-+";
 

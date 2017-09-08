@@ -307,6 +307,10 @@ namespace gui {
       return core::point(Point);
     }
 
+    void window::set_cursor (os::cursor c) {
+      SetCursor(get_id(), c);
+    }
+
     void window::capture_pointer () {
       LogDebug << "capture_pointer:" << get_id();
       capture_stack.push_back(get_id());
@@ -705,7 +709,7 @@ namespace gui {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa = { 0 };
           wa.cursor = on ? get_window_class().get_cursor()
-                         : XCreateFontCursor(core::global::get_instance(), XC_arrow);
+                         : win::cursor::arrow();
           check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
         }
         redraw_later();
@@ -870,6 +874,10 @@ namespace gui {
                                                 &y,
                                                 &child_return));
         return {core::point::type(x), core::point::type(y)};
+    }
+
+    void window::set_cursor (os::cursor c) {
+      XDefineCursor(core::global::get_instance(), get_id(), c);
     }
 
     void window::capture_pointer () {
@@ -1454,7 +1462,7 @@ namespace gui {
       popup_window_class::popup_window_class ()
         : window_class("POPUP",
                        color::light_gray,
-                       window_class_defaults<>::cursor,
+                       window_class_defaults<>::cursor(),
                        popup_window_class_defaults<>::style,
                        popup_window_class_defaults<>::ex_style,
                        popup_window_class_defaults<>::class_style)
@@ -1493,7 +1501,7 @@ namespace gui {
       dialog_window_class::dialog_window_class ()
         : window_class("dialog_window",
                        color::light_gray,
-                       window_class_defaults<>::cursor,
+                       window_class_defaults<>::cursor(),
                        dialog_window_class_defaults<>::style,
                        dialog_window_class_defaults<>::ex_style)
       {}

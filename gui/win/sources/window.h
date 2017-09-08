@@ -175,6 +175,8 @@ namespace gui {
 
       const window_class& get_window_class () const;
 
+      void set_cursor (os::cursor);
+
       void capture_pointer ();
       void uncapture_pointer ();
 

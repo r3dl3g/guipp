@@ -81,7 +81,7 @@ namespace gui {
 
       no_erase_window_class (const std::string& cls_name,
                              os::color background = color::white,
-                             os::cursor_type cursor = window_class_defaults<>::cursor,
+                             win::cursor cursor = window_class_defaults<>::cursor(),
                              os::style style = window_class_defaults<>::style,
                              os::style ex_style = window_class_defaults<>::ex_style)
         :window_class(cls_name, background, cursor, style, ex_style)

@@ -63,7 +63,7 @@ namespace gui {
 #ifdef X11
     typedef XEvent event;
 
-#endif // WIN
+#endif // X11
 
     inline os::event_id get_event_id (const event& e) {
       return e.type;

@@ -76,6 +76,21 @@ namespace gui {
         return idx - 1;
       }
 
+      int layout::split_idx_at (core::point_type pt, core::size_type sz) const {
+        core::point_type pos = -get_offset();
+        const core::point_type lower = pt - sz;
+        const core::point_type upper = pt + sz;
+        int idx = 0;
+        while (pos < lower) {
+          pos += get_size(idx);
+          ++idx;
+        }
+        if ((lower <= pos) && (pos < upper)) {
+          return idx - 1;
+        }
+        return -1;
+      }
+
       core::point_type layout::position_of (int idx) const {
         core::point_type pos = -get_offset();
         for (int i = 0; i < idx; ++i) {
@@ -304,9 +319,9 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-          }));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
+          paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
       }
 
       // --------------------------------------------------------------------------
@@ -336,8 +351,8 @@ namespace gui {
 
       void row_view::init () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
-            paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-          }));
+          paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
       }
 
     } // table
@@ -417,12 +432,12 @@ namespace gui {
 
       columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
       columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
-      columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
+      columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_column_left_btn_down));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
 
       rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
       rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
-      rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
+      rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_row_left_btn_down));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_row_left_btn_up));
 
     }
@@ -551,6 +566,8 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       data.take_focus();
+      down_idx.clear();
+      set_cursor(cursor::move());
     }
 
     void table_view::handle_left_btn_up(os::key_state keys, const core::point& pt) {
@@ -563,6 +580,8 @@ namespace gui {
         }
       }
       last_mouse_point = core::point::undefined;
+      down_idx.clear();
+      set_cursor(cursor::arrow());
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::point& pt) {
@@ -584,6 +603,14 @@ namespace gui {
       }
     }
 
+    void table_view::handle_column_left_btn_down (os::key_state, const core::point& pt) {
+      last_mouse_point = pt;
+      moved = false;
+      down_idx.column = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+      columns.set_cursor(down_idx.column > -1 ? cursor::size_h() : cursor::move());
+//      columns.capture_pointer();
+    }
+
     void table_view::handle_column_left_btn_up(os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = columns.get_index_at_point(pt);
@@ -594,6 +621,9 @@ namespace gui {
         }
       }
       last_mouse_point = core::point::undefined;
+      down_idx.clear();
+      columns.set_cursor(cursor::arrow());
+//      columns.uncapture_pointer();
     }
 
     void table_view::handle_column_mouse_move (os::key_state keys, const core::point& pt) {
@@ -601,20 +631,37 @@ namespace gui {
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
-          if (hscroll.is_enabled()) {
-            hscroll.set_value(hscroll.get_value() - delta, true);
+          if (down_idx.column > -1) {
+            geometrie.widths.set_size(down_idx.column, geometrie.widths.get_size(down_idx.column) + delta);
+            redraw_all();
+          } else {
+            if (hscroll.is_enabled()) {
+              hscroll.set_value(hscroll.get_value() - delta, true);
+            }
           }
           moved = true;
         }
         last_mouse_point = pt;
       } else {
-        const auto new_hilite = columns.get_index_at_point(pt);
-        if (geometrie.hilite != new_hilite) {
-          geometrie.hilite = new_hilite;
-          redraw_all();
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        const int idx = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+        columns.set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
+        if (idx < 0) {
+          const auto new_hilite = columns.get_index_at_point(pt);
+          if (geometrie.hilite != new_hilite) {
+            geometrie.hilite = new_hilite;
+            redraw_all();
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+          }
         }
       }
+    }
+
+    void table_view::handle_row_left_btn_down (os::key_state, const core::point& pt) {
+      last_mouse_point = pt;
+      moved = false;
+      down_idx.row = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+      rows.set_cursor(down_idx.row > -1 ? cursor::size_v() : cursor::move());
+//      rows.capture_pointer();
     }
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
@@ -627,6 +674,9 @@ namespace gui {
         }
       }
       last_mouse_point = core::point::undefined;
+      down_idx.clear();
+      rows.set_cursor(cursor::arrow());
+//      rows.uncapture_pointer();
     }
 
     void table_view::handle_row_mouse_move (os::key_state keys, const core::point& pt) {
@@ -634,18 +684,27 @@ namespace gui {
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.y() - last_mouse_point.y();
-          if (vscroll.is_enabled()) {
-            vscroll.set_value(vscroll.get_value() - delta, true);
+          if (down_idx.row > -1) {
+            geometrie.heights.set_size(down_idx.row, geometrie.heights.get_size(down_idx.row) + delta);
+            redraw_all();
+          } else {
+            if (vscroll.is_enabled()) {
+              vscroll.set_value(vscroll.get_value() - delta, true);
+            }
           }
           moved = true;
         }
         last_mouse_point = pt;
       } else {
-        const auto new_hilite = rows.get_index_at_point(pt);
-        if (geometrie.hilite != new_hilite) {
-          geometrie.hilite = new_hilite;
-          redraw_all();
-          send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+        const int idx = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+        rows.set_cursor(idx > -1 ? cursor::size_v() : cursor::arrow());
+        if (idx < 0) {
+          const auto new_hilite = rows.get_index_at_point(pt);
+          if (geometrie.hilite != new_hilite) {
+            geometrie.hilite = new_hilite;
+            redraw_all();
+            send_client_message(this, detail::HILITE_CHANGE_MESSAGE, static_cast<int>(event_source::mouse));
+          }
         }
       }
     }
@@ -763,6 +822,7 @@ namespace gui {
         }
         editor.place(core::rectangle(pt, sz));
         editor.set_text(data_source(cell));
+        editor.set_cursor_pos(editor.get_text_length());
         editor.set_visible();
         editor.take_focus();
       }

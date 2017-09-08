@@ -44,12 +44,11 @@ namespace gui {
         : no_erase_window_class("VSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
-                       (ULONG_PTR)IDC_SIZEWE
 #endif // WIN32
 #ifdef X11
                        color::buttonColor(),
-                       XC_sb_h_double_arrow
 #endif // X11
+          win::cursor::size_h()
         )
       {}
 
@@ -58,12 +57,11 @@ namespace gui {
         : no_erase_window_class("HSLIDER++",
 #ifdef WIN32
                        (os::color)(COLOR_BTNFACE + 1),
-                       (ULONG_PTR)IDC_SIZENS
 #endif // WIN32
 #ifdef X11
                        color::buttonColor(),
-                       XC_sb_v_double_arrow
 #endif // X11
+          win::cursor::size_v()
         )
       {}
 

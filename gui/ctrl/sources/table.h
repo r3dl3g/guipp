@@ -302,6 +302,7 @@ namespace gui {
 
         int index_at (core::point_type pt) const;
         core::point_type position_of (int idx) const;
+        int split_idx_at (core::point_type pt, core::size_type sz) const;
 
         void calc ();
 
@@ -636,13 +637,14 @@ namespace gui {
       void handle_wheel_y (const core::point_type delta, const core::point&);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
-
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
 
+      void handle_column_left_btn_down (os::key_state, const core::point& pt);
       void handle_column_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_column_mouse_move (os::key_state keys, const core::point& pt);
 
+      void handle_row_left_btn_down (os::key_state, const core::point& pt);
       void handle_row_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_row_mouse_move (os::key_state keys, const core::point& pt);
 
@@ -672,6 +674,7 @@ namespace gui {
 
       bool moved;
       core::point last_mouse_point;
+      table::position down_idx;
 
     private:
       void init ();

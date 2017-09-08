@@ -621,6 +621,8 @@ namespace gui {
       table_view (const table_view&);
       table_view (table_view&&);
 
+      void enable_size (bool h_size, bool v_size);
+
       core::point get_scroll_pos () const;
       void set_scroll_pos (const core::point& pos);
 
@@ -671,6 +673,9 @@ namespace gui {
 
     protected:
       void redraw_all ();
+
+      bool enable_v_size;
+      bool enable_h_size;
 
       bool moved;
       core::point last_mouse_point;

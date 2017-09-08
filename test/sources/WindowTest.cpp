@@ -884,6 +884,7 @@ void my_main_window::created_children () {
   }));
 
   table_view.edge.set_text("0:0");
+  table_view.enable_size(true, true);
   table_view.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));

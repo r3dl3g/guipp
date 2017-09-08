@@ -373,7 +373,10 @@ namespace gui {
       , columns(geometrie, align, foreground, header_background)
       , rows(geometrie, align, foreground, header_background)
       , last_mouse_point(core::point::undefined)
-      , moved(false) {
+      , enable_v_size(false)
+      , enable_h_size(false)
+      , moved(false)
+    {
       init();
     }
 
@@ -384,6 +387,8 @@ namespace gui {
       , columns(geometrie, rhs.columns)
       , rows(geometrie, rhs.rows)
       , last_mouse_point(core::point::undefined)
+      , enable_v_size(false)
+      , enable_h_size(false)
       , moved(false)
     {
       init();
@@ -396,9 +401,16 @@ namespace gui {
       , columns(geometrie, std::move(rhs.columns))
       , rows(geometrie, std::move(rhs.rows))
       , last_mouse_point(core::point::undefined)
+      , enable_v_size(false)
+      , enable_h_size(false)
       , moved(false)
     {
       init();
+    }
+
+    void table_view::enable_size (bool h_size, bool v_size) {
+      enable_h_size = h_size;
+      enable_v_size = v_size;
     }
 
     void table_view::init () {
@@ -606,9 +618,11 @@ namespace gui {
     void table_view::handle_column_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;
       moved = false;
-      down_idx.column = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+      if (enable_h_size) {
+        down_idx.column = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+      }
       columns.set_cursor(down_idx.column > -1 ? cursor::size_h() : cursor::move());
-//      columns.capture_pointer();
+      columns.capture_pointer();
     }
 
     void table_view::handle_column_left_btn_up(os::key_state keys, const core::point& pt) {
@@ -623,12 +637,11 @@ namespace gui {
       last_mouse_point = core::point::undefined;
       down_idx.clear();
       columns.set_cursor(cursor::arrow());
-//      columns.uncapture_pointer();
+      columns.uncapture_pointer();
     }
 
     void table_view::handle_column_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = columns.client_area();
-      if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx.column > -1) {
@@ -643,7 +656,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        const int idx = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+        const int idx = enable_h_size ? geometrie.widths.split_idx_at(pt.x(), 2.0F) : -1;
         columns.set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
         if (idx < 0) {
           const auto new_hilite = columns.get_index_at_point(pt);
@@ -659,9 +672,11 @@ namespace gui {
     void table_view::handle_row_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;
       moved = false;
-      down_idx.row = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+      if (enable_v_size) {
+        down_idx.row = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+      }
       rows.set_cursor(down_idx.row > -1 ? cursor::size_v() : cursor::move());
-//      rows.capture_pointer();
+      rows.capture_pointer();
     }
 
     void table_view::handle_row_left_btn_up (os::key_state keys, const core::point& pt) {
@@ -676,12 +691,11 @@ namespace gui {
       last_mouse_point = core::point::undefined;
       down_idx.clear();
       rows.set_cursor(cursor::arrow());
-//      rows.uncapture_pointer();
+      rows.uncapture_pointer();
     }
 
     void table_view::handle_row_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = rows.client_area();
-      if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.y() - last_mouse_point.y();
           if (down_idx.row > -1) {
@@ -696,7 +710,7 @@ namespace gui {
         }
         last_mouse_point = pt;
       } else {
-        const int idx = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+        const int idx = enable_v_size ? geometrie.heights.split_idx_at(pt.y(), 2.0F) : -1;
         rows.set_cursor(idx > -1 ? cursor::size_v() : cursor::arrow());
         if (idx < 0) {
           const auto new_hilite = rows.get_index_at_point(pt);

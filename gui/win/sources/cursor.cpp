@@ -46,12 +46,12 @@ namespace gui {
     }
 
     const cursor& cursor::size_h () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZENS, XC_sb_h_double_arrow));
+      static cursor c(IF_WIN32_ELSE(IDC_SIZEWE, XC_sb_h_double_arrow));
       return c;
     }
 
     const cursor& cursor::size_v () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZEWE, XC_sb_v_double_arrow));
+      static cursor c(IF_WIN32_ELSE(IDC_SIZENS, XC_sb_v_double_arrow));
       return c;
     }
 

@@ -92,7 +92,6 @@ namespace gui {
       void column_list_layout::set_column_count (std::size_t i) {
         widths.resize(i);
         aligns.resize(i);
-        sliders.clear(); // force rebuild
       }
 
       void column_list_layout::set_columns (std::initializer_list<column_info> infos, bool update) {
@@ -105,7 +104,7 @@ namespace gui {
           ++idx;
         }
         if (update) {
-          update_views();
+          redraw_views();
         }
       }
 
@@ -113,7 +112,7 @@ namespace gui {
         if (widths[i] != w) {
           widths[i] = w;
           if (update) {
-            update_views();
+            redraw_views();
           }
         }
       }
@@ -128,26 +127,7 @@ namespace gui {
         set_column_width(i, info.width, update);
       }
 
-      void column_list_layout::set_slider_creator (std::function<create_sliders> sc) {
-        slider_creator = sc;
-      }
-
       void column_list_layout::layout (const core::size& new_size) {
-        core::rectangle r(-1, 1, 2, new_size.height() - 2);
-        auto count = get_column_count();
-        if (count != sliders.size()) {
-          sliders = slider_creator(count);
-        }
-        for (decltype(count) i = 0; i < count; ++i) {
-          slider* s = sliders[i];
-          r.move_x(get_column_width(i));
-          s->place(r);
-        }
-      }
-
-      void column_list_layout::update_views () {
-        layout(main->size());
-        redraw_views();
       }
 
       void column_list_layout::redraw_views () {
@@ -168,7 +148,7 @@ namespace gui {
         ++idx;
       }
       if (update) {
-        update_views();
+        redraw_views();
       }
     }
 
@@ -185,7 +165,7 @@ namespace gui {
         ++idx;
       }
       if (update) {
-        update_views();
+        redraw_views();
       }
     }
 
@@ -231,7 +211,7 @@ namespace gui {
       }
 
       if (update) {
-        update_views();
+        redraw_views();
       }
     }
 
@@ -260,7 +240,6 @@ namespace gui {
       }
 
       super::layout(sz);
-      get_slider(count - 1)->disable();
       list->redraw_later();
     }
 

@@ -47,10 +47,7 @@ namespace gui {
       class column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
-        typedef win::detail::slider slider;
         typedef win::detail::list_t<orientation::vertical> list_type;
-
-        typedef std::vector<slider*>(create_sliders)(size_t);
 
         column_list_layout (win::container* main)
           : super(main)
@@ -62,7 +59,6 @@ namespace gui {
           , list(nullptr)
           , widths(rhs.widths)
           , aligns(rhs.aligns)
-          , slider_creator(rhs.slider_creator)
         {}
 
         column_list_layout (win::container* main, column_list_layout&& rhs)
@@ -70,70 +66,51 @@ namespace gui {
           , list(std::move(rhs.list))
           , widths(std::move(rhs.widths))
           , aligns(std::move(rhs.aligns))
-          , slider_creator(std::move(rhs.slider_creator))
         {}
 
         void init_auto_layout () {
           super::init(core::bind_method(this, &column_list_layout::layout));
         }
 
-        void layout(const core::size& new_size);
+        void layout (const core::size& new_size);
           
-        void set_slider_creator(std::function<create_sliders> sc);
-
-        inline std::size_t get_column_count() const {
+        inline std::size_t get_column_count () const {
           return widths.size();
         }
 
-        void set_column_count(std::size_t i);
+        void set_column_count (std::size_t i);
 
-        inline text_origin get_column_align(std::size_t i) const {
+        inline text_origin get_column_align (std::size_t i) const {
           return aligns[i];
         }
 
-        inline column_size_type get_column_width(std::size_t i) const {
+        inline column_size_type get_column_width (std::size_t i) const {
           return widths[i];
-        }
-
-        inline const slider* get_slider(std::size_t i) const {
-          return sliders[i];
-        }
-
-        inline slider* get_slider(std::size_t i) {
-          return sliders[i];
         }
 
         int split_idx_at (core::point_type pt, column_size_type delta) const;
         int index_at (core::point_type pt) const;
 
-        column_size_type get_column_left_pos(std::size_t i) const;
-        column_size_type get_column_right_pos(std::size_t i) const;
+        column_size_type get_column_left_pos (std::size_t i) const;
+        column_size_type get_column_right_pos (std::size_t i) const;
 
-        void set_column_align(std::size_t i, text_origin a);
+        void set_column_align (std::size_t i, text_origin a);
+        void set_column_width (std::size_t i, column_size_type w, bool update = true);
+        void set_column_info (std::size_t i, const column_info& info, bool update = true);
+        void set_columns (std::initializer_list<column_info> infos, bool update = true);
 
-        void set_column_width(std::size_t i, column_size_type w, bool update = true);
-
-        void set_column_info(std::size_t i, const column_info& info, bool update = true);
-
-        void set_columns(std::initializer_list<column_info> infos, bool update = true);
-
-        core::size::type get_available_width() const;
-
-        core::size::type get_available_width(const core::size&) const;
+        core::size::type get_available_width () const;
+        core::size::type get_available_width (const core::size&) const;
 
         void set_list (list_type* l) {
           list = l;
         }
 
       protected:
-        void update_views();
-        void redraw_views();
-
-        std::function<create_sliders> slider_creator;
+        void redraw_views ();
 
         std::vector<column_size_type> widths;
         std::vector<text_origin> aligns;
-        std::vector<slider*> sliders;
 
         list_type* list;
       };
@@ -326,21 +303,21 @@ namespace gui {
       typedef Layout layout_type;
       typedef layout_container<Layout> super;
 
-      typedef framed_slider_t<orientation::vertical, draw::frame::vgroove> slider_type;
-
       typedef void(cell_draw)(std::size_t,            // idx
                               const draw::graphics&,  // gc
                               const core::rectangle&, // place
                               const draw::brush&);    // background
 
-      column_list_header () {
+      column_list_header ()
+        : down_idx(-1)
+      {
         super::set_accept_focus(false);
         set_cell_drawer(default_cell_drawer);
         this->get_layout().init_auto_layout();
-        this->get_layout().set_slider_creator([&](std::size_t i) {
-          return create_slider(i);
-        });
         this->register_event_handler(REGISTER_FUNCTION, paint_event(this, &column_list_header::paint));
+        this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
+        this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
+        this->register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &column_list_header::handle_left_btn_up));
       }
 
       void paint (const draw::graphics& g) {
@@ -370,38 +347,43 @@ namespace gui {
         super::create(clazz, parent, place);
       }
 
-      std::vector<detail::slider*> create_slider (std::size_t count) {
-        core::rectangle r(-1, 1, 2, this->size().height() - 2);
-        sliders.resize(count);
-        std::vector<detail::slider*> v;
-        for (decltype(count) i = 0; i < count; ++i) {
-          slider_type& s = sliders[i];
-          v.push_back(&s);
-          r.move_x(this->get_layout().get_column_width(i));
-          if (!s.is_valid()) {
-            s.create(*this, r);
-            s.set_visible();
-            s.register_event_handler(REGISTER_FUNCTION, slider_event([=](int) {
-              slider_type& s = sliders[i];
-              auto new_w = s.position().x();
-              if (i > 0) {
-                slider_type& s0 = sliders[i - 1];
-                new_w -= s0.position().x();
-              }
-              this->get_layout().set_column_width(i, new_w);
-            }));
-          }
-        }
-        return v;
-      }
-
-      void set_cell_drawer(std::function<cell_draw> cd) {
+      void set_cell_drawer (std::function<cell_draw> cd) {
         cell_drawer = cd;
       }
 
+      void handle_left_btn_down (os::key_state, const core::point& pt) {
+        last_mouse_point = pt;
+        down_idx = this->get_layout().split_idx_at(pt.x(), 2.0F);
+        super::set_cursor(down_idx > -1 ? cursor::size_h() : cursor::move());
+        super::capture_pointer();
+      }
+
+      void handle_left_btn_up (os::key_state keys, const core::point& pt) {
+        last_mouse_point = core::point::undefined;
+        down_idx = -1;
+        super::set_cursor(cursor::arrow());
+        super::uncapture_pointer();
+      }
+
+      void handle_mouse_move (os::key_state keys, const core::point& pt) {
+        if (left_button_bit_mask::is_set(keys)) {
+          if (last_mouse_point != core::point::undefined) {
+            auto delta = pt.x() - last_mouse_point.x();
+            if (down_idx > -1) {
+              this->get_layout().set_column_width(down_idx, this->get_layout().get_column_width(down_idx) + delta);
+            }
+          }
+          last_mouse_point = pt;
+        } else {
+          const int idx = this->get_layout().split_idx_at(pt.x(), 2.0F);
+          super::set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
+        }
+      }
+
     private:
-      std::vector<slider_type> sliders;
       std::function<cell_draw> cell_drawer;
+      core::point last_mouse_point;
+      int down_idx;
 
       static no_erase_window_class clazz;
 

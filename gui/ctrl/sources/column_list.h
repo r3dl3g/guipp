@@ -35,7 +35,7 @@ namespace gui {
 
   namespace layout {
 
-    typedef core::size::type column_size_type;
+    typedef core::size_type column_size_type;
 
     struct column_info {
       column_size_type width;
@@ -102,6 +102,9 @@ namespace gui {
         inline slider* get_slider(std::size_t i) {
           return sliders[i];
         }
+
+        int split_idx_at (core::point_type pt, column_size_type delta) const;
+        int index_at (core::point_type pt) const;
 
         column_size_type get_column_left_pos(std::size_t i) const;
         column_size_type get_column_right_pos(std::size_t i) const;

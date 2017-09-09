@@ -49,6 +49,31 @@ namespace gui {
         return w;
       }
 
+      int column_list_layout::index_at (core::point_type pt) const {
+        core::point_type pos = 0;
+        int idx = 0;
+        while (pos <= pt) {
+          pos += get_column_width(idx);
+          ++idx;
+        }
+        return idx - 1;
+      }
+
+      int column_list_layout::split_idx_at (core::point_type pt, core::size_type delta) const {
+        const core::point_type lower = pt - delta;
+        const core::point_type upper = pt + delta;
+        core::point_type pos = 0;
+        int idx = 0;
+        while (pos < lower) {
+          pos += get_column_width(idx);
+          ++idx;
+        }
+        if ((lower <= pos) && (pos < upper)) {
+          return idx - 1;
+        }
+        return -1;
+      }
+
       column_size_type column_list_layout::get_column_right_pos (std::size_t i) const {
         return get_column_left_pos(i + 1);
       }

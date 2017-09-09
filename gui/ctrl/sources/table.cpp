@@ -76,10 +76,10 @@ namespace gui {
         return idx - 1;
       }
 
-      int layout::split_idx_at (core::point_type pt, core::size_type sz) const {
+      int layout::split_idx_at (core::point_type pt, core::size_type delta) const {
         core::point_type pos = -get_offset();
-        const core::point_type lower = pt - sz;
-        const core::point_type upper = pt + sz;
+        const core::point_type lower = pt - delta;
+        const core::point_type upper = pt + delta;
         int idx = 0;
         while (pos < lower) {
           pos += get_size(idx);

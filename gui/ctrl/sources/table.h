@@ -302,7 +302,7 @@ namespace gui {
 
         int index_at (core::point_type pt) const;
         core::point_type position_of (int idx) const;
-        int split_idx_at (core::point_type pt, core::size_type sz) const;
+        int split_idx_at (core::point_type pt, core::size_type delta) const;
 
         void calc ();
 

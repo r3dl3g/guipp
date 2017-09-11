@@ -23,6 +23,7 @@
 // Common includes
 //
 #include <iosfwd>
+#include <limits>
 
 // --------------------------------------------------------------------------
 //
@@ -35,6 +36,7 @@ namespace gui {
 
   namespace core {
 
+    // --------------------------------------------------------------------------
     typedef float size_type;
 
     struct point;
@@ -48,6 +50,7 @@ namespace gui {
 #endif // X11
     }
 
+    // --------------------------------------------------------------------------
     struct size {
       typedef size_type type;
 
@@ -156,11 +159,14 @@ namespace gui {
       type m_h;
     };
 
+    // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out,
                               const size&);
 
+    // --------------------------------------------------------------------------
     typedef float point_type;
 
+    // --------------------------------------------------------------------------
     struct point {
       typedef point_type type;
       static const point zero;
@@ -306,9 +312,11 @@ namespace gui {
       type m_y;
     };
 
+    // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out,
                               const point&);
 
+    // --------------------------------------------------------------------------
     struct rectangle {
       static const rectangle zero;
       static const rectangle def;
@@ -598,9 +606,130 @@ namespace gui {
       point br;
     };
 
+    // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out,
                               const rectangle&);
 
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct position {
+      typedef T type;
+      static constexpr type invalid = std::numeric_limits<type>::min();
+
+      inline position ()
+        : column(invalid)
+        , row(invalid)
+      {}
+
+      template<typename U, typename V>
+      inline position (U c, V r)
+        : column(static_cast<type>(c))
+        , row(static_cast<type>(r))
+      {}
+
+      inline bool is_cell (std::size_t c, std::size_t r) const {
+        return (column == static_cast<type>(c)) && (row == static_cast<type>(r));
+      }
+
+      inline bool is_column (std::size_t c) const {
+        return (column == static_cast<type>(c)) && (row < 0);
+      }
+
+      inline bool is_row (std::size_t r) const {
+        return (row == static_cast<type>(r)) && (column < 0);
+      }
+
+      inline bool operator== (const position& rhs) const {
+        return (column == rhs.column) && (row == rhs.row);
+      }
+
+      inline bool operator!= (const position& rhs) const {
+        return !operator==(rhs);
+      }
+
+      inline bool operator> (const position& rhs) const {
+        return (row > rhs.row) || ((row == rhs.row) && (column > rhs.column));
+      }
+
+      inline bool operator< (const position& rhs) const {
+        return (row < rhs.row) || ((row == rhs.row) && (column < rhs.column));
+      }
+
+      inline bool is_empty () const {
+        return (column != invalid) && (row != invalid);
+      }
+
+      inline void clear () {
+        column = invalid;
+        row = invalid;
+      }
+
+      inline position operator+ (const position& rhs) const {
+        return position(column + rhs.column, row + rhs.row);
+      }
+
+      inline position operator- (const position& rhs) const {
+        return position(column - rhs.column, row - rhs.row);
+      }
+
+      type column;
+      type row;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    std::ostream& operator<< (std::ostream& out,
+                              const position<T>& p) {
+      out << p.column << ", " << p.row;
+      return out;
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct range {
+      typedef T type;
+
+      type first;
+      type last;
+
+      range (type v = type())
+        : first(v)
+        , last(v)
+      {}
+
+      range (type f, type l)
+        : first(f)
+        , last(l)
+      {}
+
+      bool is_inside (type i) const {
+        return (i > first) && (i < last);
+      }
+
+      void sort () {
+        if (first > last) {
+          std::swap(first, last);
+        }
+      }
+
+      bool empty () const {
+        return first >= last;
+      }
+
+      void clear () {
+        first = last = 0;
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    std::ostream& operator<< (std::ostream& out,
+                              const range<T>& r) {
+      out << r.first << ":" << r.last;
+      return out;
+    }
+
+    // --------------------------------------------------------------------------
   } // core
 
 } // gui

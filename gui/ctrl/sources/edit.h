@@ -32,44 +32,6 @@
 
 namespace gui {
 
-  namespace core {
-
-    template<typename T>
-    struct range {
-      T first;
-      T last;
-
-      range (T v = 0)
-        : first(v)
-        , last(v)
-      {}
-
-      range (T f, T l)
-        : first(f)
-        , last(l)
-      {}
-
-      bool is_inside (T i) const {
-        return (i > first) && (i < last);
-      }
-
-      void sort () {
-        if (first > last) {
-          std::swap(first, last);
-        }
-      }
-
-      bool empty () const {
-        return first >= last;
-      }
-
-      void clear () {
-        first = last = 0;
-      }
-    };
-
-  }
-
   namespace win {
 
     namespace detail {
@@ -145,11 +107,13 @@ namespace gui {
       void edit_line (const draw::graphics& graph,
                       const core::rectangle& area,
                       const std::string& text,
-                      text_origin origin,
-                      const detail::edit_base::range& selection,
-                      detail::edit_base::pos_t cursor_pos,
-                      detail::edit_base::pos_t scroll_pos,
-                      bool has_focus);
+                      const text_origin origin,
+                      os::color foreground,
+                      os::color background,
+                      const core::range<size_t>& selection,
+                      const size_t cursor_pos,
+                      const size_t scroll_pos,
+                      const bool has_focus);
 
     }
 

@@ -75,32 +75,34 @@ namespace gui {
       return metrics.lfMenuFont;
     }
 
-    const font& font::system() {
+    const font& font::system () {
         static font f((os::font)GetStockObject(SYSTEM_FONT));
         return f;
     }
-    const font& font::system_bold() {
+    const font& font::system_bold () {
         static font f = font::system().with_thickness(font::bold);
         return f;
     }
-    const font& font::menu() {
+    const font& font::menu () {
       static font f(get_menu_font());
       return f;
     }
-    const font& font::monospace() {
+
+    const font& font::monospace () {
         static font f((os::font)GetStockObject(SYSTEM_FIXED_FONT));
         return f;
     }
-    const font& font::serif() {
+
+    const font& font::serif () {
         static font f("Times New Roman", font::system().size());
         return f;
     }
-    const font& font::sans_serif() {
+    const font& font::sans_serif () {
         static font f("Arial", font::system().size());
         return f;
     };
 
-    font::font(os::font id)
+    font::font (os::font id)
       : id(id) {
       GetObject(id, sizeof(os::font_type), &info);
     }
@@ -110,96 +112,100 @@ namespace gui {
       , info(info)
     {}
 
-    font::font(const std::string& name,
-               font::size_type size,
-               font::Thickness thickness,
-               int rotation,
-               bool italic,
-               bool underline,
-               bool strikeout)
-               : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
-               DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-               name.c_str()))
+    font::font (const std::string& name,
+                font::size_type size,
+                font::Thickness thickness,
+                int rotation,
+                bool italic,
+                bool underline,
+                bool strikeout)
+      : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
+           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
+           name.c_str()))
     {
       GetObject(id, sizeof(os::font_type), &info);
     }
 
-    font::font(const font& rhs)
+    font::font (const font& rhs)
       : id(CreateFontIndirect(&rhs.info))
       , info(rhs.info)
     {}
 
-    font::~font() {
+    font::~font () {
       if (id) {
         DeleteObject(id);
         id = 0;
       }
     }
 
-    font::operator os::font() const {
+    font::operator os::font () const {
       return id;
     }
 
-    std::string font::name() const {
+    std::string font::name () const {
       return info.lfFaceName;
     }
 
-    font::size_type font::size() const {
+    font::size_type font::size () const {
       return info.lfHeight;
     }
 
-    font::Thickness font::thickness() const {
+    font::Thickness font::thickness () const {
       return (Thickness)info.lfWeight;
     }
 
-    int font::rotation() const {
+    int font::rotation () const {
       return info.lfOrientation;
     }
 
-    bool font::italic() const {
+    bool font::italic () const {
       return info.lfItalic != 0;
     }
 
-    bool font::underline() const {
+    bool font::underline () const {
       return info.lfUnderline!= 0;
     }
 
-    bool font::strikeout() const {
+    bool font::strikeout () const {
       return info.lfStrikeOut!= 0;
     }
 
-    font font::with_size(size_type sz) const {
+    font::size_type font::line_height () const  {
+      return info.lfHeight;
+    }
+
+    font font::with_size (size_type sz) const {
       os::font_type newType = info;
       newType.lfHeight = sz;
       return font(CreateFontIndirect(&newType));
     }
 
-    font font::with_thickness(Thickness t) const {
+    font font::with_thickness (Thickness t) const {
       os::font_type newType = info;
       newType.lfWeight = t;
       return font(CreateFontIndirect(&newType));
     }
 
-    font font::with_rotation(int r) const {
+    font font::with_rotation (int r) const {
       os::font_type newType = info;
       newType.lfOrientation = r;
       newType.lfEscapement = r;
       return font(CreateFontIndirect(&newType));
     }
 
-    font font::with_italic(bool i) const {
+    font font::with_italic (bool i) const {
       os::font_type newType = info;
       newType.lfItalic = i;
       return font(CreateFontIndirect(&newType));
     }
 
-    font font::with_underline(bool u) const {
+    font font::with_underline (bool u) const {
       os::font_type newType = info;
       newType.lfUnderline = u;
       return font(CreateFontIndirect(&newType));
     }
 
-    font font::with_strikeout(bool s) const {
+    font font::with_strikeout (bool s) const {
       os::font_type newType = info;
       newType.lfStrikeOut = s;
       return font(CreateFontIndirect(&newType));
@@ -216,12 +222,12 @@ namespace gui {
               (strcmp(info.lfFaceName, rhs.info.lfFaceName) == 0));
     }
 
-    std::ostream& operator<<(std::ostream& out, const font& f) {
+    std::ostream& operator<< (std::ostream& out, const font& f) {
       out << f.name() << ", " << f.size() << ", " << f.thickness() << ", " << f.italic();
       return out;
     }
 
-    core::size font::get_text_size(const std::string& str) const {
+    core::size font::get_text_size (const std::string& str) const {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
       SIZE sz = { 0 };
@@ -281,7 +287,8 @@ namespace gui {
                 bool italic,
                 bool underline,
                 bool strikeout)
-      : info(nullptr) {
+      : info(nullptr)
+    {
       info = XftFontOpen(core::global::get_instance(),
                          core::global::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
@@ -378,6 +385,13 @@ namespace gui {
 
     bool font::strikeout () const {
       return false;
+    }
+
+    font::size_type font::line_height () const  {
+      if (info) {
+        return info->height;
+      }
+      return STD_FONT_SIZE;
     }
 
     font font::with_size (size_type sz) const {

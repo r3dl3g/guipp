@@ -50,7 +50,7 @@ namespace gui {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
       }
 
-      void set_window(os::window id, window* win) {
+      void set_window (os::window id, window* win) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
       }
       
@@ -71,7 +71,7 @@ namespace gui {
         set_id(w, id);
       }
 
-      LRESULT CALLBACK WindowEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+      LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
           case WM_INITDIALOG:
             SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);

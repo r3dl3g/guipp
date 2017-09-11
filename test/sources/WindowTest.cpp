@@ -20,6 +20,7 @@ std::ostream& operator<<(std::ostream& out, const bool& b) {
 }
 
 #include <iomanip>
+#include <iterator>
 #include <logger.h>
 
 #define NO_EXPORT
@@ -94,8 +95,133 @@ namespace gui {
       }
     }
 
-  }
 
+    template<char delimiter>
+    class delimited_string : public std::string {};
+
+    template<char delimiter>
+    std::istream& operator>> (std::istream& is, delimited_string<delimiter>& output) {
+      std::getline(is, output, delimiter);
+      return is;
+    }
+
+    class editbox : public client_window {
+    public:
+      typedef window super;
+      typedef std::vector<std::string> strings;
+      typedef strings::size_type size_type;
+
+      typedef core::position<int> position;
+      typedef core::range<position> range;
+
+      editbox ();
+
+      void paint (const draw::graphics& graph);
+
+      detail::edit_base::pos_t get_line_cursor (int idx) const;
+      detail::edit_base::range get_line_selection (int idx) const;
+
+      void set_text (const std::string& t);
+      std::string get_text () const;
+
+      void set_scroll_pos (const core::point& pos);
+
+      inline core::point get_scroll_pos () const {
+        return data.offset;
+      }
+
+      inline size_type row_count () const {
+        return data.lines.size();
+      }
+
+    protected:
+      struct data {
+        data ()
+          : font(draw::font::system())
+        {}
+
+        strings lines;
+        draw::font font;
+        core::point offset;
+        position cursor_pos;
+        range selection;
+      } data;
+    };
+
+    editbox::editbox () {
+      register_event_handler(REGISTER_FUNCTION, paint_event(this, &editbox::paint));
+    }
+
+    void editbox::paint (const draw::graphics& graph) {
+      draw::brush back_brush(color::white);
+      const core::rectangle area = client_area();
+
+      const core::size_type height = area.height();
+      const core::size_type row_sz = data.font.line_height();
+      const size_type last = row_count ();
+      const size_type first = static_cast<size_type>(data.offset.y() / row_sz);
+      const size_t scroll_pos = data.offset.x();
+      const bool focused = has_focus();
+
+      core::rectangle r(area.x(), row_sz * first - data.offset.y(), area.width(), row_sz);
+
+      for(size_type idx = first; (idx < last) && (r.y() < height); ++idx) {
+        core::range<size_t> selection = get_line_selection(idx);
+        size_t cursor = get_line_cursor(idx);
+        const std::string& text = data.lines[idx];
+//        win::paint::label(graph, r, text, color::windowTextColor(), color::white, text_origin::top_left);
+        win::paint::edit_line(graph, r, text, text_origin::top_left, color::windowTextColor(), color::white, selection, cursor, scroll_pos, focused);
+        r.move_y(row_sz);
+      }
+
+      if (r.y2() < area.y()) {
+        graph.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), back_brush);
+      }
+
+      if (super::has_focus()) {
+        draw::frame::dots(graph, r);
+      }
+
+    }
+
+    detail::edit_base::pos_t editbox::get_line_cursor (int idx) const {
+      return (data.cursor_pos.row == idx) ? data.cursor_pos.column : -1;
+    }
+
+    detail::edit_base::range editbox::get_line_selection (int idx) const {
+      detail::edit_base::range r;
+      if (data.selection.first.row < idx) {
+        r.first = 0;
+      } else if (data.selection.first.row == idx) {
+        r.first = data.selection.first.column;
+      }
+      if (data.selection.last.row > idx) {
+        r.last = std::numeric_limits<detail::edit_base::range::type>::max();
+      } else if (data.selection.last.row == idx) {
+        r.last = data.selection.last.column;
+      }
+      return r;
+    }
+
+    void editbox::set_text (const std::string& t) {
+      std::istringstream iss(t);
+      typedef std::istream_iterator<delimited_string<'\n'>> iterator;
+      data.lines = strings(iterator{iss}, iterator{});
+    }
+
+    std::string editbox::get_text () const {
+      std::ostringstream oss;
+      std::copy(data.lines.begin(), data.lines.end(), std::ostream_iterator<std::string>(oss, "\n"));
+      return oss.str();
+    }
+
+    void editbox::set_scroll_pos (const core::point& pos) {
+      data.offset = pos;
+      redraw_later();
+    }
+
+
+  }
 }
 
 class my_main_window : public win::layout_main_window<layout::attach> {
@@ -213,6 +339,8 @@ private:
 
   win::table_edit table_view;
   win::table::data::matrix<std::string> table_data;
+
+  win::editbox editor;
 
   bool at_paint1;
   bool at_drag;
@@ -760,6 +888,8 @@ void my_main_window::created_children () {
 
   my_main_window& main = *this;
 
+  win::detail::get_window(get_id());
+
   view.create(main, core::rectangle(0, 0, 300, 330));
   view.set_visible();
 
@@ -886,6 +1016,10 @@ void my_main_window::created_children () {
   table_view.edge.set_text("0:0");
   table_view.enable_size(true, true);
   table_view.set_visible();
+
+  editor.create(main, core::rectangle(740, 320, 150, 250));
+  editor.set_text("First line\nSecond line\nThird\nFourth\nFifth");
+  editor.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
   hscroll.set_visible();
@@ -1057,6 +1191,10 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vslider);
   get_layout().attach_fix<What::right, Where::width, -10>(&table_view, this);
+
+  get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
+  get_layout().attach_fix<What::bottom, Where::y2, -4>(&editor, &hslider);
 
   layout();
 }

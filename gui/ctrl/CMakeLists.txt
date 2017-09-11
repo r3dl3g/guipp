@@ -24,6 +24,6 @@ link_directories(${gui_ctrl_Lib})
 
 add_library(gui_ctrl ${SOURCE_FILES})
 
-target_link_libraries(gui_ctrl gui_win gui_draw gui_io)
+#target_link_libraries(gui_ctrl gui_win gui_draw gui_io)
 
 endif()

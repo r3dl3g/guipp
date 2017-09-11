@@ -68,59 +68,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace table {
 
-      // --------------------------------------------------------------------------
-      struct position {
-        inline position ()
-          : column(-1)
-          , row(-1)
-        {}
-
-        template<typename T, typename U>
-        inline position(T c, U r)
-          : column(static_cast<int>(c))
-          , row(static_cast<int>(r))
-        {}
-
-        inline bool is_cell (std::size_t c, std::size_t r) const {
-          return (column == static_cast<int>(c)) && (row == static_cast<int>(r));
-        }
-
-        inline bool is_column (std::size_t c) const {
-          return (column == static_cast<int>(c)) && (row < 0);
-        }
-
-        inline bool is_row (std::size_t r) const {
-          return (row == static_cast<int>(r)) && (column < 0);
-        }
-
-        inline bool operator== (const position& rhs) const {
-          return (column == rhs.column) && (row == rhs.row);
-        }
-
-        inline bool operator!= (const position& rhs) const {
-          return !operator==(rhs);
-        }
-
-        inline bool is_empty () const {
-          return (column < 0) && (row < 0);
-        }
-
-        inline void clear () {
-          column = -1;
-          row = -1;
-        }
-
-        inline position operator+ (const position& rhs) const {
-          return position(column + rhs.column, row + rhs.row);
-        }
-
-        inline position operator- (const position& rhs) const {
-          return position(column - rhs.column, row - rhs.row);
-        }
-
-        int column;
-        int row;
-      };
+      typedef core::position<int> position;
 
       // --------------------------------------------------------------------------
       typedef void (cell_drawer) (const position&,       // position

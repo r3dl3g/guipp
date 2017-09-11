@@ -41,7 +41,7 @@ namespace gui {
 
     template<>
     struct window_class_defaults<os::platform::win32> {
-      static const win::cursor& cursor() {
+      static const win::cursor& cursor () {
         return win::cursor::arrow();
       }
       static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
@@ -51,7 +51,7 @@ namespace gui {
 
     template<>
     struct window_class_defaults<os::platform::x11> {
-      static const win::cursor& cursor() {
+      static const win::cursor& cursor () {
         return win::cursor::none();
       }
       static constexpr os::style style = 0;
@@ -96,9 +96,9 @@ namespace gui {
       void unregister_class ();
 
       std::string class_name;
-      mutable os::color background;
+      os::color background;
       win::cursor cursor;
-      mutable os::style class_style;
+      os::style class_style;
       os::style style;
       os::style ex_style;
       mutable bool is_initialized;

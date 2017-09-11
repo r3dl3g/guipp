@@ -158,7 +158,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void os_paint_caller::operator()(const core::event& e) {
+    void os_paint_caller::operator() (const core::event& e) {
       if (f) {
         PAINTSTRUCT ps;
         os::graphics id = BeginPaint(e.id, &ps);

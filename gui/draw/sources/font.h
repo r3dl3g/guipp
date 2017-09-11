@@ -38,12 +38,12 @@ namespace gui {
 
     struct /*immutable*/ font {
 
-      static const font& system();
-      static const font& system_bold();
-      static const font& menu();
-      static const font& monospace();
-      static const font& serif();
-      static const font& sans_serif();
+      static const font& system ();
+      static const font& system_bold ();
+      static const font& menu ();
+      static const font& monospace ();
+      static const font& serif ();
+      static const font& sans_serif ();
 
       typedef int size_type;
       typedef os::font_type type;
@@ -73,39 +73,41 @@ namespace gui {
 #endif // X11
       };
 
-      font(const std::string& name,
-           size_type size,
-           Thickness thickness = regular,
-           int rotation = 0,
-           bool italic = false,
-           bool underline = false,
-           bool strikeout = false);
+      font (const std::string& name,
+            size_type size,
+            Thickness thickness = regular,
+            int rotation = 0,
+            bool italic = false,
+            bool underline = false,
+            bool strikeout = false);
 
-      font(const font&);
-      ~font();
+      font (const font&);
+      ~font ();
 
       font& operator= (const font& rhs);
 
-      font(os::font id);
-      font(os::font_type id);
+      font (os::font id);
+      font (os::font_type id);
 
-      operator os::font() const;
+      operator os::font () const;
       os::font_type font_type () const;
 
-      std::string name() const;
-      size_type size() const;
-      Thickness thickness() const;
-      int rotation() const;
-      bool italic() const;
-      bool underline() const;
-      bool strikeout() const;
+      std::string name () const;
+      size_type size () const;
+      Thickness thickness () const;
+      int rotation () const;
+      bool italic () const;
+      bool underline () const;
+      bool strikeout () const;
 
-      font with_size(size_type) const;
-      font with_thickness(Thickness) const;
-      font with_rotation(int) const;
-      font with_italic(bool) const;
-      font with_underline(bool) const;
-      font with_strikeout(bool) const;
+      size_type line_height () const;
+
+      font with_size (size_type) const;
+      font with_thickness (Thickness) const;
+      font with_rotation (int) const;
+      font with_italic (bool) const;
+      font with_underline (bool) const;
+      font with_strikeout (bool) const;
 
       bool operator== (const font&) const;
 

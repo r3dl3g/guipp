@@ -28,7 +28,6 @@
 // Library includes
 //
 #include "list.h"
-#include "slider.h"
 
 
 namespace gui {

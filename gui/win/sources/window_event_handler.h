@@ -115,11 +115,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<int I, typename T>
-    T get_param(const core::event& e);
+    T get_param (const core::event& e);
 
     // --------------------------------------------------------------------------
     template <typename T>
-    const T& cast_event_type(const core::event& e);
+    const T& cast_event_type (const core::event& e);
 
 #endif // X11
 
@@ -130,15 +130,15 @@ namespace gui {
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e);
     // --------------------------------------------------------------------------
-    core::point get_root_mouse_pos(const core::event& e);
+    core::point get_root_mouse_pos (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    os::graphics get_param<0, os::graphics>(const core::event& e);
+    os::graphics get_param<0, os::graphics> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    window* get_param<0, window*>(const core::event& e);
+    window* get_param<0, window*> (const core::event& e);
 
     // --------------------------------------------------------------------------
     template <os::event_id id>
@@ -415,7 +415,7 @@ namespace gui {
         : event_handler(t, changingfn)
       {}
 
-      void operator()(const core::event& e);
+      void operator() (const core::event& e);
     };
 
     using placing_event = event_handler<WM_WINDOWPOSCHANGING, 0, pos_changing_caller>;
@@ -437,7 +437,7 @@ namespace gui {
         return callback.operator bool();
       }
 
-      void operator()(const core::event& e);
+      void operator() (const core::event& e);
 
     private:
       function callback;
@@ -458,7 +458,7 @@ namespace gui {
         : super(gui::core::bind_method(t, callback_))
       {}
 
-      void operator()(const core::event& e);
+      void operator() (const core::event& e);
     };
 
     using os_paint_event = event_handler<WM_PAINT, 0, os_paint_caller>;

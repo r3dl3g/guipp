@@ -40,6 +40,79 @@ namespace gui {
 
   namespace win {
 
+    namespace paint {
+
+      void edit_line (const draw::graphics& graph,
+                      const core::rectangle& area,
+                      const std::string& text,
+                      os::color foreground,
+                      os::color background,
+                      const text_origin origin,
+                      const core::range<size_t>& selection,
+                      const size_t cursor_pos,
+                      const size_t scroll_pos,
+                      const bool has_focus) {
+
+        using namespace gui::draw;
+        clip clp(graph, area);
+
+        graph.fill(rectangle(area), background);
+
+        core::point_type y1 = area.y() + 2;
+        core::point_type y2 = area.y2() - 2;
+
+        if (has_focus && (selection.first < selection.last)) {
+          gui::core::rectangle a1 = area;
+          auto begin = scroll_pos;
+          core::point_type left = area.x();
+          if (selection.first > scroll_pos) {
+            std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);
+            begin = selection.first;
+            graph.text(bounding_box(t1, a1, origin), font::system(), foreground);
+            left = a1.x2();
+            graph.text(text_box(t1, core::rectangle(core::point(area.x(), y1), core::point(left, y2)), origin),
+                       font::system(), foreground);
+          } else {
+            a1.x2(a1.x());
+          }
+
+          gui::core::rectangle a2 = area.with_x(left);
+          if (selection.last > scroll_pos) {
+            std::string t2 = text.substr(begin, selection.last - begin);
+            graph.text(bounding_box(t2, a2, origin), font::system(), foreground);
+            left = a2.x2();
+            a2 = core::rectangle(core::point(a2.x(), y1), core::point(left, y2));
+            graph.fill(rectangle(a2), color::highLightColor());
+            graph.text(text_box(t2, core::rectangle(a2), origin), font::system(), color::highLightTextColor());
+            begin = selection.last;
+          }
+
+          if (begin < text.length()) {
+            std::string t3 = text.substr(begin);
+            graph.text(text_box(t3, core::rectangle(core::point(left, y1), core::point(area.x2(), y2)), origin),
+                       font::system(), foreground);
+          }
+
+        } else {
+          graph.text(text_box(text.substr(scroll_pos), area, origin), font::system(), foreground);
+        }
+
+        if (has_focus && (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max())) {
+          gui::core::rectangle cursor_area = area;
+          graph.text(bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
+                     font::system(), foreground);
+          graph.frame(line(core::point(cursor_area.x2(), y1),
+                           core::point(cursor_area.x2(), y2)),
+                      foreground);
+        }
+#ifdef SHOW_TEXT_AREA
+        graph.text(bounding_box(text, area, origin), font::system(), foreground);
+        graph.frame(rectangle(area), pen(foreground, pen::dot));
+#endif // SHOW_TEXT_AREA
+      }
+
+    } // paint
+
     namespace detail {
 
       window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white, cursor::ibeam());
@@ -214,79 +287,6 @@ namespace gui {
           return max_chars;
       }
 
-      namespace paint {
-
-        void edit_line (const draw::graphics& graph,
-                        const core::rectangle& area,
-                        const std::string& text,
-                        const text_origin origin,
-                        os::color foreground,
-                        os::color background,
-                        const core::range<size_t>& selection,
-                        const size_t cursor_pos,
-                        const size_t scroll_pos,
-                        const bool has_focus) {
-
-          using namespace gui::draw;
-          clip clp(graph, area);
-
-          graph.fill(rectangle(area), background);
-
-          core::point_type y1 = area.y() + 2;
-          core::point_type y2 = area.y2() - 2;
-
-          if (has_focus && (selection.first < selection.last)) {
-            gui::core::rectangle a1 = area;
-            auto begin = scroll_pos;
-            core::point_type left = area.x();
-            if (selection.first > scroll_pos) {
-              std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);
-              begin = selection.first;
-              graph.text(bounding_box(t1, a1, origin), font::system(), foreground);
-              left = a1.x2();
-              graph.text(text_box(t1, core::rectangle(core::point(area.x(), y1), core::point(left, y2)), origin),
-                         font::system(), foreground);
-            } else {
-              a1.x2(a1.x());
-            }
-
-            gui::core::rectangle a2 = area.with_x(left);
-            if (selection.last > scroll_pos) {
-              std::string t2 = text.substr(begin, selection.last - begin);
-              graph.text(bounding_box(t2, a2, origin), font::system(), foreground);
-              left = a2.x2();
-              a2 = core::rectangle(core::point(a2.x(), y1), core::point(left, y2));
-              graph.fill(rectangle(a2), color::highLightColor());
-              graph.text(text_box(t2, core::rectangle(a2), origin), font::system(), color::highLightTextColor());
-              begin = selection.last;
-            }
-
-            if (begin < text.length()) {
-              std::string t3 = text.substr(begin);
-              graph.text(text_box(t3, core::rectangle(core::point(left, y1), core::point(area.x2(), y2)), origin),
-                         font::system(), foreground);
-            }
-
-          } else {
-            graph.text(text_box(text.substr(scroll_pos), area, origin), font::system(), foreground);
-          }
-
-          if (has_focus && (cursor_pos < std::numeric_limits<detail::edit_base::pos_t>::max())) {
-            gui::core::rectangle cursor_area = area;
-            graph.text(bounding_box(text.substr(scroll_pos, cursor_pos - scroll_pos), cursor_area, origin),
-                       font::system(), foreground);
-            graph.frame(line(core::point(cursor_area.x2(), y1),
-                             core::point(cursor_area.x2(), y2)),
-                             foreground);
-          }
-#ifdef SHOW_TEXT_AREA
-          graph.text(bounding_box(text, area, origin), font::system(), foreground);
-          graph.frame(rectangle(area), pen(foreground, pen::dot));
-#endif // SHOW_TEXT_AREA
-        }
-
-      } // paint
-
       std::string::size_type find_left_space (const std::string& text, std::size_t cursor_pos) {
         std::string::size_type pos = text.find_last_not_of(white_space, cursor_pos - 1);
         if (pos != std::string::npos) {
@@ -426,7 +426,7 @@ namespace gui {
           core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
-          paint::edit_line(graph, area, data.text, alignment, color::windowTextColor(), color::white, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
+          paint::edit_line(graph, area, data.text, color::windowTextColor(), color::white, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
         }));
         register_event_handler(REGISTER_FUNCTION, key_down_event(this, &edit_base::handle_key));
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {

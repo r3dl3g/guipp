@@ -34,6 +34,21 @@ namespace gui {
 
   namespace win {
 
+    namespace paint {
+
+      void edit_line (const draw::graphics& graph,
+                      const core::rectangle& area,
+                      const std::string& text,
+                      os::color foreground,
+                      os::color background,
+                      const text_origin origin,
+                      const core::range<size_t>& selection,
+                      const size_t cursor_pos,
+                      const size_t scroll_pos,
+                      const bool has_focus);
+
+    } // paint
+
     namespace detail {
       class edit_base : public window {
       public:
@@ -100,22 +115,7 @@ namespace gui {
 
         static window_class clazz;
       };
-    }
-
-    namespace paint {
-
-      void edit_line (const draw::graphics& graph,
-                      const core::rectangle& area,
-                      const std::string& text,
-                      const text_origin origin,
-                      os::color foreground,
-                      os::color background,
-                      const core::range<size_t>& selection,
-                      const size_t cursor_pos,
-                      const size_t scroll_pos,
-                      const bool has_focus);
-
-    }
+    } // detail
 
     template<text_origin A>
     class edit_t : public detail::edit_base {

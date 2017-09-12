@@ -24,7 +24,6 @@
 //
 #include <cstddef>
 #include <functional>
-#include <map>
 
 // --------------------------------------------------------------------------
 //
@@ -475,7 +474,6 @@ namespace gui {
       extern Atom WM_CREATE_WINDOW;
       extern Atom WM_DELETE_WINDOW;
       extern Atom WM_PROTOCOLS;
-      extern std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name);
     }

@@ -300,7 +300,7 @@ namespace gui {
 
     font::font (const font& rhs)
       : info(nullptr) {
-      info = XftFontOpenPattern(core::global::get_instance(), rhs.info->pattern);
+      info = XftFontCopy(core::global::get_instance(), rhs.info);
     }
 
     font& font::operator= (const font& rhs) {
@@ -309,7 +309,7 @@ namespace gui {
       }
       destroy();
       if (rhs.info) {
-        info = XftFontOpenPattern(core::global::get_instance(), rhs.info->pattern);
+        info = XftFontCopy(core::global::get_instance(), rhs.info);
       }
       return *this;
     }
@@ -407,7 +407,8 @@ namespace gui {
     }
 
     font font::with_italic (bool i) const {
-      return font(name(), size(), thickness(), rotation(), i, underline(), strikeout());
+      font f(name(), size(), thickness(), rotation(), i, underline(), strikeout());
+      return f;
     }
 
     font font::with_underline (bool) const {

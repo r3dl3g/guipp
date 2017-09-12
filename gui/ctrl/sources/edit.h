@@ -34,11 +34,13 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     namespace paint {
 
       void edit_line (const draw::graphics& graph,
                       const core::rectangle& area,
                       const std::string& text,
+                      const draw::font& fnt,
                       os::color foreground,
                       os::color background,
                       const text_origin origin,
@@ -50,6 +52,8 @@ namespace gui {
     } // paint
 
     namespace detail {
+
+      // --------------------------------------------------------------------------
       class edit_base : public window {
       public:
         typedef window super;
@@ -74,6 +78,10 @@ namespace gui {
         void set_text (const std::string&);
         const std::string& get_text () const;
 
+        void set_text_limit (pos_t max_chars);
+        pos_t get_text_limit () const;
+        pos_t get_text_length () const;
+
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
         void set_selection (const range& sel, event_source);
@@ -82,17 +90,15 @@ namespace gui {
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);
 
-        void set_text_limit (pos_t max_chars);
-        pos_t get_text_limit () const;
-        pos_t get_text_length () const;
-
-        void replace_selection (const std::string &new_text);
+        void replace_selection (const std::string& new_text);
+        std::string get_text_in_range (const range&) const;
+        std::string get_selected_text () const;
 
       protected:
         void register_handler (text_origin);
 
         void prepare_input ();
-        pos_t get_char_at_point (const core::point& pt);
+        pos_t get_position_at_point (const core::point& pt);
 
         struct data {
           data ();
@@ -104,10 +110,6 @@ namespace gui {
           pos_t text_limit;
           pos_t scroll_pos;
           core::point last_mouse_point;
-#ifdef X11
-          XIM im;
-          XIC ic;
-#endif // X11
         } data;
 
       private:
@@ -117,6 +119,7 @@ namespace gui {
       };
     } // detail
 
+    // --------------------------------------------------------------------------
     template<text_origin A>
     class edit_t : public detail::edit_base {
     public:

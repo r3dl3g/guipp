@@ -22,6 +22,9 @@
 //
 // Common includes
 //
+#ifdef X11
+# include <map>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -49,8 +52,11 @@ namespace gui {
       void unset_window (os::window id);
 
       typedef bool(filter_fn) (const core::event&);
-
       typedef std::function<filter_fn> filter_call;
+
+#ifdef X11
+      XIC get_window_ic (os::window);
+#endif // X11
 
     } // detail
 
@@ -63,6 +69,9 @@ namespace gui {
       void unregister_message_filter (int& id);
 
       window* get_current_focus_window ();
+
+      void register_utf8_window (os::window);
+      void unregister_utf8_window (os::window);
 
     }
 

@@ -11,6 +11,7 @@
 #include "menu.h"
 #include "drop_down.h"
 #include "table.h"
+#include "editbox.h"
 #include "dbg_win_message.h"
 
 
@@ -19,9 +20,10 @@ std::ostream& operator<<(std::ostream& out, const bool& b) {
   return out;
 }
 
-#include <iomanip>
-#include <iterator>
+#include <string_util.h>
 #include <logger.h>
+
+#include <iomanip>
 
 #define NO_EXPORT
 
@@ -95,154 +97,11 @@ namespace gui {
       }
     }
 
+  } // namespace win
 
-    template<char delimiter>
-    class delimited_string : public std::string {};
+} // namespace gui
 
-    template<char delimiter>
-    std::istream& operator>> (std::istream& is, delimited_string<delimiter>& output) {
-      std::getline(is, output, delimiter);
-      return is;
-    }
-
-    class editbox : public client_window {
-    public:
-      typedef window super;
-      typedef std::vector<std::string> strings;
-      typedef strings::size_type size_type;
-
-      typedef core::position<int> position;
-      typedef core::range<editbox::position> range;
-
-      editbox ();
-      void init ();
-
-      void paint (const draw::graphics& graph);
-
-      detail::edit_base::pos_t get_line_cursor (size_t idx) const;
-      detail::edit_base::range get_line_selection (size_t idx) const;
-
-      void set_text (const std::string& t);
-      std::string get_text () const;
-
-      inline size_type row_count () const {
-        return data.lines.size();
-      }
-
-      void set_scroll_pos (const core::point& pos);
-
-      inline core::point get_scroll_pos () const {
-        return data.offset;
-      }
-
-      void set_selection (const editbox::range&);
-      void set_cursor_pos (const editbox::position&);
-
-    protected:
-      struct data {
-        data ()
-          : font(draw::font::system())
-        {}
-
-        strings lines;
-        draw::font font;
-        core::point offset;
-        editbox::position cursor_pos;
-        editbox::range selection;
-      } data;
-    };
-
-    editbox::editbox () {
-      init();
-    }
-
-    void editbox::init () {
-      set_accept_focus(true);
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &editbox::paint));
-    }
-
-    void editbox::paint (const draw::graphics& graph) {
-      draw::brush back_brush(color::white);
-      const core::rectangle area = client_area();
-
-      const core::size_type height = area.height();
-      const core::size_type row_sz = data.font.line_height();
-      const size_type last = row_count ();
-      const size_type first = static_cast<size_type>(data.offset.y() / row_sz);
-      const size_t scroll_pos = data.offset.x();
-      const bool focused = has_focus();
-
-      core::rectangle r(area.x(), row_sz * first - data.offset.y(), area.width(), row_sz);
-
-      for(size_type idx = first; (idx < last) && (r.y() < height); ++idx) {
-        core::range<size_t> selection = get_line_selection(idx);
-        size_t cursor = get_line_cursor(idx);
-        const std::string& text = data.lines[idx];
-        win::paint::edit_line(graph, r, text, color::windowTextColor(), color::white, text_origin::vcenter_left, selection, cursor, scroll_pos, focused);
-        r.move_y(row_sz);
-      }
-
-      if (r.y() < area.y2()) {
-        graph.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), back_brush);
-      }
-
-      if (super::has_focus()) {
-        draw::frame::dots(graph, area);
-      }
-
-    }
-
-    detail::edit_base::pos_t editbox::get_line_cursor (size_t idx) const {
-      return (data.cursor_pos.row == idx) ? data.cursor_pos.column : -1;
-    }
-
-    detail::edit_base::range editbox::get_line_selection (size_t idx) const {
-      detail::edit_base::range r;
-      if (data.selection.first.row < idx) {
-        r.first = 0;
-      } else if (data.selection.first.row == idx) {
-        r.first = data.selection.first.column;
-      }
-      if (data.selection.first.row <= idx) {
-        if (data.selection.last.row > idx) {
-          r.last = std::numeric_limits<detail::edit_base::range::type>::max();
-        } else if (data.selection.last.row == idx) {
-          r.last = data.selection.last.column;
-        }
-      }
-      return r;
-    }
-
-    void editbox::set_text (const std::string& t) {
-      std::istringstream iss(t);
-      typedef std::istream_iterator<delimited_string<'\n'>> iterator;
-      data.lines = strings(iterator{iss}, iterator{});
-    }
-
-    std::string editbox::get_text () const {
-      std::ostringstream oss;
-      std::copy(data.lines.begin(), data.lines.end(), std::ostream_iterator<std::string>(oss, "\n"));
-      return oss.str();
-    }
-
-    void editbox::set_scroll_pos (const core::point& pos) {
-      data.offset = pos;
-      redraw_later();
-    }
-
-    void editbox::set_selection (const editbox::range& s) {
-      data.selection = s;
-      redraw_later();
-    }
-
-    void editbox::set_cursor_pos (const editbox::position& p) {
-      data.cursor_pos = p;
-      redraw_later();
-    }
-
-  }
-}
-
+// --------------------------------------------------------------------------
 class my_main_window : public win::layout_main_window<layout::attach> {
 public:
   my_main_window (win::paint_event p1, win::paint_event p2);
@@ -360,6 +219,7 @@ private:
   win::table::data::matrix<std::string> table_data;
 
   win::editbox editor;
+  win::textbox_t<text_origin::center, draw::frame::sunken_relief, color::dark_blue, color::very_light_gray> textbox;
 
   bool at_paint1;
   bool at_drag;
@@ -674,6 +534,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   info_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     LogDebug << "Info clicked";
     query_state();
+    textbox.set_text(editor.get_selected_text());
   }));
 
   auto list_drawer = [] (std::size_t idx,
@@ -775,6 +636,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
+    editor.set_scroll_pos(core::point(hscroll.get_value(), pos));
+    textbox.set_scroll_pos(core::point(hscroll.get_value(), pos));
   }));
 
   calc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
@@ -798,6 +661,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   hscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);
+    editor.set_scroll_pos(core::point(pos, vscroll.get_value()));
+    textbox.set_scroll_pos(core::point(pos, vscroll.get_value()));
   }));
   main_split_view.slider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&){
     hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
@@ -1037,10 +902,13 @@ void my_main_window::created_children () {
   table_view.set_visible();
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
-  editor.set_text("First line\nSecond line\nThird\nFourth\nFifth\nSixth\nSeventh\nEighth\nNinth\nTenth");
-  editor.set_selection(win::editbox::range(win::editbox::position(3, 2), win::editbox::position(2, 4)));
-  editor.set_cursor_pos(win::editbox::position(3, 5));
+  editor.set_text("First line\nSecond line\nThird\nFourth\nFifth\n\nSixth\nSeventh\nEighth\nNinth\nTenth\n");
+  editor.set_cursor_pos({3, 5});
+  editor.set_selection({{3, 2}, {2, 4}});
   editor.set_visible();
+
+  textbox.create(main, core::rectangle(740, 580, 150, 250));
+  textbox.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
   hscroll.set_visible();
@@ -1208,7 +1076,7 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::right, Where::x, -3>(&vscroll, &vslider);
 
   get_layout().attach_fix<What::right, Where::x, -4>(&group_group, &vslider);
-  get_layout().attach_fix<What::bottom, Where::y2, -4>(&group_group, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&group_group, &hslider);
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&table_view, &vslider);
   get_layout().attach_fix<What::right, Where::width, -10>(&table_view, this);
@@ -1216,6 +1084,11 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vslider);
   get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hslider);
+
+  get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vslider);
+  get_layout().attach_fix<What::right, Where::width, -10>(&textbox, this);
+  get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&textbox, this);
 
   layout();
 }

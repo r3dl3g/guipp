@@ -201,17 +201,19 @@ namespace gui {
 #endif // Win32
 #ifdef X11
     namespace detail {
+
       Atom WM_CREATE_WINDOW = 0;
       Atom WM_DELETE_WINDOW = 0;
       Atom WM_PROTOCOLS = 0;
-      std::map<Window, XIC> s_window_ic_map;
 
       void init_message (Atom& message, const char* name) {
         if (!message) {
           message = XInternAtom(core::global::get_instance(), name, False);
         }
       }
-    }
+
+    } // detail
+
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
       return static_cast<os::key_state>(get_state<XKeyEvent>(e));
@@ -222,9 +224,8 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
-      std::map<Window, XIC>::iterator i = detail::s_window_ic_map.find(e.xany.window);
-      if (i != detail::s_window_ic_map.end()) {
-        XIC ic = i->second;
+      XIC ic = detail::get_window_ic(e.xany.window);
+      if (ic) {
         Status status;
         char text[8] = {0};
         KeySym keySym = 0;

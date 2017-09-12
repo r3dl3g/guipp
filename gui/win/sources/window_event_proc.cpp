@@ -131,6 +131,21 @@ namespace gui {
           default: return get_window(e.xany.window);
         }
       }
+
+      typedef std::map<os::window, XIC> window_ic_map;
+      window_ic_map s_window_ic_map;
+
+      XIC get_window_ic (os::window id) {
+        window_ic_map::iterator i = s_window_ic_map.find(id);
+        if (i != s_window_ic_map.end()) {
+          return i->second;
+        }
+        return nullptr;
+      }
+
+      XIM s_im = nullptr;
+      XIMStyle s_best_style = 0x0F1F;
+
 #endif // X11
 
     } // detail
@@ -147,7 +162,6 @@ namespace gui {
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
       filter_list message_filters;
-
     }
 
     namespace global {
@@ -223,6 +237,12 @@ namespace gui {
       window* get_current_focus_window () {
         return detail::get_window(GetFocus());
       }
+
+      void register_utf8_window (os::window) {
+      }
+
+      void unregister_utf8_window (os::window) {
+      }
 #endif // WIN32
 
 #ifdef X11
@@ -233,6 +253,44 @@ namespace gui {
           return detail::get_window(focus);
         }
         return nullptr;
+      }
+
+      void register_utf8_window (os::window id) {
+        if (!id) {
+          return;
+        }
+
+        if (!detail::s_im) {
+          detail::s_im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
+          XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
+                                          XIMStatusNone | XIMStatusNothing | XIMStatusArea;
+
+          XIMStyles *im_supported_styles;
+          /* figure out which styles the IM can support */
+          XGetIMValues(detail::s_im, XNQueryInputStyle, &im_supported_styles, NULL);
+          auto count = im_supported_styles->count_styles;
+          for (decltype(count) i = 0; i < count; ++i) {
+            XIMStyle style = im_supported_styles->supported_styles[i];
+            if ((style & app_supported_styles) == style) {/* if we can handle it */
+              detail::s_best_style = std::min(style, detail::s_best_style);
+            }
+          }
+          XFree(im_supported_styles);
+        }
+
+        XIC ic = XCreateIC(detail::s_im, XNInputStyle, detail::s_best_style, XNClientWindow, id, NULL);
+        detail::s_window_ic_map[id] = ic;
+      }
+
+      void unregister_utf8_window (os::window id) {
+        detail::window_ic_map::iterator i = detail::s_window_ic_map.find(id);
+        if (i != detail::s_window_ic_map.end()) {
+          XIC ic = i->second;
+          if (ic) {
+            XDestroyIC(ic);
+          }
+          detail::s_window_ic_map.erase(id);
+        }
       }
 #endif // X11
 

@@ -615,14 +615,18 @@ namespace gui {
     struct position {
       typedef T type;
       static constexpr type invalid = std::numeric_limits<type>::min();
+      static constexpr type max = std::numeric_limits<type>::max();
+
+      static const position zero;
+      static const position end;
 
       inline position ()
         : column(invalid)
         , row(invalid)
       {}
 
-      template<typename U, typename V>
-      inline position (U c, V r)
+      template<typename C, typename R>
+      inline position (C c, R r)
         : column(static_cast<type>(c))
         , row(static_cast<type>(r))
       {}
@@ -651,8 +655,16 @@ namespace gui {
         return (row > rhs.row) || ((row == rhs.row) && (column > rhs.column));
       }
 
+      inline bool operator>= (const position& rhs) const {
+        return (row > rhs.row) || ((row == rhs.row) && (column >= rhs.column));
+      }
+
       inline bool operator< (const position& rhs) const {
         return (row < rhs.row) || ((row == rhs.row) && (column < rhs.column));
+      }
+
+      inline bool operator<= (const position& rhs) const {
+        return (row < rhs.row) || ((row == rhs.row) && (column <= rhs.column));
       }
 
       inline bool is_empty () const {
@@ -675,6 +687,12 @@ namespace gui {
       type column;
       type row;
     };
+
+    template<typename T>
+    const position<T> position<T>::zero = {0, 0};
+
+    template<typename T>
+    const position<T> position<T>::end = {max, max};
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -717,7 +735,7 @@ namespace gui {
       }
 
       void clear () {
-        first = last = 0;
+        first = last = type();
       }
     };
 

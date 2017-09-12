@@ -33,6 +33,24 @@ namespace gui {
 
   namespace win {
 
+    template<>
+    std::string get_param<std::string, XSelectionEvent> (const core::event& e) {
+      char *result;
+      unsigned long ressize, restail;
+      int resbits;
+      Atom fmtid = XInternAtom(core::global::get_instance(), "UTF8_STRING", False);
+      XGetWindowProperty(core::global::get_instance(),
+                         e.xselection.requestor,
+                         e.xselection.property,
+                         0, LONG_MAX/4, True, AnyPropertyType,
+            &fmtid, &resbits, &ressize, &restail, (unsigned char**)&result);
+      return std::string(result, ressize);
+    }
+
+    using selection_event = event_handler<SelectionNotify, PropertyChangeMask,
+                           params<std::string>::
+                           caller<get_param<std::string, XSelectionEvent>>>;
+
     namespace detail {
 
       // --------------------------------------------------------------------------
@@ -72,6 +90,9 @@ namespace gui {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }
+        }));
+        register_event_handler(REGISTER_FUNCTION, selection_event([&](const std::string& s) {
+          replace_selection(s);
         }));
 
       }
@@ -231,31 +252,44 @@ namespace gui {
           case keys::tab:
             break;
           case keys::enter: {
-              if (!data.selection.empty()) {
-                  replace_selection(std::string());
-                  set_cursor_pos(data.selection.first, false);
-                }
-              auto rest = current.substr(data.cursor_pos.column);
-              current.erase(data.cursor_pos.column);
-              auto row = data.cursor_pos.row + 1;
-              data.lines.insert(std::next(data.lines.begin(), row), rest);
-              set_cursor_pos({0, row}, false);
-              break;
-            }
-            // TBD: cut, copy, paste
-          case 'a':
-            if (ctrl) {
-                // select all
-                set_selection({position::zero, position::end});
+            if (!data.selection.empty()) {
+                replace_selection(std::string());
+                set_cursor_pos(data.selection.first, false);
               }
-            // fall throught
+            auto rest = current.substr(data.cursor_pos.column);
+            current.erase(data.cursor_pos.column);
+            auto row = data.cursor_pos.row + 1;
+            data.lines.insert(std::next(data.lines.begin(), row), rest);
+            set_cursor_pos({0, row}, false);
+            break;
+          }
           default: {
               if (ctrl) {
-                  LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
-                } else if (chars.size()) {
-                  replace_selection(chars);
-                  set_cursor_pos(data.selection.last, false);
+                switch (keycode) {
+                case 'a':
+                  // select all
+                  set_selection({position::zero, position::end});
+                break;
+                case 'v': {
+#ifdef X11
+                  auto display = core::global::get_instance();
+                  Atom bufid = XInternAtom(display, "CLIPBOARD", False);
+                  Atom fmtid = XInternAtom(display, "UTF8_STRING", False);
+                  Atom propid = XInternAtom(display, "XSEL_DATA", False);
+                  //Atom incrid = XInternAtom(display, "INCR", False);
+                  XConvertSelection(display, bufid, fmtid, propid, get_id(), CurrentTime);
+#endif // X11
+                  break;
                 }
+                // TBD: cut, copy
+                default:
+                  LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+                  break;
+                }
+              } else if (chars.size()) {
+                replace_selection(chars);
+                set_cursor_pos(data.selection.last, false);
+              }
             }
           }
       }

@@ -183,21 +183,30 @@ namespace gui {
       }
 
       void textbox_base::replace_selection (const std::string& new_text) {
+        auto v = ibr::string::split<'\n'>(new_text);
         if (data.lines.empty()) {
-            data.lines.emplace_back(new_text);
-            set_selection({{position::max, 0}});
+          data.lines = v;
+          set_selection({{position::max, 0}});
+        } else {
+          auto sel = get_selection();
+          if (sel.first.row == sel.last.row) {
+            data.lines[sel.first.row].replace(sel.first.column, sel.last.column - sel.first.column, v.empty() ? std::string() : v.front());
           } else {
-            auto sel = get_selection();
-            if (sel.first.row == sel.last.row) {
-                data.lines[sel.first.row].replace(sel.first.column, sel.last.column - sel.first.column, new_text);
-              } else {
-                std::string& new_line = data.lines[sel.first.row];
-                new_line.replace(sel.first.column, new_line.size() - sel.first.column, new_text);
-                new_line.append(data.lines[sel.last.row].substr(sel.last.column));
-                erase_lines(sel.first.row + 1, sel.last.row);
-              }
-            set_selection({{sel.first.column + new_text.size(), sel.first.row}});
+            std::string& new_line = data.lines[sel.first.row];
+            new_line.replace(sel.first.column, new_line.size() - sel.first.column, v.empty() ? std::string() : v.front());
+            new_line.append(data.lines[sel.last.row].substr(sel.last.column));
+            erase_lines(sel.first.row + 1, sel.last.row);
           }
+          if (v.empty()) {
+            set_selection({{sel.first.column, sel.first.row}});
+          } else if (data.lines.empty()) {
+            data.lines = v;
+            set_selection({{0, 0}});
+          } else {
+            data.lines.insert(std::next(data.lines.begin(), sel.first.row + 1), std::next(v.begin()), v.end());
+            set_selection({{sel.first.column + v.back().size(), sel.first.row + v.size() - 1}});
+          }
+        }
         redraw_later();
       }
 
@@ -212,7 +221,7 @@ namespace gui {
         const std::string& first = data.lines[r.first.row];
         oss << first.substr(r.first.column, first.size() - r.first.column) << "\n";
         std::copy(std::next(data.lines.begin(), r.first.row + 1), std::next(data.lines.begin(), r.last.row), std::ostream_iterator<std::string>(oss, "\n"));
-        const std::string& last = data.lines[r.last.row];
+        const std::string& last = data.lines[r.last.row - 1];
         oss << last.substr(0, r.last.column);
         return oss.str();
       }

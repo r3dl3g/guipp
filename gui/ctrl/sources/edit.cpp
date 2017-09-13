@@ -340,15 +340,17 @@ namespace gui {
             send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
             break;
           // TBD: cut, copy, paste
-          case 'a':
-            if (ctrl) {
-              // select all
-              set_selection(range(0, data.text.size()), event_source::keyboard);
-            }
-            // fall throught
           default: {
             if (ctrl) {
-              LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+              switch (toupper(keycode)) {
+                case 'A':
+                  // select all
+                  set_selection(range(0, data.text.size()), event_source::keyboard);
+                  break;
+                default:
+                  LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+                  break;
+              }
             } else if (chars.size()) {
               replace_selection(chars);
               set_cursor_pos(data.selection.last, false);

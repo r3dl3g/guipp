@@ -123,7 +123,7 @@ namespace gui {
         }
 
       private:
-        static const window_class clazz;
+        static const no_erase_window_class clazz;
       };
       // --------------------------------------------------------------------------
 

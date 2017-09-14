@@ -35,6 +35,7 @@
 // Library includes
 //
 #include "edit.h"
+#include "clipboard.h"
 
 //#define SHOW_TEXT_AREA
 
@@ -229,7 +230,7 @@ namespace gui {
       void edit_base::replace_selection (const std::string& new_text) {
         range sel = get_selection();
         data.text.replace(sel.first, sel.last - sel.first, new_text);
-        set_selection(range(sel.first + new_text.size()), event_source::logic);
+        set_cursor_pos(sel.first + new_text.size(), false);
         redraw_later();
       }
 
@@ -339,7 +340,6 @@ namespace gui {
           case keys::enter:
             send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
             break;
-          // TBD: cut, copy, paste
           default: {
             if (ctrl) {
               switch (toupper(keycode)) {
@@ -347,6 +347,19 @@ namespace gui {
                   // select all
                   set_selection(range(0, data.text.size()), event_source::keyboard);
                   break;
+                case 'V': {
+                  clipboard::get().get_text(*this, [&](const std::string& t) {
+                    replace_selection(t);
+                  });
+                  break;
+                case 'C':
+                case 'X':
+                  clipboard::get().set_text(*this, get_selected_text());
+                  if (toupper(keycode) == 'X') {
+                    replace_selection(std::string());
+                  }
+                  break;
+                }
                 default:
                   LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
                   break;

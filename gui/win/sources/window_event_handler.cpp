@@ -206,7 +206,7 @@ namespace gui {
       Atom WM_DELETE_WINDOW = 0;
       Atom WM_PROTOCOLS = 0;
 
-      void init_message (Atom& message, const char* name) {
+      void init_atom (Atom& message, const char* name) {
         if (!message) {
           message = XInternAtom(core::global::get_instance(), name, False);
         }

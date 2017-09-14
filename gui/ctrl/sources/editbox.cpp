@@ -28,30 +28,11 @@
 //
 #include "editbox.h"
 #include "edit.h"
+#include "clipboard.h"
 
 namespace gui {
 
   namespace win {
-
-#ifdef X11
-    template<>
-    std::string get_param<std::string, XSelectionEvent> (const core::event& e) {
-      char *result;
-      unsigned long ressize, restail;
-      int resbits;
-      Atom fmtid = XInternAtom(core::global::get_instance(), "UTF8_STRING", False);
-      XGetWindowProperty(core::global::get_instance(),
-                         e.xselection.requestor,
-                         e.xselection.property,
-                         0, LONG_MAX/4, True, AnyPropertyType,
-            &fmtid, &resbits, &ressize, &restail, (unsigned char**)&result);
-      return std::string(result, ressize);
-    }
-
-    using selection_event = event_handler<SelectionNotify, PropertyChangeMask,
-                           params<std::string>::
-                           caller<get_param<std::string, XSelectionEvent>>>;
-#endif // X11
 
     namespace detail {
 
@@ -94,12 +75,6 @@ namespace gui {
             set_cursor_pos(get_position_at_point(pt), true);
           }
         }));
-#ifdef X11
-        register_event_handler(REGISTER_FUNCTION, selection_event([&](const std::string& s) {
-          replace_selection(s);
-        }));
-#endif // X11
-
       }
 
       // --------------------------------------------------------------------------
@@ -276,56 +251,18 @@ namespace gui {
                   set_selection({position::zero, position::end});
                   break;
                 case 'V': {
-#ifdef X11
-                  auto display = core::global::get_instance();
-                  Atom bufid = XInternAtom(display, "CLIPBOARD", False);
-                  Atom fmtid = XInternAtom(display, "UTF8_STRING", False);
-                  Atom propid = XInternAtom(display, "XSEL_DATA", False);
-                  //Atom incrid = XInternAtom(display, "INCR", False);
-                  XConvertSelection(display, bufid, fmtid, propid, get_id(), CurrentTime);
-#endif // X11
-#ifdef WIN32
-                  if (OpenClipboard(get_id())) {
-                    HANDLE hmem = GetClipboardData(CF_TEXT);
-                    if (hmem) {
-                      const char* data = static_cast<char*>(GlobalLock(hmem));
-                      replace_selection(std::string(data));
-                      GlobalUnlock(hmem);
-                    } else {
-                      hmem = GetClipboardData(CF_UNICODETEXT);
-                      if (hmem) {
-                        const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-                        replace_selection(ibr::string::utf16_to_utf8(std::wstring(data)));
-                        GlobalUnlock(hmem);
-                      }
-                    }
-                    CloseClipboard();
-                  }
-#endif // WIN32
+                  clipboard::get().get_text(*this, [&](const std::string& t) {
+                    replace_selection(t);
+                  });
                   break;
                 case 'C':
                 case 'X':
-#ifdef WIN32
-                  if (OpenClipboard(get_id())) {
-                    std::string text = get_selected_text();
-                    const std::size_t len = text.size() + 1;
-                    HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
-                    if (hmem) {
-                      EmptyClipboard();
-                      char* data = static_cast<char*>(GlobalLock(hmem));
-                      memcpy(data, text.c_str(), len);
-                      GlobalUnlock(hmem);
-                      SetClipboardData(CF_TEXT, hmem);
-                    }
-                    CloseClipboard();
-                  }
-#endif // WIN32
+                  clipboard::get().set_text(*this, get_selected_text());
                   if (toupper(keycode) == 'X') {
                     replace_selection(std::string());
                   }
                   break;
                 }
-                // TBD: cut, copy
                 default:
                   LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
                   break;

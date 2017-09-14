@@ -525,9 +525,9 @@ namespace gui {
     }
 
     void window::init () {
-      detail::init_message(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
-      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
-      detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
+      detail::init_atom(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
+      detail::init_atom(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+      detail::init_atom(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
       prepare_for_event(KeyPressMask);
     }
 
@@ -1201,12 +1201,12 @@ namespace gui {
     void init_for_net_wm_state () {
       auto dpy = core::global::get_instance();
 
-      detail::init_message(NET_WM_STATE, "_NET_WM_STATE");
-      detail::init_message(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
-      detail::init_message(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
-      detail::init_message(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
-      detail::init_message(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
-      detail::init_message(ATOM_ATOM, "ATOM");
+      detail::init_atom(NET_WM_STATE, "_NET_WM_STATE");
+      detail::init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
+      detail::init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
+      detail::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
+      detail::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
+      detail::init_atom(ATOM_ATOM, "ATOM");
     }
 
     bool query_net_wm_state (os::window id,

@@ -405,8 +405,8 @@ namespace gui {
 #ifdef X11
       os::instance display = core::global::get_instance();
 
-      detail::init_message(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
-      detail::init_message(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
+      detail::init_atom(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+      detail::init_atom(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
 
       os::event_result resultValue = 0;
 

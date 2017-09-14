@@ -475,7 +475,7 @@ namespace gui {
       extern Atom WM_DELETE_WINDOW;
       extern Atom WM_PROTOCOLS;
 
-      void init_message (Atom& message, const char* name);
+      void init_atom (Atom& message, const char* name);
     }
 
     template <os::event_id id, os::event_id btn>

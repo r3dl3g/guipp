@@ -159,6 +159,7 @@ namespace gui {
         data.cursor_pos = 0;
         data.scroll_pos = 0;
         data.selection.clear();
+        notify_content_changed();
         redraw_later();
       }
 
@@ -195,6 +196,10 @@ namespace gui {
         }
         data.cursor_pos = new_pos;
 
+        make_cursor_visible();
+      }
+
+      void edit_base::make_cursor_visible () {
         // make cursor pos visible
         if (data.cursor_pos < data.scroll_pos) {
           data.scroll_pos = 0;
@@ -231,6 +236,7 @@ namespace gui {
         range sel = get_selection();
         data.text.replace(sel.first, sel.last - sel.first, new_text);
         set_cursor_pos(sel.first + new_text.size(), false);
+        notify_content_changed();
         redraw_later();
       }
 
@@ -254,6 +260,10 @@ namespace gui {
           }
         }
         return max_chars;
+      }
+
+      void edit_base::notify_content_changed () const {
+        send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
       }
 
       void edit_base::handle_key (os::key_state keystate,
@@ -306,6 +316,7 @@ namespace gui {
               }
               data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
               redraw_later();
+              notify_content_changed();
             } else {
               replace_selection(std::string());
               set_cursor_pos(data.selection.first, false);
@@ -320,6 +331,7 @@ namespace gui {
                 }
                 data.text.replace(cp, data.cursor_pos - cp, std::string());
                 set_cursor_pos(cp, false);
+                notify_content_changed();
               }
             } else {
               replace_selection(std::string());

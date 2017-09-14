@@ -52,6 +52,7 @@ namespace gui {
       const os::event_id BN_STATE_MESSAGE = WM_USER + 8;
       const os::event_id SCROLLBAR_MESSAGE = WM_USER + 9;
       const os::event_id SELECTION_CANCEL_MESSAGE = WM_USER + 10;
+      const os::event_id CONTENT_CHANGED_MESSAGE = WM_USER + 10;
 #endif //WIN32
 #ifdef X11
       extern Atom SCROLLBAR_MESSAGE;
@@ -64,6 +65,7 @@ namespace gui {
       extern Atom BN_UNPUSHED_MESSAGE;
       extern Atom BN_STATE_MESSAGE;
       extern Atom SELECTION_CANCEL_MESSAGE;
+      extern Atom CONTENT_CHANGED_MESSAGE;
 
       void init_control_messages ();
 #endif // X11
@@ -150,6 +152,8 @@ namespace gui {
     using hilite_changed_event = event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
                                                params<bool>::caller<get_param<0, bool>>>;
 
+    using content_changed_event = event_handler<detail::CONTENT_CHANGED_MESSAGE>;
+
 #endif //WIN32
     // --------------------------------------------------------------------------
 #ifdef X11
@@ -180,6 +184,12 @@ namespace gui {
                                                caller<get_client_data<0, bool>>,
                                                0,
                                                client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>;
+
+    using content_changed_event = event_handler<ClientMessage, 0,
+                                                params<>::
+                                                caller<>,
+                                                0,
+                                                client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>;
 
 #endif // X11
     // --------------------------------------------------------------------------

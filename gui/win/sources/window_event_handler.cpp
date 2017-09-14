@@ -249,7 +249,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void send_client_message (window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
+    void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
       if (win && win->is_valid()) {
         XClientMessageEvent client;
 
@@ -272,7 +272,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (window* win, Atom message, window* w, const core::rectangle& rect) {
+    void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& rect) {
       XRectangle r = rect;
       long l1 = (long)r.x << 16 | (long)r.y;
       long l2 = (long)r.width << 16 | (long)r.height;

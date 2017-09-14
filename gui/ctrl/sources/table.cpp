@@ -436,18 +436,26 @@ namespace gui {
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
       }));
 
-      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
-      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
+      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
+        hscroll.handle_wheel(delta, pt);
+      }));
+      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
+        vscroll.handle_wheel(delta, pt);
+      }));
       data.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_mouse_move));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_left_btn_up));
 
-      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event(this, &table_view::handle_wheel_x));
+      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
+        hscroll.handle_wheel(delta, pt);
+      }));
       columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_column_left_btn_down));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
 
-      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &table_view::handle_wheel_y));
+      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
+        vscroll.handle_wheel(delta, pt);
+      }));
       rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_row_left_btn_down));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_row_left_btn_up));
@@ -562,17 +570,17 @@ namespace gui {
       hscroll.set_max(sz.width() * 10);
     }
 
-    void table_view::handle_wheel_x (const core::point_type delta, const core::point&) {
-      if (hscroll.is_enabled()) {
-        hscroll.set_value(hscroll.get_value() - delta * hscroll.get_step(), true);
-      }
-    }
+//    void table_view::handle_wheel_x (const core::point_type delta, const core::point&) {
+//      if (hscroll.is_enabled()) {
+//        hscroll.set_value(hscroll.get_value() - delta * hscroll.get_step(), true);
+//      }
+//    }
 
-    void table_view::handle_wheel_y (const core::point_type delta, const core::point&) {
-      if (vscroll.is_enabled()) {
-        vscroll.set_value(vscroll.get_value() - delta * vscroll.get_step(), true);
-      }
-    }
+//    void table_view::handle_wheel_y (const core::point_type delta, const core::point&) {
+//      if (vscroll.is_enabled()) {
+//        vscroll.set_value(vscroll.get_value() - delta * vscroll.get_step(), true);
+//      }
+//    }
 
     void table_view::handle_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;

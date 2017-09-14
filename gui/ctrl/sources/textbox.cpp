@@ -78,7 +78,7 @@ namespace gui {
         const core::size_type row_sz = static_cast<core::size_type>(fnt.line_height());
         const auto last = lines.size();
         const auto first = static_cast<int>(offset.y() / row_sz);
-        core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width(), row_sz);
+        core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
 
         for(auto idx = first; (idx < last) && (r.y() < height); ++idx) {
           win::paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
@@ -112,6 +112,8 @@ namespace gui {
         }
         data.cursor_pos.clear();
         data.selection.clear();
+        notify_content_changed();
+        notify_selection_changed();
         redraw_later();
       }
 
@@ -136,6 +138,7 @@ namespace gui {
       }
 
       void textbox_base::set_cursor_pos (const textbox_base::position& p, bool shift) {
+        textbox_base::position old_pos = data.cursor_pos;
         if (!data.lines.empty()) {
           auto row = std::min<int>(p.row, static_cast<int>(row_count()) - 1);
           if (row > -1) {
@@ -163,6 +166,9 @@ namespace gui {
           }
         } else {
           data.cursor_pos = p;
+        }
+        if (old_pos != data.cursor_pos) {
+          notify_selection_changed();
         }
         redraw_later();
       }
@@ -218,6 +224,7 @@ namespace gui {
           data.lines.emplace_back(std::string());
           set_cursor_pos(position::zero);
         }
+        notify_content_changed();
         redraw_later();
       }
 
@@ -241,11 +248,49 @@ namespace gui {
         return get_text_in_range(get_selection());
       }
 
+      core::rectangle textbox_base::get_virtual_place () const {
+        if (data.virtual_size.empty()) {
+          const auto row_sz = data.font.line_height();
+          const auto row_cnt = row_count();
+          core::size_type w = 0;
+          for(auto text : data.lines) {
+            w = std::max(w, data.font.get_text_size(text).width());
+          }
+          data.virtual_size = {w, static_cast<core::size_type>(row_sz * row_cnt)};
+        }
+        return {data.offset, data.virtual_size};
+      }
+
+      void textbox_base::make_cursor_visible () {
+        if (data.cursor_pos >= position::zero) {
+          core::rectangle area(client_size());
+          // first check row
+          const auto row_sz = data.font.line_height();
+          const auto d_y = data.cursor_pos.row * row_sz;
+          const auto y = d_y - data.offset.y();
+          if (y < area.y()) {
+            data.offset.y(d_y);
+          } else if (y + row_sz > area.y2()) {
+            data.offset.y(d_y + row_sz - area.height());
+          }
+          // check column
+          const auto& text = data.lines[data.cursor_pos.row];
+          const auto sub = text.substr(0, data.cursor_pos.column);
+          const auto d_x = data.font.get_text_size(sub).width();
+          const auto x = d_x - data.offset.x();
+          if (x < area.x()) {
+            data.offset.x(d_x);
+          } else if (x + 3 > area.x2()) {
+            data.offset.x(d_x + 3 - area.width());
+          }
+          if (data.offset != area.top_left()) {
+            redraw_later();
+          }
+        }
+      }
+
       void textbox_base::erase_line (int first) {
         erase_lines(first, first);
-        if (data.lines.empty()) {
-          data.lines.emplace_back(std::string());
-        }
       }
 
       void textbox_base::erase_lines (int first, int last) {
@@ -253,6 +298,16 @@ namespace gui {
         if (data.lines.empty()) {
           data.lines.emplace_back(std::string());
         }
+        notify_content_changed();
+      }
+
+      void textbox_base::notify_content_changed () const {
+        data.virtual_size.clear();
+        send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
+      }
+
+      void textbox_base::notify_selection_changed () const {
+        send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
       }
 
     } // namespace detail

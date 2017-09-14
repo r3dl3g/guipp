@@ -58,18 +58,14 @@ namespace gui {
       static const size one;
 
       inline size () 
-        : m_w(0)
-        , m_h(0) 
       {}
 
       explicit inline size (type i) 
-        : m_w(i)
-        , m_h(i) 
+        : data(i, i)
       {}
 
       inline size (type width, type height)
-        : m_w(width)
-        , m_h(height)
+        : data(width, height)
       {}
 
       explicit size (const os::size& sz);
@@ -86,8 +82,8 @@ namespace gui {
 
       template<typename T>
       explicit size (const T& rhs)
-        : m_w(static_cast<type>(rhs.width))
-        , m_h(static_cast<type>(rhs.height))
+        : data(static_cast<type>(rhs.width),
+               static_cast<type>(rhs.height))
       {}
 
 #endif // X11
@@ -99,11 +95,13 @@ namespace gui {
       os::size os () const;
 
       inline bool empty () const {
-        return (m_w <= 0) || (m_h <= 0);
+        return (data.w <= 0) || (data.h <= 0);
       }
 
+      void clear (type v = 0);
+
       inline bool operator== (const size& rhs) const {
-        return (width() == rhs.width()) && (height() == rhs.height());
+        return (data.w == rhs.data.w) && (data.h == rhs.data.h);
       }
 
       inline bool operator!= (const size& rhs) const {
@@ -119,44 +117,51 @@ namespace gui {
       }
 
       inline size& operator+= (const size& s) {
-        m_w += s.m_w;
-        m_h += s.m_h;
+        data.w += s.data.w;
+        data.h += s.data.h;
         return *this;
       }
 
       inline size& operator-= (const size& s) {
-        m_w -= s.m_w;
-        m_h -= s.m_h;
+        data.w -= s.data.w;
+        data.h -= s.data.h;
         return *this;
       }
 
       inline type width () const {
-        return m_w;
+        return data.w;
       }
 
       inline type height () const {
-        return m_h;
+        return data.h;
       }
 
       inline os::size_type os_width () const {
-        return convert_size_dimension(m_w);
+        return convert_size_dimension(data.w);
       }
 
       inline os::size_type os_height () const {
-        return convert_size_dimension(m_h);
+        return convert_size_dimension(data.h);
       }
 
       inline void width (type w) {
-        m_w = w;
+        data.w = w;
       }
 
       inline void height (type h) {
-        m_h = h;
+        data.h = h;
       }
 
     private:
-      type m_w;
-      type m_h;
+      struct data {
+        data (type w = 0, type h = 0)
+          : w(w)
+          , h(h)
+        {}
+
+        type w;
+        type h;
+      } data;
     };
 
     // --------------------------------------------------------------------------
@@ -174,18 +179,14 @@ namespace gui {
       static const point undefined;
 
       inline point ()
-        : m_x(0)
-        , m_y(0)
       {}
 
       explicit inline point (type i)
-        : m_x(i)
-        , m_y(i)
+        : data(i, i)
       {}
 
       inline point (type x, type y)
-        : m_x(x)
-        , m_y(y)
+        : data(x, y)
       {}
 
       explicit point (const os::point& pt);
@@ -199,8 +200,8 @@ namespace gui {
 
       template<typename T>
       explicit point (const T& rhs)
-        : m_x(static_cast<type>(rhs.x))
-        , m_y(static_cast<type>(rhs.y))
+        : data(static_cast<type>(rhs.x),
+               static_cast<type>(rhs.y))
       {}
 
 #endif // X11
@@ -284,32 +285,39 @@ namespace gui {
       }
 
       inline type x () const {
-        return m_x;
+        return data.x;
       }
 
-      inline void x (type x_) {
-        m_x = x_;
+      inline void x (type v) {
+        data.x = v;
       }
 
       inline type y () const {
-        return m_y;
+        return data.y;
       }
 
-      inline void y (type y_) {
-        m_y = y_;
+      inline void y (type v) {
+        data.y = v;
       }
 
       inline os::point_type os_x () const {
-        return static_cast<os::point_type>(m_x);
+        return static_cast<os::point_type>(data.x);
       }
 
       inline os::point_type os_y () const {
-        return static_cast<os::point_type>(m_y);
+        return static_cast<os::point_type>(data.y);
       }
 
     private:
-      type m_x;
-      type m_y;
+      struct data {
+        data (type x = 0, type y = 0)
+          : x(x)
+          , y(y)
+        {}
+
+        type x;
+        type y;
+      } data;
     };
 
     // --------------------------------------------------------------------------

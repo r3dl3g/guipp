@@ -102,6 +102,8 @@ namespace gui {
       void set_min_max_step (type, type, type);
       void set_min_max_step_value (type, type, type, type);
 
+      void handle_wheel (const core::point_type delta, const core::point&);
+
       static constexpr int scroll_bar_width = 17;
 
       static constexpr int get_scroll_bar_width () {

@@ -86,6 +86,7 @@ namespace gui {
 
         void set_selection (const range& sel, event_source);
         range get_selection () const;
+        void make_cursor_visible ();
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);
@@ -99,6 +100,8 @@ namespace gui {
 
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt);
+
+        void notify_content_changed () const;
 
         struct data {
           data ();

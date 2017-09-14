@@ -91,11 +91,18 @@ namespace gui {
         std::string get_text_in_range (const range&) const;
         std::string get_selected_text () const;
 
+        core::rectangle get_virtual_place () const;
+
+        void make_cursor_visible ();
+
       protected:
         position get_position_at_point (const core::point& pt) const;
 
         void erase_lines (int first, int last);
         void erase_line (int first);
+
+        void notify_content_changed () const;
+        void notify_selection_changed () const;
 
         struct data {
           data ()
@@ -109,6 +116,7 @@ namespace gui {
           core::point last_mouse_point;
           position cursor_pos;
           range selection;
+          mutable core::size virtual_size;
         } data;
       };
 

@@ -43,7 +43,7 @@ namespace gui {
     scroll_bar_data::scroll_bar_data ()
       : min(0)
       , max(100)
-      , step(10)
+      , step(1)
       , value(0)
       , state(scrollbar_state::nothing)
       , last_value(0)
@@ -168,6 +168,11 @@ namespace gui {
       data.last_mouse_point = last_mouse_point;
     }
 
+    void scroll_bar::handle_wheel (const core::point_type delta, const core::point&) {
+      if (is_enabled()) {
+        set_value(get_value() - delta * get_step(), true);
+      }
+    }
 
     namespace paint {
       // --------------------------------------------------------------------------
@@ -313,10 +318,8 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type dx, const core::point&){
-          if (is_enabled()) {
-            set_value(get_value() - dx * get_step(), true);
-          }
+        register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
+          super::handle_wheel(delta, pt);
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -431,10 +434,8 @@ namespace gui {
             redraw_later();
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type dy, const core::point&){
-          if (is_enabled()) {
-            set_value(get_value() - dy * get_step(), true);
-          }
+        register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
+          super::handle_wheel(delta, pt);
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if (is_enabled() && left_button_bit_mask::is_set(keys)) {

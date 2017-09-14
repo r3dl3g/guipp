@@ -48,12 +48,12 @@ namespace gui {
       get_layout().init(&vscroll, &hscroll, &edge);
 
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-                                       move_children(core::point(0, y - get_layout().get_current_pos().y()));
-                                     }));
+        move_children(core::point(0, y - get_layout().get_current_pos().y()));
+      }));
 
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-                                       move_children(core::point(x - get_layout().get_current_pos().x(), 0));
-                                     }));
+        move_children(core::point(x - get_layout().get_current_pos().x(), 0));
+      }));
     }
 
     void scroll_view::create (const container& parent,
@@ -146,19 +146,14 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    scroll_view::scroll_view (win::container* main)
+    scroll_view_base::scroll_view_base (win::container* main)
       : super(main)
       , vscroll(nullptr)
       , hscroll(nullptr)
       , edge(nullptr)
-      , me(core::bind_method(this, &scroll_view::handle_child_move))
-      , se(core::bind_method(this, &scroll_view::handle_child_size))
-      , in_scroll_event(false)
-    {
-      super::init(core::bind_method(this, &scroll_view::layout));
-    }
+    {}
 
-    void scroll_view::init (win::vscroll_bar* vscroll,
+    void scroll_view_base::init (win::vscroll_bar* vscroll,
                             win::hscroll_bar* hscroll,
                             win::client_window* edge) {
       this->vscroll = vscroll;
@@ -166,15 +161,7 @@ namespace gui {
       this->edge = edge;
     }
 
-    void scroll_view::set_current_pos (const core::point& pt) {
-      current_pos = pt;
-    }
-
-    core::point scroll_view::get_current_pos () const {
-      return current_pos;
-    }
-
-    core::rectangle scroll_view::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
+    core::rectangle scroll_view_base::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
       core::rectangle r(sz);
       r.x(r.x2() - win::scroll_bar::get_scroll_bar_width());
       r.width(static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
@@ -184,7 +171,7 @@ namespace gui {
       return r;
     }
 
-    core::rectangle scroll_view::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
+    core::rectangle scroll_view_base::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
       core::rectangle r(sz);
       r.y(r.y2() - win::scroll_bar::get_scroll_bar_width());
       r.height(static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
@@ -194,30 +181,20 @@ namespace gui {
       return r;
     }
 
-    core::rectangle scroll_view::get_visible_area (const core::size& sz) {
+    core::rectangle scroll_view_base::get_client_area (const core::size& sz) {
       return core::rectangle(sz - core::size{ static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()),
                                               static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()) });
     }
 
-    core::rectangle scroll_view::get_edge_area (const core::size& sz) {
+    core::rectangle scroll_view_base::get_edge_area (const core::size& sz) {
       return core::rectangle(sz.width() - win::scroll_bar::get_scroll_bar_width(),
                              sz.height() - win::scroll_bar::get_scroll_bar_width(),
                              static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()),
 							 static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()));
     }
 
-    void scroll_view::layout (const core::size& new_size) {
+    core::rectangle scroll_view_base::layout (const core::size& new_size, const core::rectangle& required) {
       core::rectangle space(new_size);
-
-      std::vector<win::window*> children = main->get_children();
-      core::rectangle required = get_visible_area(new_size);
-      for(win::window* win : children) {
-        if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-          required |= win->place();
-          win->unregister_event_handler(me);
-          win->unregister_event_handler(se);
-        }
-      }
 
       LogDebug << "Space:" << space << ", Required:" << required;
 
@@ -269,20 +246,60 @@ namespace gui {
         edge->set_visible(show_h && show_v);
       }
 
+      core::rectangle available(new_size);
+
       if (edge && show_h && show_v) {
         edge->place(get_edge_area(new_size));
         edge->to_front();
       }
 
       if (show_v) {
-        vscroll->place(get_vscroll_area(new_size, show_h));
+        auto area = get_vscroll_area(new_size, show_h);
+        vscroll->place(area);
         vscroll->to_front();
+        available.width(area.x());
       }
 
       if (show_h) {
-        hscroll->place(get_hscroll_area(new_size, show_v));
+        auto area = get_hscroll_area(new_size, show_v);
+        hscroll->place(area);
         hscroll->to_front();
+        available.height(area.y());
       }
+
+      return available;
+    }
+
+    void scroll_view_base::set_current_pos (const core::point& pt) {
+      current_pos = pt;
+    }
+
+    core::point scroll_view_base::get_current_pos () const {
+      return current_pos;
+    }
+
+    // --------------------------------------------------------------------------
+    scroll_view::scroll_view (win::container* main)
+      : super(main)
+      , me(core::bind_method(this, &scroll_view::handle_child_move))
+      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , in_scroll_event(false)
+    {
+      super::init(core::bind_method(this, &scroll_view::layout));
+    }
+
+    void scroll_view::layout (const core::size& new_size) {
+      std::vector<win::window*> children = main->get_children();
+      core::rectangle required = get_client_area(new_size);
+      for(win::window* win : children) {
+        if ((win != vscroll) && (win != hscroll) && (win != edge)) {
+          required |= win->place();
+          win->unregister_event_handler(me);
+          win->unregister_event_handler(se);
+        }
+      }
+
+      super::layout(new_size, required);
 
       for(win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
@@ -305,6 +322,7 @@ namespace gui {
     void scroll_view::handle_child_size (const core::size&) {
       layout(main->size());
     }
+
     // --------------------------------------------------------------------------
 
   } // layout

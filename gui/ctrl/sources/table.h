@@ -583,8 +583,8 @@ namespace gui {
       void handle_created (win::window* win, const core::rectangle& place);
       void handle_size (const core::size& sz);
 
-      void handle_wheel_x (const core::point_type delta, const core::point&);
-      void handle_wheel_y (const core::point_type delta, const core::point&);
+//      void handle_wheel_x (const core::point_type delta, const core::point&);
+//      void handle_wheel_y (const core::point_type delta, const core::point&);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);

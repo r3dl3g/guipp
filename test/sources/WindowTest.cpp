@@ -73,6 +73,7 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
 }
 
 namespace gui {
+
   namespace win {
 
     template<>
@@ -114,7 +115,7 @@ public:
   static win::paint_event create_paint2();
 
 private:
-  win::scroll_view view;
+  win::scroll_view scroll_view;
 
   win::client_window window1;
   win::client_window window2;
@@ -218,8 +219,13 @@ private:
   win::table_edit table_view;
   win::table::data::matrix<std::string> table_data;
 
-  win::editbox editor;
-  win::textbox_t<text_origin::center, draw::frame::sunken_relief, color::dark_blue, color::very_light_gray> textbox;
+  typedef win::virtual_view<win::editbox> editbox_view;
+  editbox_view editor;
+
+  typedef win::textbox_t<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef win::virtual_view<textbox_type> textbox_view;
+
+  textbox_view textbox;
 
   bool at_paint1;
   bool at_drag;
@@ -534,7 +540,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   info_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     LogDebug << "Info clicked";
     query_state();
-    textbox.set_text(editor.get_selected_text());
+    textbox.view.set_text(editor.view.get_selected_text());
+    textbox.layout();
   }));
 
   auto list_drawer = [] (std::size_t idx,
@@ -636,20 +643,20 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
-    editor.set_scroll_pos(core::point(hscroll.get_value(), pos));
-    textbox.set_scroll_pos(core::point(hscroll.get_value(), pos));
+    editor.view.set_scroll_pos(core::point(hscroll.get_value(), pos));
+    textbox.view.set_scroll_pos(core::point(hscroll.get_value(), pos));
   }));
 
   calc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     calc_pressed = true;
-    view.layout();
+    scroll_view.layout();
   }));
 
   inc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    view.resize(view.size() + core::size{5, 5});
+    scroll_view.resize(scroll_view.size() + core::size{5, 5});
   }));
   dec_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    view.resize(view.size() - core::size{5, 5});
+    scroll_view.resize(scroll_view.size() - core::size{5, 5});
   }));
 
   vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
@@ -661,8 +668,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   hscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);
-    editor.set_scroll_pos(core::point(pos, vscroll.get_value()));
-    textbox.set_scroll_pos(core::point(pos, vscroll.get_value()));
+    editor.view.set_scroll_pos(core::point(pos, vscroll.get_value()));
+    textbox.view.set_scroll_pos(core::point(pos, vscroll.get_value()));
   }));
   main_split_view.slider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&){
     hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
@@ -774,14 +781,14 @@ void my_main_window::created_children () {
 
   win::detail::get_window(get_id());
 
-  view.create(main, core::rectangle(0, 0, 300, 330));
-  view.set_visible();
+  scroll_view.create(main, core::rectangle(0, 0, 300, 330));
+  scroll_view.set_visible();
 
-  window1.create(view, core::rectangle(10, 10, 100, 280));
+  window1.create(scroll_view, core::rectangle(10, 10, 100, 280));
   window1.set_accept_focus(false);
   window1.set_visible();
 
-  window2.create(view, core::rectangle(120, 10, 200, 280));
+  window2.create(scroll_view, core::rectangle(120, 10, 200, 280));
   window2.set_accept_focus(false);
   window2.set_visible();
 
@@ -902,9 +909,28 @@ void my_main_window::created_children () {
   table_view.set_visible();
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
-  editor.set_text("First line\nSecond line\nThird\nFourth\nFifth\n\nSixth\nSeventh\nEighth\nNinth\nTenth\n");
-  editor.set_cursor_pos({3, 5});
-  editor.set_selection({{3, 2}, {2, 4}});
+  editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                       "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                       "3. magna aliquyam erat, sed diam voluptua.\n"
+                       "4. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                       "5. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                       "6. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                       "7. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                       "8. magna aliquyam erat, sed diam voluptua.\n"
+                       "9. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                       "10. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                       "11. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                       "12. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                       "13. magna aliquyam erat, sed diam voluptua.\n"
+                       "14. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                       "15. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n"
+                       "16. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
+                       "17. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
+                       "18. magna aliquyam erat, sed diam voluptua.\n"
+                       "19. At vero eos et accusam et justo duo dolores et ea rebum.\n"
+                       "20. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n");
+  editor.view.set_cursor_pos({3, 5});
+  editor.view.set_selection({{3, 2}, {2, 4}});
   editor.set_visible();
 
   textbox.create(main, core::rectangle(740, 580, 150, 250));

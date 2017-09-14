@@ -60,37 +60,41 @@ namespace gui {
     const rectangle rectangle::zero;
 
     size::size(const os::size& s)
-      : m_w(static_cast<type>(s.cx))
-      , m_h(static_cast<type>(s.cy))
+      : data(static_cast<type>(s.cx),
+             static_cast<type>(s.cy))
     {}
 
     size::size(const os::point& pt)
-      : m_w(static_cast<type>(pt.x))
-      , m_h(static_cast<type>(pt.y))
+      : data(static_cast<type>(pt.x),
+             static_cast<type>(pt.y))
     {}
 
 #ifdef WIN32
     size::size(const os::rectangle& r)
-      : m_w(static_cast<type>(r.right - r.left))
-      , m_h(static_cast<type>(r.bottom - r.top))
+      : data(static_cast<type>(r.right - r.left)),
+             static_cast<type>(r.bottom - r.top))
     {}
 
     size::size(const os::win32::wParam& p) {
-      m_w = static_cast<type>(GET_X_LPARAM(p));
-      m_h = static_cast<type>(GET_Y_LPARAM(p));
+      data.w = static_cast<type>(GET_X_LPARAM(p));
+      data.h = static_cast<type>(GET_Y_LPARAM(p));
     }
 
     size::size(const os::win32::lParam& p) {
-      m_w = static_cast<type>(GET_X_LPARAM(p));
-      m_h = static_cast<type>(GET_Y_LPARAM(p));
+      data.w = static_cast<type>(GET_X_LPARAM(p));
+      data.h = static_cast<type>(GET_Y_LPARAM(p));
     }
 #endif // WIN32
 #ifdef X11
     size::size (const os::rectangle& r)
-      : m_w(static_cast<type>(r.width))
-      , m_h(static_cast<type>(r.height))
+      : data(static_cast<type>(r.width),
+             static_cast<type>(r.height))
     {}
 #endif // X11
+
+    void size::clear (type v) {
+      data.w = data.h = v;
+    }
 
     size::operator os::size() const {
       return os();
@@ -106,25 +110,25 @@ namespace gui {
     }
 
     point::point(const os::point& rhs)
-      : m_x(static_cast<type>(rhs.x))
-      , m_y(static_cast<type>(rhs.y))
+      : data(static_cast<type>(rhs.x),
+             static_cast<type>(rhs.y))
     {}
 
 #ifdef WIN32
     point::point(const os::rectangle& rhs)
-      : m_x(static_cast<type>(rhs.left))
-      , m_y(static_cast<type>(rhs.top))
+      : data(static_cast<type>(rhs.left),
+             static_cast<type>(rhs.top))
     {}
 
     point::point(const os::win32::lParam& p) {
-      m_x = static_cast<type>(GET_X_LPARAM(p));
-      m_y = static_cast<type>(GET_Y_LPARAM(p));
+      data.x = static_cast<type>(GET_X_LPARAM(p));
+      data.y = static_cast<type>(GET_Y_LPARAM(p));
     }
 #endif // WIN32
 #ifdef X11
     point::point (const os::rectangle& r)
-      : m_x(static_cast<type>(r.x))
-      , m_y(static_cast<type>(r.y))
+      : data(static_cast<type>(r.x),
+             static_cast<type>(r.y))
     {}
 #endif // X11
 

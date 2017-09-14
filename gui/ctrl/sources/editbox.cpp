@@ -186,11 +186,11 @@ namespace gui {
                   ++cp;
                 }
                 current.replace(data.cursor_pos.column, cp - data.cursor_pos.column, std::string());
+                notify_content_changed();
               } else if (data.cursor_pos.row < (row_count() - 1)) {
                 current.append(data.lines[data.cursor_pos.row + 1]);
                 erase_line(data.cursor_pos.row + 1);
               }
-              redraw_later();
             } else {
               replace_selection(std::string());
               set_cursor_pos(data.selection.first, false);
@@ -207,6 +207,7 @@ namespace gui {
                   --cp;
                 }
                 current.replace(cp, data.cursor_pos.column - cp, std::string());
+                notify_content_changed();
                 set_cursor_pos({cp, data.cursor_pos.row}, false);
               } else if (data.cursor_pos.row > 0) {
                 auto row = data.cursor_pos.row - 1;
@@ -215,6 +216,7 @@ namespace gui {
                 prev.append(current);
                 erase_line(data.cursor_pos.row);
                 set_cursor_pos(pos, false);
+                redraw_later();
               }
             } else {
               replace_selection(std::string());
@@ -240,6 +242,7 @@ namespace gui {
             current.erase(data.cursor_pos.column);
             auto row = data.cursor_pos.row + 1;
             data.lines.insert(std::next(data.lines.begin(), row), rest);
+            notify_content_changed();
             set_cursor_pos({0, row}, false);
             break;
           }

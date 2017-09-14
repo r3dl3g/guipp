@@ -2,7 +2,6 @@
 #include "window.h"
 #include "label.h"
 #include "menu.h"
-#include "scroll_view.h"
 #include "split_view.h"
 #include "toggle_group.h"
 #include "graphics.h"

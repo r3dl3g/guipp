@@ -817,9 +817,9 @@ namespace gui {
                           caller<get_param<0, os::graphics>>>;
 
     // --------------------------------------------------------------------------
-    void send_client_message (window* win, Atom message,
+    void send_client_message (const window* win, Atom message,
                               long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
-    void send_client_message (window* win, Atom message, window* w, const core::rectangle& r);
+    void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
 
     // --------------------------------------------------------------------------
 #endif // X11

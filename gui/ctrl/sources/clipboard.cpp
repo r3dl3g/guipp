@@ -17,6 +17,7 @@
 */
 
 #include "clipboard.h"
+#include "string_util.h"
 
 namespace gui {
 
@@ -56,11 +57,11 @@ namespace gui {
     }
 
     void clipboard::set_text (window& win, const std::string& t) {
+      text = t;
 #ifdef X11
       if (filter_id) {
         global::unregister_message_filter(filter_id);
       }
-      text = t;
       filter_id = global::register_message_filter([&](const core::event& e) -> bool {
         if ((e.type == SelectionRequest) &&
             (e.xselectionrequest.selection == detail::CLIPBOARD)) {
@@ -147,16 +148,16 @@ namespace gui {
 #endif // X11
 #ifdef WIN32
       if (OpenClipboard(win.get_id())) {
-        HANDLE hmem = GetClipboardData(CF_TEXT);
+        HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
         if (hmem) {
-          const char* data = static_cast<char*>(GlobalLock(hmem));
-          cb(std::string(data));
+          const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
+          cb(ibr::string::utf16_to_utf8(std::wstring(data)));
           GlobalUnlock(hmem);
         } else {
-          hmem = GetClipboardData(CF_UNICODETEXT);
+          hmem = GetClipboardData(CF_TEXT);
           if (hmem) {
-            const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-            cb(ibr::string::utf16_to_utf8(std::wstring(data)));
+            const char* data = static_cast<char*>(GlobalLock(hmem));
+            cb(std::string(data));
             GlobalUnlock(hmem);
           }
         }

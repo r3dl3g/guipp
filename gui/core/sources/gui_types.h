@@ -128,6 +128,10 @@ namespace gui {
         return *this;
       }
 
+      inline size operator- () const {
+        return {-width(), -height()};
+      }
+
       inline type width () const {
         return data.w;
       }
@@ -245,6 +249,10 @@ namespace gui {
         x(x() - pt.x());
         y(y() - pt.y());
         return *this;
+      }
+
+      inline point operator- () const {
+        return {-x(), -y()};
       }
 
       inline void move (const point& pt) {

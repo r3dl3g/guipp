@@ -47,9 +47,6 @@ namespace gui {
 
       core::rectangle layout (const core::size& new_size, const core::rectangle& required);
 
-      void set_current_pos (const core::point& pt);
-      core::point get_current_pos () const;
-
       static core::rectangle get_vscroll_area (const core::size&, bool hscroll_bar_enabled);
       static core::rectangle get_hscroll_area (const core::size&, bool vscroll_bar_enabled);
       static core::rectangle get_edge_area (const core::size&);
@@ -59,8 +56,6 @@ namespace gui {
       void init(std::function<size_callback> f1) {
         super::init(f1);
       }
-
-      core::point current_pos;
 
       win::vscroll_bar*   vscroll;
       win::hscroll_bar*   hscroll;
@@ -93,49 +88,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-
-  }
-
-  namespace win {
-
-    // --------------------------------------------------------------------------
-    class scroll_view : public layout_container<layout::scroll_view> {
-    public:
-      typedef layout_container<layout::scroll_view> super;
-
-      scroll_view ();
-
-      void set_scroll_pos (const core::point& pt);
-      core::point get_scroll_pos () const;
-
-      void enable_vscroll_bar (bool enable);
-      void enable_hscroll_bar (bool enable);
-      bool is_vscroll_bar_enabled () const;
-      bool is_hscroll_bar_enabled () const;
-
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
-      void move_children (const core::point& delta);
-
-    protected:
-      vscroll_bar& get_vscroll ();
-      hscroll_bar& get_hscroll ();
-      client_window& get_edge ();
-
-    private:
-      vscroll_bar   vscroll;
-      hscroll_bar   hscroll;
-      client_window edge;
-
-      static window_class clazz;
-    };
-    // --------------------------------------------------------------------------
-
-  } // win
-
-  namespace layout {
-
     template<typename T>
     class virtual_layout : public scroll_view_base {
     public:
@@ -170,10 +122,46 @@ namespace gui {
 
     };
 
+    // --------------------------------------------------------------------------
   } // namespace layout
 
   namespace win {
 
+    // --------------------------------------------------------------------------
+    class scroll_view : public layout_container<layout::scroll_view> {
+    public:
+      typedef layout_container<layout::scroll_view> super;
+
+      scroll_view ();
+
+      void set_scroll_pos (const core::point& pt);
+      core::point get_scroll_pos () const;
+
+      void enable_vscroll_bar (bool enable);
+      void enable_hscroll_bar (bool enable);
+      bool is_vscroll_bar_enabled () const;
+      bool is_hscroll_bar_enabled () const;
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def);
+
+      void move_children (const core::point& delta);
+
+    protected:
+      vscroll_bar& get_vscroll ();
+      hscroll_bar& get_hscroll ();
+      client_window& get_edge ();
+
+    private:
+      core::point   current_pos;
+      vscroll_bar   vscroll;
+      hscroll_bar   hscroll;
+      client_window edge;
+
+      static window_class clazz;
+    };
+
+    // --------------------------------------------------------------------------
     template<typename T, os::color background = color::white>
     class virtual_view : public group_window<layout::virtual_layout<T>, background> {
     public:
@@ -226,6 +214,7 @@ namespace gui {
 
     };
 
+    // --------------------------------------------------------------------------
   } // namespace win
 
 } // gui

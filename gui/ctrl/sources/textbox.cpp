@@ -258,32 +258,31 @@ namespace gui {
           }
           data.virtual_size = {w, static_cast<core::size_type>(row_sz * row_cnt)};
         }
-        return {data.offset, data.virtual_size};
+        return core::rectangle(-data.offset, data.virtual_size);
       }
 
       void textbox_base::make_cursor_visible () {
         if (data.cursor_pos >= position::zero) {
-          core::rectangle area(client_size());
+          const auto old_pos = data.offset;
+          core::rectangle area(data.offset, client_size());
           // first check row
           const auto row_sz = data.font.line_height();
-          const auto d_y = data.cursor_pos.row * row_sz;
-          const auto y = d_y - data.offset.y();
+          const auto y = data.cursor_pos.row * row_sz;
           if (y < area.y()) {
-            data.offset.y(d_y);
+            data.offset.y(y);
           } else if (y + row_sz > area.y2()) {
-            data.offset.y(d_y + row_sz - area.height());
+            data.offset.y(y + row_sz - area.height());
           }
           // check column
           const auto& text = data.lines[data.cursor_pos.row];
           const auto sub = text.substr(0, data.cursor_pos.column);
-          const auto d_x = data.font.get_text_size(sub).width();
-          const auto x = d_x - data.offset.x();
+          const auto x = data.font.get_text_size(sub).width();
           if (x < area.x()) {
-            data.offset.x(d_x);
+            data.offset.x(x);
           } else if (x + 3 > area.x2()) {
-            data.offset.x(d_x + 3 - area.width());
+            data.offset.x(x + 3 - area.width());
           }
-          if (data.offset != area.top_left()) {
+          if (data.offset != old_pos) {
             redraw_later();
           }
         }

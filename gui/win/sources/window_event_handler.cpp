@@ -194,7 +194,7 @@ namespace gui {
       }
     }
 
-    void send_client_message (window* win, os::event_id message, long l1, long l2) {
+    void send_client_message (const window* win, os::event_id message, long l1, long l2) {
       SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
     }
 

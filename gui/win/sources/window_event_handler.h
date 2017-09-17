@@ -463,7 +463,7 @@ namespace gui {
     using os_paint_event = event_handler<WM_PAINT, 0, os_paint_caller>;
 
     // --------------------------------------------------------------------------
-    void send_client_message (window* win, os::event_id message, long l1 = 0, long l2 = 0);
+    void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
 
 #endif //WIN32

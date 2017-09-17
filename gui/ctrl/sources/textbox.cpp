@@ -267,7 +267,7 @@ namespace gui {
           core::rectangle area(data.offset, client_size());
           // first check row
           const auto row_sz = data.font.line_height();
-          const auto y = data.cursor_pos.row * row_sz;
+          const core::point_type y = static_cast<core::point_type>(data.cursor_pos.row * row_sz);
           if (y < area.y()) {
             data.offset.y(y);
           } else if (y + row_sz > area.y2()) {
@@ -276,7 +276,7 @@ namespace gui {
           // check column
           const auto& text = data.lines[data.cursor_pos.row];
           const auto sub = text.substr(0, data.cursor_pos.column);
-          const auto x = data.font.get_text_size(sub).width();
+          const core::point_type x = data.font.get_text_size(sub).width();
           if (x < area.x()) {
             data.offset.x(x);
           } else if (x + 3 > area.x2()) {

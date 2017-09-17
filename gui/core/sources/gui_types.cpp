@@ -71,7 +71,7 @@ namespace gui {
 
 #ifdef WIN32
     size::size(const os::rectangle& r)
-      : data(static_cast<type>(r.right - r.left)),
+      : data(static_cast<type>(r.right - r.left),
              static_cast<type>(r.bottom - r.top))
     {}
 

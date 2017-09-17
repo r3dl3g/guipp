@@ -80,7 +80,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+        register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
           core::point_type dx = 0;
           switch (key) {
            case keys::left:
@@ -128,7 +128,7 @@ namespace gui {
            }
           return;
         }));
-        register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
+        register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string&) {
           core::point_type dy = 0;
           switch (key) {
            case keys::up:

@@ -641,7 +641,7 @@ namespace gui {
         }));
         super::register_event_handler(REGISTER_FUNCTION, typename traits::wheel_event_type(this, &list_t::handle_wheel));
         super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &list_t::handle_mouse_move));
-        super::register_event_handler(REGISTER_FUNCTION, key_down_event(this, &list_t::handle_key));
+        super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &list_t::handle_key));
         super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size&){
           if (super::scrollbar.is_valid()) {
             super::scrollbar.place(super::get_scroll_bar_area());

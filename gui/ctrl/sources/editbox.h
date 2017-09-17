@@ -54,9 +54,6 @@ namespace gui {
 
         std::string& current_line ();
 
-        position find_prev_word (const position& pos);
-        position find_next_word (const position& pos);
-
       };
 
       // --------------------------------------------------------------------------

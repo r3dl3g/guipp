@@ -119,6 +119,33 @@ namespace gui {
       const os::key_symbol scroll_lock = VK_SCROLL;
       const os::key_symbol caps_lock = VK_CAPITAL;
 
+      const os::key_symbol a = VK_A;
+      const os::key_symbol b = VK_B;
+      const os::key_symbol c = VK_C;
+      const os::key_symbol d = VK_D;
+      const os::key_symbol e = VK_E;
+      const os::key_symbol f = VK_F;
+      const os::key_symbol g = VK_G;
+      const os::key_symbol h = VK_H;
+      const os::key_symbol i = VK_I;
+      const os::key_symbol j = VK_J;
+      const os::key_symbol k = VK_K;
+      const os::key_symbol l = VK_L;
+      const os::key_symbol m = VK_M;
+      const os::key_symbol n = VK_N;
+      const os::key_symbol o = VK_O;
+      const os::key_symbol p = VK_P;
+      const os::key_symbol q = VK_Q;
+      const os::key_symbol r = VK_R;
+      const os::key_symbol s = VK_S;
+      const os::key_symbol t = VK_T;
+      const os::key_symbol u = VK_U;
+      const os::key_symbol v = VK_V;
+      const os::key_symbol w = VK_W;
+      const os::key_symbol x = VK_X;
+      const os::key_symbol y = VK_Y;
+      const os::key_symbol z = VK_Z;
+
     }
 
   } // win

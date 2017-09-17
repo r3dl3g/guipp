@@ -94,6 +94,10 @@ namespace gui {
         core::rectangle get_virtual_place () const;
 
         void make_cursor_visible ();
+        void enable_select_by_mouse ();
+
+        position find_prev_word (const position& pos);
+        position find_next_word (const position& pos);
 
       protected:
         position get_position_at_point (const core::point& pt) const;

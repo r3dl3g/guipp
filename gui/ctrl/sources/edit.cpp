@@ -354,22 +354,22 @@ namespace gui {
             break;
           default: {
             if (ctrl) {
-              switch (toupper(keycode)) {
-                case 'A':
+              switch (keycode) {
+                case keys::a:
                   // select all
                   set_selection(range(0, data.text.size()), event_source::keyboard);
                   break;
-                case 'V': {
+                case keys::v: {
                   clipboard::get().get_text(*this, [&](const std::string& t) {
                     replace_selection(t);
                   });
                   break;
-                case 'C':
-                case 'X':
+                case keys::c:
                   clipboard::get().set_text(*this, get_selected_text());
-                  if (toupper(keycode) == 'X') {
-                    replace_selection(std::string());
-                  }
+                  break;
+                case keys::x:
+                  clipboard::get().set_text(*this, get_selected_text());
+                  replace_selection(std::string());
                   break;
                 }
                 default:
@@ -391,7 +391,7 @@ namespace gui {
           area.shrink({3, 2});
           paint::edit_line(graph, area, data.text, draw::font::system(), color::windowTextColor(), color::white, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
         }));
-        register_event_handler(REGISTER_FUNCTION, key_down_event(this, &edit_base::handle_key));
+        register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &edit_base::handle_key));
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;

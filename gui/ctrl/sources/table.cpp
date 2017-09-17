@@ -428,7 +428,7 @@ namespace gui {
         columns.redraw_later();
       }));
 
-      data.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &table_view::handle_key));
+      data.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &table_view::handle_key));
       data.set_accept_focus(true);
 
       data.register_event_handler(REGISTER_FUNCTION,

@@ -687,6 +687,10 @@ namespace gui {
         return (column != invalid) && (row != invalid);
       }
 
+      inline bool is_valid () const {
+        return (column != invalid) && (row != invalid);
+      }
+
       inline void clear () {
         column = invalid;
         row = invalid;

@@ -119,6 +119,32 @@ namespace gui {
       const os::key_symbol scroll_lock = XK_Scroll_Lock;
       const os::key_symbol caps_lock = XK_Caps_Lock;
 
+      const os::key_symbol a = XK_a;
+      const os::key_symbol b = XK_b;
+      const os::key_symbol c = XK_c;
+      const os::key_symbol d = XK_d;
+      const os::key_symbol e = XK_e;
+      const os::key_symbol f = XK_f;
+      const os::key_symbol g = XK_g;
+      const os::key_symbol h = XK_h;
+      const os::key_symbol i = XK_i;
+      const os::key_symbol j = XK_j;
+      const os::key_symbol k = XK_k;
+      const os::key_symbol l = XK_l;
+      const os::key_symbol m = XK_m;
+      const os::key_symbol n = XK_n;
+      const os::key_symbol o = XK_o;
+      const os::key_symbol p = XK_p;
+      const os::key_symbol q = XK_q;
+      const os::key_symbol r = XK_r;
+      const os::key_symbol s = XK_s;
+      const os::key_symbol t = XK_t;
+      const os::key_symbol u = XK_u;
+      const os::key_symbol v = XK_v;
+      const os::key_symbol w = XK_w;
+      const os::key_symbol x = XK_x;
+      const os::key_symbol y = XK_y;
+      const os::key_symbol z = XK_z;
     }
 
   } // win

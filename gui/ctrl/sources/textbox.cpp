@@ -28,6 +28,7 @@
 //
 #include "textbox.h"
 #include "edit.h"
+#include "clipboard.h"
 
 
 namespace gui {
@@ -307,6 +308,60 @@ namespace gui {
 
       void textbox_base::notify_selection_changed () const {
         send_client_message(this, detail::SELECTION_CHANGE_MESSAGE);
+      }
+
+      textbox_base::position textbox_base::find_prev_word (const textbox_base::position& pos) {
+        if (pos.is_valid() && (pos.column > 0)) {
+          std::string::size_type p = ibr::string::find_left_space(data.lines[pos.row], pos.column);
+          if (p != std::string::npos) {
+            return{p, pos.row};
+          }
+        }
+        if (pos.row > 0) {
+          return{data.lines[pos.row - 1].size(), pos.row - 1};
+        }
+        return pos;
+      }
+
+      textbox_base::position textbox_base::find_next_word (const textbox_base::position& pos) {
+        if (pos.is_valid() && (pos.column < data.lines[pos.row].size())) {
+          std::string::size_type p = ibr::string::find_right_space(data.lines[pos.row], pos.column);
+          if (p != std::string::npos) {
+            return{p, pos.row};
+          }
+        }
+        if (pos.row < (row_count() - 1)) {
+          return{0, pos.row + 1};
+        }
+        return pos;
+      }
+
+      void textbox_base::enable_select_by_mouse () {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+          take_focus();
+          data.last_mouse_point = pt;
+          set_cursor_pos(get_position_at_point(pt));
+        }));
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
+          data.last_mouse_point = core::point::undefined;
+        }));
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
+          take_focus();
+          data.last_mouse_point = pt;
+          const auto p = get_position_at_point(pt);
+          const auto l = find_prev_word(p);
+          const auto r = find_next_word(p);
+          set_cursor_pos(p);
+          set_selection({l, r});
+        }));
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+          if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+            set_cursor_pos(get_position_at_point(pt), true);
+          }
+         }));
+        register_event_handler(REGISTER_FUNCTION, key_down_event<keys::c, state::control>([&]() {
+          clipboard::get().set_text(*this, get_selected_text());
+        }));
       }
 
     } // namespace detail

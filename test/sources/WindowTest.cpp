@@ -934,6 +934,7 @@ void my_main_window::created_children () {
   editor.set_visible();
 
   textbox.create(main, core::rectangle(740, 580, 150, 250));
+  textbox.view.enable_select_by_mouse();
   textbox.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));

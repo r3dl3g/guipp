@@ -52,29 +52,8 @@ namespace gui {
         data.lines.emplace_back(std::string());
         set_accept_focus(true);
         register_event_handler(REGISTER_FUNCTION, create_event(this, &editbox_base::handle_create));
-        register_event_handler(REGISTER_FUNCTION, key_down_event(this, &editbox_base::handle_key));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-          take_focus();
-          data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt));
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
-          data.last_mouse_point = core::point::undefined;
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
-          take_focus();
-          data.last_mouse_point = pt;
-          const auto p = get_position_at_point(pt);
-          const auto l = find_prev_word(p);
-          const auto r = find_next_word(p);
-          set_cursor_pos(p);
-          set_selection({l, r});
-        }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
-            set_cursor_pos(get_position_at_point(pt), true);
-          }
-        }));
+        register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &editbox_base::handle_key));
+        enable_select_by_mouse();
       }
 
       // --------------------------------------------------------------------------
@@ -84,32 +63,6 @@ namespace gui {
 
       std::string& editbox_base::current_line () {
         return data.lines[std::max(0, std::min<int>(data.cursor_pos.row, static_cast<int>(data.lines.size())))];
-      }
-
-      editbox_base::position editbox_base::find_prev_word (const textbox_base::position& pos) {
-        if (pos.column > 0) {
-          std::string::size_type p = ibr::string::find_left_space(data.lines[pos.row], pos.column);
-          if (p != std::string::npos) {
-            return{p, pos.row};
-          }
-        }
-        if (pos.row > 0) {
-          return{data.lines[pos.row - 1].size(), pos.row - 1};
-        }
-        return pos;
-      }
-
-      editbox_base::position editbox_base::find_next_word (const textbox_base::position& pos) {
-        if (pos.column < data.lines[pos.row].size()) {
-          std::string::size_type p = ibr::string::find_right_space(data.lines[pos.row], pos.column);
-          if (p != std::string::npos) {
-            return{p, pos.row};
-          }
-        }
-        if (pos.row < (row_count() - 1)) {
-          return{0, pos.row + 1};
-        }
-        return pos;
       }
 
       void editbox_base::handle_key (os::key_state keystate,
@@ -248,22 +201,19 @@ namespace gui {
           }
           default: {
             if (ctrl) {
-              switch (toupper(keycode)) {
-                case 'A':
+              switch (keycode) {
+                case keys::a:
                   // select all
                   set_selection({position::zero, position::end});
                   break;
-                case 'V': {
+                case keys::v: {
                   clipboard::get().get_text(*this, [&](const std::string& t) {
                     replace_selection(t);
                   });
                   break;
-                case 'C':
-                case 'X':
+                case keys::x:
                   clipboard::get().set_text(*this, get_selected_text());
-                  if (toupper(keycode) == 'X') {
-                    replace_selection(std::string());
-                  }
+                  replace_selection(std::string());
                   break;
                 }
                 default:

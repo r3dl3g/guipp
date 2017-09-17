@@ -74,7 +74,7 @@ namespace gui {
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
         set_hilited(false);
       }));
-      register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state m, os::key_symbol k, const std::string&) {
         if ((k == keys::enter) || (k == keys::space)) {
           set_pushed(true);
         }
@@ -121,7 +121,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
           set_pushed(false);
           send_client_message(this, detail::BN_CLICKED_MESSAGE);
@@ -147,7 +147,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
           set_pushed(false);
           set_checked(!is_checked());
@@ -174,7 +174,7 @@ namespace gui {
           }
         }
       }));
-      register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state m, os::key_symbol k) {
+      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
           set_pushed(false);
           if (!is_checked()) {

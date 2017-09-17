@@ -178,7 +178,7 @@ namespace gui {
         data.button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
           super::redraw_later();
         }));
-        data.button.register_event_handler(REGISTER_FUNCTION, key_down_event(this, &drop_down_list::handle_key));
+        data.button.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &drop_down_list::handle_key));
 
         data.items.set_drawer([&](std::size_t idx,
                               const draw::graphics& g,

@@ -137,7 +137,7 @@ namespace gui {
               }
             }
           }));
-          super::register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
+          super::register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
                                                                               os::key_symbol key,
                                                                               const std::string&){
             switch (key) {

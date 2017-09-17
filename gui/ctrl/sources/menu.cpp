@@ -483,7 +483,7 @@ namespace gui {
         data.handle_mouse(true, client_to_screen(pt));
       }));
 
-      register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
                                                                os::key_symbol key,
                                                                const std::string&){
         handle_key(key);
@@ -652,7 +652,7 @@ namespace gui {
         redraw_later();
       }));
 
-      register_event_handler(REGISTER_FUNCTION, key_down_event([&](os::key_state,
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
                                                 os::key_symbol key,
                                                 const std::string&){
         handle_key(key);

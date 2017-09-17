@@ -330,7 +330,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::left:
@@ -446,7 +446,7 @@ namespace gui {
             }
           }
         }));
-        register_event_handler(REGISTER_FUNCTION, key_up_event([&](os::key_state, os::key_symbol key){
+        register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
           if (is_enabled()) {
             switch (key) {
               case keys::up:

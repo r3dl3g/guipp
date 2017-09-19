@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "slider.h"
+#include "container.h"
 
 
 namespace gui {

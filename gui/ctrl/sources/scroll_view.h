@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "scroll_bar.h"
+#include "container.h"
 
 
 namespace gui {

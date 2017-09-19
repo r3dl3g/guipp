@@ -28,6 +28,7 @@
 // Library includes
 //
 #include "list.h"
+#include "container.h"
 
 
 namespace gui {

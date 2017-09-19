@@ -30,6 +30,8 @@
 #include "list.h"
 #include "label.h"
 #include "button.h"
+#include "container.h"
+
 
 namespace gui {
 

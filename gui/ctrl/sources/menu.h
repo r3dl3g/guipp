@@ -29,6 +29,8 @@
 //
 #include "control.h"
 #include "bitmap.h"
+#include "container.h"
+
 
 namespace gui {
 

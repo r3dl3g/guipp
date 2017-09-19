@@ -30,6 +30,8 @@
 #include "scroll_bar.h"
 #include "label.h"
 #include "edit.h"
+#include "container.h"
+
 
 namespace gui {
 

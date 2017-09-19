@@ -27,7 +27,7 @@
 // Library includes
 //
 #include "layout.h"
-#include "window.h"
+#include "container.h"
 
 namespace gui {
 

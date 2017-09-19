@@ -468,7 +468,7 @@ namespace gui {
     // static data for simple_column_list.
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             draw::frame::drawer F = draw::frame::no_frame>
     struct simple_column_list_data : public std::vector<std::vector<T>> {
       typedef std::vector<T> row;
       typedef std::vector<row> super;
@@ -544,7 +544,7 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+               draw::frame::drawer F = draw::frame::no_frame>
       void set_data (simple_column_list_data<T, F> data) {
         set_drawer(data);
         this->list.set_count(data.size());
@@ -616,7 +616,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame>
+             draw::frame::drawer F  = draw::frame::no_frame>
     void cell_drawer (const T& t,
                       const draw::graphics& graph,
                       const core::rectangle& place,

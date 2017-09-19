@@ -41,7 +41,7 @@ namespace gui {
     namespace paint {
 
       template<typename T,
-               void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::sunken_relief>
+               draw::frame::drawer F = draw::frame::sunken_relief>
       void text_cell (const T& t,
                       const draw::graphics& graph,
                       const core::rectangle& place,

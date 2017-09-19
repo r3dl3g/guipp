@@ -77,7 +77,7 @@ namespace gui {
     }
 
     template<text_origin alignment,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
+             draw::frame::drawer F  = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::very_light_gray>
     class label_t : public detail::label_base {

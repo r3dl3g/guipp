@@ -143,7 +143,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin alignment = text_origin::vcenter_left,
-             void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
+             draw::frame::drawer F  = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>
     class textbox_t : public detail::textbox {

@@ -117,7 +117,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation O,
-             void(F)(const draw::graphics&, const core::rectangle&)>
+             draw::frame::drawer F>
     class framed_slider_t : public detail::slider_t<O> {
     public:
       typedef detail::slider_t<O> super;

@@ -375,6 +375,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace frame {
 
+      typedef void (drawer)(const draw::graphics&, const core::rectangle&);
+
       inline void no_frame (const draw::graphics&, const core::rectangle&)
       {}
 

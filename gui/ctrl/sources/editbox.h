@@ -74,7 +74,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<void(F)(const draw::graphics&, const core::rectangle&) = draw::frame::no_frame,
+    template<draw::frame::drawer F = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>
     class editbox_t : public detail::editbox {

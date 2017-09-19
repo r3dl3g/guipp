@@ -383,6 +383,9 @@ namespace gui {
       public:
         typedef window super;
 
+        template<typename U>
+        using container_type = T<U> ;
+
         cell_view (metric& geometrie,
                    text_origin align = text_origin::center,
                    os::color foreground = color::black,
@@ -466,9 +469,9 @@ namespace gui {
         }
 
         metric& geometrie;
-        T<text_origin> aligns;
-        T<os::color> foregrounds;
-        T<os::color> backgrounds;
+        container_type<text_origin> aligns;
+        container_type<os::color> foregrounds;
+        container_type<os::color> backgrounds;
 
       protected:
         std::function<cell_drawer> drawer;

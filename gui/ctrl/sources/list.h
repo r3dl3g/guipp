@@ -171,8 +171,6 @@ namespace gui {
           return scrollbar.get_value();
         }
 
-        void handle_key (os::key_symbol key);
-
       protected:
         pos_t get_dimension (const core::point&) const;
         void set_dimension (core::rectangle&, pos_t, pos_t) const;
@@ -211,9 +209,6 @@ namespace gui {
       template<>
       core::size list_t<orientation::horizontal>::client_size() const;
 
-      template<>
-      void list_t<orientation::horizontal>::handle_key (os::key_symbol key);
-
       // --------------------------------------------------------------------------
       template<>
       core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const;
@@ -230,30 +225,30 @@ namespace gui {
       template<>
       core::size list_t<orientation::vertical>::client_size() const;
 
-      template<>
-      void list_t<orientation::vertical>::handle_key (os::key_symbol key);
-
     }
 
     template<typename T>
-    void list_item_drawer (const T& t,
-                           const draw::graphics& g,
-                           const core::rectangle& place,
-                           const draw::brush& background,
-                           bool selected,
-                           bool) {
+    void default_list_item_drawer (const T& t,
+                                   const draw::graphics& g,
+                                   const core::rectangle& place,
+                                   const draw::brush& background,
+                                   bool selected,
+                                   bool) {
       paint::text_item(g, place, background, convert_to_string<T>(t), selected, text_origin::vcenter_left);
     }
+
+    template<typename T>
+    using list_item_drawer = void(*) (const T&,
+                                      const draw::graphics&,
+                                      const core::rectangle&,
+                                      const draw::brush&,
+                                      bool,
+                                      bool);
 
     // static data for list.
     // --------------------------------------------------------------------------
     template<typename T,
-             void(F)(const T&,
-                     const draw::graphics&,
-                     const core::rectangle&,
-                     const draw::brush&,
-                     bool,
-                     bool) = list_item_drawer<T>>
+             list_item_drawer<T> F = default_list_item_drawer<T>>
     struct simple_list_data : public std::vector<T> {
       typedef std::vector<T> super;
 
@@ -337,92 +332,6 @@ namespace gui {
         init();
       }
 
-      void handle_wheel(const pos_t delta, const core::point&) {
-        set_scroll_pos(super::get_scroll_pos() - data.item_size * delta);
-        super::data.moved = true;
-      }
-
-      void handle_left_btn_up (os::key_state keys, const core::point& pt) {
-        if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-          const int new_selection = get_index_at_point(pt);
-          if (new_selection != super::get_selection()) {
-            set_selection(new_selection, event_source::mouse);
-          } else if (control_key_bit_mask::is_set(keys)) {
-            clear_selection(event_source::mouse);
-          }
-          super::redraw_later();
-        }
-        super::data.last_mouse_point = core::point::undefined;
-      }
-
-      void handle_mouse_move(os::key_state keys, const core::point& pt) {
-        const core::rectangle r = super::client_area();
-        if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
-          if (super::get_last_mouse_point() != core::point::undefined) {
-            pos_t delta = super::get_dimension(super::get_last_mouse_point()) - super::get_dimension(pt);
-            set_scroll_pos(super::get_scroll_pos() + delta);
-            super::data.moved = true;
-          }
-          super::data.last_mouse_point = pt;
-        } else {
-          set_hilite(get_index_at_point(pt));
-        }
-      }
-
-      void handle_key (os::key_state,
-                       os::key_symbol key,
-                       const std::string&) {
-        if (V == orientation::vertical) {
-          switch (key) {
-            case keys::up:
-            case keys::numpad::up:
-              set_selection(super::get_selection() - 1, event_source::keyboard);
-              break;
-            case keys::down:
-            case keys::numpad::down:
-              set_selection(super::get_selection() + 1, event_source::keyboard);
-              break;
-          }
-        } else {
-          switch (key) {
-            case keys::left:
-            case keys::numpad::left:
-              set_selection(super::get_selection() - 1, event_source::keyboard);
-              break;
-            case keys::right:
-            case keys::numpad::right:
-              set_selection(super::get_selection() + 1, event_source::keyboard);
-              break;
-          }
-        }
-        switch (key) {
-          case keys::page_up:
-          case keys::numpad::page_up:
-            set_selection(super::get_selection() -
-                          static_cast<int>(super::get_list_size() / data.item_size),
-                          event_source::keyboard);
-            break;
-          case keys::page_down:
-          case keys::numpad::page_down:
-            set_selection(super::get_selection() +
-                          static_cast<int>(super::get_list_size() / data.item_size),
-                          event_source::keyboard);
-            break;
-          case keys::home:
-          case keys::numpad::home:
-            set_selection(0, event_source::keyboard);
-            break;
-          case keys::end:
-          case keys::numpad::end:
-            set_selection(static_cast<int>(super::get_count()) - 1,
-                          event_source::keyboard);
-            break;
-          case keys::enter:
-            send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-            break;
-        }
-      }
-
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
         super::create(clazz, parent, place);
@@ -430,12 +339,7 @@ namespace gui {
       }
 
       template<typename T,
-               void(F)(const T&,
-                       const draw::graphics&,
-                       const core::rectangle&,
-                       const draw::brush&,
-                       bool,
-                       bool) = list_item_drawer<T>>
+               list_item_drawer<T> F = default_list_item_drawer<T>>
       void create (const container& parent,
                    const core::rectangle& place,
                    const simple_list_data<T, F>& data) {
@@ -443,14 +347,8 @@ namespace gui {
         set_data(data);
       }
 
-      template<typename T,
-               void(F)(const T&,
-                       const draw::graphics&,
-                       const core::rectangle&,
-                       const draw::brush&,
-                       bool,
-                       bool) = list_item_drawer<T>>
-      void set_data (const simple_list_data<T, F>& data) {
+      template<typename F>
+      void set_data (const F& data) {
         super::set_drawer(data);
         set_count(data.size());
       }
@@ -471,6 +369,27 @@ namespace gui {
           super::scrollbar.set_visible(show_scroll);
           super::redraw_later();
         }
+      }
+
+      core::size_type get_item_size () const {
+        return data.item_size;
+      }
+
+      void set_item_size (core::size_type item_size) {
+        data.item_size = item_size;
+      }
+
+      os::color get_background () const {
+        return data.background;
+      }
+
+      void set_background (os::color background) {
+        data.background = background;
+      }
+
+      void set_item_size_and_background (core::size_type item_size, os::color background) {
+        data.item_size = item_size;
+        data.background = background;
       }
 
       int get_index_at_point (const core::point& pt) {
@@ -599,25 +518,90 @@ namespace gui {
         }
       }
 
-      core::size_type get_item_size () const {
-        return data.item_size;
+      void handle_wheel(const pos_t delta, const core::point&) {
+        set_scroll_pos(super::get_scroll_pos() - data.item_size * delta);
+        super::data.moved = true;
       }
 
-      void set_item_size (core::size_type item_size) {
-        data.item_size = item_size;
+      void handle_left_btn_up (os::key_state keys, const core::point& pt) {
+        if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
+          const int new_selection = get_index_at_point(pt);
+          if (new_selection != super::get_selection()) {
+            set_selection(new_selection, event_source::mouse);
+          } else if (control_key_bit_mask::is_set(keys)) {
+            clear_selection(event_source::mouse);
+          }
+          super::redraw_later();
+        }
+        super::data.last_mouse_point = core::point::undefined;
       }
 
-      os::color get_background () const {
-        return data.background;
+      void handle_mouse_move(os::key_state keys, const core::point& pt) {
+        const core::rectangle r = super::client_area();
+        if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+          if (super::get_last_mouse_point() != core::point::undefined) {
+            pos_t delta = super::get_dimension(super::get_last_mouse_point()) - super::get_dimension(pt);
+            set_scroll_pos(super::get_scroll_pos() + delta);
+            super::data.moved = true;
+          }
+          super::data.last_mouse_point = pt;
+        } else {
+          set_hilite(get_index_at_point(pt));
+        }
       }
 
-      void set_background (os::color background) {
-        data.background = background;
-      }
-
-      void set_item_size_and_background (core::size_type item_size, os::color background) {
-        data.item_size = item_size;
-        data.background = background;
+      void handle_key (os::key_state,
+                       os::key_symbol key,
+                       const std::string&) {
+        if (V == orientation::vertical) {
+          switch (key) {
+            case keys::up:
+            case keys::numpad::up:
+              set_selection(super::get_selection() - 1, event_source::keyboard);
+              break;
+            case keys::down:
+            case keys::numpad::down:
+              set_selection(super::get_selection() + 1, event_source::keyboard);
+              break;
+          }
+        } else {
+          switch (key) {
+            case keys::left:
+            case keys::numpad::left:
+              set_selection(super::get_selection() - 1, event_source::keyboard);
+              break;
+            case keys::right:
+            case keys::numpad::right:
+              set_selection(super::get_selection() + 1, event_source::keyboard);
+              break;
+          }
+        }
+        switch (key) {
+          case keys::page_up:
+          case keys::numpad::page_up:
+            set_selection(super::get_selection() -
+                          static_cast<int>(super::get_list_size() / data.item_size),
+                          event_source::keyboard);
+            break;
+          case keys::page_down:
+          case keys::numpad::page_down:
+            set_selection(super::get_selection() +
+                          static_cast<int>(super::get_list_size() / data.item_size),
+                          event_source::keyboard);
+            break;
+          case keys::home:
+          case keys::numpad::home:
+            set_selection(0, event_source::keyboard);
+            break;
+          case keys::end:
+          case keys::numpad::end:
+            set_selection(static_cast<int>(super::get_count()) - 1,
+                          event_source::keyboard);
+            break;
+          case keys::enter:
+            send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+            break;
+        }
       }
 
     protected:

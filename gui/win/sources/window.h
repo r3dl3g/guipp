@@ -39,27 +39,6 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  typedef std::string (text_source_fn)();
-  typedef std::function<text_source_fn> text_source;
-
-  // --------------------------------------------------------------------------
-  struct const_text {
-    const_text ()
-    {}
-
-    const_text (const std::string& text)
-      :text(text)
-    {}
-
-    std::string operator() () const {
-      return text;
-    }
-
-  private:
-    std::string text;
-  };
-
-  // --------------------------------------------------------------------------
   namespace win {
 
     class window;
@@ -85,13 +64,9 @@ namespace gui {
 
       ~window ();
 
-      inline os::window get_id () const {
-        return id;
-      }
+      os::window get_id () const;
 
-      inline operator os::drawable () const {
-        return id;
-      }
+      operator os::drawable () const;
 
       bool is_valid () const;
 
@@ -125,9 +100,7 @@ namespace gui {
 
       void enable (bool on = true);
 
-      inline void disable () {
-        enable(false);
-      }
+      void disable ();
 
       void take_focus ();
 
@@ -157,14 +130,11 @@ namespace gui {
 
       core::rectangle client_area () const;
 
-      void move (const core::point&,
-                 bool repaint = true);
+      void move (const core::point&, bool repaint = true);
 
-      void resize (const core::size&,
-                   bool repaint = true);
+      void resize (const core::size&, bool repaint = true);
 
-      void place (const core::rectangle&,
-                  bool repaint = true);
+      void place (const core::rectangle&, bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
       core::point screen_to_window (const core::point&) const;
@@ -185,19 +155,13 @@ namespace gui {
       void unregister_event_handler (const event_handler_function& f);
 
       template<typename H>
-      void register_event_handler (char const name[], const H& h) {
-        register_event_handler(name, h, h.mask);
-      }
+      void register_event_handler (char const name[], const H& h);
 
       template<typename H>
-      void register_event_handler (char const name[], H&& h) {
-        register_event_handler(name, std::move(h), h.mask);
-      }
+      void register_event_handler (char const name[], H&& h);
 
       template<typename T>
-      void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
-        register_event_handler(name, core::bind_method(t, method), mask);
-      }
+      void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask);
 
       bool handle_event (const core::event&, os::event_result&);
 
@@ -205,13 +169,9 @@ namespace gui {
 
       bool accept_focus () const;
 
-      inline void set_accept_focus (bool a) {
-        focus_accepting = a;
-      }
+      void set_accept_focus (bool a);
 
-      inline bool is_focus_accepting () const {
-        return focus_accepting;
-      }
+      bool is_focus_accepting () const;
 
     protected:
       window (const window&);
@@ -252,24 +212,40 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class window_with_text : public window {
-    public:
-      typedef window super;
+    inline os::window window::get_id () const {
+      return id;
+    }
 
-      window_with_text (const std::string& = std::string());
-      window_with_text (const text_source&);
+    inline window::operator os::drawable () const {
+      return id;
+    }
 
-      window_with_text (const window_with_text& rhs);
-      window_with_text (window_with_text&& rhs);
+    inline void window::disable () {
+      enable(false);
+    }
 
-      void set_text (const text_source&);
-      void set_text (const std::string&);
+    inline void window::set_accept_focus (bool a) {
+      focus_accepting = a;
+    }
 
-      std::string get_text () const;
+    inline bool window::is_focus_accepting () const {
+      return focus_accepting;
+    }
 
-    protected:
-      text_source text;
-    };
+    template<typename H>
+    inline void window::register_event_handler (char const name[], const H& h) {
+      register_event_handler(name, h, h.mask);
+    }
+
+    template<typename H>
+    inline void window::register_event_handler (char const name[], H&& h) {
+      register_event_handler(name, std::move(h), h.mask);
+    }
+
+    template<typename T>
+    inline void window::register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
+      register_event_handler(name, core::bind_method(t, method), mask);
+    }
 
     // --------------------------------------------------------------------------
     class client_window : public window {

@@ -32,7 +32,7 @@ namespace gui {
 #endif
     );
 
-    button::data::data ()
+    button_state::button_state ()
       : hilited(false)
       , pushed(false)
       , checked(false)
@@ -79,6 +79,12 @@ namespace gui {
           set_pushed(true);
         }
       }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
+        if (is_enabled()) {
+          take_focus();
+          set_pushed(true);
+        }
+      }));
     }
 
     void button::set_hilited (bool h) {
@@ -106,92 +112,64 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void push_button::init() {
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
-        if (is_enabled()) {
-          take_focus();
-          set_pushed(true);
-        }
-      }));
-      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
-        if (is_pushed()) {
-          set_pushed(false);
-          if (client_area().is_inside(pos)) {
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+    void push_button_traits::init (button& btn) {
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (btn.client_area().is_inside(pos)) {
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       }));
-      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
-          set_pushed(false);
-          send_client_message(this, detail::BN_CLICKED_MESSAGE);
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       }));
     }
-
     // --------------------------------------------------------------------------
     template<>
-    void toggle_button<false>::init() {
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
-        if (is_enabled()) {
-          take_focus();
-          set_pushed(true);
-        }
-      }));
-      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
-        if (is_pushed()) {
-          set_pushed(false);
-          if (client_area().is_inside(pos)) {
-            set_checked(!is_checked());
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
+    void toggle_button_traits<false>::init (button& btn) {
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (btn.client_area().is_inside(pos)) {
+            btn.set_checked(!btn.is_checked());
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       }));
-      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
-          set_pushed(false);
-          set_checked(!is_checked());
-          send_client_message(this, detail::BN_CLICKED_MESSAGE);
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          btn.set_checked(!btn.is_checked());
+          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       }));
     }
-
-    // --------------------------------------------------------------------------    
-    template<>
-    void toggle_button<true>::init() {
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point&) {
-        if (is_enabled()) {
-          take_focus();
-          set_pushed(true);
-        }
-      }));
-      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
-        if (is_pushed()) {
-          set_pushed(false);
-          if (!is_checked() && client_area().is_inside(pos)) {
-            set_checked(true);
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
-          }
-        }
-      }));
-      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-        if (((k == keys::enter) || (k == keys::space)) && is_pushed()) {
-          set_pushed(false);
-          if (!is_checked()) {
-            set_checked(true);
-            send_client_message(this, detail::BN_CLICKED_MESSAGE);
-          }
-        }
-      }));
-    }
-
     // --------------------------------------------------------------------------
-    void text_button::init () {
-      register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-        paint::push_button(graph, *this, get_text());
+    template<>
+    void toggle_button_traits<true>::init (button& btn) {
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
+            btn.set_checked(true);
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked()) {
+            btn.set_checked(true);
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
       }));
     }
-
     // --------------------------------------------------------------------------
     namespace paint {
 
@@ -199,22 +177,21 @@ namespace gui {
       const draw::pen::Style dot_line_style = draw::pen::Style::dot;
 
       // --------------------------------------------------------------------------
-      void push_button (const draw::graphics& graph,
-                        const core::rectangle& r,
-                        bool enabled,
-                        bool focused,
-                        bool hilited,
-                        bool pushed) {
+      void button_frame (const draw::graphics& graph,
+                         const core::rectangle& r,
+                         const button_state& state,
+                         bool focused,
+                         bool enabled) {
         using namespace draw;
 
         core::rectangle area = r;
 
-        graph.fill(draw::rectangle(area), enabled && hilited ? color::buttonHighLightColor() : color::buttonColor());
+        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
         if (enabled && focused) {
           graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
-        frame::deep_relief(graph, area, pushed);
+        frame::deep_relief(graph, area, state.pushed);
         if (enabled && focused) {
           area.shrink({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
@@ -222,20 +199,13 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void push_button (const draw::graphics& graph, const win::button& btn) {
-        push_button(graph, btn.client_area(), btn.is_enabled(),
-                    btn.has_focus(), btn.is_hilited(), btn.is_pushed());
-      }
-
-      // --------------------------------------------------------------------------
       void push_button (const draw::graphics& graph,
                         const core::rectangle& r,
                         const std::string& text,
-                        bool enabled,
+                        const button_state& state,
                         bool focused,
-                        bool hilited,
-                        bool pushed) {
-        push_button (graph, r, enabled, focused, hilited, pushed);
+                        bool enabled) {
+        button_frame(graph, r, state, focused, enabled);
 
         using namespace draw;
         graph.text(text_box(text, r, text_origin::center), font::system(),
@@ -243,42 +213,25 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void push_button (const draw::graphics& graph, const win::button& btn, const std::string& text) {
-        push_button(graph, btn.client_area(), text, btn.is_enabled(),
-                    btn.has_focus(), btn.is_hilited(), btn.is_pushed());
-      }
-
-      // --------------------------------------------------------------------------
-      void flat_button (const draw::graphics& graph,
-                        const win::button& btn,
-                        const std::string& text,
-                        os::color foreground,
-                        os::color background) {
-        flat_button(graph, btn.client_area(), text, btn.is_enabled(), btn.has_focus(),
-                    btn.is_hilited(), btn.is_pushed(), foreground, background);
-      }
-
-      // --------------------------------------------------------------------------
       void flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,
-                        bool enabled,
+                        const button_state& state,
                         bool focused,
-                        bool hilited,
-                        bool pushed,
+                        bool enabled,
                         os::color foreground,
                         os::color background) {
         os::color b = background;
-        if (pushed && enabled) {
+        if (state.pushed && enabled) {
           b = color::darker(background, 0.25);
-        } else if (hilited && enabled) {
+        } else if (state.hilited && enabled) {
           b = color::lighter(background, 0.25);
         }
         g.fill(draw::rectangle(r), b);
 
         os::color f = foreground;
         if (enabled) {
-          if (pushed) {
+          if (state.pushed) {
             os::color b2 = color::invert(b);
             os::color f2 = color::invert(foreground);
             int i1 = color::compare(b, b2);
@@ -302,10 +255,9 @@ namespace gui {
       void radio_button (const draw::graphics& graph,
                          const core::rectangle& rec,
                          const std::string& text,
-                         bool enabled,
+                         const button_state& state,
                          bool focused,
-                         bool pushed,
-                         bool checked) {
+                         bool enabled) {
         using namespace draw;
 
         core::rectangle area = rec;
@@ -315,11 +267,11 @@ namespace gui {
 
         core::point_type y = area.y() + area.size().height() / 2;
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-        graph.draw(ellipse(r), pushed ? color::very_light_gray
+        graph.draw(ellipse(r), state.pushed ? color::very_light_gray
                                       : color::buttonColor(), col);
-        if (checked) {
+        if (state.checked) {
           r.shrink(core::size(2, 2));
-          graph.fill(ellipse(r), pushed ? color::dark_gray : col);
+          graph.fill(ellipse(r), state.pushed ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
@@ -331,27 +283,12 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void radio_button (const draw::graphics& graph,
-                         const win::button& btn,
-                         const std::string& text) {
-        radio_button(graph, btn.client_area(), text, btn.is_enabled(),
-                     btn.has_focus(), btn.is_pushed(), btn.is_checked());
-      }
-
-      // --------------------------------------------------------------------------
-      void check_box (const draw::graphics& graph, const win::button& btn, const std::string& text) {
-        check_box(graph, btn.client_area(), text, btn.is_enabled(),
-                  btn.has_focus(), btn.is_pushed(), btn.is_checked());
-      }
-
-      // --------------------------------------------------------------------------
       void check_box (const draw::graphics& graph,
                       const core::rectangle& rec,
                       const std::string& text,
-                      bool enabled,
+                      const button_state& state,
                       bool focused,
-                      bool pushed,
-                      bool checked) {
+                      bool enabled) {
         using namespace draw;
 
         core::rectangle area = rec;
@@ -363,13 +300,13 @@ namespace gui {
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
-                   pushed ? color::very_light_gray
-                          : color::buttonColor(),
+                   state.pushed ? color::very_light_gray
+                                : color::buttonColor(),
                    col);
 
-        if (checked) {
+        if (state.checked) {
           r.shrink(core::size(2, 2));
-          graph.fill(rectangle(r), pushed ? color::dark_gray : col);
+          graph.fill(rectangle(r), state.pushed ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);

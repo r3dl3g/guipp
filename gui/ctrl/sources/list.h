@@ -178,7 +178,7 @@ namespace gui {
         pos_t get_list_size () const;
         core::rectangle get_scroll_bar_area () const;
 
-        detail::scroll_barT<V> scrollbar;
+        scroll_bar_t<V> scrollbar;
 
       private:
         void init () {

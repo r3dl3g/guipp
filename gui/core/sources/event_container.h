@@ -59,7 +59,7 @@ namespace gui {
       void register_event_handler (char const name[], event_handler_function&&);
 
       template<typename T>
-      void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result&)) {
+      inline void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result&)) {
         register_event_handler(name, bind_method(t, method));
       }
 

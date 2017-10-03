@@ -158,7 +158,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void os_paint_caller::operator() (const core::event& e) {
+    void os_paint_getter::operator() (const core::event& e) {
       if (f) {
         PAINTSTRUCT ps;
         os::graphics id = BeginPaint(e.id, &ps);
@@ -168,7 +168,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void pos_changing_caller::operator() (const core::event& e) {
+    void pos_changing_getter::operator() (const core::event& e) {
       if (f) {
         LPWINDOWPOS p = reinterpret_cast<LPWINDOWPOS>(e.lParam);
         core::rectangle r = get_rect<WINDOWPOS>(e);
@@ -181,7 +181,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void get_minmax_caller::operator() (const core::event& e) {
+    void minmax_getter::operator() (const core::event& e) {
       if (callback) {
         LPMINMAXINFO info = reinterpret_cast<LPMINMAXINFO>(e.lParam);
         core::size mi(info->ptMinTrackSize);
@@ -314,17 +314,17 @@ namespace gui {
     std::map<Window, core::rectangle> s_last_place;
 
     template<>
-    core::size& get_last_place<core::size>(Window w) {
+    core::size& get_last_place<core::size>(os::window w) {
       return s_last_size[w];
     }
 
     template<>
-    core::point& get_last_place<core::point>(Window w) {
+    core::point& get_last_place<core::point>(os::window w) {
       return s_last_pos[w];
     }
 
     template<>
-    core::rectangle& get_last_place<core::rectangle>(Window w) {
+    core::rectangle& get_last_place<core::rectangle>(os::window w) {
       return s_last_place[w];
     }
 

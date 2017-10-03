@@ -21,6 +21,7 @@
 //
 // Common includes
 //
+#include <algorithm>
 #include <logger.h>
 #ifdef WIN32
 # include <windowsx.h>

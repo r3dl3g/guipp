@@ -35,14 +35,25 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      class label_base : public gui::win::window_with_text {
+      class label_base : public gui::win::window {
       public:
-        typedef gui::win::window_with_text super;
+        typedef window super;
+
+        label_base (const std::string& = std::string());
+        label_base (const text_source&);
+
+        label_base (const label_base& rhs);
+        label_base (label_base&& rhs);
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def) {
           super::create(clazz, parent, place);
         }
+
+        void set_text (const text_source&);
+        void set_text (const std::string&);
+
+        std::string get_text () const;
 
         template<typename T>
         void operator<< (const T& t) {
@@ -59,12 +70,16 @@ namespace gui {
           t = get_text();
         }
 
+      protected:
+        text_source text;
+
       private:
         static no_erase_window_class clazz;
       };
 
     }
 
+    // --------------------------------------------------------------------------
     namespace paint {
 
       void label (const draw::graphics& graph,

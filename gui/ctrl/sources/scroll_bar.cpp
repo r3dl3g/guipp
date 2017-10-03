@@ -235,249 +235,245 @@ namespace gui {
       }
     } // paint
 
-    namespace detail {
+    template<>
+    scroll_bar_class<orientation::vertical>::scroll_bar_class ()
+      : no_erase_window_class("VSCROLLBAR++", color::very_light_gray)
+    {}
 
-      template<>
-      scroll_bar_class<orientation::vertical>::scroll_bar_class ()
-        : no_erase_window_class("VSCROLLBAR++", color::very_light_gray)
-      {}
+    template<>
+    scroll_bar_class<orientation::horizontal>::scroll_bar_class ()
+      : no_erase_window_class("HSCROLLBAR++", color::very_light_gray)
+    {}
 
-      template<>
-      scroll_bar_class<orientation::horizontal>::scroll_bar_class ()
-        : no_erase_window_class("HSCROLLBAR++", color::very_light_gray)
-      {}
-
-      // --------------------------------------------------------------------------
-      template<>
-      void scroll_barT<orientation::horizontal>::init () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
-          auto geo = get_geometry();
-          auto up = up_button_place(geo);
-          auto down = down_button_place(geo);
-          auto thumb = thumb_button_place(geo);
-          auto page_up = page_up_place(geo);
-          auto page_down = page_down_place(geo);
-          paint::scrollbar(g, get_state(), is_enabled(), true, has_focus(), up, down, thumb, page_up, page_down);
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-          if (is_enabled()) {
-            if (accept_focus()) {
-              take_focus();
-            }
-            set_last_mouse_point(pt);
-            set_last_value(get_value());
-
-            auto geo = get_geometry();
-
-            if (up_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::up_button);
-            } else if (down_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::down_button);
-            } else if (thumb_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::thumb_button);
-            } else if (page_up_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::page_up);
-            } else if (page_down_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::page_down);
-            } else {
-              set_state(scrollbar_state::nothing);
-            }
-            if (get_state() != scrollbar_state::nothing) {
-              capture_pointer();
-            }
-            redraw_later();
+    // --------------------------------------------------------------------------
+    template<>
+    void scroll_bar_t<orientation::horizontal>::init () {
+      register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
+        auto geo = get_geometry();
+        auto up = up_button_place(geo);
+        auto down = down_button_place(geo);
+        auto thumb = thumb_button_place(geo);
+        auto page_up = page_up_place(geo);
+        auto page_down = page_down_place(geo);
+        paint::scrollbar(g, get_state(), is_enabled(), true, has_focus(), up, down, thumb, page_up, page_down);
+      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        if (is_enabled()) {
+          if (accept_focus()) {
+            take_focus();
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
-          if (is_enabled()) {
-            auto geo = get_geometry();
-            switch (get_state()) {
-              case scrollbar_state::up_button:
-                if (up_button_place(geo).is_inside(pt)) {
-                  set_value(get_value() - 1, true);
-                }
-                break;
-              case scrollbar_state::down_button:
-                if (down_button_place(geo).is_inside(pt)) {
-                  set_value(get_value() + 1, true);
-                }
-                break;
-              case scrollbar_state::page_up:
-                if (page_up_place(geo).is_inside(pt)) {
-                  set_value(get_value() - get_step(), true);
-                }
-                break;
-              case scrollbar_state::page_down:
-                if (page_down_place(geo).is_inside(pt)) {
-                  set_value(get_value() + get_step(), true);
-                }
-                break;
-            }
+          set_last_mouse_point(pt);
+          set_last_value(get_value());
+
+          auto geo = get_geometry();
+
+          if (up_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::up_button);
+          } else if (down_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::down_button);
+          } else if (thumb_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::thumb_button);
+          } else if (page_up_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::page_up);
+          } else if (page_down_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::page_down);
+          } else {
+            set_state(scrollbar_state::nothing);
+          }
+          if (get_state() != scrollbar_state::nothing) {
+            capture_pointer();
+          }
+          redraw_later();
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        if (is_enabled()) {
+          auto geo = get_geometry();
+          switch (get_state()) {
+            case scrollbar_state::up_button:
+              if (up_button_place(geo).is_inside(pt)) {
+                set_value(get_value() - 1, true);
+              }
+              break;
+            case scrollbar_state::down_button:
+              if (down_button_place(geo).is_inside(pt)) {
+                set_value(get_value() + 1, true);
+              }
+              break;
+            case scrollbar_state::page_up:
+              if (page_up_place(geo).is_inside(pt)) {
+                set_value(get_value() - get_step(), true);
+              }
+              break;
+            case scrollbar_state::page_down:
+              if (page_down_place(geo).is_inside(pt)) {
+                set_value(get_value() + get_step(), true);
+              }
+              break;
+          }
+          set_state(scrollbar_state::nothing);
+          uncapture_pointer();
+          redraw_later();
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
+        super::handle_wheel(delta, pt);
+      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        if (is_enabled() && left_button_bit_mask::is_set(keys)) {
+          // check if on thumb
+          if (get_state() == scrollbar_state::thumb_button) {
+            type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
+            set_value(get_last_value() + delta, true);
+          }
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
+        if (is_enabled()) {
+          switch (key) {
+            case keys::left:
+            case keys::numpad::left:
+              set_value(get_value() - 1, true);
+              break;
+            case keys::right:
+            case keys::numpad::right:
+              set_value(get_value() + 1, true);
+              break;
+            case keys::page_up:
+            case keys::numpad::page_up:
+              set_value(get_value() - get_step(), true);
+              break;
+            case keys::page_down:
+            case keys::numpad::page_down:
+              set_value(get_value() + get_step(), true);
+              break;
+            case keys::home:
+            case keys::numpad::home:
+              set_value(get_min(), true);
+              break;
+            case keys::end:
+            case keys::numpad::end:
+              set_value(get_min(), true);
+              break;
+          }
+        }
+      }));
+    }
+
+    template<>
+    void scroll_bar_t<orientation::vertical>::init () {
+      register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
+        auto geo = get_geometry();
+        auto up = up_button_place(geo);
+        auto down = down_button_place(geo);
+        auto thumb = thumb_button_place(geo);
+        auto page_up = page_up_place(geo);
+        auto page_down = page_down_place(geo);
+        paint::scrollbar(g, get_state(), is_enabled(), false, has_focus(), up, down, thumb, page_up, page_down);
+      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        if (is_enabled()) {
+          if (accept_focus()) {
+            take_focus();
+          }
+          set_last_mouse_point(pt);
+          set_last_value(get_value());
+
+          auto geo = get_geometry();
+
+          if (up_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::up_button);
+          } else if (down_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::down_button);
+          } else if (thumb_button_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::thumb_button);
+          } else if (page_up_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::page_up);
+          } else if (page_down_place(geo).is_inside(pt)) {
+            set_state(scrollbar_state::page_down);
+          } else {
+            set_state(scrollbar_state::nothing);
+          }
+          if (get_state() != scrollbar_state::nothing) {
+            capture_pointer();
+          }
+          redraw_later();
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        if (is_enabled()) {
+          auto geo = get_geometry();
+          switch (get_state()) {
+            case scrollbar_state::up_button:
+              if (up_button_place(geo).is_inside(pt)) {
+                set_value(get_value() - 1, true);
+              }
+              break;
+            case scrollbar_state::down_button:
+              if (down_button_place(geo).is_inside(pt)) {
+                set_value(get_value() + 1, true);
+              }
+              break;
+            case scrollbar_state::page_up:
+              if (page_up_place(geo).is_inside(pt)) {
+                set_value(get_value() - get_step(), true);
+              }
+              break;
+            case scrollbar_state::page_down:
+              if (page_down_place(geo).is_inside(pt)) {
+                set_value(get_value() + get_step(), true);
+              }
+              break;
+          }
+          if (get_state() != scrollbar_state::nothing) {
             set_state(scrollbar_state::nothing);
             uncapture_pointer();
-            redraw_later();
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
-          super::handle_wheel(delta, pt);
-        }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
-          if (is_enabled() && left_button_bit_mask::is_set(keys)) {
-            // check if on thumb
-            if (get_state() == scrollbar_state::thumb_button) {
-              type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
-              set_value(get_last_value() + delta, true);
-            }
+          redraw_later();
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
+        super::handle_wheel(delta, pt);
+      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        if (is_enabled() && left_button_bit_mask::is_set(keys)) {
+          // check if on thumb
+          if (get_state() == scrollbar_state::thumb_button) {
+            type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
+            set_value(get_last_value() + delta, true);
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
-          if (is_enabled()) {
-            switch (key) {
-              case keys::left:
-              case keys::numpad::left:
-                set_value(get_value() - 1, true);
-                break;
-              case keys::right:
-              case keys::numpad::right:
-                set_value(get_value() + 1, true);
-                break;
-              case keys::page_up:
-              case keys::numpad::page_up:
-                set_value(get_value() - get_step(), true);
-                break;
-              case keys::page_down:
-              case keys::numpad::page_down:
-                set_value(get_value() + get_step(), true);
-                break;
-              case keys::home:
-              case keys::numpad::home:
-                set_value(get_min(), true);
-                break;
-              case keys::end:
-              case keys::numpad::end:
-                set_value(get_min(), true);
-                break;
-            }
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
+        if (is_enabled()) {
+          switch (key) {
+            case keys::up:
+            case keys::numpad::up:
+              set_value(get_value() - 1, true);
+              break;
+            case keys::down:
+            case keys::numpad::down:
+              set_value(get_value() + 1, true);
+              break;
+            case keys::page_up:
+            case keys::numpad::page_up:
+              set_value(get_value() - get_step(), true);
+              break;
+            case keys::page_down:
+            case keys::numpad::page_down:
+              set_value(get_value() + get_step(), true);
+              break;
+            case keys::home:
+            case keys::numpad::home:
+              set_value(get_min(), true);
+              break;
+            case keys::end:
+            case keys::numpad::end:
+              set_value(get_min(), true);
+              break;
           }
-        }));
-      }
-
-      template<>
-      void scroll_barT<orientation::vertical>::init () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
-          auto geo = get_geometry();
-          auto up = up_button_place(geo);
-          auto down = down_button_place(geo);
-          auto thumb = thumb_button_place(geo);
-          auto page_up = page_up_place(geo);
-          auto page_down = page_down_place(geo);
-          paint::scrollbar(g, get_state(), is_enabled(), false, has_focus(), up, down, thumb, page_up, page_down);
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-          if (is_enabled()) {
-            if (accept_focus()) {
-              take_focus();
-            }
-            set_last_mouse_point(pt);
-            set_last_value(get_value());
-
-            auto geo = get_geometry();
-
-            if (up_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::up_button);
-            } else if (down_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::down_button);
-            } else if (thumb_button_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::thumb_button);
-            } else if (page_up_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::page_up);
-            } else if (page_down_place(geo).is_inside(pt)) {
-              set_state(scrollbar_state::page_down);
-            } else {
-              set_state(scrollbar_state::nothing);
-            }
-            if (get_state() != scrollbar_state::nothing) {
-              capture_pointer();
-            }
-            redraw_later();
-          }
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
-          if (is_enabled()) {
-            auto geo = get_geometry();
-            switch (get_state()) {
-              case scrollbar_state::up_button:
-                if (up_button_place(geo).is_inside(pt)) {
-                  set_value(get_value() - 1, true);
-                }
-                break;
-              case scrollbar_state::down_button:
-                if (down_button_place(geo).is_inside(pt)) {
-                  set_value(get_value() + 1, true);
-                }
-                break;
-              case scrollbar_state::page_up:
-                if (page_up_place(geo).is_inside(pt)) {
-                  set_value(get_value() - get_step(), true);
-                }
-                break;
-              case scrollbar_state::page_down:
-                if (page_down_place(geo).is_inside(pt)) {
-                  set_value(get_value() + get_step(), true);
-                }
-                break;
-            }
-            if (get_state() != scrollbar_state::nothing) {
-              set_state(scrollbar_state::nothing);
-              uncapture_pointer();
-            }
-            redraw_later();
-          }
-        }));
-        register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
-          super::handle_wheel(delta, pt);
-        }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
-          if (is_enabled() && left_button_bit_mask::is_set(keys)) {
-            // check if on thumb
-            if (get_state() == scrollbar_state::thumb_button) {
-              type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
-              set_value(get_last_value() + delta, true);
-            }
-          }
-        }));
-        register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state, os::key_symbol key){
-          if (is_enabled()) {
-            switch (key) {
-              case keys::up:
-              case keys::numpad::up:
-                set_value(get_value() - 1, true);
-                break;
-              case keys::down:
-              case keys::numpad::down:
-                set_value(get_value() + 1, true);
-                break;
-              case keys::page_up:
-              case keys::numpad::page_up:
-                set_value(get_value() - get_step(), true);
-                break;
-              case keys::page_down:
-              case keys::numpad::page_down:
-                set_value(get_value() + get_step(), true);
-                break;
-              case keys::home:
-              case keys::numpad::home:
-                set_value(get_min(), true);
-                break;
-              case keys::end:
-              case keys::numpad::end:
-                set_value(get_min(), true);
-                break;
-            }
-          }
-        }));
-      }
-
+        }
+      }));
     }
 
   } // win

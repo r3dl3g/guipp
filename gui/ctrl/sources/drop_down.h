@@ -98,15 +98,10 @@ namespace gui {
 
       void drop_down_button (const draw::graphics& graph,
                              const core::rectangle& r,
+                             const button_state& state,
                              bool is_open,
-                             bool enabled = true,
-                             bool focused = false,
-                             bool hilited = false,
-                             bool pushed = false);
-
-      void drop_down_button (const draw::graphics& g,
-                             const win::button& btn,
-                             bool is_open);
+                             bool focused,
+                             bool enabled);
 
     } // paint
 
@@ -172,7 +167,12 @@ namespace gui {
         super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
 
         data.button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
-          paint::drop_down_button(graph, data.button, is_popup_visible());
+          paint::drop_down_button(graph,
+                                  data.button.client_area(),
+                                  data.button.get_state(),
+                                  is_popup_visible(),
+                                  data.button.has_focus(),
+                                  data.button.is_enabled());
         }));
         data.button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
 
@@ -386,7 +386,7 @@ namespace gui {
         {}
 
         data_provider source;
-        push_button button;
+        custom_push_button button;
         popup_window popup;
         list_type items;
         int selection;

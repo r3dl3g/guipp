@@ -248,8 +248,8 @@ int gui_main(const std::vector<std::string>& args) {
   size_t win_size = sizeof(win::window);
   size_t cln_size = sizeof(win::client_window);
   size_t btn_size = sizeof(win::button);
-  size_t push_size = sizeof(win::push_button);
-  size_t tgl_size = sizeof(win::toggle_button<>);
+  size_t push_size = sizeof(win::button);
+  size_t tgl_size = sizeof(win::button_t<win::push_button_traits>);
   size_t tbtn_size = sizeof(win::text_button);
   size_t pnt_size = sizeof(win::paint_event);
 
@@ -763,7 +763,7 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
 template<int T>
 void create_buttons (win::container& m, win::label labels[T]) {
   for (int i = 0; i < T; ++i) {
-    labels[i].create(m, const_text(ostreamfmt("No. " << (i + 1))));
+    labels[i].create(m, win::const_text(ostreamfmt("No. " << (i + 1))));
     labels[i].set_visible();
   }
 }
@@ -1013,8 +1013,12 @@ void my_main_window::created_children () {
 
   edit_btn_group.layout();
 
-  custom_button.set_drawer([](const draw::graphics& g, const win::button& btn) {
-    win::paint::flat_button(g, btn, "Custom");
+  custom_button.set_drawer([] (const draw::graphics& g,
+                               const core::rectangle& r,
+                               const win::button_state& s,
+                               bool focused,
+                               bool enabled) {
+    win::paint::flat_button(g, r, "Custom", s, focused, enabled);
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));

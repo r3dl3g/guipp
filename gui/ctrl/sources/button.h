@@ -37,38 +37,42 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    typedef event_handler<detail::BN_CLICKED_MESSAGE, 0,
-                          params<>::caller<>>         button_clicked_event;
-    typedef event_handler<detail::BN_PUSHED_MESSAGE, 0,
-                          params<>::caller<>>         button_pushed_event;
-    typedef event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
-                          params<>::caller<>>         button_released_event;
-    typedef event_handler<detail::BN_STATE_MESSAGE, 0,
-                          params<bool>::
-                          caller<get_param<0, bool>>> button_state_event;
+    using button_clicked_event = event_handler<detail::BN_CLICKED_MESSAGE, 0,
+                                               params<>::getter<>>;
+    using button_pushed_event = event_handler<detail::BN_PUSHED_MESSAGE, 0,
+                                              params<>::getter<>>;
+    using button_released_event = event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
+                                                params<>::getter<>>;
+    using button_state_event = event_handler<detail::BN_STATE_MESSAGE, 0,
+                                             params<bool>::
+                                             getter<get_param<0, bool>>>;
 // --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    typedef event_handler<ClientMessage, 0,
-                          params<>::caller<>, 0,
-                          client_message_matcher<detail::BN_CLICKED_MESSAGE>>
-                          button_clicked_event;
-    typedef event_handler<ClientMessage, 0,
-                          params<>::caller<>, 0,
-                          client_message_matcher<detail::BN_PUSHED_MESSAGE>>
-                          button_pushed_event;
-    typedef event_handler<ClientMessage, 0,
-                          params<>::caller<>, 0,
-                          client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>
-                          button_released_event;
-    typedef event_handler<ClientMessage, 0,
-                           params<bool>::caller<get_client_data<0, bool>>, 0,
-                           client_message_matcher<detail::BN_STATE_MESSAGE>>
-                           button_state_event;
+    using button_clicked_event = event_handler<ClientMessage, 0,
+                                               params<>::getter<>, 0,
+                                               client_message_matcher<detail::BN_CLICKED_MESSAGE>>;
+    using button_pushed_event = event_handler<ClientMessage, 0,
+                                              params<>::getter<>, 0,
+                                              client_message_matcher<detail::BN_PUSHED_MESSAGE>>;
+    using button_released_event = event_handler<ClientMessage, 0,
+                                                params<>::getter<>, 0,
+                                                client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>;
+    using button_state_event = event_handler<ClientMessage, 0,
+                                             params<bool>::getter<get_client_data<0, bool>>, 0,
+                                             client_message_matcher<detail::BN_STATE_MESSAGE>>;
     // --------------------------------------------------------------------------
 #endif // X11
+    // --------------------------------------------------------------------------
+    struct button_state {
+      button_state ();
+
+      bool hilited;
+      bool pushed;
+      bool checked;
+    };
     // --------------------------------------------------------------------------
     class button : public window {
     public:
@@ -81,6 +85,10 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
         window::create(clazz, parent, place);
+      }
+
+      inline const button_state& get_state () const {
+        return data;
       }
 
       inline bool is_hilited () const {
@@ -102,139 +110,131 @@ namespace gui {
     private:
       void init ();
 
-      struct data {
-        data ();
-
-        bool hilited;
-        bool pushed;
-        bool checked;
-      } data;
+      button_state data;
 
       static no_erase_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
     namespace paint {
-      void push_button (const draw::graphics& graph,
-                        const core::rectangle& r,
-                        const std::string& text,
-                        bool enabled = true,
-                        bool focused = false,
-                        bool hilited = false,
-                        bool pushed = false);
-
-      void push_button (const draw::graphics& graph,
-                        const win::button& btn,
-                        const std::string& text);
-
-      void push_button (const draw::graphics& graph,
-                        const core::rectangle& r,
-                        bool enabled,
-                        bool focused,
-                        bool hilited,
-                        bool pushed);
-
-      void push_button (const draw::graphics& graph,
-                        const win::button& btn);
+      void button_frame (const draw::graphics& graph,
+                         const core::rectangle& r,
+                         const button_state& state,
+                         bool focused,
+                         bool enabled);
 
       void flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,
+                        const button_state& state,
+                        bool focused,
                         bool enabled = true,
-                        bool focused = false,
-                        bool hilited = false,
-                        bool pushed = false,
                         os::color foreground = color::white,
                         os::color background = color::dark_gray);
 
-      void flat_button (const draw::graphics& graph,
-                        const win::button& btn,
+      template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
+      void flat_button (const draw::graphics& g,
+                        const core::rectangle& r,
                         const std::string& text,
-                        os::color foreground = color::white,
-                        os::color background = color::dark_gray);
+                        const button_state& state,
+                        bool focused,
+                        bool enabled) {
+        flat_button(g, r, text, state, focused, enabled, foreground, background);
+      }
+
+      void push_button (const draw::graphics& graph,
+                        const core::rectangle& r,
+                        const std::string& text,
+                        const button_state& state,
+                        bool focused,
+                        bool enabled);
 
       void radio_button (const draw::graphics& graph,
                          const core::rectangle& area,
                          const std::string& text,
-                         bool enabled = true,
-                         bool focused = false,
-                         bool pushed = false,
-                         bool checked = false);
-
-      void radio_button (const draw::graphics& graph,
-                         const win::button& btn,
-                         const std::string& text);
+                         const button_state& state,
+                         bool focused,
+                         bool enabled);
 
       void check_box (const draw::graphics& graph,
                       const core::rectangle& area,
                       const std::string& text,
-                      bool enabled = true,
-                      bool focused = false,
-                      bool pushed = false,
-                      bool checked = false);
-
-      void check_box (const draw::graphics& graph,
-                      const win::button& btn,
-                      const std::string& text);
+                      const button_state& state,
+                      bool focused,
+                      bool enabled);
     }
 
     // --------------------------------------------------------------------------
-    class push_button : public button {
-    public:
-      typedef button super;
-
-      inline push_button () {
-        init();
-      }
-
-      inline push_button (const push_button& rhs) : super(rhs) {
-        init();
-      }
-
-      inline push_button (push_button&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init ();
+    typedef void(button_drawer) (const draw::graphics&,
+                                 const core::rectangle&,
+                                 const button_state&,
+                                 bool,
+                                 bool);
+    // --------------------------------------------------------------------------
+    typedef void(text_button_drawer) (const draw::graphics&,
+                                      const core::rectangle&,
+                                      const std::string&,
+                                      const button_state&,
+                                      bool,
+                                      bool);
+    // --------------------------------------------------------------------------
+    struct push_button_traits {
+      static void init (button&);
     };
-
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    class toggle_button : public button {
+    struct toggle_button_traits {
+      static void init (button&);
+    };
+    // --------------------------------------------------------------------------
+    template<>
+    void toggle_button_traits<false>::init (button&);
+    // --------------------------------------------------------------------------
+    template<>
+    void toggle_button_traits<true>::init (button&);
+    // --------------------------------------------------------------------------
+    template<class T>
+    class button_t : public button {
     public:
       typedef button super;
+      typedef T traits;
 
-      inline toggle_button () {
-        init();
+      inline button_t () {
+        traits::init(*this);
       }
 
-      inline toggle_button (const toggle_button& rhs) : super(rhs) {
-        init();
+      inline button_t (const button_t& rhs)
+        : super(rhs) {
+        traits::init(*this);
       }
 
-      inline toggle_button (toggle_button&& rhs) : super(std::move(rhs)) {
-        init();
+      inline button_t (button_t&& rhs)
+        : super(std::move(rhs)) {
+        traits::init(*this);
       }
-
-    private:
-      void init ();
     };
-
-    template<>
-    void toggle_button<false>::init ();
-
-    template<>
-    void toggle_button<true>::init ();
-
     // --------------------------------------------------------------------------
-    class text_push_button : public push_button {
+    template<class T, text_button_drawer D>
+    class text_button_t : public button_t<T> {
     public:
-      typedef push_button super;
+      typedef button_t<T> super;
+      typedef T traits;
 
-      text_push_button (const text_source& t = const_text())
+      inline text_button_t (const text_source& t = const_text())
         : text(t)
-      {}
+      {
+        init();
+      }
+
+      inline text_button_t (const text_button_t& rhs)
+        : super(rhs) {
+        init();
+      }
+
+      inline text_button_t (text_button_t&& rhs)
+        : super(std::move(rhs)) {
+        init();
+      }
 
       inline void create (const container& parent,
                           const core::rectangle& place = core::rectangle::def) {
@@ -260,7 +260,7 @@ namespace gui {
 
       void set_text (const text_source& t) {
         text = t;
-        redraw_later();
+        super::redraw_later();
       }
 
       inline std::string get_text () const {
@@ -268,200 +268,59 @@ namespace gui {
       }
 
     private:
+      void init () {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
+          D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
+        }));
+      }
+
       text_source text;
     };
-
     // --------------------------------------------------------------------------
-    class text_button : public text_push_button {
-    public:
-      typedef text_push_button super;
-
-      text_button (const text_source& t = const_text()) : super(t) {
-        init();
-      }
-
-      text_button (const text_button& rhs) : super(rhs) {
-        init();
-      }
-
-      text_button (text_button&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init ();
-    };
-
+    using push_button = button_t<push_button_traits>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using toggle_button = button_t<toggle_button_traits<keep_state>>;
+    // --------------------------------------------------------------------------
+    using text_button = text_button_t<push_button_traits,
+                                      paint::push_button>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
-    class flat_button : public text_push_button {
-    public:
-      typedef text_push_button super;
-
-      flat_button (const text_source& t = const_text()) : super(t) {
-        init();
-      }
-
-      flat_button (const flat_button& rhs) : super(rhs) {
-        init();
-      }
-
-      flat_button (flat_button&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::flat_button(graph, *this, get_text(), foreground, background);
-        }));
-      }
-    };
-
+    using flat_button = text_button_t<push_button_traits,
+                                      paint::flat_button<foreground, background>>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    class text_toggle_button : public toggle_button<keep_state> {
-    public:
-      typedef toggle_button<keep_state> super;
-
-      inline text_toggle_button (const text_source& t = const_text())
-        : text(t)
-      {}
-
-      inline void create (const container& parent,
-                          const core::rectangle& place = core::rectangle::def) {
-        super::create(parent, place);
-      }
-
-      inline void create (const container& parent,
-                          const text_source& txt,
-                          const core::rectangle& place = core::rectangle::def) {
-        super::create(parent, place);
-        set_text(txt);
-      }
-
-      inline void create (const container& parent,
-                          const std::string& txt,
-                          const core::rectangle& place = core::rectangle::def) {
-        create(parent, const_text(txt), place);
-      }
-
-      void set_text (const std::string& t) {
-        set_text(const_text(t));
-      }
-
-      void set_text (const text_source& t) {
-        text = t;
-        super::redraw_later();
-      }
-
-      std::string get_text () const {
-        return text();
-      }
-
-    private:
-      text_source text;
-    };
-
+    using radio_button = text_button_t<toggle_button_traits<keep_state>,
+                                       paint::radio_button>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    class radio_button : public text_toggle_button<keep_state> {
-    public:
-      typedef text_toggle_button<keep_state> super;
-
-      radio_button (const text_source& t = const_text()) : super(t) {
-        init();
-      }
-
-      radio_button (const radio_button& rhs) : super(rhs) {
-        init();
-      }
-
-      radio_button (radio_button&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::radio_button(graph, *this, super::get_text());
-        }));
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<bool keep_state = false>
-    class check_box : public text_toggle_button<keep_state> {
-    public:
-      typedef text_toggle_button<keep_state> super;
-
-      check_box (const text_source& t = const_text()) : super(t) {
-        init();
-      }
-
-      check_box (const check_box& rhs) : super(rhs) {
-        init();
-      }
-
-      check_box (check_box&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::check_box(graph, *this, super::get_text());
-        }));
-      }
-
-    };
-
+    using check_box = text_button_t<toggle_button_traits<keep_state>,
+                                    paint::check_box>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray,
              os::color background = color::dark_gray,
              bool keep_state = false>
-    class flat_toggle_button : public text_toggle_button<keep_state> {
-    public:
-      typedef text_toggle_button<keep_state> super;
-
-      flat_toggle_button (const text_source& t = const_text()) : super(t) {
-        init();
-      }
-
-      flat_toggle_button (const flat_toggle_button& rhs) : super(rhs) {
-        init();
-      }
-
-      flat_toggle_button (flat_toggle_button&& rhs) : super(std::move(rhs)) {
-        init();
-      }
-
-    private:
-      void init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          paint::flat_button(graph, super::client_area(), super::get_text(),
-                             super::is_enabled(), super::has_focus(),
-                             super::is_checked(), super::is_hilited(),
-                             foreground, background);
-        }));
-      }
-    };
-
+    using flat_toggle_button = text_button_t<toggle_button_traits<keep_state>,
+                                             paint::flat_button<foreground, background>>;
     // --------------------------------------------------------------------------
-    template<class super>
-    class custom_button : public super {
+    template<class T>
+    class custom_button : public button_t<T> {
     public:
-      typedef void (button_drawer)(const draw::graphics&, const custom_button&);
+      typedef button_t<T> super;
 
       custom_button () {
         init();
       }
 
-      custom_button (const custom_button& rhs) : super(rhs) {
+      custom_button (const custom_button& rhs)
+        : super(rhs)
+      {
         init();
       }
 
-      custom_button (custom_button&& rhs) : super(std::move(rhs)) {
+      custom_button (custom_button&& rhs)
+        : super(std::move(rhs))
+      {
         init();
       }
 
@@ -478,16 +337,19 @@ namespace gui {
       void init () {
         super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
           if (drawer) {
-            drawer(graph, *this);
+            drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
           }
         }));
       }
 
       std::function<button_drawer> drawer;
     };
-
-    using custom_push_button = custom_button<push_button>;
-    using custom_toggle_button = custom_button<toggle_button<>>;
+    // --------------------------------------------------------------------------
+    using custom_push_button = custom_button<push_button_traits>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using custom_toggle_button = custom_button<toggle_button_traits<keep_state>>;
+    // --------------------------------------------------------------------------
 
   } // win
 

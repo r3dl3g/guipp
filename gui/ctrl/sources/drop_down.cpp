@@ -78,12 +78,11 @@ namespace gui {
 
       void drop_down_button (const draw::graphics& graph,
                              const core::rectangle& area,
+                             const button_state& state,
                              bool is_open,
-                             bool enabled,
                              bool focused,
-                             bool hilited,
-                             bool pushed) {
-        win::paint::push_button(graph, area, enabled, focused, hilited, pushed);
+                             bool enabled) {
+        win::paint::button_frame(graph, area, state, focused, enabled);
         core::rectangle r = area.shrinked(core::size(4, 5));
         if (!r.empty()) {
           std::vector<core::point> p;
@@ -94,13 +93,6 @@ namespace gui {
           }
           graph.fill(draw::polygon(p), color::black);
         }
-      }
-
-      void drop_down_button (const draw::graphics& graph,
-                             const win::button& btn,
-                             bool is_open) {
-        drop_down_button(graph, btn.client_area(), is_open,
-                         btn.is_enabled(), btn.has_focus(), btn.is_hilited(), btn.is_pushed());
       }
 
     } // paint

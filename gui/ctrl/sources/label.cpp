@@ -26,6 +26,39 @@ namespace gui {
 
     namespace detail {
 
+      // --------------------------------------------------------------------------
+      label_base::label_base (const std::string& t)
+        : text(const_text(t))
+      {}
+
+      label_base::label_base (const text_source& t)
+        : text(t)
+      {}
+
+      label_base::label_base (const label_base& rhs)
+        : super(rhs)
+        , text(rhs.text)
+      {}
+
+      label_base::label_base (label_base&& rhs)
+        : super(rhs)
+      {
+        std::swap(text, rhs.text);
+      }
+
+      void label_base::set_text (const std::string& t) {
+        set_text(const_text(t));
+      }
+
+      void label_base::set_text(const text_source& t) {
+        text = t;
+        redraw_later();
+      }
+
+      std::string label_base::get_text() const {
+        return text();
+      }
+
       no_erase_window_class label_base::clazz("label++",
 #ifdef WIN32
         (COLOR_BTNFACE+1)

@@ -34,21 +34,17 @@ namespace gui {
 
   namespace win {
 
-#ifdef X11
     // --------------------------------------------------------------------------
-    typedef event_handler<ClientMessage, 0,
-                           params<int>::caller<get_client_data<0, int>>, 0,
-                           client_message_matcher<detail::SLIDER_MESSAGE>>
-            slider_event;
-    // --------------------------------------------------------------------------
-#endif // X11
 #ifdef WIN32
-    typedef event_handler<detail::SLIDER_MESSAGE, 0,
-                          params<int>::
-                          caller<get_param<0, int>>>
-            slider_event;
-    // --------------------------------------------------------------------------
+    using slider_event = event_handler<detail::SLIDER_MESSAGE, 0,
+                                       params<int>::getter<get_param<0, int>>>;
 #endif //WIN32
+#ifdef X11
+    using slider_event = event_handler<ClientMessage, 0,
+                                       params<int>::getter<get_client_data<0, int>>,
+                                       0, client_message_matcher<detail::SLIDER_MESSAGE>>;
+#endif // X11
+    // --------------------------------------------------------------------------
 
     namespace detail {
 
@@ -64,13 +60,8 @@ namespace gui {
         void set_max (type min);
         void set_min_max (type mi, type ma);
 
-        inline type get_min () const {
-          return min;
-        }
-
-        inline type get_max () const {
-          return max;
-        }
+        inline type get_min () const;
+        inline type get_max () const;
 
       protected:
         type min;
@@ -96,13 +87,27 @@ namespace gui {
         slider_t ();
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::def) {
-          super::create(clazz, parent, place);
-        }
+                     const core::rectangle& place = core::rectangle::def);
 
       private:
         static slider_class<O> clazz;
       };
+
+      // --------------------------------------------------------------------------
+      inline auto slider::get_min () const -> type {
+        return min;
+      }
+
+      inline auto slider::get_max () const -> type {
+        return max;
+      }
+
+      // --------------------------------------------------------------------------
+      template<orientation O>
+      inline void slider_t<O>::create (const container& parent,
+                                       const core::rectangle& place) {
+        super::create(clazz, parent, place);
+      }
 
       template<orientation O>
       slider_class<O> slider_t<O>::clazz;
@@ -117,28 +122,35 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation O,
-             draw::frame::drawer F>
+             draw::frame::drawer F = draw::frame::raised_relief>
     class framed_slider_t : public detail::slider_t<O> {
     public:
       typedef detail::slider_t<O> super;
 
-      framed_slider_t () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g) {
-          core::rectangle place = super::client_area();
-          if (super::has_focus()) {
-            draw::frame::black(g, place);
-            place.shrink({1, 1});
-          }
-          g.fill(draw::rectangle(place), color::buttonColor());
-          F(g, place);
-        }));
-      }
+      framed_slider_t ();
+
     };
 
     // --------------------------------------------------------------------------
-    typedef framed_slider_t<orientation::vertical, draw::frame::raised_relief> vslider;
-    typedef framed_slider_t<orientation::horizontal, draw::frame::raised_relief> hslider;
+    template<orientation O,
+             draw::frame::drawer F>
+    framed_slider_t<O, F>::framed_slider_t () {
+      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g) {
+        core::rectangle place = super::client_area();
+        if (super::has_focus()) {
+          draw::frame::black(g, place);
+          place.shrink({1, 1});
+        }
+        g.fill(draw::rectangle(place), color::buttonColor());
+        F(g, place);
+      }));
+    }
 
+    // --------------------------------------------------------------------------
+    using vslider = framed_slider_t<orientation::vertical>;
+    using hslider = framed_slider_t<orientation::horizontal>;
+
+    // --------------------------------------------------------------------------
   } // win
 
 } // gui

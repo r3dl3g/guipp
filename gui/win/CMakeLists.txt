@@ -21,5 +21,6 @@ file(GLOB SOURCE_FILES "sources/*.*")
 link_directories(${gui_win_Lib})
 
 add_library(gui_win ${SOURCE_FILES})
+target_link_libraries(gui_win gui_core ibr_std_lib)
 
 endif()

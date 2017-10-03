@@ -168,6 +168,7 @@ namespace gui {
 #ifdef X11
         detail::init_control_messages();
 #endif // X11
+
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           capture_pointer();
@@ -176,6 +177,7 @@ namespace gui {
           start_window_point = position();
           take_focus();
         }));
+
         register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           uncapture_pointer();

@@ -67,7 +67,7 @@ namespace gui {
     }
 
     void layout_base::update () {
-      main->redraw_now();
+      main->redraw_later();
     }
 
     // --------------------------------------------------------------------------

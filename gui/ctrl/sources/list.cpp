@@ -34,17 +34,23 @@ namespace gui {
 
     namespace detail {
 
-      list::data::data ()
+      list::data::data (core::size_type item_size,
+                        os::color background)
         : item_count(0)
+        , item_size(item_size)
         , selection(-1)
         , hilite(-1)
         , moved(false)
         , scroll_bar_enabled(true)
         , last_mouse_point(core::point::undefined)
+        , background(background)
       {}
 
       // --------------------------------------------------------------------------
-      list::list () {
+      list::list (core::size_type item_size,
+                  os::color background)
+        : data(item_size, background)
+      {
         init();
       }
 
@@ -93,73 +99,101 @@ namespace gui {
         }
       }
 
-      // --------------------------------------------------------------------------
-      template<>
-      list::pos_t list_t<orientation::horizontal>::get_dimension (const core::point& pt) const {
-        return pt.x();
-      }
+    }
 
-      template<>
-      void list_t<orientation::horizontal>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
-        r.x(v);
-        r.width(s);
-      }
+    // --------------------------------------------------------------------------
+    template<>
+    list::pos_t list_t<orientation::horizontal>::get_dimension (const core::point& pt) const {
+      return pt.x();
+    }
 
-      template<>
-      list::pos_t list_t<orientation::vertical>::get_dimension (const core::point& pt) const {
-        return pt.y();
-      }
+    template<>
+    void list_t<orientation::horizontal>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+      r.x(v);
+      r.width(s);
+    }
 
-      template<>
-      void list_t<orientation::vertical>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
-        r.y(v);
-        r.height(s);
-      }
+    template<>
+    list::pos_t list_t<orientation::vertical>::get_dimension (const core::point& pt) const {
+      return pt.y();
+    }
 
-      template<>
-      list::pos_t list_t<orientation::horizontal>::get_list_size () const {
-        return size().width();
-      }
+    template<>
+    void list_t<orientation::vertical>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+      r.y(v);
+      r.height(s);
+    }
 
-      template<>
-      list::pos_t list_t<orientation::vertical>::get_list_size () const {
-        return size().height();
-      }
+    template<>
+    list::pos_t list_t<orientation::horizontal>::get_list_size () const {
+      return size().width();
+    }
 
-      template<>
-      core::size list_t<orientation::horizontal>::client_size () const {
-        core::size sz = super::client_size();
-        if (is_scroll_bar_visible()) {
-          sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
-        }
-        return sz;
-      }
+    template<>
+    list::pos_t list_t<orientation::vertical>::get_list_size () const {
+      return size().height();
+    }
 
-      template<>
-      core::size list_t<orientation::vertical>::client_size() const {
-        core::size sz = super::client_size();
-        if (is_scroll_bar_visible()) {
-          sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
-        }
-        return sz;
+    template<>
+    core::size list_t<orientation::horizontal>::client_size () const {
+      core::size sz = super::client_size();
+      if (is_scroll_bar_visible()) {
+        sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
       }
+      return sz;
+    }
 
-      template<>
-      core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const {
-        core::rectangle r(super::client_size());
-        r.y(r.y2() - scroll_bar::get_scroll_bar_width());
-        r.height(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
-        return r;
+    template<>
+    core::size list_t<orientation::vertical>::client_size() const {
+      core::size sz = super::client_size();
+      if (is_scroll_bar_visible()) {
+        sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
       }
+      return sz;
+    }
 
-      template<>
-      core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const {
-        core::rectangle r(super::client_size());
-        r.x(r.x2() - pos_t(scroll_bar::get_scroll_bar_width()));
-        r.width(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
-        return r;
+    template<>
+    core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const {
+      core::rectangle r(super::client_size());
+      r.y(r.y2() - scroll_bar::get_scroll_bar_width());
+      r.height(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
+      return r;
+    }
+
+    template<>
+    core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const {
+      core::rectangle r(super::client_size());
+      r.x(r.x2() - pos_t(scroll_bar::get_scroll_bar_width()));
+      r.width(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
+      return r;
+    }
+
+    template<>
+    void list_t<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
+      switch (key) {
+        case keys::left:
+        case keys::numpad::left:
+          set_selection(super::get_selection() - 1, event_source::keyboard);
+          break;
+        case keys::right:
+        case keys::numpad::right:
+          set_selection(super::get_selection() + 1, event_source::keyboard);
+          break;
       }
+    }
 
+    template<>
+    void list_t<orientation::vertical>::handle_direction_key (os::key_symbol key) {
+      switch (key) {
+        case keys::up:
+        case keys::numpad::up:
+          set_selection(super::get_selection() - 1, event_source::keyboard);
+          break;
+        case keys::down:
+        case keys::numpad::down:
+          set_selection(super::get_selection() + 1, event_source::keyboard);
+          break;
+      }
     }
 
     // --------------------------------------------------------------------------

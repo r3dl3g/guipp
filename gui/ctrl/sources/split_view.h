@@ -192,7 +192,7 @@ namespace gui {
         split_view (split_view&& rhs)
           : super(std::move(rhs))
         {
-          std:swap(slider, rhs.slider);
+          std::swap(slider, rhs.slider);
           init();
         }
 

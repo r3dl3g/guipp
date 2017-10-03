@@ -207,6 +207,8 @@ namespace gui {
           return up_modulo<1, 2>(w * 3);
         case BPP::RGBA:
           return up_modulo<1, 2>(w * 4);
+        case BPP::Undefined:
+          break;
       }
       return ((((w * static_cast<int>(bpp)) + 31) & ~31) >> 3);
 #endif // WIN32
@@ -227,7 +229,7 @@ namespace gui {
 
     void put_bmp_data (os::bitmap id, const std::vector<char>& src, int w, int h, int bpl, BPP bpp) {
 #if WIN32
-      int ret = SetBitmapBits(id, (DWORD)src.size(), src.data());
+      /*int ret = */SetBitmapBits(id, (DWORD)src.size(), src.data());
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
@@ -274,6 +276,7 @@ namespace gui {
               case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::Undefined: break;
             }
           break;
           case BPP::GRAY:
@@ -282,6 +285,7 @@ namespace gui {
               case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::Undefined: break;
             }
           break;
           case BPP::RGB:
@@ -290,6 +294,7 @@ namespace gui {
               case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
+              case BPP::Undefined: break;
             }
           break;
           case BPP::RGBA:
@@ -298,8 +303,10 @@ namespace gui {
               case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
               case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              }
+              case BPP::Undefined: break;
+            }
           break;
+          case BPP::Undefined: break;
         }
 
         put_bmp_data(get_id(), dst, w, h, dst_bpl, dst_bpp);
@@ -316,7 +323,7 @@ namespace gui {
       bpl = bmp.bmWidthBytes;
       bpp = BPP(bmp.bmBitsPixel);
       data.resize(bpl * h);
-      int dst_bpl = calc_bytes_per_line(w, bpp);
+      /*int dst_bpl = */calc_bytes_per_line(w, bpp);
       int ret = GetBitmapBits(get_id(), (LONG)data.size(), data.data());
       if (ret != data.size()) {
         throw std::runtime_error("get image data failed");

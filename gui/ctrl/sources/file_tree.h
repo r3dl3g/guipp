@@ -28,7 +28,10 @@
 //
 // Library includes
 //
-#if (_MSC_VER >= 1900) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3))
+#if (__cplusplus >= 201700L)
+#include <filesystem>
+namespace sys_fs = std::filesystem;
+#elif (_MSC_VER >= 1900) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3))
 #include <experimental/filesystem>
 namespace sys_fs = std::experimental::filesystem;
 #else

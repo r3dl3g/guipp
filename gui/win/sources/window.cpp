@@ -175,23 +175,25 @@ namespace gui {
     }
 
     bool window::is_child () const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
     bool window::is_popup () const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
+      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_POPUP) == WS_POPUP;
     }
 
     bool window::is_toplevel () const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
+      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & WS_CHILD) != WS_CHILD;
     }
 
     bool window::has_border () const {
-      return (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
+      return is_valid() && (GetWindowLong(get_id(), GWL_STYLE) & (WS_BORDER | WS_DLGFRAME | WS_THICKFRAME) ? true : false);
     }
 
     void window::set_parent (const container& parent) {
-      SetParent(get_id(), parent.get_id());
+      if (is_valid() && parent.is_valid()) {
+        SetParent(get_id(), parent.get_id());
+      }
     }
 
     container* window::get_parent () const {
@@ -203,37 +205,53 @@ namespace gui {
     }
 
     void window::set_visible (bool s) {
-      ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
+      if (is_valid()) {
+        ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
+      }
     }
 
     void window::enable (bool on) {
-      EnableWindow(get_id(), on);
-      redraw_later();
+      if (is_valid()) {
+        EnableWindow(get_id(), on);
+        redraw_later();
+      }
     }
 
     void window::take_focus () {
-      SetFocus(get_id());
-      redraw_later();
+      if (is_valid()) {
+        SetFocus(get_id());
+        redraw_later();
+      }
     }
 
     void window::to_front () {
-      SetWindowPos(get_id(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      if (is_valid()) {
+        SetWindowPos(get_id(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      }
     }
 
     void window::to_back () {
-      SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      if (is_valid()) {
+        SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      }
     }
 
     void window::enable_redraw (bool on) {
-      SendMessage(get_id(), WM_SETREDRAW, on, 0);
+      if (is_valid()) {
+        SendMessage(get_id(), WM_SETREDRAW, on, 0);
+      }
     }
 
     void window::redraw_now () {
-      RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
+      if (is_valid()) {
+        RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
+      }
     }
 
     void window::redraw_later () {
-      InvalidateRect(get_id(), nullptr, TRUE);
+      if (is_valid()) {
+        InvalidateRect(get_id(), nullptr, TRUE);
+      }
     }
 
     core::size window::size () const {
@@ -278,21 +296,27 @@ namespace gui {
     }
 
     void window::move (const core::point& pt, bool repaint) {
-      SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
-      if (repaint) {
-        redraw_later();
+      if (is_valid()) {
+        SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+        if (repaint) {
+          redraw_later();
+        }
       }
     }
 
     void window::resize (const core::size& sz, bool repaint) {
-      SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-      if (repaint) {
-        redraw_later();
+      if (is_valid()) {
+        SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+        if (repaint) {
+          redraw_later();
+        }
       }
     }
 
     void window::place (const core::rectangle& r, bool repaint) {
-      MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
+      if (is_valid()) {
+        MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
+      }
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
@@ -308,14 +332,18 @@ namespace gui {
     }
 
     void window::set_cursor (os::cursor c) {
-      SetClassLongPtr(get_id(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
+      if (is_valid()) {
+        SetClassLongPtr(get_id(), GCLP_HCURSOR, reinterpret_cast<LONG_PTR>(c));
+      }
     }
 
     void window::capture_pointer () {
-      LogDebug << "capture_pointer:" << get_id();
-      capture_stack.push_back(get_id());
-      SetCapture(get_id());
-      s_wheel_hook.enable();
+      if (is_valid()) {
+        LogDebug << "capture_pointer:" << get_id();
+        capture_stack.push_back(get_id());
+        SetCapture(get_id());
+        s_wheel_hook.enable();
+      }
     }
 
     void window::uncapture_pointer () {
@@ -363,7 +391,9 @@ namespace gui {
     void window::create (const window_class& type,
                          const container& parent,
                          const core::rectangle& r) {
-      create(type, parent.get_id(), r);
+      if (parent.is_valid()) {
+        create(type, parent.get_id(), r);
+      }
     }
 
     core::point window::window_to_screen (const core::point& pt) const {

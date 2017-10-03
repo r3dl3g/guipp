@@ -46,7 +46,9 @@ namespace gui {
       clipboard ();
 
       std::string text;
+#ifdef X11
       int filter_id;
+#endif // X11
     };
 
   } // win

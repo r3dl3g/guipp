@@ -50,9 +50,9 @@ namespace gui {
 
     window_class::window_class ()
       : background(0)
+      , class_style(0)
       , style(0)
       , ex_style(0)
-      , class_style(0)
       , is_initialized(false)
     {}
 

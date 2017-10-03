@@ -43,13 +43,17 @@ namespace gui {
 
     } // namespace detail
 
+#ifdef WIN32
+    clipboard::clipboard ()
+    {}
+#endif // WIN32
+#ifdef X11
     clipboard::clipboard ()
       :filter_id(0)
     {
-#ifdef X11
       detail::init_clipboard_atoms();
-#endif // X11
     }
+#endif // X11
 
     clipboard& clipboard::get () {
       static clipboard c;

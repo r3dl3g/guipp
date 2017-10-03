@@ -372,10 +372,10 @@ namespace gui {
       , data(geometrie, align, foreground, background)
       , columns(geometrie, align, foreground, header_background)
       , rows(geometrie, align, foreground, header_background)
-      , last_mouse_point(core::point::undefined)
       , enable_v_size(false)
       , enable_h_size(false)
       , moved(false)
+      , last_mouse_point(core::point::undefined)
     {
       init();
     }
@@ -386,10 +386,10 @@ namespace gui {
       , data(geometrie, rhs.data)
       , columns(geometrie, rhs.columns)
       , rows(geometrie, rhs.rows)
-      , last_mouse_point(core::point::undefined)
       , enable_v_size(false)
       , enable_h_size(false)
       , moved(false)
+      , last_mouse_point(core::point::undefined)
     {
       init();
     }
@@ -400,10 +400,10 @@ namespace gui {
       , data(geometrie, std::move(rhs.data))
       , columns(geometrie, std::move(rhs.columns))
       , rows(geometrie, std::move(rhs.rows))
-      , last_mouse_point(core::point::undefined)
       , enable_v_size(false)
       , enable_h_size(false)
       , moved(false)
+      , last_mouse_point(core::point::undefined)
     {
       init();
     }

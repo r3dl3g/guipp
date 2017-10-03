@@ -344,6 +344,8 @@ namespace gui {
           old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
           break;
         }
+        case text_origin::undefined:
+          break;
       }
       TextOutW(g, px, py, wstr.c_str(), (int)wstr.size());
       SetTextAlign(g, old_align);
@@ -1475,12 +1477,10 @@ namespace gui {
       }
 
       void vline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
         g.frame(line(place.top_right(), place.bottom_right()), color::very_light_gray);
       }
 
       void hline (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
         g.frame(line(place.bottom_left(), place.bottom_right()), color::very_light_gray);
       }
 

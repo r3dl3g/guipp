@@ -32,6 +32,7 @@
 // Library includes
 //
 #include "guidefs.h"
+#include "string_util.h"
 
 namespace gui {
 
@@ -183,11 +184,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
   ibr::log::core::instance().add_sink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().get_console_formatter());
 
 
-  std::vector<std::string> args{
-    std::istream_iterator<std::string>{ std::istringstream(lpCmdLine) },
-    std::istream_iterator<std::string>{}
-  };
-
+  std::vector<std::string> args = ibr::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
 #endif // WIN32
 

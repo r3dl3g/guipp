@@ -41,11 +41,11 @@ namespace gui {
 #endif //WIN32
 
     scroll_bar_data::scroll_bar_data ()
-      : min(0)
+      : state(scrollbar_state::nothing)
+      , min(0)
       , max(100)
       , step(1)
       , value(0)
-      , state(scrollbar_state::nothing)
       , last_value(0)
     {}
 
@@ -376,29 +376,29 @@ namespace gui {
           if (accept_focus()) {
             take_focus();
           }
-          set_last_mouse_point(pt);
-          set_last_value(get_value());
+            set_last_mouse_point(pt);
+            set_last_value(get_value());
 
-          auto geo = get_geometry();
+            auto geo = get_geometry();
 
-          if (up_button_place(geo).is_inside(pt)) {
-            set_state(scrollbar_state::up_button);
-          } else if (down_button_place(geo).is_inside(pt)) {
-            set_state(scrollbar_state::down_button);
-          } else if (thumb_button_place(geo).is_inside(pt)) {
-            set_state(scrollbar_state::thumb_button);
-          } else if (page_up_place(geo).is_inside(pt)) {
-            set_state(scrollbar_state::page_up);
-          } else if (page_down_place(geo).is_inside(pt)) {
-            set_state(scrollbar_state::page_down);
-          } else {
-            set_state(scrollbar_state::nothing);
-          }
-          if (get_state() != scrollbar_state::nothing) {
-            capture_pointer();
-          }
-          redraw_later();
+            if (up_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::up_button);
+            } else if (down_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::down_button);
+            } else if (thumb_button_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::thumb_button);
+            } else if (page_up_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_up);
+            } else if (page_down_place(geo).is_inside(pt)) {
+              set_state(scrollbar_state::page_down);
+            } else {
+              set_state(scrollbar_state::nothing);
         }
+            if (get_state() != scrollbar_state::nothing) {
+              capture_pointer();
+            }
+            redraw_later();
+          }
       }));
       register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
         if (is_enabled()) {

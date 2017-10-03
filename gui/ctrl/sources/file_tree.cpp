@@ -53,11 +53,13 @@ namespace gui {
             } else {
               g.fill(draw::rectangle(r), s ? color::highLightColor() : b);
             }
-          },
-          win::cell_drawer<std::string>,
-          win::cell_drawer<uintmax_t>,
+            draw::frame::lines(g, r);
+        },
+          win::cell_drawer<std::string, draw::frame::lines>,
+          win::cell_drawer<uintmax_t, draw::frame::lines>,
           [](const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
             win::paint::text_item(g, r, b, ibr::time::format_time(tp), s, align);
+            draw::frame::lines(g, r);
           }
         };
       }

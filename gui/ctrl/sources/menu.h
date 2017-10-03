@@ -57,10 +57,10 @@ namespace gui {
         , hotkey(hotkey)
         , icon(icon)
         , action(action)
+        , menu_key(menu_key)
         , width(0)
         , separator(separator)
         , state(state)
-        , menu_key(menu_key)
         , sub_menu(false)
       {}
 

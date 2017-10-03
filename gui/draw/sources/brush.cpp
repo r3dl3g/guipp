@@ -46,6 +46,8 @@ namespace gui {
         if (result != expected) {
           LogDebug << "GetObject result returned unexpected result:" << result << " (expected:" << expected << ")";
         }
+#else
+        (void)result;
 #endif
       }
     }

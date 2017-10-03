@@ -93,7 +93,7 @@ namespace gui {
                       bool hilited,
                       bool disabled) {
         if (selected) {
-          if (separator = separator) {
+          if (separator) {
             g.fill(draw::rectangle(r.with_height(2)), background);
             g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
           } else {

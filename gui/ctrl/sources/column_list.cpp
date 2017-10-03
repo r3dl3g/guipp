@@ -134,7 +134,8 @@ namespace gui {
         main->redraw_later();
         list->redraw_later();
       }
-    }
+
+    } // detail
 
     // --------------------------------------------------------------------------
     void simple_column_list_layout::set_columns (std::initializer_list<simple_column_info> infos, bool update) {
@@ -243,6 +244,21 @@ namespace gui {
       list->redraw_later();
     }
 
-  }
+  } // layout
+
+  namespace win {
+
+    void default_header_cell_drawer (std::size_t i,
+                                     const draw::graphics& g,
+                                     const core::rectangle& r,
+                                     const draw::brush& background) {
+      using namespace draw;
+      g.fill(rectangle(r), background);
+      frame::raised_relief(g, r);
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r, text_origin::center), font::system(), color::windowTextColor());
+    }
+
+
+  } // win
 
 } // gui

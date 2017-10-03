@@ -49,8 +49,8 @@ namespace gui {
       static const cursor& no ();
 
       constexpr cursor ()
-        : id(0)
-        , type(0)
+        : type(0)
+        , id(0)
       {}
 
       operator os::cursor () const;
@@ -61,8 +61,8 @@ namespace gui {
 
     private:
       constexpr cursor (os::cursor_type t)
-        : id(0)
-        , type(t)
+        : type(t)
+        , id(0)
       {}
 
       os::cursor_type type;

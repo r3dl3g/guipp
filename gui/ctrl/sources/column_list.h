@@ -388,7 +388,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename... Arguments>
-#if _MSC_VER < 1900
+#if _MSC_VER < 1910
 
     struct row_cell_drawer_t : public std::tuple<cell_drawer_t<Arguments>...> {
       typedef std::tuple<cell_drawer_t<Arguments>...> super;

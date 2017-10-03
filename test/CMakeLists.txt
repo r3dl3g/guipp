@@ -33,7 +33,7 @@ link_directories(${gui_core_Lib}
 
 link_directories("../boost/stage/lib")
 
-if (MSVC)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 

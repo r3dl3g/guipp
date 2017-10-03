@@ -214,7 +214,7 @@ namespace gui {
 
       template<class T>
       pos_changing_getter (T* win, void(T::*changingfn)(core::rectangle&))
-        : event_handler(t, changingfn)
+        : super(win, changingfn)
       {}
 
       void operator() (const core::event& e);

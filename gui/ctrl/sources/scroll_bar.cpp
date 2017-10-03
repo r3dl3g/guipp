@@ -310,6 +310,9 @@ namespace gui {
                 set_value(get_value() + get_step(), true);
               }
               break;
+            case scrollbar_state::thumb_button:
+            case scrollbar_state::nothing:
+              break;
           }
           set_state(scrollbar_state::nothing);
           uncapture_pointer();
@@ -423,6 +426,9 @@ namespace gui {
               if (page_down_place(geo).is_inside(pt)) {
                 set_value(get_value() + get_step(), true);
               }
+              break;
+            case scrollbar_state::thumb_button:
+            case scrollbar_state::nothing:
               break;
           }
           if (get_state() != scrollbar_state::nothing) {

@@ -50,63 +50,89 @@ namespace gui {
         static no_erase_window_class clazz;
       };
 
+      // --------------------------------------------------------------------------
+      template<orientation Horizontal>
+      struct line_traits {
+        static draw::line first (const core::rectangle&);
+        static draw::line second (const core::rectangle&);
+        static core::rectangle area (const core::rectangle&);
+      };
+
+      // --------------------------------------------------------------------------
+      template<>
+      inline draw::line line_traits<orientation::vertical>::first (const core::rectangle& r) {
+        return draw::line(r.top_left(), r.bottom_left());
+      }
+
+      template<>
+      inline draw::line line_traits<orientation::vertical>::second (const core::rectangle& r) {
+        return draw::line(r.top_right(), r.bottom_right());
+      }
+
+      template<>
+      inline core::rectangle line_traits<orientation::vertical>::area (const core::rectangle& r) {
+        return r - core::size(1, 0);
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
+      inline draw::line line_traits<orientation::horizontal>::first (const core::rectangle& r) {
+        return draw::line(r.top_left(), r.top_right());
+      }
+
+      template<>
+      inline draw::line line_traits<orientation::horizontal>::second (const core::rectangle& r) {
+        return draw::line(r.bottom_right(), r.bottom_left());
+      }
+
+      template<>
+      inline core::rectangle line_traits<orientation::horizontal>::area (const core::rectangle& r) {
+        return r - core::size(0, 1);
+      }
+
+      // --------------------------------------------------------------------------
+      template<bool Sunken>
+      struct color_traits {
+        static os::color first (os::color);
+        static os::color second (os::color);
+      };
+
+      // --------------------------------------------------------------------------
+      template<>
+      inline os::color color_traits<false>::first (os::color c) {
+        return color::lighter(c);
+      }
+
+      template<>
+      inline os::color color_traits<false>::second (os::color c) {
+        return color::darker(c);
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
+      inline os::color color_traits<true>::first (os::color c) {
+        return color::darker(c);
+      }
+
+      template<>
+      inline os::color color_traits<true>::second (os::color c) {
+        return color::lighter(c);
+      }
+
     }
 
     // --------------------------------------------------------------------------
     template<orientation Horizontal, bool Sunken = true, os::color background = color::light_gray>
     class separator_t : public detail::separator_base {
     public:
-      separator_t ();
-    };
+      typedef detail::line_traits<Horizontal> lt;
+      typedef detail::color_traits<Sunken> ct;
 
-    // --------------------------------------------------------------------------
-    template<os::color background>
-    class separator_t<orientation::vertical, false, background> : public detail::separator_base {
-    public:
       separator_t () {
         register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          core::rectangle r = client_area() - core::size(1, 0);
-          graph.frame(draw::line(r.top_left(), r.bottom_left()), color::lighter(background));
-          graph.frame(draw::line(r.top_right(), r.bottom_right()), color::darker(background));
-        }));
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<os::color background>
-    class separator_t<orientation::vertical, true, background> : public detail::separator_base {
-    public:
-      separator_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          core::rectangle r = client_area() - core::size(1, 0);
-          graph.frame(draw::line(r.top_left(), r.bottom_left()), color::darker(background));
-          graph.frame(draw::line(r.top_right(), r.bottom_right()), color::lighter(background));
-        }));
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<os::color background>
-    class separator_t<orientation::horizontal, false, background> : public detail::separator_base {
-    public:
-      separator_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          core::rectangle r = client_area() - core::size(0, 1);
-          graph.frame(draw::line(r.top_left(), r.top_right()), color::lighter(background));
-          graph.frame(draw::line(r.bottom_right(), r.bottom_left()), color::darker(background));
-        }));
-      }
-    };
-
-    // --------------------------------------------------------------------------
-    template<os::color background>
-    class separator_t<orientation::horizontal, true, background> : public detail::separator_base {
-    public:
-      separator_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          core::rectangle r = client_area() - core::size(0, 1);
-          graph.frame(draw::line(r.top_left(), r.top_right()), color::darker(background));
-          graph.frame(draw::line(r.bottom_right(), r.bottom_left()), color::lighter(background));
+          core::rectangle r = lt::area(client_area());
+          graph.frame(lt::first(r), ct::first(background));
+          graph.frame(lt::second(r), ct::second(background));
         }));
       }
     };

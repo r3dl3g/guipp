@@ -35,6 +35,7 @@
 #include "pen.h"
 #include "brush.h"
 #include "font.h"
+#include "bind_method.h"
 
 
 namespace gui {

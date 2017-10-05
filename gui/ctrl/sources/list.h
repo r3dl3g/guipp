@@ -521,7 +521,7 @@ namespace gui {
             super::take_focus();
           }));
         }
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &list_t::paint));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(buffered_paint(this, &list_t::paint)));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &list_t::handle_left_btn_up));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state keys, const core::point& pt) {
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);

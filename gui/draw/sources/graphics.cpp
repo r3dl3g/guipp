@@ -522,6 +522,12 @@ namespace gui {
       return GetDeviceCaps(gc, BITSPIXEL);
     }
 
+    core::rectangle graphics::area () const {
+      RECT r;
+      GetWindowRect(target, &r);
+      return core::rectangle(r);
+    }
+
     void graphics::push_clipping (const core::rectangle& r) const {
       HRGN hr = CreateRectRgn(r.os_x(), r.os_y(), r.os_x2(), r.os_y2());
       SelectClipRgn(gc, hr);
@@ -596,6 +602,22 @@ namespace gui {
       XSetFillStyle(display, g, b.style());
     }
 
+    // --------------------------------------------------------------------------
+    int get_drawable_depth (os::drawable t) {
+      Window root;
+      int x, y;
+      unsigned int w, h, b, d;
+      XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
+      return d;
+    }
+
+    core::rectangle get_drawable_area (os::drawable t) {
+      Window root;
+      int x, y;
+      unsigned int w, h, b, d;
+      XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
+      return {(core::point_type)x, (core::point_type)y, (core::size_type)w, (core::size_type)h};
+    }
     // --------------------------------------------------------------------------
 
     XftDraw* get_xft_draw (os::drawable target) {
@@ -1229,12 +1251,8 @@ namespace gui {
       return get_drawable_depth(target);
     }
 
-    int graphics::get_drawable_depth (os::drawable t) {
-      Window root;
-      int x, y;
-      unsigned int w, h, b, d;
-      XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
-      return d;
+    core::rectangle graphics::area () const {
+      return get_drawable_area(target);
     }
 
     void graphics::push_clipping (const core::rectangle& rect) const {

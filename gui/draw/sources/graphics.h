@@ -114,6 +114,7 @@ namespace gui {
       void flush () const;
 
       int depth () const;
+      core::rectangle area () const;
 
       inline os::graphics os () const {
         return gc;
@@ -126,8 +127,6 @@ namespace gui {
       inline operator os::drawable () const {
         return target;
       }
-
-      static int get_drawable_depth (os::drawable);
 
 #ifdef X11
       operator XftDraw* () const;

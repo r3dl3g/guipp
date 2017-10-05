@@ -362,6 +362,12 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, key_down_event<keys::c, state::control>([&]() {
           clipboard::get().set_text(*this, get_selected_text());
         }));
+        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+          redraw_later();
+        }));
+        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
+          redraw_later();
+        }));
       }
 
     } // namespace detail

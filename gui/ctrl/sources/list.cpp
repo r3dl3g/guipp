@@ -78,6 +78,12 @@ namespace gui {
           data.moved = false;
           take_focus();
         }));
+        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+          redraw_later();
+        }));
+        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
+          redraw_later();
+        }));
       }
 
       void list::set_drawer (const std::function<draw_list_item>& drawer) {

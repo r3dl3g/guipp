@@ -288,9 +288,9 @@ namespace gui {
       }
 
       void data_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph){
           paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        }));
+        })));
       }
 
       // --------------------------------------------------------------------------
@@ -319,9 +319,9 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
           paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        }));
+        })));
       }
 
       // --------------------------------------------------------------------------
@@ -350,9 +350,9 @@ namespace gui {
       }
 
       void row_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph){
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph){
           paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        }));
+        })));
       }
 
     } // table

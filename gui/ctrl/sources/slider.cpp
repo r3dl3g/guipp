@@ -185,6 +185,12 @@ namespace gui {
           start_mouse_point = core::point::undefined;
           start_window_point = core::point::undefined;
         }));
+        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+          redraw_later();
+        }));
+        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
+          redraw_later();
+        }));
       }
 
       void slider::set_min (type i) {

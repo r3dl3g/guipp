@@ -451,7 +451,7 @@ namespace gui {
       set_accept_focus(true);
       data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
 
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &main_menu::paint));
+      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &main_menu::paint)));
 
       register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
         data.handle_mouse(false, pt);

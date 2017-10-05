@@ -132,24 +132,6 @@ namespace gui {
     draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
-    class buffered_paint {
-    public:
-      typedef std::function<void(const draw::graphics&)> painter;
-
-      buffered_paint (painter f);
-
-      template<typename T, typename F>
-      buffered_paint (T* t, F f)
-        : p(core::bind_method(t, f))
-      {}
-
-      void operator () (const draw::graphics& g);
-
-    private:
-      painter p;
-    };
-
-    // --------------------------------------------------------------------------
     enum class event_source {
       keyboard,
       mouse,

@@ -123,20 +123,6 @@ namespace gui {
 
 #endif // X11
 
-    buffered_paint::buffered_paint (painter f)
-      : p(f)
-    {}
-
-    void buffered_paint::operator () (const draw::graphics& g) {
-      if (p) {
-        const auto area = g.area();
-        draw::memmap buffer(area.size());
-        draw::graphics graph(buffer);
-        p(graph);
-        g.copy_from((draw::bitmap&)buffer);
-      }
-    }
-
     namespace paint {
       // --------------------------------------------------------------------------
       void text_item (const draw::graphics& g,

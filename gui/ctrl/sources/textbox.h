@@ -151,7 +151,7 @@ namespace gui {
       typedef detail::textbox super;
 
       textbox_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(buffered_paint(this, &textbox_t::handle_paint)));
+        register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &textbox_t::handle_paint)));
       }
 
       void handle_paint (const draw::graphics& graph) {

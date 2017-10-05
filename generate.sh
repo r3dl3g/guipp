@@ -1,4 +1,4 @@
-builddir=build/$(gcc -dumpversion)
+builddir=build/gcc-$(gcc -dumpversion)
 
 mkdir -p $builddir/debug
 pushd $builddir/debug

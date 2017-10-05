@@ -442,6 +442,18 @@ namespace gui {
       return *this;
     }
 
+    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
+      return copy_from(src, src.area(), pt);
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
+      if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
+                  src, r.os_x(), r.os_y(), SRCCOPY)) {
+        throw std::runtime_error("graphics::copy_from failed");
+      }
+      return *this;
+    }
+
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
                                          const core::point& pt) const {
@@ -489,7 +501,7 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
       if (bmp.image) {
         core::size sz = bmp.image.size();
         if (bmp.mask) {
@@ -523,8 +535,23 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
-      RECT r;
-      GetWindowRect(target, &r);
+      RECT r = {0};
+      os::window id = WindowFromDC(gc);
+      if (id) {
+        GetWindowRect(id, &r);
+      } else {
+        HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
+        if (hBmp) {
+          BITMAP bmp;
+          memset(&bmp, 0, sizeof(BITMAP));
+          GetObject(hBmp, sizeof(BITMAP), &bmp);
+          r.right = bmp.bmWidth;
+          r.bottom = bmp.bmHeight;
+        } else {
+          r.right = GetDeviceCaps(gc, HORZRES);
+          r.bottom = GetDeviceCaps(gc, VERTRES);
+        }
+      }
       return core::rectangle(r);
     }
 
@@ -1206,6 +1233,18 @@ namespace gui {
       return *this;
     }
 
+    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
+      return copy_from(src, src.area(), pt);
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
+      int res = XCopyArea(get_instance(), src.os(), target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
+      if (!res) {
+        throw std::runtime_error("graphics::copy_from failed");
+      }
+      return *this;
+    }
+
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
                                          const core::point& pt) const {
@@ -1433,7 +1472,7 @@ namespace gui {
         if (dep == depth()) {
           return copy_from(bmp.get_id(), core::rectangle(bmp.size()), pt);
         } else {
-          return copy_from(memmap(bmp), core::rectangle(bmp.size()), pt);
+          return copy_from(memmap(bmp).get_id(), core::rectangle(bmp.size()), pt);
         }
       }
       return *this;
@@ -1469,6 +1508,23 @@ namespace gui {
                                     const core::point& pt) const {
       drawer(*this, pt);
       return *this;
+    }
+
+    buffered_paint::buffered_paint (painter f)
+      : p(f)
+    {}
+
+    void buffered_paint::operator () (const draw::graphics& g) {
+      if (p) {
+        const auto area = g.area();
+        draw::memmap buffer(area.size());
+        //{
+          draw::graphics graph(buffer);
+          p(graph);
+        //}
+        //g.copy_from(buffer);
+          g.copy_from(graph);
+      }
     }
 
     namespace frame {

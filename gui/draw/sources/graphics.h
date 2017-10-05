@@ -102,8 +102,11 @@ namespace gui {
       const graphics& text (const std::function<textable>&, const font& font, os::color color) const;
       const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
-      const graphics& copy_from(const draw::bitmap&, const core::point& dest = core::point::zero) const;
-      const graphics& copy_from(const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const graphics&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const graphics&, const core::rectangle& src, const core::point& dest = core::point::zero) const;
+
+      const graphics& copy_from (const draw::bitmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero) const;
@@ -155,6 +158,24 @@ namespace gui {
 #ifdef X11
       mutable std::vector<os::rectangle> clipping_stack;
 #endif // X11
+    };
+
+    // --------------------------------------------------------------------------
+    class buffered_paint {
+    public:
+      typedef std::function<void(const draw::graphics&)> painter;
+
+      buffered_paint (painter f);
+
+      template<typename T, typename F>
+      buffered_paint (T* t, F f)
+        : p(core::bind_method(t, f))
+      {}
+
+      void operator () (const draw::graphics& g);
+
+    private:
+      painter p;
     };
 
     // --------------------------------------------------------------------------

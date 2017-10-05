@@ -1125,10 +1125,12 @@ void my_main_window::created_children () {
 }
 
 win::paint_event my_main_window::create_paint1 () {
-  return win::paint_event([](const draw::graphics& graph) {
+  return win::paint_event(draw::buffered_paint([](const draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
     using namespace draw;
+
+    graph.fill(rectangle(graph.area()), color::light_gray);
 
     graph.frame(polygon(calc_star(10, 10, 40, 40)), color::blue);
     graph.fill(polygon(calc_star(60, 10, 40, 40)), color::dark_green);
@@ -1198,7 +1200,7 @@ win::paint_event my_main_window::create_paint1 () {
       }
     }
 
-  });
+  }));
 }
 
 win::paint_event my_main_window::create_paint2 () {

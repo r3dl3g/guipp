@@ -82,7 +82,7 @@ namespace gui {
       typedef detail::editbox super;
 
       editbox_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(buffered_paint(this, &editbox_t::handle_paint)));
+        register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &editbox_t::handle_paint)));
       }
 
       void handle_paint (const draw::graphics& graph) {

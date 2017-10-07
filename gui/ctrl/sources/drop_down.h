@@ -333,10 +333,9 @@ namespace gui {
       }
 
     private:
-      void create_children(window*, const core::rectangle&) {
-        data.button.create(*this);
+      void create_children(window*, const core::rectangle& r) {
+        data.button.create(*this, get_layout().button_place(r.size()));
         data.button.set_visible();
-        super::layout();
       }
 
       void create_popup (const core::rectangle& place) {
@@ -386,7 +385,7 @@ namespace gui {
         {}
 
         data_provider source;
-        custom_push_button button;
+        push_button button;
         popup_window popup;
         list_type items;
         int selection;

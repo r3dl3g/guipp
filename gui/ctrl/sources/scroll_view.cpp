@@ -42,8 +42,8 @@ namespace gui {
       , edge(nullptr)
     {}
 
-    void scroll_view_base::init (win::vscroll_bar* vscroll,
-                            win::hscroll_bar* hscroll,
+    void scroll_view_base::init (win::vertical_scroll_bar* vscroll,
+                            win::horizontal_scroll_bar* hscroll,
                             win::client_window* edge) {
       this->vscroll = vscroll;
       this->hscroll = hscroll;
@@ -305,11 +305,11 @@ namespace gui {
       return hscroll.is_visible();
     }
 
-    vscroll_bar& scroll_view::get_vscroll () {
+    vertical_scroll_bar& scroll_view::get_vscroll () {
       return vscroll;
     }
 
-    hscroll_bar& scroll_view::get_hscroll () {
+    horizontal_scroll_bar& scroll_view::get_hscroll () {
       return hscroll;
     }
 

@@ -23,7 +23,7 @@ namespace gui {
 
   namespace win {
 
-    no_erase_window_class button::clazz("BUTTON",
+    no_erase_window_class button_base::clazz("BUTTON",
 #ifdef WIN32
       (os::color)(COLOR_BTNFACE + 1)
 #endif // WIN32
@@ -39,33 +39,33 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    button::button () {
+    button_base::button_base () {
       init();
     }
 
-    button::button (const button& rhs)
+    button_base::button_base (const button_base& rhs)
       : super(rhs)
       , data(rhs.data)
     {
       init();
     }
 
-    button::button (button&& rhs)
+    button_base::button_base (button_base&& rhs)
       : super(std::move(rhs))
       , data(std::move(rhs.data))
     {
       init();
     }
 
-    void button::init() {
+    void button_base::init() {
       set_accept_focus(true);
 #ifdef X11
       detail::init_control_messages();
 #endif // X11
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {
         redraw_later();
       }));
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
         redraw_later();
       }));
       register_event_handler(REGISTER_FUNCTION, mouse_enter_event([&]() {
@@ -87,7 +87,7 @@ namespace gui {
       }));
     }
 
-    void button::set_hilited (bool h) {
+    void button_base::set_hilited (bool h) {
       if (data.hilited != h) {
         data.hilited = h;
         send_client_message(this, detail::HILITE_CHANGE_MESSAGE, h);
@@ -95,7 +95,7 @@ namespace gui {
       }
     }
 
-    void button::set_pushed (bool h) {
+    void button_base::set_pushed (bool h) {
       if (data.pushed != h) {
         data.pushed = h;
         send_client_message(this, h ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
@@ -103,7 +103,7 @@ namespace gui {
       }
     }
 
-    void button::set_checked (bool f) {
+    void button_base::set_checked (bool f) {
       if (data.checked != f) {
         data.checked = f;
         send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
@@ -112,7 +112,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void push_button_traits::init (button& btn) {
+    void push_button_traits::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
@@ -130,7 +130,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<>
-    void toggle_button_traits<false>::init (button& btn) {
+    void toggle_button_traits<false>::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
@@ -150,7 +150,7 @@ namespace gui {
     }
     // --------------------------------------------------------------------------
     template<>
-    void toggle_button_traits<true>::init (button& btn) {
+    void toggle_button_traits<true>::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);

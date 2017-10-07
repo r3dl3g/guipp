@@ -154,6 +154,14 @@ namespace gui {
         global::unregister_utf8_window(get_id());
       }
 
+      void edit_base::create (const container& parent,
+                              const core::rectangle& place,
+                              const std::string& txt) {
+        super::create(clazz, parent, place);
+        prepare_input();
+        set_text(txt);
+      }
+
       void edit_base::set_text (const std::string& t) {
         data.text = t;
         data.cursor_pos = 0;

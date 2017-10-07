@@ -126,7 +126,7 @@ namespace gui {
     class drop_down_list : public group_window<layout::drop_down> {
     public:
       typedef group_window<layout::drop_down> super;
-      typedef vlist list_type;
+      typedef vertical_list list_type;
 
       typedef T(get_data_t)(std::size_t);
       typedef std::function<get_data_t> data_provider;

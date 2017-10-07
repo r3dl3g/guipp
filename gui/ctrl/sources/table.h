@@ -614,10 +614,10 @@ namespace gui {
       table::data_view      data;
       table::column_view    columns;
       table::row_view       rows;
-      vscroll_bar           vscroll;
-      hscroll_bar           hscroll;
+      vertical_scroll_bar           vscroll;
+      horizontal_scroll_bar           hscroll;
 
-      typedef label_t<text_origin::center,
+      typedef basic_label<text_origin::center,
                       draw::frame::raised_relief,
                       color::black,
                       color::very_very_light_gray> edge_view;

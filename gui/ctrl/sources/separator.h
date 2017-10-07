@@ -35,6 +35,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
+
       class separator_base : public window {
       public:
         typedef window super;
@@ -42,9 +43,7 @@ namespace gui {
         separator_base ();
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::def) {
-          super::create(clazz, parent, place);
-        }
+                     const core::rectangle& place = core::rectangle::def);
 
       protected:
         static no_erase_window_class clazz;
@@ -123,23 +122,35 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation Horizontal, bool Sunken = true, os::color background = color::light_gray>
-    class separator_t : public detail::separator_base {
+    class basic_separator : public detail::separator_base {
     public:
       typedef detail::line_traits<Horizontal> lt;
       typedef detail::color_traits<Sunken> ct;
 
-      separator_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          core::rectangle r = lt::area(client_area());
-          graph.frame(lt::first(r), ct::first(background));
-          graph.frame(lt::second(r), ct::second(background));
-        }));
-      }
+      basic_separator ();
+
+    private:
+      void paint (const draw::graphics& graph);
+
     };
 
     // --------------------------------------------------------------------------
-    using hseparator = separator_t<orientation::horizontal>;
-    using vseparator = separator_t<orientation::vertical>;
+    using horizontal_separator = basic_separator<orientation::horizontal>;
+    using vertical_separator = basic_separator<orientation::vertical>;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    template<orientation O, bool S, os::color B>
+    inline basic_separator<O, S, B>::basic_separator () {
+      register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_separator::paint));
+    }
+
+    template<orientation O, bool S, os::color B>
+    inline void basic_separator<O, S, B>::paint (const draw::graphics& graph) {
+      core::rectangle r = lt::area(client_area());
+      graph.frame(lt::first(r), ct::first(B));
+      graph.frame(lt::second(r), ct::second(B));
+    }
 
   } // win
 

@@ -120,8 +120,8 @@ private:
   win::client_window window1;
   win::client_window window2;
 
-  win::hseparator hseparator;
-  win::vseparator vseparator;
+  win::horizontal_separator hseparator;
+  win::vertical_separator vseparator;
 
   win::text_button calc_button;
   win::text_button inc_button;
@@ -131,8 +131,8 @@ private:
   win::text_button del_button;
   win::text_button clear_button;
 
-  win::vseparator btn_sep1;
-  win::vseparator btn_sep2;
+  win::vertical_separator btn_sep1;
+  win::vertical_separator btn_sep2;
 
   win::group_window<layout::horizontal_adaption<5, 10>, color::light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
@@ -160,7 +160,7 @@ private:
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
   win::label label;
-  win::label_t<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  win::basic_label<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
 
   win::text_button min_button;
@@ -170,9 +170,9 @@ private:
 
   win::simple_list_data<std::string> data;
 
-  typedef win::vlist List1;
+  typedef win::vertical_list List1;
   typedef win::edit_list List2;
-  typedef win::vlist List3;
+  typedef win::vertical_list List3;
 
   List1 list1;
   List2& list2;
@@ -180,20 +180,20 @@ private:
 
   typedef win::vsplit_view<List2, List3> list_split_view;
   typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
-  typedef win::vsplit_view<win::hlist, simple_list> column_list_split_view;
+  typedef win::vsplit_view<win::horizontal_list, simple_list> column_list_split_view;
 
   win::hsplit_view<list_split_view, column_list_split_view> main_split_view;
 
   win::text_button up_button;
   win::text_button down_button;
 
-  win::vscroll_bar vscroll;
-  win::hscroll_bar hscroll;
+  win::vertical_scroll_bar vscroll;
+  win::horizontal_scroll_bar hscroll;
 
   win::check_box<> scroll_check_box;
 
-  win::hslider hslider;
-  win::vslider vslider;
+  win::horizontal_slider hslider;
+  win::vertical_slider vslider;
   const win::paint_event paint1;
   const win::paint_event paint2;
 
@@ -222,7 +222,7 @@ private:
   typedef win::virtual_view<win::editbox> editbox_view;
   editbox_view editor;
 
-  typedef win::textbox_t<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef win::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
   typedef win::virtual_view<textbox_type> textbox_view;
 
   textbox_view textbox;
@@ -247,9 +247,9 @@ int gui_main(const std::vector<std::string>& args) {
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
   size_t cln_size = sizeof(win::client_window);
-  size_t btn_size = sizeof(win::button);
-  size_t push_size = sizeof(win::button);
-  size_t tgl_size = sizeof(win::button_t<win::push_button_traits>);
+  size_t btn_size = sizeof(win::button_base);
+  size_t push_size = sizeof(win::button_base);
+  size_t tgl_size = sizeof(win::basic_button<win::push_button_traits>);
   size_t tbtn_size = sizeof(win::text_button);
   size_t pnt_size = sizeof(win::paint_event);
 

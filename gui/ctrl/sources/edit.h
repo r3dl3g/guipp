@@ -69,11 +69,7 @@ namespace gui {
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def,
-                     const std::string& txt = std::string()) {
-          super::create(clazz, parent, place);
-          prepare_input();
-          set_text(txt);
-        }
+                     const std::string& txt = std::string());
 
         void set_text (const std::string&);
         const std::string& get_text () const;
@@ -124,32 +120,45 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin A>
-    class edit_t : public detail::edit_base {
+    class basic_edit : public detail::edit_base {
     public:
       typedef detail::edit_base super;
 
-      edit_t () {
-        register_handler(A);
-      }
+      basic_edit ();
+      basic_edit (const basic_edit& rhs);
+      basic_edit (basic_edit&& rhs);
 
-      edit_t (const edit_t& rhs)
-        : super(rhs)
-      {
-        register_handler(A);
-      }
-
-      edit_t (edit_t&& rhs)
-        : super(std::move(rhs))
-      {
-        register_handler(A);
-      }
     };
 
     // --------------------------------------------------------------------------
-    using edit_left = edit_t<text_origin::vcenter_left>;
+    using edit_left = basic_edit<text_origin::vcenter_left>;
     typedef edit_left edit;
-    using edit_right = edit_t<text_origin::vcenter_right>;
-    using edit_center = edit_t<text_origin::center>;
+    using edit_right = basic_edit<text_origin::vcenter_right>;
+    using edit_center = basic_edit<text_origin::center>;
+
+    // --------------------------------------------------------------------------
+    // inlines
+
+    template<text_origin A>
+    inline basic_edit<A>::basic_edit () {
+      register_handler(A);
+    }
+
+    template<text_origin A>
+    inline basic_edit<A>::basic_edit (const basic_edit& rhs)
+      : super(rhs)
+    {
+      register_handler(A);
+    }
+
+    template<text_origin A>
+    inline basic_edit<A>::basic_edit (basic_edit&& rhs)
+      : super(std::move(rhs))
+    {
+      register_handler(A);
+    }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

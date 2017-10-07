@@ -59,13 +59,13 @@ private:
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
-  separator_t<orientation::vertical, true, nero> separators[2];
+  basic_separator<orientation::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
-  typedef label_t<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
+  typedef basic_label<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
-  vlist left_list;
+  vertical_list left_list;
 
   typedef tree_view simple_tree;
   typedef win::sorted_file_tree file_tree;
@@ -370,7 +370,7 @@ void my_main_window::quit () {
 
   layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(20, 55, 15, 15);
   group_window<lineup<alignment::right, 80, 15, 10, 2>, color::light_gray> buttons;
-  label_t<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
+  basic_label<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
   text_button yes, no;
 
   bool result = false;

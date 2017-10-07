@@ -66,7 +66,7 @@ namespace gui {
       {}
 
       template <>
-      slider_t<orientation::vertical>::slider_t () {
+      basic_slider<orientation::vertical>::basic_slider () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                                 const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -113,7 +113,7 @@ namespace gui {
       }
 
       template <>
-      slider_t<orientation::horizontal>::slider_t () {
+      basic_slider<orientation::horizontal>::basic_slider () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                                 const core::point& p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -160,7 +160,7 @@ namespace gui {
         }));
       }
 
-      slider::slider ()
+      slider_base::slider_base ()
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
@@ -193,17 +193,17 @@ namespace gui {
         }));
       }
 
-      void slider::set_min (type i) {
+      void slider_base::set_min (type i) {
         min = i;
         redraw_later();
       }
 
-      void slider::set_max (type i) {
+      void slider_base::set_max (type i) {
         max = i;
         redraw_later();
       }
 
-      void slider::set_min_max (type mi, type ma) {
+      void slider_base::set_min_max (type mi, type ma) {
         min = mi;
         max = ma;
         redraw_later();

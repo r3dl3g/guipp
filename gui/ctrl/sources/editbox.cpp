@@ -37,7 +37,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      const no_erase_window_class editbox::clazz = no_erase_window_class(typeid(editbox).name());
+      const no_erase_window_class editbox_base::clazz = no_erase_window_class(typeid(editbox_base).name());
 
       // --------------------------------------------------------------------------
       editbox_base::editbox_base () {
@@ -56,7 +56,11 @@ namespace gui {
         enable_select_by_mouse();
       }
 
-      // --------------------------------------------------------------------------
+      void editbox_base::create (const container& parent,
+                                 const core::rectangle& r) {
+        window::create(clazz, parent, r);
+      }
+
       void editbox_base::handle_create (window*, const core::rectangle&) {
         global::register_utf8_window(get_id());
       }

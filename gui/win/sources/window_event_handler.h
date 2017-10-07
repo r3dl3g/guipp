@@ -45,11 +45,13 @@ namespace gui {
     template<int I, typename T> T get_param (const core::event& e);
     template<> os::graphics get_param<0> (const core::event& e);
     template<> window* get_param<0> (const core::event& e);
+
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e);
     os::key_symbol get_key_symbol (const core::event& e);
     std::string get_key_chars (const core::event& e);
     core::point get_root_mouse_pos (const core::event& e);
+
     // --------------------------------------------------------------------------
     template <os::event_id id>
     struct event_type_match {
@@ -57,12 +59,18 @@ namespace gui {
         return (e.type == id);
       }
     };
+
     // --------------------------------------------------------------------------
     template<typename T>
     using param_getter = T(*)(const core::event&);
+
     // --------------------------------------------------------------------------
-    template<typename... Ts> struct params {
-      template<param_getter<Ts>... Fs> struct getter {
+    template<typename... Ts>
+    struct params {
+
+      template<param_getter<Ts>... Fs>
+      struct getter {
+
         using callback = void(Ts...);
         typedef std::function<callback> function;
 

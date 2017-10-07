@@ -45,7 +45,7 @@ namespace gui {
 
       win::window* first;
       win::window* second;
-      win::detail::slider* slider;
+      win::detail::slider_base* slider;
     };
 
     // --------------------------------------------------------------------------
@@ -88,17 +88,17 @@ namespace gui {
         data.second = second;
       }
 
-      win::detail::slider* get_slider () const {
+      win::detail::slider_base* get_slider () const {
         return data.slider;
       }
 
-      void set_slider (win::detail::slider* slider) {
+      void set_slider (win::detail::slider_base* slider) {
         data.slider = slider;
       }
 
       void set (win::window* first,
                 win::window* second,
-                win::detail::slider* slider) {
+                win::detail::slider_base* slider) {
         data.first = first;
         data.second = second;
         data.slider = slider;
@@ -176,7 +176,7 @@ namespace gui {
         typedef layout_container<layout::split_view<O>> super;
         typedef typename super::layout_type layout_type;
 
-        typedef win::framed_slider_t<O, draw::frame::raised_relief> slider_type;
+        typedef win::basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
         split_view () {
           init();

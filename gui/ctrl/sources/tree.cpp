@@ -165,6 +165,13 @@ namespace gui {
         return selected ? icon_selected : icon;
       }
 
+      const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected) {
+        if (has_children) {
+          return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
+        }
+        return file_icon(selected);
+      }
+
     } // tree
 
   } // win

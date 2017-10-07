@@ -247,7 +247,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void scroll_bar_t<orientation::horizontal>::init () {
+    void basic_scroll_bar<orientation::horizontal>::init () {
       register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
         auto geo = get_geometry();
         auto up = up_button_place(geo);
@@ -364,7 +364,7 @@ namespace gui {
     }
 
     template<>
-    void scroll_bar_t<orientation::vertical>::init () {
+    void basic_scroll_bar<orientation::vertical>::init () {
       register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g){
         auto geo = get_geometry();
         auto up = up_button_place(geo);

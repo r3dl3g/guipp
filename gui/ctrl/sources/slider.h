@@ -49,12 +49,12 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class slider : public window {
+      class slider_base : public window {
       public:
         typedef window super;
         typedef core::point::type type;
 
-        slider ();
+        slider_base ();
 
         void set_min (type min);
         void set_max (type min);
@@ -80,11 +80,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<orientation O>
-      class slider_t : public slider {
+      class basic_slider : public slider_base {
       public:
-        typedef slider super;
+        typedef slider_base super;
 
-        slider_t ();
+        basic_slider ();
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
@@ -94,61 +94,68 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      inline auto slider::get_min () const -> type {
+      inline auto slider_base::get_min () const -> type {
         return min;
       }
 
-      inline auto slider::get_max () const -> type {
+      inline auto slider_base::get_max () const -> type {
         return max;
       }
 
       // --------------------------------------------------------------------------
       template<orientation O>
-      inline void slider_t<O>::create (const container& parent,
+      inline void basic_slider<O>::create (const container& parent,
                                        const core::rectangle& place) {
         super::create(clazz, parent, place);
       }
 
       template<orientation O>
-      slider_class<O> slider_t<O>::clazz;
+      slider_class<O> basic_slider<O>::clazz;
 
       template<>
-      slider_t<orientation::vertical>::slider_t ();
+      basic_slider<orientation::vertical>::basic_slider ();
 
       template<>
-      slider_t<orientation::horizontal>::slider_t ();
+      basic_slider<orientation::horizontal>::basic_slider ();
 
     }
 
     // --------------------------------------------------------------------------
     template<orientation O,
              draw::frame::drawer F = draw::frame::raised_relief>
-    class framed_slider_t : public detail::slider_t<O> {
+    class basic_framed_slider : public detail::basic_slider<O> {
     public:
-      typedef detail::slider_t<O> super;
+      typedef detail::basic_slider<O> super;
 
-      framed_slider_t ();
+      basic_framed_slider ();
+
+    private:
+      void paint (const draw::graphics& g);
 
     };
 
     // --------------------------------------------------------------------------
     template<orientation O,
              draw::frame::drawer F>
-    framed_slider_t<O, F>::framed_slider_t () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& g) {
-        core::rectangle place = super::client_area();
-        if (super::has_focus()) {
-          draw::frame::black(g, place);
-          place.shrink({1, 1});
-        }
-        g.fill(draw::rectangle(place), color::buttonColor());
-        F(g, place);
-      }));
+    basic_framed_slider<O, F>::basic_framed_slider () {
+      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_framed_slider::paint));
+    }
+
+    template<orientation O,
+             draw::frame::drawer F>
+    void basic_framed_slider<O, F>::paint (const draw::graphics& g) {
+      core::rectangle place = super::client_area();
+      if (super::has_focus()) {
+        draw::frame::black(g, place);
+        place.shrink({1, 1});
+      }
+      g.fill(draw::rectangle(place), color::buttonColor());
+      F(g, place);
     }
 
     // --------------------------------------------------------------------------
-    using vslider = framed_slider_t<orientation::vertical>;
-    using hslider = framed_slider_t<orientation::horizontal>;
+    using vertical_slider = basic_framed_slider<orientation::vertical>;
+    using horizontal_slider = basic_framed_slider<orientation::horizontal>;
 
     // --------------------------------------------------------------------------
   } // win

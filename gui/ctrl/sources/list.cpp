@@ -34,7 +34,7 @@ namespace gui {
 
     namespace detail {
 
-      list::data::data (core::size_type item_size,
+      list_base::data::data (core::size_type item_size,
                         os::color background)
         : item_count(0)
         , item_size(item_size)
@@ -47,28 +47,28 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      list::list (core::size_type item_size,
+      list_base::list_base (core::size_type item_size,
                   os::color background)
         : data(item_size, background)
       {
         init();
       }
 
-      list::list (const list& rhs)
+      list_base::list_base (const list_base& rhs)
         : super(rhs)
         , data(rhs.data)
       {
         init();
       }
 
-      list::list (list&& rhs)
+      list_base::list_base (list_base&& rhs)
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {
         init();
       }
 
-      void list::init () {
+      void list_base::init () {
         set_accept_focus(true);
 #ifdef X11
         detail::init_control_messages();
@@ -86,15 +86,15 @@ namespace gui {
         }));
       }
 
-      void list::set_drawer (const std::function<draw_list_item>& drawer) {
+      void list_base::set_drawer (const std::function<draw_list_item>& drawer) {
         this->drawer = drawer;
       }
 
-      void list::set_drawer (std::function<draw_list_item>&& drawer) {
+      void list_base::set_drawer (std::function<draw_list_item>&& drawer) {
         this->drawer = std::move(drawer);
       }
 
-      void list::draw_item (std::size_t idx,
+      void list_base::draw_item (std::size_t idx,
                             const draw::graphics& g,
                             const core::rectangle& place,
                             const draw::brush& background,
@@ -109,39 +109,39 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    list::pos_t list_t<orientation::horizontal>::get_dimension (const core::point& pt) const {
+    list::pos_t basic_list<orientation::horizontal>::get_dimension (const core::point& pt) const {
       return pt.x();
     }
 
     template<>
-    void list_t<orientation::horizontal>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+    void basic_list<orientation::horizontal>::set_dimension (core::rectangle& r, list_base::pos_t v, list_base::pos_t s) const {
       r.x(v);
       r.width(s);
     }
 
     template<>
-    list::pos_t list_t<orientation::vertical>::get_dimension (const core::point& pt) const {
+    list::pos_t basic_list<orientation::vertical>::get_dimension (const core::point& pt) const {
       return pt.y();
     }
 
     template<>
-    void list_t<orientation::vertical>::set_dimension (core::rectangle& r, list::pos_t v, list::pos_t s) const {
+    void basic_list<orientation::vertical>::set_dimension (core::rectangle& r, list_base::pos_t v, list_base::pos_t s) const {
       r.y(v);
       r.height(s);
     }
 
     template<>
-    list::pos_t list_t<orientation::horizontal>::get_list_size () const {
+    list::pos_t basic_list<orientation::horizontal>::get_list_size () const {
       return size().width();
     }
 
     template<>
-    list::pos_t list_t<orientation::vertical>::get_list_size () const {
+    list::pos_t basic_list<orientation::vertical>::get_list_size () const {
       return size().height();
     }
 
     template<>
-    core::size list_t<orientation::horizontal>::client_size () const {
+    core::size basic_list<orientation::horizontal>::client_size () const {
       core::size sz = super::client_size();
       if (is_scroll_bar_visible()) {
         sz.height(sz.height() - scroll_bar::get_scroll_bar_width());
@@ -150,7 +150,7 @@ namespace gui {
     }
 
     template<>
-    core::size list_t<orientation::vertical>::client_size() const {
+    core::size basic_list<orientation::vertical>::client_size() const {
       core::size sz = super::client_size();
       if (is_scroll_bar_visible()) {
         sz.width(sz.width() - scroll_bar::get_scroll_bar_width());
@@ -159,7 +159,7 @@ namespace gui {
     }
 
     template<>
-    core::rectangle list_t<orientation::horizontal>::get_scroll_bar_area () const {
+    core::rectangle basic_list<orientation::horizontal>::get_scroll_bar_area () const {
       core::rectangle r(super::client_size());
       r.y(r.y2() - scroll_bar::get_scroll_bar_width());
       r.height(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
@@ -167,7 +167,7 @@ namespace gui {
     }
 
     template<>
-    core::rectangle list_t<orientation::vertical>::get_scroll_bar_area () const {
+    core::rectangle basic_list<orientation::vertical>::get_scroll_bar_area () const {
       core::rectangle r(super::client_size());
       r.x(r.x2() - pos_t(scroll_bar::get_scroll_bar_width()));
       r.width(static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()));
@@ -175,7 +175,7 @@ namespace gui {
     }
 
     template<>
-    void list_t<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
+    void basic_list<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
         case keys::left:
         case keys::numpad::left:
@@ -189,7 +189,7 @@ namespace gui {
     }
 
     template<>
-    void list_t<orientation::vertical>::handle_direction_key (os::key_symbol key) {
+    void basic_list<orientation::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
         case keys::up:
         case keys::numpad::up:

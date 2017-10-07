@@ -161,13 +161,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H>
-    class scroll_bar_t : public scroll_bar {
+    class basic_scroll_bar : public scroll_bar {
     public:
       typedef scroll_bar super;
 
-      scroll_bar_t (bool grab_focus = true);
-      scroll_bar_t (const scroll_bar_t& rhs);
-      scroll_bar_t (scroll_bar_t&& rhs);
+      basic_scroll_bar (bool grab_focus = true);
+      basic_scroll_bar (const basic_scroll_bar& rhs);
+      basic_scroll_bar (basic_scroll_bar&& rhs);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -213,37 +213,37 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H>
-    scroll_bar_class<H> scroll_bar_t<H>::clazz;
+    scroll_bar_class<H> basic_scroll_bar<H>::clazz;
 
     // --------------------------------------------------------------------------
     template<orientation H>
-    inline scroll_bar_t<H>::scroll_bar_t (bool grab_focus) {
+    inline basic_scroll_bar<H>::basic_scroll_bar (bool grab_focus) {
       set_accept_focus(grab_focus);
       init();
     }
 
     template<orientation H>
-    inline scroll_bar_t<H>::scroll_bar_t (const scroll_bar_t& rhs)
+    inline basic_scroll_bar<H>::basic_scroll_bar (const basic_scroll_bar& rhs)
       : super(rhs)
     {
       init();
     }
 
     template<orientation H>
-    inline scroll_bar_t<H>::scroll_bar_t (scroll_bar_t&& rhs)
+    inline basic_scroll_bar<H>::basic_scroll_bar (basic_scroll_bar&& rhs)
       : super(std::move(rhs))
     {
       init();
     }
 
     template<orientation H>
-    inline void scroll_bar_t<H>::create (const container& parent,
+    inline void basic_scroll_bar<H>::create (const container& parent,
                                          const core::rectangle& place) {
       super::create(clazz, parent, place);
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::get_geometry () const -> geometry {
+    inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
       core::size sz = client_size();
       type l = length(sz);
       type t = thickness(sz);
@@ -256,113 +256,113 @@ namespace gui {
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::get_scale () const -> type {
+    inline auto basic_scroll_bar<H>::get_scale () const -> type {
       return get_geometry().scale;
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::get_scale (type spc_size, type tmb_size) const -> type {
+    inline auto basic_scroll_bar<H>::get_scale (type spc_size, type tmb_size) const -> type {
       return (spc_size - tmb_size) / (get_max() - get_min());
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::button_size (type length, type thickness) -> type {
+    inline auto basic_scroll_bar<H>::button_size (type length, type thickness) -> type {
       return std::min(thickness, length / type(2));
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::space_size (type length, type btn_size) -> type {
+    inline auto basic_scroll_bar<H>::space_size (type length, type btn_size) -> type {
       return std::max(length - btn_size * 2, type(0));
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::thumb_size (type spc_size, type btn_size) const -> type {
+    inline auto basic_scroll_bar<H>::thumb_size (type spc_size, type btn_size) const -> type {
       return std::max(get_step() * spc_size / get_range(), std::min(btn_size, spc_size));
     }
 
     template<orientation H>
-    inline auto scroll_bar_t<H>::thumb_top (type btn_size, type scale) const -> type {
+    inline auto basic_scroll_bar<H>::thumb_top (type btn_size, type scale) const -> type {
       return btn_size + (get_value() - get_min()) * scale;
     }
 
     template<orientation H>
-    inline core::rectangle scroll_bar_t<H>::up_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::up_button_place (const geometry& m) const {
       return core::rectangle(core::point::zero, build_size(m.button_size, m.thickness));
     }
 
     template<orientation H>
-    inline core::rectangle scroll_bar_t<H>::down_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::down_button_place (const geometry& m) const {
       return core::rectangle(build_pos(m.length - m.button_size), build_size(m.button_size, m.thickness));
     }
 
     template<orientation H>
-    inline core::rectangle scroll_bar_t<H>::page_up_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::page_up_place (const geometry& m) const {
       return core::rectangle(build_pos(m.button_size), build_size(m.thumb_top - m.button_size, m.thickness));
     }
 
     template<orientation H>
-    inline core::rectangle scroll_bar_t<H>::page_down_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::page_down_place (const geometry& m) const {
       type tmb_bottom = m.thumb_top + m.thumb_size;
       return core::rectangle(build_pos(tmb_bottom), build_size(m.length - m.button_size - tmb_bottom, m.thickness));
     }
 
     template<orientation H>
-    inline core::rectangle scroll_bar_t<H>::thumb_button_place (const geometry& m) const {
+    inline core::rectangle basic_scroll_bar<H>::thumb_button_place (const geometry& m) const {
       return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void scroll_bar_t<orientation::vertical>::init ();
+    void basic_scroll_bar<orientation::vertical>::init ();
 
     template<>
-    void scroll_bar_t<orientation::horizontal>::init ();
+    void basic_scroll_bar<orientation::horizontal>::init ();
 
     template<>
-    inline scroll_bar::type scroll_bar_t<orientation::horizontal>::length (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::length (const core::size& sz) {
       return sz.width();
     }
 
     template<>
-    inline scroll_bar::type scroll_bar_t<orientation::vertical>::length (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::length (const core::size& sz) {
       return sz.height();
     }
 
     template<>
-    inline scroll_bar::type scroll_bar_t<orientation::horizontal>::thickness  (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::thickness  (const core::size& sz) {
       return sz.height();
     }
 
     template<>
-    inline scroll_bar::type scroll_bar_t<orientation::vertical>::thickness  (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::thickness  (const core::size& sz) {
       return sz.width();
     }
 
     template<>
-    inline core::size scroll_bar_t<orientation::horizontal>::build_size (type pos,
+    inline core::size basic_scroll_bar<orientation::horizontal>::build_size (type pos,
                                                                          type thickness) {
       return core::size(pos, thickness);
     }
 
     template<>
-    inline core::size scroll_bar_t<orientation::vertical>::build_size (type pos,
+    inline core::size basic_scroll_bar<orientation::vertical>::build_size (type pos,
                                                                        type thickness) {
       return core::size(thickness, pos);
     }
 
     template<>
-    inline core::point scroll_bar_t<orientation::horizontal>::build_pos (type pos) {
+    inline core::point basic_scroll_bar<orientation::horizontal>::build_pos (type pos) {
       return core::point(pos, 0);
     }
 
     template<>
-    inline core::point scroll_bar_t<orientation::vertical>::build_pos (type pos) {
+    inline core::point basic_scroll_bar<orientation::vertical>::build_pos (type pos) {
       return core::point(0, pos);
     }
 
     // --------------------------------------------------------------------------
-    using vscroll_bar = scroll_bar_t<orientation::vertical>;
-    using hscroll_bar = scroll_bar_t<orientation::horizontal>;
+    using vertical_scroll_bar = basic_scroll_bar<orientation::vertical>;
+    using horizontal_scroll_bar = basic_scroll_bar<orientation::horizontal>;
 
   } // win
 

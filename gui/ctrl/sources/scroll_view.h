@@ -42,8 +42,8 @@ namespace gui {
 
       scroll_view_base (win::container* main);
 
-      void init (win::vscroll_bar* vscroll,
-                 win::hscroll_bar* hscroll,
+      void init (win::vertical_scroll_bar* vscroll,
+                 win::horizontal_scroll_bar* hscroll,
                  win::client_window* edge);
 
       core::rectangle layout (const core::size& new_size, const core::rectangle& required);
@@ -58,8 +58,8 @@ namespace gui {
         super::init(f1);
       }
 
-      win::vscroll_bar*   vscroll;
-      win::hscroll_bar*   hscroll;
+      win::vertical_scroll_bar*   vscroll;
+      win::horizontal_scroll_bar*   hscroll;
       win::client_window* edge;
     };
 
@@ -101,8 +101,8 @@ namespace gui {
         super::init(core::bind_method(this, &virtual_layout::layout));
       }
 
-      void init (win::vscroll_bar* vscroll,
-                 win::hscroll_bar* hscroll,
+      void init (win::vertical_scroll_bar* vscroll,
+                 win::horizontal_scroll_bar* hscroll,
                  win::client_window* edge,
                  view_type* client) {
         super::init(vscroll, hscroll, edge);
@@ -149,14 +149,14 @@ namespace gui {
       void move_children (const core::point& delta);
 
     protected:
-      vscroll_bar& get_vscroll ();
-      hscroll_bar& get_hscroll ();
+      vertical_scroll_bar& get_vscroll ();
+      horizontal_scroll_bar& get_hscroll ();
       client_window& get_edge ();
 
     private:
       core::point   current_pos;
-      vscroll_bar   vscroll;
-      hscroll_bar   hscroll;
+      vertical_scroll_bar   vscroll;
+      horizontal_scroll_bar   hscroll;
       client_window edge;
 
       static window_class clazz;
@@ -199,8 +199,8 @@ namespace gui {
       }
 
       view_type     view;
-      hscroll_bar   hscroll;
-      vscroll_bar   vscroll;
+      horizontal_scroll_bar   hscroll;
+      vertical_scroll_bar   vscroll;
       client_window edge;
 
     private:

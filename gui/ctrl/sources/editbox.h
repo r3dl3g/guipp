@@ -45,6 +45,9 @@ namespace gui {
         editbox_base ();
         ~editbox_base ();
 
+        void create (const container& parent,
+                     const core::rectangle& r = core::rectangle::def);
+
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
       private:
@@ -54,48 +57,46 @@ namespace gui {
 
         std::string& current_line ();
 
-      };
-
-      // --------------------------------------------------------------------------
-      class editbox : public editbox_base {
-      public:
-        typedef editbox_base super;
-
-        void create (const container& parent,
-                     const core::rectangle& r = core::rectangle::def) {
-          window::create(clazz, parent, r);
-        }
-
-      private:
         static const no_erase_window_class clazz;
       };
+
       // --------------------------------------------------------------------------
 
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<draw::frame::drawer F = draw::frame::no_frame,
+    template<draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>
-    class editbox_t : public detail::editbox {
+    class basic_editbox : public detail::editbox_base {
     public:
-      typedef detail::editbox super;
+      typedef detail::editbox_base super;
 
-      editbox_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &editbox_t::handle_paint)));
-      }
+      basic_editbox ();
 
-      void handle_paint (const draw::graphics& graph) {
-        const auto area = client_area();
-        paint::text_box(graph, area, data.lines, data.font,
-                        foreground, background, text_origin::vcenter_left,
-                        data.selection, data.cursor_pos, data.offset, has_focus());
-        F(graph, area);
-      }
+      void handle_paint (const draw::graphics& graph);
 
     };
 
-    typedef editbox_t<> editbox;
+    typedef basic_editbox<> editbox;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    template<draw::frame::drawer frame, os::color foreground, os::color background>
+    basic_editbox<frame, foreground, background>::basic_editbox () {
+      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_editbox::handle_paint)));
+    }
+
+    template<draw::frame::drawer frame, os::color foreground, os::color background>
+    void basic_editbox<frame, foreground, background>::handle_paint (const draw::graphics& graph) {
+      const auto area = client_area();
+      paint::text_box(graph, area, data.lines, data.font,
+                      foreground, background, text_origin::vcenter_left,
+                      data.selection, data.cursor_pos, data.offset, has_focus());
+      frame(graph, area);
+    }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

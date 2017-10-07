@@ -46,9 +46,7 @@ namespace gui {
         label_base (label_base&& rhs);
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::def) {
-          super::create(clazz, parent, place);
-        }
+                     const core::rectangle& place = core::rectangle::def);
 
         void set_text (const text_source&);
         void set_text (const std::string&);
@@ -56,19 +54,13 @@ namespace gui {
         std::string get_text () const;
 
         template<typename T>
-        void operator<< (const T& t) {
-          set_text(convert_to_string(t));
-        }
+        void operator<< (const T& t);
 
         template<typename T>
-        void operator>> (T& t) const {
-          t = get_text();
-        }
+        void operator>> (T& t) const;
 
         template<typename T>
-        void operator>> (T&& t) const {
-          t = get_text();
-        }
+        void operator>> (T&& t) const;
 
       protected:
         text_source text;
@@ -77,7 +69,7 @@ namespace gui {
         static no_erase_window_class clazz;
       };
 
-    }
+    } // namespace detail
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -92,78 +84,134 @@ namespace gui {
     }
 
     template<text_origin alignment,
-             draw::frame::drawer F  = draw::frame::no_frame,
+             draw::frame::drawer frame  = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::very_light_gray>
-    class label_t : public detail::label_base {
+    class basic_label : public detail::label_base {
     public:
       typedef detail::label_base super;
 
-      label_t () {
-        init();
-      }
+      basic_label ();
+      basic_label (const basic_label& rhs);
+      basic_label (basic_label&& rhs);
 
-      label_t (const label_t& rhs)
-        : super(rhs)
-      {
-        init();
-      }
+      void paint (const draw::graphics& graph);
 
-      label_t (label_t&& rhs)
-        : super(std::move(rhs))
-      {
-        init();
-      }
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def);
 
-      void paint (const draw::graphics& graph) {
-        gui::core::rectangle place = client_area();
-        paint::label(graph, client_area(), get_text(), foreground, background, alignment);
-        F(graph, place);
-      }
+      void create (const container& parent,
+                   const text_source& txt,
+                   const core::rectangle& place = core::rectangle::def);
 
-      inline void create (const container& parent,
-                          const core::rectangle& place = core::rectangle::def) {
-        super::create(parent, place);
-      }
-
-      inline void create (const container& parent,
-                          const text_source& txt,
-                          const core::rectangle& place = core::rectangle::def) {
-        create(parent, place);
-        set_text(txt);
-      }
-
-      inline void create (const container& parent,
-                          const std::string& txt,
-                          const core::rectangle& place = core::rectangle::def) {
-        create(parent, const_text(txt), place);
-      }
+      void create (const container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def);
 
     private:
-      void init () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(this, &label_t::paint));
-      }
-
+      void init ();
 
     };
 
     // --------------------------------------------------------------------------
-    using label_left = label_t<text_origin::vcenter_left,
-                              draw::frame::no_frame,
-                              color::black,
-                              color::very_light_gray>;
+    using label_left = basic_label<text_origin::vcenter_left,
+                                   draw::frame::no_frame,
+                                   color::black,
+                                   color::very_light_gray>;
 
     using label = label_left;
 
-    using label_right = label_t<text_origin::vcenter_right,
-                               draw::frame::no_frame,
-                               color::black,
-                               color::very_light_gray>;
+    using label_right = basic_label<text_origin::vcenter_right,
+                                    draw::frame::no_frame,
+                                    color::black,
+                                    color::very_light_gray>;
 
-    using label_center = label_t<text_origin::center,
-                                draw::frame::no_frame,
-                                color::black,
-                                color::very_light_gray>;
+    using label_center = basic_label<text_origin::center,
+                                     draw::frame::no_frame,
+                                     color::black,
+                                     color::very_light_gray>;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    namespace detail {
+
+      inline void label_base::create (const container& parent,
+                                      const core::rectangle& place) {
+        super::create(clazz, parent, place);
+      }
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      inline void label_base::operator<< (const T& t) {
+        set_text(convert_to_string(t));
+      }
+
+      template<typename T>
+      inline void label_base::operator>> (T& t) const {
+        t = get_text();
+      }
+
+      template<typename T>
+      inline void label_base::operator>> (T&& t) const {
+        t = get_text();
+      }
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_label<A, D, F, B>::basic_label () {
+      init();
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_label<A, D, F, B>::basic_label (const basic_label& rhs)
+      : super(rhs)
+    {
+      init();
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_label<A, D, F, B>::basic_label (basic_label&& rhs)
+      : super(std::move(rhs))
+    {
+      init();
+    }
+
+    template<text_origin align, draw::frame::drawer frame, os::color foreground, os::color background>
+    inline void basic_label<align, frame, foreground, background>::paint (const draw::graphics& graph) {
+      gui::core::rectangle place = client_area();
+      paint::label(graph, client_area(), get_text(), foreground, background, align);
+      frame(graph, place);
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_label<A, D, F, B>::create (const container& parent,
+                                                 const core::rectangle& place) {
+      super::create(parent, place);
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_label<A, D, F, B>::create (const container& parent,
+                                                 const text_source& txt,
+                                                 const core::rectangle& place) {
+      create(parent, place);
+      set_text(txt);
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_label<A, D, F, B>::create (const container& parent,
+                                                 const std::string& txt,
+                                                 const core::rectangle& place) {
+      create(parent, const_text(txt), place);
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_label<A, D, F, B>::init () {
+      register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_label::paint));
+    }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

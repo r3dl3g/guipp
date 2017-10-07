@@ -64,28 +64,21 @@ namespace gui {
         typedef core::position<int> position;
         typedef core::range<position> range;
 
+        void create (const container& parent,
+                     const core::rectangle& r = core::rectangle::def);
+
         void set_text (const std::string&);
         std::string get_text () const;
 
-        inline size_type row_count () const {
-          return data.lines.size();
-        }
+        size_type row_count () const;
 
         void set_scroll_pos (const core::point& pos);
         void set_selection (const range&);
         void set_cursor_pos (const position&, bool shift = false);
 
-        inline const core::point& get_scroll_pos () const {
-          return data.offset;
-        }
-
-        inline const range& get_selection () const {
-          return data.selection;
-        }
-
-        inline const position& get_cursor_pos () const {
-          return data.cursor_pos;
-        }
+        const core::point& get_scroll_pos () const;
+        const range& get_selection () const;
+        const position& get_cursor_pos () const;
 
         void replace_selection (const std::string&);
         std::string get_text_in_range (const range&) const;
@@ -109,10 +102,7 @@ namespace gui {
         void notify_selection_changed () const;
 
         struct data {
-          data ()
-            : font(draw::font::monospace())
-            , last_mouse_point(core::point::undefined)
-          {}
+          data ();
 
           strings lines;
           draw::font font;
@@ -122,50 +112,82 @@ namespace gui {
           range selection;
           mutable core::size virtual_size;
         } data;
-      };
 
-      // --------------------------------------------------------------------------
-      class textbox : public textbox_base {
-      public:
-        typedef textbox_base super;
-
-        void create (const container& parent,
-                     const core::rectangle& r = core::rectangle::def) {
-          window::create(clazz, parent, r);
-        }
 
       private:
         static const no_erase_window_class clazz;
+
       };
-      // --------------------------------------------------------------------------
 
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin alignment = text_origin::vcenter_left,
-             draw::frame::drawer F  = draw::frame::no_frame,
+    template<text_origin align = text_origin::vcenter_left,
+             draw::frame::drawer frame  = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>
-    class textbox_t : public detail::textbox {
+    class basic_textbox : public detail::textbox_base {
     public:
-      typedef detail::textbox super;
+      typedef detail::textbox_base super;
 
-      textbox_t () {
-        register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &textbox_t::handle_paint)));
-      }
+      basic_textbox ();
 
-      void handle_paint (const draw::graphics& graph) {
-        const auto area = client_area();
-        paint::text_box(graph, area, data.lines, data.font,
-                        foreground, background, alignment,
-                        data.selection, data.cursor_pos, data.offset, has_focus());
-        F(graph, area);
-      }
+    private:
+      void handle_paint (const draw::graphics& graph);
 
     };
 
     // --------------------------------------------------------------------------
-    typedef textbox_t<> textbox;
+    typedef basic_textbox<> textbox;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    namespace detail {
+
+      inline void textbox_base::create (const container& parent,
+                                        const core::rectangle& r) {
+        window::create(clazz, parent, r);
+      }
+
+      inline auto textbox_base::row_count () const -> size_type {
+        return data.lines.size();
+      }
+
+      inline const core::point& textbox_base::get_scroll_pos () const {
+        return data.offset;
+      }
+
+      inline auto textbox_base::get_selection () const -> const range& {
+        return data.selection;
+      }
+
+      inline auto textbox_base::get_cursor_pos () const -> const position& {
+        return data.cursor_pos;
+      }
+
+      inline textbox_base::data::data ()
+        : font(draw::font::monospace())
+        , last_mouse_point(core::point::undefined)
+      {}
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
+    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
+      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_textbox::handle_paint)));
+    }
+
+    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    inline void basic_textbox<align, frame, fg, bg>::handle_paint (const draw::graphics& graph) {
+      const auto area = client_area();
+      paint::text_box(graph, area, data.lines, data.font,
+                      fg, bg, align,
+                      data.selection, data.cursor_pos, data.offset, has_focus());
+      frame(graph, area);
+    }
+
+    // --------------------------------------------------------------------------
 
   } // win
 

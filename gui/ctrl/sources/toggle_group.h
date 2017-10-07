@@ -43,7 +43,7 @@ namespace gui {
     class toggle_group : public group_window<layout::adaption_layout<O, 0, 0, 2>, background> {
     public:
       typedef group_window<layout::adaption_layout<O, 0, 0, 2>, background> super;
-      typedef separator_t<!O, true, background> separator_type;
+      typedef basic_separator<!O, true, background> separator_type;
 
       struct button {
         button (const text_source& label, bool first)

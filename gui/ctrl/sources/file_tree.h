@@ -268,9 +268,9 @@ namespace gui {
     } // tree
 
     // --------------------------------------------------------------------------
-    typedef tree::tree<path_tree::unsorted_path_info> file_tree;
+    typedef tree::basic_tree<path_tree::unsorted_path_info> file_tree;
 
-    typedef tree::tree<path_tree::sorted_path_info> sorted_file_tree;
+    typedef tree::basic_tree<path_tree::sorted_path_info> sorted_file_tree;
 
     // --------------------------------------------------------------------------
     namespace detail {

@@ -44,8 +44,7 @@ namespace gui {
     class window;
 
     namespace detail {
-      void set_id (window* w,
-                   os::window id);
+      void set_id (window* w, os::window id);
 
 #ifdef X11
       extern Atom WM_CREATE_WINDOW;
@@ -61,7 +60,6 @@ namespace gui {
       typedef core::event_container::event_handler_function event_handler_function;
 
       window ();
-
       ~window ();
 
       os::window get_id () const;
@@ -69,71 +67,51 @@ namespace gui {
       operator os::drawable () const;
 
       bool is_valid () const;
-
       bool is_visible () const;
-
       bool is_enabled () const;
+      bool is_child () const;
+      bool is_popup () const;
+      bool is_toplevel () const;
+      bool is_focus_accepting () const;
 
       bool has_focus () const;
-
-      bool is_child () const;
-
-      bool is_popup () const;
-
-      bool is_toplevel () const;
-
       bool has_border () const;
+      bool accept_focus () const;
 
       void destroy ();
-
       void quit ();
 
       void set_parent (const container& parent);
-
       container* get_parent () const;
-
       container* get_root () const;
-
       bool is_child_of (const container& parent) const;
 
       void set_visible (bool s = true);
+      void set_accept_focus (bool a);
 
       void enable (bool on = true);
-
       void disable ();
 
       void take_focus ();
-
       void shift_focus (bool backward = false);
 
       void to_front ();
-
       void to_back ();
 
       void enable_redraw (bool on = true);
-
       void redraw_now ();
-
       void redraw_later ();
 
       core::size size () const;
-
       core::point position () const;
-
       core::rectangle absolute_place () const;
-
       core::rectangle place () const;
-
       core::point absolute_position () const;
-
       core::size client_size () const;
-
       core::rectangle client_area () const;
 
       void move (const core::point&, bool repaint = true);
-
       void resize (const core::size&, bool repaint = true);
-
       void place (const core::rectangle&, bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
@@ -167,18 +145,13 @@ namespace gui {
 
       void prepare_for_event (os::event_id mask);
 
-      bool accept_focus () const;
-
-      void set_accept_focus (bool a);
-
-      bool is_focus_accepting () const;
 
     protected:
       window (const window&);
       window (window&&);
 
-      window& operator=(const window&) = delete;
-      window& operator=(window&&) = delete;
+      window& operator= (const window&) = delete;
+      window& operator= (window&&) = delete;
 
       void create (const window_class&,
                    const container&,
@@ -212,6 +185,23 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    class client_window : public window {
+    public:
+      typedef window super;
+
+      client_window ();
+      client_window (const client_window& rhs);
+      client_window (client_window&& rhs);
+
+      void create (const container& parent,
+                   const core::rectangle& r = core::rectangle::def);
+
+    private:
+      static const window_class clazz;
+    };
+
+    // --------------------------------------------------------------------------
+    // inlines
     inline os::window window::get_id () const {
       return id;
     }
@@ -243,35 +233,32 @@ namespace gui {
     }
 
     template<typename T>
-    inline void window::register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result& result), os::event_id mask) {
+    inline void window::register_event_handler (char const name[], T* t,
+                                                bool(T::*method)(const core::event&,
+                                                                 os::event_result& result),
+                                                os::event_id mask) {
       register_event_handler(name, core::bind_method(t, method), mask);
     }
 
     // --------------------------------------------------------------------------
-    class client_window : public window {
-    public:
-      typedef window super;
+    inline client_window::client_window ()
+    {}
 
-      client_window ()
-      {}
+    inline client_window::client_window (const client_window& rhs)
+      : super(rhs)
+    {}
 
-      client_window (const client_window& rhs)
-        : super(rhs)
-      {}
+    inline client_window::client_window (client_window&& rhs)
+      : super(rhs)
+    {}
 
-      client_window (client_window&& rhs)
-        : super(rhs)
-      {}
-
-      void create (const container& parent,
-                   const core::rectangle& r = core::rectangle::def) {
-        window::create(clazz, parent, r);
-      }
-
-      static const window_class clazz;
-    };
+    inline void client_window::create (const container& parent,
+                                       const core::rectangle& r) {
+      window::create(clazz, parent, r);
+    }
 
     // --------------------------------------------------------------------------
+
   } // win
 
 } // gui

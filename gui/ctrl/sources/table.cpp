@@ -570,18 +570,6 @@ namespace gui {
       hscroll.set_max(sz.width() * 10);
     }
 
-//    void table_view::handle_wheel_x (const core::point_type delta, const core::point&) {
-//      if (hscroll.is_enabled()) {
-//        hscroll.set_value(hscroll.get_value() - delta * hscroll.get_step(), true);
-//      }
-//    }
-
-//    void table_view::handle_wheel_y (const core::point_type delta, const core::point&) {
-//      if (vscroll.is_enabled()) {
-//        vscroll.set_value(vscroll.get_value() - delta * vscroll.get_step(), true);
-//      }
-//    }
-
     void table_view::handle_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;
       moved = false;

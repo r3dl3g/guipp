@@ -49,11 +49,7 @@ namespace gui {
                       const os::color& foreground,
                       const os::color& background,
                       bool selected,
-                      bool hilited) {
-        text_cell<std::string, draw::frame::no_frame>(convert_to_string(t), graph, place, align,
-                                                      foreground, background, selected, hilited);
-        F(graph, place);
-      }
+                      bool hilited);
 
       template<>
       void text_cell<std::string, draw::frame::no_frame> (const std::string& t,
@@ -65,7 +61,7 @@ namespace gui {
                                                           bool selected,
                                                           bool hilited);
 
-    }
+    } // namespace paint
 
     // --------------------------------------------------------------------------
     namespace table {
@@ -88,46 +84,18 @@ namespace gui {
         // --------------------------------------------------------------------------
         template<typename T>
         struct vector {
-          inline vector (const T& default_data)
-            : default_data(default_data)
-          {}
+          vector (const T& default_data);
 
-          const T& get (std::size_t idx) const {
-            if (idx < data.size()) {
-              return data[idx];
-            }
-            return default_data;
-          }
+          const T& get (std::size_t idx) const;
+          void set (std::size_t idx, const T& t);
 
-          inline const T& operator[] (std::size_t idx) const {
-            return get(idx);
-          }
+          const T& operator[] (std::size_t idx) const;
+          T& operator[] (std::size_t idx);
 
-          void set (std::size_t idx, const T& t) {
-            if (data.size() <= idx) {
-              data.resize(idx + 1, default_data);
-            }
-            data[idx] = t;
-          }
+          std::size_t size () const;
+          void clear ();
 
-          T& operator[] (std::size_t idx) {
-            if (data.size() <= idx) {
-              data.resize(idx + 1, default_data);
-            }
-            return data[idx];
-          }
-
-          inline std::size_t size () const {
-            return data.size();
-          }
-
-          inline void clear () {
-            data.clear();
-          }
-
-          inline const T& get_default_data () const {
-            return default_data;
-          }
+          const T& get_default_data () const;
 
         private:
           std::vector<T> data;
@@ -137,74 +105,20 @@ namespace gui {
         // --------------------------------------------------------------------------
         template<typename T>
         struct matrix {
-          inline matrix (const T& default_data)
-            : column_data(default_data)
-            , row_data(default_data)
-          {}
+          matrix (const T& default_data);
 
-          const T& get_cell (const position& cell) const {
-            if (cell.column < data.size()) {
-              const std::vector<T>& c = data[cell.column];
-              if (cell.row < c.size()) {
-                return c[cell.row];
-              }
-            }
-            return get_column_row_cell(cell);
-          }
+          const T& get_cell (const position& cell) const;
+          void set_cell (const position& cell, const T& t);
 
-          void set_cell (const position& cell, const T& t) {
-            const std::size_t data_size = data.size();
-            if (data_size <= cell.column) {
-              data.resize(cell.column + 1);
-            }
-            std::vector<T>& c = data[cell.column];
-            const std::size_t rows = c.size();
-            if (rows <= cell.row) {
-              c.resize(cell.row + 1, column_data.get(cell.column));
-              for (std::size_t r = rows; r < cell.row; ++r) {
-                c[r] = get_column_row_cell(position(cell.column, r));
-              }
-            }
-            c[cell.row] = t;
-          }
+          void set_column (std::size_t column, const T& t);
+          void set_row (std::size_t row, const T& t);
 
-          void set_column (std::size_t column, const T& t) {
-            column_data[column] = t;
-            if (column < data.size()) {
-              data[column].clear();
-            }
-          }
+          void clear ();
 
-          void set_row (std::size_t row, const T& t) {
-            row_data[row] = t;
-            for (std::vector<T>& column : data) {
-              if (row < column.size()) {
-                column[row] = t;
-              }
-            }
-            const std::size_t column_data_size = column_data.size();
-            for (std::size_t c = 0; c < column_data_size; ++c) {
-              set_cell(position(c, row), t);
-            }
-          }
-
-          inline void clear () {
-            data.clear();
-            column_data.clear();
-            row_data.clear();
-          }
-
-          inline const T& get_default_data () const {
-            return column_data.get_default_data();
-          }
+          const T& get_default_data () const;
 
         protected:
-          inline const T& get_column_row_cell (const position& cell) const {
-            if (cell.column < column_data.size()) {
-              return column_data[cell.column];
-            }
-            return row_data[cell.row];
-          }
+          const T& get_column_row_cell (const position& cell) const;
 
         private:
           typedef data::vector<T> vector;
@@ -220,32 +134,14 @@ namespace gui {
       // --------------------------------------------------------------------------
       class layout {
       public:
-        layout (core::size_type default_size)
-          : first_idx(0)
-          , offset(0)
-          , first_offset(0)
-          , sizes(default_size)
-        {}
+        layout (core::size_type default_size);
 
-        inline core::size_type get_default_size () const {
-          return sizes.get_default_data();
-        }
+        core::size_type get_default_size () const;
+        core::size_type get_size (std::size_t idx) const;
+        core::point_type get_offset () const;
 
-        inline core::size_type get_size (std::size_t idx) const {
-          return sizes[idx];
-        }
-
-        inline std::size_t get_first_idx () const {
-          return first_idx;
-        }
-
-        inline core::point_type get_offset () const {
-          return offset;
-        }
-
-        inline core::point_type get_first_offset () const {
-          return first_offset;
-        }
+        std::size_t get_first_idx () const;
+        core::point_type get_first_offset () const;
 
         void set_size (std::size_t idx, core::size_type size);
         void set_offset (core::point_type offset);
@@ -268,38 +164,17 @@ namespace gui {
       class metric {
       public:
         metric (core::size_type default_width,
-                core::size_type default_height)
-          : widths(default_width)
-          , heights(default_height)
-        {}
+                core::size_type default_height);
 
-        inline core::point position_of (const position& cell) const {
-          return core::point(widths.position_of(cell.column), heights.position_of(cell.row));
-        }
+        core::point position_of (const position& cell) const;
+        position index_at (const core::point& pt) const;
 
-        inline position index_at (const core::point& pt) const {
-          return position(widths.index_at(pt.x()), heights.index_at(pt.y()));
-        }
+        core::size get_size (const position& cell) const;
+        core::size get_default_size () const;
+        core::point get_offset () const;
 
-        inline core::size get_size (const position& cell) const {
-          return core::size(widths.get_size(cell.column), heights.get_size(cell.row));
-        }
-
-        inline core::size get_default_size () const {
-          return core::size(widths.get_default_size(), heights.get_default_size());
-        }
-
-        inline position get_first_idx () const {
-          return position(widths.get_first_idx(), heights.get_first_idx());
-        }
-
-        inline core::point get_offset () const {
-          return core::point(widths.get_offset(), heights.get_offset());
-        }
-
-        inline core::point get_first_offset () const {
-          return core::point(widths.get_first_offset(), heights.get_first_offset());
-        }
+        position get_first_idx () const;
+        core::point get_first_offset () const;
 
         layout widths;
         layout heights;
@@ -310,38 +185,21 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace filter {
 
-        typedef bool (selection_and_hilite)(const position&, const metric&);
+        typedef bool (selection_and_hilite) (const position&, const metric&);
 
         // --------------------------------------------------------------------------
-        inline bool data_selection (const position& cell, const metric& geometrie) {
-          return geometrie.selection == cell;
-        }
-
-        inline bool data_hilite (const position& cell, const metric& geometrie) {
-          return (geometrie.hilite == cell) ||
-                  geometrie.selection.is_column(cell.column) ||
-                  geometrie.selection.is_row(cell.row);
-        }
+        bool data_selection (const position& cell, const metric& geometrie);
+        bool data_hilite (const position& cell, const metric& geometrie);
 
         // --------------------------------------------------------------------------
-        inline bool column_selection (const position& cell, const metric& geometrie) {
-          return geometrie.selection.is_column(cell.column);
-        }
-
-        inline bool column_hilite (const position& cell, const metric& geometrie) {
-          return geometrie.hilite.is_column(cell.column) || (geometrie.selection.column == cell.column);
-        }
+        bool column_selection (const position& cell, const metric& geometrie);
+        bool column_hilite (const position& cell, const metric& geometrie);
 
         // --------------------------------------------------------------------------
-        inline bool row_selection (const position& cell, const metric& geometrie) {
-          return geometrie.selection.is_row(cell.row);
-        }
+        bool row_selection (const position& cell, const metric& geometrie);
+        bool row_hilite (const position& cell, const metric& geometrie);
 
-        inline bool row_hilite (const position& cell, const metric& geometrie) {
-          return geometrie.hilite.is_row(cell.row) || (geometrie.selection.row == cell.row);
-        }
-
-      } // filter
+      } // namespace filter
 
       // --------------------------------------------------------------------------
       namespace paint {
@@ -375,7 +233,7 @@ namespace gui {
                              const std::function<cell_drawer>& drawer,
                              const std::function<filter::selection_and_hilite>& selection_filter,
                              const std::function<filter::selection_and_hilite>& hilite_filter);
-      }
+      } // namespace paint
 
       // --------------------------------------------------------------------------
       template<template<typename U> class T>
@@ -391,82 +249,31 @@ namespace gui {
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray,
                    const std::function<filter::selection_and_hilite>& selection_filter = filter::data_selection,
-                   const std::function<filter::selection_and_hilite>& hilite_filter = filter::data_hilite)
-          : geometrie(geometrie)
-          , aligns(align)
-          , foregrounds(foreground)
-          , backgrounds(background)
-          , selection_filter(selection_filter)
-          , hilite_filter(hilite_filter)
-        {}
+                   const std::function<filter::selection_and_hilite>& hilite_filter = filter::data_hilite);
 
-        cell_view (metric& geometrie,
-                   const cell_view& rhs)
-          : geometrie(geometrie)
-          , aligns(rhs.aligns)
-          , foregrounds(rhs.foregrounds)
-          , backgrounds(rhs.backgrounds)
-          , selection_filter(rhs.selection_filter)
-          , hilite_filter(rhs.hilite_filter)
-        {}
-
-        cell_view (metric& geometrie,
-                   cell_view&& rhs)
-          : geometrie(geometrie)
-          , aligns(std::move(rhs.aligns))
-          , foregrounds(std::move(rhs.foregrounds))
-          , backgrounds(std::move(rhs.backgrounds))
-          , selection_filter(std::move(rhs.selection_filter))
-          , hilite_filter(std::move(rhs.hilite_filter))
-        {}
+        cell_view (metric& geometrie, const cell_view& rhs);
+        cell_view (metric& geometrie, cell_view&& rhs);
 
         cell_view (const cell_view&) = delete;
         cell_view (cell_view&&) = delete;
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::def) {
-          window::create(clazz, parent, place);
-        }
+                     const core::rectangle& place = core::rectangle::def);
 
-        void set_drawer (const std::function<cell_drawer>& drawer) {
-          this->drawer = drawer;
-        }
+        void set_drawer (const std::function<cell_drawer>& drawer);
+        void set_drawer (std::function<cell_drawer>&& drawer);
 
-        void set_drawer (std::function<cell_drawer>&& drawer) {
-          this->drawer = std::move(drawer);
-        }
+        const std::function<cell_drawer>& get_drawer () const;
 
-        inline const std::function<cell_drawer>& get_drawer () const {
-          return drawer;
-        }
+        text_origin get_default_align () const;
+        os::color get_default_foreground () const;
+        os::color get_default_background () const;
 
-        inline text_origin get_default_align () const {
-          return aligns.get_default_data();
-        }
+        const std::function<filter::selection_and_hilite>& get_selection_filter () const;
+        const std::function<filter::selection_and_hilite>& get_hilite_filter () const;
 
-        inline os::color get_default_foreground () const {
-          return foregrounds.get_default_data();
-        }
-
-        inline os::color get_default_background () const {
-          return backgrounds.get_default_data();
-        }
-
-        inline const std::function<filter::selection_and_hilite>& get_selection_filter () const {
-          return selection_filter;
-        }
-
-        inline const std::function<filter::selection_and_hilite>& get_hilite_filter () const {
-          return hilite_filter;
-        }
-
-        void set_selection_filter (const std::function<filter::selection_and_hilite>& f) {
-          selection_filter = f;
-        }
-
-        void set_hilite_filter (const std::function<filter::selection_and_hilite>& f) {
-          hilite_filter = f;
-        }
+        void set_selection_filter (const std::function<filter::selection_and_hilite>& f);
+        void set_hilite_filter (const std::function<filter::selection_and_hilite>& f);
 
         metric& geometrie;
         container_type<text_origin> aligns;
@@ -488,7 +295,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       typedef std::string (data_source) (const position&);
-
       typedef void (data_target) (const position&, const std::string&);
 
       std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src);
@@ -562,6 +368,11 @@ namespace gui {
       typedef group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
                            color::very_very_light_gray, float, float, float, float> super;
 
+      typedef basic_label<text_origin::center,
+                          draw::frame::raised_relief,
+                          color::black,
+                          color::very_very_light_gray> edge_view;
+
       table_view (core::size_type default_width = 80,
                   core::size_type default_height = 20,
                   core::size_type row_width = 80,
@@ -588,9 +399,6 @@ namespace gui {
       void handle_created (win::window* win, const core::rectangle& place);
       void handle_size (const core::size& sz);
 
-//      void handle_wheel_x (const core::point_type delta, const core::point&);
-//      void handle_wheel_y (const core::point_type delta, const core::point&);
-
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
@@ -614,14 +422,8 @@ namespace gui {
       table::data_view      data;
       table::column_view    columns;
       table::row_view       rows;
-      vertical_scroll_bar           vscroll;
-      horizontal_scroll_bar           hscroll;
-
-      typedef basic_label<text_origin::center,
-                      draw::frame::raised_relief,
-                      color::black,
-                      color::very_very_light_gray> edge_view;
-
+      vertical_scroll_bar   vscroll;
+      horizontal_scroll_bar hscroll;
       edge_view             edge;
 
     protected:
@@ -650,13 +452,8 @@ namespace gui {
                   os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);
 
-      void set_enable_edit (bool enable) {
-        enable_edit = enable;
-      }
-
-      bool is_edit_enabled () const {
-        return enable_edit;
-      }
+      void set_enable_edit (bool enable);
+      bool is_edit_enabled () const;
 
       void enter_edit ();
       void commit_edit ();
@@ -672,6 +469,364 @@ namespace gui {
       bool enable_edit;
 
     };
+
+    // --------------------------------------------------------------------------
+    // inlines
+    // --------------------------------------------------------------------------
+    namespace paint {
+
+      template<typename T, draw::frame::drawer F>
+      inline void text_cell (const T& t,
+                             const draw::graphics& graph,
+                             const core::rectangle& place,
+                             const text_origin align,
+                             const os::color& foreground,
+                             const os::color& background,
+                             bool selected,
+                             bool hilited) {
+        text_cell<std::string, draw::frame::no_frame>(convert_to_string(t), graph, place, align,
+                                                      foreground, background, selected, hilited);
+        F(graph, place);
+      }
+
+    } // namespace paint
+
+    // --------------------------------------------------------------------------
+    namespace table {
+
+      // --------------------------------------------------------------------------
+      namespace data {
+
+        // --------------------------------------------------------------------------
+        template<typename T>
+        inline vector<T>::vector (const T& default_data)
+          : default_data(default_data)
+        {}
+
+        template<typename T>
+        inline auto vector<T>::get (std::size_t idx) const -> const T& {
+          if (idx < data.size()) {
+            return data[idx];
+          }
+          return default_data;
+        }
+
+        template<typename T>
+        inline auto vector<T>::operator[] (std::size_t idx) const -> const T& {
+          return get(idx);
+        }
+
+        template<typename T>
+        inline void vector<T>::set (std::size_t idx, const T& t) {
+          if (data.size() <= idx) {
+            data.resize(idx + 1, default_data);
+          }
+          data[idx] = t;
+        }
+
+        template<typename T>
+        inline auto vector<T>::operator[] (std::size_t idx) -> T& {
+          if (data.size() <= idx) {
+            data.resize(idx + 1, default_data);
+          }
+          return data[idx];
+        }
+
+        template<typename T>
+        inline std::size_t vector<T>::size () const {
+          return data.size();
+        }
+
+        template<typename T>
+        inline void vector<T>::clear () {
+          data.clear();
+        }
+
+        template<typename T>
+        inline const T& vector<T>::get_default_data () const {
+          return default_data;
+        }
+
+        // --------------------------------------------------------------------------
+        template<typename T>
+        inline matrix<T>::matrix (const T& default_data)
+          : column_data(default_data)
+          , row_data(default_data)
+        {}
+
+        template<typename T>
+        auto matrix<T>::get_cell (const position& cell) const -> const T& {
+          if (cell.column < data.size()) {
+              const std::vector<T>& c = data[cell.column];
+              if (cell.row < c.size()) {
+                  return c[cell.row];
+                }
+            }
+          return get_column_row_cell(cell);
+        }
+
+        template<typename T>
+        void matrix<T>::set_cell (const position& cell, const T& t) {
+          const std::size_t data_size = data.size();
+          if (data_size <= cell.column) {
+              data.resize(cell.column + 1);
+            }
+          std::vector<T>& c = data[cell.column];
+          const std::size_t rows = c.size();
+          if (rows <= cell.row) {
+              c.resize(cell.row + 1, column_data.get(cell.column));
+              for (std::size_t r = rows; r < cell.row; ++r) {
+                  c[r] = get_column_row_cell(position(cell.column, r));
+                }
+            }
+          c[cell.row] = t;
+        }
+
+        template<typename T>
+        void matrix<T>::set_column (std::size_t column, const T& t) {
+          column_data[column] = t;
+          if (column < data.size()) {
+              data[column].clear();
+            }
+        }
+
+        template<typename T>
+        void matrix<T>::set_row (std::size_t row, const T& t) {
+          row_data[row] = t;
+          for (std::vector<T>& column : data) {
+              if (row < column.size()) {
+                  column[row] = t;
+                }
+            }
+          const std::size_t column_data_size = column_data.size();
+          for (std::size_t c = 0; c < column_data_size; ++c) {
+              set_cell(position(c, row), t);
+            }
+        }
+
+        template<typename T>
+        inline void matrix<T>::clear () {
+          data.clear();
+          column_data.clear();
+          row_data.clear();
+        }
+
+        template<typename T>
+        inline auto matrix<T>::get_default_data () const -> const T& {
+          return column_data.get_default_data();
+        }
+
+        template<typename T>
+        inline auto matrix<T>::get_column_row_cell (const position& cell) const -> const T& {
+          if (cell.column < column_data.size()) {
+              return column_data[cell.column];
+            }
+          return row_data[cell.row];
+        }
+
+      } // data
+
+      // --------------------------------------------------------------------------
+      inline layout::layout (core::size_type default_size)
+        : first_idx(0)
+        , offset(0)
+        , first_offset(0)
+        , sizes(default_size)
+      {}
+
+      inline core::size_type layout::get_default_size () const {
+        return sizes.get_default_data();
+      }
+
+      inline core::size_type layout::get_size (std::size_t idx) const {
+        return sizes[idx];
+      }
+
+      inline std::size_t layout::get_first_idx () const {
+        return first_idx;
+      }
+
+      inline core::point_type layout::get_offset () const {
+        return offset;
+      }
+
+      inline core::point_type layout::get_first_offset () const {
+        return first_offset;
+      }
+
+      // --------------------------------------------------------------------------
+      inline metric::metric (core::size_type default_width,
+                             core::size_type default_height)
+        : widths(default_width)
+        , heights(default_height)
+      {}
+
+      inline core::point metric::position_of (const position& cell) const {
+        return core::point(widths.position_of(cell.column), heights.position_of(cell.row));
+      }
+
+      inline position metric::index_at (const core::point& pt) const {
+        return position(widths.index_at(pt.x()), heights.index_at(pt.y()));
+      }
+
+      inline core::size metric::get_size (const position& cell) const {
+        return core::size(widths.get_size(cell.column), heights.get_size(cell.row));
+      }
+
+      inline core::size metric::get_default_size () const {
+        return core::size(widths.get_default_size(), heights.get_default_size());
+      }
+
+      inline position metric::get_first_idx () const {
+        return position(widths.get_first_idx(), heights.get_first_idx());
+      }
+
+      inline core::point metric::get_offset () const {
+        return core::point(widths.get_offset(), heights.get_offset());
+      }
+
+      inline core::point metric::get_first_offset () const {
+        return core::point(widths.get_first_offset(), heights.get_first_offset());
+      }
+
+      // --------------------------------------------------------------------------
+      namespace filter {
+
+        // --------------------------------------------------------------------------
+        inline bool data_selection (const position& cell, const metric& geometrie) {
+          return geometrie.selection == cell;
+        }
+
+        inline bool data_hilite (const position& cell, const metric& geometrie) {
+          return (geometrie.hilite == cell) ||
+                  geometrie.selection.is_column(cell.column) ||
+                  geometrie.selection.is_row(cell.row);
+        }
+
+        // --------------------------------------------------------------------------
+        inline bool column_selection (const position& cell, const metric& geometrie) {
+          return geometrie.selection.is_column(cell.column);
+        }
+
+        inline bool column_hilite (const position& cell, const metric& geometrie) {
+          return geometrie.hilite.is_column(cell.column) || (geometrie.selection.column == cell.column);
+        }
+
+        // --------------------------------------------------------------------------
+        inline bool row_selection (const position& cell, const metric& geometrie) {
+          return geometrie.selection.is_row(cell.row);
+        }
+
+        inline bool row_hilite (const position& cell, const metric& geometrie) {
+          return geometrie.hilite.is_row(cell.row) || (geometrie.selection.row == cell.row);
+        }
+
+      } // namespace filter
+
+      // --------------------------------------------------------------------------
+      template<template<typename U> class T>
+      cell_view<T>::cell_view (metric& geometrie,
+                               text_origin align,
+                               os::color foreground,
+                               os::color background,
+                               const std::function<filter::selection_and_hilite>& selection_filter,
+                               const std::function<filter::selection_and_hilite>& hilite_filter)
+        : geometrie(geometrie)
+        , aligns(align)
+        , foregrounds(foreground)
+        , backgrounds(background)
+        , selection_filter(selection_filter)
+        , hilite_filter(hilite_filter)
+      {}
+
+      template<template<typename U> class T>
+      cell_view<T>::cell_view (metric& geometrie,
+                               const cell_view& rhs)
+        : geometrie(geometrie)
+        , aligns(rhs.aligns)
+        , foregrounds(rhs.foregrounds)
+        , backgrounds(rhs.backgrounds)
+        , selection_filter(rhs.selection_filter)
+        , hilite_filter(rhs.hilite_filter)
+      {}
+
+      template<template<typename U> class T>
+      cell_view<T>::cell_view (metric& geometrie,
+                               cell_view&& rhs)
+        : geometrie(geometrie)
+        , aligns(std::move(rhs.aligns))
+        , foregrounds(std::move(rhs.foregrounds))
+        , backgrounds(std::move(rhs.backgrounds))
+        , selection_filter(std::move(rhs.selection_filter))
+        , hilite_filter(std::move(rhs.hilite_filter))
+      {}
+
+      template<template<typename U> class T>
+      void cell_view<T>::create (const container& parent,
+                                 const core::rectangle& place) {
+        window::create(clazz, parent, place);
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_drawer (const std::function<cell_drawer>& drawer) {
+        this->drawer = drawer;
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_drawer (std::function<cell_drawer>&& drawer) {
+        this->drawer = std::move(drawer);
+      }
+
+      template<template<typename U> class T>
+      inline const std::function<cell_drawer>& cell_view<T>::get_drawer () const {
+        return drawer;
+      }
+
+      template<template<typename U> class T>
+      inline text_origin cell_view<T>::get_default_align () const {
+        return aligns.get_default_data();
+      }
+
+      template<template<typename U> class T>
+      inline os::color cell_view<T>::get_default_foreground () const {
+        return foregrounds.get_default_data();
+      }
+
+      template<template<typename U> class T>
+      inline os::color cell_view<T>::get_default_background () const {
+        return backgrounds.get_default_data();
+      }
+
+      template<template<typename U> class T>
+      inline const std::function<filter::selection_and_hilite>& cell_view<T>::get_selection_filter () const {
+        return selection_filter;
+      }
+
+      template<template<typename U> class T>
+      inline const std::function<filter::selection_and_hilite>& cell_view<T>::get_hilite_filter () const {
+        return hilite_filter;
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_selection_filter (const std::function<filter::selection_and_hilite>& f) {
+        selection_filter = f;
+      }
+
+      template<template<typename U> class T>
+      inline void cell_view<T>::set_hilite_filter (const std::function<filter::selection_and_hilite>& f) {
+        hilite_filter = f;
+      }
+
+    } // table
+
+    // --------------------------------------------------------------------------
+    inline void table_edit::set_enable_edit (bool enable) {
+      enable_edit = enable;
+    }
+
+    inline bool table_edit::is_edit_enabled () const {
+      return enable_edit;
+    }
 
   } // win
 

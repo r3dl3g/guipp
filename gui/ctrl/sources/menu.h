@@ -43,7 +43,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct menu_entry {
-      typedef void(menu_action)();
+      typedef void(menu_action) ();
       typedef draw::masked_bitmap icon_type;
 
       menu_entry (const std::string& label,
@@ -52,17 +52,7 @@ namespace gui {
                   const hot_key& hotkey = hot_key(),
                   bool separator = false,
                   const icon_type& icon = icon_type(),
-                  menu_state state = menu_state::enabled)
-        : label(label)
-        , hotkey(hotkey)
-        , icon(icon)
-        , action(action)
-        , menu_key(menu_key)
-        , width(0)
-        , separator(separator)
-        , state(state)
-        , sub_menu(false)
-      {}
+                  menu_state state = menu_state::enabled);
 
       menu_entry (const menu_entry&);
       void operator= (const menu_entry&);
@@ -70,67 +60,24 @@ namespace gui {
       menu_entry (menu_entry&&);
       void operator= (menu_entry&&);
 
-      const std::string& get_label () const {
-        return label;
-      }
+      const std::string& get_label () const;
+      const hot_key& get_hot_key () const;
+      const icon_type& get_icon () const;
+      core::size_type get_width () const;
+      char get_menu_key () const;
+      const std::function<menu_action>& get_action () const;
 
-      const hot_key& get_hot_key () const {
-        return hotkey;
-      }
+      bool is_sub_menu () const;
+      bool is_disabled () const;
+      bool is_enabled () const;
+      bool has_separator () const;
 
-      const icon_type& get_icon () const {
-        return icon;
-      }
+      void set_label (const std::string& l);
+      void set_icon (const icon_type& i);
+      void set_enabled (bool d);
+      void set_width (core::size_type w);
 
-      core::size_type get_width () const {
-        return width;
-      }
-
-      char get_menu_key () const {
-        return menu_key;
-      }
-
-      const std::function<menu_action>& get_action () const {
-        return action;
-      }
-
-      bool is_sub_menu () const {
-        return sub_menu;
-      }
-
-      bool has_separator () const {
-        return separator;
-      }
-
-      bool is_disabled () const {
-        return state == menu_state::disabled;
-      }
-
-      bool is_enabled () const {
-        return state == menu_state::enabled;
-      }
-
-      void set_label (const std::string& l) {
-        label = l;
-      }
-
-      void set_icon (const icon_type& i) {
-        icon = i;
-      }
-
-      void set_enabled (bool d) {
-        state = d ? menu_state::enabled : menu_state::disabled;
-      }
-
-      void set_width (core::size_type w) {
-        width = w;
-      }
-
-      void select () const {
-        if (is_enabled() && action) {
-          action();
-        }
-      }
+      void select () const;
 
       void check_hot_key (os::key_state, os::key_symbol);
 
@@ -142,25 +89,9 @@ namespace gui {
                   const hot_key& hotkey,
                   bool separator,
                   const icon_type& icon,
-                  menu_state state)
-        : label(label)
-        , hotkey(hotkey)
-        , icon(icon)
-        , action(action)
-        , menu_key(menu_key)
-        , width(0)
-        , separator(separator)
-        , state(state)
-        , sub_menu(sub_menu)
-      {}
+                  menu_state state);
 
-      menu_entry ()
-        : menu_key(0)
-        , width(0)
-        , separator(false)
-        , state(menu_state::enabled)
-        , sub_menu(false)
-      {}
+      menu_entry ();
 
     private:
       std::string label;
@@ -182,9 +113,7 @@ namespace gui {
                       const std::function<menu_action>& action,
                       bool separator = false,
                       const icon_type& icon = icon_type(),
-                      menu_state state = menu_state::enabled)
-        : menu_entry(true, label, menu_key, action, hot_key(), separator, icon, state)
-      {}
+                      menu_state state = menu_state::enabled);
     };
 
     // --------------------------------------------------------------------------
@@ -193,9 +122,7 @@ namespace gui {
       main_menu_entry (const std::string& label,
                        char menu_key,
                        const std::function<menu_action>& action,
-                       menu_state state = menu_state::enabled)
-        : menu_entry(true, label, menu_key, action, hot_key(), false, icon_type(), state)
-      {}
+                       menu_state state = menu_state::enabled);
     };
 
     namespace paint {
@@ -223,20 +150,6 @@ namespace gui {
                       bool hilited,
                       bool disabled);
 
-      inline void menu_item (const draw::graphics& g,
-                             const core::rectangle& r,
-                             const draw::brush& background,
-                             core::point_type text_pos,
-                             core::point_type hotkey_pos,
-                             const menu_entry& e,
-                             bool selected,
-                             bool hilited) {
-        menu_item(g, r, background, text_pos, hotkey_pos,
-                  e.get_label(), e.get_menu_key(), e.get_icon(),
-                  e.get_hot_key(), e.is_sub_menu(), e.has_separator(),
-                  selected, hilited, e.is_disabled());
-      }
-
       // --------------------------------------------------------------------------
       void main_menu_item (const draw::graphics& g,
                            const core::rectangle& r,
@@ -247,19 +160,10 @@ namespace gui {
                            bool hilited,
                            bool disabled);
 
-      inline void main_menu_item (const draw::graphics& g,
-                                  const core::rectangle& r,
-                                  const draw::brush& background,
-                                  const menu_entry& e,
-                                  bool selected,
-                                  bool hilited) {
-        main_menu_item(g, r, background, e.get_label(), e.get_menu_key(),
-                       selected, hilited, e.is_disabled());
-      }
-
       // --------------------------------------------------------------------------
-    }
+    } // namespace paint
 
+    // --------------------------------------------------------------------------
     class menu_data {
     public:
       typedef std::vector<menu_entry> vector;
@@ -274,48 +178,23 @@ namespace gui {
       typedef std::function<mouse_fn> mouse_call;
       typedef std::function<key_fn> key_call;
 
-      menu_data (window* win)
-        : win(win)
-      {}
+      menu_data (window* win);
+      menu_data (window* win, const menu_data& rhs);
+      menu_data (window* win, menu_data&& rhs);
 
-      menu_data (window* win, const menu_data& rhs)
-        : win(win)
-        , data(rhs.data)
-      {}
-
-      menu_data (window* win, menu_data&& rhs)
-        : win(win)
-        , data(std::move(rhs.data))
-      {}
-
-      ~menu_data () {
-        unregister_hot_keys();
-        unregister_menu_keys();
-      }
+      ~menu_data ();
 
       void add_entries (std::initializer_list<menu_entry> menu_entries);
       void add_entry (const menu_entry& entry);
       void add_entry (menu_entry&& entry);
 
-      inline menu_entry& operator[] (std::size_t i) {
-        return data.items[i];
-      }
+      menu_entry& operator[] (std::size_t i);
+      const menu_entry& operator[] (std::size_t i) const;
 
-      inline const menu_entry& operator[] (std::size_t i) const {
-        return data.items[i];
-      }
+      inline std::size_t size () const;
 
-      inline std::size_t size () const {
-        return data.items.size();
-      }
-
-      const_iterator begin () const {
-        return data.items.begin();
-      }
-
-      const_iterator end () const {
-        return data.items.end();
-      }
+      const_iterator begin () const;
+      const_iterator end () const;
 
       int get_index_of (const menu_entry&) const;
 
@@ -357,10 +236,7 @@ namespace gui {
       window* win;
 
       struct data {
-        data ()
-          : selection(-1)
-          , hilite(-1)
-        {}
+        data ();
 
         vector items;
 
@@ -385,9 +261,7 @@ namespace gui {
       main_menu (main_menu&&);
 
       void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def) {
-        window::create(clazz, parent, place);
-      }
+                   const core::rectangle& place = core::rectangle::def);
 
       void paint (const draw::graphics& g);
       bool handle_key (os::key_symbol);
@@ -414,11 +288,7 @@ namespace gui {
       popup_menu ();
       popup_menu (const popup_menu&);
       popup_menu (popup_menu&&);
-
-      popup_menu (std::initializer_list<menu_entry> entries)
-        : popup_menu() {
-        data.add_entries(entries);
-      }
+      popup_menu (std::initializer_list<menu_entry> entries);
 
       void close ();
 
@@ -429,14 +299,8 @@ namespace gui {
       core::point sub_menu_position (int idx);
       int get_index_at_point (const core::point& pt) const;
 
-      void popup_at (const core::point& pt, popup_menu& parent) {
-        popup_at(parent, parent.data, pt);
-      }
-
-      void popup_at (const core::point& pt, main_menu& parent) {
-        popup_at(parent, parent.data, pt);
-      }
-
+      void popup_at (const core::point& pt, popup_menu& parent);
+      void popup_at (const core::point& pt, main_menu& parent);
       void popup_at (const core::point& pt, window& parent);
 
       menu_data data;
@@ -449,16 +313,197 @@ namespace gui {
       core::size_type calc_width ();
 
       struct positions {
-        positions ()
-          : text(10)
-          , hotkey(0)
-        {}
+        positions ();
 
         core::point_type text;
         core::point_type hotkey;
 
       } pos;
     };
+
+    // --------------------------------------------------------------------------
+    // inlines
+    inline const std::string& menu_entry::get_label () const {
+      return label;
+    }
+
+    inline const hot_key& menu_entry::get_hot_key () const {
+      return hotkey;
+    }
+
+    inline auto menu_entry::get_icon () const -> const icon_type& {
+      return icon;
+    }
+
+    inline core::size_type menu_entry::get_width () const {
+      return width;
+    }
+
+    inline char menu_entry::get_menu_key () const {
+      return menu_key;
+    }
+
+    inline auto menu_entry::get_action () const -> const std::function<menu_action>& {
+      return action;
+    }
+
+    inline bool menu_entry::is_sub_menu () const {
+      return sub_menu;
+    }
+
+    inline bool menu_entry::has_separator () const {
+      return separator;
+    }
+
+    inline bool menu_entry::is_disabled () const {
+      return state == menu_state::disabled;
+    }
+
+    inline bool menu_entry::is_enabled () const {
+      return state == menu_state::enabled;
+    }
+
+    inline void menu_entry::set_label (const std::string& l) {
+      label = l;
+    }
+
+    inline void menu_entry::set_icon (const icon_type& i) {
+      icon = i;
+    }
+
+    inline void menu_entry::set_enabled (bool d) {
+      state = d ? menu_state::enabled : menu_state::disabled;
+    }
+
+    inline void menu_entry::set_width (core::size_type w) {
+      width = w;
+    }
+
+    inline void menu_entry::select () const {
+      if (is_enabled() && action) {
+        action();
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    inline sub_menu_entry::sub_menu_entry (const std::string& label,
+                                           char menu_key,
+                                           const std::function<menu_action>& action,
+                                           bool separator,
+                                           const icon_type& icon,
+                                           menu_state state)
+      : menu_entry(true, label, menu_key, action, hot_key(), separator, icon, state)
+    {}
+
+    // --------------------------------------------------------------------------
+    inline main_menu_entry::main_menu_entry (const std::string& label,
+                                             char menu_key,
+                                             const std::function<menu_action>& action,
+                                             menu_state state)
+      : menu_entry(true, label, menu_key, action, hot_key(), false, icon_type(), state)
+    {}
+
+    // --------------------------------------------------------------------------
+    inline menu_data::menu_data (window* win)
+      : win(win)
+    {}
+
+    inline menu_data::menu_data (window* win, const menu_data& rhs)
+      : win(win)
+      , data(rhs.data)
+    {}
+
+    inline menu_data::menu_data (window* win, menu_data&& rhs)
+      : win(win)
+      , data(std::move(rhs.data))
+    {}
+
+    inline menu_entry& menu_data::operator[] (std::size_t i) {
+      return data.items[i];
+    }
+
+    inline const menu_entry& menu_data::operator[] (std::size_t i) const {
+      return data.items[i];
+    }
+
+    inline std::size_t menu_data::size () const {
+      return data.items.size();
+    }
+
+    inline auto menu_data::begin () const -> const_iterator {
+      return data.items.begin();
+    }
+
+    inline auto menu_data::end () const -> const_iterator {
+      return data.items.end();
+    }
+
+    inline int menu_data::get_selection () const {
+      return data.selection;
+    }
+
+    inline void menu_data::clear_selection (event_source src) {
+      set_selection(-1, src);
+    }
+
+    inline int menu_data::get_hilite () const {
+      return data.hilite;
+    }
+
+    inline void menu_data::set_close_function (close_call fn) {
+      data.close_caller = fn;
+    }
+
+    inline void menu_data::clear_close_function () {
+      data.close_caller = nullptr;
+      data.key_caller = nullptr;
+    }
+
+    inline void menu_data::set_mouse_function (mouse_call fn) {
+      data.mouse_caller = fn;
+    }
+
+    inline void menu_data::clear_mouse_function () {
+      data.mouse_caller = nullptr;
+    }
+
+    inline void menu_data::set_key_function (key_call fn) {
+      data.key_caller = fn;
+    }
+
+    inline bool menu_data::is_open () {
+      return (bool)data.close_caller;
+    }
+
+    inline menu_data::data::data ()
+      : selection(-1)
+      , hilite(-1)
+    {}
+
+    // --------------------------------------------------------------------------
+    inline void main_menu::create (const container& parent,
+                                   const core::rectangle& place) {
+      window::create(clazz, parent, place);
+    }
+
+    // --------------------------------------------------------------------------
+    inline popup_menu::popup_menu (std::initializer_list<menu_entry> entries)
+      : popup_menu() {
+      data.add_entries(entries);
+    }
+
+    inline void popup_menu::popup_at (const core::point& pt, popup_menu& parent) {
+      popup_at(parent, parent.data, pt);
+    }
+
+    inline void popup_menu::popup_at (const core::point& pt, main_menu& parent) {
+      popup_at(parent, parent.data, pt);
+    }
+
+    inline popup_menu::positions::positions ()
+      : text(10)
+      , hotkey(0)
+    {}
 
     // --------------------------------------------------------------------------
 

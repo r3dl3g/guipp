@@ -94,21 +94,6 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      inline auto slider_base::get_min () const -> type {
-        return min;
-      }
-
-      inline auto slider_base::get_max () const -> type {
-        return max;
-      }
-
-      // --------------------------------------------------------------------------
-      template<orientation O>
-      inline void basic_slider<O>::create (const container& parent,
-                                       const core::rectangle& place) {
-        super::create(clazz, parent, place);
-      }
-
       template<orientation O>
       slider_class<O> basic_slider<O>::clazz;
 
@@ -118,7 +103,7 @@ namespace gui {
       template<>
       basic_slider<orientation::horizontal>::basic_slider ();
 
-    }
+    } // namespace detail
 
     // --------------------------------------------------------------------------
     template<orientation O,
@@ -135,9 +120,34 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    using vertical_slider = basic_framed_slider<orientation::vertical>;
+    using horizontal_slider = basic_framed_slider<orientation::horizontal>;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      inline auto slider_base::get_min () const -> type {
+        return min;
+      }
+
+      inline auto slider_base::get_max () const -> type {
+        return max;
+      }
+
+      template<orientation O>
+      inline void basic_slider<O>::create (const container& parent,
+                                       const core::rectangle& place) {
+        super::create(clazz, parent, place);
+      }
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
     template<orientation O,
              draw::frame::drawer F>
-    basic_framed_slider<O, F>::basic_framed_slider () {
+    inline basic_framed_slider<O, F>::basic_framed_slider () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_framed_slider::paint));
     }
 
@@ -154,10 +164,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    using vertical_slider = basic_framed_slider<orientation::vertical>;
-    using horizontal_slider = basic_framed_slider<orientation::horizontal>;
 
-    // --------------------------------------------------------------------------
   } // win
 
 } // gui

@@ -82,12 +82,12 @@ namespace gui {
     }
 
     template<>
-    void drop_down_item_drawer<os::color> (const os::color& c,
-                                           const draw::graphics& graph,
-                                           const core::rectangle& place,
-                                           const draw::brush&,
-                                           bool selected,
-                                           bool hilited) {
+    void default_drop_down_drawer<os::color> (const os::color& c,
+                                              const draw::graphics& graph,
+                                              const core::rectangle& place,
+                                              const draw::brush&,
+                                              bool selected,
+                                              bool hilited) {
       graph.fill(draw::rectangle(place), c);
       graph.text(draw::text_box(convert_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
 
@@ -178,11 +178,11 @@ private:
   List2& list2;
   List3& list3;
 
-  typedef win::vsplit_view<List2, List3> list_split_view;
+  typedef win::vertical_split_view<List2, List3> list_split_view;
   typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
-  typedef win::vsplit_view<win::horizontal_list, simple_list> column_list_split_view;
+  typedef win::vertical_split_view<win::horizontal_list, simple_list> column_list_split_view;
 
-  win::hsplit_view<list_split_view, column_list_split_view> main_split_view;
+  win::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
 
   win::text_button up_button;
   win::text_button down_button;

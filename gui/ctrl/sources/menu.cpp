@@ -44,7 +44,6 @@ namespace gui {
               core::rectangle r0 = r;
               g.text(draw::bounding_box(l.substr(0, i), r0, text_origin::vcenter_left), f, c);
               x1 = r0.x2();
-            } else {
             }
             g.draw_lines({core::point(x1, y), core::point(x2, y)}, c);
           }
@@ -148,6 +147,24 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    menu_entry::menu_entry (const std::string& label,
+                            char menu_key,
+                            const std::function<menu_action>& action,
+                            const hot_key& hotkey,
+                            bool separator,
+                            const icon_type& icon,
+                            menu_state state)
+      : label(label)
+      , hotkey(hotkey)
+      , icon(icon)
+      , action(action)
+      , menu_key(menu_key)
+      , width(0)
+      , separator(separator)
+      , state(state)
+      , sub_menu(false)
+    {}
+
     menu_entry::menu_entry (const menu_entry& rhs)
       : label(rhs.label)
       , hotkey(rhs.hotkey)
@@ -158,6 +175,45 @@ namespace gui {
       , separator(rhs.separator)
       , state(rhs.state)
       , sub_menu(rhs.sub_menu)
+    {}
+
+    menu_entry::menu_entry (menu_entry&& rhs)
+      : label(std::move(rhs.label))
+      , hotkey(std::move(rhs.hotkey))
+      , icon(std::move(rhs.icon))
+      , action(std::move(rhs.action))
+      , menu_key(rhs.menu_key)
+      , width(rhs.width)
+      , separator(rhs.separator)
+      , state(rhs.state)
+      , sub_menu(rhs.sub_menu)
+    {}
+
+    menu_entry::menu_entry (bool sub_menu,
+                            const std::string& label,
+                            char menu_key,
+                            const std::function<menu_action>& action,
+                            const hot_key& hotkey,
+                            bool separator,
+                            const icon_type& icon,
+                            menu_state state)
+      : label(label)
+      , hotkey(hotkey)
+      , icon(icon)
+      , action(action)
+      , menu_key(menu_key)
+      , width(0)
+      , separator(separator)
+      , state(state)
+      , sub_menu(sub_menu)
+    {}
+
+    menu_entry::menu_entry ()
+      : menu_key(0)
+      , width(0)
+      , separator(false)
+      , state(menu_state::enabled)
+      , sub_menu(false)
     {}
 
     void menu_entry::operator= (const menu_entry& rhs) {
@@ -173,18 +229,6 @@ namespace gui {
         sub_menu = rhs.sub_menu;
       }
     }
-
-    menu_entry::menu_entry (menu_entry&& rhs)
-      : label(std::move(rhs.label))
-      , hotkey(std::move(rhs.hotkey))
-      , icon(std::move(rhs.icon))
-      , action(std::move(rhs.action))
-      , menu_key(rhs.menu_key)
-      , width(rhs.width)
-      , separator(rhs.separator)
-      , state(rhs.state)
-      , sub_menu(rhs.sub_menu)
-    {}
 
     void menu_entry::operator= (menu_entry&& rhs) {
       if (this != &rhs) {
@@ -207,6 +251,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    menu_data::~menu_data () {
+      unregister_hot_keys();
+      unregister_menu_keys();
+    }
+
     void menu_data::add_entries (std::initializer_list<menu_entry> new_entries) {
       const draw::font& f = draw::font::menu();
 
@@ -231,10 +280,6 @@ namespace gui {
       e.set_width(f.get_text_size(e.get_label()).width());
     }
 
-    int menu_data::get_selection () const {
-      return data.selection;
-    }
-
     void menu_data::set_selection (int sel, event_source src) {
       int new_selection = std::max(-1, sel);
       if (new_selection >= static_cast<int>(size())) {
@@ -250,10 +295,6 @@ namespace gui {
         win->redraw_later();
         send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
-    }
-
-    void menu_data::clear_selection (event_source src) {
-      set_selection(-1, src);
     }
 
     template<typename T>
@@ -287,10 +328,6 @@ namespace gui {
       set_hilite(next);
     }
 
-    int menu_data::get_hilite () const {
-      return data.hilite;
-    }
-
     void menu_data::set_hilite (int sel) {
       int new_hilite = std::max(-1, sel);
       if (new_hilite >= static_cast<int>(size())) {
@@ -311,31 +348,6 @@ namespace gui {
       data.hilite = -1;
       win->redraw_later();
       send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
-    }
-
-    void menu_data::set_close_function (close_call fn) {
-      data.close_caller = fn;
-    }
-
-    void menu_data::clear_close_function () {
-      data.close_caller = nullptr;
-      data.key_caller = nullptr;
-    }
-
-    void menu_data::set_mouse_function (mouse_call fn) {
-      data.mouse_caller = fn;
-    }
-
-    void menu_data::clear_mouse_function () {
-      data.mouse_caller = nullptr;
-    }
-
-    void menu_data::set_key_function (key_call fn) {
-      data.key_caller = fn;
-    }
-
-    bool menu_data::is_open () {
-      return (bool)data.close_caller;
     }
 
     void menu_data::close () {
@@ -595,8 +607,9 @@ namespace gui {
         ++idx;
         auto w = i.get_width() + 20;
         r.width(w);
-        paint::main_menu_item(g, r, back_brush, i,
-                              (idx == data.get_selection()), (idx == data.get_hilite()));
+        paint::main_menu_item(g, r, back_brush, i.get_label(), i.get_menu_key(),
+                              (idx == data.get_selection()),
+                              (idx == data.get_hilite()), i.is_disabled());
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
@@ -807,8 +820,11 @@ namespace gui {
       for (auto& i : data) {
         ++idx;
         r.height(static_cast<core::size_type>(item_height));
-        paint::menu_item(g, r, back_brush, pos.text, pos.hotkey, i,
-                         (idx == data.get_selection()), (idx == data.get_hilite()));
+        paint::menu_item(g, r, back_brush, pos.text, pos.hotkey,
+                         i.get_label(), i.get_menu_key(), i.get_icon(),
+                         i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
+                         (idx == data.get_selection()), (idx == data.get_hilite()),
+                         i.is_disabled());
         r.move_y(static_cast<core::size_type>(item_height));
       }
     }

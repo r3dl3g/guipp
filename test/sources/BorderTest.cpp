@@ -69,7 +69,7 @@ private:
 
   typedef tree_view simple_tree;
   typedef win::sorted_file_tree file_tree;
-  win::hsplit_view<simple_tree, file_tree> right_view;
+  win::horizontal_split_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
@@ -429,7 +429,7 @@ void my_main_window::open () {
   typedef sorted_file_tree dir_tree_type;
   typedef file_list file_list_type;
 
-  win::vsplit_view<dir_tree_type, file_list_type> main_view;
+  win::vertical_split_view<dir_tree_type, file_list_type> main_view;
 
   dir_tree_type& dir_tree = main_view.first;
   file_list_type& file_list = main_view.second;

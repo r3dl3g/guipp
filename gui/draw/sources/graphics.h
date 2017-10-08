@@ -324,9 +324,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct bounding_box {
       bounding_box (const std::string& str, core::rectangle& rect, text_origin origin = text_origin::top_left)
-              : str(str)
-              , rect(rect)
-              , origin(origin)
+        : str(str)
+        , rect(rect)
+        , origin(origin)
       {}
 
       void operator() (const graphics&, const font& font, os::color color) const;

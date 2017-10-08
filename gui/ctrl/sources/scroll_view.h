@@ -73,10 +73,7 @@ namespace gui {
       void layout (const core::size& new_size);
 
       void set_in_scroll_event (bool);
-
-      inline bool is_in_scroll_event () const {
-        return in_scroll_event;
-      }
+      bool is_in_scroll_event () const;
 
     private:
       const win::move_event me;
@@ -95,28 +92,14 @@ namespace gui {
       typedef scroll_view_base super;
       typedef T view_type;
 
-      virtual_layout (win::container* main)
-        :super(main)
-      {
-        super::init(core::bind_method(this, &virtual_layout::layout));
-      }
+      virtual_layout (win::container* main);
 
       void init (win::vertical_scroll_bar* vscroll,
                  win::horizontal_scroll_bar* hscroll,
                  win::client_window* edge,
-                 view_type* client) {
-        super::init(vscroll, hscroll, edge);
-        this->client = client;
-      }
+                 view_type* client);
 
-      void layout (const core::size& new_size) {
-        if (client && client->is_visible()) {
-          auto available = super::layout(new_size, client->get_virtual_place());
-          client->place(available);
-        } else {
-          super::layout(new_size, core::rectangle());
-        }
-      }
+      void layout (const core::size& new_size);
 
     private:
       view_type* client;
@@ -154,12 +137,12 @@ namespace gui {
       client_window& get_edge ();
 
     private:
-      core::point   current_pos;
+      core::point           current_pos;
       vertical_scroll_bar   vscroll;
-      horizontal_scroll_bar   hscroll;
-      client_window edge;
+      horizontal_scroll_bar hscroll;
+      client_window         edge;
 
-      static window_class clazz;
+      static window_class   clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -170,50 +153,95 @@ namespace gui {
       typedef layout_container<layout_type> super;
       typedef T view_type;
 
-      virtual_view () {
-        super::register_event_handler(REGISTER_FUNCTION, create_event(this, &virtual_view::handle_create));
-        super::get_layout().init(&vscroll, &hscroll, &edge, &view);
+      virtual_view ();
 
-        vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-          view.set_scroll_pos(core::point(hscroll.get_value(), y));
-        }));
-        hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-          view.set_scroll_pos(core::point(x, vscroll.get_value()));
-        }));
-        view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&]() {
-          super::layout();
-        }));
-        view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-          view.make_cursor_visible();
-          const core::point& pos = view.get_scroll_pos();
-          hscroll.set_value(pos.x());
-          vscroll.set_value(pos.y());
-          super::layout();
-        }));
-        view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt) {
-          hscroll.handle_wheel(delta, pt);
-        }));
-        view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt) {
-          vscroll.handle_wheel(delta, pt);
-        }));
-      }
-
-      view_type     view;
-      horizontal_scroll_bar   hscroll;
+      view_type             view;
+      horizontal_scroll_bar hscroll;
       vertical_scroll_bar   vscroll;
-      client_window edge;
+      client_window         edge;
 
     private:
-      void handle_create(window*, const core::rectangle& r) {
-        core::size sz = r.size();
-        vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
-        hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));
-        edge.create(*this, layout::scroll_view::get_edge_area(sz));
-        view.create(*this, r);
-        view.set_visible();
-      }
+      void handle_create (window*, const core::rectangle& r);
 
     };
+
+  } // namespace win
+
+  // --------------------------------------------------------------------------
+  // inlines
+  namespace layout {
+
+    inline bool scroll_view::is_in_scroll_event () const {
+      return in_scroll_event;
+    }
+
+    template<typename T>
+    inline virtual_layout<T>::virtual_layout (win::container* main)
+      :super(main)
+    {
+      super::init(core::bind_method(this, &virtual_layout::layout));
+    }
+
+    template<typename T>
+    inline void virtual_layout<T>::init (win::vertical_scroll_bar* vscroll,
+                                         win::horizontal_scroll_bar* hscroll,
+                                         win::client_window* edge,
+                                         view_type* client) {
+      super::init(vscroll, hscroll, edge);
+      this->client = client;
+    }
+
+    template<typename T>
+    inline void virtual_layout<T>::layout (const core::size& new_size) {
+      if (client && client->is_visible()) {
+          auto available = super::layout(new_size, client->get_virtual_place());
+          client->place(available);
+        } else {
+          super::layout(new_size, core::rectangle());
+        }
+    }
+
+  } // namespace layout
+
+  namespace win {
+    template<typename T, os::color B>
+    virtual_view<T, B>::virtual_view () {
+      super::register_event_handler(REGISTER_FUNCTION, create_event(this, &virtual_view::handle_create));
+      super::get_layout().init(&vscroll, &hscroll, &edge, &view);
+
+      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
+        view.set_scroll_pos(core::point(hscroll.get_value(), y));
+      }));
+      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
+        view.set_scroll_pos(core::point(x, vscroll.get_value()));
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&]() {
+        super::layout();
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
+        view.make_cursor_visible();
+        const core::point& pos = view.get_scroll_pos();
+        hscroll.set_value(pos.x());
+        vscroll.set_value(pos.y());
+        super::layout();
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt) {
+        hscroll.handle_wheel(delta, pt);
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt) {
+        vscroll.handle_wheel(delta, pt);
+      }));
+    }
+
+    template<typename T, os::color B>
+    void virtual_view<T, B>::handle_create (window*, const core::rectangle& r) {
+      core::size sz = r.size();
+      vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
+      hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));
+      edge.create(*this, layout::scroll_view::get_edge_area(sz));
+      view.create(*this, r);
+      view.set_visible();
+    }
 
     // --------------------------------------------------------------------------
   } // namespace win

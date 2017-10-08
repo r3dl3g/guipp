@@ -58,6 +58,37 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      template<bool Sunken>
+      struct color_traits {
+        static os::color first (os::color);
+        static os::color second (os::color);
+      };
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
+    template<orientation O, bool Sunken = true, os::color background = color::light_gray>
+    class basic_separator : public detail::separator_base {
+    public:
+      typedef detail::line_traits<O> lt;
+      typedef detail::color_traits<Sunken> ct;
+
+      basic_separator ();
+
+    private:
+      void paint (const draw::graphics& graph);
+
+    };
+
+    // --------------------------------------------------------------------------
+    using horizontal_separator = basic_separator<orientation::horizontal>;
+    using vertical_separator = basic_separator<orientation::vertical>;
+
+    // --------------------------------------------------------------------------
+    // inlines
+    namespace detail {
+
+      // --------------------------------------------------------------------------
       template<>
       inline draw::line line_traits<orientation::vertical>::first (const core::rectangle& r) {
         return draw::line(r.top_left(), r.bottom_left());
@@ -90,13 +121,6 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<bool Sunken>
-      struct color_traits {
-        static os::color first (os::color);
-        static os::color second (os::color);
-      };
-
-      // --------------------------------------------------------------------------
       template<>
       inline os::color color_traits<false>::first (os::color c) {
         return color::lighter(c);
@@ -118,28 +142,8 @@ namespace gui {
         return color::lighter(c);
       }
 
-    }
+    } // namespace detail
 
-    // --------------------------------------------------------------------------
-    template<orientation Horizontal, bool Sunken = true, os::color background = color::light_gray>
-    class basic_separator : public detail::separator_base {
-    public:
-      typedef detail::line_traits<Horizontal> lt;
-      typedef detail::color_traits<Sunken> ct;
-
-      basic_separator ();
-
-    private:
-      void paint (const draw::graphics& graph);
-
-    };
-
-    // --------------------------------------------------------------------------
-    using horizontal_separator = basic_separator<orientation::horizontal>;
-    using vertical_separator = basic_separator<orientation::vertical>;
-
-    // --------------------------------------------------------------------------
-    // inlines
     template<orientation O, bool S, os::color B>
     inline basic_separator<O, S, B>::basic_separator () {
       register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_separator::paint));

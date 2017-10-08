@@ -91,8 +91,9 @@ namespace gui {
                         os::color foreground = color::white,
                         os::color background = color::dark_gray);
 
-      template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
-      void flat_button (const draw::graphics& g,
+      template<os::color foreground,
+               os::color background>
+      void color_flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state,
@@ -235,25 +236,25 @@ namespace gui {
     using toggle_button = basic_button<toggle_button_traits<keep_state>>;
     // --------------------------------------------------------------------------
     using text_button = basic_text_button<push_button_traits,
-                                      paint::push_button>;
+                                          paint::push_button>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
     using flat_button = basic_text_button<push_button_traits,
-                                      paint::flat_button<foreground, background>>;
+                                          paint::color_flat_button<foreground, background>>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     using radio_button = basic_text_button<toggle_button_traits<keep_state>,
-                                       paint::radio_button>;
+                                           paint::radio_button>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     using check_box = basic_text_button<toggle_button_traits<keep_state>,
-                                    paint::check_box>;
+                                        paint::check_box>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray,
              os::color background = color::dark_gray,
              bool keep_state = false>
     using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
-                                             paint::flat_button<foreground, background>>;
+                                                 paint::color_flat_button<foreground, background>>;
     // --------------------------------------------------------------------------
     template<class T>
     class custom_button : public basic_button<T> {
@@ -379,9 +380,9 @@ namespace gui {
 
     template<class T, text_button_drawer D>
     void basic_text_button<T, D>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
-        }));
+      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
+        D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
+      }));
     }
 
     // --------------------------------------------------------------------------
@@ -416,12 +417,12 @@ namespace gui {
     }
 
     template<class T>
-    inline void custom_button<T>::init () {
+    void custom_button<T>::init () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-          if (drawer) {
-              drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
-            }
-        }));
+        if (drawer) {
+          drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------

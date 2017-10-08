@@ -46,7 +46,6 @@
 
 #ifdef X11
 
-#include <boost/algorithm/string.hpp>
 #include <X11/Xlib.h>
 
 #endif // X11

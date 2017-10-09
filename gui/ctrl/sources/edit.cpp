@@ -119,8 +119,6 @@ namespace gui {
 
     namespace detail {
 
-      window_class edit_base::clazz = gui::win::window_class("EDIT++", color::white, cursor::ibeam());
-
       edit_base::data::data ()
         : cursor_pos(0)
         , text_limit(std::numeric_limits<pos_t>::max())
@@ -157,7 +155,7 @@ namespace gui {
       void edit_base::create (const container& parent,
                               const core::rectangle& place,
                               const std::string& txt) {
-        super::create(clazz, parent, place);
+        super::create(clazz::get(), parent, place);
         prepare_input();
         set_text(txt);
       }

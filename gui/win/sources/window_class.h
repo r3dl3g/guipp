@@ -41,8 +41,8 @@ namespace gui {
 
     template<>
     struct window_class_defaults<os::platform::win32> {
-      static const win::cursor& cursor () {
-        return win::cursor::arrow();
+      static constexpr win::cursor_type cursor () {
+        return win::cursor_type::arrow;
       }
       static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
       static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, 0);
@@ -51,57 +51,63 @@ namespace gui {
 
     template<>
     struct window_class_defaults<os::platform::x11> {
-      static const win::cursor& cursor () {
-        return win::cursor::none();
+      static constexpr win::cursor_type cursor () {
+        return win::cursor_type::none;
       }
       static constexpr os::style style = 0;
       static constexpr os::style ex_style = 0;
       static constexpr os::style class_style = 0;
     };
 
-
-    class window;
-
-    class window_class {
+    class window_class_info {
     public:
-      window_class ();
-      window_class (const window_class&);
+      window_class_info ();
+      window_class_info (const window_class_info&);
 
-      window_class (const std::string& cls_name,
-                    os::color background =    color::white,
-                    win::cursor cursor =      window_class_defaults<>::cursor(),
-                    os::style style =         window_class_defaults<>::style,
-                    os::style ex_style =      window_class_defaults<>::ex_style,
-                    os::style class_style =   window_class_defaults<>::class_style);
-
-      virtual void prepare (window*, os::window) const;
+      window_class_info (const std::string& cls_name,
+                         os::color background,
+                         win::cursor_type cursor,
+                         os::style style,
+                         os::style ex_style,
+                         os::style class_style);
 
       const std::string& get_class_name () const;
       const os::color get_background () const;
-      const win::cursor& get_cursor () const;
+      const os::cursor get_cursor () const;
       const os::style get_class_style () const;
       const os::style get_style () const;
       const os::style get_ex_style () const;
 
       bool is_valid () const;
 
-      inline ~window_class () {
-        unregister_class();
-      }
-
     protected:
-      virtual os::brush get_background_brush () const;
-
-      void register_class () const;
-      void unregister_class ();
-
       std::string class_name;
       os::color background;
       win::cursor cursor;
       os::style class_style;
       os::style style;
       os::style ex_style;
-      mutable bool is_initialized;
+    };
+
+    template<typename T,
+             os::color B = color::white,
+             win::cursor_type C = window_class_defaults<>::cursor(),
+             os::style S = window_class_defaults<>::style,
+             os::style ES = window_class_defaults<>::ex_style,
+             os::style CS = window_class_defaults<>::class_style>
+    struct window_class {
+      static const char* name () {
+        return typeid(T).name();
+      }
+      static constexpr os::color background = B;
+      static constexpr win::cursor_type cursor = C;
+      static constexpr os::style style = S;
+      static constexpr os::style ex_style = ES;
+      static constexpr os::style class_style = CS;
+
+      static window_class_info get () {
+        return window_class_info{ name(), background, cursor, style, ex_style, class_style };
+      }
     };
 
   } // win

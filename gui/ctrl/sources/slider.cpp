@@ -39,32 +39,6 @@ namespace gui {
 
     namespace detail {
 
-      template<>
-      slider_class<orientation::vertical>::slider_class ()
-        : no_erase_window_class("VSLIDER++",
-#ifdef WIN32
-                       (os::color)(COLOR_BTNFACE + 1),
-#endif // WIN32
-#ifdef X11
-                       color::buttonColor(),
-#endif // X11
-          win::cursor::size_h()
-        )
-      {}
-
-      template<>
-      slider_class<orientation::horizontal>::slider_class ()
-        : no_erase_window_class("HSLIDER++",
-#ifdef WIN32
-                       (os::color)(COLOR_BTNFACE + 1),
-#endif // WIN32
-#ifdef X11
-                       color::buttonColor(),
-#endif // X11
-          win::cursor::size_v()
-        )
-      {}
-
       template <>
       basic_slider<orientation::vertical>::basic_slider () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,

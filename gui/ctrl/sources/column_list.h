@@ -198,6 +198,7 @@ namespace gui {
     public:
       typedef Layout layout_type;
       typedef layout_container<Layout> super;
+      typedef window_class<column_list_header, background> clazz;
 
       typedef void(cell_draw) (std::size_t,            // idx
                                const draw::graphics&,  // gc
@@ -222,13 +223,8 @@ namespace gui {
       core::point last_mouse_point;
       int down_idx;
 
-      static no_erase_window_class clazz;
-
       void operator= (column_list_header&) = delete;
     };
-
-    template<typename L, os::color background>
-    no_erase_window_class column_list_header<L, background>::clazz = create_group_window_clazz(background);
 
     namespace detail {
 
@@ -240,6 +236,7 @@ namespace gui {
         typedef layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
         typedef win::basic_list<orientation::vertical> list_type;
+        typedef no_erase_window_class<base_column_list> clazz;
 
         base_column_list (core::size_type item_size = 20,
                           os::color background = color::white,
@@ -259,12 +256,7 @@ namespace gui {
       private:
         void init ();
 
-        static no_erase_window_class clazz;
-
       };
-
-      template<typename L>
-      no_erase_window_class base_column_list<L>::clazz = no_erase_window_class(typeid(base_column_list<L>).name());
 
     }
 
@@ -691,7 +683,7 @@ namespace gui {
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::create (const container& parent,
                                                          const core::rectangle& place) {
-      super::create(clazz, parent, place);
+      super::create(clazz::get(), parent, place);
     }
 
     template<typename Layout, os::color background>
@@ -775,7 +767,7 @@ namespace gui {
       template<typename Layout>
       void base_column_list<Layout>::create (const container& parent,
                                              const core::rectangle& place) {
-        super::create(clazz, parent, place);
+        super::create(clazz::get(), parent, place);
         header.create(*reinterpret_cast<container*>(this), core::rectangle(0, 0, place.width(), 20));
         header.set_visible();
         list.create(*reinterpret_cast<container*>(this), core::rectangle(0, 20, place.width(), place.height() - 20));

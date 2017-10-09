@@ -173,6 +173,7 @@ namespace gui {
       typedef typename super::pos_t pos_t;
       typedef list_traits<V> traits;
       typedef basic_scroll_bar<V> scroll_bar_type;
+      typedef no_erase_window_class<basic_list> clazz;
 
       const pos_t zero = pos_t(0);
 
@@ -240,7 +241,6 @@ namespace gui {
     private:
       void init ();
 
-      static no_erase_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -410,7 +410,7 @@ namespace gui {
     template<orientation V>
     inline void basic_list<V>::create (const container& parent,
                                        const core::rectangle& place) {
-      super::create(clazz, parent, place);
+      super::create(clazz::get(), parent, place);
       adjust_scroll_bar();
     }
 
@@ -419,7 +419,7 @@ namespace gui {
     inline void basic_list<V>::create (const container& parent,
                                        const core::rectangle& place,
                                        const simple_list_data<T, F>& data) {
-      super::create(clazz, parent, place);
+      super::create(clazz::get(), parent, place);
       set_data(data);
     }
 
@@ -746,10 +746,6 @@ namespace gui {
 
     template<>
     void basic_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
-
-    // --------------------------------------------------------------------------
-    template<orientation V>
-    no_erase_window_class basic_list<V>::clazz = no_erase_window_class(typeid(basic_list<V>).name());
 
     // --------------------------------------------------------------------------
     inline edit_list::edit_list (core::size_type item_size,

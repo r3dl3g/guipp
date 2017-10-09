@@ -58,6 +58,7 @@ namespace gui {
       class textbox_base : public window {
       public:
         typedef window super;
+        typedef no_erase_window_class<textbox_base, cursor_type::ibeam> clazz;
         typedef std::vector<std::string> strings;
         typedef strings::size_type size_type;
 
@@ -113,10 +114,6 @@ namespace gui {
           mutable core::size virtual_size;
         } data;
 
-
-      private:
-        static const no_erase_window_class clazz;
-
       };
 
     } // namespace detail
@@ -146,7 +143,7 @@ namespace gui {
 
       inline void textbox_base::create (const container& parent,
                                         const core::rectangle& r) {
-        window::create(clazz, parent, r);
+        window::create(clazz::get(), parent, r);
       }
 
       inline auto textbox_base::row_count () const -> size_type {

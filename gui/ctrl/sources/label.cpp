@@ -59,15 +59,6 @@ namespace gui {
         return text();
       }
 
-      no_erase_window_class label_base::clazz("label++",
-#ifdef WIN32
-        (COLOR_BTNFACE+1)
-#endif // WIN32
-#ifdef X11
-        color::buttonColor()
-#endif // X11
-      );
-
     } // detail
 
     namespace paint {

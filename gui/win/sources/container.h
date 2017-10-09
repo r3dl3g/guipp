@@ -109,13 +109,12 @@ namespace gui {
     template<typename L = layout::standard_layout, typename... Args>
     using layout_container = detail::layout_base<container, L, Args...>;
 
-    window_class create_group_window_clazz (os::color);
-
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, os::color background = color::white, typename... Args>
     class group_window : public layout_container<L, Args...> {
     public:
       typedef layout_container<L, Args...> super;
+      typedef window_class<group_window, background> clazz;
 
       group_window (const Args&... args)
         : super(args...)
@@ -123,15 +122,10 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz, parent, r);
+        super::create(clazz::get(), parent, r);
       }
 
-    private:
-      static window_class clazz;
     };
-
-    template<typename L, os::color background, typename... Args>
-    window_class group_window<L, background, Args...>::clazz(create_group_window_clazz(background));
 
     // --------------------------------------------------------------------------
     class overlapped_window : public container {
@@ -156,11 +150,11 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const window_class&,
+      void create (const window_class_info&,
                    const window&,
                    const core::rectangle& = core::rectangle::def);
 
-      void create (const window_class&,
+      void create (const window_class_info&,
                    const core::rectangle& = core::rectangle::def);
     };
 
@@ -182,45 +176,23 @@ namespace gui {
       volatile bool is_modal;
     };
 
-    namespace detail {
-
-      // --------------------------------------------------------------------------
-      class main_window_class : public window_class {
-      public:
-        main_window_class ();
-
-        void prepare (window*, os::window) const override;
-      };
-
-      // --------------------------------------------------------------------------
-      class popup_window_class : public window_class {
-      public:
-        popup_window_class ();
-
-        void prepare (window*, os::window) const override;
-      };
-
-      // --------------------------------------------------------------------------
-      class dialog_window_class : public window_class {
-      public:
-        dialog_window_class ();
-
-        void prepare (window*, os::window) const override;
-      };
-
-    }
-
     // --------------------------------------------------------------------------
     class main_window : public overlapped_window {
-      public:
-        typedef overlapped_window super;
+    public:
+      typedef overlapped_window super;
+#ifdef WIN32
+      typedef window_class<main_window,
+                           (os::color)(COLOR_APPWORKSPACE + 1),
+                           cursor_type::arrow,
+                           WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                           WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED> clazz;
+#endif // WIN32
+#ifdef X11
+      typedef window_class<main_window, color::light_gray>) clazz;
+#endif // X11
 
-      void create (const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz, r);
-      }
+      void create (const core::rectangle& r = core::rectangle::def);
 
-    protected:
-      static detail::main_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -231,13 +203,20 @@ namespace gui {
     class popup_window : public modal_window {
     public:
       typedef modal_window super;
+#ifdef WIN32
+      typedef window_class<popup_window,
+                           color::light_gray,
+                           window_class_defaults<>::cursor(),
+                           WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                           WS_EX_PALETTEWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
+                           CS_DBLCLKS | CS_DROPSHADOW> clazz;
+#endif // WIN32
+#ifdef X11
+      typedef window_class<popup_window, color::light_gray>) clazz;
+#endif // X11
 
-      void create (const window& parent, const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz, parent, r);
-      }
+      void create (const window& parent, const core::rectangle& r = core::rectangle::def);
 
-    protected:
-      static detail::popup_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -248,13 +227,20 @@ namespace gui {
     class dialog_window : public modal_window {
     public:
       typedef modal_window super;
+#ifdef WIN32
+      typedef window_class<dialog_window,
+                            color::light_gray,
+                            window_class_defaults<>::cursor(),
+                            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU | 
+                            WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                            WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED> clazz;
+#endif // WIN32
+#ifdef X11
+      typedef window_class<dialog_window, color::light_gray>) clazz;
+#endif // X11
 
-      void create (const window& parent, const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz, parent, r);
-      }
+      void create (const window& parent, const core::rectangle& r = core::rectangle::def);
 
-    protected:
-      static detail::dialog_window_class clazz;
     };
 
     // --------------------------------------------------------------------------

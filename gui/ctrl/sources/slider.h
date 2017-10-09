@@ -73,9 +73,16 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<orientation O>
-      class slider_class : public no_erase_window_class {
-      public:
-        slider_class();
+      struct slider_cursor {};
+
+      template<>
+      struct slider_cursor<orientation::horizontal> {
+        static constexpr cursor_type value = cursor_type::size_v;
+      };
+
+      template<>
+      struct slider_cursor<orientation::vertical> {
+        static constexpr cursor_type value = cursor_type::size_h;
       };
 
       // --------------------------------------------------------------------------
@@ -83,20 +90,16 @@ namespace gui {
       class basic_slider : public slider_base {
       public:
         typedef slider_base super;
+        typedef no_erase_window_class<basic_slider, slider_cursor<O>::value> clazz;
 
         basic_slider ();
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
-      private:
-        static slider_class<O> clazz;
       };
 
       // --------------------------------------------------------------------------
-      template<orientation O>
-      slider_class<O> basic_slider<O>::clazz;
-
       template<>
       basic_slider<orientation::vertical>::basic_slider ();
 
@@ -138,8 +141,8 @@ namespace gui {
 
       template<orientation O>
       inline void basic_slider<O>::create (const container& parent,
-                                       const core::rectangle& place) {
-        super::create(clazz, parent, place);
+                                           const core::rectangle& place) {
+        super::create(clazz::get(), parent, place);
       }
 
     } // namespace detail

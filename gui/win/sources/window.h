@@ -120,7 +120,8 @@ namespace gui {
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
-      const window_class& get_window_class () const;
+      const std::string& get_class_name () const;
+      const window_class_info& get_window_class () const;
 
       void set_cursor (os::cursor);
 
@@ -145,7 +146,6 @@ namespace gui {
 
       void prepare_for_event (os::event_id mask);
 
-
     protected:
       window (const window&);
       window (window&&);
@@ -153,17 +153,16 @@ namespace gui {
       window& operator= (const window&) = delete;
       window& operator= (window&&) = delete;
 
-      void create (const window_class&,
+      static os::window create_window (const window_class_info&,
+                                       const core::rectangle& r,
+                                       os::window parent_id,
+                                       window* data);
+
+      void create (const window_class_info&,
                    const container&,
                    const core::rectangle& = core::rectangle::def);
 
-#ifdef WIN32_DEPRECATED
-      void set_style (os::style mask, bool);
-      os::style get_style (os::style mask =
-                                     std::numeric_limits<os::style>::max()) const;
-#endif // WIN32_DEPRECATED
-
-      void create (const window_class&,
+      void create (const window_class_info&,
                    os::window parent,
                    const core::rectangle&);
 
@@ -173,7 +172,6 @@ namespace gui {
       void init ();
 
       os::window id;
-      const window_class* cls;
       core::event_container events;
 
       bool focus_accepting;
@@ -188,6 +186,7 @@ namespace gui {
     class client_window : public window {
     public:
       typedef window super;
+      typedef window_class<client_window, color::very_light_gray> clazz;
 
       client_window ();
       client_window (const client_window& rhs);
@@ -195,9 +194,6 @@ namespace gui {
 
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def);
-
-    private:
-      static const window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -254,7 +250,7 @@ namespace gui {
 
     inline void client_window::create (const container& parent,
                                        const core::rectangle& r) {
-      window::create(clazz, parent, r);
+      window::create(clazz::get(), parent, r);
     }
 
     // --------------------------------------------------------------------------

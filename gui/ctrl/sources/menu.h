@@ -255,6 +255,7 @@ namespace gui {
     class main_menu : public window {
     public:
       typedef window super;
+      typedef window_class<main_menu, color::very_light_gray> clazz;
 
       main_menu ();
       main_menu (const main_menu&);
@@ -275,7 +276,6 @@ namespace gui {
     private:
       void init ();
 
-      static const window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -483,7 +483,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline void main_menu::create (const container& parent,
                                    const core::rectangle& place) {
-      window::create(clazz, parent, place);
+      window::create(clazz::get(), parent, place);
     }
 
     // --------------------------------------------------------------------------

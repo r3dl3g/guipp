@@ -57,6 +57,7 @@ namespace gui {
       class edit_base : public window {
       public:
         typedef window super;
+        typedef window_class<edit_base, color::white, cursor_type::ibeam> clazz;
         typedef size_t pos_t;
 
         typedef core::range<pos_t> range;
@@ -114,7 +115,6 @@ namespace gui {
       private:
         void init ();
 
-        static window_class clazz;
       };
     } // detail
 

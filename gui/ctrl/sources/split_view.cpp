@@ -102,26 +102,6 @@ namespace gui {
     namespace detail {
 
       template<>
-      window_class split_view<orientation::vertical>::clazz("vsplit_view",
-#ifdef WIN32
-                                            (os::color)(COLOR_BTNFACE + 1)
-#endif // WIN32
-#ifdef X11
-                                            color::buttonColor()
-#endif // X11
-      );
-
-      template<>
-      window_class split_view<orientation::horizontal>::clazz("hsplit_view",
-#ifdef WIN32
-                                           (os::color)(COLOR_BTNFACE + 1)
-#endif // WIN32
-#ifdef X11
-                                           color::buttonColor()
-#endif // X11
-      );
-
-      template<>
       void split_view<orientation::vertical>::init () {
         slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
           get_layout().layout(size());

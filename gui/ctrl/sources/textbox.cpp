@@ -103,9 +103,6 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      const no_erase_window_class textbox_base::clazz = no_erase_window_class(typeid(textbox_base).name());
-
-      // --------------------------------------------------------------------------
       void textbox_base::set_text (const std::string& t) {
         data.lines = ibr::string::split<'\n'>(t);
         if (data.lines.empty()) {

@@ -96,6 +96,7 @@ namespace gui {
       public:
         typedef layout_container<layout::split_view<O>> super;
         typedef typename super::layout_type layout_type;
+        typedef window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
         typedef win::basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
@@ -115,7 +116,6 @@ namespace gui {
       private:
         void init ();
 
-        static window_class clazz;
       };
 
     } // namespace detail
@@ -302,7 +302,7 @@ namespace gui {
       void split_view<O>::create (const container& parent,
                                   const core::rectangle& place,
                                   double split_pos) {
-        super::create(clazz, parent, place);
+        super::create(clazz::get(), parent, place);
         slider.create(*this, layout_type::get_slider_place(place.size(), split_pos));
         slider.set_visible();
       }

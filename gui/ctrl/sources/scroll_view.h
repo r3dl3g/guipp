@@ -59,8 +59,8 @@ namespace gui {
       }
 
       win::vertical_scroll_bar*   vscroll;
-      win::horizontal_scroll_bar*   hscroll;
-      win::client_window* edge;
+      win::horizontal_scroll_bar* hscroll;
+      win::client_window*         edge;
     };
 
     // --------------------------------------------------------------------------
@@ -115,6 +115,7 @@ namespace gui {
     class scroll_view : public layout_container<layout::scroll_view> {
     public:
       typedef layout_container<layout::scroll_view> super;
+      typedef window_class<scroll_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
       scroll_view ();
 
@@ -142,18 +143,21 @@ namespace gui {
       horizontal_scroll_bar hscroll;
       client_window         edge;
 
-      static window_class   clazz;
     };
 
     // --------------------------------------------------------------------------
-    template<typename T, os::color background = color::white>
-    class virtual_view : public group_window<layout::virtual_layout<T>, background> {
+    template<typename T, os::color background = color::transparent>
+    class virtual_view : public layout_container<layout::virtual_layout<T>> {
     public:
       typedef layout::virtual_layout<T> layout_type;
       typedef layout_container<layout_type> super;
+      typedef no_erase_window_class<virtual_view> clazz;
       typedef T view_type;
 
       virtual_view ();
+
+      void create (const container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
       view_type             view;
       horizontal_scroll_bar hscroll;
@@ -194,16 +198,23 @@ namespace gui {
     template<typename T>
     inline void virtual_layout<T>::layout (const core::size& new_size) {
       if (client && client->is_visible()) {
-          auto available = super::layout(new_size, client->get_virtual_place());
-          client->place(available);
-        } else {
-          super::layout(new_size, core::rectangle());
-        }
+        auto available = super::layout(new_size, client->get_virtual_place());
+        client->place(available);
+      } else {
+        super::layout(new_size, core::rectangle());
+      }
     }
 
   } // namespace layout
 
   namespace win {
+
+    template<typename T, os::color B>
+    void virtual_view<T, B>::create (const container& parent,
+                                     const core::rectangle& r) {
+      super::create(clazz::get(), parent, r);
+    }
+
     template<typename T, os::color B>
     virtual_view<T, B>::virtual_view () {
       super::register_event_handler(REGISTER_FUNCTION, create_event(this, &virtual_view::handle_create));

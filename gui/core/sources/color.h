@@ -93,7 +93,7 @@ namespace gui {
       static const os::color value = build_primary<part::red, V>::value |
                                      build_primary<part::green, V>::value |
                                      build_primary<part::blue, V>::value |
-                                     build_primary<part::alpha, V>::value;
+                                     build_primary<part::alpha, A>::value;
     };
 
     template<part P>
@@ -223,49 +223,49 @@ namespace gui {
              static_cast<int>(calc_weight_gray(rhs));
     }
 
-    const os::color transparent = rgba_gray<0, 0xff>::value;
+    constexpr os::color transparent = rgba_gray<0, 0xff>::value;
 
-    const os::color black = rgb_gray<0>::value;
-    const os::color white = rgb_gray<0xff>::value;
-    const os::color gray = rgb_gray<0x80>::value;
-    const os::color dark_gray = rgb_gray<0x40>::value;
-    const os::color very_dark_gray = rgb_gray<0x20>::value;
-    const os::color medium_gray = rgb_gray<0xA0>::value;
-    const os::color light_gray = rgb_gray<0xC0>::value;
-    const os::color very_light_gray = rgb_gray<0xE0>::value;
-    const os::color very_very_light_gray = rgb_gray<0xF0>::value;
+    constexpr os::color black = rgb_gray<0>::value;
+    constexpr os::color white = rgb_gray<0xff>::value;
+    constexpr os::color gray = rgb_gray<0x80>::value;
+    constexpr os::color dark_gray = rgb_gray<0x40>::value;
+    constexpr os::color very_dark_gray = rgb_gray<0x20>::value;
+    constexpr os::color medium_gray = rgb_gray<0xA0>::value;
+    constexpr os::color light_gray = rgb_gray<0xC0>::value;
+    constexpr os::color very_light_gray = rgb_gray<0xE0>::value;
+    constexpr os::color very_very_light_gray = rgb_gray<0xF0>::value;
 
-    const os::color red = rgb<255, 0, 0>::value;
-    const os::color green = rgb<0, 255, 0>::value;
-    const os::color blue = rgb<0, 0, 255>::value;
-    const os::color cyan = rgb<0, 255, 255>::value;
-    const os::color magenta = rgb<255, 0, 255>::value;
-    const os::color yellow = rgb<255, 255, 0>::value;
-    const os::color orange = rgb<255, 128, 0>::value;
-    const os::color brown = rgb<192, 64, 0>::value;
+    constexpr os::color red = rgb<255, 0, 0>::value;
+    constexpr os::color green = rgb<0, 255, 0>::value;
+    constexpr os::color blue = rgb<0, 0, 255>::value;
+    constexpr os::color cyan = rgb<0, 255, 255>::value;
+    constexpr os::color magenta = rgb<255, 0, 255>::value;
+    constexpr os::color yellow = rgb<255, 255, 0>::value;
+    constexpr os::color orange = rgb<255, 128, 0>::value;
+    constexpr os::color brown = rgb<192, 64, 0>::value;
 
-    const os::color dark_red = rgb<192, 0, 0>::value;
-    const os::color dark_green = rgb<0, 192, 0>::value;
-    const os::color dark_blue = rgb<0, 0, 192>::value;
-    const os::color dark_cyan = rgb<0, 192, 192>::value;
-    const os::color dark_magenta = rgb<192, 0, 192>::value;
-    const os::color dark_yellow = rgb<192, 192, 0>::value;
-    const os::color dark_orange = rgb<192, 96, 0>::value;
-    const os::color dark_brown = rgb<128, 48, 0>::value;
+    constexpr os::color dark_red = rgb<192, 0, 0>::value;
+    constexpr os::color dark_green = rgb<0, 192, 0>::value;
+    constexpr os::color dark_blue = rgb<0, 0, 192>::value;
+    constexpr os::color dark_cyan = rgb<0, 192, 192>::value;
+    constexpr os::color dark_magenta = rgb<192, 0, 192>::value;
+    constexpr os::color dark_yellow = rgb<192, 192, 0>::value;
+    constexpr os::color dark_orange = rgb<192, 96, 0>::value;
+    constexpr os::color dark_brown = rgb<128, 48, 0>::value;
 
-    const os::color light_red = rgb<255, 128, 128>::value;
-    const os::color light_green = rgb<128, 255, 128>::value;
-    const os::color light_blue = rgb<128, 128, 255>::value;
-    const os::color light_cyan = rgb<128, 255, 255>::value;
-    const os::color light_magenta = rgb<255, 128, 255>::value;
-    const os::color light_yellow = rgb<255, 255, 128>::value;
+    constexpr os::color light_red = rgb<255, 128, 128>::value;
+    constexpr os::color light_green = rgb<128, 255, 128>::value;
+    constexpr os::color light_blue = rgb<128, 128, 255>::value;
+    constexpr os::color light_cyan = rgb<128, 255, 255>::value;
+    constexpr os::color light_magenta = rgb<255, 128, 255>::value;
+    constexpr os::color light_yellow = rgb<255, 255, 128>::value;
 
-    const os::color very_light_red = rgb<255, 192, 192>::value;
-    const os::color very_light_green = rgb<192, 255, 192>::value;
-    const os::color very_light_blue = rgb<192, 192, 255>::value;
-    const os::color very_light_cyan = rgb<192, 255, 255>::value;
-    const os::color very_light_magenta = rgb<255, 192, 255>::value;
-    const os::color very_light_yellow = rgb<255, 255, 192>::value;
+    constexpr os::color very_light_red = rgb<255, 192, 192>::value;
+    constexpr os::color very_light_green = rgb<192, 255, 192>::value;
+    constexpr os::color very_light_blue = rgb<192, 192, 255>::value;
+    constexpr os::color very_light_cyan = rgb<192, 255, 255>::value;
+    constexpr os::color very_light_magenta = rgb<255, 192, 255>::value;
+    constexpr os::color very_light_yellow = rgb<255, 255, 192>::value;
 
     os::color scrollBarColor();
     os::color menuColor();

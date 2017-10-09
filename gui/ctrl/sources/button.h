@@ -94,11 +94,11 @@ namespace gui {
       template<os::color foreground,
                os::color background>
       void color_flat_button (const draw::graphics& g,
-                        const core::rectangle& r,
-                        const std::string& text,
-                        const button_state& state,
-                        bool focused,
-                        bool enabled) {
+                              const core::rectangle& r,
+                              const std::string& text,
+                              const button_state& state,
+                              bool focused,
+                              bool enabled) {
         flat_button(g, r, text, state, focused, enabled, foreground, background);
       }
 
@@ -142,6 +142,7 @@ namespace gui {
     class button_base : public window {
     public:
       typedef window super;
+      typedef no_erase_window_class<button_base> clazz;
 
       button_base ();
       button_base (const button_base&);
@@ -164,8 +165,6 @@ namespace gui {
       void init ();
 
       button_state data;
-
-      static no_erase_window_class clazz;
     };
 
     // --------------------------------------------------------------------------
@@ -283,8 +282,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     // inlines
     inline void button_base::create (const container& parent,
-                                const core::rectangle& place) {
-      window::create(clazz, parent, place);
+                                     const core::rectangle& place) {
+      window::create(clazz::get(), parent, place);
     }
 
     inline const button_state& button_base::get_state () const {

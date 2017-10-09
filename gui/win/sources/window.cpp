@@ -60,7 +60,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
+    namespace hidden {
+      std::map<std::string, window_class_info> window_class_info_map;
+    }
+
     std::vector<os::window> capture_stack;
+
+    // --------------------------------------------------------------------------
 
 #ifdef WIN32
 
@@ -104,19 +110,23 @@ namespace gui {
 
     window::window ()
       : id(0)
-      , cls(nullptr)
       , focus_accepting(false)
     {}
 
     window::window (const window& rhs)
       : id(0)
-      , cls(rhs.cls)
       , focus_accepting(rhs.focus_accepting)
-    {}
+    {
+      if (rhs.is_valid()) {
+        container* parent = rhs.get_parent();
+        create(rhs.get_window_class(),
+              parent ? parent->get_id() : NULL,
+              rhs.place());
+      }
+    }
 
     window::window (window&& rhs)
       : id(0)
-      , cls(rhs.cls)
       , focus_accepting(rhs.focus_accepting)
     {
       std::swap(id, rhs.id);
@@ -124,28 +134,6 @@ namespace gui {
 
     void window::init ()
     {}
-
-    void window::create (const window_class& type,
-                         os::window parent_id,
-                         const core::rectangle& r) {
-
-      this->cls = &type;
-
-      id = CreateWindowEx(type.get_ex_style(),            // window style
-                          type.get_class_name().c_str(),  // address of registered class name
-                          nullptr,                        // address of window text
-                          type.get_style(),               // window style
-                          r.os_x(),                       // horizontal position of window
-                          r.os_y(),                       // vertical position of window
-                          r.os_width(),                   // window width
-                          r.os_height(),                  // window height
-                          parent_id,                      // handle of parent window
-                          NULL,                           // handle of menu or child-window identifier
-                          core::global::get_instance(),   // handle of application instance
-                          (LPVOID)this);
-      type.prepare(this, parent_id);
-      SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
-    }
 
     void window::destroy () {
       if (get_id()) {
@@ -381,6 +369,60 @@ namespace gui {
     void window::prepare_for_event (os::event_id id)
     {}
 
+    os::window window::create_window (const window_class_info& type,
+                                      const core::rectangle& r,
+                                      os::window parent_id,
+                                      window* data) {
+      auto display = core::global::get_instance();
+
+      os::brush back = ((type.get_background() > 0) && (type.get_background() < 20)) 
+                          ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
+                          : (color::extract<color::part::alpha>(type.get_background()) == 0xff) 
+                            ? NULL : CreateSolidBrush(type.get_background());
+
+      WNDCLASS wc = {
+        /* Register the window class. */
+        type.get_class_style(),
+        detail::WindowEventProc,
+        0,
+        0,
+        display,
+        nullptr,
+        type.get_cursor(),
+        back,
+        nullptr,
+        type.get_class_name().c_str()
+      };
+
+      ATOM cls_id = RegisterClass(&wc);
+      if (cls_id) {
+        hidden::window_class_info_map[type.get_class_name()] = type;
+      }
+
+      os::window  id = CreateWindowEx(type.get_ex_style(),
+                                      type.get_class_name().c_str(),
+                                      nullptr,        // address of window text
+                                      type.get_style(), // window style
+                                      r.os_x(),       // horizontal position of window
+                                      r.os_y(),       // vertical position of window
+                                      r.os_width(),   // window width
+                                      r.os_height(),  // window height
+                                      parent_id,      // handle of parent window
+                                      NULL,           // handle of menu or child-window identifier
+                                      display,        // handle of application instance
+                                      data);
+      SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
+
+      return id;
+    }
+
+    const window_class_info& window::get_window_class () const {
+      char class_name[256];
+      GetClassName(id, class_name, 256);
+      const window_class_info& cls = hidden::window_class_info_map[class_name];
+      return cls;
+    }
+
     // --------------------------------------------------------------------------
 
 #endif // WIN32
@@ -388,12 +430,23 @@ namespace gui {
       destroy();
     }
 
-    void window::create (const window_class& type,
+    void window::create (const window_class_info& type,
                          const container& parent,
                          const core::rectangle& r) {
       if (parent.is_valid()) {
         create(type, parent.get_id(), r);
       }
+    }
+
+    void window::create (const window_class_info& type,
+                         os::window parent_id,
+                         const core::rectangle& r) {
+
+      if (get_id()) {
+        destroy();
+      }
+
+      id = create_window(type, r, parent_id, this);
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
@@ -406,8 +459,8 @@ namespace gui {
       return p ? p->screen_to_client(pt) : pt;
     }
 
-    const window_class& window::get_window_class () const {
-      return *cls;
+    const std::string& window::get_class_name () const {
+      return get_window_class().get_class_name();
     }
 
     void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
@@ -496,8 +549,11 @@ namespace gui {
       return false;
     }
 
-    typedef std::map<window*, os::event_id> window_event_mask_map;
-    window_event_mask_map window_event_mask;
+    namespace hidden {
+      std::map<window*, window_class_info*> window_class_map;
+      std::map<window*, os::event_id> window_event_mask;
+    }
+
 
     window::window ()
       : id(0)
@@ -543,64 +599,11 @@ namespace gui {
       prepare_for_event(KeyPressMask);
     }
 
-    void window::create (const window_class& type,
-                         os::window parent_id,
-                         const core::rectangle& r) {
-      if (get_id()) {
-        destroy();
-      }
-
-      cls = &type;
-
-      auto display = core::global::get_instance();
-//      auto visual = core::global::get_visual();
-
-//      XSetWindowAttributes attr;
-//      attr.colormap = XCreateColormap(display, DefaultRootWindow(display), visual->visual, AllocNone);
-//      attr.border_pixel = 0;//type.get_background();
-//      attr.background_pixel = 0;//type.get_background();
-
-//      id = XCreateWindow(display,
-//                         parent_id,
-//                         r.os_x(),
-//                         r.os_y(),
-//                         r.os_width(),
-//                         r.os_height(),
-//                         0,
-//                         visual->depth,
-//                         InputOutput,
-//                         visual->visual,
-//                         CWColormap | CWBorderPixel | CWBackPixel,
-//                         &attr);
-
-      id = XCreateSimpleWindow(display,
-                               parent_id,
-                               r.os_x(),
-                               r.os_y(),
-                               r.os_width(),
-                               r.os_height(),
-                               0,
-                               0,
-                               type.get_background());
-      detail::set_window(id, this);
-
-//      core::global::sync();
-
-      type.prepare(this, parent_id);
-
-      window_event_mask_map::iterator i = window_event_mask.find(this);
-      if (i != window_event_mask.end()) {
-        check_xlib_return(XSelectInput(display, id, i->second));
-      }
-
-      send_client_message(this, detail::WM_CREATE_WINDOW, this, r);
-
-    }
-
     void window::destroy () {
       if (get_id()) {
         check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
+        hidden::window_class_map.erase(this);
         id = 0;
       }
     }
@@ -922,31 +925,79 @@ namespace gui {
 
     void window::prepare_for_event (os::event_id mask) {
       if (get_id()) {
-        window_event_mask_map::iterator i = window_event_mask.find(this);
-        if (i != window_event_mask.end()) {
+        auto i = hidden::window_event_mask.find(this);
+        if (i != hidden::window_event_mask.end()) {
           i->second |= mask;
           check_xlib_return(XSelectInput(core::global::get_instance(), id, i->second));
         } else {
-          window_event_mask[this] = mask;
+          hidden::window_event_mask[this] = mask;
           check_xlib_return(XSelectInput(core::global::get_instance(), id, mask));
         }
       } else {
-        os::event_id& old_mask = window_event_mask[this];
+        os::event_id& old_mask = hidden::window_event_mask[this];
         old_mask |= mask;
       }
     }
 
+    os::window window::create_window (const window_class_info& type,
+                                      const core::rectangle& r,
+                                      os::window parent_id,
+                                      window* data) {
+      auto display = core::global::get_instance();
+      os::window id = XCreateSimpleWindow(display,
+                                          parent_id,
+                                          r.os_x(),
+                                          r.os_y(),
+                                          r.os_width(),
+                                          r.os_height(),
+                                          0,
+                                          0,
+                                          type.get_background());
+      detail::set_window(id, data);
+
+      auto i = hidden::window_event_mask.find(data);
+      if (i != hidden::window_event_mask.end()) {
+        check_xlib_return(XSelectInput(display, id, i->second));
+      }
+
+      unsigned long mask = 0;
+      XSetWindowAttributes wa;
+
+      if (color::extract<color::part::alpha>(background) == 0xff) {
+        mask |= CWBackPixmap;
+        wa.background_pixmap = None;
+      }
+      if (cursor) {
+        mask |= CWCursor;
+        wa.cursor = cursor;
+      }
+
+      if (mask) {
+        XChangeWindowAttributes(display, id, mask, &wa);
+      }
+
+      auto i = hidden::window_class_info_map.find(type.get_class_name());
+      window_class_info* cls = nullptr;
+      if (i == hidden::window_class_info_map.end()) {
+        cls = &type;
+        hidden::window_class_info_map[type.get_class_name()] = type;
+      } else {
+        cls = &(i->second);
+      }
+      hidden::window_class_map[data] = cls;
+
+      send_client_message(data, detail::WM_CREATE_WINDOW, data, r);
+      return id;
+    }
+
+    const window_class_info& window::get_window_class () const {
+      const window_class_info& cls = hidden::window_class_map[this];
+      return cls;
+    }
+
+
 #endif // X11
 
-    // --------------------------------------------------------------------------
-    const window_class client_window::clazz("client_window",
-#ifdef WIN32
-    (os::color)(COLOR_BTNFACE + 1)
-#endif // WIN32
-#ifdef X11
-                                            color::buttonColor()
-#endif
-    );
     // --------------------------------------------------------------------------
 
   } // win

@@ -75,19 +75,6 @@ namespace gui {
 #endif // X11
     } // detail
 
-    void no_erase_window_class::prepare (window* win, os::window parent_id) const {
-      window_class::prepare(win, parent_id);
-#ifdef X11
-      unsigned long mask = CWBackPixmap;
-      XSetWindowAttributes wa;
-      wa.background_pixmap = None;
-      XChangeWindowAttributes(core::global::get_instance(), win->get_id(), mask, &wa);
-#endif // X11
-    }
-
-    os::brush no_erase_window_class::get_background_brush () const {
-      return (os::brush)NULL;
-    }
 
 #ifdef WIN32
 

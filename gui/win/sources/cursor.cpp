@@ -41,59 +41,59 @@ namespace gui {
     }
 
     const cursor& cursor::arrow () {
-      static cursor c(IF_WIN32_ELSE(IDC_ARROW, XC_arrow));
+      static cursor c(cursor_type::arrow);
       return c;
     }
 
     const cursor& cursor::size_h () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZEWE, XC_sb_h_double_arrow));
+      static cursor c(cursor_type::size_h);
       return c;
     }
 
     const cursor& cursor::size_v () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZENS, XC_sb_v_double_arrow));
+      static cursor c(cursor_type::size_v);
       return c;
     }
 
     const cursor& cursor::size_ne_sw () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZENESW, XC_bottom_left_corner));
+      static cursor c(cursor_type::size_ne_sw);
       return c;
     }
 
     const cursor& cursor::size_nw_se () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZENWSE, XC_bottom_right_corner));
+      static cursor c(cursor_type::size_nw_se);
       return c;
     }
 
     const cursor& cursor::move () {
-      static cursor c(IF_WIN32_ELSE(IDC_SIZEALL, XC_fleur));
+      static cursor c(cursor_type::move);
       return c;
     }
 
     const cursor& cursor::ibeam () {
-      static cursor c(IF_WIN32_ELSE(IDC_IBEAM, XC_xterm));
+      static cursor c(cursor_type::ibeam);
       return c;
     }
 
     const cursor& cursor::cross () {
-      static cursor c(IF_WIN32_ELSE(IDC_CROSS, XC_crosshair));
+      static cursor c(cursor_type::cross);
       return c;
     }
 
     const cursor& cursor::wait () {
-      static cursor c(IF_WIN32_ELSE(IDC_WAIT, XC_watch));
+      static cursor c(cursor_type::wait);
       return c;
     }
 
     const cursor& cursor::no () {
-      static cursor c(IF_WIN32_ELSE(IDC_NO, XC_pirate));
+      static cursor c(cursor_type::no);
       return c;
     }
 
     cursor::operator os::cursor () const {
-      if (type && !id) {
+      if ((type != cursor_type::none) && !id) {
 #ifdef WIN32
-        id = LoadCursor(nullptr, (LPCSTR)type);
+        id = LoadCursor(nullptr, MAKEINTRESOURCE(type));
 #endif // Win32
 #ifdef X11
         id = XCreateFontCursor(core::global::get_instance(), type);

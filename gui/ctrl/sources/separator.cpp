@@ -29,10 +29,8 @@ namespace gui {
 
       void separator_base::create (const container& parent,
                                    const core::rectangle& place) {
-        super::create(clazz, parent, place);
+        super::create(clazz::get(), parent, place);
       }
-
-      no_erase_window_class separator_base::clazz("SEPARATOR++");
 
     } // detail
 

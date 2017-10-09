@@ -48,27 +48,25 @@ namespace gui {
 #endif // X11
     }
 
-    window_class::window_class ()
+    window_class_info::window_class_info ()
       : background(0)
       , class_style(0)
       , style(0)
       , ex_style(0)
-      , is_initialized(false)
     {}
 
-    window_class::window_class (const window_class& rhs)
+    window_class_info::window_class_info (const window_class_info& rhs)
       : class_name(rhs.class_name)
       , background(rhs.background)
       , cursor(rhs.cursor)
       , class_style(rhs.class_style)
       , style(rhs.style)
       , ex_style(rhs.ex_style)
-      , is_initialized(rhs.is_initialized)
     {}
 
-    window_class::window_class (const std::string& cls_name,
+    window_class_info::window_class_info (const std::string& cls_name,
                                 os::color background,
-                                win::cursor cursor,
+                                win::cursor_type cursor,
                                 os::style style,
                                 os::style ex_style,
                                 os::style class_style)
@@ -78,103 +76,36 @@ namespace gui {
       , class_style(class_style)
       , style(style)
       , ex_style(ex_style)
-      , is_initialized(false)
     {}
 
-    void window_class::prepare (window* win, os::window) const {
-#ifdef X11
-      if (get_cursor()) {
-        XSetWindowAttributes wa;
-        wa.cursor = get_cursor();
-        XChangeWindowAttributes(core::global::get_instance(), win->get_id(), CWCursor, &wa);
-      }
-#endif // X11
-    }
-
-    const std::string& window_class::get_class_name () const {
-      register_class();
+    const std::string& window_class_info::get_class_name () const {
       return class_name;
     }
 
-    const os::color window_class::get_background () const {
-      register_class();
+    const os::color window_class_info::get_background () const {
       return background;
     }
 
-    const win::cursor& window_class::get_cursor () const {
-      register_class();
+    const os::cursor window_class_info::get_cursor () const {
       return cursor;
     }
 
-    const os::style window_class::get_class_style () const {
-      register_class();
+    const os::style window_class_info::get_class_style () const {
       return class_style;
     }
 
-    const os::style window_class::get_style () const {
-      register_class();
+    const os::style window_class_info::get_style () const {
       return style;
     }
 
-    const os::style window_class::get_ex_style () const {
-      register_class();
+    const os::style window_class_info::get_ex_style () const {
       return ex_style;
     }
 
-    bool window_class::is_valid () const {
+    bool window_class_info::is_valid () const {
       return !class_name.empty();
     }
 
-    os::brush window_class::get_background_brush () const {
-#ifdef WIN32
-      return ((background > 0) && (background < 20)) ? reinterpret_cast<os::brush>(static_cast<LPARAM>(background))
-                                                     : CreateSolidBrush(background);
-#endif // WIN32
-#ifdef X11
-      return background;
-#endif // X11
-    }
-
-    void window_class::register_class () const {
-      if (is_initialized) {
-        return;
-      }
-#ifdef WIN32
-      WNDCLASS wc = {
-        /* Register the window class. */
-        class_style,
-        detail::WindowEventProc,
-        0,
-        sizeof(window_class*),
-        core::global::get_instance(),
-        nullptr,
-        cursor,
-        get_background_brush(),
-        nullptr,
-        class_name.c_str()
-      };
-
-      ATOM result = RegisterClass(&wc);
-      if (!result) {
-        std::string msg = getLastErrorText();
-        LogError << msg;
-        //throw std::runtime_error(msg);
-      }
-#endif // WIN32
-      is_initialized = true;
-    }
-
-    void window_class::unregister_class () {
-      if (is_initialized) {
-        is_initialized = false;
-#ifdef WIN32
-        BOOL result = UnregisterClass(class_name.c_str(), core::global::get_instance());
-        if (!result) {
-          throw std::runtime_error(getLastErrorText());
-        }
-#endif // WIN32
-      }
-    }
 
   } // win
 

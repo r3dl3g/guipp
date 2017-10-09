@@ -72,28 +72,12 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    class no_erase_window_class : public window_class {
-    public:
-      no_erase_window_class ()
-      {}
-
-      no_erase_window_class (const window_class& rhs)
-        :window_class(rhs)
-      {}
-
-      no_erase_window_class (const std::string& cls_name,
-                             os::color background = color::white,
-                             win::cursor cursor = window_class_defaults<>::cursor(),
-                             os::style style = window_class_defaults<>::style,
-                             os::style ex_style = window_class_defaults<>::ex_style)
-        :window_class(cls_name, background, cursor, style, ex_style)
-      {}
-
-      void prepare (window*, os::window) const override;
-
-    protected:
-      os::brush get_background_brush () const override;
-    };
+    template<typename T,
+             win::cursor_type C = window_class_defaults<>::cursor(),
+             os::style S = window_class_defaults<>::style,
+             os::style ES = window_class_defaults<>::ex_style,
+             os::style CS = window_class_defaults<>::class_style>
+    using no_erase_window_class = window_class<T, color::transparent, C, S, ES, CS>;
 
     // --------------------------------------------------------------------------
     template<typename T>

@@ -23,15 +23,6 @@ namespace gui {
 
   namespace win {
 
-    no_erase_window_class button_base::clazz("BUTTON",
-#ifdef WIN32
-      (os::color)(COLOR_BTNFACE + 1)
-#endif // WIN32
-#ifdef X11
-      color::buttonColor()
-#endif
-    );
-
     button_state::button_state ()
       : hilited(false)
       , pushed(false)

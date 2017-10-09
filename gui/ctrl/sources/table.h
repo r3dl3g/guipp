@@ -240,6 +240,7 @@ namespace gui {
       class cell_view : public window {
       public:
         typedef window super;
+        typedef no_erase_window_class<cell_view> clazz;
 
         template<typename U>
         using container_type = T<U> ;
@@ -285,13 +286,7 @@ namespace gui {
         std::function<filter::selection_and_hilite> selection_filter;
         std::function<filter::selection_and_hilite> hilite_filter;
 
-      private:
-        static no_erase_window_class clazz;
-
       };
-
-      template<template<typename U> class T>
-      no_erase_window_class cell_view<T>::clazz = create_group_window_clazz(color::very_very_light_gray);
 
       // --------------------------------------------------------------------------
       typedef std::string (data_source) (const position&);
@@ -764,7 +759,7 @@ namespace gui {
       template<template<typename U> class T>
       void cell_view<T>::create (const container& parent,
                                  const core::rectangle& place) {
-        window::create(clazz, parent, place);
+        window::create(clazz::get(), parent, place);
       }
 
       template<template<typename U> class T>

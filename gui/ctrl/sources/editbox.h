@@ -41,6 +41,7 @@ namespace gui {
       class editbox_base : public textbox_base {
       public:
         typedef textbox_base super;
+        typedef no_erase_window_class<editbox_base, cursor_type::ibeam> clazz;
 
         editbox_base ();
         ~editbox_base ();
@@ -57,7 +58,6 @@ namespace gui {
 
         std::string& current_line ();
 
-        static const no_erase_window_class clazz;
       };
 
       // --------------------------------------------------------------------------

@@ -437,8 +437,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const window_class main_menu::clazz("main_menu", color::very_light_gray);
-
     main_menu::main_menu ()
       : data(this)
     {

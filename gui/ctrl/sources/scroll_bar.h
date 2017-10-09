@@ -114,7 +114,7 @@ namespace gui {
       scroll_bar (const scroll_bar&);
       scroll_bar (scroll_bar&&);
 
-      void create (const window_class& type,
+      void create (const window_class_info& type,
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
@@ -154,16 +154,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H>
-    class scroll_bar_class : public no_erase_window_class {
-    public:
-      scroll_bar_class ();
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation H>
     class basic_scroll_bar : public scroll_bar {
     public:
       typedef scroll_bar super;
+      typedef no_erase_window_class<basic_scroll_bar> clazz;
 
       basic_scroll_bar (bool grab_focus = true);
       basic_scroll_bar (const basic_scroll_bar& rhs);
@@ -173,8 +167,6 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
     private:
-      static scroll_bar_class<H> clazz;
-
       void init ();
 
       struct geometry {
@@ -213,10 +205,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H>
-    scroll_bar_class<H> basic_scroll_bar<H>::clazz;
-
-    // --------------------------------------------------------------------------
-    template<orientation H>
     inline basic_scroll_bar<H>::basic_scroll_bar (bool grab_focus) {
       set_accept_focus(grab_focus);
       init();
@@ -239,7 +227,7 @@ namespace gui {
     template<orientation H>
     inline void basic_scroll_bar<H>::create (const container& parent,
                                          const core::rectangle& place) {
-      super::create(clazz, parent, place);
+      super::create(clazz::get(), parent, place);
     }
 
     template<orientation H>

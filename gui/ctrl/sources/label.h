@@ -38,6 +38,7 @@ namespace gui {
       class label_base : public gui::win::window {
       public:
         typedef window super;
+        typedef no_erase_window_class<label_base> clazz;
 
         label_base (const std::string& = std::string());
         label_base (const text_source&);
@@ -65,8 +66,6 @@ namespace gui {
       protected:
         text_source text;
 
-      private:
-        static no_erase_window_class clazz;
       };
 
     } // namespace detail
@@ -137,7 +136,7 @@ namespace gui {
 
       inline void label_base::create (const container& parent,
                                       const core::rectangle& place) {
-        super::create(clazz, parent, place);
+        super::create(clazz::get(), parent, place);
       }
 
       // --------------------------------------------------------------------------

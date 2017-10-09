@@ -75,7 +75,7 @@ namespace gui {
 #endif // X11
     }
 
-    void scroll_bar::create (const window_class& type,
+    void scroll_bar::create (const window_class_info& type,
                              const container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);
@@ -234,16 +234,6 @@ namespace gui {
         }
       }
     } // paint
-
-    template<>
-    scroll_bar_class<orientation::vertical>::scroll_bar_class ()
-      : no_erase_window_class("VSCROLLBAR++", color::very_light_gray)
-    {}
-
-    template<>
-    scroll_bar_class<orientation::horizontal>::scroll_bar_class ()
-      : no_erase_window_class("HSCROLLBAR++", color::very_light_gray)
-    {}
 
     // --------------------------------------------------------------------------
     template<>

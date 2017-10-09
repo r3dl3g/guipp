@@ -85,7 +85,7 @@ namespace gui {
     core::rectangle scroll_view_base::layout (const core::size& new_size, const core::rectangle& required) {
       core::rectangle space(new_size);
 
-      LogDebug << "Space:" << space << ", Required:" << required;
+      //LogDebug << "Space:" << space << ", Required:" << required;
 
       bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
       if (show_h) {
@@ -211,16 +211,6 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    window_class scroll_view::clazz("MyScrollView",
-    #ifdef WIN32
-      (os::color)(COLOR_WINDOW + 1)
-    #endif // WIN32
-    #ifdef X11
-      color::windowColor()
-    #endif //X11
-    );
-
-    // --------------------------------------------------------------------------
     scroll_view::scroll_view () {
       get_layout().init(&vscroll, &hscroll, &edge);
 
@@ -235,7 +225,7 @@ namespace gui {
 
     void scroll_view::create (const container& parent,
                               const core::rectangle& place) {
-      super::create(clazz, parent, place);
+      super::create(clazz::get(), parent, place);
       core::size sz = place.size();
       vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
       hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));

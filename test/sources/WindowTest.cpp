@@ -241,7 +241,7 @@ int gui_main(const std::vector<std::string>& args) {
 
   my_main_window main(paint1, paint2);
 
-  LogDebug << "window size:" << sizeof(main)  << ", window_class size:" << sizeof(win::window_class);
+  LogDebug << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::window_class_info);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
@@ -328,25 +328,25 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
 //#endif
 
-  register_event_handler(REGISTER_FUNCTION, win::moving_event([] (const core::point& r) {
-    LogDebug << "Main moving: " << r;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::sizing_event([] (const core::size& r) {
-    LogDebug << "Main sizing: " << r;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::placing_event([] (const core::rectangle& r) {
-    LogDebug << "Main placing: " << r;
-  }));
+  //register_event_handler(REGISTER_FUNCTION, win::moving_event([] (const core::point& r) {
+  //  LogDebug << "Main moving: " << r;
+  //}));
+  //register_event_handler(REGISTER_FUNCTION, win::sizing_event([] (const core::size& r) {
+  //  LogDebug << "Main sizing: " << r;
+  //}));
+  //register_event_handler(REGISTER_FUNCTION, win::placing_event([] (const core::rectangle& r) {
+  //  LogDebug << "Main placing: " << r;
+  //}));
 
-  register_event_handler(REGISTER_FUNCTION, win::move_event([] (const core::point& p) {
-    LogDebug << "Main move: " << p;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::size_event([] (const core::size& s) {
-    LogDebug << "Main size: " << s;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::place_event([] (const core::rectangle& r) {
-    LogDebug << "Main place: " << r;
-  }));
+  //register_event_handler(REGISTER_FUNCTION, win::move_event([] (const core::point& p) {
+  //  LogDebug << "Main move: " << p;
+  //}));
+  //register_event_handler(REGISTER_FUNCTION, win::size_event([] (const core::size& s) {
+  //  LogDebug << "Main size: " << s;
+  //}));
+  //register_event_handler(REGISTER_FUNCTION, win::place_event([] (const core::rectangle& r) {
+  //  LogDebug << "Main place: " << r;
+  //}));
 
 //#ifdef WIN32
 //  ok_button.register_event_handler(REGISTER_FUNCTION, win::activate_event([](bool on, win::window* win) {

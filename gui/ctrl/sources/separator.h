@@ -39,14 +39,13 @@ namespace gui {
       class separator_base : public window {
       public:
         typedef window super;
+        typedef no_erase_window_class<separator_base> clazz;
 
         separator_base ();
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
-      protected:
-        static no_erase_window_class clazz;
       };
 
       // --------------------------------------------------------------------------

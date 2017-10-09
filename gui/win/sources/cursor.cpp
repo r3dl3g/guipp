@@ -20,9 +20,6 @@
 //
 // Common includes
 //
-#ifdef X11
-#include <X11/cursorfont.h>
-#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -93,10 +90,10 @@ namespace gui {
     cursor::operator os::cursor () const {
       if ((type != cursor_type::none) && !id) {
 #ifdef WIN32
-        id = LoadCursor(nullptr, MAKEINTRESOURCE(type));
+        id = LoadCursor(nullptr, MAKEINTRESOURCE(static_cast<os::cursor_type>(type)));
 #endif // Win32
 #ifdef X11
-        id = XCreateFontCursor(core::global::get_instance(), type);
+        id = XCreateFontCursor(core::global::get_instance(), static_cast<os::cursor_type>(type));
 #endif // X11
       }
       return id;

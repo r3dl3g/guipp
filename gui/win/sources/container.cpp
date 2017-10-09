@@ -552,6 +552,7 @@ namespace gui {
         XChangeProperty(display, get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
       type = XInternAtom(display, "WM_CLIENT_LEADER", False);
+      auto parent_id = parent.get_id();
       XChangeProperty(display, get_id(), type, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&parent_id), 1);
 #endif
     }

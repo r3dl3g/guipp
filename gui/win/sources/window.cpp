@@ -447,6 +447,9 @@ namespace gui {
       }
 
       id = create_window(type, r, parent_id, this);
+#ifdef X11
+      send_client_message(this, detail::WM_CREATE_WINDOW, this, r);
+#endif // X11
     }
 
     core::point window::window_to_screen (const core::point& pt) const {
@@ -550,7 +553,7 @@ namespace gui {
     }
 
     namespace hidden {
-      std::map<window*, window_class_info*> window_class_map;
+      std::map<os::window, const window_class_info*> window_class_map;
       std::map<window*, os::event_id> window_event_mask;
     }
 
@@ -560,7 +563,6 @@ namespace gui {
       , redraw_disabled(false)
       , window_disabled(false)
       , focus_accepting(false)
-      , cls(nullptr)
     {
       init();
     }
@@ -570,7 +572,6 @@ namespace gui {
       , redraw_disabled(rhs.redraw_disabled)
       , window_disabled(rhs.window_disabled)
       , focus_accepting(rhs.focus_accepting)
-      , cls(rhs.cls)
     {
       init();
       if (rhs.is_valid()) {
@@ -587,7 +588,6 @@ namespace gui {
       , redraw_disabled(rhs.redraw_disabled)
       , window_disabled(rhs.window_disabled)
       , focus_accepting(rhs.focus_accepting)
-      , cls(rhs.cls)
     {
       std::swap(id, rhs.id);
     }
@@ -601,9 +601,9 @@ namespace gui {
 
     void window::destroy () {
       if (get_id()) {
+        hidden::window_class_map.erase(get_id());
         check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
-        hidden::window_class_map.erase(this);
         id = 0;
       }
     }
@@ -963,36 +963,32 @@ namespace gui {
       unsigned long mask = 0;
       XSetWindowAttributes wa;
 
-      if (color::extract<color::part::alpha>(background) == 0xff) {
+      if (color::extract<color::part::alpha>(type.get_background()) == 0xff) {
         mask |= CWBackPixmap;
         wa.background_pixmap = None;
       }
-      if (cursor) {
+      if (type.get_cursor()) {
         mask |= CWCursor;
-        wa.cursor = cursor;
+        wa.cursor = type.get_cursor();
       }
 
       if (mask) {
         XChangeWindowAttributes(display, id, mask, &wa);
       }
 
-      auto i = hidden::window_class_info_map.find(type.get_class_name());
-      window_class_info* cls = nullptr;
-      if (i == hidden::window_class_info_map.end()) {
-        cls = &type;
+      auto j = hidden::window_class_info_map.find(type.get_class_name());
+      if (j == hidden::window_class_info_map.end()) {
         hidden::window_class_info_map[type.get_class_name()] = type;
-      } else {
-        cls = &(i->second);
+        j = hidden::window_class_info_map.find(type.get_class_name());
       }
-      hidden::window_class_map[data] = cls;
+      hidden::window_class_map[id] = &(j->second);
 
-      send_client_message(data, detail::WM_CREATE_WINDOW, data, r);
       return id;
     }
 
     const window_class_info& window::get_window_class () const {
-      const window_class_info& cls = hidden::window_class_map[this];
-      return cls;
+      const window_class_info* cls = hidden::window_class_map[get_id()];
+      return *cls;
     }
 
 

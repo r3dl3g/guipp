@@ -188,7 +188,7 @@ namespace gui {
                            WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED> clazz;
 #endif // WIN32
 #ifdef X11
-      typedef window_class<main_window, color::light_gray>) clazz;
+      typedef window_class<main_window, color::light_gray> clazz;
 #endif // X11
 
       void create (const core::rectangle& r = core::rectangle::def);
@@ -212,7 +212,7 @@ namespace gui {
                            CS_DBLCLKS | CS_DROPSHADOW> clazz;
 #endif // WIN32
 #ifdef X11
-      typedef window_class<popup_window, color::light_gray>) clazz;
+      typedef window_class<popup_window, color::light_gray> clazz;
 #endif // X11
 
       void create (const window& parent, const core::rectangle& r = core::rectangle::def);
@@ -236,7 +236,7 @@ namespace gui {
                             WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED> clazz;
 #endif // WIN32
 #ifdef X11
-      typedef window_class<dialog_window, color::light_gray>) clazz;
+      typedef window_class<dialog_window, color::light_gray> clazz;
 #endif // X11
 
       void create (const window& parent, const core::rectangle& r = core::rectangle::def);

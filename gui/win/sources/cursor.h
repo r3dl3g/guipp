@@ -28,6 +28,9 @@
 // Library includes
 //
 #include "guidefs.h"
+#ifdef X11
+#include <X11/cursorfont.h>
+#endif // X11
 
 
 namespace gui {

@@ -724,7 +724,7 @@ namespace gui {
           unsigned long mask = CWCursor;
           XSetWindowAttributes wa = { 0 };
           wa.cursor = on ? get_window_class().get_cursor()
-                         : win::cursor::arrow();
+                         : (os::cursor)win::cursor::arrow();
           check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
         }
         redraw_later();

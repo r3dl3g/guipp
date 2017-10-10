@@ -28,27 +28,24 @@
 // Library includes
 //
 #include "guidefs.h"
-#ifdef X11
-#include <X11/cursorfont.h>
-#endif // X11
 
 
 namespace gui {
 
   namespace win {
 
-    enum class cursor_type : os::cursor_type {
-      none = 0,
-      arrow = IF_WIN32_ELSE((os::cursor_type)IDC_ARROW, XC_arrow),
-      size_h = IF_WIN32_ELSE((os::cursor_type)IDC_SIZEWE, XC_sb_h_double_arrow),
-      size_v = IF_WIN32_ELSE((os::cursor_type)IDC_SIZENS, XC_sb_v_double_arrow),
-      size_ne_sw = IF_WIN32_ELSE((os::cursor_type)IDC_SIZENESW, XC_bottom_left_corner),
-      size_nw_se = IF_WIN32_ELSE((os::cursor_type)IDC_SIZENWSE, XC_bottom_right_corner),
-      move = IF_WIN32_ELSE((os::cursor_type)IDC_SIZEALL, XC_fleur),
-      ibeam = IF_WIN32_ELSE((os::cursor_type)IDC_IBEAM, XC_xterm),
-      cross = IF_WIN32_ELSE((os::cursor_type)IDC_CROSS, XC_crosshair),
-      wait = IF_WIN32_ELSE((os::cursor_type)IDC_WAIT, XC_watch),
-      no = IF_WIN32_ELSE((os::cursor_type)IDC_NO, XC_pirate)
+    enum class cursor_type {
+      none,
+      arrow,
+      size_h,
+      size_v,
+      size_ne_sw,
+      size_nw_se,
+      move,
+      ibeam,
+      cross,
+      wait,
+      no
     };
 
     class cursor {
@@ -65,24 +62,26 @@ namespace gui {
       static const cursor& wait ();
       static const cursor& no ();
 
-      constexpr cursor ()
-        : type(cursor_type::none)
-        , id(0)
-      {}
+      static const cursor& get (win::cursor_type t);
 
-      constexpr cursor (win::cursor_type t)
-        : type(t)
+      cursor ()
+        : type(0)
         , id(0)
       {}
 
       operator os::cursor () const;
 
       inline operator bool () const {
-        return type != cursor_type::none;
+        return type != 0;
       }
 
     private:
-      cursor_type type;
+      cursor (os::cursor_type t)
+        : type(t)
+        , id(0)
+      {}
+
+      os::cursor_type type;
       mutable os::cursor id;
     };
 

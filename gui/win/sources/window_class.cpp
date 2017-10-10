@@ -72,7 +72,7 @@ namespace gui {
                                 os::style class_style)
       : class_name(cls_name)
       , background(background)
-      , cursor(cursor)
+      , cursor(win::cursor::get(cursor))
       , class_style(class_style)
       , style(style)
       , ex_style(ex_style)

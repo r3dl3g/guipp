@@ -65,11 +65,11 @@ namespace gui {
     {}
 
     window_class_info::window_class_info (const std::string& cls_name,
-                                os::color background,
-                                win::cursor_type cursor,
-                                os::style style,
-                                os::style ex_style,
-                                os::style class_style)
+                                          os::color background,
+                                          win::cursor_type cursor,
+                                          os::style style,
+                                          os::style ex_style,
+                                          os::style class_style)
       : class_name(cls_name)
       , background(background)
       , cursor(win::cursor::get(cursor))

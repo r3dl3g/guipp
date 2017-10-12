@@ -138,7 +138,9 @@ namespace gui {
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
+#ifdef X11
         static int initialized = detail::init_control_messages();
+#endif // X11
 
         set_accept_focus(true);
 

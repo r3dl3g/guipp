@@ -272,7 +272,7 @@ namespace gui {
                                        getter<get_window_from_cs,
                                               get_rect<CREATESTRUCT>>>;
 
-    using close_event = event_handler<WM_CLOSE>;
+    using close_event = event_handler<WM_CLOSE, 0, params<>::getter<>, 1>;
 
     using destroy_event = event_handler<WM_DESTROY>;
 

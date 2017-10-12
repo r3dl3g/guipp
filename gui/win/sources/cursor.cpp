@@ -109,7 +109,7 @@ namespace gui {
     cursor::operator os::cursor () const {
       if ((type != 0) && !id) {
 #ifdef WIN32
-        id = LoadCursor(nullptr, type));
+        id = LoadCursor(nullptr, type);
 #endif // Win32
 #ifdef X11
         id = XCreateFontCursor(core::global::get_instance(), type);

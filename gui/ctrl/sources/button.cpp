@@ -49,7 +49,9 @@ namespace gui {
     }
 
     void button_base::init() {
+#ifdef X11
       static int initialized = detail::init_control_messages();
+#endif // X11
 
       set_accept_focus(true);
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {

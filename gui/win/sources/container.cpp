@@ -243,13 +243,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
-    void overlapped_window::create (const window_class_info& type,
+    void overlapped_window::create (const class_info& type,
                                     const window& parent,
                                     const core::rectangle& r) {
       window::create(type, parent.get_id(), r);
     }
 
-    void overlapped_window::create (const window_class_info& type,
+    void overlapped_window::create (const class_info& type,
                                     const core::rectangle& r) {
       window::create(type, GetDesktopWindow(), r);
     }
@@ -503,7 +503,8 @@ namespace gui {
       LogDebug << "Exit modal loop";
     }
 
-      // --------------------------------------------------------------------------
+#ifdef X11
+        // --------------------------------------------------------------------------
     template<typename T>
     void change_property (os::instance display, os::window id, const char* type, T value);
 
@@ -527,6 +528,7 @@ namespace gui {
       };
       XSetWMProtocols(display, id, protocols, 2);
     }
+#endif // X11
 
     // --------------------------------------------------------------------------
     void main_window::create (const core::rectangle& r) {
@@ -544,7 +546,7 @@ namespace gui {
       hints->flags |= InputHint;
       hints->input = True;
       XSetWMHints(display, get_id(), hints);
-#endif
+#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -558,7 +560,7 @@ namespace gui {
       XSetWindowAttributes wa;
       wa.override_redirect = 1;
       XChangeWindowAttributes(display, get_id(), CWOverrideRedirect, &wa);
-#endif
+#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -570,7 +572,7 @@ namespace gui {
       change_property(display, get_id(), "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
       change_property(display, get_id(), "WM_CLIENT_LEADER", parent.get_id());
       set_wm_protocols(display, get_id());
-#endif
+#endif // X11
     }
 
     // --------------------------------------------------------------------------

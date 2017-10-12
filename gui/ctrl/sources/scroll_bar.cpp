@@ -69,7 +69,9 @@ namespace gui {
     }
 
     void scroll_bar::init () {
+#ifdef X11
       static int initialized = detail::init_control_messages();
+#endif // X11
 
       set_accept_focus(true);
     }

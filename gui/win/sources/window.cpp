@@ -480,7 +480,7 @@ namespace gui {
     void window::prepare_for_event (os::event_id id)
     {}
 
-    os::window window::create_window (const window_class_info& type,
+    os::window window::create_window (const class_info& type,
                                       const core::rectangle& r,
                                       os::window parent_id,
                                       window* data) {

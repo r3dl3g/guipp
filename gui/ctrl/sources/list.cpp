@@ -69,7 +69,9 @@ namespace gui {
       }
 
       void list_base::init () {
+#ifdef X11
         static int initialized = detail::init_control_messages();
+#endif // X11
 
         set_accept_focus(true);
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {

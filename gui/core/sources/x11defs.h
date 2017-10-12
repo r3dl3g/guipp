@@ -87,10 +87,10 @@ namespace gui {
 
     namespace global {
 
-      os::x11::screen get_screen();
-      void set_screen(os::x11::screen);
+      os::x11::screen get_screen ();
+      void set_screen (os::x11::screen);
 
-      os::x11::visual get_visual();
+      os::x11::visual get_visual ();
 
     } // global
 

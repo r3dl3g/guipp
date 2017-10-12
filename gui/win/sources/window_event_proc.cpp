@@ -128,7 +128,7 @@ namespace gui {
 
       inline win::window* get_event_window (const core::event& e) {
         switch (e.type) {
-          case 22: return get_window(e.xconfigure.window);
+          case ConfigureNotify: return get_window(e.xconfigure.window);
           default: return get_window(e.xany.window);
         }
       }
@@ -405,10 +405,6 @@ namespace gui {
 
 #ifdef X11
       os::instance display = core::global::get_instance();
-
-      detail::init_atom(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
-      detail::init_atom(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
-
       os::event_result resultValue = 0;
 
       core::event e;
@@ -423,11 +419,8 @@ namespace gui {
         win::window* win = win::detail::get_event_window(e);
 
         if (win && win->is_valid()) {
-          if ((e.type == ClientMessage) &&
-              (e.xclient.message_type == detail::WM_PROTOCOLS) &&
-              (e.xclient.data.l[0] == detail::WM_DELETE_WINDOW)) {
-            running = false;
-          }
+
+          resultValue = 0;
 
           try {
             win->handle_event(e, resultValue);
@@ -435,6 +428,11 @@ namespace gui {
             LogFatal << "exception in run_main_loop: " << ex;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
+          }
+
+          protocol_message_matcher<x11::WM_DELETE_WINDOW> matcher;
+          if (matcher(e) && !resultValue) {
+            running = false;
           }
 
           core::global::sync();
@@ -448,13 +446,20 @@ namespace gui {
 #endif // X11
     }
 
-    int run_main_loop () {
-      bool running = true;
+    namespace {
+      bool main_loop_is_running = false;
+    }
 
-      return run_loop(running, [](const core::event& e) {
+    int run_main_loop () {
+      main_loop_is_running = true;
+      return run_loop(main_loop_is_running, [](const core::event& e) {
         return check_expose(e) || check_message_filter(e) || check_hot_key(e);
       });
+    }
 
+    void quit_main_loop () {
+      main_loop_is_running = false;
+//      PostQuitMessage(0);
     }
 
   } // win

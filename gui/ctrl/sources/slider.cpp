@@ -138,10 +138,9 @@ namespace gui {
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
+        static int initialized = detail::init_control_messages();
+
         set_accept_focus(true);
-#ifdef X11
-        detail::init_control_messages();
-#endif // X11
 
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE

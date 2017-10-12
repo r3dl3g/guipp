@@ -23,9 +23,56 @@ namespace gui {
 
   namespace win {
 
-    namespace detail {
+    clipboard& clipboard::get () {
+      static clipboard c;
+      return c;
+    }
+
+#ifdef WIN32
+    clipboard::clipboard ()
+    {}
+
+    void clipboard::set_text (window& win, const std::string& t) {
+      text = t;
+      if (OpenClipboard(win.get_id())) {
+        const std::size_t len = text.size() + 1;
+        HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
+        if (hmem) {
+          EmptyClipboard();
+          char* data = static_cast<char*>(GlobalLock(hmem));
+          memcpy(data, text.c_str(), len);
+          GlobalUnlock(hmem);
+          SetClipboardData(CF_TEXT, hmem);
+        }
+        CloseClipboard();
+      }
+    }
+
+    void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
+      if (OpenClipboard(win.get_id())) {
+        HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
+        if (hmem) {
+          const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
+          cb(ibr::string::utf16_to_utf8(std::wstring(data)));
+          GlobalUnlock(hmem);
+        } else {
+          hmem = GetClipboardData(CF_TEXT);
+          if (hmem) {
+            const char* data = static_cast<char*>(GlobalLock(hmem));
+            cb(std::string(data));
+            GlobalUnlock(hmem);
+          }
+        }
+        CloseClipboard();
+      }
+    }
+
+#endif // WIN32
 
 #ifdef X11
+
+    namespace detail {
+
       Atom CLIPBOARD = 0;
       Atom UTF8_STRING = 0;
       Atom XSEL_DATA = 0;
@@ -33,36 +80,23 @@ namespace gui {
       Atom TEXT = 0;
 
       void init_clipboard_atoms () {
-        init_atom(CLIPBOARD, "CLIPBOARD");
-        init_atom(UTF8_STRING, "UTF8_STRING");
-        init_atom(XSEL_DATA, "XSEL_DATA");
-        init_atom(TARGETS, "TARGETS");
-        init_atom(TEXT, "TEXT");
+        x11::init_atom(CLIPBOARD, "CLIPBOARD");
+        x11::init_atom(UTF8_STRING, "UTF8_STRING");
+        x11::init_atom(XSEL_DATA, "XSEL_DATA");
+        x11::init_atom(TARGETS, "TARGETS");
+        x11::init_atom(TEXT, "TEXT");
       }
-#endif // X11
 
     } // namespace detail
 
-#ifdef WIN32
-    clipboard::clipboard ()
-    {}
-#endif // WIN32
-#ifdef X11
     clipboard::clipboard ()
       :filter_id(0)
     {
       detail::init_clipboard_atoms();
     }
-#endif // X11
-
-    clipboard& clipboard::get () {
-      static clipboard c;
-      return c;
-    }
 
     void clipboard::set_text (window& win, const std::string& t) {
       text = t;
-#ifdef X11
       if (filter_id) {
         global::unregister_message_filter(filter_id);
       }
@@ -104,25 +138,9 @@ namespace gui {
         return false;
       });
       XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, win.get_id(), CurrentTime);
-#endif // X11
-#ifdef WIN32
-      if (OpenClipboard(win.get_id())) {
-        const std::size_t len = text.size() + 1;
-        HGLOBAL hmem = GlobalAlloc(GMEM_DDESHARE, len);
-        if (hmem) {
-          EmptyClipboard();
-          char* data = static_cast<char*>(GlobalLock(hmem));
-          memcpy(data, text.c_str(), len);
-          GlobalUnlock(hmem);
-          SetClipboardData(CF_TEXT, hmem);
-        }
-        CloseClipboard();
-      }
-#endif // WIN32
     }
 
     void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
-#ifdef X11
       auto id = win.get_id();
       //Atom incrid = XInternAtom(display, "INCR", False);
       win.prepare_for_event(PropertyChangeMask);
@@ -149,27 +167,9 @@ namespace gui {
                         detail::UTF8_STRING,
                         detail::XSEL_DATA,
                         id, CurrentTime);
-#endif // X11
-#ifdef WIN32
-      if (OpenClipboard(win.get_id())) {
-        HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
-        if (hmem) {
-          const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-          cb(ibr::string::utf16_to_utf8(std::wstring(data)));
-          GlobalUnlock(hmem);
-        } else {
-          hmem = GetClipboardData(CF_TEXT);
-          if (hmem) {
-            const char* data = static_cast<char*>(GlobalLock(hmem));
-            cb(std::string(data));
-            GlobalUnlock(hmem);
-          }
-        }
-        CloseClipboard();
-      }
-#endif // WIN32
-
     }
+
+#endif // X11
 
   } // win
 

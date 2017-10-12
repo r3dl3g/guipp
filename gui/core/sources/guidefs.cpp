@@ -41,8 +41,7 @@ namespace gui {
     namespace global {
 
 #ifdef X11
-      int XErrorHandler (Display* dpy,
-                         XErrorEvent* errev) {
+      int ErrorHandler (Display* dpy, XErrorEvent* errev) {
         if ((errev->error_code == 143) && (errev->request_code == 139)) {
           return 0;
         }
@@ -59,6 +58,11 @@ namespace gui {
                     " Text: " << buffer;
         return 0;
       }
+
+      int IOErrorHandler (Display* dpy) {
+        LogFatal << "IO Error occured somewhere in X!";
+        return 0;
+      }
 #endif // X11
 
       struct gui_init {
@@ -73,7 +77,8 @@ namespace gui {
           instance = i;
 #ifdef X11
           screen = DefaultScreen(instance);
-          XSetErrorHandler(XErrorHandler);
+          XSetErrorHandler(ErrorHandler);
+          XSetIOErrorHandler(IOErrorHandler);
 #endif // X11
         }
 

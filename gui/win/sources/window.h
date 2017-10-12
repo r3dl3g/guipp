@@ -24,6 +24,7 @@
 //
 #include <cstddef>
 #include <memory>
+#include <bitset>
 
 
 // --------------------------------------------------------------------------
@@ -45,10 +46,6 @@ namespace gui {
 
     namespace detail {
       void set_id (window* w, os::window id);
-
-#ifdef X11
-      extern Atom WM_CREATE_WINDOW;
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -73,13 +70,14 @@ namespace gui {
       bool is_popup () const;
       bool is_toplevel () const;
       bool is_focus_accepting () const;
+      bool is_redraw_disabled () const;
 
       bool has_focus () const;
       bool has_border () const;
       bool accept_focus () const;
 
       void destroy ();
-      void quit ();
+      void close ();
 
       void set_parent (const container& parent);
       container* get_parent () const;
@@ -98,7 +96,8 @@ namespace gui {
       void to_front ();
       void to_back ();
 
-      void enable_redraw (bool on = true);
+      void disable_redraw (bool on = true);
+
       void redraw_now ();
       void redraw_later ();
 
@@ -120,8 +119,8 @@ namespace gui {
       core::point client_to_screen (const core::point&) const;
       core::point screen_to_client (const core::point&) const;
 
-      const std::string& get_class_name () const;
-      const window_class_info& get_window_class () const;
+      std::string get_class_name () const;
+      const class_info& get_window_class () const;
 
       void set_cursor (os::cursor);
 
@@ -153,33 +152,27 @@ namespace gui {
       window& operator= (const window&) = delete;
       window& operator= (window&&) = delete;
 
-      static os::window create_window (const window_class_info&,
-                                       const core::rectangle& r,
-                                       os::window parent_id,
-                                       window* data);
-
-      void create (const window_class_info&,
+      void create (const class_info&,
                    const container&,
                    const core::rectangle& = core::rectangle::def);
 
-      void create (const window_class_info&,
+      void create (const class_info&,
                    os::window parent,
                    const core::rectangle&);
 
     private:
       friend void detail::set_id (window*, os::window);
 
+      static os::window create_window (const class_info&,
+                                       const core::rectangle& r,
+                                       os::window parent_id,
+                                       window* data);
+
       void init ();
 
       os::window id;
       core::event_container events;
-
-      bool focus_accepting;
-
-#ifdef X11
-      bool redraw_disabled;
-      bool window_disabled;
-#endif // X11
+      std::bitset<16> flags;
     };
 
     // --------------------------------------------------------------------------
@@ -208,14 +201,6 @@ namespace gui {
 
     inline void window::disable () {
       enable(false);
-    }
-
-    inline void window::set_accept_focus (bool a) {
-      focus_accepting = a;
-    }
-
-    inline bool window::is_focus_accepting () const {
-      return focus_accepting;
     }
 
     template<typename H>

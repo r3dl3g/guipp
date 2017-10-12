@@ -150,11 +150,11 @@ namespace gui {
 
       void set_top_most (bool toplevel);
 
-      void create (const window_class_info&,
+      void create (const class_info&,
                    const window&,
                    const core::rectangle& = core::rectangle::def);
 
-      void create (const window_class_info&,
+      void create (const class_info&,
                    const core::rectangle& = core::rectangle::def);
     };
 
@@ -188,7 +188,7 @@ namespace gui {
                            WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_COMPOSITED> clazz;
 #endif // WIN32
 #ifdef X11
-      typedef window_class<main_window, color::light_gray> clazz;
+      typedef window_class<main_window, color::medium_gray> clazz;
 #endif // X11
 
       void create (const core::rectangle& r = core::rectangle::def);
@@ -206,7 +206,7 @@ namespace gui {
 #ifdef WIN32
       typedef window_class<popup_window,
                            color::light_gray,
-                           window_class_defaults<>::cursor(),
+                           window_class_defaults<>::cursor,
                            WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
                            WS_EX_PALETTEWINDOW | WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED,
                            CS_DBLCLKS | CS_DROPSHADOW> clazz;
@@ -230,7 +230,7 @@ namespace gui {
 #ifdef WIN32
       typedef window_class<dialog_window,
                             color::light_gray,
-                            window_class_defaults<>::cursor(),
+                            window_class_defaults<>::cursor,
                             WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU | 
                             WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
                             WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED> clazz;

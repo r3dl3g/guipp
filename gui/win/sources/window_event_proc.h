@@ -81,6 +81,7 @@ namespace gui {
     int run_loop (volatile bool& running, detail::filter_call filter = nullptr);
 
     int run_main_loop ();
+    void quit_main_loop ();
 
   } // win
 

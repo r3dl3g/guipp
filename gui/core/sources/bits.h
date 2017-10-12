@@ -32,12 +32,14 @@ namespace gui {
 
   namespace os {
 
+    // --------------------------------------------------------------------------
     enum class platform : int {
       win32,
       x11
     };
 
-  } // os
+    // --------------------------------------------------------------------------
+  } // namespace os
 
   typedef uint8_t byte;
   typedef byte* byteptr;
@@ -48,19 +50,19 @@ namespace gui {
     msb
   };
 
-
+  // --------------------------------------------------------------------------
   template<typename T, T mask>
   struct bit_mask {
-    static bool is_set(T value) {
+    static bool is_set (T value) {
       return (value & mask) == mask;
     }
 
-    static bool is_not_set(T value) {
+    static bool is_not_set (T value) {
       return (value & mask) == 0;
     }
   };
 
-
+  // --------------------------------------------------------------------------
   template<byte bit>
   struct msb_bit_mask {
     static constexpr byte shift = 7 - bit;
@@ -73,7 +75,7 @@ namespace gui {
     static constexpr byte value = 0x01 << shift;
   };
 
-
+  // --------------------------------------------------------------------------
   template<bit_order O> struct bw_bits {};
 
   template<> struct bw_bits<bit_order::lsb> {
@@ -90,7 +92,7 @@ namespace gui {
     }
   };
 
-
+  // --------------------------------------------------------------------------
   constexpr byte reverse_lookup_table[16] = {
       0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
       0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
@@ -101,6 +103,7 @@ namespace gui {
      return (reverse_lookup_table[n & 0b1111] << 4) | reverse_lookup_table[n >> 4];
   }
 
+  // --------------------------------------------------------------------------
   // the honour goes to user79758 : http://stackoverflow.com/a/4609795
   template <typename T>
   constexpr int signum (T x, std::false_type is_signed) {
@@ -117,5 +120,5 @@ namespace gui {
     return signum(x, std::is_signed<T>());
   }
 
-
-} //gui
+  // --------------------------------------------------------------------------
+} // namespace gui

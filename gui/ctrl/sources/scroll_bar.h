@@ -114,7 +114,7 @@ namespace gui {
       scroll_bar (const scroll_bar&);
       scroll_bar (scroll_bar&&);
 
-      void create (const window_class_info& type,
+      void create (const class_info& type,
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 

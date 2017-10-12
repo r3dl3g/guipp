@@ -94,8 +94,10 @@ my_main_window::my_main_window ()
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
     LogDebug << "Destroyed!";
-    super::quit();
+    win::quit_main_loop();
   }));
+
+  register_event_handler(REGISTER_FUNCTION, win::close_event(core::bind_method(this, &my_main_window::quit)));
 
   window1.register_event_handler(REGISTER_FUNCTION, paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
@@ -399,7 +401,7 @@ void my_main_window::quit () {
   enable();
 
   if (result) {
-    super::quit();
+    win::quit_main_loop();
   } else {
     take_focus();
   }

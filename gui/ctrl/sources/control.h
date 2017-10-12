@@ -67,13 +67,13 @@ namespace gui {
       extern Atom SELECTION_CANCEL_MESSAGE;
       extern Atom CONTENT_CHANGED_MESSAGE;
 
-      void init_control_messages ();
+      int init_control_messages ();
 #endif // X11
     } // detail
 
     // --------------------------------------------------------------------------
     template<typename T,
-             win::cursor_type C = window_class_defaults<>::cursor(),
+             win::cursor_type C = window_class_defaults<>::cursor,
              os::style S = window_class_defaults<>::style,
              os::style ES = window_class_defaults<>::ex_style,
              os::style CS = window_class_defaults<>::class_style>

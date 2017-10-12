@@ -107,11 +107,12 @@ namespace gui {
              os::event_result R = 0,
              typename M = event_type_match<E>>
     struct event_handler {
-      static const os::event_id mask = Mask;
 
       typedef M Matcher;
       typedef C Caller;
       typedef typename Caller::function function;
+
+      static constexpr os::event_id mask = Mask;
 
       event_handler (const function cb)
         : caller(cb)
@@ -271,9 +272,9 @@ namespace gui {
                                        getter<get_window_from_cs,
                                               get_rect<CREATESTRUCT>>>;
 
-    using destroy_event = event_handler<WM_DESTROY>;
     using close_event = event_handler<WM_CLOSE>;
-    using quit_event = event_handler<WM_QUIT>;
+
+    using destroy_event = event_handler<WM_DESTROY>;
 
     using any_key_down_event = event_handler<WM_KEYDOWN, 0,
                                              params<os::key_state, os::key_symbol, std::string>::
@@ -441,14 +442,25 @@ namespace gui {
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    namespace detail {
+    namespace x11 {
+
       extern Atom WM_CREATE_WINDOW;
       extern Atom WM_DELETE_WINDOW;
       extern Atom WM_PROTOCOLS;
+      extern Atom WM_TAKE_FOCUS;
+
+      int init_messages ();
 
       void init_atom (Atom& message, const char* name);
-    }
 
+      void send_client_message (const window* win, Atom message,
+                                long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
+
+      void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
+
+    } // namespace x11
+
+    // --------------------------------------------------------------------------
     template <os::event_id id, os::event_id btn>
     struct event_button_match {
       bool operator() (const core::event& e) {
@@ -572,6 +584,13 @@ namespace gui {
       }
     };
     // --------------------------------------------------------------------------
+    template <Atom& M>
+    struct protocol_message_matcher {
+      bool operator() (const core::event& e) {
+        return (e.type == ClientMessage) && (e.xclient.message_type == x11::WM_PROTOCOLS) && (e.xclient.data.l[0] == M);
+      }
+    };
+    // --------------------------------------------------------------------------
     template <os::event_id E, os::key_symbol symbol, os::key_state state>
     struct key_matcher {
       bool operator() (const core::event& e) {
@@ -622,17 +641,20 @@ namespace gui {
                                        params<window*, core::rectangle>::
                                        getter<get_client_data<0, window*>, get_client_data_rect>,
                                        0,
-                                       client_message_matcher<detail::WM_CREATE_WINDOW>>;
+                                       client_message_matcher<x11::WM_CREATE_WINDOW>>;
+
+    using close_event = event_handler<ClientMessage, 0, params<>::getter<>, 1,
+                                      protocol_message_matcher<x11::WM_DELETE_WINDOW>>;
 
     using destroy_event = event_handler<DestroyNotify, SubstructureNotifyMask>;
 
     using any_key_down_event = event_handler<KeyPress, KeyPressMask,
-                                         params<os::key_state, os::key_symbol, std::string>::
-                                         getter<get_key_state, get_key_symbol, get_key_chars>>;
+                                             params<os::key_state, os::key_symbol, std::string>::
+                                             getter<get_key_state, get_key_symbol, get_key_chars>>;
 
     using any_key_up_event = event_handler<KeyRelease, KeyReleaseMask,
-                                       params<os::key_state, os::key_symbol>::
-                                       getter<get_key_state,get_key_symbol>>;
+                                           params<os::key_state, os::key_symbol>::
+                                           getter<get_key_state,get_key_symbol>>;
 
     template <os::key_symbol symbol, os::key_state state>
     using key_down_event = event_handler<KeyPress, KeyPressMask, params<>::getter<>,
@@ -808,9 +830,7 @@ namespace gui {
                                          getter<get_param<0, os::graphics>>>;
 
     // --------------------------------------------------------------------------
-    void send_client_message (const window* win, Atom message,
-                              long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
-    void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
+    void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
 
     // --------------------------------------------------------------------------
 #endif // X11

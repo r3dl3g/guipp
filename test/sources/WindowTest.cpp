@@ -241,7 +241,7 @@ int gui_main(const std::vector<std::string>& args) {
 
   my_main_window main(paint1, paint2);
 
-  LogDebug << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::window_class_info);
+  LogDebug << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
@@ -305,7 +305,7 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&] () {
     LogDebug << "Destroyed!";
-    quit();
+    win::quit_main_loop();
   }));
 
 

@@ -48,14 +48,14 @@ namespace gui {
 #endif // X11
     }
 
-    window_class_info::window_class_info ()
+    class_info::class_info ()
       : background(0)
       , class_style(0)
       , style(0)
       , ex_style(0)
     {}
 
-    window_class_info::window_class_info (const window_class_info& rhs)
+    class_info::class_info (const class_info& rhs)
       : class_name(rhs.class_name)
       , background(rhs.background)
       , cursor(rhs.cursor)
@@ -64,7 +64,7 @@ namespace gui {
       , ex_style(rhs.ex_style)
     {}
 
-    window_class_info::window_class_info (const std::string& cls_name,
+    class_info::class_info (const std::string& cls_name,
                                           os::color background,
                                           win::cursor_type cursor,
                                           os::style style,
@@ -78,31 +78,31 @@ namespace gui {
       , ex_style(ex_style)
     {}
 
-    const std::string& window_class_info::get_class_name () const {
+    const std::string& class_info::get_class_name () const {
       return class_name;
     }
 
-    const os::color window_class_info::get_background () const {
+    const os::color class_info::get_background () const {
       return background;
     }
 
-    const os::cursor window_class_info::get_cursor () const {
+    const os::cursor class_info::get_cursor () const {
       return cursor;
     }
 
-    const os::style window_class_info::get_class_style () const {
+    const os::style class_info::get_class_style () const {
       return class_style;
     }
 
-    const os::style window_class_info::get_style () const {
+    const os::style class_info::get_style () const {
       return style;
     }
 
-    const os::style window_class_info::get_ex_style () const {
+    const os::style class_info::get_ex_style () const {
       return ex_style;
     }
 
-    bool window_class_info::is_valid () const {
+    bool class_info::is_valid () const {
       return !class_name.empty();
     }
 

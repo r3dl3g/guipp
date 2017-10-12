@@ -200,11 +200,19 @@ namespace gui {
 
 #endif // Win32
 #ifdef X11
-    namespace detail {
+    namespace x11 {
 
       Atom WM_CREATE_WINDOW = 0;
       Atom WM_DELETE_WINDOW = 0;
       Atom WM_PROTOCOLS = 0;
+      Atom WM_TAKE_FOCUS = 0;
+
+      int init_messages () {
+        init_atom(WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
+        init_atom(WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+        init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
+        init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
+      }
 
       void init_atom (Atom& message, const char* name) {
         if (!message) {
@@ -212,7 +220,38 @@ namespace gui {
         }
       }
 
-    } // detail
+      // --------------------------------------------------------------------------
+      void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
+        if (win && win->is_valid()) {
+          XClientMessageEvent client;
+
+          client.type         = ClientMessage;
+          client.serial       = 0;
+          client.display      = core::global::get_instance();
+          client.window       = win->get_id();
+          client.message_type = message;
+          client.format       = 32;
+          client.data.l[0]    = l1;
+          client.data.l[1]    = l2;
+          client.data.l[2]    = l3;
+          client.data.l[3]    = l4;
+          client.data.l[4]    = l5;
+
+          /* Send the data off to the other process */
+          XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
+
+          //        core::global::sync();
+        }
+      }
+
+      void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& rect) {
+        XRectangle r = rect;
+        long l1 = (long)r.x << 16 | (long)r.y;
+        long l2 = (long)r.width << 16 | (long)r.height;
+        send_client_message(win, message, w->get_id(), l1, l2);
+      }
+
+    } // namespace x11
 
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
@@ -249,34 +288,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
-      if (win && win->is_valid()) {
-        XClientMessageEvent client;
-
-        client.type         = ClientMessage;
-        client.serial       = 0;
-        client.display      = core::global::get_instance();
-        client.window       = win->get_id();
-        client.message_type = message;
-        client.format       = 32;
-        client.data.l[0]    = l1;
-        client.data.l[1]    = l2;
-        client.data.l[2]    = l3;
-        client.data.l[3]    = l4;
-        client.data.l[4]    = l5;
-
-        /* Send the data off to the other process */
-        XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
-
-//        core::global::sync();
-      }
-    }
-
-    void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& rect) {
-      XRectangle r = rect;
-      long l1 = (long)r.x << 16 | (long)r.y;
-      long l2 = (long)r.width << 16 | (long)r.height;
-      send_client_message(win, message, w->get_id(), l1, l2);
+    void send_client_message (const window* win, Atom message, long l1, long l2) {
+      x11::send_client_message(win, message, l1, l2);
     }
 
     // --------------------------------------------------------------------------

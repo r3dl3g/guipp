@@ -49,8 +49,8 @@ namespace gui {
 
     namespace global {
 
-      void init(os::instance instance);
-      os::instance get_instance();
+      void init (os::instance instance);
+      os::instance get_instance ();
 
       void sync ();
 
@@ -183,5 +183,5 @@ namespace gui {
 } //gui
 
 // this is the main function that has to be defined in every application
-extern int gui_main(const std::vector<std::string>& args);
+extern int gui_main (const std::vector<std::string>& args);
 

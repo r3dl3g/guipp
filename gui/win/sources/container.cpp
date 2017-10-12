@@ -71,6 +71,38 @@ namespace gui {
 
 #ifdef X11
 
+#ifndef _NET_WM_STATE_REMOVE
+# define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
+#endif
+#ifndef _NET_WM_STATE_ADD
+# define _NET_WM_STATE_ADD           1    /* add/set property */
+#endif
+#ifndef _NET_WM_STATE_TOGGLE
+# define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
+#endif
+
+    namespace x11 {
+
+      Atom ATOM_ATOM = 0;
+      Atom NET_WM_STATE = 0;
+      Atom NET_WM_STATE_MAXIMIZED_HORZ = 0;
+      Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
+      Atom NET_WM_STATE_ABOVE = 0;
+      Atom NET_WM_STATE_HIDDEN = 0;
+
+      int init_for_net_wm_state () {
+        auto dpy = core::global::get_instance();
+
+        init_atom(NET_WM_STATE, "_NET_WM_STATE");
+        init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
+        init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
+        init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
+        init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
+        init_atom(ATOM_ATOM, "ATOM");
+      }
+
+    }
+
     extern bool check_xlib_return (int r);
     extern bool check_xlib_status (Status s);
 
@@ -127,6 +159,10 @@ namespace gui {
     }
 
     void container::init () {
+#ifdef X11
+      static int initialized = x11::init_for_net_wm_state();
+#endif // X11
+
       set_accept_focus(true);
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window* w){
         if (w == this) {
@@ -261,12 +297,12 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void overlapped_window::create (const window_class_info& clazz,
+    void overlapped_window::create (const class_info& clazz,
                                     const core::rectangle& r) {
       super::create(clazz, DefaultRootWindow(core::global::get_instance()), r);
     }
 
-    void overlapped_window::create (const window_class_info& clazz,
+    void overlapped_window::create (const class_info& clazz,
                                     const window& parent,
                                     const core::rectangle& r) {
       os::instance display = core::global::get_instance();
@@ -284,34 +320,6 @@ namespace gui {
       return std::string(window_name);
     }
 
-    Atom ATOM_ATOM = 0;
-    Atom NET_WM_STATE = 0;
-    Atom NET_WM_STATE_MAXIMIZED_HORZ = 0;
-    Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
-    Atom NET_WM_STATE_ABOVE = 0;
-    Atom NET_WM_STATE_HIDDEN = 0;
-
-#ifndef _NET_WM_STATE_REMOVE
-# define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
-#endif
-#ifndef _NET_WM_STATE_ADD
-# define _NET_WM_STATE_ADD           1    /* add/set property */
-#endif
-#ifndef _NET_WM_STATE_TOGGLE
-# define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
-#endif
-
-    void init_for_net_wm_state () {
-      auto dpy = core::global::get_instance();
-
-      detail::init_atom(NET_WM_STATE, "_NET_WM_STATE");
-      detail::init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
-      detail::init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
-      detail::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
-      detail::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
-      detail::init_atom(ATOM_ATOM, "ATOM");
-    }
-
     bool query_net_wm_state (os::window id,
                              Atom a1,
                              Atom a2 = 0,
@@ -327,14 +335,14 @@ namespace gui {
       bool ret_a1 = (a1 ? false : true);
       bool ret_a2 = (a2 ? false : true);
       bool ret_a3 = (a3 ? false : true);
-      if (Success == XGetWindowProperty(dpy, id, NET_WM_STATE,
+      if (Success == XGetWindowProperty(dpy, id, x11::NET_WM_STATE,
                                         0, 99, false, AnyPropertyType,
                                         &actual_type_return,
                                         &actual_format_return,
                                         &nitems_return,
                                         &bytes_after_return,
                                         &prop_return)) {
-        if (actual_type_return == ATOM_ATOM) {
+        if (actual_type_return == x11::ATOM_ATOM) {
           Atom* atoms = (Atom*)prop_return;
           for (unsigned long i = 0; i < nitems_return; ++i) {
             ret_a1 |= (atoms[i] == a1);
@@ -347,18 +355,15 @@ namespace gui {
     }
 
     bool overlapped_window::is_maximized () const {
-      init_for_net_wm_state();
-      return query_net_wm_state(get_id(), NET_WM_STATE_MAXIMIZED_HORZ, NET_WM_STATE_MAXIMIZED_VERT);
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     bool overlapped_window::is_top_most () const {
-      init_for_net_wm_state();
-      return query_net_wm_state(get_id(), NET_WM_STATE_ABOVE);
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
     }
 
     bool overlapped_window::is_minimized () const {
-      init_for_net_wm_state();
-      return query_net_wm_state(get_id(), NET_WM_STATE_HIDDEN);
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
     }
 
     void overlapped_window::minimize () {
@@ -376,7 +381,7 @@ namespace gui {
       memset(&xev, 0, sizeof(xev));
       xev.type = ClientMessage;
       xev.xclient.window = id;
-      xev.xclient.message_type = NET_WM_STATE;
+      xev.xclient.message_type = x11::NET_WM_STATE;
       xev.xclient.format = 32;
       xev.xclient.data.l[0] = action;
       xev.xclient.data.l[1] = a1;
@@ -387,25 +392,22 @@ namespace gui {
     }
 
     void overlapped_window::maximize () {
-      init_for_net_wm_state();
       send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
-                        NET_WM_STATE_MAXIMIZED_HORZ,
-                        NET_WM_STATE_MAXIMIZED_VERT);
+                        x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                        x11::NET_WM_STATE_MAXIMIZED_VERT);
 
     }
 
     void overlapped_window::restore () {
-      init_for_net_wm_state();
       send_net_wm_state(get_id(), _NET_WM_STATE_REMOVE,
-                        NET_WM_STATE_MAXIMIZED_HORZ,
-                        NET_WM_STATE_MAXIMIZED_VERT);
+                        x11::NET_WM_STATE_MAXIMIZED_HORZ,
+                        x11::NET_WM_STATE_MAXIMIZED_VERT);
     }
 
     void overlapped_window::set_top_most (bool toplevel) {
-      init_for_net_wm_state();
       send_net_wm_state(get_id(),
                         toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
-                        NET_WM_STATE_ABOVE);
+                        x11::NET_WM_STATE_ABOVE);
     }
 
 #endif //X11
@@ -481,6 +483,8 @@ namespace gui {
           case EnterNotify:
           case LeaveNotify:
             return is_deeper_window(win, e.xany.window);
+          case ClientMessage:
+            LogDebug << "ClientMessage:" << e.xclient.message_type;
           break;
         }
 #endif // X11
@@ -499,20 +503,40 @@ namespace gui {
       LogDebug << "Exit modal loop";
     }
 
+      // --------------------------------------------------------------------------
+    template<typename T>
+    void change_property (os::instance display, os::window id, const char* type, T value);
+
+    template<>
+    void change_property<const char*> (os::instance display, os::window id, const char* type, const char* value) {
+      Atom t = XInternAtom(display, type, False);
+      Atom v = XInternAtom(display, value, False);
+      XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
+    }
+
+    template<>
+    void change_property<os::window> (os::instance display, os::window id, const char* type, os::window value) {
+      Atom t = XInternAtom(display, type, False);
+      XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+    }
+
+    void set_wm_protocols (os::instance display, os::window id) {
+      Atom protocols[] = {
+        x11::WM_TAKE_FOCUS,
+        x11::WM_DELETE_WINDOW,
+      };
+      XSetWMProtocols(display, id, protocols, 2);
+    }
+
     // --------------------------------------------------------------------------
     void main_window::create (const core::rectangle& r) {
       super::create(clazz::get(), r);
 #ifdef X11
       os::instance display = core::global::get_instance();
-      Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-      Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-      XChangeProperty(display, get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
 
-      Atom protocols[] = {
-        XInternAtom(display, "WM_TAKE_FOCUS", False),
-        detail::WM_DELETE_WINDOW,
-      };
-      XSetWMProtocols(display, get_id(), protocols, 2);
+      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
+      set_wm_protocols(display, get_id());
+
       XWMHints* hints = XGetWMHints(display, get_id());
       if (!hints) {
         hints = XAllocWMHints();
@@ -528,9 +552,8 @@ namespace gui {
       super::create(clazz::get(), parent, r);
 #ifdef X11
       os::instance display = core::global::get_instance();
-      Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-      Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False);
-      XChangeProperty(display, get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
+
+      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
       XSetWindowAttributes wa;
       wa.override_redirect = 1;
@@ -543,17 +566,10 @@ namespace gui {
       super::create(clazz::get(), parent, r);
 #ifdef X11
       os::instance display = core::global::get_instance();
-      Atom type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-      Atom value = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-      XChangeProperty(display, get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-
-      type = XInternAtom(display, "_NET_WM_STATE", False);
-      value = XInternAtom(display, "_NET_WM_STATE_MODAL", False),
-        XChangeProperty(display, get_id(), type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-
-      type = XInternAtom(display, "WM_CLIENT_LEADER", False);
-      auto parent_id = parent.get_id();
-      XChangeProperty(display, get_id(), type, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&parent_id), 1);
+      change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
+      change_property(display, get_id(), "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
+      change_property(display, get_id(), "WM_CLIENT_LEADER", parent.get_id());
+      set_wm_protocols(display, get_id());
 #endif
     }
 

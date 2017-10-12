@@ -61,10 +61,149 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     namespace hidden {
-      std::map<std::string, window_class_info> window_class_info_map;
+      std::map<std::string, class_info> window_class_info_map;
+      std::vector<os::window> capture_stack;
     }
 
-    std::vector<os::window> capture_stack;
+    // --------------------------------------------------------------------------
+    enum class flag_positions : size_t {
+      focus_accepting = 0,
+      redraw_disabled = 1,
+#ifdef X11
+      window_disabled = 2
+#endif // X11
+    };
+
+    // --------------------------------------------------------------------------
+    void window::set_accept_focus (bool a) {
+      flags.set(static_cast<std::size_t>(flag_positions::focus_accepting), a);
+    }
+
+    bool window::is_focus_accepting () const {
+      return flags.test(static_cast<std::size_t>(flag_positions::focus_accepting));
+    }
+
+    void window::disable_redraw (bool on) {
+      flags.set(static_cast<std::size_t>(flag_positions::redraw_disabled), on);
+    }
+
+    bool window::is_redraw_disabled () const {
+      return flags.test(static_cast<std::size_t>(flag_positions::redraw_disabled));
+    }
+
+    window::window ()
+      : id(0)
+    {
+      init();
+    }
+
+    window::window (const window& rhs)
+      : id(0)
+      , flags(rhs.flags)
+    {
+      init();
+      if (rhs.is_valid()) {
+        container* parent = rhs.get_parent();
+        create(rhs.get_window_class(),
+               parent ? parent->get_id()
+                      : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
+               rhs.place());
+      }
+    }
+
+    window::window (window&& rhs)
+      : id(0)
+      , flags(std::move(rhs.flags))
+    {
+      init();
+      std::swap(id, rhs.id);
+    }
+
+    window::~window () {
+      destroy();
+    }
+
+    void window::create (const class_info& type,
+                         const container& parent,
+                         const core::rectangle& r) {
+      if (parent.is_valid()) {
+        create(type, parent.get_id(), r);
+      }
+    }
+
+    void window::create (const class_info& type,
+                         os::window parent_id,
+                         const core::rectangle& r) {
+
+      if (get_id()) {
+        destroy();
+      }
+
+      id = create_window(type, r, parent_id, this);
+#ifdef X11
+      x11::send_client_message(this, x11::WM_CREATE_WINDOW, this, r);
+#endif // X11
+    }
+
+    core::point window::window_to_screen (const core::point& pt) const {
+      window* p = get_parent();
+      return p ? p->client_to_screen(pt) : pt;
+    }
+
+    core::point window::screen_to_window (const core::point& pt) const {
+      window* p = get_parent();
+      return p ? p->screen_to_client(pt) : pt;
+    }
+
+    void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
+      events.register_event_handler(name, f);
+      prepare_for_event(mask);
+    }
+
+    void window::register_event_handler (char const name[], event_handler_function&& f, os::event_id mask) {
+      events.register_event_handler(name, std::move(f));
+      prepare_for_event(mask);
+    }
+
+    void window::unregister_event_handler (const event_handler_function& f) {
+      events.unregister_event_handler(f);
+    }
+
+    container* window::get_root () const {
+      container* parent = get_parent();
+      if (parent) {
+        return parent->get_root();
+      }
+      return (container*)this;
+    }
+
+    bool window::handle_event (const core::event& e, os::event_result& result) {
+      static win::any_key_down_event::Matcher matcher;
+      if (matcher(e)) {
+        os::key_symbol key = get_key_symbol(e);
+        if (key == keys::tab) {
+          os::key_state state = get_key_state(e);
+          shift_focus(shift_key_bit_mask::is_set(state));
+        }
+      }
+      return events.handle_event(e, result);
+    }
+
+    void window::shift_focus (bool backward) {
+      container* parent = get_parent();
+      if (parent) {
+        parent->shift_focus(*this, backward);
+        redraw_later();
+      }
+    }
+
+    bool window::accept_focus () const {
+      return is_focus_accepting() && is_enabled() && is_visible();
+    }
+
+    const class_info& window::get_window_class () const {
+      return hidden::window_class_info_map[get_class_name()];
+    }
 
     // --------------------------------------------------------------------------
 
@@ -108,30 +247,6 @@ namespace gui {
     }
 
 
-    window::window ()
-      : id(0)
-      , focus_accepting(false)
-    {}
-
-    window::window (const window& rhs)
-      : id(0)
-      , focus_accepting(rhs.focus_accepting)
-    {
-      if (rhs.is_valid()) {
-        container* parent = rhs.get_parent();
-        create(rhs.get_window_class(),
-              parent ? parent->get_id() : NULL,
-              rhs.place());
-      }
-    }
-
-    window::window (window&& rhs)
-      : id(0)
-      , focus_accepting(rhs.focus_accepting)
-    {
-      std::swap(id, rhs.id);
-    }
-
     void window::init ()
     {}
 
@@ -142,8 +257,10 @@ namespace gui {
       }
     }
 
-    void window::quit () {
-      PostQuitMessage(0);
+    void window::close () {
+      if (get_id()) {
+        CloseWindow(get_id());
+      }
     }
 
     bool window::is_valid () const {
@@ -221,12 +338,6 @@ namespace gui {
     void window::to_back () {
       if (is_valid()) {
         SetWindowPos(get_id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-      }
-    }
-
-    void window::enable_redraw (bool on) {
-      if (is_valid()) {
-        SendMessage(get_id(), WM_SETREDRAW, on, 0);
       }
     }
 
@@ -328,24 +439,24 @@ namespace gui {
     void window::capture_pointer () {
       if (is_valid()) {
         LogDebug << "capture_pointer:" << get_id();
-        capture_stack.push_back(get_id());
+        hidden::capture_stack.push_back(get_id());
         SetCapture(get_id());
         s_wheel_hook.enable();
       }
     }
 
     void window::uncapture_pointer () {
-      if (!capture_stack.empty()) {
-        if (capture_stack.back() != get_id()) {
-          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
+      if (!hidden::capture_stack.empty()) {
+        if (hidden::capture_stack.back() != get_id()) {
+          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
           LogDebug << "uncapture_pointer:" << get_id();
         }
         ReleaseCapture();
-        capture_stack.pop_back();
-        if (!capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << capture_stack.back();
-          SetCapture(capture_stack.back());
+        hidden::capture_stack.pop_back();
+        if (!hidden::capture_stack.empty()) {
+          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          SetCapture(hidden::capture_stack.back());
         } else {
           s_wheel_hook.disable();
         }
@@ -416,101 +527,15 @@ namespace gui {
       return id;
     }
 
-    const window_class_info& window::get_window_class () const {
+    std::string window::get_class_name () const {
       char class_name[256];
       GetClassName(id, class_name, 256);
-      const window_class_info& cls = hidden::window_class_info_map[class_name];
-      return cls;
+      return std::string(class_name);
     }
 
     // --------------------------------------------------------------------------
 
 #endif // WIN32
-    window::~window () {
-      destroy();
-    }
-
-    void window::create (const window_class_info& type,
-                         const container& parent,
-                         const core::rectangle& r) {
-      if (parent.is_valid()) {
-        create(type, parent.get_id(), r);
-      }
-    }
-
-    void window::create (const window_class_info& type,
-                         os::window parent_id,
-                         const core::rectangle& r) {
-
-      if (get_id()) {
-        destroy();
-      }
-
-      id = create_window(type, r, parent_id, this);
-#ifdef X11
-      send_client_message(this, detail::WM_CREATE_WINDOW, this, r);
-#endif // X11
-    }
-
-    core::point window::window_to_screen (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->client_to_screen(pt) : pt;
-    }
-
-    core::point window::screen_to_window (const core::point& pt) const {
-      window* p = get_parent();
-      return p ? p->screen_to_client(pt) : pt;
-    }
-
-    const std::string& window::get_class_name () const {
-      return get_window_class().get_class_name();
-    }
-
-    void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
-      events.register_event_handler(name, f);
-      prepare_for_event(mask);
-    }
-
-    void window::register_event_handler (char const name[], event_handler_function&& f, os::event_id mask) {
-      events.register_event_handler(name, std::move(f));
-      prepare_for_event(mask);
-    }
-
-    void window::unregister_event_handler (const event_handler_function& f) {
-      events.unregister_event_handler(f);
-    }
-
-    container* window::get_root () const {
-      container* parent = get_parent();
-      if (parent) {
-        return parent->get_root();
-      }
-      return (container*)this;
-    }
-
-    bool window::handle_event (const core::event& e, os::event_result& result) {
-      static win::any_key_down_event::Matcher matcher;
-      if (matcher(e)) {
-        os::key_symbol key = get_key_symbol(e);
-        if (key == keys::tab) {
-          os::key_state state = get_key_state(e);
-          shift_focus(shift_key_bit_mask::is_set(state));
-        }
-      }
-      return events.handle_event(e, result);
-    }
-
-    void window::shift_focus (bool backward) {
-      container* parent = get_parent();
-      if (parent) {
-        parent->shift_focus(*this, backward);
-        redraw_later();
-      }
-    }
-
-    bool window::accept_focus () const {
-      return focus_accepting && is_enabled() && is_visible();
-    }
 
 #ifdef X11
 #define XLIB_ERROR_CODE(a) case a: LogFatal << #a; break;
@@ -553,49 +578,12 @@ namespace gui {
     }
 
     namespace hidden {
-      std::map<os::window, const window_class_info*> window_class_map;
+      std::map<os::window, std::string> window_class_map;
       std::map<window*, os::event_id> window_event_mask;
     }
 
-
-    window::window ()
-      : id(0)
-      , redraw_disabled(false)
-      , window_disabled(false)
-      , focus_accepting(false)
-    {
-      init();
-    }
-
-    window::window (const window& rhs)
-      : id(0)
-      , redraw_disabled(rhs.redraw_disabled)
-      , window_disabled(rhs.window_disabled)
-      , focus_accepting(rhs.focus_accepting)
-    {
-      init();
-      if (rhs.is_valid()) {
-        container* parent = rhs.get_parent();
-        create(rhs.get_window_class(),
-               parent ? parent->get_id()
-                      : DefaultRootWindow(core::global::get_instance()),
-               rhs.place());
-      }
-    }
-
-    window::window (window&& rhs)
-      : id(0)
-      , redraw_disabled(rhs.redraw_disabled)
-      , window_disabled(rhs.window_disabled)
-      , focus_accepting(rhs.focus_accepting)
-    {
-      std::swap(id, rhs.id);
-    }
-
     void window::init () {
-      detail::init_atom(detail::WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
-      detail::init_atom(detail::WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
-      detail::init_atom(detail::WM_PROTOCOLS, "WM_PROTOCOLS");
+      static int initialized = x11::init_messages();
       prepare_for_event(KeyPressMask);
     }
 
@@ -608,8 +596,8 @@ namespace gui {
       }
     }
 
-    void window::quit () {
-      send_client_message(this, detail::WM_PROTOCOLS, detail::WM_DELETE_WINDOW);
+    void window::close () {
+      send_client_message(this, x11::WM_PROTOCOLS, x11::WM_DELETE_WINDOW);
     }
 
     bool window::is_valid () const {
@@ -627,7 +615,7 @@ namespace gui {
     }
 
     bool window::is_enabled () const {
-      return !window_disabled;
+      return !flags.test(static_cast<std::size_t>(flag_positions::window_disabled));
     }
 
     bool window::has_focus () const {
@@ -717,8 +705,8 @@ namespace gui {
     }
 
     void window::enable (bool on) {
-      if (window_disabled == on) {
-        window_disabled = !on;
+      if (is_enabled() != on) {
+        flags.set(static_cast<std::size_t>(flag_positions::window_disabled), !on);
 
         if (get_window_class().get_cursor()) {
           unsigned long mask = CWCursor;
@@ -743,10 +731,6 @@ namespace gui {
 
     void window::to_back () {
       check_xlib_return(XLowerWindow(core::global::get_instance(), get_id()));
-    }
-
-    void window::enable_redraw (bool on) {
-      redraw_disabled = !on;
     }
 
     void window::redraw_now () {
@@ -897,7 +881,7 @@ namespace gui {
 
     void window::capture_pointer () {
       LogDebug << "capture_pointer:" << get_id();
-      capture_stack.push_back(get_id());
+      hidden::capture_stack.push_back(get_id());
       check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
                                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
@@ -905,17 +889,17 @@ namespace gui {
     }
 
     void window::uncapture_pointer () {
-      if (!capture_stack.empty()) {
-        if (capture_stack.back() != get_id()) {
-          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << capture_stack.back() << ")";
+      if (!hidden::capture_stack.empty()) {
+        if (hidden::capture_stack.back() != get_id()) {
+          LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
           LogDebug << "uncapture_pointer:" << get_id();
         }
         check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
-        capture_stack.pop_back();
-        if (!capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << capture_stack.back();
-          check_xlib_return(XGrabPointer(core::global::get_instance(), capture_stack.back(),
+        hidden::capture_stack.pop_back();
+        if (!hidden::capture_stack.empty()) {
+          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          check_xlib_return(XGrabPointer(core::global::get_instance(), hidden::capture_stack.back(),
                                          False,
                                          ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
@@ -939,7 +923,7 @@ namespace gui {
       }
     }
 
-    os::window window::create_window (const window_class_info& type,
+    os::window window::create_window (const class_info& type,
                                       const core::rectangle& r,
                                       os::window parent_id,
                                       window* data) {
@@ -976,21 +960,17 @@ namespace gui {
         XChangeWindowAttributes(display, id, mask, &wa);
       }
 
-      auto j = hidden::window_class_info_map.find(type.get_class_name());
-      if (j == hidden::window_class_info_map.end()) {
+      if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
         hidden::window_class_info_map[type.get_class_name()] = type;
-        j = hidden::window_class_info_map.find(type.get_class_name());
       }
-      hidden::window_class_map[id] = &(j->second);
+      hidden::window_class_map[id] = type.get_class_name();
 
       return id;
     }
 
-    const window_class_info& window::get_window_class () const {
-      const window_class_info* cls = hidden::window_class_map[get_id()];
-      return *cls;
+    std::string window::get_class_name () const {
+      return hidden::window_class_map[get_id()];
     }
-
 
 #endif // X11
 

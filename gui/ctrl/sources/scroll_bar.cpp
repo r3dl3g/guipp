@@ -69,13 +69,12 @@ namespace gui {
     }
 
     void scroll_bar::init () {
+      static int initialized = detail::init_control_messages();
+
       set_accept_focus(true);
-#ifdef X11
-      detail::init_control_messages();
-#endif // X11
     }
 
-    void scroll_bar::create (const window_class_info& type,
+    void scroll_bar::create (const class_info& type,
                              const container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);

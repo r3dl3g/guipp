@@ -64,7 +64,7 @@ namespace gui {
 
       static const cursor& get (win::cursor_type t);
 
-      cursor ()
+      inline cursor ()
         : type(0)
         , id(0)
       {}
@@ -76,7 +76,7 @@ namespace gui {
       }
 
     private:
-      cursor (os::cursor_type t)
+      inline cursor (os::cursor_type t)
         : type(t)
         , id(0)
       {}

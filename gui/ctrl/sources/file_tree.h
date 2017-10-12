@@ -73,7 +73,7 @@ namespace gui {
       void init ();
 
       const sys_fs::directory_entry& operator* () const;
-      const sys_fs::directory_entry* operator->() const;
+      const sys_fs::directory_entry* operator-> () const;
 
       bool is_excluded (const sys_fs::directory_entry& i);
 
@@ -165,7 +165,7 @@ namespace gui {
                                        const draw::masked_bitmap*, std::string, uintmax_t,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
-      file_list_row_drawer create_file_list_row_drawer();
+      file_list_row_drawer create_file_list_row_drawer ();
 
       typedef column_list_row_t<const draw::masked_bitmap*, std::string, uintmax_t,
                                 sys_fs::file_time_type> file_list_row;
@@ -203,7 +203,7 @@ namespace gui {
       return *iterator;
     }
 
-    inline const sys_fs::directory_entry* filtered_iterator::operator->() const {
+    inline const sys_fs::directory_entry* filtered_iterator::operator-> () const {
       return &(*iterator);
     }
 

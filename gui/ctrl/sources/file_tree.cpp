@@ -70,14 +70,14 @@ namespace gui {
       return (filter && filter(*iterator));
     }
 
-    filtered_iterator& filtered_iterator::operator++() {
+    filtered_iterator& filtered_iterator::operator++ () {
       do {
         ++iterator;
       } while ((iterator != end) && is_excluded(*iterator));
       return *this;
     }
 
-    filtered_iterator& filtered_iterator::operator++(int) {
+    filtered_iterator& filtered_iterator::operator++ (int) {
       do {
         ++iterator;
       } while ((iterator != end) && is_excluded(*iterator));

@@ -34,7 +34,6 @@
 
 namespace gui {
 
-
   // --------------------------------------------------------------------------
   namespace win {
 
@@ -46,7 +45,6 @@ namespace gui {
       container ();
 
       bool is_parent_of (const window& parent) const;
-
       bool is_sub_window (const window* child) const;
 
       void set_children_visible (bool = true);
@@ -133,19 +131,14 @@ namespace gui {
       typedef container super;
 
       void set_title (const std::string&);
-
       std::string get_title () const;
 
       bool is_top_most () const;
-
       bool is_minimized () const;
-
       bool is_maximized () const;
 
       void minimize ();
-
       void maximize ();
-
       void restore ();
 
       void set_top_most (bool toplevel);

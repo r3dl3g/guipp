@@ -49,6 +49,14 @@ namespace gui {
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
+        void create (const container& parent,
+                     const text_source& txt,
+                     const core::rectangle& place = core::rectangle::def);
+
+        void create (const container& parent,
+                     const std::string& txt,
+                     const core::rectangle& place = core::rectangle::def);
+
         void set_text (const text_source&);
         void set_text (const std::string&);
 
@@ -96,17 +104,6 @@ namespace gui {
 
       void paint (const draw::graphics& graph);
 
-      void create (const container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
-      void create (const container& parent,
-                   const text_source& txt,
-                   const core::rectangle& place = core::rectangle::def);
-
-      void create (const container& parent,
-                   const std::string& txt,
-                   const core::rectangle& place = core::rectangle::def);
-
     private:
       void init ();
 
@@ -137,6 +134,19 @@ namespace gui {
       inline void label_base::create (const container& parent,
                                       const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
+      }
+
+      inline void label_base::create (const container& parent,
+                                      const text_source& txt,
+                                      const core::rectangle& place) {
+        create(parent, place);
+        set_text(txt);
+      }
+
+      inline void label_base::create (const container& parent,
+                                      const std::string& txt,
+                                      const core::rectangle& place) {
+        create(parent, const_text(txt), place);
       }
 
       // --------------------------------------------------------------------------
@@ -182,27 +192,6 @@ namespace gui {
       gui::core::rectangle place = client_area();
       paint::label(graph, client_area(), get_text(), foreground, background, align);
       frame(graph, place);
-    }
-
-    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
-    inline void basic_label<A, D, F, B>::create (const container& parent,
-                                                 const core::rectangle& place) {
-      super::create(parent, place);
-    }
-
-    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
-    inline void basic_label<A, D, F, B>::create (const container& parent,
-                                                 const text_source& txt,
-                                                 const core::rectangle& place) {
-      create(parent, place);
-      set_text(txt);
-    }
-
-    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
-    inline void basic_label<A, D, F, B>::create (const container& parent,
-                                                 const std::string& txt,
-                                                 const core::rectangle& place) {
-      create(parent, const_text(txt), place);
     }
 
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>

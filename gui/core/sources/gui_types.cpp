@@ -50,6 +50,7 @@ namespace gui {
     const rectangle rectangle::def = rectangle(0, 0, 1, 1);
 #endif // X11
 
+    // --------------------------------------------------------------------------
     const size size::zero;
     const size size::one(1, 1);
 
@@ -109,6 +110,7 @@ namespace gui {
       return{ static_cast<os::point_type>(width()), static_cast<os::point_type>(height()) };
     }
 
+    // --------------------------------------------------------------------------
     point::point(const os::point& rhs)
       : data(static_cast<type>(rhs.x),
              static_cast<type>(rhs.y))
@@ -140,14 +142,15 @@ namespace gui {
       return { os_x(), os_y() };
     }
 
+    // --------------------------------------------------------------------------
     rectangle::rectangle(const os::rectangle& r)
 #ifdef WIN32
-      : tl(static_cast<point::type>(r.left), static_cast<point::type>(r.top))
-      , br(static_cast<point::type>(r.right), static_cast<point::type>(r.bottom))
+      : pos(static_cast<point::type>(r.left), static_cast<point::type>(r.top))
+      , sz(static_cast<size::type>(r.right - r.left), static_cast<size::type>(r.bottom - r.top))
 #endif // Win32
 #ifdef X11
-      : tl(static_cast<point::type>(r.x), static_cast<point::type>(r.y))
-      , br(static_cast<point::type>(r.x + r.width), static_cast<point::type>(r.y + r.height))
+      : pos(static_cast<point::type>(r.x), static_cast<point::type>(r.y))
+      , sz(static_cast<size::type>(r.width), static_cast<size::type>(r.height))
 #endif // X11
     {}
 
@@ -173,61 +176,55 @@ namespace gui {
     }
 
     void rectangle::move (const point& pt) {
-      tl += pt;
-      br += pt;
+      pos += pt;
     }
 
     void rectangle::move (const core::size& sz) {
-      tl += sz;
-      br += sz;
+      pos += sz;
     }
 
     void rectangle::move_x (point::type dx) {
-      tl.move_x(dx);
-      br.move_x(dx);
+      pos.move_x(dx);
     }
 
     void rectangle::move_y (point::type dy) {
-      tl.move_y(dy);
-      br.move_y(dy);
+      pos.move_y(dy);
     }
 
     void rectangle::move_to_x (point::type new_x) {
-      x2(new_x + width());
       x(new_x);
     }
 
     void rectangle::move_to_y (point::type new_y) {
-      y2(new_y + height());
       y(new_y);
     }
 
-    void rectangle::set_size (const core::size& sz) {
-      br = point(tl.x() + sz.width(), tl.y() + sz.height() );
+    void rectangle::set_size (const core::size& s) {
+      sz = s;
     }
 
     void rectangle::x (point::type x) {
-      tl.x(x);
+      pos.x(x);
     }
 
     void rectangle::y (point::type y) {
-      tl.y(y);
+      pos.y(y);
     }
 
-    void rectangle::x2 (point::type x) {
-      br.x(x);
+    void rectangle::x2 (point::type new_x) {
+      sz.width(new_x - x());
     }
 
-    void rectangle::y2 (point::type y) {
-      br.y(y);
-    }
-
-    void rectangle::height (core::size::type height) {
-      br.y(tl.y() + height);
+    void rectangle::y2 (point::type new_y) {
+      sz.height(new_y - y());
     }
 
     void rectangle::width (core::size::type width) {
-      br.x(tl.x() + width);
+      sz.width(width);
+    }
+
+    void rectangle::height (core::size::type height) {
+      sz.height(height);
     }
 
     rectangle& rectangle::operator|= (const rectangle& rhs) {
@@ -235,9 +232,7 @@ namespace gui {
       point::type y0 = std::min(y(), rhs.y());
       point::type x1 = std::max(x2(), rhs.x2());
       point::type y1 = std::max(y2(), rhs.y2());
-      tl = {x0, y0};
-      br = {x1, y1};
-      return *this;
+      return operator=({point{x0, y0}, point{x1, y1}});
     }
 
     rectangle& rectangle::operator&= (const rectangle& rhs) {
@@ -245,9 +240,7 @@ namespace gui {
       point::type y0 = std::max(y(), rhs.y());
       point::type x1 = std::min(x2(), rhs.x2());
       point::type y1 = std::min(y2(), rhs.y2());
-      tl = {x0, y0};
-      br = {x1, y1};
-      return *this;
+      return operator=({point{x0, y0}, point{x1, y1}});
     }
 
     std::ostream& operator<<(std::ostream& out, const size& sz) {

@@ -412,19 +412,19 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }));
 
   window1.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state keys,
-                                                            const core::point& p) {
+                                                                               const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
-      core::point delta = p - last_pos;
+      auto delta = p - last_pos;
       //last_pos = p;
       window1.move(window1.position() + delta);
     }
   }));
   window2.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state keys,
-                                                            const core::point& p) {
+                                                                               const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
-      core::point delta = p - last_pos;
+      auto delta = p - last_pos;
       //last_pos = p;
       window2.move(window2.position() + delta);
     }

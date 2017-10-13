@@ -215,11 +215,11 @@ namespace gui {
       get_layout().init(&vscroll, &hscroll, &edge);
 
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-        move_children(core::point(0, y - current_pos.y()));
+        move_children(core::size(0, y - current_pos.y()));
       }));
 
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-        move_children(core::point(x - current_pos.x(), 0));
+        move_children(core::size(x - current_pos.x(), 0));
       }));
     }
 
@@ -232,8 +232,8 @@ namespace gui {
       edge.create(*this, layout::scroll_view::get_edge_area(sz));
     }
 
-    void scroll_view::move_children (const core::point& delta) {
-      if (delta == core::point::zero) {
+    void scroll_view::move_children (const core::size& delta) {
+      if (delta == core::size::zero) {
         return;
       }
       get_layout().set_in_scroll_event(true);

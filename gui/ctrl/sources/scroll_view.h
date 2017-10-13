@@ -130,7 +130,7 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void move_children (const core::point& delta);
+      void move_children (const core::size& delta);
 
     protected:
       vertical_scroll_bar& get_vscroll ();

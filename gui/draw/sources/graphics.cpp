@@ -1596,9 +1596,9 @@ namespace gui {
         g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
         g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
 
-        const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::very_light_gray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::medium_gray);
+        const core::size pm = core::size(1, -1);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm }, color::very_light_gray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm }, color::medium_gray);
       }
 
       void sunken_deep_relief(const draw::graphics& g, const core::rectangle& place) {
@@ -1606,9 +1606,9 @@ namespace gui {
         g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
         g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
 
-        const core::point pm = core::point(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::point::one, r.top_right() - pm }, color::dark_gray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::point::one, r.top_right() - pm }, color::very_light_gray);
+        const core::size pm = core::size(1, -1);
+        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm }, color::dark_gray);
+        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm }, color::very_light_gray);
       }
 
       // --------------------------------------------------------------------------

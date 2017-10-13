@@ -116,6 +116,14 @@ namespace gui {
         return {type(width() - rhs.width()), type(height() - rhs.height())};
       }
 
+      inline size operator* (size_type f) const {
+        return {type(width() * f), type(height() * f)};
+      }
+
+      inline size operator/ (size_type f) const {
+        return {type(width() / f), type(height() / f)};
+      }
+
       inline size& operator+= (const size& s) {
         data.w += s.data.w;
         data.h += s.data.h;
@@ -125,6 +133,18 @@ namespace gui {
       inline size& operator-= (const size& s) {
         data.w -= s.data.w;
         data.h -= s.data.h;
+        return *this;
+      }
+
+      inline size& operator*= (size_type f) {
+        data.w *= f;
+        data.h *= f;
+        return *this;
+      }
+
+      inline size& operator/= (size_type f) {
+        data.w /= f;
+        data.h /= f;
         return *this;
       }
 
@@ -239,6 +259,14 @@ namespace gui {
         return { type(x() + pt.x()), type(y() + pt.y()) };
       }
 
+      inline point operator* (point_type f) const {
+        return { type(x() * f), type(y() * f) };
+      }
+
+      inline point operator/ (point_type f) const {
+        return { type(x() / f), type(y() / f) };
+      }
+
       inline point& operator+= (const point& pt) {
         x(x() + pt.x());
         y(y() + pt.y());
@@ -248,6 +276,18 @@ namespace gui {
       inline point& operator-= (const point& pt) {
         x(x() - pt.x());
         y(y() - pt.y());
+        return *this;
+      }
+
+      inline point& operator*= (point_type f) {
+        x(x() * f);
+        y(y() * f);
+        return *this;
+      }
+
+      inline point& operator/= (point_type f) {
+        x(x() / f);
+        y(y() / f);
         return *this;
       }
 

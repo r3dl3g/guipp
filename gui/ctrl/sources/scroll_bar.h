@@ -109,6 +109,8 @@ namespace gui {
 
       scrollbar_state get_state ();
 
+      void send_notify ();
+
     protected:
       scroll_bar ();
       scroll_bar (const scroll_bar&);
@@ -166,6 +168,12 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
+      void handle_paint (const draw::graphics&);
+      void handle_left_btn_down (os::key_state, const core::point&);
+      void handle_left_btn_up (os::key_state, const core::point&);
+      void handle_mouse_move (os::key_state, const core::point&);
+      void handle_any_key_up (os::key_state, os::key_symbol key);
+
     private:
       void init ();
 
@@ -204,6 +212,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    // inlines
     template<orientation H>
     inline basic_scroll_bar<H>::basic_scroll_bar (bool grab_focus) {
       set_accept_focus(grab_focus);
@@ -299,13 +308,103 @@ namespace gui {
       return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
     }
 
+    template<orientation H>
+    void basic_scroll_bar<H>::handle_left_btn_down (os::key_state, const core::point& pt) {
+      if (is_enabled()) {
+        if (accept_focus()) {
+          take_focus();
+        }
+        set_last_mouse_point(pt);
+        set_last_value(get_value());
+
+        auto geo = get_geometry();
+
+        if (up_button_place(geo).is_inside(pt)) {
+          set_state(scrollbar_state::up_button);
+        } else if (down_button_place(geo).is_inside(pt)) {
+          set_state(scrollbar_state::down_button);
+        } else if (thumb_button_place(geo).is_inside(pt)) {
+          set_state(scrollbar_state::thumb_button);
+        } else if (page_up_place(geo).is_inside(pt)) {
+          set_state(scrollbar_state::page_up);
+        } else if (page_down_place(geo).is_inside(pt)) {
+          set_state(scrollbar_state::page_down);
+        } else {
+          set_state(scrollbar_state::nothing);
+        }
+        if (get_state() != scrollbar_state::nothing) {
+          capture_pointer();
+        }
+        redraw_later();
+      }
+    }
+
+    template<orientation H>
+    void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::point& pt) {
+      if (is_enabled()) {
+        auto geo = get_geometry();
+        switch (get_state()) {
+          case scrollbar_state::up_button:
+            if (up_button_place(geo).is_inside(pt)) {
+              set_value(get_value() - 1, true);
+            }
+            break;
+          case scrollbar_state::down_button:
+            if (down_button_place(geo).is_inside(pt)) {
+              set_value(get_value() + 1, true);
+            }
+            break;
+          case scrollbar_state::page_up:
+            if (page_up_place(geo).is_inside(pt)) {
+              set_value(get_value() - get_step(), true);
+            }
+            break;
+          case scrollbar_state::page_down:
+            if (page_down_place(geo).is_inside(pt)) {
+              set_value(get_value() + get_step(), true);
+            }
+            break;
+          case scrollbar_state::thumb_button:
+          case scrollbar_state::nothing:
+            break;
+        }
+        if (get_state() != scrollbar_state::nothing) {
+          set_state(scrollbar_state::nothing);
+          uncapture_pointer();
+          send_notify();
+        }
+        redraw_later();
+      }
+    }
+
+
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::vertical>::init ();
 
     template<>
+    void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
+
+    template<>
+    void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
+
+    template<>
+    void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
+
+    // --------------------------------------------------------------------------
+    template<>
     void basic_scroll_bar<orientation::horizontal>::init ();
 
+    template<>
+    void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
+
+    template<>
+    void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
+
+    template<>
+    void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
+
+    // --------------------------------------------------------------------------
     template<>
     inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::length (const core::size& sz) {
       return sz.width();

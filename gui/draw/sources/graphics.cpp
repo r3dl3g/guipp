@@ -1518,12 +1518,9 @@ namespace gui {
       if (p) {
         const auto area = g.area();
         draw::memmap buffer(area.size());
-        //{
-          draw::graphics graph(buffer);
-          p(graph);
-        //}
-        //g.copy_from(buffer);
-          g.copy_from(graph);
+        draw::graphics graph(buffer);
+        p(graph);
+        g.copy_from(graph);
       }
     }
 

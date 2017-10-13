@@ -113,6 +113,7 @@ namespace gui {
           void set_column (std::size_t column, const T& t);
           void set_row (std::size_t row, const T& t);
 
+          position size () const;
           void clear ();
 
           const T& get_default_data () const;
@@ -172,6 +173,8 @@ namespace gui {
         core::size get_size (const position& cell) const;
         core::size get_default_size () const;
         core::point get_offset () const;
+
+        void set_offset (const core::point&);
 
         position get_first_idx () const;
         core::point get_first_offset () const;
@@ -357,6 +360,13 @@ namespace gui {
     } // table
 
     // --------------------------------------------------------------------------
+    typedef core::point (scroll_maximum_calcer) (const core::size&, const core::point&, const core::point&);
+
+    core::point default_scroll_maximum (const core::size& sz,
+                                        const core::point& current_pos,
+                                        const core::point& current_max);
+
+    // --------------------------------------------------------------------------
     class table_view : public group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
                                            color::very_very_light_gray, float, float, float, float> {
     public:
@@ -410,8 +420,13 @@ namespace gui {
                        os::key_symbol key,
                        const std::string&);
 
+      void handle_scroll (const core::point& pos);
+
       core::size_type row_width () const;
       core::size_type column_height () const;
+
+      void set_scroll_maximum_calcer (std::function<scroll_maximum_calcer> scroll_maximum);
+      void set_scroll_maximum (const core::point& pos);
 
       table::metric         geometrie;
       table::data_view      data;
@@ -430,6 +445,8 @@ namespace gui {
       bool moved;
       core::point last_mouse_point;
       table::position down_idx;
+
+      std::function<scroll_maximum_calcer> scroll_maximum;
 
     private:
       void init ();
@@ -607,6 +624,11 @@ namespace gui {
         }
 
         template<typename T>
+        inline auto matrix<T>::size () const -> position {
+          return position{ column_data.size(), row_data.size() };
+        }
+
+        template<typename T>
         inline auto matrix<T>::get_default_data () const -> const T& {
           return column_data.get_default_data();
         }
@@ -678,6 +700,11 @@ namespace gui {
 
       inline core::point metric::get_offset () const {
         return core::point(widths.get_offset(), heights.get_offset());
+      }
+
+      inline void metric::set_offset (const core::point& pos) {
+        widths.set_offset(pos.x());
+        heights.set_offset(pos.y());
       }
 
       inline core::point metric::get_first_offset () const {

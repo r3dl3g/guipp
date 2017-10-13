@@ -358,6 +358,13 @@ namespace gui {
     } // table
 
     // --------------------------------------------------------------------------
+    core::point default_scroll_maximum (const core::size& size,
+                                        const core::point& current_pos,
+                                        const core::point&) {
+      return current_pos + size * 2;
+    }
+
+    // --------------------------------------------------------------------------
     table_view::table_view (core::size_type default_width,
                             core::size_type default_height,
                             core::size_type row_width,
@@ -413,19 +420,30 @@ namespace gui {
       enable_v_size = v_size;
     }
 
+    void table_view::handle_size (const core::size& sz) {
+      set_scroll_maximum(scroll_maximum(data.client_size(), geometrie.get_offset(), core::point(hscroll.get_max(), vscroll.get_max())));
+    }
+
+    void table_view::handle_scroll (const core::point& pos) {
+      geometrie.set_offset(pos);
+      if ((hscroll.get_state() == scrollbar_state::nothing) && (vscroll.get_state() == scrollbar_state::nothing)) {
+        set_scroll_maximum(scroll_maximum(data.client_size(), pos, core::point(hscroll.get_max(), vscroll.get_max())));
+      }
+      data.redraw_later();
+      columns.redraw_later();
+      rows.redraw_later();
+    }
+
     void table_view::init () {
+      set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
       register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
       register_event_handler(REGISTER_FUNCTION, win::size_event(this, &table_view::handle_size));
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-        geometrie.heights.set_offset(pos);
-        data.redraw_later();
-        rows.redraw_later();
+        handle_scroll(core::point(geometrie.widths.get_offset(), pos));
       }));
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-        geometrie.widths.set_offset(pos);
-        data.redraw_later();
-        columns.redraw_later();
+        handle_scroll(core::point(pos, geometrie.heights.get_offset()));
       }));
 
       data.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &table_view::handle_key));
@@ -544,6 +562,15 @@ namespace gui {
       return get_layout().get_top_height();
     }
 
+    void table_view::set_scroll_maximum_calcer (std::function<scroll_maximum_calcer> caller) {
+      scroll_maximum = caller;
+    }
+
+    void table_view::set_scroll_maximum (const core::point& pos) {
+      vscroll.set_max(pos.y());
+      hscroll.set_max(pos.x());
+    }
+
     void table_view::handle_created (win::window* win, const core::rectangle& place) {
       edge.create(*this, core::rectangle(0, 0, row_width(), column_height()));
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
@@ -552,9 +579,9 @@ namespace gui {
       vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width), 80));
       hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width)));
 
-      vscroll.set_max(place.height() * 10);
+      vscroll.set_max(place.height() * 2);
       vscroll.set_step(column_height());
-      hscroll.set_max(place.width() * 10);
+      hscroll.set_max(place.width() * 2);
       hscroll.set_step(row_width());
 
       edge.set_visible();
@@ -563,11 +590,6 @@ namespace gui {
       rows.set_visible();
       hscroll.set_visible();
       vscroll.set_visible();
-    }
-
-    void table_view::handle_size (const core::size& sz) {
-      vscroll.set_max(sz.height() * 10);
-      hscroll.set_max(sz.width() * 10);
     }
 
     void table_view::handle_left_btn_down (os::key_state, const core::point& pt) {
@@ -857,7 +879,6 @@ namespace gui {
       this->data_source = data_source;
       this->data_target = data_target;
     }
-
 
   } // win
 

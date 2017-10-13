@@ -55,17 +55,16 @@ namespace gui {
     const size size::one(1, 1);
 
     const point point::zero;
-    const point point::one(1, 1);
     const point point::undefined(std::numeric_limits<point::type>::min(), std::numeric_limits<point::type>::min());
 
     const rectangle rectangle::zero;
 
-    size::size(const os::size& s)
+    size::size (const os::size& s)
       : data(static_cast<type>(s.cx),
              static_cast<type>(s.cy))
     {}
 
-    size::size(const os::point& pt)
+    size::size (const os::point& pt)
       : data(static_cast<type>(pt.x),
              static_cast<type>(pt.y))
     {}
@@ -111,18 +110,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    point::point(const os::point& rhs)
+    point::point (const os::point& rhs)
       : data(static_cast<type>(rhs.x),
              static_cast<type>(rhs.y))
     {}
 
 #ifdef WIN32
-    point::point(const os::rectangle& rhs)
+    point::point (const os::rectangle& rhs)
       : data(static_cast<type>(rhs.left),
              static_cast<type>(rhs.top))
     {}
 
-    point::point(const os::win32::lParam& p) {
+    point::point (const os::win32::lParam& p) {
       data.x = static_cast<type>(GET_X_LPARAM(p));
       data.y = static_cast<type>(GET_Y_LPARAM(p));
     }
@@ -134,7 +133,7 @@ namespace gui {
     {}
 #endif // X11
 
-    point::operator os::point() const {
+    point::operator os::point () const {
       return { os_x(), os_y() };
     }
 
@@ -143,7 +142,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    rectangle::rectangle(const os::rectangle& r)
+    rectangle::rectangle (const os::rectangle& r)
 #ifdef WIN32
       : pos(static_cast<point::type>(r.left), static_cast<point::type>(r.top))
       , sz(static_cast<size::type>(r.right - r.left), static_cast<size::type>(r.bottom - r.top))
@@ -155,12 +154,12 @@ namespace gui {
     {}
 
 #ifdef WIN32
-    rectangle::rectangle(const os::win32::lParam& p)
+    rectangle::rectangle (const os::win32::lParam& p)
       : rectangle(*reinterpret_cast<LPRECT>(p)) {
     }
 #endif // WIN32
 
-    rectangle::operator os::rectangle() const {
+    rectangle::operator os::rectangle () const {
       return os();
     }
 

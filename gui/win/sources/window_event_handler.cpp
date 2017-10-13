@@ -282,8 +282,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<>
-    os::graphics get_param<0, os::graphics> (const core::event& e) {
+    os::graphics get_graphics (const core::event& e) {
       return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
     }
 
@@ -293,8 +292,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    core::rectangle get_client_data_rect(const core::event& e) {
-      long p = e.xclient.data.l[1], s = e.xclient.data.l[2];
+    core::rectangle get_client_data_rect (const core::event& e) {
+      long p = e.xclient.data.l[1];
+      long s = e.xclient.data.l[2];
       short x = p >> 16;
       short y = p & 0xffff;
       unsigned short w = s >> 16;

@@ -740,6 +740,11 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   }, [&](const win::table::position& cell, const std::string& s) {
     table_data.set_cell(cell, s);
   });
+  table_view.set_scroll_maximum_calcer([&](const core::size& size,
+                                           const core::point& current_pos,
+                                           const core::point&) {
+    return core::point(table_view.geometrie.widths.position_of(26) + table_view.geometrie.widths.get_offset() - size.width(), current_pos.y() + size.height() * 2);
+  });
 
 
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));

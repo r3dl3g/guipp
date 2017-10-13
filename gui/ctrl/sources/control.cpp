@@ -105,9 +105,8 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
 
-    template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
-      return draw::graphics(e.xany.window, get_param<0, os::graphics>(e));
+    draw::graphics get_draw_graphics (const core::event& e) {
+      return draw::graphics(e.xany.window, get_graphics(e));
     }
 
 #endif // X11

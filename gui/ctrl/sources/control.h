@@ -112,10 +112,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e);
-
-    // --------------------------------------------------------------------------
     enum class event_source {
       keyboard,
       mouse,
@@ -125,6 +121,10 @@ namespace gui {
 #ifdef WIN32
     template<>
     event_source get_param<0, event_source>(const core::event& e);
+
+    // --------------------------------------------------------------------------
+    template<>
+    draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
     struct paint_caller : params<draw::graphics>::getter<get_param<0, draw::graphics>> {
@@ -163,9 +163,12 @@ namespace gui {
 #endif //WIN32
     // --------------------------------------------------------------------------
 #ifdef X11
+    // --------------------------------------------------------------------------
+    draw::graphics get_draw_graphics (const core::event& e);
+
     using paint_event = event_handler<Expose, ExposureMask,
                                       params<draw::graphics>::
-                                      getter<get_param<0, draw::graphics>>>;
+                                      getter<get_draw_graphics>>;
 
     using selection_changed_event = event_handler<ClientMessage, 0,
                                                   params<event_source>::

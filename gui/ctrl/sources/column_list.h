@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -56,7 +56,7 @@ namespace gui {
         void init_auto_layout ();
 
         void layout (const core::size& new_size);
-          
+
         std::size_t get_column_count () const;
         void set_column_count (std::size_t i);
 
@@ -106,12 +106,12 @@ namespace gui {
       simple_column_list_layout (win::container* main, const simple_column_list_layout& rhs);
       simple_column_list_layout (win::container* main, simple_column_list_layout&& rhs);
 
-      void set_column_width(std::size_t i, column_size_type w, bool update = true);
-      void set_column_count(std::size_t i);
+      void set_column_width (std::size_t i, column_size_type w, bool update = true);
+      void set_column_count (std::size_t i);
 
-      void set_columns(std::initializer_list<simple_column_info> infos, bool update = true);
+      void set_columns (std::initializer_list<simple_column_info> infos, bool update = true);
       void set_column_min_width (std::size_t i, const column_size_type w);
-      const column_size_type get_column_min_width(std::size_t i) const;
+      const column_size_type get_column_min_width (std::size_t i) const;
 
     protected:
       std::vector<column_size_type> min_widths;
@@ -143,8 +143,8 @@ namespace gui {
       void set_column_count (std::size_t i);
       void set_columns (std::initializer_list<weight_column_info> infos, bool update = true);
 
-      void set_column_weight(std::size_t i, float w);
-      float get_column_weight(std::size_t i) const;
+      void set_column_weight (std::size_t i, float w);
+      float get_column_weight (std::size_t i) const;
 
     protected:
       std::vector<float> weights;
@@ -200,7 +200,7 @@ namespace gui {
       typedef layout_container<Layout> super;
       typedef window_class<column_list_header, background> clazz;
 
-      typedef void(cell_draw) (std::size_t,            // idx
+      typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
                                const core::rectangle&, // place
                                const draw::brush&);    // background
@@ -265,13 +265,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T,
              draw::frame::drawer F = draw::frame::no_frame>
-    struct simple_column_list_data : public std::vector<std::vector<T>> {
+    struct simple_column_list_data : public std::vector<std::vector<T> > {
       typedef std::vector<T> row;
       typedef std::vector<row> super;
 
       typedef typename super::iterator iterator;
 
-      simple_column_list_data();
+      simple_column_list_data ();
       simple_column_list_data (std::initializer_list<row> args);
       simple_column_list_data (iterator b, iterator e);
 
@@ -299,7 +299,7 @@ namespace gui {
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
 
-      typedef void(cell_draw) (std::size_t,            // row_id
+      typedef void (cell_draw)(std::size_t,            // row_id
                                std::size_t,            // col_id
                                const draw::graphics&,  // g
                                const core::rectangle&, // place
@@ -332,13 +332,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename... Arguments>
-    using column_list_row_t = std::tuple<Arguments...>;
+    template<typename ... Arguments>
+    using column_list_row_t = std::tuple<Arguments ...>;
 
     // --------------------------------------------------------------------------
-    template<typename... Arguments>
-    struct static_column_list_data_t : public std::vector<column_list_row_t<Arguments...>> {
-      typedef column_list_row_t<Arguments...> row;
+    template<typename ... Arguments>
+    struct static_column_list_data_t : public std::vector<column_list_row_t<Arguments ...> > {
+      typedef column_list_row_t<Arguments ...> row;
       typedef std::vector<row> super;
 
       typedef typename super::iterator iterator;
@@ -348,7 +348,7 @@ namespace gui {
       static_column_list_data_t (iterator b, iterator e);
 
       template<size_t N>
-      static_column_list_data_t (const row(&t) [N]);
+      static_column_list_data_t (const row(&t)[N]);
 
       template<typename L>
       void update_list (L& l);
@@ -359,7 +359,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             draw::frame::drawer F  = draw::frame::no_frame>
+             draw::frame::drawer F = draw::frame::no_frame>
     void cell_drawer (const T& t,
                       const draw::graphics& graph,
                       const core::rectangle& place,
@@ -370,42 +370,43 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    using cell_drawer_t = void (*) (const T& t,
-                                    const draw::graphics& g,
-                                    const core::rectangle& place,
-                                    const draw::brush& background,
-                                    bool selected,
-                                    bool hilited,
-                                    text_origin align);
+    using cell_drawer_t = void (*)(const T& t,
+                                   const draw::graphics& g,
+                                   const core::rectangle& place,
+                                   const draw::brush& background,
+                                   bool selected,
+                                   bool hilited,
+                                   text_origin align);
 
     // --------------------------------------------------------------------------
-    template<typename... Arguments>
+    template<typename ... Arguments>
 #if _MSC_VER < 1910
 
     struct row_cell_drawer_t : public std::tuple<cell_drawer_t<Arguments>...> {
       typedef std::tuple<cell_drawer_t<Arguments>...> super;
 
-      row_cell_drawer_t () 
+      row_cell_drawer_t ()
       {}
 
-      row_cell_drawer_t(super rhs)
+      row_cell_drawer_t (super rhs)
         : super(rhs)
       {}
+
     };
 #else
     using row_cell_drawer_t = std::tuple<cell_drawer_t<Arguments>...>;
 #endif // _MSC_VER < 1900
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename... Arguments>
-    struct column_list_row_drawer_t : public row_cell_drawer_t<Arguments...> {
+    template<typename Layout, typename ... Arguments>
+    struct column_list_row_drawer_t : public row_cell_drawer_t<Arguments ...> {
       typedef Layout layout_type;
-      typedef row_cell_drawer_t<Arguments...> super;
-      typedef column_list_row_t<Arguments...> row;
+      typedef row_cell_drawer_t<Arguments ...> super;
+      typedef column_list_row_t<Arguments ...> row;
 
       column_list_row_drawer_t ();
 
-      column_list_row_drawer_t (cell_drawer_t<Arguments>...args);
+      column_list_row_drawer_t (cell_drawer_t<Arguments>... args);
 
       void operator= (const column_list_row_drawer_t& rhs);
 
@@ -419,7 +420,7 @@ namespace gui {
                       bool selected,
                       bool hilited);
 
-      template<std::size_t I, typename T, typename... Args>
+      template<std::size_t I, typename T, typename ... Args>
       void draw_cell (const row& data,
                       const layout_type& l,
                       const draw::graphics& g,
@@ -439,29 +440,29 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename Layout, typename... Arguments>
+    template<typename Layout, typename ... Arguments>
     class column_list_t : public detail::base_column_list<Layout> {
     public:
-      static const std::size_t size = sizeof...(Arguments);
+      static const std::size_t size = sizeof ... (Arguments);
 
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
 
-      typedef column_list_row_t<Arguments...> row;
+      typedef column_list_row_t<Arguments ...> row;
 
-      typedef static_column_list_data_t<Arguments...> standard_data;
+      typedef static_column_list_data_t<Arguments ...> standard_data;
 
-      typedef column_list_row_drawer_t<layout_type, Arguments...> row_drawer;
+      typedef column_list_row_drawer_t<layout_type, Arguments ...> row_drawer;
 
       typedef row (get_row_data_t)(std::size_t idy);
 
-      typedef void (draw_row_data_t) (const row&,            // r
-                                      const layout_type&,    // l
-                                      const draw::graphics&, // g
-                                      const core::rectangle&,// place
-                                      const draw::brush&,    // background
-                                      bool,                  // selected
-                                      bool);                 // hilited
+      typedef void (draw_row_data_t)(const row&,             // r
+                                     const layout_type&,     // l
+                                     const draw::graphics&,  // g
+                                     const core::rectangle&, // place
+                                     const draw::brush&,     // background
+                                     bool,                   // selected
+                                     bool);                  // hilited
 
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
@@ -512,7 +513,7 @@ namespace gui {
         , aligns(std::move(rhs.aligns))
         , list(std::move(rhs.list))
       {}
-  
+
       inline void column_list_layout::init_auto_layout () {
         super::init(core::bind_method(this, &column_list_layout::layout));
       }
@@ -597,7 +598,7 @@ namespace gui {
 
     inline void simple_column_list_layout::set_column_min_width (std::size_t i, const column_size_type w) {
       min_widths[i] = w;
-      if (get_column_width(i)< get_column_min_width(i)) {
+      if (get_column_width(i) < get_column_min_width(i)) {
         set_column_width(i, w);
       }
     }
@@ -666,7 +667,7 @@ namespace gui {
       draw::brush back_brush(background);
 
       auto count = this->get_layout().get_column_count();
-      for (decltype(count) i = 0; i < count; ++i) {
+      for (decltype(count) i = 0;i < count;++i) {
         layout::column_size_type w = this->get_layout().get_column_width(i);
         r.width(w);
         if (cell_drawer) {
@@ -731,7 +732,7 @@ namespace gui {
       base_column_list<Layout>::base_column_list (core::size_type item_size,
                                                   os::color background,
                                                   bool grab_focus)
-      : list(item_size, background, grab_focus)
+        : list(item_size, background, grab_focus)
       {
         init();
       }
@@ -755,12 +756,12 @@ namespace gui {
       }
 
       template<typename Layout>
-      auto base_column_list<Layout>::get_column_layout() -> layout_type& {
+      auto base_column_list<Layout>::get_column_layout()->layout_type & {
         return header.get_layout();
       }
 
       template<typename Layout>
-      auto base_column_list<Layout>::get_column_layout() const -> const layout_type& {
+      auto base_column_list<Layout>::get_column_layout() const->const layout_type &{
         return header.get_layout();
       }
 
@@ -875,34 +876,34 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename... A>
-    static_column_list_data_t<A...>::static_column_list_data_t ()
+    template<typename ... A>
+    static_column_list_data_t<A ...>::static_column_list_data_t ()
     {}
 
-    template<typename... A>
-    static_column_list_data_t<A...>::static_column_list_data_t (std::initializer_list<row> args)
+    template<typename ... A>
+    static_column_list_data_t<A ...>::static_column_list_data_t (std::initializer_list<row> args)
       : super(args)
     {}
 
-    template<typename... A>
-    static_column_list_data_t<A...>::static_column_list_data_t (iterator b, iterator e)
+    template<typename ... A>
+    static_column_list_data_t<A ...>::static_column_list_data_t (iterator b, iterator e)
       : super(b, e)
     {}
 
-    template<typename... A>
+    template<typename ... A>
     template<size_t N>
-    static_column_list_data_t<A...>::static_column_list_data_t (const row(&t)[N])
+    static_column_list_data_t<A ...>::static_column_list_data_t (const row(&t)[N])
       : super(t, t + N)
     {}
 
-    template<typename... A>
+    template<typename ... A>
     template<typename L>
-    void static_column_list_data_t<A...>::update_list (L& l) {
+    void static_column_list_data_t<A ...>::update_list (L& l) {
       l.set_count(super::size());
     }
 
-    template<typename... A>
-    auto static_column_list_data_t<A...>::operator() (std::size_t row_id) const -> row {
+    template<typename ... A>
+    auto static_column_list_data_t<A ...>::operator() (std::size_t row_id) const->row {
       return super::at(row_id);
     }
 
@@ -922,95 +923,96 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename L, typename... A>
-    column_list_row_drawer_t<L, A...>::column_list_row_drawer_t ()
+    template<typename L, typename ... A>
+    column_list_row_drawer_t<L, A ...>::column_list_row_drawer_t ()
     {}
 
-    template<typename L, typename... A>
-    column_list_row_drawer_t<L, A...>::column_list_row_drawer_t (cell_drawer_t<A>...args)
-      : super(std::make_tuple(args...))
+    template<typename L, typename ... A>
+    column_list_row_drawer_t<L, A ...>::column_list_row_drawer_t (cell_drawer_t<A>... args)
+      : super(std::make_tuple(args ...))
     {}
 
-    template<typename L, typename... A>
-    void column_list_row_drawer_t<L, A...>::operator= (const column_list_row_drawer_t& rhs) {
-      super::operator=(rhs);
+    template<typename L, typename ... A>
+    void column_list_row_drawer_t<L, A ...>::operator= (const column_list_row_drawer_t& rhs) {
+      super::operator= (rhs);
     }
 
-    template<typename L, typename... A>
+    template<typename L, typename ... A>
     template<std::size_t I>
-    void column_list_row_drawer_t<L, A...>::draw_cell (const row& data,
-                                                       const layout_type& l,
-                                                       const draw::graphics& g,
-                                                       const core::rectangle& place,
-                                                       core::point_type x,
-                                                       const draw::brush& background,
-                                                       bool selected,
-                                                       bool hilited) {
+    void column_list_row_drawer_t<L, A ...>::draw_cell (const row& data,
+                                                        const layout_type& l,
+                                                        const draw::graphics& g,
+                                                        const core::rectangle& place,
+                                                        core::point_type x,
+                                                        const draw::brush& background,
+                                                        bool selected,
+                                                        bool hilited) {
       if (x < place.x2()) {
         g.fill(draw::rectangle(core::point(x, place.y()), place.bottom_right()), background);
       }
     }
 
-    template<typename L, typename... A>
-    template<std::size_t I, typename T, typename... Args>
-    void column_list_row_drawer_t<L, A...>::draw_cell (const row& data,
-                                                       const layout_type& l,
-                                                       const draw::graphics& g,
-                                                       const core::rectangle& r,
-                                                       core::point_type x,
-                                                       const draw::brush& background,
-                                                       bool selected,
-                                                       bool hilited) {
+    template<typename L, typename ... A>
+    template<std::size_t I, typename T, typename ... Args>
+    void column_list_row_drawer_t<L, A ...>::draw_cell (const row& data,
+                                                        const layout_type& l,
+                                                        const draw::graphics& g,
+                                                        const core::rectangle& r,
+                                                        core::point_type x,
+                                                        const draw::brush& background,
+                                                        bool selected,
+                                                        bool hilited) {
       core::size::type width = l.get_column_width(I);
       text_origin align = l.get_column_align(I);
 
       core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
       std::get<I>(*this)(std::get<I>(data), g, place, background, selected, hilited, align);
-      draw_cell<I + 1, Args...>(data, l, g, r, x + width, background, selected, hilited);
+      draw_cell<I + 1, Args ...>(data, l, g, r, x + width, background, selected, hilited);
     }
 
-    template<typename L, typename... A>
-    void column_list_row_drawer_t<L, A...>::operator() (const row& data,
-                                                        const layout_type& l,
-                                                        const draw::graphics& g,
-                                                        const core::rectangle& place,
-                                                        const draw::brush& background,
-                                                        bool selected,
-                                                        bool hilited) {
-      draw_cell<0, A...>(data, l, g, place, place.x(), background, selected, hilited);
+    template<typename L, typename ... A>
+    void column_list_row_drawer_t<L, A ...>::operator() (const row& data,
+                                                         const layout_type& l,
+                                                         const draw::graphics& g,
+                                                         const core::rectangle& place,
+                                                         const draw::brush& background,
+                                                         bool selected,
+                                                         bool hilited) {
+      draw_cell<0, A ...>(data, l, g, place, place.x(), background, selected, hilited);
     }
 
     // --------------------------------------------------------------------------
-    template<typename L, typename... A>
-    column_list_t<L, A...>::column_list_t (core::size_type item_size,
-                                           os::color background,
-                                           bool grab_focus)
+    template<typename L, typename ... A>
+    column_list_t<L, A ...>::column_list_t (core::size_type item_size,
+                                            os::color background,
+                                            bool grab_focus)
       : super(item_size, background, grab_focus)
     {
       this->get_column_layout().set_column_count(size);
     }
 
-    template<typename L, typename... A>
-    void column_list_t<L, A...>::set_drawer (data_drawer drawer) {
+    template<typename L, typename ... A>
+    void column_list_t<L, A ...>::set_drawer (data_drawer drawer) {
       this->drawer = drawer;
       this->list.set_drawer(core::bind_method(this, &column_list_t::draw_cells_t));
     }
 
-    template<typename L, typename... A>
-    void column_list_t<L, A...>::set_data (data_provider data, std::size_t count) {
+    template<typename L, typename ... A>
+    void column_list_t<L, A ...>::set_data (data_provider data, std::size_t count) {
       this->data = data;
       this->list.set_count(count);
     }
 
-    template<typename L, typename... A>
-    void column_list_t<L, A...>::draw_cells_t (std::size_t row_id,
-                                               const draw::graphics& g,
-                                               const core::rectangle& place,
-                                               const draw::brush& back,
-                                               bool selected,
-                                               bool hilited) {
+    template<typename L, typename ... A>
+    void column_list_t<L, A ...>::draw_cells_t (std::size_t row_id,
+                                                const draw::graphics& g,
+                                                const core::rectangle& place,
+                                                const draw::brush& back,
+                                                bool selected,
+                                                bool hilited) {
       drawer(data(row_id), this->get_column_layout(), g, place, back, selected, hilited);
     }
+
     // --------------------------------------------------------------------------
 
   } // win

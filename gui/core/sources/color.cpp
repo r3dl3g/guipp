@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic color definitions
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic color definitions
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -29,19 +29,19 @@
 
 #ifdef WIN32
 # define DEFINE_SYS_COLOR(name, SYS_NAME) \
-   os::color name () {\
-     static os::color c(get_sys_color(SYS_NAME));\
-     return c;\
-   }
+  os::color name() { \
+    static os::color c(get_sys_color(SYS_NAME)); \
+    return c; \
+  }
 
 #endif // WIN32
 
 #ifdef X11
 # define DEFINE_SYS_COLOR(name, SYS_NAME) \
-   os::color name () {\
-     static os::color c(get_sys_color(SYS_NAME));\
-     return c;\
-   }
+  os::color name() { \
+    static os::color c(get_sys_color(SYS_NAME)); \
+    return c; \
+  }
 #endif // X11
 
 namespace gui {
@@ -50,7 +50,7 @@ namespace gui {
 
 #ifdef WIN32
 
-    os::color get_sys_color(int c) {
+    os::color get_sys_color (int c) {
       return GetSysColor(c);
     }
 
@@ -83,20 +83,20 @@ namespace gui {
       COLOR_MENUHILIGHT
     };
 
-    os::color get_sys_color(SystemColor c) {
+    os::color get_sys_color (SystemColor c) {
       switch (c) {
 
-        case COLOR_APPWORKSPACE:  return rgb<160, 160, 160>::value;
-        case COLOR_WINDOWTEXT:    return black;
-        case COLOR_HIGHLIGHT:     return rgb<48, 140, 198>::value;
-        case COLOR_HIGHLIGHTTEXT: return white;
-        case COLOR_BTNFACE:       return rgb<240, 240, 240>::value;
-        case COLOR_BTNHIGHLIGHT:  return rgb<248, 248, 248>::value;
-        case COLOR_WINDOW:        return white;
-        case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
-        case COLOR_MENU:          return very_light_gray;
-        case COLOR_MENUTEXT:      return black;
-        case COLOR_MENUHILIGHT:   return rgb<48, 140, 198>::value;
+      case COLOR_APPWORKSPACE:  return rgb<160, 160, 160>::value;
+      case COLOR_WINDOWTEXT:    return black;
+      case COLOR_HIGHLIGHT:     return rgb<48, 140, 198>::value;
+      case COLOR_HIGHLIGHTTEXT: return white;
+      case COLOR_BTNFACE:       return rgb<240, 240, 240>::value;
+      case COLOR_BTNHIGHLIGHT:  return rgb<248, 248, 248>::value;
+      case COLOR_WINDOW:        return white;
+      case COLOR_GRAYTEXT:      return rgb_gray<128>::value;
+      case COLOR_MENU:          return very_light_gray;
+      case COLOR_MENUTEXT:      return black;
+      case COLOR_MENUHILIGHT:   return rgb<48, 140, 198>::value;
 
 //        XColor exact_def_return, screen_def_return;
 //        XLookupColor(display, colormap, color_name, &exact_def_return, &screen_def_return);

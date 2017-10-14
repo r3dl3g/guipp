@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic structures
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic structures
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -41,12 +41,12 @@ namespace gui {
 
     struct point;
 
-    template <typename T>
+    template<typename T>
     typename std::enable_if<std::is_unsigned<T>::value, T>::type convert_os_dimension (size_type v) {
       return static_cast<T>(std::max<size_type>(v, 0));
     }
 
-    template <typename T>
+    template<typename T>
     typename std::enable_if<std::is_signed<T>::value, T>::type convert_os_dimension (size_type v) {
       return static_cast<T>(v);
     }
@@ -67,12 +67,12 @@ namespace gui {
       explicit size (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit size(const os::win32::wParam& p);
-      explicit size(const os::win32::lParam& p);
+      explicit size (const os::win32::wParam& p);
+      explicit size (const os::win32::lParam& p);
 #endif // WIN32
 
       operator os::size () const;
-      operator os::point () const;
+      operator os::point() const;
 
       os::size os () const;
 
@@ -133,7 +133,7 @@ namespace gui {
       explicit point (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit point(const os::win32::lParam& p);
+      explicit point (const os::win32::lParam& p);
 #endif // WIN32
 
       operator os::point () const;
@@ -208,7 +208,7 @@ namespace gui {
       explicit rectangle (const os::rectangle& r);
 
 #ifdef WIN32
-      explicit rectangle(const os::win32::lParam& p);
+      explicit rectangle (const os::win32::lParam& p);
 #endif // WIN32
 
       operator os::rectangle () const;
@@ -237,7 +237,7 @@ namespace gui {
       void height (size::type height);
       void width (size::type width);
 
-      bool empty () const ;
+      bool empty () const;
       bool is_inside (const point& p) const;
 
       void top_left (const point& pt);
@@ -389,7 +389,7 @@ namespace gui {
     }
 
     inline bool size::operator!= (const size& rhs) const {
-      return !operator==(rhs);
+      return !operator== (rhs);
     }
 
     inline size size::operator+ (const size& rhs) const {
@@ -436,11 +436,11 @@ namespace gui {
       return {-width(), -height()};
     }
 
-    inline auto size::width () const -> type {
+    inline auto size::width() const->type {
       return data.w;
     }
 
-    inline auto size::height () const -> type {
+    inline auto size::height() const->type {
       return data.h;
     }
 
@@ -494,29 +494,29 @@ namespace gui {
     }
 
     inline point& point::operator+= (const size& s) {
-      operator=(*this + s);
+      operator= (*this + s);
       return *this;
     }
 
     inline point& point::operator-= (const size& s) {
-      operator=(*this - s);
+      operator= (*this - s);
       return *this;
     }
 
     inline size point::operator- (const point& pt) const {
-      return size{ type(x() - pt.x()), type(y() - pt.y()) };
+      return {type(x() - pt.x()), type(y() - pt.y())};
     }
 
     inline point point::operator+ (const point& pt) const {
-      return { type(x() + pt.x()), type(y() + pt.y()) };
+      return {type(x() + pt.x()), type(y() + pt.y())};
     }
 
     inline point point::operator* (point_type f) const {
-      return { type(x() * f), type(y() * f) };
+      return {type(x() * f), type(y() * f)};
     }
 
     inline point point::operator/ (point_type f) const {
-      return { type(x() / f), type(y() / f) };
+      return {type(x() / f), type(y() / f)};
     }
 
     inline point& point::operator+= (const point& pt) {
@@ -565,7 +565,7 @@ namespace gui {
     }
 
     inline bool point::operator!= (const point& rhs) const {
-      return !operator==(rhs);
+      return !operator== (rhs);
     }
 
     inline bool point::operator< (const point& rhs) const {
@@ -584,7 +584,7 @@ namespace gui {
       return (x() >= rhs.x()) && (y() >= rhs.y());
     }
 
-    inline auto point::x () const -> type {
+    inline auto point::x() const->type {
       return data.x;
     }
 
@@ -592,7 +592,7 @@ namespace gui {
       data.x = v;
     }
 
-    inline auto point::y () const -> type {
+    inline auto point::y() const->type {
       return data.y;
     }
 
@@ -659,15 +659,15 @@ namespace gui {
     }
 
     inline point rectangle::top_right () const {
-      return { x2(), y() };
+      return {x2(), y()};
     }
 
     inline point rectangle::bottom_right () const {
-      return { x2(), y2() };
+      return {x2(), y2()};
     }
 
     inline point rectangle::bottom_left () const {
-      return { x(), y2() };
+      return {x(), y2()};
     }
 
     inline point::type rectangle::x () const {
@@ -712,7 +712,7 @@ namespace gui {
     }
 
     inline point rectangle::center () const {
-      return { center_x(), center_y() };
+      return {center_x(), center_y()};
     }
 
     inline rectangle rectangle::with_width (const core::size::type w) const {
@@ -740,7 +740,7 @@ namespace gui {
     }
 
     inline rectangle rectangle::grown (const core::size& s) const {
-      return {position() - s, size() + (s + s) };
+      return {position() - s, size() + (s + s)};
     }
 
     inline rectangle rectangle::shrinked (const core::size& s) const {
@@ -796,7 +796,7 @@ namespace gui {
     }
 
     inline rectangle rectangle::operator- (const rectangle& r) const {
-      return {point{x() - r.x(), y() - r.y()}, size() - r.size()};
+      return {point {x() - r.x(), y() - r.y()}, size() - r.size()};
     }
 
     inline rectangle& rectangle::operator-= (const rectangle& r) {
@@ -818,7 +818,7 @@ namespace gui {
     }
 
     inline bool rectangle::operator!= (const rectangle& rhs) const {
-      return !operator==(rhs);
+      return !operator== (rhs);
     }
 
     inline os::point_type rectangle::os_x () const {
@@ -887,7 +887,7 @@ namespace gui {
 
     template<typename T>
     inline bool position<T>::operator!= (const position& rhs) const {
-      return !operator==(rhs);
+      return !operator== (rhs);
     }
 
     template<typename T>
@@ -927,12 +927,12 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto position<T>::operator+ (const position& rhs) const -> position {
+    inline auto position<T>::operator+ (const position& rhs) const->position {
       return position(column + rhs.column, row + rhs.row);
     }
 
     template<typename T>
-    inline auto position<T>::operator- (const position& rhs) const -> position {
+    inline auto position<T>::operator- (const position& rhs) const->position {
       return position(column - rhs.column, row - rhs.row);
     }
 
@@ -943,6 +943,7 @@ namespace gui {
       out << p.column << ", " << p.row;
       return out;
     }
+
     // --------------------------------------------------------------------------
     template<typename T>
     range<T>::range (type v)
@@ -979,6 +980,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-  } // core
+  }  // namespace core
 
-} // gui
+}  // namespace gui

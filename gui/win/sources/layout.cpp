@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2015-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: layout
-*
-* @file
-*/
+ * @copyright (c) 2015-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: layout
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -48,9 +48,9 @@ namespace gui {
     }
 
     void layout_base::hide_children (std::vector<win::window*>& children) {
-      std::for_each(children.begin(), children.end(), [](win::window* win){
-        win->set_visible(false);
-      });
+      std::for_each(children.begin(), children.end(), [] (win::window*win){
+                      win->set_visible(false);
+                    });
     }
 
     core::size layout_base::get_main_size () const {
@@ -61,18 +61,18 @@ namespace gui {
 #ifdef NDEBUG
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(f1));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
-        f1(main->client_size());
-      }));
+                                                                        f1(main->client_size());
+                                                                      }));
 #else
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size& sz) {
-        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
+                                                                        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
+                                                                        f1(sz);
+                                                                      }));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
-        core::size sz = main->client_size();
-        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
+                                                                        core::size sz = main->client_size();
+                                                                        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
+                                                                        f1(sz);
+                                                                      }));
 #endif
     }
 
@@ -81,15 +81,15 @@ namespace gui {
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(f1));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event(f2));
 #else
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size& sz) {
-        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
+                                                                        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
+                                                                        f1(sz);
+                                                                      }));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f2]() {
-        core::size sz = main->client_size();
-        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
-        f2();
-      }));
+                                                                        core::size sz = main->client_size();
+                                                                        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
+                                                                        f2();
+                                                                      }));
 #endif
     }
 
@@ -102,18 +102,18 @@ namespace gui {
 #ifdef NDEBUG
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &attach::layout));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, main](){
-        layout(main->client_size());
-      }));
+                                                                        layout(main->client_size());
+                                                                      }));
 #else
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, main](const core::size& sz) {
-        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
-        layout(sz);
-      }));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, main](const core::size & sz) {
+                                                                        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
+                                                                        layout(sz);
+                                                                      }));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, main]() {
-        core::size sz = main->client_size();
-        LogDebug << "attach show_event " << main->get_class_name() << " " << sz;
-        layout(sz);
-      }));
+                                                                        core::size sz = main->client_size();
+                                                                        LogDebug << "attach show_event " << main->get_class_name() << " " << sz;
+                                                                        layout(sz);
+                                                                      }));
 #endif
     }
 
@@ -123,7 +123,7 @@ namespace gui {
       typedef window_places::iterator iterator;
       window_places places;
 
-      for(detail::attachment a : attachments) {
+      for (detail::attachment a : attachments) {
         iterator i = places.find(a.target);
         iterator j = places.find(a.source);
 

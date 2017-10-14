@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic typedefs
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic typedefs
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -33,14 +33,14 @@
 #include <bits.h>
 
 #ifdef WIN32
-#include "win32defs.h"
+# include "win32defs.h"
 #endif // WIN32
 #ifdef X11
-#include "x11defs.h"
+# include "x11defs.h"
 #endif
 
 #if !defined(WIN32) && !defined(X11)
-#pragma error "Unknown target system"
+# pragma error "Unknown target system"
 #endif
 
 namespace gui {
@@ -63,10 +63,13 @@ namespace gui {
   } // core
 
 
-  template<byte bit, bit_order O = os::bitmap_bit_order> struct bitmap_bit_mask {};
+  template<byte bit, bit_order O = os::bitmap_bit_order>
+  struct bitmap_bit_mask {};
 
-  template<byte bit> struct bitmap_bit_mask<bit, bit_order::lsb> : lsb_bit_mask<bit> {};
-  template<byte bit> struct bitmap_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
+  template<byte bit>
+  struct bitmap_bit_mask<bit, bit_order::lsb> : lsb_bit_mask<bit> {};
+  template<byte bit>
+  struct bitmap_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
 
 
   struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {
@@ -126,56 +129,70 @@ namespace gui {
   };
 
 
-  template<alignment> struct alignment_orientation {};
+  template<alignment>
+  struct alignment_orientation {};
 
-  template<> struct alignment_orientation<alignment::left> {
+  template<>
+  struct alignment_orientation<alignment::left> {
     static constexpr orientation value = orientation::horizontal;
   };
 
-  template<> struct alignment_orientation<alignment::hcenter> {
+  template<>
+  struct alignment_orientation<alignment::hcenter> {
     static constexpr orientation value = orientation::horizontal;
   };
 
-  template<> struct alignment_orientation<alignment::right> {
+  template<>
+  struct alignment_orientation<alignment::right> {
     static constexpr orientation value = orientation::horizontal;
   };
 
-  template<> struct alignment_orientation<alignment::top> {
+  template<>
+  struct alignment_orientation<alignment::top> {
     static constexpr orientation value = orientation::vertical;
   };
 
-  template<> struct alignment_orientation<alignment::vcenter> {
+  template<>
+  struct alignment_orientation<alignment::vcenter> {
     static constexpr orientation value = orientation::vertical;
   };
 
-  template<> struct alignment_orientation<alignment::bottom> {
+  template<>
+  struct alignment_orientation<alignment::bottom> {
     static constexpr orientation value = orientation::vertical;
   };
 
 
-  template<alignment> struct alignment_origin {};
+  template<alignment>
+  struct alignment_origin {};
 
-  template<> struct alignment_origin<alignment::left> {
+  template<>
+  struct alignment_origin<alignment::left> {
     static constexpr origin value = origin::start;
   };
 
-  template<> struct alignment_origin<alignment::hcenter> {
+  template<>
+  struct alignment_origin<alignment::hcenter> {
     static constexpr origin value = origin::center;
   };
 
-  template<> struct alignment_origin<alignment::right> {
+  template<>
+  struct alignment_origin<alignment::right> {
     static constexpr origin value = origin::end;
   };
 
-  template<> struct alignment_origin<alignment::top> {
+  template<>
+  struct alignment_origin<alignment::top> {
     static constexpr origin value = origin::start;
   };
 
-  template<> struct alignment_origin<alignment::vcenter> {
+  template<>
+  struct alignment_origin<alignment::vcenter> {
     static constexpr origin value = origin::center;
   };
 
-  template<> struct alignment_origin<alignment::bottom> {
+  template<>
+  struct alignment_origin<alignment::bottom> {
     static constexpr origin value = origin::end;
   };
 

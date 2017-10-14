@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: file tree/list view
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: file tree/list view
+ *
+ * @file
+ */
 
 #include "file_tree.h"
 #include "time_util.h"
@@ -84,76 +84,75 @@ namespace gui {
       return *this;
     }
 
-
   } // namespace fs
 
   namespace win {
 
     namespace path_tree {
 
-      auto unsorted_path_info::sub_nodes (type const& n) -> range {
-        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
-                        return ibr::string::starts_with(i.path().filename().string(), ".");
-                     }),
+      auto unsorted_path_info::sub_nodes(type const & n)->range {
+        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
+                                             return ibr::string::starts_with(i.path().filename().string(), ".");
+                                           }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto unsorted_dir_info::sub_nodes (type const& n) -> range {
-        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
-                       return !sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
-                     }),
+      auto unsorted_dir_info::sub_nodes(type const & n)->range {
+        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
+                                             return !sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                                           }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto unsorted_file_info::sub_nodes (type const& n) -> range {
-        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [](const sys_fs::directory_entry& i) {
-                       return sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
-                     }),
+      auto unsorted_file_info::sub_nodes(type const & n)->range {
+        return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
+                                             return sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                                           }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
-      auto sorted_path_info::sub_nodes (type const& n) -> range {
+      auto sorted_path_info::sub_nodes(type const & n)->range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
-                  e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+             e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           const bool is_hidden = ibr::string::starts_with(i->path().filename().string(), ".");
           if (!is_hidden) {
             v.emplace_back(*i);
           }
         }
-        std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
-          bool l_is_dir = sys_fs::is_directory(lhs);
-          bool r_is_dir = sys_fs::is_directory(rhs);
-          return ((l_is_dir == r_is_dir) && (lhs.filename() < rhs.filename())) || (l_is_dir > r_is_dir);
-        });
+        std::sort(v.begin(), v.end(), [] (type const & lhs, type const & rhs)->bool {
+                    bool l_is_dir = sys_fs::is_directory(lhs);
+                    bool r_is_dir = sys_fs::is_directory(rhs);
+                    return ((l_is_dir == r_is_dir) && (lhs.filename() < rhs.filename())) || (l_is_dir > r_is_dir);
+                  });
         return v;
       }
 
-      auto sorted_dir_info::sub_nodes (type const& n) -> range {
+      auto sorted_dir_info::sub_nodes(type const & n)->range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
-                  e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+             e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           if (sys_fs::is_directory(i->path()) && !ibr::string::starts_with(i->path().filename().string(), ".")) {
             v.emplace_back(*i);
           }
         }
-        std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
-          return (lhs.filename() < rhs.filename());
-        });
+        std::sort(v.begin(), v.end(), [] (type const & lhs, type const & rhs)->bool {
+                    return (lhs.filename() < rhs.filename());
+                  });
         return v;
       }
 
-      auto sorted_file_info::sub_nodes (type const& n) -> range {
+      auto sorted_file_info::sub_nodes(type const & n)->range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
-                  e = sys_fs::end(path_iterator(n)); i != e; ++i) {
+             e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           if (!(sys_fs::is_directory(i->path()) || ibr::string::starts_with(i->path().filename().string(), "."))) {
             v.emplace_back(*i);
           }
         }
-        std::sort(v.begin(), v.end(), [](type const& lhs, type const& rhs) -> bool {
-          return (lhs.filename() < rhs.filename());
-        });
+        std::sort(v.begin(), v.end(), [] (type const & lhs, type const & rhs)->bool {
+                    return (lhs.filename() < rhs.filename());
+                  });
         return v;
       }
 
@@ -163,38 +162,38 @@ namespace gui {
 
       void init_file_list_layout (layout::weight_column_list_layout& lay) {
         lay.set_columns({
-          layout::weight_column_info{ 24, text_origin::center, 24, 0.0F },
-          layout::weight_column_info{ 120, text_origin::vcenter_left, 20, 1.0F },
-          layout::weight_column_info{ 60, text_origin::vcenter_right, 20, 0.0F },
-          layout::weight_column_info{ 100, text_origin::vcenter_right, 20, 0.1F }
-        }, false);
+                          layout::weight_column_info {24, text_origin::center, 24, 0.0F},
+                          layout::weight_column_info {120, text_origin::vcenter_left, 20, 1.0F},
+                          layout::weight_column_info {60, text_origin::vcenter_right, 20, 0.0F},
+                          layout::weight_column_info {100, text_origin::vcenter_right, 20, 0.1F}
+                        }, false);
       }
 
       void init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
-        header.set_cell_drawer([](std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
-          static std::string title[] = { "", "Name", "Size", "Changed" };
-          g.fill(draw::rectangle(r), background);
-          draw::frame::raised_relief(g, r);
-          g.text(draw::text_box(title[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
-        });
+        header.set_cell_drawer([] (std::size_t i, const draw::graphics & g, const core::rectangle & r, const draw::brush & background) {
+                                 static std::string title[] = {"", "Name", "Size", "Changed"};
+                                 g.fill(draw::rectangle(r), background);
+                                 draw::frame::raised_relief(g, r);
+                                 g.text(draw::text_box(title[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
+                               });
       }
 
       file_list_row_drawer create_file_list_row_drawer () {
         return file_list_row_drawer {
-          [](const draw::masked_bitmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin) {
-            if (img) {
-              g.fill(draw::image<draw::masked_bitmap>(*img, r), s ? color::highLightColor() : b);
-            } else {
-              g.fill(draw::rectangle(r), s ? color::highLightColor() : b);
-            }
-            draw::frame::lines(g, r);
-        },
-          win::cell_drawer<std::string, draw::frame::lines>,
-          win::cell_drawer<uintmax_t, draw::frame::lines>,
-          [](const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-            win::paint::text_item(g, r, b, ibr::time::format_time(tp), s, align);
-            draw::frame::lines(g, r);
-          }
+                 [] (const draw::masked_bitmap * const & img, const draw::graphics & g, const core::rectangle & r, const draw::brush & b, bool s, bool, text_origin) {
+                   if (img) {
+                     g.fill(draw::image<draw::masked_bitmap>(*img, r), s ? color::highLightColor() : b);
+                   } else {
+                     g.fill(draw::rectangle(r), s ? color::highLightColor() : b);
+                   }
+                   draw::frame::lines(g, r);
+                 },
+                 win::cell_drawer<std::string, draw::frame::lines>,
+                 win::cell_drawer<uintmax_t, draw::frame::lines>,
+                 [] (const sys_fs::file_time_type & tp, const draw::graphics & g, const core::rectangle & r, const draw::brush & b, bool s, bool, text_origin align) {
+                   win::paint::text_item(g, r, b, ibr::time::format_time(tp), s, align);
+                   draw::frame::lines(g, r);
+                 }
         };
       }
 
@@ -229,8 +228,8 @@ namespace gui {
       detail::init_file_list_header(super::header);
       super::set_drawer(detail::create_file_list_row_drawer());
       super::set_data([&](std::size_t i) {
-        return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
-      }, 0);
+                        return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
+                      }, 0);
     }
 
     void file_list::set_path (const sys_fs::path& dir) {

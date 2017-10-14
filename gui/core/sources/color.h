@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic color definitions
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic color definitions
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -38,15 +38,15 @@ namespace gui {
 
     enum struct part : type {
 #ifdef WIN32
-      red   = 0,
+      red = 0,
       green = 8,
-      blue  = 16,
+      blue = 16,
       alpha = 24
 #endif // WIN32
 #ifdef X11
-      red   = 16,
+      red = 16,
       green = 8,
-      blue  = 0,
+      blue = 0,
       alpha = 24
 #endif // X11
     };
@@ -106,7 +106,6 @@ namespace gui {
       return (type)((c & (mask<P>::value)) >> static_cast<type>(P));
     }
 
-
     constexpr os::color calc_rgb (type r, type g, type b) {
       return build<part::red>(r) | build<part::green>(g) | build<part::blue>(b);
     }
@@ -122,7 +121,6 @@ namespace gui {
     constexpr os::color calc_rgba_gray (type v, type a) {
       return calc_rgba(v, v, v, a);
     }
-
 
     constexpr type calc_medium_gray (os::color c) {
       return static_cast<type>((static_cast<int>(extract<part::red>(c)) +
@@ -146,6 +144,7 @@ namespace gui {
       constexpr int fast_div_16 (int v) {
         return v >> 4;
       }
+
     }
 
     constexpr type calc_weight_gray (os::color c) {
@@ -185,7 +184,7 @@ namespace gui {
       return calc_rgba(merge<part::red>(lhs, r, rfaktor),
                        merge<part::green>(lhs, g, rfaktor),
                        merge<part::blue>(lhs, b, rfaktor),
-                        extract<part::alpha>(lhs));
+                       extract<part::alpha>(lhs));
     }
 
     constexpr os::color darker (os::color c, float faktor = 0.25F) {
@@ -195,7 +194,6 @@ namespace gui {
     constexpr os::color lighter (os::color c, float faktor = 0.25F) {
       return merge(c, 0xff, 0xff, 0xff, faktor);
     }
-
 
     template<part P>
     constexpr type invert (os::color c) {
@@ -267,28 +265,28 @@ namespace gui {
     constexpr os::color very_light_magenta = rgb<255, 192, 255>::value;
     constexpr os::color very_light_yellow = rgb<255, 255, 192>::value;
 
-    os::color scrollBarColor();
-    os::color menuColor();
-    os::color menuTextColor();
-    os::color menuColorHighlight();
-    os::color backGroundColor();
-    os::color activeCaptionColor();
-    os::color inActiveCaptionColor();
-    os::color windowColor();
-    os::color windowFrameColor();
-    os::color windowTextColor();
-    os::color captionTextColor();
-    os::color inActiveCaptionTextColor();
-    os::color activeBorderColor();
-    os::color inActiveBorderColor();
-    os::color workSpaceColor();
-    os::color highLightColor();
-    os::color highLightTextColor();
-    os::color disabledTextColor();
-    os::color buttonColor();
-    os::color shadowColor();
-    os::color buttonTextColor();
-    os::color buttonHighLightColor();
+    os::color scrollBarColor ();
+    os::color menuColor ();
+    os::color menuTextColor ();
+    os::color menuColorHighlight ();
+    os::color backGroundColor ();
+    os::color activeCaptionColor ();
+    os::color inActiveCaptionColor ();
+    os::color windowColor ();
+    os::color windowFrameColor ();
+    os::color windowTextColor ();
+    os::color captionTextColor ();
+    os::color inActiveCaptionTextColor ();
+    os::color activeBorderColor ();
+    os::color inActiveBorderColor ();
+    os::color workSpaceColor ();
+    os::color highLightColor ();
+    os::color highLightTextColor ();
+    os::color disabledTextColor ();
+    os::color buttonColor ();
+    os::color shadowColor ();
+    os::color buttonTextColor ();
+    os::color buttonHighLightColor ();
 
   } // color
 

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui lib
-*
-* Customer   -
-*
-* @brief     C++ API: color definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: color definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -41,14 +41,14 @@
 namespace gui {
 
 #ifdef X11
-#   define DT_TOP           0x0000
-#   define DT_LEFT          0x0000
-#   define DT_CENTER        0x0001
-#   define DT_RIGHT         0x0002
-#   define DT_VCENTER       0x0004
-#   define DT_BOTTOM        0x0008
-#   define DT_WORDBREAK     0x0010
-#   define DT_SINGLELINE    0x0020
+# define DT_TOP           0x0000
+# define DT_LEFT          0x0000
+# define DT_CENTER        0x0001
+# define DT_RIGHT         0x0002
+# define DT_VCENTER       0x0004
+# define DT_BOTTOM        0x0008
+# define DT_WORDBREAK     0x0010
+# define DT_SINGLELINE    0x0020
 #endif // X11
 
   // --------------------------------------------------------------------------
@@ -72,11 +72,11 @@ namespace gui {
     class bitmap;
     class masked_bitmap;
 
-    typedef void (drawable) (const graphics&, const brush&, const pen&);
-    typedef void (frameable) (const graphics&, const pen&);
-    typedef void (fillable) (const graphics&, const brush&);
-    typedef void (textable) (const graphics&, const font& font, os::color color);
-    typedef void (copyable) (const graphics&, const core::point&);
+    typedef void (drawable)(const graphics&, const brush&, const pen&);
+    typedef void (frameable)(const graphics&, const pen&);
+    typedef void (fillable)(const graphics&, const brush&);
+    typedef void (textable)(const graphics&, const font& font, os::color color);
+    typedef void (copyable)(const graphics&, const core::point&);
 
     // --------------------------------------------------------------------------
     class graphics {
@@ -84,7 +84,7 @@ namespace gui {
       graphics (os::drawable target, os::graphics gc);
       graphics (draw::memmap& target);
       graphics (const graphics&);
-      ~graphics();
+      ~graphics ();
 
       void operator= (const graphics&);
 
@@ -128,7 +128,7 @@ namespace gui {
         return gc;
       }
 
-      inline operator os::drawable () const {
+      inline operator os::drawable() const {
         return target;
       }
 
@@ -147,7 +147,7 @@ namespace gui {
       void restore_clipping () const;
 
     private:
-      void destroy();
+      void destroy ();
 
       os::graphics gc;
       os::drawable target;
@@ -164,7 +164,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class buffered_paint {
     public:
-      typedef std::function<void(const draw::graphics&)> painter;
+      typedef std::function<void (const draw::graphics&)> painter;
 
       buffered_paint (painter f);
 
@@ -173,7 +173,7 @@ namespace gui {
         : p(core::bind_method(t, f))
       {}
 
-      void operator () (const draw::graphics& g);
+      void operator() (const draw::graphics& g);
 
     private:
       painter p;
@@ -193,7 +193,7 @@ namespace gui {
     private:
       const graphics& g;
 
-      void operator=(clip&) = delete;
+      void operator= (clip&) = delete;
     };
 
     // --------------------------------------------------------------------------
@@ -213,19 +213,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct rectangle {
-      inline rectangle(const core::rectangle& rect)
-        : rect(rect) {
-      }
+      inline rectangle (const core::rectangle& rect)
+        : rect(rect) {}
 
-      inline rectangle(const core::point& pos,
-                       const core::size& sz)
-        : rect(pos, sz) {
-      }
+      inline rectangle (const core::point& pos,
+                        const core::size& sz)
+        : rect(pos, sz) {}
 
-      inline rectangle(const core::point& pos1,
-                       const core::point& pos2)
-        : rect(pos1, pos2) {
-      }
+      inline rectangle (const core::point& pos1,
+                        const core::point& pos2)
+        : rect(pos1, pos2) {}
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -237,19 +234,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct ellipse {
-      inline ellipse(const core::rectangle& rect)
-        : rect(rect) {
-      }
+      inline ellipse (const core::rectangle& rect)
+        : rect(rect) {}
 
-      inline ellipse(const core::point& pos,
-                     const core::size& sz)
-                     : rect(pos, sz) {
-      }
+      inline ellipse (const core::point& pos,
+                      const core::size& sz)
+        : rect(pos, sz) {}
 
-      inline ellipse(const core::point& pos1,
-                     const core::point& pos2)
-                     : rect(pos1, pos2) {
-      }
+      inline ellipse (const core::point& pos1,
+                      const core::point& pos2)
+        : rect(pos1, pos2) {}
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -261,10 +255,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct round_rectangle {
-      inline round_rectangle(const core::rectangle& rect, const core::size& size)
+      inline round_rectangle (const core::rectangle& rect, const core::size& size)
         : rect(rect)
-        , size(size) {
-      }
+        , size(size) {}
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -277,7 +270,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct arc {
-      arc(const core::point& pos, unsigned int radius, float startrad, float endrad);
+      arc (const core::point& pos, unsigned int radius, float startrad, float endrad);
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -342,7 +335,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct text {
-      text(const std::string& str, const core::point& pos, text_origin origin = text_origin::top_left, bool clear_background = false)
+      text (const std::string& str, const core::point& pos, text_origin origin = text_origin::top_left, bool clear_background = false)
         : str(str)
         , pos(pos)
         , origin(origin)
@@ -439,7 +432,7 @@ namespace gui {
       }
 
     } // frame
-    // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
 
   } // fraw
 

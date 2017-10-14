@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -46,16 +46,16 @@ namespace gui {
     }
 
     void event_container::unregister_event_handler (const event_handler_function& handler) {
-        const auto end = event_handlers.end();
-        const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_info& rhs) {
-          return (rhs.target_type() == handler.target_type());
-        });
-        if (k != end) {
-          event_handlers.erase(k);
-        }
+      const auto end = event_handlers.end();
+      const auto k = std::find_if(event_handlers.begin(), end, [&](const event_handler_info &rhs) {
+                                    return (rhs.target_type() == handler.target_type());
+                                  });
+      if (k != end) {
+        event_handlers.erase(k);
+      }
     }
 
-    bool event_container::handle_event(const event& ev, os::event_result& resultValue) {
+    bool event_container::handle_event (const event& ev, os::event_result& resultValue) {
 
       bool result = false;
 

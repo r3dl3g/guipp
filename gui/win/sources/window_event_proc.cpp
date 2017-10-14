@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: window event handler function
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: window event handler function
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -54,8 +54,8 @@ namespace gui {
       void set_window (os::window id, window* win) {
         SetWindowLongPtr(id, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(win));
       }
-      
-      void unset_window(os::window id) {
+
+      void unset_window (os::window id) {
         SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
@@ -74,27 +74,27 @@ namespace gui {
 
       LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
-          case WM_INITDIALOG:
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
-            set_window_id(lParam, hwnd);
-            break;
-          case WM_CREATE: {
-            CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
-            set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
-            break;
-          }
-#ifdef KEY_DEBUG
-          case WM_KEYDOWN:
-            LogDebug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
-            break;
-          case WM_KEYUP:
-            LogDebug << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
-            break;
-          case WM_CHAR:
-            LogDebug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
-            break;
-#endif // KEY_DEBUG
+        case WM_INITDIALOG:
+          SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
+          set_window_id(lParam, hwnd);
+          break;
+        case WM_CREATE: {
+          CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
+          SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
+          set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
+          break;
+        }
+# ifdef KEY_DEBUG
+        case WM_KEYDOWN:
+          LogDebug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          break;
+        case WM_KEYUP:
+          LogDebug << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          break;
+        case WM_CHAR:
+          LogDebug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          break;
+# endif // KEY_DEBUG
         }
 
         os::event_result result = 0;
@@ -128,8 +128,8 @@ namespace gui {
 
       inline win::window* get_event_window (const core::event& e) {
         switch (e.type) {
-          case ConfigureNotify: return get_window(e.xconfigure.window);
-          default: return get_window(e.xany.window);
+        case ConfigureNotify: return get_window(e.xconfigure.window);
+        default: return get_window(e.xany.window);
         }
       }
 
@@ -225,9 +225,9 @@ namespace gui {
       void unregister_message_filter (int& id) {
         auto e = detail::message_filters.end();
         auto b = detail::message_filters.begin();
-        auto i = std::find_if(b, e, [id](const detail::filter_call_entry& e) -> bool {
-          return e.first == id;
-        });
+        auto i = std::find_if(b, e, [id](const detail::filter_call_entry & e)->bool {
+                                return e.first == id;
+                              });
         if (i != e) {
           detail::message_filters.erase(i);
         }
@@ -239,11 +239,10 @@ namespace gui {
         return detail::get_window(GetFocus());
       }
 
-      void register_utf8_window (os::window) {
-      }
+      void register_utf8_window (os::window) {}
 
-      void unregister_utf8_window (os::window) {
-      }
+      void unregister_utf8_window (os::window) {}
+
 #endif // WIN32
 
 #ifdef X11
@@ -272,7 +271,7 @@ namespace gui {
           auto count = im_supported_styles->count_styles;
           for (decltype(count) i = 0; i < count; ++i) {
             XIMStyle style = im_supported_styles->supported_styles[i];
-            if ((style & app_supported_styles) == style) {/* if we can handle it */
+            if ((style & app_supported_styles) == style) { /* if we can handle it */
               detail::s_best_style = std::min(style, detail::s_best_style);
             }
           }
@@ -293,6 +292,7 @@ namespace gui {
           detail::s_window_ic_map.erase(id);
         }
       }
+
 #endif // X11
 
     } // global
@@ -326,142 +326,144 @@ namespace gui {
 #ifdef X11
       if (e.type == KeyPress) {
 #endif // X11
-        hot_key hk(get_key_symbol(e), get_key_state(e));
-        auto i = detail::hot_keys.find(hk);
-        if (i != detail::hot_keys.end()) {
-          i->second.second();
-          return true;
-        }
+      hot_key hk(get_key_symbol(e), get_key_state(e));
+      auto i = detail::hot_keys.find(hk);
+      if (i != detail::hot_keys.end()) {
+        i->second.second();
+        return true;
       }
-      return false;
     }
+
+    return false;
+  }
 
 #ifdef WIN32
-    bool is_button_event_outside (const window& w, const core::event& e) {
-      switch (e.type) {
-        case WM_LBUTTONDOWN:
-        case WM_LBUTTONUP:
-        case WM_LBUTTONDBLCLK:
-        case WM_RBUTTONDOWN:
-        case WM_RBUTTONUP:
-        case WM_RBUTTONDBLCLK:
-        case WM_MBUTTONDOWN:
-        case WM_MBUTTONUP:
-        case WM_MBUTTONDBLCLK:
-        {
-          POINT pt = { GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam) };
-          ClientToScreen(e.id, &pt);
-          RECT r;
-          GetWindowRect(w.get_id(), &r);
-          return !PtInRect(&r, pt);
-        }
-      }
-      return false;
+  bool is_button_event_outside (const window& w, const core::event& e) {
+    switch (e.type) {
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_RBUTTONDBLCLK:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_MBUTTONDBLCLK: {
+      POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
+      ClientToScreen(e.id, &pt);
+      RECT r;
+      GetWindowRect(w.get_id(), &r);
+      return !PtInRect(&r, pt);
     }
+    }
+    return false;
+  }
+
 #endif // WIN32
 #ifdef X11
-    bool is_button_event_outside (const window& w, const core::event& e) {
-      switch (e.type) {
-        case ButtonPress:
-        case ButtonRelease: {
-          if (e.xbutton.window == w.get_id()) {
-            return false;
-          }
-          int x, y;
-          Window child;
-          auto display = core::global::get_instance();
-          XTranslateCoordinates(display,
-                                e.xbutton.window,
-                                DefaultRootWindow(display),
-                                e.xbutton.x, e.xbutton.y,
-                                &x, &y, &child);
-
-          core::rectangle area = w.absolute_place();
-          return !area.is_inside(core::point(x, y));
-        }
+  bool is_button_event_outside (const window& w, const core::event& e) {
+    switch (e.type) {
+    case ButtonPress:
+    case ButtonRelease: {
+      if (e.xbutton.window == w.get_id()) {
+        return false;
       }
-      return false;
+      int x, y;
+      Window child;
+      auto display = core::global::get_instance();
+      XTranslateCoordinates(display,
+                            e.xbutton.window,
+                            DefaultRootWindow(display),
+                            e.xbutton.x, e.xbutton.y,
+                            &x, &y, &child);
+
+      core::rectangle area = w.absolute_place();
+      return !area.is_inside(core::point(x, y));
     }
+    }
+    return false;
+  }
+
 #endif // X11
 
-    // --------------------------------------------------------------------------
-    int run_loop (volatile bool& running, detail::filter_call filter) {
+  // --------------------------------------------------------------------------
+  int run_loop (volatile bool& running, detail::filter_call filter) {
 
-      running = true;
+    running = true;
 
 #ifdef WIN32
-      MSG msg;
-      while (running && GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
+    MSG msg;
+    while (running && GetMessage(&msg, nullptr, 0, 0)) {
+      TranslateMessage(&msg);
 
-        if (filter && filter(msg)) {
-          continue;
-        }
-
-        DispatchMessage(&msg);
+      if (filter && filter(msg)) {
+        continue;
       }
-      return (int)msg.wParam;
+
+      DispatchMessage(&msg);
+    }
+    return (int)msg.wParam;
 #endif // WIN32
 
 #ifdef X11
-      os::instance display = core::global::get_instance();
-      os::event_result resultValue = 0;
+    os::instance display = core::global::get_instance();
+    os::event_result resultValue = 0;
 
-      core::event e;
+    core::event e;
 
-      while (running) {
-        XNextEvent(display, &e);
+    while (running) {
+      XNextEvent(display, &e);
 
-        if (filter && filter(e)) {
-          continue;
+      if (filter && filter(e)) {
+        continue;
+      }
+
+      win::window* win = win::detail::get_event_window(e);
+
+      if (win && win->is_valid()) {
+
+        resultValue = 0;
+
+        try {
+          win->handle_event(e, resultValue);
+        } catch (std::exception& ex) {
+          LogFatal << "exception in run_main_loop: " << ex;
+        } catch (...) {
+          LogFatal << "Unknown exception in run_main_loop()";
         }
 
-        win::window* win = win::detail::get_event_window(e);
+        protocol_message_matcher<x11::WM_DELETE_WINDOW> matcher;
+        if (matcher(e) && !resultValue) {
+          running = false;
+        }
 
-        if (win && win->is_valid()) {
+        core::global::sync();
 
-          resultValue = 0;
-
-          try {
-            win->handle_event(e, resultValue);
-          } catch (std::exception& ex) {
-            LogFatal << "exception in run_main_loop: " << ex;
-          } catch (...) {
-            LogFatal << "Unknown exception in run_main_loop()";
-          }
-
-          protocol_message_matcher<x11::WM_DELETE_WINDOW> matcher;
-          if (matcher(e) && !resultValue) {
-            running = false;
-          }
-
-          core::global::sync();
-
-          if (e.type == ConfigureNotify) {
-              update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
-          }
+        if (e.type == ConfigureNotify) {
+          update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
         }
       }
-      return resultValue;
+    }
+    return resultValue;
 #endif // X11
-    }
+  }
 
-    namespace {
-      bool main_loop_is_running = false;
-    }
+  namespace {
+    bool main_loop_is_running = false;
+  }
 
-    int run_main_loop () {
-      main_loop_is_running = true;
-      return run_loop(main_loop_is_running, [](const core::event& e) {
-        return check_expose(e) || check_message_filter(e) || check_hot_key(e);
-      });
-    }
+  int run_main_loop () {
+    main_loop_is_running = true;
+    return run_loop(main_loop_is_running, [] (const core::event & e) {
+                      return check_expose(e) || check_message_filter(e) || check_hot_key(e);
+                    });
+  }
 
-    void quit_main_loop () {
-      main_loop_is_running = false;
+  void quit_main_loop () {
+    main_loop_is_running = false;
 //      PostQuitMessage(0);
-    }
+  }
 
-  } // win
+}   // win
 
 } // gui

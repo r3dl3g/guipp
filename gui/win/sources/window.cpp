@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2015-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2015-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 #include <map>
 
 #ifdef X11
-#include <X11/cursorfont.h>
+# include <X11/cursorfont.h>
 #endif // X11
 // --------------------------------------------------------------------------
 //
@@ -43,7 +43,7 @@ namespace gui {
 
     struct log_hierarchy {
       log_hierarchy (window* win)
-        :win(win)
+        : win(win)
       {}
 
       window* win;
@@ -106,7 +106,7 @@ namespace gui {
         container* parent = rhs.get_parent();
         create(rhs.get_window_class(),
                parent ? parent->get_id()
-                      : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
+               : IF_WIN32_ELSE(NULL, DefaultRootWindow(core::global::get_instance())),
                rhs.place());
       }
     }
@@ -246,7 +246,6 @@ namespace gui {
       }
     }
 
-
     void window::init ()
     {}
 
@@ -362,7 +361,7 @@ namespace gui {
     core::point window::position () const {
       RECT r;
       GetWindowRect(get_id(), &r);
-      return screen_to_window(core::point(os::point{ r.left, r.top }));
+      return screen_to_window(core::point(os::point {r.left, r.top}));
     }
 
     core::rectangle window::place () const {
@@ -385,13 +384,13 @@ namespace gui {
     core::size window::client_size () const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::size(r);//
+      return core::size(r); //
     }
 
     core::rectangle window::client_area () const {
       RECT r;
       GetClientRect(get_id(), &r);
-      return core::rectangle(r);//
+      return core::rectangle(r); //
     }
 
     void window::move (const core::point& pt, bool repaint) {
@@ -463,7 +462,7 @@ namespace gui {
       }
     }
 
-#ifdef WIN32_DEPRECATED
+# ifdef WIN32_DEPRECATED
     os::style window::get_style (os::style mask) const {
       LONG old_style = GetWindowLong(get_id(), GWL_STYLE);
       os::style new_style = old_style & mask;
@@ -475,7 +474,8 @@ namespace gui {
       SetWindowLong(get_id(), GWL_STYLE, new_style);
       redraw_now();
     }
-#endif // WIN32_DEPRECATED
+
+# endif // WIN32_DEPRECATED
 
     void window::prepare_for_event (os::event_id id)
     {}
@@ -486,10 +486,10 @@ namespace gui {
                                       window* data) {
       auto display = core::global::get_instance();
 
-      os::brush back = ((type.get_background() > 0) && (type.get_background() < 20)) 
-                          ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
-                          : (color::extract<color::part::alpha>(type.get_background()) == 0xff) 
-                            ? NULL : CreateSolidBrush(type.get_background());
+      os::brush back = ((type.get_background() > 0) && (type.get_background() < 20))
+                       ? reinterpret_cast<os::brush>(static_cast<LPARAM>(type.get_background()))
+                       : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
+                       ? NULL : CreateSolidBrush(type.get_background());
 
       WNDCLASS wc = {
         /* Register the window class. */
@@ -510,18 +510,18 @@ namespace gui {
         hidden::window_class_info_map[type.get_class_name()] = type;
       }
 
-      os::window  id = CreateWindowEx(type.get_ex_style(),
-                                      type.get_class_name().c_str(),
-                                      nullptr,        // address of window text
-                                      type.get_style(), // window style
-                                      r.os_x(),       // horizontal position of window
-                                      r.os_y(),       // vertical position of window
-                                      r.os_width(),   // window width
-                                      r.os_height(),  // window height
-                                      parent_id,      // handle of parent window
-                                      NULL,           // handle of menu or child-window identifier
-                                      display,        // handle of application instance
-                                      data);
+      os::window id = CreateWindowEx(type.get_ex_style(),
+                                     type.get_class_name().c_str(),
+                                     nullptr,         // address of window text
+                                     type.get_style(),  // window style
+                                     r.os_x(),        // horizontal position of window
+                                     r.os_y(),        // vertical position of window
+                                     r.os_width(),    // window width
+                                     r.os_height(),   // window height
+                                     parent_id,       // handle of parent window
+                                     NULL,            // handle of menu or child-window identifier
+                                     display,         // handle of application instance
+                                     data);
       SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)data);
 
       return id;
@@ -538,16 +538,16 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-#define XLIB_ERROR_CODE(a) case a: LogFatal << #a; break;
+# define XLIB_ERROR_CODE(a) case a: LogFatal << # a;break;
 
     bool check_xlib_return (int r) {
-#ifndef NDEBUG
+# ifndef NDEBUG
       core::global::sync();
-#endif
+# endif
       switch (r) {
-        case Success:
-        case True:
-          return true;
+      case Success:
+      case True:
+        return true;
         XLIB_ERROR_CODE(BadValue)
         XLIB_ERROR_CODE(BadWindow)
         XLIB_ERROR_CODE(BadPixmap)
@@ -606,10 +606,9 @@ namespace gui {
 
     bool window::is_visible () const {
       if (is_valid()) {
-        XWindowAttributes a = { 0 };
+        XWindowAttributes a = {0};
         int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
-        return (check_xlib_status(result) &&
-                (a.map_state == IsViewable));
+        return (check_xlib_status(result) && (a.map_state == IsViewable));
       }
       return false;
     }
@@ -636,11 +635,11 @@ namespace gui {
       unsigned int nchildren = 0;
 
       check_xlib_status(XQueryTree(core::global::get_instance(),
-                 get_id(),
-                 &root,
-                 &parent,
-                 &children,
-                 &nchildren));
+                                   get_id(),
+                                   &root,
+                                   &parent,
+                                   &children,
+                                   &nchildren));
       return parent != root;
     }
 
@@ -651,11 +650,11 @@ namespace gui {
       unsigned int nchildren = 0;
 
       check_xlib_status(XQueryTree(core::global::get_instance(),
-                 get_id(),
-                 &root,
-                 &parent,
-                 &children,
-                 &nchildren));
+                                   get_id(),
+                                   &root,
+                                   &parent,
+                                   &children,
+                                   &nchildren));
       return parent == root;
     }
 
@@ -664,7 +663,7 @@ namespace gui {
     }
 
     bool window::has_border () const {
-      XWindowAttributes a = { 0 };
+      XWindowAttributes a = {0};
       return (check_xlib_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
               (a.border_width > 0));
     }
@@ -710,9 +709,9 @@ namespace gui {
 
         if (get_window_class().get_cursor()) {
           unsigned long mask = CWCursor;
-          XSetWindowAttributes wa = { 0 };
+          XSetWindowAttributes wa = {0};
           wa.cursor = on ? get_window_class().get_cursor()
-                         : (os::cursor)win::cursor::arrow();
+                      : (os::cursor)win::cursor::arrow();
           check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
         }
         redraw_later();
@@ -756,7 +755,7 @@ namespace gui {
       unsigned int depth = 0;
       Window wid = get_id();
       if (wid && check_xlib_status(XGetGeometry(core::global::get_instance(), wid,
-                                   &root, &x, &y, &width, &height, &border_width, &depth))) {
+                                                &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::size::type(width), core::size::type(height)};
       }
       return core::size::zero;
@@ -769,7 +768,7 @@ namespace gui {
       unsigned int border_width = 0;
       unsigned int depth = 0;
       if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
-                            &root, &x, &y, &width, &height, &border_width, &depth))) {
+                                         &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::point::type(x), core::point::type(y)};
       }
       return core::point::undefined;
@@ -782,7 +781,7 @@ namespace gui {
       unsigned int border_width = 0;
       unsigned int depth = 0;
       if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
-                            &root, &x, &y, &width, &height, &border_width, &depth))) {
+                                         &root, &x, &y, &width, &height, &border_width, &depth))) {
         return core::rectangle(core::point::type(x), core::point::type(y),
                                core::size::type(width), core::size::type(height));
       }
@@ -798,7 +797,7 @@ namespace gui {
     }
 
     core::size window::client_size () const {
-      return size();// - core::size(1, 1);
+      return size(); // - core::size(1, 1);
     }
 
     core::rectangle window::client_area () const {
@@ -822,7 +821,7 @@ namespace gui {
         set_visible();
         if (size() != sz) {
           check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
-                                        sz.os_width(), sz.os_height()));
+                                          sz.os_width(), sz.os_height()));
           if (repaint) {
             redraw_later();
           }
@@ -837,7 +836,7 @@ namespace gui {
         set_visible();
         if (place() != r) {
           check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
-                                            r.os_x(), r.os_y(), r.os_width(), r.os_height()));
+                                              r.os_x(), r.os_y(), r.os_width(), r.os_height()));
           if (repaint) {
             redraw_later();
           }
@@ -846,33 +845,33 @@ namespace gui {
     }
 
     core::point window::client_to_screen (const core::point& pt) const {
-        int x, y;
-        Window child_return;
-        auto display = core::global::get_instance();
-        check_xlib_return(XTranslateCoordinates(display,
-                                                get_id(),
-                                                DefaultRootWindow(display),
-                                                pt.os_x(),
-                                                pt.os_y(),
-                                                &x,
-                                                &y,
-                                                &child_return));
-        return {core::point::type(x), core::point::type(y)};
+      int x, y;
+      Window child_return;
+      auto display = core::global::get_instance();
+      check_xlib_return(XTranslateCoordinates(display,
+                                              get_id(),
+                                              DefaultRootWindow(display),
+                                              pt.os_x(),
+                                              pt.os_y(),
+                                              &x,
+                                              &y,
+                                              &child_return));
+      return {core::point::type(x), core::point::type(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
-        int x, y;
-        Window child_return;
-        auto display = core::global::get_instance();
-        check_xlib_return(XTranslateCoordinates(display,
-                                                DefaultRootWindow(display),
-                                                get_id(),
-                                                pt.os_x(),
-                                                pt.os_y(),
-                                                &x,
-                                                &y,
-                                                &child_return));
-        return {core::point::type(x), core::point::type(y)};
+      int x, y;
+      Window child_return;
+      auto display = core::global::get_instance();
+      check_xlib_return(XTranslateCoordinates(display,
+                                              DefaultRootWindow(display),
+                                              get_id(),
+                                              pt.os_x(),
+                                              pt.os_y(),
+                                              &x,
+                                              &y,
+                                              &child_return));
+      return {core::point::type(x), core::point::type(y)};
     }
 
     void window::set_cursor (os::cursor c) {

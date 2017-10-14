@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -40,14 +40,14 @@ namespace gui {
     float get_param<0, float>(const core::event& e);
 
     using scroll_event = event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                       params<core::point_type>::getter<get_param<0, core::point_type>>>;
+                                       params<core::point_type>::getter<get_param<0, core::point_type> > >;
     // --------------------------------------------------------------------------
 #endif //WIN32
 #ifdef X11
     // --------------------------------------------------------------------------
     using scroll_event = event_handler<ClientMessage, 0,
-                                       params<core::point::type>::getter<get_client_data<0, core::point::type>>,
-                                       0, client_message_matcher<detail::SCROLLBAR_MESSAGE>>;
+                                       params<core::point::type>::getter<get_client_data<0, core::point::type> >,
+                                       0, client_message_matcher<detail::SCROLLBAR_MESSAGE> >;
     // --------------------------------------------------------------------------
 #endif // X11
 
@@ -92,14 +92,14 @@ namespace gui {
       type get_value () const;
       type get_range () const;
 
-      void set_min (type);
-      void set_max (type);
-      void set_min_max (type, type);
-      void set_step (type);
-      void set_value (type, bool notify = false);
+      void set_min(type);
+      void set_max(type);
+      void set_min_max(type, type);
+      void set_step(type);
+      void set_value(type, bool notify = false);
 
-      void set_min_max_step (type, type, type);
-      void set_min_max_step_value (type, type, type, type);
+      void set_min_max_step(type, type, type);
+      void set_min_max_step_value(type, type, type, type);
 
       void handle_wheel (const core::point_type delta, const core::point&);
 
@@ -120,13 +120,13 @@ namespace gui {
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void set_state (scrollbar_state);
+      void set_state(scrollbar_state);
 
       type get_last_value () const;
-      void set_last_value(type last_value);
+      void set_last_value (type last_value);
 
       core::point get_last_mouse_point () const;
-      void set_last_mouse_point(core::point last_mouse_point);
+      void set_last_mouse_point (core::point last_mouse_point);
 
     private:
       void init ();
@@ -136,7 +136,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    inline auto scroll_bar::get_range () const -> type {
+    inline auto scroll_bar::get_range() const->type {
       return get_max() + get_step() - get_min();
     }
 
@@ -235,12 +235,12 @@ namespace gui {
 
     template<orientation H>
     inline void basic_scroll_bar<H>::create (const container& parent,
-                                         const core::rectangle& place) {
+                                             const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
+    inline auto basic_scroll_bar<H>::get_geometry() const->geometry {
       core::size sz = client_size();
       type l = length(sz);
       type t = thickness(sz);
@@ -249,36 +249,36 @@ namespace gui {
       type th = thumb_size(s, b);
       type sc = get_scale(s, th);
       type tt = thumb_top(b, sc);
-      return { l, t, b, s, th, sc, tt };
+      return {l, t, b, s, th, sc, tt};
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_scale () const -> type {
+    inline auto basic_scroll_bar<H>::get_scale() const->type {
       return get_geometry().scale;
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_scale (type spc_size, type tmb_size) const -> type {
+    inline auto basic_scroll_bar<H>::get_scale(type spc_size, type tmb_size) const->type {
       return (spc_size - tmb_size) / (get_max() - get_min());
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::button_size (type length, type thickness) -> type {
+    inline auto basic_scroll_bar<H>::button_size(type length, type thickness)->type {
       return std::min(thickness, length / type(2));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::space_size (type length, type btn_size) -> type {
+    inline auto basic_scroll_bar<H>::space_size(type length, type btn_size)->type {
       return std::max(length - btn_size * 2, type(0));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::thumb_size (type spc_size, type btn_size) const -> type {
+    inline auto basic_scroll_bar<H>::thumb_size(type spc_size, type btn_size) const->type {
       return std::max(get_step() * spc_size / get_range(), std::min(btn_size, spc_size));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::thumb_top (type btn_size, type scale) const -> type {
+    inline auto basic_scroll_bar<H>::thumb_top(type btn_size, type scale) const->type {
       return btn_size + (get_value() - get_min()) * scale;
     }
 
@@ -344,29 +344,29 @@ namespace gui {
       if (is_enabled()) {
         auto geo = get_geometry();
         switch (get_state()) {
-          case scrollbar_state::up_button:
-            if (up_button_place(geo).is_inside(pt)) {
-              set_value(get_value() - 1, true);
-            }
-            break;
-          case scrollbar_state::down_button:
-            if (down_button_place(geo).is_inside(pt)) {
-              set_value(get_value() + 1, true);
-            }
-            break;
-          case scrollbar_state::page_up:
-            if (page_up_place(geo).is_inside(pt)) {
-              set_value(get_value() - get_step(), true);
-            }
-            break;
-          case scrollbar_state::page_down:
-            if (page_down_place(geo).is_inside(pt)) {
-              set_value(get_value() + get_step(), true);
-            }
-            break;
-          case scrollbar_state::thumb_button:
-          case scrollbar_state::nothing:
-            break;
+        case scrollbar_state::up_button:
+          if (up_button_place(geo).is_inside(pt)) {
+            set_value(get_value() - 1, true);
+          }
+          break;
+        case scrollbar_state::down_button:
+          if (down_button_place(geo).is_inside(pt)) {
+            set_value(get_value() + 1, true);
+          }
+          break;
+        case scrollbar_state::page_up:
+          if (page_up_place(geo).is_inside(pt)) {
+            set_value(get_value() - get_step(), true);
+          }
+          break;
+        case scrollbar_state::page_down:
+          if (page_down_place(geo).is_inside(pt)) {
+            set_value(get_value() + get_step(), true);
+          }
+          break;
+        case scrollbar_state::thumb_button:
+        case scrollbar_state::nothing:
+          break;
         }
         if (get_state() != scrollbar_state::nothing) {
           set_state(scrollbar_state::nothing);
@@ -376,7 +376,6 @@ namespace gui {
         redraw_later();
       }
     }
-
 
     // --------------------------------------------------------------------------
     template<>
@@ -416,24 +415,24 @@ namespace gui {
     }
 
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::thickness  (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::thickness (const core::size& sz) {
       return sz.height();
     }
 
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::thickness  (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::thickness (const core::size& sz) {
       return sz.width();
     }
 
     template<>
     inline core::size basic_scroll_bar<orientation::horizontal>::build_size (type pos,
-                                                                         type thickness) {
+                                                                             type thickness) {
       return core::size(pos, thickness);
     }
 
     template<>
     inline core::size basic_scroll_bar<orientation::vertical>::build_size (type pos,
-                                                                       type thickness) {
+                                                                           type thickness) {
       return core::size(thickness, pos);
     }
 

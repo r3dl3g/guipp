@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: tree control
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: tree control
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -54,11 +54,11 @@ namespace gui {
           if (is_open) {
             core::point_type y = r.center_y() - 2;
             core::point_type y2 = y + 4;
-            p = { core::point(r.x(), y), core::point(r.x2(), y), {r.center_x(), y2} };
+            p = {core::point(r.x(), y), core::point(r.x2(), y), {r.center_x(), y2}};
           } else {
             core::point_type x = r.center_x() - 2;
             core::point_type x2 = x + 4;
-            p = { core::point(x, r.y()), core::point(x, r.y2()), {x2, r.center_y()} };
+            p = {core::point(x, r.y()), core::point(x, r.y2()), {x2, r.center_y()}};
           }
           graph.fill(draw::polygon(p), color::black);
         }
@@ -100,7 +100,7 @@ namespace gui {
 
         r.x2(area.x2());
         os::color col = selected ? color::highLightTextColor()
-                                 : color::black;
+                        : color::black;
         graph.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
       }
 
@@ -116,14 +116,14 @@ namespace gui {
 
       template<typename T, size_t N>
       inline std::string make_string (T(&t)[N]) {
-        return std::string((const char*)t, sizeof(t));
+        return std::string((const char*)t, sizeof (t));
       }
 
       std::string get_icon_chars (tree_icon type) {
         switch (type) {
-          case tree_icon::file:           return make_string(image_data::file_icon_bits);
-          case tree_icon::closed_folder:  return make_string(image_data::close_folder_icon_bits);
-          case tree_icon::open_folder:    return make_string(image_data::open_folder_icon_bits);
+        case tree_icon::file:           return make_string(image_data::file_icon_bits);
+        case tree_icon::closed_folder:  return make_string(image_data::close_folder_icon_bits);
+        case tree_icon::open_folder:    return make_string(image_data::open_folder_icon_bits);
         }
         return std::string();
       }

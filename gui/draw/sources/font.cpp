@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window types
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window types
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -24,8 +24,8 @@
 
 #ifdef X11
 
-#include <vector>
-#include <sstream>
+# include <vector>
+# include <sstream>
 
 #endif // X11
 
@@ -40,13 +40,13 @@
 
 #ifdef WIN32
 
-#include <string_util.h>
+# include <string_util.h>
 
 #endif // WIN32
 
 #ifdef X11
 
-#include <X11/Xlib.h>
+# include <X11/Xlib.h>
 
 #endif // X11
 
@@ -61,6 +61,7 @@ namespace std {
     out << "]";
     return out;
   }
+
 }
 
 namespace gui {
@@ -69,41 +70,44 @@ namespace gui {
 
 #ifdef WIN32
     os::font_type get_menu_font () {
-      NONCLIENTMETRICS metrics = {sizeof(NONCLIENTMETRICS), 0 };
-      SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
+      NONCLIENTMETRICS metrics = {sizeof (NONCLIENTMETRICS), 0};
+      SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICS), &metrics, 0);
       return metrics.lfMenuFont;
     }
 
     const font& font::system () {
-        static font f((os::font)GetStockObject(SYSTEM_FONT));
-        return f;
+      static font f((os::font)GetStockObject(SYSTEM_FONT));
+      return f;
     }
+
     const font& font::system_bold () {
-        static font f = font::system().with_thickness(font::bold);
-        return f;
+      static font f = font::system().with_thickness(font::bold);
+      return f;
     }
+
     const font& font::menu () {
       static font f(get_menu_font());
       return f;
     }
 
     const font& font::monospace () {
-        static font f((os::font)GetStockObject(SYSTEM_FIXED_FONT));
-        return f;
+      static font f((os::font)GetStockObject(SYSTEM_FIXED_FONT));
+      return f;
     }
 
     const font& font::serif () {
-        static font f("Times New Roman", font::system().size());
-        return f;
+      static font f("Times New Roman", font::system().size());
+      return f;
     }
+
     const font& font::sans_serif () {
-        static font f("Arial", font::system().size());
-        return f;
+      static font f("Arial", font::system().size());
+      return f;
     };
 
     font::font (os::font id)
       : id(id) {
-      GetObject(id, sizeof(os::font_type), &info);
+      GetObject(id, sizeof (os::font_type), &info);
     }
 
     font::font (os::font_type info)
@@ -119,10 +123,10 @@ namespace gui {
                 bool underline,
                 bool strikeout)
       : id(CreateFont(size, 0, rotation, rotation, thickness, italic, underline, strikeout,
-           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-           name.c_str()))
+                      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
+                      name.c_str()))
     {
-      GetObject(id, sizeof(os::font_type), &info);
+      GetObject(id, sizeof (os::font_type), &info);
     }
 
     font::font (const font& rhs)
@@ -137,7 +141,7 @@ namespace gui {
       }
     }
 
-    font::operator os::font () const {
+    font::operator os::font() const {
       return id;
     }
 
@@ -162,14 +166,14 @@ namespace gui {
     }
 
     bool font::underline () const {
-      return info.lfUnderline!= 0;
+      return info.lfUnderline != 0;
     }
 
     bool font::strikeout () const {
-      return info.lfStrikeOut!= 0;
+      return info.lfStrikeOut != 0;
     }
 
-    font::size_type font::line_height () const  {
+    font::size_type font::line_height () const {
       return info.lfHeight;
     }
 
@@ -229,7 +233,7 @@ namespace gui {
     core::size font::get_text_size (const std::string& str) const {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
-      SIZE sz = { 0 };
+      SIZE sz = {0};
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
@@ -239,14 +243,14 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-#define STD_FONT_SIZE 10
+# define STD_FONT_SIZE 10
 
     const font& font::system () {
       static font f("FreeSans", STD_FONT_SIZE);
       return f;
     }
 
-    const font& font::menu() {
+    const font& font::menu () {
       static font f("FreeSans", STD_FONT_SIZE);
       return f;
     }
@@ -326,7 +330,7 @@ namespace gui {
       }
     }
 
-    font::operator os::font () const {
+    font::operator os::font() const {
       return (info ? info->pattern : nullptr);
     }
 
@@ -386,7 +390,7 @@ namespace gui {
       return false;
     }
 
-    font::size_type font::line_height () const  {
+    font::size_type font::line_height () const {
       if (info) {
         return info->height;
       }

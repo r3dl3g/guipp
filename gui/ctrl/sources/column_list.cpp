@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -127,8 +127,7 @@ namespace gui {
         set_column_width(i, info.width, update);
       }
 
-      void column_list_layout::layout (const core::size& new_size) {
-      }
+      void column_list_layout::layout (const core::size& new_size) {}
 
       void column_list_layout::redraw_views () {
         main->redraw_later();

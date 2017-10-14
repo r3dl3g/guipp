@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -38,6 +38,7 @@ namespace gui {
     float get_param<0, float>(const core::event& e) {
       return (float)e.wParam;
     }
+
 #endif //WIN32
 
     scroll_bar_data::scroll_bar_data ()
@@ -133,7 +134,7 @@ namespace gui {
       redraw_later();
     }
 
-    void scroll_bar::set_min_max_step_value(type mi, type ma, type s, type v) {
+    void scroll_bar::set_min_max_step_value (type mi, type ma, type s, type v) {
       set_min_max_step(mi, ma, s);
       set_value(v);
     }
@@ -157,7 +158,7 @@ namespace gui {
       return data.last_value;
     }
 
-    void scroll_bar::set_last_value(type last_value) {
+    void scroll_bar::set_last_value (type last_value) {
       data.last_value = last_value;
     }
 
@@ -165,7 +166,7 @@ namespace gui {
       return data.last_mouse_point;
     }
 
-    void scroll_bar::set_last_mouse_point(core::point last_mouse_point) {
+    void scroll_bar::set_last_mouse_point (core::point last_mouse_point) {
       data.last_mouse_point = last_mouse_point;
     }
 
@@ -193,13 +194,13 @@ namespace gui {
                       const core::rectangle& page_down) {
         if (!page_up.empty()) {
           g.fill(draw::rectangle(page_up),
-            state == scrollbar_state::page_up ? color::light_gray
-                                                        : color::very_light_gray);
+                 state == scrollbar_state::page_up ? color::light_gray
+                 : color::very_light_gray);
         }
         if (!page_down.empty()) {
           g.fill(draw::rectangle(page_down + core::size::one),
                  state == scrollbar_state::page_down ? color::light_gray
-                                                               : color::very_light_gray);
+                 : color::very_light_gray);
         }
         os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
@@ -209,9 +210,9 @@ namespace gui {
           if (!r.empty()) {
             std::vector<core::point> p;
             if (horizontal) {
-              p = { {r.x(), r.center_y()}, r.top_right(), r.bottom_right() };
+              p = {{r.x(), r.center_y()}, r.top_right(), r.bottom_right()};
             } else {
-              p = { {r.center_x(), r.y()}, r.bottom_right(), r.bottom_left() };
+              p = {{r.center_x(), r.y()}, r.bottom_right(), r.bottom_left()};
             }
             g.fill(draw::polygon(p), col);
           }
@@ -223,9 +224,9 @@ namespace gui {
           if (!r.empty()) {
             std::vector<core::point> p;
             if (horizontal) {
-              p = { r.top_left(), r.bottom_left(), {r.x2(), r.center_y()} };
+              p = {r.top_left(), r.bottom_left(), {r.x2(), r.center_y()}};
             } else {
-              p = { r.top_left(), r.top_right(), {r.center_x(), r.y2()} };
+              p = {r.top_left(), r.top_right(), {r.center_x(), r.y2()}};
             }
             g.fill(draw::polygon(p), col);
           }
@@ -238,6 +239,7 @@ namespace gui {
           }
         }
       }
+
     } // paint
 
     // --------------------------------------------------------------------------
@@ -274,30 +276,30 @@ namespace gui {
     void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-          case keys::left:
-          case keys::numpad::left:
-            set_value(get_value() - 1, true);
-            break;
-          case keys::right:
-          case keys::numpad::right:
-            set_value(get_value() + 1, true);
-            break;
-          case keys::page_up:
-          case keys::numpad::page_up:
-            set_value(get_value() - get_step(), true);
-            break;
-          case keys::page_down:
-          case keys::numpad::page_down:
-            set_value(get_value() + get_step(), true);
-            break;
-          case keys::home:
-          case keys::numpad::home:
-            set_value(get_min(), true);
-            break;
-          case keys::end:
-          case keys::numpad::end:
-            set_value(get_min(), true);
-            break;
+        case keys::left:
+        case keys::numpad::left:
+          set_value(get_value() - 1, true);
+          break;
+        case keys::right:
+        case keys::numpad::right:
+          set_value(get_value() + 1, true);
+          break;
+        case keys::page_up:
+        case keys::numpad::page_up:
+          set_value(get_value() - get_step(), true);
+          break;
+        case keys::page_down:
+        case keys::numpad::page_down:
+          set_value(get_value() + get_step(), true);
+          break;
+        case keys::home:
+        case keys::numpad::home:
+          set_value(get_min(), true);
+          break;
+        case keys::end:
+        case keys::numpad::end:
+          set_value(get_min(), true);
+          break;
         }
       }
     }
@@ -336,30 +338,30 @@ namespace gui {
     void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-          case keys::up:
-          case keys::numpad::up:
-            set_value(get_value() - 1, true);
-            break;
-          case keys::down:
-          case keys::numpad::down:
-            set_value(get_value() + 1, true);
-            break;
-          case keys::page_up:
-          case keys::numpad::page_up:
-            set_value(get_value() - get_step(), true);
-            break;
-          case keys::page_down:
-          case keys::numpad::page_down:
-            set_value(get_value() + get_step(), true);
-            break;
-          case keys::home:
-          case keys::numpad::home:
-            set_value(get_min(), true);
-            break;
-          case keys::end:
-          case keys::numpad::end:
-            set_value(get_min(), true);
-            break;
+        case keys::up:
+        case keys::numpad::up:
+          set_value(get_value() - 1, true);
+          break;
+        case keys::down:
+        case keys::numpad::down:
+          set_value(get_value() + 1, true);
+          break;
+        case keys::page_up:
+        case keys::numpad::page_up:
+          set_value(get_value() - get_step(), true);
+          break;
+        case keys::page_down:
+        case keys::numpad::page_down:
+          set_value(get_value() + get_step(), true);
+          break;
+        case keys::home:
+        case keys::numpad::home:
+          set_value(get_min(), true);
+          break;
+        case keys::end:
+        case keys::numpad::end:
+          set_value(get_min(), true);
+          break;
         }
       }
     }

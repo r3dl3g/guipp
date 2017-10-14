@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2015-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2015-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 #include <map>
 
 #ifdef X11
-#include <X11/cursorfont.h>
+# include <X11/cursorfont.h>
 #endif // X11
 // --------------------------------------------------------------------------
 //
@@ -71,15 +71,15 @@ namespace gui {
 
 #ifdef X11
 
-#ifndef _NET_WM_STATE_REMOVE
-# define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
-#endif
-#ifndef _NET_WM_STATE_ADD
-# define _NET_WM_STATE_ADD           1    /* add/set property */
-#endif
-#ifndef _NET_WM_STATE_TOGGLE
-# define _NET_WM_STATE_TOGGLE        2    /* toggle property  */
-#endif
+# ifndef _NET_WM_STATE_REMOVE
+#  define _NET_WM_STATE_REMOVE        0   /* remove/unset property */
+# endif
+# ifndef _NET_WM_STATE_ADD
+#  define _NET_WM_STATE_ADD           1   /* add/set property */
+# endif
+# ifndef _NET_WM_STATE_TOGGLE
+#  define _NET_WM_STATE_TOGGLE        2   /* toggle property  */
+# endif
 
     namespace x11 {
 
@@ -164,11 +164,11 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window* w){
-        if (w == this) {
-          forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
-        }
-      }));
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window * w){
+                                                                  if (w == this) {
+                                                                    forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+                                                                  }
+                                                                }));
     }
 
     bool container::is_sub_window (const window* child) const {
@@ -265,35 +265,36 @@ namespace gui {
       return s;
     }
 
-    bool overlapped_window::is_top_most() const {
+    bool overlapped_window::is_top_most () const {
       return (GetWindowLong(get_id(), GWL_EXSTYLE) & WS_EX_TOPMOST) == WS_EX_TOPMOST;
     }
 
-    bool overlapped_window::is_minimized() const {
+    bool overlapped_window::is_minimized () const {
       return IsIconic(get_id()) != FALSE;
     }
 
-    bool overlapped_window::is_maximized() const {
+    bool overlapped_window::is_maximized () const {
       return IsZoomed(get_id()) != FALSE;
     }
 
-    void overlapped_window::minimize() {
+    void overlapped_window::minimize () {
       ShowWindow(get_id(), SW_MINIMIZE);
     }
 
-    void overlapped_window::maximize() {
+    void overlapped_window::maximize () {
       ShowWindow(get_id(), SW_MAXIMIZE);
     }
 
-    void overlapped_window::restore() {
+    void overlapped_window::restore () {
       ShowWindow(get_id(), SW_RESTORE);
     }
 
-    void overlapped_window::set_top_most(bool toplevel) {
+    void overlapped_window::set_top_most (bool toplevel) {
       SetWindowPos(get_id(),
                    toplevel ? HWND_TOPMOST : HWND_NOTOPMOST,
                    0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     }
+
 #endif // WIN32
 
 #ifdef X11
@@ -378,7 +379,7 @@ namespace gui {
       auto dpy = core::global::get_instance();
 
       XEvent xev;
-      memset(&xev, 0, sizeof(xev));
+      memset(&xev, 0, sizeof (xev));
       xev.type = ClientMessage;
       xev.xclient.window = id;
       xev.xclient.message_type = x11::NET_WM_STATE;
@@ -433,8 +434,8 @@ namespace gui {
     void modal_window::init () {
 #ifdef WIN32
       register_event_handler(REGISTER_FUNCTION, close_event([&]() {
-        is_modal = false;
-      }));
+                                                              is_modal = false;
+                                                            }));
 #endif // WIN32
     }
 
@@ -461,6 +462,7 @@ namespace gui {
       }
       return true;
     }
+
 #endif // X11
 
     void modal_window::run_modal () {
@@ -472,51 +474,51 @@ namespace gui {
 
       is_modal = true;
 
-      run_loop(is_modal, [&, win](const core::event& e) -> bool {
+      run_loop(is_modal, [&, win](const core::event & e)->bool {
 #ifdef X11
-        switch (e.type) {
-          case MotionNotify:
-          case ButtonPress:
-          case ButtonRelease:
-          case FocusIn:
-          case FocusOut:
-          case EnterNotify:
-          case LeaveNotify:
-            return is_deeper_window(win, e.xany.window);
-          case ClientMessage:
-            LogDebug << "ClientMessage:" << e.xclient.message_type;
-          break;
-        }
+                 switch (e.type) {
+                 case MotionNotify:
+                 case ButtonPress:
+                 case ButtonRelease:
+                 case FocusIn:
+                 case FocusOut:
+                 case EnterNotify:
+                 case LeaveNotify:
+                   return is_deeper_window(win, e.xany.window);
+                 case ClientMessage:
+                   LogDebug << "ClientMessage:" << e.xclient.message_type;
+                   break;
+                 }
 #endif // X11
 
 #ifdef WIN32
-        if (e.type == WM_HOTKEY) {
+                 if (e.type == WM_HOTKEY) {
 #endif // WIN32
 #ifdef X11
-        if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
+                 if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
 #endif // X11
-          return check_hot_key(e);
-        }
-        return false;
-      });
+                 return check_hot_key(e);
+               }
+               return false;
+               });
 
       LogDebug << "Exit modal loop";
     }
 
 #ifdef X11
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     template<typename T>
     void change_property (os::instance display, os::window id, const char* type, T value);
 
     template<>
-    void change_property<const char*> (os::instance display, os::window id, const char* type, const char* value) {
+    void change_property<const char*>(os::instance display, os::window id, const char* type, const char* value) {
       Atom t = XInternAtom(display, type, False);
       Atom v = XInternAtom(display, value, False);
       XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
     }
 
     template<>
-    void change_property<os::window> (os::instance display, os::window id, const char* type, os::window value) {
+    void change_property<os::window>(os::instance display, os::window id, const char* type, os::window value) {
       Atom t = XInternAtom(display, type, False);
       XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
     }
@@ -528,6 +530,7 @@ namespace gui {
       };
       XSetWMProtocols(display, id, protocols, 2);
     }
+
 #endif // X11
 
     // --------------------------------------------------------------------------

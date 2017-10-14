@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2015-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2015-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -65,14 +65,14 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<typename B, typename L = layout::standard_layout, typename... Args>
+      template<typename B, typename L = layout::standard_layout, typename ... Args>
       class layout_base : public B {
       public:
         typedef B super;
         typedef L layout_type;
 
-        layout_base (const Args&... args)
-          : layouter(this, args...)
+        layout_base (const Args& ... args)
+          : layouter(this, args ...)
         {}
 
         layout_base (const layout_base& rhs)
@@ -89,11 +89,11 @@ namespace gui {
           layouter.layout(super::size());
         }
 
-        inline layout_type& get_layout() {
+        inline layout_type& get_layout () {
           return layouter;
         }
 
-        inline const layout_type& get_layout() const {
+        inline const layout_type& get_layout () const {
           return layouter;
         }
 
@@ -104,18 +104,18 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, typename... Args>
-    using layout_container = detail::layout_base<container, L, Args...>;
+    template<typename L = layout::standard_layout, typename ... Args>
+    using layout_container = detail::layout_base<container, L, Args ...>;
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, os::color background = color::white, typename... Args>
-    class group_window : public layout_container<L, Args...> {
+    template<typename L = layout::standard_layout, os::color background = color::white, typename ... Args>
+    class group_window : public layout_container<L, Args ...> {
     public:
-      typedef layout_container<L, Args...> super;
+      typedef layout_container<L, Args ...> super;
       typedef window_class<group_window, background> clazz;
 
-      group_window (const Args&... args)
-        : super(args...)
+      group_window (const Args& ... args)
+        : super(args ...)
       {}
 
       void create (const container& parent,
@@ -189,8 +189,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, typename... Args>
-    using layout_main_window = detail::layout_base<main_window, L, Args...>;
+    template<typename L = layout::standard_layout, typename ... Args>
+    using layout_main_window = detail::layout_base<main_window, L, Args ...>;
 
     // --------------------------------------------------------------------------
     class popup_window : public modal_window {
@@ -213,8 +213,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, typename... Args>
-    using layout_popup_window = detail::layout_base<popup_window, L, Args...>;
+    template<typename L = layout::standard_layout, typename ... Args>
+    using layout_popup_window = detail::layout_base<popup_window, L, Args ...>;
 
     // --------------------------------------------------------------------------
     class dialog_window : public modal_window {
@@ -222,11 +222,11 @@ namespace gui {
       typedef modal_window super;
 #ifdef WIN32
       typedef window_class<dialog_window,
-                            color::light_gray,
-                            window_class_defaults<>::cursor,
-                            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU | 
-                            WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
-                            WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED> clazz;
+                           color::light_gray,
+                           window_class_defaults<>::cursor,
+                           WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SYSMENU |
+                           WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME,
+                           WS_EX_NOPARENTNOTIFY | WS_EX_COMPOSITED> clazz;
 #endif // WIN32
 #ifdef X11
       typedef window_class<dialog_window, color::light_gray> clazz;
@@ -237,8 +237,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L = layout::standard_layout, typename... Args>
-    using layout_dialog_window = detail::layout_base<dialog_window, L, Args...>;
+    template<typename L = layout::standard_layout, typename ... Args>
+    using layout_dialog_window = detail::layout_base<dialog_window, L, Args ...>;
 
     // --------------------------------------------------------------------------
   } // win

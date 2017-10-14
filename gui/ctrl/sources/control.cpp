@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -38,8 +38,7 @@ namespace gui {
 #ifdef X11
 #endif // X11
 
-  namespace layout {
-  }
+  namespace layout {}
 
   namespace win {
 
@@ -93,7 +92,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void paint_caller::operator()(const core::event& e) {
+    void paint_caller::operator() (const core::event& e) {
       if (f) {
         PAINTSTRUCT ps;
         os::graphics id = BeginPaint(e.id, &ps);

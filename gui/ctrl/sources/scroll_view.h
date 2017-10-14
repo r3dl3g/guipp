@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -54,7 +54,7 @@ namespace gui {
       static core::rectangle get_client_area (const core::size&);
 
     protected:
-      void init(std::function<size_callback> f1) {
+      void init (std::function<size_callback> f1) {
         super::init(f1);
       }
 
@@ -138,16 +138,16 @@ namespace gui {
       client_window& get_edge ();
 
     private:
-      core::point           current_pos;
-      vertical_scroll_bar   vscroll;
+      core::point current_pos;
+      vertical_scroll_bar vscroll;
       horizontal_scroll_bar hscroll;
-      client_window         edge;
+      client_window edge;
 
     };
 
     // --------------------------------------------------------------------------
     template<typename T, os::color background = color::transparent>
-    class virtual_view : public layout_container<layout::virtual_layout<T>> {
+    class virtual_view : public layout_container<layout::virtual_layout<T> > {
     public:
       typedef layout::virtual_layout<T> layout_type;
       typedef layout_container<layout_type> super;
@@ -159,10 +159,10 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
-      view_type             view;
+      view_type view;
       horizontal_scroll_bar hscroll;
-      vertical_scroll_bar   vscroll;
-      client_window         edge;
+      vertical_scroll_bar vscroll;
+      client_window edge;
 
     private:
       void handle_create (window*, const core::rectangle& r);
@@ -181,7 +181,7 @@ namespace gui {
 
     template<typename T>
     inline virtual_layout<T>::virtual_layout (win::container* main)
-      :super(main)
+      : super(main)
     {
       super::init(core::bind_method(this, &virtual_layout::layout));
     }
@@ -221,27 +221,27 @@ namespace gui {
       super::get_layout().init(&vscroll, &hscroll, &edge, &view);
 
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-        view.set_scroll_pos(core::point(hscroll.get_value(), y));
-      }));
+                                                                       view.set_scroll_pos(core::point(hscroll.get_value(), y));
+                                                                     }));
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-        view.set_scroll_pos(core::point(x, vscroll.get_value()));
-      }));
+                                                                       view.set_scroll_pos(core::point(x, vscroll.get_value()));
+                                                                     }));
       view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&]() {
-        super::layout();
-      }));
+                                                                             super::layout();
+                                                                           }));
       view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-        view.make_cursor_visible();
-        const core::point& pos = view.get_scroll_pos();
-        hscroll.set_value(pos.x());
-        vscroll.set_value(pos.y());
-        super::layout();
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt) {
-        hscroll.handle_wheel(delta, pt);
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt) {
-        vscroll.handle_wheel(delta, pt);
-      }));
+                                                                               view.make_cursor_visible();
+                                                                               const core::point& pos = view.get_scroll_pos();
+                                                                               hscroll.set_value(pos.x());
+                                                                               vscroll.set_value(pos.y());
+                                                                               super::layout();
+                                                                             }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt) {
+                                                                     hscroll.handle_wheel(delta, pt);
+                                                                   }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt) {
+                                                                     vscroll.handle_wheel(delta, pt);
+                                                                   }));
     }
 
     template<typename T, os::color B>

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui lib
-*
-* Customer   -
-*
-* @brief     C++ API: brush definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: brush definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -48,27 +48,27 @@ namespace gui {
 #endif // X11
       };
 
-      brush(const os::color& = color::black, Style = solid);
-      brush(const brush&);
-      ~brush();
+      brush (const os::color& = color::black, Style = solid);
+      brush (const brush&);
+      ~brush ();
 
 #ifdef WIN32
-      brush(os::brush);
+      brush (os::brush);
 
-      operator os::brush() const;
+      operator os::brush () const;
 #endif // WIN32
 
-      os::color color() const;
-      Style style() const;
+      os::color color () const;
+      Style style () const;
 
       brush with_style(Style) const;
-      brush with_color(const os::color&) const;
+      brush with_color (const os::color&) const;
 
       bool operator== (const brush&) const;
 
     private:
 #ifdef WIN32
-      void destroy();
+      void destroy ();
 
       mutable os::brush id;
       os::win32::brush_type info;

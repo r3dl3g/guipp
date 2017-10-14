@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: cursor definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: cursor definition
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -27,7 +27,7 @@
 //
 #include "cursor.h"
 #ifdef X11
-#include <X11/cursorfont.h>
+# include <X11/cursorfont.h>
 #endif // X11
 
 
@@ -92,21 +92,21 @@ namespace gui {
 
     const cursor& cursor::get (win::cursor_type t) {
       switch (t) {
-        case cursor_type::none:       return cursor::none();
-        case cursor_type::arrow:      return cursor::arrow();
-        case cursor_type::size_h:     return cursor::size_h();
-        case cursor_type::size_v:     return cursor::size_v();
-        case cursor_type::size_ne_sw: return cursor::size_ne_sw();
-        case cursor_type::size_nw_se: return cursor::size_nw_se();
-        case cursor_type::move:       return cursor::move();
-        case cursor_type::ibeam:      return cursor::ibeam();
-        case cursor_type::cross:      return cursor::cross();
-        case cursor_type::wait:       return cursor::wait();
-        case cursor_type::no:         return cursor::no();
+      case cursor_type::none:       return cursor::none();
+      case cursor_type::arrow:      return cursor::arrow();
+      case cursor_type::size_h:     return cursor::size_h();
+      case cursor_type::size_v:     return cursor::size_v();
+      case cursor_type::size_ne_sw: return cursor::size_ne_sw();
+      case cursor_type::size_nw_se: return cursor::size_nw_se();
+      case cursor_type::move:       return cursor::move();
+      case cursor_type::ibeam:      return cursor::ibeam();
+      case cursor_type::cross:      return cursor::cross();
+      case cursor_type::wait:       return cursor::wait();
+      case cursor_type::no:         return cursor::no();
       }
     }
 
-    cursor::operator os::cursor () const {
+    cursor::operator os::cursor() const {
       if ((type != 0) && !id) {
 #ifdef WIN32
         id = LoadCursor(nullptr, type);

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: textbox controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: textbox controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -44,7 +44,7 @@ namespace gui {
                      os::color foreground,
                      os::color background,
                      const text_origin origin,
-                     const core::range<core::position<int>>& selection,
+                     const core::range<core::position<int> >& selection,
                      const core::position<int>& cursor_pos,
                      const core::point& offset,
                      const bool has_focus);
@@ -120,7 +120,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin align = text_origin::vcenter_left,
-             draw::frame::drawer frame  = draw::frame::no_frame,
+             draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>
     class basic_textbox : public detail::textbox_base {
@@ -146,7 +146,7 @@ namespace gui {
         window::create(clazz::get(), parent, r);
       }
 
-      inline auto textbox_base::row_count () const -> size_type {
+      inline auto textbox_base::row_count() const->size_type {
         return data.lines.size();
       }
 
@@ -154,11 +154,11 @@ namespace gui {
         return data.offset;
       }
 
-      inline auto textbox_base::get_selection () const -> const range& {
+      inline auto textbox_base::get_selection() const->const range& {
         return data.selection;
       }
 
-      inline auto textbox_base::get_cursor_pos () const -> const position& {
+      inline auto textbox_base::get_cursor_pos() const->const position& {
         return data.cursor_pos;
       }
 

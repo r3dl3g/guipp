@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window types
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window types
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -31,12 +31,12 @@
 #include "graphics.h"
 #include "bitmap.h"
 #ifdef WIN32
-#include <string_util.h>
+# include <string_util.h>
 #endif // WIN32
 
 #ifdef X11
-#include <cmath>
-#include <algorithm>
+# include <cmath>
+# include <algorithm>
 #endif // X11
 
 namespace gui {
@@ -49,21 +49,21 @@ namespace gui {
 
     template<typename T>
     struct Use {
-      Use(os::graphics g, const T& t)
+      Use (os::graphics g, const T& t)
         : g(g)
         , obj(t)
-        , old(set(t)) 
+        , old(set(t))
       {}
 
-      HGDIOBJ set(HGDIOBJ t) {
+      HGDIOBJ set (HGDIOBJ t) {
         return SelectObject(g, t);
       }
 
-      void unset(HGDIOBJ t) {
+      void unset (HGDIOBJ t) {
         SelectObject(g, t);
       }
 
-      inline ~Use() {
+      inline ~Use () {
         unset(old);
       }
 
@@ -177,8 +177,7 @@ namespace gui {
       : pos(pos)
       , radius(radius)
       , start_radius(start_radius)
-      , end_radius(end_radius) {
-    }
+      , end_radius(end_radius) {}
 
     void arc::operator() (const graphics& g,
                           const brush& b,
@@ -218,14 +217,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     polygon::polygon (const std::vector<core::point>& pts) {
       points.reserve(pts.size() + 1);
-      for(const core::point& pt : pts){
+      for (const core::point& pt : pts) {
         points.push_back(pt.os());
       }
     }
 
     polygon::polygon (std::initializer_list<core::point> pts) {
       points.reserve(pts.size() + 1);
-      for(const core::point& pt : pts){
+      for (const core::point& pt : pts) {
         points.push_back(pt.os());
       }
     }
@@ -305,47 +304,47 @@ namespace gui {
       std::wstring wstr = ibr::string::utf8_to_utf16(str);
 
       switch (origin) {
-        case text_origin::top_left:
-          old_align = SetTextAlign(g, TA_LEFT | TA_TOP | TA_NOUPDATECP);
-          break;
-        case text_origin::top_right:
-          old_align = SetTextAlign(g, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
-          break;
-        case text_origin::top_hcenter:
-          old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
-          break;
-        case text_origin::bottom_left:
-          old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
-          break;
-        case text_origin::bottom_right:
-          old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
-          break;
-        case text_origin::bottom_hcenter:
-          old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
-          break;
-        case text_origin::vcenter_right: {
-          SIZE sz;
-          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-          py -= sz.cy / 2;
-          old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
-          break;
-        }
-        case text_origin::vcenter_left: {
-          SIZE sz;
-          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-          py -= sz.cy / 2;
-          old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
-          break;
-        }
-        case text_origin::center: {
-          SIZE sz;
-          GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
-          py -= sz.cy / 2;
-          old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
-          break;
-        }
-        case text_origin::undefined:
-          break;
+      case text_origin::top_left:
+        old_align = SetTextAlign(g, TA_LEFT | TA_TOP | TA_NOUPDATECP);
+        break;
+      case text_origin::top_right:
+        old_align = SetTextAlign(g, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
+        break;
+      case text_origin::top_hcenter:
+        old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
+        break;
+      case text_origin::bottom_left:
+        old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
+        break;
+      case text_origin::bottom_right:
+        old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
+        break;
+      case text_origin::bottom_hcenter:
+        old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
+        break;
+      case text_origin::vcenter_right: {
+        SIZE sz;
+        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
+        py -= sz.cy / 2;
+        old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
+        break;
+      }
+      case text_origin::vcenter_left: {
+        SIZE sz;
+        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
+        py -= sz.cy / 2;
+        old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
+        break;
+      }
+      case text_origin::center: {
+        SIZE sz;
+        GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
+        py -= sz.cy / 2;
+        old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
+        break;
+      }
+      case text_origin::undefined:
+        break;
       }
       TextOutW(g, px, py, wstr.c_str(), (int)wstr.size());
       SetTextAlign(g, old_align);
@@ -381,7 +380,7 @@ namespace gui {
       , own_gc(false)
       , ref_gc(false)
     {
-      operator=(rhs);
+      operator= (rhs);
     }
 
     graphics::~graphics () {
@@ -490,8 +489,7 @@ namespace gui {
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
-      }
-      else {
+      } else {
         if (!StretchBlt(gc, dst.os_x(), dst.os_y(), dst.os_width(), dst.os_height(),
                         source_gc, src.os_x(), src.os_y(), src.os_width(), src.os_height(), SRCCOPY)) {
           throw std::runtime_error("graphics::stretch_from failed");
@@ -543,8 +541,8 @@ namespace gui {
         HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
         if (hBmp) {
           BITMAP bmp;
-          memset(&bmp, 0, sizeof(BITMAP));
-          GetObject(hBmp, sizeof(BITMAP), &bmp);
+          memset(&bmp, 0, sizeof (BITMAP));
+          GetObject(hBmp, sizeof (BITMAP), &bmp);
           r.right = bmp.bmWidth;
           r.bottom = bmp.bmHeight;
         } else {
@@ -606,18 +604,18 @@ namespace gui {
       XSetLineAttributes(display, g, p.size(), static_cast<int>(p.style()) & 0x0F, CapButt, JoinMiter);
       if (static_cast<int>(p.style()) & 0x0F0) {
         switch (p.style()) {
-          case pen::Style::dot:
-            static const char dots[] = {1, 1};
-            XSetDashes(display, g, 0, dots, 2);
-            break;
-          case pen::Style::dashDot:
-            static const char dash_dots[] = {4, 4, 1, 4};
-            XSetDashes(display, g, 0, dash_dots, 4);
-            break;
-          case pen::Style::dashDotDot:
-            static const char dash_dot_dots[] = {4, 4, 1, 2, 1, 4};
-            XSetDashes(display, g, 0, dash_dot_dots, 6);
-            break;
+        case pen::Style::dot:
+          static const char dots[] = {1, 1};
+          XSetDashes(display, g, 0, dots, 2);
+          break;
+        case pen::Style::dashDot:
+          static const char dash_dots[] = {4, 4, 1, 4};
+          XSetDashes(display, g, 0, dash_dots, 4);
+          break;
+        case pen::Style::dashDotDot:
+          static const char dash_dot_dots[] = {4, 4, 1, 2, 1, 4};
+          XSetDashes(display, g, 0, dash_dot_dots, 6);
+          break;
         }
       }
     }
@@ -645,6 +643,7 @@ namespace gui {
       XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
       return {(core::point_type)x, (core::point_type)y, (core::size_type)w, (core::size_type)h};
     }
+
     // --------------------------------------------------------------------------
 
     XftDraw* get_xft_draw (os::drawable target) {
@@ -674,18 +673,18 @@ namespace gui {
     struct render_color : XRenderColor {
       render_color (os::color c)
         : XRenderColor({
-          (unsigned short)(color::extract<color::part::red>(c) << 8),
-          (unsigned short)(color::extract<color::part::green>(c) << 8),
-          (unsigned short)(color::extract<color::part::blue>(c) << 8),
-          (unsigned short)((color::extract<color::part::alpha>(c) << 8) ^ 0xffff)
-        })
+                         (unsigned short)(color::extract<color::part::red>(c) << 8),
+                         (unsigned short)(color::extract<color::part::green>(c) << 8),
+                         (unsigned short)(color::extract<color::part::blue>(c) << 8),
+                         (unsigned short)((color::extract<color::part::alpha>(c) << 8) ^ 0xffff)
+                       })
       {}
     };
 
     // --------------------------------------------------------------------------
     struct xft_color : public XftColor {
       xft_color (os::color c, XftDraw* xft)
-        :xft(xft) {
+        : xft(xft) {
         render_color xrcolor(c);
         XftColorAllocValue(get_instance(), XftDrawVisual(xft), XftDrawColormap(xft), &xrcolor, this);
       }
@@ -725,7 +724,7 @@ namespace gui {
       , ref_gc(false)
     {
       get_xft();
-      operator=(rhs);
+      operator= (rhs);
     }
 
     graphics::~graphics () {
@@ -956,8 +955,7 @@ namespace gui {
               unsigned int radius,
               float startrad,
               float endrad)
-      : pos(pos), radius(radius), start_radius(startrad), end_radius(endrad) {
-    }
+      : pos(pos), radius(radius), start_radius(startrad), end_radius(endrad) {}
 
     void frame_arc (const graphics& g,
                     const pen& p,
@@ -1026,15 +1024,15 @@ namespace gui {
     // --------------------------------------------------------------------------
     polygon::polygon (const std::vector<core::point>& pts) {
       points.reserve(pts.size() + 1);
-      std::for_each(pts.begin(), pts.end(), [&](const core::point& pt){
-        points.push_back(pt.os());
-      });
+      std::for_each(pts.begin(), pts.end(), [&](const core::point & pt){
+                      points.push_back(pt.os());
+                    });
       points.push_back(pts[0].os());
     }
 
     polygon::polygon (std::initializer_list<core::point> pts) {
       points.reserve(pts.size() + 1);
-      for(const core::point& pt : pts) {
+      for (const core::point& pt : pts) {
         points.push_back(pt.os());
       }
       points.push_back(pts.begin()->os());
@@ -1224,7 +1222,7 @@ namespace gui {
       Use<pen> pn(gc, p);
       std::vector<os::point> points;
       points.reserve(pts.size());
-      for(const core::point& pt : pts) {
+      for (const core::point& pt : pts) {
         points.push_back(pt.os());
       }
       XDrawLines(get_instance(), target, gc,
@@ -1265,7 +1263,7 @@ namespace gui {
       return copy_from(w, r, pt.position());
     }
 
-    const graphics& graphics::copy_from(const draw::masked_bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
       if (bmp.mask) {
@@ -1279,8 +1277,7 @@ namespace gui {
       return *this;
     }
 
-    void graphics::invert (const core::rectangle& r) const {
-    }
+    void graphics::invert (const core::rectangle& r) const {}
 
     void graphics::flush () const {
       XFlushGC(get_instance(), gc);
@@ -1320,9 +1317,9 @@ namespace gui {
     }
 
 #endif // X11
-    const graphics& graphics::clear(os::color color) const {
+    const graphics& graphics::clear (os::color color) const {
       rectangle r(core::rectangle(0, 0, 0xffff, 0xffff));
-      r.operator()(*this, brush(color));
+      r.operator() (*this, brush(color));
       return *this;
     }
 
@@ -1466,7 +1463,7 @@ namespace gui {
 //#endif
 
 
-    const graphics& graphics::copy_from(const draw::bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::point& pt) const {
       if (bmp) {
         int dep = bmp.depth();
         if (dep == depth()) {
@@ -1514,7 +1511,7 @@ namespace gui {
       : p(f)
     {}
 
-    void buffered_paint::operator () (const draw::graphics& g) {
+    void buffered_paint::operator() (const draw::graphics& g) {
       if (p) {
         const auto area = g.area();
         draw::memmap buffer(area.size());
@@ -1579,36 +1576,36 @@ namespace gui {
         g.frame(line(r.bottom_right(), r.bottom_left()), color::white);
       }
 
-      void raised_relief(const draw::graphics& g, const core::rectangle& place) {
+      void raised_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
-        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::gray);
+        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, color::white);
+        g.draw_lines({r.top_right(), r.bottom_right(), r.bottom_left()}, color::gray);
       }
 
-      void sunken_relief(const draw::graphics& g, const core::rectangle& place) {
+      void sunken_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
-        g.draw_lines({ r.top_right(), r.bottom_right(), r.bottom_left() }, color::white);
+        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, color::gray);
+        g.draw_lines({r.top_right(), r.bottom_right(), r.bottom_left()}, color::white);
       }
 
-      void raised_deep_relief(const draw::graphics& g, const core::rectangle& place) {
+      void raised_deep_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::white);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::gray);
+        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, color::white);
+        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::gray);
 
         const core::size pm = core::size(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm }, color::very_light_gray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm }, color::medium_gray);
+        g.draw_lines({r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm}, color::very_light_gray);
+        g.draw_lines({r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm}, color::medium_gray);
       }
 
-      void sunken_deep_relief(const draw::graphics& g, const core::rectangle& place) {
+      void sunken_deep_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        g.draw_lines({ r.bottom_left(), r.top_left(), r.top_right() }, color::gray);
-        g.draw_lines({ r.bottom_left(), r.bottom_right(), r.top_right() }, color::white);
+        g.draw_lines({r.bottom_left(), r.top_left(), r.top_right()}, color::gray);
+        g.draw_lines({r.bottom_left(), r.bottom_right(), r.top_right()}, color::white);
 
         const core::size pm = core::size(1, -1);
-        g.draw_lines({ r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm }, color::dark_gray);
-        g.draw_lines({ r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm }, color::very_light_gray);
+        g.draw_lines({r.bottom_left() + pm, r.top_left() + core::size::one, r.top_right() - pm}, color::dark_gray);
+        g.draw_lines({r.bottom_left() + pm, r.bottom_right() - core::size::one, r.top_right() - pm}, color::very_light_gray);
       }
 
       // --------------------------------------------------------------------------

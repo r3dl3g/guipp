@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: edit controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: edit controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -81,7 +81,7 @@ namespace gui {
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
 
-        void set_selection (const range& sel, event_source);
+        void set_selection(const range &sel, event_source);
         range get_selection () const;
         void make_cursor_visible ();
 
@@ -93,7 +93,7 @@ namespace gui {
         std::string get_selected_text () const;
 
       protected:
-        void register_handler (text_origin);
+        void register_handler(text_origin);
 
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt);

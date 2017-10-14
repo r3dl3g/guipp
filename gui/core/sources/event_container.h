@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -59,13 +59,13 @@ namespace gui {
       void register_event_handler (char const name[], event_handler_function&&);
 
       template<typename T>
-      inline void register_event_handler (char const name[], T* t, bool(T::*method)(const core::event&, os::event_result&)) {
+      inline void register_event_handler (char const name[], T* t, bool (T::*method)(const core::event&, os::event_result&)) {
         register_event_handler(name, bind_method(t, method));
       }
 
-      void unregister_event_handler(const event_handler_function&);
+      void unregister_event_handler (const event_handler_function&);
 
-      bool handle_event(const event& e, os::event_result& result);
+      bool handle_event (const event& e, os::event_result& result);
 
     private:
       struct event_handler_info {

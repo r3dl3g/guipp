@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: menu
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: menu
+ *
+ * @file
+ */
 
 #include "menu.h"
 
@@ -25,10 +25,10 @@ namespace gui {
     namespace paint {
 
       void draw_menu_label (const draw::graphics& g,
-                           const core::rectangle& r,
-                           const std::string& l,
-                           char k,
-                           os::color c) {
+                            const core::rectangle& r,
+                            const std::string& l,
+                            char k,
+                            os::color c) {
         const draw::font& f = draw::font::menu();
         g.text(draw::text_box(l, r, text_origin::vcenter_left), f, c);
 
@@ -69,8 +69,8 @@ namespace gui {
         }
 
         os::color col = disabled ? color::disabledTextColor()
-                                 : selected ? color::highLightTextColor()
-                                            : color::black;
+                        : selected ? color::highLightTextColor()
+                        : color::black;
 
         core::rectangle r2 = r + core::point(10, 0);
         draw_menu_label(g, r2, label, menu_key, col);
@@ -118,8 +118,8 @@ namespace gui {
         }
 
         os::color col = disabled ? color::disabledTextColor()
-                                        : selected ? color::highLightTextColor()
-                                            : color::black;
+                        : selected ? color::highLightTextColor()
+                        : color::black;
 
         if (icon) {
           core::size sz = icon.image.size();
@@ -138,9 +138,9 @@ namespace gui {
         if (is_sub_menu) {
           core::point_type y = r.center_y();
           core::point_type x = r.x2() - 8;
-          g.fill(draw::polygon({ core::point(x, y - 4),
-                                 core::point(x, y + 4),
-                                 core::point(x + 4, y)}), color::black);
+          g.fill(draw::polygon({core::point(x, y - 4),
+                                core::point(x, y + 4),
+                                core::point(x + 4, y)}), color::black);
         }
       }
 
@@ -410,9 +410,9 @@ namespace gui {
         ++idx;
         if (i.get_menu_key()) {
           global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
-            win->take_focus();
-            set_selection(idx, event_source::keyboard);
-          }, w);
+                                     win->take_focus();
+                                     set_selection(idx, event_source::keyboard);
+                                   }, w);
         }
       }
     }
@@ -463,45 +463,45 @@ namespace gui {
 
       register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &main_menu::paint)));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, pt);
-      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point & pt) {
+                                                                       data.handle_mouse(false, pt);
+                                                                     }));
 
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {
-        if (data.get_hilite() == -1) {
-          data.set_hilite(0);
-        }
-      }));
+                                                                  if (data.get_hilite() == -1) {
+                                                                    data.set_hilite(0);
+                                                                  }
+                                                                }));
 
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-        if (data.get_hilite() > -1) {
-          data.clear_hilite();
-        }
-      }));
+                                                                   if (data.get_hilite() > -1) {
+                                                                     data.clear_hilite();
+                                                                   }
+                                                                 }));
 
       register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-        int idx = data.get_selection();
-        if (idx > -1) {
-          data[idx].select();
-        }
-      }));
+                                                                          int idx = data.get_selection();
+                                                                          if (idx > -1) {
+                                                                            data[idx].select();
+                                                                          }
+                                                                        }));
 
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-        take_focus();
-        data.handle_mouse(true, client_to_screen(pt));
-      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+                                                                      take_focus();
+                                                                      data.handle_mouse(true, client_to_screen(pt));
+                                                                    }));
 
       register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                               os::key_symbol key,
-                                                               const std::string&){
-        handle_key(key);
-      }));
+                                                                       os::key_symbol key,
+                                                                       const std::string &){
+                                                                     handle_key(key);
+                                                                   }));
 
-      register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle&){
-        data.register_menu_keys(this);
-      }));
+      register_event_handler(REGISTER_FUNCTION, create_event([&](window *, const core::rectangle &){
+                                                               data.register_menu_keys(this);
+                                                             }));
     }
 
     void main_menu::handle_mouse (bool btn, const core::point& gpt){
@@ -532,38 +532,38 @@ namespace gui {
         return true;
       }
       switch (key) {
-        case keys::left:
-        case keys::numpad::left:
-          if (data.is_open()) {
-            data.rotate_selection(-1);
-          } else {
-            data.rotate_hilite(-1);
-          }
-          return true;
+      case keys::left:
+      case keys::numpad::left:
+        if (data.is_open()) {
+          data.rotate_selection(-1);
+        } else {
+          data.rotate_hilite(-1);
+        }
+        return true;
 
-        case keys::right:
-        case keys::numpad::right:
-          if (data.is_open()) {
-            data.rotate_selection(1);
-          } else {
-            data.rotate_hilite(1);
-          }
-          return true;
+      case keys::right:
+      case keys::numpad::right:
+        if (data.is_open()) {
+          data.rotate_selection(1);
+        } else {
+          data.rotate_hilite(1);
+        }
+        return true;
 
-        case keys::up:
-        case keys::numpad::up:
-        case keys::escape:
-          data.close();
-          redraw_later();
-          return true;
+      case keys::up:
+      case keys::numpad::up:
+      case keys::escape:
+        data.close();
+        redraw_later();
+        return true;
 
-        case keys::down:
-        case keys::numpad::down:
-        case keys::enter:
-          if (!data.is_open() && (data.get_hilite() > -1)) {
-            data.set_selection(data.get_hilite(), event_source::keyboard);
-          }
-          return true;
+      case keys::down:
+      case keys::numpad::down:
+      case keys::enter:
+        if (!data.is_open() && (data.get_hilite() > -1)) {
+          data.set_selection(data.get_hilite(), event_source::keyboard);
+        }
+        return true;
       }
       return false;
     }
@@ -639,39 +639,39 @@ namespace gui {
     void popup_menu::init () {
       register_event_handler(REGISTER_FUNCTION, paint_event(this, &popup_menu::paint));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(false, pt);
-      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point & pt) {
+                                                                       data.handle_mouse(false, pt);
+                                                                     }));
 
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
       register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-        int idx = data.get_selection();
-        if (idx > -1) {
-          if (!data[idx].is_sub_menu()) {
-            data.handle_mouse(true, core::point::zero);
-          }
-          data[idx].select();
-        }
-      }));
+                                                                          int idx = data.get_selection();
+                                                                          if (idx > -1) {
+                                                                            if (!data[idx].is_sub_menu()) {
+                                                                              data.handle_mouse(true, core::point::zero);
+                                                                            }
+                                                                            data[idx].select();
+                                                                          }
+                                                                        }));
 
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
-        data.handle_mouse(true, client_to_screen(pt));
-      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+                                                                      data.handle_mouse(true, client_to_screen(pt));
+                                                                    }));
 
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-        redraw_later();
-      }));
+                                                                   redraw_later();
+                                                                 }));
 
       register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                os::key_symbol key,
-                                                const std::string&){
-        handle_key(key);
-      }));
+                                                                       os::key_symbol key,
+                                                                       const std::string &){
+                                                                     handle_key(key);
+                                                                   }));
 
       register_event_handler(REGISTER_FUNCTION, show_event([&]() {
-        capture_pointer();
-      }));
+                                                             capture_pointer();
+                                                           }));
 
 //      register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
@@ -687,53 +687,53 @@ namespace gui {
         return true;
       }
       switch (key) {
-        case keys::left:
-        case keys::numpad::left:
-        case keys::escape:
-          if (data.is_open()) {
-            int idx = data.get_hilite();
-            data.close();
-            data.set_hilite(idx);
-            redraw_later();
-            return true;
-          }
-          break;
-        case keys::up:
-        case keys::numpad::up:
-          data.rotate_hilite(-1);
-          return true;
-
-        case keys::right:
-        case keys::numpad::right: {
+      case keys::left:
+      case keys::numpad::left:
+      case keys::escape:
+        if (data.is_open()) {
           int idx = data.get_hilite();
-          if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
+          data.close();
+          data.set_hilite(idx);
+          redraw_later();
+          return true;
+        }
+        break;
+      case keys::up:
+      case keys::numpad::up:
+        data.rotate_hilite(-1);
+        return true;
+
+      case keys::right:
+      case keys::numpad::right: {
+        int idx = data.get_hilite();
+        if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
+          data.set_selection(idx, event_source::keyboard);
+          return true;
+        }
+        break;
+      }
+      case keys::down:
+      case keys::numpad::down:
+        data.rotate_hilite(1);
+        return true;
+
+      case keys::enter:
+        if (data.get_hilite() > -1) {
+          data.set_selection(data.get_hilite(), event_source::keyboard);
+        }
+        return true;
+
+      default: {
+        int idx = -1;
+        for (auto& i : data) {
+          ++idx;
+          if (compare_menu_key(key, i)) {
             data.set_selection(idx, event_source::keyboard);
             return true;
           }
-          break;
         }
-        case keys::down:
-        case keys::numpad::down:
-          data.rotate_hilite(1);
-          return true;
-
-        case keys::enter:
-          if (data.get_hilite() > -1) {
-            data.set_selection(data.get_hilite(), event_source::keyboard);
-          }
-          return true;
-
-        default: {
-          int idx = -1;
-          for (auto& i : data) {
-            ++idx;
-            if (compare_menu_key(key, i)) {
-              data.set_selection(idx, event_source::keyboard);
-              return true;
-            }
-          }
-          break;
-        }
+        break;
+      }
       }
       return false;
     }
@@ -756,13 +756,13 @@ namespace gui {
     void popup_menu::popup_at (const core::point& pt, window& parent) {
       data.init();
       data.set_hilite(0);
-      data.set_mouse_function([&](bool btn, const core::point& gpt) {
-        if (absolute_place().is_inside(gpt)) {
-          handle_mouse(btn, gpt);
-        } else if (btn) {
-          close();
-      }
-      });
+      data.set_mouse_function([&](bool btn, const core::point & gpt) {
+                                if (absolute_place().is_inside(gpt)) {
+                                  handle_mouse(btn, gpt);
+                                } else if (btn) {
+                                  close();
+                                }
+                              });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
@@ -772,18 +772,18 @@ namespace gui {
       data.init();
       data.set_hilite(0);
       parent_data.set_close_function([&]() {
-        close();
-        parent_data.clear_close_function();
-      });
+                                       close();
+                                       parent_data.clear_close_function();
+                                     });
       parent_data.set_key_function(core::bind_method(this, &popup_menu::handle_key));
 
-      data.set_mouse_function([&](bool btn, const core::point& gpt) {
-        if (absolute_place().is_inside(gpt)) {
-          handle_mouse(btn, gpt);
-        } else {
-          parent_data.handle_mouse(btn, gpt);
-        }
-      });
+      data.set_mouse_function([&](bool btn, const core::point & gpt) {
+                                if (absolute_place().is_inside(gpt)) {
+                                  handle_mouse(btn, gpt);
+                                } else {
+                                  parent_data.handle_mouse(btn, gpt);
+                                }
+                              });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
@@ -795,7 +795,7 @@ namespace gui {
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
-      if (client_area().shrinked({ 1, 1 }).is_inside(pt)) {
+      if (client_area().shrinked({1, 1}).is_inside(pt)) {
         return std::min(static_cast<int>(data.size()), static_cast<int>((pt.y() - 1) / item_height));
       }
       return -1;

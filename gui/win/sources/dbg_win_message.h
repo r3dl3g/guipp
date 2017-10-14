@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: windows message debug helper
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: windows message debug helper
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -39,7 +39,7 @@ namespace gui {
     bool is_none_client_event (const core::event& e);
 
     struct EventId {
-      EventId(const core::event& e)
+      EventId (const core::event& e)
         : id(e.type)
       {}
 
@@ -52,6 +52,6 @@ namespace gui {
 
 namespace std {
 
-  std::ostream& operator<<(std::ostream& out, const gui::win::EventId& e);
+  std::ostream& operator<< (std::ostream& out, const gui::win::EventId& e);
 
 }

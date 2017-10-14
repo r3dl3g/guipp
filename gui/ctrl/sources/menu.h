@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: menu
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: menu
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -43,7 +43,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct menu_entry {
-      typedef void(menu_action) ();
+      typedef void (menu_action)();
       typedef draw::masked_bitmap icon_type;
 
       menu_entry (const std::string& label,
@@ -129,10 +129,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void draw_menu_label (const draw::graphics& g,
-                           const core::rectangle& r,
-                           const std::string& label,
-                           char menu_key,
-                           os::color color);
+                            const core::rectangle& r,
+                            const std::string& label,
+                            char menu_key,
+                            os::color color);
 
       // --------------------------------------------------------------------------
       void menu_item (const draw::graphics& g,
@@ -170,9 +170,9 @@ namespace gui {
       typedef vector::iterator iterator;
       typedef vector::const_iterator const_iterator;
 
-      typedef void(close_fn)();
-      typedef void(mouse_fn)(bool, const core::point&);
-      typedef bool(key_fn)(os::key_symbol);
+      typedef void (close_fn)();
+      typedef void (mouse_fn)(bool, const core::point&);
+      typedef bool (key_fn)(os::key_symbol);
 
       typedef std::function<close_fn> close_call;
       typedef std::function<mouse_fn> mouse_call;
@@ -199,8 +199,8 @@ namespace gui {
       int get_index_of (const menu_entry&) const;
 
       int get_selection () const;
-      void set_selection (int, event_source);
-      void clear_selection (event_source);
+      void set_selection(int, event_source);
+      void clear_selection(event_source);
       void rotate_selection (int delta = 1);
 
       int get_hilite () const;
@@ -208,13 +208,13 @@ namespace gui {
       void clear_hilite ();
       void rotate_hilite (int delta = 1);
 
-      void set_close_function (close_call);
+      void set_close_function(close_call);
       void clear_close_function ();
 
-      void set_mouse_function (mouse_call);
+      void set_mouse_function(mouse_call);
       void clear_mouse_function ();
 
-      void set_key_function (key_call);
+      void set_key_function(key_call);
 
       bool is_open ();
 
@@ -331,7 +331,7 @@ namespace gui {
       return hotkey;
     }
 
-    inline auto menu_entry::get_icon () const -> const icon_type& {
+    inline auto menu_entry::get_icon() const->const icon_type& {
       return icon;
     }
 
@@ -343,7 +343,7 @@ namespace gui {
       return menu_key;
     }
 
-    inline auto menu_entry::get_action () const -> const std::function<menu_action>& {
+    inline auto menu_entry::get_action() const->const std::function<menu_action>&{
       return action;
     }
 
@@ -430,11 +430,11 @@ namespace gui {
       return data.items.size();
     }
 
-    inline auto menu_data::begin () const -> const_iterator {
+    inline auto menu_data::begin() const->const_iterator {
       return data.items.begin();
     }
 
-    inline auto menu_data::end () const -> const_iterator {
+    inline auto menu_data::end() const->const_iterator {
       return data.items.end();
     }
 

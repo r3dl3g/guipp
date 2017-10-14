@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui io lib
-*
-* Customer   -
-*
-* @brief     C++ API: save bitmap as pnm to cpp file or stream.
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui io lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: save bitmap as pnm to cpp file or stream.
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -38,9 +38,9 @@ namespace gui {
 
     namespace src {
       // --------------------------------------------------------------------------
-      void save_pnm_header_src(std::ostream& out, const std::string& name, PNM pnm, int width, int height, int max) {
+      void save_pnm_header_src (std::ostream& out, const std::string& name, PNM pnm, int width, int height, int max) {
         out << "static const unsigned char " << name << "[] = {" << std::endl
-          << "'P', '" << static_cast<int>(pnm) << "', '\\n', ";
+            << "'P', '" << static_cast<int>(pnm) << "', '\\n', ";
         std::ostringstream strm;
         strm << width << ' ' << height;
         if (max) {
@@ -54,7 +54,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void save_pnm_src_rgb(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int step) {
+      void save_pnm_src_rgb (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int step) {
         const std::size_t n = bpl * height;
         if (data.size() != n) {
           throw std::invalid_argument("save_pnm_src_rgb data size missmatch");
@@ -68,8 +68,7 @@ namespace gui {
                 << std::setw(3) << (int)(d[0]);
             if ((h == height - 1) && (w == width - 1)) {
               out << "};";
-            }
-            else {
+            } else {
               out << ", ";
             }
             d += step;
@@ -117,17 +116,17 @@ namespace gui {
       void write_bit (std::ostream& out, byte value, byte bit);
 
       template<>
-      inline void write_bit<bit_order::msb> (std::ostream& out, byte value, byte bit) {
+      inline void write_bit<bit_order::msb>(std::ostream& out, byte value, byte bit) {
         out << (value & bit ? '1' : '0');
       }
 
       template<>
-      inline void write_bit<bit_order::lsb> (std::ostream& out, byte value, byte bit) {
+      inline void write_bit<bit_order::lsb>(std::ostream& out, byte value, byte bit) {
         out << (value & bit ? '0' : '1');
       }
 
       // --------------------------------------------------------------------------
-      inline void write_byte(std::ostream& out, byte b) {
+      inline void write_byte (std::ostream& out, byte b) {
         out << "0b";
         for (int i = 0; i < 8; ++i) {
           write_bit<os::bitmap_bit_order>(out, b, system_bw_bits::mask[i]);
@@ -157,11 +156,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void save_pnm_src(std::ostream& out, const draw::bitmap& bmp, const std::string& name) {
+      void save_pnm_src (std::ostream& out, const draw::bitmap& bmp, const std::string& name) {
         out << opnm(bmp, name);
       }
 
-      void save_pnm_src(const std::string& fname, const draw::bitmap& bmp, const std::string& name) {
+      void save_pnm_src (const std::string& fname, const draw::bitmap& bmp, const std::string& name) {
         std::ofstream(fname) << opnm(bmp, name);
       }
 

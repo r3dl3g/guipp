@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: bitmap converter
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: bitmap converter
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -37,20 +37,20 @@ namespace gui {
     namespace bpp {
 
       template<>
-      void set<BPP::RGB> (byteptr out, int x, byte v) {
+      void set<BPP::RGB>(byteptr out, int x, byte v) {
         int p = x * 3;
         out[p + 2] = out[p + 1] = out[p] = v;
       }
 
       template<>
-      void set<BPP::RGBA> (byteptr out, int x, byte v) {
+      void set<BPP::RGBA>(byteptr out, int x, byte v) {
         int p = x * 4;
         out[p + 2] = out[p + 1] = out[p] = v;
         out[p + 3] = 0;
       }
 
       template<>
-      byte get<BPP::BW> (cbyteptr in, int x) {
+      byte get<BPP::BW>(cbyteptr in, int x) {
         const byte value = in[x / 8];
         const byte bit = x % 8;
         const byte bit_mask = system_bw_bits::mask[bit];
@@ -60,7 +60,7 @@ namespace gui {
       }
 
       template<>
-      byte get<BPP::RGB> (cbyteptr in, int x) {
+      byte get<BPP::RGB>(cbyteptr in, int x) {
         int spos = x * 3;
         int v0 = (int)in[spos];
         int v1 = (int)in[spos + 1];
@@ -69,7 +69,7 @@ namespace gui {
       }
 
       template<>
-      byte get<BPP::RGBA> (cbyteptr in, int x) {
+      byte get<BPP::RGBA>(cbyteptr in, int x) {
         int spos = x * 4;
         int v0 = (int)in[spos];
         int v1 = (int)in[spos + 1];

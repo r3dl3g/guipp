@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: drop down list
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: drop down list
+ *
+ * @file
+ */
 
 #include "drop_down.h"
 
@@ -25,8 +25,8 @@ namespace gui {
     void drop_down::init () {
       data.main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &drop_down::layout));
       data.main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
-        layout(data.main->client_size());
-      }));
+                                                                             layout(data.main->client_size());
+                                                                           }));
     }
 
     core::rectangle drop_down::label_place (const core::size& sz) {
@@ -70,7 +70,7 @@ namespace gui {
         }
 
         os::color col = selected ? color::highLightTextColor()
-                                 : color::black;
+                        : color::black;
 
         g.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
 
@@ -87,9 +87,9 @@ namespace gui {
         if (!r.empty()) {
           std::vector<core::point> p;
           if (is_open) {
-            p = { {r.center_x(), r.y()}, r.bottom_right(), r.bottom_left() };
+            p = {{r.center_x(), r.y()}, r.bottom_right(), r.bottom_left()};
           } else {
-            p = { r.top_left(), r.top_right(), {r.center_x(), r.y2()} };
+            p = {r.top_left(), r.top_right(), {r.center_x(), r.y2()}};
           }
           graph.fill(draw::polygon(p), color::black);
         }

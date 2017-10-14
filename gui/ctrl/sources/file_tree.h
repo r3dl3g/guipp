@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: file tree/list view
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: file tree/list view
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -30,22 +30,22 @@
 //
 #if (__cplusplus >= 201700L)
 
-#include <filesystem>
+# include <filesystem>
 namespace sys_fs = std::filesystem;
 
 #elif defined(USE_BOOST)
 
-#include <boost/filesystem.hpp>
+# include <boost/filesystem.hpp>
 namespace sys_fs = boost::filesystem;
 
-#elif (_MSC_VER >= 1900) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3))
+#elif (_MSC_VER >= 1900) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ > 3))
 
-#include <experimental/filesystem>
+# include <experimental/filesystem>
 namespace sys_fs = std::experimental::filesystem;
 
 #else
 
-#pragma error "No C++ filesystem available"
+# pragma error "No C++ filesystem available"
 
 #endif
 
@@ -59,7 +59,7 @@ namespace gui {
   namespace fs {
 
     struct filtered_iterator {
-      typedef bool(filter_fn)(const sys_fs::directory_entry&);
+      typedef bool (filter_fn)(const sys_fs::directory_entry&);
 
       filtered_iterator ();
       filtered_iterator (const sys_fs::directory_iterator& i, std::function<filter_fn> f = nullptr);
@@ -236,11 +236,11 @@ namespace gui {
         return sys_fs::is_directory(n);
       }
 
-      inline auto path_info::make_reference (type const& n) -> reference {
+      inline auto path_info::make_reference(type const & n)->reference {
         return n;
       }
 
-      inline auto path_info::dereference (reference const& r) -> type const& {
+      inline auto path_info::dereference(reference const & r)->type const & {
         return r;
       }
 

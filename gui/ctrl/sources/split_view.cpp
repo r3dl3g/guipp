@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -104,15 +104,15 @@ namespace gui {
       template<>
       void split_view<orientation::vertical>::init () {
         slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
-          get_layout().layout(size());
-        }));
+                                                                        get_layout().layout(size());
+                                                                      }));
       }
 
       template<>
       void split_view<orientation::horizontal>::init () {
         slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
-          get_layout().layout(size());
-        }));
+                                                                        get_layout().layout(size());
+                                                                      }));
       }
 
     }

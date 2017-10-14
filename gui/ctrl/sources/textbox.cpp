@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: textbox controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: textbox controls
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -42,7 +42,7 @@ namespace gui {
         return (cursor_pos.row == idx) ? cursor_pos.column : -1;
       }
 
-      edit_base::range get_line_selection (const core::range<core::position<int>>& selection, size_t idx) {
+      edit_base::range get_line_selection (const core::range<core::position<int> >& selection, size_t idx) {
         edit_base::range r;
         if (selection.first.row < idx) {
           r.first = 0;
@@ -71,7 +71,7 @@ namespace gui {
                      os::color foreground,
                      os::color background,
                      const text_origin origin,
-                     const core::range<core::position<int>>& selection,
+                     const core::range<core::position<int> >& selection,
                      const core::position<int>& cursor_pos,
                      const core::point& offset,
                      const bool has_focus) {
@@ -81,7 +81,7 @@ namespace gui {
         const auto first = static_cast<int>(offset.y() / row_sz);
         core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
 
-        for(auto idx = first; (idx < last) && (r.y() < height); ++idx) {
+        for (auto idx = first; (idx < last) && (r.y() < height); ++idx) {
           win::paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
                                 detail::get_line_selection(selection, idx),
                                 detail::get_line_cursor(cursor_pos, idx),
@@ -181,13 +181,13 @@ namespace gui {
           for (int i = 1; i < max_chars; ++i) {
             core::size sz = data.font.get_text_size(text.substr(0, i));
             if (sz.width() >= x) {
-              return{i - 1, row};
+              return {i - 1, row};
             }
           }
-          return{max_chars, row};
+          return {max_chars, row};
         }
 
-        return{};
+        return {};
       }
 
       void textbox_base::replace_selection (const std::string& new_text) {
@@ -251,7 +251,7 @@ namespace gui {
           const auto row_sz = data.font.line_height();
           const auto row_cnt = row_count();
           core::size_type w = 0;
-          for(auto text : data.lines) {
+          for (auto text : data.lines) {
             w = std::max(w, data.font.get_text_size(text).width());
           }
           data.virtual_size = {w, static_cast<core::size_type>(row_sz * row_cnt)};
@@ -311,11 +311,11 @@ namespace gui {
         if (pos.is_valid() && (pos.column > 0)) {
           std::string::size_type p = ibr::string::find_left_space(data.lines[pos.row], pos.column);
           if (p != std::string::npos) {
-            return{p, pos.row};
+            return {p, pos.row};
           }
         }
         if (pos.row > 0) {
-          return{data.lines[pos.row - 1].size(), pos.row - 1};
+          return {data.lines[pos.row - 1].size(), pos.row - 1};
         }
         return pos;
       }
@@ -324,25 +324,25 @@ namespace gui {
         if (pos.is_valid() && (pos.column < data.lines[pos.row].size())) {
           std::string::size_type p = ibr::string::find_right_space(data.lines[pos.row], pos.column);
           if (p != std::string::npos) {
-            return{p, pos.row};
+            return {p, pos.row};
           }
         }
         if (pos.row < (row_count() - 1)) {
-          return{0, pos.row + 1};
+          return {0, pos.row + 1};
         }
         return pos;
       }
 
       void textbox_base::enable_select_by_mouse () {
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(pt));
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
           data.last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
           const auto p = get_position_at_point(pt);
@@ -351,11 +351,11 @@ namespace gui {
           set_cursor_pos(p);
           set_selection({l, r});
         }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point & pt) {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }
-         }));
+        }));
         register_event_handler(REGISTER_FUNCTION, key_down_event<keys::c, state::control>([&]() {
           clipboard::get().set_text(*this, get_selected_text());
         }));

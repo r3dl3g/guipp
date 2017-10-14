@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window types
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window types
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -37,9 +37,9 @@ namespace gui {
     const pen pen::default_pen((os::pen)GetStockObject(BLACK_PEN));
 
     pen::pen (os::pen id)
-      :id(id)
+      : id(id)
     {
-      GetObject(id, sizeof(os::win32::pen_type), &info);
+      GetObject(id, sizeof (os::win32::pen_type), &info);
     }
 
     pen::pen (const os::color& color, size_type width, Style style)
@@ -47,7 +47,7 @@ namespace gui {
     {
       info.lopnColor = color;
       info.lopnStyle = static_cast<int>(style);
-      info.lopnWidth = { width, width };
+      info.lopnWidth = {width, width};
       if (style == gui::draw::pen::Style::dot) {
         LOGBRUSH LogBrush;
         LogBrush.lbColor = color;
@@ -117,8 +117,7 @@ namespace gui {
       , m_style(rhs.m_style)
     {}
 
-    pen::~pen () {
-    }
+    pen::~pen () {}
 
     os::color pen::color () const {
       return m_color;

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic typedefs
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic typedefs
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -60,6 +60,7 @@ namespace gui {
     static bool is_not_set (T value) {
       return (value & mask) == 0;
     }
+
   };
 
   // --------------------------------------------------------------------------
@@ -76,46 +77,51 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
-  template<bit_order O> struct bw_bits {};
+  template<bit_order O>
+  struct bw_bits {};
 
-  template<> struct bw_bits<bit_order::lsb> {
-    static constexpr byte value[2] = { 0, 0xff };
+  template<>
+  struct bw_bits<bit_order::lsb> {
+    static constexpr byte value[2] = {0, 0xff};
     static constexpr byte adapt (byte v) {
       return v;
     }
+
   };
 
-  template<> struct bw_bits<bit_order::msb> {
-    static constexpr byte value[2] = { 0xff, 0 };
-    static constexpr byte adapt(byte v) {
+  template<>
+  struct bw_bits<bit_order::msb> {
+    static constexpr byte value[2] = {0xff, 0};
+    static constexpr byte adapt (byte v) {
       return v ^ 0xff;
     }
+
   };
 
   // --------------------------------------------------------------------------
   constexpr byte reverse_lookup_table[16] = {
-      0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-      0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
+    0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+    0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
   };
 
   constexpr byte reverse_bit_order (byte n) {
-     // Reverse the top and bottom nibble then swap them.
-     return (reverse_lookup_table[n & 0b1111] << 4) | reverse_lookup_table[n >> 4];
+    // Reverse the top and bottom nibble then swap them.
+    return (reverse_lookup_table[n & 0b1111] << 4) | reverse_lookup_table[n >> 4];
   }
 
   // --------------------------------------------------------------------------
   // the honour goes to user79758 : http://stackoverflow.com/a/4609795
-  template <typename T>
+  template<typename T>
   constexpr int signum (T x, std::false_type is_signed) {
     return T(0) < x;
   }
 
-  template <typename T>
+  template<typename T>
   constexpr int signum (T x, std::true_type is_signed) {
-      return (T(0) < x) - (x < T(0));
+    return (T(0) < x) - (x < T(0));
   }
 
-  template <typename T>
+  template<typename T>
   constexpr int signum (T x) {
     return signum(x, std::is_signed<T>());
   }

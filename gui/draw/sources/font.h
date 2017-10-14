@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui lib
-*
-* Customer   -
-*
-* @brief     C++ API: font definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: font definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -61,15 +61,15 @@ namespace gui {
         heavy = FW_HEAVY
 #endif // Win32
 #ifdef X11
-        thin        = FC_WEIGHT_THIN,
-        ultraLight  = FC_WEIGHT_ULTRALIGHT,
-        light       = FC_WEIGHT_SEMILIGHT,
-        regular     = FC_WEIGHT_REGULAR,
-        medium      = FC_WEIGHT_MEDIUM,
-        semiBold    = FC_WEIGHT_SEMIBOLD,
-        bold        = FC_WEIGHT_BOLD,
-        ultraBold   = FC_WEIGHT_ULTRABOLD,
-        heavy       = FC_WEIGHT_HEAVY
+        thin = FC_WEIGHT_THIN,
+        ultraLight = FC_WEIGHT_ULTRALIGHT,
+        light = FC_WEIGHT_SEMILIGHT,
+        regular = FC_WEIGHT_REGULAR,
+        medium = FC_WEIGHT_MEDIUM,
+        semiBold = FC_WEIGHT_SEMIBOLD,
+        bold = FC_WEIGHT_BOLD,
+        ultraBold = FC_WEIGHT_ULTRABOLD,
+        heavy = FC_WEIGHT_HEAVY
 #endif // X11
       };
 
@@ -102,8 +102,8 @@ namespace gui {
 
       size_type line_height () const;
 
-      font with_size (size_type) const;
-      font with_thickness (Thickness) const;
+      font with_size(size_type) const;
+      font with_thickness(Thickness) const;
       font with_rotation (int) const;
       font with_italic (bool) const;
       font with_underline (bool) const;
@@ -114,14 +114,14 @@ namespace gui {
       core::size get_text_size (const std::string& text) const;
 
     private:
-      void destroy();
+      void destroy ();
 #ifdef WIN32
       os::font id;
 #endif // WIN32
       os::font_type info;
     };
 
-    std::ostream& operator<<(std::ostream& out, const font& c);
+    std::ostream& operator<< (std::ostream& out, const font& c);
 
   }
 

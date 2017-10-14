@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2015-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: layout
-*
-* @file
-*/
+ * @copyright (c) 2015-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: layout
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -49,6 +49,7 @@ namespace gui {
     public:
       standard_layout (win::container*)
       {}
+
     };
 
     // --------------------------------------------------------------------------
@@ -86,8 +87,8 @@ namespace gui {
       layout_base (const layout_base&) = delete;
       layout_base (layout_base&&) = delete;
 
-      void init(std::function<size_callback> f1);
-      void init(std::function<size_callback> f1, std::function<show_callback> f2);
+      void init (std::function<size_callback> f1);
+      void init (std::function<size_callback> f1, std::function<show_callback> f2);
 
       std::vector<win::window*> get_children ();
       static void place_child (win::window*, const core::rectangle&);
@@ -232,6 +233,7 @@ namespace gui {
         void move_area (core::rectangle& area, type offs) {
           super::move_area(area, offs);
         }
+
       };
 
       template<>
@@ -259,6 +261,7 @@ namespace gui {
         void move_area (core::rectangle& area, type offs) {
           super::move_area(area, -offs);
         }
+
       };
 
       template<>
@@ -286,6 +289,7 @@ namespace gui {
         void move_area (core::rectangle& area, type offs) {
           super::move_area(area, -offs);
         }
+
       };
 
       template<>
@@ -313,6 +317,7 @@ namespace gui {
         void move_area (core::rectangle& area, type offs) {
           super::move_area(area, offs);
         }
+
       };
 
       template<>
@@ -340,6 +345,7 @@ namespace gui {
         void move_area (core::rectangle& area, type offs) {
           super::move_area(area, offs);
         }
+
       };
 
     }
@@ -387,7 +393,7 @@ namespace gui {
             const type sep_offset = gap + sep;
 
             core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz, gap, count);
-            for(win::window* win : children) {
+            for (win::window* win : children) {
               if (super::is_separator(win)) {
                 super::place_child(win, super::get_sep_area(area, sep));
                 super::move_area(area, sep_offset);
@@ -406,9 +412,10 @@ namespace gui {
     private:
       void init () {
         super::init(core::bind_method(this, &lineup_layout::layout), [&](){
-          layout(super::get_main_size());
-        });
+                      layout(super::get_main_size());
+                    });
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -475,7 +482,7 @@ namespace gui {
             const type sep_offset = gap + sep;
 
             core::rectangle area(core::point(border, border), super::make_size(dim1, dim2));
-            for(win::window* win : children) {
+            for (win::window* win : children) {
               if (super::is_separator(win)) {
                 super::place_child(win, super::get_sep_area(area, sep));
                 super::move_area(area, sep_offset);
@@ -494,9 +501,10 @@ namespace gui {
     private:
       void init () {
         super::init(core::bind_method(this, &adaption_layout::layout), [&](){
-          layout(super::get_main_size());
-        });
+                      layout(super::get_main_size());
+                    });
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -542,7 +550,7 @@ namespace gui {
             const type xoffset = width + gap;
             const type yoffset = height + gap;
             core::rectangle area(border, border, width, height);
-            for(win::window* win : children) {
+            for (win::window* win : children) {
               place_child(win, area);
               area.move_x(xoffset);
               if (area.x2() > xmax) {
@@ -560,9 +568,10 @@ namespace gui {
     private:
       void init () {
         super::init(core::bind_method(this, &grid_lineup::layout), [&](){
-          layout(get_main_size());
-        });
+                      layout(get_main_size());
+                    });
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -605,7 +614,7 @@ namespace gui {
 
             core::rectangle area(border, border, width, height);
             int column = 0;
-            for(win::window* win : children) {
+            for (win::window* win : children) {
               place_child(win, area);
               column++;
               if (column < columns) {
@@ -626,9 +635,10 @@ namespace gui {
     private:
       void init () {
         super::init(core::bind_method(this, &grid_adaption::layout), [&](){
-          layout(get_main_size());
-        });
+                      layout(get_main_size());
+                    });
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -679,6 +689,7 @@ namespace gui {
       static points get_right_position (const core::rectangle& r, const core::size&) {
         return detail::make_points(r.y(), r.height());
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -701,6 +712,7 @@ namespace gui {
       static points get_right_position (const core::rectangle& r, const core::size&) {
         return detail::make_points(r.y(), r.height());
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -723,6 +735,7 @@ namespace gui {
       static points get_right_position (const core::rectangle& r, const core::size& sz) {
         return detail::make_points(0, sz.height());
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -745,6 +758,7 @@ namespace gui {
       static points get_right_position (const core::rectangle& r, const core::size& sz) {
         return detail::make_points(r.y(), r.height());
       }
+
     };
 
     // --------------------------------------------------------------------------
@@ -767,6 +781,7 @@ namespace gui {
       static points get_right_position (const core::rectangle& r, const core::size& sz) {
         return detail::make_points(0, r.height() + r.y());
       }
+
     };
 
     struct border_layout_data {
@@ -886,21 +901,43 @@ namespace gui {
         update();
       }
 
-      inline float get_top_height () const    { return data.top_height; }
-      inline float get_bottom_height () const { return data.bottom_height; }
-      inline float get_left_width () const    { return data.left_width; }
-      inline float get_right_width () const   { return data.right_width; }
+      inline float get_top_height () const {
+        return data.top_height;
+      }
 
-      inline void set_top_height (float v)     { data.top_height = v; }
-      inline void set_bottom_height (float v)  { data.bottom_height = v; }
-      inline void set_left_width (float v)     { data.left_width = v; }
-      inline void set_right_width (float v)    { data.right_width = v; }
+      inline float get_bottom_height () const {
+        return data.bottom_height;
+      }
+
+      inline float get_left_width () const {
+        return data.left_width;
+      }
+
+      inline float get_right_width () const {
+        return data.right_width;
+      }
+
+      inline void set_top_height (float v)     {
+        data.top_height = v;
+      }
+
+      inline void set_bottom_height (float v)  {
+        data.bottom_height = v;
+      }
+
+      inline void set_left_width (float v)     {
+        data.left_width = v;
+      }
+
+      inline void set_right_width (float v)    {
+        data.right_width = v;
+      }
 
     private:
       void init () {
         super::init(core::bind_method(this, &border_layout::layout), [&](){
-          layout(get_main_size());
-        });
+                      layout(get_main_size());
+                    });
       }
 
       border_layout_data data;
@@ -932,6 +969,7 @@ namespace gui {
         static core::point_type calc (core::point_type a) {
           return core::point_type(a * core::point_type(R) / 10000.0 + O);
         }
+
       };
 
       template<int O>
@@ -939,6 +977,7 @@ namespace gui {
         static core::point_type calc (core::point_type a) {
           return core::point_type(a + O);
         }
+
       };
 
       template<int O>
@@ -946,6 +985,7 @@ namespace gui {
         constexpr static core::point_type calc (core::point_type a) {
           return core::point_type(O);
         }
+
       };
 
       template<Where W, int O, int R = 10000>
@@ -960,6 +1000,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(outer.x());
         }
+
       };
 
       template<int O, int R>
@@ -968,6 +1009,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(outer.x2());
         }
+
       };
 
       template<int O, int R>
@@ -976,6 +1018,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(outer.y());
         }
+
       };
 
       template<int O, int R>
@@ -984,6 +1027,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(outer.y2());
         }
+
       };
 
       template<int O, int R>
@@ -992,6 +1036,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(sz.width());
         }
+
       };
 
       template<int O, int R>
@@ -1000,6 +1045,7 @@ namespace gui {
                                       const core::rectangle& outer) {
           return scale<O, R>::calc(sz.height());
         }
+
       };
 
       template<What T, Where W, int O, int R = 10000>
@@ -1016,6 +1062,7 @@ namespace gui {
                          const core::rectangle& outer) {
           rect.x(source<W, O, R>::calc(sz, outer));
         }
+
       };
 
       template<Where W, int O, int R>
@@ -1025,6 +1072,7 @@ namespace gui {
                          const core::rectangle& outer) {
           rect.x2(source<W, O, R>::calc(sz, outer));
         }
+
       };
 
       template<Where W, int O, int R>
@@ -1034,6 +1082,7 @@ namespace gui {
                          const core::rectangle& outer) {
           rect.y(source<W, O, R>::calc(sz, outer));
         }
+
       };
 
       template<Where W, int O, int R>
@@ -1043,12 +1092,13 @@ namespace gui {
                          const core::rectangle& outer) {
           rect.y2(source<W, O, R>::calc(sz, outer));
         }
+
       };
 
       struct attachment {
-        typedef void(adjust_function) (core::rectangle&,
-                                     const core::size&,
-                                     const core::rectangle&);
+        typedef void (adjust_function)(core::rectangle&,
+                                       const core::size&,
+                                       const core::rectangle&);
 
         win::window* target;
         win::window* source;

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: bitmap
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: bitmap
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -38,7 +38,7 @@ namespace gui {
     bitmap::bitmap (bitmap&& rhs)
       : id(0)
     {
-      operator=(std::move(rhs));
+      operator= (std::move(rhs));
     }
 
     void bitmap::operator= (bitmap&& rhs) {
@@ -71,8 +71,8 @@ namespace gui {
 #if WIN32
       if (is_valid()) {
         BITMAP bmp;
-        GetObject(get_id(), sizeof(BITMAP), &bmp);
-        return { (core::size_type)bmp.bmWidth, (core::size_type)bmp.bmHeight };
+        GetObject(get_id(), sizeof (BITMAP), &bmp);
+        return {(core::size_type)bmp.bmWidth, (core::size_type)bmp.bmHeight};
       }
 #endif
 #ifdef X11
@@ -82,7 +82,7 @@ namespace gui {
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, get_id(), &root, &x, &y, &w, &h, &b, &d);
-        return { (core::size_type)w, (core::size_type)h };
+        return {(core::size_type)w, (core::size_type)h};
       }
 #endif
       return core::size::zero;
@@ -92,7 +92,7 @@ namespace gui {
 #if WIN32
       if (is_valid()) {
         BITMAP bmp;
-        GetObject(get_id(), sizeof(BITMAP), &bmp);
+        GetObject(get_id(), sizeof (BITMAP), &bmp);
         return bmp.bmBitsPixel;
       }
 #endif
@@ -112,7 +112,6 @@ namespace gui {
     BPP bitmap::bits_per_pixel () const {
       return BPP(depth());
     }
-
 
     void bitmap::create_compatible (int w, int h) {
 #if WIN32
@@ -193,35 +192,35 @@ namespace gui {
     template<int D, int M>
     int up_modulo (int v) {
       int r = (v + D - 1) / D;
-      return r + (r % M ? M - r % M: 0);
+      return r + (r % M ? M - r % M : 0);
     }
 
     int bitmap::calc_bytes_per_line (int w, BPP bpp) {
 #ifdef WIN32
       switch (bpp) {
-        case BPP::BW:
-          return up_modulo<8, 2>(w);
-        case BPP::GRAY:
-          return up_modulo<1, 2>(w);
-        case BPP::RGB:
-          return up_modulo<1, 2>(w * 3);
-        case BPP::RGBA:
-          return up_modulo<1, 2>(w * 4);
-        case BPP::Undefined:
-          break;
+      case BPP::BW:
+        return up_modulo<8, 2>(w);
+      case BPP::GRAY:
+        return up_modulo<1, 2>(w);
+      case BPP::RGB:
+        return up_modulo<1, 2>(w * 3);
+      case BPP::RGBA:
+        return up_modulo<1, 2>(w * 4);
+      case BPP::Undefined:
+        break;
       }
       return ((((w * static_cast<int>(bpp)) + 31) & ~31) >> 3);
 #endif // WIN32
 #ifdef X11
       switch (bpp) {
-        case BPP::BW:
-          return up_modulo<8, 4>(w);
-        case BPP::GRAY:
-          return up_modulo<1, 4>(w);
-        case BPP::RGB:
-          return up_modulo<1, 4>(w * 3);
-        case BPP::RGBA:
-          return up_modulo<1, 4>(w * 4);
+      case BPP::BW:
+        return up_modulo<8, 4>(w);
+      case BPP::GRAY:
+        return up_modulo<1, 4>(w);
+      case BPP::RGB:
+        return up_modulo<1, 4>(w * 3);
+      case BPP::RGBA:
+        return up_modulo<1, 4>(w * 4);
       }
       return -1;
 #endif // X11
@@ -229,7 +228,7 @@ namespace gui {
 
     void put_bmp_data (os::bitmap id, const std::vector<char>& src, int w, int h, int bpl, BPP bpp) {
 #if WIN32
-      /*int ret = */SetBitmapBits(id, (DWORD)src.size(), src.data());
+      /*int ret = */ SetBitmapBits(id, (DWORD)src.size(), src.data());
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
@@ -270,43 +269,59 @@ namespace gui {
         using namespace convert;
 
         switch (bpp) {
-          case BPP::BW:
-            switch (dst_bpp) {
-              case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::Undefined: break;
-            }
-          break;
-          case BPP::GRAY:
-            switch (dst_bpp) {
-              case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::Undefined: break;
-            }
-          break;
-          case BPP::RGB:
-            switch (dst_bpp) {
-              case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::Undefined: break;
-            }
-          break;
-          case BPP::RGBA:
-            switch (dst_bpp) {
-              case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl); break;
-              case BPP::Undefined: break;
-            }
-          break;
+        case BPP::BW:
+          switch (dst_bpp) {
+          case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
           case BPP::Undefined: break;
+          }
+          break;
+        case BPP::GRAY:
+          switch (dst_bpp) {
+          case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::Undefined: break;
+          }
+          break;
+        case BPP::RGB:
+          switch (dst_bpp) {
+          case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::Undefined: break;
+          }
+          break;
+        case BPP::RGBA:
+          switch (dst_bpp) {
+          case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, bpl, dst_bpl);
+            break;
+          case BPP::Undefined: break;
+          }
+          break;
+        case BPP::Undefined: break;
         }
 
         put_bmp_data(get_id(), dst, w, h, dst_bpl, dst_bpp);
@@ -317,13 +332,13 @@ namespace gui {
     void bitmap::get_data (std::vector<char>& data, int& w, int& h, int& bpl, BPP& bpp) const {
 #if WIN32
       BITMAP bmp;
-      GetObject(get_id(), sizeof(BITMAP), &bmp);
+      GetObject(get_id(), sizeof (BITMAP), &bmp);
       w = bmp.bmWidth;
       h = bmp.bmHeight;
       bpl = bmp.bmWidthBytes;
       bpp = BPP(bmp.bmBitsPixel);
       data.resize(bpl * h);
-      /*int dst_bpl = */calc_bytes_per_line(w, bpp);
+      /*int dst_bpl = */ calc_bytes_per_line(w, bpp);
       int ret = GetBitmapBits(get_id(), (LONG)data.size(), data.data());
       if (ret != data.size()) {
         throw std::runtime_error("get image data failed");
@@ -341,8 +356,7 @@ namespace gui {
         bpl = im->bytes_per_line;
         bpp = BPP(im->bits_per_pixel);
         XDestroyImage(im);
-      }
-      else {
+      } else {
         throw std::runtime_error("get image failed");
       }
 #endif
@@ -372,7 +386,7 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (masked_bitmap&& rhs) {
-      operator=(std::move(rhs));
+      operator= (std::move(rhs));
     }
 
     void masked_bitmap::operator= (masked_bitmap&& rhs) {
@@ -383,7 +397,7 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (const memmap& rhs) {
-      operator =(rhs);
+      operator= (rhs);
     }
 
     void masked_bitmap::operator= (const memmap& rhs) {
@@ -395,7 +409,7 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (memmap&& rhs) {
-      operator =(std::move(rhs));
+      operator= (std::move(rhs));
     }
 
     void masked_bitmap::operator= (memmap&& rhs) {
@@ -407,8 +421,8 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (const memmap& image, const maskmap& mask)
-    : image(image)
-    , mask(mask)
+      : image(image)
+      , mask(mask)
     {}
 
     masked_bitmap::masked_bitmap (memmap&& img, maskmap&& msk) {

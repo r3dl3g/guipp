@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -37,14 +37,14 @@ namespace gui {
     // --------------------------------------------------------------------------
 #ifdef WIN32
     using slider_event = event_handler<detail::SLIDER_MESSAGE, 0,
-                                       params<int>::getter<get_param<0, int>>>;
+                                       params<int>::getter<get_param<0, int> > >;
 #endif //WIN32
 #ifdef X11
     using slider_event = event_handler<ClientMessage, 0,
-                                       params<int>::getter<get_client_data<0, int>>,
-                                       0, client_message_matcher<detail::SLIDER_MESSAGE>>;
+                                       params<int>::getter<get_client_data<0, int> >,
+                                       0, client_message_matcher<detail::SLIDER_MESSAGE> >;
 #endif // X11
-    // --------------------------------------------------------------------------
+       // --------------------------------------------------------------------------
 
     namespace detail {
 
@@ -131,11 +131,11 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline auto slider_base::get_min () const -> type {
+      inline auto slider_base::get_min() const->type {
         return min;
       }
 
-      inline auto slider_base::get_max () const -> type {
+      inline auto slider_base::get_max() const->type {
         return max;
       }
 

@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window types
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window types
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -25,7 +25,7 @@
 #include <dbgstream.h>
 #include <iterator>
 #ifdef X11
-#include <X11/XKBlib.h>
+# include <X11/XKBlib.h>
 #endif
 // --------------------------------------------------------------------------
 //
@@ -47,15 +47,15 @@ namespace gui {
         }
 
         char buffer[256];
-        XGetErrorText(dpy, errev->error_code, buffer, sizeof(buffer));
+        XGetErrorText(dpy, errev->error_code, buffer, sizeof (buffer));
 
         LogFatal << "Error occured somewhere in X!"
-                    " ResourceID: " << errev->resourceid <<
-                    " Serial: " << errev->serial <<
-                    " Error_code: " << (int) errev->error_code <<
-                    " Request_code: " << (int) errev->request_code <<
-                    " Minor_code: " << (int) errev->minor_code <<
-                    " Text: " << buffer;
+        " ResourceID: " << errev->resourceid <<
+        " Serial: " << errev->serial <<
+        " Error_code: " << (int)errev->error_code <<
+        " Request_code: " << (int)errev->request_code <<
+        " Minor_code: " << (int)errev->minor_code <<
+        " Text: " << buffer;
         return 0;
       }
 
@@ -63,6 +63,7 @@ namespace gui {
         LogFatal << "IO Error occured somewhere in X!";
         return 0;
       }
+
 #endif // X11
 
       struct gui_init {
@@ -143,6 +144,7 @@ namespace gui {
                                           (GetKeyState(VK_LWIN) & 0x8000 ? MK_SYTEM : 0) |
                                           (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
       }
+
 #endif // WIN32
 
 #ifdef X11
@@ -163,6 +165,7 @@ namespace gui {
       os::x11::visual get_visual () {
         return DefaultVisual(get_instance(), get_screen());
       }
+
 #endif // X11
 
     }
@@ -178,10 +181,10 @@ namespace gui {
 
 
 #ifdef WIN32
-int APIENTRY WinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow) {
+int APIENTRY WinMain (_In_ HINSTANCE hInstance,
+                      _In_opt_ HINSTANCE hPrevInstance,
+                      _In_ LPTSTR lpCmdLine,
+                      _In_ int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -194,13 +197,13 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 #endif // WIN32
 
 #ifdef X11
-int main(int argc, char* argv[]) {
+int main (int argc, char* argv[]) {
 //  ibr::log::core::instance().addSink(&std::cerr,
 //                                     ibr::log::level::debug,
 //                                     ibr::log::core::instance().getConsoleFormatter());
 
   std::vector<std::string> args;
-  for(int i = 0; i < argc; ++i) {
+  for (int i = 0; i < argc; ++i) {
     args.push_back(argv[i]);
   }
 

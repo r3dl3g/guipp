@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui lib
-*
-* Customer   -
-*
-* @brief     C++ API: bitmap definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: bitmap definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -101,11 +101,11 @@ namespace gui {
       {}
 
       datamap (const datamap& rhs) {
-        operator=(rhs);
+        operator= (rhs);
       }
 
       datamap (const bitmap& rhs) {
-        operator=(rhs);
+        operator= (rhs);
       }
 
       datamap (datamap&& rhs)
@@ -125,7 +125,7 @@ namespace gui {
       }
 
       void operator= (const datamap& rhs) {
-        operator=(static_cast<const bitmap&>(rhs));
+        operator= (static_cast<const bitmap&>(rhs));
       }
 
       void operator= (const bitmap& rhs) {
@@ -140,7 +140,7 @@ namespace gui {
       }
 
       void operator= (datamap&& rhs) {
-        super::operator=(std::move(rhs));
+        super::operator= (std::move(rhs));
       }
 
       inline void create (int w, int h) {
@@ -150,6 +150,7 @@ namespace gui {
       inline void create (const core::size& sz) {
         create(sz.os_width(), sz.os_height());
       }
+
     };
 
     typedef datamap<BPP::BW> maskmap;
@@ -165,11 +166,11 @@ namespace gui {
       {}
 
       memmap (const memmap& rhs) {
-        operator=(rhs);
+        operator= (rhs);
       }
 
       memmap (const bitmap& rhs) {
-        operator=(rhs);
+        operator= (rhs);
       }
 
       memmap (memmap&& rhs)
@@ -185,7 +186,7 @@ namespace gui {
       }
 
       void operator= (const memmap& rhs) {
-        operator=(static_cast<const bitmap&>(rhs));
+        operator= (static_cast<const bitmap&>(rhs));
       }
 
       void operator= (const bitmap& rhs) {
@@ -200,10 +201,10 @@ namespace gui {
       }
 
       void operator= (memmap&& rhs) {
-        super::operator=(std::move(rhs));
+        super::operator= (std::move(rhs));
       }
 
-      operator os::drawable () const {
+      operator os::drawable() const {
         return get_id();
       }
 
@@ -214,6 +215,7 @@ namespace gui {
       inline void create (const core::size& sz) {
         create(sz.os_width(), sz.os_height());
       }
+
     };
 
 

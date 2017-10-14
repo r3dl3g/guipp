@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://wwrothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: button
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://wwrothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: button
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -38,14 +38,14 @@ namespace gui {
 #ifdef WIN32
     // --------------------------------------------------------------------------
     using button_clicked_event = event_handler<detail::BN_CLICKED_MESSAGE, 0,
-                                               params<>::getter<>>;
+                                               params<>::getter<> >;
     using button_pushed_event = event_handler<detail::BN_PUSHED_MESSAGE, 0,
-                                              params<>::getter<>>;
+                                              params<>::getter<> >;
     using button_released_event = event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
-                                                params<>::getter<>>;
+                                                params<>::getter<> >;
     using button_state_event = event_handler<detail::BN_STATE_MESSAGE, 0,
                                              params<bool>::
-                                             getter<get_param<0, bool>>>;
+                                             getter<get_param<0, bool> > >;
 // --------------------------------------------------------------------------
 #endif //WIN32
 
@@ -53,19 +53,19 @@ namespace gui {
     // --------------------------------------------------------------------------
     using button_clicked_event = event_handler<ClientMessage, 0,
                                                params<>::getter<>, 0,
-                                               client_message_matcher<detail::BN_CLICKED_MESSAGE>>;
+                                               client_message_matcher<detail::BN_CLICKED_MESSAGE> >;
     using button_pushed_event = event_handler<ClientMessage, 0,
                                               params<>::getter<>, 0,
-                                              client_message_matcher<detail::BN_PUSHED_MESSAGE>>;
+                                              client_message_matcher<detail::BN_PUSHED_MESSAGE> >;
     using button_released_event = event_handler<ClientMessage, 0,
                                                 params<>::getter<>, 0,
-                                                client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>;
+                                                client_message_matcher<detail::BN_UNPUSHED_MESSAGE> >;
     using button_state_event = event_handler<ClientMessage, 0,
-                                             params<bool>::getter<get_client_data<0, bool>>, 0,
-                                             client_message_matcher<detail::BN_STATE_MESSAGE>>;
+                                             params<bool>::getter<get_client_data<0, bool> >, 0,
+                                             client_message_matcher<detail::BN_STATE_MESSAGE> >;
     // --------------------------------------------------------------------------
 #endif // X11
-    // --------------------------------------------------------------------------
+       // --------------------------------------------------------------------------
     struct button_state {
       button_state ();
 
@@ -125,13 +125,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    typedef void(button_drawer) (const draw::graphics&,
+    typedef void (button_drawer)(const draw::graphics&,
                                  const core::rectangle&,
                                  const button_state&,
                                  bool,
                                  bool);
     // --------------------------------------------------------------------------
-    typedef void(text_button_drawer) (const draw::graphics&,
+    typedef void (text_button_drawer)(const draw::graphics&,
                                       const core::rectangle&,
                                       const std::string&,
                                       const button_state&,
@@ -232,14 +232,14 @@ namespace gui {
     using push_button = basic_button<push_button_traits>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    using toggle_button = basic_button<toggle_button_traits<keep_state>>;
+    using toggle_button = basic_button<toggle_button_traits<keep_state> >;
     // --------------------------------------------------------------------------
     using text_button = basic_text_button<push_button_traits,
                                           paint::push_button>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray, os::color background = color::dark_gray>
     using flat_button = basic_text_button<push_button_traits,
-                                          paint::color_flat_button<foreground, background>>;
+                                          paint::color_flat_button<foreground, background> >;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
     using radio_button = basic_text_button<toggle_button_traits<keep_state>,
@@ -253,7 +253,7 @@ namespace gui {
              os::color background = color::dark_gray,
              bool keep_state = false>
     using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
-                                                 paint::color_flat_button<foreground, background>>;
+                                                 paint::color_flat_button<foreground, background> >;
     // --------------------------------------------------------------------------
     template<class T>
     class custom_button : public basic_button<T> {
@@ -277,7 +277,7 @@ namespace gui {
     using custom_push_button = custom_button<push_button_traits>;
     // --------------------------------------------------------------------------
     template<bool keep_state = false>
-    using custom_toggle_button = custom_button<toggle_button_traits<keep_state>>;
+    using custom_toggle_button = custom_button<toggle_button_traits<keep_state> >;
 
     // --------------------------------------------------------------------------
     // inlines
@@ -379,9 +379,9 @@ namespace gui {
 
     template<class T, text_button_drawer D>
     void basic_text_button<T, D>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics& graph) {
-        D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
-      }));
+      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
+                                                                     D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
+                                                                   }));
     }
 
     // --------------------------------------------------------------------------
@@ -417,11 +417,11 @@ namespace gui {
 
     template<class T>
     void custom_button<T>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics& graph) {
-        if (drawer) {
-          drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
-        }
-      }));
+      super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics & graph) {
+                                                                     if (drawer) {
+                                                                       drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
+                                                                     }
+                                                                   }));
     }
 
     // --------------------------------------------------------------------------

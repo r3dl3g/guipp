@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: window class definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: window class definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -94,8 +94,9 @@ namespace gui {
              os::style CS = window_class_defaults<>::class_style>
     struct window_class {
       static const char* name () {
-        return typeid(T).name();
+        return typeid (T).name();
       }
+
       static constexpr os::color background = B;
       static constexpr win::cursor_type cursor = C;
       static constexpr os::style style = S;
@@ -103,8 +104,9 @@ namespace gui {
       static constexpr os::style class_style = CS;
 
       static class_info get () {
-        return class_info{ name(), background, cursor, style, ex_style, class_style };
+        return class_info {name(), background, cursor, style, ex_style, class_style};
       }
+
     };
 
   } // win

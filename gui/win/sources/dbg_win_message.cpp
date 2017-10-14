@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: windows message debug helper
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: windows message debug helper
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 #include "dbg_win_message.h"
 
 
-#define DEFINE_MESSAGE(a) { a, #a }
+#define DEFINE_MESSAGE(a) {a, # a}
 
 namespace gui {
 
@@ -42,7 +42,7 @@ namespace gui {
 
       typedef std::map<os::event_id, const char*> message_map_t;
 
-      message_map_t& get_message_map() {
+      message_map_t& get_message_map () {
         static message_map_t message_map = {
 #ifdef WIN32
           DEFINE_MESSAGE(WM_CREATE),
@@ -435,9 +435,9 @@ namespace gui {
           DEFINE_MESSAGE(SBM_SETSCROLLINFO),
           DEFINE_MESSAGE(SW_ERASE)
 
-#if defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0400)
+# if defined(_WIN32_WCE) && (_WIN32_WCE >= 0x0400)
           , DEFINE_MESSAGE(LB_MULTIPLEADDSTRING)
-#endif
+# endif
 #endif // WIN32
 
 #ifdef X11
@@ -479,46 +479,47 @@ namespace gui {
         };
         return message_map;
       }
-    }// detail
 
-    bool is_frequent_event(const core::event& e) {
+    } // detail
+
+    bool is_frequent_event (const core::event& e) {
       switch (core::get_event_id(e)) {
 #ifdef WIN32
-        case WM_MOUSEMOVE:
-        case WM_NCMOUSEMOVE:
-        case WM_NCHITTEST:
-        case WM_SETCURSOR:
-        case WM_CTLCOLORBTN:
-        case WM_CTLCOLORDLG:
-        case WM_CTLCOLOREDIT:
-        case WM_CTLCOLORLISTBOX:
-        case WM_CTLCOLORMSGBOX:
-        case WM_CTLCOLORSCROLLBAR:
-        case WM_CTLCOLORSTATIC:
-        case WM_ENTERIDLE:
-        case WM_CANCELMODE:
-        case 0x0118:    // WM_SYSTIMER (caret blink)
+      case WM_MOUSEMOVE:
+      case WM_NCMOUSEMOVE:
+      case WM_NCHITTEST:
+      case WM_SETCURSOR:
+      case WM_CTLCOLORBTN:
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLOREDIT:
+      case WM_CTLCOLORLISTBOX:
+      case WM_CTLCOLORMSGBOX:
+      case WM_CTLCOLORSCROLLBAR:
+      case WM_CTLCOLORSTATIC:
+      case WM_ENTERIDLE:
+      case WM_CANCELMODE:
+      case 0x0118:      // WM_SYSTIMER (caret blink)
 #else
-        case ConfigureNotify:
-        case MotionNotify:
-        case EnterNotify:
-        case LeaveNotify:
-        case Expose:
+      case ConfigureNotify:
+      case MotionNotify:
+      case EnterNotify:
+      case LeaveNotify:
+      case Expose:
 #endif
-          return true;
-        default:
-          return false;
+        return true;
+      default:
+        return false;
       }
     }
 
-    bool is_none_client_event(const core::event& e) {
+    bool is_none_client_event (const core::event& e) {
       os::event_id id = core::get_event_id(e);
 #ifdef WIN32
       return ((id >= WM_NCCREATE) && (id <= WM_NCACTIVATE)) ||
-        ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||
-        ((id >= WM_NCXBUTTONDOWN) && (id <= WM_NCXBUTTONDBLCLK)) ||
-        ((id >= WM_NCPOINTERUPDATE) && (id <= WM_NCPOINTERUP)) ||
-        (id == WM_NCMOUSEHOVER) || (id == WM_NCMOUSELEAVE);
+             ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||
+             ((id >= WM_NCXBUTTONDOWN) && (id <= WM_NCXBUTTONDBLCLK)) ||
+             ((id >= WM_NCPOINTERUPDATE) && (id <= WM_NCPOINTERUP)) ||
+             (id == WM_NCMOUSEHOVER) || (id == WM_NCMOUSELEAVE);
 #else
       return false;
 #endif
@@ -530,7 +531,7 @@ namespace gui {
 
 namespace std {
 
-  std::ostream& operator<<(std::ostream& out, const gui::win::EventId& e) {
+  std::ostream& operator<< (std::ostream& out, const gui::win::EventId& e) {
     const char* msg = gui::win::detail::get_message_map()[e.id];
     if (msg) {
       out << msg;

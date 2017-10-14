@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui io lib
-*
-* Customer   -
-*
-* @brief     C++ API: save bitmap as pnm to cpp file or stream.
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui io lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: save bitmap as pnm to cpp file or stream.
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -41,15 +41,19 @@ namespace gui {
       void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
       template<BPP>
-      void save_pnm_src(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      void save_pnm_src (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
 
-      template<> void save_pnm_src<BPP::BW>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
-      template<> void save_pnm_src<BPP::GRAY>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
-      template<> void save_pnm_src<BPP::RGB>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
-      template<> void save_pnm_src<BPP::RGBA>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      template<>
+      void save_pnm_src<BPP::BW>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      template<>
+      void save_pnm_src<BPP::GRAY>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      template<>
+      void save_pnm_src<BPP::RGB>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      template<>
+      void save_pnm_src<BPP::RGBA>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
 
-      void save_pnm_src(std::ostream& out, const draw::bitmap& bmp, const std::string& name);
-      void save_pnm_src(const std::string& filename, const draw::bitmap& bmp, const std::string& name);
+      void save_pnm_src (std::ostream& out, const draw::bitmap& bmp, const std::string& name);
+      void save_pnm_src (const std::string& filename, const draw::bitmap& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
       class opnm {
@@ -59,7 +63,7 @@ namespace gui {
           , name(name)
         {}
 
-        void write(std::ostream& out) const {
+        void write (std::ostream& out) const {
           int w, h, bpl;
           BPP bpp;
           std::vector<char> data;
@@ -98,7 +102,7 @@ namespace gui {
       }
 
     } // src
-    // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
   }
 
 }

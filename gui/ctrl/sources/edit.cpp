@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: edit control
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: edit control
+ *
+ * @file
+ */
 
 
 // --------------------------------------------------------------------------
@@ -22,10 +22,10 @@
 // Common includes
 //
 #ifdef WIN32
-#include <windowsx.h>
+# include <windowsx.h>
 #endif // WIN32
 #ifdef X11
-#include <X11/cursorfont.h>
+# include <X11/cursorfont.h>
 #endif // X11
 
 #include <string_util.h>
@@ -169,7 +169,7 @@ namespace gui {
         redraw_later();
       }
 
-      const std::string& edit_base::get_text() const {
+      const std::string& edit_base::get_text () const {
         return data.text;
       }
 
@@ -281,132 +281,132 @@ namespace gui {
         using namespace ibr;
 
         switch (keycode) {
-          case keys::left:
-          case keys::numpad::left:
-            if (ctrl) {
-              // next word begin
-              if (data.cursor_pos > 1) {
-                std::string::size_type pos = string::find_left_space(data.text, data.cursor_pos);
-                if (pos != std::string::npos) {
-                  set_cursor_pos(pos, shift);
-                  return;
-                }
+        case keys::left:
+        case keys::numpad::left:
+          if (ctrl) {
+            // next word begin
+            if (data.cursor_pos > 1) {
+              std::string::size_type pos = string::find_left_space(data.text, data.cursor_pos);
+              if (pos != std::string::npos) {
+                set_cursor_pos(pos, shift);
+                return;
               }
-            } else if (data.cursor_pos > 0) {
-              set_cursor_pos(utf8::get_left_char(data.text, data.cursor_pos), shift);
-              return;
             }
-            break;
-          case keys::right:
-          case keys::numpad::right:
-            if (ctrl) {
-              set_cursor_pos(string::find_right_space(data.text, data.cursor_pos), shift);
-            } else if (data.cursor_pos < get_text_length ()) {
-              set_cursor_pos(utf8::get_right_char(data.text, data.cursor_pos), shift);
-            }
-            break;
-          case keys::home:
-          case keys::numpad::home:
-            set_cursor_pos(0, shift);
-            break;
-          case keys::end:
-          case keys::numpad::end:
-            set_cursor_pos(get_text_length(), shift);
-            break;
-          case keys::del:
-          case keys::numpad::del:
-            if (data.selection.empty()) {
-              std::size_t cp = data.cursor_pos + 1;
-              while ((cp < get_text_length ()) && utf8::is_continuation_char(data.text.at(cp))) {
-                ++cp;
-              }
-              data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
-              redraw_later();
-              notify_content_changed();
-            } else {
-              replace_selection(std::string());
-              set_cursor_pos(data.selection.first, false);
-            }
-            break;
-          case keys::back_space:
-            if (data.selection.empty()) {
-              if (data.cursor_pos > 0) {
-                std::size_t cp = data.cursor_pos - 1;
-                while ((cp > 0) && utf8::is_continuation_char(data.text.at(cp))) {
-                  --cp;
-                }
-                data.text.replace(cp, data.cursor_pos - cp, std::string());
-                set_cursor_pos(cp, false);
-                notify_content_changed();
-              }
-            } else {
-              replace_selection(std::string());
-              set_cursor_pos(data.selection.first, false);
-            }
-            break;
-          case keys::escape:
-            set_selection(range(), event_source::keyboard);
-            send_client_message(this, detail::SELECTION_CANCEL_MESSAGE);
-            break;
-          case keys::clear:
-            set_selection(range(0, data.text.size()), event_source::keyboard);
-            replace_selection(std::string());
-            set_cursor_pos(0, false);
-            break;
-          case keys::tab:
-            break;
-          case keys::enter:
-            send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-            break;
-          default: {
-            if (ctrl) {
-              switch (keycode) {
-                case keys::a:
-                  // select all
-                  set_selection(range(0, data.text.size()), event_source::keyboard);
-                  break;
-                case keys::v: {
-                  clipboard::get().get_text(*this, [&](const std::string& t) {
-                    replace_selection(t);
-                  });
-                  break;
-                case keys::c:
-                  clipboard::get().set_text(*this, get_selected_text());
-                  break;
-                case keys::x:
-                  clipboard::get().set_text(*this, get_selected_text());
-                  replace_selection(std::string());
-                  break;
-                }
-                default:
-                  LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
-                  break;
-              }
-            } else if (chars.size()) {
-              replace_selection(chars);
-              set_cursor_pos(data.selection.last, false);
-            }
+          } else if (data.cursor_pos > 0) {
+            set_cursor_pos(utf8::get_left_char(data.text, data.cursor_pos), shift);
+            return;
           }
+          break;
+        case keys::right:
+        case keys::numpad::right:
+          if (ctrl) {
+            set_cursor_pos(string::find_right_space(data.text, data.cursor_pos), shift);
+          } else if (data.cursor_pos < get_text_length()) {
+            set_cursor_pos(utf8::get_right_char(data.text, data.cursor_pos), shift);
+          }
+          break;
+        case keys::home:
+        case keys::numpad::home:
+          set_cursor_pos(0, shift);
+          break;
+        case keys::end:
+        case keys::numpad::end:
+          set_cursor_pos(get_text_length(), shift);
+          break;
+        case keys::del:
+        case keys::numpad::del:
+          if (data.selection.empty()) {
+            std::size_t cp = data.cursor_pos + 1;
+            while ((cp < get_text_length()) && utf8::is_continuation_char(data.text.at(cp))) {
+              ++cp;
+            }
+            data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
+            redraw_later();
+            notify_content_changed();
+          } else {
+            replace_selection(std::string());
+            set_cursor_pos(data.selection.first, false);
+          }
+          break;
+        case keys::back_space:
+          if (data.selection.empty()) {
+            if (data.cursor_pos > 0) {
+              std::size_t cp = data.cursor_pos - 1;
+              while ((cp > 0) && utf8::is_continuation_char(data.text.at(cp))) {
+                --cp;
+              }
+              data.text.replace(cp, data.cursor_pos - cp, std::string());
+              set_cursor_pos(cp, false);
+              notify_content_changed();
+            }
+          } else {
+            replace_selection(std::string());
+            set_cursor_pos(data.selection.first, false);
+          }
+          break;
+        case keys::escape:
+          set_selection(range(), event_source::keyboard);
+          send_client_message(this, detail::SELECTION_CANCEL_MESSAGE);
+          break;
+        case keys::clear:
+          set_selection(range(0, data.text.size()), event_source::keyboard);
+          replace_selection(std::string());
+          set_cursor_pos(0, false);
+          break;
+        case keys::tab:
+          break;
+        case keys::enter:
+          send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+          break;
+        default: {
+          if (ctrl) {
+            switch (keycode) {
+            case keys::a:
+              // select all
+              set_selection(range(0, data.text.size()), event_source::keyboard);
+              break;
+            case keys::v: {
+              clipboard::get().get_text(*this, [&](const std::string & t) {
+                                          replace_selection(t);
+                                        });
+              break;
+            case keys::c:
+              clipboard::get().set_text(*this, get_selected_text());
+              break;
+            case keys::x:
+              clipboard::get().set_text(*this, get_selected_text());
+              replace_selection(std::string());
+              break;
+            }
+            default:
+              LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+              break;
+            }
+          } else if (chars.size()) {
+            replace_selection(chars);
+            set_cursor_pos(data.selection.last, false);
+          }
+        }
         }
       }
 
       void edit_base::register_handler (text_origin alignment) {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics & graph) {
           core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           paint::edit_line(graph, area, data.text, draw::font::system(), color::windowTextColor(), color::white, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &edit_base::handle_key));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(pt));
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
           data.last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(pt);
@@ -415,7 +415,7 @@ namespace gui {
           pos_t r = ibr::string::find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
         }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point & pt) {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }

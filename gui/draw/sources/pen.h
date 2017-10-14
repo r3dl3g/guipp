@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    gui lib
-*
-* Customer   -
-*
-* @brief     C++ API: pen definition
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    gui lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: pen definition
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -77,14 +77,15 @@ namespace gui {
       inline operator os::pen () const {
         return id;
       }
+
 #endif // WIN32
 
       os::color color () const;
       size_type size () const;
       Style style () const;
 
-      pen with_size (size_type) const;
-      pen with_style (Style) const;
+      pen with_size(size_type) const;
+      pen with_style(Style) const;
       pen with_color (const os::color&) const;
 
       bool operator== (const pen&) const;

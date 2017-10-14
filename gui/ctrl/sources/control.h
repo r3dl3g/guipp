@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic controls
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic controls
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -81,7 +81,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    inline std::string convert_to_string(const T& t) {
+    inline std::string convert_to_string (const T& t) {
       return ostreamfmt(t);
     }
 
@@ -100,7 +100,7 @@ namespace gui {
       {}
 
       const_text (const std::string& text)
-        :text(text)
+        : text(text)
       {}
 
       const std::string& operator() () const {
@@ -127,20 +127,20 @@ namespace gui {
     draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
-    struct paint_caller : params<draw::graphics>::getter<get_param<0, draw::graphics>> {
-      typedef params<draw::graphics>::getter<get_param<0, draw::graphics>> super;
+    struct paint_caller : params<draw::graphics>::getter<get_param<0, draw::graphics> > {
+      typedef params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
       typedef super::function function;
 
-      paint_caller(const function cb)
-        :super(cb)
+      paint_caller (const function cb)
+        : super(cb)
       {}
 
       template<class T>
-      paint_caller(T* t, void(T::*callback_)(const draw::graphics&))
+      paint_caller (T* t, void(T::*callback_)(const draw::graphics &))
         : super(gui::core::bind_method(t, callback_))
       {}
 
-      void operator()(const core::event& e);
+      void operator() (const core::event& e);
     };
 
     // --------------------------------------------------------------------------
@@ -149,59 +149,59 @@ namespace gui {
 
     using selection_changed_event = event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
                                                   params<event_source>::
-                                                  getter<get_param<0, event_source>>>;
+                                                  getter<get_param<0, event_source> > >;
 
     using selection_commit_event = event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
     using selection_cancel_event = event_handler<detail::SELECTION_CANCEL_MESSAGE>;
 
     using hilite_changed_event = event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                                               params<bool>::getter<get_param<0, bool>>>;
+                                               params<bool>::getter<get_param<0, bool> > >;
 
     using content_changed_event = event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
 #endif //WIN32
-    // --------------------------------------------------------------------------
+       // --------------------------------------------------------------------------
 #ifdef X11
     // --------------------------------------------------------------------------
     draw::graphics get_draw_graphics (const core::event& e);
 
     using paint_event = event_handler<Expose, ExposureMask,
                                       params<draw::graphics>::
-                                      getter<get_draw_graphics>>;
+                                      getter<get_draw_graphics> >;
 
     using selection_changed_event = event_handler<ClientMessage, 0,
                                                   params<event_source>::
-                                                  getter<get_client_data<0, event_source>>,
+                                                  getter<get_client_data<0, event_source> >,
                                                   0,
-                                                  client_message_matcher<detail::SELECTION_CHANGE_MESSAGE>>;
+                                                  client_message_matcher<detail::SELECTION_CHANGE_MESSAGE> >;
 
     using selection_commit_event = event_handler<ClientMessage, 0,
                                                  params<>::
                                                  getter<>,
                                                  0,
-                                                 client_message_matcher<detail::SELECTION_COMMIT_MESSAGE>>;
+                                                 client_message_matcher<detail::SELECTION_COMMIT_MESSAGE> >;
 
     using selection_cancel_event = event_handler<ClientMessage, 0,
                                                  params<>::
                                                  getter<>,
                                                  0,
-                                                 client_message_matcher<detail::SELECTION_CANCEL_MESSAGE>>;
+                                                 client_message_matcher<detail::SELECTION_CANCEL_MESSAGE> >;
 
     using hilite_changed_event = event_handler<ClientMessage, 0,
                                                params<bool>::
-                                               getter<get_client_data<0, bool>>,
+                                               getter<get_client_data<0, bool> >,
                                                0,
-                                               client_message_matcher<detail::HILITE_CHANGE_MESSAGE>>;
+                                               client_message_matcher<detail::HILITE_CHANGE_MESSAGE> >;
 
     using content_changed_event = event_handler<ClientMessage, 0,
                                                 params<>::
                                                 getter<>,
                                                 0,
-                                                client_message_matcher<detail::CONTENT_CHANGED_MESSAGE>>;
+                                                client_message_matcher<detail::CONTENT_CHANGED_MESSAGE> >;
 
 #endif // X11
-    // --------------------------------------------------------------------------
+       // --------------------------------------------------------------------------
 
     namespace paint {
       void text_item (const draw::graphics&,

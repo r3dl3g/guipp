@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: separator view
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: separator view
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -39,7 +39,7 @@ namespace gui {
     template<orientation O,
              os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true>>
+             typename button_type = flat_toggle_button<foreground, background, true> >
     class toggle_group : public group_window<layout::adaption_layout<O, 0, 0, 2>, background> {
     public:
       typedef group_window<layout::adaption_layout<O, 0, 0, 2>, background> super;
@@ -62,6 +62,7 @@ namespace gui {
           }
           btn.create(parent);
         }
+
       };
 
       ~toggle_group () {
@@ -85,8 +86,8 @@ namespace gui {
         button* b = new button(label, buttons.empty());
         buttons.push_back(b);
         b->btn.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, b] () {
-          uncheck_buttons(b);
-        }));
+                                                                                uncheck_buttons(b);
+                                                                              }));
       }
 
       button_type& get_button (int idx) {
@@ -117,12 +118,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true>>
+             typename button_type = flat_toggle_button<foreground, background, true> >
     using htoggle_group = toggle_group<orientation::horizontal, foreground, background, button_type>;
 
     template<os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true>>
+             typename button_type = flat_toggle_button<foreground, background, true> >
     using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type>;
 
   } // win

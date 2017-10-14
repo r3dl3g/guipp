@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: table
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: table
+ *
+ * @file
+ */
 
 #include "table.h"
 
@@ -25,21 +25,21 @@ namespace gui {
     namespace paint {
 
       template<>
-      void text_cell<std::string, draw::frame::no_frame> (const std::string& t,
-                                                          const draw::graphics& graph,
-                                                          const core::rectangle& place,
-                                                          const text_origin align,
-                                                          const os::color& foreground,
-                                                          const os::color& background,
-                                                          bool selected,
-                                                          bool hilited) {
+      void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
+                                                         const draw::graphics& graph,
+                                                         const core::rectangle& place,
+                                                         const text_origin align,
+                                                         const os::color& foreground,
+                                                         const os::color& background,
+                                                         bool selected,
+                                                         bool hilited) {
         using namespace draw;
         const os::color back = (selected ? color::highLightColor()
-                                         : (hilited ? color::darker(background, 0.05F)
-                                                    : background));
+                                : (hilited ? color::darker(background, 0.05F)
+                                   : background));
         const os::color fore = (selected ? color::highLightTextColor()
-                                         : (hilited ? color::darker(foreground, 0.25F)
-                                                    : foreground));
+                                : (hilited ? color::darker(foreground, 0.25F)
+                                   : foreground));
         graph.fill(rectangle(place), back);
         graph.text(text_box(t, place, align), font::system(), fore);
       }
@@ -213,37 +213,38 @@ namespace gui {
             }
           }
         }
+
       }
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src) {
-        return[src] (const position& cell,
-                     const draw::graphics& graph,
-                     const core::rectangle& place,
-                     const text_origin align,
-                     const os::color& foreground,
-                     const os::color& background,
-                     bool selected,
-                     bool hilited) {
-          win::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
-                                                                 align, foreground, background,
-                                                                 selected, hilited);
+        return [src] (const position &cell,
+                      const draw::graphics & graph,
+                      const core::rectangle & place,
+                      const text_origin align,
+                      const os::color & foreground,
+                      const os::color & background,
+                      bool selected,
+                      bool hilited) {
+                 win::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
+                                                                        align, foreground, background,
+                                                                        selected, hilited);
         };
       }
 
       // --------------------------------------------------------------------------
       std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src) {
-        return[src] (const position& cell,
-                     const draw::graphics& graph,
-                     const core::rectangle& place,
-                     const text_origin align,
-                     const os::color& foreground,
-                     const os::color& background,
-                     bool selected,
-                     bool hilited) {
-          win::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
-                                                                         align, foreground, background,
-                                                                         selected, hilited);
+        return [src] (const position &cell,
+                      const draw::graphics & graph,
+                      const core::rectangle & place,
+                      const text_origin align,
+                      const os::color & foreground,
+                      const os::color & background,
+                      bool selected,
+                      bool hilited) {
+                 win::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
+                                                                                align, foreground, background,
+                                                                                selected, hilited);
         };
       }
 
@@ -288,9 +289,9 @@ namespace gui {
       }
 
       void data_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph){
-          paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        })));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph){
+                                                                                            paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+                                                                                          })));
       }
 
       // --------------------------------------------------------------------------
@@ -319,9 +320,9 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
-          paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        })));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph) {
+                                                                                            paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+                                                                                          })));
       }
 
       // --------------------------------------------------------------------------
@@ -350,9 +351,9 @@ namespace gui {
       }
 
       void row_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics& graph){
-          paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-        })));
+        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph){
+                                                                                            paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+                                                                                          })));
       }
 
     } // table
@@ -440,40 +441,40 @@ namespace gui {
       register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
       register_event_handler(REGISTER_FUNCTION, win::size_event(this, &table_view::handle_size));
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-        handle_scroll(core::point(geometrie.widths.get_offset(), pos));
-      }));
+                                                                       handle_scroll(core::point(geometrie.widths.get_offset(), pos));
+                                                                     }));
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-        handle_scroll(core::point(pos, geometrie.heights.get_offset()));
-      }));
+                                                                       handle_scroll(core::point(pos, geometrie.heights.get_offset()));
+                                                                     }));
 
       data.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &table_view::handle_key));
       data.set_accept_focus(true);
 
       data.register_event_handler(REGISTER_FUNCTION,
-                                  win::left_btn_dblclk_event([&](os::key_state, const core::point&) {
-        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-      }));
+                                  win::left_btn_dblclk_event([&](os::key_state, const core::point &) {
+                                                               send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+                                                             }));
 
-      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
-        hscroll.handle_wheel(delta, pt);
-      }));
-      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
-        vscroll.handle_wheel(delta, pt);
-      }));
+      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt){
+                                                                     hscroll.handle_wheel(delta, pt);
+                                                                   }));
+      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt){
+                                                                     vscroll.handle_wheel(delta, pt);
+                                                                   }));
       data.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_mouse_move));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_left_btn_up));
 
-      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point& pt){
-        hscroll.handle_wheel(delta, pt);
-      }));
+      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt){
+                                                                        hscroll.handle_wheel(delta, pt);
+                                                                      }));
       columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_column_left_btn_down));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
 
-      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point& pt){
-        vscroll.handle_wheel(delta, pt);
-      }));
+      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt){
+                                                                     vscroll.handle_wheel(delta, pt);
+                                                                   }));
       rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_row_left_btn_down));
       rows.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_row_left_btn_up));
@@ -600,7 +601,7 @@ namespace gui {
       set_cursor(cursor::move());
     }
 
-    void table_view::handle_left_btn_up(os::key_state keys, const core::point& pt) {
+    void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = data.get_index_at_point(pt);
         if (get_selection() != new_selection) {
@@ -643,7 +644,7 @@ namespace gui {
       columns.capture_pointer();
     }
 
-    void table_view::handle_column_left_btn_up(os::key_state keys, const core::point& pt) {
+    void table_view::handle_column_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
         const auto new_selection = columns.get_index_at_point(pt);
         if (get_selection() != new_selection) {
@@ -745,59 +746,59 @@ namespace gui {
                                  os::key_symbol key,
                                  const std::string&) {
       switch (key) {
-        case keys::up:
-        case keys::numpad::up:
-          set_selection(get_selection() - table::position(0, 1), event_source::keyboard);
+      case keys::up:
+      case keys::numpad::up:
+        set_selection(get_selection() - table::position(0, 1), event_source::keyboard);
         break;
-        case keys::down:
-        case keys::numpad::down:
-          set_selection(get_selection() + table::position(0, 1), event_source::keyboard);
+      case keys::down:
+      case keys::numpad::down:
+        set_selection(get_selection() + table::position(0, 1), event_source::keyboard);
         break;
-        case keys::left:
-        case keys::numpad::left:
-          set_selection(get_selection() - table::position(1, 0), event_source::keyboard);
+      case keys::left:
+      case keys::numpad::left:
+        set_selection(get_selection() - table::position(1, 0), event_source::keyboard);
         break;
-        case keys::right:
-        case keys::numpad::right:
-          set_selection(get_selection() + table::position(1, 0), event_source::keyboard);
+      case keys::right:
+      case keys::numpad::right:
+        set_selection(get_selection() + table::position(1, 0), event_source::keyboard);
         break;
-        case keys::page_up:
-        case keys::numpad::page_up: {
-            const core::point pt = geometrie.position_of(geometrie.selection);
-            core::size sz = data.client_size();
-            if (alt_key_bit_mask::is_set(state)) {
-              sz.height(0);
-            } else {
-              sz.width(0);
-            }
-            set_scroll_pos(get_scroll_pos() - sz);
-            set_selection(geometrie.index_at(pt), event_source::logic);
-            break;
-          }
-        case keys::page_down:
-        case keys::numpad::page_down: {
-            const core::point pt = geometrie.position_of(geometrie.selection);
-            core::size sz = data.client_size();
-            if (alt_key_bit_mask::is_set(state)) {
-              sz.height(0);
-            } else {
-              sz.width(0);
-            }
-            set_scroll_pos(get_scroll_pos() + sz);
-            set_selection(geometrie.index_at(pt), event_source::logic);
-            break;
-          }
+      case keys::page_up:
+      case keys::numpad::page_up: {
+        const core::point pt = geometrie.position_of(geometrie.selection);
+        core::size sz = data.client_size();
+        if (alt_key_bit_mask::is_set(state)) {
+          sz.height(0);
+        } else {
+          sz.width(0);
+        }
+        set_scroll_pos(get_scroll_pos() - sz);
+        set_selection(geometrie.index_at(pt), event_source::logic);
         break;
-        case keys::home:
-        case keys::numpad::home:
-          set_selection(table::position(0, 0), event_source::keyboard);
+      }
+      case keys::page_down:
+      case keys::numpad::page_down: {
+        const core::point pt = geometrie.position_of(geometrie.selection);
+        core::size sz = data.client_size();
+        if (alt_key_bit_mask::is_set(state)) {
+          sz.height(0);
+        } else {
+          sz.width(0);
+        }
+        set_scroll_pos(get_scroll_pos() + sz);
+        set_selection(geometrie.index_at(pt), event_source::logic);
         break;
-        case keys::f2:
-        case keys::enter:
-          send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+      }
+      break;
+      case keys::home:
+      case keys::numpad::home:
+        set_selection(table::position(0, 0), event_source::keyboard);
         break;
-        case keys::escape:
-          clear_selection(event_source::keyboard);
+      case keys::f2:
+      case keys::enter:
+        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+        break;
+      case keys::escape:
+        clear_selection(event_source::keyboard);
         break;
       }
     }
@@ -818,29 +819,29 @@ namespace gui {
       register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::enter_edit));
 
       editor.register_event_handler(REGISTER_FUNCTION,
-                                       win::btn_down_event([&](os::key_state, const core::point& pt) {
-        if(!editor.client_area().is_inside(pt)) {
-          commit_edit();
-        }
-      }));
+                                    win::btn_down_event([&](os::key_state, const core::point & pt) {
+                                                          if (!editor.client_area().is_inside(pt)) {
+                                                            commit_edit();
+                                                          }
+                                                        }));
 
       editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &table_edit::cancel_edit));
       editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::commit_edit));
 
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-        if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()));
-        }
-      }));
+                                                                       if (editor.is_visible()) {
+                                                                         editor.move(geometrie.position_of(get_selection()));
+                                                                       }
+                                                                     }));
       hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-        if (editor.is_visible()) {
-          editor.move(geometrie.position_of(get_selection()));
-        }
-      }));
+                                                                       if (editor.is_visible()) {
+                                                                         editor.move(geometrie.position_of(get_selection()));
+                                                                       }
+                                                                     }));
 
       register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] (event_source) {
-        commit_edit();
-      }));
+                                                                               commit_edit();
+                                                                             }));
 
     }
 

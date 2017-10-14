@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: tree control
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: tree control
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -235,7 +235,7 @@ namespace gui {
           toggle_node(super::get_selection());
         }));
         super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state,
-                                                                                 const core::point& pt) {
+                                                                             const core::point & pt) {
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {
             const depth_info& i = nodes[idx];
@@ -246,8 +246,8 @@ namespace gui {
           }
         }));
         super::register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                                            os::key_symbol key,
-                                                                            const std::string&){
+                                                                                os::key_symbol key,
+                                                                                const std::string &){
           switch (key) {
             case keys::left:
             case keys::numpad::left: {
@@ -377,7 +377,7 @@ namespace gui {
       }
 
       template<typename I>
-      inline auto basic_tree<I>::get_item (int idx) const -> const reference {
+      inline auto basic_tree<I>::get_item(int idx) const->const reference {
         return nodes[idx].ref;
       }
 
@@ -405,11 +405,11 @@ namespace gui {
 
       template<typename I>
       inline void basic_tree<I>::draw_list_item (std::size_t idx,
-                           const draw::graphics& g,
-                           const core::rectangle& r,
-                           const draw::brush& b,
-                           bool selected,
-                           bool hilited) {
+                                                 const draw::graphics& g,
+                                                 const core::rectangle& r,
+                                                 const draw::brush& b,
+                                                 bool selected,
+                                                 bool hilited) {
         const depth_info& i = nodes[idx];
         const type& n = tree_info::dereference(i.ref);
         tree_node_drawer<I>(g, r, b, n, i.depth,
@@ -452,15 +452,15 @@ namespace gui {
         }
       }
 
-      inline auto node::nodes () const -> const node_list& {
+      inline auto node::nodes() const->const node_list& {
         return sub_nodes;
       }
 
-      inline auto node::begin () const -> iterator {
+      inline auto node::begin() const->iterator {
         return sub_nodes.begin();
       }
 
-      inline auto node::end () const -> iterator {
+      inline auto node::end() const->iterator {
         return sub_nodes.end();
       }
 
@@ -478,12 +478,12 @@ namespace gui {
       }
 
       template<typename I>
-      inline auto range<I>::begin () const -> iterator {
+      inline auto range<I>::begin() const->iterator {
         return start;
       }
 
       template<typename I>
-      inline auto range<I>::end () const -> iterator {
+      inline auto range<I>::end() const->iterator {
         return finish;
       }
 
@@ -492,15 +492,15 @@ namespace gui {
         return !n.nodes().empty();
       }
 
-      inline auto default_node_info::sub_nodes (node const& n) -> node_range {
+      inline auto default_node_info::sub_nodes(node const & n)->node_range {
         return node_range(n.begin(), n.end());
       }
 
-      inline auto default_node_info::make_reference (node const& n) -> reference {
+      inline auto default_node_info::make_reference(node const & n)->reference {
         return &n;
       }
 
-      inline auto default_node_info::dereference (reference const& r) -> type const& {
+      inline auto default_node_info::dereference(reference const & r)->type const & {
         return *r;
       }
 

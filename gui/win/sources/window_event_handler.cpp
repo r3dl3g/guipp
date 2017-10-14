@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: basic window
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: basic window
+ *
+ * @file
+ */
 
 // --------------------------------------------------------------------------
 //
@@ -28,8 +28,8 @@
 #include "window_event_handler.h"
 #include "window.h"
 #ifdef WIN32
-#include <string_util.h>
-#include <windowsx.h>
+# include <string_util.h>
+# include <windowsx.h>
 #endif // WIN32
 
 
@@ -43,61 +43,73 @@ namespace gui {
     bool get_param<0, bool>(const core::event& e) {
       return LOWORD(e.wParam) != 0;
     }
+
     // --------------------------------------------------------------------------
     template<>
     unsigned int get_param<0, unsigned int>(const core::event& e) {
       return (unsigned int)e.wParam;
     }
+
     // --------------------------------------------------------------------------
     template<>
     int get_param<0, int>(const core::event& e) {
       return (int)e.wParam;
     }
+
     // --------------------------------------------------------------------------
     template<>
     window* get_param<0, window*>(const core::event& e) {
       return detail::get_window((os::window)e.wParam);
     }
+
     // --------------------------------------------------------------------------
     template<>
     os::graphics get_param<0, os::graphics>(const core::event& e) {
       return (os::graphics)e.wParam;
     }
+
     // --------------------------------------------------------------------------
     template<>
     window* get_param<1, window*>(const core::event& e) {
       return detail::get_window((os::window)e.lParam);
     }
+
     // --------------------------------------------------------------------------
     template<>
     core::point get_param<1, core::point>(const core::event& e) {
       return core::point(e.lParam);
     }
+
     // --------------------------------------------------------------------------
     template<>
     core::size get_param<1, core::size>(const core::event& e) {
       return core::size(e.lParam);
     }
+
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
-      POINT pt = { GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam) };
+      POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
       return core::point(pt);
     }
+
     // --------------------------------------------------------------------------
-    window* get_window_from_cs(const core::event& e) {
+    window* get_window_from_cs (const core::event& e) {
       CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(e.lParam);
       return detail::get_window(cs->hwndParent);
     }
+
     // --------------------------------------------------------------------------
-    unsigned int get_flags_from_wp(const core::event& e) {
+    unsigned int get_flags_from_wp (const core::event& e) {
       WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.lParam);
       return p->flags;
     }
+
     // --------------------------------------------------------------------------
-    core::point_type get_wheel_delta(const core::event& e) {
+    core::point_type get_wheel_delta (const core::event& e) {
       return static_cast<core::point_type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
+
     // --------------------------------------------------------------------------
     os::key_state get_key_state (const core::event& e) {
       return core::global::get_key_state();
@@ -107,18 +119,21 @@ namespace gui {
     int get_key_repeat_count (const core::event& e) {
       return e.lParam & 0x0ffff;
     }
+
     // --------------------------------------------------------------------------
     unsigned int get_key_scan_code (const core::event& e) {
       UINT sc = (e.lParam >> 16) & 0x01FF;
       return sc;
     }
+
     // --------------------------------------------------------------------------
     os::key_symbol get_key_symbol (const core::event& e) {
       return (os::key_symbol)e.wParam;
     }
+
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
-      WCHAR wbuffer[4] = { 0 };
+      WCHAR wbuffer[4] = {0};
 
       BYTE kb[256];
       GetKeyboardState(kb);
@@ -135,6 +150,7 @@ namespace gui {
       //wchar_t ch = MapVirtualKey(e.wParam, MAPVK_VK_TO_CHAR);
       return ibr::string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
+
     // --------------------------------------------------------------------------
     static std::map<os::window, bool> s_mouse_inside;
 
@@ -143,7 +159,7 @@ namespace gui {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {
           s_mouse_inside[e.id] = true;
-          TRACKMOUSEEVENT tme = { sizeof(TRACKMOUSEEVENT), 0 };
+          TRACKMOUSEEVENT tme = {sizeof (TRACKMOUSEEVENT), 0};
           tme.dwFlags = TME_LEAVE;
           tme.hwndTrack = e.id;
           TrackMouseEvent(&tme);
@@ -225,17 +241,17 @@ namespace gui {
         if (win && win->is_valid()) {
           XClientMessageEvent client;
 
-          client.type         = ClientMessage;
-          client.serial       = 0;
-          client.display      = core::global::get_instance();
-          client.window       = win->get_id();
+          client.type = ClientMessage;
+          client.serial = 0;
+          client.display = core::global::get_instance();
+          client.window = win->get_id();
           client.message_type = message;
-          client.format       = 32;
-          client.data.l[0]    = l1;
-          client.data.l[1]    = l2;
-          client.data.l[2]    = l3;
-          client.data.l[3]    = l4;
-          client.data.l[4]    = l5;
+          client.format = 32;
+          client.data.l[0] = l1;
+          client.data.l[1] = l2;
+          client.data.l[2] = l3;
+          client.data.l[3] = l4;
+          client.data.l[4] = l5;
 
           /* Send the data off to the other process */
           XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
@@ -257,10 +273,12 @@ namespace gui {
     os::key_state get_key_state (const core::event& e) {
       return static_cast<os::key_state>(get_state<XKeyEvent>(e));
     }
+
     // --------------------------------------------------------------------------
     os::key_symbol get_key_symbol (const core::event& e) {
       return XLookupKeysym(const_cast<XKeyEvent*>(&e.xkey), 0);
     }
+
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
       XIC ic = detail::get_window_ic(e.xany.window);
@@ -299,7 +317,7 @@ namespace gui {
       short y = p & 0xffff;
       unsigned short w = s >> 16;
       unsigned short h = s & 0xffff;
-      os::rectangle r = { x, y, w, h };
+      os::rectangle r = {x, y, w, h};
       return core::rectangle(r);
     }
 
@@ -352,7 +370,6 @@ namespace gui {
       s_last_pos.erase(w);
       s_last_place.erase(w);
     }
-
 
 #endif // X11
 

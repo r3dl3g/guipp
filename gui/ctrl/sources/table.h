@@ -1,20 +1,20 @@
 /**
-* @copyright (c) 2016-2017 Ing. Buero Rothfuss
-*                          Riedlinger Str. 8
-*                          70327 Stuttgart
-*                          Germany
-*                          http://www.rothfuss-web.de
-*
-* @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
-*
-* Project    standard lib
-*
-* Customer   -
-*
-* @brief     C++ API: table
-*
-* @file
-*/
+ * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    standard lib
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: table
+ *
+ * @file
+ */
 
 #pragma once
 
@@ -52,14 +52,14 @@ namespace gui {
                       bool hilited);
 
       template<>
-      void text_cell<std::string, draw::frame::no_frame> (const std::string& t,
-                                                          const draw::graphics& graph,
-                                                          const core::rectangle& place,
-                                                          const text_origin align,
-                                                          const os::color& foreground,
-                                                          const os::color& background,
-                                                          bool selected,
-                                                          bool hilited);
+      void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
+                                                         const draw::graphics& graph,
+                                                         const core::rectangle& place,
+                                                         const text_origin align,
+                                                         const os::color& foreground,
+                                                         const os::color& background,
+                                                         bool selected,
+                                                         bool hilited);
 
     } // namespace paint
 
@@ -69,14 +69,14 @@ namespace gui {
       typedef core::position<int> position;
 
       // --------------------------------------------------------------------------
-      typedef void (cell_drawer) (const position&,       // position
-                                  const draw::graphics&, // graph
-                                  const core::rectangle&,// place
-                                  const text_origin,     // align
-                                  const os::color&,      // foreground
-                                  const os::color&,      // background
-                                  bool,                  // selected
-                                  bool);                 // hilited
+      typedef void (cell_drawer)(const position&,        // position
+                                 const draw::graphics&,  // graph
+                                 const core::rectangle&, // place
+                                 const text_origin,      // align
+                                 const os::color&,       // foreground
+                                 const os::color&,       // background
+                                 bool,                   // selected
+                                 bool);                  // hilited
 
       // --------------------------------------------------------------------------
       namespace data {
@@ -124,7 +124,7 @@ namespace gui {
         private:
           typedef data::vector<T> vector;
 
-          std::vector<std::vector<T>> data;
+          std::vector<std::vector<T> > data;
           vector column_data;
           vector row_data;
 
@@ -188,7 +188,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace filter {
 
-        typedef bool (selection_and_hilite) (const position&, const metric&);
+        typedef bool (selection_and_hilite)(const position&, const metric&);
 
         // --------------------------------------------------------------------------
         bool data_selection (const position& cell, const metric& geometrie);
@@ -246,7 +246,7 @@ namespace gui {
         typedef no_erase_window_class<cell_view> clazz;
 
         template<typename U>
-        using container_type = T<U> ;
+        using container_type = T<U>;
 
         cell_view (metric& geometrie,
                    text_origin align = text_origin::center,
@@ -292,8 +292,8 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      typedef std::string (data_source) (const position&);
-      typedef void (data_target) (const position&, const std::string&);
+      typedef std::string (data_source)(const position&);
+      typedef void (data_target)(const position&, const std::string&);
 
       std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src);
       std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src);
@@ -360,7 +360,7 @@ namespace gui {
     } // table
 
     // --------------------------------------------------------------------------
-    typedef core::point (scroll_maximum_calcer) (const core::size&, const core::point&, const core::point&);
+    typedef core::point (scroll_maximum_calcer)(const core::size&, const core::point&, const core::point&);
 
     core::point default_scroll_maximum (const core::size& sz,
                                         const core::point& current_pos,
@@ -428,13 +428,13 @@ namespace gui {
       void set_scroll_maximum_calcer (std::function<scroll_maximum_calcer> scroll_maximum);
       void set_scroll_maximum (const core::point& pos);
 
-      table::metric         geometrie;
-      table::data_view      data;
-      table::column_view    columns;
-      table::row_view       rows;
-      vertical_scroll_bar   vscroll;
+      table::metric geometrie;
+      table::data_view data;
+      table::column_view columns;
+      table::row_view rows;
+      vertical_scroll_bar vscroll;
       horizontal_scroll_bar hscroll;
-      edge_view             edge;
+      edge_view edge;
 
     protected:
       void redraw_all ();
@@ -454,7 +454,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     class table_edit : public table_view {
-    public:    
+    public:
       table_edit (core::size_type default_width = 80,
                   core::size_type default_height = 20,
                   core::size_type row_width = 80,
@@ -516,7 +516,7 @@ namespace gui {
         {}
 
         template<typename T>
-        inline auto vector<T>::get (std::size_t idx) const -> const T& {
+        inline auto vector<T>::get(std::size_t idx) const->const T &{
           if (idx < data.size()) {
             return data[idx];
           }
@@ -524,7 +524,7 @@ namespace gui {
         }
 
         template<typename T>
-        inline auto vector<T>::operator[] (std::size_t idx) const -> const T& {
+        inline auto vector<T>::operator[] (std::size_t idx) const->const T &{
           return get(idx);
         }
 
@@ -537,7 +537,7 @@ namespace gui {
         }
 
         template<typename T>
-        inline auto vector<T>::operator[] (std::size_t idx) -> T& {
+        inline auto vector<T>::operator[] (std::size_t idx)->T & {
           if (data.size() <= idx) {
             data.resize(idx + 1, default_data);
           }
@@ -567,13 +567,13 @@ namespace gui {
         {}
 
         template<typename T>
-        auto matrix<T>::get_cell (const position& cell) const -> const T& {
+        auto matrix<T>::get_cell(const position &cell) const->const T &{
           if (cell.column < data.size()) {
-              const std::vector<T>& c = data[cell.column];
-              if (cell.row < c.size()) {
-                  return c[cell.row];
-                }
+            const std::vector<T>& c = data[cell.column];
+            if (cell.row < c.size()) {
+              return c[cell.row];
             }
+          }
           return get_column_row_cell(cell);
         }
 
@@ -581,16 +581,16 @@ namespace gui {
         void matrix<T>::set_cell (const position& cell, const T& t) {
           const std::size_t data_size = data.size();
           if (data_size <= cell.column) {
-              data.resize(cell.column + 1);
-            }
+            data.resize(cell.column + 1);
+          }
           std::vector<T>& c = data[cell.column];
           const std::size_t rows = c.size();
           if (rows <= cell.row) {
-              c.resize(cell.row + 1, column_data.get(cell.column));
-              for (std::size_t r = rows; r < cell.row; ++r) {
-                  c[r] = get_column_row_cell(position(cell.column, r));
-                }
+            c.resize(cell.row + 1, column_data.get(cell.column));
+            for (std::size_t r = rows; r < cell.row; ++r) {
+              c[r] = get_column_row_cell(position(cell.column, r));
             }
+          }
           c[cell.row] = t;
         }
 
@@ -598,22 +598,22 @@ namespace gui {
         void matrix<T>::set_column (std::size_t column, const T& t) {
           column_data[column] = t;
           if (column < data.size()) {
-              data[column].clear();
-            }
+            data[column].clear();
+          }
         }
 
         template<typename T>
         void matrix<T>::set_row (std::size_t row, const T& t) {
           row_data[row] = t;
           for (std::vector<T>& column : data) {
-              if (row < column.size()) {
-                  column[row] = t;
-                }
+            if (row < column.size()) {
+              column[row] = t;
             }
+          }
           const std::size_t column_data_size = column_data.size();
           for (std::size_t c = 0; c < column_data_size; ++c) {
-              set_cell(position(c, row), t);
-            }
+            set_cell(position(c, row), t);
+          }
         }
 
         template<typename T>
@@ -624,20 +624,20 @@ namespace gui {
         }
 
         template<typename T>
-        inline auto matrix<T>::size () const -> position {
-          return position{ column_data.size(), row_data.size() };
+        inline auto matrix<T>::size() const->position {
+          return position {column_data.size(), row_data.size()};
         }
 
         template<typename T>
-        inline auto matrix<T>::get_default_data () const -> const T& {
+        inline auto matrix<T>::get_default_data() const->const T &{
           return column_data.get_default_data();
         }
 
         template<typename T>
-        inline auto matrix<T>::get_column_row_cell (const position& cell) const -> const T& {
+        inline auto matrix<T>::get_column_row_cell(const position &cell) const->const T &{
           if (cell.column < column_data.size()) {
-              return column_data[cell.column];
-            }
+            return column_data[cell.column];
+          }
           return row_data[cell.row];
         }
 
@@ -721,8 +721,8 @@ namespace gui {
 
         inline bool data_hilite (const position& cell, const metric& geometrie) {
           return (geometrie.hilite == cell) ||
-                  geometrie.selection.is_column(cell.column) ||
-                  geometrie.selection.is_row(cell.row);
+                 geometrie.selection.is_column(cell.column) ||
+                 geometrie.selection.is_row(cell.row);
         }
 
         // --------------------------------------------------------------------------

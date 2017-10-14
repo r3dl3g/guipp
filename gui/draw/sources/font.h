@@ -49,28 +49,15 @@ namespace gui {
       typedef os::font_type type;
 
       enum Thickness {
-#ifdef WIN32
-        thin = FW_THIN,
-        ultraLight = FW_ULTRALIGHT,
-        light = FW_LIGHT,
-        regular = FW_REGULAR,
-        medium = FW_MEDIUM,
-        semiBold = FW_SEMIBOLD,
-        bold = FW_BOLD,
-        ultraBold = FW_ULTRABOLD,
-        heavy = FW_HEAVY
-#endif // Win32
-#ifdef X11
-        thin = FC_WEIGHT_THIN,
-        ultraLight = FC_WEIGHT_ULTRALIGHT,
-        light = FC_WEIGHT_SEMILIGHT,
-        regular = FC_WEIGHT_REGULAR,
-        medium = FC_WEIGHT_MEDIUM,
-        semiBold = FC_WEIGHT_SEMIBOLD,
-        bold = FC_WEIGHT_BOLD,
-        ultraBold = FC_WEIGHT_ULTRABOLD,
-        heavy = FC_WEIGHT_HEAVY
-#endif // X11
+        thin = IF_WIN32_ELSE(FW_THIN, FC_WEIGHT_THIN),
+        ultraLight = IF_WIN32_ELSE(FW_ULTRALIGHT, FC_WEIGHT_ULTRALIGHT),
+        light = IF_WIN32_ELSE(FW_LIGHT, FC_WEIGHT_SEMILIGHT),
+        regular = IF_WIN32_ELSE(FW_REGULAR, FC_WEIGHT_REGULAR),
+        medium = IF_WIN32_ELSE(FW_MEDIUM, FC_WEIGHT_MEDIUM),
+        semiBold = IF_WIN32_ELSE(FW_SEMIBOLD, FC_WEIGHT_SEMIBOLD),
+        bold = IF_WIN32_ELSE(FW_BOLD, FC_WEIGHT_BOLD),
+        ultraBold = IF_WIN32_ELSE(FW_ULTRABOLD, FC_WEIGHT_ULTRABOLD),
+        heavy = IF_WIN32_ELSE(FW_HEAVY, FC_WEIGHT_HEAVY)
       };
 
       font (const std::string& name,

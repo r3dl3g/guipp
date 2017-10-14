@@ -31,12 +31,6 @@
 
 namespace gui {
 
-#ifdef WIN32
-#endif // WIN32
-
-#ifdef X11
-#endif // X11
-
   namespace layout {
 
     namespace detail {

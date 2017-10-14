@@ -153,12 +153,7 @@ namespace gui {
       os::drawable target;
       bool own_gc;
       bool ref_gc;
-#ifdef WIN32
-      mutable std::vector<HRGN> clipping_stack;
-#endif // WIN32
-#ifdef X11
-      mutable std::vector<os::rectangle> clipping_stack;
-#endif // X11
+      mutable std::vector<IF_WIN32_ELSE(HRGN, os::rectangle)> clipping_stack;
     };
 
     // --------------------------------------------------------------------------

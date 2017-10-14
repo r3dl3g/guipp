@@ -36,19 +36,30 @@ namespace gui {
 
     typedef unsigned char type;
 
+    template<os::platform P = os::system_platform>
+    struct part_defaults {};
+
+    template<>
+    struct part_defaults<os::platform::win32> {
+      static constexpr type red = 0;
+      static constexpr type green = 8;
+      static constexpr type blue = 16;
+      static constexpr type alpha = 24;
+    };
+
+    template<>
+    struct part_defaults<os::platform::x11> {
+      static constexpr type red = 16;
+      static constexpr type green = 8;
+      static constexpr type blue = 0;
+      static constexpr type alpha = 24;
+    };
+
     enum struct part : type {
-#ifdef WIN32
-      red = 0,
-      green = 8,
-      blue = 16,
-      alpha = 24
-#endif // WIN32
-#ifdef X11
-      red = 16,
-      green = 8,
-      blue = 0,
-      alpha = 24
-#endif // X11
+      red = part_defaults<>::red,
+      green = part_defaults<>::green,
+      blue = part_defaults<>::blue,
+      alpha = part_defaults<>::alpha
     };
 
     template<part P, type T>

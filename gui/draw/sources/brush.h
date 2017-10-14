@@ -40,12 +40,7 @@ namespace gui {
       const static brush default_brush;
 
       enum Style {
-#ifdef WIN32
-        solid = BS_SOLID
-#endif // WIN32
-#ifdef X11
-        solid = FillSolid
-#endif // X11
+        solid = IF_WIN32_ELSE(BS_SOLID, FillSolid)
       };
 
       brush (const os::color& = color::black, Style = solid);

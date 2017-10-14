@@ -47,24 +47,13 @@ namespace gui {
 #endif // X11
 
       enum struct Style : int {
-#ifdef WIN32
-        solid = PS_SOLID,
-        dash = PS_DASH,
-        dot = PS_DOT,
-        dashDot = PS_DASHDOT,
-        dashDotDot = PS_DASHDOTDOT,
-        hairLine = PS_NULL,
-        insideFrame = PS_INSIDEFRAME
-#endif // WIN32
-#ifdef X11
-        solid = LineSolid,
-        dash = LineOnOffDash,
-        dot = LineOnOffDash | 0x010,
-        dashDot = LineOnOffDash | 0x020,
-        dashDotDot = LineOnOffDash | 0x030,
-        hairLine = LineSolid | 0x040,
-        insideFrame = LineSolid | 0x050
-#endif // X11
+        solid = IF_WIN32_ELSE(PS_SOLID, LineSolid),
+        dash = IF_WIN32_ELSE(PS_DASH, LineOnOffDash),
+        dot = IF_WIN32_ELSE(PS_DOT, LineOnOffDash | 0x010),
+        dashDot = IF_WIN32_ELSE(PS_DASHDOT, LineOnOffDash | 0x020),
+        dashDotDot = IF_WIN32_ELSE(PS_DASHDOTDOT, LineOnOffDash | 0x030),
+        hairLine = IF_WIN32_ELSE(PS_NULL, LineSolid | 0x040),
+        insideFrame = IF_WIN32_ELSE(PS_INSIDEFRAME, LineSolid | 0x050)
       };
 
       pen (const os::color& = color::black, size_type = 1, Style = Style::solid);

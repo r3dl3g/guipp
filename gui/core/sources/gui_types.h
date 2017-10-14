@@ -66,11 +66,6 @@ namespace gui {
       explicit size (const os::point& pt);
       explicit size (const os::rectangle& r);
 
-#ifdef WIN32
-      explicit size (const os::win32::wParam& p);
-      explicit size (const os::win32::lParam& p);
-#endif // WIN32
-
       operator os::size () const;
       operator os::point() const;
 
@@ -131,10 +126,6 @@ namespace gui {
       explicit inline point (type i);
       explicit point (const os::point& pt);
       explicit point (const os::rectangle& r);
-
-#ifdef WIN32
-      explicit point (const os::win32::lParam& p);
-#endif // WIN32
 
       operator os::point () const;
       os::point os () const;
@@ -206,10 +197,6 @@ namespace gui {
 
       explicit rectangle (const core::size& sz);
       explicit rectangle (const os::rectangle& r);
-
-#ifdef WIN32
-      explicit rectangle (const os::win32::lParam& p);
-#endif // WIN32
 
       operator os::rectangle () const;
 

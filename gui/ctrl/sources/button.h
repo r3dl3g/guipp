@@ -380,8 +380,8 @@ namespace gui {
     template<class T, text_button_drawer D>
     void basic_text_button<T, D>::init () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
-                                                                     D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
-                                                                   }));
+        D(graph, super::client_area(), get_text(), super::get_state(), super::has_focus(), super::is_enabled());
+      }));
     }
 
     // --------------------------------------------------------------------------
@@ -418,10 +418,10 @@ namespace gui {
     template<class T>
     void custom_button<T>::init () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics & graph) {
-                                                                     if (drawer) {
-                                                                       drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
-                                                                     }
-                                                                   }));
+        if (drawer) {
+          drawer(graph, super::client_area(), super::get_state(), super::has_focus(), super::is_enabled());
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------

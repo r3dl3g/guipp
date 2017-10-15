@@ -105,7 +105,7 @@ namespace gui {
         type get_dimension1 (const core::size& sz);
         type get_dimension2 (const core::size& sz);
         core::size make_size (type dim1, type dim2);
-        core::rectangle get_sep_area (const core::rectangle& area, ushort s);
+        core::rectangle get_sep_area (const core::rectangle& area, unsigned s);
         void move_area (core::rectangle& area, type offs);
       };
 
@@ -147,10 +147,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H,
-             ushort dim1,
-             ushort border = 0,
-             ushort gap = 0,
-             ushort sep = 2,
+             unsigned dim1,
+             unsigned border = 0,
+             unsigned gap = 0,
+             unsigned sep = 2,
              origin R = origin::start>
     class lineup_layout : public detail::lineup_base<H, R> {
     public:
@@ -168,31 +168,31 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<ushort dim1,
-             ushort border = 0,
-             ushort gap = 0,
-             ushort sep = 2,
+    template<unsigned dim1,
+             unsigned border = 0,
+             unsigned gap = 0,
+             unsigned sep = 2,
              origin R = origin::start>
     using horizontal_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
-    template<ushort dim1,
-             ushort border = 0,
-             ushort gap = 0,
-             ushort sep = 2,
+    template<unsigned dim1,
+             unsigned border = 0,
+             unsigned gap = 0,
+             unsigned sep = 2,
              origin R = origin::start>
     using vertical_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
     template<alignment a,
-             ushort dim1,
-             ushort border = 0,
-             ushort gap = 0,
-             ushort sep = 2>
+             unsigned dim1,
+             unsigned border = 0,
+             unsigned gap = 0,
+             unsigned sep = 2>
     using lineup = lineup_layout<alignment_orientation<a>::value, dim1, border, gap, sep, alignment_origin<a>::value>;
 
     // --------------------------------------------------------------------------
-    template<orientation H, ushort border = 0, ushort gap = 0, ushort sep = 2>
+    template<orientation H, unsigned border = 0, unsigned gap = 0, unsigned sep = 2>
     class adaption_layout : public detail::base<H> {
     public:
       typedef core::size::type type;
@@ -209,15 +209,15 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<ushort border = 0, ushort gap = 0, ushort sep = 2>
+    template<unsigned border = 0, unsigned gap = 0, unsigned sep = 2>
     using horizontal_adaption = adaption_layout<orientation::horizontal, border, gap, sep>;
 
     // --------------------------------------------------------------------------
-    template<ushort border = 0, ushort gap = 0, ushort sep = 2>
+    template<unsigned border = 0, unsigned gap = 0, unsigned sep = 2>
     using vertical_adaption = adaption_layout<orientation::vertical, border, gap, sep>;
 
     // --------------------------------------------------------------------------
-    template<ushort width, ushort height, ushort border = 0, ushort gap = 0>
+    template<unsigned width, unsigned height, unsigned border = 0, unsigned gap = 0>
     class grid_lineup : public layout_base {
     public:
       typedef core::size::type type;
@@ -234,7 +234,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<ushort columns, ushort rows, ushort border = 0, ushort gap = 0>
+    template<unsigned columns, unsigned rows, unsigned border = 0, unsigned gap = 0>
     class grid_adaption : public layout_base {
     public:
       typedef core::size::type type;
@@ -565,7 +565,7 @@ namespace gui {
       }
 
       template<>
-      inline core::rectangle base<orientation::horizontal>::get_sep_area (const core::rectangle& area, ushort s) {
+      inline core::rectangle base<orientation::horizontal>::get_sep_area (const core::rectangle& area, unsigned s) {
         return area.with_width(s);
       }
 
@@ -591,7 +591,7 @@ namespace gui {
       }
 
       template<>
-      inline core::rectangle base<orientation::vertical>::get_sep_area (const core::rectangle& area, ushort s) {
+      inline core::rectangle base<orientation::vertical>::get_sep_area (const core::rectangle& area, unsigned s) {
         return area.with_height(s);
       }
 
@@ -695,25 +695,25 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation H, ushort D, ushort B, ushort G, ushort S, origin R>
+    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline lineup_layout<H, D, B, G, S, R>::lineup_layout (win::container* m)
       : super(m) {
       init();
     }
 
-    template<orientation H, ushort D, ushort B, ushort G, ushort S, origin R>
+    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline lineup_layout<H, D, B, G, S, R>::lineup_layout (win::container* m, const lineup_layout& rhs)
       : super(m, rhs) {
       init();
     }
 
-    template<orientation H, ushort D, ushort B, ushort G, ushort S, origin R>
+    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline lineup_layout<H, D, B, G, S, R>::lineup_layout (win::container* m, lineup_layout&& rhs)
       : super(m, std::move(rhs)) {
       init();
     }
 
-    template<orientation height, ushort dim1, ushort border, ushort gap, ushort sep, origin rows>
+    template<orientation height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin rows>
     void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::size& sz) {
       std::vector<win::window*> children = super::get_children();
       const type border2 = (border * 2);
@@ -743,7 +743,7 @@ namespace gui {
       super::update();
     }
 
-    template<orientation H, ushort D, ushort B, ushort G, ushort S, origin R>
+    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline void lineup_layout<H, D, B, G, S, R>::init () {
       super::init(core::bind_method(this, &lineup_layout::layout), [&] () {
         layout(super::get_main_size());
@@ -751,25 +751,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H, ushort B, ushort G, ushort S>
+    template<orientation H, unsigned B, unsigned G, unsigned S>
     inline adaption_layout<H, B, G, S>::adaption_layout (win::container* m)
       : super(m) {
       init();
     }
 
-    template<orientation H, ushort B, ushort G, ushort S>
+    template<orientation H, unsigned B, unsigned G, unsigned S>
     inline adaption_layout<H, B, G, S>::adaption_layout (win::container* m, const adaption_layout& rhs)
       : super(m, rhs) {
       init();
     }
 
-    template<orientation H, ushort B, ushort G, ushort S>
+    template<orientation H, unsigned B, unsigned G, unsigned S>
     inline adaption_layout<H, B, G, S>::adaption_layout (win::container* m, adaption_layout&& rhs)
       : super(m, std::move(rhs)) {
       init();
     }
 
-    template<orientation height, ushort border, ushort gap, ushort sep>
+    template<orientation height, unsigned border, unsigned gap, unsigned sep>
     void adaption_layout<height, border, gap, sep>::layout (const core::size& sz) {
       std::vector<win::window*> children = super::get_children();
       const std::size_t count = children.size();
@@ -801,7 +801,7 @@ namespace gui {
       super::update();
     }
 
-    template<orientation H, ushort B, ushort G, ushort S>
+    template<orientation H, unsigned B, unsigned G, unsigned S>
     inline void adaption_layout<H, B, G, S>::init () {
       super::init(core::bind_method(this, &adaption_layout::layout), [&] () {
         layout(super::get_main_size());
@@ -809,25 +809,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<ushort W, ushort H, ushort B, ushort G>
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m)
       : super(m) {
       init();
     }
 
-    template<ushort W, ushort H, ushort B, ushort G>
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m, const grid_lineup& rhs)
       : super(m, rhs) {
       init();
     }
 
-    template<ushort W, ushort H, ushort B, ushort G>
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m, grid_lineup&& rhs)
       : super(m, std::move(rhs)) {
       init();
     }
 
-    template<ushort width, ushort height, ushort border, ushort gap>
+    template<unsigned width, unsigned height, unsigned border, unsigned gap>
     void grid_lineup<width, height, border, gap>::layout (const core::size& sz) {
       std::vector<win::window*> children = get_children();
       const type xmax = sz.width() - border;
@@ -853,7 +853,7 @@ namespace gui {
       update();
     }
 
-    template<ushort W, ushort H, ushort B, ushort G>
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline void grid_lineup<W, H, B, G>::init () {
       super::init(core::bind_method(this, &grid_lineup::layout), [&] () {
         layout(get_main_size());
@@ -861,25 +861,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<ushort C, ushort R, ushort B, ushort G>
+    template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m)
       : super(m) {
       init();
     }
 
-    template<ushort C, ushort R, ushort B, ushort G>
+    template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m, const grid_adaption& rhs)
       : super(m, rhs) {
       init();
     }
 
-    template<ushort C, ushort R, ushort B, ushort G>
+    template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m, grid_adaption&& rhs)
       : super(m, std::move(rhs)) {
       init();
     }
 
-    template<ushort columns, ushort rows, ushort border, ushort gap>
+    template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
     void grid_adaption<columns, rows, border, gap>::layout (const core::size& sz) {
       std::vector<win::window*> children = get_children();
       const type border2 = (border * 2);
@@ -913,7 +913,7 @@ namespace gui {
       update();
     }
 
-    template<ushort C, ushort R, ushort B, ushort G>
+    template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline void grid_adaption<C, R, B, G>::init () {
       super::init(core::bind_method(this, &grid_adaption::layout), [&] () {
         layout(get_main_size());

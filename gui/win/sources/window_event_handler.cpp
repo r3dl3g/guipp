@@ -154,6 +154,22 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    bool any_button_matcher<true> (const core::event& e) {
+      return (e.type == WM_LBUTTONDOWN) || (e.type == WM_RBUTTONDOWN) || (e.type == WM_MBUTTONDOWN);
+    }
+
+    template<>
+    bool any_button_matcher<false> (const core::event& e) {
+      return (e.type == WM_LBUTTONUP) || (e.type == WM_RBUTTONUP) || (e.type == WM_MBUTTONUP);
+    }
+
+    // --------------------------------------------------------------------------
+    bool match_key (const core::event& e, os::event_id id, os::key_symbol symbol) {
+      return (e.type == id) && (get_key_symbol(e) == symbol);
+    }
+
+    // --------------------------------------------------------------------------
     static std::map<os::window, bool> s_mouse_inside;
 
     bool mouse_enter_matcher (const core::event& e) {

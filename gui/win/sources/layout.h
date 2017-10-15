@@ -566,7 +566,7 @@ namespace gui {
 
       template<>
       inline core::rectangle base<orientation::horizontal>::get_sep_area (const core::rectangle& area, unsigned s) {
-        return area.with_width(s);
+        return area.with_width(static_cast<core::size_type>(s));
       }
 
       template<>
@@ -592,7 +592,7 @@ namespace gui {
 
       template<>
       inline core::rectangle base<orientation::vertical>::get_sep_area (const core::rectangle& area, unsigned s) {
-        return area.with_height(s);
+        return area.with_height(static_cast<core::size_type>(s));
       }
 
       template<>

@@ -126,8 +126,12 @@ namespace gui {
         : caller(std::move(rhs.caller))
       {}
 
+      static bool match (const core::event& e) {
+        return Matcher(e);
+      }
+
       bool operator() (const core::event& e, os::event_result& result) {
-        if (Matcher(e) && caller) {
+        if (match(e) && caller) {
           caller(e);
           result = R;
           return true;
@@ -186,21 +190,28 @@ namespace gui {
     bool any_button_matcher (const core::event& e);
 
     template<>
-    bool any_button_matcher<true> (const core::event& e) {
-      return (e.type == WM_LBUTTONDOWN) || (e.type == WM_RBUTTONDOWN) || (e.type == WM_MBUTTONDOWN);
-    }
+    bool any_button_matcher<true> (const core::event& e);
 
     template<>
-    bool any_button_matcher<false> (const core::event& e) {
-      return (e.type == WM_LBUTTONUP) || (e.type == WM_RBUTTONUP) || (e.type == WM_MBUTTONUP);
-    }
+    bool any_button_matcher<false> (const core::event& e);
 
     // --------------------------------------------------------------------------
-    template<os::event_id E, os::key_symbol symbol, os::key_state state>
-    bool key_matcher (const core::event& e) {
-      return (e.type == E) &&
-             (get_key_symbol(e) == symbol) &&
-              bit_mask<os::key_state, state>::is_set(get_key_state(e));
+    bool match_key (const core::event& e, os::event_id id, os::key_symbol sym);
+
+    // --------------------------------------------------------------------------
+    template<os::event_id id, os::key_symbol sym, os::key_state state>
+    bool key_symbol_matcher (const core::event& e) {
+      return match_key(e, id, sym) && bit_mask<os::key_state, state>::is_set(get_key_state(e));
+    }
+
+    template<os::key_symbol sym, os::key_state state>
+    bool key_down_matcher (const core::event& e) {
+      return key_symbol_matcher<WM_KEYDOWN, sym, state>(e);
+    }
+
+    template<os::key_symbol sym, os::key_state state>
+    bool key_up_matcher (const core::event& e) {
+      return key_symbol_matcher<WM_KEYUP, sym, state>(e);
     }
 
     // --------------------------------------------------------------------------
@@ -208,7 +219,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::event_id id, bool show>
-    bool visibility_event_type_matcher (const core::event& e) {
+    inline bool visibility_event_type_matcher (const core::event& e) {
       return (e.type == id) && (get_param<0, bool>(e) == show);
     }
 
@@ -285,12 +296,12 @@ namespace gui {
 
     template<os::key_symbol symbol, os::key_state state>
     using key_down_event = event_handler<WM_KEYDOWN, 0, params<>::getter<>, 0,
-                                         key_matcher<WM_KEYDOWN, symbol, state> >;
+                                         key_down_matcher<symbol, state>>;
 
 
     template<os::key_symbol symbol, os::key_state state>
     using key_up_event = event_handler<WM_KEYUP, 0, params<>::getter<>, 0,
-                                       key_matcher<WM_KEYUP, symbol, state> >;
+                                       key_up_matcher<symbol, state>>;
 
     using character_event = event_handler<WM_CHAR, 0,
                                           params<std::string>::
@@ -619,7 +630,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<os::event_id E, os::key_symbol symbol, os::key_state state>
-    bool key_matcher (const core::event& e) {
+    bool key_symbol_matcher (const core::event& e) {
       return (e.type == E) &&
              (get_key_symbol(e) == symbol) &&
              bit_mask<os::key_state, state>::is_set(get_key_state(e));
@@ -678,12 +689,12 @@ namespace gui {
 
     template<os::key_symbol symbol, os::key_state state>
     using key_down_event = event_handler<KeyPress, KeyPressMask, params<>::getter<>,
-                                         0, key_matcher<KeyPress, symbol, state> >;
+                                         0, key_symbol_matcher<KeyPress, symbol, state> >;
 
 
     template<os::key_symbol symbol, os::key_state state>
     using key_up_event = event_handler<KeyRelease, KeyPressMask, params<>::getter<>,
-                                       0, key_matcher<KeyRelease, symbol, state> >;
+                                       0, key_symbol_matcher<KeyRelease, symbol, state> >;
 
     using mouse_move_event = event_handler<MotionNotify, PointerMotionMask,
                                            params<os::key_state, core::point>::

@@ -178,7 +178,7 @@ namespace gui {
     }
 
     bool window::handle_event (const core::event& e, os::event_result& result) {
-      if (event_id_matcher<KeyPress>(e)) {
+      if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
           os::key_state state = get_key_state(e);

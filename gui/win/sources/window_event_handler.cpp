@@ -156,7 +156,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     static std::map<os::window, bool> s_mouse_inside;
 
-    bool mouse_enter_matcher::operator() (const core::event& e) {
+    bool mouse_enter_matcher (const core::event& e) {
       switch (e.type) {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {
@@ -337,7 +337,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
-      auto me = (cast_event_type<XMotionEvent>(e));
+      auto me = (event_type_cast<XMotionEvent>(e));
       return core::point(me.x_root, me.y_root);
     }
 

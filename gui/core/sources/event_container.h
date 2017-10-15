@@ -56,12 +56,12 @@ namespace gui {
       typedef std::function<event_handler_callback> event_handler_function;
 
       void register_event_handler (char const name[], const event_handler_function&);
-      void register_event_handler (char const name[], event_handler_function&&);
+      void register_event_handler(char const name[], event_handler_function &&);
 
       template<typename T>
-      inline void register_event_handler (char const name[], T* t, bool (T::*method)(const core::event&, os::event_result&)) {
-        register_event_handler(name, bind_method(t, method));
-      }
+      void register_event_handler(char const name[],
+                                  T* t,
+                                  bool (T::*method)(const core::event &, os::event_result &));
 
       void unregister_event_handler (const event_handler_function&);
 
@@ -69,18 +69,11 @@ namespace gui {
 
     private:
       struct event_handler_info {
-        inline event_handler_info (char const* n, event_handler_function fn)
-          : cb(fn)
-          , name(n)
-        {}
+        event_handler_info (char const* n, event_handler_function fn);
 
-        inline bool operator() (const event& ev, os::event_result& res) const {
-          return cb(ev, res);
-        }
+        bool operator() (const event& ev, os::event_result& res) const;
 
-        inline const std::type_info& target_type () const {
-          return cb.target_type();
-        }
+        const std::type_info& target_type () const;
 
         event_handler_function cb;
         char const* name;
@@ -92,6 +85,29 @@ namespace gui {
       event_handler_list event_handlers;
     };
 
+    // --------------------------------------------------------------------------
+    // inlines
+    template<typename T>
+    inline void event_container::register_event_handler (char const name[],
+                                                         T* t,
+                                                         bool (T::*method)(const core::event &, os::event_result &)) {
+      register_event_handler(name, bind_method(t, method));
+    }
+
+    inline event_container::event_handler_info::event_handler_info (char const* n, event_handler_function fn)
+      : cb(fn)
+      , name(n)
+    {}
+
+    inline bool event_container::event_handler_info::operator() (const event& ev, os::event_result& res) const {
+      return cb(ev, res);
+    }
+
+    inline const std::type_info& event_container::event_handler_info::target_type () const {
+      return cb.target_type();
+    }
+
+    // --------------------------------------------------------------------------
   } // core
 
 } // gui

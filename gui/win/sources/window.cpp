@@ -178,8 +178,7 @@ namespace gui {
     }
 
     bool window::handle_event (const core::event& e, os::event_result& result) {
-      static win::any_key_down_event::Matcher matcher;
-      if (matcher(e)) {
+      if (event_id_matcher<KeyPress>(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
           os::key_state state = get_key_state(e);

@@ -64,26 +64,34 @@ namespace gui {
 
       static const cursor& get (win::cursor_type t);
 
-      inline cursor ()
-        : type(0)
-        , id(0)
-      {}
+      cursor ();
 
       operator os::cursor () const;
 
-      inline operator bool () const {
-        return type != 0;
-      }
+      operator bool () const;
 
     private:
-      inline cursor (os::cursor_type t)
-        : type(t)
-        , id(0)
-      {}
+      cursor (os::cursor_type t);
 
       os::cursor_type type;
       mutable os::cursor id;
     };
+
+    // --------------------------------------------------------------------------
+    // inlines
+    inline cursor::cursor ()
+      : type(0)
+      , id(0)
+    {}
+
+    inline cursor::operator bool () const {
+      return type != 0;
+    }
+
+    inline cursor::cursor (os::cursor_type t)
+      : type(t)
+      , id(0)
+    {}
 
   } // win
 

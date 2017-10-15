@@ -85,7 +85,7 @@ namespace gui {
           , layouter(this, std::move(rhs.layouter))
         {}
 
-        void layout () {
+        inline void layout () {
           layouter.layout(super::size());
         }
 
@@ -101,7 +101,7 @@ namespace gui {
         layout_type layouter;
       };
 
-    } // detail
+    } // namespace detail
 
     // --------------------------------------------------------------------------
     template<typename L = layout::standard_layout, typename ... Args>
@@ -118,8 +118,8 @@ namespace gui {
         : super(args ...)
       {}
 
-      void create (const container& parent,
-                   const core::rectangle& r = core::rectangle::def) {
+      inline void create (const container& parent,
+                          const core::rectangle& r = core::rectangle::def) {
         super::create(clazz::get(), parent, r);
       }
 

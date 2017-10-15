@@ -432,8 +432,7 @@ namespace gui {
           LogFatal << "Unknown exception in run_main_loop()";
         }
 
-        protocol_message_matcher<x11::WM_DELETE_WINDOW> matcher;
-        if (matcher(e) && !resultValue) {
+        if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
           running = false;
         }
 

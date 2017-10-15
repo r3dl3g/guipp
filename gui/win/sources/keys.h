@@ -42,6 +42,7 @@ namespace gui {
 
   namespace win {
 
+    // --------------------------------------------------------------------------
     typedef bit_mask<os::key_state, state::left_button> left_button_bit_mask;
     typedef bit_mask<os::key_state, state::middle_button> middle_button_bit_mask;
     typedef bit_mask<os::key_state, state::right_button> right_button_bit_mask;
@@ -56,6 +57,7 @@ namespace gui {
     typedef bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
 
+    // --------------------------------------------------------------------------
     struct hot_key {
       typedef void (fn)();
       typedef std::function<fn> call;
@@ -66,20 +68,13 @@ namespace gui {
       std::string get_key_string () const;
       bool match (os::key_state, os::key_symbol) const;
 
-      inline bool empty () const {
-        return key == 0;
-      }
+      bool empty () const;
 
       bool operator== (const hot_key&) const;
       bool operator< (const hot_key&) const;
 
-      os::key_symbol get_key () const {
-        return key;
-      }
-
-      os::key_state get_modifiers () const {
-        return modifiers;
-      }
+      os::key_symbol get_key () const;
+      os::key_state get_modifiers () const;
 
     private:
       os::key_symbol key;
@@ -87,6 +82,28 @@ namespace gui {
 
       mutable std::string key_string;
     };
+
+    // --------------------------------------------------------------------------
+    // inlines
+    inline bool hot_key::match (os::key_state m, os::key_symbol k) const {
+      return (key && (key == k) && ((m & modifiers) == modifiers));
+    }
+
+    inline bool hot_key::empty () const {
+      return key == 0;
+    }
+
+    inline bool hot_key::operator== (const hot_key& rhs) const {
+      return (key == rhs.key) && (modifiers == rhs.modifiers);
+    }
+
+    inline os::key_symbol hot_key::get_key () const {
+      return key;
+    }
+
+    inline os::key_state hot_key::get_modifiers () const {
+      return modifiers;
+    }
 
   } // win
 

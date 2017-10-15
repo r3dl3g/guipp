@@ -42,12 +42,12 @@ namespace gui {
     struct point;
 
     template<typename T>
-    typename std::enable_if<std::is_unsigned<T>::value, T>::type convert_os_dimension (size_type v) {
+    typename std::enable_if<std::is_unsigned<T>::value, T>::type os_dimension_cast (size_type v) {
       return static_cast<T>(std::max<size_type>(v, 0));
     }
 
     template<typename T>
-    typename std::enable_if<std::is_signed<T>::value, T>::type convert_os_dimension (size_type v) {
+    typename std::enable_if<std::is_signed<T>::value, T>::type os_dimension_cast (size_type v) {
       return static_cast<T>(v);
     }
 
@@ -432,11 +432,11 @@ namespace gui {
     }
 
     inline os::size_type size::os_width () const {
-      return convert_os_dimension<os::size_type>(data.w);
+      return os_dimension_cast<os::size_type>(data.w);
     }
 
     inline os::size_type size::os_height () const {
-      return convert_os_dimension<os::size_type>(data.h);
+      return os_dimension_cast<os::size_type>(data.h);
     }
 
     inline void size::width (type w) {
@@ -588,11 +588,11 @@ namespace gui {
     }
 
     inline os::point_type point::os_x () const {
-      return convert_os_dimension<os::point_type>(data.x);
+      return os_dimension_cast<os::point_type>(data.x);
     }
 
     inline os::point_type point::os_y () const {
-      return convert_os_dimension<os::point_type>(data.y);
+      return os_dimension_cast<os::point_type>(data.y);
     }
 
     inline point::data::data (type x, type y)
@@ -817,11 +817,11 @@ namespace gui {
     }
 
     inline os::point_type rectangle::os_x2 () const {
-      return convert_os_dimension<os::point_type>(x2());
+      return os_dimension_cast<os::point_type>(x2());
     }
 
     inline os::point_type rectangle::os_y2 () const {
-      return convert_os_dimension<os::point_type>(y2());
+      return os_dimension_cast<os::point_type>(y2());
     }
 
     inline os::size_type rectangle::os_width () const {

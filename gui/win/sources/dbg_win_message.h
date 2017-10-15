@@ -39,7 +39,7 @@ namespace gui {
     bool is_none_client_event (const core::event& e);
 
     struct EventId {
-      EventId (const core::event& e)
+      inline EventId (const core::event& e)
         : id(e.type)
       {}
 

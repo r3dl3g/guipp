@@ -36,28 +36,40 @@ namespace gui {
 
 #ifdef WIN32
     struct event {
-      inline event (os::window id,
-                    os::event_id e,
-                    os::win32::wParam p1,
-                    os::win32::lParam p2)
-        : id(id)
-        , type(e)
-        , wParam(p1)
-        , lParam(p2)
-      {}
+      event (os::window id,
+             os::event_id e,
+             os::win32::wParam p1,
+             os::win32::lParam p2);
 
-      inline event (const MSG& msg)
-        : id(msg.hwnd)
-        , type(msg.message)
-        , wParam(msg.wParam)
-        , lParam(msg.lParam)
-      {}
+      event (const MSG& msg);
 
       os::window id;
       os::event_id type;
       os::win32::wParam wParam;
       os::win32::lParam lParam;
     };
+
+    // --------------------------------------------------------------------------
+    // inlines
+    inline event::event (os::window id,
+                         os::event_id e,
+                         os::win32::wParam p1,
+                         os::win32::lParam p2)
+      : id(id)
+      , type(e)
+      , wParam(p1)
+      , lParam(p2)
+    {}
+
+    // --------------------------------------------------------------------------
+    inline event::event (const MSG& msg)
+      : id(msg.hwnd)
+      , type(msg.message)
+      , wParam(msg.wParam)
+      , lParam(msg.lParam)
+    {}
+
+    // --------------------------------------------------------------------------
 
 #endif // Win32
 #ifdef X11

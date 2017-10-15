@@ -123,10 +123,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool hot_key::match (os::key_state m, os::key_symbol k) const {
-      return (key && (key == k) && ((m & modifiers) == modifiers));
-    }
-
     std::string hot_key::get_key_string () const {
       if (key && key_string.empty()) {
         std::ostringstream s;
@@ -155,10 +151,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool hot_key::operator== (const hot_key& rhs) const {
-      return (key == rhs.key) && (modifiers == rhs.modifiers);
-    }
-
     bool hot_key::operator< (const hot_key& rhs) const {
       if (key == rhs.key) {
         os::key_state m = rhs.modifiers & ~(state::num_lock | state::scroll_lock | state::caps_lock);

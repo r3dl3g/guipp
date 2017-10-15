@@ -198,7 +198,7 @@ namespace gui {
     public:
       typedef Layout layout_type;
       typedef layout_container<Layout> super;
-      typedef window_class<column_list_header, background> clazz;
+      typedef no_erase_window_class<column_list_header> clazz;
 
       typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
@@ -652,7 +652,7 @@ namespace gui {
       super::set_accept_focus(false);
       set_cell_drawer(default_header_cell_drawer);
       this->get_layout().init_auto_layout();
-      this->register_event_handler(REGISTER_FUNCTION, paint_event(this, &column_list_header::paint));
+      this->register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &column_list_header::paint)));
       this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
       this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
       this->register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &column_list_header::handle_left_btn_up));

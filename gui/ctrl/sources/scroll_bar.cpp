@@ -73,6 +73,9 @@ namespace gui {
 #ifdef X11
       static int initialized = detail::init_control_messages();
 #endif // X11
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
+        redraw_later();
+      }));
 
       set_accept_focus(true);
     }
@@ -234,9 +237,12 @@ namespace gui {
         if (!thumb.empty()) {
           g.fill(draw::rectangle(thumb), color::buttonColor());
           draw::frame::raised_relief(g, thumb);
-          if (has_focus) {
-            draw::frame::dots(g, thumb);
+          if (scrollbar_state::thumb_button == state) {
+            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
           }
+//          if (has_focus) {
+//            draw::frame::dots(g, thumb);
+//          }
         }
       }
 

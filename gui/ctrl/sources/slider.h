@@ -158,12 +158,11 @@ namespace gui {
              draw::frame::drawer F>
     void basic_framed_slider<O, F>::paint (const draw::graphics& g) {
       core::rectangle place = super::client_area();
-      if (super::has_focus()) {
-        draw::frame::black(g, place);
-        place.shrink({1, 1});
-      }
       g.fill(draw::rectangle(place), color::buttonColor());
       F(g, place);
+      if (super::has_focus()) {
+        draw::frame::dots(g, place);
+      }
     }
 
     // --------------------------------------------------------------------------

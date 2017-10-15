@@ -52,7 +52,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     const size size::zero;
-    const size size::one(1, 1);
+    const size size::one(1);
+    const size size::two(2);
 
     const point point::zero;
     const point point::undefined(std::numeric_limits<point::type>::min(), std::numeric_limits<point::type>::min());

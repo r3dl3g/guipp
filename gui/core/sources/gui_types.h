@@ -57,6 +57,7 @@ namespace gui {
 
       static const size zero;
       static const size one;
+      static const size two;
 
       size ();
       size (type width, type height);

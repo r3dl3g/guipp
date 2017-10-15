@@ -235,14 +235,19 @@ namespace gui {
     constexpr os::color transparent = rgba_gray<0, 0xff>::value;
 
     constexpr os::color black = rgb_gray<0>::value;
-    constexpr os::color white = rgb_gray<0xff>::value;
-    constexpr os::color gray = rgb_gray<0x80>::value;
-    constexpr os::color dark_gray = rgb_gray<0x40>::value;
+    constexpr os::color very_very_dark_gray = rgb_gray<0x10>::value;
     constexpr os::color very_dark_gray = rgb_gray<0x20>::value;
+    constexpr os::color dark_gray = rgb_gray<0x40>::value;
+    constexpr os::color gray = rgb_gray<0x80>::value;
     constexpr os::color medium_gray = rgb_gray<0xA0>::value;
     constexpr os::color light_gray = rgb_gray<0xC0>::value;
     constexpr os::color very_light_gray = rgb_gray<0xE0>::value;
     constexpr os::color very_very_light_gray = rgb_gray<0xF0>::value;
+    constexpr os::color white = rgb_gray<0xff>::value;
+
+    constexpr os::color grey (int f) {
+      return calc_rgb_gray(static_cast<type>(255 * f / 100));
+    }
 
     constexpr os::color red = rgb<255, 0, 0>::value;
     constexpr os::color green = rgb<0, 255, 0>::value;

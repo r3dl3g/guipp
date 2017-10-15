@@ -164,6 +164,34 @@ namespace gui {
         std::ofstream(fname) << opnm(bmp, name);
       }
 
+      // --------------------------------------------------------------------------
+      void opnm::write (std::ostream& out) const {
+        int w, h, bpl;
+        BPP bpp;
+        std::vector<char> data;
+        bmp.get_data(data, w, h, bpl, bpp);
+        switch (bpp) {
+        case BPP::BW:
+          save_pnm_header_src(out, name, BPP2PNM<BPP::BW, true>::pnm, w, h, 0);
+          save_pnm_src<BPP::BW>(out, data, w, h, bpl);
+          break;
+        case BPP::GRAY:
+          save_pnm_header_src(out, name, BPP2PNM<BPP::GRAY, true>::pnm, w, h, 255);
+          save_pnm_src<BPP::GRAY>(out, data, w, h, bpl);
+          break;
+        case BPP::RGB:
+          save_pnm_header_src(out, name, BPP2PNM<BPP::RGB, true>::pnm, w, h, 255);
+          save_pnm_src<BPP::RGB>(out, data, w, h, bpl);
+          break;
+        case BPP::RGBA:
+          save_pnm_header_src(out, name, BPP2PNM<BPP::RGBA, true>::pnm, w, h, 255);
+          save_pnm_src<BPP::RGBA>(out, data, w, h, bpl);
+          break;
+        default:
+          throw std::invalid_argument("unsupportet bit per pixel value");
+        }
+      }
+
     } // src
 
   } // io

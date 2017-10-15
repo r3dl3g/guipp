@@ -39,19 +39,23 @@ namespace gui {
     bool is_none_client_event (const core::event& e);
 
     struct EventId {
-      inline EventId (const core::event& e)
-        : id(e.type)
-      {}
+      EventId (const core::event& e);
 
       os::event_id id;
     };
 
-  } // win
+    // --------------------------------------------------------------------------
+    // inlines
+    inline EventId::EventId (const core::event& e)
+      : id(e.type)
+    {}
 
-} // gui
+  } // namespace win
+
+} // namespace gui
 
 namespace std {
 
   std::ostream& operator<< (std::ostream& out, const gui::win::EventId& e);
 
-}
+} // namespace std

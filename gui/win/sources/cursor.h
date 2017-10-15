@@ -93,6 +93,6 @@ namespace gui {
       , id(0)
     {}
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

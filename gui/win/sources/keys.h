@@ -56,7 +56,6 @@ namespace gui {
     typedef bit_mask<os::key_state, state::scroll_lock> scroll_lock_bit_mask;
     typedef bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
-
     // --------------------------------------------------------------------------
     struct hot_key {
       typedef void (fn)();
@@ -105,6 +104,6 @@ namespace gui {
       return modifiers;
     }
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

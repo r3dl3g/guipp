@@ -147,6 +147,6 @@ namespace gui {
       const os::key_symbol z = XK_z;
     }
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

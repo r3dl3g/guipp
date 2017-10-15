@@ -58,7 +58,7 @@ namespace gui {
       XIC get_window_ic (os::window);
 #endif // X11
 
-    } // detail
+    } // namespace detail
 
     namespace global {
 
@@ -73,7 +73,7 @@ namespace gui {
       void register_utf8_window (os::window);
       void unregister_utf8_window (os::window);
 
-    }
+    } // namespace global
 
     bool is_button_event_outside (const window& w, const core::event& e);
     bool check_hot_key (const core::event& e);
@@ -83,6 +83,6 @@ namespace gui {
     int run_main_loop ();
     void quit_main_loop ();
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

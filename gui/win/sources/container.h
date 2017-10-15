@@ -71,31 +71,14 @@ namespace gui {
         typedef B super;
         typedef L layout_type;
 
-        layout_base (const Args& ... args)
-          : layouter(this, args ...)
-        {}
+        layout_base (const Args& ... args);
+        layout_base (const layout_base& rhs);
+        layout_base (layout_base&& rhs);
 
-        layout_base (const layout_base& rhs)
-          : super(rhs)
-          , layouter(this, rhs.layouter)
-        {}
+        void layout ();
 
-        layout_base (layout_base&& rhs)
-          : super(std::move(rhs))
-          , layouter(this, std::move(rhs.layouter))
-        {}
-
-        inline void layout () {
-          layouter.layout(super::size());
-        }
-
-        inline layout_type& get_layout () {
-          return layouter;
-        }
-
-        inline const layout_type& get_layout () const {
-          return layouter;
-        }
+        layout_type& get_layout ();
+        const layout_type& get_layout () const;
 
       private:
         layout_type layouter;
@@ -114,14 +97,10 @@ namespace gui {
       typedef layout_container<L, Args ...> super;
       typedef window_class<group_window, background> clazz;
 
-      group_window (const Args& ... args)
-        : super(args ...)
-      {}
+      group_window (const Args& ... args);
 
-      inline void create (const container& parent,
-                          const core::rectangle& r = core::rectangle::def) {
-        super::create(clazz::get(), parent, r);
-      }
+      void create (const container& parent,
+                   const core::rectangle& r = core::rectangle::def);
 
     };
 
@@ -185,7 +164,6 @@ namespace gui {
 #endif // X11
 
       void create (const core::rectangle& r = core::rectangle::def);
-
     };
 
     // --------------------------------------------------------------------------
@@ -209,7 +187,6 @@ namespace gui {
 #endif // X11
 
       void create (const window& parent, const core::rectangle& r = core::rectangle::def);
-
     };
 
     // --------------------------------------------------------------------------
@@ -233,7 +210,6 @@ namespace gui {
 #endif // X11
 
       void create (const window& parent, const core::rectangle& r = core::rectangle::def);
-
     };
 
     // --------------------------------------------------------------------------
@@ -241,6 +217,58 @@ namespace gui {
     using layout_dialog_window = detail::layout_base<dialog_window, L, Args ...>;
 
     // --------------------------------------------------------------------------
-  } // win
+    // inlines
 
-} // gui
+    namespace detail {
+
+      // --------------------------------------------------------------------------
+      template<typename B, typename L, typename ... A>
+      inline layout_base<B, L, A...>::layout_base (const A& ... args)
+        : layouter(this, args ...)
+      {}
+
+      template<typename B, typename L, typename ... A>
+      inline layout_base<B, L, A...>::layout_base (const layout_base& rhs)
+        : super(rhs)
+        , layouter(this, rhs.layouter)
+      {}
+
+      template<typename B, typename L, typename ... A>
+      inline layout_base<B, L, A...>::layout_base (layout_base&& rhs)
+        : super(std::move(rhs))
+        , layouter(this, std::move(rhs.layouter))
+      {}
+
+      template<typename B, typename L, typename ... A>
+      inline void layout_base<B, L, A...>::layout () {
+        layouter.layout(super::size());
+      }
+
+      template<typename B, typename L, typename ... A>
+      inline auto layout_base<B, L, A...>::get_layout () -> layout_type& {
+        return layouter;
+      }
+
+      template<typename B, typename L, typename ... A>
+      inline auto layout_base<B, L, A...>::get_layout () const -> const layout_type& {
+        return layouter;
+      }
+
+    } // namespace detail
+
+    // --------------------------------------------------------------------------
+    template<typename L, os::color B, typename ... A>
+    inline group_window<L, B, A...>::group_window (const A& ... args)
+      : super(args ...)
+    {}
+
+    template<typename L, os::color B, typename ... A>
+    inline void group_window<L, B, A...>::create (const container& parent,
+                                                  const core::rectangle& r) {
+      super::create(clazz::get(), parent, r);
+    }
+
+    // --------------------------------------------------------------------------
+  } // namespace win
+
+} // namespace gui

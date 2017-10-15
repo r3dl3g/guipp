@@ -109,6 +109,6 @@ namespace gui {
 
     };
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

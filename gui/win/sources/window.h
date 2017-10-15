@@ -128,7 +128,7 @@ namespace gui {
       void uncapture_pointer ();
 
       void register_event_handler (char const name[], const event_handler_function& f, os::event_id mask);
-      void register_event_handler(char const name[], event_handler_function&& f, os::event_id mask);
+      void register_event_handler (char const name[], event_handler_function&& f, os::event_id mask);
 
       void unregister_event_handler (const event_handler_function& f);
 
@@ -136,10 +136,10 @@ namespace gui {
       void register_event_handler (char const name[], const H& h);
 
       template<typename H>
-      void register_event_handler(char const name[], H&& h);
+      void register_event_handler (char const name[], H&& h);
 
       template<typename T>
-      void register_event_handler(char const name[], T * t, bool (T::*method)(const core::event &, os::event_result & result), os::event_id mask);
+      void register_event_handler (char const name[], T * t, bool (T::*method)(const core::event &, os::event_result & result), os::event_id mask);
 
       bool handle_event (const core::event&, os::event_result&);
 
@@ -240,6 +240,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

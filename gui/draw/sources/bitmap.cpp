@@ -35,12 +35,6 @@ namespace gui {
 
   namespace draw {
 
-    bitmap::bitmap (bitmap&& rhs)
-      : id(0)
-    {
-      operator= (std::move(rhs));
-    }
-
     void bitmap::operator= (bitmap&& rhs) {
       if (&rhs != this) {
         clear();
@@ -48,10 +42,6 @@ namespace gui {
           std::swap(id, rhs.id);
         }
       }
-    }
-
-    void bitmap::set_id (os::bitmap rhs) {
-      id = rhs;
     }
 
     void bitmap::clear () {
@@ -373,11 +363,7 @@ namespace gui {
       put_data(data, w, h, bpl, bpp);
     }
 
-    masked_bitmap::masked_bitmap (const masked_bitmap& rhs)
-      : image(rhs.image)
-      , mask(rhs.mask)
-    {}
-
+    // --------------------------------------------------------------------------
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
         image = rhs.image;
@@ -385,19 +371,11 @@ namespace gui {
       }
     }
 
-    masked_bitmap::masked_bitmap (masked_bitmap&& rhs) {
-      operator= (std::move(rhs));
-    }
-
     void masked_bitmap::operator= (masked_bitmap&& rhs) {
       if (&rhs != this) {
         image = std::move(rhs.image);
         mask = std::move(rhs.mask);
       }
-    }
-
-    masked_bitmap::masked_bitmap (const memmap& rhs) {
-      operator= (rhs);
     }
 
     void masked_bitmap::operator= (const memmap& rhs) {
@@ -408,10 +386,6 @@ namespace gui {
       }
     }
 
-    masked_bitmap::masked_bitmap (memmap&& rhs) {
-      operator= (std::move(rhs));
-    }
-
     void masked_bitmap::operator= (memmap&& rhs) {
       image = std::move(rhs);
       if (image.is_valid()) {
@@ -420,16 +394,7 @@ namespace gui {
       }
     }
 
-    masked_bitmap::masked_bitmap (const memmap& image, const maskmap& mask)
-      : image(image)
-      , mask(mask)
-    {}
-
-    masked_bitmap::masked_bitmap (memmap&& img, maskmap&& msk) {
-      std::swap(image, img);
-      std::swap(mask, msk);
-    }
-
+    // --------------------------------------------------------------------------
   }
 
 }

@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <logger.h>
 #include <ostreamfmt.h>
+#include <array>
 
 // --------------------------------------------------------------------------
 //

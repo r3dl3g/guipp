@@ -84,7 +84,12 @@ namespace gui {
         }
 
         bool is_initialized () const {
+#ifdef WIN32
           return (instance > 0);
+#endif // WIN32
+#ifdef X11
+          return (instance != nullptr);
+#endif // X11
         }
 
         ~gui_init () {

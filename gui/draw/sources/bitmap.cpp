@@ -211,6 +211,8 @@ namespace gui {
         return up_modulo<1, 4>(w * 3);
       case BPP::RGBA:
         return up_modulo<1, 4>(w * 4);
+      case BPP::Undefined:
+        break;
       }
       return -1;
 #endif // X11

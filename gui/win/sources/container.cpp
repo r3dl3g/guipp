@@ -99,6 +99,7 @@ namespace gui {
         init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
         init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
         init_atom(ATOM_ATOM, "ATOM");
+        return 1;
       }
 
     }

@@ -246,6 +246,7 @@ namespace gui {
         init_atom(WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
         init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
         init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
+        return 1;
       }
 
       void init_atom (Atom& message, const char* name) {

@@ -126,5 +126,10 @@ namespace gui {
     return signum(x, std::is_signed<T>());
   }
 
+  template<typename T>
+  constexpr T div_ceil (T num, T div) {
+    return (num - 1 + div) / div;
+  }
+
   // --------------------------------------------------------------------------
 } // namespace gui

@@ -12,6 +12,7 @@
 #include "drop_down.h"
 #include "table.h"
 #include "editbox.h"
+#include "tile_view.h"
 #include "dbg_win_message.h"
 
 
@@ -227,6 +228,9 @@ private:
 
   textbox_view textbox;
 
+  win::horizontal_tile_view htileview;
+  win::vertical_tile_view vtileview;
+
   bool at_paint1;
   bool at_drag;
   core::point last_pos;
@@ -274,7 +278,7 @@ int gui_main(const std::vector<std::string>& args) {
 //  }));
 //#endif
 
-  const core::rectangle r = core::rectangle(50, 50, 1000, 600);
+  const core::rectangle r = core::rectangle(50, 50, 1000, 800);
   LogDebug << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
@@ -746,6 +750,24 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     return core::point(table_view.geometrie.widths.position_of(26) + table_view.geometrie.widths.get_offset() - size.width(), current_pos.y() + size.height() * 2);
   });
 
+  htileview.set_item_size({ 50, 30 });
+  htileview.set_background(color::very_light_gray);
+  vtileview.set_item_size({ 50, 60 });
+  vtileview.set_background(color::very_light_gray);
+
+  auto tile_drawer = [] (std::size_t idx,
+                         const draw::graphics& g,
+                         const core::rectangle& place,
+                         const draw::brush& background,
+                         bool selected,
+                         bool hilited) {
+    using namespace draw;
+
+    win::paint::text_cell<std::size_t, frame::sunken_relief>(idx, g, place, text_origin::center, color::black, background.color(), selected, hilited);
+  };
+
+  htileview.set_drawer(tile_drawer);
+  vtileview.set_drawer(tile_drawer);
 
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 }
@@ -942,6 +964,14 @@ void my_main_window::created_children () {
   textbox.view.enable_select_by_mouse();
   textbox.set_visible();
 
+  htileview.create(main, core::rectangle(10, 580, 200, 250));
+  htileview.set_count(20);
+  htileview.set_visible();
+
+  vtileview.create(main, core::rectangle(220, 580, 200, 250));
+  vtileview.set_count(20);
+  vtileview.set_visible();
+
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
   hscroll.set_visible();
 
@@ -1032,7 +1062,7 @@ void my_main_window::created_children () {
   drop_down.set_data([](std::size_t i) {
     return ostreamfmt("Item " << i);
   }, 10);
-  drop_down.create(main, core::rectangle(290, 445, 100, 20));
+  drop_down.create(main, core::rectangle(180, 445, 100, 20));
   drop_down.set_visible_items(8);
   drop_down.set_visible();
 
@@ -1049,7 +1079,7 @@ void my_main_window::created_children () {
     return colors[i % 6];
   }, 20);
 
-  color_drop_down.create(main, core::rectangle(290, 475, 100, 20));
+  color_drop_down.create(main, core::rectangle(290, 445, 100, 20));
   color_drop_down.set_visible();
 
   btn_group.create(main, core::rectangle(10, 440, 780, 35));
@@ -1125,6 +1155,15 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::right, Where::width, -10>(&textbox, this);
   get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hslider);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&textbox, this);
+
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&drop_down, &hslider);
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&color_drop_down, &hslider);
+
+  get_layout().attach_fix<What::top, Where::y2, 4>(&htileview, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&htileview, this);
+
+  get_layout().attach_fix<What::top, Where::y2, 4>(&vtileview, &hslider);
+  get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
 
   layout();
 }

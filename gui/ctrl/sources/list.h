@@ -172,13 +172,53 @@ namespace gui {
 
       const pos_t zero = pos_t(0);
 
-      basic_list (core::size_type item_size = 20,
+      basic_list (os::color background = color::white,
+                  bool grab_focus = true);
+      basic_list (const basic_list& rhs);
+      basic_list (basic_list&& rhs);
+
+      core::size client_size () const;
+
+      void create_scroll_bar ();
+      void enable_scroll_bar (bool enable);
+      bool is_scroll_bar_visible () const;
+      pos_t get_scroll_pos () const;
+
+      void clear_selection (event_source notify);
+
+      void set_hilite (int sel, bool notify = true);
+      void clear_hilite (bool notify = true);
+
+    protected:
+      pos_t get_dimension (const core::point&) const;
+      pos_t get_other_dimension (const core::point&) const;
+
+      void set_dimension (core::rectangle &, pos_t, pos_t) const;
+      void set_other_dimension (core::rectangle &, pos_t, pos_t) const;
+
+      pos_t get_list_size () const;
+      core::rectangle get_scroll_bar_area () const;
+
+      scroll_bar_type scrollbar;
+
+    private:
+      void init ();
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    class lines_list : public basic_list<V> {
+    public:
+      typedef basic_list<V> super;
+
+      lines_list (core::size_type item_size = 20,
                   os::color background = color::white,
                   bool grab_focus = true);
 
-      basic_list (const basic_list& rhs);
+      lines_list (const lines_list& rhs);
 
-      basic_list (basic_list&& rhs);
+      lines_list (lines_list&& rhs);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -189,56 +229,37 @@ namespace gui {
                    const core::rectangle& place,
                    const simple_list_data<T, F>& data);
 
-      core::size client_size () const;
-
-      void create_scroll_bar ();
-      void enable_scroll_bar (bool enable);
-      void adjust_scroll_bar ();
-      bool is_scroll_bar_visible () const;
-      pos_t get_scroll_pos () const;
-
-      template<typename F>
-      void set_data (const F& data);
-      void set_count (std::size_t count);
-
       core::size_type get_item_size () const;
 
       void set_item_size (core::size_type item_size);
       void set_item_size_and_background (core::size_type item_size, os::color background);
 
+      void adjust_scroll_bar ();
+      void set_scroll_pos (pos_t pos);
+
+      void set_count (std::size_t count);
+
+      template<typename F>
+      void set_data (const F& data);
+
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);
 
       void set_selection (int sel, event_source notify);
-      void clear_selection (event_source notify);
       void make_selection_visible ();
-
-      void set_hilite (int sel, bool notify = true);
-      void clear_hilite (bool notify = true);
-
-      void set_scroll_pos (pos_t pos);
 
       void paint (const draw::graphics& graph);
 
       void handle_wheel (const pos_t delta, const core::point&);
-      void handle_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
+      void handle_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_key (os::key_state,
                        os::key_symbol key,
                        const std::string&);
 
-    protected:
-      pos_t get_dimension (const core::point&) const;
-      void set_dimension(core::rectangle &, pos_t, pos_t) const;
-
-      pos_t get_list_size () const;
-      core::rectangle get_scroll_bar_area () const;
-
+    private:
       void handle_direction_key (os::key_symbol key);
 
-      scroll_bar_type scrollbar;
-
-    private:
       void init ();
 
       core::size_type item_size;
@@ -246,14 +267,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef basic_list<orientation::horizontal> horizontal_list;
-    typedef basic_list<orientation::vertical> vertical_list;
+    typedef lines_list<orientation::horizontal> horizontal_list;
+    typedef lines_list<orientation::vertical> vertical_list;
     typedef vertical_list list;
 
     // --------------------------------------------------------------------------
-    class edit_list : public basic_list<orientation::vertical> {
+    class edit_list : public vertical_list {
     public:
-      typedef basic_list<orientation::vertical> super;
+      typedef vertical_list super;
 
       typedef std::string (source)(int);
       typedef void (target)(int, const std::string&);
@@ -371,11 +392,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation V>
-    inline basic_list<V>::basic_list (core::size_type item_size,
-                                      os::color background,
+    inline basic_list<V>::basic_list (os::color background,
                                       bool grab_focus)
       : super(background)
-      , item_size(item_size)
       , scrollbar(grab_focus)
     {
       init();
@@ -384,7 +403,6 @@ namespace gui {
     template<orientation V>
     inline basic_list<V>::basic_list (const basic_list& rhs)
       : super(rhs)
-      , item_size(rhs.item_size)
       , scrollbar(rhs.scrollbar)
     {
       init();
@@ -393,26 +411,9 @@ namespace gui {
     template<orientation V>
     inline basic_list<V>::basic_list (basic_list&& rhs)
       : super(std::move(rhs))
-      , item_size(std::move(rhs.item_size))
       , scrollbar(std::move(rhs.scrollbar))
     {
       init();
-    }
-
-    template<orientation V>
-    inline void basic_list<V>::create (const container& parent,
-                                       const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
-      adjust_scroll_bar();
-    }
-
-    template<orientation V>
-    template<typename T, list_item_drawer<T> F>
-    inline void basic_list<V>::create (const container& parent,
-                                       const core::rectangle& place,
-                                       const simple_list_data<T, F>& data) {
-      super::create(clazz::get(), parent, place);
-      set_data(data);
     }
 
     template<orientation V>
@@ -433,19 +434,6 @@ namespace gui {
     }
 
     template<orientation V>
-    void basic_list<V>::adjust_scroll_bar () {
-      if (is_scroll_bar_enabled()) {
-        scroll_bar::type visible = (get_item_size() * get_count()) - get_list_size();
-        const bool show_scroll = (visible > zero);
-        if (show_scroll) {
-          create_scroll_bar();
-        }
-        scrollbar.set_max(std::max(visible, zero));
-        scrollbar.set_visible(show_scroll);
-      }
-    }
-
-    template<orientation V>
     inline bool basic_list<V>::is_scroll_bar_visible () const {
       return scrollbar.is_visible();
     }
@@ -456,86 +444,12 @@ namespace gui {
     }
 
     template<orientation V>
-    template<typename F>
-    inline void basic_list<V>::set_data (const F& data) {
-      super::set_drawer(data);
-      set_count(data.size());
-    }
-
-    template<orientation V>
-    void basic_list<V>::set_count (std::size_t count) {
-      data.item_count = count;
-
-      const pos_t sz = get_list_size();
-      const pos_t visible = (get_item_size() * static_cast<pos_t>(count)) - sz;
-
-      scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
-
-      if (super::is_valid()) {
-        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
-        if (show_scroll) {
-          create_scroll_bar();
-        }
-        scrollbar.set_visible(show_scroll);
-        super::redraw_later();
-      }
-    }
-
-    template<orientation V>
-    inline int basic_list<V>::get_index_at_point (const core::point& pt) {
-      if (super::client_area().is_inside(pt)) {
-        return static_cast<int>((get_dimension(pt) + get_scroll_pos()) / get_item_size());
-      }
-      return -1;
-    }
-
-    template<orientation V>
-    core::rectangle basic_list<V>::get_place_of_index (int idx) {
-      if (super::is_valid_idx(idx)) {
-        core::rectangle place(super::client_size());
-        set_dimension(place, get_item_size() * idx - get_scroll_pos(), get_item_size());
-        return place;
-      }
-      return core::rectangle::zero;
-    }
-
-    template<orientation V>
-    void basic_list<V>::set_selection (int sel, event_source notify) {
-      int new_selection = std::max(-1, sel);
-      if (new_selection >= static_cast<int>(super::get_count())) {
-        new_selection = -1;
-      }
-      if (data.selection != new_selection) {
-        data.selection = new_selection;
-        make_selection_visible();
-        if (notify != event_source::logic) {
-          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
-          super::redraw_later();
-        }
-      }
-    }
-
-    template<orientation V>
     void basic_list<V>::clear_selection (event_source notify) {
       if (data.selection != -1) {
         data.selection = -1;
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
           super::redraw_later();
-        }
-      }
-    }
-
-    template<orientation V>
-    void basic_list<V>::make_selection_visible () {
-      if (data.selection > -1) {
-        const pos_t sel_pos = static_cast<pos_t>(get_item_size() * get_selection());
-        const pos_t sz = get_list_size();
-
-        if (sel_pos < get_scroll_pos()) {
-          set_scroll_pos(sel_pos);
-        } else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
-          set_scroll_pos(sel_pos + get_item_size() - sz);
         }
       }
     }
@@ -567,9 +481,218 @@ namespace gui {
     }
 
     template<orientation V>
-    void basic_list<V>::set_scroll_pos (pos_t pos) {
+    void basic_list<V>::init () {
+      scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (pos_t) {
+        super::redraw_later();
+      }));
+      if (scrollbar.is_focus_accepting()) {
+        super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point &) {
+          super::take_focus();
+        }));
+      }
+      super::register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&] (os::key_state keys, const core::point & pt) {
+        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+      }));
+      super::register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
+        clear_hilite();
+      }));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::rectangle basic_list<orientation::horizontal>::get_scroll_bar_area () const;
+
+    template<>
+    auto basic_list<orientation::horizontal>::get_list_size () const -> pos_t;
+
+    template<>
+    auto basic_list<orientation::horizontal>::get_dimension (const core::point &) const -> pos_t;
+
+    template<>
+    auto basic_list<orientation::horizontal>::get_other_dimension (const core::point &) const -> pos_t;
+
+    template<>
+    void basic_list<orientation::horizontal>::set_dimension (core::rectangle &, pos_t, pos_t) const;
+
+    template<>
+    void basic_list<orientation::horizontal>::set_other_dimension (core::rectangle &, pos_t, pos_t) const;
+
+    template<>
+    core::size basic_list<orientation::horizontal>::client_size () const;
+
+    // --------------------------------------------------------------------------
+    template<>
+    core::rectangle basic_list<orientation::vertical>::get_scroll_bar_area () const;
+
+    template<>
+    auto basic_list<orientation::vertical>::get_list_size () const->pos_t;
+
+    template<>
+    auto basic_list<orientation::vertical>::get_dimension (const core::point &) const->pos_t;
+
+    template<>
+    auto basic_list<orientation::vertical>::get_other_dimension (const core::point &) const->pos_t;
+
+    template<>
+    void basic_list<orientation::vertical>::set_dimension (core::rectangle &, pos_t, pos_t) const;
+
+    template<>
+    void basic_list<orientation::vertical>::set_other_dimension (core::rectangle &, pos_t, pos_t) const;
+
+    template<>
+    core::size basic_list<orientation::vertical>::client_size () const;
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    inline lines_list<V>::lines_list (core::size_type item_size,
+                                      os::color background,
+                                      bool grab_focus)
+      : super(background, grab_focus)
+      , item_size(item_size)
+    {
+      init();
+    }
+
+    template<orientation V>
+    inline lines_list<V>::lines_list (const lines_list& rhs)
+      : super(rhs)
+      , item_size(rhs.item_size)
+    {
+      init();
+    }
+
+    template<orientation V>
+    inline lines_list<V>::lines_list (lines_list&& rhs)
+      : super(std::move(rhs))
+      , item_size(std::move(rhs.item_size))
+    {
+      init();
+    }
+
+    template<orientation V>
+    inline void lines_list<V>::create (const container& parent,
+                                       const core::rectangle& place) {
+      super::create(clazz::get(), parent, place);
+      adjust_scroll_bar();
+    }
+
+    template<orientation V>
+    template<typename T, list_item_drawer<T> F>
+    inline void lines_list<V>::create (const container& parent,
+                                       const core::rectangle& place,
+                                       const simple_list_data<T, F>& data) {
+      super::create(clazz::get(), parent, place);
+      set_data(data);
+    }
+
+    template<orientation V>
+    inline core::size_type lines_list<V>::get_item_size () const {
+      return item_size;
+    }
+
+    template<orientation V>
+    inline void lines_list<V>::set_item_size (core::size_type item_size) {
+      this->item_size = item_size;
+    }
+
+    template<orientation V>
+    inline void lines_list<V>::set_item_size_and_background (core::size_type item_size, os::color background) {
+      this->item_size = item_size;
+      set_background(background);
+    }
+
+    template<orientation V>
+    void lines_list<V>::adjust_scroll_bar () {
+      if (is_scroll_bar_enabled()) {
+        scroll_bar::type visible = (get_item_size() * get_count()) - get_list_size();
+        const bool show_scroll = (visible > zero);
+        if (show_scroll) {
+          create_scroll_bar();
+        }
+        scrollbar.set_max(std::max(visible, zero));
+        scrollbar.set_visible(show_scroll);
+      }
+    }
+
+    template<orientation V>
+    void lines_list<V>::set_count (std::size_t count) {
+      data.item_count = count;
+
+      const pos_t sz = get_list_size();
+      const pos_t visible = (get_item_size() * static_cast<pos_t>(count)) - sz;
+
+      scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
+
+      if (super::is_valid()) {
+        const bool show_scroll = (visible > zero) && super::is_scroll_bar_enabled();
+        if (show_scroll) {
+          create_scroll_bar();
+        }
+        scrollbar.set_visible(show_scroll);
+        super::redraw_later();
+      }
+    }
+
+    template<orientation V>
+    template<typename F>
+    inline void lines_list<V>::set_data (const F& data) {
+      super::set_drawer(data);
+      set_count(data.size());
+    }
+
+    template<orientation V>
+    inline int lines_list<V>::get_index_at_point (const core::point& pt) {
+      if (super::client_area().is_inside(pt)) {
+        return static_cast<int>((get_dimension(pt) + get_scroll_pos()) / get_item_size());
+      }
+      return -1;
+    }
+
+    template<orientation V>
+    core::rectangle lines_list<V>::get_place_of_index (int idx) {
+      if (super::is_valid_idx(idx)) {
+        core::rectangle place(super::client_size());
+        set_dimension(place, get_item_size() * idx - get_scroll_pos(), get_item_size());
+        return place;
+      }
+      return core::rectangle::zero;
+    }
+
+    template<orientation V>
+    void lines_list<V>::set_selection (int sel, event_source notify) {
+      int new_selection = std::max(-1, sel);
+      if (new_selection >= static_cast<int>(super::get_count())) {
+        new_selection = -1;
+      }
+      if (data.selection != new_selection) {
+        data.selection = new_selection;
+        make_selection_visible();
+        if (notify != event_source::logic) {
+          send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
+          super::redraw_later();
+        }
+      }
+    }
+
+    template<orientation V>
+    void lines_list<V>::make_selection_visible () {
+      if (data.selection > -1) {
+        const pos_t sel_pos = static_cast<pos_t>(get_item_size() * get_selection());
+        const pos_t sz = get_list_size();
+
+        if (sel_pos < get_scroll_pos()) {
+          set_scroll_pos(sel_pos);
+        }
+        else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
+          set_scroll_pos(sel_pos + get_item_size() - sz);
+        }
+      }
+    }
+
+    template<orientation V>
+    void lines_list<V>::set_scroll_pos (pos_t pos) {
       const pos_t max_delta =
-        std::max(zero, (get_item_size() * (pos_t) super::get_count()) - get_list_size());
+        std::max(zero, (get_item_size() * (pos_t)super::get_count()) - get_list_size());
       auto value = std::min(std::max(zero, pos), max_delta);
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value, true);
@@ -577,7 +700,7 @@ namespace gui {
     }
 
     template<orientation V>
-    void basic_list<V>::paint (const draw::graphics& graph) {
+    void lines_list<V>::paint (const draw::graphics& graph) {
       const core::rectangle area(super::client_size());
       core::rectangle place = area;
 
@@ -605,27 +728,13 @@ namespace gui {
     }
 
     template<orientation V>
-    inline void basic_list<V>::handle_wheel (const pos_t delta, const core::point&) {
+    inline void lines_list<V>::handle_wheel (const pos_t delta, const core::point&) {
       set_scroll_pos(get_scroll_pos() - get_item_size() * delta);
       data.moved = true;
     }
 
     template<orientation V>
-    void basic_list<V>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
-      if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = get_index_at_point(pt);
-        if (new_selection != super::get_selection()) {
-          set_selection(new_selection, event_source::mouse);
-        } else if (control_key_bit_mask::is_set(keys)) {
-          clear_selection(event_source::mouse);
-        }
-        super::redraw_later();
-      }
-      data.last_mouse_point = core::point::undefined;
-    }
-
-    template<orientation V>
-    void basic_list<V>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void lines_list<V>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = super::client_area();
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
@@ -634,13 +743,29 @@ namespace gui {
           data.moved = true;
         }
         data.last_mouse_point = pt;
-      } else {
+      }
+      else {
         set_hilite(get_index_at_point(pt));
       }
     }
 
     template<orientation V>
-    void basic_list<V>::handle_key (os::key_state,
+    void lines_list<V>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
+      if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
+        const int new_selection = get_index_at_point(pt);
+        if (new_selection != super::get_selection()) {
+          set_selection(new_selection, event_source::mouse);
+        }
+        else if (control_key_bit_mask::is_set(keys)) {
+          clear_selection(event_source::mouse);
+        }
+        super::redraw_later();
+      }
+      data.last_mouse_point = core::point::undefined;
+    }
+
+    template<orientation V>
+    void lines_list<V>::handle_key (os::key_state,
                                     os::key_symbol key,
                                     const std::string&) {
       handle_direction_key(key);
@@ -673,87 +798,26 @@ namespace gui {
     }
 
     template<orientation V>
-    void basic_list<V>::init () {
-      scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&](pos_t) {
-                                                                         super::redraw_later();
-                                                                       }));
-      if (scrollbar.is_focus_accepting()) {
-        super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point &) {
-                                                                               super::take_focus();
-                                                                             }));
-      }
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_list::paint)));
-      super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_list::handle_left_btn_up));
-      super::register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state keys, const core::point & pt) {
-                                                                               send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-                                                                             }));
-      super::register_event_handler(REGISTER_FUNCTION, typename traits::wheel_event_type(this, &basic_list::handle_wheel));
-      super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_list::handle_mouse_move));
-      super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &basic_list::handle_key));
-      super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &){
-                                                                    if (scrollbar.is_valid()) {
-                                                                      scrollbar.place(get_scroll_bar_area());
-                                                                    }
-                                                                    adjust_scroll_bar();
-                                                                  }));
-      super::register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
-                                                                           clear_hilite();
-                                                                         }));
-    }
-
-    template<orientation V>
-    inline core::size_type basic_list<V>::get_item_size () const {
-      return item_size;
-    }
-
-    template<orientation V>
-    inline void basic_list<V>::set_item_size (core::size_type item_size) {
-      this->item_size = item_size;
-    }
-
-    template<orientation V>
-    inline void basic_list<V>::set_item_size_and_background (core::size_type item_size, os::color background) {
-      this->item_size = item_size;
-      set_background(background);
+    void lines_list<V>::init () {
+      super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &lines_list::paint)));
+      super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &lines_list::handle_left_btn_up));
+      super::register_event_handler(REGISTER_FUNCTION, typename traits::wheel_event_type(this, &lines_list::handle_wheel));
+      super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &lines_list::handle_key));
+      super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &lines_list::handle_mouse_move));
+      super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &) {
+        if (scrollbar.is_valid()) {
+          scrollbar.place(get_scroll_bar_area());
+        }
+        adjust_scroll_bar();
+      }));
     }
 
     // --------------------------------------------------------------------------
     template<>
-    core::rectangle basic_list<orientation::horizontal>::get_scroll_bar_area () const;
+    void lines_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    auto basic_list<orientation::horizontal>::get_list_size() const->pos_t;
-
-    template<>
-    auto basic_list<orientation::horizontal>::get_dimension(const core::point &) const->pos_t;
-
-    template<>
-    void basic_list<orientation::horizontal>::set_dimension(core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    core::size basic_list<orientation::horizontal>::client_size () const;
-
-    template<>
-    void basic_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
-
-    // --------------------------------------------------------------------------
-    template<>
-    core::rectangle basic_list<orientation::vertical>::get_scroll_bar_area () const;
-
-    template<>
-    auto basic_list<orientation::vertical>::get_list_size() const->pos_t;
-
-    template<>
-    auto basic_list<orientation::vertical>::get_dimension(const core::point &) const->pos_t;
-
-    template<>
-    void basic_list<orientation::vertical>::set_dimension(core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    core::size basic_list<orientation::vertical>::client_size () const;
-
-    template<>
-    void basic_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    void lines_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
     inline edit_list::edit_list (core::size_type item_size,

@@ -47,7 +47,7 @@ namespace gui {
       class column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
-        typedef win::basic_list<orientation::vertical> list_type;
+        typedef win::vertical_list list_type;
 
         column_list_layout (win::container* main);
         column_list_layout (win::container* main, const column_list_layout& rhs);
@@ -157,7 +157,7 @@ namespace gui {
       class base_column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
-        typedef win::basic_list<orientation::vertical> list_type;
+        typedef win::vertical_list list_type;
 
         base_column_list_layout (win::container* m);
         base_column_list_layout (win::container* m, const base_column_list_layout& rhs);
@@ -235,7 +235,7 @@ namespace gui {
         typedef Layout layout_type;
         typedef layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef win::basic_list<orientation::vertical> list_type;
+        typedef win::vertical_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
         base_column_list (core::size_type item_size = 20,

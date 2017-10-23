@@ -34,10 +34,8 @@ namespace gui {
 
     namespace detail {
 
-      list_base::data::data (core::size_type item_size,
-                             os::color background)
+      list_base::data::data (os::color background)
         : item_count(0)
-        , item_size(item_size)
         , selection(-1)
         , hilite(-1)
         , moved(false)
@@ -47,9 +45,8 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      list_base::list_base (core::size_type item_size,
-                            os::color background)
-        : data(item_size, background)
+      list_base::list_base (os::color background)
+        : data(background)
       {
         init();
       }

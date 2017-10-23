@@ -44,15 +44,14 @@ namespace gui {
         typedef window super;
         typedef core::size_type pos_t;
 
-        list_base (core::size_type item_size = 20,
-                   os::color background = color::white);
+        list_base (os::color background = color::white);
         list_base (const list_base&);
         list_base (list_base&&);
 
         std::size_t get_count () const;
         int get_selection () const;
         int get_hilite () const;
-        core::size_type get_item_size () const;
+
         os::color get_background () const;
         core::point get_last_mouse_point () const;
 
@@ -60,9 +59,7 @@ namespace gui {
         bool is_scroll_bar_enabled () const;
         bool is_moved () const;
 
-        void set_item_size (core::size_type item_size);
         void set_background (os::color background);
-        void set_item_size_and_background (core::size_type item_size, os::color background);
 
         typedef void (draw_list_item)(std::size_t idx,
                                       const draw::graphics&,
@@ -83,11 +80,9 @@ namespace gui {
                         bool hilited) const;
 
         struct data {
-          data (core::size_type item_size = 20,
-                os::color background = color::white);
+          data (os::color background = color::white);
 
           std::size_t item_count;
-          core::size_type item_size;
           int selection;
           int hilite;
           bool moved;
@@ -206,6 +201,11 @@ namespace gui {
       void set_data (const F& data);
       void set_count (std::size_t count);
 
+      core::size_type get_item_size () const;
+
+      void set_item_size (core::size_type item_size);
+      void set_item_size_and_background (core::size_type item_size, os::color background);
+
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);
 
@@ -240,6 +240,8 @@ namespace gui {
 
     private:
       void init ();
+
+      core::size_type item_size;
 
     };
 
@@ -304,24 +306,11 @@ namespace gui {
         return data.hilite;
       }
 
-      inline core::size_type list_base::get_item_size () const {
-        return data.item_size;
-      }
-
-      inline void list_base::set_item_size (core::size_type item_size) {
-        data.item_size = item_size;
-      }
-
       inline os::color list_base::get_background () const {
         return data.background;
       }
 
       inline void list_base::set_background (os::color background) {
-        data.background = background;
-      }
-
-      inline void list_base::set_item_size_and_background (core::size_type item_size, os::color background) {
-        data.item_size = item_size;
         data.background = background;
       }
 
@@ -385,7 +374,8 @@ namespace gui {
     inline basic_list<V>::basic_list (core::size_type item_size,
                                       os::color background,
                                       bool grab_focus)
-      : super(item_size, background)
+      : super(background)
+      , item_size(item_size)
       , scrollbar(grab_focus)
     {
       init();
@@ -394,6 +384,7 @@ namespace gui {
     template<orientation V>
     inline basic_list<V>::basic_list (const basic_list& rhs)
       : super(rhs)
+      , item_size(rhs.item_size)
       , scrollbar(rhs.scrollbar)
     {
       init();
@@ -402,6 +393,7 @@ namespace gui {
     template<orientation V>
     inline basic_list<V>::basic_list (basic_list&& rhs)
       : super(std::move(rhs))
+      , item_size(std::move(rhs.item_size))
       , scrollbar(std::move(rhs.scrollbar))
     {
       init();
@@ -443,7 +435,7 @@ namespace gui {
     template<orientation V>
     void basic_list<V>::adjust_scroll_bar () {
       if (is_scroll_bar_enabled()) {
-        scroll_bar::type visible = (data.item_size * get_count()) - get_list_size();
+        scroll_bar::type visible = (get_item_size() * get_count()) - get_list_size();
         const bool show_scroll = (visible > zero);
         if (show_scroll) {
           create_scroll_bar();
@@ -475,7 +467,7 @@ namespace gui {
       data.item_count = count;
 
       const pos_t sz = get_list_size();
-      const pos_t visible = (data.item_size * static_cast<pos_t>(count)) - sz;
+      const pos_t visible = (get_item_size() * static_cast<pos_t>(count)) - sz;
 
       scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
@@ -492,7 +484,7 @@ namespace gui {
     template<orientation V>
     inline int basic_list<V>::get_index_at_point (const core::point& pt) {
       if (super::client_area().is_inside(pt)) {
-        return static_cast<int>((get_dimension(pt) + get_scroll_pos()) / data.item_size);
+        return static_cast<int>((get_dimension(pt) + get_scroll_pos()) / get_item_size());
       }
       return -1;
     }
@@ -501,7 +493,7 @@ namespace gui {
     core::rectangle basic_list<V>::get_place_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
         core::rectangle place(super::client_size());
-        set_dimension(place, data.item_size * idx - get_scroll_pos(), data.item_size);
+        set_dimension(place, get_item_size() * idx - get_scroll_pos(), get_item_size());
         return place;
       }
       return core::rectangle::zero;
@@ -537,13 +529,13 @@ namespace gui {
     template<orientation V>
     void basic_list<V>::make_selection_visible () {
       if (data.selection > -1) {
-        const pos_t sel_pos = static_cast<pos_t>(data.item_size * data.selection);
+        const pos_t sel_pos = static_cast<pos_t>(get_item_size() * get_selection());
         const pos_t sz = get_list_size();
 
         if (sel_pos < get_scroll_pos()) {
           set_scroll_pos(sel_pos);
-        } else if (sel_pos + data.item_size - get_scroll_pos() > sz) {
-          set_scroll_pos(sel_pos + data.item_size - sz);
+        } else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
+          set_scroll_pos(sel_pos + get_item_size() - sz);
         }
       }
     }
@@ -577,7 +569,7 @@ namespace gui {
     template<orientation V>
     void basic_list<V>::set_scroll_pos (pos_t pos) {
       const pos_t max_delta =
-        std::max(zero, (data.item_size * (pos_t) super::get_count()) - get_list_size());
+        std::max(zero, (get_item_size() * (pos_t) super::get_count()) - get_list_size());
       auto value = std::min(std::max(zero, pos), max_delta);
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value, true);
@@ -589,17 +581,17 @@ namespace gui {
       const core::rectangle area(super::client_size());
       core::rectangle place = area;
 
-      draw::brush back_brush(data.background);
+      draw::brush back_brush(get_background());
 
       const pos_t list_sz = get_list_size();
       const auto last = super::get_count();
-      const auto first = static_cast<decltype(last)>(get_scroll_pos() / data.item_size);
+      const auto first = static_cast<decltype(last)>(get_scroll_pos() / get_item_size());
 
-      set_dimension(place, data.item_size * first - get_scroll_pos(), data.item_size);
+      set_dimension(place, get_item_size() * first - get_scroll_pos(), get_item_size());
 
       for (auto idx = first; (idx < last) && (get_dimension(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
-        set_dimension(place, get_dimension(place.top_left()) + data.item_size, data.item_size);
+        set_dimension(place, get_dimension(place.top_left()) + get_item_size(), get_item_size());
       }
 
       if (place.y() < area.y2()) {
@@ -614,7 +606,7 @@ namespace gui {
 
     template<orientation V>
     inline void basic_list<V>::handle_wheel (const pos_t delta, const core::point&) {
-      set_scroll_pos(get_scroll_pos() - data.item_size * delta);
+      set_scroll_pos(get_scroll_pos() - get_item_size() * delta);
       data.moved = true;
     }
 
@@ -656,13 +648,13 @@ namespace gui {
       case keys::page_up:
       case keys::numpad::page_up:
         set_selection(super::get_selection() -
-                      static_cast<int>(get_list_size() / data.item_size),
+                      static_cast<int>(get_list_size() / get_item_size()),
                       event_source::keyboard);
         break;
       case keys::page_down:
       case keys::numpad::page_down:
         set_selection(super::get_selection() +
-                      static_cast<int>(get_list_size() / data.item_size),
+                      static_cast<int>(get_list_size() / get_item_size()),
                       event_source::keyboard);
         break;
       case keys::home:
@@ -707,6 +699,22 @@ namespace gui {
       super::register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
                                                                            clear_hilite();
                                                                          }));
+    }
+
+    template<orientation V>
+    inline core::size_type basic_list<V>::get_item_size () const {
+      return item_size;
+    }
+
+    template<orientation V>
+    inline void basic_list<V>::set_item_size (core::size_type item_size) {
+      this->item_size = item_size;
+    }
+
+    template<orientation V>
+    inline void basic_list<V>::set_item_size_and_background (core::size_type item_size, os::color background) {
+      this->item_size = item_size;
+      set_background(background);
     }
 
     // --------------------------------------------------------------------------

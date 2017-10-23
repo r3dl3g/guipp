@@ -1,10 +1,13 @@
+
 builddir=build/gcc-$(gcc -dumpversion)
+prjdir=$PWD
 
 mkdir -p $builddir/debug
 pushd $builddir/debug
-cmake "../../.." -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug"
+cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug"
 popd
+
 mkdir -p $builddir/release
 pushd $builddir/release
-cmake "../../.." -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Release"
+cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Release"
 popd

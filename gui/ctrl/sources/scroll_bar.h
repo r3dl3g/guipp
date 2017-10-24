@@ -96,7 +96,7 @@ namespace gui {
       void set_max(type);
       void set_min_max(type, type);
       void set_step(type);
-      void set_value(type, bool notify = false);
+      void set_value(type, bool notify = true);
 
       void set_min_max_step(type, type, type);
       void set_min_max_step_value(type, type, type, type);

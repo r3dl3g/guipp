@@ -647,8 +647,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
-    editor.view.set_scroll_pos(core::point(hscroll.get_value(), pos));
-    textbox.view.set_scroll_pos(core::point(hscroll.get_value(), pos));
+    editor.vscroll.set_value(pos);
+    textbox.vscroll.set_value(pos);
   }));
 
   calc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
@@ -672,8 +672,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   hscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);
-    editor.view.set_scroll_pos(core::point(pos, vscroll.get_value()));
-    textbox.view.set_scroll_pos(core::point(pos, vscroll.get_value()));
+    editor.hscroll.set_value(pos);
+    textbox.hscroll.set_value(pos);
   }));
   main_split_view.slider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&){
     hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
@@ -755,10 +755,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   htileview.set_border({ 10, 20 });
   htileview.set_spacing({ 2, 4 });
   
-  vtileview.set_item_size({ 50, 60 });
+  vtileview.set_item_size({ 40, 60 });
   vtileview.set_background(color::very_light_gray);
-  vtileview.set_border({ 10, 20 });
-  vtileview.set_spacing({ 2, 4 });
+  vtileview.set_border({ 20, 10 });
+  vtileview.set_spacing({ 5, 5 });
 
   auto tile_drawer = [] (std::size_t idx,
                          const draw::graphics& g,
@@ -974,7 +974,7 @@ void my_main_window::created_children () {
   htileview.set_visible();
 
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
-  vtileview.set_count(20);
+  vtileview.set_count(30);
   vtileview.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));

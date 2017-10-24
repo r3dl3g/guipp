@@ -692,7 +692,7 @@ namespace gui {
         std::max(zero, (get_item_size() * (pos_t)super::get_count()) - get_list_size());
       auto value = std::min(std::max(zero, pos), max_delta);
       if (value != scrollbar.get_value()) {
-        scrollbar.set_value(value, true);
+        scrollbar.set_value(value);
       }
     }
 

@@ -220,28 +220,30 @@ namespace gui {
       super::register_event_handler(REGISTER_FUNCTION, create_event(this, &virtual_view::handle_create));
       super::get_layout().init(&vscroll, &hscroll, &edge, &view);
 
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-                                                                       view.set_scroll_pos(core::point(hscroll.get_value(), y));
-                                                                     }));
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-                                                                       view.set_scroll_pos(core::point(x, vscroll.get_value()));
-                                                                     }));
-      view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&]() {
-                                                                             super::layout();
-                                                                           }));
-      view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-                                                                               view.make_cursor_visible();
-                                                                               const core::point& pos = view.get_scroll_pos();
-                                                                               hscroll.set_value(pos.x());
-                                                                               vscroll.set_value(pos.y());
-                                                                               super::layout();
-                                                                             }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt) {
-                                                                     hscroll.handle_wheel(delta, pt);
-                                                                   }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt) {
-                                                                     vscroll.handle_wheel(delta, pt);
-                                                                   }));
+      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type y) {
+        view.set_scroll_pos(core::point(hscroll.get_value(), y));
+      }));
+      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type x) {
+        view.set_scroll_pos(core::point(x, vscroll.get_value()));
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&] () {
+        super::layout();
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+        view.make_cursor_visible();
+        const core::point& pos = view.get_scroll_pos();
+        hscroll.set_value(pos.x(), false);
+        vscroll.set_value(pos.y(), false);
+        super::layout();
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&] (const core::point_type delta,
+                                                                        const core::point & pt) {
+        hscroll.handle_wheel(delta, pt);
+      }));
+      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&] (const core::point_type delta,
+                                                                        const core::point & pt) {
+        vscroll.handle_wheel(delta, pt);
+      }));
     }
 
     template<typename T, os::color B>

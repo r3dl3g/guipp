@@ -487,11 +487,11 @@ namespace gui {
 
     void table_view::set_scroll_pos (const core::point& pos) {
       if (hscroll.is_enabled()) {
-        hscroll.set_value(pos.x());
+        hscroll.set_value(pos.x(), false);
         geometrie.widths.set_offset(hscroll.get_value());
       }
       if (vscroll.is_enabled()) {
-        vscroll.set_value(pos.y());
+        vscroll.set_value(pos.y(), false);
         geometrie.heights.set_offset(vscroll.get_value());
       }
       redraw_all();

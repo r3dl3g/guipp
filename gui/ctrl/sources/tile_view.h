@@ -330,7 +330,7 @@ namespace gui {
       const pos_t max_delta = std::max<pos_t>(zero, ((get_line_size() + get_line_spacing()) * get_line_count() + get_line_border()) - get_list_size());
       auto value = std::min(std::max(zero, pos), max_delta);
       if (value != scrollbar.get_value()) {
-        scrollbar.set_value(value, true);
+        scrollbar.set_value(value);
       }
     }
 

@@ -116,8 +116,13 @@ namespace gui {
 
     private:
       void handle_direction_key (os::key_symbol key);
+      core::rectangle get_full_place_of_index (int idx);
+
       core::size_type get_item_border () const;
       core::size_type get_line_border () const;
+
+      core::size_type get_item_spacing () const;
+      core::size_type get_line_spacing () const;
 
       void init ();
 
@@ -193,7 +198,7 @@ namespace gui {
       if (is_scroll_bar_enabled()) {
         const auto ipl = get_items_per_line();
         const auto lines = (ipl > 0 ? div_ceil(super::get_count(), ipl) : 1);
-        scroll_bar::type visible = (get_line_size() * lines + get_line_border() * 2) - get_list_size();
+        scroll_bar::type visible = ((get_line_size() + get_line_spacing()) * lines + get_line_border() * 2) - get_list_size();
         const bool show_scroll = (visible > zero);
         if (show_scroll) {
           create_scroll_bar();
@@ -212,7 +217,7 @@ namespace gui {
       const auto ipl = get_items_per_line();
       const auto sz = get_list_size();
       const auto lines = (ipl > 0 ? div_ceil(count, ipl) : 1);
-      scroll_bar::type visible = (get_line_size() * lines + get_line_border() * 2) - sz;
+      scroll_bar::type visible = ((get_line_size() + get_line_spacing()) * lines + get_line_border() * 2) - sz;
 
       scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
@@ -241,11 +246,11 @@ namespace gui {
     template<orientation V>
     inline int basic_tile_view<V>::get_index_at_point (const core::point& pt) {
       if (super::client_area().is_inside(pt)) {
-        const auto per_line = get_items_per_line();
-        const auto line = static_cast<std::size_t>((get_dimension(pt) + get_scroll_pos() - get_line_border()) / get_line_size());
-        const auto offs = static_cast<std::size_t>((get_other_dimension(pt) - get_item_border()) / get_item_size());
+        const int per_line = static_cast<int>(get_items_per_line());
+        const auto line = static_cast<int>((get_dimension(pt) + get_scroll_pos() - get_line_border() + get_line_spacing()) / (get_line_size() + get_line_spacing()));
+        const auto offs = static_cast<int>((get_other_dimension(pt) - get_item_border() + get_item_spacing()) / (get_item_size() + get_item_spacing()));
         const auto idx = (line * per_line) + offs;
-        return static_cast<int>(idx < get_count() ? idx : -1);
+        return (idx < get_count()) && get_place_of_index(idx).is_inside(pt) ? idx : -1;
       }
       return -1;
     }
@@ -254,15 +259,29 @@ namespace gui {
     core::rectangle basic_tile_view<V>::get_place_of_index (int idx) {
       const auto per_line = get_items_per_line();
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
-      const auto last = line * per_line;
-      const auto offs = idx - last;
+      const auto offs = idx - (line * per_line);
 
-      const auto ls = get_line_size();
-      const auto is = get_item_size();
+      const auto lsz = get_line_size();
+      const auto isz = get_item_size();
 
       core::rectangle place;
-      set_dimension(place, ls * line - get_scroll_pos() + get_line_border(), ls);
-      set_other_dimension(place, is * offs + get_item_border(), is);
+      set_dimension(place, (lsz + get_line_spacing()) * line - get_scroll_pos() + get_line_border(), lsz);
+      set_other_dimension(place, (isz + get_item_spacing()) * offs + get_item_border(), isz);
+      return place;
+    }
+
+    template<orientation V>
+    core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
+      const auto per_line = get_items_per_line();
+      const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
+      const auto offs = idx - (line * per_line);
+
+      const auto lsz = get_line_size() + get_line_spacing();
+      const auto isz = get_item_size() + get_item_spacing();
+
+      core::rectangle place;
+      set_dimension(place, lsz * line - get_scroll_pos() + get_line_border(), lsz);
+      set_other_dimension(place, isz * offs + get_item_border(), isz);
       return place;
     }
 
@@ -291,22 +310,24 @@ namespace gui {
     template<orientation V>
     void basic_tile_view<V>::make_selection_visible () {
       if (data.selection > -1) {
-        const auto line = static_cast<std::size_t>(get_selection()) / get_items_per_line();
+        const int line = get_selection() / static_cast<int>(get_items_per_line());
 
-        const pos_t sel_pos = static_cast<pos_t>(get_line_size() * line) + get_line_border();
-        const pos_t sz = get_list_size();
+        const auto sz = get_list_size();
+        const auto ls = get_line_size() + get_line_spacing();
+        const auto sel_pos = (ls * line) + get_line_border();
+        const auto sc_pos = get_scroll_pos();
 
-        if (sel_pos < get_scroll_pos()) {
+        if (sel_pos < sc_pos) {
           set_scroll_pos(sel_pos);
-        } else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
-          set_scroll_pos(sel_pos + get_item_size() - sz);
+        } else if (sel_pos + ls - sc_pos > sz) {
+          set_scroll_pos(sel_pos + ls - sz);
         }
       }
     }
 
     template<orientation V>
     void basic_tile_view<V>::set_scroll_pos (pos_t pos) {
-      const pos_t max_delta = std::max<pos_t>(zero, (get_line_size() * get_line_count()) - get_list_size());
+      const pos_t max_delta = std::max<pos_t>(zero, ((get_line_size() + get_line_spacing()) * get_line_count() + get_line_border()) - get_list_size());
       auto value = std::min(std::max(zero, pos), max_delta);
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value, true);
@@ -315,34 +336,58 @@ namespace gui {
 
     template<orientation V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
-      /*const */core::rectangle area(super::client_size());
+      const core::rectangle area(super::client_size());
 
       draw::brush back_brush(get_background());
 
       const auto last = super::get_count();
-      const auto ls = get_line_size();
-      if ((last < 1) || (ls < 1)) {
+      const auto lsz = get_line_size();
+      if ((last < 1) || (lsz < 1)) {
         graph.fill(draw::rectangle(area), back_brush);
       } else {
-        const pos_t list_sz = get_list_size();
-        const auto first_line = static_cast<std::size_t>((get_scroll_pos() - get_line_border()) / ls);
+        const auto list_sz = get_list_size();
+        const auto isp = get_item_spacing();
+        const auto lsp = get_line_spacing();
+        const auto scp = get_scroll_pos();
+        const auto lb = get_line_border();
+        const int per_line = static_cast<int>(get_items_per_line());
 
-        auto idx = first_line;
-        core::rectangle place = get_place_of_index(static_cast<int>(idx));
+        const int first_line = static_cast<int>((scp - lb + lsp) / (lsz + lsp));
+
+        int idx = first_line * per_line;
+        core::rectangle place = get_place_of_index(idx);
 
         const auto start = get_dimension(place.top_left());
 
         for (; (idx < last) && (get_dimension(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
-          place = get_place_of_index(static_cast<int>(idx + 1));
+          if (isp > 0) {
+            set_other_dimension(place, get_other_dimension(place.bottom_right()), isp);
+            graph.fill(draw::rectangle(place), back_brush);
+          }
+          place = get_place_of_index(idx + 1);
         }
 
+        const int last_line = div_ceil(idx, per_line);
+
+        place = get_full_place_of_index(idx);
         for (; (get_dimension(place.top_left()) < list_sz); ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
-          place = get_place_of_index(static_cast<int>(idx + 1));
+          place = get_full_place_of_index(idx + 1);
         }
 
-        const auto width = get_item_size() * get_items_per_line() + get_item_border();
+        const auto ib = get_item_border();
+        const auto isz = get_item_size();
+        if (lsp > 0) {
+          const auto lw = (isz + isp) * per_line;
+          for (int line = first_line; line < last_line; ++line) {
+            set_dimension(place, (lsz + lsp) * line - scp + lb + lsz, lsp);
+            set_other_dimension(place, ib, lw);
+            graph.fill(draw::rectangle(place), back_brush);
+          }
+        }
+
+        const auto width = (isz + isp) * per_line + ib;
         const auto max_width = get_other_dimension(area.bottom_right());
         if (max_width > width) {
           core::rectangle space = area;
@@ -350,9 +395,9 @@ namespace gui {
           graph.fill(draw::rectangle(space), back_brush);
         }
 
-        if (get_item_border() > 0) {
+        if (ib > 0) {
           core::rectangle space = area;
-          set_other_dimension(space, get_dimension(area.top_left()), get_item_border());
+          set_other_dimension(space, get_dimension(area.top_left()), ib);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
@@ -371,7 +416,7 @@ namespace gui {
 
     template<orientation V>
     inline void basic_tile_view<V>::handle_wheel (const pos_t delta, const core::point&) {
-      set_scroll_pos(get_scroll_pos() - get_line_size() * delta);
+      set_scroll_pos(get_scroll_pos() - (get_line_size() + get_line_spacing()) * delta);
       data.moved = true;
     }
 
@@ -419,11 +464,11 @@ namespace gui {
       switch (key) {
       case keys::page_up:
       case keys::numpad::page_up:
-        try_to_select(super::get_selection() - static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
+        try_to_select(super::get_selection() - static_cast<int>((get_list_size() + get_line_spacing()) / (get_line_size() + get_line_spacing())), event_source::keyboard);
         break;
       case keys::page_down:
       case keys::numpad::page_down:
-        try_to_select(super::get_selection() + static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
+        try_to_select(super::get_selection() + static_cast<int>((get_list_size() + get_line_spacing()) / (get_line_size() + get_line_spacing())), event_source::keyboard);
         break;
       case keys::home:
       case keys::numpad::home:
@@ -513,6 +558,19 @@ namespace gui {
 
     template<>
     core::size_type basic_tile_view<orientation::vertical>::get_line_border () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_item_spacing () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_item_spacing () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_line_spacing () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_line_spacing () const;
+
     // --------------------------------------------------------------------------
 
   } // win

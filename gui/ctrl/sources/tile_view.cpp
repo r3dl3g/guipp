@@ -44,12 +44,12 @@ namespace gui {
 
     template<>
     std::size_t basic_tile_view<orientation::horizontal>::get_items_per_line () const {
-      return static_cast<std::size_t>(std::max((client_size().height() - get_border().height() * 2) / item_size.height(), 1.0f));
+      return static_cast<std::size_t>(std::max((client_size().height() - border.height() * 2 + spacing.height()) / (item_size.height() + spacing.height()), 1.0f));
     }
 
     template<>
     std::size_t basic_tile_view<orientation::vertical>::get_items_per_line () const {
-      return static_cast<std::size_t>(std::max((client_size().width() - get_border().width() * 2) / item_size.width(), 1.0f));
+      return static_cast<std::size_t>(std::max((client_size().width() - border.width() * 2 + spacing.width()) / (item_size.width() + spacing.width()), 1.0f));
     }
 
     template<>
@@ -80,6 +80,26 @@ namespace gui {
     template<>
     core::size_type basic_tile_view<orientation::vertical>::get_line_border () const {
       return border.height();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_item_spacing () const {
+      return spacing.height();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_item_spacing () const {
+      return spacing.width();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_line_spacing () const {
+      return spacing.width();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_line_spacing () const {
+      return spacing.height();
     }
 
     template<>

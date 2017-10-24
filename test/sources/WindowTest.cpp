@@ -753,9 +753,12 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   htileview.set_item_size({ 50, 30 });
   htileview.set_background(color::very_light_gray);
   htileview.set_border({ 10, 20 });
+  htileview.set_spacing({ 2, 4 });
+  
   vtileview.set_item_size({ 50, 60 });
   vtileview.set_background(color::very_light_gray);
   vtileview.set_border({ 10, 20 });
+  vtileview.set_spacing({ 2, 4 });
 
   auto tile_drawer = [] (std::size_t idx,
                          const draw::graphics& g,
@@ -970,7 +973,7 @@ void my_main_window::created_children () {
   htileview.set_count(20);
   htileview.set_visible();
 
-  vtileview.create(main, core::rectangle(220, 580, 200, 250));
+  vtileview.create(main, core::rectangle(220, 580, 400, 250));
   vtileview.set_count(20);
   vtileview.set_visible();
 

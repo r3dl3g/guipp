@@ -660,10 +660,7 @@ namespace gui {
 
     template<orientation V>
     void lines_list<V>::set_selection (int sel, event_source notify) {
-      int new_selection = std::max(-1, sel);
-      if (new_selection >= static_cast<int>(super::get_count())) {
-        new_selection = -1;
-      }
+      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count()));
       if (data.selection != new_selection) {
         data.selection = new_selection;
         make_selection_visible();
@@ -754,9 +751,12 @@ namespace gui {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
         const int new_selection = get_index_at_point(pt);
         if (new_selection != super::get_selection()) {
-          set_selection(new_selection, event_source::mouse);
-        }
-        else if (control_key_bit_mask::is_set(keys)) {
+          if (new_selection < 0) {
+            clear_selection(event_source::mouse);
+          } else {
+            set_selection(new_selection, event_source::mouse);
+          }
+        } else if (control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
         super::redraw_later();

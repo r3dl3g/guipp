@@ -752,8 +752,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
 
   htileview.set_item_size({ 50, 30 });
   htileview.set_background(color::very_light_gray);
+  htileview.set_border({ 10, 20 });
   vtileview.set_item_size({ 50, 60 });
   vtileview.set_background(color::very_light_gray);
+  vtileview.set_border({ 10, 20 });
 
   auto tile_drawer = [] (std::size_t idx,
                          const draw::graphics& g,

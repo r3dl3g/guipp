@@ -76,6 +76,12 @@ namespace gui {
       void set_item_size (const core::size& item_size);
       void set_item_size_and_background (const core::size& item_size, os::color background);
 
+      void set_border (const core::size& sz);
+      void set_spacing (const core::size& sz);
+      
+      const core::size& get_border () const;
+      const core::size& get_spacing () const;
+
       void adjust_scroll_bar ();
       void set_scroll_pos (pos_t pos);
 
@@ -83,6 +89,8 @@ namespace gui {
 
       template<typename F>
       void set_data (const F& data);
+
+      core::rectangle get_space () const;
 
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);
@@ -93,6 +101,7 @@ namespace gui {
       core::size_type get_item_size () const;
       core::size_type get_line_size () const;
 
+      bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
 
@@ -107,11 +116,14 @@ namespace gui {
 
     private:
       void handle_direction_key (os::key_symbol key);
+      core::size_type get_item_border () const;
+      core::size_type get_line_border () const;
 
       void init ();
 
       core::size item_size;
-
+      core::size border;
+      core::size spacing;
     };
 
     // --------------------------------------------------------------------------
@@ -167,12 +179,13 @@ namespace gui {
     template<orientation V>
     inline void basic_tile_view<V>::set_item_size (const core::size& sz) {
       item_size = sz;
+      adjust_scroll_bar();
     }
 
     template<orientation V>
     inline void basic_tile_view<V>::set_item_size_and_background (const core::size& sz, os::color background) {
-      item_size = sz;
       set_background(background);
+      set_item_size(sz);
     }
 
     template<orientation V>
@@ -180,13 +193,15 @@ namespace gui {
       if (is_scroll_bar_enabled()) {
         const auto ipl = get_items_per_line();
         const auto lines = (ipl > 0 ? div_ceil(super::get_count(), ipl) : 1);
-        scroll_bar::type visible = (get_line_size() * lines) - get_list_size();
+        scroll_bar::type visible = (get_line_size() * lines + get_line_border() * 2) - get_list_size();
         const bool show_scroll = (visible > zero);
         if (show_scroll) {
           create_scroll_bar();
         }
         scrollbar.set_max(std::max(visible, zero));
         scrollbar.set_visible(show_scroll);
+      } else {
+        super::redraw_later();
       }
     }
 
@@ -197,7 +212,7 @@ namespace gui {
       const auto ipl = get_items_per_line();
       const auto sz = get_list_size();
       const auto lines = (ipl > 0 ? div_ceil(count, ipl) : 1);
-      scroll_bar::type visible = (get_line_size() * lines) - sz;
+      scroll_bar::type visible = (get_line_size() * lines + get_line_border() * 2) - sz;
 
       scrollbar.set_min_max_step(zero, std::max(visible, zero), sz);
 
@@ -219,11 +234,16 @@ namespace gui {
     }
 
     template<orientation V>
+    core::rectangle basic_tile_view<V>::get_space () const {
+      return super::client_area().shrinked(border);
+    }
+
+    template<orientation V>
     inline int basic_tile_view<V>::get_index_at_point (const core::point& pt) {
       if (super::client_area().is_inside(pt)) {
         const auto per_line = get_items_per_line();
-        const auto line = static_cast<std::size_t>((get_dimension(pt) + get_scroll_pos()) / get_line_size());
-        const auto offs = static_cast<std::size_t>(get_other_dimension(pt) / get_item_size());
+        const auto line = static_cast<std::size_t>((get_dimension(pt) + get_scroll_pos() - get_line_border()) / get_line_size());
+        const auto offs = static_cast<std::size_t>((get_other_dimension(pt) - get_item_border()) / get_item_size());
         const auto idx = (line * per_line) + offs;
         return static_cast<int>(idx < get_count() ? idx : -1);
       }
@@ -241,17 +261,14 @@ namespace gui {
       const auto is = get_item_size();
 
       core::rectangle place;
-      set_dimension(place, ls * line - get_scroll_pos(), ls);
-      set_other_dimension(place, is * offs, is);
+      set_dimension(place, ls * line - get_scroll_pos() + get_line_border(), ls);
+      set_other_dimension(place, is * offs + get_item_border(), is);
       return place;
     }
 
     template<orientation V>
     void basic_tile_view<V>::set_selection (int sel, event_source notify) {
-      int new_selection = std::max(-1, sel);
-      if (new_selection >= static_cast<int>(super::get_count())) {
-        new_selection = -1;
-      }
+      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
       if (data.selection != new_selection) {
         data.selection = new_selection;
         make_selection_visible();
@@ -263,17 +280,25 @@ namespace gui {
     }
 
     template<orientation V>
+    bool basic_tile_view<V>::try_to_select (int sel, event_source notify) {
+      if ((sel >= 0) && (sel < super::get_count())) {
+        set_selection(sel, notify);
+        return true;
+      }
+      return false;
+    }
+
+    template<orientation V>
     void basic_tile_view<V>::make_selection_visible () {
       if (data.selection > -1) {
         const auto line = static_cast<std::size_t>(get_selection()) / get_items_per_line();
 
-        const pos_t sel_pos = static_cast<pos_t>(get_line_size() * line);
+        const pos_t sel_pos = static_cast<pos_t>(get_line_size() * line) + get_line_border();
         const pos_t sz = get_list_size();
 
         if (sel_pos < get_scroll_pos()) {
           set_scroll_pos(sel_pos);
-        }
-        else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
+        } else if (sel_pos + get_item_size() - get_scroll_pos() > sz) {
           set_scroll_pos(sel_pos + get_item_size() - sz);
         }
       }
@@ -290,7 +315,7 @@ namespace gui {
 
     template<orientation V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area(super::client_size());
+      /*const */core::rectangle area(super::client_size());
 
       draw::brush back_brush(get_background());
 
@@ -300,10 +325,13 @@ namespace gui {
         graph.fill(draw::rectangle(area), back_brush);
       } else {
         const pos_t list_sz = get_list_size();
-        const auto first_line = static_cast<decltype(last)>(get_scroll_pos() / ls);
+        const auto first_line = static_cast<std::size_t>((get_scroll_pos() - get_line_border()) / ls);
 
         auto idx = first_line;
         core::rectangle place = get_place_of_index(static_cast<int>(idx));
+
+        const auto start = get_dimension(place.top_left());
+
         for (; (idx < last) && (get_dimension(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
           place = get_place_of_index(static_cast<int>(idx + 1));
@@ -314,11 +342,23 @@ namespace gui {
           place = get_place_of_index(static_cast<int>(idx + 1));
         }
 
-        const auto width = get_item_size() * get_items_per_line();
+        const auto width = get_item_size() * get_items_per_line() + get_item_border();
         const auto max_width = get_other_dimension(area.bottom_right());
         if (max_width > width) {
           core::rectangle space = area;
           set_other_dimension(space, width, max_width - width);
+          graph.fill(draw::rectangle(space), back_brush);
+        }
+
+        if (get_item_border() > 0) {
+          core::rectangle space = area;
+          set_other_dimension(space, get_dimension(area.top_left()), get_item_border());
+          graph.fill(draw::rectangle(space), back_brush);
+        }
+
+        if (start > 0) {
+          core::rectangle space = area;
+          set_dimension(space, get_other_dimension(area.top_left()), start);
           graph.fill(draw::rectangle(space), back_brush);
         }
       }
@@ -379,19 +419,19 @@ namespace gui {
       switch (key) {
       case keys::page_up:
       case keys::numpad::page_up:
-        set_selection(super::get_selection() - static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
+        try_to_select(super::get_selection() - static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
         break;
       case keys::page_down:
       case keys::numpad::page_down:
-        set_selection(super::get_selection() + static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
+        try_to_select(super::get_selection() + static_cast<int>(get_list_size() / get_line_size()), event_source::keyboard);
         break;
       case keys::home:
       case keys::numpad::home:
-        set_selection(0, event_source::keyboard);
+        try_to_select(0, event_source::keyboard);
         break;
       case keys::end:
       case keys::numpad::end:
-        set_selection(static_cast<int>(super::get_count()) - 1,
+        try_to_select(static_cast<int>(super::get_count()) - 1,
           event_source::keyboard);
         break;
       case keys::enter:
@@ -413,6 +453,28 @@ namespace gui {
         }
         adjust_scroll_bar();
       }));
+    }
+
+    template<orientation V>
+    void basic_tile_view<V>::set_border (const core::size& sz) {
+      border = sz;
+      adjust_scroll_bar();
+    }
+    
+    template<orientation V>
+    void basic_tile_view<V>::set_spacing (const core::size& sz) {
+      spacing = sz;
+      adjust_scroll_bar();
+    }
+
+    template<orientation V>
+    const core::size& basic_tile_view<V>::get_border () const {
+      return border;
+    }
+
+    template<orientation V>
+    const core::size& basic_tile_view<V>::get_spacing () const {
+      return spacing;
     }
 
     // --------------------------------------------------------------------------
@@ -439,6 +501,18 @@ namespace gui {
 
     template<>
     void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_item_border () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_item_border () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_line_border () const;
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_line_border () const;
     // --------------------------------------------------------------------------
 
   } // win

@@ -44,12 +44,12 @@ namespace gui {
 
     template<>
     std::size_t basic_tile_view<orientation::horizontal>::get_items_per_line () const {
-      return static_cast<std::size_t>(std::max(client_size().height() / item_size.height(), 1.0f));
+      return static_cast<std::size_t>(std::max((client_size().height() - get_border().height() * 2) / item_size.height(), 1.0f));
     }
 
     template<>
     std::size_t basic_tile_view<orientation::vertical>::get_items_per_line () const {
-      return static_cast<std::size_t>(std::max(client_size().width() / item_size.width(), 1.0f));
+      return static_cast<std::size_t>(std::max((client_size().width() - get_border().width() * 2) / item_size.width(), 1.0f));
     }
 
     template<>
@@ -63,26 +63,46 @@ namespace gui {
     }
 
     template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_item_border () const {
+      return border.height();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_item_border () const {
+      return border.width();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::horizontal>::get_line_border () const {
+      return border.width();
+    }
+
+    template<>
+    core::size_type basic_tile_view<orientation::vertical>::get_line_border () const {
+      return border.height();
+    }
+
+    template<>
     void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
         case keys::left:
         case keys::numpad::left: {
-          set_selection(super::get_selection() - static_cast<int>(get_items_per_line()), event_source::keyboard);
+          try_to_select(super::get_selection() - static_cast<int>(get_items_per_line()), event_source::keyboard);
           break;
         }
         case keys::right:
         case keys::numpad::right: {
-          set_selection(super::get_selection() + static_cast<int>(get_items_per_line()), event_source::keyboard);
+          try_to_select(super::get_selection() + static_cast<int>(get_items_per_line()), event_source::keyboard);
           break;
         }
         case keys::up:
         case keys::numpad::up: {
-          set_selection(super::get_selection() - 1, event_source::keyboard);
+          try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
         case keys::down:
         case keys::numpad::down: {
-          set_selection(super::get_selection() + 1, event_source::keyboard);
+          try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
       }
@@ -93,22 +113,22 @@ namespace gui {
       switch (key) {
         case keys::left:
         case keys::numpad::left: {
-          set_selection(super::get_selection() - 1, event_source::keyboard);
+          try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
         case keys::right:
         case keys::numpad::right: {
-          set_selection(super::get_selection() + 1, event_source::keyboard);
+          try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
         case keys::up:
         case keys::numpad::up: {
-          set_selection(super::get_selection() - static_cast<int>(get_items_per_line()), event_source::keyboard);
+          try_to_select(super::get_selection() - static_cast<int>(get_items_per_line()), event_source::keyboard);
           break;
         }
         case keys::down:
         case keys::numpad::down: {
-          set_selection(super::get_selection() + static_cast<int>(get_items_per_line()), event_source::keyboard);
+          try_to_select(super::get_selection() + static_cast<int>(get_items_per_line()), event_source::keyboard);
           break;
         }
       }

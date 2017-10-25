@@ -410,9 +410,9 @@ namespace gui {
         ++idx;
         if (i.get_menu_key()) {
           global::register_hot_key(hot_key(i.get_menu_key(), state::alt), [&, idx]() {
-                                     win->take_focus();
-                                     set_selection(idx, event_source::keyboard);
-                                   }, w);
+            win->take_focus();
+            set_selection(idx, event_source::keyboard);
+          }, w);
         }
       }
     }
@@ -463,45 +463,45 @@ namespace gui {
 
       register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &main_menu::paint)));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point & pt) {
-                                                                       data.handle_mouse(false, pt);
-                                                                     }));
+      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&] (os::key_state, const core::point & pt) {
+        data.handle_mouse(false, pt);
+      }));
 
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {
-                                                                  if (data.get_hilite() == -1) {
-                                                                    data.set_hilite(0);
-                                                                  }
-                                                                }));
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+        if (data.get_hilite() == -1) {
+          data.set_hilite(0);
+        }
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-                                                                   if (data.get_hilite() > -1) {
-                                                                     data.clear_hilite();
-                                                                   }
-                                                                 }));
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        if (data.get_hilite() > -1) {
+          data.clear_hilite();
+        }
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-                                                                          int idx = data.get_selection();
-                                                                          if (idx > -1) {
-                                                                            data[idx].select();
-                                                                          }
-                                                                        }));
+      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+        int idx = data.get_selection();
+        if (idx > -1) {
+          data[idx].select();
+        }
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
-                                                                      take_focus();
-                                                                      data.handle_mouse(true, client_to_screen(pt));
-                                                                    }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point & pt) {
+        take_focus();
+        data.handle_mouse(true, client_to_screen(pt));
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                                       os::key_symbol key,
-                                                                       const std::string &){
-                                                                     handle_key(key);
-                                                                   }));
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&] (os::key_state,
+                                                                        os::key_symbol key,
+                                                                        const std::string &) {
+        handle_key(key);
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, create_event([&](window *, const core::rectangle &){
-                                                               data.register_menu_keys(this);
-                                                             }));
+      register_event_handler(REGISTER_FUNCTION, create_event([&] (window *, const core::rectangle &) {
+        data.register_menu_keys(this);
+      }));
     }
 
     void main_menu::handle_mouse (bool btn, const core::point& gpt){

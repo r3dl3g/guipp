@@ -454,27 +454,27 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     void drop_down_list<T, D>::create_popup (const core::rectangle& place) {
-      data.popup.register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size & sz) {
-                                                                        data.items.place(core::rectangle(sz));
-                                                                      }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, create_event([&](window *, const core::rectangle & r) {
-                                                                          data.items.create(data.popup, core::rectangle(r.size()));
-                                                                          data.items.set_visible();
-                                                                        }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, show_event([&]() {
-                                                                        data.filter_id = global::register_message_filter([&](const core::event & e)->bool {
-                                                                                                                           if (is_button_event_outside(data.popup, e)) {
-                                                                                                                             hide_popup();
-                                                                                                                             return true;
-                                                                                                                           }
-                                                                                                                           return false;
-                                                                                                                         });
-                                                                      }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, hide_event([&]() {
-                                                                        if (data.filter_id) {
-                                                                          global::unregister_message_filter(data.filter_id);
-                                                                        }
-                                                                      }));
+      data.popup.register_event_handler(REGISTER_FUNCTION, size_event([&] (const core::size & sz) {
+        data.items.place(core::rectangle(sz));
+      }));
+      data.popup.register_event_handler(REGISTER_FUNCTION, create_event([&] (window *, const core::rectangle & r) {
+        data.items.create(data.popup, core::rectangle(r.size()));
+        data.items.set_visible();
+      }));
+      data.popup.register_event_handler(REGISTER_FUNCTION, show_event([&] () {
+        data.filter_id = global::register_message_filter([&] (const core::event & e)->bool {
+          if (is_button_event_outside(data.popup, e)) {
+            hide_popup();
+            return true;
+          }
+          return false;
+        });
+      }));
+      data.popup.register_event_handler(REGISTER_FUNCTION, hide_event([&] () {
+        if (data.filter_id) {
+          global::unregister_message_filter(data.filter_id);
+        }
+      }));
       data.popup.create(*this, place);
 
       auto* root = super::get_root();

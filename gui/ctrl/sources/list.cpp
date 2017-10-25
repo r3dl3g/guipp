@@ -34,54 +34,57 @@ namespace gui {
 
     namespace detail {
 
-      list_base::data::data (os::color background)
+      list_base::data::data (os::color background, bool grab_focus)
         : item_count(0)
         , selection(-1)
         , hilite(-1)
         , moved(false)
         , scroll_bar_enabled(true)
+        , grab_focus(grab_focus)
         , last_mouse_point(core::point::undefined)
         , background(background)
       {}
 
       // --------------------------------------------------------------------------
-      list_base::list_base (os::color background)
-        : data(background)
+      list_base::list_base (os::color background, bool grab_focus)
+        : data(background, grab_focus)
       {
-        init();
+        init(grab_focus);
       }
 
       list_base::list_base (const list_base& rhs)
         : super(rhs)
         , data(rhs.data)
       {
-        init();
+        init(data.grab_focus);
       }
 
       list_base::list_base (list_base&& rhs)
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {
-        init();
+        init(data.grab_focus);
       }
 
-      void list_base::init () {
+      void list_base::init (bool grab_focus) {
 #ifdef X11
         static int initialized = detail::init_control_messages();
 #endif // X11
 
         set_accept_focus(true);
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
-                                                                        data.last_mouse_point = pt;
-                                                                        data.moved = false;
-                                                                        take_focus();
-                                                                      }));
-        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
-                                                                    redraw_later();
-                                                                  }));
-        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
-                                                                     redraw_later();
-                                                                   }));
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, grab_focus] (os::key_state, const core::point & pt) {
+          data.last_mouse_point = pt;
+          data.moved = false;
+          if (grab_focus) {
+            take_focus();
+          }
+        }));
+        register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+          redraw_later();
+        }));
+        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+          redraw_later();
+        }));
       }
 
       void list_base::set_drawer (const std::function<draw_list_item>& drawer) {

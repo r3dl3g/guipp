@@ -77,8 +77,7 @@ namespace gui {
 
   namespace win {
 
-    template<>
-    inline std::string convert_to_string<os::color>(const os::color& c) {
+    inline std::string color_to_string (const os::color& c) {
       return ostreamfmt("#" << std::setfill('0') << std::setw(6) << std::hex << c);
     }
 
@@ -90,7 +89,7 @@ namespace gui {
                                               bool selected,
                                               bool hilited) {
       graph.fill(draw::rectangle(place), c);
-      graph.text(draw::text_box(convert_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
+      graph.text(draw::text_box(color_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
 
       if (hilited) {
         graph.frame(draw::rectangle(place), color::highLightColor());
@@ -747,7 +746,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   table_view.set_scroll_maximum_calcer([&](const core::size& size,
                                            const core::point& current_pos,
                                            const core::point&) {
-    return core::point(table_view.geometrie.widths.position_of(26) + table_view.geometrie.widths.get_offset() - size.width(), current_pos.y() + size.height() * 2);
+    return core::point(table_view.geometrie.widths.position_of(26) +
+                       table_view.geometrie.widths.get_offset() - size.width(),
+                       current_pos.y() + size.height() * 2);
   });
 
   htileview.set_item_size({ 50, 30 });
@@ -768,7 +769,9 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
                          bool hilited) {
     using namespace draw;
 
-    win::paint::text_cell<std::size_t, frame::sunken_relief>(idx, g, place, text_origin::center, color::black, background.color(), selected, hilited);
+    win::paint::text_cell<std::size_t, frame::sunken_relief>(static_cast<int>(idx), g, place,
+                                                             text_origin::center, color::black,
+                                                             background.color(), selected, hilited);
   };
 
   htileview.set_drawer(tile_drawer);
@@ -882,7 +885,8 @@ void my_main_window::created_children () {
   };
 
   column_list_drawer = {
-    [](const int& v, const draw::graphics& g, const core::rectangle& r, const draw::brush&b, bool s, bool h, text_origin align) {
+    [] (const int& v, const draw::graphics& g, const core::rectangle& r,
+        const draw::brush&b, bool s, bool h, text_origin align) {
       win::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
@@ -891,7 +895,8 @@ void my_main_window::created_children () {
     win::cell_drawer<float, draw::frame::sunken_relief>,
     win::cell_drawer<int, draw::frame::sunken_relief>,
 
-    [](const bool& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool h, text_origin align) {
+    [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
+        const draw::brush& b, bool s, bool h, text_origin align) {
       std::string text = v ? u8"♣" : u8"♥";
       win::paint::text_item(g, r, b, text, s, align);
       draw::frame::sunken_relief(g, r);
@@ -900,7 +905,8 @@ void my_main_window::created_children () {
 
 //  column_list.set_data(column_list_data, column_list_data.size());
   column_list.create(main, core::rectangle(580, 50, 140, 250));
-  column_list.header.set_cell_drawer([](std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
+  column_list.header.set_cell_drawer([] (std::size_t i, const draw::graphics& g,
+                                         const core::rectangle& r, const draw::brush& background) {
     using namespace draw;
     g.fill(rectangle(r), background);
     frame::raised_deep_relief(g, r);

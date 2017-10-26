@@ -275,6 +275,8 @@ namespace gui {
       void move_to_y (point::type y);
 
       void set_size (const core::size& sz);
+      void set_position (const core::point& pt);
+      void set_center (const core::point& pt);
 
       inline os::point_type os_x () const;
       inline os::point_type os_y () const;
@@ -368,62 +370,6 @@ namespace gui {
       : data(width, height)
     {}
 
-    inline bool size::empty () const {
-      return (data.w <= 0) || (data.h <= 0);
-    }
-
-    inline bool size::operator== (const size& rhs) const {
-      return (data.w == rhs.data.w) && (data.h == rhs.data.h);
-    }
-
-    inline bool size::operator!= (const size& rhs) const {
-      return !operator== (rhs);
-    }
-
-    inline size size::operator+ (const size& rhs) const {
-      return {type(width() + rhs.width()), type(height() + rhs.height())};
-    }
-
-    inline size size::operator- (const size& rhs) const {
-      return {type(width() - rhs.width()), type(height() - rhs.height())};
-    }
-
-    inline size size::operator* (size_type f) const {
-      return {type(width() * f), type(height() * f)};
-    }
-
-    inline size size::operator/ (size_type f) const {
-      return {type(width() / f), type(height() / f)};
-    }
-
-    inline size& size::operator+= (const size& s) {
-      data.w += s.data.w;
-      data.h += s.data.h;
-      return *this;
-    }
-
-    inline size& size::operator-= (const size& s) {
-      data.w -= s.data.w;
-      data.h -= s.data.h;
-      return *this;
-    }
-
-    inline size& size::operator*= (size_type f) {
-      data.w *= f;
-      data.h *= f;
-      return *this;
-    }
-
-    inline size& size::operator/= (size_type f) {
-      data.w /= f;
-      data.h /= f;
-      return *this;
-    }
-
-    inline size size::operator- () const {
-      return {-width(), -height()};
-    }
-
     inline auto size::width() const->type {
       return data.w;
     }
@@ -448,19 +394,6 @@ namespace gui {
       data.h = h;
     }
 
-    inline size::data::data (type w, type h)
-      : w(w)
-      , h(h)
-    {}
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    std::ostream& operator<< (std::ostream& out,
-                              const range<T>& r) {
-      out << r.first << ":" << r.last;
-      return out;
-    }
-
     // --------------------------------------------------------------------------
     inline point::point ()
     {}
@@ -472,105 +405,6 @@ namespace gui {
     inline point::point (type x, type y)
       : data(x, y)
     {}
-
-    inline point point::operator+ (const size& s) const {
-      return {type(x() + s.width()), type(y() + s.height())};
-    }
-
-    inline point point::operator- (const size& s) const {
-      return {type(x() - s.width()), type(y() - s.height())};
-    }
-
-    inline point& point::operator+= (const size& s) {
-      operator= (*this + s);
-      return *this;
-    }
-
-    inline point& point::operator-= (const size& s) {
-      operator= (*this - s);
-      return *this;
-    }
-
-    inline size point::operator- (const point& pt) const {
-      return {type(x() - pt.x()), type(y() - pt.y())};
-    }
-
-    inline point point::operator+ (const point& pt) const {
-      return {type(x() + pt.x()), type(y() + pt.y())};
-    }
-
-    inline point point::operator* (point_type f) const {
-      return {type(x() * f), type(y() * f)};
-    }
-
-    inline point point::operator/ (point_type f) const {
-      return {type(x() / f), type(y() / f)};
-    }
-
-    inline point& point::operator+= (const point& pt) {
-      x(x() + pt.x());
-      y(y() + pt.y());
-      return *this;
-    }
-
-    inline point& point::operator-= (const point& pt) {
-      x(x() - pt.x());
-      y(y() - pt.y());
-      return *this;
-    }
-
-    inline point& point::operator*= (point_type f) {
-      x(x() * f);
-      y(y() * f);
-      return *this;
-    }
-
-    inline point& point::operator/= (point_type f) {
-      x(x() / f);
-      y(y() / f);
-      return *this;
-    }
-
-    inline point point::operator- () const {
-      return {-x(), -y()};
-    }
-
-    inline void point::move (const point& pt) {
-      x(x() + pt.x());
-      y(y() + pt.y());
-    }
-
-    inline void point::move_x (type dx) {
-      x(x() + dx);
-    }
-
-    inline void point::move_y (type dy) {
-      y(y() + dy);
-    }
-
-    inline bool point::operator== (const point& rhs) const {
-      return (x() == rhs.x()) && (y() == rhs.y());
-    }
-
-    inline bool point::operator!= (const point& rhs) const {
-      return !operator== (rhs);
-    }
-
-    inline bool point::operator< (const point& rhs) const {
-      return (x() < rhs.x()) && (y() < rhs.y());
-    }
-
-    inline bool point::operator<= (const point& rhs) const {
-      return (x() <= rhs.x()) && (y() <= rhs.y());
-    }
-
-    inline bool point::operator> (const point& rhs) const {
-      return (x() > rhs.x()) && (y() > rhs.y());
-    }
-
-    inline bool point::operator>= (const point& rhs) const {
-      return (x() >= rhs.x()) && (y() >= rhs.y());
-    }
 
     inline auto point::x() const->type {
       return data.x;
@@ -596,11 +430,6 @@ namespace gui {
       return os_dimension_cast<os::point_type>(data.y);
     }
 
-    inline point::data::data (type x, type y)
-      : x(x)
-      , y(y)
-    {}
-
     // --------------------------------------------------------------------------
     inline rectangle::rectangle (const point& pos,
                                  const core::size& sz)
@@ -625,14 +454,6 @@ namespace gui {
       : pos(x, y)
       , sz(width, height)
     {}
-
-    inline bool rectangle::empty () const {
-      return size().empty();
-    }
-
-    inline bool rectangle::is_inside (const point& p) const {
-      return (p >= pos) && (p <= bottom_right());
-    }
 
     inline const point& rectangle::position () const {
       return pos;
@@ -682,6 +503,38 @@ namespace gui {
       return y() + height();
     }
 
+    inline void rectangle::set_position (const core::point& pt) {
+      pos = pt;
+    }
+
+    inline void rectangle::set_size (const core::size& s) {
+      sz = s;
+    }
+
+    inline void rectangle::x (point::type x) {
+      pos.x(x);
+    }
+
+    inline void rectangle::y (point::type y) {
+      pos.y(y);
+    }
+
+    inline void rectangle::x2 (point::type new_x) {
+      sz.width(new_x - x());
+    }
+
+    inline void rectangle::y2 (point::type new_y) {
+      sz.height(new_y - y());
+    }
+
+    inline void rectangle::width (core::size::type width) {
+      sz.width(width);
+    }
+
+    inline void rectangle::height (core::size::type height) {
+      sz.height(height);
+    }
+
     inline void rectangle::top_left (const point& pt) {
       pos = pt;
     }
@@ -689,124 +542,6 @@ namespace gui {
     inline void rectangle::bottom_right (const point& pt) {
       sz.width(pt.x() - pos.x());
       sz.height(pt.y() - pos.y());
-    }
-
-    inline point::type rectangle::center_x () const {
-      return x() + width() / point::type(2);
-    }
-
-    inline point::type rectangle::center_y () const {
-      return y() + height() / point::type(2);
-    }
-
-    inline point rectangle::center () const {
-      return {center_x(), center_y()};
-    }
-
-    inline rectangle rectangle::with_width (const core::size::type w) const {
-      return {position(), core::size(w, height())};
-    }
-
-    inline rectangle rectangle::with_height (const core::size::type h) const {
-      return {position(), core::size(width(), h)};
-    }
-
-    inline rectangle rectangle::with_size (const core::size& sz) const {
-      return {position(), sz};
-    }
-
-    inline rectangle rectangle::with_x (const core::size::type x) const {
-      return {core::point(x, y()), size()};
-    }
-
-    inline rectangle rectangle::with_y (const core::size::type y) const {
-      return {core::point(x(), y), size()};
-    }
-
-    inline rectangle rectangle::with_pos (const core::point& pt) const {
-      return {pt, size()};
-    }
-
-    inline rectangle rectangle::grown (const core::size& s) const {
-      return {position() - s, size() + (s + s)};
-    }
-
-    inline rectangle rectangle::shrinked (const core::size& s) const {
-      return {position() + s, size() - (s + s)};
-    }
-
-    inline rectangle& rectangle::grow (const core::size& s) {
-      pos -= s;
-      sz += (s + s);
-      return *this;
-    }
-
-    inline rectangle& rectangle::shrink (const core::size& s) {
-      pos += s;
-      sz -= (s + s);
-      return *this;
-    }
-
-    inline rectangle rectangle::operator- (const core::size& s) const {
-      return {position(), size() - s};
-    }
-
-    inline rectangle& rectangle::operator-= (const core::size& s) {
-      sz -= s;
-      return *this;
-    }
-
-    inline rectangle rectangle::operator+ (const core::size& s) const {
-      return {position(), sz + s};
-    }
-
-    inline rectangle& rectangle::operator+= (const core::size& s) {
-      sz += s;
-      return *this;
-    }
-
-    inline rectangle rectangle::operator- (const point& pt) const {
-      return {position() + pt, size()};
-    }
-
-    inline rectangle& rectangle::operator-= (const point& pt) {
-      pos -= pt;
-      return *this;
-    }
-
-    inline rectangle rectangle::operator+ (const point& pt) const {
-      return {position() + pt, size()};
-    }
-
-    inline rectangle& rectangle::operator+= (const point& pt) {
-      pos += pt;
-      return *this;
-    }
-
-    inline rectangle rectangle::operator- (const rectangle& r) const {
-      return {point {x() - r.x(), y() - r.y()}, size() - r.size()};
-    }
-
-    inline rectangle& rectangle::operator-= (const rectangle& r) {
-      operator= (*this - r);
-      return *this;
-    }
-
-    inline rectangle rectangle::operator+ (const rectangle& r) const {
-      return {position() + r.position(), size() + r.size()};
-    }
-
-    inline rectangle& rectangle::operator+= (const rectangle& r) {
-      operator= (*this + r);
-      return *this;
-    }
-
-    inline bool rectangle::operator== (const rectangle& rhs) const {
-      return (position() == rhs.position()) && (size() == rhs.size());
-    }
-
-    inline bool rectangle::operator!= (const rectangle& rhs) const {
-      return !operator== (rhs);
     }
 
     inline os::point_type rectangle::os_x () const {
@@ -965,6 +700,14 @@ namespace gui {
     template<typename T>
     void range<T>::clear () {
       first = last = type();
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    std::ostream& operator<< (std::ostream& out,
+                              const range<T>& r) {
+      out << r.first << ":" << r.last;
+      return out;
     }
 
     // --------------------------------------------------------------------------

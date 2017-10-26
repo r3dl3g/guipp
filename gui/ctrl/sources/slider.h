@@ -97,6 +97,8 @@ namespace gui {
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
+        void set_value (core::point_type v);
+        core::point_type get_value () const;
       };
 
       // --------------------------------------------------------------------------
@@ -104,7 +106,20 @@ namespace gui {
       basic_slider<orientation::vertical>::basic_slider ();
 
       template<>
+      void basic_slider<orientation::vertical>::set_value (core::point_type v);
+
+      template<>
+      core::point_type basic_slider<orientation::vertical>::get_value () const;
+
+      // --------------------------------------------------------------------------
+      template<>
       basic_slider<orientation::horizontal>::basic_slider ();
+
+      template<>
+      void basic_slider<orientation::horizontal>::set_value (core::point_type v);
+
+      template<>
+      core::point_type basic_slider<orientation::horizontal>::get_value () const;
 
     } // namespace detail
 

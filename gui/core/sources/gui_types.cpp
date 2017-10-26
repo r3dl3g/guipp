@@ -89,6 +89,62 @@ namespace gui {
       data.w = data.h = v;
     }
 
+    bool size::empty () const {
+      return (data.w <= type(0)) || (data.h <= type(0));
+    }
+
+    bool size::operator== (const size& rhs) const {
+      return (data.w == rhs.data.w) && (data.h == rhs.data.h);
+    }
+
+    bool size::operator!= (const size& rhs) const {
+      return !operator== (rhs);
+    }
+
+    size size::operator+ (const size& rhs) const {
+      return {type(width() + rhs.width()), type(height() + rhs.height())};
+    }
+
+    size size::operator- (const size& rhs) const {
+      return {type(width() - rhs.width()), type(height() - rhs.height())};
+    }
+
+    size size::operator* (size_type f) const {
+      return {type(width() * f), type(height() * f)};
+    }
+
+    size size::operator/ (size_type f) const {
+      return {type(width() / f), type(height() / f)};
+    }
+
+    size& size::operator+= (const size& s) {
+      data.w += s.data.w;
+      data.h += s.data.h;
+      return *this;
+    }
+
+    size& size::operator-= (const size& s) {
+      data.w -= s.data.w;
+      data.h -= s.data.h;
+      return *this;
+    }
+
+    size& size::operator*= (size_type f) {
+      data.w *= f;
+      data.h *= f;
+      return *this;
+    }
+
+    size& size::operator/= (size_type f) {
+      data.w /= f;
+      data.h /= f;
+      return *this;
+    }
+
+    size size::operator- () const {
+      return {-width(), -height()};
+    }
+
     size::operator os::size() const {
       return os();
     }
@@ -100,6 +156,12 @@ namespace gui {
     size::operator os::point() const {
       return {static_cast<os::point_type>(width()), static_cast<os::point_type>(height())};
     }
+
+    // --------------------------------------------------------------------------
+    size::data::data (type w, type h)
+      : w(w)
+      , h(h)
+    {}
 
     // --------------------------------------------------------------------------
     point::point (const os::point& rhs)
@@ -122,6 +184,105 @@ namespace gui {
 
 #endif // X11
 
+    point point::operator+ (const size& s) const {
+      return {type(x() + s.width()), type(y() + s.height())};
+    }
+
+    point point::operator- (const size& s) const {
+      return {type(x() - s.width()), type(y() - s.height())};
+    }
+
+    point& point::operator+= (const size& s) {
+      operator= (*this + s);
+      return *this;
+    }
+
+    point& point::operator-= (const size& s) {
+      operator= (*this - s);
+      return *this;
+    }
+
+    size point::operator- (const point& pt) const {
+      return {type(x() - pt.x()), type(y() - pt.y())};
+    }
+
+    point point::operator+ (const point& pt) const {
+      return {type(x() + pt.x()), type(y() + pt.y())};
+    }
+
+    point point::operator* (point_type f) const {
+      return {type(x() * f), type(y() * f)};
+    }
+
+    point point::operator/ (point_type f) const {
+      return {type(x() / f), type(y() / f)};
+    }
+
+    point& point::operator+= (const point& pt) {
+      x(x() + pt.x());
+      y(y() + pt.y());
+      return *this;
+    }
+
+    point& point::operator-= (const point& pt) {
+      x(x() - pt.x());
+      y(y() - pt.y());
+      return *this;
+    }
+
+    point& point::operator*= (point_type f) {
+      x(x() * f);
+      y(y() * f);
+      return *this;
+    }
+
+    point& point::operator/= (point_type f) {
+      x(x() / f);
+      y(y() / f);
+      return *this;
+    }
+
+    point point::operator- () const {
+      return {-x(), -y()};
+    }
+
+    void point::move (const point& pt) {
+      x(x() + pt.x());
+      y(y() + pt.y());
+    }
+
+    void point::move_x (type dx) {
+      x(x() + dx);
+    }
+
+    void point::move_y (type dy) {
+      y(y() + dy);
+    }
+
+    bool point::operator== (const point& rhs) const {
+      return (x() == rhs.x()) && (y() == rhs.y());
+    }
+
+    bool point::operator!= (const point& rhs) const {
+      return !operator== (rhs);
+    }
+
+    bool point::operator< (const point& rhs) const {
+      return (x() < rhs.x()) && (y() < rhs.y());
+    }
+
+    bool point::operator<= (const point& rhs) const {
+      return (x() <= rhs.x()) && (y() <= rhs.y());
+    }
+
+    bool point::operator> (const point& rhs) const {
+      return (x() > rhs.x()) && (y() > rhs.y());
+    }
+
+    bool point::operator>= (const point& rhs) const {
+      return (x() >= rhs.x()) && (y() >= rhs.y());
+    }
+
     point::operator os::point() const {
       return {os_x(), os_y()};
     }
@@ -129,6 +290,12 @@ namespace gui {
     os::point point::os () const {
       return {os_x(), os_y()};
     }
+
+    // --------------------------------------------------------------------------
+    point::data::data (type x, type y)
+      : x(x)
+      , y(y)
+    {}
 
     // --------------------------------------------------------------------------
     rectangle::rectangle (const os::rectangle& r)
@@ -141,6 +308,132 @@ namespace gui {
       , sz(static_cast<size::type>(r.width), static_cast<size::type>(r.height))
 #endif // X11
     {}
+
+    bool rectangle::empty () const {
+      return size().empty();
+    }
+
+    bool rectangle::is_inside (const point& p) const {
+      return (p >= pos) && (p <= bottom_right());
+    }
+
+    point::type rectangle::center_x () const {
+      return x() + width() / point::type(2);
+    }
+
+    point::type rectangle::center_y () const {
+      return y() + height() / point::type(2);
+    }
+
+    point rectangle::center () const {
+      return {center_x(), center_y()};
+    }
+
+    rectangle rectangle::with_width (const core::size::type w) const {
+      return {position(), core::size(w, height())};
+    }
+
+    rectangle rectangle::with_height (const core::size::type h) const {
+      return {position(), core::size(width(), h)};
+    }
+
+    rectangle rectangle::with_size (const core::size& sz) const {
+      return {position(), sz};
+    }
+
+    rectangle rectangle::with_x (const core::size::type x) const {
+      return {core::point(x, y()), size()};
+    }
+
+    rectangle rectangle::with_y (const core::size::type y) const {
+      return {core::point(x(), y), size()};
+    }
+
+    rectangle rectangle::with_pos (const core::point& pt) const {
+      return {pt, size()};
+    }
+
+    rectangle rectangle::grown (const core::size& s) const {
+      return {position() - s, size() + (s + s)};
+    }
+
+    rectangle rectangle::shrinked (const core::size& s) const {
+      return {position() + s, size() - (s + s)};
+    }
+
+    rectangle& rectangle::grow (const core::size& s) {
+      pos -= s;
+      sz += (s + s);
+      return *this;
+    }
+
+    rectangle& rectangle::shrink (const core::size& s) {
+      pos += s;
+      sz -= (s + s);
+      return *this;
+    }
+
+    rectangle rectangle::operator- (const core::size& s) const {
+      return {position(), size() - s};
+    }
+
+    rectangle& rectangle::operator-= (const core::size& s) {
+      sz -= s;
+      return *this;
+    }
+
+    rectangle rectangle::operator+ (const core::size& s) const {
+      return {position(), sz + s};
+    }
+
+    rectangle& rectangle::operator+= (const core::size& s) {
+      sz += s;
+      return *this;
+    }
+
+    rectangle rectangle::operator- (const point& pt) const {
+      return {position() + pt, size()};
+    }
+
+    rectangle& rectangle::operator-= (const point& pt) {
+      pos -= pt;
+      return *this;
+    }
+
+    rectangle rectangle::operator+ (const point& pt) const {
+      return {position() + pt, size()};
+    }
+
+    rectangle& rectangle::operator+= (const point& pt) {
+      pos += pt;
+      return *this;
+    }
+
+    rectangle rectangle::operator- (const rectangle& r) const {
+      return {point {x() - r.x(), y() - r.y()}, size() - r.size()};
+    }
+
+    rectangle& rectangle::operator-= (const rectangle& r) {
+      operator= (*this - r);
+      return *this;
+    }
+
+    rectangle rectangle::operator+ (const rectangle& r) const {
+      return {position() + r.position(), size() + r.size()};
+    }
+
+    rectangle& rectangle::operator+= (const rectangle& r) {
+      operator= (*this + r);
+      return *this;
+    }
+
+    bool rectangle::operator== (const rectangle& rhs) const {
+      return (position() == rhs.position()) && (size() == rhs.size());
+    }
+
+    bool rectangle::operator!= (const rectangle& rhs) const {
+      return !operator== (rhs);
+    }
 
     rectangle::operator os::rectangle() const {
       return os();
@@ -181,32 +474,8 @@ namespace gui {
       y(new_y);
     }
 
-    void rectangle::set_size (const core::size& s) {
-      sz = s;
-    }
-
-    void rectangle::x (point::type x) {
-      pos.x(x);
-    }
-
-    void rectangle::y (point::type y) {
-      pos.y(y);
-    }
-
-    void rectangle::x2 (point::type new_x) {
-      sz.width(new_x - x());
-    }
-
-    void rectangle::y2 (point::type new_y) {
-      sz.height(new_y - y());
-    }
-
-    void rectangle::width (core::size::type width) {
-      sz.width(width);
-    }
-
-    void rectangle::height (core::size::type height) {
-      sz.height(height);
+    void rectangle::set_center (const core::point& pt) {
+      set_position({ pt.x() - width() / point_type(2), pt.y() - height() / point_type(2) });
     }
 
     rectangle& rectangle::operator|= (const rectangle& rhs) {
@@ -225,6 +494,7 @@ namespace gui {
       return operator= ({point {x0, y0}, point {x1, y1}});
     }
 
+    // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const size& sz) {
       out << sz.width() << ", " << sz.height();
       return out;

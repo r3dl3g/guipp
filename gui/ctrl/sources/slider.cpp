@@ -39,6 +39,7 @@ namespace gui {
 
     namespace detail {
 
+      // --------------------------------------------------------------------------
       template<>
       basic_slider<orientation::vertical>::basic_slider () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
@@ -87,6 +88,24 @@ namespace gui {
       }
 
       template<>
+      void basic_slider<orientation::vertical>::set_value (core::point_type v) {
+        const auto new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, v));
+        const auto old_pt = position();
+        const auto old_x = old_pt.x();
+        if (new_x != old_x) {
+          move(core::point(new_x, old_pt.y()));
+          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_x - old_x));
+        }
+
+      }
+
+      template<>
+      core::point_type basic_slider<orientation::vertical>::get_value () const {
+        return position().x();
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
       basic_slider<orientation::horizontal>::basic_slider () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                            const core::point & p) {
@@ -134,6 +153,24 @@ namespace gui {
         }));
       }
 
+      template<>
+      void basic_slider<orientation::horizontal>::set_value (core::point_type v) {
+        const auto new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, v));
+        const auto old_pt = position();
+        const auto old_y = old_pt.y();
+        if (new_y != old_y) {
+          move(core::point(old_pt.x(), new_y));
+          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_y - old_y));
+        }
+
+      }
+
+      template<>
+      core::point_type basic_slider<orientation::horizontal>::get_value () const {
+        return position().y();
+      }
+
+      // --------------------------------------------------------------------------
       slider_base::slider_base ()
         : min(0)
         , max(std::numeric_limits<type>::max())

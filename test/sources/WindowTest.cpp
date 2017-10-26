@@ -110,6 +110,7 @@ public:
   void onCreated (win::window*, const core::rectangle&);
   void created_children ();
   void query_state ();
+  void set_size_null ();
 
   static win::paint_event create_paint1();
   static win::paint_event create_paint2();
@@ -167,6 +168,8 @@ private:
   win::text_button max_button;
   win::text_button norm_button;
   win::text_button info_button;
+  win::text_button null_button;
+  win::text_button full_button;
 
   win::simple_list_data<std::string> data;
 
@@ -222,7 +225,7 @@ private:
   typedef win::virtual_view<win::editbox> editbox_view;
   editbox_view editor;
 
-  typedef win::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef win::basic_textbox<text_origin::top_right, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
   typedef win::virtual_view<textbox_type> textbox_view;
 
   textbox_view textbox;
@@ -545,6 +548,14 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     query_state();
     textbox.view.set_text(editor.view.get_selected_text());
     textbox.layout();
+  }));
+  null_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    LogDebug << "0 clicked";
+    vslider.set_value(vslider.get_min());
+  }));
+  full_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    LogDebug << "Full clicked";
+    vslider.set_value(size().width() - 15);
   }));
 
   auto list_drawer = [] (std::size_t idx,
@@ -1125,6 +1136,12 @@ void my_main_window::created_children () {
   info_button.create(btn_group, "Info");
   info_button.set_visible();
 
+  null_button.create(btn_group, "0");
+  null_button.set_visible();
+
+  full_button.create(btn_group, "Full");
+  full_button.set_visible();
+
   btn_group.layout();
 
   group_group.create(main, core::rectangle(400, 345, 300, 115));
@@ -1160,6 +1177,7 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&editor, &vslider);
   get_layout().attach_fix<What::right, Where::width, -10>(&editor, this);
+  get_layout().attach_fix<What::top, Where::y, 320>(&editor, this);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(&editor, &hslider);
 
   get_layout().attach_fix<What::left, Where::x2, 2>(&textbox, &vslider);

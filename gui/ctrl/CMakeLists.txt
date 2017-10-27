@@ -7,23 +7,16 @@ project("gui_ctrl" CXX)
 add_subdirectory(./../win gui_win)
 add_subdirectory(./../io gui_io)
 
-set (gui_ctrl_Include
-     ${CMAKE_CURRENT_SOURCE_DIR}/sources
-     ${gui_win_Include}
-     ${gui_io_Include}
-)
-set (gui_ctrl_Include ${gui_ctrl_Include} PARENT_SCOPE)
-
 if(NOT TARGET gui_ctrl)
 
-include_directories(${gui_ctrl_Include})
+include_directories(${gui_Include})
 
-file(GLOB SOURCE_FILES "sources/*.*")
+file(GLOB SOURCE_FILES "*.h" "*.cpp")
 
 link_directories(${gui_ctrl_Lib})
 
 add_library(gui_ctrl ${SOURCE_FILES})
 
-target_link_libraries(gui_ctrl gui_core gui_draw gui_win gui_io ibr_std_lib)
+target_link_libraries(gui_ctrl gui_core gui_draw gui_win gui_io)
 
 endif()

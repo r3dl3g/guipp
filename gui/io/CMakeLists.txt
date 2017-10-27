@@ -6,18 +6,11 @@ project("gui_io" CXX)
 
 add_subdirectory(./../draw gui_draw)
 
-set (gui_io_Include
-     ${CMAKE_CURRENT_SOURCE_DIR}/sources
-     ${gui_draw_Include}
-)
-
-set (gui_io_Include ${gui_io_Include} PARENT_SCOPE)
-
 if(NOT TARGET gui_io)
 
-include_directories(${gui_io_Include})
+include_directories(${gui_Include})
 
-file(GLOB SOURCE_FILES "sources/*.*")
+file(GLOB SOURCE_FILES "*.h" "*.cpp")
 
 link_directories(${gui_io_Lib})
 

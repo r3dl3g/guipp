@@ -17,5 +17,5 @@ if(UNIX)
 endif(UNIX)
 
 add_subdirectory(gui)
-add_subdirectory(ibr_std_lib)
+#add_subdirectory(ibr_std_lib)
 add_subdirectory(test)

@@ -199,7 +199,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::instance().get_console_formatter());
 
 
-  std::vector<std::string> args = string::split<' '>(lpCmdLine);
+  std::vector<std::string> args = gui::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
 #endif // WIN32
 

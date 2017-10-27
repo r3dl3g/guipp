@@ -34,7 +34,7 @@
 #include <gui/core/logger.h>
 #include <gui/core/ostreamfmt.h>
 #ifdef WIN32
-# include <core/string_util.h>
+# include <gui/core/string_util.h>
 #endif // WIN32
 
 #include <gui/draw/graphics.h>

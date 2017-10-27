@@ -96,21 +96,21 @@ namespace gui {
 
       auto unsorted_path_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
-                                             return ibr::string::starts_with(i.path().filename().string(), ".");
+                                             return string::starts_with(i.path().filename().string(), ".");
                                            }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
       auto unsorted_dir_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
-                                             return !sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                                             return !sys_fs::is_directory(i.path()) || string::starts_with(i.path().filename().string(), ".");
                                            }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
       auto unsorted_file_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)), [] (const sys_fs::directory_entry & i) {
-                                             return sys_fs::is_directory(i.path()) || ibr::string::starts_with(i.path().filename().string(), ".");
+                                             return sys_fs::is_directory(i.path()) || string::starts_with(i.path().filename().string(), ".");
                                            }),
                      fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
@@ -119,7 +119,7 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          const bool is_hidden = ibr::string::starts_with(i->path().filename().string(), ".");
+          const bool is_hidden = string::starts_with(i->path().filename().string(), ".");
           if (!is_hidden) {
             v.emplace_back(*i);
           }
@@ -136,7 +136,7 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          if (sys_fs::is_directory(i->path()) && !ibr::string::starts_with(i->path().filename().string(), ".")) {
+          if (sys_fs::is_directory(i->path()) && !string::starts_with(i->path().filename().string(), ".")) {
             v.emplace_back(*i);
           }
         }
@@ -150,7 +150,7 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          if (!(sys_fs::is_directory(i->path()) || ibr::string::starts_with(i->path().filename().string(), "."))) {
+          if (!(sys_fs::is_directory(i->path()) || string::starts_with(i->path().filename().string(), "."))) {
             v.emplace_back(*i);
           }
         }
@@ -195,7 +195,7 @@ namespace gui {
                  win::cell_drawer<std::string, draw::frame::lines>,
                  win::cell_drawer<uintmax_t, draw::frame::lines>,
                  [] (const sys_fs::file_time_type & tp, const draw::graphics & g, const core::rectangle & r, const draw::brush & b, bool s, bool, text_origin align) {
-                   win::paint::text_item(g, r, b, ibr::time::format_time(tp), s, align);
+                   win::paint::text_item(g, r, b, time::format_time(tp), s, align);
                    draw::frame::lines(g, r);
                  }
         };

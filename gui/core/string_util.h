@@ -31,7 +31,7 @@
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace ibr {
+namespace gui {
 
   namespace string {
 
@@ -90,4 +90,4 @@ namespace ibr {
 
   } // namespace utf8
 
-} // namespace ibr
+} // namespace gui

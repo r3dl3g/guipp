@@ -45,7 +45,7 @@ using namespace boost;
 #include <gui/core/time_util.h>
 
 
-namespace ibr {
+namespace gui {
 
   namespace log {
 
@@ -84,7 +84,7 @@ namespace ibr {
     std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp) {
       ostream_resetter r(out);
 
-      std::tm t = ibr::time::local_time(tp);
+      std::tm t = time::local_time(tp);
 
       std::time_t now = std::chrono::system_clock::to_time_t(tp);
       std::chrono::system_clock::time_point t0 = std::chrono::system_clock::from_time_t(now);
@@ -139,7 +139,7 @@ namespace ibr {
 
     record::record ()
       : m_time_point(std::chrono::system_clock::time_point())
-      , m_level(ibr::log::level::undefined)
+      , m_level(gui::log::level::undefined)
       , m_thread_name(t_thread_name)
     {}
 
@@ -362,4 +362,4 @@ namespace ibr {
 
   } // namespace log
 
-} // namespace ibr
+} // namespace gui

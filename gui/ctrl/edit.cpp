@@ -278,8 +278,6 @@ namespace gui {
         bool shift = shift_key_bit_mask::is_set(keystate);
         bool ctrl = control_key_bit_mask::is_set(keystate);
 
-        using namespace ibr;
-
         switch (keycode) {
         case keys::left:
         case keys::numpad::left:
@@ -411,8 +409,8 @@ namespace gui {
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(pt);
           set_cursor_pos(p);
-          pos_t l = ibr::string::find_left_space(data.text, p);
-          pos_t r = ibr::string::find_right_space(data.text, p);
+          pos_t l = string::find_left_space(data.text, p);
+          pos_t r = string::find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
         }));
         register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point & pt) {

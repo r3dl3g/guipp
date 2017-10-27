@@ -99,7 +99,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void textbox_base::set_text (const std::string& t) {
-        data.lines = ibr::string::split<'\n'>(t);
+        data.lines = string::split<'\n'>(t);
         if (data.lines.empty()) {
           data.lines.emplace_back(std::string());
         }
@@ -111,7 +111,7 @@ namespace gui {
       }
 
       std::string textbox_base::get_text () const {
-        return ibr::string::merge<'\n'>(data.lines);
+        return string::merge<'\n'>(data.lines);
       }
 
       void textbox_base::set_scroll_pos (const core::point& pos) {
@@ -186,7 +186,7 @@ namespace gui {
       }
 
       void textbox_base::replace_selection (const std::string& new_text) {
-        auto v = ibr::string::split<'\n'>(new_text);
+        auto v = string::split<'\n'>(new_text);
         if (data.lines.empty()) {
           data.lines = v;
           set_cursor_pos(position::end);
@@ -304,7 +304,7 @@ namespace gui {
 
       textbox_base::position textbox_base::find_prev_word (const textbox_base::position& pos) {
         if (pos.is_valid() && (pos.column > 0)) {
-          std::string::size_type p = ibr::string::find_left_space(data.lines[pos.row], pos.column);
+          std::string::size_type p = string::find_left_space(data.lines[pos.row], pos.column);
           if (p != std::string::npos) {
             return {p, pos.row};
           }
@@ -317,7 +317,7 @@ namespace gui {
 
       textbox_base::position textbox_base::find_next_word (const textbox_base::position& pos) {
         if (pos.is_valid() && (pos.column < data.lines[pos.row].size())) {
-          std::string::size_type p = ibr::string::find_right_space(data.lines[pos.row], pos.column);
+          std::string::size_type p = string::find_right_space(data.lines[pos.row], pos.column);
           if (p != std::string::npos) {
             return {p, pos.row};
           }

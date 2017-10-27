@@ -6,8 +6,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-get_filename_component(BOOST_PATH "boost" ABSOLUTE)
-
 if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
@@ -17,5 +15,4 @@ if(UNIX)
 endif(UNIX)
 
 add_subdirectory(gui)
-#add_subdirectory(ibr_std_lib)
 add_subdirectory(test)

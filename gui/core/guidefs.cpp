@@ -25,6 +25,7 @@
 #ifdef X11
 # include <X11/XKBlib.h>
 #endif
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -33,6 +34,7 @@
 #include <gui/core/dbgstream.h>
 #include <gui/core/guidefs.h>
 #include <gui/core/string_util.h>
+
 
 namespace gui {
 
@@ -50,13 +52,13 @@ namespace gui {
         XGetErrorText(dpy, errev->error_code, buffer, sizeof (buffer));
 
         LogFatal << "Error occured somewhere in X!"
-        " ResourceID: " << errev->resourceid <<
-        " Serial: " << errev->serial <<
-        " Error_code: " << (int)errev->error_code <<
-        " Request_code: " << (int)errev->request_code <<
-        " Minor_code: " << (int)errev->minor_code <<
-        " Text: " << buffer;
-        return 0;
+                    " ResourceID: " << errev->resourceid <<
+                    " Serial: " << errev->serial <<
+                    " Error_code: " << (int)errev->error_code <<
+                    " Request_code: " << (int)errev->request_code <<
+                    " Minor_code: " << (int)errev->minor_code <<
+                    " Text: " << buffer;
+                    return 0;
       }
 
       int IOErrorHandler (Display* dpy) {
@@ -193,19 +195,19 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  ibr::odebugstream dbgStrm;
-  ibr::log::core::instance().add_sink(&dbgStrm, ibr::log::level::debug, ibr::log::core::instance().get_console_formatter());
+  gui::core::odebugstream dbgStrm;
+  gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::instance().get_console_formatter());
 
 
-  std::vector<std::string> args = ibr::string::split<' '>(lpCmdLine);
+  std::vector<std::string> args = string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
 #endif // WIN32
 
 #ifdef X11
 int main (int argc, char* argv[]) {
-//  ibr::log::core::instance().addSink(&std::cerr,
-//                                     ibr::log::level::debug,
-//                                     ibr::log::core::instance().getConsoleFormatter());
+//  gui::log::core::instance().addSink(&std::cerr,
+//                                     gui::log::level::debug,
+//                                     gui::log::core::instance().getConsoleFormatter());
 
   std::vector<std::string> args;
   for (int i = 0; i < argc; ++i) {
@@ -224,10 +226,10 @@ int main (int argc, char* argv[]) {
   }
 
 #ifdef X11
-//  ibr::log::core::instance().removeSink(&std::cerr);
+//  gui::log::core::instance().removeSink(&std::cerr);
 #endif
 
-  ibr::log::core::instance().finish();
+  gui::log::core::instance().finish();
 
   return ret;
 }

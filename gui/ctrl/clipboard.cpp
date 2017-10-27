@@ -57,7 +57,7 @@ namespace gui {
         HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
         if (hmem) {
           const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-          cb(ibr::string::utf16_to_utf8(std::wstring(data)));
+          cb(string::utf16_to_utf8(std::wstring(data)));
           GlobalUnlock(hmem);
         } else {
           hmem = GetClipboardData(CF_TEXT);

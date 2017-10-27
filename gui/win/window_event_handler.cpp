@@ -153,7 +153,7 @@ namespace gui {
       //UINT sc2 = MapVirtualKey(e.wParam, MAPVK_VK_TO_VSC);
       //UINT vk2 = MapVirtualKey(sc, MAPVK_VSC_TO_VK);
       //wchar_t ch = MapVirtualKey(e.wParam, MAPVK_VK_TO_CHAR);
-      return ibr::string::utf16_to_utf8(std::wstring(wbuffer, len));
+      return string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
 
     // --------------------------------------------------------------------------

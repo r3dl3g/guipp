@@ -42,7 +42,7 @@
 /**
 * Provides an API for stream logging to multiple sinks.
 */
-namespace ibr {
+namespace gui {
 
   namespace log {
 
@@ -183,7 +183,7 @@ namespace ibr {
       typedef std::vector<sink> Sinks;
       Sinks m_sinks;
 
-      typedef ibr::blocking_queue<record, 0xffff> Messages;
+      typedef gui::core::blocking_queue<record, 0xffff> Messages;
       Messages m_messages;
 
       std::thread m_sink_thread;
@@ -225,26 +225,26 @@ namespace ibr {
 
   } // namespace log
 
-} // namespace ibr
+} // namespace gui
 
 /// Log macro trace
-#define LogTrace ibr::log::recorder (ibr::log::level::trace)
+#define LogTrace gui::log::recorder (gui::log::level::trace)
 /// Log macro debug
-#define LogDebug ibr::log::recorder (ibr::log::level::debug)
+#define LogDebug gui::log::recorder (gui::log::level::debug)
 /// Log macro info
-#define LogInfo  ibr::log::recorder (ibr::log::level::info)
+#define LogInfo  gui::log::recorder (gui::log::level::info)
 /// Log macro warning
-#define LogWarng ibr::log::recorder (ibr::log::level::warning)
+#define LogWarng gui::log::recorder (gui::log::level::warning)
 /// Log macro error
-#define LogError ibr::log::recorder (ibr::log::level::error)
+#define LogError gui::log::recorder (gui::log::level::error)
 /// Log macro fatal
-#define LogFatal ibr::log::recorder (ibr::log::level::fatal)
+#define LogFatal gui::log::recorder (gui::log::level::fatal)
 
 /**
 * Macro to declare the login core singleton.
 */
 #define DECLARE_LOGGING_CORE(EXP) \
-  namespace ibr { namespace log {\
+  namespace gui { namespace log {\
     EXP core& get_logging_core();\
   }}
 
@@ -262,9 +262,9 @@ namespace ibr {
 #if (_MSC_VER >= 1900) || !defined(_MSC_VER)
 
 #define DEFINE_LOGGING_CORE(EXP) \
-  namespace ibr { namespace log {\
-    EXP ibr::log::core& get_logging_core() {\
-      static ibr::log::core s_logging_core; \
+  namespace gui { namespace log {\
+    EXP gui::log::core& get_logging_core() {\
+      static gui::log::core s_logging_core; \
       return s_logging_core; \
     }\
   }}
@@ -276,7 +276,7 @@ namespace ibr {
 * No longer needed for modern C++11 compilers, except Visual Studio 2013.
 */
 #define DEFINE_LOGGING_CORE(EXP) \
-  namespace ibr { namespace log {\
+  namespace gui { namespace log {\
     static std::atomic<core*> s_logging_core;\
     static std::mutex s_logging_core_mutex;\
     EXP core& get_logging_core() {\

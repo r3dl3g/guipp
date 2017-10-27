@@ -32,7 +32,7 @@
 #include <gui/core/string_util.h>
 
 
-namespace ibr {
+namespace gui {
 
   namespace string {
 
@@ -125,4 +125,4 @@ namespace ibr {
 
   } // utf8
 
-} // namespace ibr
+} // namespace gui

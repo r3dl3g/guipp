@@ -69,8 +69,6 @@ namespace gui {
         bool ctrl = control_key_bit_mask::is_set(keystate);
         std::string& current = current_line();
 
-        using namespace ibr;
-
         switch (keycode) {
         case keys::left:
         case keys::numpad::left:

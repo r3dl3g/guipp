@@ -22,7 +22,7 @@
 /**
 * Provides an API for stream logging to multiple sinks.
 */
-namespace ibr {
+namespace gui {
 
   namespace log {
 
@@ -35,4 +35,4 @@ namespace ibr {
 
   } // namespace log
 
-} // namespace ibr
+} // namespace gui

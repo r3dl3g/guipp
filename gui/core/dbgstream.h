@@ -40,22 +40,26 @@
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace ibr {
+namespace gui {
 
-  struct debug_log {
-    debug_log ()
-    {}
+  namespace core {
 
-    void operator ()(const std::string& t) {
+    struct debug_log {
+      debug_log ()
+      {}
+
+      void operator ()(const std::string& t) {
 #ifdef WIN32
-      ::OutputDebugString(t.c_str());
+        ::OutputDebugString(t.c_str());
 #endif
 #ifdef UNIX
-      std::cerr << t << std::endl;
+        std::cerr << t << std::endl;
 #endif // UNIX
-    }
-  };
+      }
+    };
 
-  typedef oredirect_stream<debug_log> odebugstream;
+    typedef oredirect_stream<debug_log> odebugstream;
 
-} // namespace ibr
+  } // namespace core
+
+} // namespace gui

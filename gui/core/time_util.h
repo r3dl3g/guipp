@@ -30,7 +30,7 @@
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace ibr {
+namespace gui {
 
   namespace time {
 
@@ -46,4 +46,4 @@ namespace ibr {
 
   } // namespace time
 
-} // namespace ibr
+} // namespace gui

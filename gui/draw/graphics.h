@@ -72,11 +72,11 @@ namespace gui {
     class bitmap;
     class masked_bitmap;
 
-    typedef void (drawable)(const graphics&, const brush&, const pen&);
-    typedef void (frameable)(const graphics&, const pen&);
-    typedef void (fillable)(const graphics&, const brush&);
-    typedef void (textable)(const graphics&, const font& font, os::color color);
-    typedef void (copyable)(const graphics&, const core::point&);
+    typedef void (drawable) (const graphics&, const brush&, const pen&);
+    typedef void (frameable) (const graphics&, const pen&);
+    typedef void (fillable) (const graphics&, const brush&);
+    typedef void (textable) (const graphics&, const font& font, os::color color);
+    typedef void (copyable) (const graphics&, const core::point&);
 
     // --------------------------------------------------------------------------
     class graphics {

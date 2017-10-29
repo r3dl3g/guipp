@@ -80,6 +80,20 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
   };
 }
 
+template<draw::frame::drawer F = draw::frame::sunken_relief>
+void tile_drawer (std::size_t idx,
+                  const draw::graphics& g,
+                  const core::rectangle& place,
+                  const draw::brush& background,
+                  bool selected,
+                  bool hilited) {
+  using namespace draw;
+
+  win::paint::text_cell<std::size_t, F>(static_cast<int>(idx), g, place,
+                                        text_origin::center, color::black,
+                                        background.color(), selected, hilited);
+}
+
 namespace gui {
 
   namespace win {
@@ -779,21 +793,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
   vtileview.set_border({ 20, 10 });
   vtileview.set_spacing({ 5, 5 });
 
-  auto tile_drawer = [] (std::size_t idx,
-                         const draw::graphics& g,
-                         const core::rectangle& place,
-                         const draw::brush& background,
-                         bool selected,
-                         bool hilited) {
-    using namespace draw;
-
-    win::paint::text_cell<std::size_t, frame::sunken_relief>(static_cast<int>(idx), g, place,
-                                                             text_origin::center, color::black,
-                                                             background.color(), selected, hilited);
-  };
-
-  htileview.set_drawer(tile_drawer);
-  vtileview.set_drawer(tile_drawer);
+  htileview.set_drawer(tile_drawer<draw::frame::sunken_relief>);
+  vtileview.set_drawer(tile_drawer<draw::frame::raised_relief>);
 
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 }

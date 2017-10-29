@@ -59,29 +59,31 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*) {
-                                                                  redraw_later();
-                                                                }));
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-                                                                   redraw_later();
-                                                                 }));
-      register_event_handler(REGISTER_FUNCTION, mouse_enter_event([&]() {
-                                                                    set_hilited(true);
-                                                                  }));
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&]() {
-                                                                    set_hilited(false);
-                                                                  }));
-      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state m, os::key_symbol k, const std::string &) {
-                                                                     if ((k == keys::enter) || (k == keys::space)) {
-                                                                       set_pushed(true);
-                                                                     }
-                                                                   }));
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point &) {
-                                                                      if (is_enabled()) {
-                                                                        take_focus();
-                                                                        set_pushed(true);
-                                                                      }
-                                                                    }));
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+         redraw_later();
+       }));
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        redraw_later();
+      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_enter_event([&] () {
+        set_hilited(true);
+      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
+        set_hilited(false);
+      }));
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event(
+        [&] (os::key_state m, os::key_symbol k, const std::string &) {
+        if ((k == keys::enter) || (k == keys::space)) {
+          set_pushed(true);
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, left_btn_down_event(
+        [&] (os::key_state, const core::point &) {
+        if (is_enabled()) {
+          take_focus();
+          set_pushed(true);
+        }
+      }));
     }
 
     void button_base::set_hilited (bool h) {
@@ -110,64 +112,70 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
-      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pos) {
-                                                                        if (btn.is_pushed()) {
-                                                                          btn.set_pushed(false);
-                                                                          if (btn.client_area().is_inside(pos)) {
-                                                                            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                          }
-                                                                        }
-                                                                      }));
-      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-                                                                       if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
-                                                                         btn.set_pushed(false);
-                                                                         send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                       }
-                                                                     }));
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
+        [&] (os::key_state, const core::point & pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (btn.client_area().is_inside(pos)) {
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
+        [&] (os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------
     template<>
     void toggle_button_traits<false>::init (button_base& btn) {
-      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pos) {
-                                                                        if (btn.is_pushed()) {
-                                                                          btn.set_pushed(false);
-                                                                          if (btn.client_area().is_inside(pos)) {
-                                                                            btn.set_checked(!btn.is_checked());
-                                                                            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                          }
-                                                                        }
-                                                                      }));
-      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-                                                                       if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
-                                                                         btn.set_pushed(false);
-                                                                         btn.set_checked(!btn.is_checked());
-                                                                         send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                       }
-                                                                     }));
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
+        [&] (os::key_state, const core::point & pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (btn.client_area().is_inside(pos)) {
+            btn.set_checked(!btn.is_checked());
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
+        [&] (os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          btn.set_checked(!btn.is_checked());
+          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------
     template<>
     void toggle_button_traits<true>::init (button_base& btn) {
-      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pos) {
-                                                                        if (btn.is_pushed()) {
-                                                                          btn.set_pushed(false);
-                                                                          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
-                                                                            btn.set_checked(true);
-                                                                            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                          }
-                                                                        }
-                                                                      }));
-      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event([&](os::key_state m, os::key_symbol k) {
-                                                                       if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
-                                                                         btn.set_pushed(false);
-                                                                         if (!btn.is_checked()) {
-                                                                           btn.set_checked(true);
-                                                                           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
-                                                                         }
-                                                                       }
-                                                                     }));
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
+        [&] (os::key_state, const core::point & pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
+            btn.set_checked(true);
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
+        [&] (os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked()) {
+            btn.set_checked(true);
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
     }
 
     // --------------------------------------------------------------------------

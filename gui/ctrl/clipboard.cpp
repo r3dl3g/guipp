@@ -105,42 +105,42 @@ namespace gui {
         global::unregister_message_filter(filter_id);
       }
       filter_id = global::register_message_filter([&](const core::event & e)->bool {
-                                                    if ((e.type == SelectionRequest) &&
-                                                        (e.xselectionrequest.selection == detail::CLIPBOARD)) {
+        if ((e.type == SelectionRequest) &&
+            (e.xselectionrequest.selection == detail::CLIPBOARD)) {
 
-                                                      XSelectionEvent se = {
-                                                        SelectionNotify,
-                                                        0, // serial
-                                                        0, // send_event
-                                                        e.xselectionrequest.display,
-                                                        e.xselectionrequest.requestor,
-                                                        e.xselectionrequest.selection,
-                                                        e.xselectionrequest.target,
-                                                        e.xselectionrequest.property,
-                                                        e.xselectionrequest.time
-                                                      };
+          XSelectionEvent se = {
+            SelectionNotify,
+            0, // serial
+            0, // send_event
+            e.xselectionrequest.display,
+            e.xselectionrequest.requestor,
+            e.xselectionrequest.selection,
+            e.xselectionrequest.target,
+            e.xselectionrequest.property,
+            e.xselectionrequest.time
+          };
 
-                                                      int result = 0;
-                                                      if (se.target == detail::TARGETS) {
-                                                        result = XChangeProperty(se.display, se.requestor, se.property, XA_ATOM, 32,
-                                                                                 PropModeReplace, (unsigned char*)&detail::UTF8_STRING, 1);
-                                                      } else if ((se.target == XA_STRING) || (se.target == detail::TEXT)) {
-                                                        result = XChangeProperty(se.display, se.requestor, se.property, XA_STRING, 8, PropModeReplace,
-                                                                                 reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-                                                      } else if (se.target == detail::UTF8_STRING) {
-                                                        result = XChangeProperty(se.display, se.requestor, se.property, se.target, 8, PropModeReplace,
-                                                                                 reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-                                                      } else {
-                                                        se.property = None;
-                                                      }
-                                                      if ((result & 2) == 0) {
-                                                        XSendEvent(se.display, se.requestor, 0, 0, (XEvent*)&se);
-                                                      }
+          int result = 0;
+          if (se.target == detail::TARGETS) {
+            result = XChangeProperty(se.display, se.requestor, se.property, XA_ATOM, 32,
+                                     PropModeReplace, (unsigned char*)&detail::UTF8_STRING, 1);
+          } else if ((se.target == XA_STRING) || (se.target == detail::TEXT)) {
+            result = XChangeProperty(se.display, se.requestor, se.property, XA_STRING, 8, PropModeReplace,
+                                     reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
+          } else if (se.target == detail::UTF8_STRING) {
+            result = XChangeProperty(se.display, se.requestor, se.property, se.target, 8, PropModeReplace,
+                                     reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
+          } else {
+            se.property = None;
+          }
+          if ((result & 2) == 0) {
+            XSendEvent(se.display, se.requestor, 0, 0, (XEvent*)&se);
+          }
 
-                                                      return true;
-                                                    }
-                                                    return false;
-                                                  });
+          return true;
+        }
+        return false;
+      });
       XSetSelectionOwner(core::global::get_instance(), detail::CLIPBOARD, win.get_id(), CurrentTime);
     }
 
@@ -149,23 +149,23 @@ namespace gui {
       //Atom incrid = XInternAtom(display, "INCR", False);
       win.prepare_for_event(PropertyChangeMask);
       int fid = global::register_message_filter([&](const core::event & e)->bool {
-                                                  if ((e.type != SelectionNotify) || (e.xselection.selection != detail::CLIPBOARD)) {
-                                                    return false;
-                                                  }
-                                                  int resbits;
-                                                  unsigned long ressize, restail;
-                                                  char *result;
-                                                  Atom format;
-                                                  XGetWindowProperty(e.xselection.display, e.xselection.requestor, detail::XSEL_DATA, 0, LONG_MAX / 4, True, AnyPropertyType,
-                                                                     &format, &resbits, &ressize, &restail, (unsigned char**)&result);
-                                                  if ((format == detail::UTF8_STRING) || (format == XA_STRING)) {
-                                                    cb(std::string(result, ressize));
-                                                  }
-                                                  XDeleteProperty(e.xselection.display, e.xselection.requestor, e.xselection.property);
+        if ((e.type != SelectionNotify) || (e.xselection.selection != detail::CLIPBOARD)) {
+          return false;
+        }
+        int resbits;
+        unsigned long ressize, restail;
+        char *result;
+        Atom format;
+        XGetWindowProperty(e.xselection.display, e.xselection.requestor, detail::XSEL_DATA, 0, LONG_MAX / 4, True, AnyPropertyType,
+                           &format, &resbits, &ressize, &restail, (unsigned char**)&result);
+        if ((format == detail::UTF8_STRING) || (format == XA_STRING)) {
+          cb(std::string(result, ressize));
+        }
+        XDeleteProperty(e.xselection.display, e.xselection.requestor, e.xselection.property);
 
-                                                  global::unregister_message_filter(fid);
-                                                  return true;
-                                                });
+        global::unregister_message_filter(fid);
+        return true;
+      });
       XConvertSelection(core::global::get_instance(),
                         detail::CLIPBOARD,
                         detail::UTF8_STRING,

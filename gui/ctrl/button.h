@@ -68,10 +68,12 @@ namespace gui {
 #endif // X11
        // --------------------------------------------------------------------------
     struct button_state {
-      button_state ();
+      button_state (bool pushed = false,
+                    bool hilited = false,
+                    bool checked = false);
 
-      bool hilited;
       bool pushed;
+      bool hilited;
       bool checked;
     };
 

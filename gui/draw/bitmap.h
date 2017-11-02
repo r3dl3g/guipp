@@ -23,11 +23,109 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui/draw/converter.h>
 
 
 namespace gui {
 
   namespace draw {
+
+    struct bitmap_info {
+      unsigned int width;
+      unsigned int height;
+      int bytes_per_line;
+      BPP bits_per_pixel;
+
+      core::size size () const;
+      int depth () const;
+      std::size_t mem_size () const;
+
+    };
+
+    namespace copy {
+
+      // --------------------------------------------------------------------------
+      template<BPP bpp>
+      void row (cbyteptr src, byteptr dst, int src_x0, int dest_x0, int dest_w);
+
+      template<>
+      inline void row<BPP::BW> (cbyteptr src, byteptr dst, int src_x0, int dest_x0, int dest_w) {
+        for (int x = 0; x < dest_w; ++x) {
+          byte b = convert::bpp::get<BPP::BW>(src, src_x0 + x);
+          convert::bpp::set<BPP::BW>(dst, dest_x0 + x, b);
+        }
+      }
+
+      template<>
+      inline void row<BPP::GRAY> (cbyteptr src, byteptr dst, int src_x0, int dest_x0, int dest_w) {
+        memcpy(dst + dest_x0, src + src_x0, dest_w);
+      }
+
+      template<>
+      inline void row<BPP::RGB> (cbyteptr src, byteptr dst, int src_x0, int dest_x0, int dest_w) {
+        memcpy(dst + dest_x0 * 3, src + src_x0 * 3, dest_w * 3);
+      }
+
+      template<>
+      inline void row<BPP::RGBA> (cbyteptr src, byteptr dst, int src_x0, int dest_x0, int dest_w) {
+        memcpy(dst + dest_x0 * 4, src + src_x0 * 4, dest_w * 4);
+      }
+
+      template<BPP bpp>
+      void sub (const std::vector<char>& src_data,
+                const bitmap_info& src_bmi,
+                std::vector<char>& dest_data,
+                const bitmap_info& dest_bmi,
+                int src_x0, int src_y0,
+                int dest_x0, int dest_y0,
+                int dest_w, int dest_h) {
+        for (int y = 0; y < dest_h; ++y) {
+          cbyteptr src = reinterpret_cast<cbyteptr>(src_data.data() + (src_y0 + y) * src_bmi.bytes_per_line);
+          byteptr dst = reinterpret_cast<byteptr>(dest_data.data() + (dest_y0 + y) * dest_bmi.bytes_per_line);
+          row<bpp>(src, dst, src_x0, dest_x0, dest_w);
+        }
+      }
+    } // namespace copy
+
+    // --------------------------------------------------------------------------
+    namespace stretch {
+
+      template<BPP bpp>
+      void row (const std::vector<char>& src_data, std::vector<char>& dest_data,
+                int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w);
+
+      template<>
+      void row<BPP::GRAY> (const std::vector<char>& src_data, std::vector<char>& dest_data,
+                           int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w);
+
+      template<>
+      void row<BPP::RGB> (const std::vector<char>& src_data, std::vector<char>& dest_data,
+                          int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w);
+
+      template<>
+      void row<BPP::RGBA> (const std::vector<char>& src_data, std::vector<char>& dest_data,
+                           int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w);
+
+      template<BPP bpp>
+      void sub (const std::vector<char>& src_data, const bitmap_info& src_bmi,
+                std::vector<char>& dest_data, const bitmap_info& dest_bmi,
+                int src_x0, int src_y0, int src_w, int src_h,
+                int dest_x0, int dest_y0, int dest_w, int dest_h) {
+        for (int y = 0; y < dest_h; ++y) {
+          const int src_y = src_y0 + y * src_h / dest_h;
+          const int src_offs = src_y * src_bmi.bytes_per_line;
+          const int dest_offs = (dest_y0 + y) * dest_bmi.bytes_per_line;
+          row<bpp>(src_data, dest_data, src_offs, dest_offs, src_x0, dest_x0, src_w, dest_w);
+        }
+      }
+
+      template<>
+      void sub<BPP::BW> (const std::vector<char>& src_data, const bitmap_info& src_bmi,
+                         std::vector<char>& dest_data, const bitmap_info& dest_bmi,
+                         int src_x0, int src_y0, int src_w, int src_h,
+                         int dest_x0, int dest_y0, int dest_w, int dest_h);
+
+    } // namespace stretch
 
     // --------------------------------------------------------------------------
     class bitmap {
@@ -42,13 +140,14 @@ namespace gui {
       operator bool () const;
 
       os::bitmap get_id () const;
+      bitmap_info get_info () const;
 
-      void create (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
+      void create (const std::vector<char>& data, const bitmap_info& bmi);
       void clear ();
       void invert ();
 
-      void put_data (const std::vector<char>& data, int w, int h, int bpl, BPP bpp);
-      void get_data (std::vector<char>& data, int& w, int& h, int& bpl, BPP& bpp) const;
+      void put_data (const std::vector<char>& data, const bitmap_info& bmi);
+      void get_data (std::vector<char>& data, bitmap_info& bmi) const;
 
       void put (const bitmap& rhs);
 
@@ -63,11 +162,24 @@ namespace gui {
       void operator= (bitmap&&);
 
       void create_compatible (int w, int h);
+      void create_compatible (const core::size& sz);
+
       void create (int w, int h, BPP bpp);
-      void copy_from (const bitmap&);
+      void create (const core::size& sz, BPP bpp);
+
+      void copy_from (const bitmap& src_img);
+      void copy_from (const bitmap& src_img,
+                      const core::rectangle& src_rect,
+                      const core::point& dest_pt);
+
       void stretch_from (const bitmap& src_img,
                          const core::rectangle& src_rect,
                          const core::rectangle& dest_rect);
+
+      static bitmap_info convert (const std::vector<char>& src,
+                                  const bitmap_info& bmi,
+                                  std::vector<char>& dst,
+                                  BPP dst_bpp);
 
     private:
       void set_id (os::bitmap);
@@ -81,6 +193,7 @@ namespace gui {
     class datamap : public bitmap {
     public:
       typedef bitmap super;
+      static constexpr BPP bpp = T;
 
       datamap ();
 
@@ -99,8 +212,12 @@ namespace gui {
       void create (int w, int h);
       void create (const core::size& sz);
 
+      void copy_from (const datamap& src_img,
+                      const core::rectangle& src_rect,
+                      const core::point& dest_pt);
+
       void stretch_from (const datamap& src);
-      void stretch_from (const bitmap& src_img,
+      void stretch_from (const datamap& src_img,
                          const core::rectangle& src_rect,
                          const core::rectangle& dest_rect);
 
@@ -135,8 +252,12 @@ namespace gui {
       void create (int w, int h);
       void create (const core::size& sz);
 
+      void copy_from (const memmap& src_img,
+                      const core::rectangle& src_rect,
+                      const core::point& dest_pt);
+
       void stretch_from (const memmap& src);
-      void stretch_from (const bitmap& src_img,
+      void stretch_from (const memmap& src_img,
                          const core::rectangle& src_rect,
                          const core::rectangle& dest_rect);
 
@@ -176,6 +297,19 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     // inlines
+    inline core::size bitmap_info::size () const {
+      return {static_cast<core::size_type>(width), static_cast<core::size_type>(height)};
+    }
+
+    inline int bitmap_info::depth () const {
+      return static_cast<int>(bits_per_pixel);
+    }
+
+    inline std::size_t bitmap_info::mem_size () const {
+      return bytes_per_line * height;
+    }
+
+    // --------------------------------------------------------------------------
     inline bitmap::bitmap ()
       : id(0)
     {}
@@ -236,7 +370,7 @@ namespace gui {
 
     template<BPP T>
     inline datamap<T>::datamap (int w, int h, int bpl, const std::vector<char>& data) {
-      super::create(data, w, h, bpl, T);
+      super::create(data, {w, h, bpl, T});
     }
 
     template<BPP T>
@@ -277,12 +411,19 @@ namespace gui {
     }
 
     template<BPP T>
+    inline void datamap<T>::copy_from (const datamap& src_img,
+                                       const core::rectangle& src_rect,
+                                       const core::point& dest_pt) {
+      super::copy_from(src_img, src_rect, dest_pt);
+    }
+
+    template<BPP T>
     inline void datamap<T>::stretch_from (const datamap& src) {
       super::stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
     }
 
     template<BPP T>
-    inline void datamap<T>::stretch_from (const bitmap& src_img,
+    inline void datamap<T>::stretch_from (const datamap& src_img,
                                           const core::rectangle& src_rect,
                                           const core::rectangle& dest_rect) {
       super::stretch_from(src_img, src_rect, dest_rect);
@@ -343,11 +484,17 @@ namespace gui {
       create(sz.os_width(), sz.os_height());
     }
 
+    inline void memmap::copy_from (const memmap& src_img,
+                                   const core::rectangle& src_rect,
+                                   const core::point& dest_pt) {
+      super::copy_from(src_img, src_rect, dest_pt);
+    }
+
     inline void memmap::stretch_from (const memmap& src) {
       super::stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
     }
 
-    inline void memmap::stretch_from (const bitmap& src_img,
+    inline void memmap::stretch_from (const memmap& src_img,
                                       const core::rectangle& src_rect,
                                       const core::rectangle& dest_rect) {
       super::stretch_from(src_img, src_rect, dest_rect);

@@ -88,6 +88,7 @@ private:
   vtoggle_group<color::light_gray, color::gray> vsegmented;
 
   client_window window1;
+  rgbamap rgba[2];
   rgbmap bmp[2];
   graymap gray[2];
   maskmap bw[2];
@@ -135,6 +136,14 @@ my_main_window::my_main_window ()
       try {
         if (bmp[i]) {
           graph.copy_from(bmp[i], core::point(x, 1));
+        }
+      } catch (std::exception& ex) {
+        LogFatal << ex;
+      }
+      x += 110;
+      try {
+        if (rgba[i]) {
+          graph.copy_from(rgba[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
@@ -621,6 +630,7 @@ void my_main_window::open () {
     if (sys_fs::exists(file)) {
       gui::draw::bitmap img;
       gui::io::load_pnm(file, img);
+      rgba[0] = img;
       bmp[0] = img;
       gray[0] = img;
       bw[0] = img;
@@ -654,12 +664,14 @@ void my_main_window::copy () {
   core::rectangle r = left_list.client_area();
   core::size sz = r.size();
 
+  rgba[0].create(sz);
   bmp[0].create(sz);
   gray[0].create(sz);
   bw[0].create(sz);
 
   memmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
+  rgba[0].put(img);
   bmp[0].put(img);
   gray[0].put(img);
   bw[0].put(img);
@@ -670,6 +682,7 @@ void my_main_window::copy () {
 void my_main_window::del () {
   labels[0].set_text("del");
   for (int i = 0; i < 2; ++i) {
+    rgba[i].clear();
     bmp[i].clear();
     gray[i].clear();
     bw[i].clear();
@@ -694,9 +707,13 @@ void my_main_window::cut () {
 
   memmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
+  rgba[0] = img;
   bmp[0] = img;
   gray[0] = img;
   bw[0] = img;
+
+  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true>(rgba[0]);
+  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false>(rgba[0]);
 
   io::ofpnm<io::PNM::P6>("left_list.p6") << bmp[0];
   io::ofpnm<io::PNM::P3>("left_list.p3") << bmp[0];
@@ -707,9 +724,15 @@ void my_main_window::cut () {
   io::ofpnm<io::PNM::P4>("left_list.p4") << bw[0];
   io::ofpnm<io::PNM::P1>("left_list.p1") << bw[0];
 
+  rgba[1].create(sz);
   bmp[1].create(sz);
   gray[1].create(sz);
   bw[1].create(sz);
+
+  rgba[1] = drawer(sz);
+
+  std::ofstream("p6-rgba.ppm") << io::opnm<true>(rgba[1]);
+  std::ofstream("p3-rgba.ppm") << io::opnm<false>(rgba[1]);
 
   bmp[1] = drawer(sz);
 
@@ -743,6 +766,21 @@ void read_write (datamap<io::PNM2BPP<P>::bpp>& bm) {
   }
 }
 
+template<io::PNM P>
+void read_write (datamap<BPP::RGBA>& bm) {
+  try {
+    int i = static_cast<int>(P);
+    std::string iname = ostreamfmt("p" << i << "-rgba.ppm");
+    std::string oname = ostreamfmt("test.p" << i << "-rgba.ppm");
+    io::ipnm ip(bm);
+    std::ifstream(iname) >> ip;
+    std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin>(bm);
+  }
+  catch (std::exception& ex) {
+    LogFatal << ex;
+  }
+}
+
 void my_main_window::paste () {
   labels[0].set_text("paste");
 
@@ -752,6 +790,9 @@ void my_main_window::paste () {
   read_write<io::PNM::P4>(bw[1]);
   read_write<io::PNM::P5>(gray[1]);
   read_write<io::PNM::P6>(bmp[1]);
+
+  read_write<io::PNM::P3>(rgba[0]);
+  read_write<io::PNM::P6>(rgba[1]);
 
   window1.redraw_later();
 }
@@ -795,10 +836,15 @@ void my_main_window::test_rgb () {
   bmp[0] = blue;
   bmp[1] = blue24;
 
+  rgba[0] = blue;
+  rgba[1] = blue24;
+
   window1.redraw_later();
 }
 
 void my_main_window::save_all_bin () {
+  std::ofstream("rgba0.b.ppm") << io::opnm<true>(rgba[0]);
+  std::ofstream("rgba1.b.ppm") << io::opnm<true>(rgba[1]);
   io::ofpnm<io::PNM::P6>("bmp0.b")  << bmp[0];
   io::ofpnm<io::PNM::P6>("bmp1.b")  << bmp[1];
   io::ofpnm<io::PNM::P5>("gray0.b") << gray[0];
@@ -808,12 +854,14 @@ void my_main_window::save_all_bin () {
 }
 
 void my_main_window::save_all_ascii() {
-  io::ofpnm<io::PNM::P3>("bmp0.b") << bmp[0];
-  io::ofpnm<io::PNM::P3>("bmp1.b") << bmp[1];
-  io::ofpnm<io::PNM::P2>("gray0.b") << gray[0];
-  io::ofpnm<io::PNM::P2>("gray1.b") << gray[1];
-  io::ofpnm<io::PNM::P1>("bw0.b") << bw[0];
-  io::ofpnm<io::PNM::P1>("bw1.b") << bw[1];
+  std::ofstream("rgba0.a.ppm") << io::opnm<false>(rgba[0]);
+  std::ofstream("rgba1.a.ppm") << io::opnm<false>(rgba[1]);
+  io::ofpnm<io::PNM::P3>("bmp0.a") << bmp[0];
+  io::ofpnm<io::PNM::P3>("bmp1.a") << bmp[1];
+  io::ofpnm<io::PNM::P2>("gray0.a") << gray[0];
+  io::ofpnm<io::PNM::P2>("gray1.a") << gray[1];
+  io::ofpnm<io::PNM::P1>("bw0.a") << bw[0];
+  io::ofpnm<io::PNM::P1>("bw1.a") << bw[1];
 }
 
 void my_main_window::save_all_src () {

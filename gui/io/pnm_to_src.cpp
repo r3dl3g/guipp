@@ -166,26 +166,25 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void opnm::write (std::ostream& out) const {
-        int w, h, bpl;
-        BPP bpp;
+        draw::bitmap_info bmi;
         std::vector<char> data;
-        bmp.get_data(data, w, h, bpl, bpp);
-        switch (bpp) {
+        bmp.get_data(data, bmi);
+        switch (bmi.bits_per_pixel) {
         case BPP::BW:
-          save_pnm_header_src(out, name, BPP2PNM<BPP::BW, true>::pnm, w, h, 0);
-          save_pnm_src<BPP::BW>(out, data, w, h, bpl);
+          save_pnm_header_src(out, name, BPP2PNM<BPP::BW, true>::pnm, bmi.width, bmi.height, 0);
+          save_pnm_src<BPP::BW>(out, data, bmi.width, bmi.height, bmi.bytes_per_line);
           break;
         case BPP::GRAY:
-          save_pnm_header_src(out, name, BPP2PNM<BPP::GRAY, true>::pnm, w, h, 255);
-          save_pnm_src<BPP::GRAY>(out, data, w, h, bpl);
+          save_pnm_header_src(out, name, BPP2PNM<BPP::GRAY, true>::pnm, bmi.width, bmi.height, 255);
+          save_pnm_src<BPP::GRAY>(out, data, bmi.width, bmi.height, bmi.bytes_per_line);
           break;
         case BPP::RGB:
-          save_pnm_header_src(out, name, BPP2PNM<BPP::RGB, true>::pnm, w, h, 255);
-          save_pnm_src<BPP::RGB>(out, data, w, h, bpl);
+          save_pnm_header_src(out, name, BPP2PNM<BPP::RGB, true>::pnm, bmi.width, bmi.height, 255);
+          save_pnm_src<BPP::RGB>(out, data, bmi.width, bmi.height, bmi.bytes_per_line);
           break;
         case BPP::RGBA:
-          save_pnm_header_src(out, name, BPP2PNM<BPP::RGBA, true>::pnm, w, h, 255);
-          save_pnm_src<BPP::RGBA>(out, data, w, h, bpl);
+          save_pnm_header_src(out, name, BPP2PNM<BPP::RGBA, true>::pnm, bmi.width, bmi.height, 255);
+          save_pnm_src<BPP::RGBA>(out, data, bmi.width, bmi.height, bmi.bytes_per_line);
           break;
         default:
           throw std::invalid_argument("unsupportet bit per pixel value");

@@ -169,7 +169,7 @@ namespace gui {
       }
 
       inline textbox_base::data::data ()
-        : font(draw::font::monospace())
+        : font(draw::font::system())
         , last_mouse_point(core::point::undefined)
       {}
 

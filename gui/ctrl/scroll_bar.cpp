@@ -202,9 +202,9 @@ namespace gui {
         }
         os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
-          paint::button_frame(g, up, button_state(state == scrollbar_state::up_button), false, true);
-//          g.fill(draw::rectangle(up), color::buttonColor());
-//          draw::frame::relief(g, up, state == scrollbar_state::up_button);
+//          paint::button_frame(g, up, button_state(state == scrollbar_state::up_button), false, true);
+          g.fill(draw::rectangle(up), color::buttonColor());
+          draw::frame::relief(g, up, state == scrollbar_state::up_button);
           core::rectangle r = up.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -217,9 +217,9 @@ namespace gui {
           }
         }
         if (!down.empty()) {
-          paint::button_frame(g, down, button_state(state == scrollbar_state::down_button), false, true);
-//          g.fill(draw::rectangle(down), color::buttonColor());
-//          draw::frame::relief(g, down, state == scrollbar_state::down_button);
+//          paint::button_frame(g, down, button_state(state == scrollbar_state::down_button), false, true);
+          g.fill(draw::rectangle(down), color::buttonColor());
+          draw::frame::relief(g, down, state == scrollbar_state::down_button);
           core::rectangle r = down.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -232,15 +232,15 @@ namespace gui {
           }
         }
         if (!thumb.empty()) {
-          paint::button_frame(g, thumb, button_state(state == scrollbar_state::thumb_button), false, true);
-//          g.fill(draw::rectangle(thumb), color::buttonColor());
-//          draw::frame::raised_relief(g, thumb);
-//          if (scrollbar_state::thumb_button == state) {
-//            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
-//          }
-//          if (has_focus) {
-//            draw::frame::dots(g, thumb);
-//          }
+//          paint::button_frame(g, thumb, button_state(state == scrollbar_state::thumb_button), false, true);
+          g.fill(draw::rectangle(thumb), color::buttonColor());
+          draw::frame::raised_relief(g, thumb);
+          if (scrollbar_state::thumb_button == state) {
+            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
+          }
+          if (has_focus) {
+            draw::frame::dots(g, thumb);
+          }
         }
       }
 

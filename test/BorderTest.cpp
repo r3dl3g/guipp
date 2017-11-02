@@ -508,6 +508,7 @@ void file_open_dialog (win::container& parent,
 
   main_view.create(dialog, core::rectangle(0, 0, 600, 300));
   main_view.set_split_pos(0.3);
+
   dir_tree.open_root();
   dir_tree.update_node_list();
 
@@ -523,6 +524,7 @@ void file_open_dialog (win::container& parent,
   dialog.run_modal();
   parent.enable();
   parent.take_focus();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -532,19 +534,21 @@ void file_save_dialog (win::container& parent,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        const std::function<file_selected>& action) {
-  typedef sorted_file_tree dir_tree_type;
-  typedef group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view_type;
+  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(25, 45, 0, 0);
+  group_window<horizontal_adaption<>, color::light_gray> buttons;
 
-  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
-  vertical_split_view<dir_tree_type, content_view_type> main_view(dir_tree_type(), content_view_type(0, 20, 0, 0));
-  group_window<horizontal_adaption<>, color::very_light_gray> buttons;
+  group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> top_view(1, 2, 1, 2);
+  edit input_line;
+
+  text_button open, cancel;
+
+  typedef sorted_file_tree dir_tree_type;
+  typedef file_list file_list_type;
+
+  win::vertical_split_view<dir_tree_type, file_list_type> main_view;
 
   dir_tree_type& dir_tree = main_view.first;
-  content_view_type& content_view = main_view.second;
-
-  file_list files;
-  edit input_line;
-  text_button open, cancel;
+  file_list_type& files = main_view.second;
 
   dir_tree.root =
 #ifdef WIN32
@@ -554,12 +558,15 @@ void file_save_dialog (win::container& parent,
     sys_fs::path("/");
 #endif // X11
 
+  dir_tree.update_node_list();
+
   dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
     int idx = dir_tree.get_selection();
     if (idx > -1) {
       files.set_path(dir_tree.get_item(idx));
     }
   }));
+
   files.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
     input_line.set_text(files.get_selected_path().filename());
   }));
@@ -573,40 +580,40 @@ void file_save_dialog (win::container& parent,
       action(path);
     }
   }));
+
   cancel.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     dialog.end_modal();
   }));
 
   dialog.create(parent, core::rectangle(300, 200, 600, 400));
-  main_view.create(dialog, core::rectangle(0, 0, 100, 100));
+  dialog.set_title(title);
+
+  top_view.create(dialog, core::rectangle(0, 0, 100, 100));
+  top_view.get_layout().set_center(&input_line);
+
+  input_line.create(top_view, core::rectangle(0, 0, 100, 100));
+
+  main_view.create(dialog, core::rectangle(0, 0, 600, 100));
   main_view.set_split_pos(0.3);
 
-  files.create(content_view, core::rectangle(0, 0, 100, 100));
-  input_line.create(content_view, core::rectangle(0, 0, 1000, 20));
+  dir_tree.open_root();
+  dir_tree.update_node_list();
 
   buttons.create(dialog);
   cancel.create(buttons, cancel_label);
   open.create(buttons, ok_label);
 
-  dialog.get_layout().set_center_top_bottom_left_right(&main_view, nullptr, &buttons, nullptr, nullptr);
-  content_view.get_layout().set_center(&files);
-  content_view.get_layout().set_bottom(&input_line);
+  dialog.get_layout().set_center_top_bottom_left_right(&main_view, &top_view, &buttons, nullptr, nullptr);
 
-  dialog.set_title(title);
-
-  dir_tree.update_node_list();
-  dir_tree.open_root();
-  dir_tree.update_node_list();
+  input_line.set_text(default_name);
 
   dialog.set_children_visible();
-  main_view.set_children_visible();
-  content_view.set_children_visible();
-
   dialog.set_visible();
   parent.disable();
   dialog.run_modal();
   parent.enable();
   parent.take_focus();
+
 }
 
 //-----------------------------------------------------------------------------

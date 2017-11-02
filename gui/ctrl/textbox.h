@@ -63,6 +63,10 @@ namespace gui {
         void create (const container& parent,
                      const core::rectangle& r = core::rectangle::def);
 
+        void create (const container& parent,
+                     const std::string& txt,
+                     const core::rectangle& place = core::rectangle::def);
+
         void set_text (const std::string&);
         std::string get_text () const;
 
@@ -130,7 +134,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef basic_textbox<> textbox;
+    using textbox = basic_textbox<>;
 
     // --------------------------------------------------------------------------
     // inlines
@@ -139,6 +143,13 @@ namespace gui {
       inline void textbox_base::create (const container& parent,
                                         const core::rectangle& r) {
         window::create(clazz::get(), parent, r);
+      }
+
+      inline void textbox_base::create (const container& parent,
+                                        const std::string& txt,
+                                        const core::rectangle& place) {
+        create(parent, place);
+        set_text(txt);
       }
 
       inline auto textbox_base::row_count() const->size_type {

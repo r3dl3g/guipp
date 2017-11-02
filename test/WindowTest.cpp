@@ -156,7 +156,7 @@ private:
   win::vertical_separator btn_sep1;
   win::vertical_separator btn_sep2;
 
-  win::group_window<layout::horizontal_adaption<5, 10>, color::light_gray> btn_group;
+  win::group_window<layout::horizontal_adaption<5, 10>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
   win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group;

@@ -134,7 +134,7 @@ namespace gui {
       T get_selected_item () const;
 
       void set_data (const data_provider& d, std::size_t count);
-      void set_data(data_provider && d, std::size_t count);
+      void set_data (data_provider && d, std::size_t count);
 
       core::rectangle get_popup_place () const;
 

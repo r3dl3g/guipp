@@ -366,6 +366,91 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void bitmap::stretch_from (const bitmap& src_img,
+                               const core::rectangle& src_rect,
+                               const core::rectangle& dest_rect) {
+      std::vector<char> src_data;
+      int src_width, src_height, src_bpl;
+      BPP src_bpp;
+      src_img.get_data(src_data, src_width, src_height, src_bpl, src_bpp);
+
+      const int src_w = src_rect.width();
+      const int src_h = src_rect.height();
+
+      const int dest_w = dest_rect.width();
+      const int dest_h = dest_rect.height();
+
+      std::vector<char> dest_data;
+      int dest_width, dest_height, dest_bpl;
+      BPP dest_bpp;
+      get_data(dest_data, dest_width, dest_height, dest_bpl, dest_bpp);
+
+      switch (src_bpp) {
+        case BPP::BW: {
+          for (int y = 0; y < dest_h; ++y) {
+            const int old_y = src_rect.y() + y * src_h / dest_h;
+            cbyteptr src = reinterpret_cast<cbyteptr>(src_data.data() + (old_y * src_bpl));
+            byteptr dst = reinterpret_cast<byteptr>(dest_data.data() + static_cast<int>(dest_rect.y()) + (y * dest_bpl));
+            for (int x = 0; x < dest_w; ++x) {
+              const int old_x = src_rect.x() + x * src_w / dest_w;
+              byte b = convert::bpp::get<BPP::BW>(src, old_x);
+              convert::bpp::set<BPP::BW>(dst, dest_rect.x() + x, b);
+            }
+          }
+          break;
+        }
+        case BPP::GRAY: {
+          for (int y = 0; y < dest_h; ++y) {
+            const int old_y = src_rect.y() + y * src_h / dest_h;
+            const int old_offs = src_rect.x() + old_y * src_bpl;
+            const int new_offs = dest_rect.x() + (dest_rect.y() + y) * dest_bpl;
+            for (int x = 0; x < dest_w; ++x) {
+              const int old_x = x * src_w / dest_w;
+              dest_data[new_offs + x] = src_data[old_offs + old_x];
+            }
+          }
+          break;
+        }
+        case BPP::RGB: {
+          for (int y = 0; y < dest_h; ++y) {
+            const int old_y = src_rect.y() + y * src_h / dest_h;
+            const int old_offs = src_rect.x() + old_y * src_bpl;
+            const int new_offs = dest_rect.x() + (dest_rect.y() + y) * dest_bpl;
+            for (int x = 0; x < dest_w; ++x) {
+              const int old_x = old_offs + (x * src_w / dest_w) * 3;
+              const int new_x = new_offs + x * 3;
+              dest_data[new_x] = src_data[old_x];
+              dest_data[new_x + 1] = src_data[old_x + 1];
+              dest_data[new_x + 2] = src_data[old_x + 2];
+            }
+          }
+          break;
+        }
+        case BPP::RGBA: {
+          for (int y = 0; y < dest_h; ++y) {
+            const int old_y = src_rect.y() + y * src_h / dest_h;
+            const int old_offs = src_rect.x() + old_y * src_bpl;
+            const int new_offs = dest_rect.x() + (dest_rect.y() + y) * dest_bpl;
+            for (int x = 0; x < dest_w; ++x) {
+              const int old_x = old_offs + (x * src_w / dest_w) * 4;
+              const int new_x = new_offs + x * 4;
+              dest_data[new_x] = src_data[old_x];
+              dest_data[new_x + 1] = src_data[old_x + 1];
+              dest_data[new_x + 2] = src_data[old_x + 2];
+              dest_data[new_x + 3] = src_data[old_x + 3];
+            }
+          }
+          break;
+        }
+
+        default:
+        break;
+      }
+
+      put_data(dest_data, dest_width, dest_height, dest_bpl, dest_bpp);
+    }
+
+    // --------------------------------------------------------------------------
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
         image = rhs.image;

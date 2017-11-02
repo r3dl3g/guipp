@@ -65,6 +65,9 @@ namespace gui {
       void create_compatible (int w, int h);
       void create (int w, int h, BPP bpp);
       void copy_from (const bitmap&);
+      void stretch_from (const bitmap& src_img,
+                         const core::rectangle& src_rect,
+                         const core::rectangle& dest_rect);
 
     private:
       void set_id (os::bitmap);
@@ -95,6 +98,12 @@ namespace gui {
 
       void create (int w, int h);
       void create (const core::size& sz);
+
+      void stretch_from (const datamap& src);
+      void stretch_from (const bitmap& src_img,
+                         const core::rectangle& src_rect,
+                         const core::rectangle& dest_rect);
+
     };
 
     // --------------------------------------------------------------------------
@@ -125,6 +134,12 @@ namespace gui {
 
       void create (int w, int h);
       void create (const core::size& sz);
+
+      void stretch_from (const memmap& src);
+      void stretch_from (const bitmap& src_img,
+                         const core::rectangle& src_rect,
+                         const core::rectangle& dest_rect);
+
     };
 
     // --------------------------------------------------------------------------
@@ -261,6 +276,18 @@ namespace gui {
       create(sz.os_width(), sz.os_height());
     }
 
+    template<BPP T>
+    inline void datamap<T>::stretch_from (const datamap& src) {
+      super::stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
+    }
+
+    template<BPP T>
+    inline void datamap<T>::stretch_from (const bitmap& src_img,
+                                          const core::rectangle& src_rect,
+                                          const core::rectangle& dest_rect) {
+      super::stretch_from(src_img, src_rect, dest_rect);
+    }
+
     // --------------------------------------------------------------------------
     inline memmap::memmap ()
     {}
@@ -314,6 +341,16 @@ namespace gui {
 
     inline void memmap::create (const core::size& sz) {
       create(sz.os_width(), sz.os_height());
+    }
+
+    inline void memmap::stretch_from (const memmap& src) {
+      super::stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
+    }
+
+    inline void memmap::stretch_from (const bitmap& src_img,
+                                      const core::rectangle& src_rect,
+                                      const core::rectangle& dest_rect) {
+      super::stretch_from(src_img, src_rect, dest_rect);
     }
 
     // --------------------------------------------------------------------------

@@ -22,11 +22,44 @@
 //
 #include <gui/draw/graphics.h>
 #include <gui/ctrl/button.h>
+#include <gui/io/pnm.h>
 
 
 namespace gui {
 
+  namespace image_data {
+
+#include <gui/ctrl/button_frame.h>
+#include <gui/ctrl/button_pressed_frame.h>
+
+  } // namespace image_data
+
   namespace win {
+
+    namespace detail {
+
+      template<typename T, size_t N>
+      inline std::string make_string (T(&t)[N]) {
+        const auto sz = sizeof (t);
+        return std::string((const char*)t, N);
+      }
+
+      draw::graymap build_frame_image (bool pressed) {
+        draw::graymap bmp;
+        std::string name = pressed ? make_string(image_data::button_pressed_frame_bytes)
+                                   : make_string(image_data::button_frame_bytes);
+        std::istringstream in(name);
+        io::load_pnm(in, bmp);
+        return bmp;
+      }
+
+    } // namespace detail
+
+    const draw::graymap& get_button_frame (bool pressed) {
+      static draw::graymap image(detail::build_frame_image(false));
+      static draw::graymap image_pressed(detail::build_frame_image(true));
+      return pressed ? image_pressed : image;
+    }
 
     button_state::button_state ()
       : hilited(false)
@@ -192,16 +225,85 @@ namespace gui {
                          bool enabled) {
         using namespace draw;
 
-        core::rectangle area = r;
-
-        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
-        if (enabled && focused) {
-          graph.frame(draw::rectangle(area), color::black);
-          area.shrink({1, 1});
+        if (r.size() <= core::size::one) {
+          return;
         }
-        frame::deep_relief(graph, area, state.pushed);
-        if (enabled && focused) {
-          area.shrink({3, 3});
+        draw::graymap buffer(r.size());
+
+        const draw::graymap& img = get_button_frame(state.pushed);
+        core::rectangle ir(img.size());
+
+        const auto edge = 4;
+
+        const auto target_right = r.width() - edge;
+        const auto target_bottom = r.height() - edge;
+
+        const auto source_right = ir.width() - edge;
+        const auto source_bottom = ir.height() - edge;
+
+        const auto target_inner_width = target_right - edge;
+        const auto target_inner_height = target_bottom - edge;
+        const auto source_inner_width = source_right - edge;
+        const auto source_inner_height = source_bottom - edge;
+
+        // top left
+        buffer.stretch_from(img,
+                            core::rectangle(0, 0, edge, edge),
+                            core::rectangle(0, 0, edge, edge));
+
+        // top right
+        buffer.stretch_from(img,
+                            core::rectangle(source_right, 0, edge, edge),
+                            core::rectangle(target_right, 0, edge, edge));
+
+        // bottom left
+        buffer.stretch_from(img,
+                            core::rectangle(0, source_bottom, edge, edge),
+                            core::rectangle(0, target_bottom, edge, edge));
+
+        // bottom right
+        buffer.stretch_from(img,
+                            core::rectangle(source_right, source_bottom, edge, edge),
+                            core::rectangle(target_right, target_bottom, edge, edge));
+
+        // top center
+        buffer.stretch_from(img,
+                            core::rectangle(edge, 0, 1, edge),
+                            core::rectangle(edge, 0, target_inner_width, edge));
+
+        // bottom center
+        buffer.stretch_from(img,
+                            core::rectangle(edge, source_bottom, 1, edge),
+                            core::rectangle(edge, target_bottom, target_inner_width, edge));
+
+        // left center
+        buffer.stretch_from(img,
+                            core::rectangle(0, edge, edge, source_inner_height),
+                            core::rectangle(0, edge, edge, target_inner_height));
+
+        // right center
+        buffer.stretch_from(img,
+                            core::rectangle(source_right, edge, edge, source_inner_height),
+                            core::rectangle(target_right, edge, edge, target_inner_height));
+
+        // center
+        buffer.stretch_from(img,
+                            core::rectangle(edge, edge, source_inner_width, source_inner_height),
+                            core::rectangle(edge, edge, target_inner_width, target_inner_height));
+
+        graph.copy_from(buffer);
+
+//        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
+//        if (enabled && focused) {
+//          graph.frame(draw::rectangle(area), color::black);
+//          area.shrink({1, 1});
+//        }
+
+//        frame::deep_relief(graph, area, state.pushed);
+
+        if (enabled && focused && !state.pushed) {
+          core::rectangle area = r;
+          area.shrink({6, 6});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }
       }

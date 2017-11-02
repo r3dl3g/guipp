@@ -78,6 +78,11 @@ namespace gui {
       bool operator== (const size& rhs) const;
       bool operator!= (const size& rhs) const;
 
+      bool operator< (const size& rhs) const;
+      bool operator<= (const size& rhs) const;
+      bool operator> (const size& rhs) const;
+      bool operator>= (const size& rhs) const;
+
       size operator+ (const size& rhs) const;
       size operator- (const size& rhs) const;
       size operator* (size_type f) const;

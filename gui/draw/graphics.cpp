@@ -1103,14 +1103,14 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 
-      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
+      if (origin_is_h_center(origin)) {
         px += (rect.width() - width) / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
+      } else if (origin_is_right(origin)) {
         px += rect.width() - width;
       }
-      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
+      if (origin_is_v_center(origin)) {
         py += (rect.height() - dy) / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
+      } else if (origin_is_bottom(origin)) {
         py += rect.height() - height;
       }
 
@@ -1147,14 +1147,14 @@ namespace gui {
       int px = rect.os_x();
       int py = rect.os_y();
 
-      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
+      if (origin_is_h_center(origin)) {
         px += (rect.width() - width) / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
+      } else if (origin_is_right(origin)) {
         px += rect.width() - width;
       }
-      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
+      if (origin_is_v_center(origin)) {
         py += (rect.height() - dy) / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
+      } else if (origin_is_bottom(origin)) {
         py += rect.height() - height;
       }
 
@@ -1189,15 +1189,15 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
 
-      if ((static_cast<unsigned int>(origin) & DT_CENTER) == DT_CENTER) {
+      if (origin_is_h_center(origin)) {
         px -= width / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_RIGHT) == DT_RIGHT) {
+      } else if (origin_is_right(origin)) {
         px -= width;
       }
 
-      if ((static_cast<unsigned int>(origin) & DT_VCENTER) == DT_VCENTER) {
+      if (origin_is_v_center(origin)) {
         py -= dy / 2;
-      } else if ((static_cast<unsigned int>(origin) & DT_BOTTOM) == DT_BOTTOM) {
+      } else if (origin_is_bottom(origin)) {
         py -= height;
       }
 
@@ -1464,17 +1464,19 @@ namespace gui {
 
 //#endif
 
-
-    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
-        int dep = bmp.depth();
-        if (dep == depth()) {
-          return copy_from(bmp.get_id(), core::rectangle(bmp.size()), pt);
+        if (bmp.depth() == depth()) {
+          return copy_from(bmp.get_id(), src, pt);
         } else {
-          return copy_from(memmap(bmp).get_id(), core::rectangle(bmp.size()), pt);
+          return copy_from(memmap(bmp).get_id(), src, pt);
         }
       }
       return *this;
+    }
+
+    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::point& pt) const {
+      return copy_from(bmp, core::rectangle(bmp.size()), pt);
     }
 
     const graphics& graphics::frame (const std::function<frameable>& drawer,

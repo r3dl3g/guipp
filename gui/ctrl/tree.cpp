@@ -111,7 +111,7 @@ namespace gui {
 
       template<typename T, size_t N>
       inline std::string make_string (T(&t)[N]) {
-        return std::string((const char*)t, sizeof (t));
+        return std::string((const char*)t, N);
       }
 
       std::string get_icon_chars (tree_icon type) {

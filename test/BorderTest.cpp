@@ -22,6 +22,7 @@
 #include <gui/ctrl/toggle_group.h>
 #include <gui/ctrl/file_tree.h>
 #include <gui/ctrl/column_list.h>
+#include <gui/ctrl/textbox.h>
 
 #define NO_EXPORT
 
@@ -57,6 +58,7 @@ public:
   void save_all_ascii ();
   void save_all_src ();
   void open ();
+  void save_as ();
 
 private:
   group_window<vertical_adaption<>, color::light_gray> top_view;
@@ -172,6 +174,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   file_sub_menu.data.add_entries({
     menu_entry("Open", 'O', core::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
+    menu_entry("Sace As", 'S', core::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
@@ -376,66 +379,87 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   set_children_visible();
 }
 
-void my_main_window::quit () {
-  labels[0].set_text("quit");
+//-----------------------------------------------------------------------------
+typedef void (yes_no_action) (bool);
+void yes_no_dialog (win::container& parent,
+                    const std::string& title,
+                    const std::string& message,
+                    const std::string& yes_label,
+                    const std::string& no_label,
+                    const std::function<yes_no_action>& action);
 
-  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(20, 55, 15, 15);
-  group_window<lineup<alignment::right, 80, 15, 10, 2>, color::light_gray> buttons;
-  basic_label<text_origin::center, draw::frame::sunken_relief, color::black, color::light_gray> message;
+//-----------------------------------------------------------------------------
+typedef void (file_selected) (const sys_fs::path&);
+void file_open_dialog (win::container& parent,
+                       const std::string& title,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       const std::function<file_selected>& action);
+
+void file_save_dialog (win::container& parent,
+                       const std::string& title,
+                       const std::string& default_name,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       const std::function<file_selected>& action);
+
+//-----------------------------------------------------------------------------
+void yes_no_dialog (win::container& parent,
+                    const std::string& title,
+                    const std::string& message,
+                    const std::string& yes_label,
+                    const std::string& no_label,
+                    const std::function<yes_no_action>& action) {
+
+  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
+  group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view(20, 15, 15, 15);
+  group_window<horizontal_adaption<>, color::very_light_gray> buttons;
+  basic_textbox<text_origin::center, draw::frame::sunken_relief, color::black, color::very_light_gray> message_view;
   text_button yes, no;
 
-  bool result = false;
   yes.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    result = true;
     dialog.end_modal();
+    if (action) {
+      action(true);
+    }
   }));
   no.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    result = false;
     dialog.end_modal();
+    if (action) {
+      action(false);
+    }
   }));
 
   dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ yes.take_focus(); }));
 
-  dialog.create(*this, core::rectangle(300, 200, 400, 170));
-  dialog.set_title("Question!");
+  dialog.create(parent, core::rectangle(300, 200, 400, 170));
+  dialog.set_title(title);
   buttons.create(dialog);
-  message.create(dialog, "Do you realy want to exit?");
-  yes.create(buttons, "Yes");
-  no.create(buttons, "No");
-  dialog.get_layout().set_center_top_bottom_left_right(&message, nullptr, &buttons, nullptr, nullptr);
+  content_view.create(dialog);
+  message_view.create(content_view, message);
+  no.create(buttons, no_label);
+  yes.create(buttons, yes_label);
+  dialog.get_layout().set_center_top_bottom_left_right(&content_view, nullptr, &buttons, nullptr, nullptr);
+  content_view.get_layout().set_center(&message_view);
   dialog.set_children_visible();
+  content_view.set_children_visible();
   dialog.set_visible();
-  disable();
+  parent.disable();
   dialog.run_modal();
-  enable();
-
-  if (result) {
-    win::quit_main_loop();
-  } else {
-    take_focus();
-  }
+  parent.enable();
+  parent.take_focus();
 }
 
-
-void my_main_window::open () {
-  labels[0].set_text("open");
-
+//-----------------------------------------------------------------------------
+void file_open_dialog (win::container& parent,
+                       const std::string& title,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       const std::function<file_selected>& action) {
   layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
-  group_window<lineup<alignment::right, 80, 10, 10, 2>, color::light_gray> buttons;
+  group_window<horizontal_adaption<>, color::light_gray> buttons;
 
   text_button open, cancel;
-
-  bool result = false;
-  open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    result = true;
-    dialog.end_modal();
-  }));
-  cancel.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    result = false;
-    dialog.end_modal();
-  }));
-
-//  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ open.take_focus(); }));
 
   typedef sorted_file_tree dir_tree_type;
   typedef file_list file_list_type;
@@ -443,7 +467,7 @@ void my_main_window::open () {
   win::vertical_split_view<dir_tree_type, file_list_type> main_view;
 
   dir_tree_type& dir_tree = main_view.first;
-  file_list_type& file_list = main_view.second;
+  file_list_type& files = main_view.second;
 
   dir_tree.root =
 #ifdef WIN32
@@ -458,12 +482,20 @@ void my_main_window::open () {
   dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
     int idx = dir_tree.get_selection();
     if (idx > -1) {
-      file_list.set_path(dir_tree.get_item(idx));
+      files.set_path(dir_tree.get_item(idx));
     }
   }));
 
-  dialog.create(*this, core::rectangle(300, 200, 600, 400));
-  dialog.set_title("Open File");
+  open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
+    dialog.end_modal();
+    action(files.get_selected_path());
+  }));
+  cancel.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
+    dialog.end_modal();
+  }));
+
+  dialog.create(parent, core::rectangle(300, 200, 600, 400));
+  dialog.set_title(title);
 
   main_view.create(dialog, core::rectangle(0, 0, 600, 300));
   main_view.set_split_pos(0.3);
@@ -471,17 +503,150 @@ void my_main_window::open () {
   dir_tree.update_node_list();
 
   buttons.create(dialog);
-  open.create(buttons, "Open");
-  cancel.create(buttons, "Cancel");
+  cancel.create(buttons, cancel_label);
+  open.create(buttons, ok_label);
 
   dialog.get_layout().set_center_top_bottom_left_right(&main_view, nullptr, &buttons, nullptr, nullptr);
 
   dialog.set_children_visible();
   dialog.set_visible();
-  disable();
+  parent.disable();
   dialog.run_modal();
-  enable();
-  take_focus();
+  parent.enable();
+  parent.take_focus();
+}
+
+//-----------------------------------------------------------------------------
+void file_save_dialog (win::container& parent,
+                       const std::string& title,
+                       const std::string& default_name,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       const std::function<file_selected>& action) {
+  typedef sorted_file_tree dir_tree_type;
+  typedef group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view_type;
+
+  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
+  vertical_split_view<dir_tree_type, content_view_type> main_view(dir_tree_type(), content_view_type(0, 20, 0, 0));
+  group_window<horizontal_adaption<>, color::very_light_gray> buttons;
+
+  dir_tree_type& dir_tree = main_view.first;
+  content_view_type& content_view = main_view.second;
+
+  file_list files;
+  edit input_line;
+  text_button open, cancel;
+
+  dir_tree.root =
+#ifdef WIN32
+    sys_fs::path("c:\\");
+#endif // WIN32
+#ifdef X11
+    sys_fs::path("/");
+#endif // X11
+
+  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+    int idx = dir_tree.get_selection();
+    if (idx > -1) {
+      files.set_path(dir_tree.get_item(idx));
+    }
+  }));
+  files.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+    input_line.set_text(files.get_selected_path().filename());
+  }));
+
+  open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
+    dialog.end_modal();
+    int idx = dir_tree.get_selection();
+    if (idx > -1) {
+      sys_fs::path path = dir_tree.get_item(idx);
+      path /= input_line.get_text();
+      action(path);
+    }
+  }));
+  cancel.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
+    dialog.end_modal();
+  }));
+
+  dialog.create(parent, core::rectangle(300, 200, 600, 400));
+  main_view.create(dialog, core::rectangle(0, 0, 100, 100));
+  main_view.set_split_pos(0.3);
+
+  files.create(content_view, core::rectangle(0, 0, 100, 100));
+  input_line.create(content_view, core::rectangle(0, 0, 1000, 20));
+
+  buttons.create(dialog);
+  cancel.create(buttons, cancel_label);
+  open.create(buttons, ok_label);
+
+  dialog.get_layout().set_center_top_bottom_left_right(&main_view, nullptr, &buttons, nullptr, nullptr);
+  content_view.get_layout().set_center(&files);
+  content_view.get_layout().set_bottom(&input_line);
+
+  dialog.set_title(title);
+
+  dir_tree.update_node_list();
+  dir_tree.open_root();
+  dir_tree.update_node_list();
+
+  dialog.set_children_visible();
+  main_view.set_children_visible();
+  content_view.set_children_visible();
+
+  dialog.set_visible();
+  parent.disable();
+  dialog.run_modal();
+  parent.enable();
+  parent.take_focus();
+}
+
+//-----------------------------------------------------------------------------
+void my_main_window::quit () {
+  labels[0].set_text("quit");
+
+  yes_no_dialog(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
+    if (yes) {
+      win::quit_main_loop();
+    } else {
+      take_focus();
+    }
+  });
+}
+
+//-----------------------------------------------------------------------------
+void my_main_window::open () {
+  labels[0].set_text("open");
+
+  file_open_dialog(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
+    if (sys_fs::exists(file)) {
+      gui::draw::bitmap img;
+      gui::io::load_pnm(file, img);
+      bmp[0] = img;
+      gray[0] = img;
+      bw[0] = img;
+      window1.redraw_later();
+    }
+  });
+}
+
+void my_main_window::save_as () {
+  labels[0].set_text("save");
+
+  file_save_dialog(*this, "Save File", "new_file.h", "Save", "Cancel", [&] (const sys_fs::path& file) {
+    if (sys_fs::exists(file)) {
+      yes_no_dialog(*this, "Question!",
+                    ostreamfmt("File '" << file << "' already exists!\nDo you want to overwrite the exiting file?"),
+                    "Yes", "No", [&] (bool yes) {
+        if (yes) {
+          gui::io::src::save_pnm_src(file, gray[0], "src");
+        }
+        take_focus();
+      });
+    } else {
+      gui::io::src::save_pnm_src(file, gray[0], "src");
+      take_focus();
+    }
+  });
 }
 
 void my_main_window::copy () {

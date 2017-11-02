@@ -101,6 +101,22 @@ namespace gui {
       return !operator== (rhs);
     }
 
+    bool size::operator< (const size& rhs) const {
+      return (data.w < rhs.data.w) || (data.h < rhs.data.h);
+    }
+
+    bool size::operator<= (const size& rhs) const {
+      return (data.w <= rhs.data.w) || (data.h <= rhs.data.h);
+    }
+
+    bool size::operator> (const size& rhs) const {
+      return (data.w > rhs.data.w) && (data.h > rhs.data.h);
+    }
+
+    bool size::operator>= (const size& rhs) const {
+      return (data.w >= rhs.data.w) && (data.h >= rhs.data.h);
+    }
+
     size size::operator+ (const size& rhs) const {
       return {type(width() + rhs.width()), type(height() + rhs.height())};
     }

@@ -244,6 +244,15 @@ namespace gui {
       super::redraw_later();
     }
 
+    sys_fs::path file_list::get_selected_path () const {
+      int selection = super::list.get_selection();
+      if (selection > -1) {
+        return current_dir[selection];
+      }
+      return sys_fs::path();
+    }
+
+
   } // win
 
 } // gui

@@ -75,6 +75,19 @@ namespace gui {
         const auto last = lines.size();
         const auto first = static_cast<int>(offset.y() / row_sz);
         core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
+        const auto needed_height = last * row_sz;
+        const auto diff = area.height() - needed_height;
+        if (diff > 0) {
+          if (origin_is_v_center(origin)) {
+            r.y(diff / 2);
+          } else if (origin_is_bottom(origin)) {
+            r.y(diff);
+          }
+        }
+
+        if (r.y() > area.y()) {
+          graph.fill(draw::rectangle(core::rectangle(area.top_left(), r.top_right())), background);
+        }
 
         for (auto idx = first; (idx < last) && (r.y() < height); ++idx) {
           win::paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,

@@ -40,6 +40,9 @@ namespace gui {
       }
 
       template<>
+      void set<BPP::BW>(byteptr out, int x, byte v);
+
+      template<>
       void set<BPP::RGB>(byteptr out, int x, byte v);
 
       template<>

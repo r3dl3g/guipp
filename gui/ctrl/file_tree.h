@@ -187,6 +187,7 @@ namespace gui {
                  bool grab_focus = true);
 
       void set_path (const sys_fs::path& dir);
+      sys_fs::path get_selected_path () const;
 
     private:
       std::vector<sys_fs::path> current_dir;

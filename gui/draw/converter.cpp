@@ -37,6 +37,19 @@ namespace gui {
     namespace bpp {
 
       template<>
+      void set<BPP::BW>(byteptr out, int x, byte v) {
+        const int offset = x / 8;
+        const byte value = out[offset];
+        const byte bit = x % 8;
+        const byte bit_mask = system_bw_bits::mask[bit];
+        if (v) {
+          out[offset] = value | bit_mask;
+        } else {
+          out[offset] = value & ~bit_mask;
+        }
+      }
+
+      template<>
       void set<BPP::RGB>(byteptr out, int x, byte v) {
         int p = x * 3;
         out[p + 2] = out[p + 1] = out[p] = v;

@@ -225,7 +225,7 @@ namespace gui {
                          bool enabled) {
         using namespace draw;
 
-        if (r.size() <= core::size::one) {
+        if (r.size() <= core::size(4, 4)) {
           return;
         }
         draw::graymap buffer(r.size());

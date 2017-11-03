@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <limits>
+#include <algorithm>
 #include <map>
 #include <math.h>
 
@@ -38,24 +39,24 @@ namespace gui {
     namespace stretch {
 
       template<>
-      void row<BPP::GRAY> (const std::vector<char>& src_data, std::vector<char>& dest_data,
-                           int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w) {
+      void row<BPP::GRAY> (const blob& src_data, blob& dest_data,
+                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
         src_offs += src_x0;
         dest_offs += dest_x0;
-        for (int x = 0; x < dest_w; ++x) {
-          const int src_x = x * src_w / dest_w;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = x * src_w / dest_w;
           dest_data[dest_offs + x] = src_data[src_offs + src_x];
         }
       }
 
       template<>
-      void row<BPP::RGB> (const std::vector<char>& src_data, std::vector<char>& dest_data,
-                          int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w) {
+      void row<BPP::RGB> (const blob& src_data, blob& dest_data,
+                          uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
         src_offs += src_x0 * 3;
         dest_offs += dest_x0 * 3;
-        for (int x = 0; x < dest_w; ++x) {
-          const int src_x = src_offs + (x * src_w / dest_w) * 3;
-          const int dest_x = dest_offs + x * 3;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 3;
+          const uint32_t dest_x = dest_offs + x * 3;
           dest_data[dest_x] = src_data[src_x];
           dest_data[dest_x + 1] = src_data[src_x + 1];
           dest_data[dest_x + 2] = src_data[src_x + 2];
@@ -63,13 +64,13 @@ namespace gui {
       }
 
       template<>
-      void row<BPP::RGBA> (const std::vector<char>& src_data, std::vector<char>& dest_data,
-                           int src_offs, int dest_offs, int src_x0, int dest_x0, int src_w, int dest_w) {
+      void row<BPP::RGBA> (const blob& src_data, blob& dest_data,
+                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
         src_offs += src_x0 * 4;
         dest_offs += dest_x0 * 4;
-        for (int x = 0; x < dest_w; ++x) {
-          const int src_x = src_offs + (x * src_w / dest_w) * 4;
-          const int dest_x = dest_offs + x * 4;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 4;
+          const uint32_t dest_x = dest_offs + x * 4;
           dest_data[dest_x] = src_data[src_x];
           dest_data[dest_x + 1] = src_data[src_x + 1];
           dest_data[dest_x + 2] = src_data[src_x + 2];
@@ -78,20 +79,20 @@ namespace gui {
       }
 
       template<>
-      void sub<BPP::BW> (const std::vector<char>& src_data,
+      void sub<BPP::BW> (const blob& src_data,
                          const bitmap_info& src_bmi,
-                         std::vector<char>& dest_data,
+                         blob& dest_data,
                          const bitmap_info& dest_bmi,
-                         int src_x0, int src_y0,
-                         int src_w, int src_h,
-                         int dest_x0, int dest_y0,
-                         int dest_w, int dest_h) {
-        for (int y = 0; y < dest_h; ++y) {
-          const int src_y = src_y0 + y * src_h / dest_h;
-          cbyteptr src = reinterpret_cast<cbyteptr>(src_data.data() + (src_y * src_bmi.bytes_per_line));
-          byteptr dst = reinterpret_cast<byteptr>(dest_data.data() + dest_y0 + (y * dest_bmi.bytes_per_line));
-          for (int x = 0; x < dest_w; ++x) {
-            const int src_x = x * src_w / dest_w;
+                         uint32_t src_x0, uint32_t src_y0,
+                         uint32_t src_w, uint32_t src_h,
+                         uint32_t dest_x0, uint32_t dest_y0,
+                         uint32_t dest_w, uint32_t dest_h) {
+        for (uint_fast32_t y = 0; y < dest_h; ++y) {
+          const uint32_t src_y = src_y0 + y * src_h / dest_h;
+          cbyteptr src = src_data.data() + (src_y * src_bmi.bytes_per_line);
+          byteptr dst = dest_data.data() + dest_y0 + (y * dest_bmi.bytes_per_line);
+          for (uint_fast32_t x = 0; x < dest_w; ++x) {
+            const uint32_t src_x = x * src_w / dest_w;
             byte b = convert::bpp::get<BPP::BW>(src, src_x0 + src_x);
             convert::bpp::set<BPP::BW>(dst, dest_x0 + x, b);
           }
@@ -127,7 +128,12 @@ namespace gui {
       if (is_valid()) {
         BITMAP bmp;
         GetObject(get_id(), sizeof (BITMAP), &bmp);
-        return {bmp.bmWidth, bmp.bmHeight, bmp.bmWidthBytes, BPP(bmp.bmBitsPixel)};
+        return { 
+          static_cast<uint32_t>(bmp.bmWidth),
+          static_cast<uint32_t>(bmp.bmHeight),
+          static_cast<uint32_t>(bmp.bmWidthBytes),
+          BPP(bmp.bmBitsPixel)
+        };
       }
 #endif
 #ifdef X11
@@ -137,7 +143,12 @@ namespace gui {
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, get_id(), &root, &x, &y, &w, &h, &b, &d);
-        return {w, h, calc_bytes_per_line(w, BPP(d)), BPP(d)};
+        return {
+          static_cast<uint32_t>(w),
+          static_cast<uint32_t>(h),
+          calc_bytes_per_line(w, BPP(d)),
+          BPP(d)
+        };
       }
 #endif
       return {0, 0, 0, BPP::Undefined};
@@ -147,7 +158,7 @@ namespace gui {
       return get_info().size();
     }
 
-    int bitmap::depth () const {
+    byte bitmap::depth () const {
       return get_info().depth();
     }
 
@@ -159,7 +170,7 @@ namespace gui {
       create_compatible(sz.os_width(), sz.os_height());
     }
 
-    void bitmap::create_compatible (int w, int h) {
+    void bitmap::create_compatible (uint32_t w, uint32_t h) {
 #if WIN32
       HDC dc = GetDC(NULL);
       set_id(CreateCompatibleBitmap(dc, w, h));
@@ -183,28 +194,40 @@ namespace gui {
       create(sz.os_width(), sz.os_height(), bpp);
     }
 
-    void bitmap::create (int w, int h, BPP bpp) {
+    void bitmap::create (uint32_t w, uint32_t h, BPP bpp) {
       auto sz = size();
       if ((sz.os_width() == w) && (sz.os_height() == h) && (bits_per_pixel() == bpp)) {
         return;
       }
       clear();
 #if WIN32
-      set_id(CreateBitmap(w, h, 1, static_cast<int>(bpp), NULL));
+      set_id(CreateBitmap(w, h, 1, static_cast<byte>(bpp), NULL));
 #endif
 #ifdef X11
       auto display = core::global::get_instance();
       auto visual = DefaultRootWindow(display);
-      set_id(XCreatePixmap(display, visual, w, h, static_cast<int>(bpp)));
+      set_id(XCreatePixmap(display, visual, w, h, static_cast<byte>(bpp)));
 #endif
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
     }
 
-    void bitmap::create (const std::vector<char>& data, const bitmap_info& bmi) {
+    void bitmap::create (const blob& data, const bitmap_info& bmi) {
 #if WIN32
-      set_id(CreateBitmap(w, h, 1, static_cast<int>(bpp), data.data()));
+      const auto bpl = calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      if (bmi.bytes_per_line == bpl) {
+        set_id(CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data.data()));
+      } else {
+        // realign bits
+        bitmap_info bmi2 = bmi;
+        bmi2.bytes_per_line = bpl;
+        blob data2(bmi2.mem_size());
+        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+          memcpy(data2.data() + y * bpl, data.data() + y * bmi.bytes_per_line, bmi.bytes_per_line);
+        }
+        set_id(CreateBitmap(bmi2.width, bmi2.height, 1, bmi2.depth(), data2.data()));
+      }
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
@@ -218,7 +241,7 @@ namespace gui {
     void bitmap::copy_from (const bitmap& rhs) {
       if (rhs) {
         bitmap_info bmi;
-        std::vector<char> data;
+        blob data;
         rhs.get_data(data, bmi);
         create(bmi.size(), bmi.bits_per_pixel);
         put_data(data, bmi);
@@ -230,7 +253,7 @@ namespace gui {
     void bitmap::put (const bitmap& rhs) {
       if (rhs) {
         bitmap_info bmi;
-        std::vector<char> data;
+        blob data;
         rhs.get_data(data, bmi);
         put_data(data, bmi);
       } else {
@@ -238,13 +261,13 @@ namespace gui {
       }
     }
 
-    template<int D, int M>
-    int up_modulo (int v) {
-      int r = (v + D - 1) / D;
+    template<uint32_t D, uint32_t M>
+    uint32_t up_modulo (uint32_t v) {
+      uint32_t r = (v + D - 1) / D;
       return r + (r % M ? M - r % M : 0);
     }
 
-    int bitmap::calc_bytes_per_line (int w, BPP bpp) {
+    uint32_t bitmap::calc_bytes_per_line (uint32_t w, BPP bpp) {
 #ifdef WIN32
       switch (bpp) {
       case BPP::BW:
@@ -258,7 +281,7 @@ namespace gui {
       case BPP::Undefined:
         break;
       }
-      return ((((w * static_cast<int>(bpp)) + 31) & ~31) >> 3);
+      return ((((w * static_cast<byte>(bpp)) + 31) & ~31) >> 3);
 #endif // WIN32
 #ifdef X11
       switch (bpp) {
@@ -277,7 +300,7 @@ namespace gui {
 #endif // X11
     }
 
-    void put_bmp_data (os::bitmap id, const std::vector<char>& src, const bitmap_info& bmi) {
+    void put_bmp_data (os::bitmap id, const blob& src, const bitmap_info& bmi) {
 #if WIN32
       /*int ret = */ SetBitmapBits(id, (DWORD)src.size(), src.data());
 #endif
@@ -309,11 +332,11 @@ namespace gui {
 #endif
     }
 
-    bitmap_info bitmap::convert (const std::vector<char>& src, const bitmap_info& bmi, std::vector<char>& dst, BPP dst_bpp) {
+    bitmap_info bitmap::convert (const blob& src, const bitmap_info& bmi, blob& dst, BPP dst_bpp) {
       const auto w = bmi.width;
       const auto h = bmi.height;
-      const int src_bpl = bmi.bytes_per_line;
-      const int dst_bpl = calc_bytes_per_line(w, dst_bpp);
+      const uint32_t src_bpl = bmi.bytes_per_line;
+      const uint32_t dst_bpl = calc_bytes_per_line(w, dst_bpp);
 
       dst.resize(dst_bpl * h);
 
@@ -361,15 +384,15 @@ namespace gui {
       return {w, h, dst_bpl, dst_bpp};
     }
 
-    void bitmap::put_data (const std::vector<char>& src_data, const bitmap_info& src_bmi) {
+    void bitmap::put_data (const blob& src_data, const bitmap_info& src_bmi) {
       const bitmap_info bmi = get_info();
-      const int dst_bpl = bmi.bytes_per_line;
-      const int src_bpl = src_bmi.bytes_per_line;
+      const uint32_t dst_bpl = bmi.bytes_per_line;
+      const uint32_t src_bpl = src_bmi.bytes_per_line;
 
       if ((bmi.bits_per_pixel == src_bmi.bits_per_pixel) && (dst_bpl == src_bpl)) {
         put_bmp_data(get_id(), src_data, src_bmi);
       } else {
-        std::vector<char> dst;
+        blob dst;
         bitmap_info dst_bmi = convert(src_data, src_bmi, dst, bmi.bits_per_pixel);
         put_bmp_data(get_id(), dst, dst_bmi);
 
@@ -388,13 +411,18 @@ namespace gui {
     }
 #endif
 
-    void bitmap::get_data (std::vector<char>& data, bitmap_info& bmi) const {
+    void bitmap::get_data (blob& data, bitmap_info& bmi) const {
 #if WIN32
       BITMAP bmp;
       GetObject(get_id(), sizeof (BITMAP), &bmp);
-      bmi = {bmp.bmWidth, bmp.bmHeight, bmp.bmWidthBytes, BPP(bmp.bmBitsPixel)};
-      data.resize(bmp.bmHeight, bmp.bmWidthBytes);
-      /*int dst_bpl = */ calc_bytes_per_line(w, bpp);
+      bmi = { 
+        static_cast<uint32_t>(bmp.bmWidth),
+        static_cast<uint32_t>(bmp.bmHeight),
+        static_cast<uint32_t>(bmp.bmWidthBytes),
+        BPP(bmp.bmBitsPixel)
+      };
+      data.resize(bmp.bmHeight * bmp.bmWidthBytes);
+      //uint32_t dst_bpl = calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       int ret = GetBitmapBits(get_id(), (LONG)data.size(), data.data());
       if (ret != data.size()) {
         throw std::runtime_error("get image data failed");
@@ -405,10 +433,10 @@ namespace gui {
       auto display = core::global::get_instance();
       XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
       if (im) {
-        bmi = {static_cast<unsigned int>(im->width), static_cast<unsigned int>(im->height), im->bytes_per_line, BPP(im->bits_per_pixel)};
-        const int n = im->height * im->bytes_per_line;
+        bmi = {static_cast<uint32_t>(im->width), static_cast<uint32_t>(im->height), im->bytes_per_line, BPP(im->bits_per_pixel)};
+        const size_t n = im->height * im->bytes_per_line;
         if (im->bits_per_pixel != im->depth) {
-          std::vector<char> src;
+          blob src;
           src.assign(im->data, im->data + n);
           bmi = convert(src, bmi, data, BPP(im->depth));
         } else {
@@ -423,9 +451,9 @@ namespace gui {
 
     void bitmap::invert () {
       bitmap_info bmi;
-      std::vector<char> data;
+      blob data;
       get_data(data, bmi);
-      for (char& c : data) {
+      for (auto& c : data) {
         c = ~c;
       }
       put_data(data, bmi);
@@ -435,7 +463,7 @@ namespace gui {
     void bitmap::copy_from (const bitmap& src_img,
                             const core::rectangle& src_rect,
                             const core::point& dest_pt) {
-      std::vector<char> src_data,  dest_data;
+      blob src_data,  dest_data;
       bitmap_info src_bmi = src_img.get_info();
       bitmap_info dest_bmi;
 
@@ -450,15 +478,15 @@ namespace gui {
         tmp.get_data(src_data, src_bmi);
       }
 
-      const int src_x0 = std::max<int>(0, std::min<int>(src_bmi.width, ceil(src_rect.x())));
-      const int src_y0 = std::max<int>(0, std::min<int>(src_bmi.height, ceil(src_rect.y())));
-      const int src_w = std::min<int>(src_bmi.width - src_x0, ceil(src_rect.width()));
-      const int src_h = std::min<int>(src_bmi.height - src_y0, ceil(src_rect.height()));
+      const uint32_t src_x0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width, roundup<uint32_t>(src_rect.x())));
+      const uint32_t src_y0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height, roundup<uint32_t>(src_rect.y())));
+      const uint32_t src_w = std::min<uint32_t>(src_bmi.width - src_x0, roundup<uint32_t>(src_rect.width()));
+      const uint32_t src_h = std::min<uint32_t>(src_bmi.height - src_y0, roundup<uint32_t>(src_rect.height()));
 
-      const int dest_x0 = std::max<int>(0, std::min<int>(dest_bmi.width, ceil(dest_pt.x())));
-      const int dest_y0 = std::max<int>(0, std::min<int>(dest_bmi.height, ceil(dest_pt.y())));
-      const int dest_w = std::min<int>(dest_bmi.width - dest_x0, src_w);
-      const int dest_h = std::min<int>(dest_bmi.height - dest_y0, src_h);
+      const uint32_t dest_x0 = std::max<uint32_t>(0, std::min<uint32_t>(dest_bmi.width, roundup<uint32_t>(dest_pt.x())));
+      const uint32_t dest_y0 = std::max<uint32_t>(0, std::min<uint32_t>(dest_bmi.height, roundup<uint32_t>(dest_pt.y())));
+      const uint32_t dest_w = std::min<uint32_t>(dest_bmi.width - dest_x0, src_w);
+      const uint32_t dest_h = std::min<uint32_t>(dest_bmi.height - dest_y0, src_h);
 
       if ((dest_w < 1) ||(dest_h < 1)) {
         return;
@@ -490,7 +518,7 @@ namespace gui {
     void bitmap::stretch_from (const bitmap& src_img,
                                const core::rectangle& src_rect,
                                const core::rectangle& dest_rect) {
-      std::vector<char> src_data,  dest_data;
+      blob src_data,  dest_data;
       bitmap_info src_bmi = src_img.get_info();
       bitmap_info dest_bmi;
 
@@ -505,15 +533,15 @@ namespace gui {
         tmp.get_data(src_data, src_bmi);
       }
 
-      const int src_x0 = std::max<int>(0, std::min<int>(src_bmi.width, ceil(src_rect.x())));
-      const int src_y0 = std::max<int>(0, std::min<int>(src_bmi.height, ceil(src_rect.y())));
-      const int src_w = std::max<int>(0, std::min<int>(src_bmi.width - src_x0, ceil(src_rect.width())));
-      const int src_h = std::max<int>(0, std::min<int>(src_bmi.height - src_y0, ceil(src_rect.height())));
+      const uint32_t src_x0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width, roundup<uint32_t>(src_rect.x())));
+      const uint32_t src_y0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height, roundup<uint32_t>(src_rect.y())));
+      const uint32_t src_w = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width - src_x0, roundup<uint32_t>(src_rect.width())));
+      const uint32_t src_h = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height - src_y0, roundup<uint32_t>(src_rect.height())));
 
-      const int dest_x0 = std::max<int>(0, std::min<int>(dest_bmi.width, ceil(dest_rect.x())));
-      const int dest_y0 = std::max<int>(0, std::min<int>(dest_bmi.height, ceil(dest_rect.y())));
-      const int dest_w = std::min<int>(dest_bmi.width - dest_x0, ceil(dest_rect.width()));
-      const int dest_h = std::min<int>(dest_bmi.height - dest_y0, ceil(dest_rect.height()));
+      const uint32_t dest_x0 = std::max<uint32_t>(0, std::min<uint32_t>(dest_bmi.width, roundup<uint32_t>(dest_rect.x())));
+      const uint32_t dest_y0 = std::max<uint32_t>(0, std::min<uint32_t>(dest_bmi.height, roundup<uint32_t>(dest_rect.y())));
+      const uint32_t dest_w = std::min<uint32_t>(dest_bmi.width - dest_x0, roundup<uint32_t>(dest_rect.width()));
+      const uint32_t dest_h = std::min<uint32_t>(dest_bmi.height - dest_y0, roundup<uint32_t>(dest_rect.height()));
 
       if ((dest_w < 1) ||(dest_h < 1)) {
         return;

@@ -235,16 +235,16 @@ namespace gui {
 
         const int edge = 4;
 
-        if (r.size() <= core::size(edge, edge)) {
+        if (r.size() <= core::size(core::size_type(edge), core::size_type(edge))) {
           return;
         }
 
         typedef draw::graymap bmp_type;
 
-        bmp_type buffer(ceil(r.width()), ceil(r.height()));
+        bmp_type buffer(roundup<uint32_t>(r.width()), roundup<uint32_t>(r.height()));
         bmp_type img = get_button_frame(state.pushed);
 
-        std::vector<char> src_data,  dest_data;
+        blob src_data,  dest_data;
         bitmap_info src_bmi, dest_bmi;
 
         buffer.get_data(dest_data, dest_bmi);

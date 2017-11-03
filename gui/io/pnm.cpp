@@ -103,15 +103,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P6>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P6>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<6> data size missmatch");
       }
       int step = bmi.depth() / 8;
-      for (int y = 0; y < bmi.height; ++y) {
-        const char* d = (data.data() + (y * bmi.bytes_per_line));
-        for (int x = 0; x < bmi.width; ++x) {
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        const char* d = reinterpret_cast<const char*>(data.data() + (y * bmi.bytes_per_line));
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           out.write(d + 2, 1);
           out.write(d + 1, 1);
           out.write(d, 1);
@@ -122,7 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P6>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P6>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       if (bmi.bits_per_pixel != BPP::RGB) {
         bmi.bits_per_pixel = BPP::RGBA;
       }
@@ -130,10 +130,10 @@ namespace gui {
       const std::size_t n = bmi.bytes_per_line * bmi.height;
       data.resize(n);
       std::noskipws(in);
-      const int step = static_cast<int>(bmi.bits_per_pixel) / 8;
-      for (int y = 0; y < bmi.height; ++y) {
-        char* d = (data.data() + (y * bmi.bytes_per_line));
-        for (int x = 0; x < bmi.width; ++x) {
+      const int step = bmi.depth() / 8;
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        char* d = reinterpret_cast<char*>(data.data() + (y * bmi.bytes_per_line));
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           in.read(d + 2, 1);
           in.read(d + 1, 1);
           in.read(d, 1);
@@ -147,24 +147,24 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P5>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P5>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<5> data size missmatch");
       }
-      out.write(data.data(), n);
+      out.write(reinterpret_cast<const char*>(data.data()), n);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P5>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P5>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::GRAY;
       bmi.bytes_per_line = bmi.width;
       const std::size_t n = bmi.mem_size();
       data.resize(n);
       std::noskipws(in);
       auto p1 = in.tellg();
-      in.read(data.data(), n);
+      in.read(reinterpret_cast<char*>(data.data()), n);
       auto p2 = in.tellg();
       if (p2 - p1 != n) {
         throw std::runtime_error("not enought input data in load_pnm<5>");
@@ -173,35 +173,34 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<bit_order O>
-    void write_pnm4_line (std::ostream& out, const char* data, int bytes);
+    void write_pnm4_line (std::ostream& out, const byte* data, int bytes);
 
     template<>
-    inline void write_pnm4_line<bit_order::msb>(std::ostream& out, const char* data, int bytes) {
-      out.write(data, bytes);
+    inline void write_pnm4_line<bit_order::msb>(std::ostream& out, const byte* data, int bytes) {
+      out.write(reinterpret_cast<const char*>(data), bytes);
     }
 
     template<>
-    inline void write_pnm4_line<bit_order::lsb>(std::ostream& out, const char* data, int bytes) {
-      cbyteptr i = reinterpret_cast<cbyteptr>(data);
+    inline void write_pnm4_line<bit_order::lsb>(std::ostream& out, const byte* data, int bytes) {
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
-        line[x] = reverse_bit_order(i[x]) ^ 0xff;
+        line[x] = reverse_bit_order(data[x]) ^ 0xff;
       }
       out.write(reinterpret_cast<char*>(line.data()), bytes);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P4>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P4>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<4> data size missmatch");
       }
       if (bmi.width == bmi.bytes_per_line * 8) {
-        out.write(data.data(), n);
+        out.write(reinterpret_cast<const char*>(data.data()), n);
       } else {
         int bytes = (bmi.width + 7) / 8;
-        for (int y = 0; y < bmi.height; ++y) {
+        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
           write_pnm4_line<os::bitmap_bit_order>(out, data.data() + (y * bmi.bytes_per_line), bytes);
         }
       }
@@ -209,35 +208,34 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<bit_order O>
-    void load_pnm4_line (std::istream& in, char* data, int bytes);
+    void load_pnm4_line (std::istream& in, byte* data, int bytes);
 
     template<>
-    inline void load_pnm4_line<bit_order::msb>(std::istream& in, char* data, int bytes) {
-      in.read(data, bytes);
+    inline void load_pnm4_line<bit_order::msb>(std::istream& in, byte* data, int bytes) {
+      in.read(reinterpret_cast<char*>(data), bytes);
     }
 
     template<>
-    inline void load_pnm4_line<bit_order::lsb>(std::istream& in, char* data, int bytes) {
-      in.read(data, bytes);
-      byteptr i = reinterpret_cast<byteptr>(data);
+    inline void load_pnm4_line<bit_order::lsb>(std::istream& in, byte* data, int bytes) {
+      in.read(reinterpret_cast<char*>(data), bytes);
       for (int x = 0; x < bytes; ++x) {
-        i[x] = reverse_bit_order(i[x]) ^ 0xff;
+        data[x] = reverse_bit_order(data[x]) ^ 0xff;
       }
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P4>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P4>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::BW;
       bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
       std::noskipws(in);
       if (bmi.width == bmi.bytes_per_line * 8) {
-        in.read(data.data(), n);
+        in.read(reinterpret_cast<char*>(data.data()), n);
       } else {
         int bytes = (bmi.width + 7) / 8;
-        for (int y = 0; y < bmi.height; ++y) {
+        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
           load_pnm4_line<os::bitmap_bit_order>(in, data.data() + (y * bmi.bytes_per_line), bytes);
         }
       }
@@ -245,16 +243,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P3>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P3>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<3> data size missmatch");
       }
-      cbyteptr bdata = reinterpret_cast<cbyteptr>(data.data());
+      cbyteptr bdata = data.data();
       int step = bmi.depth() / 8;
-      for (int h = 0; h < bmi.height; ++h) {
+      for (uint_fast32_t h = 0; h < bmi.height; ++h) {
         cbyteptr i = bdata + (h * bmi.bytes_per_line);
-        for (int w = 0; w < bmi.width; ++w) {
+        for (uint_fast32_t w = 0; w < bmi.width; ++w) {
           cbyteptr d = i + w * step;
           out << static_cast<int>(d[2]) << ' ' << static_cast<int>(d[1]) << ' ' << static_cast<int>(d[0]) << ' ';
         }
@@ -264,7 +262,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P3>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P3>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       if (bmi.bits_per_pixel != BPP::RGB) {
         bmi.bits_per_pixel = BPP::RGBA;
       }
@@ -273,11 +271,11 @@ namespace gui {
       data.resize(n);
 
       std::skipws(in);
-      byteptr bdata = reinterpret_cast<byteptr>(data.data());
+      byteptr bdata = data.data();
       int step = bmi.depth() / 8;
-      for (int y = 0; y < bmi.height; ++y) {
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         byteptr i = bdata + (y * bmi.bytes_per_line);
-        for (int x = 0; x < bmi.width; ++x) {
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           byteptr d = i + x * step;
           int d0, d1, d2;
           in >> d2 >> d1 >> d0;
@@ -293,14 +291,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P2>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P2>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<2> data size missmatch");
       }
-      for (int h = 0; h < bmi.height; ++h) {
-        cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (h * bmi.bytes_per_line));
-        for (int w = 0; w < bmi.width; ++w) {
+      for (uint_fast32_t h = 0; h < bmi.height; ++h) {
+        cbyteptr i = data.data() + (h * bmi.bytes_per_line);
+        for (uint_fast32_t w = 0; w < bmi.width; ++w) {
           out << static_cast<int>(i[w]) << ' ';
         }
         out << std::endl;
@@ -309,16 +307,16 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P2>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P2>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::GRAY;
       bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
 
       std::skipws(in);
-      for (int y = 0; y < bmi.height; ++y) {
-        byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bmi.bytes_per_line));
-        for (int x = 0; x < bmi.width; ++x) {
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        byteptr i = data.data() + (y * bmi.bytes_per_line);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int v;
           in >> v;
           i[x] = static_cast<byte>(v);
@@ -342,14 +340,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P1>(std::ostream& out, const std::vector<char>& data, const draw::bitmap_info& bmi) {
+    void save_pnm<PNM::P1>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
       const std::size_t n = bmi.mem_size();
       if (data.size() != n) {
         throw std::invalid_argument("save_pnm<1> data size missmatch");
       }
-      for (int y = 0; y < bmi.height; ++y) {
-        cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bmi.bytes_per_line));
-        for (int x = 0; x < bmi.width; ++x) {
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        cbyteptr i = data.data() + (y * bmi.bytes_per_line);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           write_pnm1_line<os::bitmap_bit_order>(out, i[x / 8], system_bw_bits::mask[x % 8]);
         }
         out << std::endl;
@@ -372,17 +370,17 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P1>(std::istream& in, std::vector<char>& data, draw::bitmap_info& bmi) {
+    void load_pnm<PNM::P1>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::BW;
       bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
 
       std::skipws(in);
-      for (int y = 0; y < bmi.height; ++y) {
-        byteptr i = reinterpret_cast<byteptr>(data.data() + (y * bmi.bytes_per_line));
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        byteptr i = data.data() + (y * bmi.bytes_per_line);
         int value = 0;
-        for (int x = 0; x < bmi.width; ++x) {
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           char v;
           in >> v;
           const int s = x % 8;

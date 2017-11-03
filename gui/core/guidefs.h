@@ -45,6 +45,8 @@
 
 namespace gui {
 
+  typedef std::vector<byte> blob;
+
   namespace core {
 
     namespace global {
@@ -96,7 +98,7 @@ namespace gui {
   };
 
 
-  enum class BPP : unsigned char {
+  enum class BPP : byte {
     Undefined = 0,
     BW = 1,
     GRAY = 8,
@@ -113,13 +115,13 @@ namespace gui {
     return (o == orientation::vertical) ? orientation::horizontal : orientation::vertical;
   }
 
-  enum class origin : unsigned char {
+  enum class origin : byte {
     start,
     center,
     end
   };
 
-  enum class alignment : unsigned char {
+  enum class alignment : byte {
     left,
     hcenter,
     right,

@@ -568,7 +568,7 @@ void file_save_dialog (win::container& parent,
   }));
 
   files.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
-    input_line.set_text(files.get_selected_path().filename());
+    input_line.set_text(files.get_selected_path().filename().string());
   }));
 
   open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
@@ -636,7 +636,7 @@ void my_main_window::open () {
   file_open_dialog(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
       gui::draw::bitmap img;
-      gui::io::load_pnm(file, img);
+      gui::io::load_pnm(file.string(), img);
       rgba[0] = img;
       bmp[0] = img;
       gray[0] = img;
@@ -655,12 +655,12 @@ void my_main_window::save_as () {
                     ostreamfmt("File '" << file << "' already exists!\nDo you want to overwrite the exiting file?"),
                     "Yes", "No", [&] (bool yes) {
         if (yes) {
-          gui::io::src::save_pnm_src(file, gray[0], "src");
+          gui::io::src::save_pnm_src(file.string(), gray[0], "src");
         }
         take_focus();
       });
     } else {
-      gui::io::src::save_pnm_src(file, gray[0], "src");
+      gui::io::src::save_pnm_src(file.string(), gray[0], "src");
       take_focus();
     }
   });

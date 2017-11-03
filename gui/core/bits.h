@@ -36,6 +36,11 @@ namespace gui {
   typedef byte* byteptr;
   typedef const byte* cbyteptr;
 
+  typedef uint16_t word;
+  typedef word* wordptr;
+  typedef const word* cwordptr;
+
+  // --------------------------------------------------------------------------
   enum class bit_order : bool {
     lsb,
     msb
@@ -120,6 +125,11 @@ namespace gui {
   template<typename T>
   constexpr T div_ceil (T num, T div) {
     return (num - 1 + div) / div;
+  }
+
+  template<typename T, typename U>
+  inline T roundup (U v) {
+    return static_cast<T>(ceil(v));
   }
 
   // --------------------------------------------------------------------------

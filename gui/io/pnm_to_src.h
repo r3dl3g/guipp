@@ -41,12 +41,12 @@ namespace gui {
       void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
       template<BPP>
-      void save_pnm_src (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl);
+      void save_pnm_src (std::ostream& out, const blob& data, int width, int height, int bpl);
 
-      template<> void save_pnm_src<BPP::BW>(std::ostream&, const std::vector<char>&, int, int, int);
-      template<> void save_pnm_src<BPP::GRAY>(std::ostream&, const std::vector<char>&, int, int, int);
-      template<> void save_pnm_src<BPP::RGB>(std::ostream&, const std::vector<char>&, int, int, int);
-      template<> void save_pnm_src<BPP::RGBA>(std::ostream&, const std::vector<char>&, int, int, int);
+      template<> void save_pnm_src<BPP::BW>(std::ostream&, const blob&, int, int, int);
+      template<> void save_pnm_src<BPP::GRAY>(std::ostream&, const blob&, int, int, int);
+      template<> void save_pnm_src<BPP::RGB>(std::ostream&, const blob&, int, int, int);
+      template<> void save_pnm_src<BPP::RGBA>(std::ostream&, const blob&, int, int, int);
 
       void save_pnm_src (std::ostream& out, const draw::bitmap& bmp, const std::string& name);
       void save_pnm_src (const std::string& filename, const draw::bitmap& bmp, const std::string& name);

@@ -54,14 +54,14 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void save_pnm_src_rgb (std::ostream& out, const std::vector<char>& data, int width, int height, int bpl, int step) {
+      void save_pnm_src_rgb (std::ostream& out, const blob& data, int width, int height, int bpl, int step) {
         const std::size_t n = bpl * height;
         if (data.size() != n) {
           throw std::invalid_argument("save_pnm_src_rgb data size missmatch");
         }
         out.fill(' ');
         for (int h = 0; h < height; ++h) {
-          cbyteptr d = reinterpret_cast<cbyteptr>(data.data() + (h * bpl));
+          cbyteptr d = data.data() + (h * bpl);
           for (int w = 0; w < width; ++w) {
             out << std::setw(3) << (int)(d[2]) << ", "
                 << std::setw(3) << (int)(d[1]) << ", "
@@ -79,26 +79,26 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      void save_pnm_src<BPP::RGBA>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl) {
+      void save_pnm_src<BPP::RGBA>(std::ostream& out, const blob& data, int width, int height, int bpl) {
         save_pnm_src_rgb(out, data, width, height, bpl, static_cast<int>(BPP::RGBA) / 8);
       }
 
       // --------------------------------------------------------------------------
       template<>
-      void save_pnm_src<BPP::RGB>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl) {
+      void save_pnm_src<BPP::RGB>(std::ostream& out, const blob& data, int width, int height, int bpl) {
         save_pnm_src_rgb(out, data, width, height, bpl, static_cast<int>(BPP::RGB) / 8);
       }
 
       // --------------------------------------------------------------------------
       template<>
-      void save_pnm_src<BPP::GRAY>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl) {
+      void save_pnm_src<BPP::GRAY>(std::ostream& out, const blob& data, int width, int height, int bpl) {
         const std::size_t n = bpl * height;
         if (data.size() != n) {
           throw std::invalid_argument("save_pnm_src<GRAY> data size missmatch");
         }
         out.fill(' ');
         for (int h = 0; h < height; ++h) {
-          cbyteptr d = reinterpret_cast<cbyteptr>(data.data() + (h * bpl));
+          cbyteptr d = data.data() + (h * bpl);
           for (int w = 0; w < width; ++w) {
             out << std::setw(3) << (int)(d[w]);
             if ((h == height - 1) && (w == width - 1)) {
@@ -135,14 +135,14 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      void save_pnm_src<BPP::BW>(std::ostream& out, const std::vector<char>& data, int width, int height, int bpl) {
+      void save_pnm_src<BPP::BW>(std::ostream& out, const blob& data, int width, int height, int bpl) {
         const std::size_t n = bpl * height;
         if (data.size() != n) {
           throw std::invalid_argument("save_pnm_srcBW> data size missmatch");
         }
         const int bytes = (width + 7) / 8;
         for (int y = 0; y < height; ++y) {
-          cbyteptr i = reinterpret_cast<cbyteptr>(data.data() + (y * bpl));
+          cbyteptr i = data.data() + (y * bpl);
           for (int x = 0; x < bytes; ++x) {
             write_byte(out, i[x]);
             if ((y == height - 1) && (x == bytes - 1)) {
@@ -167,7 +167,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       void opnm::write (std::ostream& out) const {
         draw::bitmap_info bmi;
-        std::vector<char> data;
+        blob data;
         bmp.get_data(data, bmi);
         switch (bmi.bits_per_pixel) {
         case BPP::BW:

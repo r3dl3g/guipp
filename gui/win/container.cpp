@@ -501,7 +501,7 @@ namespace gui {
 #endif // X11
 
 #ifdef WIN32
-        if (e.type == WM_HOTKEY) {
+        if (e.type == WM_KEYDOWN) {
 #endif // WIN32
 #ifdef X11
         if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {

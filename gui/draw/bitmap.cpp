@@ -634,10 +634,10 @@ namespace gui {
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
                            uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
 
-      const int target_right = dest_bmi.width - right;
-      const int target_bottom = dest_bmi.height - bottom;
-      const int source_right = src_bmi.width - right;
-      const int source_bottom = src_bmi.height - bottom;
+      const uint32_t target_right = dest_bmi.width - right;
+      const uint32_t target_bottom = dest_bmi.height - bottom;
+      const uint32_t source_right = src_bmi.width - right;
+      const uint32_t source_bottom = src_bmi.height - bottom;
 
       // top left
       copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
@@ -656,10 +656,10 @@ namespace gui {
                      source_right, source_bottom, target_right, target_bottom, right, bottom);
 
       if ((target_right > right) && (target_bottom > bottom)) {
-        const int target_inner_width = target_right - right;
-        const int target_inner_height = target_bottom - bottom;
-        const int source_inner_width = source_right - right;
-        const int source_inner_height = source_bottom - bottom;
+        const uint32_t target_inner_width = target_right - right;
+        const uint32_t target_inner_height = target_bottom - bottom;
+        const uint32_t source_inner_width = source_right - right;
+        const uint32_t source_inner_height = source_bottom - bottom;
 
         // top center
         stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,

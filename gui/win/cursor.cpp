@@ -92,6 +92,7 @@ namespace gui {
 
     const cursor& cursor::get (win::cursor_type t) {
       switch (t) {
+      default:
       case cursor_type::none:       return cursor::none();
       case cursor_type::arrow:      return cursor::arrow();
       case cursor_type::size_h:     return cursor::size_h();

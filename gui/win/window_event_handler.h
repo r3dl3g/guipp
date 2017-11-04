@@ -587,7 +587,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     inline unsigned int get_state (const core::event& e) {
-      return event_type_cast<T>(e).state;
+      return event_type_cast<T>(e).state & ~0x10;
     }
 
     // --------------------------------------------------------------------------

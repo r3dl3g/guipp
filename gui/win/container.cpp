@@ -471,6 +471,10 @@ namespace gui {
 #endif // X11
 
     void modal_window::run_modal () {
+      run_modal({});
+    }
+
+    void modal_window::run_modal (std::initializer_list<hot_key_action> hot_keys) {
       LogDebug << "Enter modal loop";
 
       os::window win = get_id();
@@ -481,31 +485,37 @@ namespace gui {
 
       run_loop(is_modal, [&, win](const core::event & e)->bool {
 #ifdef X11
-                 switch (e.type) {
-                 case MotionNotify:
-                 case ButtonPress:
-                 case ButtonRelease:
-                 case FocusIn:
-                 case FocusOut:
-                 case EnterNotify:
-                 case LeaveNotify:
-                   return is_deeper_window(win, e.xany.window);
-                 case ClientMessage:
-                   LogDebug << "ClientMessage:" << e.xclient.message_type;
-                   break;
-                 }
+        switch (e.type) {
+        case MotionNotify:
+        case ButtonPress:
+        case ButtonRelease:
+        case FocusIn:
+        case FocusOut:
+        case EnterNotify:
+        case LeaveNotify:
+          return is_deeper_window(win, e.xany.window);
+        case ClientMessage:
+          LogDebug << "ClientMessage:" << e.xclient.message_type;
+          break;
+        }
 #endif // X11
 
 #ifdef WIN32
-                 if (e.type == WM_HOTKEY) {
+        if (e.type == WM_HOTKEY) {
 #endif // WIN32
 #ifdef X11
-                 if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
-#endif // X11
-                 return check_hot_key(e);
-               }
-               return false;
-               });
+        if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
+#endif // X11011
+          hot_key hk(get_key_symbol(e), get_key_state(e));
+          for (hot_key_action k : hot_keys) {
+            if (hk == k.hk) {
+              k.fn();
+              return true;
+            }
+          }
+        }
+        return false;
+      });
 
       LogDebug << "Exit modal loop";
     }

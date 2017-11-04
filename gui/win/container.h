@@ -125,6 +125,11 @@ namespace gui {
                    const core::rectangle& = core::rectangle::def);
     };
 
+    struct hot_key_action {
+      hot_key hk;
+      hot_key::call fn;
+    };
+
     // --------------------------------------------------------------------------
     class modal_window : public overlapped_window {
     public:
@@ -136,6 +141,7 @@ namespace gui {
 
       void end_modal ();
       void run_modal ();
+      void run_modal (std::initializer_list<hot_key_action> hot_keys);
 
     private:
       void init ();

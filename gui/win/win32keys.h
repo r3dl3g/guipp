@@ -30,6 +30,8 @@ namespace gui {
   namespace win {
 
     namespace state {
+      const os::key_state none = 0;
+
       const os::key_state left_button = MK_LBUTTON;
       const os::key_state middle_button = MK_MBUTTON;
       const os::key_state right_button = MK_RBUTTON;

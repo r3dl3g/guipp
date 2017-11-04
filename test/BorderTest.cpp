@@ -235,7 +235,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', core::bind_method(this, &my_main_window::cut), hot_key('A', state::control), false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', core::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
@@ -454,7 +454,9 @@ void yes_no_dialog (win::container& parent,
   content_view.set_children_visible();
   dialog.set_visible();
   parent.disable();
-  dialog.run_modal();
+  dialog.run_modal({ hot_key_action{ hot_key(keys::escape, state::none), [&] () {
+    dialog.end_modal();
+  }}});
   parent.enable();
   parent.take_focus();
 }

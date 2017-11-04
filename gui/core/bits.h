@@ -132,5 +132,10 @@ namespace gui {
     return static_cast<T>(ceil(v));
   }
 
+  template<typename T, typename U>
+  inline T rounddown (U v) {
+    return static_cast<T>(floor(v));
+  }
+
   // --------------------------------------------------------------------------
 } // namespace gui

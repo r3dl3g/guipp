@@ -458,10 +458,10 @@ namespace gui {
     os::rectangle rectangle::os () const {
       return {static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
 #ifdef WIN32
-              static_cast<os::point_type>(x2()), static_cast<os::point_type>(y2())
+        static_cast<os::point_type>(x2()), static_cast<os::point_type>(y2())
 #endif // Win32
 #ifdef X11
-              static_cast<os::size_type>(width()), static_cast<os::size_type>(height())
+        static_cast<os::size_type>(width()), static_cast<os::size_type>(height())
 #endif // X11
       };
     }

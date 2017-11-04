@@ -1544,8 +1544,8 @@ namespace gui {
       }
 
       void dots (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = place - core::size::one;
-        g.frame(draw::rectangle(r), pen(color::black, 1, pen::Style::dot));
+//        core::rectangle r = place - core::size::one;
+        g.frame(draw::rectangle(place), pen(color::black, 1, pen::Style::dot));
       }
 
       void lines (const draw::graphics& g, const core::rectangle& place) {

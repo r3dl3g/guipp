@@ -137,6 +137,7 @@ namespace gui {
 
     protected:
       bitmap (bitmap&& rhs);
+
       void operator= (bitmap&&);
 
       void create_compatible (uint32_t w, uint32_t h);
@@ -271,6 +272,26 @@ namespace gui {
 
       memmap image;
       maskmap mask;
+    };
+
+    // --------------------------------------------------------------------------
+    struct frame_image {
+      frame_image (const core::rectangle& r, const bitmap& img, uint32_t edge);
+      frame_image (const core::rectangle& r, const bitmap& img, uint32_t horizontal, uint32_t vertical);
+      frame_image (const core::rectangle& r, const bitmap& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
+
+      void operator() (const graphics&, const core::point&) const;
+
+    private:
+      const core::rectangle rect;
+      const bitmap& img;
+
+      uint32_t left;
+      uint32_t top;
+      uint32_t right;
+      uint32_t bottom;
+
+      void operator= (frame_image&) = delete;
     };
 
     // --------------------------------------------------------------------------

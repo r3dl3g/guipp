@@ -167,10 +167,13 @@ namespace gui {
 
       set_accept_focus(true);
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window * w){
-                                                                  if (w == this) {
-                                                                    forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
-                                                                  }
-                                                                }));
+        if (w == this) {
+          forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
+        }
+      }));
+      register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+        set_children_visible();
+      }));
     }
 
     bool container::is_sub_window (const window* child) const {

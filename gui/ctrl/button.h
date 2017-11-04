@@ -85,6 +85,9 @@ namespace gui {
                          bool focused,
                          bool enabled);
 
+      void simple_frame (const draw::graphics& graph,
+                         const core::rectangle& r);
+
       void flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,

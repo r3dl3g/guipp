@@ -37,6 +37,7 @@ namespace gui {
 
 #include <gui/ctrl/button_frame.h>
 #include <gui/ctrl/button_pressed_frame.h>
+#include <gui/ctrl/simple_frame.h>
 
   } // namespace image_data
 
@@ -59,12 +60,24 @@ namespace gui {
         return bmp;
       }
 
+      draw::graymap build_simple_frame_image () {
+        draw::graymap bmp;
+        std::istringstream in(make_string(image_data::simple_frame_bytes));
+        io::load_pnm(in, bmp);
+        return bmp;
+      }
+
     } // namespace detail
 
     const draw::graymap& get_button_frame (bool pressed) {
       static draw::graymap image(detail::build_frame_image(false));
       static draw::graymap image_pressed(detail::build_frame_image(true));
       return pressed ? image_pressed : image;
+    }
+
+    const draw::graymap& get_simple_frame () {
+      static draw::graymap image(detail::build_simple_frame_image());
+      return image;
     }
 
     button_state::button_state (bool pushed,
@@ -226,89 +239,22 @@ namespace gui {
       const draw::pen::Style dot_line_style = draw::pen::Style::dot;
 
       // --------------------------------------------------------------------------
+      void simple_frame (const draw::graphics& graph,
+                         const core::rectangle& r) {
+        graph.copy(draw::frame_image(r, get_simple_frame(), 3), r.top_left());
+      }
+
+      // --------------------------------------------------------------------------
       void button_frame (const draw::graphics& graph,
                          const core::rectangle& r,
                          const button_state& state,
                          bool focused,
                          bool enabled) {
-        using namespace draw;
-
-        const int edge = 4;
-
-        if (r.size() <= core::size(core::size_type(edge), core::size_type(edge))) {
-          return;
+        graph.copy(draw::frame_image(r, get_button_frame(false), 4), r.top_left());
+        if (state.pushed) {
+          draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }
-
-        typedef draw::graymap bmp_type;
-
-        bmp_type buffer(roundup<uint32_t>(r.width()), roundup<uint32_t>(r.height()));
-        bmp_type img = get_button_frame(state.pushed);
-
-        blob src_data,  dest_data;
-        bitmap_info src_bmi, dest_bmi;
-
-        buffer.get_data(dest_data, dest_bmi);
-        img.get_data(src_data, src_bmi);
-
-        const int target_right = dest_bmi.width - edge;
-        const int target_bottom = dest_bmi.height - edge;
-        const int source_right = src_bmi.width - edge;
-        const int source_bottom = src_bmi.height - edge;
-        const int target_inner_width = target_right - edge;
-        const int target_inner_height = target_bottom - edge;
-        const int source_inner_width = source_right - edge;
-        const int source_inner_height = source_bottom - edge;
-
-        const BPP bpp = bmp_type::bpp;
-
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          0, 0, 1, 1,
-                          0, 0, dest_bmi.width, dest_bmi.height);
-
-        // top left
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       0, 0, 0, 0, edge, edge);
-
-        // top right
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       source_right, 0, target_right, 0, edge, edge);
-
-        // bottom left
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       0, source_bottom, 0, target_bottom, edge, edge);
-
-        // bottom right
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       source_right, source_bottom, target_right, target_bottom, edge, edge);
-
-        // top center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          edge, 0, 1, edge,
-                          edge, 0, target_inner_width, edge);
-
-        // bottom center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          edge, source_bottom, 1, edge, edge,
-                          target_bottom, target_inner_width, edge);
-
-        // left center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          0, edge, edge, source_inner_height,
-                          0, edge, edge, target_inner_height);
-
-        // right center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          source_right, edge, edge, source_inner_height,
-                          target_right, edge, edge, target_inner_height);
-
-        // center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          edge, edge, source_inner_width, source_inner_height,
-                          edge, edge, target_inner_width, target_inner_height);
-
-        buffer.put_data(dest_data, dest_bmi);
-
-        graph.copy_from(buffer, r.top_left());
+//        graph.copy(draw::frame_image(r, get_button_frame(state.pushed), 4), r.top_left());
 
 //        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
 //        if (enabled && focused) {
@@ -321,7 +267,7 @@ namespace gui {
         if (enabled && focused && !state.pushed) {
           core::rectangle area = r;
           area.shrink({6, 6});
-          graph.frame(draw::rectangle(area), pen(color::gray, dot_line_width, dot_line_style));
+          graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
         }
       }
 

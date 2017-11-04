@@ -314,7 +314,7 @@ namespace gui {
       im.height = static_cast<int>(bmi.height);               /* size of image */
       im.xoffset = 0;                                         /* number of pixels offset in X direction */
       im.format = ZPixmap;                                    /* XYBitmap, XYPixmap, ZPixmap */
-      im.data = const_cast<char*>(src.data());                /* pointer to image data */
+      im.data = const_cast<char*>(reinterpret_cast<const char*>(src.data()));                /* pointer to image data */
       im.byte_order = ImageByteOrder(display);                /* data byte order, LSBFirst, MSBFirst */
       im.bitmap_unit = BitmapUnit(display);                   /* quant. of scanline 8, 16, 32 */
       im.bitmap_bit_order = BitmapBitOrder(display);          /* LSBFirst, MSBFirst */
@@ -433,7 +433,12 @@ namespace gui {
       auto display = core::global::get_instance();
       XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
       if (im) {
-        bmi = {static_cast<uint32_t>(im->width), static_cast<uint32_t>(im->height), im->bytes_per_line, BPP(im->bits_per_pixel)};
+        bmi = {
+          static_cast<uint32_t>(im->width),
+          static_cast<uint32_t>(im->height),
+          static_cast<uint32_t>(im->bytes_per_line),
+          BPP(im->bits_per_pixel)
+        };
         const size_t n = im->height * im->bytes_per_line;
         if (im->bits_per_pixel != im->depth) {
           blob src;
@@ -596,6 +601,129 @@ namespace gui {
       }
     }
 
+    // --------------------------------------------------------------------------
+    frame_image::frame_image (const core::rectangle& r, const bitmap& img, uint32_t edge)
+      : rect(r)
+      , img(img)
+      , left(edge)
+      , top(edge)
+      , right(edge)
+      , bottom(edge)
+    {}
+
+    frame_image::frame_image (const core::rectangle& r, const bitmap& img, uint32_t horizontal, uint32_t vertical)
+      : rect(r)
+      , img(img)
+      , left(horizontal)
+      , top(vertical)
+      , right(horizontal)
+      , bottom(horizontal)
+    {}
+
+    frame_image::frame_image (const core::rectangle& r, const bitmap& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom)
+      : rect(r)
+      , img(img)
+      , left(left)
+      , top(top)
+      , right(right)
+      , bottom(bottom)
+    {}
+
+    template<BPP bpp>
+    void copy_frame_image (const blob& src_data, blob& dest_data,
+                           const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
+                           uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
+
+      const int target_right = dest_bmi.width - right;
+      const int target_bottom = dest_bmi.height - bottom;
+      const int source_right = src_bmi.width - right;
+      const int source_bottom = src_bmi.height - bottom;
+
+      // top left
+      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                     0, 0, 0, 0, left, top);
+
+      // top right
+      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                     source_right, 0, target_right, 0, right, top);
+
+      // bottom left
+      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                     0, source_bottom, 0, target_bottom, left, bottom);
+
+      // bottom right
+      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                     source_right, source_bottom, target_right, target_bottom, right, bottom);
+
+      if ((target_right > right) && (target_bottom > bottom)) {
+        const int target_inner_width = target_right - right;
+        const int target_inner_height = target_bottom - bottom;
+        const int source_inner_width = source_right - right;
+        const int source_inner_height = source_bottom - bottom;
+
+        // top center
+        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                          left, 0, right - left, top,
+                          left, 0, target_inner_width, top);
+
+        // bottom center
+        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                          left, source_bottom, right - left, bottom,
+                          left, target_bottom, target_inner_width, bottom);
+
+        // left center
+        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                          0, top, left, source_inner_height,
+                          0, top, left, target_inner_height);
+
+        // right center
+        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                          source_right, top, right, source_inner_height,
+                          target_right, top, right, target_inner_height);
+
+        // center
+        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                          left, top, source_inner_width, source_inner_height,
+                          left, top, target_inner_width, target_inner_height);
+      }
+    }
+
+    void frame_image::operator() (const graphics& g, const core::point& pt) const {
+      blob src_data;
+      bitmap_info src_bmi;
+      img.get_data(src_data, src_bmi);
+
+      if (rect.size() <= core::size::two) {
+        return;
+      }
+
+      const BPP bpp = src_bmi.bits_per_pixel;
+      const uint32_t w = roundup<uint32_t>(rect.width());
+      const uint32_t h = roundup<uint32_t>(rect.height());
+      const uint32_t bpl = bitmap::calc_bytes_per_line(w, bpp);
+      bitmap_info dest_bmi = {w, h, bpl, bpp};
+      blob dest_data(dest_bmi.mem_size());
+
+      const uint32_t width = roundup<uint32_t>(rect.width());
+      const uint32_t height = roundup<uint32_t>(rect.height());
+
+      const uint32_t l = std::min(left, width / 2);
+      const uint32_t r = std::min(right, width / 2);
+      const uint32_t t = std::min(top, height / 2);
+      const uint32_t b = std::min(bottom, height / 2);
+
+      switch (bpp) {
+        case BPP::BW: copy_frame_image<BPP::BW>(src_data, dest_data, src_bmi, dest_bmi, l, t, r, b); break;
+        case BPP::GRAY: copy_frame_image<BPP::GRAY>(src_data, dest_data, src_bmi, dest_bmi, l, t, r, b); break;
+        case BPP::RGB: copy_frame_image<BPP::RGB>(src_data, dest_data, src_bmi, dest_bmi, l, t, r, b); break;
+        case BPP::RGBA: copy_frame_image<BPP::RGBA>(src_data, dest_data, src_bmi, dest_bmi, l, t, r, b); break;
+      }
+
+      bitmap buffer;
+      buffer.create(dest_data, dest_bmi);
+
+      g.copy_from(buffer, pt);
+    }
     // --------------------------------------------------------------------------
   }
 

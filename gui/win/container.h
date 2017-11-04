@@ -75,6 +75,7 @@ namespace gui {
         const layout_type& get_layout () const;
 
       private:
+        void init ();
         layout_type layouter;
       };
 
@@ -219,19 +220,25 @@ namespace gui {
       template<typename B, typename L, typename ... A>
       inline layout_base<B, L, A...>::layout_base (const A& ... args)
         : layouter(this, args ...)
-      {}
+      {
+        init();
+      }
 
       template<typename B, typename L, typename ... A>
       inline layout_base<B, L, A...>::layout_base (const layout_base& rhs)
         : super(rhs)
         , layouter(this, rhs.layouter)
-      {}
+      {
+        init();
+      }
 
       template<typename B, typename L, typename ... A>
       inline layout_base<B, L, A...>::layout_base (layout_base&& rhs)
         : super(std::move(rhs))
         , layouter(this, std::move(rhs.layouter))
-      {}
+      {
+        init();
+      }
 
       template<typename B, typename L, typename ... A>
       inline void layout_base<B, L, A...>::layout () {
@@ -247,6 +254,14 @@ namespace gui {
       inline auto layout_base<B, L, A...>::get_layout () const -> const layout_type& {
         return layouter;
       }
+
+      template<typename B, typename L, typename ... A>
+      inline void layout_base<B, L, A...>::init () {
+        super::register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+          layout();
+        }));
+      }
+
 
     } // namespace detail
 

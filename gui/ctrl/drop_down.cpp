@@ -29,9 +29,6 @@ namespace gui {
 
     void drop_down::init () {
       data.main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &drop_down::layout));
-      data.main->register_event_handler(REGISTER_FUNCTION, win::show_event([&](){
-                                                                             layout(data.main->client_size());
-                                                                           }));
     }
 
     core::rectangle drop_down::label_place (const core::size& sz) {

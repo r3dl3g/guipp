@@ -648,38 +648,38 @@ namespace gui {
       register_event_handler(REGISTER_FUNCTION, paint_event(this, &popup_menu::paint));
 
       register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point & pt) {
-                                                                       data.handle_mouse(false, pt);
-                                                                     }));
+        data.handle_mouse(false, pt);
+      }));
 
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
 
       register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
-                                                                          int idx = data.get_selection();
-                                                                          if (idx > -1) {
-                                                                            if (!data[idx].is_sub_menu()) {
-                                                                              data.handle_mouse(true, core::point::zero);
-                                                                            }
-                                                                            data[idx].select();
-                                                                          }
-                                                                        }));
+        int idx = data.get_selection();
+        if (idx > -1) {
+          if (!data[idx].is_sub_menu()) {
+            data.handle_mouse(true, core::point::zero);
+          }
+          data[idx].select();
+        }
+      }));
 
       register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
-                                                                      data.handle_mouse(true, client_to_screen(pt));
-                                                                    }));
+        data.handle_mouse(true, client_to_screen(pt));
+      }));
 
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-                                                                   redraw_later();
-                                                                 }));
+        redraw_later();
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                                       os::key_symbol key,
-                                                                       const std::string &){
-                                                                     handle_key(key);
-                                                                   }));
+      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&] (os::key_state,
+                                                                        os::key_symbol key,
+                                                                        const std::string &) {
+        handle_key(key);
+      }));
 
-      register_event_handler(REGISTER_FUNCTION, show_event([&]() {
-                                                             capture_pointer();
-                                                           }));
+      register_event_handler(REGISTER_FUNCTION, show_event([&] () {
+        capture_pointer();
+      }));
 
 //      register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
@@ -764,13 +764,13 @@ namespace gui {
     void popup_menu::popup_at (const core::point& pt, window& parent) {
       data.init();
       data.set_hilite(0);
-      data.set_mouse_function([&](bool btn, const core::point & gpt) {
-                                if (absolute_place().is_inside(gpt)) {
-                                  handle_mouse(btn, gpt);
-                                } else if (btn) {
-                                  close();
-                                }
-                              });
+      data.set_mouse_function([&] (bool btn, const core::point & gpt) {
+        if (absolute_place().is_inside(gpt)) {
+          handle_mouse(btn, gpt);
+        } else if (btn) {
+          close();
+        }
+      });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
@@ -779,19 +779,19 @@ namespace gui {
     void popup_menu::popup_at (window& parent, menu_data& parent_data, const core::point& pt) {
       data.init();
       data.set_hilite(0);
-      parent_data.set_close_function([&]() {
-                                       close();
-                                       parent_data.clear_close_function();
-                                     });
+      parent_data.set_close_function([&] () {
+        close();
+        parent_data.clear_close_function();
+      });
       parent_data.set_key_function(core::bind_method(this, &popup_menu::handle_key));
 
-      data.set_mouse_function([&](bool btn, const core::point & gpt) {
-                                if (absolute_place().is_inside(gpt)) {
-                                  handle_mouse(btn, gpt);
-                                } else {
-                                  parent_data.handle_mouse(btn, gpt);
-                                }
-                              });
+      data.set_mouse_function([&] (bool btn, const core::point & gpt) {
+        if (absolute_place().is_inside(gpt)) {
+          handle_mouse(btn, gpt);
+        } else {
+          parent_data.handle_mouse(btn, gpt);
+        }
+      });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();

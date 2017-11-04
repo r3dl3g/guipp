@@ -307,7 +307,6 @@ int gui_main(const std::vector<std::string>& args) {
   main.set_title("Window Test");
 
   main.set_visible();
-  main.redraw_later();
 
   return win::run_main_loop();
 }
@@ -335,6 +334,10 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     win::quit_main_loop();
   }));
 
+  register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+    btn_group.layout();
+    group_group.layout();
+  }));
 
 //#ifdef WIN32
 //  register_event_handler(REGISTER_FUNCTION, win::close_event([&]() {
@@ -818,7 +821,6 @@ template<int T>
 void create_buttons (win::container& m, win::label labels[T]) {
   for (int i = 0; i < T; ++i) {
     labels[i].create(m, win::const_text(ostreamfmt("No. " << (i + 1))));
-    labels[i].set_visible();
   }
 }
 
@@ -826,7 +828,6 @@ template<int T, typename C>
 void create_group (win::container& m, C& c, win::label labels[T]) {
   c.create(m);
   create_buttons<T>(c, labels);
-  c.set_visible();
 }
 
 void my_main_window::created_children () {
@@ -836,35 +837,25 @@ void my_main_window::created_children () {
   win::detail::get_window(get_id());
 
   scroll_view.create(main, core::rectangle(0, 0, 300, 330));
-  scroll_view.set_visible();
 
   window1.create(scroll_view, core::rectangle(10, 10, 100, 280));
   window1.set_accept_focus(false);
-  window1.set_visible();
 
   window2.create(scroll_view, core::rectangle(120, 10, 200, 280));
   window2.set_accept_focus(false);
-  window2.set_visible();
 
   hseparator.create(main, core::rectangle(330, 10, 300, 2));
-  hseparator.set_visible();
-
   vseparator.create(main, core::rectangle(310, 20, 2, 300));
-  vseparator.set_visible();
 
   calc_button.create(main, [&]() {
     return calc_pressed ? "Recalc" : "Calc";
   }, core::rectangle(330, 20, 60, 25));
-  calc_button.set_visible();
 
   inc_button.create(main, "+", core::rectangle(400, 20, 25, 25));
-  inc_button.set_visible();
   dec_button.create(main, "-", core::rectangle(435, 20, 25, 25));
-  dec_button.set_visible();
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
   list1.set_count(20);
-  list1.set_visible();
 
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
@@ -887,7 +878,6 @@ void my_main_window::created_children () {
   main_split_view.second.first.set_data(win::simple_list_data<float>(floats));
   main_split_view.second.second.get_column_layout().set_columns(columns);
   main_split_view.second.second.set_data(col_data);
-  main_split_view.set_visible();
 
   data.update_list(list2);
 
@@ -936,9 +926,7 @@ void my_main_window::created_children () {
   column_list.set_data([](std::size_t i){
     return std::make_tuple(static_cast<int>(i), ostreamfmt(i << '-' << i), (1.1F * (float)i), static_cast<int>(i * i), i % 2 == 1);
   }, 20);
-  column_list.set_visible();
 //  column_list.get_column_layout().get_slider(0)->disable();
-  column_list.layout();
 
   table_view.create(main, core::rectangle(740, 50, 150, 250));
 
@@ -963,7 +951,6 @@ void my_main_window::created_children () {
 
   table_view.edge.set_text("0:0");
   table_view.enable_size(true, true);
-  table_view.set_visible();
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
   editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
@@ -988,95 +975,55 @@ void my_main_window::created_children () {
                        "20. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n");
   editor.view.set_cursor_pos({3, 5});
   editor.view.set_selection({{3, 2}, {2, 4}});
-  editor.set_visible();
 
   textbox.create(main, core::rectangle(740, 580, 150, 250));
   textbox.view.enable_select_by_mouse();
-  textbox.set_visible();
 
   htileview.create(main, core::rectangle(10, 580, 200, 250));
   htileview.set_count(20);
-  htileview.set_visible();
 
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
   vtileview.set_count(30);
-  vtileview.set_visible();
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
-  hscroll.set_visible();
 
   vscroll.create(main, core::rectangle(700, 50, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()), 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());
   vscroll.set_step(static_cast<win::scroll_bar::type>(list1.get_item_size()));
-  vscroll.set_visible();
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));
-  up_button.set_visible();
 
   down_button.create(main, "Down", core::rectangle(383, 305, 47, 25));
-  down_button.set_visible();
 
   scroll_check_box.create(main, "Enable", core::rectangle(440, 305, 100, 20));
   scroll_check_box.set_checked(true);
-  scroll_check_box.set_visible();
 
   label.create(main, "Text", core::rectangle(50, 350, 120, 20));
-  label.set_visible();
-  label.redraw_later();
-
   labelC.create(main, core::rectangle(50, 371, 120, 20));
-  labelC.set_visible();
-  labelC.redraw_later();
-
   labelR.create(main, core::rectangle(50, 392, 120, 20));
-  labelR.set_visible();
-  labelR.redraw_later();
 
   hslider.create(main, core::rectangle(5, 470, 500, 5));
-  hslider.set_visible();
   hslider.set_min_max(420, 600);
 
   vslider.create(main, core::rectangle(750, 5, 5, 500));
-  vslider.set_visible();
   vslider.set_min_max(570, 1800);
 
   chck_group.create(main, core::rectangle(180, 350, 100, 80));
-  chck_group.set_visible();
 
   radio_button.create(chck_group, "Radio");
-  radio_button.set_visible();
-  radio_button.redraw_later();
-
   radio_button2.create(chck_group, "Radio2", core::rectangle(0, 20, 100, 20));
-  radio_button2.set_visible();
-  radio_button2.redraw_later();
-
   check_box.create(chck_group, "Check", core::rectangle(0, 40, 100, 20));
-  check_box.set_visible();
-  check_box.redraw_later();
-
-  chck_group.layout();
 
   edit1.create(main, core::rectangle(290, 350, 100, 25), "Text zwei drei vier fuenf sechs sieben acht");
-  edit1.set_visible();
 
   edit_btn_group.create(main, core::rectangle(290, 380, 100, 16));
-  edit_btn_group.set_visible();
 
   cur_minus.create(edit_btn_group, "c-");
-  cur_minus.set_visible();
   cur_plus.create(edit_btn_group, "c+");
-  cur_plus.set_visible();
   sel_first_minus.create(edit_btn_group, "f-");
-  sel_first_minus.set_visible();
   sel_first_plus.create(edit_btn_group, "f+");
-  sel_first_plus.set_visible();
   sel_last_minus.create(edit_btn_group, "l-");
-  sel_last_minus.set_visible();
   sel_last_plus.create(edit_btn_group, "l+");
-  sel_last_plus.set_visible();
-
-  edit_btn_group.layout();
 
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
@@ -1087,14 +1034,12 @@ void my_main_window::created_children () {
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
-  custom_button.set_visible();
 
   drop_down.set_data([](std::size_t i) {
     return ostreamfmt("Item " << i);
   }, 10);
   drop_down.create(main, core::rectangle(180, 445, 100, 20));
   drop_down.set_visible_items(8);
-  drop_down.set_visible();
 
   color_drop_down.set_data([&](std::size_t i) {
     static const os::color colors[] = {
@@ -1110,57 +1055,33 @@ void my_main_window::created_children () {
   }, 20);
 
   color_drop_down.create(main, core::rectangle(290, 445, 100, 20));
-  color_drop_down.set_visible();
 
-  btn_group.create(main, core::rectangle(10, 440, 780, 35));
-  btn_group.set_visible();
-
+  btn_group.create(main);
   ok_button.create(btn_group, "Ok");
-  ok_button.set_visible();
-
   del_button.create(btn_group, "Del");
-  del_button.set_visible();
-
   clear_button.create(btn_group, "Clear");
-  clear_button.set_visible();
 
   btn_sep1.create(btn_group);
   btn_group.get_layout().add_separator(&btn_sep1);
-  btn_sep1.set_visible();
 
   min_button.create(btn_group, "Min");
-  min_button.set_visible();
-
   max_button.create(btn_group, "Max");
-  max_button.set_visible();
-
   norm_button.create(btn_group, "Norm");
-  norm_button.set_visible();
 
   btn_sep2.create(btn_group);
   btn_group.get_layout().add_separator(&btn_sep2);
-  btn_sep2.set_visible();
 
   info_button.create(btn_group, "Info");
-  info_button.set_visible();
-
   null_button.create(btn_group, "0");
-  null_button.set_visible();
-
   full_button.create(btn_group, "Full");
-  full_button.set_visible();
 
-  btn_group.layout();
-
-  group_group.create(main, core::rectangle(400, 345, 300, 115));
+  group_group.create(main, core::rectangle(400, 345, 10, 10));
   create_group<4>(group_group, h_lineup_group, h_lineup_labels);
   create_group<4>(group_group, v_lineup_group, v_lineup_labels);
   create_group<4>(group_group, grid_lineup_group, grid_lineup_labels);
   create_group<4>(group_group, grid_adaption_group, grid_adaption_labels);
   create_group<4>(group_group, hc_lineup_group, hc_lineup_labels);
   create_group<4>(group_group, vc_lineup_group, vc_lineup_labels);
-  group_group.set_visible();
-  group_group.layout();
 
   using namespace layout;
   get_layout().attach_relative<What::left, make_relative(0.1), 20>(&btn_group, this);
@@ -1201,8 +1122,6 @@ void my_main_window::created_children () {
 
   get_layout().attach_fix<What::top, Where::y2, 4>(&vtileview, &hslider);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
-
-  layout();
 }
 
 win::paint_event my_main_window::create_paint1 () {

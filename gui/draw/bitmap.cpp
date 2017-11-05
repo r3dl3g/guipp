@@ -245,7 +245,7 @@ namespace gui {
 #if WIN32
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      set_id(CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data));
+      return CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data);
     }
 
     void free_bitmap (os::bitmap id) {
@@ -263,13 +263,14 @@ namespace gui {
           BPP(bmp.bmBitsPixel)
         };
       }
+      return {};
     }
 
-    void bitmap_put_data (os::bitmap id, cbyteptr data, const bitmap_info& bmi) {
+    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
       SetBitmapBits(id, (DWORD)bmi.mem_size(), data);
     }
 
-    void bitmap_get_data (os::bitmap id, blob& data, bitmap_info& bmi) {
+    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
       bmi = bitmap_get_info(id);
       data.resize(bmi.height * bmi.bytes_per_line);
       int ret = GetBitmapBits(id, (LONG)data.size(), data.data());

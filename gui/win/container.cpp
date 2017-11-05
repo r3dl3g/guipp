@@ -474,7 +474,7 @@ namespace gui {
       run_modal({});
     }
 
-    void modal_window::run_modal (std::initializer_list<hot_key_action> hot_keys) {
+    void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
       LogDebug << "Enter modal loop";
 
       os::window win = get_id();

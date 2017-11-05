@@ -113,6 +113,12 @@ namespace gui {
         void open_node (int idx);
         void close_node (int idx);
 
+        void toggle_node (const reference);
+        void open_node (const reference);
+        void close_node (const reference);
+
+        void select_node (const reference ref);
+
         void update_node_list ();
         void collect_children (const type& n, std::size_t depth = 0);
 
@@ -324,13 +330,7 @@ namespace gui {
       void basic_tree<I>::toggle_node (int idx) {
         if (is_valid_idx(idx)) {
           const reference ref = get_item(idx);
-          auto i = open_nodes.find(ref);
-          if (i != open_nodes.end()) {
-            open_nodes.erase(i);
-          } else {
-            open_nodes.insert(ref);
-          }
-          update_node_list();
+          toggle_node(ref);
         }
       }
 
@@ -338,11 +338,7 @@ namespace gui {
       void basic_tree<I>::open_node (int idx) {
         if (is_valid_idx(idx)) {
           const reference ref = get_item(idx);
-          auto i = open_nodes.find(ref);
-          if (i == open_nodes.end()) {
-            open_nodes.insert(ref);
-            update_node_list();
-          }
+          open_node(ref);
         }
       }
 
@@ -350,10 +346,44 @@ namespace gui {
       void basic_tree<I>::close_node (int idx) {
         if (is_valid_idx(idx)) {
           const reference ref = get_item(idx);
-          auto i = open_nodes.find(ref);
-          if (i != open_nodes.end()) {
-            open_nodes.erase(i);
-            update_node_list();
+          close_node(ref);
+        }
+      }
+
+      template<typename I>
+      void basic_tree<I>::toggle_node (const reference ref) {
+        auto i = open_nodes.find(ref);
+        if (i != open_nodes.end()) {
+          open_nodes.erase(i);
+        } else {
+          open_nodes.emplace(ref);
+        }
+        update_node_list();
+      }
+
+      template<typename I>
+      void basic_tree<I>::open_node (const reference ref) {
+        auto i = open_nodes.find(ref);
+        if (i == open_nodes.end()) {
+          open_nodes.emplace(ref);
+          update_node_list();
+        }
+      }
+
+      template<typename I>
+      void basic_tree<I>::close_node (const reference ref) {
+        auto i = open_nodes.find(ref);
+        if (i != open_nodes.end()) {
+          open_nodes.erase(i);
+          update_node_list();
+        }
+      }
+
+      template<typename I>
+      void basic_tree<I>::select_node (const reference ref) {
+        for (auto i = nodes.begin(), e = nodes.end(); i != e; ++i) {
+          if (i->ref == ref) {
+            super::set_selection(std::distance(nodes.begin(), i), event_source::logic);
           }
         }
       }

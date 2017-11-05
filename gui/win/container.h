@@ -141,7 +141,7 @@ namespace gui {
 
       void end_modal ();
       void run_modal ();
-      void run_modal (std::initializer_list<hot_key_action> hot_keys);
+      void run_modal (const std::vector<hot_key_action>& hot_keys);
 
     private:
       void init ();

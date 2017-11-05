@@ -154,7 +154,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     typedef tree::basic_tree<path_tree::unsorted_path_info> file_tree;
+    typedef tree::basic_tree<path_tree::unsorted_dir_info> dir_tree;
     typedef tree::basic_tree<path_tree::sorted_path_info> sorted_file_tree;
+    typedef tree::basic_tree<path_tree::sorted_dir_info> sorted_dir_tree;
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -163,12 +165,16 @@ namespace gui {
       void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
-                                       const draw::masked_bitmap*, std::string, uintmax_t,
+                                       const draw::masked_bitmap*,
+                                       sys_fs::path,
+                                       sys_fs::path,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
       file_list_row_drawer create_file_list_row_drawer ();
 
-      typedef column_list_row_t<const draw::masked_bitmap*, std::string, uintmax_t,
+      typedef column_list_row_t<const draw::masked_bitmap*,
+                                sys_fs::path,
+                                sys_fs::path,
                                 sys_fs::file_time_type> file_list_row;
 
       file_list_row build_file_list_row (const sys_fs::path&, bool selected);
@@ -176,11 +182,12 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
+    template<typename T = path_tree::sorted_file_info>
     class file_list : public win::column_list_t<layout::weight_column_list_layout,
-                                                const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> {
+                                                const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> {
     public:
       typedef win::column_list_t<layout::weight_column_list_layout,
-                                 const draw::masked_bitmap*, std::string, uintmax_t, sys_fs::file_time_type> super;
+                                 const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> super;
 
       file_list (core::size_type item_size = 20,
                  os::color background = color::white,
@@ -255,6 +262,38 @@ namespace gui {
       }
 
     } // path_tree
+
+    template<typename T>
+    inline file_list<T>::file_list (core::size_type item_size,
+                                 os::color background,
+                                 bool grab_focus)
+      : super(item_size, background, grab_focus)
+    {
+      detail::init_file_list_layout(super::get_column_layout());
+      detail::init_file_list_header(super::header);
+      super::set_drawer(detail::create_file_list_row_drawer());
+      super::set_data([&](std::size_t i) {
+        return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
+      }, 0);
+    }
+
+    template<typename T>
+    inline void file_list<T>::set_path (const sys_fs::path& dir) {
+      current_dir = T::sub_nodes(dir);
+      super::list.set_count(current_dir.size());
+      super::list.clear_selection(event_source::logic);
+      super::list.set_scroll_pos(0);
+      super::redraw_later();
+    }
+
+    template<typename T>
+    inline sys_fs::path file_list<T>::get_selected_path () const {
+      int selection = super::list.get_selection();
+      if (selection > -1) {
+        return current_dir[selection];
+      }
+      return sys_fs::path();
+    }
 
   } // win
 

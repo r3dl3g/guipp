@@ -390,6 +390,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
 //-----------------------------------------------------------------------------
 typedef void (yes_no_action) (bool);
+typedef void (file_selected) (const sys_fs::path&);
+//-----------------------------------------------------------------------------
 void yes_no_dialog (win::container& parent,
                     const std::string& title,
                     const std::string& message,
@@ -398,7 +400,6 @@ void yes_no_dialog (win::container& parent,
                     const std::function<yes_no_action>& action);
 
 //-----------------------------------------------------------------------------
-typedef void (file_selected) (const sys_fs::path&);
 void file_open_dialog (win::container& parent,
                        const std::string& title,
                        const std::string& ok_label,
@@ -411,7 +412,92 @@ void file_save_dialog (win::container& parent,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        const std::function<file_selected>& action);
+//-----------------------------------------------------------------------------
+class standard_dialog_base : public layout_dialog_window<layout::border_layout<>, float, float, float, float> {
+public:
+  typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> super;
+  typedef group_window<horizontal_adaption<>, color::very_light_gray> button_view_type;
 
+  standard_dialog_base (float top = 0)
+    : super(top, 45, 0, 0)
+  {}
+
+  void create (win::container& parent,
+               const std::string& title,
+               const std::string& yes_label,
+               const std::string& no_label,
+               const core::rectangle& rect,
+               const std::function<yes_no_action>& action) {
+    yes.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&] () {
+      end_modal();
+      if (action) {
+        action(true);
+      }
+    }));
+    no.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&] () {
+      end_modal();
+      if (action) {
+        action(false);
+      }
+    }));
+    register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+      yes.take_focus();
+    }));
+
+    get_layout().set_bottom(&buttons);
+
+    super::create(parent, rect);
+    set_title(title);
+    buttons.create(*this);
+    no.create(buttons, no_label);
+    yes.create(buttons, yes_label);
+  }
+
+  void show (win::container& parent) {
+    set_children_visible();
+    set_visible();
+    parent.disable();
+    run_modal({
+      hot_key_action{ hot_key(keys::escape, state::none), [&] () {
+        end_modal();
+      }}
+    });
+    parent.enable();
+    parent.take_focus();
+  }
+
+  button_view_type buttons;
+  text_button yes, no;
+};
+//-----------------------------------------------------------------------------
+template<typename T>
+class standard_dialog : public standard_dialog_base {
+public:
+  typedef standard_dialog_base super;
+  typedef T content_view_type;
+
+  standard_dialog (float top = 0)
+    : super(top)
+  {}
+
+  standard_dialog (content_view_type&& view, float top = 0)
+    : super(top)
+    , content_view(std::move(view))
+  {}
+
+  void create (win::container& parent,
+               const std::string& title,
+               const std::string& yes_label,
+               const std::string& no_label,
+               const core::rectangle& rect,
+               const std::function<yes_no_action>& action) {
+    get_layout().set_center(&content_view);
+    super::create(parent, title, yes_label, no_label, rect, action);
+    content_view.create(*this, core::rectangle(0, 0, 10, 10));
+  }
+
+  content_view_type content_view;
+};
 //-----------------------------------------------------------------------------
 void yes_no_dialog (win::container& parent,
                     const std::string& title,
@@ -420,46 +506,49 @@ void yes_no_dialog (win::container& parent,
                     const std::string& no_label,
                     const std::function<yes_no_action>& action) {
 
-  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
-  group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view(20, 15, 15, 15);
-  group_window<horizontal_adaption<>, color::very_light_gray> buttons;
-  basic_textbox<text_origin::center, draw::frame::sunken_relief, color::black, color::very_light_gray> message_view;
-  text_button yes, no;
+  typedef basic_textbox<text_origin::center, draw::frame::sunken_relief, color::black, color::very_light_gray> message_view_type;
+  typedef group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view_type;
+  typedef standard_dialog<content_view_type> dialog_type;
 
-  yes.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    dialog.end_modal();
-    if (action) {
-      action(true);
-    }
-  }));
-  no.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
-    dialog.end_modal();
-    if (action) {
-      action(false);
-    }
-  }));
+  dialog_type dialog(content_view_type(20, 15, 15, 15));
 
-  dialog.register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){ yes.take_focus(); }));
+  message_view_type message_view;
+  dialog.content_view.get_layout().set_center(&message_view);
 
-  dialog.create(parent, core::rectangle(300, 200, 400, 170));
-  dialog.set_title(title);
-  buttons.create(dialog);
-  content_view.create(dialog);
-  message_view.create(content_view, message);
-  no.create(buttons, no_label);
-  yes.create(buttons, yes_label);
-  dialog.get_layout().set_center_top_bottom_left_right(&content_view, nullptr, &buttons, nullptr, nullptr);
-  content_view.get_layout().set_center(&message_view);
-  dialog.set_children_visible();
-  content_view.set_children_visible();
-  dialog.set_visible();
-  parent.disable();
-  dialog.run_modal({ hot_key_action{ hot_key(keys::escape, state::none), [&] () {
-    dialog.end_modal();
-  }}});
-  parent.enable();
-  parent.take_focus();
+  dialog.create(parent, title, yes_label, no_label, core::rectangle(300, 200, 400, 170), action);
+  message_view.create(dialog.content_view, message);
+
+  dialog.show(parent);
 }
+
+//-----------------------------------------------------------------------------
+class dir_file_view : public win::vertical_split_view<win::sorted_dir_tree,
+                                                      win::file_list<path_tree::sorted_path_info>> {
+public:
+  typedef win::sorted_dir_tree dir_tree_type;
+  typedef win::file_list<path_tree::sorted_path_info> file_list_type;
+
+  typedef win::vertical_split_view<dir_tree_type, file_list_type> super;
+
+  dir_file_view (const std::function<file_selected>& action) {
+    first.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+      int idx = first.get_selection();
+      if (idx > -1) {
+        second.set_path(first.get_item(idx));
+      }
+    }));
+    second.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
+      auto path = second.get_selected_path();
+      if (sys_fs::is_directory(path)) {
+        first.open_node(path);
+        first.select_node(path);
+        second.set_path(path);
+      } else {
+        action(path);
+      }
+    }));
+  }
+};
 
 //-----------------------------------------------------------------------------
 void file_open_dialog (win::container& parent,
@@ -467,18 +556,20 @@ void file_open_dialog (win::container& parent,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        const std::function<file_selected>& action) {
-  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(0, 45, 0, 0);
-  group_window<horizontal_adaption<>, color::light_gray> buttons;
+  typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog_type;
+  typedef group_window<horizontal_adaption<>, color::light_gray> buttons_type;
 
+  dialog_type dialog(0, 45, 0, 0);
+  buttons_type buttons;
   text_button open, cancel;
 
-  typedef sorted_file_tree dir_tree_type;
-  typedef file_list file_list_type;
+  dir_file_view main_view([&] (const sys_fs::path& path) {
+    dialog.end_modal();
+    action(path);
+  });
 
-  win::vertical_split_view<dir_tree_type, file_list_type> main_view;
-
-  dir_tree_type& dir_tree = main_view.first;
-  file_list_type& files = main_view.second;
+  auto& dir_tree = main_view.first;
+  auto& files = main_view.second;
 
   dir_tree.root =
 #ifdef WIN32
@@ -489,13 +580,6 @@ void file_open_dialog (win::container& parent,
 #endif // X11
 
   dir_tree.update_node_list();
-
-  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
-    int idx = dir_tree.get_selection();
-    if (idx > -1) {
-      files.set_path(dir_tree.get_item(idx));
-    }
-  }));
 
   open.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&](){
     dialog.end_modal();
@@ -523,7 +607,11 @@ void file_open_dialog (win::container& parent,
   dialog.set_children_visible();
   dialog.set_visible();
   parent.disable();
-  dialog.run_modal();
+  dialog.run_modal({
+    hot_key_action{ hot_key(keys::escape, state::none), [&] () {
+      dialog.end_modal();
+    }}
+  });
   parent.enable();
   parent.take_focus();
 
@@ -536,21 +624,24 @@ void file_save_dialog (win::container& parent,
                        const std::string& ok_label,
                        const std::string& cancel_label,
                        const std::function<file_selected>& action) {
-  layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog(25, 45, 0, 0);
-  group_window<horizontal_adaption<>, color::light_gray> buttons;
+  typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> dialog_type;
+  typedef group_window<horizontal_adaption<>, color::light_gray> buttons_type;
+  typedef group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> top_view_type;
 
-  group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> top_view(1, 2, 1, 2);
-  edit input_line;
-
+  dialog_type dialog(25, 45, 0, 0);
+  buttons_type buttons;
   text_button open, cancel;
 
-  typedef sorted_file_tree dir_tree_type;
-  typedef file_list file_list_type;
+  top_view_type top_view(1, 2, 1, 2);
+  edit input_line;
 
-  win::vertical_split_view<dir_tree_type, file_list_type> main_view;
+  dir_file_view main_view([&] (const sys_fs::path& path) {
+    dialog.end_modal();
+    action(path);
+  });
 
-  dir_tree_type& dir_tree = main_view.first;
-  file_list_type& files = main_view.second;
+  auto& dir_tree = main_view.first;
+  auto& files = main_view.second;
 
   dir_tree.root =
 #ifdef WIN32
@@ -561,13 +652,6 @@ void file_save_dialog (win::container& parent,
 #endif // X11
 
   dir_tree.update_node_list();
-
-  dir_tree.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
-    int idx = dir_tree.get_selection();
-    if (idx > -1) {
-      files.set_path(dir_tree.get_item(idx));
-    }
-  }));
 
   files.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
     input_line.set_text(files.get_selected_path().filename().string());
@@ -612,7 +696,11 @@ void file_save_dialog (win::container& parent,
   dialog.set_children_visible();
   dialog.set_visible();
   parent.disable();
-  dialog.run_modal();
+  dialog.run_modal({
+    hot_key_action{ hot_key(keys::escape, state::none), [&] () {
+      dialog.end_modal();
+    }}
+  });
   parent.enable();
   parent.take_focus();
 

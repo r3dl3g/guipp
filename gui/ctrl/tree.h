@@ -392,7 +392,7 @@ namespace gui {
       void basic_tree<I>::select_node (const reference ref) {
         for (auto i = nodes.begin(), e = nodes.end(); i != e; ++i) {
           if (i->ref == ref) {
-            super::set_selection(std::distance(nodes.begin(), i), event_source::logic);
+            super::set_selection(static_cast<int>(std::distance(nodes.begin(), i)), event_source::logic);
             return;
           }
         }

@@ -64,8 +64,11 @@ namespace gui {
         ~edit_base ();
 
         void create (const container& parent,
-                     const core::rectangle& place = core::rectangle::def,
-                     const std::string& txt = std::string());
+                     const std::string& txt = std::string(),
+                     const core::rectangle& place = core::rectangle::def);
+
+        void create (const container& parent,
+                     const core::rectangle& place = core::rectangle::def);
 
         void set_text (const std::string&);
         const std::string& get_text () const;

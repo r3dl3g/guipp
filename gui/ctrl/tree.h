@@ -101,13 +101,13 @@ namespace gui {
 
         void init ();
 
-        bool is_open (const reference ref) const;
+        bool is_open (const reference) const;
         bool is_open (int idx) const;
         void set_open (int idx, bool o);
 
         void open_all ();
         void open_root ();
-        void open_sub (const type& n);
+        void open_sub (const type&);
 
         void toggle_node (int idx);
         void open_node (int idx);
@@ -116,8 +116,9 @@ namespace gui {
         void toggle_node (const reference);
         void open_node (const reference);
         void close_node (const reference);
+        void add_open_node (const reference);
 
-        void select_node (const reference ref);
+        void select_node (const reference);
 
         void update_node_list ();
         void collect_children (const type& n, std::size_t depth = 0);
@@ -371,6 +372,14 @@ namespace gui {
       }
 
       template<typename I>
+      void basic_tree<I>::add_open_node (const reference ref) {
+        auto i = open_nodes.find(ref);
+        if (i == open_nodes.end()) {
+          open_nodes.emplace(ref);
+        }
+      }
+
+      template<typename I>
       void basic_tree<I>::close_node (const reference ref) {
         auto i = open_nodes.find(ref);
         if (i != open_nodes.end()) {
@@ -384,6 +393,7 @@ namespace gui {
         for (auto i = nodes.begin(), e = nodes.end(); i != e; ++i) {
           if (i->ref == ref) {
             super::set_selection(std::distance(nodes.begin(), i), event_source::logic);
+            return;
           }
         }
       }

@@ -447,7 +447,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
-      redraw_now();
+      redraw_later();
 #endif // X11
     }
 

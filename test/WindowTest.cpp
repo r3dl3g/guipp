@@ -1014,7 +1014,7 @@ void my_main_window::created_children () {
   radio_button2.create(chck_group, "Radio2", core::rectangle(0, 20, 100, 20));
   check_box.create(chck_group, "Check", core::rectangle(0, 40, 100, 20));
 
-  edit1.create(main, core::rectangle(290, 350, 100, 25), "Text zwei drei vier fuenf sechs sieben acht");
+  edit1.create(main, "Text zwei drei vier fuenf sechs sieben acht", core::rectangle(290, 350, 100, 25));
 
   edit_btn_group.create(main, core::rectangle(290, 380, 100, 16));
 

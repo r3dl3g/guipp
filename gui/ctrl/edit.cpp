@@ -153,11 +153,16 @@ namespace gui {
       }
 
       void edit_base::create (const container& parent,
-                              const core::rectangle& place,
-                              const std::string& txt) {
+                              const std::string& txt,
+                              const core::rectangle& place) {
+        create(parent, place);
+        set_text(txt);
+      }
+
+      void edit_base::create (const container& parent,
+                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
         prepare_input();
-        set_text(txt);
       }
 
       void edit_base::set_text (const std::string& t) {

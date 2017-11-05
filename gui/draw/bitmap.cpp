@@ -31,11 +31,328 @@
 //
 #include <gui/draw/bitmap.h>
 
+#ifdef X11
+
+//# define USE_XSHM
+
+# ifdef USE_XSHM
+#  include <X11/Xlib.h>
+#  include <sys/ipc.h>
+#  include <sys/shm.h>
+#  include <X11/extensions/XShm.h>
+# endif // USE_XSHM
+
+#endif // X11
+
 
 namespace gui {
 
+  namespace {
+
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data = nullptr);
+    void free_bitmap (os::bitmap id);
+    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
+    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi);
+    draw::bitmap_info bitmap_get_info (os::bitmap id);
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp);
+    draw::bitmap_info bitmap_convert (const blob& src, const draw::bitmap_info& bmi, blob& dst, BPP dst_bpp);
+
+    template<uint32_t D, uint32_t M>
+    uint32_t up_modulo (uint32_t v) {
+      uint32_t r = (v + D - 1) / D;
+      return r + (r % M ? M - r % M : 0);
+    }
+
+#ifdef X11
+
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
+      switch (bpp) {
+      case BPP::BW:
+        return up_modulo<8, 4>(w);
+      case BPP::GRAY:
+        return up_modulo<1, 4>(w);
+      case BPP::RGB:
+        return up_modulo<1, 4>(w * 3);
+      case BPP::RGBA:
+        return up_modulo<1, 4>(w * 4);
+      case BPP::Undefined:
+        break;
+      }
+      return -1;
+    }
+
+
+# ifdef USE_XSHM
+    std::map<os::bitmap, std::pair<XShmSegmentInfo, draw::bitmap_info>> pixmaps;
+
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
+      auto dpy = core::global::get_instance();
+      auto drawable = DefaultRootWindow(dpy);
+
+      XShmSegmentInfo shminfo = {0};
+
+      size_t sz = bmi.mem_size();
+      shminfo.shmid = shmget(IPC_PRIVATE, sz, IPC_CREAT | 0644);
+      shminfo.readOnly = False;
+      shminfo.shmaddr = reinterpret_cast<char*>(shmat(shminfo.shmid, 0, 0));
+
+      if (data) {
+        memcpy(shminfo.shmaddr, data, sz);
+      }
+
+      Pixmap id = XShmCreatePixmap(dpy, drawable, shminfo.shmaddr, &shminfo, bmi.width, bmi.height, bmi.depth());
+
+      int res = XShmAttach(dpy, &shminfo);
+
+      pixmaps[id] = std::make_pair(shminfo, bmi);
+
+      return id;
+    }
+
+    void free_bitmap (os::bitmap id) {
+      auto display = core::global::get_instance();
+
+      XFreePixmap(display, id);
+
+      auto i = pixmaps.find(id);
+      if (i != pixmaps.end()) {
+        XShmSegmentInfo& shminfo = i->second.first;
+        int res = XShmDetach(display, &shminfo);
+        pixmaps.erase(i);
+      }
+    }
+
+    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+      if (id) {
+        auto i = pixmaps.find(id);
+        if (i != pixmaps.end()) {
+          return i->second.second;
+        }
+      }
+      return {0, 0, 0, BPP::Undefined};
+    }
+
+    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+      auto i = pixmaps.find(id);
+      if (i != pixmaps.end()) {
+        XShmSegmentInfo& shminfo = i->second.first;
+        memcpy(shminfo.shmaddr, data, bmi.mem_size());
+        i->second.second = bmi;
+      }
+    }
+
+    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+      auto i = pixmaps.find(id);
+      if (i != pixmaps.end()) {
+        XShmSegmentInfo& shminfo = i->second.first;
+        bmi = i->second.second;
+        byteptr d = reinterpret_cast<byteptr>(shminfo.shmaddr);
+        data.assign(d, d + bmi.mem_size());
+      }
+    }
+
+
+# else // !USE_XSHM
+
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
+      auto display = core::global::get_instance();
+      auto visual = DefaultRootWindow(display);
+      os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, bmi.depth());
+      if (data) {
+        bitmap_put_data(id, data, bmi);
+      }
+      return id;
+    }
+
+    void free_bitmap (os::bitmap id) {
+      auto display = core::global::get_instance();
+      XFreePixmap(display, id);
+    }
+
+    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+      if (id) {
+        Window root;
+        int x, y;
+        unsigned int w, h, b, d;
+        auto display = core::global::get_instance();
+        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
+        return {
+          static_cast<uint32_t>(w),
+          static_cast<uint32_t>(h),
+          BPP(d)
+        };
+      }
+      return {0, 0, 0, BPP::Undefined};
+    }
+
+    void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+      auto display = core::global::get_instance();
+      //auto screen = core::global::get_screen();
+      auto gc = XCreateGC(display, id, 0, nullptr);
+
+      XImage im {
+        static_cast<int>(bmi.width),
+        static_cast<int>(bmi.height),                           /* size of image */
+        0,                                                      /* number of pixels offset in X direction */
+        ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
+        const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
+        ImageByteOrder(display),                                /* data byte order, LSBFirst, MSBFirst */
+        BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
+        BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
+        BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
+        bmi.depth(),                                            /* depth of image */
+        static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
+        bmi.depth(),                                            /* bits per pixel (ZPixmap) */
+        color::mask<color::part::red>::value,                   /* bits in z arrangment */
+        color::mask<color::part::green>::value,
+        color::mask<color::part::blue>::value
+      };
+
+      Status st = XInitImage(&im);
+      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
+      res = XFreeGC(display, gc);
+    }
+
+    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+      bmi = bitmap_get_info(id);
+      auto display = core::global::get_instance();
+      XImage* im = XGetImage(display, id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
+      if (im) {
+        bmi = {
+          static_cast<uint32_t>(im->width),
+          static_cast<uint32_t>(im->height),
+          static_cast<uint32_t>(im->bytes_per_line),
+          BPP(im->bits_per_pixel)
+        };
+        const size_t n = im->height * im->bytes_per_line;
+        if (im->bits_per_pixel != im->depth) {
+          blob src;
+          src.assign(im->data, im->data + n);
+          bmi = bitmap_convert(src, bmi, data, BPP(im->depth));
+        } else {
+          data.assign(im->data, im->data + n);
+        }
+        XDestroyImage(im);
+      } else {
+        throw std::runtime_error("get image failed");
+      }
+    }
+
+# endif // !USE_XSHM
+
+#endif // !X11
+
+#if WIN32
+
+    os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
+      set_id(CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data));
+    }
+
+    void free_bitmap (os::bitmap id) {
+      DeleteObject(id);
+    }
+
+    draw::bitmap_info bitmap_get_info (os::bitmap id) {
+      if (id) {
+        BITMAP bmp;
+        GetObject(id, sizeof (BITMAP), &bmp);
+        return {
+          static_cast<uint32_t>(bmp.bmWidth),
+          static_cast<uint32_t>(bmp.bmHeight),
+          static_cast<uint32_t>(bmp.bmWidthBytes),
+          BPP(bmp.bmBitsPixel)
+        };
+      }
+    }
+
+    void bitmap_put_data (os::bitmap id, cbyteptr data, const bitmap_info& bmi) {
+      SetBitmapBits(id, (DWORD)bmi.mem_size(), data);
+    }
+
+    void bitmap_get_data (os::bitmap id, blob& data, bitmap_info& bmi) {
+      bmi = bitmap_get_info(id);
+      data.resize(bmi.height * bmi.bytes_per_line);
+      int ret = GetBitmapBits(id, (LONG)data.size(), data.data());
+      if (ret != data.size()) {
+        throw std::runtime_error("get image data failed");
+      }
+    }
+
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
+      switch (bpp) {
+      case BPP::BW:
+        return up_modulo<8, 2>(w);
+      case BPP::GRAY:
+        return up_modulo<1, 2>(w);
+      case BPP::RGB:
+        return up_modulo<1, 2>(w * 3);
+      case BPP::RGBA:
+        return up_modulo<1, 2>(w * 4);
+      case BPP::Undefined:
+        break;
+      }
+      return ((((w * static_cast<byte>(bpp)) + 31) & ~31) >> 3);
+    }
+
+#endif // WIN32
+
+    draw::bitmap_info bitmap_convert (const blob& src, const draw::bitmap_info& bmi, blob& dst, BPP dst_bpp) {
+      const auto w = bmi.width;
+      const auto h = bmi.height;
+      const uint32_t src_bpl = bmi.bytes_per_line;
+      const uint32_t dst_bpl = bitmap_calc_bytes_per_line(w, dst_bpp);
+
+      dst.resize(dst_bpl * h);
+
+      using namespace convert;
+
+      switch (bmi.bits_per_pixel) {
+        case BPP::BW:
+          switch (dst_bpp) {
+            case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::Undefined: break;
+          }
+        break;
+        case BPP::GRAY:
+          switch (dst_bpp) {
+            case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::Undefined: break;
+          }
+        break;
+        case BPP::RGB:
+          switch (dst_bpp) {
+            case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);    break;
+            case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::Undefined: break;
+          }
+        break;
+        case BPP::RGBA:
+          switch (dst_bpp) {
+            case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::Undefined: break;
+          }
+        break;
+        case BPP::Undefined: break;
+      }
+      return {w, h, dst_bpl, dst_bpp};
+    }
+
+  }
+
   namespace draw {
 
+    // --------------------------------------------------------------------------
     namespace stretch {
 
       template<>
@@ -101,6 +418,15 @@ namespace gui {
 
     } // namespace stretch
 
+    // --------------------------------------------------------------------------
+    bitmap_info::bitmap_info (uint32_t w, uint32_t h, BPP bpp)
+      : width(w)
+      , height(h)
+      , bytes_per_line(bitmap_calc_bytes_per_line(w, bpp))
+      , bits_per_pixel(bpp)
+    {}
+
+    // --------------------------------------------------------------------------
     void bitmap::operator= (bitmap&& rhs) {
       if (&rhs != this) {
         clear();
@@ -112,46 +438,13 @@ namespace gui {
 
     void bitmap::clear () {
       if (is_valid()) {
-#if WIN32
-        DeleteObject(get_id());
-#endif
-#ifdef X11
-        auto display = core::global::get_instance();
-        XFreePixmap(display, get_id());
-#endif
+        free_bitmap(get_id());
         set_id(0);
       }
     }
 
     bitmap_info bitmap::get_info () const {
-#if WIN32
-      if (is_valid()) {
-        BITMAP bmp;
-        GetObject(get_id(), sizeof (BITMAP), &bmp);
-        return { 
-          static_cast<uint32_t>(bmp.bmWidth),
-          static_cast<uint32_t>(bmp.bmHeight),
-          static_cast<uint32_t>(bmp.bmWidthBytes),
-          BPP(bmp.bmBitsPixel)
-        };
-      }
-#endif
-#ifdef X11
-      if (is_valid()) {
-        Window root;
-        int x, y;
-        unsigned int w, h, b, d;
-        auto display = core::global::get_instance();
-        Status st = XGetGeometry(display, get_id(), &root, &x, &y, &w, &h, &b, &d);
-        return {
-          static_cast<uint32_t>(w),
-          static_cast<uint32_t>(h),
-          calc_bytes_per_line(w, BPP(d)),
-          BPP(d)
-        };
-      }
-#endif
-      return {0, 0, 0, BPP::Undefined};
+      return bitmap_get_info(get_id());
     }
 
     core::size bitmap::size () const {
@@ -172,18 +465,13 @@ namespace gui {
 
     void bitmap::create_compatible (uint32_t w, uint32_t h) {
 #if WIN32
+      clear();
       HDC dc = GetDC(NULL);
       set_id(CreateCompatibleBitmap(dc, w, h));
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
-      create(w, h, BPP(core::global::get_device_bits_per_pixel()));
-//      auto display = core::global::get_instance();
-//      auto screen = core::global::get_screen();
-//      int d = DefaultDepth(display, screen);
-//      clear();
-//      auto visual = DefaultRootWindow(display);
-//      set_id(XCreatePixmap(display, visual, w, h, d));
+      create(w, h, core::global::get_device_bits_per_pixel());
 #endif
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
@@ -200,24 +488,16 @@ namespace gui {
         return;
       }
       clear();
-#if WIN32
-      set_id(CreateBitmap(w, h, 1, static_cast<byte>(bpp), NULL));
-#endif
-#ifdef X11
-      auto display = core::global::get_instance();
-      auto visual = DefaultRootWindow(display);
-      set_id(XCreatePixmap(display, visual, w, h, static_cast<byte>(bpp)));
-#endif
+      set_id(create_bitmap({w, h, bpp}));
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
     }
 
     void bitmap::create (const blob& data, const bitmap_info& bmi) {
-#if WIN32
       const auto bpl = calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       if (bmi.bytes_per_line == bpl) {
-        set_id(CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data.data()));
+        set_id(create_bitmap(bmi, data.data()));
       } else {
         // realign bits
         bitmap_info bmi2 = bmi;
@@ -226,16 +506,11 @@ namespace gui {
         for (uint_fast32_t y = 0; y < bmi.height; ++y) {
           memcpy(data2.data() + y * bpl, data.data() + y * bmi.bytes_per_line, bmi.bytes_per_line);
         }
-        set_id(CreateBitmap(bmi2.width, bmi2.height, 1, bmi2.depth(), data2.data()));
+        set_id(create_bitmap(bmi2, data2.data()));
       }
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
       }
-#endif
-#ifdef X11
-      create(bmi.size(), bmi.bits_per_pixel);
-      put_data(data, bmi);
-#endif
     }
 
     void bitmap::copy_from (const bitmap& rhs) {
@@ -261,127 +536,12 @@ namespace gui {
       }
     }
 
-    template<uint32_t D, uint32_t M>
-    uint32_t up_modulo (uint32_t v) {
-      uint32_t r = (v + D - 1) / D;
-      return r + (r % M ? M - r % M : 0);
-    }
-
     uint32_t bitmap::calc_bytes_per_line (uint32_t w, BPP bpp) {
-#ifdef WIN32
-      switch (bpp) {
-      case BPP::BW:
-        return up_modulo<8, 2>(w);
-      case BPP::GRAY:
-        return up_modulo<1, 2>(w);
-      case BPP::RGB:
-        return up_modulo<1, 2>(w * 3);
-      case BPP::RGBA:
-        return up_modulo<1, 2>(w * 4);
-      case BPP::Undefined:
-        break;
-      }
-      return ((((w * static_cast<byte>(bpp)) + 31) & ~31) >> 3);
-#endif // WIN32
-#ifdef X11
-      switch (bpp) {
-      case BPP::BW:
-        return up_modulo<8, 4>(w);
-      case BPP::GRAY:
-        return up_modulo<1, 4>(w);
-      case BPP::RGB:
-        return up_modulo<1, 4>(w * 3);
-      case BPP::RGBA:
-        return up_modulo<1, 4>(w * 4);
-      case BPP::Undefined:
-        break;
-      }
-      return -1;
-#endif // X11
-    }
-
-    void put_bmp_data (os::bitmap id, const blob& src, const bitmap_info& bmi) {
-#if WIN32
-      /*int ret = */ SetBitmapBits(id, (DWORD)src.size(), src.data());
-#endif
-#ifdef X11
-      auto display = core::global::get_instance();
-      //auto screen = core::global::get_screen();
-      auto gc = XCreateGC(display, id, 0, nullptr);
-
-      XImage im;
-      im.width = static_cast<int>(bmi.width);
-      im.height = static_cast<int>(bmi.height);               /* size of image */
-      im.xoffset = 0;                                         /* number of pixels offset in X direction */
-      im.format = ZPixmap;                                    /* XYBitmap, XYPixmap, ZPixmap */
-      im.data = const_cast<char*>(reinterpret_cast<const char*>(src.data()));                /* pointer to image data */
-      im.byte_order = ImageByteOrder(display);                /* data byte order, LSBFirst, MSBFirst */
-      im.bitmap_unit = BitmapUnit(display);                   /* quant. of scanline 8, 16, 32 */
-      im.bitmap_bit_order = BitmapBitOrder(display);          /* LSBFirst, MSBFirst */
-      im.bitmap_pad = BitmapPad(display);                     /* 8, 16, 32 either XY or ZPixmap */
-      im.depth = bmi.depth();                                 /* depth of image */
-      im.bytes_per_line = bmi.bytes_per_line;                 /* accelarator to next line */
-      im.bits_per_pixel = bmi.depth();                        /* bits per pixel (ZPixmap) */
-      im.red_mask = color::mask<color::part::red>::value;     /* bits in z arrangment */
-      im.green_mask = color::mask<color::part::green>::value;
-      im.blue_mask = color::mask<color::part::blue>::value;
-
-      Status st = XInitImage(&im);
-      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
-      res = XFreeGC(display, gc);
-#endif
+      return bitmap_calc_bytes_per_line(w, bpp);
     }
 
     bitmap_info bitmap::convert (const blob& src, const bitmap_info& bmi, blob& dst, BPP dst_bpp) {
-      const auto w = bmi.width;
-      const auto h = bmi.height;
-      const uint32_t src_bpl = bmi.bytes_per_line;
-      const uint32_t dst_bpl = calc_bytes_per_line(w, dst_bpp);
-
-      dst.resize(dst_bpl * h);
-
-      using namespace convert;
-
-      switch (bmi.bits_per_pixel) {
-        case BPP::BW:
-          switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::Undefined: break;
-          }
-        break;
-        case BPP::GRAY:
-          switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::Undefined: break;
-          }
-        break;
-        case BPP::RGB:
-          switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);    break;
-            case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::Undefined: break;
-          }
-        break;
-        case BPP::RGBA:
-          switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::Undefined: break;
-          }
-        break;
-        case BPP::Undefined: break;
-      }
-      return {w, h, dst_bpl, dst_bpp};
+      return bitmap_convert(src, bmi, dst, dst_bpp);
     }
 
     void bitmap::put_data (const blob& src_data, const bitmap_info& src_bmi) {
@@ -390,68 +550,17 @@ namespace gui {
       const uint32_t src_bpl = src_bmi.bytes_per_line;
 
       if ((bmi.bits_per_pixel == src_bmi.bits_per_pixel) && (dst_bpl == src_bpl)) {
-        put_bmp_data(get_id(), src_data, src_bmi);
+        bitmap_put_data(get_id(), src_data.data(), src_bmi);
       } else {
         blob dst;
         bitmap_info dst_bmi = convert(src_data, src_bmi, dst, bmi.bits_per_pixel);
-        put_bmp_data(get_id(), dst, dst_bmi);
+        bitmap_put_data(get_id(), dst.data(), dst_bmi);
 
       }
     }
-
-#ifdef X11
-    unsigned long get_planes (BPP bpp) {
-      switch (bpp) {
-        case BPP::BW: return 0x01;
-        case BPP::GRAY: return 0xFF;
-        case BPP::RGB: return 0xFFFFFF;
-        case BPP::RGBA: return 0xFFFFFFFF;
-      }
-      return AllPlanes;
-    }
-#endif
 
     void bitmap::get_data (blob& data, bitmap_info& bmi) const {
-#if WIN32
-      BITMAP bmp;
-      GetObject(get_id(), sizeof (BITMAP), &bmp);
-      bmi = { 
-        static_cast<uint32_t>(bmp.bmWidth),
-        static_cast<uint32_t>(bmp.bmHeight),
-        static_cast<uint32_t>(bmp.bmWidthBytes),
-        BPP(bmp.bmBitsPixel)
-      };
-      data.resize(bmp.bmHeight * bmp.bmWidthBytes);
-      //uint32_t dst_bpl = calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
-      int ret = GetBitmapBits(get_id(), (LONG)data.size(), data.data());
-      if (ret != data.size()) {
-        throw std::runtime_error("get image data failed");
-      }
-#endif
-#ifdef X11
-      core::size sz = size();
-      auto display = core::global::get_instance();
-      XImage* im = XGetImage(display, get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
-      if (im) {
-        bmi = {
-          static_cast<uint32_t>(im->width),
-          static_cast<uint32_t>(im->height),
-          static_cast<uint32_t>(im->bytes_per_line),
-          BPP(im->bits_per_pixel)
-        };
-        const size_t n = im->height * im->bytes_per_line;
-        if (im->bits_per_pixel != im->depth) {
-          blob src;
-          src.assign(im->data, im->data + n);
-          bmi = convert(src, bmi, data, BPP(im->depth));
-        } else {
-          data.assign(im->data, im->data + n);
-        }
-        XDestroyImage(im);
-      } else {
-        throw std::runtime_error("get image failed");
-      }
-#endif
+      bitmap_get_data(get_id(), data, bmi);
     }
 
     void bitmap::invert () {

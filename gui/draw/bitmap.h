@@ -31,6 +31,10 @@ namespace gui {
   namespace draw {
 
     struct bitmap_info {
+      bitmap_info ();
+      bitmap_info (uint32_t w, uint32_t h, BPP bpp);
+      bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp);
+
       uint32_t width;
       uint32_t height;
       uint32_t bytes_per_line;
@@ -355,6 +359,21 @@ namespace gui {
       }
 
     } // namespace stretch
+
+    // --------------------------------------------------------------------------
+    inline bitmap_info::bitmap_info ()
+      : width(0)
+      , height(0)
+      , bytes_per_line(0)
+      , bits_per_pixel(BPP::Undefined)
+    {}
+
+    inline bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp)
+      : width(w)
+      , height(h)
+      , bytes_per_line(bpl)
+      , bits_per_pixel(bpp)
+    {}
 
     // --------------------------------------------------------------------------
     inline core::size bitmap_info::size () const {

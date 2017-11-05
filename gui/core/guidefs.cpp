@@ -131,7 +131,7 @@ namespace gui {
 #endif // X11
       }
 
-      int get_device_bits_per_pixel () {
+      int get_device_depth () {
 #ifdef WIN32
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
@@ -140,6 +140,18 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         return DefaultDepth(get_instance(), get_screen());
+#endif // X11
+      }
+
+      BPP get_device_bits_per_pixel () {
+#ifdef WIN32
+        HDC gdc = GetDC(NULL);
+        int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
+        ReleaseDC(NULL, gdc);
+        return BPP(dbpp);
+#endif // WIN32
+#ifdef X11
+        return BPP(DefaultDepth(get_instance(), get_screen()));
 #endif // X11
       }
 

@@ -47,24 +47,6 @@ namespace gui {
 
   typedef std::vector<byte> blob;
 
-  namespace core {
-
-    namespace global {
-
-      void init (os::instance instance);
-      os::instance get_instance ();
-
-      void sync ();
-
-      int get_device_bits_per_pixel ();
-
-      os::key_state get_key_state ();
-
-    }
-
-  } // core
-
-
   template<byte bit, bit_order O = os::bitmap_bit_order>
   struct bitmap_bit_mask {};
 
@@ -198,6 +180,23 @@ namespace gui {
     static constexpr origin value = origin::end;
   };
 
+  namespace core {
+
+    namespace global {
+
+      void init (os::instance instance);
+      os::instance get_instance ();
+
+      void sync ();
+
+      BPP get_device_bits_per_pixel ();
+      int get_device_depth ();
+
+      os::key_state get_key_state ();
+
+    }
+
+  } // core
 
 } //gui
 

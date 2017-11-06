@@ -679,9 +679,10 @@ namespace gui {
 
         if (sel_pos < super::get_scroll_pos()) {
           set_scroll_pos(sel_pos);
-        }
-        else if (sel_pos + get_item_size() - super::get_scroll_pos() > sz) {
+        } else if (sel_pos + get_item_size() - super::get_scroll_pos() > sz) {
           set_scroll_pos(sel_pos + get_item_size() - sz);
+        } else {
+          super::redraw_later();
         }
       }
     }

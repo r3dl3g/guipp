@@ -88,10 +88,25 @@ private:
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
-  htoggle_group<color::black, color::light_gray> segmented;
-  vtoggle_group<color::light_gray, color::gray> vsegmented;
+  htoggle_group<color::black,
+                color::very_light_gray,
+                tab_button<color::black, alignment::top, true>,
+                horizontal_adaption<0, 0, 0, 50, 80>> hsegmented1;
+  htoggle_group<color::black,
+                color::very_light_gray,
+                tab_button<color::black, alignment::bottom, true>,
+                horizontal_adaption<0, 0, 0, 40, 70>> hsegmented2;
 
-  client_window<> window1;
+  vtoggle_group<color::black,
+                color::very_light_gray,
+                tab_button<color::black, alignment::left, true>,
+                vertical_adaption<0, 0, 0, 30, 100>> vsegmented1;
+  vtoggle_group<color::black,
+                color::very_light_gray,
+                tab_button<color::black, alignment::right, true>,
+                vertical_adaption<0, 0, 0, 50, 80>> vsegmented2;
+
+  client_window<color::rgb_gray<0xda>::value> window1;
   rgbamap rgba[2];
   rgbmap bmp[2];
   graymap gray[2];
@@ -353,40 +368,56 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
   }));
 
-  window1.create(client_view, core::rectangle(100, 40, 600, 400));
+  window1.create(client_view, core::rectangle(69, 40, 600, 400));
   window1.set_visible();
 
-  segmented.add_buttons({"first", "second", "third", "fourth"});
-  segmented.create(client_view, core::rectangle(100, 10, 300, 25));
-  segmented.set_visible();
+  hsegmented1.add_buttons({"first", "second", "third", "fourth"});
+  hsegmented1.create(client_view, core::rectangle(75, 16, 300, 25));
+  hsegmented1.set_visible();
 
-  vsegmented.add_buttons({"one", "two", "three", "four"});
-  vsegmented.create(client_view, core::rectangle(10, 40, 80, 200));
-  vsegmented.set_visible();
+  hsegmented2.add_buttons({"eins", "zwei", "drei", "vier"});
+  hsegmented2.create(client_view, core::rectangle(75, 439, 300, 25));
+  hsegmented2.set_visible();
+
+  vsegmented1.add_buttons({"one", "two", "three", "four"});
+  vsegmented1.create(client_view, core::rectangle(10, 40, 60, 60));
+  vsegmented1.set_visible();
+
+  vsegmented2.add_buttons({"erster", "zweiter", "driter", "vierter"});
+  vsegmented2.create(client_view, core::rectangle(700, 40, 60, 60));
+  vsegmented2.set_visible();
 
   for (int i = 0; i < 4; ++i) {
-    vsegmented.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
+    vsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
       labels[1].set_text(ostreamfmt("vsegment " << i << " selected"));
     }));
-    vsegmented.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
+    vsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
       labels[1].set_text(ostreamfmt("vsegment " << i << (b ? " " : " un") << "hilited"));
     }));
-    segmented.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
+    hsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
       labels[2].set_text(ostreamfmt("hsegment " << i << " selected"));
     }));
-    segmented.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
+    hsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
       labels[2].set_text(ostreamfmt("hsegment " << i << (b ? " " : " un") << "hilited"));
     }));
   }
 
-  client_view.get_layout().attach_relative<What::left, make_relative(0.1), 100>(&segmented, &client_view);
-  client_view.get_layout().attach_relative<What::right, make_relative(0.9)>(&segmented, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -110>(&hsegmented1, &client_view);
 
-  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(&vsegmented, &client_view);
-  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -110>(&hsegmented2, &client_view);
+  client_view.get_layout().attach_fix<What::top, Where::height, -35>(&hsegmented2, &client_view);
+  client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(&hsegmented2, &client_view);
 
-  client_view.get_layout().attach_fix<What::right, Where::width, -10>(&window1, &client_view);
-  client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(&window1, &client_view);
+  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(&vsegmented1, &client_view);
+  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented1, &client_view);
+
+  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(&vsegmented2, &client_view);
+  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented2, &client_view);
+  client_view.get_layout().attach_fix<What::left, Where::width, -80>(&vsegmented2, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -10>(&vsegmented2, &client_view);
+
+  client_view.get_layout().attach_fix<What::right, Where::width, -79>(&window1, &client_view);
+  client_view.get_layout().attach_fix<What::bottom, Where::height, -34>(&window1, &client_view);
 
   get_layout().set_center_top_bottom_left_right(&client_view, &top_view, &status_bar, &left_list, &right_view);
   set_children_visible();

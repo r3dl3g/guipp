@@ -35,34 +35,16 @@ namespace gui {
     template<orientation O,
              os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true> >
-    class toggle_group : public group_window<layout::adaption_layout<O, 0, 0, 2>, background> {
+             typename B = flat_toggle_button<foreground, background, true>,
+             typename L = layout::adaption_layout<O>>
+    class toggle_group : public group_window<L, background> {
     public:
-      typedef group_window<layout::adaption_layout<O, 0, 0, 2>, background> super;
-      typedef basic_separator<!O, true, background> separator_type;
-
-      struct button {
-        button (const text_source& label, bool first)
-          : btn(label)
-          , first(first)
-        {}
-
-        button_type btn;
-        separator_type sep;
-        bool first;
-
-        void create (toggle_group& parent) {
-          if (!first) {
-            sep.create(parent);
-            parent.get_layout().add_separator(&sep);
-          }
-          btn.create(parent);
-        }
-
-      };
+      typedef L layout;
+      typedef B button_type;
+      typedef group_window<L, background> super;
 
       ~toggle_group () {
-        for (button* b : buttons) {
+        for (auto* b : buttons) {
           delete b;
         }
         buttons.clear();
@@ -79,48 +61,50 @@ namespace gui {
       }
 
       void add_button (const text_source& label) {
-        button* b = new button(label, buttons.empty());
+        button_type* b = new button_type(label);
         buttons.push_back(b);
-        b->btn.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, b] () {
-                                                                                uncheck_buttons(b);
-                                                                              }));
+        b->register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, b] () {
+          uncheck_buttons(b);
+        }));
       }
 
       button_type& get_button (int idx) {
-        return buttons[idx]->btn;
+        return *(buttons[idx]);
       }
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def) {
         super::create(parent, place);
-        for (button* b : buttons) {
+        for (auto* b : buttons) {
           b->create(*this);
         }
         super::set_children_visible();
       }
 
     private:
-      void uncheck_buttons (button* except) {
-        for (button* b : buttons) {
+      void uncheck_buttons (button_type* except) {
+        for (auto* b : buttons) {
           if (b != except) {
-            b->btn.set_checked(false);
+            b->set_checked(false);
           }
         }
       }
 
-      std::vector<button*> buttons;
+      std::vector<button_type*> buttons;
     };
 
     // --------------------------------------------------------------------------
     template<os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true> >
-    using htoggle_group = toggle_group<orientation::horizontal, foreground, background, button_type>;
+             typename button_type = flat_toggle_button<foreground, background, true>,
+             typename layout_type = layout::horizontal_adaption<>>
+    using htoggle_group = toggle_group<orientation::horizontal, foreground, background, button_type, layout_type>;
 
     template<os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
-             typename button_type = flat_toggle_button<foreground, background, true> >
-    using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type>;
+             typename button_type = flat_toggle_button<foreground, background, true>,
+             typename layout_type = layout::vertical_adaption<>>
+    using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type, layout_type>;
 
   } // win
 

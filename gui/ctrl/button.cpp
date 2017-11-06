@@ -37,6 +37,8 @@ namespace gui {
 
 #include <gui/ctrl/button_frame.h>
 #include <gui/ctrl/button_pressed_frame.h>
+#include <gui/ctrl/button_rot_frame.h>
+#include <gui/ctrl/button_pressed_rot_frame.h>
 #include <gui/ctrl/simple_frame.h>
 
   } // namespace image_data
@@ -51,33 +53,67 @@ namespace gui {
         return std::string((const char*)t, N);
       }
 
-      draw::graymap build_frame_image (bool pressed) {
+      draw::graymap build_image (std::string name) {
         draw::graymap bmp;
-        std::string name = pressed ? make_string(image_data::button_pressed_frame_bytes)
-                                   : make_string(image_data::button_frame_bytes);
         std::istringstream in(name);
         io::load_pnm(in, bmp);
         return bmp;
       }
 
+      draw::graymap build_button_frame_image (bool pressed, bool rot) {
+        return build_image(pressed ? (rot ? make_string(image_data::button_pressed_rot_frame_bytes)
+                                          : make_string(image_data::button_pressed_frame_bytes))
+                                   : (rot ? make_string(image_data::button_rot_frame_bytes)
+                                          : make_string(image_data::button_frame_bytes)));
+      }
+
       draw::graymap build_simple_frame_image () {
-        draw::graymap bmp;
-        std::istringstream in(make_string(image_data::simple_frame_bytes));
-        io::load_pnm(in, bmp);
-        return bmp;
+        return build_image(make_string(image_data::simple_frame_bytes));
       }
 
     } // namespace detail
 
+    template<bool rot = false>
     const draw::graymap& get_button_frame (bool pressed) {
-      static draw::graymap image(detail::build_frame_image(false));
-      static draw::graymap image_pressed(detail::build_frame_image(true));
+      static draw::graymap image(detail::build_button_frame_image(false, rot));
+      static draw::graymap image_pressed(detail::build_button_frame_image(true, rot));
       return pressed ? image_pressed : image;
     }
 
     const draw::graymap& get_simple_frame () {
       static draw::graymap image(detail::build_simple_frame_image());
       return image;
+    }
+
+    template<alignment A>
+    const draw::graymap& get_tab_frame (bool pressed);
+
+    template<>
+    const draw::graymap& get_tab_frame<alignment::top> (bool pressed) {
+      static draw::graymap image(get_button_frame(false).sub(1, 0, 7, 24));
+      static draw::graymap image_pressed(get_button_frame(true).sub(1, 0, 7, 24));
+      return pressed ? image_pressed : image;
+    }
+
+    template<>
+    const draw::graymap& get_tab_frame<alignment::bottom> (bool pressed) {
+      static draw::graymap image(get_button_frame(false).sub(1, 4, 7, 24));
+      static draw::graymap image_pressed(get_button_frame(true).sub(1, 4, 7, 24));
+      return pressed ? image_pressed : image;
+    }
+
+    template<>
+    const draw::graymap& get_tab_frame<alignment::left> (bool pressed) {
+      static draw::graymap image(get_button_frame<true>(false).sub(0, 1, 24, 7));
+      static draw::graymap image_pressed(get_button_frame<true>(true).sub(0, 1, 24, 7));
+      return pressed ? image_pressed : image;
+    }
+
+    template<>
+    const draw::graymap& get_tab_frame<alignment::right> (bool pressed) {
+      static draw::graymap image(get_button_frame<true>(false).sub(4, 1, 24, 7));
+      static draw::graymap image_pressed(get_button_frame<true>(true).sub(4, 1, 24, 7));
+      return pressed ? image_pressed : image;
     }
 
     button_state::button_state (bool pushed,
@@ -250,7 +286,7 @@ namespace gui {
                          const button_state& state,
                          bool focused,
                          bool enabled) {
-        graph.copy(draw::frame_image(r, get_button_frame(false), 4), r.top_left());
+        graph.copy(draw::frame_image(r, get_button_frame<>(false), 4), r.top_left());
         if (state.pushed) {
           draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }
@@ -321,6 +357,51 @@ namespace gui {
         g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
         if (enabled && focused) {
           g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      void tab_button (const draw::graphics& g,
+                       const core::rectangle& r,
+                       const std::string& text,
+                       alignment a,
+                       const button_state& state,
+                       bool focused,
+                       bool enabled,
+                       os::color foreground) {
+        switch (a) {
+          case alignment::top:
+            g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(!state.checked), 3, 3, 3, 0), r.top_left());
+          break;
+          case alignment::bottom:
+            g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(!state.checked), 3, 0, 3, 3), r.top_left());
+          break;
+          case alignment::left:
+            g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(!state.checked), 3, 3, 0, 3), r.top_left());
+          break;
+          case alignment::right:
+            g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(!state.checked), 0, 3, 3, 3), r.top_left());
+          break;
+        }
+        core::rectangle area = r;
+        area.shrink({6, 6});
+
+        os::color f = foreground;
+//        if (enabled) {
+//          if (state.checked) {
+//          } else if (state.hilited) {
+//            b = color::lighter(background, 0.1);
+//          } else {
+//            b = color::darker(background, 0.2);
+//          }
+//        } else {
+//          b = color::darker(background, 0.3);
+//        }
+//        g.fill(draw::rectangle(area), b);
+
+        g.text(draw::text_box(text, area, text_origin::center), draw::font::system(), f);
+        if (enabled && focused) {
+          g.frame(draw::rectangle(area), draw::pen(f, dot_line_width, dot_line_style));
         }
       }
 

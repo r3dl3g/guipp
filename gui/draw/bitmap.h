@@ -203,6 +203,7 @@ namespace gui {
       void stretch_from (const datamap& src_img,
                          const core::rectangle& src_rect,
                          const core::rectangle& dest_rect);
+      datamap sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
 
     };
 
@@ -508,6 +509,14 @@ namespace gui {
                                           const core::rectangle& src_rect,
                                           const core::rectangle& dest_rect) {
       super::stretch_from(src_img, src_rect, dest_rect);
+    }
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
+    inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
+      datamap bmp(w, h);
+      bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
+      return bmp;
     }
 
     // --------------------------------------------------------------------------

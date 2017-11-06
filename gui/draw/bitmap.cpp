@@ -582,15 +582,23 @@ namespace gui {
       bitmap_info src_bmi = src_img.get_info();
       bitmap_info dest_bmi;
 
-      get_data(dest_data, dest_bmi);
+      if (id) {
+        get_data(dest_data, dest_bmi);
 
-      if (src_bmi.bits_per_pixel == dest_bmi.bits_per_pixel) {
-        src_img.get_data(src_data, src_bmi);
+        if (src_bmi.bits_per_pixel == dest_bmi.bits_per_pixel) {
+          src_img.get_data(src_data, src_bmi);
+        } else {
+          bitmap tmp;
+          tmp.create(src_img.size(), dest_bmi.bits_per_pixel);
+          tmp.put(src_img);
+          tmp.get_data(src_data, src_bmi);
+        }
       } else {
-        bitmap tmp;
-        tmp.create(src_img.size(), dest_bmi.bits_per_pixel);
-        tmp.put(src_img);
-        tmp.get_data(src_data, src_bmi);
+        src_img.get_data(src_data, src_bmi);
+        const uint32_t w = src_rect.os_width();
+        const uint32_t h = src_rect.os_height();
+        dest_bmi = {w, h, calc_bytes_per_line(w, src_bmi.bits_per_pixel), src_bmi.bits_per_pixel};
+        dest_data.resize(dest_bmi.mem_size());
       }
 
       const uint32_t src_x0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width, roundup<uint32_t>(src_rect.x())));
@@ -750,51 +758,69 @@ namespace gui {
       const uint32_t source_bottom = src_bmi.height - bottom;
 
       // top left
-      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                     0, 0, 0, 0, left, top);
+      if (top && left) {
+        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                       0, 0, 0, 0, left, top);
+      }
 
       // top right
-      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                     source_right, 0, target_right, 0, right, top);
+      if (top && right) {
+        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                       source_right, 0, target_right, 0, right, top);
+      }
 
       // bottom left
-      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                     0, source_bottom, 0, target_bottom, left, bottom);
+      if (bottom && left) {
+        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                       0, source_bottom, 0, target_bottom, left, bottom);
+      }
 
-      // bottom right
-      copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                     source_right, source_bottom, target_right, target_bottom, right, bottom);
+      if (bottom && right) {
+        // bottom right
+        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                       source_right, source_bottom, target_right, target_bottom, right, bottom);
+      }
 
-      if ((target_right > right) && (target_bottom > bottom)) {
-        const uint32_t target_inner_width = target_right - right;
-        const uint32_t target_inner_height = target_bottom - bottom;
-        const uint32_t source_inner_width = source_right - right;
-        const uint32_t source_inner_height = source_bottom - bottom;
+      if ((target_right > left) && (target_bottom > top) && (source_right >= left) && (source_bottom >= top)) {
+        const uint32_t target_inner_width = target_right - left;
+        const uint32_t target_inner_height = target_bottom - top;
+        const uint32_t source_inner_width = source_right - left;
+        const uint32_t source_inner_height = source_bottom - top;
 
         // top center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          left, 0, right - left, top,
-                          left, 0, target_inner_width, top);
+        if (top && target_inner_width) {
+          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                            left, 0, source_inner_width, top,
+                            left, 0, target_inner_width, top);
+        }
 
         // bottom center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          left, source_bottom, right - left, bottom,
-                          left, target_bottom, target_inner_width, bottom);
+        if (bottom && target_inner_width) {
+          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                            left, source_bottom, source_inner_width, bottom,
+                            left, target_bottom, target_inner_width, bottom);
+        }
 
         // left center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          0, top, left, source_inner_height,
-                          0, top, left, target_inner_height);
+        if (left && target_inner_height) {
+          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                            0, top, left, source_inner_height,
+                            0, top, left, target_inner_height);
+        }
 
         // right center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          source_right, top, right, source_inner_height,
-                          target_right, top, right, target_inner_height);
+        if (right && target_inner_height) {
+          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                            source_right, top, right, source_inner_height,
+                            target_right, top, right, target_inner_height);
+        }
 
         // center
-        stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                          left, top, source_inner_width, source_inner_height,
-                          left, top, target_inner_width, target_inner_height);
+        if (target_inner_width && target_inner_height) {
+          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+                            left, top, source_inner_width, source_inner_height,
+                            left, top, target_inner_width, target_inner_height);
+        }
       }
     }
 

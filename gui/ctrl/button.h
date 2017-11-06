@@ -128,6 +128,27 @@ namespace gui {
                       const button_state& state,
                       bool focused,
                       bool enabled);
+
+      void tab_button (const draw::graphics& g,
+                       const core::rectangle& r,
+                       const std::string& text,
+                       alignment a,
+                       const button_state& state,
+                       bool focused,
+                       bool enabled,
+                       os::color foreground);
+
+      template<os::color foreground,
+               alignment align>
+      void aligned_tab_button (const draw::graphics& g,
+                               const core::rectangle& r,
+                               const std::string& text,
+                               const button_state& state,
+                               bool focused,
+                               bool enabled) {
+        tab_button(g, r, text, align, state, focused, enabled, foreground);
+      }
+
     }
 
     // --------------------------------------------------------------------------
@@ -260,6 +281,12 @@ namespace gui {
              bool keep_state = false>
     using flat_toggle_button = basic_text_button<toggle_button_traits<keep_state>,
                                                  paint::color_flat_button<foreground, background> >;
+    // --------------------------------------------------------------------------
+    template<os::color foreground = color::light_gray,
+             alignment align = alignment::top,
+             bool keep_state = false>
+    using tab_button = basic_text_button<toggle_button_traits<keep_state>,
+                                         paint::aligned_tab_button<foreground, align> >;
     // --------------------------------------------------------------------------
     template<class T>
     class custom_button : public basic_button<T> {

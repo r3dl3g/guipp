@@ -12,6 +12,8 @@
 //
 #include <gui/core/time_util.h>
 #include <gui/win/window.h>
+#include <gui/win/attach_layout.h>
+#include <gui/win/lineup_layout.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/io/pnm.h>
@@ -89,7 +91,7 @@ private:
   htoggle_group<color::black, color::light_gray> segmented;
   vtoggle_group<color::light_gray, color::gray> vsegmented;
 
-  client_window window1;
+  client_window<> window1;
   rgbamap rgba[2];
   rgbmap bmp[2];
   graymap gray[2];

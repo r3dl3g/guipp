@@ -303,16 +303,16 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void overlapped_window::create (const class_info& clazz,
+    void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
-      super::create(clazz, DefaultRootWindow(core::global::get_instance()), r);
+      super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
     }
 
-    void overlapped_window::create (const class_info& clazz,
+    void overlapped_window::create (const class_info& cls,
                                     const window& parent,
                                     const core::rectangle& r) {
       os::instance display = core::global::get_instance();
-      super::create(clazz, DefaultRootWindow(display), r);
+      super::create(cls, DefaultRootWindow(display), r);
       XSetTransientForHint(display, get_id(), parent.get_id());
     }
 
@@ -549,8 +549,8 @@ namespace gui {
 #endif // X11
 
     // --------------------------------------------------------------------------
-    void main_window::create (const core::rectangle& r) {
-      super::create(clazz::get(), r);
+    void main_window::create (const class_info& cls, const core::rectangle& r) {
+      super::create(cls, r);
 #ifdef X11
       os::instance display = core::global::get_instance();
 
@@ -568,8 +568,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void popup_window::create (const window& parent, const core::rectangle& r) {
-      super::create(clazz::get(), parent, r);
+    void popup_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
+      super::create(cls, parent, r);
 #ifdef X11
       os::instance display = core::global::get_instance();
 
@@ -582,8 +582,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void dialog_window::create (const window& parent, const core::rectangle& r) {
-      super::create(clazz::get(), parent, r);
+    void dialog_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
+      super::create(cls, parent, r);
 #ifdef X11
       os::instance display = core::global::get_instance();
       change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");

@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/win/layout.h>
+#include <gui/win/adaption_layout.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/separator.h>
 #include <gui/ctrl/button.h>

@@ -158,21 +158,21 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<orientation O>
     inline split_view<O>::split_view (win::container* m)
-      : layout_base(m)
+      : super(m)
     {
       init();
     }
 
     template<orientation O>
     inline split_view<O>::split_view (win::container* m, const split_view& rhs)
-      : layout_base(m, rhs.layout_base)
+      : super(m, rhs)
     {
       init();
     }
 
     template<orientation O>
     inline split_view<O>::split_view (win::container* m, split_view&& rhs)
-      : layout_base(m, std::move(rhs.layout_base))
+      : super(m, std::move(rhs))
     {
       init();
     }

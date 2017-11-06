@@ -697,7 +697,7 @@ namespace gui {
       if (get_id()) {
         if (s) {
           check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
-          check_xlib_return(XMapSubwindows(core::global::get_instance(), get_id()));
+//          check_xlib_return(XMapSubwindows(core::global::get_instance(), get_id()));
         } else {
 //          check_xlib_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
           check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));

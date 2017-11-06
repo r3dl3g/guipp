@@ -428,7 +428,9 @@ namespace gui {
     } // frame
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     inline os::graphics graphics::os () const {
       return gc;
     }

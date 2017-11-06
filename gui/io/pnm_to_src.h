@@ -66,7 +66,9 @@ namespace gui {
       std::ostream& operator<< (std::ostream& out, const opnm& p);
 
       // --------------------------------------------------------------------------
+      //
       // inlines
+      //
       inline opnm::opnm (const draw::bitmap& bmp, const std::string& name)
         : bmp(bmp)
         , name(name)

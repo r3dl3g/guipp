@@ -45,7 +45,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     inline EventId::EventId (const core::event& e)
       : id(e.type)
     {}

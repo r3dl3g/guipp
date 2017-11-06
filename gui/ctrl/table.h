@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/win/container.h>
+#include <gui/win/border_layout.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>

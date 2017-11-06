@@ -38,7 +38,7 @@ namespace gui {
 
     void scroll_view_base::init (win::vertical_scroll_bar* vscroll,
                                  win::horizontal_scroll_bar* hscroll,
-                                 win::client_window* edge) {
+                                 win::window* edge) {
       this->vscroll = vscroll;
       this->hscroll = hscroll;
       this->edge = edge;
@@ -298,7 +298,7 @@ namespace gui {
       return hscroll;
     }
 
-    client_window& scroll_view::get_edge () {
+    window& scroll_view::get_edge () {
       return edge;
     }
 

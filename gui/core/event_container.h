@@ -86,7 +86,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     template<typename T>
     inline void event_container::register_event_handler (char const name[],
                                                          T* t,

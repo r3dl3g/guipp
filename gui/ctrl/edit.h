@@ -52,8 +52,10 @@ namespace gui {
       class edit_base : public window {
       public:
         typedef window super;
-        typedef window_class<edit_base, color::white, cursor_type::ibeam> clazz;
         typedef size_t pos_t;
+
+        template<typename T = edit_base, os::color C = color::white>
+        using clazz = window_class<T, C, cursor_type::ibeam>;
 
         typedef core::range<pos_t> range;
 

@@ -175,10 +175,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<os::color background = color::very_light_gray>
     class client_window : public window {
     public:
       typedef window super;
-      typedef window_class<client_window, color::very_light_gray> clazz;
+      typedef window_class<client_window, background> clazz;
 
       client_window ();
       client_window (const client_window& rhs);
@@ -189,7 +190,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     inline os::window window::get_id () const {
       return id;
     }
@@ -221,19 +224,23 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline client_window::client_window ()
+    template<os::color B>
+    inline client_window<B>::client_window ()
     {}
 
-    inline client_window::client_window (const client_window& rhs)
+    template<os::color B>
+    inline client_window<B>::client_window (const client_window& rhs)
       : super(rhs)
     {}
 
-    inline client_window::client_window (client_window&& rhs)
+    template<os::color B>
+    inline client_window<B>::client_window (client_window&& rhs)
       : super(rhs)
     {}
 
-    inline void client_window::create (const container& parent,
-                                       const core::rectangle& r) {
+    template<os::color B>
+    inline void client_window<B>::create (const container& parent,
+                                          const core::rectangle& r) {
       window::create(clazz::get(), parent, r);
     }
 

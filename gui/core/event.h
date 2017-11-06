@@ -50,7 +50,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     inline event::event (os::window id,
                          os::event_id e,
                          os::win32::wParam p1,

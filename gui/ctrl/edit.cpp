@@ -161,7 +161,7 @@ namespace gui {
 
       void edit_base::create (const container& parent,
                               const core::rectangle& place) {
-        super::create(clazz::get(), parent, place);
+        super::create(clazz<>::get(), parent, place);
         prepare_input();
       }
 

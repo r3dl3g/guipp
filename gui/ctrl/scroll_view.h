@@ -39,7 +39,7 @@ namespace gui {
 
       void init (win::vertical_scroll_bar* vscroll,
                  win::horizontal_scroll_bar* hscroll,
-                 win::client_window* edge);
+                 win::window* edge);
 
       core::rectangle layout (const core::size& new_size, const core::rectangle& required);
 
@@ -55,7 +55,7 @@ namespace gui {
 
       win::vertical_scroll_bar*   vscroll;
       win::horizontal_scroll_bar* hscroll;
-      win::client_window*         edge;
+      win::window*                edge;
     };
 
     // --------------------------------------------------------------------------
@@ -91,7 +91,7 @@ namespace gui {
 
       void init (win::vertical_scroll_bar* vscroll,
                  win::horizontal_scroll_bar* hscroll,
-                 win::client_window* edge,
+                 win::window* edge,
                  view_type* client);
 
       void layout (const core::size& new_size);
@@ -130,13 +130,13 @@ namespace gui {
     protected:
       vertical_scroll_bar& get_vscroll ();
       horizontal_scroll_bar& get_hscroll ();
-      client_window& get_edge ();
+      window& get_edge ();
 
     private:
-      core::point current_pos;
-      vertical_scroll_bar vscroll;
+      core::point           current_pos;
+      vertical_scroll_bar   vscroll;
       horizontal_scroll_bar hscroll;
-      client_window edge;
+      client_window<>       edge;
 
     };
 
@@ -154,10 +154,10 @@ namespace gui {
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
-      view_type view;
+      view_type             view;
       horizontal_scroll_bar hscroll;
-      vertical_scroll_bar vscroll;
-      client_window edge;
+      vertical_scroll_bar   vscroll;
+      client_window<>       edge;
 
     private:
       void handle_create (window*, const core::rectangle& r);
@@ -184,7 +184,7 @@ namespace gui {
     template<typename T>
     inline void virtual_layout<T>::init (win::vertical_scroll_bar* vscroll,
                                          win::horizontal_scroll_bar* hscroll,
-                                         win::client_window* edge,
+                                         win::window* edge,
                                          view_type* client) {
       super::init(vscroll, hscroll, edge);
       this->client = client;
@@ -192,7 +192,7 @@ namespace gui {
 
     template<typename T>
     inline void virtual_layout<T>::layout (const core::size& new_size) {
-      if (client && client->is_visible()) {
+      if (client) {
         auto available = super::layout(new_size, client->get_virtual_place());
         client->place(available);
       } else {

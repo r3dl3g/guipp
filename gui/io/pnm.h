@@ -214,7 +214,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     template<bool BIN>
     inline opnm<BIN>::opnm (const draw::bitmap& bmp)
       : bmp(bmp)

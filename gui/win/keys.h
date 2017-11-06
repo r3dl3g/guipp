@@ -83,7 +83,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    //
     // inlines
+    //
     inline bool hot_key::match (os::key_state m, os::key_symbol k) const {
       return (key && (key == k) && ((m & modifiers) == modifiers));
     }

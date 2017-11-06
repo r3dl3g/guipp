@@ -11,7 +11,13 @@
 //
 #include <gui/core/string_util.h>
 #include <gui/core/logger.h>
+
 #include <gui/win/dbg_win_message.h>
+#include <gui/win/attach_layout.h>
+#include <gui/win/adaption_layout.h>
+#include <gui/win/lineup_layout.h>
+#include <gui/win/grid_layout.h>
+
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/list.h>
@@ -126,6 +132,7 @@ namespace gui {
 // --------------------------------------------------------------------------
 class my_main_window : public win::layout_main_window<layout::attach> {
 public:
+  typedef win::layout_main_window<layout::attach> super;
   my_main_window (win::paint_event p1, win::paint_event p2);
 
   void onCreated (win::window*, const core::rectangle&);
@@ -136,11 +143,17 @@ public:
   static win::paint_event create_paint1();
   static win::paint_event create_paint2();
 
+  typedef super::clazz<my_main_window, color::very_very_light_gray> myclazz;
+
+  void create (const core::rectangle& r = core::rectangle::def) {
+    super::create(myclazz::get(), r);
+  }
+
 private:
   win::scroll_view scroll_view;
 
-  win::client_window window1;
-  win::client_window window2;
+  win::client_window<> window1;
+  win::client_window<> window2;
 
   win::horizontal_separator hseparator;
   win::vertical_separator vseparator;
@@ -156,7 +169,7 @@ private:
   win::vertical_separator btn_sep1;
   win::vertical_separator btn_sep2;
 
-  win::group_window<layout::horizontal_adaption<5, 10>, color::very_light_gray> btn_group;
+  win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 120>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
   win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group;
@@ -273,7 +286,7 @@ int gui_main(const std::vector<std::string>& args) {
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
-  size_t cln_size = sizeof(win::client_window);
+  size_t cln_size = sizeof(win::client_window<>);
   size_t btn_size = sizeof(win::button_base);
   size_t push_size = sizeof(win::button_base);
   size_t tgl_size = sizeof(win::basic_button<win::push_button_traits>);

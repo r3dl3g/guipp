@@ -378,10 +378,10 @@ namespace gui {
         } else if (enabled) {
           if (state.hilited) {
             switch (a) {
-              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(1.025), 3, 3, 3, 0), r.top_left());    break;
-              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(1.025), 3, 0, 3, 3), r.top_left()); break;
-              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(1.025), 3, 3, 0, 3), r.top_left());   break;
-              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(1.025), 0, 3, 3, 3), r.top_left());  break;
+              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(1.025F), 3, 3, 3, 0), r.top_left());    break;
+              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(1.025F), 3, 0, 3, 3), r.top_left()); break;
+              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(1.025F), 3, 3, 0, 3), r.top_left());   break;
+              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(1.025F), 0, 3, 3, 3), r.top_left());  break;
             }
           } else {
             switch (a) {
@@ -393,10 +393,10 @@ namespace gui {
           }
         } else {
           switch (a) {
-            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(0.75), 3, 3, 3, 0), r.top_left());    break;
-            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(0.75), 3, 0, 3, 3), r.top_left()); break;
-            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(0.75), 3, 3, 0, 3), r.top_left());   break;
-            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(0.75), 0, 3, 3, 3), r.top_left());  break;
+            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(0.75F), 3, 3, 3, 0), r.top_left());    break;
+            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(0.75F), 3, 0, 3, 3), r.top_left()); break;
+            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(0.75F), 3, 3, 0, 3), r.top_left());   break;
+            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(0.75F), 0, 3, 3, 3), r.top_left());  break;
           }
         }
         g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin::center), draw::font::system(), foreground);

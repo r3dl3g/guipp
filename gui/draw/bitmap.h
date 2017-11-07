@@ -563,7 +563,9 @@ namespace gui {
     template<BPP T>
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
-      bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
+      bmp.copy_from(*this, 
+                    core::rectangle(core::point_type(x), core::point_type(y), core::size_type(w), core::size_type(h)),
+                    core::point::zero);
       return bmp;
     }
 

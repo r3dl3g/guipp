@@ -109,6 +109,25 @@ namespace gui {
 
     } // namespace stretch
 
+    namespace adjust {
+
+      template<BPP bpp>
+      void brightness_row (byteptr data, uint32_t offset, uint32_t w, float f);
+
+      template<>
+      void brightness_row<BPP::GRAY> (byteptr data, uint32_t offset, uint32_t w, float f);
+
+      template<>
+      void brightness_row<BPP::RGB> (byteptr data, uint32_t offset, uint32_t w, float f);
+
+      template<>
+      void brightness_row<BPP::RGBA> (byteptr data, uint32_t offset, uint32_t w, float f);
+
+      template<BPP bpp>
+      void brightness (blob& data, const bitmap_info& bmi, float f);
+
+    }
+
     // --------------------------------------------------------------------------
     class bitmap {
     public:
@@ -203,7 +222,12 @@ namespace gui {
       void stretch_from (const datamap& src_img,
                          const core::rectangle& src_rect,
                          const core::rectangle& dest_rect);
+
+      void adjust_brightness (float f);
+
       datamap sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
+
+      datamap brightness (float f) const;
 
     };
 
@@ -363,6 +387,21 @@ namespace gui {
 
     } // namespace stretch
 
+    namespace adjust {
+
+      template<BPP bpp>
+      void brightness_row (byteptr data, uint32_t offset, uint32_t w, float f);
+
+      template<BPP bpp>
+      void brightness (blob& data, const bitmap_info& bmi, float f) {
+        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+          const uint32_t offs = y * bmi.bytes_per_line;
+          brightness_row<bpp>(data.data(), offs, bmi.width, f);
+        }
+      }
+
+    }
+
     // --------------------------------------------------------------------------
     inline bitmap_info::bitmap_info ()
       : width(0)
@@ -511,11 +550,31 @@ namespace gui {
       super::stretch_from(src_img, src_rect, dest_rect);
     }
 
-    // --------------------------------------------------------------------------
+    template<BPP T>
+    inline void datamap<T>::adjust_brightness (float f) {
+      blob data;
+      bitmap_info bmi;
+
+      super::get_data(data, bmi);
+      adjust::brightness<T>(data, bmi, f);
+      super::put_data(data, bmi);
+    }
+
     template<BPP T>
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
       bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
+      return bmp;
+    }
+
+    template<BPP T>
+    inline auto datamap<T>::brightness (float f) const -> datamap {
+      blob data;
+      bitmap_info bmi;
+      super::get_data(data, bmi);
+      adjust::brightness<T>(data, bmi, f);
+      datamap bmp;
+      bmp.super::create(data, bmi);
       return bmp;
     }
 

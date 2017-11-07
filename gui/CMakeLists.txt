@@ -13,7 +13,6 @@ if(UNIX)
   set (gui_Include ${gui_Include} /usr/include/freetype2)
 endif(UNIX)
 
-
 add_subdirectory(core gui_core)
 add_subdirectory(draw gui_draw)
 add_subdirectory(io gui_io)

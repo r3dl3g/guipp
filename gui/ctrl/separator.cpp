@@ -11,7 +11,7 @@
  *
  * Customer   -
  *
- * @brief     C++ API: label
+ * @brief     C++ API: separator view
  *
  * @file
  */

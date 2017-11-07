@@ -419,6 +419,37 @@ namespace gui {
 
     } // namespace stretch
 
+    namespace adjust {
+
+      template<>
+      void brightness_row<BPP::GRAY> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          data[offset + x] = static_cast<byte>(std::min<int>(0xff, static_cast<int>(data[offset + x] * f)));
+        }
+      }
+
+      template<>
+      void brightness_row<BPP::RGB> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          const uint32_t offs = offset + x * 3;
+          data[offs] = static_cast<byte>(data[offs] * f);
+          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
+          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
+        }
+      }
+
+      template<>
+      void brightness_row<BPP::RGBA> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          const uint32_t offs = offset + x * 4;
+          data[offs] = static_cast<byte>(data[offs] * f);
+          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
+          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
+        }
+      }
+
+    }
+
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info (uint32_t w, uint32_t h, BPP bpp)
       : width(w)

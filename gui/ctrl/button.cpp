@@ -73,11 +73,10 @@ namespace gui {
 
     } // namespace detail
 
-    template<bool rot = false>
-    const draw::graymap& get_button_frame (bool pressed) {
-      static draw::graymap image(detail::build_button_frame_image(false, rot));
-      static draw::graymap image_pressed(detail::build_button_frame_image(true, rot));
-      return pressed ? image_pressed : image;
+    template<bool rot, bool pressed>
+    const draw::graymap& get_button_frame () {
+      static draw::graymap image(detail::build_button_frame_image(pressed, rot));
+      return image;
     }
 
     const draw::graymap& get_simple_frame () {
@@ -90,30 +89,30 @@ namespace gui {
 
     template<>
     const draw::graymap& get_tab_frame<alignment::top> (bool pressed) {
-      static draw::graymap image(get_button_frame(false).sub(1, 0, 7, 24));
-      static draw::graymap image_pressed(get_button_frame(true).sub(1, 0, 7, 24));
-      return pressed ? image_pressed : image;
+      static draw::graymap image(get_button_frame<false, false>().sub(1, 0, 7, 24));
+      static draw::graymap image_pressed(get_button_frame<false, true>().sub(1, 0, 7, 24));
+      return !pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment::bottom> (bool pressed) {
-      static draw::graymap image(get_button_frame(false).sub(1, 4, 7, 24));
-      static draw::graymap image_pressed(get_button_frame(true).sub(1, 4, 7, 24));
-      return pressed ? image_pressed : image;
+      static draw::graymap image(get_button_frame<false, true>().sub(1, 4, 7, 24));
+      static draw::graymap image_pressed(get_button_frame<false, false>().sub(1, 4, 7, 24));
+      return !pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment::left> (bool pressed) {
-      static draw::graymap image(get_button_frame<true>(false).sub(0, 1, 24, 7));
-      static draw::graymap image_pressed(get_button_frame<true>(true).sub(0, 1, 24, 7));
-      return pressed ? image_pressed : image;
+      static draw::graymap image(get_button_frame<true, false>().sub(0, 1, 24, 7));
+      static draw::graymap image_pressed(get_button_frame<true, true>().sub(0, 1, 24, 7));
+      return !pressed ? image_pressed : image;
     }
 
     template<>
     const draw::graymap& get_tab_frame<alignment::right> (bool pressed) {
-      static draw::graymap image(get_button_frame<true>(false).sub(4, 1, 24, 7));
-      static draw::graymap image_pressed(get_button_frame<true>(true).sub(4, 1, 24, 7));
-      return pressed ? image_pressed : image;
+      static draw::graymap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
+      static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
+      return !pressed ? image_pressed : image;
     }
 
     button_state::button_state (bool pushed,
@@ -286,7 +285,7 @@ namespace gui {
                          const button_state& state,
                          bool focused,
                          bool enabled) {
-        graph.copy(draw::frame_image(r, get_button_frame<>(false), 4), r.top_left());
+        graph.copy(draw::frame_image(r, get_button_frame<false, false>(), 4), r.top_left());
         if (state.pushed) {
           draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }
@@ -369,40 +368,38 @@ namespace gui {
                        bool focused,
                        bool enabled,
                        os::color foreground) {
-        switch (a) {
-          case alignment::top:
-            g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(!state.checked), 3, 3, 3, 0), r.top_left());
-          break;
-          case alignment::bottom:
-            g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(!state.checked), 3, 0, 3, 3), r.top_left());
-          break;
-          case alignment::left:
-            g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(!state.checked), 3, 3, 0, 3), r.top_left());
-          break;
-          case alignment::right:
-            g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(!state.checked), 0, 3, 3, 3), r.top_left());
-          break;
+        if (state.checked) {
+          switch (a) {
+            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(true), 3, 3, 3, 0), r.top_left());    break;
+            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(true), 3, 0, 3, 3), r.top_left()); break;
+            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(true), 3, 3, 0, 3), r.top_left());   break;
+            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(true), 0, 3, 3, 3), r.top_left());  break;
+          }
+        } else if (enabled) {
+          if (state.hilited) {
+            switch (a) {
+              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(1.025), 3, 3, 3, 0), r.top_left());    break;
+              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(1.025), 3, 0, 3, 3), r.top_left()); break;
+              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(1.025), 3, 3, 0, 3), r.top_left());   break;
+              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(1.025), 0, 3, 3, 3), r.top_left());  break;
+            }
+          } else {
+            switch (a) {
+              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false), 3, 3, 3, 0), r.top_left());    break;
+              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false), 3, 0, 3, 3), r.top_left()); break;
+              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false), 3, 3, 0, 3), r.top_left());   break;
+              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false), 0, 3, 3, 3), r.top_left());  break;
+            }
+          }
+        } else {
+          switch (a) {
+            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(0.75), 3, 3, 3, 0), r.top_left());    break;
+            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(0.75), 3, 0, 3, 3), r.top_left()); break;
+            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(0.75), 3, 3, 0, 3), r.top_left());   break;
+            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(0.75), 0, 3, 3, 3), r.top_left());  break;
+          }
         }
-        core::rectangle area = r;
-        area.shrink({6, 6});
-
-        os::color f = foreground;
-//        if (enabled) {
-//          if (state.checked) {
-//          } else if (state.hilited) {
-//            b = color::lighter(background, 0.1);
-//          } else {
-//            b = color::darker(background, 0.2);
-//          }
-//        } else {
-//          b = color::darker(background, 0.3);
-//        }
-//        g.fill(draw::rectangle(area), b);
-
-        g.text(draw::text_box(text, area, text_origin::center), draw::font::system(), f);
-        if (enabled && focused) {
-          g.frame(draw::rectangle(area), draw::pen(f, dot_line_width, dot_line_style));
-        }
+        g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin::center), draw::font::system(), foreground);
       }
 
       // --------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include <gui/ctrl/column_list.h>
 #include <gui/ctrl/textbox.h>
 #include <gui/ctrl/std_dialogs.h>
+#include <gui/ctrl/tab_group.h>
 
 
 #define NO_EXPORT
@@ -88,23 +89,10 @@ private:
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
-  htoggle_group<color::black,
-                color::very_light_gray,
-                tab_button<color::black, alignment::top, true>,
-                horizontal_adaption<0, 0, 0, 50, 80>> hsegmented1;
-  htoggle_group<color::black,
-                color::very_light_gray,
-                tab_button<color::black, alignment::bottom, true>,
-                horizontal_adaption<0, 0, 0, 40, 70>> hsegmented2;
-
-  vtoggle_group<color::black,
-                color::very_light_gray,
-                tab_button<color::black, alignment::left, true>,
-                vertical_adaption<0, 0, 0, 30, 100>> vsegmented1;
-  vtoggle_group<color::black,
-                color::very_light_gray,
-                tab_button<color::black, alignment::right, true>,
-                vertical_adaption<0, 0, 0, 50, 80>> vsegmented2;
+  top_tab_group<color::black, color::very_light_gray, 50, 80> hsegmented1;
+  bottom_tab_group<color::black, color::very_light_gray, 40, 70> hsegmented2;
+  left_tab_group<color::black, color::very_light_gray, 30, 100> vsegmented1;
+  right_tab_group<color::black, color::very_light_gray, 50, 80> vsegmented2;
 
   client_window<color::rgb_gray<0xda>::value> window1;
   rgbamap rgba[2];
@@ -378,6 +366,20 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   hsegmented2.add_buttons({"eins", "zwei", "drei", "vier"});
   hsegmented2.create(client_view, core::rectangle(75, 439, 300, 25));
   hsegmented2.set_visible();
+
+  hsegmented2.get_button(0).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&]() {
+    hsegmented1.get_button(0).disable();
+    hsegmented2.get_button(3).disable();
+    vsegmented1.get_button(1).disable();
+    vsegmented2.disable();
+  }));
+
+  hsegmented2.get_button(1).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&]() {
+    hsegmented1.get_button(0).enable();
+    hsegmented2.get_button(3).enable();
+    vsegmented1.get_button(1).enable();
+    vsegmented2.enable();
+  }));
 
   vsegmented1.add_buttons({"one", "two", "three", "four"});
   vsegmented1.create(client_view, core::rectangle(10, 40, 60, 60));

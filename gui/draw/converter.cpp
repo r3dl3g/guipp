@@ -21,6 +21,8 @@
 // Common includes
 //
 #include <limits>
+#include <algorithm>
+
 
 // --------------------------------------------------------------------------
 //
@@ -89,18 +91,115 @@ namespace gui {
         return (v0 + v1 + v2) / 3;
       }
 
-      void line_converter<BPP::RGB, BPP::RGBA>::convert (cbyteptr in, byteptr out, uint32_t w) {
+      void line<BPP::RGB, BPP::RGBA>::convert (cbyteptr in, byteptr out, uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           reinterpret_cast<uint32_t*>(out)[x] = *reinterpret_cast<const uint32_t*>(in + x * 3) & 0x00ffffff;
         }
       }
 
-      void line_converter<BPP::RGBA, BPP::RGB>::convert (cbyteptr in, byteptr out, uint32_t w) {
+      void line<BPP::RGBA, BPP::RGB>::convert (cbyteptr in, byteptr out, uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           memcpy(out + x * 3, in + x * 4, 3);
         }
       }
 
-    }
-  }
-}
+    } // namespace bpp
+
+    // --------------------------------------------------------------------------
+    namespace stretch {
+
+      template<>
+      void row<BPP::GRAY> (const blob& src_data, blob& dest_data,
+                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
+        src_offs += src_x0;
+        dest_offs += dest_x0;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = x * src_w / dest_w;
+          dest_data[dest_offs + x] = src_data[src_offs + src_x];
+        }
+      }
+
+      template<>
+      void row<BPP::RGB> (const blob& src_data, blob& dest_data,
+                          uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
+        src_offs += src_x0 * 3;
+        dest_offs += dest_x0 * 3;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 3;
+          const uint32_t dest_x = dest_offs + x * 3;
+          dest_data[dest_x] = src_data[src_x];
+          dest_data[dest_x + 1] = src_data[src_x + 1];
+          dest_data[dest_x + 2] = src_data[src_x + 2];
+        }
+      }
+
+      template<>
+      void row<BPP::RGBA> (const blob& src_data, blob& dest_data,
+                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
+        src_offs += src_x0 * 4;
+        dest_offs += dest_x0 * 4;
+        for (uint_fast32_t x = 0; x < dest_w; ++x) {
+          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 4;
+          const uint32_t dest_x = dest_offs + x * 4;
+          dest_data[dest_x] = src_data[src_x];
+          dest_data[dest_x + 1] = src_data[src_x + 1];
+          dest_data[dest_x + 2] = src_data[src_x + 2];
+          dest_data[dest_x + 3] = src_data[src_x + 3];
+        }
+      }
+
+      template<>
+      void sub<BPP::BW> (const blob& src_data, uint32_t src_bpl,
+                         blob& dest_data, uint32_t dest_bpl,
+                         uint32_t src_x0, uint32_t src_y0,
+                         uint32_t src_w, uint32_t src_h,
+                         uint32_t dest_x0, uint32_t dest_y0,
+                         uint32_t dest_w, uint32_t dest_h) {
+        for (uint_fast32_t y = 0; y < dest_h; ++y) {
+          const uint32_t src_y = src_y0 + y * src_h / dest_h;
+          cbyteptr src = src_data.data() + (src_y * src_bpl);
+          byteptr dst = dest_data.data() + dest_y0 + (y * dest_bpl);
+          for (uint_fast32_t x = 0; x < dest_w; ++x) {
+            const uint32_t src_x = x * src_w / dest_w;
+            byte b = convert::bpp::get<BPP::BW>(src, src_x0 + src_x);
+            convert::bpp::set<BPP::BW>(dst, dest_x0 + x, b);
+          }
+        }
+      }
+
+    } // namespace stretch
+
+    namespace brightness {
+
+      template<>
+      void row<BPP::GRAY> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          data[offset + x] = static_cast<byte>(std::min<int>(0xff, static_cast<int>(data[offset + x] * f)));
+        }
+      }
+
+      template<>
+      void row<BPP::RGB> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          const uint32_t offs = offset + x * 3;
+          data[offs] = static_cast<byte>(data[offs] * f);
+          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
+          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
+        }
+      }
+
+      template<>
+      void row<BPP::RGBA> (byteptr data, uint32_t offset, uint32_t w, float f) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          const uint32_t offs = offset + x * 4;
+          data[offs] = static_cast<byte>(data[offs] * f);
+          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
+          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
+        }
+      }
+
+    } // namespace brightness
+
+  } // namespace convert
+
+} // namespace gui

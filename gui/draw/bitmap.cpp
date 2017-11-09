@@ -30,6 +30,7 @@
 // Library includes
 //
 #include <gui/draw/bitmap.h>
+#include <gui/draw/graphics.h>
 
 #ifdef X11
 
@@ -310,37 +311,37 @@ namespace gui {
       switch (bmi.bits_per_pixel) {
         case BPP::BW:
           switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::GRAY:
           switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::RGB:
           switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);    break;
-            case BPP::GRAY: bpp_converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGB:  bpp_converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::RGBA: bpp_converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::BW:   bpp::converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);    break;
+            case BPP::GRAY: bpp::converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGB:  bpp::converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::RGBA: bpp::converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::RGBA:
           switch (dst_bpp) {
-            case BPP::BW:   bpp_converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp_converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp_converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp_converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;
@@ -352,103 +353,6 @@ namespace gui {
   }
 
   namespace draw {
-
-    // --------------------------------------------------------------------------
-    namespace stretch {
-
-      template<>
-      void row<BPP::GRAY> (const blob& src_data, blob& dest_data,
-                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
-        src_offs += src_x0;
-        dest_offs += dest_x0;
-        for (uint_fast32_t x = 0; x < dest_w; ++x) {
-          const uint32_t src_x = x * src_w / dest_w;
-          dest_data[dest_offs + x] = src_data[src_offs + src_x];
-        }
-      }
-
-      template<>
-      void row<BPP::RGB> (const blob& src_data, blob& dest_data,
-                          uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
-        src_offs += src_x0 * 3;
-        dest_offs += dest_x0 * 3;
-        for (uint_fast32_t x = 0; x < dest_w; ++x) {
-          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 3;
-          const uint32_t dest_x = dest_offs + x * 3;
-          dest_data[dest_x] = src_data[src_x];
-          dest_data[dest_x + 1] = src_data[src_x + 1];
-          dest_data[dest_x + 2] = src_data[src_x + 2];
-        }
-      }
-
-      template<>
-      void row<BPP::RGBA> (const blob& src_data, blob& dest_data,
-                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w) {
-        src_offs += src_x0 * 4;
-        dest_offs += dest_x0 * 4;
-        for (uint_fast32_t x = 0; x < dest_w; ++x) {
-          const uint32_t src_x = src_offs + (x * src_w / dest_w) * 4;
-          const uint32_t dest_x = dest_offs + x * 4;
-          dest_data[dest_x] = src_data[src_x];
-          dest_data[dest_x + 1] = src_data[src_x + 1];
-          dest_data[dest_x + 2] = src_data[src_x + 2];
-          dest_data[dest_x + 3] = src_data[src_x + 3];
-        }
-      }
-
-      template<>
-      void sub<BPP::BW> (const blob& src_data,
-                         const bitmap_info& src_bmi,
-                         blob& dest_data,
-                         const bitmap_info& dest_bmi,
-                         uint32_t src_x0, uint32_t src_y0,
-                         uint32_t src_w, uint32_t src_h,
-                         uint32_t dest_x0, uint32_t dest_y0,
-                         uint32_t dest_w, uint32_t dest_h) {
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          const uint32_t src_y = src_y0 + y * src_h / dest_h;
-          cbyteptr src = src_data.data() + (src_y * src_bmi.bytes_per_line);
-          byteptr dst = dest_data.data() + dest_y0 + (y * dest_bmi.bytes_per_line);
-          for (uint_fast32_t x = 0; x < dest_w; ++x) {
-            const uint32_t src_x = x * src_w / dest_w;
-            byte b = convert::bpp::get<BPP::BW>(src, src_x0 + src_x);
-            convert::bpp::set<BPP::BW>(dst, dest_x0 + x, b);
-          }
-        }
-      }
-
-    } // namespace stretch
-
-    namespace adjust {
-
-      template<>
-      void brightness_row<BPP::GRAY> (byteptr data, uint32_t offset, uint32_t w, float f) {
-        for (uint_fast32_t x = 0; x < w; ++x) {
-          data[offset + x] = static_cast<byte>(std::min<int>(0xff, static_cast<int>(data[offset + x] * f)));
-        }
-      }
-
-      template<>
-      void brightness_row<BPP::RGB> (byteptr data, uint32_t offset, uint32_t w, float f) {
-        for (uint_fast32_t x = 0; x < w; ++x) {
-          const uint32_t offs = offset + x * 3;
-          data[offs] = static_cast<byte>(data[offs] * f);
-          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
-          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
-        }
-      }
-
-      template<>
-      void brightness_row<BPP::RGBA> (byteptr data, uint32_t offset, uint32_t w, float f) {
-        for (uint_fast32_t x = 0; x < w; ++x) {
-          const uint32_t offs = offset + x * 4;
-          data[offs] = static_cast<byte>(data[offs] * f);
-          data[offs + 1] = static_cast<byte>(data[offs + 1] * f);
-          data[offs + 2] = static_cast<byte>(data[offs + 2] * f);
-        }
-      }
-
-    }
 
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info (uint32_t w, uint32_t h, BPP bpp)
@@ -642,26 +546,27 @@ namespace gui {
       const uint32_t dest_w = std::min<uint32_t>(dest_bmi.width - dest_x0, src_w);
       const uint32_t dest_h = std::min<uint32_t>(dest_bmi.height - dest_y0, src_h);
 
+      const uint32_t src_bpl = src_bmi.bytes_per_line;
+      const uint32_t dest_bpl = dest_bmi.bytes_per_line;
+
       if ((dest_w < 1) ||(dest_h < 1)) {
         return;
       }
 
+      using namespace convert;
+
       switch (dest_bmi.bits_per_pixel) {
         case BPP::BW:
-          copy::sub<BPP::BW>(src_data, src_bmi, dest_data, dest_bmi,
-                             src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+          copy::sub<BPP::BW>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::GRAY:
-          copy::sub<BPP::GRAY>(src_data, src_bmi, dest_data, dest_bmi,
-                               src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+          copy::sub<BPP::GRAY>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::RGB:
-          copy::sub<BPP::RGB>(src_data, src_bmi, dest_data, dest_bmi,
-                              src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+          copy::sub<BPP::RGB>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::RGBA:
-          copy::sub<BPP::RGBA>(src_data, src_bmi, dest_data, dest_bmi,
-                               src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+          copy::sub<BPP::RGBA>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
         break;
       }
 
@@ -701,18 +606,23 @@ namespace gui {
         return;
       }
 
+      const uint32_t src_bpl = src_bmi.bytes_per_line;
+      const uint32_t dest_bpl = dest_bmi.bytes_per_line;
+
+      using namespace convert;
+
       switch (dest_bmi.bits_per_pixel) {
         case BPP::BW:
-          stretch::sub<BPP::BW>(src_data, src_bmi, dest_data, dest_bmi, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+          stretch::sub<BPP::BW>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::GRAY:
-          stretch::sub<BPP::GRAY>(src_data, src_bmi, dest_data, dest_bmi, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+          stretch::sub<BPP::GRAY>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::RGB:
-          stretch::sub<BPP::RGB>(src_data, src_bmi, dest_data, dest_bmi, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+          stretch::sub<BPP::RGB>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
         break;
         case BPP::RGBA:
-          stretch::sub<BPP::RGBA>(src_data, src_bmi, dest_data, dest_bmi, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+          stretch::sub<BPP::RGBA>(src_data, src_bpl, dest_data, dest_bpl, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
         break;
       }
 
@@ -785,30 +695,32 @@ namespace gui {
 
       const uint32_t target_right = dest_bmi.width - right;
       const uint32_t target_bottom = dest_bmi.height - bottom;
+      const uint32_t target_bpl = dest_bmi.bytes_per_line;
       const uint32_t source_right = src_bmi.width - right;
       const uint32_t source_bottom = src_bmi.height - bottom;
+      const uint32_t src_bpl = src_bmi.bytes_per_line;
+      const uint32_t dest_bpl = dest_bmi.bytes_per_line;
+
+      using namespace convert;
 
       // top left
       if (top && left) {
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       0, 0, 0, 0, left, top);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, 0, 0, 0, 0, left, top);
       }
 
       // top right
       if (top && right) {
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       source_right, 0, target_right, 0, right, top);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, source_right, 0, target_right, 0, right, top);
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
-                       0, source_bottom, 0, target_bottom, left, bottom);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, 0, source_bottom, 0, target_bottom, left, bottom);
       }
 
       if (bottom && right) {
         // bottom right
-        copy::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                        source_right, source_bottom, target_right, target_bottom, right, bottom);
       }
 
@@ -820,35 +732,35 @@ namespace gui {
 
         // top center
         if (top && target_inner_width) {
-          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                             left, 0, source_inner_width, top,
                             left, 0, target_inner_width, top);
         }
 
         // bottom center
         if (bottom && target_inner_width) {
-          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                             left, source_bottom, source_inner_width, bottom,
                             left, target_bottom, target_inner_width, bottom);
         }
 
         // left center
         if (left && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                             0, top, left, source_inner_height,
                             0, top, left, target_inner_height);
         }
 
         // right center
         if (right && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                             source_right, top, right, source_inner_height,
                             target_right, top, right, target_inner_height);
         }
 
         // center
         if (target_inner_width && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bmi, dest_data, dest_bmi,
+          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
                             left, top, source_inner_width, source_inner_height,
                             left, top, target_inner_width, target_inner_height);
         }

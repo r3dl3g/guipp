@@ -30,6 +30,8 @@ namespace gui {
 
   namespace draw {
 
+    class graphics;
+
     struct bitmap_info {
       bitmap_info ();
       bitmap_info (uint32_t w, uint32_t h, BPP bpp);
@@ -45,88 +47,6 @@ namespace gui {
       std::size_t mem_size () const;
 
     };
-
-    namespace copy {
-
-      // --------------------------------------------------------------------------
-      template<BPP bpp>
-      void row (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w);
-
-      template<>
-      void row<BPP::BW> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w);
-
-      template<>
-      void row<BPP::GRAY> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w);
-
-      template<>
-      void row<BPP::RGB> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w);
-
-      template<>
-      void row<BPP::RGBA> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w);
-
-      template<BPP bpp>
-      void sub (const blob& src_data,
-                const bitmap_info& src_bmi,
-                blob& dest_data,
-                const bitmap_info& dest_bmi,
-                uint32_t src_x0, uint32_t src_y0,
-                uint32_t dest_x0, uint32_t dest_y0,
-                uint32_t dest_w, uint32_t dest_h);
-
-
-    } // namespace copy
-
-    // --------------------------------------------------------------------------
-    namespace stretch {
-
-      template<BPP bpp>
-      void row (const blob& src_data, blob& dest_data,
-                uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w);
-
-      template<>
-      void row<BPP::GRAY> (const blob& src_data, blob& dest_data,
-                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w);
-
-      template<>
-      void row<BPP::RGB> (const blob& src_data, blob& dest_data,
-                          uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w);
-
-      template<>
-      void row<BPP::RGBA> (const blob& src_data, blob& dest_data,
-                           uint32_t src_offs, uint32_t dest_offs, uint32_t src_x0, uint32_t dest_x0, uint32_t src_w, uint32_t dest_w);
-
-      template<BPP bpp>
-      void sub (const blob& src_data, const bitmap_info& src_bmi,
-                blob& dest_data, const bitmap_info& dest_bmi,
-                uint32_t src_x0, uint32_t src_y0, uint32_t src_w, uint32_t src_h,
-                uint32_t dest_x0, uint32_t dest_y0, uint32_t dest_w, uint32_t dest_h);
-
-      template<>
-      void sub<BPP::BW> (const blob& src_data, const bitmap_info& src_bmi,
-                         blob& dest_data, const bitmap_info& dest_bmi,
-                         uint32_t src_x0, uint32_t src_y0, uint32_t src_w, uint32_t src_h,
-                         uint32_t dest_x0, uint32_t dest_y0, uint32_t dest_w, uint32_t dest_h);
-
-    } // namespace stretch
-
-    namespace adjust {
-
-      template<BPP bpp>
-      void brightness_row (byteptr data, uint32_t offset, uint32_t w, float f);
-
-      template<>
-      void brightness_row<BPP::GRAY> (byteptr data, uint32_t offset, uint32_t w, float f);
-
-      template<>
-      void brightness_row<BPP::RGB> (byteptr data, uint32_t offset, uint32_t w, float f);
-
-      template<>
-      void brightness_row<BPP::RGBA> (byteptr data, uint32_t offset, uint32_t w, float f);
-
-      template<BPP bpp>
-      void brightness (blob& data, const bitmap_info& bmi, float f);
-
-    }
 
     // --------------------------------------------------------------------------
     class bitmap {
@@ -327,81 +247,6 @@ namespace gui {
     //
     // inlines
     //
-    namespace copy {
-
-      template<>
-      inline void row<BPP::BW> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w) {
-        for (uint_fast32_t x = 0; x < dest_w; ++x) {
-          byte b = convert::bpp::get<BPP::BW>(src, src_x0 + x);
-          convert::bpp::set<BPP::BW>(dst, dest_x0 + x, b);
-        }
-      }
-
-      template<>
-      inline void row<BPP::GRAY> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w) {
-        memcpy(dst + dest_x0, src + src_x0, dest_w);
-      }
-
-      template<>
-      inline void row<BPP::RGB> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w) {
-        memcpy(dst + dest_x0 * 3, src + src_x0 * 3, dest_w * 3);
-      }
-
-      template<>
-      inline void row<BPP::RGBA> (cbyteptr src, byteptr dst, uint32_t src_x0, uint32_t dest_x0, uint32_t dest_w) {
-        memcpy(dst + dest_x0 * 4, src + src_x0 * 4, dest_w * 4);
-      }
-
-      template<BPP bpp>
-      void sub (const blob& src_data,
-                const bitmap_info& src_bmi,
-                blob& dest_data,
-                const bitmap_info& dest_bmi,
-                uint32_t src_x0, uint32_t src_y0,
-                uint32_t dest_x0, uint32_t dest_y0,
-                uint32_t dest_w, uint32_t dest_h) {
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          cbyteptr src = src_data.data() + (src_y0 + y) * src_bmi.bytes_per_line;
-          byteptr dst = dest_data.data() + (dest_y0 + y) * dest_bmi.bytes_per_line;
-          row<bpp>(src, dst, src_x0, dest_x0, dest_w);
-        }
-      }
-
-    } // namespace copy
-
-    // --------------------------------------------------------------------------
-    namespace stretch {
-
-      template<BPP bpp>
-      void sub (const blob& src_data, const bitmap_info& src_bmi,
-                blob& dest_data, const bitmap_info& dest_bmi,
-                uint32_t src_x0, uint32_t src_y0, uint32_t src_w, uint32_t src_h,
-                uint32_t dest_x0, uint32_t dest_y0, uint32_t dest_w, uint32_t dest_h) {
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          const uint32_t src_y = src_y0 + y * src_h / dest_h;
-          const uint32_t src_offs = src_y * src_bmi.bytes_per_line;
-          const uint32_t dest_offs = (dest_y0 + y) * dest_bmi.bytes_per_line;
-          row<bpp>(src_data, dest_data, src_offs, dest_offs, src_x0, dest_x0, src_w, dest_w);
-        }
-      }
-
-    } // namespace stretch
-
-    namespace adjust {
-
-      template<BPP bpp>
-      void brightness_row (byteptr data, uint32_t offset, uint32_t w, float f);
-
-      template<BPP bpp>
-      void brightness (blob& data, const bitmap_info& bmi, float f) {
-        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-          const uint32_t offs = y * bmi.bytes_per_line;
-          brightness_row<bpp>(data.data(), offs, bmi.width, f);
-        }
-      }
-
-    }
-
     // --------------------------------------------------------------------------
     inline bitmap_info::bitmap_info ()
       : width(0)
@@ -556,7 +401,7 @@ namespace gui {
       bitmap_info bmi;
 
       super::get_data(data, bmi);
-      adjust::brightness<T>(data, bmi, f);
+      convert::brightness::adjust<T>(data, bmi.width, bmi.height, bmi.bytes_per_line, f);
       super::put_data(data, bmi);
     }
 
@@ -574,7 +419,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       super::get_data(data, bmi);
-      adjust::brightness<T>(data, bmi, f);
+      convert::brightness::adjust<T>(data, bmi.width, bmi.height, bmi.bytes_per_line, f);
       datamap bmp;
       bmp.super::create(data, bmi);
       return bmp;

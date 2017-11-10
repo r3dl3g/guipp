@@ -311,37 +311,37 @@ namespace gui {
       switch (bmi.bits_per_pixel) {
         case BPP::BW:
           switch (dst_bpp) {
-            case BPP::BW:   bpp::converter<BPP::BW, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp::converter<BPP::BW, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp::converter<BPP::BW, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp::converter<BPP::BW, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::convert<BPP::BW, BPP::BW>(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::convert<BPP::BW, BPP::GRAY>(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::convert<BPP::BW, BPP::RGB>(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::convert<BPP::BW, BPP::RGBA>(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::GRAY:
           switch (dst_bpp) {
-            case BPP::BW:   bpp::converter<BPP::GRAY, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp::converter<BPP::GRAY, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp::converter<BPP::GRAY, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp::converter<BPP::GRAY, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::convert<BPP::GRAY, BPP::BW>(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::convert<BPP::GRAY, BPP::GRAY>(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::convert<BPP::GRAY, BPP::RGB>(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::convert<BPP::GRAY, BPP::RGBA>(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::RGB:
           switch (dst_bpp) {
-            case BPP::BW:   bpp::converter<BPP::RGB, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);    break;
-            case BPP::GRAY: bpp::converter<BPP::RGB, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGB:  bpp::converter<BPP::RGB, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::RGBA: bpp::converter<BPP::RGB, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::BW:   bpp::convert<BPP::RGB, BPP::BW>(src, dst, w, h, src_bpl, dst_bpl);    break;
+            case BPP::GRAY: bpp::convert<BPP::RGB, BPP::GRAY>(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGB:  bpp::convert<BPP::RGB, BPP::RGB>(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::RGBA: bpp::convert<BPP::RGB, BPP::RGBA>(src, dst, w, h, src_bpl, dst_bpl);  break;
             case BPP::Undefined: break;
           }
         break;
         case BPP::RGBA:
           switch (dst_bpp) {
-            case BPP::BW:   bpp::converter<BPP::RGBA, BPP::BW>::convert(src, dst, w, h, src_bpl, dst_bpl);   break;
-            case BPP::GRAY: bpp::converter<BPP::RGBA, BPP::GRAY>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
-            case BPP::RGB:  bpp::converter<BPP::RGBA, BPP::RGB>::convert(src, dst, w, h, src_bpl, dst_bpl);  break;
-            case BPP::RGBA: bpp::converter<BPP::RGBA, BPP::RGBA>::convert(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::BW:   bpp::convert<BPP::RGBA, BPP::BW>(src, dst, w, h, src_bpl, dst_bpl);   break;
+            case BPP::GRAY: bpp::convert<BPP::RGBA, BPP::GRAY>(src, dst, w, h, src_bpl, dst_bpl); break;
+            case BPP::RGB:  bpp::convert<BPP::RGBA, BPP::RGB>(src, dst, w, h, src_bpl, dst_bpl);  break;
+            case BPP::RGBA: bpp::convert<BPP::RGBA, BPP::RGBA>(src, dst, w, h, src_bpl, dst_bpl); break;
             case BPP::Undefined: break;
           }
         break;

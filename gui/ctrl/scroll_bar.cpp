@@ -38,6 +38,7 @@ namespace gui {
 
     scroll_bar_data::scroll_bar_data ()
       : state(scrollbar_state::nothing)
+      , hilite(scrollbar_state::nothing)
       , min(0)
       , max(100)
       , step(1)
@@ -68,7 +69,11 @@ namespace gui {
 #ifdef X11
       static int initialized = detail::init_control_messages();
 #endif // X11
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
+      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        redraw_later();
+      }));
+      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
+        set_hilite(scrollbar_state::nothing);
         redraw_later();
       }));
 
@@ -97,8 +102,12 @@ namespace gui {
       return data.value;
     }
 
-    scrollbar_state scroll_bar::get_state () {
+    scrollbar_state scroll_bar::get_state () const {
       return data.state;
+    }
+
+    scrollbar_state scroll_bar::get_hilite () const {
+      return data.hilite;
     }
 
     void scroll_bar::set_min (type mi) {
@@ -152,6 +161,10 @@ namespace gui {
       data.state = s;
     }
 
+    void scroll_bar::set_hilite (scrollbar_state s) {
+      data.hilite = s;
+    }
+
     scroll_bar::type scroll_bar::get_last_value () const {
       return data.last_value;
     }
@@ -182,6 +195,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       void scrollbar (const draw::graphics &g,
                       scrollbar_state state,
+                      scrollbar_state hilite,
                       bool is_enabled,
                       bool horizontal,
                       bool has_focus,
@@ -202,12 +216,10 @@ namespace gui {
         }
         os::color col = is_enabled ? color::black : color::gray;
         if (!up.empty()) {
-          paint::simple_frame(g, up);//, button_state(state == scrollbar_state::up_button), false, true);
+          paint::simple_frame(g, up, scrollbar_state::up_button == hilite);
           if (scrollbar_state::up_button == state) {
             draw::frame::sunken_relief(g, up.shrinked(core::size::two));
           }
-//          g.fill(draw::rectangle(up), color::buttonColor());
-//          draw::frame::relief(g, up, state == scrollbar_state::up_button);
           core::rectangle r = up.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -220,12 +232,10 @@ namespace gui {
           }
         }
         if (!down.empty()) {
-          paint::simple_frame(g, down);//, button_state(state == scrollbar_state::down_button), false, true);
+          paint::simple_frame(g, down, scrollbar_state::down_button == hilite);
           if (scrollbar_state::down_button == state) {
             draw::frame::sunken_relief(g, down.shrinked(core::size::two));
           }
-//          g.fill(draw::rectangle(down), color::buttonColor());
-//          draw::frame::relief(g, down, state == scrollbar_state::down_button);
           core::rectangle r = down.shrinked({5, 5});
           if (!r.empty()) {
             std::vector<core::point> p;
@@ -238,12 +248,7 @@ namespace gui {
           }
         }
         if (!thumb.empty()) {
-          paint::simple_frame(g, thumb);//, button_state(state == scrollbar_state::thumb_button), false, true);
-//          g.fill(draw::rectangle(thumb), color::buttonColor());
-//          draw::frame::raised_relief(g, thumb);
-//          if (has_focus) {
-//            draw::frame::dots(g, thumb);
-//          }
+          paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite);
           if (scrollbar_state::thumb_button == state) {
             draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
           }
@@ -266,18 +271,36 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g) {
       auto geo = get_geometry();
-      paint::scrollbar(g, get_state(), is_enabled(), true, has_focus(),
+      paint::scrollbar(g, get_state(), get_hilite(), is_enabled(), true, has_focus(),
                        up_button_place(geo), down_button_place(geo),
                        thumb_button_place(geo), page_up_place(geo), page_down_place(geo));
     }
 
     template<>
     void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      if (is_enabled() && left_button_bit_mask::is_set(keys)) {
-        // check if on thumb
-        if (get_state() == scrollbar_state::thumb_button) {
-          type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
-          set_value(get_last_value() + delta, true);
+      if (is_enabled()) {
+        if (left_button_bit_mask::is_set(keys)) {
+          // check if on thumb
+          if (get_state() == scrollbar_state::thumb_button) {
+            type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
+            set_value(get_last_value() + delta, true);
+          }
+        } else {
+          auto geo = get_geometry();
+          if (up_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::up_button);
+          } else if (down_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::down_button);
+          } else if (thumb_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::thumb_button);
+          } else if (page_up_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_up);
+          } else if (page_down_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_down);
+          } else {
+            set_hilite(scrollbar_state::nothing);
+          }
+          redraw_later();
         }
       }
     }
@@ -328,18 +351,36 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g) {
       auto geo = get_geometry();
-      paint::scrollbar(g, get_state(), is_enabled(), false, has_focus(),
+      paint::scrollbar(g, get_state(), get_hilite(), is_enabled(), false, has_focus(),
                        up_button_place(geo), down_button_place(geo),
                        thumb_button_place(geo), page_up_place(geo), page_down_place(geo));
     }
 
     template<>
     void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      if (is_enabled() && left_button_bit_mask::is_set(keys)) {
-        // check if on thumb
-        if (get_state() == scrollbar_state::thumb_button) {
-          type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
-          set_value(get_last_value() + delta, true);
+      if (is_enabled()) {
+        if (left_button_bit_mask::is_set(keys)) {
+          // check if on thumb
+          if (get_state() == scrollbar_state::thumb_button) {
+            type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
+            set_value(get_last_value() + delta, true);
+          }
+        } else {
+          auto geo = get_geometry();
+          if (up_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::up_button);
+          } else if (down_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::down_button);
+          } else if (thumb_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::thumb_button);
+          } else if (page_up_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_up);
+          } else if (page_down_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_down);
+          } else {
+            set_hilite(scrollbar_state::nothing);
+          }
+          redraw_later();
         }
       }
     }

@@ -275,8 +275,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void simple_frame (const draw::graphics& graph,
-                         const core::rectangle& r) {
-        graph.copy(draw::frame_image(r, get_simple_frame(), 3), r.top_left());
+                         const core::rectangle& r,
+                         bool hilite) {
+        graph.copy(draw::frame_image(r, hilite ? get_simple_frame().brightness(1.025F) : get_simple_frame(), 3), r.top_left());
       }
 
       // --------------------------------------------------------------------------
@@ -285,7 +286,11 @@ namespace gui {
                          const button_state& state,
                          bool focused,
                          bool enabled) {
-        graph.copy(draw::frame_image(r, get_button_frame<false, false>(), 4), r.top_left());
+        if (state.hilited) {
+          graph.copy(draw::frame_image(r, get_button_frame<false, false>().brightness(1.025F), 4), r.top_left());
+        } else {
+          graph.copy(draw::frame_image(r, get_button_frame<false, false>(), 4), r.top_left());
+        }
         if (state.pushed) {
           draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }

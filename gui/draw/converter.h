@@ -43,9 +43,7 @@ namespace gui {
       };
 
       template<BPP From, BPP To>
-      struct converter {
-        static void convert (const blob& src, blob& dst, uint32_t w, uint32_t h, uint32_t src_bpl, uint32_t dst_bpl);
-      };
+      void convert (const blob& src, blob& dst, uint32_t w, uint32_t h, uint32_t src_bpl, uint32_t dst_bpl);
 
     } // namespace bpp
 
@@ -177,7 +175,7 @@ namespace gui {
       };
 
       template<BPP From, BPP To>
-      void converter<From, To>::convert (const blob& src, blob& dst, uint32_t w, uint32_t h, uint32_t src_bpl, uint32_t dst_bpl) {
+      void convert (const blob& src, blob& dst, uint32_t w, uint32_t h, uint32_t src_bpl, uint32_t dst_bpl) {
         for (uint_fast32_t y = 0; y < h; ++y) {
           line<From, To>::convert(src.data() + (y * src_bpl), dst.data() + (y * dst_bpl), w);
         }

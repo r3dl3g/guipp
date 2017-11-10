@@ -63,6 +63,7 @@ namespace gui {
       scroll_bar_data ();
 
       scrollbar_state state;
+      scrollbar_state hilite;
 
       type min;
       type max;
@@ -102,7 +103,8 @@ namespace gui {
         return scroll_bar_width;
       }
 
-      scrollbar_state get_state ();
+      scrollbar_state get_state () const;
+      scrollbar_state get_hilite () const;
 
       void send_notify ();
 
@@ -115,7 +117,8 @@ namespace gui {
                    const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void set_state(scrollbar_state);
+      void set_state (scrollbar_state);
+      void set_hilite (scrollbar_state);
 
       type get_last_value () const;
       void set_last_value (type last_value);

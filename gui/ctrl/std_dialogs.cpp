@@ -48,8 +48,8 @@ namespace gui {
         }
       }));
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
-                               yes.take_focus();
-                             }));
+        yes.take_focus();
+      }));
 
       get_layout().set_bottom(&buttons);
 

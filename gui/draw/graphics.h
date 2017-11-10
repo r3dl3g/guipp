@@ -55,16 +55,16 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
-  inline constexpr text_origin operator| (placement lhs, placement rhs) {
-    return text_origin(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  inline constexpr unsigned short operator| (placement lhs, placement rhs) {
+    return (static_cast<unsigned short>(lhs) | static_cast<unsigned short>(rhs));
   }
 
-  inline constexpr text_origin operator| (text_origin lhs, placement rhs) {
-    return text_origin(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  inline constexpr unsigned short operator| (unsigned short lhs, placement rhs) {
+    return (lhs | static_cast<unsigned short>(rhs));
   }
 
   inline constexpr bool operator== (text_origin lhs, placement rhs) {
-    return (static_cast<unsigned int>(lhs) == static_cast<unsigned int>(rhs));
+    return (static_cast<unsigned short>(lhs) == static_cast<unsigned short>(rhs));
   }
 
   // --------------------------------------------------------------------------
@@ -73,8 +73,8 @@ namespace gui {
     singleline      = IF_WIN32_ELSE(DT_SINGLELINE, 0x0020)
   };
 
-  inline constexpr text_origin operator| (text_origin lhs, line_handling rhs) {
-    return text_origin(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  inline constexpr unsigned short operator| (unsigned short lhs, line_handling rhs) {
+    return (lhs | static_cast<unsigned int>(rhs));
   }
 
   // --------------------------------------------------------------------------

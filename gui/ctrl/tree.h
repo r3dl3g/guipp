@@ -93,7 +93,7 @@ namespace gui {
 
         type root;
 
-        basic_tree (core::size_type item_size = 20,
+        basic_tree (core::size::type item_size = 20,
                     os::color background = color::white,
                     bool grab_focus = true);
         basic_tree (const basic_tree& rhs);
@@ -210,7 +210,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       // inlines
       template<typename I>
-      basic_tree<I>::basic_tree (core::size_type item_size,
+      basic_tree<I>::basic_tree (core::size::type item_size,
                                  os::color background,
                                  bool grab_focus)
         : super(item_size, background, grab_focus)
@@ -246,7 +246,7 @@ namespace gui {
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {
             const depth_info& i = nodes[idx];
-            core::point_type x = core::point_type(i.depth * 16);
+            core::point::type x = core::point::type(i.depth * 16);
             if ((x <= pt.x()) && (x + 16 >= pt.x())) {
               toggle_node(idx);
             }

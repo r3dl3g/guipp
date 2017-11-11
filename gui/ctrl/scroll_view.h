@@ -231,11 +231,11 @@ namespace gui {
         vscroll.set_value(pos.y(), false);
         super::layout();
       }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&] (const core::point_type delta,
+      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&] (const core::point::type delta,
                                                                         const core::point & pt) {
         hscroll.handle_wheel(delta, pt);
       }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&] (const core::point_type delta,
+      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&] (const core::point::type delta,
                                                                         const core::point & pt) {
         vscroll.handle_wheel(delta, pt);
       }));

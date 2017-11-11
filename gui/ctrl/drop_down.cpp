@@ -32,12 +32,12 @@ namespace gui {
     }
 
     core::rectangle drop_down::label_place (const core::size& sz) {
-      core::size_type h = sz.height() - 4;
+      core::size::type h = sz.height() - 4;
       return core::rectangle(core::point(2, 2), core::size(sz.width() - h - 4, h));
     }
 
     core::rectangle drop_down::button_place (const core::size& sz) {
-      core::size_type h = sz.height() - 4;
+      core::size::type h = sz.height() - 4;
       return core::rectangle(core::point(sz.width() - h - 2, 2), core::size(h, h));
     }
 

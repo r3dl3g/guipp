@@ -39,8 +39,8 @@ namespace gui {
                      os::color foreground,
                      os::color background,
                      const text_origin origin,
-                     const core::range<core::position<int> >& selection,
-                     const core::position<int>& cursor_pos,
+                     const core::range<core::basic_point<int> >& selection,
+                     const core::basic_point<int>& cursor_pos,
                      const core::point& offset,
                      const bool has_focus);
 
@@ -57,7 +57,7 @@ namespace gui {
         typedef std::vector<std::string> strings;
         typedef strings::size_type size_type;
 
-        typedef core::position<int> position;
+        typedef core::basic_point<int> position;
         typedef core::range<position> range;
 
         void create (const container& parent,
@@ -152,7 +152,7 @@ namespace gui {
         set_text(txt);
       }
 
-      inline auto textbox_base::row_count() const->size_type {
+      inline auto textbox_base::row_count() const-> size_type {
         return data.lines.size();
       }
 

@@ -62,7 +62,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace table {
 
-      typedef core::position<int> position;
+      typedef core::basic_point<int> position;
+      typedef core::basic_size<int> offset;
 
       // --------------------------------------------------------------------------
       typedef void (cell_drawer)(const position&,        // position
@@ -131,37 +132,37 @@ namespace gui {
       // --------------------------------------------------------------------------
       class layout {
       public:
-        layout (core::size_type default_size);
+        layout (core::size::type default_size);
 
-        core::size_type get_default_size () const;
-        core::size_type get_size (std::size_t idx) const;
-        core::point_type get_offset () const;
+        core::size::type get_default_size () const;
+        core::size::type get_size (std::size_t idx) const;
+        core::point::type get_offset () const;
 
         std::size_t get_first_idx () const;
-        core::point_type get_first_offset () const;
+        core::point::type get_first_offset () const;
 
-        void set_size (std::size_t idx, core::size_type size);
-        void set_offset (core::point_type offset);
+        void set_size (std::size_t idx, core::size::type size);
+        void set_offset (core::point::type offset);
 
-        int index_at (core::point_type pt) const;
-        core::point_type position_of (int idx) const;
-        int split_idx_at (core::point_type pt, core::size_type delta) const;
+        int index_at (core::point::type pt) const;
+        core::point::type position_of (int idx) const;
+        int split_idx_at (core::point::type pt, core::size::type delta) const;
 
         void calc ();
 
       private:
         std::size_t first_idx;
-        core::point_type offset;
-        core::point_type first_offset;
+        core::point::type offset;
+        core::point::type first_offset;
 
-        data::vector<core::size_type> sizes;
+        data::vector<core::size::type> sizes;
       };
 
       // --------------------------------------------------------------------------
       class metric {
       public:
-        metric (core::size_type default_width,
-                core::size_type default_height);
+        metric (core::size::type default_width,
+                core::size::type default_height);
 
         core::point position_of (const position& cell) const;
         position index_at (const core::point& pt) const;
@@ -374,10 +375,10 @@ namespace gui {
                           color::black,
                           color::very_very_light_gray> edge_view;
 
-      table_view (core::size_type default_width = 80,
-                  core::size_type default_height = 20,
-                  core::size_type row_width = 80,
-                  core::size_type column_height = 20,
+      table_view (core::size::type default_width = 80,
+                  core::size::type default_height = 20,
+                  core::size::type row_width = 80,
+                  core::size::type column_height = 20,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
                   os::color background = color::white,
@@ -418,8 +419,8 @@ namespace gui {
 
       void handle_scroll (const core::point& pos);
 
-      core::size_type row_width () const;
-      core::size_type column_height () const;
+      core::size::type row_width () const;
+      core::size::type column_height () const;
 
       void set_scroll_maximum_calcer (std::function<scroll_maximum_calcer> scroll_maximum);
       void set_scroll_maximum (const core::point& pos);
@@ -451,10 +452,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     class table_edit : public table_view {
     public:
-      table_edit (core::size_type default_width = 80,
-                  core::size_type default_height = 20,
-                  core::size_type row_width = 80,
-                  core::size_type column_height = 20,
+      table_edit (core::size::type default_width = 80,
+                  core::size::type default_height = 20,
+                  core::size::type row_width = 80,
+                  core::size::type column_height = 20,
                   text_origin align = text_origin::center,
                   os::color foreground = color::black,
                   os::color background = color::white,
@@ -564,10 +565,10 @@ namespace gui {
 
         template<typename T>
         auto matrix<T>::get_cell(const position &cell) const->const T &{
-          if (cell.column < data.size()) {
-            const std::vector<T>& c = data[cell.column];
-            if (cell.row < c.size()) {
-              return c[cell.row];
+          if (cell.x() < data.size()) {
+            const std::vector<T>& c = data[cell.x()];
+            if (cell.y() < c.size()) {
+              return c[cell.y()];
             }
           }
           return get_column_row_cell(cell);
@@ -576,18 +577,18 @@ namespace gui {
         template<typename T>
         void matrix<T>::set_cell (const position& cell, const T& t) {
           const std::size_t data_size = data.size();
-          if (data_size <= cell.column) {
-            data.resize(cell.column + 1);
+          if (data_size <= cell.x()) {
+            data.resize(cell.x() + 1);
           }
-          std::vector<T>& c = data[cell.column];
+          std::vector<T>& c = data[cell.x()];
           const std::size_t rows = c.size();
-          if (rows <= cell.row) {
-            c.resize(cell.row + 1, column_data.get(cell.column));
-            for (std::size_t r = rows; r < cell.row; ++r) {
-              c[r] = get_column_row_cell(position(cell.column, r));
+          if (rows <= cell.y()) {
+            c.resize(cell.y() + 1, column_data.get(cell.x()));
+            for (std::size_t r = rows; r < cell.y(); ++r) {
+              c[r] = get_column_row_cell(position(cell.x(), r));
             }
           }
-          c[cell.row] = t;
+          c[cell.y()] = t;
         }
 
         template<typename T>
@@ -631,27 +632,27 @@ namespace gui {
 
         template<typename T>
         inline auto matrix<T>::get_column_row_cell(const position &cell) const->const T &{
-          if (cell.column < column_data.size()) {
-            return column_data[cell.column];
+          if (cell.x() < column_data.size()) {
+            return column_data[cell.x()];
           }
-          return row_data[cell.row];
+          return row_data[cell.y()];
         }
 
       } // data
 
       // --------------------------------------------------------------------------
-      inline layout::layout (core::size_type default_size)
+      inline layout::layout (core::size::type default_size)
         : first_idx(0)
         , offset(0)
         , first_offset(0)
         , sizes(default_size)
       {}
 
-      inline core::size_type layout::get_default_size () const {
+      inline core::size::type layout::get_default_size () const {
         return sizes.get_default_data();
       }
 
-      inline core::size_type layout::get_size (std::size_t idx) const {
+      inline core::size::type layout::get_size (std::size_t idx) const {
         return sizes[idx];
       }
 
@@ -659,23 +660,23 @@ namespace gui {
         return first_idx;
       }
 
-      inline core::point_type layout::get_offset () const {
+      inline core::point::type layout::get_offset () const {
         return offset;
       }
 
-      inline core::point_type layout::get_first_offset () const {
+      inline core::point::type layout::get_first_offset () const {
         return first_offset;
       }
 
       // --------------------------------------------------------------------------
-      inline metric::metric (core::size_type default_width,
-                             core::size_type default_height)
+      inline metric::metric (core::size::type default_width,
+                             core::size::type default_height)
         : widths(default_width)
         , heights(default_height)
       {}
 
       inline core::point metric::position_of (const position& cell) const {
-        return core::point(widths.position_of(cell.column), heights.position_of(cell.row));
+        return core::point(widths.position_of(cell.x()), heights.position_of(cell.y()));
       }
 
       inline position metric::index_at (const core::point& pt) const {
@@ -683,7 +684,7 @@ namespace gui {
       }
 
       inline core::size metric::get_size (const position& cell) const {
-        return core::size(widths.get_size(cell.column), heights.get_size(cell.row));
+        return core::size(widths.get_size(cell.x()), heights.get_size(cell.y()));
       }
 
       inline core::size metric::get_default_size () const {
@@ -717,26 +718,26 @@ namespace gui {
 
         inline bool data_hilite (const position& cell, const metric& geometrie) {
           return (geometrie.hilite == cell) ||
-                 geometrie.selection.is_column(cell.column) ||
-                 geometrie.selection.is_row(cell.row);
+                 (geometrie.selection.x() == cell.x()) ||
+                 (geometrie.selection.y() == cell.y());
         }
 
         // --------------------------------------------------------------------------
         inline bool column_selection (const position& cell, const metric& geometrie) {
-          return geometrie.selection.is_column(cell.column);
+          return geometrie.selection.x() == cell.x();
         }
 
         inline bool column_hilite (const position& cell, const metric& geometrie) {
-          return geometrie.hilite.is_column(cell.column) || (geometrie.selection.column == cell.column);
+          return (geometrie.hilite.x() == cell.x()) || (geometrie.selection.x() == cell.x());
         }
 
         // --------------------------------------------------------------------------
         inline bool row_selection (const position& cell, const metric& geometrie) {
-          return geometrie.selection.is_row(cell.row);
+          return geometrie.selection.y() == cell.y();
         }
 
         inline bool row_hilite (const position& cell, const metric& geometrie) {
-          return geometrie.hilite.is_row(cell.row) || (geometrie.selection.row == cell.row);
+          return (geometrie.hilite.y() == cell.y()) || (geometrie.selection.y() == cell.y());
         }
 
       } // namespace filter

@@ -33,22 +33,22 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      edit_base::pos_t get_line_cursor (const core::position<int>& cursor_pos, size_t idx) {
-        return (cursor_pos.row == idx) ? cursor_pos.column : -1;
+      edit_base::pos_t get_line_cursor (const core::basic_point<int>& cursor_pos, size_t idx) {
+        return (cursor_pos.x() == idx) ? cursor_pos.x() : -1;
       }
 
-      edit_base::range get_line_selection (const core::range<core::position<int> >& selection, size_t idx) {
+      edit_base::range get_line_selection (const core::range<core::basic_point<int> >& selection, size_t idx) {
         edit_base::range r;
-        if (selection.first.row < idx) {
+        if (selection.first.y() < idx) {
           r.first = 0;
-        } else if (selection.first.row == idx) {
-          r.first = selection.first.column;
+        } else if (selection.first.y() == idx) {
+          r.first = selection.first.x();
         }
-        if (selection.first.row <= idx) {
-          if (selection.last.row > idx) {
+        if (selection.first.y() <= idx) {
+          if (selection.last.y() > idx) {
             r.last = std::numeric_limits<edit_base::range::type>::max();
-          } else if (selection.last.row == idx) {
-            r.last = selection.last.column;
+          } else if (selection.last.y() == idx) {
+            r.last = selection.last.x();
           }
         }
         return r;
@@ -66,12 +66,12 @@ namespace gui {
                      os::color foreground,
                      os::color background,
                      const text_origin origin,
-                     const core::range<core::position<int> >& selection,
-                     const core::position<int>& cursor_pos,
+                     const core::range<core::basic_point<int> >& selection,
+                     const core::basic_point<int>& cursor_pos,
                      const core::point& offset,
                      const bool has_focus) {
         const auto height = area.height();
-        const core::size_type row_sz = static_cast<core::size_type>(fnt.line_height());
+        const core::size::type row_sz = static_cast<core::size::type>(fnt.line_height());
         const auto last = lines.size();
         const auto first = static_cast<int>(offset.y() / row_sz);
         core::rectangle r(area.x() - offset.x(), row_sz * first - offset.y(), area.width() + offset.x(), row_sz);
@@ -133,9 +133,9 @@ namespace gui {
       }
 
       void textbox_base::set_selection (const textbox_base::range& s) {
-        auto row = std::min<int>(s.last.row, static_cast<int>(row_count()) - 1);
+        auto row = std::min<int>(s.last.y(), static_cast<int>(row_count()) - 1);
         if (row > -1) {
-          auto column = std::min<std::size_t>(s.last.column, data.lines[row].size());
+          auto column = std::min<int>(s.last.x(), data.lines[row].size());
           data.selection = {s.first, {column, row}};
         } else {
           data.selection = s;
@@ -146,9 +146,9 @@ namespace gui {
       void textbox_base::set_cursor_pos (const textbox_base::position& p, bool shift) {
         textbox_base::position old_pos = data.cursor_pos;
         if (!data.lines.empty()) {
-          auto row = std::min<int>(p.row, static_cast<int>(row_count()) - 1);
+          auto row = std::min<int>(p.y(), static_cast<int>(row_count()) - 1);
           if (row > -1) {
-            auto column = std::min<int>(p.column, static_cast<int>(data.lines[row].size()));
+            auto column = std::min<int>(p.x(), static_cast<int>(data.lines[row].size()));
             if (column > -1) {
               position new_pos(column, row);
               if (shift) {
@@ -184,7 +184,7 @@ namespace gui {
         const auto row = static_cast<int>(pt.y() + data.offset.y()) / row_sz;
         if ((row > -1) && (row < row_count())) {
           const std::string& text = data.lines[row];
-          const auto max_chars = text.size();
+          const int max_chars = text.size();
           const auto x = pt.x() + data.offset.x();
           for (int i = 1; i < max_chars; ++i) {
             core::size sz = data.font.get_text_size(text.substr(0, i));
@@ -205,24 +205,24 @@ namespace gui {
           set_cursor_pos(position::end);
         } else {
           auto sel = get_selection();
-          auto first_line = std::next(data.lines.begin(), sel.first.row);
-          if ((sel.first.row == sel.last.row) && (v.size() < 2)) {
-            first_line->replace(sel.first.column, sel.last.column - sel.first.column, new_text);
-            set_cursor_pos({sel.first.column + new_text.size(), sel.first.row});
+          auto first_line = std::next(data.lines.begin(), sel.first.y());
+          if ((sel.first.y() == sel.last.y()) && (v.size() < 2)) {
+            first_line->replace(sel.first.x(), sel.last.x() - sel.first.x(), new_text);
+            set_cursor_pos({sel.first.x() + static_cast<decltype(sel.first.x())>(new_text.size()), sel.first.y()});
           } else {
-            auto last_line = std::next(data.lines.begin(), sel.last.row);
-            std::string head = first_line->substr(0, sel.first.column);
-            std::string tail = last_line->substr(sel.last.column);
+            auto last_line = std::next(data.lines.begin(), sel.last.y());
+            std::string head = first_line->substr(0, sel.first.x());
+            std::string tail = last_line->substr(sel.last.x());
             data.lines.erase(std::next(first_line), std::next(last_line));
             if (v.size() < 2) {
               *first_line = head + new_text + tail;
-              set_cursor_pos({sel.first.column + new_text.size(), sel.first.row});
+              set_cursor_pos({sel.first.x() + static_cast<decltype(sel.first.x())>(new_text.size()), sel.first.y()});
             } else {
               *first_line = head + v.front();
               std::string last = v.back() + tail;
               data.lines.insert(std::next(first_line), last);
               data.lines.insert(std::next(first_line), std::next(v.begin()), std::prev(v.end()));
-              set_cursor_pos({v.back().size(), sel.first.row + v.size() - 1});
+              set_cursor_pos({static_cast<decltype(sel.first.x())>(v.back().size()), sel.first.y() + static_cast<decltype(sel.first.y())>(v.size()) - 1});
             }
           }
         }
@@ -235,18 +235,18 @@ namespace gui {
       }
 
       std::string textbox_base::get_text_in_range (const textbox_base::range& r) const {
-        if (r.empty() || data.lines.empty() || (r.first.row >= row_count())) {
+        if (r.empty() || data.lines.empty() || (r.first.y() >= row_count())) {
           return std::string();
         }
-        if (r.first.row == r.last.row) {
-          return data.lines[r.first.row].substr(r.first.column, r.last.column - r.first.column);
+        if (r.first.y() == r.last.y()) {
+          return data.lines[r.first.y()].substr(r.first.x(), r.last.x() - r.first.x());
         }
         std::ostringstream oss;
-        const std::string& first = data.lines[r.first.row];
-        oss << first.substr(r.first.column, first.size() - r.first.column) << "\n";
-        std::copy(std::next(data.lines.begin(), r.first.row + 1), std::next(data.lines.begin(), r.last.row), std::ostream_iterator<std::string>(oss, "\n"));
-        const std::string& last = data.lines[r.last.row];
-        oss << last.substr(0, r.last.column);
+        const std::string& first = data.lines[r.first.y()];
+        oss << first.substr(r.first.x(), first.size() - r.first.x()) << "\n";
+        std::copy(std::next(data.lines.begin(), r.first.y() + 1), std::next(data.lines.begin(), r.last.y()), std::ostream_iterator<std::string>(oss, "\n"));
+        const std::string& last = data.lines[r.last.y()];
+        oss << last.substr(0, r.last.x());
         return oss.str();
       }
 
@@ -258,11 +258,11 @@ namespace gui {
         if (data.virtual_size.empty()) {
           const auto row_sz = data.font.line_height();
           const auto row_cnt = row_count();
-          core::size_type w = 0;
+          core::size::type w = 0;
           for (auto text : data.lines) {
             w = std::max(w, data.font.get_text_size(text).width());
           }
-          data.virtual_size = {w, static_cast<core::size_type>(row_sz * row_cnt)};
+          data.virtual_size = {w, static_cast<core::size::type>(row_sz * row_cnt)};
         }
         return core::rectangle(-data.offset, data.virtual_size);
       }
@@ -273,16 +273,16 @@ namespace gui {
           core::rectangle area(data.offset, client_size());
           // first check row
           const auto row_sz = data.font.line_height();
-          const core::point_type y = static_cast<core::point_type>(data.cursor_pos.row * row_sz);
+          const core::point::type y = static_cast<core::point::type>(data.cursor_pos.y() * row_sz);
           if (y < area.y()) {
             data.offset.y(y);
           } else if (y + row_sz > area.y2()) {
             data.offset.y(y + row_sz - area.height());
           }
           // check column
-          const auto& text = data.lines[data.cursor_pos.row];
-          const auto sub = text.substr(0, data.cursor_pos.column);
-          const core::point_type x = data.font.get_text_size(sub).width();
+          const auto& text = data.lines[data.cursor_pos.y()];
+          const auto sub = text.substr(0, data.cursor_pos.x());
+          const core::point::type x = data.font.get_text_size(sub).width();
           if (x < area.x()) {
             data.offset.x(x);
           } else if (x + 3 > area.x2()) {
@@ -316,27 +316,27 @@ namespace gui {
       }
 
       textbox_base::position textbox_base::find_prev_word (const textbox_base::position& pos) {
-        if (pos.is_valid() && (pos.column > 0)) {
-          std::string::size_type p = string::find_left_space(data.lines[pos.row], pos.column);
+        if (pos.is_valid() && (pos.x() > 0)) {
+          std::string::size_type p = string::find_left_space(data.lines[pos.y()], pos.x());
           if (p != std::string::npos) {
-            return {p, pos.row};
+            return {static_cast<decltype(pos.y())>(p), pos.y()};
           }
         }
-        if (pos.row > 0) {
-          return {data.lines[pos.row - 1].size(), pos.row - 1};
+        if (pos.y() > 0) {
+          return {static_cast<decltype(pos.x())>(data.lines[pos.y() - 1].size()), pos.y() - 1};
         }
         return pos;
       }
 
       textbox_base::position textbox_base::find_next_word (const textbox_base::position& pos) {
-        if (pos.is_valid() && (pos.column < data.lines[pos.row].size())) {
-          std::string::size_type p = string::find_right_space(data.lines[pos.row], pos.column);
+        if (pos.is_valid() && (pos.x() < data.lines[pos.y()].size())) {
+          std::string::size_type p = string::find_right_space(data.lines[pos.y()], pos.x());
           if (p != std::string::npos) {
-            return {p, pos.row};
+            return {static_cast<decltype(pos.y())>(p), pos.y()};
           }
         }
-        if (pos.row < (row_count() - 1)) {
-          return {0, pos.row + 1};
+        if (pos.y() < (row_count() - 1)) {
+          return {0, pos.y() + 1};
         }
         return pos;
       }

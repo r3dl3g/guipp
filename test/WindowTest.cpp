@@ -954,12 +954,12 @@ void my_main_window::created_children () {
   table_view.data.foregrounds.set_cell(win::table::position(3, 4), color::blue);
 
   table_view.columns.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
-    return win::table::build_std_column_name(cell.column);
+    return win::table::build_std_column_name(cell.x());
   }));
   table_view.geometrie.widths.set_size(2, 40);
 
   table_view.rows.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
-    return ostreamfmt((1 + cell.row));
+    return ostreamfmt((1 + cell.y()));
   }));
 
   table_view.edge.set_text("0:0");
@@ -998,9 +998,9 @@ void my_main_window::created_children () {
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
   vtileview.set_count(30);
 
-  hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width())));
+  hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
 
-  vscroll.create(main, core::rectangle(700, 50, static_cast<core::size_type>(win::scroll_bar::get_scroll_bar_width()), 250));
+  vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()), 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());
   vscroll.set_step(static_cast<win::scroll_bar::type>(list1.get_item_size()));
 
@@ -1208,8 +1208,8 @@ win::paint_event my_main_window::create_paint1 () {
     for (int y = 0; y < 3; ++y) {
       for (int x = 0; x < 3; ++x) {
         int i = y * 3 + x;
-        draw_text_box(graph, texte[i], { core::point_type(10 + x * 55), core::point_type(155 + y * 25), 50, 22 }, origins[i]);
-        draw_text(graph, texte[i], { core::point_type(10 + x * 80), core::point_type(235 + y * 20) }, origins[i]);
+        draw_text_box(graph, texte[i], { core::point::type(10 + x * 55), core::point::type(155 + y * 25), 50, 22 }, origins[i]);
+        draw_text(graph, texte[i], { core::point::type(10 + x * 80), core::point::type(235 + y * 20) }, origins[i]);
       }
     }
 

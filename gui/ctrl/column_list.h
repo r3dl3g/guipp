@@ -30,7 +30,7 @@ namespace gui {
 
   namespace layout {
 
-    typedef core::size_type column_size_type;
+    typedef core::size::type column_size_type;
 
     struct column_info {
       column_size_type width;
@@ -58,8 +58,8 @@ namespace gui {
         text_origin get_column_align (std::size_t i) const;
         column_size_type get_column_width (std::size_t i) const;
 
-        int split_idx_at (core::point_type pt, column_size_type delta) const;
-        int index_at (core::point_type pt) const;
+        int split_idx_at (core::point::type pt, column_size_type delta) const;
+        int index_at (core::point::type pt) const;
 
         column_size_type get_column_left_pos (std::size_t i) const;
         column_size_type get_column_right_pos (std::size_t i) const;
@@ -233,7 +233,7 @@ namespace gui {
         typedef win::vertical_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
-        base_column_list (core::size_type item_size = 20,
+        base_column_list (core::size::type item_size = 20,
                           os::color background = color::white,
                           bool grab_focus = true);
         base_column_list (const base_column_list& rhs);
@@ -303,7 +303,7 @@ namespace gui {
                                bool,                   // hilited
                                text_origin);           // align
 
-      simple_column_list (core::size_type item_size = 20,
+      simple_column_list (core::size::type item_size = 20,
                           os::color background = color::white,
                           bool grab_focus = true);
 
@@ -410,7 +410,7 @@ namespace gui {
                       const layout_type& l,
                       const draw::graphics& g,
                       const core::rectangle& place,
-                      core::point_type x,
+                      core::point::type x,
                       const draw::brush& background,
                       bool selected,
                       bool hilited);
@@ -420,7 +420,7 @@ namespace gui {
                       const layout_type& l,
                       const draw::graphics& g,
                       const core::rectangle& r,
-                      core::point_type x,
+                      core::point::type x,
                       const draw::brush& background,
                       bool selected,
                       bool hilited);
@@ -462,7 +462,7 @@ namespace gui {
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
 
-      column_list_t (core::size_type item_size = 20,
+      column_list_t (core::size::type item_size = 20,
                      os::color background = color::white,
                      bool grab_focus = true);
 
@@ -724,7 +724,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename Layout>
-      base_column_list<Layout>::base_column_list (core::size_type item_size,
+      base_column_list<Layout>::base_column_list (core::size::type item_size,
                                                   os::color background,
                                                   bool grab_focus)
         : list(item_size, background, grab_focus)
@@ -823,7 +823,7 @@ namespace gui {
     }
 
     template<typename L>
-    simple_column_list<L>::simple_column_list (core::size_type item_size,
+    simple_column_list<L>::simple_column_list (core::size::type item_size,
                                                os::color background,
                                                bool grab_focus)
       : super(item_size, background, grab_focus)
@@ -938,7 +938,7 @@ namespace gui {
                                                         const layout_type& l,
                                                         const draw::graphics& g,
                                                         const core::rectangle& place,
-                                                        core::point_type x,
+                                                        core::point::type x,
                                                         const draw::brush& background,
                                                         bool selected,
                                                         bool hilited) {
@@ -953,7 +953,7 @@ namespace gui {
                                                         const layout_type& l,
                                                         const draw::graphics& g,
                                                         const core::rectangle& r,
-                                                        core::point_type x,
+                                                        core::point::type x,
                                                         const draw::brush& background,
                                                         bool selected,
                                                         bool hilited) {
@@ -978,7 +978,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename L, typename ... A>
-    column_list_t<L, A ...>::column_list_t (core::size_type item_size,
+    column_list_t<L, A ...>::column_list_t (core::size::type item_size,
                                             os::color background,
                                             bool grab_focus)
       : super(item_size, background, grab_focus)

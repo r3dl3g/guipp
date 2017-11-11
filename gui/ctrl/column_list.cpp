@@ -37,8 +37,8 @@ namespace gui {
         return w;
       }
 
-      int column_list_layout::index_at (core::point_type pt) const {
-        core::point_type pos = 0;
+      int column_list_layout::index_at (core::point::type pt) const {
+        core::point::type pos = 0;
         int idx = 0;
         while (pos <= pt) {
           pos += get_column_width(idx);
@@ -47,10 +47,10 @@ namespace gui {
         return idx - 1;
       }
 
-      int column_list_layout::split_idx_at (core::point_type pt, core::size_type delta) const {
-        const core::point_type lower = pt - delta;
-        const core::point_type upper = pt + delta;
-        core::point_type pos = 0;
+      int column_list_layout::split_idx_at (core::point::type pt, core::size::type delta) const {
+        const core::point::type lower = pt - delta;
+        const core::point::type upper = pt + delta;
+        core::point::type pos = 0;
         int idx = 0;
         while (pos < lower) {
           pos += get_column_width(idx);

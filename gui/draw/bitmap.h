@@ -124,7 +124,7 @@ namespace gui {
 
       datamap (const bitmap& rhs);
       datamap (uint32_t w, uint32_t h);
-      datamap (uint32_t w, uint32_t h, uint32_t bpl, const blob& data);
+      datamap (uint32_t w, uint32_t h, const blob& data);
       datamap (const core::size& sz);
 
       void operator= (const datamap& rhs);
@@ -264,7 +264,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline core::size bitmap_info::size () const {
-      return {static_cast<core::size_type>(width), static_cast<core::size_type>(height)};
+      return {static_cast<core::size::type>(width), static_cast<core::size::type>(height)};
     }
 
     inline byte bitmap_info::depth () const {
@@ -335,8 +335,8 @@ namespace gui {
     }
 
     template<BPP T>
-    inline datamap<T>::datamap (uint32_t w, uint32_t h, uint32_t bpl, const blob& data) {
-      super::create(data, {w, h, bpl, T});
+    inline datamap<T>::datamap (uint32_t w, uint32_t h, const blob& data) {
+      super::create(data, {w, h, T});
     }
 
     template<BPP T>
@@ -409,7 +409,7 @@ namespace gui {
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
       bmp.copy_from(*this, 
-                    core::rectangle(core::point_type(x), core::point_type(y), core::size_type(w), core::size_type(h)),
+                    core::rectangle(core::point::type(x), core::point::type(y), core::size::type(w), core::size::type(h)),
                     core::point::zero);
       return bmp;
     }

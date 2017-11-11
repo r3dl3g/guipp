@@ -58,7 +58,7 @@ namespace gui {
       const std::string& get_label () const;
       const win::hot_key& get_hot_key () const;
       const icon_type& get_icon () const;
-      core::size_type get_width () const;
+      core::size::type get_width () const;
       char get_menu_key () const;
       const std::function<menu_action>& get_action () const;
 
@@ -70,7 +70,7 @@ namespace gui {
       void set_label (const std::string& l);
       void set_icon (const icon_type& i);
       void set_enabled (bool d);
-      void set_width (core::size_type w);
+      void set_width (core::size::type w);
 
       void select () const;
 
@@ -94,7 +94,7 @@ namespace gui {
       icon_type icon;
       std::function<menu_action> action;
       char menu_key;
-      core::size_type width;
+      core::size::type width;
       bool separator;
       menu_state state;
       bool sub_menu;
@@ -133,8 +133,8 @@ namespace gui {
       void menu_item (const draw::graphics& g,
                       const core::rectangle& r,
                       const draw::brush& background,
-                      core::point_type text_pos,
-                      core::point_type hotkey_pos,
+                      core::point::type text_pos,
+                      core::point::type hotkey_pos,
                       const std::string& label,
                       char menu_key,
                       const draw::masked_bitmap& icon,
@@ -305,13 +305,13 @@ namespace gui {
 
       void popup_at (win::window& parent, menu_data& parent_data, const core::point& pt);
 
-      core::size_type calc_width ();
+      core::size::type calc_width ();
 
       struct positions {
         positions ();
 
-        core::point_type text;
-        core::point_type hotkey;
+        core::point::type text;
+        core::point::type hotkey;
 
       } pos;
     };
@@ -330,7 +330,7 @@ namespace gui {
       return icon;
     }
 
-    inline core::size_type menu_entry::get_width () const {
+    inline core::size::type menu_entry::get_width () const {
       return width;
     }
 
@@ -370,7 +370,7 @@ namespace gui {
       state = d ? menu_state::enabled : menu_state::disabled;
     }
 
-    inline void menu_entry::set_width (core::size_type w) {
+    inline void menu_entry::set_width (core::size::type w) {
       width = w;
     }
 

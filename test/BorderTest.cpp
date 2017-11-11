@@ -122,7 +122,7 @@ my_main_window::my_main_window ()
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
-    core::point_type x = 1;
+    core::point::type x = 1;
     for (int i = 0; i < 2; ++i) {
       try {
         if (bw[i]) {

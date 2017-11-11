@@ -57,52 +57,52 @@ namespace gui {
 
       template<int O, int R>
       struct scale {
-        static core::point_type calc (core::point_type a);
+        static core::point::type calc (core::point::type a);
       };
 
       template<int O>
       struct scale<O, 10000> {
-        static core::point_type calc (core::point_type a);
+        static core::point::type calc (core::point::type a);
       };
 
       template<int O>
       struct scale<O, 0> {
-        static core::point_type calc (core::point_type a);
+        static core::point::type calc (core::point::type a);
       };
 
       template<Where W, int O, int R = 10000>
       struct source {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::x, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::x2, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::y, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::y2, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::width, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<int O, int R>
       struct source<Where::height, O, R> {
-        static core::point_type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
       template<What T, Where W, int O, int R = 10000>
@@ -211,53 +211,53 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<int O, int R>
-      inline core::point_type scale<O, R>::calc (core::point_type a) {
-        return core::point_type(a * core::point_type(R) / 10000.0 + O);
+      inline core::point::type scale<O, R>::calc (core::point::type a) {
+        return core::point::type(a * core::point::type(R) / 10000.0 + O);
       }
 
       template<int O>
-      inline core::point_type scale<O, 10000>::calc (core::point_type a) {
-        return core::point_type(a + O);
+      inline core::point::type scale<O, 10000>::calc (core::point::type a) {
+        return core::point::type(a + O);
       }
 
       template<int O>
-      inline core::point_type scale<O, 0>::calc (core::point_type a) {
-        return core::point_type(O);
+      inline core::point::type scale<O, 0>::calc (core::point::type a) {
+        return core::point::type(O);
       }
 
       // --------------------------------------------------------------------------
       template<int O, int R>
-      inline core::point_type source<Where::x, O, R>::calc (const core::size& sz,
+      inline core::point::type source<Where::x, O, R>::calc (const core::size& sz,
                                                             const core::rectangle& outer) {
         return scale<O, R>::calc(outer.x());
       }
 
       template<int O, int R>
-      inline core::point_type source<Where::x2, O, R>::calc (const core::size&,
+      inline core::point::type source<Where::x2, O, R>::calc (const core::size&,
                                                              const core::rectangle& outer) {
         return scale<O, R>::calc(outer.x2());
       }
 
       template<int O, int R>
-      inline core::point_type source<Where::y, O, R>::calc (const core::size& sz,
+      inline core::point::type source<Where::y, O, R>::calc (const core::size& sz,
                                                             const core::rectangle& outer) {
         return scale<O, R>::calc(outer.y());
       }
 
       template<int O, int R>
-      inline core::point_type source<Where::y2, O, R>::calc (const core::size& sz,
+      inline core::point::type source<Where::y2, O, R>::calc (const core::size& sz,
                                                              const core::rectangle& outer) {
         return scale<O, R>::calc(outer.y2());
       }
 
       template<int O, int R>
-      inline core::point_type source<Where::width, O, R>::calc (const core::size& sz,
+      inline core::point::type source<Where::width, O, R>::calc (const core::size& sz,
                                                                 const core::rectangle& outer) {
         return scale<O, R>::calc(sz.width());
       }
 
       template<int O, int R>
-      inline core::point_type source<Where::height, O, R>::calc (const core::size& sz,
+      inline core::point::type source<Where::height, O, R>::calc (const core::size& sz,
                                                                  const core::rectangle& outer) {
         return scale<O, R>::calc(sz.height());
       }

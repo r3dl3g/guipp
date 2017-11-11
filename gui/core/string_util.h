@@ -69,14 +69,11 @@ namespace gui {
       return v;
     }
 
+    std::string merge (const std::vector<std::string>& v, char delimiter);
+
     template<char delimiter>
     std::string merge (const std::vector<std::string>& v) {
-      std::ostringstream oss;
-      if (!v.empty()) {
-        std::copy(v.begin(), std::prev(v.end()), std::ostream_iterator<std::string>(oss, std::string(1, delimiter).c_str()));
-        oss << v.back();
-      }
-      return oss.str();
+      return merge(v, delimiter);
     }
 
   } // namespace string

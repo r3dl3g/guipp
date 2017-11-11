@@ -111,12 +111,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T1, typename T2>
-      std::pair<core::point_type, core::point_type> make_points (const T1& t1, const T2& t2);
+      std::pair<core::point::type, core::point::type> make_points (const T1& t1, const T2& t2);
 
       // --------------------------------------------------------------------------
       template<border_layout_type T>
       struct border_layout_geometrie {
-        typedef std::pair<core::point_type, core::point_type> points;
+        typedef std::pair<core::point::type, core::point::type> points;
         static points get_top_position (const core::rectangle&, const core::size&);
         static points get_bottom_position (const core::rectangle&, const core::size&);
         static points get_left_position (const core::rectangle&, const core::size&);
@@ -275,8 +275,8 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T1, typename T2>
-      inline std::pair<core::point_type, core::point_type> make_points (const T1& t1, const T2& t2) {
-        return std::make_pair(static_cast<core::point_type>(t1), static_cast<core::point_type>(t2));
+      inline std::pair<core::point::type, core::point::type> make_points (const T1& t1, const T2& t2) {
+        return std::make_pair(static_cast<core::point::type>(t1), static_cast<core::point::type>(t2));
       }
 
       // --------------------------------------------------------------------------

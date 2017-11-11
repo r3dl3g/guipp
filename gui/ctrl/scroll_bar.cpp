@@ -185,7 +185,7 @@ namespace gui {
       send_client_message(this, detail::SCROLLBAR_MESSAGE, static_cast<long>(data.value));
     }
 
-    void scroll_bar::handle_wheel (const core::point_type delta, const core::point&) {
+    void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {
       if (is_enabled()) {
         set_value(get_value() - delta * get_step(), true);
       }

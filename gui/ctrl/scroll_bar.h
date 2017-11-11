@@ -35,7 +35,7 @@ namespace gui {
     float get_param<0, float>(const core::event& e);
 
     using scroll_event = event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                       params<core::point_type>::getter<get_param<0, core::point_type> > >;
+                                       params<core::point::type>::getter<get_param<0, core::point::type> > >;
     // --------------------------------------------------------------------------
 #endif //WIN32
 #ifdef X11
@@ -97,7 +97,7 @@ namespace gui {
       void set_min_max_step(type, type, type);
       void set_min_max_step_value(type, type, type, type);
 
-      void handle_wheel (const core::point_type delta, const core::point&);
+      void handle_wheel (const core::point::type delta, const core::point&);
 
       static constexpr int get_scroll_bar_width () {
         return scroll_bar_width;

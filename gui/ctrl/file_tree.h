@@ -189,7 +189,7 @@ namespace gui {
       typedef win::column_list_t<layout::weight_column_list_layout,
                                  const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> super;
 
-      file_list (core::size_type item_size = 20,
+      file_list (core::size::type item_size = 20,
                  os::color background = color::white,
                  bool grab_focus = true);
 
@@ -264,7 +264,7 @@ namespace gui {
     } // path_tree
 
     template<typename T>
-    inline file_list<T>::file_list (core::size_type item_size,
+    inline file_list<T>::file_list (core::size::type item_size,
                                  os::color background,
                                  bool grab_focus)
       : super(item_size, background, grab_focus)

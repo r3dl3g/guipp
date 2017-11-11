@@ -47,12 +47,12 @@ namespace gui {
         if (!r.empty()) {
           std::vector<core::point> p;
           if (is_open) {
-            core::point_type y = r.center_y() - 2;
-            core::point_type y2 = y + 4;
+            core::point::type y = r.center_y() - 2;
+            core::point::type y2 = y + 4;
             p = {core::point(r.x(), y), core::point(r.x2(), y), {r.center_x(), y2}};
           } else {
-            core::point_type x = r.center_x() - 2;
-            core::point_type x2 = x + 4;
+            core::point::type x = r.center_x() - 2;
+            core::point::type x2 = x + 4;
             p = {core::point(x, r.y()), core::point(x, r.y2()), {x2, r.center_y()}};
           }
           graph.fill(draw::polygon(p), color::black);
@@ -77,7 +77,7 @@ namespace gui {
           graph.fill(draw::rectangle(area), background);
         }
 
-        core::rectangle r = area + core::point(core::point_type(depth * 16), 0);
+        core::rectangle r = area + core::point(core::point::type(depth * 16), 0);
 
         if (has_children) {
           r.width(16);
@@ -88,7 +88,7 @@ namespace gui {
 
         if (icon) {
           core::size sz = icon.image.size();
-          core::point_type y = r.y() + (r.height() - sz.height()) / 2;
+          core::point::type y = r.y() + (r.height() - sz.height()) / 2;
           graph.copy_from(icon, core::point(r.x(), y));
           r += core::point(sz.width() + 5, 0);
         }

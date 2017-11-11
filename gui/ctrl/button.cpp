@@ -421,7 +421,7 @@ namespace gui {
         os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
         graph.fill(draw::rectangle(area), color::buttonColor());
 
-        core::point_type y = area.y() + area.size().height() / 2;
+        core::point::type y = area.y() + area.size().height() / 2;
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(ellipse(r), state.pushed ? color::very_light_gray
                    : color::buttonColor(), col);
@@ -451,7 +451,7 @@ namespace gui {
 
         graph.fill(draw::rectangle(area), color::buttonColor());
 
-        core::point_type y = area.y() + area.height() / 2;
+        core::point::type y = area.y() + area.height() / 2;
         os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));

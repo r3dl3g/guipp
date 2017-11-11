@@ -185,7 +185,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     unsigned int get_flags_from_wp (const core::event& e);
     // --------------------------------------------------------------------------
-    core::point_type get_wheel_delta (const core::event& e);
+    core::point::type get_wheel_delta (const core::event& e);
     // --------------------------------------------------------------------------
     template<bool down>
     bool any_button_matcher (const core::event& e);
@@ -419,11 +419,11 @@ namespace gui {
     using mouse_leave_event = event_handler<WM_MOUSELEAVE>;
 
     using wheel_x_event = event_handler<WM_MOUSEHWHEEL, 0,
-                                        params<core::point_type, core::point>::
+                                        params<core::point::type, core::point>::
                                         getter<get_wheel_delta,
                                                get_param<1, core::point> > >;
     using wheel_y_event = event_handler<WM_MOUSEWHEEL, 0,
-                                        params<core::point_type, core::point>::
+                                        params<core::point::type, core::point>::
                                         getter<get_wheel_delta,
                                                get_param<1, core::point> > >;
 
@@ -780,13 +780,13 @@ namespace gui {
                                                   double_click_matcher<Button2> >;
 
     using wheel_x_event = event_handler<ButtonPress, ButtonPressMask,
-                                        params<core::point_type, core::point>::
+                                        params<core::point::type, core::point>::
                                         getter<get_wheel_delta<6, 7>,
                                                get<core::point, XButtonEvent>::param>,
                                         0,
                                         wheel_button_matcher<6, 7> >;
     using wheel_y_event = event_handler<ButtonPress, ButtonPressMask,
-                                        params<core::point_type, core::point>::
+                                        params<core::point::type, core::point>::
                                         getter<get_wheel_delta<Button4, Button5>,
                                                get<core::point, XButtonEvent>::param>,
                                         0,

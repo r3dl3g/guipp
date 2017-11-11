@@ -116,7 +116,7 @@ namespace gui {
       typedef T (get_data_t)(std::size_t);
       typedef std::function<get_data_t> data_provider;
 
-      drop_down_list (core::size_type item_size = 20,
+      drop_down_list (core::size::type item_size = 20,
                       os::color background = color::white);
       drop_down_list (const drop_down_list& rhs);
       drop_down_list (drop_down_list&& rhs);
@@ -165,7 +165,7 @@ namespace gui {
       void handle_move (const core::point&);
 
       struct data {
-        data (core::size_type item_size = 20,
+        data (core::size::type item_size = 20,
               os::color background = color::white);
 
         data_provider source;
@@ -218,7 +218,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::drop_down_list (core::size_type item_size,
+    inline drop_down_list<T, D>::drop_down_list (core::size::type item_size,
                                                  os::color background)
       : data(item_size, background)
       , me(this, &drop_down_list::handle_move)
@@ -355,7 +355,7 @@ namespace gui {
     inline core::rectangle drop_down_list<T, D>::get_popup_place () const {
       core::rectangle place = super::absolute_place();
       place.move_y(place.height());
-      place.height(core::size_type(data.visible_items * data.items.get_item_size()));
+      place.height(core::size::type(data.visible_items * data.items.get_item_size()));
       return place;
     }
 
@@ -486,7 +486,7 @@ namespace gui {
     }
 
     template<typename T, drop_down_drawer<T> D>
-    inline drop_down_list<T, D>::data::data (core::size_type item_size,
+    inline drop_down_list<T, D>::data::data (core::size::type item_size,
                                              os::color background)
       : items(item_size, background, false)
       , selection(-1)

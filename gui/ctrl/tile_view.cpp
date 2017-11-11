@@ -28,12 +28,12 @@ namespace gui {
   namespace win {
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_size () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_size () const {
       return item_size.height();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_size () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_item_size () const {
       return item_size.width();
     }
 
@@ -48,52 +48,52 @@ namespace gui {
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_size () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_size () const {
       return item_size.width();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_size () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_line_size () const {
       return item_size.height();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_border () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_border () const {
       return border.height();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_border () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_item_border () const {
       return border.width();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_border () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_border () const {
       return border.width();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_border () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_line_border () const {
       return border.height();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_spacing () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_spacing () const {
       return spacing.height();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_spacing () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_item_spacing () const {
       return spacing.width();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_spacing () const {
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_spacing () const {
       return spacing.width();
     }
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_spacing () const {
+    core::size::type basic_tile_view<orientation::vertical>::get_line_spacing () const {
       return spacing.height();
     }
 

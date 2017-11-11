@@ -59,13 +59,8 @@ namespace gui {
     * Id for current logged line.
     */
     struct line_id {
-      inline line_id (unsigned int i)
-        : n(i)
-      {}
-
-      inline line_id ()
-        : n(0)
-      {}
+      line_id (unsigned int i);
+      line_id ();
 
       unsigned int n;
     };
@@ -86,25 +81,11 @@ namespace gui {
 
       record ();
 
-      inline const line_id& line () const {
-        return m_line;
-      }
-
-      inline const std::chrono::system_clock::time_point& time_point () const {
-        return m_time_point;
-      }
-
-      inline const log::level& level () const {
-        return m_level;
-      }
-
-      inline const std::string& thread_name () const {
-        return m_thread_name;
-      }
-
-      inline const std::string& message () const {
-        return m_message;
-      }
+      const line_id& line () const;
+      const std::chrono::system_clock::time_point& time_point () const;
+      const log::level& level () const;
+      const std::string& thread_name () const;
+      const std::string& message () const;
 
     private:
       std::chrono::system_clock::time_point m_time_point;
@@ -126,11 +107,7 @@ namespace gui {
     struct sink {
       sink (std::ostream* stream,
             level lvl,
-            const record_formatter& formatter)
-        : m_stream(stream)
-        , m_level(lvl)
-        , m_formatter(formatter)
-      {}
+            const record_formatter& formatter);
 
       std::ostream* m_stream;
       level m_level;
@@ -200,21 +177,13 @@ namespace gui {
       ~recorder ();
 
       template <typename T>
-      inline recorder& operator<< (T const& value) {
-        m_buffer << value;
-        return *this;
-      }
+      recorder& operator<< (T const& value);
 
       recorder& operator<< (const char value);
       recorder& operator<< (const char* value);
+      recorder& operator<< (const std::string& value);
 
-      inline recorder& operator<< (const std::string& value) {
-        return operator<<(value.c_str());
-      }
-
-      inline std::ostream& ostream () {
-        return m_buffer;
-      }
+      std::ostream& ostream ();
 
     private:
       std::chrono::system_clock::time_point m_time_point;
@@ -226,6 +195,8 @@ namespace gui {
   } // namespace log
 
 } // namespace gui
+
+#include <gui/core/logger.inl>
 
 /// Log macro trace
 #define LogTrace gui::log::recorder (gui::log::level::trace)

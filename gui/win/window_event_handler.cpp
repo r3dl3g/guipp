@@ -80,15 +80,15 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     core::point get_param<1, core::point>(const core::event& e) {
-      return core::point(static_cast<core::point_type>(GET_X_LPARAM(e.lParam)),
-                         static_cast<core::point_type>(GET_Y_LPARAM(e.lParam)));
+      return core::point(static_cast<core::point::type>(GET_X_LPARAM(e.lParam)),
+                         static_cast<core::point::type>(GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
     template<>
     core::size get_param<1, core::size>(const core::event& e) {
-      return core::size(static_cast<core::size_type>(GET_X_LPARAM(e.lParam)),
-                        static_cast<core::size_type>(GET_Y_LPARAM(e.lParam)));
+      return core::size(static_cast<core::size::type>(GET_X_LPARAM(e.lParam)),
+                        static_cast<core::size::type>(GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -111,8 +111,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    core::point_type get_wheel_delta (const core::event& e) {
-      return static_cast<core::point_type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
+    core::point::type get_wheel_delta (const core::event& e) {
+      return static_cast<core::point::type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
     // --------------------------------------------------------------------------

@@ -643,7 +643,7 @@ namespace gui {
       int x, y;
       unsigned int w, h, b, d;
       XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
-      return {(core::point_type)x, (core::point_type)y, (core::size_type)w, (core::size_type)h};
+      return {(core::point::type)x, (core::point::type)y, (core::size::type)w, (core::size::type)h};
     }
 
     // --------------------------------------------------------------------------
@@ -858,6 +858,7 @@ namespace gui {
                     std::array<XRectangle, 3>* rects) {
 
       using namespace os;
+
       const size_type w = size.os_width();
       const size_type h = size.os_height();
 

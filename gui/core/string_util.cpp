@@ -95,6 +95,16 @@ namespace gui {
       }
     }
 
+    std::string merge (const std::vector<std::string>& v, char delimiter) {
+      std::ostringstream oss;
+      if (!v.empty()) {
+        std::copy(v.begin(), std::prev(v.end()), std::ostream_iterator<std::string>(oss, std::string(1, delimiter).c_str()));
+        oss << v.back();
+      }
+      return oss.str();
+    }
+
+
   } // namespace string
 
   namespace utf8 {

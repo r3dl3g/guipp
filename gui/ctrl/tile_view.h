@@ -94,8 +94,8 @@ namespace gui {
       std::size_t get_items_per_line () const;
       std::size_t get_line_count () const;
 
-      core::size_type get_item_size () const;
-      core::size_type get_line_size () const;
+      core::size::type get_item_size () const;
+      core::size::type get_line_size () const;
 
       bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
@@ -114,11 +114,11 @@ namespace gui {
       void handle_direction_key (os::key_symbol key);
       core::rectangle get_full_place_of_index (int idx);
 
-      core::size_type get_item_border () const;
-      core::size_type get_line_border () const;
+      core::size::type get_item_border () const;
+      core::size::type get_line_border () const;
 
-      core::size_type get_item_spacing () const;
-      core::size_type get_line_spacing () const;
+      core::size::type get_item_spacing () const;
+      core::size::type get_line_spacing () const;
 
       void init ();
 
@@ -518,10 +518,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_size () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_size () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_size () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_item_size () const;
 
     template<>
     std::size_t basic_tile_view<orientation::horizontal>::get_items_per_line () const;
@@ -530,10 +530,10 @@ namespace gui {
     std::size_t basic_tile_view<orientation::vertical>::get_items_per_line () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_size () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_size () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_size () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_line_size () const;
 
     template<>
     void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key);
@@ -542,28 +542,28 @@ namespace gui {
     void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_border () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_border () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_border () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_item_border () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_border () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_border () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_border () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_line_border () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_item_spacing () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_item_spacing () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_item_spacing () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_item_spacing () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::horizontal>::get_line_spacing () const;
+    core::size::type basic_tile_view<orientation::horizontal>::get_line_spacing () const;
 
     template<>
-    core::size_type basic_tile_view<orientation::vertical>::get_line_spacing () const;
+    core::size::type basic_tile_view<orientation::vertical>::get_line_spacing () const;
 
     // --------------------------------------------------------------------------
 

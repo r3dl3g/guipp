@@ -46,8 +46,8 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                        const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
-            core::point_type dx = new_x - start_window_point.x();
+            core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
+            core::point::type dx = new_x - start_window_point.x();
             if (dx != 0) {
               start_mouse_point = p;
               start_window_point.x(new_x);
@@ -57,7 +57,7 @@ namespace gui {
           }
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
-           core::point_type dx = 0;
+           core::point::type dx = 0;
            switch (key) {
              case keys::left:
                dx = -1;
@@ -77,7 +77,7 @@ namespace gui {
                dx *= 10;
              }
              core::point pos = position();
-             core::point_type new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, pos.x() + dx));
+             core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, pos.x() + dx));
              dx = new_x - pos.x();
              if (dx) {
                pos.x(new_x);
@@ -89,8 +89,8 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation::vertical>::set_value (core::point_type v) {
-        const auto new_x = std::min<core::point_type>(max, std::max<core::point::type>(min, v));
+      void basic_slider<orientation::vertical>::set_value (core::point::type v) {
+        const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto old_pt = position();
         const auto old_x = old_pt.x();
         if (new_x != old_x) {
@@ -101,7 +101,7 @@ namespace gui {
       }
 
       template<>
-      core::point_type basic_slider<orientation::vertical>::get_value () const {
+      core::point::type basic_slider<orientation::vertical>::get_value () const {
         return position().x();
       }
 
@@ -111,8 +111,8 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                            const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
-            core::point_type dy = new_y - start_window_point.y();
+            core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
+            core::point::type dy = new_y - start_window_point.y();
             if (dy != 0) {
               start_mouse_point = p;
               start_window_point.y(new_y);
@@ -123,7 +123,7 @@ namespace gui {
           return;
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
-          core::point_type dy = 0;
+          core::point::type dy = 0;
           switch (key) {
             case keys::up:
               dy = -1;
@@ -143,7 +143,7 @@ namespace gui {
               dy *= 10;
             }
             core::point pos = position();
-            core::point_type new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, pos.y() + dy));
+            core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, pos.y() + dy));
             dy = new_y - pos.y();
             if (dy) {
               pos.y(new_y);
@@ -155,8 +155,8 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation::horizontal>::set_value (core::point_type v) {
-        const auto new_y = std::min<core::point_type>(max, std::max<core::point::type>(min, v));
+      void basic_slider<orientation::horizontal>::set_value (core::point::type v) {
+        const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto old_pt = position();
         const auto old_y = old_pt.y();
         if (new_y != old_y) {
@@ -167,7 +167,7 @@ namespace gui {
       }
 
       template<>
-      core::point_type basic_slider<orientation::horizontal>::get_value () const {
+      core::point::type basic_slider<orientation::horizontal>::get_value () const {
         return position().y();
       }
 

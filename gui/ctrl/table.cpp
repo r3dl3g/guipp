@@ -54,14 +54,14 @@ namespace gui {
     namespace table {
 
       // --------------------------------------------------------------------------
-      void layout::set_size (std::size_t idx, core::size_type size) {
+      void layout::set_size (std::size_t idx, core::size::type size) {
         if (sizes[idx] != size) {
           sizes[idx] = size;
           calc();
         }
       }
 
-      void layout::set_offset (core::point_type offset) {
+      void layout::set_offset (core::point::type offset) {
         if (offset < 0) {
           offset = 0;
         }
@@ -71,8 +71,8 @@ namespace gui {
         }
       }
 
-      int layout::index_at (core::point_type pt) const {
-        core::point_type pos = -get_offset();
+      int layout::index_at (core::point::type pt) const {
+        core::point::type pos = -get_offset();
         int idx = 0;
         while (pos <= pt) {
           pos += get_size(idx);
@@ -81,10 +81,10 @@ namespace gui {
         return idx - 1;
       }
 
-      int layout::split_idx_at (core::point_type pt, core::size_type delta) const {
-        core::point_type pos = -get_offset();
-        const core::point_type lower = pt - delta;
-        const core::point_type upper = pt + delta;
+      int layout::split_idx_at (core::point::type pt, core::size::type delta) const {
+        core::point::type pos = -get_offset();
+        const core::point::type lower = pt - delta;
+        const core::point::type upper = pt + delta;
         int idx = 0;
         while (pos < lower) {
           pos += get_size(idx);
@@ -96,8 +96,8 @@ namespace gui {
         return -1;
       }
 
-      core::point_type layout::position_of (int idx) const {
-        core::point_type pos = -get_offset();
+      core::point::type layout::position_of (int idx) const {
+        core::point::type pos = -get_offset();
         for (int i = 0; i < idx; ++i) {
           pos += get_size(i);
         }
@@ -105,7 +105,7 @@ namespace gui {
       }
 
       void layout::calc () {
-        core::point_type pos = -get_offset();
+        core::point::type pos = -get_offset();
         first_idx = 0;
         first_offset = 0;
         while (pos <= 0) {
@@ -131,16 +131,16 @@ namespace gui {
           if (drawer) {
             const core::size max_sz = place.size();
             position cell(0, geometrie.heights.get_first_idx());
-            core::point_type y = geometrie.heights.get_first_offset();
+            core::point::type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {
-              const core::size_type height = geometrie.heights.get_size(cell.row);
+              const core::size::type height = geometrie.heights.get_size(cell.y());
 
-              cell.column = static_cast<int>(geometrie.widths.get_first_idx());
-              core::point_type x = geometrie.widths.get_first_offset();
+              cell.x(static_cast<int>(geometrie.widths.get_first_idx()));
+              core::point::type x = geometrie.widths.get_first_offset();
 
               while (x < max_sz.width()) {
-                const core::size_type width = geometrie.widths.get_size(cell.column);
+                const core::size::type width = geometrie.widths.get_size(cell.x());
                 drawer(cell, graph,
                        core::rectangle(x, y, width, height),
                        aligns.get_cell(cell),
@@ -150,10 +150,10 @@ namespace gui {
                        hilite_filter(cell, geometrie));
 
                 x += width;
-                ++(cell.column);
+                cell.x(1 + cell.x());
               }
               y += height;
-              ++(cell.row);
+              cell.y(1 + cell.y());
             }
           }
         }
@@ -170,20 +170,20 @@ namespace gui {
           if (drawer) {
             const core::size max_sz = place.size();
             position cell(geometrie.widths.get_first_idx(), 0);
-            core::point_type x = geometrie.widths.get_first_offset();
+            core::point::type x = geometrie.widths.get_first_offset();
 
             while (x < max_sz.width()) {
-              const core::size_type width = geometrie.widths.get_size(cell.column);
+              const core::size::type width = geometrie.widths.get_size(cell.x());
               drawer(cell, graph,
                      core::rectangle(x, 0, width, max_sz.height()),
-                     aligns.get(cell.column),
-                     foregrounds.get(cell.column),
-                     backgrounds.get(cell.column),
+                     aligns.get(cell.x()),
+                     foregrounds.get(cell.x()),
+                     backgrounds.get(cell.x()),
                      selection_filter(cell, geometrie),
                      hilite_filter(cell, geometrie));
 
               x += width;
-              ++(cell.column);
+              cell.x(1 + cell.x());
             }
           }
         }
@@ -200,21 +200,21 @@ namespace gui {
           if (drawer) {
             const core::size max_sz = place.size();
             position cell(0, geometrie.heights.get_first_idx());
-            core::point_type y = geometrie.heights.get_first_offset();
+            core::point::type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {
-              const core::size_type height = geometrie.heights.get_size(cell.row);
+              const core::size::type height = geometrie.heights.get_size(cell.y());
 
               drawer(cell, graph,
                      core::rectangle(0, y, max_sz.width(), height),
-                     aligns.get(cell.row),
-                     foregrounds.get(cell.row),
-                     backgrounds.get(cell.row),
+                     aligns.get(cell.y()),
+                     foregrounds.get(cell.y()),
+                     backgrounds.get(cell.y()),
                      selection_filter(cell, geometrie),
                      hilite_filter(cell, geometrie));
 
               y += height;
-              ++(cell.row);
+              cell.y(1 + cell.y());
             }
           }
         }
@@ -371,16 +371,16 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    table_view::table_view (core::size_type default_width,
-                            core::size_type default_height,
-                            core::size_type row_width,
-                            core::size_type column_height,
+    table_view::table_view (core::size::type default_width,
+                            core::size::type default_height,
+                            core::size::type row_width,
+                            core::size::type column_height,
                             text_origin align,
                             os::color foreground,
                             os::color background,
                             os::color header_background)
-      : super(column_height, static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()),
-              row_width, static_cast<core::size_type>(scroll_bar::get_scroll_bar_width()))
+      : super(column_height, static_cast<core::size::type>(scroll_bar::get_scroll_bar_width()),
+              row_width, static_cast<core::size::type>(scroll_bar::get_scroll_bar_width()))
       , geometrie(default_width, default_height)
       , data(geometrie, align, foreground, background)
       , columns(geometrie, align, foreground, header_background)
@@ -460,24 +460,24 @@ namespace gui {
                                                                send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
                                                              }));
 
-      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt){
+      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type delta, const core::point & pt){
                                                                      hscroll.handle_wheel(delta, pt);
                                                                    }));
-      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt){
+      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type delta, const core::point & pt){
                                                                      vscroll.handle_wheel(delta, pt);
                                                                    }));
       data.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_mouse_move));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
       data.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_left_btn_up));
 
-      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point_type delta, const core::point & pt){
+      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type delta, const core::point & pt){
                                                                         hscroll.handle_wheel(delta, pt);
                                                                       }));
       columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_column_left_btn_down));
       columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
 
-      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point_type delta, const core::point & pt){
+      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type delta, const core::point & pt){
                                                                      vscroll.handle_wheel(delta, pt);
                                                                    }));
       rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
@@ -503,7 +503,7 @@ namespace gui {
     }
 
     void table_view::clear_selection (event_source notify) {
-      if (!geometrie.selection.is_empty()) {
+      if (geometrie.selection.is_valid()) {
         geometrie.selection.clear();
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
@@ -513,11 +513,11 @@ namespace gui {
     }
 
     void table_view::set_selection (table::position selection, event_source notify) {
-      if (selection.column < -1) {
-        selection.column = -1;
+      if (selection.x() < -1) {
+        selection.x(-1);
       }
-      if (selection.row < -1) {
-        selection.row = -1;
+      if (selection.y() < -1) {
+        selection.y(-1);
       }
       if (geometrie.selection != selection) {
         geometrie.selection = selection;
@@ -560,11 +560,11 @@ namespace gui {
       columns.redraw_later();
     }
 
-    core::size_type table_view::row_width () const {
+    core::size::type table_view::row_width () const {
       return get_layout().get_left_width();
     }
 
-    core::size_type table_view::column_height () const {
+    core::size::type table_view::column_height () const {
       return get_layout().get_top_height();
     }
 
@@ -582,8 +582,8 @@ namespace gui {
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
       columns.create(*this, core::rectangle(row_width(), 0, 160, column_height()));
       rows.create(*this, core::rectangle(0, row_width(), column_height(), 80));
-      vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width), 80));
-      hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size_type>(win::scroll_bar::scroll_bar_width)));
+      vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size::type>(win::scroll_bar::scroll_bar_width), 80));
+      hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size::type>(win::scroll_bar::scroll_bar_width)));
 
       vscroll.set_max(place.height() * 2);
       vscroll.set_step(column_height());
@@ -643,9 +643,9 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_h_size) {
-        down_idx.column = geometrie.widths.split_idx_at(pt.x(), 2.0F);
+        down_idx.x(geometrie.widths.split_idx_at(pt.x(), 2.0F));
       }
-      columns.set_cursor(down_idx.column > -1 ? cursor::size_h() : cursor::move());
+      columns.set_cursor(down_idx.x() > -1 ? cursor::size_h() : cursor::move());
       columns.capture_pointer();
     }
 
@@ -668,8 +668,8 @@ namespace gui {
       if (left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
-          if (down_idx.column > -1) {
-            geometrie.widths.set_size(down_idx.column, geometrie.widths.get_size(down_idx.column) + delta);
+          if (down_idx.x() > -1) {
+            geometrie.widths.set_size(down_idx.x(), geometrie.widths.get_size(down_idx.x()) + delta);
             redraw_all();
           } else {
             if (hscroll.is_enabled()) {
@@ -697,9 +697,9 @@ namespace gui {
       last_mouse_point = pt;
       moved = false;
       if (enable_v_size) {
-        down_idx.row = geometrie.heights.split_idx_at(pt.y(), 2.0F);
+        down_idx.y(geometrie.heights.split_idx_at(pt.y(), 2.0F));
       }
-      rows.set_cursor(down_idx.row > -1 ? cursor::size_v() : cursor::move());
+      rows.set_cursor(down_idx.y() > -1 ? cursor::size_v() : cursor::move());
       rows.capture_pointer();
     }
 
@@ -722,8 +722,8 @@ namespace gui {
       if (left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.y() - last_mouse_point.y();
-          if (down_idx.row > -1) {
-            geometrie.heights.set_size(down_idx.row, geometrie.heights.get_size(down_idx.row) + delta);
+          if (down_idx.y() > -1) {
+            geometrie.heights.set_size(down_idx.y(), geometrie.heights.get_size(down_idx.y()) + delta);
             redraw_all();
           } else {
             if (vscroll.is_enabled()) {
@@ -753,19 +753,19 @@ namespace gui {
       switch (key) {
       case keys::up:
       case keys::numpad::up:
-        set_selection(get_selection() - table::position(0, 1), event_source::keyboard);
+        set_selection(get_selection() - table::offset(0, 1), event_source::keyboard);
         break;
       case keys::down:
       case keys::numpad::down:
-        set_selection(get_selection() + table::position(0, 1), event_source::keyboard);
+        set_selection(get_selection() + table::offset(0, 1), event_source::keyboard);
         break;
       case keys::left:
       case keys::numpad::left:
-        set_selection(get_selection() - table::position(1, 0), event_source::keyboard);
+        set_selection(get_selection() - table::offset(1, 0), event_source::keyboard);
         break;
       case keys::right:
       case keys::numpad::right:
-        set_selection(get_selection() + table::position(1, 0), event_source::keyboard);
+        set_selection(get_selection() + table::offset(1, 0), event_source::keyboard);
         break;
       case keys::page_up:
       case keys::numpad::page_up: {
@@ -809,10 +809,10 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    table_edit::table_edit (core::size_type default_width,
-                            core::size_type default_height,
-                            core::size_type row_width,
-                            core::size_type column_height,
+    table_edit::table_edit (core::size::type default_width,
+                            core::size::type default_height,
+                            core::size::type row_width,
+                            core::size::type column_height,
                             text_origin align,
                             os::color foreground,
                             os::color background,

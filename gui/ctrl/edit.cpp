@@ -62,13 +62,13 @@ namespace gui {
 
         graph.fill(rectangle(area), background);
 
-        core::point_type y1 = area.y();
-        core::point_type y2 = area.y2();
+        core::point::type y1 = area.y();
+        core::point::type y2 = area.y2();
 
         if (has_focus && (selection.first < selection.last)) {
           gui::core::rectangle a1 = area;
           auto begin = scroll_pos;
-          core::point_type left = area.x();
+          core::point::type left = area.x();
           if (selection.first > scroll_pos) {
             std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);
             begin = selection.first;

@@ -549,8 +549,8 @@ namespace gui {
       g.fill(draw::rectangle(rect), b);
 
       auto sz = img.size();
-      core::point_type px = rect.x();
-      core::point_type py = rect.y();
+      core::point::type px = rect.x();
+      core::point::type py = rect.y();
 
       if (origin_is_h_center(origin)) {
         px += (rect.width() - sz.width()) / 2;

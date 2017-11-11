@@ -37,7 +37,7 @@ namespace gui {
       class list_base : public window {
       public:
         typedef window super;
-        typedef core::size_type pos_t;
+        typedef core::size::type pos_t;
 
         list_base (os::color background = color::white,
                    bool grab_focus = true);
@@ -211,7 +211,7 @@ namespace gui {
       typedef basic_list<V> super;
       typedef typename super::pos_t pos_t;
 
-      lines_list (core::size_type item_size = 20,
+      lines_list (core::size::type item_size = 20,
                   os::color background = color::white,
                   bool grab_focus = true);
 
@@ -228,10 +228,10 @@ namespace gui {
                    const core::rectangle& place,
                    const simple_list_data<T, F>& data);
 
-      core::size_type get_item_size () const;
+      core::size::type get_item_size () const;
 
-      void set_item_size (core::size_type item_size);
-      void set_item_size_and_background (core::size_type item_size, os::color background);
+      void set_item_size (core::size::type item_size);
+      void set_item_size_and_background (core::size::type item_size, os::color background);
 
       void adjust_scroll_bar ();
       void set_scroll_pos (pos_t pos);
@@ -261,7 +261,7 @@ namespace gui {
 
       void init ();
 
-      core::size_type item_size;
+      core::size::type item_size;
 
     };
 
@@ -278,7 +278,7 @@ namespace gui {
       typedef std::string (source)(int);
       typedef void (target)(int, const std::string&);
 
-      edit_list (core::size_type item_size = 20,
+      edit_list (core::size::type item_size = 20,
                  os::color background = color::white,
                  bool grab_focus = true);
 
@@ -543,7 +543,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation V>
-    inline lines_list<V>::lines_list (core::size_type item_size,
+    inline lines_list<V>::lines_list (core::size::type item_size,
                                       os::color background,
                                       bool grab_focus)
       : super(background, grab_focus)
@@ -585,17 +585,17 @@ namespace gui {
     }
 
     template<orientation V>
-    inline core::size_type lines_list<V>::get_item_size () const {
+    inline core::size::type lines_list<V>::get_item_size () const {
       return item_size;
     }
 
     template<orientation V>
-    inline void lines_list<V>::set_item_size (core::size_type item_size) {
+    inline void lines_list<V>::set_item_size (core::size::type item_size) {
       this->item_size = item_size;
     }
 
     template<orientation V>
-    inline void lines_list<V>::set_item_size_and_background (core::size_type item_size, os::color background) {
+    inline void lines_list<V>::set_item_size_and_background (core::size::type item_size, os::color background) {
       this->item_size = item_size;
       super::set_background(background);
     }
@@ -821,7 +821,7 @@ namespace gui {
     void lines_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
-    inline edit_list::edit_list (core::size_type item_size,
+    inline edit_list::edit_list (core::size::type item_size,
                                  os::color background,
                                  bool grab_focus)
       : super(item_size, background, grab_focus)

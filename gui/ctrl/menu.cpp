@@ -45,9 +45,9 @@ namespace gui {
           if (i != std::string::npos) {
             core::rectangle r1 = r;
             g.text(draw::bounding_box(l.substr(0, i + 1), r1, text_origin::vcenter_left), f, c);
-            core::point_type x1 = r.x() + 1;
-            core::point_type x2 = r1.x2() - 1;
-            core::point_type y = r1.y2();
+            core::point::type x1 = r.x() + 1;
+            core::point::type x2 = r1.x2() - 1;
+            core::point::type y = r1.y2();
             if (i > 0) {
               core::rectangle r0 = r;
               g.text(draw::bounding_box(l.substr(0, i), r0, text_origin::vcenter_left), f, c);
@@ -88,8 +88,8 @@ namespace gui {
       void menu_item (const draw::graphics& g,
                       const core::rectangle& r,
                       const draw::brush& background,
-                      core::point_type text_pos,
-                      core::point_type hotkey_pos,
+                      core::point::type text_pos,
+                      core::point::type hotkey_pos,
                       const std::string& label,
                       char menu_key,
                       const draw::masked_bitmap& icon,
@@ -131,8 +131,8 @@ namespace gui {
 
         if (icon) {
           core::size sz = icon.image.size();
-          core::point_type x = (text_pos - sz.width()) / 2;
-          core::point_type y = r.y() + (r.height() - sz.height()) / 2;
+          core::point::type x = (text_pos - sz.width()) / 2;
+          core::point::type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(icon, core::point(x, y));
         }
 
@@ -144,8 +144,8 @@ namespace gui {
                  draw::font::menu(), col);
         }
         if (is_sub_menu) {
-          core::point_type y = r.center_y();
-          core::point_type x = r.x2() - 8;
+          core::point::type y = r.center_y();
+          core::point::type x = r.x2() - 8;
           g.fill(draw::polygon({core::point(x, y - 4),
                                 core::point(x, y + 4),
                                 core::point(x + 4, y)}), color::black);
@@ -578,7 +578,7 @@ namespace gui {
 
     int main_menu::get_index_at_point (const core::point& pt) const {
       if (client_area().is_inside(pt)) {
-        core::point_type pos = 0;
+        core::point::type pos = 0;
         int idx = -1;
         for (auto& i : data) {
           ++idx;
@@ -593,7 +593,7 @@ namespace gui {
 
     core::point main_menu::sub_menu_position (std::size_t idx) const {
       auto r = absolute_position();
-      core::point_type pos = 0;
+      core::point::type pos = 0;
       for (auto& i : data) {
         if (idx < 1) {
           break;
@@ -771,7 +771,7 @@ namespace gui {
           close();
         }
       });
-      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
+      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
     }
@@ -792,14 +792,14 @@ namespace gui {
           parent_data.handle_mouse(btn, gpt);
         }
       });
-      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size_type>(data.size() * item_height + 2))));
+      create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       set_visible();
       run_modal();
     }
 
     core::point popup_menu::sub_menu_position (int idx) {
       auto r = absolute_position();
-      return (r + core::point(size().width(), static_cast<core::point_type>(idx * item_height)));
+      return (r + core::point(size().width(), static_cast<core::point::type>(idx * item_height)));
     }
 
     int popup_menu::get_index_at_point (const core::point& pt) const {
@@ -825,19 +825,19 @@ namespace gui {
       int idx = -1;
       for (auto& i : data) {
         ++idx;
-        r.height(static_cast<core::size_type>(item_height));
+        r.height(static_cast<core::size::type>(item_height));
         paint::menu_item(g, r, back_brush, pos.text, pos.hotkey,
                          i.get_label(), i.get_menu_key(), i.get_icon(),
                          i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
                          (idx == data.get_selection()), (idx == data.get_hilite()),
                          i.is_disabled());
-        r.move_y(static_cast<core::size_type>(item_height));
+        r.move_y(static_cast<core::size::type>(item_height));
       }
     }
 
-    core::size_type popup_menu::calc_width () {
-      core::size_type label_width = 0;
-      core::size_type hotkey_width = 0;
+    core::size::type popup_menu::calc_width () {
+      core::size::type label_width = 0;
+      core::size::type hotkey_width = 0;
       bool has_sub = false;
       const draw::font& f = draw::font::menu();
       for (auto& i : data) {

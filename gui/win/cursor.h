@@ -72,24 +72,8 @@ namespace gui {
       mutable os::cursor id;
     };
 
-    // --------------------------------------------------------------------------
-    //
-    // inlines
-    //
-    inline cursor::cursor ()
-      : type(0)
-      , id(0)
-    {}
-
-    inline cursor::operator bool () const {
-      return type != 0;
-    }
-
-    inline cursor::cursor (os::cursor_type t)
-      : type(t)
-      , id(0)
-    {}
-
   } // namespace win
 
 } // namespace gui
+
+#include <gui/win/cursor.inl>

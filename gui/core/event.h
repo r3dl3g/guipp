@@ -28,60 +28,16 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#ifdef WIN32
+#include <gui/core/win32_event.h>
+#endif // Win32
 
 
 namespace gui {
 
   namespace core {
 
-#ifdef WIN32
-    struct event {
-      event (os::window id,
-             os::event_id e,
-             os::win32::wParam p1,
-             os::win32::lParam p2);
-
-      event (const MSG& msg);
-
-      os::window id;
-      os::event_id type;
-      os::win32::wParam wParam;
-      os::win32::lParam lParam;
-    };
-
-    // --------------------------------------------------------------------------
-    //
-    // inlines
-    //
-    inline event::event (os::window id,
-                         os::event_id e,
-                         os::win32::wParam p1,
-                         os::win32::lParam p2)
-      : id(id)
-      , type(e)
-      , wParam(p1)
-      , lParam(p2)
-    {}
-
-    // --------------------------------------------------------------------------
-    inline event::event (const MSG& msg)
-      : id(msg.hwnd)
-      , type(msg.message)
-      , wParam(msg.wParam)
-      , lParam(msg.lParam)
-    {}
-
-    // --------------------------------------------------------------------------
-
-#endif // Win32
-#ifdef X11
-    typedef XEvent event;
-
-#endif // X11
-
-    inline os::event_id get_event_id (const event& e) {
-      return e.type;
-    }
+    using event = IF_WIN32_ELSE(win32::event, XEvent);
 
     typedef bool (event_handler_callback)(const event&, os::event_result&);
 

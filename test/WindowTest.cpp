@@ -143,7 +143,7 @@ public:
   static win::paint_event create_paint1();
   static win::paint_event create_paint2();
 
-  typedef super::clazz<my_main_window, color::very_very_light_gray> myclazz;
+  typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
   void create (const core::rectangle& r = core::rectangle::def) {
     super::create(myclazz::get(), r);

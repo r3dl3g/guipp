@@ -82,30 +82,8 @@ namespace gui {
       mutable std::string key_string;
     };
 
-    // --------------------------------------------------------------------------
-    //
-    // inlines
-    //
-    inline bool hot_key::match (os::key_state m, os::key_symbol k) const {
-      return (key && (key == k) && ((m & modifiers) == modifiers));
-    }
-
-    inline bool hot_key::empty () const {
-      return key == 0;
-    }
-
-    inline bool hot_key::operator== (const hot_key& rhs) const {
-      return (key == rhs.key) && (modifiers == rhs.modifiers);
-    }
-
-    inline os::key_symbol hot_key::get_key () const {
-      return key;
-    }
-
-    inline os::key_state hot_key::get_modifiers () const {
-      return modifiers;
-    }
-
   } // namespace win
 
 } // namespace gui
+
+#include <gui/win/keys.inl>

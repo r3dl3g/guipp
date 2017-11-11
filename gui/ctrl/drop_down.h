@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/win/container.h>
+#include <gui/win/layout_container.h>
 #include <gui/ctrl/list.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>

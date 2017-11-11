@@ -483,7 +483,7 @@ namespace gui {
     } // detail
 
     bool is_frequent_event (const core::event& e) {
-      switch (core::get_event_id(e)) {
+      switch (e.type) {
 #ifdef WIN32
       case WM_MOUSEMOVE:
       case WM_NCMOUSEMOVE:
@@ -513,8 +513,8 @@ namespace gui {
     }
 
     bool is_none_client_event (const core::event& e) {
-      os::event_id id = core::get_event_id(e);
 #ifdef WIN32
+      os::event_id id = e.type;
       return ((id >= WM_NCCREATE) && (id <= WM_NCACTIVATE)) ||
              ((id >= WM_NCMOUSEMOVE) && (id <= WM_NCMBUTTONDBLCLK)) ||
              ((id >= WM_NCXBUTTONDOWN) && (id <= WM_NCXBUTTONDBLCLK)) ||

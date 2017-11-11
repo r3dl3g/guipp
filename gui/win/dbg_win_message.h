@@ -39,18 +39,12 @@ namespace gui {
     bool is_none_client_event (const core::event& e);
 
     struct EventId {
-      EventId (const core::event& e);
+      inline EventId (const core::event& e)
+        : id(e.type)
+      {}
 
       os::event_id id;
     };
-
-    // --------------------------------------------------------------------------
-    //
-    // inlines
-    //
-    inline EventId::EventId (const core::event& e)
-      : id(e.type)
-    {}
 
   } // namespace win
 

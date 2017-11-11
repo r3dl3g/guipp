@@ -158,7 +158,7 @@ namespace gui {
             } else if (data.cursor_pos.y() > 0) {
               auto row = data.cursor_pos.y() - 1;
               std::string& prev = data.lines[row];
-              position pos(prev.size(), row);
+              position pos(static_cast<position::type>(prev.size()), row);
               prev.append(current);
               erase_line(data.cursor_pos.y());
               set_cursor_pos(pos, false);

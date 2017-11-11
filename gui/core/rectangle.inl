@@ -196,7 +196,7 @@ namespace gui {
 
 #ifdef WIN32
     template<typename T>
-    const rectangle_t<T> rectangle_t<T>::def(point_t(-1, -1), point_t(-1, -1));
+    const basic_rectangle<T> basic_rectangle<T>::def(point_t(-1, -1), point_t(-1, -1));
 #endif // WIN32
 #ifdef X11
     template<typename T>

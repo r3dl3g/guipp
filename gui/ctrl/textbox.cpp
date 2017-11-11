@@ -135,7 +135,7 @@ namespace gui {
       void textbox_base::set_selection (const textbox_base::range& s) {
         auto row = std::min<int>(s.last.y(), static_cast<int>(row_count()) - 1);
         if (row > -1) {
-          auto column = std::min<int>(s.last.x(), data.lines[row].size());
+          auto column = std::min<int>(s.last.x(), static_cast<int>(data.lines[row].size()));
           data.selection = {s.first, {column, row}};
         } else {
           data.selection = s;
@@ -184,7 +184,7 @@ namespace gui {
         const auto row = static_cast<int>(pt.y() + data.offset.y()) / row_sz;
         if ((row > -1) && (row < row_count())) {
           const std::string& text = data.lines[row];
-          const int max_chars = text.size();
+          const int max_chars = static_cast<int>(text.size());
           const auto x = pt.x() + data.offset.x();
           for (int i = 1; i < max_chars; ++i) {
             core::size sz = data.font.get_text_size(text.substr(0, i));

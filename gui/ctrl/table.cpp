@@ -130,7 +130,7 @@ namespace gui {
                               const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
             const core::size max_sz = place.size();
-            position cell(0, geometrie.heights.get_first_idx());
+            position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
             core::point::type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {
@@ -169,7 +169,7 @@ namespace gui {
                                 const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
             const core::size max_sz = place.size();
-            position cell(geometrie.widths.get_first_idx(), 0);
+            position cell(static_cast<position::type>(geometrie.widths.get_first_idx()), 0);
             core::point::type x = geometrie.widths.get_first_offset();
 
             while (x < max_sz.width()) {
@@ -199,7 +199,7 @@ namespace gui {
                              const std::function<filter::selection_and_hilite>& hilite_filter) {
           if (drawer) {
             const core::size max_sz = place.size();
-            position cell(0, geometrie.heights.get_first_idx());
+            position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
             core::point::type y = geometrie.heights.get_first_offset();
 
             while (y < max_sz.height()) {

@@ -581,10 +581,10 @@ namespace gui {
             data.resize(cell.x() + 1);
           }
           std::vector<T>& c = data[cell.x()];
-          const std::size_t rows = c.size();
+          const int rows = static_cast<int>(c.size());
           if (rows <= cell.y()) {
             c.resize(cell.y() + 1, column_data.get(cell.x()));
-            for (std::size_t r = rows; r < cell.y(); ++r) {
+            for (int r = rows; r < cell.y(); ++r) {
               c[r] = get_column_row_cell(position(cell.x(), r));
             }
           }
@@ -607,9 +607,9 @@ namespace gui {
               column[row] = t;
             }
           }
-          const std::size_t column_data_size = column_data.size();
-          for (std::size_t c = 0; c < column_data_size; ++c) {
-            set_cell(position(c, row), t);
+          const int column_data_size = static_cast<int>(column_data.size());
+          for (int c = 0; c < column_data_size; ++c) {
+            set_cell(position(c, static_cast<int>(row)), t);
           }
         }
 
@@ -692,7 +692,8 @@ namespace gui {
       }
 
       inline position metric::get_first_idx () const {
-        return position(widths.get_first_idx(), heights.get_first_idx());
+        return position(static_cast<position::type>(widths.get_first_idx()),
+                        static_cast<position::type>(heights.get_first_idx()));
       }
 
       inline core::point metric::get_offset () const {

@@ -73,9 +73,9 @@ namespace gui {
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
 
-    private:
       void set_id (os::bitmap);
 
+    private:
       os::bitmap id;
     };
 
@@ -317,8 +317,9 @@ namespace gui {
             get_data(t.get_data(), t.get_info());
             return datamap<T>(t);
           }
+          default:
+            return datamap<T>();
         }
-
       }
     }
 

@@ -362,7 +362,7 @@ namespace gui {
       , ref_gc(false)
     {}
 
-    graphics::graphics (draw::memmap& target)
+    graphics::graphics (draw::pixmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -708,7 +708,7 @@ namespace gui {
       get_xft();
     }
 
-    graphics::graphics (draw::memmap& target)
+    graphics::graphics (draw::pixmap& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -1465,18 +1465,27 @@ namespace gui {
 
 //#endif
 
-    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::rectangle& src, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
           return copy_from(bmp.get_id(), src, pt);
         } else {
-          return copy_from(memmap(bmp).get_id(), src, pt);
+          switch (depth()) {
+            case 24: {
+              return copy_from(pixmap(bmp.get<BPP::RGB>()).get_id(), src, pt);
+              break;
+            }
+            case 32: {
+              return copy_from(pixmap(bmp.get<BPP::RGBA>()).get_id(), src, pt);
+              break;
+            }
+          }
         }
       }
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
       return copy_from(bmp, core::rectangle(bmp.size()), pt);
     }
 
@@ -1519,7 +1528,7 @@ namespace gui {
     void buffered_paint::operator() (const draw::graphics& g) {
       if (p) {
         const auto area = g.area();
-        draw::memmap buffer(area.size());
+        draw::pixmap buffer(area.size());
         draw::graphics graph(buffer);
         p(graph);
         g.copy_from(graph);

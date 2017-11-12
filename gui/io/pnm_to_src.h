@@ -48,17 +48,17 @@ namespace gui {
       template<> void save_pnm_src<BPP::RGB>(std::ostream&, const blob&, int, int, int);
       template<> void save_pnm_src<BPP::RGBA>(std::ostream&, const blob&, int, int, int);
 
-      void save_pnm_src (std::ostream& out, const draw::bitmap& bmp, const std::string& name);
-      void save_pnm_src (const std::string& filename, const draw::bitmap& bmp, const std::string& name);
+      void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name);
+      void save_pnm_src (const std::string& filename, const draw::basic_datamap& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
       class opnm {
       public:
-        opnm (const draw::bitmap& bmp, const std::string& name);
+        opnm (const draw::basic_datamap& bmp, const std::string& name);
         void write (std::ostream& out) const;
 
       private:
-        const draw::bitmap& bmp;
+        const draw::basic_datamap& bmp;
         const std::string name;
       };
 
@@ -69,7 +69,7 @@ namespace gui {
       //
       // inlines
       //
-      inline opnm::opnm (const draw::bitmap& bmp, const std::string& name)
+      inline opnm::opnm (const draw::basic_datamap& bmp, const std::string& name)
         : bmp(bmp)
         , name(name)
       {}

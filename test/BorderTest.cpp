@@ -235,9 +235,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   file_sub_menu.data.register_hot_keys(this);
 
   core::rectangle icon_rect(0, 0, 16, 16);
-  memmap cut_icon(16, 16);
-  memmap copy_icon(16, 16);
-  memmap paste_icon(16, 16);
+  pixmap cut_icon(16, 16);
+  pixmap copy_icon(16, 16);
+  pixmap paste_icon(16, 16);
   graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, text_origin::center), font::menu(), color::dark_red);
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
@@ -246,7 +246,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, memmap(), menu_state::disabled));
+  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
   edit_sub_menu.data.register_hot_keys(this);
 
@@ -446,9 +446,9 @@ void my_main_window::open () {
 
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
-      gui::draw::bitmap img;
+      gui::draw::basic_datamap img;
       gui::io::load_pnm(file.string(), img);
-      rgba[0] = img;
+      rgba[0] = rgbamap(img);
       bmp[0] = img;
       gray[0] = img;
       bw[0] = img;
@@ -487,12 +487,12 @@ void my_main_window::copy () {
   gray[0].create(sz);
   bw[0].create(sz);
 
-  memmap img(sz);
+  pixmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
-  rgba[0].put(img);
-  bmp[0].put(img);
-  gray[0].put(img);
-  bw[0].put(img);
+  rgba[0] = img;
+  bmp[0] = img;
+  gray[0] = img;
+  bw[0] = img;
 
   window1.redraw_later();
 }
@@ -514,8 +514,8 @@ void my_main_window::cut () {
   core::rectangle r = left_list.client_area();
   core::size sz = r.size();
 
-  auto drawer = [&](core::size& sz) -> memmap {
-    memmap img(sz);
+  auto drawer = [&](core::size& sz) -> pixmap {
+    pixmap img(sz);
     graphics g(img);
     g.fill(draw::rectangle(r), color::white);
     g.draw(draw::ellipse(r.shrinked({20, 20})), color::light_blue, draw::pen(color::dark_green, 5));
@@ -523,7 +523,7 @@ void my_main_window::cut () {
     return img;
   };
 
-  memmap img(sz);
+  pixmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
   rgba[0] = img;
   bmp[0] = img;
@@ -616,7 +616,7 @@ void my_main_window::paste () {
 }
 
 void my_main_window::test_rgb () {
-  memmap red(100, 100), blue(100, 100), green(100, 100);
+  pixmap red(100, 100), blue(100, 100), green(100, 100);
   rgbmap red24(100, 100), blue24(100, 100), green24(100, 100);
 
   graphics(red).clear(color::red);

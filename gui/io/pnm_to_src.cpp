@@ -156,19 +156,18 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void save_pnm_src (std::ostream& out, const draw::bitmap& bmp, const std::string& name) {
+      void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name) {
         out << opnm(bmp, name);
       }
 
-      void save_pnm_src (const std::string& fname, const draw::bitmap& bmp, const std::string& name) {
+      void save_pnm_src (const std::string& fname, const draw::basic_datamap& bmp, const std::string& name) {
         std::ofstream(fname) << opnm(bmp, name);
       }
 
       // --------------------------------------------------------------------------
       void opnm::write (std::ostream& out) const {
-        draw::bitmap_info bmi;
-        blob data;
-        bmp.get_data(data, bmi);
+        const draw::bitmap_info& bmi = bmp.get_info();
+        const blob& data = bmp.get_data();
         switch (bmi.bits_per_pixel) {
         case BPP::BW:
           save_pnm_header_src(out, name, BPP2PNM<BPP::BW, true>::pnm, bmi.width, bmi.height, 0);

@@ -126,7 +126,7 @@ namespace gui {
       if (bmi.bits_per_pixel != BPP::RGB) {
         bmi.bits_per_pixel = BPP::RGBA;
       }
-      bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.bytes_per_line * bmi.height;
       data.resize(n);
       std::noskipws(in);
@@ -227,7 +227,7 @@ namespace gui {
     template<>
     void load_pnm<PNM::P4>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::BW;
-      bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
       std::noskipws(in);
@@ -266,7 +266,7 @@ namespace gui {
       if (bmi.bits_per_pixel != BPP::RGB) {
         bmi.bits_per_pixel = BPP::RGBA;
       }
-      bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
 
@@ -309,7 +309,7 @@ namespace gui {
     template<>
     void load_pnm<PNM::P2>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::GRAY;
-      bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
 
@@ -372,7 +372,7 @@ namespace gui {
     template<>
     void load_pnm<PNM::P1>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
       bmi.bits_per_pixel = BPP::BW;
-      bmi.bytes_per_line = draw::bitmap::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
       const std::size_t n = bmi.mem_size();
       data.resize(n);
 
@@ -396,7 +396,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary) {
+    void save_pnm (std::ostream& out, const draw::basic_datamap& bmp, bool binary) {
       if (binary) {
         out << opnm<true>(bmp);
       } else {
@@ -404,16 +404,16 @@ namespace gui {
       }
     }
 
-    void load_pnm (std::istream& in, draw::bitmap& bmp) {
+    void load_pnm (std::istream& in, draw::basic_datamap& bmp) {
       in >> ipnm(bmp);
     }
 
-    void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary) {
+    void save_pnm (const std::string& name, const draw::basic_datamap& bmp, bool binary) {
       std::ofstream out(name);
       save_pnm(out, bmp, binary);
     }
 
-    void load_pnm (const std::string& name, draw::bitmap& bmp) {
+    void load_pnm (const std::string& name, draw::basic_datamap& bmp) {
       std::ifstream in(name);
       load_pnm(in, bmp);
     }

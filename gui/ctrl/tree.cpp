@@ -129,7 +129,7 @@ namespace gui {
         io::load_pnm(in, mask);
 
         mask.invert();
-        draw::memmap icon(mask.size());
+        draw::pixmap icon(mask.size());
         icon = mask;
         if (!selected) {
           icon.invert();

@@ -135,8 +135,8 @@ namespace gui {
   namespace draw {
 
     class graphics;
-    class memmap;
-    class bitmap;
+    class pixmap;
+    class basic_map;
     class masked_bitmap;
 
     typedef void (drawable) (const graphics&, const brush&, const pen&);
@@ -149,7 +149,7 @@ namespace gui {
     class graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
-      graphics (draw::memmap& target);
+      graphics (draw::pixmap& target);
       graphics (const graphics&);
       ~graphics ();
 
@@ -173,8 +173,8 @@ namespace gui {
       const graphics& copy_from (const graphics&, const core::point& dest = core::point::zero) const;
       const graphics& copy_from (const graphics&, const core::rectangle& src, const core::point& dest = core::point::zero) const;
 
-      const graphics& copy_from (const draw::bitmap&, const core::point& dest = core::point::zero) const;
-      const graphics& copy_from (const draw::bitmap&, const core::rectangle& src, const core::point& dest) const;
+      const graphics& copy_from (const draw::pixmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest) const;
       const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,

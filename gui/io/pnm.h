@@ -117,10 +117,10 @@ namespace gui {
 
     };
 
-    void save_pnm (std::ostream& out, const draw::bitmap& bmp, bool binary = true);
-    void load_pnm (std::istream& in, draw::bitmap& bmp);
-    void save_pnm (const std::string& name, const draw::bitmap& bmp, bool binary = true);
-    void load_pnm (const std::string& name, draw::bitmap& bmp);
+    void save_pnm (std::ostream& out, const draw::basic_datamap& bmp, bool binary = true);
+    void load_pnm (std::istream& in, draw::basic_datamap& bmp);
+    void save_pnm (const std::string& name, const draw::basic_datamap& bmp, bool binary = true);
+    void load_pnm (const std::string& name, draw::basic_datamap& bmp);
 
     template<PNM>
     struct PNM2BPP {};
@@ -149,11 +149,11 @@ namespace gui {
     template<bool BIN>
     class opnm {
     public:
-      opnm (const draw::bitmap& bmp);
+      opnm (const draw::basic_datamap& bmp);
       void write (std::ostream& out) const;
 
     private:
-      const draw::bitmap& bmp;
+      const draw::basic_datamap& bmp;
     };
 
     // --------------------------------------------------------------------------
@@ -163,12 +163,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     class ipnm {
     public:
-      ipnm (draw::bitmap& bmp);
-      ipnm (draw::bitmap&& bmp);
+      ipnm (draw::basic_datamap& bmp);
+      ipnm (draw::basic_datamap&& bmp);
       void read (std::istream& in);
 
     private:
-      draw::bitmap& bmp;
+      draw::basic_datamap& bmp;
     };
 
     // --------------------------------------------------------------------------
@@ -187,7 +187,7 @@ namespace gui {
       void open (const char* fname);
       void open (const std::string& fname);
 
-      void operator<< (const draw::memmap& b);
+      void operator<< (const draw::pixmap& b);
       void operator<< (const draw::datamap<PNM2BPP<i>::bpp>& b);
 
     private:
@@ -206,7 +206,7 @@ namespace gui {
       void open (const char* fname);
       void open (const std::string& fname);
 
-      void operator>> (draw::memmap& b);
+      void operator>> (draw::pixmap& b);
       void operator>> (draw::datamap<PNM2BPP<i>::bpp>& b);
 
     private:
@@ -218,15 +218,14 @@ namespace gui {
     // inlines
     //
     template<bool BIN>
-    inline opnm<BIN>::opnm (const draw::bitmap& bmp)
+    inline opnm<BIN>::opnm (const draw::basic_datamap& bmp)
       : bmp(bmp)
     {}
 
     template<bool BIN>
     inline void opnm<BIN>::write (std::ostream& out) const {
-      draw::bitmap_info bmi;
-      blob data;
-      bmp.get_data(data, bmi);
+      const draw::bitmap_info& bmi = bmp.get_info();
+      const blob& data = bmp.get_data();
       switch (bmi.bits_per_pixel) {
       case BPP::BW:
         save_pnm_header(out, BPP2PNM<BPP::BW, BIN>::pnm, bmi, 0);
@@ -257,12 +256,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline ipnm::ipnm (draw::bitmap& bmp)
+    inline ipnm::ipnm (draw::basic_datamap& bmp)
       : bmp(bmp)
     {}
 
     // --------------------------------------------------------------------------
-    inline ipnm::ipnm (draw::bitmap&& bmp)
+    inline ipnm::ipnm (draw::basic_datamap&& bmp)
       : bmp(bmp)
     {}
 
@@ -334,8 +333,13 @@ namespace gui {
     }
 
     template<PNM i>
-    inline void ofpnm<i>::operator<< (const draw::memmap& b) {
-      opnm<super::bin>(b).write(out);
+    inline void ofpnm<i>::operator<< (const draw::pixmap& b) {
+      switch (b.bits_per_pixel()) {
+        case BPP::BW:   opnm<super::bin>(b.get<BPP::BW>()).write(out); break;
+        case BPP::GRAY: opnm<super::bin>(b.get<BPP::GRAY>()).write(out); break;
+        case BPP::RGB:  opnm<super::bin>(b.get<BPP::RGB>()).write(out); break;
+        case BPP::RGBA: opnm<super::bin>(b.get<BPP::RGBA>()).write(out); break;
+      }
     }
 
     template<PNM i>
@@ -370,8 +374,10 @@ namespace gui {
     }
 
     template<PNM i>
-    inline void ifpnm<i>::operator>> (draw::memmap& b) {
-      in >> ipnm(b);
+    inline void ifpnm<i>::operator>> (draw::pixmap& b) {
+      draw::basic_datamap m;
+      in >> ipnm(m);
+      b = m;
     }
 
     template<PNM i>

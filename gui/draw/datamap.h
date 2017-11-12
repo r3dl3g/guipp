@@ -96,7 +96,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef datamap<BPP::BW> maskmap;
+    typedef datamap<BPP::BW> bwmap;
     typedef datamap<BPP::GRAY> graymap;
     typedef datamap<BPP::RGB> rgbmap;
     typedef datamap<BPP::RGBA> rgbamap;

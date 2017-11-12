@@ -124,7 +124,7 @@ namespace gui {
       }
 
       draw::masked_bitmap build_tree_icon (tree_icon type, bool selected) {
-        draw::maskmap mask;
+        draw::bwmap mask;
         std::istringstream in(get_icon_chars(type));
         io::load_pnm(in, mask);
 

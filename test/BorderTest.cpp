@@ -98,7 +98,7 @@ private:
   rgbamap rgba[2];
   rgbmap bmp[2];
   graymap gray[2];
-  maskmap bw[2];
+  bwmap bw[2];
 };
 
 // --------------------------------------------------------------------------

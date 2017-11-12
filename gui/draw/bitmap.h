@@ -86,11 +86,11 @@ namespace gui {
 
       bitmap ();
 
-      bitmap (const maskmap& sz);
+      bitmap (const bwmap& sz);
       bitmap (uint32_t w, uint32_t h);
       bitmap (const core::size& sz);
 
-      void operator= (const maskmap& rhs);
+      void operator= (const bwmap& rhs);
 
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
@@ -99,8 +99,8 @@ namespace gui {
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
 
-      maskmap get () const;
-      operator maskmap () const;
+      bwmap get () const;
+      operator bwmap () const;
 
     };
 
@@ -244,7 +244,7 @@ namespace gui {
     inline bitmap::bitmap ()
     {}
 
-    inline bitmap::bitmap (const maskmap& rhs) {
+    inline bitmap::bitmap (const bwmap& rhs) {
       operator= (rhs);
     }
 
@@ -256,7 +256,7 @@ namespace gui {
       create(sz);
     }
 
-    inline void bitmap::operator= (const maskmap& rhs) {
+    inline void bitmap::operator= (const bwmap& rhs) {
       if (rhs) {
         create(rhs.size());
         put_data(rhs.get_data(), rhs.get_info());
@@ -298,7 +298,7 @@ namespace gui {
       } else {
         switch (bits_per_pixel()) {
           case BPP::BW: {
-            maskmap t(size());
+            bwmap t(size());
             get_data(t.get_data(), t.get_info());
             return datamap<T>(t);
           }

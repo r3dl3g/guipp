@@ -286,11 +286,7 @@ namespace gui {
 
     void basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
-        clear();
-        blob data;
-        bitmap_info bmi;
-        rhs.get_data(data, bmi);
-        put_data(data, bmi);
+        copy_from(rhs);
       }
     }
 
@@ -331,14 +327,12 @@ namespace gui {
     }
 
     void basic_map::copy_from (const basic_map& rhs) {
+      clear();
       if (rhs) {
         bitmap_info bmi;
         blob data;
         rhs.get_data(data, bmi);
-        create(bmi.size(), bmi.bits_per_pixel);
-        put_data(data, bmi);
-      } else {
-        clear();
+        set_id(create_bitmap(bmi, data.data()));
       }
     }
 
@@ -372,28 +366,25 @@ namespace gui {
     void bitmap::create (uint32_t w, uint32_t h) {
       super::create(w, h, BPP::BW);
       if (!is_valid()) {
-        throw std::runtime_error("create image failed");
+        throw std::runtime_error("create bitmap failed");
       }
     }
 
     void bitmap::copy_from (const bitmap& src_img,
                             const core::rectangle& src_rect,
                             const core::point& dest_pt) {
-      maskmap dest;
+      bwmap dest;
       dest.copy_from(src_img.get(), src_rect, dest_pt);
       operator=(dest);
     }
 
-    maskmap bitmap::get () const {
-      bitmap_info bmi;
-      blob data;
-      get_data(data, bmi);
-      maskmap bmp;
-      bmp.super::create(data, bmi);
+    bwmap bitmap::get () const {
+      bwmap bmp(size());
+      get_data(bmp.get_data(), bmp.get_info());
       return bmp;
     }
 
-    bitmap::operator maskmap () const {
+    bitmap::operator bwmap () const {
       return get();
     }
 
@@ -410,7 +401,7 @@ namespace gui {
       super::create(w, h, core::global::get_device_bits_per_pixel());
 #endif
       if (!is_valid()) {
-        throw std::runtime_error("create image failed");
+        throw std::runtime_error("create pixmap failed");
       }
     }
 
@@ -604,7 +595,7 @@ namespace gui {
 
       switch (bpp) {
         case BPP::BW: {
-          maskmap dest(w, h);
+          bwmap dest(w, h);
           copy_frame_image<BPP::BW>(src_data, dest.get_data(), src_bmi, dest.get_info(), l, t, r, b);
           buffer = dest;
           break;

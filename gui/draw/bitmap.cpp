@@ -201,18 +201,20 @@ namespace gui {
         };
         const size_t n = im->height * im->bytes_per_line;
         if (im->bits_per_pixel != im->depth) {
-          blob src;
-          src.assign(im->data, im->data + n);
           data.resize(bmi.mem_size());
+
+          byte* src = reinterpret_cast<byte*>(im->data);
           switch (im->depth) {
             case 24:
-              convert::bpp::convert<BPP::RGBA, BPP::RGB>(src, data,
+              convert::bpp::convert<BPP::RGBA, BPP::RGB>(convert::cbytearray(src, n),
+                                                         convert::bytearray(data),
                                                          im->width, im->height,
                                                          im->bytes_per_line,
                                                          bmi.bytes_per_line);
             break;
             case 32:
-              convert::bpp::convert<BPP::RGB, BPP::RGBA>(src, data,
+              convert::bpp::convert<BPP::RGB, BPP::RGBA>(convert::cbytearray(src, n),
+                                                         convert::bytearray(data),
                                                          im->width, im->height,
                                                          im->bytes_per_line,
                                                          bmi.bytes_per_line);
@@ -499,7 +501,6 @@ namespace gui {
 
       const uint32_t target_right = dest_bmi.width - right;
       const uint32_t target_bottom = dest_bmi.height - bottom;
-      const uint32_t target_bpl = dest_bmi.bytes_per_line;
       const uint32_t source_right = src_bmi.width - right;
       const uint32_t source_bottom = src_bmi.height - bottom;
       const uint32_t src_bpl = src_bmi.bytes_per_line;

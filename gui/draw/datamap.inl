@@ -58,7 +58,10 @@ namespace gui {
       info = {w, h, T};
 
       data.resize(info.mem_size());
-      convert::bpp::convert<S, T>(src.get_data(), data, w, h, bmi.bytes_per_line, info.bytes_per_line);
+
+      convert::bpp::convert<S, T>(convert::cbytearray(src.get_data()),
+                                  convert::bytearray(data),
+                                  w, h, bmi.bytes_per_line, info.bytes_per_line);
     }
 
     template<BPP T>
@@ -69,11 +72,15 @@ namespace gui {
       info = {w, h, T};
 
       data.resize(info.mem_size());
+
+      convert::bytearray dest(data);
+      convert::cbytearray src_data(src.get_data());
+
       switch (bmi.bits_per_pixel) {
-        case BPP::BW:   convert::bpp::convert<BPP::BW, T>(src.get_data(), data, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(src.get_data(), data, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(src.get_data(), data, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(src.get_data(), data, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
+        case BPP::BW:   convert::bpp::convert<BPP::BW, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
+        case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
+        case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
+        case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
       }
     }
 
@@ -119,7 +126,9 @@ namespace gui {
         return;
       }
 
-      convert::copy::sub<T>(src_data, src_bpl, data, dest_bpl, src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+      convert::copy::sub<T>(convert::cbytearray(src_data), src_bpl,
+                            convert::bytearray(data), dest_bpl,
+                            src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
     }
 
     template<BPP T>
@@ -159,7 +168,9 @@ namespace gui {
       const uint32_t src_bpl = src_bmi.bytes_per_line;
       const uint32_t dest_bpl = info.bytes_per_line;
 
-      convert::stretch::sub<BPP::BW>(src_data, src_bpl, data, dest_bpl, src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+      convert::stretch::sub<BPP::BW>(convert::cbytearray(src_data), src_bpl,
+                                     convert::bytearray(data), dest_bpl,
+                                     src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
     }
 
     template<BPP T>

@@ -38,8 +38,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     enum class bw_pixel : bool {
-      black = false,
-      white = true
+      black = system_bw_bits::black,
+      white = system_bw_bits::white
     };
 
   }
@@ -147,7 +147,7 @@ namespace gui {
     }
 
     inline bw_pixel gray_pixel::get_bw () const {
-      return value == system_bw_bits::value[1] ? bw_pixel::white : bw_pixel::black;
+      return value == 0 ? bw_pixel::black : bw_pixel::white;
     }
 
     // --------------------------------------------------------------------------

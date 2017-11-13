@@ -18,7 +18,13 @@
 
 #pragma once
 
-// --------------------------------------------------------------------------
+ // --------------------------------------------------------------------------
+ //
+ // Common includes
+ //
+#include <algorithm>
+ 
+ // --------------------------------------------------------------------------
 //
 // Library includes
 //
@@ -126,7 +132,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline gray_pixel gray_pixel::operator= (bw_pixel bw) {
-      value = static_cast<bool>(bw) ? 0xff : 0;
+      value = system_bw_bits::adapt(static_cast<bool>(bw) ? 0xff : 0);
       return *this;
     }
 
@@ -141,7 +147,7 @@ namespace gui {
     }
 
     inline bw_pixel gray_pixel::get_bw () const {
-      return value > 0x0 ? bw_pixel::white : bw_pixel::black;
+      return value == system_bw_bits::value[1] ? bw_pixel::white : bw_pixel::black;
     }
 
     // --------------------------------------------------------------------------
@@ -188,7 +194,7 @@ namespace gui {
     }
 
     inline gray_pixel operator* (gray_pixel p, float f) {
-      return {static_cast<byte>(std::min<int>(0xff, static_cast<int>(p.value) * f))};
+      return {static_cast<byte>(std::min<int>(0xff, static_cast<int>(p.value * f)))};
     }
 
     inline rgb_pixel operator* (rgb_pixel p, float f) {

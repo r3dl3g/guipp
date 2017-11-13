@@ -68,18 +68,24 @@ namespace gui {
 #endif // NDEBUG
       {}
 
-      inline type& operator[] (size_t i) {
+      inline void check_boundary (size_t i) const {
+#ifndef NDEBUG
         detail::check_boundary(i, size_);
+#endif // NDEBUG
+      }
+
+      inline type& operator[] (size_t i) {
+        check_boundary(i);
         return data_[i];
       }
 
       inline array_wrapper sub (size_t offset, size_t n) {
-        detail::check_boundary(offset + n - 1, size_);
+        check_boundary(offset + n - 1);
         return array_wrapper(data_ + offset, n);
       }
 
       inline type* data (size_t offset, size_t n) {
-        detail::check_boundary(offset + n - 1, size_);
+        check_boundary(offset + n - 1);
         return data_ + offset;
       }
 
@@ -109,18 +115,24 @@ namespace gui {
 #endif // NDEBUG
       {}
 
-      inline const type& operator[] (size_t i) const {
+      inline void check_boundary (size_t i) const {
+#ifndef NDEBUG
         detail::check_boundary(i, size_);
+#endif // NDEBUG
+      }
+
+      inline const type& operator[] (size_t i) const {
+        check_boundary(i);
         return data_[i];
       }
 
       inline array_wrapper sub (size_t offset, size_t sz) const {
-        detail::check_boundary(offset + sz - 1, size_);
+        check_boundary(offset + sz - 1);
         return array_wrapper(data_ + offset, sz);
       }
 
       inline const type* data (size_t offset, size_t n) const {
-        detail::check_boundary(offset + n - 1, size_);
+        check_boundary(offset + n - 1);
         return data_ + offset;
       }
 
@@ -150,13 +162,19 @@ namespace gui {
 #endif // NDEBUG
       {}
 
-      inline bool_wrapper<T> operator[] (size_t i) {
+      inline void check_boundary (size_t i) const {
+#ifndef NDEBUG
         detail::check_boundary(i, size_);
+#endif // NDEBUG
+      }
+
+      inline bool_wrapper<T> operator[] (size_t i) {
+        check_boundary(i);
         return bool_wrapper<T>(data_[i / 8], i % 8);
       }
 
       inline bool_array_wrapper sub (size_t offset, size_t n) {
-        detail::check_boundary((offset + n - 1) / 8, size_ / 8);
+        check_boundary(offset + n - 1);
         return bool_array_wrapper(data_ + offset / 8, n);
       }
 
@@ -186,13 +204,19 @@ namespace gui {
 #endif // NDEBUG
       {}
 
-      inline bool_wrapper<T const> operator[] (size_t i) const {
+      inline void check_boundary (size_t i) const {
+#ifndef NDEBUG
         detail::check_boundary(i, size_);
+#endif // NDEBUG
+      }
+
+      inline bool_wrapper<T const> operator[] (size_t i) const {
+        check_boundary(i);
         return bool_wrapper<T const>(data_[i / 8], i % 8);
       }
 
       inline bool_array_wrapper sub (size_t offset, size_t n) {
-        detail::check_boundary((offset + n - 1) / 8, size_ / 8);
+        check_boundary(offset + n - 1);
         return bool_array_wrapper(data_ + offset / 8, n);
       }
 

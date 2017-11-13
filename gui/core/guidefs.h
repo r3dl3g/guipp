@@ -45,8 +45,10 @@
 
 namespace gui {
 
+  // --------------------------------------------------------------------------
   typedef std::vector<byte> blob;
 
+  // --------------------------------------------------------------------------
   template<byte bit, bit_order O = os::bitmap_bit_order>
   struct bitmap_bit_mask {};
 
@@ -55,7 +57,7 @@ namespace gui {
   template<byte bit>
   struct bitmap_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
 
-
+  // --------------------------------------------------------------------------
   struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {
     static constexpr byte mask[8] = {
       bitmap_bit_mask<0>::value,
@@ -79,7 +81,56 @@ namespace gui {
     };
   };
 
+  // --------------------------------------------------------------------------
+  inline bool get_bit (byte value, byte bit) {
+    return (value & system_bw_bits::mask[bit]) >> system_bw_bits::shift[bit] != 0;
+  }
 
+  inline void set_bit (byte& value, byte bit, bool b) {
+    const byte bit_mask = system_bw_bits::mask[bit];
+    value = b ? value | bit_mask : value & ~bit_mask;
+  }
+
+  // --------------------------------------------------------------------------
+  template<typename T>
+  struct bool_wrapper {
+    inline bool_wrapper (byte& value, byte bit)
+      : value(value)
+      , bit(bit)
+    {}
+
+    inline operator T () const {
+      return static_cast<T>(get_bit(value, bit));
+    }
+
+    inline T operator= (T b) {
+      set_bit(value, bit, static_cast<bool>(b));
+      return b;
+    }
+
+  private:
+    byte& value;
+    const byte bit;
+  };
+
+  // --------------------------------------------------------------------------
+  template<typename T>
+  struct bool_wrapper<T const> {
+    inline bool_wrapper (byte value, byte bit)
+      : value(value)
+      , bit(bit)
+    {}
+
+    inline operator T () const {
+      return static_cast<T>(get_bit(value, bit));
+    }
+
+  private:
+    const byte value;
+    const byte bit;
+  };
+
+  // --------------------------------------------------------------------------
   enum class BPP : byte {
     Undefined = 0,
     BW = 1,
@@ -88,6 +139,7 @@ namespace gui {
     RGBA = 32
   };
 
+  // --------------------------------------------------------------------------
   enum class orientation : bool {
     vertical,
     horizontal
@@ -97,12 +149,14 @@ namespace gui {
     return (o == orientation::vertical) ? orientation::horizontal : orientation::vertical;
   }
 
+  // --------------------------------------------------------------------------
   enum class origin : byte {
     start,
     center,
     end
   };
 
+  // --------------------------------------------------------------------------
   enum class alignment : byte {
     left,
     hcenter,
@@ -113,6 +167,7 @@ namespace gui {
   };
 
 
+  // --------------------------------------------------------------------------
   template<alignment>
   struct alignment_orientation {};
 
@@ -146,7 +201,7 @@ namespace gui {
     static constexpr orientation value = orientation::vertical;
   };
 
-
+  // --------------------------------------------------------------------------
   template<alignment>
   struct alignment_origin {};
 
@@ -180,6 +235,7 @@ namespace gui {
     static constexpr origin value = origin::end;
   };
 
+  // --------------------------------------------------------------------------
   namespace core {
 
     namespace global {
@@ -200,6 +256,12 @@ namespace gui {
 
 } //gui
 
+// --------------------------------------------------------------------------
+//
 // this is the main function that has to be defined in every application
+//
+// --------------------------------------------------------------------------
 extern int gui_main (const std::vector<std::string>& args);
+
+// --------------------------------------------------------------------------
 

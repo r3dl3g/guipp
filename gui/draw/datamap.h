@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/draw/bitmap_info.h>
+#include <gui/draw/image_data.h>
 
 
 namespace gui {
@@ -40,6 +40,16 @@ namespace gui {
 
       bitmap_info& get_info ();
       blob& get_data ();
+
+      template<BPP T>
+      const const_image_data<T> get_raw () const {
+        return const_image_data<T>(core::array_wrapper<const byte>(data), info);
+      }
+
+      template<BPP T>
+      image_data<T> get_raw () {
+        return image_data<T>(core::array_wrapper<byte>(data), info);
+      }
 
       core::size size () const;
       byte depth () const;
@@ -78,6 +88,14 @@ namespace gui {
       void copy_from (const datamap& src_img,
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
+
+      const const_image_data<T> get_raw () const {
+        return super::get_raw<T>();
+      }
+
+      image_data<T> get_raw () {
+        return super::get_raw<T>();
+      }
 
       void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
 

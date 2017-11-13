@@ -194,30 +194,39 @@ namespace gui {
       auto display = core::global::get_instance();
       XImage* im = XGetImage(display, id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
       if (im) {
+        draw::bitmap_info src_bmi = {
+          static_cast<uint32_t>(im->width),
+          static_cast<uint32_t>(im->height),
+          static_cast<uint32_t>(im->bytes_per_line),
+          BPP(im->bits_per_pixel)
+        };
         bmi = {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
           BPP(im->depth)
         };
-        const size_t n = im->height * im->bytes_per_line;
-        if (im->bits_per_pixel != im->depth) {
+        const size_t n = src_bmi.mem_size();
+        if (src_bmi.bits_per_pixel != bmi.bits_per_pixel) {
           data.resize(bmi.mem_size());
 
           byte* src = reinterpret_cast<byte*>(im->data);
-          switch (im->depth) {
-            case 24:
-              convert::bpp::convert<BPP::RGBA, BPP::RGB>(convert::cbytearray(src, n),
-                                                         convert::bytearray(data),
-                                                         im->width, im->height,
-                                                         im->bytes_per_line,
-                                                         bmi.bytes_per_line);
+          switch (bmi.bits_per_pixel) {
+            case BPP::RGB: {
+              typedef draw::const_image_data<BPP::RGBA> src_data;
+              typedef draw::image_data<BPP::RGB> dst_data;
+              //<BPP::RGBA, BPP::RGB>
+              convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                    dst_data(dst_data::raw_type(data), bmi),
+                                    im->width, im->height);
+            }
             break;
-            case 32:
-              convert::bpp::convert<BPP::RGB, BPP::RGBA>(convert::cbytearray(src, n),
-                                                         convert::bytearray(data),
-                                                         im->width, im->height,
-                                                         im->bytes_per_line,
-                                                         bmi.bytes_per_line);
+            case BPP::RGBA:
+              typedef draw::const_image_data<BPP::RGB> src_data;
+              typedef draw::image_data<BPP::RGBA> dst_data;
+              //<BPP::RGB, BPP::RGBA>
+              convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                    dst_data(dst_data::raw_type(data), bmi),
+                                    im->width, im->height);
             break;
           }
         } else {
@@ -304,7 +313,7 @@ namespace gui {
     }
 
     core::size basic_map::size () const {
-      return get_info().size();
+      return get_info().size<core::size::type>();
     }
 
     byte basic_map::depth () const {
@@ -317,8 +326,7 @@ namespace gui {
 
     void basic_map::create (uint32_t w, uint32_t h, BPP bpp) {
       bitmap_info bmi = get_info();
-      auto sz = bmi.size();
-      if ((sz.os_width() == w) && (sz.os_height() == h) && (bmi.bits_per_pixel == bpp)) {
+      if ((bmi.width == w) && (bmi.height == h) && (bmi.bits_per_pixel == bpp)) {
         return;
       }
       clear();
@@ -495,7 +503,8 @@ namespace gui {
     {}
 
     template<BPP bpp>
-    void copy_frame_image (const blob& src_data, blob& dest_data,
+    void copy_frame_image (draw::const_image_data<bpp> src_img,
+                           draw::image_data<bpp> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
                            uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
 
@@ -503,29 +512,27 @@ namespace gui {
       const uint32_t target_bottom = dest_bmi.height - bottom;
       const uint32_t source_right = src_bmi.width - right;
       const uint32_t source_bottom = src_bmi.height - bottom;
-      const uint32_t src_bpl = src_bmi.bytes_per_line;
-      const uint32_t dest_bpl = dest_bmi.bytes_per_line;
 
       using namespace convert;
 
       // top left
       if (top && left) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {0, 0}, {0, 0, left, top});
+        copy::sub<bpp>(src_img, dest_img, {0, 0}, {0, 0, left, top});
       }
 
       // top right
       if (top && right) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {source_right, 0}, {target_right, 0, right, top});
+        copy::sub<bpp>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {0, source_bottom}, {0, target_bottom, left, bottom});
+        copy::sub<bpp>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
       }
 
       if (bottom && right) {
         // bottom right
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+        copy::sub<bpp>(src_img, dest_img,
                        {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
       }
 
@@ -537,35 +544,35 @@ namespace gui {
 
         // top center
         if (top && target_inner_width) {
-          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+          stretch::sub<bpp>(src_img, dest_img,
                             {left, 0, source_inner_width, top},
                             {left, 0, target_inner_width, top});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
-          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+          stretch::sub<bpp>(src_img, dest_img,
                             {left, source_bottom, source_inner_width, bottom},
                             {left, target_bottom, target_inner_width, bottom});
         }
 
         // left center
         if (left && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+          stretch::sub<bpp>(src_img, dest_img,
                             {0, top, left, source_inner_height},
                             {0, top, left, target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+          stretch::sub<bpp>(src_img, dest_img,
                             {source_right, top, right, source_inner_height},
                             {target_right, top, right, target_inner_height});
         }
 
         // center
         if (target_inner_width && target_inner_height) {
-          stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
+          stretch::sub<bpp>(src_img, dest_img,
                             {left, top, source_inner_width, source_inner_height},
                             {left, top, target_inner_width, target_inner_height});
         }
@@ -573,14 +580,10 @@ namespace gui {
     }
 
     void frame_image::operator() (const graphics& g, const core::point& pt) const {
-      const blob& src_data = img.get_data();
-      const bitmap_info& src_bmi = img.get_info();
-
       if (rect.size() <= core::size::two) {
         return;
       }
 
-      const BPP bpp = src_bmi.bits_per_pixel;
       const uint32_t w = roundup<uint32_t>(rect.width());
       const uint32_t h = roundup<uint32_t>(rect.height());
 
@@ -592,30 +595,36 @@ namespace gui {
       const uint32_t t = std::min(top, height / 2);
       const uint32_t b = std::min(bottom, height / 2);
 
+      const bitmap_info& src_bmi = img.get_info();
+
       pixmap buffer;
 
-      switch (bpp) {
+      switch (src_bmi.bits_per_pixel) {
         case BPP::BW: {
           bwmap dest(w, h);
-          copy_frame_image<BPP::BW>(src_data, dest.get_data(), src_bmi, dest.get_info(), l, t, r, b);
+          copy_frame_image<BPP::BW>(img.get_raw<BPP::BW>(), dest.get_raw(),
+                                    src_bmi, dest.get_info(), l, t, r, b);
           buffer = dest;
           break;
         }
         case BPP::GRAY: {
           graymap dest(w, h);
-          copy_frame_image<BPP::GRAY>(src_data, dest.get_data(), src_bmi, dest.get_info(), l, t, r, b);
+          copy_frame_image<BPP::GRAY>(img.get_raw<BPP::GRAY>(), dest.get_raw(),
+                                      src_bmi, dest.get_info(), l, t, r, b);
           buffer = dest;
           break;
         }
         case BPP::RGB: {
           rgbmap dest(w, h);
-          copy_frame_image<BPP::RGB>(src_data, dest.get_data(), src_bmi, dest.get_info(), l, t, r, b);
+          copy_frame_image<BPP::RGB>(img.get_raw<BPP::RGB>(), dest.get_raw(),
+                                     src_bmi, dest.get_info(), l, t, r, b);
           buffer = dest;
           break;
         }
         case BPP::RGBA: {
           rgbamap dest(w, h);
-          copy_frame_image<BPP::RGBA>(src_data, dest.get_data(), src_bmi, dest.get_info(), l, t, r, b);
+          copy_frame_image<BPP::RGBA>(img.get_raw<BPP::RGBA>(), dest.get_raw(),
+                                      src_bmi, dest.get_info(), l, t, r, b);
           buffer = dest;
           break;
         }

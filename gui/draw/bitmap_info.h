@@ -39,28 +39,18 @@ namespace gui {
       uint32_t bytes_per_line;
       BPP bits_per_pixel;
 
-      core::size size () const;
+      core::uint32_size size () const;
+
+      template<typename T>
+      core::basic_size<T> size () const;
+
       byte depth () const;
       std::size_t mem_size () const;
 
     };
 
-    // --------------------------------------------------------------------------
-    //
-    // inlines
-    //
-    inline core::size bitmap_info::size () const {
-      return {static_cast<core::size::type>(width), static_cast<core::size::type>(height)};
-    }
+  } //namespace draw
 
-    inline byte bitmap_info::depth () const {
-      return static_cast<byte>(bits_per_pixel);
-    }
+} // namespace gui
 
-    inline std::size_t bitmap_info::mem_size () const {
-      return static_cast<size_t>(bytes_per_line) * static_cast<size_t>(height);
-    }
-
-  }
-
-}
+#include <gui/draw/bitmap_info.inl>

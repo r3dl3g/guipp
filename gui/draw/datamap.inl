@@ -53,34 +53,31 @@ namespace gui {
     template<BPP S>
     inline datamap<T>::datamap (const datamap<S>& src) {
       const bitmap_info& bmi = src.get_info();
+
       const auto w = bmi.width;
       const auto h = bmi.height;
-      info = {w, h, T};
 
+      info = {w, h, T};
       data.resize(info.mem_size());
 
-      convert::bpp::convert<S, T>(convert::cbytearray(src.get_data()),
-                                  convert::bytearray(data),
-                                  w, h, bmi.bytes_per_line, info.bytes_per_line);
+      convert::bpp::convert<S, T>(src.get_raw(), get_raw(), w, h);
     }
 
     template<BPP T>
     inline datamap<T>::datamap (const basic_datamap& src) {
       const bitmap_info& bmi = src.get_info();
+
       const auto w = bmi.width;
       const auto h = bmi.height;
-      info = {w, h, T};
 
+      info = {w, h, T};
       data.resize(info.mem_size());
 
-      convert::bytearray dest(data);
-      convert::cbytearray src_data(src.get_data());
-
       switch (bmi.bits_per_pixel) {
-        case BPP::BW:   convert::bpp::convert<BPP::BW, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
-        case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(src_data, dest, w, h, bmi.bytes_per_line, info.bytes_per_line); break;
+        case BPP::BW:   convert::bpp::convert<BPP::BW, T>(src.get_raw<BPP::BW>(), get_raw(), w, h); break;
+        case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(src.get_raw<BPP::GRAY>(), get_raw(), w, h); break;
+        case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(src.get_raw<BPP::RGB>(), get_raw(), w, h); break;
+        case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(src.get_raw<BPP::RGBA>(), get_raw(), w, h); break;
       }
     }
 
@@ -109,7 +106,6 @@ namespace gui {
     inline void datamap<T>::copy_from (const datamap& src_img,
                                        const core::rectangle& src_rect,
                                        const core::point& dest_pt) {
-      const blob &src_data = src_img.get_data();
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
@@ -119,8 +115,7 @@ namespace gui {
         return;
       }
 
-      convert::copy::sub<T>(convert::cbytearray(src_data), src_bmi.bytes_per_line,
-                            convert::bytearray(data), info.bytes_per_line,
+      convert::copy::sub<T>(src_img.get_raw(), get_raw(),
                             src.position(), dest);
     }
 
@@ -141,7 +136,6 @@ namespace gui {
     inline void datamap<T>::stretch_from (const datamap& src_img,
                                           const core::rectangle& src_rect,
                                           const core::rectangle& dest_rect) {
-      const blob &src_data = src_img.get_data();
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
@@ -151,14 +145,12 @@ namespace gui {
         return;
       }
 
-      convert::stretch::sub<T>(convert::cbytearray(src_data), src_bmi.bytes_per_line,
-                               convert::bytearray(data), info.bytes_per_line,
-                               src, dest);
+      convert::stretch::sub<T>(src_img.get_raw(), get_raw(), src, dest);
     }
 
     template<BPP T>
     inline void datamap<T>::adjust_brightness (float f) {
-      convert::brightness::adjust<T>(data, info.width, info.height, info.bytes_per_line, f);
+      convert::brightness::adjust<T>(get_raw(), info.width, info.height, f);
     }
 
     template<BPP T>
@@ -173,9 +165,8 @@ namespace gui {
     template<BPP T>
     inline auto datamap<T>::brightness (float f) const -> datamap {
       datamap bmp = *this;
-      blob& data = bmp.data;
       bitmap_info& bmi = bmp.info;
-      convert::brightness::adjust<T>(data, bmi.width, bmi.height, bmi.bytes_per_line, f);
+      convert::brightness::adjust<T>(bmp.get_raw(), bmi.width, bmi.height, f);
       return bmp;
     }
 

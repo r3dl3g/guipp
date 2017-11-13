@@ -30,6 +30,7 @@
 #include <gui/core/guidefs.h>
 #include <gui/core/rectangle.h>
 #include <gui/core/array_wrapper.h>
+#include <gui/draw/image_data.h>
 
 
 namespace gui {
@@ -37,25 +38,19 @@ namespace gui {
   namespace convert {
 
     // --------------------------------------------------------------------------
-    typedef core::array_wrapper<byte> bytearray;
-    typedef core::array_wrapper<const byte> cbytearray;
-
-    // --------------------------------------------------------------------------
     namespace bpp {
-
-      template<BPP W>
-      void set (bytearray out, uint32_t x, byte v);
-
-      template<BPP W>
-      byte get (cbytearray in, uint32_t x);
 
       template<BPP From, BPP To>
       struct line {
-        static void convert (cbytearray in, bytearray out, uint32_t w);
+        static void convert (const draw::const_image_row<From> in,
+                             draw::image_row<To> out,
+                             uint32_t w);
       };
 
       template<BPP From, BPP To>
-      void convert (cbytearray src, bytearray dst, uint32_t w, uint32_t h, uint32_t src_bpl, uint32_t dst_bpl);
+      void convert (const draw::const_image_data<From> in,
+                    draw::image_data<To> out,
+                    uint32_t w, uint32_t h);
 
     } // namespace bpp
 
@@ -63,12 +58,13 @@ namespace gui {
     namespace copy {
 
       template<BPP bpp>
-      void row (cbytearray src, bytearray dst,
+      void row (const draw::const_image_row<bpp> src,
+                draw::image_row<bpp> dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w);
 
       template<BPP bpp>
-      void sub (cbytearray src_data, uint32_t src_bpl,
-                bytearray dest_data, uint32_t dest_bpl,
+      void sub (const draw::const_image_data<bpp> src_data,
+                draw::image_data<bpp> dest_data,
                 const core::uint32_point& src,
                 const core::uint32_rect& dest);
 
@@ -79,13 +75,14 @@ namespace gui {
     namespace stretch {
 
       template<BPP bpp>
-      void row (cbytearray src_data, bytearray dest_data,
+      void row (const draw::const_image_row<bpp> src,
+                draw::image_row<bpp> dst,
                 uint32_t src_x0, uint32_t dest_x0,
                 uint32_t src_w, uint32_t dest_w);
 
       template<BPP bpp>
-      void sub (cbytearray src_data, uint32_t src_bpl,
-                bytearray dest_data, uint32_t dest_bpl,
+      void sub (const draw::const_image_data<bpp> src_data,
+                draw::image_data<bpp> dest_data,
                 const core::uint32_rect& src,
                 const core::uint32_rect& dest);
 
@@ -95,10 +92,10 @@ namespace gui {
     namespace brightness {
 
       template<BPP bpp>
-      void row (bytearray data, uint32_t w, float f);
+      void row (draw::image_row<bpp> data, uint32_t w, float f);
 
       template<BPP bpp>
-      void adjust (bytearray data, uint32_t w, uint32_t h, uint32_t bpl, float f);
+      void adjust (draw::image_data<bpp> data, uint32_t w, uint32_t h, float f);
 
     }
 

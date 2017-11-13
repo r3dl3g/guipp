@@ -58,7 +58,7 @@ namespace gui {
     }
 
     core::size basic_datamap::size () const {
-      return info.size();
+      return info.size<core::size::type>();
     }
 
     byte basic_datamap::depth () const {

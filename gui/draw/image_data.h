@@ -132,7 +132,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline gray_pixel gray_pixel::operator= (bw_pixel bw) {
-      value = system_bw_bits::adapt(static_cast<bool>(bw) ? 0xff : 0);
+      value = system_bw_bits::value[static_cast<bool>(bw)];
       return *this;
     }
 

@@ -38,31 +38,31 @@ namespace gui {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    using button_clicked_event = event_handler<detail::BN_CLICKED_MESSAGE, 0,
-                                               params<>::getter<> >;
-    using button_pushed_event = event_handler<detail::BN_PUSHED_MESSAGE, 0,
-                                              params<>::getter<> >;
-    using button_released_event = event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
-                                                params<>::getter<> >;
-    using button_state_event = event_handler<detail::BN_STATE_MESSAGE, 0,
-                                             params<bool>::
+    using button_clicked_event = core::event_handler<detail::BN_CLICKED_MESSAGE, 0,
+                                               core::params<>::getter<> >;
+    using button_pushed_event = core::event_handler<detail::BN_PUSHED_MESSAGE, 0,
+                                              core::params<>::getter<> >;
+    using button_released_event = core::event_handler<detail::BN_UNPUSHED_MESSAGE, 0,
+                                                core::params<>::getter<> >;
+    using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE, 0,
+                                             core::params<bool>::
                                              getter<get_param<0, bool> > >;
 // --------------------------------------------------------------------------
 #endif //WIN32
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    using button_clicked_event = event_handler<ClientMessage, 0,
-                                               params<>::getter<>, 0,
+    using button_clicked_event = core::event_handler<ClientMessage, 0,
+                                               core::params<>::getter<>, 0,
                                                client_message_matcher<detail::BN_CLICKED_MESSAGE> >;
-    using button_pushed_event = event_handler<ClientMessage, 0,
-                                              params<>::getter<>, 0,
+    using button_pushed_event = core::event_handler<ClientMessage, 0,
+                                              core::params<>::getter<>, 0,
                                               client_message_matcher<detail::BN_PUSHED_MESSAGE> >;
-    using button_released_event = event_handler<ClientMessage, 0,
-                                                params<>::getter<>, 0,
+    using button_released_event = core::event_handler<ClientMessage, 0,
+                                                core::params<>::getter<>, 0,
                                                 client_message_matcher<detail::BN_UNPUSHED_MESSAGE> >;
-    using button_state_event = event_handler<ClientMessage, 0,
-                                             params<bool>::getter<get_client_data<0, bool> >, 0,
+    using button_state_event = core::event_handler<ClientMessage, 0,
+                                             core::params<bool>::getter<get_client_data<0, bool> >, 0,
                                              client_message_matcher<detail::BN_STATE_MESSAGE> >;
     // --------------------------------------------------------------------------
 #endif // X11

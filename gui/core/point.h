@@ -110,6 +110,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     typedef basic_point<float> point;
+    typedef basic_point<uint32_t> uint32_point;
 
     // --------------------------------------------------------------------------
   } // namespace core

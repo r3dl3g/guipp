@@ -122,8 +122,8 @@ namespace gui {
     draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
-    struct paint_caller : params<draw::graphics>::getter<get_param<0, draw::graphics> > {
-      typedef params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
+    struct paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
+      typedef core::params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
       typedef super::function function;
 
       paint_caller (const function cb)
@@ -139,21 +139,21 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using paint_event = event_handler<WM_PAINT, 0, paint_caller>;
+    using paint_event = core::event_handler<WM_PAINT, 0, paint_caller>;
 
 
-    using selection_changed_event = event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
-                                                  params<event_source>::
+    using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
+                                                  core::params<event_source>::
                                                   getter<get_param<0, event_source> > >;
 
-    using selection_commit_event = event_handler<detail::SELECTION_COMMIT_MESSAGE>;
+    using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
-    using selection_cancel_event = event_handler<detail::SELECTION_CANCEL_MESSAGE>;
+    using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
 
-    using hilite_changed_event = event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                                               params<bool>::getter<get_param<0, bool> > >;
+    using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
+                                               core::params<bool>::getter<get_param<0, bool> > >;
 
-    using content_changed_event = event_handler<detail::CONTENT_CHANGED_MESSAGE>;
+    using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
 #endif //WIN32
        // --------------------------------------------------------------------------
@@ -161,36 +161,36 @@ namespace gui {
     // --------------------------------------------------------------------------
     draw::graphics get_draw_graphics (const core::event& e);
 
-    using paint_event = event_handler<Expose, ExposureMask,
-                                      params<draw::graphics>::
+    using paint_event = core::event_handler<Expose, ExposureMask,
+                                      core::params<draw::graphics>::
                                       getter<get_draw_graphics> >;
 
-    using selection_changed_event = event_handler<ClientMessage, 0,
-                                                  params<event_source>::
+    using selection_changed_event = core::event_handler<ClientMessage, 0,
+                                                  core::params<event_source>::
                                                   getter<get_client_data<0, event_source> >,
                                                   0,
                                                   client_message_matcher<detail::SELECTION_CHANGE_MESSAGE> >;
 
-    using selection_commit_event = event_handler<ClientMessage, 0,
-                                                 params<>::
+    using selection_commit_event = core::event_handler<ClientMessage, 0,
+                                                 core::params<>::
                                                  getter<>,
                                                  0,
                                                  client_message_matcher<detail::SELECTION_COMMIT_MESSAGE> >;
 
-    using selection_cancel_event = event_handler<ClientMessage, 0,
-                                                 params<>::
+    using selection_cancel_event = core::event_handler<ClientMessage, 0,
+                                                 core::params<>::
                                                  getter<>,
                                                  0,
                                                  client_message_matcher<detail::SELECTION_CANCEL_MESSAGE> >;
 
-    using hilite_changed_event = event_handler<ClientMessage, 0,
-                                               params<bool>::
+    using hilite_changed_event = core::event_handler<ClientMessage, 0,
+                                               core::params<bool>::
                                                getter<get_client_data<0, bool> >,
                                                0,
                                                client_message_matcher<detail::HILITE_CHANGE_MESSAGE> >;
 
-    using content_changed_event = event_handler<ClientMessage, 0,
-                                                params<>::
+    using content_changed_event = core::event_handler<ClientMessage, 0,
+                                                core::params<>::
                                                 getter<>,
                                                 0,
                                                 client_message_matcher<detail::CONTENT_CHANGED_MESSAGE> >;

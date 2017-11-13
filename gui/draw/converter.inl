@@ -144,13 +144,12 @@ namespace gui {
       template<BPP bpp>
       void sub (cbytearray src_data, uint32_t src_bpl,
                 bytearray dest_data, uint32_t dest_bpl,
-                uint32_t src_x0, uint32_t src_y0,
-                uint32_t dest_x0, uint32_t dest_y0,
-                uint32_t dest_w, uint32_t dest_h) {
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          row<bpp>(src_data.sub((src_y0 + y) * src_bpl, src_bpl),
-                   dest_data.sub((dest_y0 + y) * dest_bpl, dest_bpl),
-                   src_x0, dest_x0, dest_w);
+                const core::uint32_point& src,
+                const core::uint32_rect& dest) {
+        for (uint_fast32_t y = 0; y < dest.height(); ++y) {
+          row<bpp>(src_data.sub((src.y() + y) * src_bpl, src_bpl),
+                   dest_data.sub((dest.y() + y) * dest_bpl, dest_bpl),
+                   src.x(), dest.x(), dest.width());
         }
       }
 
@@ -162,13 +161,13 @@ namespace gui {
       template<BPP bpp>
       void sub (cbytearray src_data, uint32_t src_bpl,
                 bytearray dest_data, uint32_t dest_bpl,
-                uint32_t src_x0, uint32_t src_y0, uint32_t src_w, uint32_t src_h,
-                uint32_t dest_x0, uint32_t dest_y0, uint32_t dest_w, uint32_t dest_h) {
-        for (uint_fast32_t y = 0; y < dest_h; ++y) {
-          const uint32_t src_y = y * src_h / dest_h;
-          row<bpp>(src_data.sub((src_y0 + src_y) * src_bpl, src_bpl),
-                   dest_data.sub((dest_y0 + y) * dest_bpl, dest_bpl),
-                   src_x0, dest_x0, src_w, dest_w);
+                const core::uint32_rect& src,
+                const core::uint32_rect& dest) {
+        for (uint_fast32_t y = 0; y < dest.height(); ++y) {
+          const uint32_t src_y = y * src.height() / dest.height();
+          row<bpp>(src_data.sub((src.y() + src_y) * src_bpl, src_bpl),
+                   dest_data.sub((dest.y() + y) * dest_bpl, dest_bpl),
+                   src.x(), dest.x(), src.width(), dest.width());
         }
       }
 

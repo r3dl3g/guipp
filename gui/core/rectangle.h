@@ -161,6 +161,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     typedef basic_rectangle<float> rectangle;
+    typedef basic_rectangle<uint32_t> uint32_rect;
 
     // --------------------------------------------------------------------------
   } // namespace core

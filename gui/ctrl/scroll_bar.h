@@ -34,14 +34,14 @@ namespace gui {
     template<>
     float get_param<0, float>(const core::event& e);
 
-    using scroll_event = event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                       params<core::point::type>::getter<get_param<0, core::point::type> > >;
+    using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
+                                       core::params<core::point::type>::getter<get_param<0, core::point::type> > >;
     // --------------------------------------------------------------------------
 #endif //WIN32
 #ifdef X11
     // --------------------------------------------------------------------------
-    using scroll_event = event_handler<ClientMessage, 0,
-                                       params<core::point::type>::getter<get_client_data<0, core::point::type> >,
+    using scroll_event = core::event_handler<ClientMessage, 0,
+                                       core::params<core::point::type>::getter<get_client_data<0, core::point::type> >,
                                        0, client_message_matcher<detail::SCROLLBAR_MESSAGE> >;
     // --------------------------------------------------------------------------
 #endif // X11

@@ -23,15 +23,13 @@
 // Common includes
 //
 #include <cstddef>
-#include <functional>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include <gui/core/logger.h>
-#include <gui/core/event.h>
-#include <gui/core/bind_method.h>
+#include <gui/core/event_handler.h>
 #include <gui/core/gui_types.h>
 #include <gui/win/window_event_proc.h>
 
@@ -47,106 +45,6 @@ namespace gui {
     os::key_symbol get_key_symbol (const core::event& e);
     std::string get_key_chars (const core::event& e);
     core::point get_root_mouse_pos (const core::event& e);
-
-    // --------------------------------------------------------------------------
-    typedef bool (event_matcher) (const core::event& e);
-
-    // --------------------------------------------------------------------------
-    template<os::event_id id>
-    inline bool event_id_matcher (const core::event& e) {
-      return (e.type == id);
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    using param_getter = T (*)(const core::event&);
-
-    // --------------------------------------------------------------------------
-    template<typename ... Ts>
-    struct params {
-
-      template<param_getter<Ts>... Fs>
-      struct getter {
-
-        using callback = void(Ts ...);
-        typedef std::function<callback> function;
-
-        getter (const function& f)
-          : f(f)
-        {}
-
-        getter (function&& f)
-          : f(std::move(f))
-        {}
-
-        template<class C>
-        getter (C* t, void(C::*method)(Ts ...))
-          : f(core::bind_method(t, method))
-        {}
-
-        operator bool () const {
-          return (bool)f;
-        }
-
-        void operator() (const core::event& e) {
-          f(Fs(e) ...);
-        }
-
-      protected:
-        function f;
-      };
-    };
-
-    // --------------------------------------------------------------------------
-    template<os::event_id E,
-             os::event_id Mask = 0,
-             typename C = params<>::getter<>,
-             os::event_result R = 0,
-             event_matcher Matcher = event_id_matcher<E>>
-    struct event_handler {
-
-      typedef C Caller;
-      typedef typename Caller::function function;
-
-      static constexpr os::event_id mask = Mask;
-
-      event_handler (const function cb)
-        : caller(cb)
-      {}
-
-      template<typename T, typename F>
-      event_handler (T* t, F f)
-        : caller(core::bind_method(t, f))
-      {}
-
-      event_handler (const event_handler& rhs)
-        : caller(rhs.caller)
-      {}
-
-      event_handler (event_handler&& rhs)
-        : caller(std::move(rhs.caller))
-      {}
-
-      static bool match (const core::event& e) {
-        return Matcher(e);
-      }
-
-      bool operator() (const core::event& e, os::event_result& result) {
-        if (match(e) && caller) {
-          caller(e);
-          result = R;
-          return true;
-        }
-        return false;
-      }
-
-      os::event_id get_event_id () const {
-        return E;
-      }
-
-    protected:
-      Caller caller;
-    };
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
@@ -225,8 +123,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct pos_changing_getter : params<core::rectangle>::getter<get_param<0, core::rectangle> > {
-      typedef params<core::rectangle>::getter<get_param<0, core::rectangle> > super;
+    struct pos_changing_getter : core::params<core::rectangle>::getter<get_param<0, core::rectangle> > {
+      typedef core::params<core::rectangle>::getter<get_param<0, core::rectangle> > super;
 
       pos_changing_getter (const function cb)
         : super(cb)
@@ -262,8 +160,8 @@ namespace gui {
       function callback;
     };
     // --------------------------------------------------------------------------
-    struct os_paint_getter : params<os::graphics>::getter<get_param<0, os::graphics> > {
-      typedef params<os::graphics>::getter<get_param<0, os::graphics> > super;
+    struct os_paint_getter : core::params<os::graphics>::getter<get_param<0, os::graphics> > {
+      typedef core::params<os::graphics>::getter<get_param<0, os::graphics> > super;
 
       os_paint_getter (const function cb)
         : super(cb)
@@ -278,173 +176,173 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using create_event = event_handler<WM_CREATE, 0,
-                                       params<window*, core::rectangle>::
+    using create_event = core::event_handler<WM_CREATE, 0,
+                                       core::params<window*, core::rectangle>::
                                        getter<get_window_from_cs,
                                               get_rect<CREATESTRUCT> > >;
 
-    using close_event = event_handler<WM_CLOSE, 0, params<>::getter<>, 1>;
+    using close_event = core::event_handler<WM_CLOSE, 0, core::params<>::getter<>, 1>;
 
-    using destroy_event = event_handler<WM_DESTROY>;
+    using destroy_event = core::event_handler<WM_DESTROY>;
 
-    using any_key_down_event = event_handler<WM_KEYDOWN, 0,
-                                             params<os::key_state, os::key_symbol, std::string>::
+    using any_key_down_event = core::event_handler<WM_KEYDOWN, 0,
+                                             core::params<os::key_state, os::key_symbol, std::string>::
                                              getter<get_key_state, get_key_symbol, get_key_chars> >;
 
-    using any_key_up_event = event_handler<WM_KEYUP, 0,
-                                           params<os::key_state, os::key_symbol>::
+    using any_key_up_event = core::event_handler<WM_KEYUP, 0,
+                                           core::params<os::key_state, os::key_symbol>::
                                            getter<get_key_state, get_key_symbol> >;
 
     template<os::key_symbol symbol, os::key_state state>
-    using key_down_event = event_handler<WM_KEYDOWN, 0, params<>::getter<>, 0,
+    using key_down_event = core::event_handler<WM_KEYDOWN, 0, core::params<>::getter<>, 0,
                                          key_down_matcher<symbol, state>>;
 
 
     template<os::key_symbol symbol, os::key_state state>
-    using key_up_event = event_handler<WM_KEYUP, 0, params<>::getter<>, 0,
+    using key_up_event = core::event_handler<WM_KEYUP, 0, core::params<>::getter<>, 0,
                                        key_up_matcher<symbol, state>>;
 
-    using character_event = event_handler<WM_CHAR, 0,
-                                          params<std::string>::
+    using character_event = core::event_handler<WM_CHAR, 0,
+                                          core::params<std::string>::
                                           getter<get_key_chars> >;
 
-    using erase_event = event_handler<WM_ERASEBKGND, 0,
-                                      params<os::graphics>::
+    using erase_event = core::event_handler<WM_ERASEBKGND, 0,
+                                      core::params<os::graphics>::
                                       getter<get_param<0, os::graphics> > >;
-    using print_event = event_handler<WM_PRINT, 0,
-                                      params<os::graphics>::
+    using print_event = core::event_handler<WM_PRINT, 0,
+                                      core::params<os::graphics>::
                                       getter<get_param<0, os::graphics> > >;
-    using print_client_event = event_handler<WM_PRINTCLIENT, 0,
-                                             params<os::graphics>::
+    using print_client_event = core::event_handler<WM_PRINTCLIENT, 0,
+                                             core::params<os::graphics>::
                                              getter<get_param<0, os::graphics> > >;
 
-    using redraw_changed_event = event_handler<WM_SETREDRAW, 0,
-                                               params<bool>::getter<get_param<0, bool> > >;
+    using redraw_changed_event = core::event_handler<WM_SETREDRAW, 0,
+                                               core::params<bool>::getter<get_param<0, bool> > >;
 
-    using enable_event = event_handler<WM_ENABLE, 0,
-                                       params<bool>::getter<get_param<0, bool> > >;
-    using activate_event = event_handler<WM_ACTIVATE, 0,
-                                         params<bool, window*>::
+    using enable_event = core::event_handler<WM_ENABLE, 0,
+                                       core::params<bool>::getter<get_param<0, bool> > >;
+    using activate_event = core::event_handler<WM_ACTIVATE, 0,
+                                         core::params<bool, window*>::
                                          getter<get_param<0, bool>, get_param<1, window*> > >;
-    using activate_app_event = event_handler<WM_ACTIVATEAPP, 0,
-                                             params<bool>::getter<get_param<0, bool> > >;
-    using set_focus_event = event_handler<WM_SETFOCUS, 0,
-                                          params<window*>::getter<get_param<0, window*> > >;
-    using lost_focus_event = event_handler<WM_KILLFOCUS, 0,
-                                           params<window*>::getter<get_param<0, window*> > >;
+    using activate_app_event = core::event_handler<WM_ACTIVATEAPP, 0,
+                                             core::params<bool>::getter<get_param<0, bool> > >;
+    using set_focus_event = core::event_handler<WM_SETFOCUS, 0,
+                                          core::params<window*>::getter<get_param<0, window*> > >;
+    using lost_focus_event = core::event_handler<WM_KILLFOCUS, 0,
+                                           core::params<window*>::getter<get_param<0, window*> > >;
 
-    using begin_size_or_move_event = event_handler<WM_ENTERSIZEMOVE>;
-    using end_size_or_move_event = event_handler<WM_EXITSIZEMOVE>;
+    using begin_size_or_move_event = core::event_handler<WM_ENTERSIZEMOVE>;
+    using end_size_or_move_event = core::event_handler<WM_EXITSIZEMOVE>;
 
-    using move_event = event_handler<WM_MOVE, 0,
-                                     params<core::point>::
+    using move_event = core::event_handler<WM_MOVE, 0,
+                                     core::params<core::point>::
                                      getter<get_param<1, core::point> > >;
-    using moving_event = event_handler<WM_MOVING, 0,
-                                       params<core::point>::
+    using moving_event = core::event_handler<WM_MOVING, 0,
+                                       core::params<core::point>::
                                        getter<get_param<1, core::point> >,
                                        TRUE>;
 
-    using size_event = event_handler<WM_SIZE, 0,
-                                     params<core::size>::
+    using size_event = core::event_handler<WM_SIZE, 0,
+                                     core::params<core::size>::
                                      getter<get_param<1, core::size> > >;
-    using sizing_event = event_handler<WM_SIZING, 0,
-                                       params<core::size>::
+    using sizing_event = core::event_handler<WM_SIZING, 0,
+                                       core::params<core::size>::
                                        getter<get_param<1, core::size> >,
                                        TRUE>;
 
-    using left_btn_down_event = event_handler<WM_LBUTTONDOWN, 0,
-                                              params<os::key_state, core::point>::
+    using left_btn_down_event = core::event_handler<WM_LBUTTONDOWN, 0,
+                                              core::params<os::key_state, core::point>::
                                               getter<get_param<0, os::key_state>,
                                                      get_param<1, core::point> > >;
-    using left_btn_up_event = event_handler<WM_LBUTTONUP, 0,
-                                            params<os::key_state, core::point>::
+    using left_btn_up_event = core::event_handler<WM_LBUTTONUP, 0,
+                                            core::params<os::key_state, core::point>::
                                             getter<get_param<0, os::key_state>,
                                                    get_param<1, core::point> > >;
-    using left_btn_dblclk_event = event_handler<WM_LBUTTONDBLCLK, 0,
-                                                params<os::key_state, core::point>::
+    using left_btn_dblclk_event = core::event_handler<WM_LBUTTONDBLCLK, 0,
+                                                core::params<os::key_state, core::point>::
                                                 getter<get_param<0, os::key_state>,
                                                        get_param<1, core::point> > >;
 
-    using right_btn_down_event = event_handler<WM_RBUTTONDOWN, 0,
-                                               params<os::key_state, core::point>::
+    using right_btn_down_event = core::event_handler<WM_RBUTTONDOWN, 0,
+                                               core::params<os::key_state, core::point>::
                                                getter<get_param<0, os::key_state>,
                                                       get_param<1, core::point> > >;
-    using right_btn_up_event = event_handler<WM_RBUTTONUP, 0,
-                                             params<os::key_state, core::point>::
+    using right_btn_up_event = core::event_handler<WM_RBUTTONUP, 0,
+                                             core::params<os::key_state, core::point>::
                                              getter<get_param<0, os::key_state>,
                                                     get_param<1, core::point> > >;
-    using right_btn_dblclk_event = event_handler<WM_RBUTTONDBLCLK, 0,
-                                                 params<os::key_state, core::point>::
+    using right_btn_dblclk_event = core::event_handler<WM_RBUTTONDBLCLK, 0,
+                                                 core::params<os::key_state, core::point>::
                                                  getter<get_param<0, os::key_state>,
                                                         get_param<1, core::point> > >;
 
-    using middle_btn_down_event = event_handler<WM_MBUTTONDOWN, 0,
-                                                params<os::key_state, core::point>::
+    using middle_btn_down_event = core::event_handler<WM_MBUTTONDOWN, 0,
+                                                core::params<os::key_state, core::point>::
                                                 getter<get_param<0, os::key_state>,
                                                        get_param<1, core::point> > >;
-    using middle_btn_up_event = event_handler<WM_MBUTTONUP, 0,
-                                              params<os::key_state, core::point>::
+    using middle_btn_up_event = core::event_handler<WM_MBUTTONUP, 0,
+                                              core::params<os::key_state, core::point>::
                                               getter<get_param<0, os::key_state>,
                                                      get_param<1, core::point> > >;
-    using middle_btn_dblclk_event = event_handler<WM_MBUTTONDBLCLK, 0,
-                                                  params<os::key_state, core::point>::
+    using middle_btn_dblclk_event = core::event_handler<WM_MBUTTONDBLCLK, 0,
+                                                  core::params<os::key_state, core::point>::
                                                   getter<get_param<0, os::key_state>,
                                                          get_param<1, core::point> > >;
 
-    using btn_down_event = event_handler<WM_LBUTTONDOWN, 0,
-                                         params<os::key_state, core::point>::
+    using btn_down_event = core::event_handler<WM_LBUTTONDOWN, 0,
+                                         core::params<os::key_state, core::point>::
                                          getter<get_param<0, os::key_state>,
                                                 get_param<1, core::point> >,
                                          0, any_button_matcher<true> >;
-    using btn_up_event = event_handler<WM_LBUTTONUP, 0,
-                                       params<os::key_state, core::point>::
+    using btn_up_event = core::event_handler<WM_LBUTTONUP, 0,
+                                       core::params<os::key_state, core::point>::
                                        getter<get_param<0, os::key_state>,
                                               get_param<1, core::point> >,
                                        0, any_button_matcher<false> >;
 
-    using mouse_move_event = event_handler<WM_MOUSEMOVE, 0,
-                                           params<os::key_state, core::point>::
+    using mouse_move_event = core::event_handler<WM_MOUSEMOVE, 0,
+                                           core::params<os::key_state, core::point>::
                                            getter<get_param<0, os::key_state>,
                                                   get_param<1, core::point> > >;
 
-    using mouse_move_abs_event = event_handler<WM_MOUSEMOVE, 0,
-                                               params<os::key_state, core::point>::
+    using mouse_move_abs_event = core::event_handler<WM_MOUSEMOVE, 0,
+                                               core::params<os::key_state, core::point>::
                                                getter<get_param<0, os::key_state>,
                                                       get_root_mouse_pos> >;
 
-    using mouse_enter_event = event_handler<WM_MOUSEMOVE, 0,
-                                            params<>::getter<>,
+    using mouse_enter_event = core::event_handler<WM_MOUSEMOVE, 0,
+                                            core::params<>::getter<>,
                                             0,
                                             mouse_enter_matcher>;
-    using mouse_leave_event = event_handler<WM_MOUSELEAVE>;
+    using mouse_leave_event = core::event_handler<WM_MOUSELEAVE>;
 
-    using wheel_x_event = event_handler<WM_MOUSEHWHEEL, 0,
-                                        params<core::point::type, core::point>::
+    using wheel_x_event = core::event_handler<WM_MOUSEHWHEEL, 0,
+                                        core::params<core::point::type, core::point>::
                                         getter<get_wheel_delta,
                                                get_param<1, core::point> > >;
-    using wheel_y_event = event_handler<WM_MOUSEWHEEL, 0,
-                                        params<core::point::type, core::point>::
+    using wheel_y_event = core::event_handler<WM_MOUSEWHEEL, 0,
+                                        core::params<core::point::type, core::point>::
                                         getter<get_wheel_delta,
                                                get_param<1, core::point> > >;
 
-    using show_event = event_handler<WM_SHOWWINDOW, 0,
-                                     params<>::getter<>,
+    using show_event = core::event_handler<WM_SHOWWINDOW, 0,
+                                     core::params<>::getter<>,
                                      0,
                                      visibility_event_type_matcher<WM_SHOWWINDOW, true> >;
-    using hide_event = event_handler<WM_SHOWWINDOW, 0,
-                                     params<>::getter<>,
+    using hide_event = core::event_handler<WM_SHOWWINDOW, 0,
+                                     core::params<>::getter<>,
                                      0,
                                      visibility_event_type_matcher<WM_SHOWWINDOW, false> >;
 
-    using place_event = event_handler<WM_WINDOWPOSCHANGED, 0,
-                                      params<core::rectangle>::getter<
+    using place_event = core::event_handler<WM_WINDOWPOSCHANGED, 0,
+                                      core::params<core::rectangle>::getter<
                                         get_rect<WINDOWPOS> > >;
 
-    using placing_event = event_handler<WM_WINDOWPOSCHANGING, 0, pos_changing_getter>;
+    using placing_event = core::event_handler<WM_WINDOWPOSCHANGING, 0, pos_changing_getter>;
 
-    using get_minmax_event = event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
+    using get_minmax_event = core::event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
 
-    using os_paint_event = event_handler<WM_PAINT, 0, os_paint_getter>;
+    using os_paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 
     // --------------------------------------------------------------------------
     void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
@@ -619,19 +517,19 @@ namespace gui {
     os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
     template<Atom& M>
-    bool client_message_matcher (const core::event& e) {
+    inline bool client_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == M);
     }
 
     // --------------------------------------------------------------------------
     template<Atom& M>
-    bool protocol_message_matcher (const core::event& e) {
+    inline bool protocol_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == x11::WM_PROTOCOLS) && (e.xclient.data.l[0] == M);
     }
 
     // --------------------------------------------------------------------------
     template<os::event_id E, os::key_symbol symbol, os::key_state state>
-    bool key_symbol_matcher (const core::event& e) {
+    inline bool key_symbol_matcher (const core::event& e) {
       return (e.type == E) &&
              (get_key_symbol(e) == symbol) &&
              bit_mask<os::key_state, state>::is_set(get_key_state(e));
@@ -669,187 +567,188 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    using create_event = event_handler<ClientMessage, 0,
-                                       params<window*, core::rectangle>::
+    using create_event = core::event_handler<ClientMessage, 0,
+                                       core::params<window*, core::rectangle>::
                                        getter<get_client_data<0, window*>, get_client_data_rect>,
                                        0,
                                        client_message_matcher<x11::WM_CREATE_WINDOW> >;
 
-    using close_event = event_handler<ClientMessage, 0, params<>::getter<>, 1,
+    using close_event = core::event_handler<ClientMessage, 0,
+                                      core::params<>::getter<>, 1,
                                       protocol_message_matcher<x11::WM_DELETE_WINDOW> >;
 
-    using destroy_event = event_handler<DestroyNotify, SubstructureNotifyMask>;
+    using destroy_event = core::event_handler<DestroyNotify, SubstructureNotifyMask>;
 
-    using any_key_down_event = event_handler<KeyPress, KeyPressMask,
-                                             params<os::key_state, os::key_symbol, std::string>::
+    using any_key_down_event = core::event_handler<KeyPress, KeyPressMask,
+                                             core::params<os::key_state, os::key_symbol, std::string>::
                                              getter<get_key_state, get_key_symbol, get_key_chars> >;
 
-    using any_key_up_event = event_handler<KeyRelease, KeyReleaseMask,
-                                           params<os::key_state, os::key_symbol>::
+    using any_key_up_event = core::event_handler<KeyRelease, KeyReleaseMask,
+                                           core::params<os::key_state, os::key_symbol>::
                                            getter<get_key_state, get_key_symbol> >;
 
     template<os::key_symbol symbol, os::key_state state>
-    using key_down_event = event_handler<KeyPress, KeyPressMask, params<>::getter<>,
+    using key_down_event = core::event_handler<KeyPress, KeyPressMask, core::params<>::getter<>,
                                          0, key_symbol_matcher<KeyPress, symbol, state> >;
 
 
     template<os::key_symbol symbol, os::key_state state>
-    using key_up_event = event_handler<KeyRelease, KeyPressMask, params<>::getter<>,
+    using key_up_event = core::event_handler<KeyRelease, KeyPressMask, core::params<>::getter<>,
                                        0, key_symbol_matcher<KeyRelease, symbol, state> >;
 
-    using mouse_move_event = event_handler<MotionNotify, PointerMotionMask,
-                                           params<os::key_state, core::point>::
+    using mouse_move_event = core::event_handler<MotionNotify, PointerMotionMask,
+                                           core::params<os::key_state, core::point>::
                                            getter<get_state<XMotionEvent>,
                                                   get<core::point, XMotionEvent>::param> >;
 
-    using mouse_move_abs_event = event_handler<MotionNotify, PointerMotionMask,
-                                               params<os::key_state, core::point>::
+    using mouse_move_abs_event = core::event_handler<MotionNotify, PointerMotionMask,
+                                               core::params<os::key_state, core::point>::
                                                getter<get_state<XMotionEvent>,
                                                       get_root_mouse_pos> >;
 
-    using left_btn_down_event = event_handler<ButtonPress, ButtonPressMask,
-                                              params<os::key_state, core::point>::
+    using left_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                              core::params<os::key_state, core::point>::
                                               getter<get_state<XButtonEvent>,
                                                      get<core::point, XButtonEvent>::param>,
                                               0,
                                               event_button_matcher<ButtonPress, Button1> >;
 
-    using left_btn_up_event = event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                            params<os::key_state, core::point>::
+    using left_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
+                                            core::params<os::key_state, core::point>::
                                             getter<get_state<XButtonEvent>,
                                                    get<core::point, XButtonEvent>::param>,
                                             0,
                                             event_button_matcher<ButtonRelease, Button1> >;
 
-    using right_btn_down_event = event_handler<ButtonPress, ButtonPressMask,
-                                               params<os::key_state, core::point>::
+    using right_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                               core::params<os::key_state, core::point>::
                                                getter<get_state<XButtonEvent>,
                                                       get<core::point, XButtonEvent>::param>,
                                                0,
                                                event_button_matcher<ButtonPress, Button3> >;
 
-    using right_btn_up_event = event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                             params<os::key_state, core::point>::
+    using right_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
+                                             core::params<os::key_state, core::point>::
                                              getter<get_state<XButtonEvent>,
                                                     get<core::point, XButtonEvent>::param>,
                                              0,
                                              event_button_matcher<ButtonRelease, Button3> >;
 
-    using middle_btn_down_event = event_handler<ButtonPress, ButtonPressMask,
-                                                params<os::key_state, core::point>::
+    using middle_btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                                core::params<os::key_state, core::point>::
                                                 getter<get_state<XButtonEvent>,
                                                        get<core::point, XButtonEvent>::param>,
                                                 0,
                                                 event_button_matcher<ButtonPress, Button2> >;
 
-    using middle_btn_up_event = event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                              params<os::key_state, core::point>::
+    using middle_btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
+                                              core::params<os::key_state, core::point>::
                                               getter<get_state<XButtonEvent>,
                                                      get<core::point, XButtonEvent>::param>,
                                               0,
                                               event_button_matcher<ButtonRelease, Button2> >;
 
-    using btn_down_event = event_handler<ButtonPress, ButtonPressMask,
-                                         params<os::key_state, core::point>::
+    using btn_down_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                         core::params<os::key_state, core::point>::
                                          getter<get_state<XButtonEvent>,
                                                 get<core::point, XButtonEvent>::param> >;
 
-    using btn_up_event = event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
-                                       params<os::key_state, core::point>::
+    using btn_up_event = core::event_handler<ButtonRelease, ButtonReleaseMask | ButtonPressMask,
+                                       core::params<os::key_state, core::point>::
                                        getter<get_state<XButtonEvent>,
                                               get<core::point, XButtonEvent>::param> >;
 
-    using left_btn_dblclk_event = event_handler<ButtonRelease, ButtonReleaseMask,
-                                                params<os::key_state, core::point>::
+    using left_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+                                                core::params<os::key_state, core::point>::
                                                 getter<get_state<XButtonEvent>,
                                                        get<core::point, XButtonEvent>::param>,
                                                 0,
                                                 double_click_matcher<Button1> >;
 
-    using right_btn_dblclk_event = event_handler<ButtonRelease, ButtonReleaseMask,
-                                                 params<os::key_state, core::point>::
+    using right_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+                                                 core::params<os::key_state, core::point>::
                                                  getter<get_state<XButtonEvent>,
                                                         get<core::point, XButtonEvent>::param>,
                                                  0,
                                                  double_click_matcher<Button3> >;
-    using middle_btn_dblclk_event = event_handler<ButtonRelease, ButtonReleaseMask,
-                                                  params<os::key_state, core::point>::
+    using middle_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+                                                  core::params<os::key_state, core::point>::
                                                   getter<get_state<XButtonEvent>,
                                                          get<core::point, XButtonEvent>::param>,
                                                   0,
                                                   double_click_matcher<Button2> >;
 
-    using wheel_x_event = event_handler<ButtonPress, ButtonPressMask,
-                                        params<core::point::type, core::point>::
+    using wheel_x_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                        core::params<core::point::type, core::point>::
                                         getter<get_wheel_delta<6, 7>,
                                                get<core::point, XButtonEvent>::param>,
                                         0,
                                         wheel_button_matcher<6, 7> >;
-    using wheel_y_event = event_handler<ButtonPress, ButtonPressMask,
-                                        params<core::point::type, core::point>::
+    using wheel_y_event = core::event_handler<ButtonPress, ButtonPressMask,
+                                        core::params<core::point::type, core::point>::
                                         getter<get_wheel_delta<Button4, Button5>,
                                                get<core::point, XButtonEvent>::param>,
                                         0,
                                         wheel_button_matcher<Button4, Button5> >;
 
-    using show_event = event_handler<MapNotify, StructureNotifyMask>;
-    using hide_event = event_handler<UnmapNotify, StructureNotifyMask>;
+    using show_event = core::event_handler<MapNotify, StructureNotifyMask>;
+    using hide_event = core::event_handler<UnmapNotify, StructureNotifyMask>;
 
-    using set_focus_event = event_handler<FocusIn, FocusChangeMask,
-                                          params<window*>::
+    using set_focus_event = core::event_handler<FocusIn, FocusChangeMask,
+                                          core::params<window*>::
                                           getter<get_current_focus_window> >;
-    using lost_focus_event = event_handler<FocusOut, FocusChangeMask,
-                                           params<window*>::
+    using lost_focus_event = core::event_handler<FocusOut, FocusChangeMask,
+                                           core::params<window*>::
                                            getter<get_current_focus_window> >;
 
-    using mouse_enter_event = event_handler<EnterNotify, EnterWindowMask,
-                                            params<>::getter<>,
+    using mouse_enter_event = core::event_handler<EnterNotify, EnterWindowMask,
+                                            core::params<>::getter<>,
                                             0,
                                             mode_matcher<NotifyNormal, EnterNotify, XCrossingEvent> >;
-    using mouse_leave_event = event_handler<LeaveNotify, LeaveWindowMask,
-                                            params<>::getter<>,
+    using mouse_leave_event = core::event_handler<LeaveNotify, LeaveWindowMask,
+                                            core::params<>::getter<>,
                                             0,
                                             mode_matcher<NotifyNormal, LeaveNotify, XCrossingEvent> >;
 
-    using move_event = event_handler<ConfigureNotify, StructureNotifyMask,
-                                     params<core::point>::
+    using move_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
+                                     core::params<core::point>::
                                      getter<get<core::point, XConfigureEvent>::param>,
                                      0,
                                      move_size_matcher<core::point,
                                                        ConfigureNotify,
                                                        XConfigureEvent> >;
-    using size_event = event_handler<ConfigureNotify, StructureNotifyMask,
-                                     params<core::size>::
+    using size_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
+                                     core::params<core::size>::
                                      getter<get<core::size, XConfigureEvent>::param>,
                                      0,
                                      move_size_matcher<core::size,
                                                        ConfigureNotify,
                                                        XConfigureEvent> >;
-    using place_event = event_handler<ConfigureNotify, StructureNotifyMask,
-                                      params<core::rectangle>::
+    using place_event = core::event_handler<ConfigureNotify, StructureNotifyMask,
+                                      core::params<core::rectangle>::
                                       getter<get<core::rectangle, XConfigureEvent>::param>,
                                       0,
                                       move_size_matcher<core::rectangle,
                                                         ConfigureNotify,
                                                         XConfigureEvent> >;
 
-    using moving_event = event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                       params<core::point>::
+    using moving_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
+                                       core::params<core::point>::
                                        getter<get<core::point, XConfigureRequestEvent>::param>,
                                        0,
                                        move_size_matcher<core::point,
                                                          ConfigureRequest,
                                                          XConfigureRequestEvent> >;
 
-    using sizing_event = event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                       params<core::size>::
+    using sizing_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
+                                       core::params<core::size>::
                                        getter<get<core::size, XConfigureRequestEvent>::param>,
                                        0,
                                        move_size_matcher<core::size,
                                                          ConfigureRequest,
                                                          XConfigureRequestEvent> >;
-    using placing_event = event_handler<ConfigureRequest, SubstructureRedirectMask,
-                                        params<core::rectangle>::
+    using placing_event = core::event_handler<ConfigureRequest, SubstructureRedirectMask,
+                                        core::params<core::rectangle>::
                                         getter<get<core::rectangle, XConfigureRequestEvent>::param>,
                                         0,
                                         move_size_matcher<core::rectangle,
@@ -857,8 +756,8 @@ namespace gui {
                                                           XConfigureRequestEvent> >;
 
     // --------------------------------------------------------------------------
-    using os_paint_event = event_handler<Expose, ExposureMask,
-                                         params<os::graphics>::
+    using os_paint_event = core::event_handler<Expose, ExposureMask,
+                                         core::params<os::graphics>::
                                          getter<get_graphics> >;
 
     // --------------------------------------------------------------------------

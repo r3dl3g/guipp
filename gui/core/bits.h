@@ -18,6 +18,12 @@
 
 #pragma once
 
+// --------------------------------------------------------------------------
+//
+// Common includes
+//
+#include <cmath>
+
 
 namespace gui {
 
@@ -129,12 +135,12 @@ namespace gui {
 
   template<typename T, typename U>
   inline T roundup (U v) {
-    return static_cast<T>(ceil(v));
+    return static_cast<T>(std::ceil(v));
   }
 
   template<typename T, typename U>
   inline T rounddown (U v) {
-    return static_cast<T>(floor(v));
+    return static_cast<T>(std::floor(v));
   }
 
   // --------------------------------------------------------------------------

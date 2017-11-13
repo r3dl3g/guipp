@@ -510,23 +510,23 @@ namespace gui {
 
       // top left
       if (top && left) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, 0, 0, 0, 0, left, top);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {0, 0}, {0, 0, left, top});
       }
 
       // top right
       if (top && right) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, source_right, 0, target_right, 0, right, top);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {source_right, 0}, {target_right, 0, right, top});
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, 0, source_bottom, 0, target_bottom, left, bottom);
+        copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl, {0, source_bottom}, {0, target_bottom, left, bottom});
       }
 
       if (bottom && right) {
         // bottom right
         copy::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                       source_right, source_bottom, target_right, target_bottom, right, bottom);
+                       {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
       }
 
       if ((target_right > left) && (target_bottom > top) && (source_right >= left) && (source_bottom >= top)) {
@@ -538,36 +538,36 @@ namespace gui {
         // top center
         if (top && target_inner_width) {
           stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                            left, 0, source_inner_width, top,
-                            left, 0, target_inner_width, top);
+                            {left, 0, source_inner_width, top},
+                            {left, 0, target_inner_width, top});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
           stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                            left, source_bottom, source_inner_width, bottom,
-                            left, target_bottom, target_inner_width, bottom);
+                            {left, source_bottom, source_inner_width, bottom},
+                            {left, target_bottom, target_inner_width, bottom});
         }
 
         // left center
         if (left && target_inner_height) {
           stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                            0, top, left, source_inner_height,
-                            0, top, left, target_inner_height);
+                            {0, top, left, source_inner_height},
+                            {0, top, left, target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
           stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                            source_right, top, right, source_inner_height,
-                            target_right, top, right, target_inner_height);
+                            {source_right, top, right, source_inner_height},
+                            {target_right, top, right, target_inner_height});
         }
 
         // center
         if (target_inner_width && target_inner_height) {
           stretch::sub<bpp>(src_data, src_bpl, dest_data, dest_bpl,
-                            left, top, source_inner_width, source_inner_height,
-                            left, top, target_inner_width, target_inner_height);
+                            {left, top, source_inner_width, source_inner_height},
+                            {left, top, target_inner_width, target_inner_height});
         }
       }
     }

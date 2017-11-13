@@ -28,6 +28,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui/core/rectangle.h>
 #include <gui/core/array_wrapper.h>
 
 
@@ -68,9 +69,8 @@ namespace gui {
       template<BPP bpp>
       void sub (cbytearray src_data, uint32_t src_bpl,
                 bytearray dest_data, uint32_t dest_bpl,
-                uint32_t src_x0, uint32_t src_y0,
-                uint32_t dest_x0, uint32_t dest_y0,
-                uint32_t dest_w, uint32_t dest_h);
+                const core::uint32_point& src,
+                const core::uint32_rect& dest);
 
 
     } // namespace copy
@@ -86,8 +86,8 @@ namespace gui {
       template<BPP bpp>
       void sub (cbytearray src_data, uint32_t src_bpl,
                 bytearray dest_data, uint32_t dest_bpl,
-                uint32_t src_x0, uint32_t src_y0, uint32_t src_w, uint32_t src_h,
-                uint32_t dest_x0, uint32_t dest_y0, uint32_t dest_w, uint32_t dest_h);
+                const core::uint32_rect& src,
+                const core::uint32_rect& dest);
 
     } // namespace stretch
 

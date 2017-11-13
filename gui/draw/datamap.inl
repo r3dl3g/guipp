@@ -102,6 +102,9 @@ namespace gui {
       memcpy(this->data.data(), data.data(), std::min(this->data.size(), data.size()));
     }
 
+    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
+    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);
+
     template<BPP T>
     inline void datamap<T>::copy_from (const datamap& src_img,
                                        const core::rectangle& src_rect,
@@ -109,26 +112,16 @@ namespace gui {
       const blob &src_data = src_img.get_data();
       bitmap_info src_bmi = src_img.get_info();
 
-      const uint32_t src_x0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width, roundup<uint32_t>(src_rect.x())));
-      const uint32_t src_y0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height, roundup<uint32_t>(src_rect.y())));
-      const uint32_t src_w = std::min<uint32_t>(src_bmi.width - src_x0, roundup<uint32_t>(src_rect.width()));
-      const uint32_t src_h = std::min<uint32_t>(src_bmi.height - src_y0, roundup<uint32_t>(src_rect.height()));
+      auto src = checked_area(src_bmi, src_rect);
+      auto dest = checked_area(info, dest_pt, src.size());
 
-      const uint32_t dest_x0 = std::max<uint32_t>(0, std::min<uint32_t>(info.width, roundup<uint32_t>(dest_pt.x())));
-      const uint32_t dest_y0 = std::max<uint32_t>(0, std::min<uint32_t>(info.height, roundup<uint32_t>(dest_pt.y())));
-      const uint32_t dest_w = std::min<uint32_t>(info.width - dest_x0, src_w);
-      const uint32_t dest_h = std::min<uint32_t>(info.height - dest_y0, src_h);
-
-      const uint32_t src_bpl = src_bmi.bytes_per_line;
-      const uint32_t dest_bpl = info.bytes_per_line;
-
-      if ((dest_w < 1) ||(dest_h < 1)) {
+      if ((dest.width() < 1) || (dest.height() < 1)) {
         return;
       }
 
-      convert::copy::sub<T>(convert::cbytearray(src_data), src_bpl,
-                            convert::bytearray(data), dest_bpl,
-                            src_x0, src_y0, dest_x0, dest_y0, dest_w, dest_h);
+      convert::copy::sub<T>(convert::cbytearray(src_data), src_bmi.bytes_per_line,
+                            convert::bytearray(data), info.bytes_per_line,
+                            src.position(), dest);
     }
 
     template<BPP T>
@@ -151,26 +144,16 @@ namespace gui {
       const blob &src_data = src_img.get_data();
       bitmap_info src_bmi = src_img.get_info();
 
-      const uint32_t src_x0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width, roundup<uint32_t>(src_rect.x())));
-      const uint32_t src_y0 = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height, roundup<uint32_t>(src_rect.y())));
-      const uint32_t src_w = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.width - src_x0, roundup<uint32_t>(src_rect.width())));
-      const uint32_t src_h = std::max<uint32_t>(0, std::min<uint32_t>(src_bmi.height - src_y0, roundup<uint32_t>(src_rect.height())));
+      auto src = checked_area(src_bmi, src_rect);
+      auto dest = checked_area(info, dest_rect);
 
-      const uint32_t dest_x0 = std::max<uint32_t>(0, std::min<uint32_t>(info.width, roundup<uint32_t>(dest_rect.x())));
-      const uint32_t dest_y0 = std::max<uint32_t>(0, std::min<uint32_t>(info.height, roundup<uint32_t>(dest_rect.y())));
-      const uint32_t dest_w = std::min<uint32_t>(info.width - dest_x0, roundup<uint32_t>(dest_rect.width()));
-      const uint32_t dest_h = std::min<uint32_t>(info.height - dest_y0, roundup<uint32_t>(dest_rect.height()));
-
-      if ((dest_w < 1) ||(dest_h < 1)) {
+      if ((dest.width() < 1) || (dest.height() < 1)) {
         return;
       }
 
-      const uint32_t src_bpl = src_bmi.bytes_per_line;
-      const uint32_t dest_bpl = info.bytes_per_line;
-
-      convert::stretch::sub<BPP::BW>(convert::cbytearray(src_data), src_bpl,
-                                     convert::bytearray(data), dest_bpl,
-                                     src_x0, src_y0, src_w, src_h, dest_x0, dest_y0, dest_w, dest_h);
+      convert::stretch::sub<T>(convert::cbytearray(src_data), src_bmi.bytes_per_line,
+                               convert::bytearray(data), info.bytes_per_line,
+                               src, dest);
     }
 
     template<BPP T>

@@ -97,7 +97,7 @@ namespace gui {
         return super::get_raw<T>();
       }
 
-      void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
+      void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 
       void stretch_from (const datamap& src);
       void stretch_from (const datamap& src_img,

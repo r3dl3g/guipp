@@ -120,7 +120,7 @@ namespace gui {
     }
 
     template<BPP T>
-    inline void datamap<T>::crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const {
+    inline void datamap<T>::crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
       datamap bmp(w, h);
       bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
       std::swap(data, bmp.data);

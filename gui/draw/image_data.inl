@@ -24,8 +24,8 @@ namespace gui {
   namespace core {
 
     template<>
-    struct array_wrapper<draw::bw_pixel> : public bool_array_wrapper<draw::bw_pixel> {
-      typedef bool_array_wrapper<draw::bw_pixel> super;
+    struct array_wrapper<draw::bw_pixel> : public bit_array_wrapper<draw::bw_pixel> {
+      typedef bit_array_wrapper<draw::bw_pixel> super;
       typedef super::type type;
 
       inline array_wrapper (type* data, size_t size)
@@ -38,8 +38,8 @@ namespace gui {
     };
 
     template<>
-    struct array_wrapper<draw::bw_pixel const> : public bool_array_wrapper<draw::bw_pixel const> {
-      typedef bool_array_wrapper<draw::bw_pixel const> super;
+    struct array_wrapper<draw::bw_pixel const> : public bit_array_wrapper<draw::bw_pixel const> {
+      typedef bit_array_wrapper<draw::bw_pixel const> super;
       typedef super::type type;
 
       inline array_wrapper (const type* data, size_t size)

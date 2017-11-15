@@ -87,10 +87,6 @@ namespace gui {
     static constexpr byte value[2] = {0, 0xff};
     static constexpr bool white = true;
     static constexpr bool black = false;
-    static constexpr byte adapt (byte v) {
-      return v;
-    }
-
   };
 
   template<>
@@ -98,10 +94,6 @@ namespace gui {
     static constexpr byte value[2] = {0xff, 0};
     static constexpr bool white = false;
     static constexpr bool black = true;
-    static constexpr byte adapt (byte v) {
-      return v ^ 0xff;
-    }
-
   };
 
   // --------------------------------------------------------------------------

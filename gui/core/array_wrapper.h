@@ -39,15 +39,28 @@ namespace gui {
 
     namespace detail {
 
-      inline void check_boundary (size_t i, size_t maximum) {
+      struct boundary_check {
+        inline boundary_check (size_t maximum)
 #ifndef NDEBUG
-        if (i >= maximum) {
-          throw std::out_of_range("array_wrapper try to access element beyond size");
-        }
-#endif // NDEBUG
-      }
+          : maximum(maximum)
+  #endif // NDEBUG
+        {}
 
-    }
+        inline void operator () (size_t i) const {
+#ifndef NDEBUG
+          if (i >= maximum) {
+            throw std::out_of_range("array_wrapper try to access element beyond size");
+          }
+#endif // NDEBUG
+        }
+
+      private:
+#ifndef NDEBUG
+      const size_t maximum;
+#endif // NDEBUG
+      };
+
+    } // namespace detail
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -56,23 +69,13 @@ namespace gui {
 
       inline array_wrapper (type* data, size_t size)
         : data_(data)
-#ifndef NDEBUG
-        , size_(size)
-#endif // NDEBUG
+        , check_boundary(size)
       {}
 
       inline array_wrapper (std::vector<type>& data)
         : data_(data.data())
-#ifndef NDEBUG
-        , size_(data.size())
-#endif // NDEBUG
+        , check_boundary(data.size())
       {}
-
-      inline void check_boundary (size_t i) const {
-#ifndef NDEBUG
-        detail::check_boundary(i, size_);
-#endif // NDEBUG
-      }
 
       inline type& operator[] (size_t i) {
         check_boundary(i);
@@ -91,9 +94,7 @@ namespace gui {
 
     private:
       type* data_;
-#ifndef NDEBUG
-      const size_t size_;
-#endif // NDEBUG
+      detail::boundary_check check_boundary;
     };
 
     // --------------------------------------------------------------------------
@@ -103,23 +104,13 @@ namespace gui {
 
       inline array_wrapper (const type* data, size_t size)
         : data_(data)
-#ifndef NDEBUG
-        , size_(size)
-#endif // NDEBUG
+        , check_boundary(size)
       {}
 
       inline array_wrapper (const std::vector<type>& data)
         : data_(data.data())
-#ifndef NDEBUG
-        , size_(data.size())
-#endif // NDEBUG
+        , check_boundary(data.size())
       {}
-
-      inline void check_boundary (size_t i) const {
-#ifndef NDEBUG
-        detail::check_boundary(i, size_);
-#endif // NDEBUG
-      }
 
       inline const type& operator[] (size_t i) const {
         check_boundary(i);
@@ -138,101 +129,75 @@ namespace gui {
 
     private:
       const type* data_;
-#ifndef NDEBUG
-      const size_t size_;
-#endif // NDEBUG
+      detail::boundary_check check_boundary;
     };
 
     // --------------------------------------------------------------------------
     template<typename T>
-    struct bool_array_wrapper {
+    struct bit_array_wrapper {
       typedef byte type;
 
-      inline bool_array_wrapper (type* data, size_t size)
+      inline bit_array_wrapper (type* data, size_t size)
         : data_(data)
-#ifndef NDEBUG
-        , size_(size)
-#endif // NDEBUG
+        , check_boundary(size)
       {}
 
-      inline bool_array_wrapper (std::vector<type>& data)
+      inline bit_array_wrapper (std::vector<type>& data)
         : data_(data.data())
-#ifndef NDEBUG
-        , size_(data.size())
-#endif // NDEBUG
+        , check_boundary(data.size())
       {}
 
-      inline void check_boundary (size_t i) const {
-#ifndef NDEBUG
-        detail::check_boundary(i, size_);
-#endif // NDEBUG
-      }
-
-      inline bool_wrapper<T> operator[] (size_t i) {
+      inline bit_wrapper<T> operator[] (size_t i) {
         check_boundary(i);
-        return bool_wrapper<T>(data_[i / 8], i % 8);
+        return bit_wrapper<T>(data_[i / 8], i % 8);
       }
 
-      inline bool_array_wrapper sub (size_t offset, size_t n) {
+      inline bit_array_wrapper sub (size_t offset, size_t n) {
         check_boundary(offset + n - 1);
-        return bool_array_wrapper(data_ + offset / 8, n);
+        return bit_array_wrapper(data_ + offset / 8, n);
       }
 
     private:
       type* data_;
-#ifndef NDEBUG
-      const size_t size_;
-#endif // NDEBUG
+      detail::boundary_check check_boundary;
     };
 
     // --------------------------------------------------------------------------
     template<typename T>
-    struct bool_array_wrapper<T const> {
+    struct bit_array_wrapper<T const> {
       typedef byte type;
 
-      inline bool_array_wrapper (const type* data, size_t size)
+      inline bit_array_wrapper (const type* data, size_t size)
         : data_(data)
-#ifndef NDEBUG
-        , size_(size)
-#endif // NDEBUG
+        , check_boundary(size)
       {}
 
-      inline bool_array_wrapper (const std::vector<type>& data)
+      inline bit_array_wrapper (const std::vector<type>& data)
         : data_(data.data())
-#ifndef NDEBUG
-        , size_(data.size())
-#endif // NDEBUG
+        , check_boundary(data.size())
       {}
 
-      inline void check_boundary (size_t i) const {
-#ifndef NDEBUG
-        detail::check_boundary(i, size_);
-#endif // NDEBUG
-      }
-
-      inline bool_wrapper<T const> operator[] (size_t i) const {
+      inline bit_wrapper<T const> operator[] (size_t i) const {
         check_boundary(i);
-        return bool_wrapper<T const>(data_[i / 8], i % 8);
+        return bit_wrapper<T const>(data_[i / 8], i % 8);
       }
 
-      inline bool_array_wrapper sub (size_t offset, size_t n) {
+      inline bit_array_wrapper sub (size_t offset, size_t n) {
         check_boundary(offset + n - 1);
-        return bool_array_wrapper(data_ + offset / 8, n);
+        return bit_array_wrapper(data_ + offset / 8, n);
       }
 
     private:
       const type* data_;
-#ifndef NDEBUG
-      const size_t size_;
-#endif // NDEBUG
+      detail::boundary_check check_boundary;
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct array_wrapper<bool> : public bool_array_wrapper<bool> {};
+    struct array_wrapper<bool> : public bit_array_wrapper<bool> {};
 
     template<>
-    struct array_wrapper<const bool> : public bool_array_wrapper<const bool> {};
+    struct array_wrapper<const bool> : public bit_array_wrapper<const bool> {};
 
   } // core
 

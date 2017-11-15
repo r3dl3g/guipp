@@ -163,6 +163,7 @@ namespace gui {
       void create_popup (const core::rectangle& place);
 
       void handle_move (const core::point&);
+      void handle_wheel (const core::point::type delta, const core::point&);
 
       struct data {
         data (core::size::type item_size = 20,
@@ -250,10 +251,12 @@ namespace gui {
 
       super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &drop_down_list::paint));
       super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point &) {
-                                                                             toggle_popup();
-                                                                             super::take_focus();
-                                                                             super::redraw_later();
-                                                                           }));
+        toggle_popup();
+        super::take_focus();
+        super::redraw_later();
+      }));
+
+      super::register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &drop_down_list::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
 
       data.button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
@@ -380,7 +383,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     inline void drop_down_list<T, D>::set_selection (int idx, event_source src) {
-      data.selection = idx;
+      data.selection = std::max(-1, std::min(idx, static_cast<int>(data.items.get_count())));
       if (is_popup_visible()) {
         data.items.set_selection(idx, src);
       }
@@ -482,6 +485,14 @@ namespace gui {
     void drop_down_list<T, D>::handle_move (const core::point&) {
       if (is_popup_visible()) {
         data.popup.place(get_popup_place());
+      }
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    void drop_down_list<T, D>::handle_wheel (const core::point::type delta, const core::point&) {
+      if (!is_popup_visible()) {
+        set_selection(get_selection() + static_cast<int>(delta), event_source::mouse);
+        super::redraw_later();
       }
     }
 

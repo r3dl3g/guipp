@@ -1547,7 +1547,7 @@ namespace gui {
       const uint32_t left = std::min(frame.x(), width);
       const uint32_t right = std::min(frame.width(), width - left);
       const uint32_t top = std::min(frame.y(), height);
-      const uint32_t bottom = std::min(frame.height(), height - bottom);
+      const uint32_t bottom = std::min(frame.height(), height - top);
 
       const uint32_t target_right = dest_bmi.width - right;
       const uint32_t target_bottom = dest_bmi.height - bottom;

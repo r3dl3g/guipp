@@ -356,7 +356,7 @@ namespace gui {
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           char v;
           in >> v;
-          row[x] = draw::bw_pixel(v == '0');
+          row[x] = (v == '1') ? draw::bw_pixel::black : draw::bw_pixel::white;
         }
       }
       return img;

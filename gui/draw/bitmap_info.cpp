@@ -94,6 +94,13 @@ namespace gui {
       , bits_per_pixel(BPP::Undefined)
     {}
 
+    bitmap_info::bitmap_info (const core::uint32_size& sz, BPP bpp)
+      : width(sz.width())
+      , height(sz.height())
+      , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), bpp))
+      , bits_per_pixel(bpp)
+    {}
+
     bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp)
       : width(w)
       , height(h)
@@ -107,6 +114,10 @@ namespace gui {
       , bytes_per_line(bitmap_calc_bytes_per_line(w, bpp))
       , bits_per_pixel(bpp)
     {}
+
+    bool bitmap_info::operator== (const bitmap_info& rhs) const {
+      return (width == rhs.width) && (height == rhs.height) && (bits_per_pixel == rhs.bits_per_pixel);
+    }
 
     // --------------------------------------------------------------------------
   } // namespace draw

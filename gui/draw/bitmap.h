@@ -49,12 +49,8 @@ namespace gui {
       byte depth () const;
       BPP bits_per_pixel () const;
 
-      void invert ();
-
       void operator= (const basic_map& rhs);
       void operator= (basic_map&& rhs);
-
-      void get_data (blob& data, bitmap_info& bmi) const;
 
       static uint32_t calc_bytes_per_line (uint32_t w, BPP bpp);
 
@@ -63,15 +59,7 @@ namespace gui {
       basic_map (const basic_map&);
       basic_map (basic_map&& rhs);
 
-      void put_data (const blob& data, const bitmap_info& bmi);
-
-      void create (uint32_t w, uint32_t h, BPP bpp);
-      void create (const core::size& sz, BPP bpp);
-
-      void copy_from (const basic_map& src_img);
-      void copy_from (const basic_map& src_img,
-                      const core::rectangle& src_rect,
-                      const core::point& dest_pt);
+      void create (const bitmap_info& bmi);
 
       void set_id (os::bitmap);
 
@@ -88,16 +76,20 @@ namespace gui {
 
       bitmap (const bwmap& sz);
       bitmap (uint32_t w, uint32_t h);
+      bitmap (const core::uint32_size& sz);
       bitmap (const core::size& sz);
 
-      void operator= (const bwmap& rhs);
-
       void create (uint32_t w, uint32_t h);
+      void create (const core::uint32_size& sz);
       void create (const core::size& sz);
 
       void copy_from (const bitmap& src_img,
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
+
+      void invert ();
+
+      void operator= (const bwmap& rhs);
 
       bwmap get () const;
       operator bwmap () const;
@@ -111,18 +103,25 @@ namespace gui {
 
       pixmap ();
 
-      pixmap (const basic_datamap& rhs);
+      template<BPP T>
+      pixmap (const datamap<T>& rhs);
+
       pixmap (uint32_t w, uint32_t h);
+      pixmap (const core::uint32_size& sz);
       pixmap (const core::size& sz);
 
-      void operator= (const basic_datamap& rhs);
-
       void create (uint32_t w, uint32_t h);
+      void create (const core::uint32_size& sz);
       void create (const core::size& sz);
 
       void copy_from (const pixmap& src_img,
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
+
+      void invert ();
+
+      template<BPP T>
+      void operator= (const datamap<T>& rhs);
 
       template<BPP T>
       datamap<T> get () const;
@@ -131,7 +130,15 @@ namespace gui {
       operator datamap<T> () const;
 
     private:
-      void put (const basic_datamap& rhs);
+      template<BPP T>
+      void invert ();
+
+      void put (cbyteptr data, const draw::bitmap_info& bmi);
+      void get (blob& data, draw::bitmap_info& bmi) const;
+
+      template<BPP T>
+      void put (const datamap<T>& rhs);
+
     };
 
     // --------------------------------------------------------------------------
@@ -164,29 +171,6 @@ namespace gui {
 
       pixmap image;
       bitmap mask;
-    };
-
-    // --------------------------------------------------------------------------
-    class graphics;
-
-    // --------------------------------------------------------------------------
-    struct frame_image {
-      frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t edge);
-      frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t horizontal, uint32_t vertical);
-      frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
-
-      void operator() (const graphics&, const core::point&) const;
-
-    private:
-      const core::rectangle rect;
-      const basic_datamap& img;
-
-      uint32_t left;
-      uint32_t top;
-      uint32_t right;
-      uint32_t bottom;
-
-      void operator= (frame_image&) = delete;
     };
 
   } // namespace draw

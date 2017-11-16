@@ -294,8 +294,6 @@ namespace gui {
         if (state.pushed) {
           draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }
-//        graph.copy(draw::frame_image(r, get_button_frame(state.pushed), 4), r.top_left());
-
 //        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
 //        if (enabled && focused) {
 //          graph.frame(draw::rectangle(area), color::black);

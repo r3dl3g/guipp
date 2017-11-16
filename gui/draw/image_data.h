@@ -109,6 +109,8 @@ namespace gui {
       image_data (raw_type data, const bitmap_info& info);
       row_type row (uint32_t y);
       pixel_type& pixel (uint32_t x, uint32_t y);
+      const bitmap_info& get_info () const;
+      raw_type& raw_data ();
 
     private:
       raw_type data;
@@ -130,6 +132,8 @@ namespace gui {
       const_image_data (raw_type data, const bitmap_info& info);
       const row_type row (uint32_t y) const;
       pixel_type pixel (uint32_t x, uint32_t y) const;
+      const bitmap_info& get_info () const;
+      const raw_type& raw_data () const;
 
     private:
       raw_type data;

@@ -51,29 +51,82 @@ namespace gui {
     std::istream& operator>> (std::istream&, PNM&);
 
     // --------------------------------------------------------------------------
-    void save_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
-    void load_pnm_header (std::istream& in, PNM& magic_num, draw::bitmap_info&, int& max);
+    template<PNM>
+    struct PNM2BPP {};
+
+    template<> struct PNM2BPP<PNM::P1> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P2> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P3> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P4> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = true;   };
+    template<> struct PNM2BPP<PNM::P5> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = true;   };
+    template<> struct PNM2BPP<PNM::P6> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = true;   };
+
+    inline BPP pnm2bpp (PNM pnm) {
+      switch (pnm) {
+        case PNM::P1:
+        case PNM::P4:
+          return BPP::BW;
+        case PNM::P2:
+        case PNM::P5:
+          return BPP::GRAY;
+        case PNM::P3:
+        case PNM::P6:
+          return BPP::RGB;
+      }
+      return BPP::Undefined;
+    }
+
+    template<BPP, bool>
+    struct BPP2PNM {};
+
+    template<> struct BPP2PNM<BPP::BW, false>   {static constexpr PNM pnm = PNM::P1; };
+    template<> struct BPP2PNM<BPP::GRAY, false> {static constexpr PNM pnm = PNM::P2; };
+    template<> struct BPP2PNM<BPP::RGB, false>  {static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<BPP::RGBA, false> {static constexpr PNM pnm = PNM::P3; };
+
+    template<> struct BPP2PNM<BPP::BW, true>    {static constexpr PNM pnm = PNM::P4; };
+    template<> struct BPP2PNM<BPP::GRAY, true>  {static constexpr PNM pnm = PNM::P5; };
+    template<> struct BPP2PNM<BPP::RGB, true>   {static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<BPP::RGBA, true>  {static constexpr PNM pnm = PNM::P6; };
+
+    template<BPP>
+    struct BPP2MAX {};
+
+    template<> struct BPP2MAX<BPP::BW> { static constexpr int max = 0; };
+    template<> struct BPP2MAX<BPP::GRAY> { static constexpr int max = 255; };
+    template<> struct BPP2MAX<BPP::RGB> { static constexpr int max = 255; };
+    template<> struct BPP2MAX<BPP::RGBA> { static constexpr int max = 255; };
+
+    // --------------------------------------------------------------------------
+    void write_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
+    draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
 
     template<PNM i>
-    void save_pnm (std::ostream& out, const blob& data, const draw::bitmap_info& bmi);
+    void write_pnm (std::ostream& out, const draw::const_image_data<PNM2BPP<i>::bpp>&);
 
-    template<> void save_pnm<PNM::P1>(std::ostream&, const blob&, const draw::bitmap_info&);
-    template<> void save_pnm<PNM::P2>(std::ostream&, const blob&, const draw::bitmap_info&);
-    template<> void save_pnm<PNM::P3>(std::ostream&, const blob&, const draw::bitmap_info&);
-    template<> void save_pnm<PNM::P4>(std::ostream&, const blob&, const draw::bitmap_info&);
-    template<> void save_pnm<PNM::P5>(std::ostream&, const blob&, const draw::bitmap_info&);
-    template<> void save_pnm<PNM::P6>(std::ostream&, const blob&, const draw::bitmap_info&);
+    template<> void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<BPP::BW>&);
+    template<> void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
+    template<> void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
+    template<> void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<BPP::BW>&);
+    template<> void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
+    template<> void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
+
+    template<bool BIN>
+    void write_pnm_rgba (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+
+    template<> void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+    template<> void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
 
     // --------------------------------------------------------------------------
     template<PNM i>
-    void load_pnm (std::istream& in, blob& data, draw::bitmap_info&);
+    draw::datamap<PNM2BPP<i>::bpp> read_pnm (std::istream& in, const draw::bitmap_info&);
 
-    template<> void load_pnm<PNM::P1>(std::istream&, blob&, draw::bitmap_info&);
-    template<> void load_pnm<PNM::P2>(std::istream&, blob&, draw::bitmap_info&);
-    template<> void load_pnm<PNM::P3>(std::istream&, blob&, draw::bitmap_info&);
-    template<> void load_pnm<PNM::P4>(std::istream&, blob&, draw::bitmap_info&);
-    template<> void load_pnm<PNM::P5>(std::istream&, blob&, draw::bitmap_info&);
-    template<> void load_pnm<PNM::P6>(std::istream&, blob&, draw::bitmap_info&);
+    template<> draw::datamap<BPP::BW>   read_pnm<PNM::P1> (std::istream&, const draw::bitmap_info& bmi);
+    template<> draw::datamap<BPP::GRAY> read_pnm<PNM::P2> (std::istream&, const draw::bitmap_info& bmi);
+    template<> draw::datamap<BPP::RGB>  read_pnm<PNM::P3> (std::istream&, const draw::bitmap_info& bmi);
+    template<> draw::datamap<BPP::BW>   read_pnm<PNM::P4> (std::istream&, const draw::bitmap_info& bmi);
+    template<> draw::datamap<BPP::GRAY> read_pnm<PNM::P5> (std::istream&, const draw::bitmap_info& bmi);
+    template<> draw::datamap<BPP::RGB>  read_pnm<PNM::P6> (std::istream&, const draw::bitmap_info& bmi);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -117,63 +170,54 @@ namespace gui {
 
     };
 
-    void save_pnm (std::ostream& out, const draw::basic_datamap& bmp, bool binary = true);
+    template<BPP T>
+    void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary = true);
+
+    template<BPP T>
+    void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary = true);
+
+    template<BPP T>
+    void load_pnm (std::istream& in, draw::datamap<T>& bmp);
+
+    template<BPP T>
+    void load_pnm (const std::string& name, draw::datamap<T>& bmp);
+
     void load_pnm (std::istream& in, draw::basic_datamap& bmp);
-    void save_pnm (const std::string& name, const draw::basic_datamap& bmp, bool binary = true);
     void load_pnm (const std::string& name, draw::basic_datamap& bmp);
 
-    template<PNM>
-    struct PNM2BPP {};
-
-    template<> struct PNM2BPP<PNM::P1> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P2> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P3> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P4> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = true;   };
-    template<> struct PNM2BPP<PNM::P5> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = true;   };
-    template<> struct PNM2BPP<PNM::P6> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = true;   };
-
-    template<BPP, bool>
-    struct BPP2PNM {};
-
-    template<> struct BPP2PNM<BPP::BW, false>   {static constexpr PNM pnm = PNM::P1; };
-    template<> struct BPP2PNM<BPP::GRAY, false> {static constexpr PNM pnm = PNM::P2; };
-    template<> struct BPP2PNM<BPP::RGB, false>  {static constexpr PNM pnm = PNM::P3; };
-    template<> struct BPP2PNM<BPP::RGBA, false> {static constexpr PNM pnm = PNM::P3; };
-
-    template<> struct BPP2PNM<BPP::BW, true>    {static constexpr PNM pnm = PNM::P4; };
-    template<> struct BPP2PNM<BPP::GRAY, true>  {static constexpr PNM pnm = PNM::P5; };
-    template<> struct BPP2PNM<BPP::RGB, true>   {static constexpr PNM pnm = PNM::P6; };
-    template<> struct BPP2PNM<BPP::RGBA, true>  {static constexpr PNM pnm = PNM::P6; };
-
     // --------------------------------------------------------------------------
-    template<bool BIN>
+    template<bool BIN, BPP T>
     class opnm {
     public:
-      opnm (const draw::basic_datamap& bmp);
+      opnm (const draw::datamap<T>& bmp);
       void write (std::ostream& out) const;
 
     private:
-      const draw::basic_datamap& bmp;
+      const draw::datamap<T>& bmp;
     };
 
     // --------------------------------------------------------------------------
-    template<bool BIN>
-    std::ostream& operator<< (std::ostream& out, const opnm<BIN>& p);
+    template<bool BIN, BPP T>
+    std::ostream& operator<< (std::ostream& out, const opnm<BIN, T>& p);
 
     // --------------------------------------------------------------------------
+    template<BPP T>
     class ipnm {
     public:
-      ipnm (draw::basic_datamap& bmp);
-      ipnm (draw::basic_datamap&& bmp);
+      ipnm (draw::datamap<T>& bmp);
+      ipnm (draw::datamap<T>&& bmp);
       void read (std::istream& in);
 
     private:
-      draw::basic_datamap& bmp;
+      draw::datamap<T>& bmp;
     };
 
     // --------------------------------------------------------------------------
-    std::istream &operator>> (std::istream& in, ipnm& p);
-    std::istream &operator>> (std::istream& in, ipnm&& p);
+    template<BPP T>
+    std::istream &operator>> (std::istream& in, ipnm<T>& p);
+
+    template<BPP T>
+    std::istream &operator>> (std::istream& in, ipnm<T>&& p);
 
     // --------------------------------------------------------------------------
     template<PNM i>
@@ -217,92 +261,80 @@ namespace gui {
     //
     // inlines
     //
-    template<bool BIN>
-    inline opnm<BIN>::opnm (const draw::basic_datamap& bmp)
+    template<bool BIN, BPP T>
+    inline opnm<BIN, T>::opnm (const draw::datamap<T>& bmp)
       : bmp(bmp)
     {}
 
-    template<bool BIN>
-    inline void opnm<BIN>::write (std::ostream& out) const {
+    template<bool BIN, BPP T>
+    inline void opnm<BIN, T>::write (std::ostream& out) const {
       const draw::bitmap_info& bmi = bmp.get_info();
-      const blob& data = bmp.get_data();
-      switch (bmi.bits_per_pixel) {
-      case BPP::BW:
-        save_pnm_header(out, BPP2PNM<BPP::BW, BIN>::pnm, bmi, 0);
-        save_pnm<BPP2PNM<BPP::BW, BIN>::pnm>(out, data, bmi);
-        break;
-      case BPP::GRAY:
-        save_pnm_header(out, BPP2PNM<BPP::GRAY, BIN>::pnm, bmi, 255);
-        save_pnm<BPP2PNM<BPP::GRAY, BIN>::pnm>(out, data, bmi);
-        break;
-      case BPP::RGB:
-        save_pnm_header(out, BPP2PNM<BPP::RGB, BIN>::pnm, bmi, 255);
-        save_pnm<BPP2PNM<BPP::RGB, BIN>::pnm>(out, data, bmi);
-        break;
-      case BPP::RGBA:
-        save_pnm_header(out, BPP2PNM<BPP::RGBA, BIN>::pnm, bmi, 255);
-        save_pnm<BPP2PNM<BPP::RGBA, BIN>::pnm>(out, data, bmi);
-        break;
-      default:
-        throw std::invalid_argument("unsupportet bit per pixel value");
-      }
+      write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
+      write_pnm<BPP2PNM<T, BIN>::pnm>(out, bmp.get_raw());
+    }
+
+    template<>
+    inline void opnm<false, BPP::RGBA>::write (std::ostream& out) const {
+      const draw::bitmap_info& bmi = bmp.get_info();
+      write_pnm_header(out, BPP2PNM<BPP::RGBA, false>::pnm, bmi, BPP2MAX<BPP::RGBA>::max);
+      write_pnm_rgba<false>(out, bmp.get_raw());
+    }
+
+    template<>
+    inline void opnm<true, BPP::RGBA>::write (std::ostream& out) const {
+      const draw::bitmap_info& bmi = bmp.get_info();
+      write_pnm_header(out, BPP2PNM<BPP::RGBA, true>::pnm, bmi, BPP2MAX<BPP::RGBA>::max);
+      write_pnm_rgba<true>(out, bmp.get_raw());
     }
 
     // --------------------------------------------------------------------------
-    template<bool BIN>
-    inline std::ostream& operator<< (std::ostream& out, const opnm<BIN>& p) {
+    template<bool BIN, BPP T>
+    inline std::ostream& operator<< (std::ostream& out, const opnm<BIN, T>& p) {
       p.write(out);
       return out;
     }
 
     // --------------------------------------------------------------------------
-    inline ipnm::ipnm (draw::basic_datamap& bmp)
+    template<BPP T>
+    inline ipnm<T>::ipnm (draw::datamap<T>& bmp)
       : bmp(bmp)
     {}
 
     // --------------------------------------------------------------------------
-    inline ipnm::ipnm (draw::basic_datamap&& bmp)
+    template<BPP T>
+    inline ipnm<T>::ipnm (draw::datamap<T>&& bmp)
       : bmp(bmp)
     {}
 
     // --------------------------------------------------------------------------
-    inline void ipnm::read (std::istream& in) {
-      draw::bitmap_info bmi;
+    template<BPP T>
+    inline void ipnm<T>::read (std::istream& in) {
       int max;
       PNM pnm;
-      load_pnm_header(in, pnm, bmi, max);
+      draw::bitmap_info bmi = read_pnm_header(in, pnm, max);
+      if (pnm2bpp(pnm) == T) {
+        switch (pnm) {
+          case PNM::P1: bmp = read_pnm<PNM::P1>(in, bmi);  break;
+          case PNM::P2: bmp = read_pnm<PNM::P2>(in, bmi);  break;
+          case PNM::P3: bmp = read_pnm<PNM::P3>(in, bmi);  break;
+          case PNM::P4: bmp = read_pnm<PNM::P4>(in, bmi);  break;
+          case PNM::P5: bmp = read_pnm<PNM::P5>(in, bmi);  break;
+          case PNM::P6: bmp = read_pnm<PNM::P6>(in, bmi);  break;
+        }
+      } else {
 
-      blob data;
-      switch (pnm) {
-      case PNM::P1:
-        load_pnm<PNM::P1>(in, data, bmi);
-        break;
-      case PNM::P2:
-        load_pnm<PNM::P2>(in, data, bmi);
-        break;
-      case PNM::P3:
-        load_pnm<PNM::P3>(in, data, bmi);
-        break;
-      case PNM::P4:
-        load_pnm<PNM::P4>(in, data, bmi);
-        break;
-      case PNM::P5:
-        load_pnm<PNM::P5>(in, data, bmi);
-        break;
-      case PNM::P6:
-        load_pnm<PNM::P6>(in, data, bmi);
-        break;
       }
-      bmp.create(data, bmi);
     }
 
     // --------------------------------------------------------------------------
-    inline std::istream &operator>> (std::istream& in, ipnm& p) {
+    template<BPP T>
+    inline std::istream &operator>> (std::istream& in, ipnm<T>& p) {
       p.read(in);
       return in;
     }
 
-    inline std::istream &operator>> (std::istream& in, ipnm&& p) {
+    template<BPP T>
+    inline std::istream &operator>> (std::istream& in, ipnm<T>&& p) {
       p.read(in);
       return in;
     }
@@ -335,16 +367,16 @@ namespace gui {
     template<PNM i>
     inline void ofpnm<i>::operator<< (const draw::pixmap& b) {
       switch (b.bits_per_pixel()) {
-        case BPP::BW:   opnm<super::bin>(b.get<BPP::BW>()).write(out); break;
-        case BPP::GRAY: opnm<super::bin>(b.get<BPP::GRAY>()).write(out); break;
-        case BPP::RGB:  opnm<super::bin>(b.get<BPP::RGB>()).write(out); break;
-        case BPP::RGBA: opnm<super::bin>(b.get<BPP::RGBA>()).write(out); break;
+        case BPP::BW:   opnm<super::bin, BPP::BW>(b.get<BPP::BW>()).write(out); break;
+        case BPP::GRAY: opnm<super::bin, BPP::GRAY>(b.get<BPP::GRAY>()).write(out); break;
+        case BPP::RGB:  opnm<super::bin, BPP::RGB>(b.get<BPP::RGB>()).write(out); break;
+        case BPP::RGBA: opnm<super::bin, BPP::RGBA>(b.get<BPP::RGBA>()).write(out); break;
       }
     }
 
     template<PNM i>
     inline void ofpnm<i>::operator<< (const draw::datamap<PNM2BPP<i>::bpp>& b) {
-      opnm<super::bin>(b).write(out);
+      opnm<super::bin, PNM2BPP<i>::bpp>(b).write(out);
     }
 
     // --------------------------------------------------------------------------
@@ -375,14 +407,46 @@ namespace gui {
 
     template<PNM i>
     inline void ifpnm<i>::operator>> (draw::pixmap& b) {
-      draw::basic_datamap m;
-      in >> ipnm(m);
+      draw::datamap<PNM2BPP<i>::bpp> m;
+      in >> ipnm<PNM2BPP<i>::bpp>(m);
       b = m;
     }
 
     template<PNM i>
     inline void ifpnm<i>::operator>> (draw::datamap<PNM2BPP<i>::bpp>& b) {
-      in >> ipnm(b);
+      in >> ipnm<PNM2BPP<i>::bpp>(b);
+    }
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
+    inline void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary) {
+      if (binary) {
+        out << opnm<true, T>(bmp);
+      } else {
+        out << opnm<false, T>(bmp);
+      }
+    }
+
+    template<BPP T>
+    inline void load_pnm (std::istream& in, draw::datamap<T>& bmp) {
+      in >> ipnm<T>(bmp);
+    }
+
+    template<BPP T>
+    inline void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary) {
+      std::ofstream out(name);
+      save_pnm(out, bmp, binary);
+    }
+
+    template<BPP T>
+    inline void load_pnm (const std::string& name, draw::datamap<T>& bmp) {
+      std::ifstream in(name);
+      load_pnm(in, bmp);
+    }
+
+    inline void load_pnm (const std::string& name, draw::basic_datamap& bmp) {
+      std::ifstream in(name);
+      load_pnm(in, bmp);
     }
 
     // --------------------------------------------------------------------------

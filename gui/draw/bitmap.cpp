@@ -297,7 +297,15 @@ namespace gui {
 
     void basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
-        copy_from(rhs);
+        if (rhs) {
+          blob bin;
+          bitmap_info bmi;
+          bitmap_get_data(rhs.get_id(), bin, bmi);
+          create(bmi);
+          bitmap_put_data(get_id(), bin.data(), bmi);
+        } else {
+          clear();
+        }
       }
     }
 
@@ -324,25 +332,15 @@ namespace gui {
       return get_info().bits_per_pixel;
     }
 
-    void basic_map::create (uint32_t w, uint32_t h, BPP bpp) {
+    void basic_map::create (const bitmap_info& rhs) {
       bitmap_info bmi = get_info();
-      if ((bmi.width == w) && (bmi.height == h) && (bmi.bits_per_pixel == bpp)) {
+      if (bmi == rhs) {
         return;
       }
       clear();
-      set_id(create_bitmap({w, h, bpp}));
+      set_id(create_bitmap(rhs));
       if (!is_valid()) {
         throw std::runtime_error("create image failed");
-      }
-    }
-
-    void basic_map::copy_from (const basic_map& rhs) {
-      clear();
-      if (rhs) {
-        bitmap_info bmi;
-        blob data;
-        rhs.get_data(data, bmi);
-        set_id(create_bitmap(bmi, data.data()));
       }
     }
 
@@ -350,31 +348,9 @@ namespace gui {
       return draw::bitmap_info(w, 0, bpp).bytes_per_line;
     }
 
-    void basic_map::put_data (const blob& src_data, const bitmap_info& src_bmi) {
-      if (is_valid()) {
-        bitmap_put_data(get_id(), src_data.data(), src_bmi);
-      }
-    }
-
-    void basic_map::get_data (blob& data, bitmap_info& bmi) const {
-      if (is_valid()) {
-        bitmap_get_data(get_id(), data, bmi);
-      }
-    }
-
-    void basic_map::invert () {
-      bitmap_info bmi;
-      blob data;
-      get_data(data, bmi);
-      for (auto& c : data) {
-        c = ~c;
-      }
-      put_data(data, bmi);
-    }
-
     // --------------------------------------------------------------------------
     void bitmap::create (uint32_t w, uint32_t h) {
-      super::create(w, h, BPP::BW);
+      super::create({w, h, BPP::BW});
       if (!is_valid()) {
         throw std::runtime_error("create bitmap failed");
       }
@@ -388,16 +364,33 @@ namespace gui {
       operator=(dest);
     }
 
+    void bitmap::invert () {
+      bwmap data = get();
+      data.invert();
+      operator=(data);
+    }
+
+    void bitmap::operator= (const bwmap& rhs) {
+      if (rhs) {
+        const auto raw = rhs.get_raw();
+        const auto& bmi = raw.get_info();
+        create(bmi.size());
+        bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
+      } else {
+        clear();
+      }
+    }
+
     bwmap bitmap::get () const {
-      bwmap bmp(size());
-      get_data(bmp.get_data(), bmp.get_info());
-      return bmp;
+      blob data;
+      bitmap_info bmi;
+      bitmap_get_data(get_id(), data, bmi);
+      return bwmap(const_image_data<BPP::BW>(core::array_wrapper<const byte>(data), bmi));
     }
 
     bitmap::operator bwmap () const {
       return get();
     }
-
 
     // --------------------------------------------------------------------------
     void pixmap::create (uint32_t w, uint32_t h) {
@@ -408,7 +401,7 @@ namespace gui {
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
-      super::create(w, h, core::global::get_device_bits_per_pixel());
+      super::create({w, h, core::global::get_device_bits_per_pixel()});
 #endif
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
@@ -422,28 +415,28 @@ namespace gui {
       g.copy_from(src_img, src_rect, dest_pt);
     }
 
-    void pixmap::put (const basic_datamap& rhs) {
-      if (rhs) {
-        put_data(rhs.get_data(), rhs.get_info());
+    void pixmap::invert () {
+      switch (bits_per_pixel()) {
+        case BPP::BW:   invert<BPP::BW>();   break;
+        case BPP::GRAY: invert<BPP::GRAY>(); break;
+        case BPP::RGB:  invert<BPP::RGB>();  break;
+        case BPP::RGBA: invert<BPP::RGBA>(); break;
+        default:  break;
       }
     }
 
-    void pixmap::operator= (const basic_datamap& rhs) {
-      if (rhs) {
-        create(rhs.size());
-        if (bits_per_pixel() == rhs.bits_per_pixel()) {
-          put(rhs);
-        } else {
-          switch (bits_per_pixel()) {
-            case BPP::RGB:  put(rgbmap(rhs));   break;
-            case BPP::RGBA: put(rgbamap(rhs));  break;
-            case BPP::GRAY: put(graymap(rhs));  break;
-          }
-        }
-      } else {
-        clear();
+    void pixmap::put (cbyteptr data, const draw::bitmap_info& bmi) {
+      if (is_valid()) {
+        bitmap_put_data(get_id(), data, bmi);
       }
     }
+
+    void pixmap::get (blob& data, draw::bitmap_info& bmi) const {
+      if (is_valid()) {
+        bitmap_get_data(get_id(), data, bmi);
+      }
+    }
+
 
     // --------------------------------------------------------------------------
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
@@ -474,164 +467,6 @@ namespace gui {
       }
     }
 
-    // --------------------------------------------------------------------------
-    frame_image::frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t edge)
-      : rect(r)
-      , img(img)
-      , left(edge)
-      , top(edge)
-      , right(edge)
-      , bottom(edge)
-    {}
-
-    frame_image::frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t horizontal, uint32_t vertical)
-      : rect(r)
-      , img(img)
-      , left(horizontal)
-      , top(vertical)
-      , right(horizontal)
-      , bottom(horizontal)
-    {}
-
-    frame_image::frame_image (const core::rectangle& r, const basic_datamap& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom)
-      : rect(r)
-      , img(img)
-      , left(left)
-      , top(top)
-      , right(right)
-      , bottom(bottom)
-    {}
-
-    template<BPP bpp>
-    void copy_frame_image (draw::const_image_data<bpp> src_img,
-                           draw::image_data<bpp> dest_img,
-                           const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
-                           uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
-
-      const uint32_t target_right = dest_bmi.width - right;
-      const uint32_t target_bottom = dest_bmi.height - bottom;
-      const uint32_t source_right = src_bmi.width - right;
-      const uint32_t source_bottom = src_bmi.height - bottom;
-
-      using namespace convert;
-
-      // top left
-      if (top && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, 0}, {0, 0, left, top});
-      }
-
-      // top right
-      if (top && right) {
-        copy::sub<bpp>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
-      }
-
-      // bottom left
-      if (bottom && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
-      }
-
-      if (bottom && right) {
-        // bottom right
-        copy::sub<bpp>(src_img, dest_img,
-                       {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
-      }
-
-      if ((target_right > left) && (target_bottom > top) && (source_right >= left) && (source_bottom >= top)) {
-        const uint32_t target_inner_width = target_right - left;
-        const uint32_t target_inner_height = target_bottom - top;
-        const uint32_t source_inner_width = source_right - left;
-        const uint32_t source_inner_height = source_bottom - top;
-
-        // top center
-        if (top && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
-                            {left, 0, source_inner_width, top},
-                            {left, 0, target_inner_width, top});
-        }
-
-        // bottom center
-        if (bottom && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
-                            {left, source_bottom, source_inner_width, bottom},
-                            {left, target_bottom, target_inner_width, bottom});
-        }
-
-        // left center
-        if (left && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
-                            {0, top, left, source_inner_height},
-                            {0, top, left, target_inner_height});
-        }
-
-        // right center
-        if (right && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
-                            {source_right, top, right, source_inner_height},
-                            {target_right, top, right, target_inner_height});
-        }
-
-        // center
-        if (target_inner_width && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
-                            {left, top, source_inner_width, source_inner_height},
-                            {left, top, target_inner_width, target_inner_height});
-        }
-      }
-    }
-
-    void frame_image::operator() (const graphics& g, const core::point& pt) const {
-      if (rect.size() <= core::size::two) {
-        return;
-      }
-
-      const uint32_t w = roundup<uint32_t>(rect.width());
-      const uint32_t h = roundup<uint32_t>(rect.height());
-
-      const uint32_t width = roundup<uint32_t>(rect.width());
-      const uint32_t height = roundup<uint32_t>(rect.height());
-
-      const uint32_t l = std::min(left, width / 2);
-      const uint32_t r = std::min(right, width / 2);
-      const uint32_t t = std::min(top, height / 2);
-      const uint32_t b = std::min(bottom, height / 2);
-
-      const bitmap_info& src_bmi = img.get_info();
-
-      pixmap buffer;
-
-      switch (src_bmi.bits_per_pixel) {
-        case BPP::BW: {
-          bwmap dest(w, h);
-          copy_frame_image<BPP::BW>(img.get_raw<BPP::BW>(), dest.get_raw(),
-                                    src_bmi, dest.get_info(), l, t, r, b);
-          buffer = dest;
-          break;
-        }
-        case BPP::GRAY: {
-          graymap dest(w, h);
-          copy_frame_image<BPP::GRAY>(img.get_raw<BPP::GRAY>(), dest.get_raw(),
-                                      src_bmi, dest.get_info(), l, t, r, b);
-          buffer = dest;
-          break;
-        }
-        case BPP::RGB: {
-          rgbmap dest(w, h);
-          copy_frame_image<BPP::RGB>(img.get_raw<BPP::RGB>(), dest.get_raw(),
-                                     src_bmi, dest.get_info(), l, t, r, b);
-          buffer = dest;
-          break;
-        }
-        case BPP::RGBA: {
-          rgbamap dest(w, h);
-          copy_frame_image<BPP::RGBA>(img.get_raw<BPP::RGBA>(), dest.get_raw(),
-                                      src_bmi, dest.get_info(), l, t, r, b);
-          buffer = dest;
-          break;
-        }
-      }
-
-      g.copy_from(buffer, pt);
-    }
     // --------------------------------------------------------------------------
   }
 

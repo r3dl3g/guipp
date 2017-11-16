@@ -57,7 +57,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void save_pnm_header (std::ostream& out, PNM pnm, const draw::bitmap_info& bmi, int max) {
+    void write_pnm_header (std::ostream& out, PNM pnm, const draw::bitmap_info& bmi, int max) {
       out << pnm << '\n';
       out << "# pnm created by gui++\n";
       out << bmi.width << ' ' << bmi.height;
@@ -75,13 +75,14 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    void load_pnm_header (std::istream& in, PNM& pnm, draw::bitmap_info& bmi, int& max) {
+    draw::bitmap_info read_pnm_header (std::istream& in, PNM& pnm, int& max) {
       in >> pnm;
       while (in.peek() == '#') {
         std::string tmp;
         std::getline(in, tmp);
       }
-      in >> bmi.width >> bmi.height;
+      uint32_t width, height;
+      in >> width >> height;
       if ((pnm != PNM::P1) && (pnm != PNM::P4)) {
         in >> max;
       } else {
@@ -90,98 +91,109 @@ namespace gui {
       in.get(); // ending whitespace
       std::noskipws(in);
 
-      if (bmi.width < 1) {
+      if (width < 1) {
         throw std::runtime_error("invalid pnm image width");
       }
-      if (bmi.height < 1) {
+      if (height < 1) {
         throw std::runtime_error("invalid pnm image height");
       }
       if ((max < 1) || (max > 255)) {
         throw std::runtime_error("invalid pnm max value");
       }
+
+      return { width, height, pnm2bpp(pnm) };
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P6>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
-      const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<6> data size missmatch");
-      }
-      int step = bmi.depth() / 8;
+    void write_pnm<PNM::P6> (std::ostream& out, const draw::const_image_data<BPP::RGB>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        const char* d = reinterpret_cast<const char*>(data.data() + (y * bmi.bytes_per_line));
+        auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
-          out.write(d + 2, 1);
-          out.write(d + 1, 1);
-          out.write(d, 1);
-          d += step;
+          auto pixel = row[x];
+          out.write(reinterpret_cast<char*>(&pixel.blue.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.red.value), 1);
         }
       }
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P6>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      if (bmi.bits_per_pixel != BPP::RGB) {
-        bmi.bits_per_pixel = BPP::RGBA;
+    void write_pnm_rgba<true> (std::ostream& out, const draw::const_image_data<BPP::RGBA>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        auto row = img.row(y);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
+          auto pixel = row[x];
+          out.write(reinterpret_cast<char*>(&pixel.blue.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.red.value), 1);
+        }
       }
-      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
-      const std::size_t n = bmi.bytes_per_line * bmi.height;
-      data.resize(n);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    draw::rgbmap read_pnm<PNM::P6>(std::istream& in, const draw::bitmap_info& bmi) {
+      draw::rgbmap img(bmi.size());
       std::noskipws(in);
-      const int step = bmi.depth() / 8;
+      auto data = img.get_raw();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        char* d = reinterpret_cast<char*>(data.data() + (y * bmi.bytes_per_line));
+        auto row = data.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
-          in.read(d + 2, 1);
-          in.read(d + 1, 1);
-          in.read(d, 1);
-          if (bmi.bits_per_pixel == BPP::RGBA) {
-            d[3] = 0;
-          }
-          d += step;
+          auto& pixel = row[x];
+          in.read(reinterpret_cast<char*>(&pixel.blue.value), 1);
+          in.read(reinterpret_cast<char*>(&pixel.green.value), 1);
+          in.read(reinterpret_cast<char*>(&pixel.red.value), 1);
         }
       }
+      return img;
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P5>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
+    void write_pnm<PNM::P5>(std::ostream& out, const draw::const_image_data<BPP::GRAY>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<5> data size missmatch");
-      }
-      out.write(reinterpret_cast<const char*>(data.data()), n);
+      out.write(reinterpret_cast<const char*>(img.raw_data().data(0, n)), n);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P5>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      bmi.bits_per_pixel = BPP::GRAY;
-      bmi.bytes_per_line = bmi.width;
-      const std::size_t n = bmi.mem_size();
-      data.resize(n);
+    draw::graymap read_pnm<PNM::P5>(std::istream& in, const draw::bitmap_info& bmi) {
+      draw::graymap img(bmi.size());
+      auto n = bmi.width * bmi.height;
       std::noskipws(in);
       auto p1 = in.tellg();
-      in.read(reinterpret_cast<char*>(data.data()), n);
-      auto p2 = in.tellg();
-      if (p2 - p1 != n) {
-        throw std::runtime_error("not enought input data in load_pnm<5>");
+      auto raw = img.get_raw();
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        in.read(reinterpret_cast<char*>(raw.row(y).data(0, bmi.width)), bmi.width);
       }
+      auto p2 = in.tellg();
+      auto m = p2 - p1;
+      if (m != n) {
+        throw std::runtime_error("not enought input data in read_pnm<5>");
+      }
+      return img;
     }
 
     // --------------------------------------------------------------------------
     template<bit_order O>
-    void write_pnm4_line (std::ostream& out, const byte* data, int bytes);
+    void write_pnm4_line (std::ostream&, const draw::const_image_data<BPP::BW>::raw_type, int);
 
     template<>
-    inline void write_pnm4_line<bit_order::msb>(std::ostream& out, const byte* data, int bytes) {
-      out.write(reinterpret_cast<const char*>(data), bytes);
+    inline void write_pnm4_line<bit_order::msb>(std::ostream& out,
+                                                const draw::const_image_data<BPP::BW>::raw_type data,
+                                                int bytes) {
+      out.write(reinterpret_cast<const char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void write_pnm4_line<bit_order::lsb>(std::ostream& out, const byte* data, int bytes) {
+    inline void write_pnm4_line<bit_order::lsb>(std::ostream& out,
+                                                const draw::const_image_data<BPP::BW>::raw_type data,
+                                                int bytes) {
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
         line[x] = reverse_bit_order(data[x]) ^ 0xff;
@@ -191,70 +203,58 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P4>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
-      const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<4> data size missmatch");
-      }
-      if (bmi.width == bmi.bytes_per_line * 8) {
-        out.write(reinterpret_cast<const char*>(data.data()), n);
-      } else {
-        int bytes = (bmi.width + 7) / 8;
-        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-          write_pnm4_line<os::bitmap_bit_order>(out, data.data() + (y * bmi.bytes_per_line), bytes);
-        }
+    void write_pnm<PNM::P4>(std::ostream& out, const draw::const_image_data<BPP::BW>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
+      int bytes = (bmi.width + 7) / 8;
+      const auto& raw = img.raw_data();
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        write_pnm4_line<os::bitmap_bit_order>(out, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
       }
     }
 
     // --------------------------------------------------------------------------
     template<bit_order O>
-    void load_pnm4_line (std::istream& in, byte* data, int bytes);
+    void read_pnm4_line (std::istream& in, draw::image_data<BPP::BW>::raw_type, int bytes);
 
     template<>
-    inline void load_pnm4_line<bit_order::msb>(std::istream& in, byte* data, int bytes) {
-      in.read(reinterpret_cast<char*>(data), bytes);
+    inline void read_pnm4_line<bit_order::msb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+      in.read(reinterpret_cast<char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void load_pnm4_line<bit_order::lsb>(std::istream& in, byte* data, int bytes) {
-      in.read(reinterpret_cast<char*>(data), bytes);
+    inline void read_pnm4_line<bit_order::lsb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+      std::vector<byte> line(bytes);
+      in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {
-        data[x] = reverse_bit_order(data[x]) ^ 0xff;
+        data[x] = reverse_bit_order(line[x]) ^ 0xff;
       }
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P4>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      bmi.bits_per_pixel = BPP::BW;
-      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
-      const std::size_t n = bmi.mem_size();
-      data.resize(n);
+    draw::bwmap read_pnm<PNM::P4>(std::istream& in, const draw::bitmap_info& bmi) {
+      draw::bwmap img(bmi.size());
+      int bytes = (bmi.width + 7) / 8;
+      auto& raw = img.get_raw().raw_data();
       std::noskipws(in);
-      if (bmi.width == bmi.bytes_per_line * 8) {
-        in.read(reinterpret_cast<char*>(data.data()), n);
-      } else {
-        int bytes = (bmi.width + 7) / 8;
-        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-          load_pnm4_line<os::bitmap_bit_order>(in, data.data() + (y * bmi.bytes_per_line), bytes);
-        }
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        read_pnm4_line<os::bitmap_bit_order>(in, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
       }
+      return img;
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P3>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
+    void write_pnm<PNM::P3>(std::ostream& out, const draw::const_image_data<BPP::RGB>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<3> data size missmatch");
-      }
-      cbyteptr bdata = data.data();
-      int step = bmi.depth() / 8;
-      for (uint_fast32_t h = 0; h < bmi.height; ++h) {
-        cbyteptr i = bdata + (h * bmi.bytes_per_line);
-        for (uint_fast32_t w = 0; w < bmi.width; ++w) {
-          cbyteptr d = i + w * step;
-          out << static_cast<int>(d[2]) << ' ' << static_cast<int>(d[1]) << ' ' << static_cast<int>(d[0]) << ' ';
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        auto row = img.row(y);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
+          auto pixel = row[x];
+          out << static_cast<int>(pixel.blue.value) << ' '
+              << static_cast<int>(pixel.green.value) << ' '
+              << static_cast<int>(pixel.red.value) << ' ';
         }
         out << std::endl;
       }
@@ -262,44 +262,52 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P3>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      if (bmi.bits_per_pixel != BPP::RGB) {
-        bmi.bits_per_pixel = BPP::RGBA;
-      }
-      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
+    void write_pnm_rgba<false> (std::ostream& out, const draw::const_image_data<BPP::RGBA>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      data.resize(n);
-
-      std::skipws(in);
-      byteptr bdata = data.data();
-      int step = bmi.depth() / 8;
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        byteptr i = bdata + (y * bmi.bytes_per_line);
+        auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
-          byteptr d = i + x * step;
+          auto pixel = row[x];
+          out << static_cast<int>(pixel.blue.value) << ' '
+              << static_cast<int>(pixel.green.value) << ' '
+              << static_cast<int>(pixel.red.value) << ' ';
+        }
+        out << std::endl;
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    draw::rgbmap read_pnm<PNM::P3> (std::istream& in, const draw::bitmap_info& bmi) {
+      draw::rgbmap img(bmi.size());
+      std::skipws(in);
+      auto raw = img.get_raw();
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        auto row = raw.row(y);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int d0, d1, d2;
           in >> d2 >> d1 >> d0;
-          d[0] = static_cast<byte>(d0);
-          d[1] = static_cast<byte>(d1);
-          d[2] = static_cast<byte>(d2);
-          if (BPP::RGBA == bmi.bits_per_pixel) {
-            d[3] = 0;
-          }
+          row[x] = {
+            static_cast<byte>(d0),
+            static_cast<byte>(d1),
+            static_cast<byte>(d2)
+          };
         }
       }
+      return img;
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P2>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
+    void write_pnm<PNM::P2>(std::ostream& out, const draw::const_image_data<BPP::GRAY>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<2> data size missmatch");
-      }
-      for (uint_fast32_t h = 0; h < bmi.height; ++h) {
-        cbyteptr i = data.data() + (h * bmi.bytes_per_line);
-        for (uint_fast32_t w = 0; w < bmi.width; ++w) {
-          out << static_cast<int>(i[w]) << ' ';
+      for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+        auto row = img.row(y);
+        for (uint_fast32_t x = 0; x < bmi.width; ++x) {
+          auto pixel = row[x];
+          out << static_cast<int>(pixel.value) << ' ';
         }
         out << std::endl;
       }
@@ -307,115 +315,66 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void load_pnm<PNM::P2>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      bmi.bits_per_pixel = BPP::GRAY;
-      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
-      const std::size_t n = bmi.mem_size();
-      data.resize(n);
-
+    draw::graymap read_pnm<PNM::P2> (std::istream& in, const draw::bitmap_info& bmi) {
+      draw::graymap img(bmi.size());
       std::skipws(in);
+      auto raw = img.get_raw();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        byteptr i = data.data() + (y * bmi.bytes_per_line);
+        auto row = raw.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int v;
           in >> v;
-          i[x] = static_cast<byte>(v);
+          row[x].value = static_cast<byte>(v);
         }
       }
-    }
-
-    // --------------------------------------------------------------------------
-    template<bit_order O>
-    void write_pnm1_line (std::ostream& out, byte value, byte bit);
-
-    template<>
-    void write_pnm1_line<bit_order::msb>(std::ostream& out, byte value, byte bit) {
-      out << (value & bit ? '1' : '0') << ' ';
-    }
-
-    template<>
-    void write_pnm1_line<bit_order::lsb>(std::ostream& out, byte value, byte bit) {
-      out << (value & bit ? '0' : '1') << ' ';
+      return img;
     }
 
     // --------------------------------------------------------------------------
     template<>
-    void save_pnm<PNM::P1>(std::ostream& out, const blob& data, const draw::bitmap_info& bmi) {
+    void write_pnm<PNM::P1>(std::ostream& out, const draw::const_image_data<BPP::BW>& img) {
+      const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
-      if (data.size() != n) {
-        throw std::invalid_argument("save_pnm<1> data size missmatch");
-      }
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        cbyteptr i = data.data() + (y * bmi.bytes_per_line);
+        auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
-          write_pnm1_line<os::bitmap_bit_order>(out, i[x / 8], system_bw_bits::mask[x % 8]);
+          auto pixel = row[x];
+          out << (static_cast<bool>(pixel == draw::bw_pixel::black) ? '1' : '0') << ' ';
         }
         out << std::endl;
       }
     }
 
     // --------------------------------------------------------------------------
-    template<bit_order O>
-    void set_pnm1_value (byteptr i, int x, byte value);
-
     template<>
-    void set_pnm1_value<bit_order::msb>(byteptr i, int x, byte value) {
-      i[x / 8] = static_cast<byte>(value);
-    }
-
-    template<>
-    void set_pnm1_value<bit_order::lsb>(byteptr i, int x, byte value) {
-      i[x / 8] = static_cast<byte>(value) ^ 0xff;
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    void load_pnm<PNM::P1>(std::istream& in, blob& data, draw::bitmap_info& bmi) {
-      bmi.bits_per_pixel = BPP::BW;
-      bmi.bytes_per_line = draw::basic_map::calc_bytes_per_line(bmi.width, bmi.bits_per_pixel);
-      const std::size_t n = bmi.mem_size();
-      data.resize(n);
-
+    draw::bwmap read_pnm<PNM::P1> (std::istream& in, const draw::bitmap_info& bmi) {
+      draw::bwmap img(bmi.size());
       std::skipws(in);
+      auto raw = img.get_raw();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        byteptr i = data.data() + (y * bmi.bytes_per_line);
-        int value = 0;
+        auto row = raw.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           char v;
           in >> v;
-          const int s = x % 8;
-          const byte bit = v == '1' ? system_bw_bits::mask[s] : 0;
-          value = value | bit;
-          if (s == 7) {
-            set_pnm1_value<os::bitmap_bit_order>(i, x, value);
-            value = 0;
-          }
+          row[x] = draw::bw_pixel(v == '0');
         }
-        set_pnm1_value<os::bitmap_bit_order>(i, (bmi.width - 1), value);
       }
+      return img;
     }
 
     // --------------------------------------------------------------------------
-    void save_pnm (std::ostream& out, const draw::basic_datamap& bmp, bool binary) {
-      if (binary) {
-        out << opnm<true>(bmp);
-      } else {
-        out << opnm<false>(bmp);
-      }
-    }
-
     void load_pnm (std::istream& in, draw::basic_datamap& bmp) {
-      in >> ipnm(bmp);
-    }
-
-    void save_pnm (const std::string& name, const draw::basic_datamap& bmp, bool binary) {
-      std::ofstream out(name);
-      save_pnm(out, bmp, binary);
-    }
-
-    void load_pnm (const std::string& name, draw::basic_datamap& bmp) {
-      std::ifstream in(name);
-      load_pnm(in, bmp);
+      int max;
+      PNM pnm;
+      draw::bitmap_info bmi = read_pnm_header(in, pnm, max);
+      switch (pnm) {
+        case PNM::P1: bmp = read_pnm<PNM::P1>(in, bmi); break;
+        case PNM::P2: bmp = read_pnm<PNM::P2>(in, bmi); break;
+        case PNM::P3: bmp = read_pnm<PNM::P3>(in, bmi); break;
+        case PNM::P4: bmp = read_pnm<PNM::P4>(in, bmi); break;
+        case PNM::P5: bmp = read_pnm<PNM::P5>(in, bmi); break;
+        case PNM::P6: bmp = read_pnm<PNM::P6>(in, bmi); break;
+      }
     }
 
   } // io

@@ -84,11 +84,13 @@ namespace gui {
 
   // --------------------------------------------------------------------------
   inline bool get_bit (byte value, byte bit) {
-    return (value & system_bw_bits::mask[bit]) >> system_bw_bits::shift[bit] != 0;
+    const auto mask = system_bw_bits::mask[bit];
+    return (value & mask) == mask;
   }
 
   inline void set_bit (byte& value, byte bit, bool b) {
-    value = b ? value | system_bw_bits::mask[bit] : value & ~system_bw_bits::mask[bit];
+    const auto mask = system_bw_bits::mask[bit];
+    value = b ? (value | mask) : (value & ~mask);
   }
 
   // --------------------------------------------------------------------------

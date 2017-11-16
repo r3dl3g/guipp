@@ -29,6 +29,9 @@ namespace gui {
 
   namespace draw {
 
+    template<BPP T>
+    class datamap;
+
     class basic_datamap {
     public:
       bool is_valid () const;
@@ -36,29 +39,25 @@ namespace gui {
       operator bool () const;
 
       const bitmap_info& get_info () const;
-      const blob& get_data () const;
-
       bitmap_info& get_info ();
-      blob& get_data ();
+
+      template<BPP T>
+      const datamap<T> convert () const;
+
+      core::size size () const;
+      byte depth () const;
+      BPP bits_per_pixel () const;
+
+      void clear ();
+
+    protected:
+      void create (const blob& data, const bitmap_info& bmi);
 
       template<BPP T>
       const const_image_data<T> get_raw () const {
         return const_image_data<T>(core::array_wrapper<const byte>(data), info);
       }
 
-      template<BPP T>
-      image_data<T> get_raw () {
-        return image_data<T>(core::array_wrapper<byte>(data), info);
-      }
-
-      core::size size () const;
-      byte depth () const;
-      BPP bits_per_pixel () const;
-
-      void create (const blob& data, const bitmap_info& bmi);
-      void clear ();
-
-    protected:
       bitmap_info info;
       blob data;
     };
@@ -73,17 +72,17 @@ namespace gui {
       datamap ();
 
       datamap (uint32_t w, uint32_t h);
-      datamap (uint32_t w, uint32_t h, const blob& data);
+      datamap (const core::uint32_size& sz);
+      datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
 
       template<BPP S>
       datamap (const datamap<S>& src);
 
-      datamap (const basic_datamap& src);
-
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
-      void create (uint32_t w, uint32_t h, const blob& data);
+      void create (const core::uint32_size& sz);
+      void create (const const_image_data<T>& data);
 
       void copy_from (const datamap& src_img,
                       const core::rectangle& src_rect,
@@ -94,7 +93,7 @@ namespace gui {
       }
 
       image_data<T> get_raw () {
-        return super::get_raw<T>();
+        return image_data<T>(core::array_wrapper<byte>(data), info);
       }
 
       void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h);

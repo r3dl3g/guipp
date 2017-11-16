@@ -49,14 +49,6 @@ namespace gui {
       return info;
     }
 
-    const blob& basic_datamap::get_data () const {
-      return data;
-    }
-
-    blob& basic_datamap::get_data () {
-      return data;
-    }
-
     core::size basic_datamap::size () const {
       return info.size<core::size::type>();
     }

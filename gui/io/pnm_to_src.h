@@ -37,46 +37,92 @@ namespace gui {
   namespace io {
 
     namespace src {
+
+      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
       void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
-      template<BPP>
-      void save_pnm_src (std::ostream& out, const blob& data, int width, int height, int bpl);
+      template<BPP p>
+      void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
 
-      template<> void save_pnm_src<BPP::BW>(std::ostream&, const blob&, int, int, int);
-      template<> void save_pnm_src<BPP::GRAY>(std::ostream&, const blob&, int, int, int);
-      template<> void save_pnm_src<BPP::RGB>(std::ostream&, const blob&, int, int, int);
-      template<> void save_pnm_src<BPP::RGBA>(std::ostream&, const blob&, int, int, int);
+      std::ostream& operator<< (std::ostream& out, draw::bw_pixel pixel);
+      std::ostream& operator<< (std::ostream& out, draw::gray_pixel pixel);
+      std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel);
 
-      void save_pnm_src (std::ostream& out, const draw::basic_datamap& bmp, const std::string& name);
-      void save_pnm_src (const std::string& filename, const draw::basic_datamap& bmp, const std::string& name);
+      template<BPP T>
+      void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);
+
+      template<BPP T>
+      void save_pnm_src (const std::string& filename, const draw::datamap<T>& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
+      template<BPP T>
       class opnm {
       public:
-        opnm (const draw::basic_datamap& bmp, const std::string& name);
+        opnm (const draw::datamap<T>& bmp, const std::string& name);
         void write (std::ostream& out) const;
 
       private:
-        const draw::basic_datamap& bmp;
+        const draw::datamap<T>& bmp;
         const std::string name;
       };
 
       // --------------------------------------------------------------------------
-      std::ostream& operator<< (std::ostream& out, const opnm& p);
+      template<BPP T>
+      std::ostream& operator<< (std::ostream& out, const opnm<T>& p);
 
       // --------------------------------------------------------------------------
       //
       // inlines
       //
-      inline opnm::opnm (const draw::basic_datamap& bmp, const std::string& name)
+      template<BPP T>
+      inline opnm<T>::opnm (const draw::datamap<T>& bmp, const std::string& name)
         : bmp(bmp)
         , name(name)
       {}
 
-      inline std::ostream& operator<< (std::ostream& out, const opnm& p) {
+      template<BPP T>
+      inline std::ostream& operator<< (std::ostream& out, const opnm<T>& p) {
         p.write(out);
         return out;
+      }
+
+      // --------------------------------------------------------------------------
+      template<BPP T>
+      void opnm<T>::write (std::ostream& out) const {
+        const auto& bmi = bmp.get_info();
+        save_pnm_header_src(out, name, BPP2PNM<T, true>::pnm, bmi.width, bmi.height, BPP2MAX<T>::max);
+        save_pnm_src<T>(out, bmp.get_raw());
+      }
+      // --------------------------------------------------------------------------
+      template<BPP T>
+      void save_pnm_src (std::ostream& out, const draw::const_image_data<T>& img) {
+        auto& bmi = img.get_info();
+        out.fill(' ');
+        for (uint_fast32_t y = 0; y < bmi.height; ++y) {
+          auto row = img.row(y);
+          for (uint_fast32_t x = 0; x < bmi.width; ++x) {
+            auto pixel = row[x];
+            out << pixel;
+            if ((y == bmi.height - 1) && (x == bmi.width - 1)) {
+              out << "};";
+            } else {
+              out << ", ";
+            }
+          }
+          out << std::endl;
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      template<BPP T>
+      void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name) {
+        out << opnm<T>(bmp, name);
+      }
+
+      template<BPP T>
+      void save_pnm_src (const std::string& fname, const draw::datamap<T>& bmp, const std::string& name) {
+        std::ofstream(fname) << opnm<T>(bmp, name);
       }
 
       // --------------------------------------------------------------------------

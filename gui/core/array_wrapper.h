@@ -40,23 +40,12 @@ namespace gui {
     namespace detail {
 
       struct boundary_check {
-        inline boundary_check (size_t maximum)
-#ifndef NDEBUG
-          : maximum(maximum)
-  #endif // NDEBUG
-        {}
-
-        inline void operator () (size_t i) const {
-#ifndef NDEBUG
-          if (i >= maximum) {
-            throw std::out_of_range("array_wrapper try to access element beyond size");
-          }
-#endif // NDEBUG
-        }
+        boundary_check (size_t maximum);
+        void operator () (size_t i) const;
 
       private:
 #ifndef NDEBUG
-      const size_t maximum;
+        const size_t maximum;
 #endif // NDEBUG
       };
 
@@ -67,30 +56,12 @@ namespace gui {
     struct array_wrapper {
       typedef T type;
 
-      inline array_wrapper (type* data, size_t size)
-        : data_(data)
-        , check_boundary(size)
-      {}
+      array_wrapper (type* data, size_t size);
+      array_wrapper (std::vector<type>& data);
 
-      inline array_wrapper (std::vector<type>& data)
-        : data_(data.data())
-        , check_boundary(data.size())
-      {}
-
-      inline type& operator[] (size_t i) {
-        check_boundary(i);
-        return data_[i];
-      }
-
-      inline array_wrapper sub (size_t offset, size_t n) {
-        check_boundary(offset + n - 1);
-        return array_wrapper(data_ + offset, n);
-      }
-
-      inline type* data (size_t offset, size_t n) {
-        check_boundary(offset + n - 1);
-        return data_ + offset;
-      }
+      type& operator[] (size_t i);
+      array_wrapper sub (size_t offset, size_t n);
+      type* data (size_t offset, size_t n);
 
     private:
       type* data_;
@@ -102,30 +73,12 @@ namespace gui {
     struct array_wrapper<T const> {
       typedef T type;
 
-      inline array_wrapper (const type* data, size_t size)
-        : data_(data)
-        , check_boundary(size)
-      {}
+      array_wrapper (const type* data, size_t size);
+      array_wrapper (const std::vector<type>& data);
 
-      inline array_wrapper (const std::vector<type>& data)
-        : data_(data.data())
-        , check_boundary(data.size())
-      {}
-
-      inline const type& operator[] (size_t i) const {
-        check_boundary(i);
-        return data_[i];
-      }
-
-      inline array_wrapper sub (size_t offset, size_t sz) const {
-        check_boundary(offset + sz - 1);
-        return array_wrapper(data_ + offset, sz);
-      }
-
-      inline const type* data (size_t offset, size_t n) const {
-        check_boundary(offset + n - 1);
-        return data_ + offset;
-      }
+      const type& operator[] (size_t i) const;
+      array_wrapper sub (size_t offset, size_t sz) const;
+      const type* data (size_t offset, size_t n) const;
 
     private:
       const type* data_;
@@ -137,25 +90,11 @@ namespace gui {
     struct bit_array_wrapper {
       typedef byte type;
 
-      inline bit_array_wrapper (type* data, size_t size)
-        : data_(data)
-        , check_boundary(size)
-      {}
+      bit_array_wrapper (type* data, size_t size);
+      bit_array_wrapper (std::vector<type>& data);
 
-      inline bit_array_wrapper (std::vector<type>& data)
-        : data_(data.data())
-        , check_boundary(data.size())
-      {}
-
-      inline bit_wrapper<T> operator[] (size_t i) {
-        check_boundary(i);
-        return bit_wrapper<T>(data_[i / 8], i % 8);
-      }
-
-      inline bit_array_wrapper sub (size_t offset, size_t n) {
-        check_boundary(offset + n - 1);
-        return bit_array_wrapper(data_ + offset / 8, n);
-      }
+      bit_wrapper<T> operator[] (size_t i);
+      bit_array_wrapper sub (size_t offset, size_t n);
 
     private:
       type* data_;
@@ -167,25 +106,11 @@ namespace gui {
     struct bit_array_wrapper<T const> {
       typedef byte type;
 
-      inline bit_array_wrapper (const type* data, size_t size)
-        : data_(data)
-        , check_boundary(size)
-      {}
+      bit_array_wrapper (const type* data, size_t size);
+      bit_array_wrapper (const std::vector<type>& data);
 
-      inline bit_array_wrapper (const std::vector<type>& data)
-        : data_(data.data())
-        , check_boundary(data.size())
-      {}
-
-      inline bit_wrapper<T const> operator[] (size_t i) const {
-        check_boundary(i);
-        return bit_wrapper<T const>(data_[i / 8], i % 8);
-      }
-
-      inline bit_array_wrapper sub (size_t offset, size_t n) {
-        check_boundary(offset + n - 1);
-        return bit_array_wrapper(data_ + offset / 8, n);
-      }
+      bit_wrapper<T const> operator[] (size_t i) const;
+      bit_array_wrapper sub (size_t offset, size_t n);
 
     private:
       const type* data_;
@@ -202,3 +127,5 @@ namespace gui {
   } // core
 
 } // gui
+
+#include <gui/core/array_wrapper.inl>

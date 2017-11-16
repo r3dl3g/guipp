@@ -158,6 +158,26 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<BPP T>
+    image_frame<T>::image_frame (const core::rectangle& rect, const datamap<T>& img, const core::uint32_rect& frame)
+      : rect(rect)
+      , img(img)
+      , frame(frame)
+    {}
+
+    template<>
+    void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const;
+
+    template<>
+    void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const;
+
+    template<>
+    void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const;
+
+    template<>
+    void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const;
+
+    // --------------------------------------------------------------------------
     namespace frame {
 
       inline void no_frame (const draw::graphics&, const core::rectangle&)

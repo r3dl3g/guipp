@@ -162,6 +162,16 @@ namespace gui {
       return row(y)[x];
     }
 
+    template<BPP T>
+    inline const bitmap_info& image_data<T>::get_info () const {
+      return info;
+    }
+
+    template<BPP T>
+    inline auto image_data<T>::raw_data () -> raw_type& {
+      return data;
+    }
+
     // --------------------------------------------------------------------------
     template<BPP T>
     inline const_image_data<T>::const_image_data (raw_type data, const bitmap_info& info)
@@ -180,6 +190,17 @@ namespace gui {
     inline auto const_image_data<T>::pixel (uint32_t x, uint32_t y) const -> pixel_type {
       return row(y)[x];
     }
+
+    template<BPP T>
+    inline const bitmap_info& const_image_data<T>::get_info () const {
+      return info;
+    }
+
+    template<BPP T>
+    inline auto const_image_data<T>::raw_data () const -> const raw_type& {
+      return data;
+    }
+
     // --------------------------------------------------------------------------
 
   } //namespace draw

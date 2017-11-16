@@ -40,8 +40,13 @@ namespace gui {
     }
 
     template<BPP T>
-    inline datamap<T>::datamap (uint32_t w, uint32_t h, const blob& data) {
-      create(data, {w, h, T});
+    inline datamap<T>::datamap (const core::uint32_size& sz) {
+      create(sz);
+    }
+
+    template<BPP T>
+    inline datamap<T>::datamap (const const_image_data<T>& data) {
+      create(data);
     }
 
     template<BPP T>
@@ -64,20 +69,23 @@ namespace gui {
     }
 
     template<BPP T>
-    inline datamap<T>::datamap (const basic_datamap& src) {
-      const bitmap_info& bmi = src.get_info();
+    const datamap<T> basic_datamap::convert () const {
+      const bitmap_info& bmi = get_info();
 
-      const auto w = bmi.width;
-      const auto h = bmi.height;
+      if (T == bmi.bits_per_pixel) {
+        return datamap<T>(get_raw<T>());
+      } else {
+        const auto w = bmi.width;
+        const auto h = bmi.height;
 
-      info = {w, h, T};
-      data.resize(info.mem_size());
-
-      switch (bmi.bits_per_pixel) {
-        case BPP::BW:   convert::bpp::convert<BPP::BW, T>(src.get_raw<BPP::BW>(), get_raw(), w, h); break;
-        case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(src.get_raw<BPP::GRAY>(), get_raw(), w, h); break;
-        case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(src.get_raw<BPP::RGB>(), get_raw(), w, h); break;
-        case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(src.get_raw<BPP::RGBA>(), get_raw(), w, h); break;
+        datamap<T> dest(w, h);
+        switch (bmi.bits_per_pixel) {
+          case BPP::BW:   convert::bpp::convert<BPP::BW, T>(get_raw<BPP::BW>(), dest.get_raw(), w, h); break;
+          case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(get_raw<BPP::GRAY>(), dest.get_raw(), w, h); break;
+          case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(get_raw<BPP::RGB>(), dest.get_raw(), w, h); break;
+          case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(get_raw<BPP::RGBA>(), dest.get_raw(), w, h); break;
+        }
+        return dest;
       }
     }
 
@@ -93,10 +101,16 @@ namespace gui {
     }
 
     template<BPP T>
-    inline void datamap<T>::create (uint32_t w, uint32_t h, const blob& data) {
-      info = {w, h, T};
-      this->data.resize(info.mem_size());
-      memcpy(this->data.data(), data.data(), std::min(this->data.size(), data.size()));
+    inline void datamap<T>::create (const core::uint32_size& sz) {
+      create(sz.width(), sz.height());
+    }
+
+    template<BPP T>
+    inline void datamap<T>::create (const const_image_data<T>& data) {
+      info = data.get_info();
+      auto sz = info.mem_size();
+      this->data.resize(sz);
+      memcpy(this->data.data(), data.raw_data().data(0, sz), sz);
     }
 
     core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);

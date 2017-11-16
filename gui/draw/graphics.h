@@ -393,6 +393,45 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<BPP T> class datamap;
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
+    struct image_frame {
+      image_frame (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame);
+
+      void operator() (const graphics&, const core::point&) const;
+
+    private:
+      const core::rectangle rect;
+      const datamap<T>& img;
+      const core::uint32_rect frame;
+
+      void operator= (image_frame&) = delete;
+    };
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame) {
+      return image_frame<T>(r, img, frame);
+    }
+
+    template<BPP T>
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge) {
+      return image_frame<T>(r, img, {edge, edge, edge, edge});
+    }
+
+    template<BPP T>
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical) {
+      return image_frame<T>(r, img, {horizontal, vertical, horizontal, vertical});
+    }
+
+    template<BPP T>
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
+      return image_frame<T>(r, img, {left, top, right, bottom});
+    }
+
+    // --------------------------------------------------------------------------
     namespace frame {
 
       typedef void (drawer)(const draw::graphics&, const core::rectangle&);

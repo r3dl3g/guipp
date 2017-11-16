@@ -65,10 +65,6 @@ namespace gui {
       return get_id();
     }
 
-    inline void basic_map::create (const core::size& sz, BPP bpp) {
-      create(sz.os_width(), sz.os_height(), bpp);
-    }
-
     // --------------------------------------------------------------------------
     inline bitmap::bitmap ()
     {}
@@ -81,17 +77,16 @@ namespace gui {
       create(w, h);
     }
 
+    inline bitmap::bitmap (const core::uint32_size& sz) {
+      create(sz);
+    }
+
     inline bitmap::bitmap (const core::size& sz) {
       create(sz);
     }
 
-    inline void bitmap::operator= (const bwmap& rhs) {
-      if (rhs) {
-        create(rhs.size());
-        put_data(rhs.get_data(), rhs.get_info());
-      } else {
-        clear();
-      }
+    inline void bitmap::create (const core::uint32_size& sz) {
+      create(sz.width(), sz.height());
     }
 
     inline void bitmap::create (const core::size& sz) {
@@ -102,16 +97,25 @@ namespace gui {
     inline pixmap::pixmap ()
     {}
 
-    inline pixmap::pixmap (const basic_datamap& rhs) {
-      operator= (rhs);
+    template<BPP T>
+    inline pixmap::pixmap (const datamap<T>& rhs) {
+      operator=(rhs);
     }
 
     inline pixmap::pixmap (uint32_t w, uint32_t h) {
       create(w, h);
     }
 
+    inline pixmap::pixmap (const core::uint32_size& sz) {
+      create(sz);
+    }
+
     inline pixmap::pixmap (const core::size& sz) {
       create(sz);
+    }
+
+    inline void pixmap::create (const core::uint32_size& sz) {
+      create(sz.width(), sz.height());
     }
 
     inline void pixmap::create (const core::size& sz) {
@@ -119,35 +123,55 @@ namespace gui {
     }
 
     template<BPP T>
+    void pixmap::invert () {
+      datamap<T> data = get<T>();
+      data.invert();
+      operator=(data);
+    }
+
+    template<BPP T>
+    void pixmap::put (const datamap<T>& rhs) {
+      const auto& bmi = rhs.get_info();
+      const auto raw = rhs.get_raw();
+      put(raw.raw_data().data(0, bmi.mem_size()), bmi);
+    }
+
+    template<BPP T>
+    void pixmap::operator= (const datamap<T>& rhs) {
+      if (rhs) {
+        const auto& bmi = rhs.get_info();
+        create(bmi.size());
+        if (bits_per_pixel() == rhs.bits_per_pixel()) {
+          put(rhs);
+        } else {
+          switch (bits_per_pixel()) {
+            case BPP::BW:   put(bwmap(rhs)); break;
+            case BPP::GRAY: put(graymap(rhs)); break;
+            case BPP::RGB:  put(rgbmap(rhs));  break;
+            case BPP::RGBA: put(rgbamap(rhs)); break;
+          }
+        }
+      } else {
+        clear();
+      }
+    }
+
+    template<BPP T>
     datamap<T> pixmap::get () const {
-      if (bits_per_pixel() == T) {
-        datamap<T> bmp(size());
-        get_data(bmp.get_data(), bmp.get_info());
-        return bmp;
+      blob data;
+      bitmap_info bmi;
+      get(data, bmi);
+      const auto img = core::array_wrapper<const byte>(data);
+
+      if (bmi.bits_per_pixel == T) {
+        return datamap<T>(const_image_data<T>(img, bmi));
       } else {
         switch (bits_per_pixel()) {
-          case BPP::BW: {
-            bwmap t(size());
-            get_data(t.get_data(), t.get_info());
-            return datamap<T>(t);
-          }
-          case BPP::GRAY: {
-            graymap t(size());
-            get_data(t.get_data(), t.get_info());
-            return datamap<T>(t);
-          }
-          case BPP::RGB: {
-            rgbmap t(size());
-            get_data(t.get_data(), t.get_info());
-            return datamap<T>(t);
-          }
-          case BPP::RGBA: {
-            rgbamap t(size());
-            get_data(t.get_data(), t.get_info());
-            return datamap<T>(t);
-          }
-          default:
-            return datamap<T>();
+          case BPP::BW:   return datamap<T>(bwmap(const_image_data<BPP::BW>(img, bmi)));
+          case BPP::GRAY: return datamap<T>(graymap(const_image_data<BPP::GRAY>(img, bmi)));
+          case BPP::RGB:  return datamap<T>(rgbmap(const_image_data<BPP::RGB>(img, bmi)));
+          case BPP::RGBA: return datamap<T>(rgbamap(const_image_data<BPP::RGBA>(img, bmi)));
+          default:        return datamap<T>();
         }
       }
     }

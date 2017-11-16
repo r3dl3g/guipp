@@ -31,6 +31,7 @@ namespace gui {
 
     struct bitmap_info {
       bitmap_info ();
+      bitmap_info (const core::uint32_size&, BPP bpp);
       bitmap_info (uint32_t w, uint32_t h, BPP bpp);
       bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp);
 
@@ -46,6 +47,8 @@ namespace gui {
 
       byte depth () const;
       std::size_t mem_size () const;
+
+      bool operator== (const bitmap_info&) const;
 
     };
 

@@ -1535,6 +1535,133 @@ namespace gui {
       }
     }
 
+    template<BPP bpp>
+    void copy_frame_image (draw::const_image_data<bpp> src_img,
+                           draw::image_data<bpp> dest_img,
+                           const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
+                           const core::uint32_rect& frame) {
+
+      const uint32_t width = dest_bmi.width;
+      const uint32_t height = dest_bmi.height;
+
+      const uint32_t left = std::min(frame.x(), width);
+      const uint32_t right = std::min(frame.width(), width - left);
+      const uint32_t top = std::min(frame.y(), height);
+      const uint32_t bottom = std::min(frame.height(), height - bottom);
+
+      const uint32_t target_right = dest_bmi.width - right;
+      const uint32_t target_bottom = dest_bmi.height - bottom;
+      const uint32_t source_right = src_bmi.width - right;
+      const uint32_t source_bottom = src_bmi.height - bottom;
+
+      using namespace convert;
+
+      // top left
+      if (top && left) {
+        copy::sub<bpp>(src_img, dest_img, {0, 0}, {0, 0, left, top});
+      }
+
+      // top right
+      if (top && right) {
+        copy::sub<bpp>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
+      }
+
+      // bottom left
+      if (bottom && left) {
+        copy::sub<bpp>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
+      }
+
+      if (bottom && right) {
+        // bottom right
+        copy::sub<bpp>(src_img, dest_img,
+                       {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
+      }
+
+      if ((target_right > left) && (target_bottom > top) && (source_right >= left) && (source_bottom >= top)) {
+        const uint32_t target_inner_width = target_right - left;
+        const uint32_t target_inner_height = target_bottom - top;
+        const uint32_t source_inner_width = source_right - left;
+        const uint32_t source_inner_height = source_bottom - top;
+
+        // top center
+        if (top && target_inner_width) {
+          stretch::sub<bpp>(src_img, dest_img,
+                            {left, 0, source_inner_width, top},
+                            {left, 0, target_inner_width, top});
+        }
+
+        // bottom center
+        if (bottom && target_inner_width) {
+          stretch::sub<bpp>(src_img, dest_img,
+                            {left, source_bottom, source_inner_width, bottom},
+                            {left, target_bottom, target_inner_width, bottom});
+        }
+
+        // left center
+        if (left && target_inner_height) {
+          stretch::sub<bpp>(src_img, dest_img,
+                            {0, top, left, source_inner_height},
+                            {0, top, left, target_inner_height});
+        }
+
+        // right center
+        if (right && target_inner_height) {
+          stretch::sub<bpp>(src_img, dest_img,
+                            {source_right, top, right, source_inner_height},
+                            {target_right, top, right, target_inner_height});
+        }
+
+        // center
+        if (target_inner_width && target_inner_height) {
+          stretch::sub<bpp>(src_img, dest_img,
+                            {left, top, source_inner_width, source_inner_height},
+                            {left, top, target_inner_width, target_inner_height});
+        }
+      }
+    }
+
+    template<BPP T>
+    void draw_image_frame (const graphics& g,
+                           const core::point& pt,
+                           const core::rectangle rect,
+                           const datamap<T>& img,
+                           const core::uint32_rect& frame) {
+      if (rect.size() <= core::size::two) {
+        return;
+      }
+
+      const uint32_t width = roundup<uint32_t>(rect.width());
+      const uint32_t height = roundup<uint32_t>(rect.height());
+
+      datamap<T> dest(width, height);
+      copy_frame_image<T>(img.get_raw(), dest.get_raw(),
+                          img.get_info(), dest.get_info(), frame);
+
+      pixmap buffer;
+      buffer = dest;
+      g.copy_from(buffer, pt);
+    }
+
+    template<>
+    void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const {
+      draw_image_frame(g, pt, rect, img, frame);
+    }
+
+    template<>
+    void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const {
+      draw_image_frame(g, pt, rect, img, frame);
+    }
+
+    template<>
+    void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const {
+      draw_image_frame(g, pt, rect, img, frame);
+    }
+
+    template<>
+    void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const {
+      draw_image_frame(g, pt, rect, img, frame);
+    }
+
     namespace frame {
 
       const core::size x0y1 = {0, 1};

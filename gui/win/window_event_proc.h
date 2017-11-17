@@ -25,6 +25,7 @@
 #ifdef X11
 # include <map>
 #endif // X11
+#include <thread>
 
 // --------------------------------------------------------------------------
 //
@@ -71,7 +72,7 @@ namespace gui {
       window* get_current_focus_window ();
       window* get_application_main_window ();
 
-      os::thread_id get_current_thread_id ();
+      std::thread::id get_current_thread_id ();
 
       void register_utf8_window (os::window);
       void unregister_utf8_window (os::window);

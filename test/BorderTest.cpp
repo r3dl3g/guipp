@@ -138,8 +138,12 @@ void my_main_window::start_thread () {
 // --------------------------------------------------------------------------
 void my_main_window::stop_thread () {
   thread_is_active = false;
-  background_action1.join();
-  background_action2.join();
+  if (background_action1.joinable()) {
+    background_action1.join();
+  }
+  if (background_action2.joinable()) {
+    background_action2.join();
+  }
 }
 
 // --------------------------------------------------------------------------

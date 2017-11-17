@@ -283,10 +283,26 @@ namespace gui {
       }
 
       window* get_application_main_window() {
+        auto display = core::global::get_instance();
 
+        Window root = 0;
+        Window parent = 0;
+        Window *children = 0;
+        unsigned int nchildren = 0;
+
+        if (XQueryTree(display, DefaultRootWindow(display), &root, &parent, &children, &nchildren)) {
+          for (unsigned int i = 0; i < nchildren; ++i) {
+            auto win = detail::get_window(children[i]);
+            if (win) {
+              return win;
+            }
+          }
+        }
+        return nullptr;
       }
       
       os::thread_id get_current_thread_id () {
+        return 0;
       }
 
       void register_utf8_window (os::window id) {
@@ -526,7 +542,9 @@ namespace gui {
 
   void run_on_main (std::function<void()> action) {
     detail::queued_actions.enqueue(action);
+#ifdef WIN32
     post_client_message(global::get_application_main_window(), detail::ACTION_MESSAGE);
+#endif // WIN32
   }
 
 }   // win

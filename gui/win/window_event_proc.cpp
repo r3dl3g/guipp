@@ -199,7 +199,7 @@ namespace gui {
     template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
 #endif // X11
 
-    auto get_native_thread_id (std::thread::id& t) {
+    auto get_native_thread_id (std::thread::id& t) -> decltype(t.*rob(thread_id_f())) {
       return t.*rob(thread_id_f());
     }
 

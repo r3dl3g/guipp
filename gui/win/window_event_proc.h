@@ -83,6 +83,10 @@ namespace gui {
     int run_main_loop ();
     void quit_main_loop ();
 
+    typedef void (simple_action)();
+
+    void run_on_main (std::function<simple_action> action);
+
   } // namespace win
 
 } // namespace gui

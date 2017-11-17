@@ -164,6 +164,10 @@ namespace gui {
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
       filter_list message_filters;
+
+      typedef core::blocking_queue<std::function<simple_action>> simple_action_queue;
+      simple_action_queue queued_actions;
+
     }
 
     namespace global {
@@ -392,9 +396,16 @@ namespace gui {
 
     running = true;
 
+    std::function<simple_action> action;
+
 #ifdef WIN32
     MSG msg;
     while (running && GetMessage(&msg, nullptr, 0, 0)) {
+
+      while (detail::queued_actions.try_dequeue(action)) {
+        action();
+      }
+
       TranslateMessage(&msg);
 
       if (filter && filter(msg)) {
@@ -412,35 +423,55 @@ namespace gui {
 
     core::event e;
 
-    while (running) {
-      XNextEvent(display, &e);
+    auto x11_fd = ConnectionNumber(display);
 
-      if (filter && filter(e)) {
-        continue;
+    // Create a File Description Set containing x11_fd
+    fd_set in_fds;
+    FD_ZERO(&in_fds);
+    FD_SET(x11_fd, &in_fds);
+
+    while (running) {
+
+      // Set our timeout.  Ten milliseconds sounds good.
+      timeval timeout {0, 10000};
+
+      // Wait for X Event or a Timer
+      select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
+      while (detail::queued_actions.try_dequeue(action)) {
+        action();
       }
 
-      win::window* win = win::detail::get_event_window(e);
+      while (XPending(display)) {
+        XNextEvent(display, &e);
 
-      if (win && win->is_valid()) {
-
-        resultValue = 0;
-
-        try {
-          win->handle_event(e, resultValue);
-        } catch (std::exception& ex) {
-          LogFatal << "exception in run_main_loop: " << ex;
-        } catch (...) {
-          LogFatal << "Unknown exception in run_main_loop()";
+        if (filter && filter(e)) {
+          continue;
         }
 
-        if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
-          running = false;
-        }
+        win::window* win = win::detail::get_event_window(e);
 
-        core::global::sync();
+        if (win && win->is_valid()) {
 
-        if (e.type == ConfigureNotify) {
-          update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
+          resultValue = 0;
+
+          try {
+            win->handle_event(e, resultValue);
+          } catch (std::exception& ex) {
+            LogFatal << "exception in run_main_loop: " << ex;
+          } catch (...) {
+            LogFatal << "Unknown exception in run_main_loop()";
+          }
+
+          if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+            running = false;
+          }
+
+          core::global::sync();
+
+          if (e.type == ConfigureNotify) {
+            update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
+          }
         }
       }
     }
@@ -455,13 +486,19 @@ namespace gui {
   int run_main_loop () {
     main_loop_is_running = true;
     return run_loop(main_loop_is_running, [] (const core::event & e) {
-                      return check_expose(e) || check_message_filter(e) || check_hot_key(e);
-                    });
+      return check_expose(e) || check_message_filter(e) || check_hot_key(e);
+    });
   }
 
   void quit_main_loop () {
     main_loop_is_running = false;
-//      PostQuitMessage(0);
+  }
+
+  void run_on_main (std::function<void()> action) {
+    detail::queued_actions.enqueue(action);
+#ifdef WIN32
+    PostMessage(GetApplicationMainWindow, WM_NOOP, 0, 0);
+#endif
   }
 
 }   // win

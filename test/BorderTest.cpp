@@ -65,7 +65,14 @@ public:
   void open ();
   void save_as ();
 
+  void start_thread ();
+  void stop_thread ();
+
 private:
+  volatile bool thread_is_active;
+  std::thread background_action1;
+  std::thread background_action2;
+
   group_window<vertical_adaption<>, color::light_gray> top_view;
   group_window<horizontal_lineup<80, 2, 0>, nero> tool_bar;
 
@@ -102,13 +109,46 @@ private:
 };
 
 // --------------------------------------------------------------------------
+void my_main_window::start_thread () {
+  thread_is_active = true;
+
+  background_action1 = std::thread([&] () {
+    int counter = 0;
+    while (thread_is_active) {
+      win::run_on_main([&, counter] () {
+        labels[3].set_text(ostreamfmt("Trip " << counter));
+      });
+      ++counter;
+      std::this_thread::sleep_for(std::chrono::milliseconds(11));
+    }
+  });
+
+  background_action2 = std::thread([&] () {
+    int counter = 0;
+    while (thread_is_active) {
+      win::run_on_main([&, counter] () {
+        labels[3].set_text(ostreamfmt("Trap " << counter));
+      });
+      ++counter;
+      std::this_thread::sleep_for(std::chrono::milliseconds(17));
+    }
+  });
+}
+
+// --------------------------------------------------------------------------
+void my_main_window::stop_thread () {
+  thread_is_active = false;
+  background_action1.join();
+  background_action2.join();
+}
+
+// --------------------------------------------------------------------------
 my_main_window::my_main_window ()
   : super(40, 30, 100, 250)
+  , thread_is_active(false)
   , left_list(50, color::rgb_gray<224>::value)
   , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
-//  right_view.first.set_item_size_and_background(20, color::very_light_gray);
-//  right_view.second.set_item_size_and_background(20, color::very_light_gray);
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
@@ -281,8 +321,12 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   buttons[5].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_ascii));
   buttons[6].set_text("src");
   buttons[6].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_src));
+  buttons[7].set_text("start");
+  buttons[7].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::start_thread));
+  buttons[8].set_text("stop");
+  buttons[8].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::stop_thread));
 
-  for (i = 7; i < 10; ++i) {
+  for (i = 9; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
   }
 

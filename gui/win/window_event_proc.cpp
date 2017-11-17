@@ -451,6 +451,7 @@ namespace gui {
           (*action)();
           delete action;
         }
+        continue;
       }
 
       TranslateMessage(&msg);

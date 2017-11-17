@@ -24,7 +24,10 @@
 #include <algorithm>
 #ifdef WIN32
 # include <windowsx.h>
-#endif
+#endif // WIN32
+#ifdef X11
+# include <unistd.h>
+#endif // X11
 
 // --------------------------------------------------------------------------
 //
@@ -164,7 +167,7 @@ namespace gui {
       hot_key_map hot_keys;
 
       static int g_next_filter_id = 1;
-      static os::thread_id main_thread_id = 0;
+      static std::thread::id main_thread_id;
 
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
@@ -262,15 +265,15 @@ namespace gui {
         return nullptr;
       }
 
-      os::thread_id get_current_thread_id () {
-        return GetCurrentThreadId();
-      }
-
       void register_utf8_window (os::window) {}
 
       void unregister_utf8_window (os::window) {}
 
 #endif // WIN32
+
+      std::thread::id get_current_thread_id () {
+        return std::this_thread::get_id();
+      }
 
 #ifdef X11
       window* get_current_focus_window () {
@@ -301,10 +304,6 @@ namespace gui {
         return nullptr;
       }
       
-      os::thread_id get_current_thread_id () {
-        return 0;
-      }
-
       void register_utf8_window (os::window id) {
         if (!id) {
           return;
@@ -544,12 +543,41 @@ namespace gui {
     main_loop_is_running = false;
   }
 
+  // technique for accessing private class members
+  //
+  //  from: http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
+  //
+
+  template<typename Tag, typename Tag::type M>
+  struct Rob {
+    friend typename Tag::type rob (Tag) {
+      return M;
+    }
+  };
+
+#ifdef WIN32
+#endif // WIN32
+#ifdef X11
+  struct thread_id_f {
+      typedef std::thread::native_handle_type std::thread::id::*type;
+      friend type rob(thread_id_f);
+  };
+
+  template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
+#endif // X11
+
+  unsigned int get_native_thread_id ( std::thread::id& t) {
+    auto thread_id = t.*rob(thread_id_f());
+    return thread_id;
+  }
+
+
   void run_on_main (std::function<void()> action) {
 #ifdef X11
     detail::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
-    PostThreadMessage(detail::main_thread_id,
+    PostThreadMessage(get_native_thread_id(detail::main_thread_id),
                       detail::ACTION_MESSAGE,
                       0,
                       (ULONG_PTR)new std::function<void()>(action));

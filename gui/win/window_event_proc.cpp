@@ -175,6 +175,34 @@ namespace gui {
 
     }
 
+    template<typename Tag, typename Tag::type M>
+    struct Rob {
+      friend typename Tag::type rob (Tag) {
+        return M;
+      }
+    };
+
+#ifdef WIN32
+    struct thread_id_f {
+      typedef _Thrd_id_t std::thread::id::*type;
+      friend type rob(thread_id_f);
+    };
+
+    template struct Rob<thread_id_f, &std::thread::id::_Id>;
+#endif // WIN32
+#ifdef X11
+    struct thread_id_f {
+      typedef std::thread::native_handle_type std::thread::id::*type;
+      friend type rob(thread_id_f);
+    };
+
+    template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
+#endif // X11
+
+    auto get_native_thread_id (std::thread::id& t) {
+      return t.*rob(thread_id_f());
+    }
+
     namespace global {
 
       // --------------------------------------------------------------------------
@@ -251,7 +279,7 @@ namespace gui {
 
       window* get_application_main_window() {
         GUITHREADINFO info{ sizeof(GUITHREADINFO), 0 };
-        if (GetGUIThreadInfo(detail::main_thread_id, &info)) {
+        if (GetGUIThreadInfo(get_native_thread_id(detail::main_thread_id), &info)) {
           HWND win = info.hwndActive;
           if (win) {
             HWND parent = GetParent(win);
@@ -547,30 +575,6 @@ namespace gui {
   //
   //  from: http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
   //
-
-  template<typename Tag, typename Tag::type M>
-  struct Rob {
-    friend typename Tag::type rob (Tag) {
-      return M;
-    }
-  };
-
-#ifdef WIN32
-#endif // WIN32
-#ifdef X11
-  struct thread_id_f {
-      typedef std::thread::native_handle_type std::thread::id::*type;
-      friend type rob(thread_id_f);
-  };
-
-  template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
-#endif // X11
-
-  unsigned int get_native_thread_id ( std::thread::id& t) {
-    auto thread_id = t.*rob(thread_id_f());
-    return thread_id;
-  }
-
 
   void run_on_main (std::function<void()> action) {
 #ifdef X11

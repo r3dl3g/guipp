@@ -149,6 +149,9 @@ namespace gui {
       XIM s_im = nullptr;
       XIMStyle s_best_style = 0x0F1F;
 
+      typedef core::blocking_queue<std::function<simple_action>> simple_action_queue;
+      simple_action_queue queued_actions;
+
 #endif // X11
 
     } // detail
@@ -166,9 +169,6 @@ namespace gui {
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
       filter_list message_filters;
-
-      typedef core::blocking_queue<std::function<simple_action>> simple_action_queue;
-      simple_action_queue queued_actions;
 
     }
 
@@ -441,14 +441,16 @@ namespace gui {
 
     running = true;
 
-    std::function<simple_action> action;
-
 #ifdef WIN32
     MSG msg;
     while (running && GetMessage(&msg, nullptr, 0, 0)) {
 
-      while (detail::queued_actions.try_dequeue(action)) {
-        action();
+      if (msg.message == detail::ACTION_MESSAGE) {
+        std::function<void()>* action = (std::function<void()>*)msg.lParam;
+        if (action && *action) {
+          (*action)();
+          delete action;
+        }
       }
 
       TranslateMessage(&msg);
@@ -467,6 +469,7 @@ namespace gui {
     os::event_result resultValue = 0;
 
     core::event e;
+    std::function<simple_action> action;
 
     auto x11_fd = ConnectionNumber(display);
 
@@ -541,9 +544,14 @@ namespace gui {
   }
 
   void run_on_main (std::function<void()> action) {
+#ifdef X11
     detail::queued_actions.enqueue(action);
+#endif // X11
 #ifdef WIN32
-    post_client_message(global::get_application_main_window(), detail::ACTION_MESSAGE);
+    PostThreadMessage(detail::main_thread_id,
+                      detail::ACTION_MESSAGE,
+                      0,
+                      (ULONG_PTR)new std::function<void()>(action));
 #endif // WIN32
   }
 

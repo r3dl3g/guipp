@@ -86,6 +86,7 @@ namespace gui {
     typedef UINT event_id;
     typedef LRESULT event_result;
     typedef WNDPROC event_callback;
+    typedef DWORD thread_id;
 
     namespace win32 {
       typedef WPARAM wParam;

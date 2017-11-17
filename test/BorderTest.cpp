@@ -477,6 +477,7 @@ void my_main_window::quit () {
 
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
+      stop_thread();
       win::quit_main_loop();
     } else {
       take_focus();

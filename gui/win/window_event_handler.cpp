@@ -232,7 +232,15 @@ namespace gui {
     }
 
     void send_client_message (const window* win, os::event_id message, long l1, long l2) {
-      SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+      if (win && win->is_valid()) {
+        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+      }
+    }
+
+    void post_client_message (const window* win, os::event_id message, long l1, long l2) {
+      if (win && win->is_valid()) {
+        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+      }
     }
 
 #endif // Win32
@@ -289,6 +297,31 @@ namespace gui {
         send_client_message(win, message, w->get_id(), l1, l2);
       }
 
+      void post_client_message (const window* win, Atom message, long l1, long l2) {
+        if (win && win->is_valid()) {
+          auto display = core::global::get_instance();
+
+          XClientMessageEvent client;
+
+          client.type = ClientMessage;
+          client.serial = 0;
+          client.display = display;
+          client.window = win->get_id();
+          client.message_type = message;
+          client.format = 32;
+          client.data.l[0] = l1;
+          client.data.l[1] = l2;
+          client.data.l[2] = 0;
+          client.data.l[3] = 0;
+          client.data.l[4] = 0;
+
+          /* Send the data off to the other process */
+          XSendEvent(client.display, client.window, True, 0, (XEvent*)&client);
+
+          XFlush(display);
+        }
+      }
+
     } // namespace x11
 
     // --------------------------------------------------------------------------
@@ -329,6 +362,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     void send_client_message (const window* win, Atom message, long l1, long l2) {
       x11::send_client_message(win, message, l1, l2);
+    }
+
+    void post_client_message (const window* win, Atom message, long l1, long l2) {
+      x11::post_client_message(win, message, l1, l2);
     }
 
     // --------------------------------------------------------------------------

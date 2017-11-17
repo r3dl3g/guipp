@@ -347,6 +347,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
+    void post_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
+
 #endif //WIN32
 
 #ifdef X11
@@ -762,6 +764,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
+
+    void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
 
     // --------------------------------------------------------------------------
 #endif // X11

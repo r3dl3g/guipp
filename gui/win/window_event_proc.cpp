@@ -47,6 +47,7 @@ namespace gui {
       }
 
 #ifdef WIN32
+      const os::event_id ACTION_MESSAGE = WM_USER + 0x101;
 
       window* get_window (os::window id) {
         return reinterpret_cast<window*>(GetWindowLongPtr(id, GWLP_USERDATA));
@@ -160,6 +161,7 @@ namespace gui {
       hot_key_map hot_keys;
 
       static int g_next_filter_id = 1;
+      static os::thread_id main_thread_id = 0;
 
       typedef std::pair<int, filter_call> filter_call_entry;
       typedef std::vector<filter_call_entry> filter_list;
@@ -244,6 +246,26 @@ namespace gui {
         return detail::get_window(GetFocus());
       }
 
+      window* get_application_main_window() {
+        GUITHREADINFO info{ sizeof(GUITHREADINFO), 0 };
+        if (GetGUIThreadInfo(detail::main_thread_id, &info)) {
+          HWND win = info.hwndActive;
+          if (win) {
+            HWND parent = GetParent(win);
+            while (parent) {
+              win = parent;
+              parent = parent = GetParent(win);
+            }
+          }
+          return detail::get_window(win);
+        }
+        return nullptr;
+      }
+
+      os::thread_id get_current_thread_id () {
+        return GetCurrentThreadId();
+      }
+
       void register_utf8_window (os::window) {}
 
       void unregister_utf8_window (os::window) {}
@@ -258,6 +280,13 @@ namespace gui {
           return detail::get_window(focus);
         }
         return nullptr;
+      }
+
+      window* get_application_main_window() {
+
+      }
+      
+      os::thread_id get_current_thread_id () {
       }
 
       void register_utf8_window (os::window id) {
@@ -485,6 +514,7 @@ namespace gui {
 
   int run_main_loop () {
     main_loop_is_running = true;
+    detail::main_thread_id = global::get_current_thread_id();
     return run_loop(main_loop_is_running, [] (const core::event & e) {
       return check_expose(e) || check_message_filter(e) || check_hot_key(e);
     });
@@ -496,9 +526,7 @@ namespace gui {
 
   void run_on_main (std::function<void()> action) {
     detail::queued_actions.enqueue(action);
-#ifdef WIN32
-    PostMessage(GetApplicationMainWindow, WM_NOOP, 0, 0);
-#endif
+    post_client_message(global::get_application_main_window(), detail::ACTION_MESSAGE);
   }
 
 }   // win

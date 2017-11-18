@@ -175,51 +175,52 @@ namespace gui {
 
     }
 
-    template<typename Tag, typename Tag::type M>
-    struct Rob {
-      friend typename Tag::type rob (Tag) {
-        return M;
-      }
-    };
+    // technique for accessing private class members
+    //
+    //  from: http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
+    //
+    namespace robbery {
 
 #ifdef X11
 # pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif // X11
 
-    template<typename T, typename C>
-    struct rob_f {
-      typedef T C::*type;
-      friend type rob (rob_f);
-    };
+      template<typename T, typename Class>
+      struct jugger {
+        typedef T type;
+        typedef T Class::*Type;
+        friend Type rob (jugger);
+      };
 
 #ifdef X11
 # pragma GCC diagnostic pop
 #endif // X11
 
+      template<typename Tag, typename Tag::Type M>
+      struct robber {
+        friend typename Tag::Type rob (Tag) {
+          return M;
+        }
+      };
+
+    } // namespace robbery
+
+    namespace {
+
 #ifdef WIN32
-    using thread_id_f = rob_f<_Thrd_id_t, std::thread::id>;
-
-    //    struct thread_id_f {
-//      typedef _Thrd_id_t std::thread::id::*type;
-//      friend type rob(thread_id_f);
-//    };
-
-    template struct Rob<thread_id_f, &std::thread::id::_Id>;
+      using thread_id = robbery::jugger<_Thrd_id_t, std::thread::id>;
+      template struct robbery::robber<thread_id, &std::thread::id::_Id>;
 #endif // WIN32
 #ifdef X11
-    using thread_id_f = rob_f<std::thread::native_handle_type, std::thread::id>;
-
-//    struct thread_id_f2 {
-//      typedef std::thread::native_handle_type std::thread::id::*type;
-//      friend type rob(thread_id_f2);
-//    };
-
-    template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
+      using thread_id = robbery::jugger<std::thread::native_handle_type, std::thread::id>;
+      template struct robbery::robber<thread_id, &std::thread::id::_M_thread>;
 #endif // X11
 
-    auto get_native_thread_id (std::thread::id& t) -> decltype(t.*rob(thread_id_f())) {
-      return t.*rob(thread_id_f());
-    }
+      thread_id::type get_native_thread_id (std::thread::id& t) {
+        return t.*rob(thread_id());
+      }
+
+    } // namespace robbery
 
     namespace global {
 
@@ -588,11 +589,6 @@ namespace gui {
   void quit_main_loop () {
     main_loop_is_running = false;
   }
-
-  // technique for accessing private class members
-  //
-  //  from: http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
-  //
 
   void run_on_main (std::function<void()> action) {
 #ifdef X11

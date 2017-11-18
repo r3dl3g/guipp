@@ -182,19 +182,37 @@ namespace gui {
       }
     };
 
-#ifdef WIN32
-    struct thread_id_f {
-      typedef _Thrd_id_t std::thread::id::*type;
-      friend type rob(thread_id_f);
+#ifdef X11
+# pragma GCC diagnostic ignored "-Wnon-template-friend"
+#endif // X11
+
+    template<typename T, typename C>
+    struct rob_f {
+      typedef T C::*type;
+      friend type rob (rob_f);
     };
+
+#ifdef X11
+# pragma GCC diagnostic pop
+#endif // X11
+
+#ifdef WIN32
+    using thread_id_f = rob_f<_Thrd_id_t, std::thread::id>;
+
+    //    struct thread_id_f {
+//      typedef _Thrd_id_t std::thread::id::*type;
+//      friend type rob(thread_id_f);
+//    };
 
     template struct Rob<thread_id_f, &std::thread::id::_Id>;
 #endif // WIN32
 #ifdef X11
-    struct thread_id_f {
-      typedef std::thread::native_handle_type std::thread::id::*type;
-      friend type rob(thread_id_f);
-    };
+    using thread_id_f = rob_f<std::thread::native_handle_type, std::thread::id>;
+
+//    struct thread_id_f2 {
+//      typedef std::thread::native_handle_type std::thread::id::*type;
+//      friend type rob(thread_id_f2);
+//    };
 
     template struct Rob<thread_id_f, &std::thread::id::_M_thread>;
 #endif // X11

@@ -34,11 +34,29 @@
 // Library includes
 //
 #include <gui/core/logger.h>
+#include <gui/core/robbery.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_proc.h>
 
 
 namespace gui {
+
+  namespace robbery {
+
+#ifdef X11
+    using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
+    template struct robber<thread_id, &std::thread::id::_M_thread>;
+#endif // X11
+#ifdef WIN32
+    using thread_id = jugger<_Thrd_id_t, std::thread::id>;
+    template struct robber<thread_id, &std::thread::id::_Id>;
+#endif // WIN32
+
+    thread_id::type get_native_thread_id (std::thread::id& t) {
+      return t.*rob(thread_id());
+    }
+
+  } // namespace robbery
 
   namespace win {
 
@@ -175,53 +193,6 @@ namespace gui {
 
     }
 
-    // technique for accessing private class members
-    //
-    //  from: http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.html
-    //
-    namespace robbery {
-
-#ifdef X11
-# pragma GCC diagnostic ignored "-Wnon-template-friend"
-#endif // X11
-
-      template<typename T, typename Class>
-      struct jugger {
-        typedef T type;
-        typedef T Class::*Type;
-        friend Type rob (jugger);
-      };
-
-#ifdef X11
-# pragma GCC diagnostic pop
-#endif // X11
-
-      template<typename Tag, typename Tag::Type M>
-      struct robber {
-        friend typename Tag::Type rob (Tag) {
-          return M;
-        }
-      };
-
-    } // namespace robbery
-
-    namespace {
-
-#ifdef WIN32
-      using thread_id = robbery::jugger<_Thrd_id_t, std::thread::id>;
-      template struct robbery::robber<thread_id, &std::thread::id::_Id>;
-#endif // WIN32
-#ifdef X11
-      using thread_id = robbery::jugger<std::thread::native_handle_type, std::thread::id>;
-      template struct robbery::robber<thread_id, &std::thread::id::_M_thread>;
-#endif // X11
-
-      thread_id::type get_native_thread_id (std::thread::id& t) {
-        return t.*rob(thread_id());
-      }
-
-    } // namespace robbery
-
     namespace global {
 
       // --------------------------------------------------------------------------
@@ -298,7 +269,7 @@ namespace gui {
 
       window* get_application_main_window() {
         GUITHREADINFO info{ sizeof(GUITHREADINFO), 0 };
-        if (GetGUIThreadInfo(get_native_thread_id(detail::main_thread_id), &info)) {
+        if (GetGUIThreadInfo(robbery::get_native_thread_id(detail::main_thread_id), &info)) {
           HWND win = info.hwndActive;
           if (win) {
             HWND parent = GetParent(win);
@@ -595,7 +566,7 @@ namespace gui {
     detail::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
-    PostThreadMessage(get_native_thread_id(detail::main_thread_id),
+    PostThreadMessage(robbery::get_native_thread_id(detail::main_thread_id),
                       detail::ACTION_MESSAGE,
                       0,
                       (ULONG_PTR)new std::function<void()>(action));

@@ -11,7 +11,7 @@ if(NOT TARGET gui_ctrl)
 
 include_directories(${gui_Include})
 
-file(GLOB SOURCE_FILES "*.h" "*.cpp")
+file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
 link_directories(${gui_ctrl_Lib})
 

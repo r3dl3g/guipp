@@ -81,10 +81,8 @@ namespace gui {
       void drop_down_button (const draw::graphics& graph,
                              const core::rectangle& area,
                              const button_state& state,
-                             bool is_open,
-                             bool focused,
-                             bool enabled) {
-        win::paint::button_frame(graph, area, state, focused, enabled);
+                             bool is_open) {
+        win::paint::button_frame(graph, area, state);
         core::rectangle r = area.shrinked(core::size(4, 5));
         if (!r.empty()) {
           std::vector<core::point> p;

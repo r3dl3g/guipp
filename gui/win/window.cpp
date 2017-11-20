@@ -42,6 +42,47 @@ namespace gui {
 
   namespace win {
 
+#ifdef X11
+# define XLIB_ERROR_CODE(a) case a: LogFatal << # a;break;
+
+    bool check_xlib_return (int r) {
+# ifndef NDEBUG
+      core::global::sync();
+# endif
+      switch (r) {
+      case Success:
+      case True:
+        return true;
+        XLIB_ERROR_CODE(BadValue)
+        XLIB_ERROR_CODE(BadWindow)
+        XLIB_ERROR_CODE(BadPixmap)
+        XLIB_ERROR_CODE(BadAtom)
+        XLIB_ERROR_CODE(BadCursor)
+        XLIB_ERROR_CODE(BadFont)
+        XLIB_ERROR_CODE(BadMatch)
+        XLIB_ERROR_CODE(BadDrawable)
+        XLIB_ERROR_CODE(BadAccess)
+        XLIB_ERROR_CODE(BadAlloc)
+        XLIB_ERROR_CODE(BadColor)
+        XLIB_ERROR_CODE(BadGC)
+        XLIB_ERROR_CODE(BadIDChoice)
+        XLIB_ERROR_CODE(BadName)
+        XLIB_ERROR_CODE(BadLength)
+        XLIB_ERROR_CODE(BadImplementation)
+      }
+      return false;
+//      return true;
+    }
+
+    bool check_xlib_status (Status s) {
+      if (s) {
+        return true;
+      }
+//      LogFatal << "xlib Status failed";
+      return false;
+    }
+#endif // X11
+
     struct log_hierarchy {
       log_hierarchy (window* win)
         : win(win)
@@ -60,38 +101,91 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    bool window_state::get_flag (byte bit) const {
+      return win.get_flag(bit);
+    }
 
+    bool window_state::is_visible () const {
+      return win.is_visible();
+    }
+
+    bool window_state::has_focus () const {
+      return win.has_focus();
+    }
+
+    bool window_state::is_focus_accepting () const {
+      return get_flag(flags::focus_accepting);
+    }
+
+    bool window_state::is_redraw_disabled () const {
+      return get_flag(flags::redraw_disabled);
+    }
+
+    bool window_state::is_enabled () const {
+#ifdef WIN32
+      return win.is_valid() && IsWindowEnabled(win.get_id());
+#endif // WIN32
+#ifdef X11
+      return !get_flag(flags::window_disabled);
+#endif // X11
+    }
+
+    window& window_state::get_win () {
+      return const_cast<window&>(win);
+    }
+
+    bool window_state::set_flag (byte bit, bool a) {
+      if (win.get_flag(bit) != a) {
+        get_win().set_flag(bit, a);
+        return true;
+      }
+      return false;
+    }
+
+    bool window_state::set_accept_focus (bool a) {
+      return set_flag(flags::focus_accepting, a);
+    }
+
+    bool window_state::disable_redraw (bool on) {
+      return set_flag(flags::redraw_disabled, on);
+    }
+
+#ifdef WIN32
+    void window_state::set_enable (bool on) {
+      if (win.is_valid() && (is_enabled() != on)) {
+        EnableWindow(win.get_id(), on);
+        win.redraw_later();
+        return true;
+      }
+      return false;
+    }
+
+#endif // WIN32
+#ifdef X11
+    bool window_state::set_enable (bool on) {
+      if (set_flag(flags::window_disabled, !on)) {
+        if (win.get_window_class().get_cursor()) {
+          unsigned long mask = CWCursor;
+          XSetWindowAttributes wa = {0};
+          wa.cursor = on ? win.get_window_class().get_cursor()
+                      : (os::cursor)win::cursor::arrow();
+          check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), win.get_id(), mask, &wa));
+        }
+        get_win().redraw_later();
+        return true;
+      }
+      return false;
+    }
+
+#endif // X11
+
+    // --------------------------------------------------------------------------
     namespace hidden {
       std::map<std::string, class_info> window_class_info_map;
       std::vector<os::window> capture_stack;
     }
 
     // --------------------------------------------------------------------------
-    enum class flag_positions : size_t {
-      focus_accepting = 0,
-      redraw_disabled = 1,
-#ifdef X11
-      window_disabled = 2
-#endif // X11
-    };
-
-    // --------------------------------------------------------------------------
-    void window::set_accept_focus (bool a) {
-      flags.set(static_cast<std::size_t>(flag_positions::focus_accepting), a);
-    }
-
-    bool window::is_focus_accepting () const {
-      return flags.test(static_cast<std::size_t>(flag_positions::focus_accepting));
-    }
-
-    void window::disable_redraw (bool on) {
-      flags.set(static_cast<std::size_t>(flag_positions::redraw_disabled), on);
-    }
-
-    bool window::is_redraw_disabled () const {
-      return flags.test(static_cast<std::size_t>(flag_positions::redraw_disabled));
-    }
-
     window::window ()
       : id(0)
     {
@@ -197,7 +291,7 @@ namespace gui {
       }
     }
 
-    bool window::accept_focus () const {
+    bool window::can_accept_focus () const {
       return is_focus_accepting() && is_enabled() && is_visible();
     }
 
@@ -246,6 +340,7 @@ namespace gui {
       }
     }
 
+    // --------------------------------------------------------------------------
     void window::init ()
     {}
 
@@ -268,10 +363,6 @@ namespace gui {
 
     bool window::is_visible () const {
       return is_valid() && IsWindowVisible(get_id());
-    }
-
-    bool window::is_enabled () const {
-      return is_valid() && IsWindowEnabled(get_id());
     }
 
     bool window::has_focus () const {
@@ -311,13 +402,6 @@ namespace gui {
     void window::set_visible (bool s) {
       if (is_valid()) {
         ShowWindow(get_id(), s ? SW_SHOWNA : SW_HIDE);
-      }
-    }
-
-    void window::enable (bool on) {
-      if (is_valid()) {
-        EnableWindow(get_id(), on);
-        redraw_later();
       }
     }
 
@@ -535,48 +619,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
-#endif // WIN32
+#endif // WIN32    
 
 #ifdef X11
-# define XLIB_ERROR_CODE(a) case a: LogFatal << # a;break;
-
-    bool check_xlib_return (int r) {
-# ifndef NDEBUG
-      core::global::sync();
-# endif
-      switch (r) {
-      case Success:
-      case True:
-        return true;
-        XLIB_ERROR_CODE(BadValue)
-        XLIB_ERROR_CODE(BadWindow)
-        XLIB_ERROR_CODE(BadPixmap)
-        XLIB_ERROR_CODE(BadAtom)
-        XLIB_ERROR_CODE(BadCursor)
-        XLIB_ERROR_CODE(BadFont)
-        XLIB_ERROR_CODE(BadMatch)
-        XLIB_ERROR_CODE(BadDrawable)
-        XLIB_ERROR_CODE(BadAccess)
-        XLIB_ERROR_CODE(BadAlloc)
-        XLIB_ERROR_CODE(BadColor)
-        XLIB_ERROR_CODE(BadGC)
-        XLIB_ERROR_CODE(BadIDChoice)
-        XLIB_ERROR_CODE(BadName)
-        XLIB_ERROR_CODE(BadLength)
-        XLIB_ERROR_CODE(BadImplementation)
-      }
-      return false;
-//      return true;
-    }
-
-    bool check_xlib_status (Status s) {
-      if (s) {
-        return true;
-      }
-//      LogFatal << "xlib Status failed";
-      return false;
-    }
-
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
       std::map<window*, os::event_id> window_event_mask;
@@ -602,19 +647,6 @@ namespace gui {
 
     bool window::is_valid () const {
       return detail::get_window(get_id()) == this;
-    }
-
-    bool window::is_visible () const {
-      if (is_valid()) {
-        XWindowAttributes a = {0};
-        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
-        return (check_xlib_status(result) && (a.map_state == IsViewable));
-      }
-      return false;
-    }
-
-    bool window::is_enabled () const {
-      return !flags.test(static_cast<std::size_t>(flag_positions::window_disabled));
     }
 
     bool window::has_focus () const {
@@ -693,30 +725,22 @@ namespace gui {
       return get_parent() == &parent;
     }
 
+    bool window::is_visible () const {
+      if (is_valid()) {
+        XWindowAttributes a = {0};
+        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
+        return (check_xlib_status(result) && (a.map_state == IsViewable));
+      }
+      return false;
+    }
+
     void window::set_visible (bool s) {
       if (get_id()) {
         if (s) {
           check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
-//          check_xlib_return(XMapSubwindows(core::global::get_instance(), get_id()));
         } else {
-//          check_xlib_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
           check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));
         }
-      }
-    }
-
-    void window::enable (bool on) {
-      if (is_enabled() != on) {
-        flags.set(static_cast<std::size_t>(flag_positions::window_disabled), !on);
-
-        if (get_window_class().get_cursor()) {
-          unsigned long mask = CWCursor;
-          XSetWindowAttributes wa = {0};
-          wa.cursor = on ? get_window_class().get_cursor()
-                      : (os::cursor)win::cursor::arrow();
-          check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), get_id(), mask, &wa));
-        }
-        redraw_later();
       }
     }
 
@@ -914,10 +938,10 @@ namespace gui {
         auto i = hidden::window_event_mask.find(this);
         if (i != hidden::window_event_mask.end()) {
           i->second |= mask;
-          check_xlib_return(XSelectInput(core::global::get_instance(), id, i->second));
+          check_xlib_return(XSelectInput(core::global::get_instance(), get_id(), i->second));
         } else {
           hidden::window_event_mask[this] = mask;
-          check_xlib_return(XSelectInput(core::global::get_instance(), id, mask));
+          check_xlib_return(XSelectInput(core::global::get_instance(), get_id(), mask));
         }
       } else {
         os::event_id& old_mask = hidden::window_event_mask[this];

@@ -11,7 +11,7 @@
  *
  * Customer   -
  *
- * @brief     C++ API: editbox controls
+ * @brief     C++ API: editbox control
  *
  * @file
  */
@@ -55,8 +55,6 @@ namespace gui {
 
       };
 
-      // --------------------------------------------------------------------------
-
     } // namespace detail
 
     // --------------------------------------------------------------------------
@@ -73,26 +71,11 @@ namespace gui {
 
     };
 
+    // --------------------------------------------------------------------------
     typedef basic_editbox<> editbox;
-
-    // --------------------------------------------------------------------------
-    // inlines
-    template<draw::frame::drawer frame, os::color foreground, os::color background>
-    basic_editbox<frame, foreground, background>::basic_editbox () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_editbox::handle_paint)));
-    }
-
-    template<draw::frame::drawer frame, os::color foreground, os::color background>
-    void basic_editbox<frame, foreground, background>::handle_paint (const draw::graphics& graph) {
-      const auto area = client_area();
-      paint::text_box(graph, area, data.lines, data.font,
-                      foreground, background, text_origin::vcenter_left,
-                      data.selection, data.cursor_pos, data.offset, has_focus());
-      frame(graph, area);
-    }
-
-    // --------------------------------------------------------------------------
 
   } // win
 
 } // gui
+
+#include <gui/ctrl/editbox.inl>

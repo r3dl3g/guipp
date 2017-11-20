@@ -294,6 +294,7 @@ namespace gui {
       }
 
       void data_view::init () {
+        set_accept_focus(true);
         super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph){
                                                                                             paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
                                                                                           })));
@@ -453,8 +454,6 @@ namespace gui {
                                                                      }));
 
       data.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &table_view::handle_key));
-      data.set_accept_focus(true);
-
       data.register_event_handler(REGISTER_FUNCTION,
                                   win::left_btn_dblclk_event([&](os::key_state, const core::point &) {
                                                                send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);

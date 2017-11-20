@@ -115,13 +115,30 @@ namespace gui {
       return !pressed ? image_pressed : image;
     }
 
-    button_state::button_state (bool pushed,
-                                bool hilited,
-                                bool checked)
-      : pushed(pushed)
-      , hilited(hilited)
-      , checked(checked)
-    {}
+    // --------------------------------------------------------------------------
+    bool button_state::is_hilited () const {
+      return get_flag(flags::button_hilited);
+    }
+
+    bool button_state::is_pushed () const {
+      return get_flag(flags::button_pushed);
+    }
+
+    bool button_state::is_checked () const {
+      return get_flag(flags::button_checked);
+    }
+
+    bool button_state::set_hilited (bool h) {
+      return set_flag(flags::button_hilited, h);
+    }
+
+    bool button_state::set_pushed (bool h) {
+      return set_flag(flags::button_pushed, h);
+    }
+
+    bool button_state::set_checked (bool f) {
+      return set_flag(flags::button_checked, f);
+    }
 
     // --------------------------------------------------------------------------
     button_base::button_base () {
@@ -130,14 +147,12 @@ namespace gui {
 
     button_base::button_base (const button_base& rhs)
       : super(rhs)
-      , data(rhs.data)
     {
       init();
     }
 
     button_base::button_base (button_base&& rhs)
       : super(std::move(rhs))
-      , data(std::move(rhs.data))
     {
       init();
     }
@@ -176,24 +191,21 @@ namespace gui {
     }
 
     void button_base::set_hilited (bool h) {
-      if (data.hilited != h) {
-        data.hilited = h;
+      if (get_state().set_hilited(h)) {
         send_client_message(this, detail::HILITE_CHANGE_MESSAGE, h);
         redraw_later();
       }
     }
 
-    void button_base::set_pushed (bool h) {
-      if (data.pushed != h) {
-        data.pushed = h;
-        send_client_message(this, h ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
+    void button_base::set_pushed (bool p) {
+      if (get_state().set_pushed(p)) {
+        send_client_message(this, p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
         redraw_later();
       }
     }
 
     void button_base::set_checked (bool f) {
-      if (data.checked != f) {
-        data.checked = f;
+      if (get_state().set_checked(f)) {
         send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
         redraw_later();
       }
@@ -281,28 +293,43 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      void button_frame_w95 (const draw::graphics& graph,
+                             const core::rectangle& r,
+                             const button_state& state) {
+        core::rectangle area = r;
+        bool enabled = state.is_enabled();
+        bool pushed = state.is_pushed();
+        graph.fill(draw::rectangle(area), enabled && state.is_hilited() ? color::buttonHighLightColor() : color::buttonColor());
+        if (enabled && state.has_focus()) {
+          graph.frame(draw::rectangle(area), color::black);
+          area.shrink({1, 1});
+        }
+
+        draw::frame::deep_relief(graph, area, pushed);
+
+        if (enabled && state.has_focus() && !pushed) {
+          core::rectangle area = r;
+          area.shrink({6, 6});
+          graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
+        }
+      }
+
+      // --------------------------------------------------------------------------
       void button_frame (const draw::graphics& graph,
                          const core::rectangle& r,
-                         const button_state& state,
-                         bool focused,
-                         bool enabled) {
-        if (state.hilited) {
+                         const button_state& state) {
+        bool enabled = state.is_enabled();
+        if (enabled && state.is_hilited()) {
           graph.copy(draw::frame_image(r, get_button_frame<false, false>().brightness(1.025F), 4), r.top_left());
         } else {
           graph.copy(draw::frame_image(r, get_button_frame<false, false>(), 4), r.top_left());
         }
-        if (state.pushed) {
+        bool pushed = state.is_pushed();
+        if (pushed) {
           draw::frame::sunken_relief(graph, r.shrinked(core::size::two));
         }
-//        graph.fill(draw::rectangle(area), enabled && state.hilited ? color::buttonHighLightColor() : color::buttonColor());
-//        if (enabled && focused) {
-//          graph.frame(draw::rectangle(area), color::black);
-//          area.shrink({1, 1});
-//        }
 
-//        frame::deep_relief(graph, area, state.pushed);
-
-        if (enabled && focused && !state.pushed) {
+        if (enabled && state.has_focus() && !pushed) {
           core::rectangle area = r;
           area.shrink({6, 6});
           graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
@@ -313,14 +340,12 @@ namespace gui {
       void push_button (const draw::graphics& graph,
                         const core::rectangle& r,
                         const std::string& text,
-                        const button_state& state,
-                        bool focused,
-                        bool enabled) {
-        button_frame(graph, r, state, focused, enabled);
+                        const button_state& state) {
+        button_frame(graph, r, state);
 
         using namespace draw;
         graph.text(text_box(text, r, text_origin::center), font::system(),
-                   enabled ? color::windowTextColor() : color::disabledTextColor());
+                   state.is_enabled() ? color::windowTextColor() : color::disabledTextColor());
       }
 
       // --------------------------------------------------------------------------
@@ -328,21 +353,20 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state,
-                        bool focused,
-                        bool enabled,
                         os::color foreground,
                         os::color background) {
+        bool enabled = state.is_enabled();
         os::color b = background;
-        if (state.pushed && enabled) {
+        if (state.is_pushed() && enabled) {
           b = color::darker(background, 0.25);
-        } else if (state.hilited && enabled) {
+        } else if (state.is_hilited() && enabled) {
           b = color::lighter(background, 0.25);
         }
         g.fill(draw::rectangle(r), b);
 
         os::color f = foreground;
         if (enabled) {
-          if (state.pushed) {
+          if (state.is_pushed()) {
             os::color b2 = color::invert(b);
             os::color f2 = color::invert(foreground);
             int i1 = color::compare(b, b2);
@@ -357,7 +381,7 @@ namespace gui {
           f = color::darker(foreground);
         }
         g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
-        if (enabled && focused) {
+        if (enabled && state.has_focus()) {
           g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
         }
       }
@@ -366,20 +390,18 @@ namespace gui {
       void tab_button (const draw::graphics& g,
                        const core::rectangle& r,
                        const std::string& text,
-                       alignment a,
                        const button_state& state,
-                       bool focused,
-                       bool enabled,
-                       os::color foreground) {
-        if (state.checked) {
+                       os::color foreground,
+                       alignment a) {
+        if (state.is_checked()) {
           switch (a) {
             case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(true), 3, 3, 3, 0), r.top_left());    break;
             case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(true), 3, 0, 3, 3), r.top_left()); break;
             case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(true), 3, 3, 0, 3), r.top_left());   break;
             case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(true), 0, 3, 3, 3), r.top_left());  break;
           }
-        } else if (enabled) {
-          if (state.hilited) {
+        } else if (state.is_enabled()) {
+          if (state.is_hilited()) {
             switch (a) {
               case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(1.025F), 3, 3, 3, 0), r.top_left());    break;
               case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(1.025F), 3, 0, 3, 3), r.top_left()); break;
@@ -406,30 +428,62 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      void switch_button (const draw::graphics& graph,
+                          const core::rectangle& rect,
+                          const std::string& text,
+                          const button_state& state) {
+        bool enabled = state.is_enabled();
+        core::size::type height = rect.height();
+        core::size::type width = height * 2;
+        core::size::type edge = height / 2;
+        graph.fill(draw::rectangle(rect), color::buttonColor());
+
+        core::rectangle switch_rect{rect.top_left(), core::size(width, height)};
+        core::rectangle thumb;
+        os::color thumb_col = enabled && state.is_hilited() ? color::lighter(color::buttonColor()) : color::buttonColor();
+        os::color fill_col;
+        if (state.is_checked()) {
+          fill_col = enabled ? color::highLightColor() : color::very_light_gray;
+          thumb = {core::point{rect.x() + height, rect.y()}, core::size(height)};
+        } else {
+          fill_col = color::very_light_gray;
+          thumb = {rect.top_left(), core::size(height)};
+        }
+
+        graph.draw(draw::round_rectangle(switch_rect, core::size(edge)), fill_col, color::medium_gray);
+        auto center = thumb.center();
+        graph.frame(draw::arc(center, edge, 0, 360), color::medium_gray);
+        graph.frame(draw::arc(center, edge - 1, 40, 240), color::white);
+        graph.frame(draw::arc(center, edge - 1, 240, 40), color::medium_gray);
+        graph.fill(draw::arc(center, edge - 2, 0, 360), thumb_col);
+
+        os::color text_col = enabled ? color::windowTextColor() : color::disabledTextColor();
+        graph.text(draw::text_box(text, rect + core::point(width + 10, 0), text_origin::vcenter_left), draw::font::system(), text_col);
+      }
+
+      // --------------------------------------------------------------------------
       void radio_button (const draw::graphics& graph,
                          const core::rectangle& rec,
                          const std::string& text,
-                         const button_state& state,
-                         bool focused,
-                         bool enabled) {
+                         const button_state& state) {
         using namespace draw;
 
         core::rectangle area = rec;
 
-        os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
+        os::color col = state.is_enabled() ? color::windowTextColor() : color::disabledTextColor();
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point::type y = area.y() + area.size().height() / 2;
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
-        graph.draw(ellipse(r), state.pushed ? color::very_light_gray
+        graph.draw(ellipse(r), state.is_pushed() ? color::very_light_gray
                    : color::buttonColor(), col);
-        if (state.checked) {
+        if (state.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(ellipse(r), state.pushed ? color::dark_gray : col);
+          graph.fill(ellipse(r), state.is_pushed() ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
-        if (focused) {
+        if (state.has_focus()) {
           graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
@@ -440,9 +494,7 @@ namespace gui {
       void check_box (const draw::graphics& graph,
                       const core::rectangle& rec,
                       const std::string& text,
-                      const button_state& state,
-                      bool focused,
-                      bool enabled) {
+                      const button_state& state) {
         using namespace draw;
 
         core::rectangle area = rec;
@@ -450,21 +502,21 @@ namespace gui {
         graph.fill(draw::rectangle(area), color::buttonColor());
 
         core::point::type y = area.y() + area.height() / 2;
-        os::color col = enabled ? color::windowTextColor() : color::disabledTextColor();
+        os::color col = state.is_enabled() ? color::windowTextColor() : color::disabledTextColor();
 
         core::rectangle r(core::point(area.x() + 1, y - 5), core::size(10, 10));
         graph.draw(rectangle(r),
-                   state.pushed ? color::very_light_gray
+                   state.is_pushed() ? color::very_light_gray
                    : color::buttonColor(),
                    col);
 
-        if (state.checked) {
+        if (state.is_checked()) {
           r.shrink(core::size(2, 2));
-          graph.fill(rectangle(r), state.pushed ? color::dark_gray : col);
+          graph.fill(rectangle(r), state.is_pushed() ? color::dark_gray : col);
         }
         area.x(20);
         graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
-        if (focused) {
+        if (state.has_focus()) {
           graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));

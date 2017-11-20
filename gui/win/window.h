@@ -32,6 +32,7 @@
 //
 #include <gui/core/event_container.h>
 #include <gui/core/gui_types.h>
+#include <gui/win/window_state.h>
 #include <gui/win/window_class.h>
 #include <gui/win/window_event_handler.h>
 
@@ -41,14 +42,14 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace win {
 
+    // --------------------------------------------------------------------------
     class window;
+    class container;
 
+    // --------------------------------------------------------------------------
     namespace detail {
       void set_id (window* w, os::window id);
     }
-
-    // --------------------------------------------------------------------------
-    class container;
 
     // --------------------------------------------------------------------------
     class window {
@@ -62,19 +63,6 @@ namespace gui {
 
       operator os::drawable() const;
 
-      bool is_valid () const;
-      bool is_visible () const;
-      bool is_enabled () const;
-      bool is_child () const;
-      bool is_popup () const;
-      bool is_toplevel () const;
-      bool is_focus_accepting () const;
-      bool is_redraw_disabled () const;
-
-      bool has_focus () const;
-      bool has_border () const;
-      bool accept_focus () const;
-
       void destroy ();
       void close ();
 
@@ -83,19 +71,35 @@ namespace gui {
       container* get_root () const;
       bool is_child_of (const container& parent) const;
 
-      void set_visible (bool s = true);
-      void set_accept_focus (bool a);
+      bool is_valid () const;
+      bool is_child () const;
+      bool is_popup () const;
+      bool is_toplevel () const;
+      bool has_border () const;
 
+      const window_state get_state () const;
+      window_state get_state ();
+
+      bool is_visible () const;
+      void set_visible (bool s = true);
+
+      bool is_enabled () const;
       void enable (bool on = true);
       void disable ();
 
-      void take_focus ();
+      bool is_focus_accepting () const;
+      bool can_accept_focus () const;
+      bool has_focus () const;
+
+      bool is_redraw_disabled () const;
+      void disable_redraw (bool on = true);
+
       void shift_focus (bool backward = false);
+
+      void take_focus ();
 
       void to_front ();
       void to_back ();
-
-      void disable_redraw (bool on = true);
 
       void redraw_now ();
       void redraw_later ();
@@ -159,6 +163,13 @@ namespace gui {
                    os::window parent,
                    const core::rectangle&);
 
+      void set_accept_focus (bool a);
+
+    private:
+      friend struct window_state;
+      bool get_flag (byte bit) const;
+      void set_flag (byte bit, bool a);
+
     private:
       friend void detail::set_id (window*, os::window);
 
@@ -171,7 +182,7 @@ namespace gui {
 
       os::window id;
       core::event_container events;
-      std::bitset<16> flags;
+      std::bitset<sizeof(long)> flags;
     };
 
     // --------------------------------------------------------------------------

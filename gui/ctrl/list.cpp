@@ -29,39 +29,68 @@ namespace gui {
 
     namespace detail {
 
-      list_base::data::data (os::color background, bool grab_focus)
+      // --------------------------------------------------------------------------
+      bool list_state::is_moved () const {
+        return get_flag(flags::mouse_moved);
+      }
+
+      bool list_state::is_scroll_bar_enabled () const {
+        return get_flag(flags::scroll_bar_enabled);
+      }
+
+      bool list_state::is_grab_focus () const {
+        return get_flag(flags::grab_focus);
+      }
+
+      bool list_state::set_moved (bool h) {
+        return set_flag(flags::mouse_moved, h);
+      }
+
+      bool list_state::set_scroll_bar_enabled (bool h) {
+        return set_flag(flags::scroll_bar_enabled, h);
+      }
+
+      bool list_state::set_grab_focus (bool f) {
+        return set_flag(flags::grab_focus, f);
+      }
+
+      // --------------------------------------------------------------------------
+      list_base::data::data (os::color background)
         : item_count(0)
         , selection(-1)
         , hilite(-1)
-        , moved(false)
-        , scroll_bar_enabled(true)
-        , grab_focus(grab_focus)
         , last_mouse_point(core::point::undefined)
         , background(background)
-      {}
+      {
+      }
 
       // --------------------------------------------------------------------------
       list_base::list_base (os::color background, bool grab_focus)
-        : data(background, grab_focus)
+        : data(background)
       {
-        init(grab_focus);
+        get_state().set_grab_focus(grab_focus);
+        init();
       }
 
       list_base::list_base (const list_base& rhs)
         : super(rhs)
         , data(rhs.data)
       {
-        init(data.grab_focus);
+        init();
       }
 
       list_base::list_base (list_base&& rhs)
         : super(std::move(rhs))
         , data(std::move(rhs.data))
       {
-        init(data.grab_focus);
+        init();
       }
 
-      void list_base::init (bool grab_focus) {
+      void list_base::init () {
+        list_state state = get_state();
+        state.set_moved(false);
+        state.set_scroll_bar_enabled(true);
+        bool grab_focus = state.is_grab_focus();
 #ifdef X11
         static int initialized = detail::init_control_messages();
 #endif // X11
@@ -69,7 +98,7 @@ namespace gui {
         set_accept_focus(true);
         register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, grab_focus] (os::key_state, const core::point & pt) {
           data.last_mouse_point = pt;
-          data.moved = false;
+          get_state().set_moved(false);
           if (grab_focus) {
             take_focus();
           }

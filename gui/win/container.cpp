@@ -192,7 +192,7 @@ namespace gui {
       if (i != end) {
         do {
           ++i;
-        } while ((i != end) && !(*i)->accept_focus());
+        } while ((i != end) && !(*i)->can_accept_focus());
         if (i != end) {
           (*i)->take_focus();
           return true;
@@ -228,7 +228,7 @@ namespace gui {
         if (backward) {
           for (auto i = children.rbegin(), e = children.rend(); i != e; ++i) {
             window* next = *i;
-            if (next->accept_focus()) {
+            if (next->can_accept_focus()) {
               next->take_focus();
               return;
             }
@@ -236,7 +236,7 @@ namespace gui {
         } else {
           for (auto i = children.begin(), e = children.end(); i != e; ++i) {
             window* next = *i;
-            if (next->accept_focus()) {
+            if (next->can_accept_focus()) {
               next->take_focus();
               return;
             }
@@ -417,7 +417,7 @@ namespace gui {
     }
 
 #endif //X11
-
+    // --------------------------------------------------------------------------
     modal_window::modal_window ()
       : is_modal(false)
     {

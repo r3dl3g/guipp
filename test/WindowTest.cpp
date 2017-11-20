@@ -133,15 +133,15 @@ namespace gui {
 class my_main_window : public win::layout_main_window<layout::attach> {
 public:
   typedef win::layout_main_window<layout::attach> super;
-  my_main_window (win::paint_event p1, win::paint_event p2);
+  my_main_window ();
 
   void onCreated (win::window*, const core::rectangle&);
   void created_children ();
   void query_state ();
   void set_size_null ();
 
-  static win::paint_event create_paint1();
-  static win::paint_event create_paint2();
+  win::paint_event create_paint1();
+  win::paint_event create_paint2();
 
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
@@ -194,6 +194,12 @@ private:
 
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
+  win::switch_button<> switch_button;
+  win::switch_button<> switch_button2;
+
+  win::horizontal_scroll_bar start_angle;
+  win::horizontal_scroll_bar end_angle;
+
   win::label label;
   win::basic_label<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   win::label_right labelR;
@@ -276,10 +282,8 @@ private:
 
 int gui_main(const std::vector<std::string>& args) {
 
-  win::paint_event paint1(my_main_window::create_paint1());
-  win::paint_event paint2(my_main_window::create_paint2());
 
-  my_main_window main(paint1, paint2);
+  my_main_window main;
 
   LogDebug << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
   LogDebug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
@@ -324,11 +328,11 @@ int gui_main(const std::vector<std::string>& args) {
   return win::run_main_loop();
 }
 
-my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
+my_main_window::my_main_window ()
   : list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
-  , paint1(p1)
-  , paint2(p2)
+  , paint1(create_paint1())
+  , paint2(create_paint2())
   , column_list(my_column_list_t(20, color::very_very_light_gray))
   , table_view(50, 20)
   , table_data(std::string())
@@ -563,6 +567,8 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     vscroll.enable(on);
     hscroll.enable(on);
     table_view.set_enable_edit(on);
+    up_button.enable(on);
+    switch_button.enable(on);
   }));
 
   min_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
@@ -766,6 +772,12 @@ my_main_window::my_main_window (win::paint_event p1, win::paint_event p2)
     custom_button.set_hilited(false);
   }));
 
+  start_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
+    window2.redraw_later();
+  }));
+  end_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
+    window2.redraw_later();
+  }));
   /*
     window2.register_event_handler(REGISTER_FUNCTION, win::mouse_enter_event([]() {
     LogDebug << "Window2 mouse enter";
@@ -852,10 +864,7 @@ void my_main_window::created_children () {
   scroll_view.create(main, core::rectangle(0, 0, 300, 330));
 
   window1.create(scroll_view, core::rectangle(10, 10, 100, 280));
-  window1.set_accept_focus(false);
-
   window2.create(scroll_view, core::rectangle(120, 10, 200, 280));
-  window2.set_accept_focus(false);
 
   hseparator.create(main, core::rectangle(330, 10, 300, 2));
   vseparator.create(main, core::rectangle(310, 20, 2, 300));
@@ -1011,9 +1020,15 @@ void my_main_window::created_children () {
   scroll_check_box.create(main, "Enable", core::rectangle(440, 305, 100, 20));
   scroll_check_box.set_checked(true);
 
-  label.create(main, "Text", core::rectangle(50, 350, 120, 20));
-  labelC.create(main, core::rectangle(50, 371, 120, 20));
-  labelR.create(main, core::rectangle(50, 392, 120, 20));
+  start_angle.set_min_max_step_value(0, 360, 1, 0);
+  start_angle.create(main, core::rectangle(5, 340, 160, 12));
+  end_angle.set_min_max_step_value(0, 360, 1, 260);
+  end_angle.create(main, core::rectangle(5, 352, 160, 12));
+
+
+  label.create(main, "Text", core::rectangle(50, 370, 120, 20));
+  labelC.create(main, core::rectangle(50, 391, 120, 20));
+  labelR.create(main, core::rectangle(50, 412, 120, 20));
 
   hslider.create(main, core::rectangle(5, 470, 500, 5));
   hslider.set_min_max(420, 600);
@@ -1025,7 +1040,8 @@ void my_main_window::created_children () {
 
   radio_button.create(chck_group, "Radio");
   radio_button2.create(chck_group, "Radio2", core::rectangle(0, 20, 100, 20));
-  check_box.create(chck_group, "Check", core::rectangle(0, 40, 100, 20));
+  switch_button.create(chck_group, "Switch", core::rectangle(0, 40, 100, 20));
+  check_box.create(chck_group, "Check", core::rectangle(0, 60, 100, 20));
 
   edit1.create(main, "Text zwei drei vier fuenf sechs sieben acht", core::rectangle(290, 350, 100, 25));
 
@@ -1040,13 +1056,13 @@ void my_main_window::created_children () {
 
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
-                               const win::button_state& s,
-                               bool focused,
-                               bool enabled) {
-    win::paint::flat_button(g, r, "Custom", s, focused, enabled);
+                               const win::button_state& s) {
+    win::paint::flat_button(g, r, "Custom", s);
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
+
+  switch_button2.create(main, "Switcher", core::rectangle(20, 445, 150, 20));
 
   drop_down.set_data([](std::size_t i) {
     return ostreamfmt("Item " << i);
@@ -1127,6 +1143,7 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::top, Where::y2, 4>(&textbox, &hslider);
   get_layout().attach_fix<What::bottom, Where::height, -50>(&textbox, this);
 
+  get_layout().attach_fix<What::bottom, Where::y2, -8>(&switch_button2, &hslider);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(&drop_down, &hslider);
   get_layout().attach_fix<What::bottom, Where::y2, -8>(&color_drop_down, &hslider);
 
@@ -1217,9 +1234,11 @@ win::paint_event my_main_window::create_paint1 () {
 }
 
 win::paint_event my_main_window::create_paint2 () {
-  return win::paint_event([](const draw::graphics& graph) {
+  return win::paint_event([&](const draw::graphics& graph) {
     //LogDebug << "win::paint 2";
     using namespace draw;
+
+    graph.fill(rectangle(window2.client_area()), color::light_gray);
 
     graph.draw_pixel(core::point(3, 3), color::gray);
     graph.draw_pixel(core::point(6, 6), color::gray);
@@ -1244,10 +1263,13 @@ win::paint_event my_main_window::create_paint2 () {
     graph.fill(round_rectangle(core::rectangle(pos3 + offs1, sz), rd), color::dark_green);
     graph.draw(round_rectangle(core::rectangle(pos3 + offs2, sz), rd), color::red, color::cyan);
 
+    auto start = start_angle.get_value();
+    auto end = end_angle.get_value();
+
     core::point pos4(150, 30);
-    graph.frame(arc(pos4, 20, 0, 350), color::blue);
-    graph.fill(arc(pos4 + offs1, 20, 0, 350), color::dark_green);
-    graph.draw(arc(pos4 + offs2, 20, 0, 350), color::red, color::cyan);
+    graph.frame(arc(pos4, 20, start, end), color::blue);
+    graph.fill(arc(pos4 + offs1, 20, start, end), color::dark_green);
+    graph.draw(arc(pos4 + offs2, 20, start, end), color::red, color::cyan);
 
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);

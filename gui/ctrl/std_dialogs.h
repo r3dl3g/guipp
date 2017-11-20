@@ -46,9 +46,7 @@ namespace gui {
       typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> super;
       typedef group_window<layout::horizontal_adaption<>, color::very_light_gray> button_view_type;
 
-      standard_dialog_base (float top = 0)
-        : super(top, 45, 0, 0)
-      {}
+      standard_dialog_base (float top = 0);
 
       void create (win::container& parent,
                    const std::string& title,
@@ -70,25 +68,15 @@ namespace gui {
       typedef standard_dialog_base super;
       typedef T content_view_type;
 
-      standard_dialog (float top = 0)
-        : super(top)
-      {}
-
-      standard_dialog (content_view_type&& view, float top = 0)
-        : super(top)
-        , content_view(std::move(view))
-      {}
+      standard_dialog (float top = 0);
+      standard_dialog (content_view_type&& view, float top = 0);
 
       void create (win::container& parent,
                    const std::string& title,
                    const std::string& yes_label,
                    const std::string& no_label,
                    const core::rectangle& rect,
-                   std::function<yes_no_action> action) {
-        get_layout().set_center(&content_view);
-        super::create(parent, title, yes_label, no_label, rect, action);
-        content_view.create(*this, rect);
-      }
+                   std::function<yes_no_action> action);
 
       content_view_type content_view;
     };
@@ -135,27 +123,9 @@ namespace gui {
       typedef win::file_list<T> file_list_type;
       typedef win::vertical_split_view<dir_tree_type, file_list_type> super;
 
-      dir_file_view ()
-      {}
+      dir_file_view ();
 
-      void init (std::function<file_selected> action) {
-        super::first.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
-          int idx = super::first.get_selection();
-          if (idx > -1) {
-            super::second.set_path(super::first.get_item(idx));
-          }
-        }));
-        super::second.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&, action] () {
-          auto path = super::second.get_selected_path();
-          if (sys_fs::is_directory(path)) {
-            super::first.open_node(path.parent_path());
-            super::first.select_node(path);
-            super::second.set_path(path);
-          } else {
-            action(path);
-          }
-        }));
-      }
+      void init (std::function<file_selected> action);
 
     };
 
@@ -169,52 +139,13 @@ namespace gui {
                    const std::string& title,
                    const std::string& ok_label,
                    const std::string& cancel_label,
-                   std::function<file_selected> action) {
-        auto& dir_tree = super::content_view.first;
-        auto& file_list = super::content_view.second;
-
-        super::content_view.init([&, action] (const sys_fs::path& path) {
-          super::set_visible(false);
-          super::end_modal();
-          action(path);
-        });
-
-        super::create(parent, title, ok_label, cancel_label,
-                      core::rectangle(300, 200, 600, 400),
-                      [&] (bool open) {
-          if (open) {
-            if (super::content_view.second.list.get_selection() > -1) {
-              action(super::content_view.second.get_selected_path());
-            } else {
-              int idx = super::content_view.first.get_selection();
-              if (idx > -1) {
-                action(super::content_view.first.get_item(idx));
-              }
-            }
-          }
-        });
-
-        super::content_view.set_split_pos(0.3);
-
-        sys_fs::path current = sys_fs::current_path();
-        dir_tree.root = current.root_path();
-        for (auto next = current; next.has_root_path(); next = next.parent_path()) {
-          dir_tree.add_open_node(next);
-        }
-        dir_tree.update_node_list();
-        dir_tree.select_node(current);
-        file_list.set_path(current);
-      }
+                   std::function<file_selected> action);
 
       static void show (win::container& parent,
                         const std::string& title,
                         const std::string& ok_label,
                         const std::string& cancel_label,
-                        std::function<file_selected> action) {
-        path_open_dialog_base dialog;
-        dialog.create(parent, title, ok_label, cancel_label, action);
-        dialog.super::show(parent);
-      }
+                        std::function<file_selected> action);
     };
 
     //-----------------------------------------------------------------------------
@@ -254,3 +185,5 @@ namespace gui {
   } // win
 
 } // gui
+
+#include <gui/ctrl/std_dialogs.inl>

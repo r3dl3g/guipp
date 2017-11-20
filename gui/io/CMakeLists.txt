@@ -10,7 +10,7 @@ if(NOT TARGET gui_io)
 
 include_directories(${gui_Include})
 
-file(GLOB SOURCE_FILES "*.h" "*.cpp")
+file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
 link_directories(${gui_io_Lib})
 

@@ -136,30 +136,8 @@ namespace gui {
     using edit_right = basic_edit<text_origin::vcenter_right>;
     using edit_center = basic_edit<text_origin::center>;
 
-    // --------------------------------------------------------------------------
-    // inlines
-
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit () {
-      register_handler(A);
-    }
-
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit (const basic_edit& rhs)
-      : super(rhs)
-    {
-      register_handler(A);
-    }
-
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit (basic_edit&& rhs)
-      : super(std::move(rhs))
-    {
-      register_handler(A);
-    }
-
-    // --------------------------------------------------------------------------
-
   } // win
 
 } // gui
+
+#include <gui/ctrl/edit.inl>

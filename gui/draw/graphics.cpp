@@ -859,21 +859,23 @@ namespace gui {
 
       using namespace os;
 
-      const size_type w = size.os_width();
-      const size_type h = size.os_height();
+      constexpr size_type two = size_type(2);
 
-      const point_type x0 = rect.top_left().os_x();
+      const size_type w = static_cast<size_type>(std::min(size.width(), rect.width() / 2));
+      const size_type h = static_cast<size_type>(std::min(size.height(), rect.height() / 2));
+
+      const point_type x0 = rect.os_x();
+      const point_type x3 = rect.os_x2();
       const point_type x1 = x0 + w;
-      const point_type x3 = rect.bottom_right().os_x();
       const point_type x2 = x3 - w;
 
-      const point_type y0 = rect.top_left().os_y();
+      const point_type y0 = rect.os_y();
+      const point_type y3 = rect.os_y2();
       const point_type y1 = y0 + h;
-      const point_type y3 = rect.bottom_right().os_y();
       const point_type y2 = y3 - h;
 
-      const size_type w2 = w * size_type(2);
-      const size_type h2 = h * size_type(2);
+      const size_type w2 = w * two;
+      const size_type h2 = h * two;
 
       if (arcs) {
         (*arcs)[0] = {x0, y0, w2, h2, degree_90, degree_90};
@@ -906,7 +908,7 @@ namespace gui {
       std::array<XArc, 4> arcs;
       std::array<XSegment, 4> segments;
 
-      calc_arcs(rect, size, &arcs, &segments, nullptr);
+      calc_arcs(rect - core::size::one, size, &arcs, &segments, nullptr);
 
       XDrawArcs(display, g, g, arcs.data(), (int)arcs.size());
       XDrawSegments(display, g, g, segments.data(), (int)segments.size());
@@ -920,7 +922,7 @@ namespace gui {
 
       std::array<XArc, 4> arcs;
       std::array<XRectangle, 3> rects;
-      calc_arcs(rect, size, &arcs, nullptr, &rects);
+      calc_arcs(rect - core::size::one, size, &arcs, nullptr, &rects);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       pen p(b.color());
@@ -941,7 +943,7 @@ namespace gui {
       std::array<XArc, 4> arcs;
       std::array<XSegment, 4> segments;
       std::array<XRectangle, 3> rects;
-      calc_arcs(rect, size, &arcs, &segments, &rects);
+      calc_arcs(rect - core::size::one, size, &arcs, &segments, &rects);
 
       XFillArcs(display, g, g, arcs.data(), (int)arcs.size());
       XFillRectangles(display, g, g, rects.data(), (int)rects.size());
@@ -970,7 +972,12 @@ namespace gui {
       int x = pos.os_x() - radius;
       int y = pos.os_y() - radius;
       unsigned int sz = radius * 2;
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
+
+      while (endrad < startrad) {
+        endrad += 360;
+      }
+
+      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
 
       int istart = int(startrad * 1000.0F) % 360000;
       int iend = int(endrad * 1000.0F) % 360000;
@@ -999,11 +1006,15 @@ namespace gui {
       int y = pos.os_y() - radius;
       unsigned int sz = radius * 2;
 
+      while (endrad < startrad) {
+        endrad += 360;
+      }
+
       os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
+      XFillArc(display, g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
 
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int(endrad * 64));
+      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
     }
 
     void arc::operator() (const graphics& g,

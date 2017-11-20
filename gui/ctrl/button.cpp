@@ -216,12 +216,21 @@ namespace gui {
       : animation_step(1.0F)
     {}
 
+    animated_button::~animated_button () {
+      if (animation_thread.joinable()) {
+        animation_thread.join();
+      }
+    }
+
     void animated_button::prepare_animation () {
+      if (animation_thread.joinable()) {
+        animation_thread.join();
+      }
       animation_step = 0.0F;
     }
 
     void animated_button::start_animation () {
-      std::thread([&] () {
+      animation_thread = std::thread([&] () {
         while (animation_step < 1.0F) {
           animation_step += 0.25F;
           run_on_main([&] () {
@@ -229,7 +238,7 @@ namespace gui {
           });
           std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
-      }).detach();
+      });
     }
 
     // --------------------------------------------------------------------------

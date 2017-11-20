@@ -289,6 +289,7 @@ namespace gui {
       typedef button_base super;
 
       animated_button ();
+      ~animated_button ();
 
       void prepare_animation ();
       void start_animation ();
@@ -296,6 +297,7 @@ namespace gui {
     protected:
       float animation_step;
 
+      std::thread animation_thread;
     };
     // --------------------------------------------------------------------------
     template<class T>

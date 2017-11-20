@@ -212,6 +212,27 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    animated_button::animated_button ()
+      : animation_step(1.0F)
+    {}
+
+    void animated_button::prepare_animation () {
+      animation_step = 0.0F;
+    }
+
+    void animated_button::start_animation () {
+      std::thread([&] () {
+        while (animation_step < 1.0F) {
+          animation_step += 0.25F;
+          run_on_main([&] () {
+            redraw_later();
+          });
+          std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
+      }).detach();
+    }
+
+    // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
         [&] (os::key_state, const core::point & pos) {
@@ -273,6 +294,62 @@ namespace gui {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
             btn.set_checked(true);
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void animated_button_traits<false>::init (animated_button& btn) {
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
+        [&] (os::key_state, const core::point & pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (btn.client_area().is_inside(pos)) {
+            btn.prepare_animation();
+            btn.set_checked(!btn.is_checked());
+            btn.start_animation();
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
+        [&] (os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          btn.prepare_animation();
+          btn.set_checked(!btn.is_checked());
+          btn.start_animation();
+          send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+        }
+      }));
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    void animated_button_traits<true>::init (animated_button& btn) {
+      btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
+        [&] (os::key_state, const core::point & pos) {
+        if (btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
+            btn.prepare_animation();
+            btn.set_checked(true);
+            btn.start_animation();
+            send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
+          }
+        }
+      }));
+      btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
+        [&] (os::key_state m, os::key_symbol k) {
+        if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
+          btn.set_pushed(false);
+          if (!btn.is_checked()) {
+            btn.prepare_animation();
+            btn.set_checked(true);
+            btn.start_animation();
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -432,23 +509,27 @@ namespace gui {
                           const core::rectangle& rect,
                           const std::string& text,
                           const button_state& state) {
+        animated_switch_button(graph, rect, text, state);
+      }
+
+      // --------------------------------------------------------------------------
+      void animated_switch_button (const draw::graphics& graph,
+                                   const core::rectangle& rect,
+                                   const std::string& text,
+                                   const button_state& state,
+                                   float animation_step) {
         bool enabled = state.is_enabled();
         core::size::type height = rect.height();
         core::size::type width = height * 2;
         core::size::type edge = height / 2;
         graph.fill(draw::rectangle(rect), color::buttonColor());
 
+        float step = state.is_checked() ? animation_step : 1.0F - animation_step;
+
         core::rectangle switch_rect{rect.top_left(), core::size(width, height)};
-        core::rectangle thumb;
         os::color thumb_col = enabled && state.is_hilited() ? color::lighter(color::buttonColor()) : color::buttonColor();
-        os::color fill_col;
-        if (state.is_checked()) {
-          fill_col = enabled ? color::highLightColor() : color::very_light_gray;
-          thumb = {core::point{rect.x() + height, rect.y()}, core::size(height)};
-        } else {
-          fill_col = color::very_light_gray;
-          thumb = {rect.top_left(), core::size(height)};
-        }
+        os::color fill_col = color::merge(color::highLightColor(), color::very_light_gray, 1.0F - step);
+        core::rectangle thumb = {core::point{rect.x() + height * step, rect.y()}, core::size(height)};
 
         graph.draw(draw::round_rectangle(switch_rect, core::size(edge)), fill_col, color::medium_gray);
         auto center = thumb.center();

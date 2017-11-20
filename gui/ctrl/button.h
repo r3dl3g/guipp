@@ -144,6 +144,12 @@ namespace gui {
                           const std::string& text,
                           const button_state& state);
 
+      void animated_switch_button (const draw::graphics& graph,
+                                   const core::rectangle& rect,
+                                   const std::string& text,
+                                   const button_state& state,
+                                   float animation_step = 1.0F);
+
       void tab_button (const draw::graphics& g,
                        const core::rectangle& r,
                        const std::string& text,
@@ -163,14 +169,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    typedef void (button_drawer)(const draw::graphics&,
-                                 const core::rectangle&,
-                                 const button_state&);
+    typedef void (button_drawer) (const draw::graphics&,
+                                  const core::rectangle&,
+                                  const button_state&);
     // --------------------------------------------------------------------------
-    typedef void (text_button_drawer)(const draw::graphics&,
-                                      const core::rectangle&,
-                                      const std::string&,
-                                      const button_state&);
+    typedef void (text_button_drawer) (const draw::graphics&,
+                                       const core::rectangle&,
+                                       const std::string&,
+                                       const button_state&);
+    // --------------------------------------------------------------------------
+    typedef void (animated_text_button_drawer) (const draw::graphics&,
+                                                const core::rectangle&,
+                                                const std::string&,
+                                                const button_state&,
+                                                float); // animation_step
 
     // --------------------------------------------------------------------------
     class button_base : public window {
@@ -212,12 +224,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    void toggle_button_traits<false>::init (button_base&);
+    class animated_button;
 
-    // --------------------------------------------------------------------------
-    template<>
-    void toggle_button_traits<true>::init (button_base&);
+    template<bool keep_state = false>
+    struct animated_button_traits {
+      static void init (animated_button&);
+    };
 
     // --------------------------------------------------------------------------
     template<class T>
@@ -232,15 +244,81 @@ namespace gui {
 
     };
     // --------------------------------------------------------------------------
-    template<class T, text_button_drawer D>
-    class basic_text_button : public basic_button<T> {
+    template<class T>
+    class text_source_button : public basic_button<T> {
     public:
       typedef basic_button<T> super;
+      typedef T traits;
+
+      text_source_button (const text_source& t = const_text());
+
+      void set_text (const std::string& t);
+      void set_text (const text_source& t);
+
+      std::string get_text () const;
+
+    private:
+      text_source text;
+    };
+    // --------------------------------------------------------------------------
+    template<class T, text_button_drawer D>
+    class basic_text_button : public text_source_button<T> {
+    public:
+      typedef text_source_button<T> super;
       typedef T traits;
 
       basic_text_button (const text_source& t = const_text());
       basic_text_button (const basic_text_button& rhs);
       basic_text_button (basic_text_button&& rhs);
+
+      void create (const container& parent,
+                   const core::rectangle& place = core::rectangle::def);
+      void create (const container& parent,
+                   const std::string& txt,
+                   const core::rectangle& place = core::rectangle::def);
+      void create (const container& parent,
+                   const text_source& txt,
+                   const core::rectangle& place = core::rectangle::def);
+
+    private:
+      void init ();
+    };
+    // --------------------------------------------------------------------------
+    class animated_button : public button_base {
+    public:
+      typedef button_base super;
+
+      animated_button ();
+
+      void prepare_animation ();
+      void start_animation ();
+
+    protected:
+      float animation_step;
+
+    };
+    // --------------------------------------------------------------------------
+    template<class T>
+    class animated_button_base : public animated_button {
+    public:
+      typedef basic_button<T> super;
+      typedef T traits;
+
+      animated_button_base ();
+      animated_button_base (const animated_button_base& rhs);
+      animated_button_base (animated_button_base&& rhs);
+
+    };
+    // --------------------------------------------------------------------------
+    template<class T, animated_text_button_drawer D>
+    class animated_text_button : public animated_button_base<T> {
+    public:
+      typedef animated_button_base<T> super;
+      typedef T traits;
+
+      animated_text_button (const text_source& t = const_text());
+      animated_text_button (const animated_text_button& rhs);
+      animated_text_button (animated_text_button&& rhs);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
@@ -285,6 +363,10 @@ namespace gui {
     template<bool keep_state = false>
     using switch_button = basic_text_button<toggle_button_traits<keep_state>,
                                             paint::switch_button>;
+    // --------------------------------------------------------------------------
+    template<bool keep_state = false>
+    using animated_switch_button = animated_text_button<animated_button_traits<keep_state>,
+                                                        paint::animated_switch_button>;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray,
              os::color background = color::dark_gray,

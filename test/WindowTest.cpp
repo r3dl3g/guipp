@@ -195,7 +195,7 @@ private:
   win::radio_button<> radio_button, radio_button2;
   win::check_box<> check_box;
   win::switch_button<> switch_button;
-  win::switch_button<> switch_button2;
+  win::animated_switch_button<> switch_button2;
 
   win::horizontal_scroll_bar start_angle;
   win::horizontal_scroll_bar end_angle;

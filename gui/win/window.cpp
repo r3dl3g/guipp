@@ -151,10 +151,10 @@ namespace gui {
     }
 
 #ifdef WIN32
-    void window_state::set_enable (bool on) {
+    bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
         EnableWindow(win.get_id(), on);
-        win.redraw_later();
+        get_win().redraw_later();
         return true;
       }
       return false;

@@ -13,5 +13,7 @@ file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 link_directories(${gui_core_Lib})
 
 add_library(gui_core ${SOURCE_FILES})
+add_definitions(-DEXPERIMENTAL)
+
 
 endif()

@@ -182,7 +182,7 @@ namespace gui {
 
       os::window id;
       core::event_container events;
-      std::bitset<sizeof(long)> flags;
+      std::bitset<sizeof(long) * 8> flags;
     };
 
     // --------------------------------------------------------------------------

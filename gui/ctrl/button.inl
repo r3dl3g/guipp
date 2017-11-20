@@ -243,9 +243,9 @@ namespace gui {
     template<class T, animated_text_button_drawer D>
     void animated_text_button<T, D>::init () {
       super::register_event_handler(REGISTER_FUNCTION,
-                                    paint_event([&](const draw::graphics & graph) {
+                                    paint_event(draw::buffered_paint([&](const draw::graphics & graph) {
         D(graph, super::client_area(), get_text(), super::get_state(), super::animation_step);
-      }));
+      })));
     }
 
     // --------------------------------------------------------------------------

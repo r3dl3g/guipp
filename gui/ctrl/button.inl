@@ -32,10 +32,6 @@ namespace gui {
 
   namespace win {
 
-    inline button_state::button_state (const button_base& win)
-      : super(win)
-    {}
-
     // --------------------------------------------------------------------------
     inline void button_base::create (const container& parent,
                                      const core::rectangle& place) {
@@ -288,8 +284,6 @@ namespace gui {
       }));
     }
 
-    // --------------------------------------------------------------------------
+  } // namespace win
 
-  } // win
-
-} // gui
+} // namespace gui

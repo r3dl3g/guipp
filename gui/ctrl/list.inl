@@ -26,11 +26,6 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline list_state::list_state (const list_base& win)
-        : super(win)
-      {}
-
-      // --------------------------------------------------------------------------
       inline const list_state list_base::get_state () const {
         return list_state(*this);
       }
@@ -572,6 +567,6 @@ namespace gui {
       : enable_edit(true)
     {}
 
-  } // win
+  } // namespace win
 
-} // gui
+} // namespace gui

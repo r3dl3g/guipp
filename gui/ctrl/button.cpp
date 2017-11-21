@@ -116,31 +116,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bool button_state::is_hilited () const {
-      return get_flag(flags::button_hilited);
-    }
-
-    bool button_state::is_pushed () const {
-      return get_flag(flags::button_pushed);
-    }
-
-    bool button_state::is_checked () const {
-      return get_flag(flags::button_checked);
-    }
-
-    bool button_state::set_hilited (bool h) {
-      return set_flag(flags::button_hilited, h);
-    }
-
-    bool button_state::set_pushed (bool h) {
-      return set_flag(flags::button_pushed, h);
-    }
-
-    bool button_state::set_checked (bool f) {
-      return set_flag(flags::button_checked, f);
-    }
-
-    // --------------------------------------------------------------------------
     button_base::button_base () {
       init();
     }

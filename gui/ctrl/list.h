@@ -25,6 +25,7 @@
 #include <gui/win/window_event_handler.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/edit.h>
+#include <gui/ctrl/list_state.h>
 
 
 namespace gui {
@@ -32,35 +33,6 @@ namespace gui {
   namespace win {
 
     namespace detail {
-
-      // --------------------------------------------------------------------------
-      class list_base;
-
-      // --------------------------------------------------------------------------
-      struct list_state : public window_state {
-        typedef window_state super;
-
-        list_state (const list_base& win);
-
-        bool is_moved () const;
-        bool is_scroll_bar_enabled () const;
-        bool is_grab_focus () const;
-
-        bool set_moved (bool b);
-        bool set_scroll_bar_enabled (bool b);
-        bool set_grab_focus (bool b);
-
-      protected:
-        struct flags : public window_state::flags {
-          enum {
-            mouse_moved = last_window_state_enum,
-            scroll_bar_enabled,
-            grab_focus,
-            last_list_state_enum
-          };
-        };
-
-      };
 
       // --------------------------------------------------------------------------
       class list_base : public window {

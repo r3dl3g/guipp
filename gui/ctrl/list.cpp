@@ -30,31 +30,6 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      bool list_state::is_moved () const {
-        return get_flag(flags::mouse_moved);
-      }
-
-      bool list_state::is_scroll_bar_enabled () const {
-        return get_flag(flags::scroll_bar_enabled);
-      }
-
-      bool list_state::is_grab_focus () const {
-        return get_flag(flags::grab_focus);
-      }
-
-      bool list_state::set_moved (bool h) {
-        return set_flag(flags::mouse_moved, h);
-      }
-
-      bool list_state::set_scroll_bar_enabled (bool h) {
-        return set_flag(flags::scroll_bar_enabled, h);
-      }
-
-      bool list_state::set_grab_focus (bool f) {
-        return set_flag(flags::grab_focus, f);
-      }
-
-      // --------------------------------------------------------------------------
       list_base::data::data (os::color background)
         : item_count(0)
         , selection(-1)

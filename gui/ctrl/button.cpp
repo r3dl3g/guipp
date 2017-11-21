@@ -187,36 +187,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    animated_button::animated_button ()
-      : animation_step(1.0F)
-    {}
-
-    animated_button::~animated_button () {
-      if (animation_thread.joinable()) {
-        animation_thread.join();
-      }
-    }
-
-    void animated_button::prepare_animation () {
-      if (animation_thread.joinable()) {
-        animation_thread.join();
-      }
-      animation_step = 0.0F;
-    }
-
-    void animated_button::start_animation () {
-      animation_thread = std::thread([&] () {
-        while (animation_step < 1.0F) {
-          animation_step += 0.25F;
-          run_on_main([&] () {
-            redraw_later();
-          });
-          std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-      });
-    }
-
-    // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
         [&] (os::key_state, const core::point & pos) {
@@ -285,16 +255,46 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    basic_animated_button_traits::basic_animated_button_traits ()
+      : animation_step(1.0F)
+    {}
+
+    basic_animated_button_traits::~basic_animated_button_traits () {
+      if (animation_thread.joinable()) {
+        animation_thread.join();
+      }
+    }
+
+    void basic_animated_button_traits::prepare_animation () {
+      if (animation_thread.joinable()) {
+        animation_thread.join();
+      }
+      animation_step = 0.0F;
+    }
+
+    void basic_animated_button_traits::start_animation (button_base& btn) {
+      animation_thread = std::thread([&] () {
+        while (animation_step < 1.0F) {
+          animation_step += 0.25F;
+          run_on_main([&] () {
+            btn.redraw_later();
+          });
+          std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
+      });
+    }
+
+    // --------------------------------------------------------------------------
     template<>
-    void animated_button_traits<false>::init (animated_button& btn) {
+    void animated_button_traits<false>::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
         [&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (btn.client_area().is_inside(pos)) {
-            btn.prepare_animation();
+            prepare_animation();
             btn.set_checked(!btn.is_checked());
-            btn.start_animation();
+            start_animation(btn);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -303,9 +303,9 @@ namespace gui {
         [&] (os::key_state m, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
-          btn.prepare_animation();
+          prepare_animation();
           btn.set_checked(!btn.is_checked());
-          btn.start_animation();
+          start_animation(btn);
           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       }));
@@ -313,15 +313,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void animated_button_traits<true>::init (animated_button& btn) {
+    void animated_button_traits<true>::init (button_base& btn) {
       btn.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(
         [&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
-            btn.prepare_animation();
+            prepare_animation();
             btn.set_checked(true);
-            btn.start_animation();
+            start_animation(btn);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -331,9 +331,9 @@ namespace gui {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
-            btn.prepare_animation();
+            prepare_animation();
             btn.set_checked(true);
-            btn.start_animation();
+            start_animation(btn);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }

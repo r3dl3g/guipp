@@ -22,8 +22,8 @@
 //
 // Library includes
 //
-#include <gui/win/layout_container.h>
 #include <gui/ctrl/scroll_bar.h>
+#include <gui/win/layout_container.h>
 
 
 namespace gui {

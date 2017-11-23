@@ -103,7 +103,7 @@ namespace gui {
         core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0)) + ypos;
         core::point::type st = std::min(ymax - ymin, space.height());
 
-        LogDebug << "Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
+//        LogDebug << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
 
         vscroll->set_min_max_step(ymin, ymax, st);
       }
@@ -114,7 +114,7 @@ namespace gui {
         core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0)) + xpos;
         core::point::type st = std::min(xmax - xmin, space.width());
 
-        LogDebug << "X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
+//        LogDebug << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
 
         hscroll->set_min_max_step(xmin, xmax, st);
       }

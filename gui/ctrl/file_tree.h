@@ -179,19 +179,39 @@ namespace gui {
 
       file_list_row build_file_list_row (const sys_fs::path&, bool selected);
 
+      std::string format_file_size (uintmax_t s);
+
     } // detail
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
-    class file_list : public win::column_list_t<layout::weight_column_list_layout,
-                                                const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> {
+    class file_list : public win::vertical_list {
     public:
-      typedef win::column_list_t<layout::weight_column_list_layout,
-                                 const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> super;
+      typedef win::vertical_list super;
 
       file_list (core::size::type item_size = 20,
                  os::color background = color::white,
                  bool grab_focus = true);
+
+      void set_path (const sys_fs::path& dir);
+      sys_fs::path get_selected_path () const;
+
+    private:
+      std::vector<sys_fs::path> current_dir;
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename T = path_tree::sorted_file_info>
+    class file_column_list : public win::column_list_t<layout::weight_column_list_layout,
+                                                       const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> {
+    public:
+      typedef win::column_list_t<layout::weight_column_list_layout,
+                                 const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> super;
+
+      file_column_list (core::size::type item_size = 20,
+                        os::color background = color::white,
+                        bool grab_focus = true);
 
       void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;

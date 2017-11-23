@@ -24,6 +24,7 @@
 #include <iterator>
 #ifdef X11
 # include <X11/XKBlib.h>
+# include <iostream>
 #endif
 
 // --------------------------------------------------------------------------
@@ -208,7 +209,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   gui::core::odebugstream dbgStrm;
-  gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::instance().get_console_formatter());
+  gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());
 
 
   std::vector<std::string> args = gui::string::split<' '>(lpCmdLine);
@@ -217,9 +218,12 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 
 #ifdef X11
 int main (int argc, char* argv[]) {
-//  gui::log::core::instance().addSink(&std::cerr,
-//                                     gui::log::level::debug,
-//                                     gui::log::core::instance().getConsoleFormatter());
+
+#ifndef NDEBUG
+  gui::log::core::instance().add_sink(&std::cerr,
+                                     gui::log::level::debug,
+                                     gui::log::core::get_standard_formatter());
+#endif // NDEBUG
 
   std::vector<std::string> args;
   for (int i = 0; i < argc; ++i) {
@@ -227,7 +231,7 @@ int main (int argc, char* argv[]) {
   }
 
   gui::core::global::init(XOpenDisplay(0));
-#endif
+#endif // X11
 
   int ret = 0;
   try {
@@ -238,8 +242,10 @@ int main (int argc, char* argv[]) {
   }
 
 #ifdef X11
+#ifndef NDEBUG
 //  gui::log::core::instance().removeSink(&std::cerr);
-#endif
+#endif // NDEBUG
+#endif // X11
 
   gui::log::core::instance().finish();
 

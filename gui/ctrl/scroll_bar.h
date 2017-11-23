@@ -154,11 +154,32 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<orientation H, os::platform P = os::system_platform>
+    struct scroll_bar_traits {};
+
+    template<orientation H>
+    struct scroll_bar_traits<H, os::platform::win32> {
+      static constexpr os::style style = window_class_defaults<>::style;
+    };
+
+    template<>
+    struct scroll_bar_traits<orientation::horizontal, os::platform::x11> {
+      static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, 0);
+    };
+
+    template<>
+    struct scroll_bar_traits<orientation::vertical, os::platform::x11> {
+      static constexpr os::style style = IF_X11_ELSE(NorthEastGravity, 0);
+    };
+
+    // --------------------------------------------------------------------------
     template<orientation H>
     class basic_scroll_bar : public scroll_bar {
     public:
       typedef scroll_bar super;
-      typedef no_erase_window_class<basic_scroll_bar> clazz;
+      typedef no_erase_window_class<basic_scroll_bar,
+                                    window_class_defaults<>::cursor,
+                                    scroll_bar_traits<H>::style> clazz;
 
       basic_scroll_bar (bool grab_focus = true);
       basic_scroll_bar (const basic_scroll_bar& rhs);

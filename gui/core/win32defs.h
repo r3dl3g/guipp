@@ -96,6 +96,7 @@ namespace gui {
     }
 
 #define IF_WIN32_ELSE(A, B) A
+#define IF_X11_ELSE(A, B) B
 
   } // os
 

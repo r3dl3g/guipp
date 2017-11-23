@@ -201,6 +201,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<class T>
+    typename std::enable_if<std::is_base_of<window, T>::value, std::ostream&>::type
+    operator<< (std::ostream& out, const T& t) {
+      out << "[" << t.get_id() << "]" << typeid(T).name();
+      return out;
+    }
+
   } // namespace win
 
 } // namespace gui

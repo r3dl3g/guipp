@@ -499,7 +499,7 @@ namespace gui {
       WNDCLASS wc = {
         /* Register the window class. */
         type.get_class_style(),
-        detail::WindowEventProc,
+        win32::WindowEventProc,
         0,
         0,
         display,
@@ -681,6 +681,8 @@ namespace gui {
 
     void window::redraw_now () {
       if (get_id()) {
+//        LogDebug << *this << "::redraw_now";
+        x11::set_needs_redraw(get_id());
         check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
                                      0, 0, 1, 1, true));
         core::global::sync();
@@ -689,6 +691,8 @@ namespace gui {
 
     void window::redraw_later () {
       if (get_id()) {
+//        LogDebug << *this << "::redraw_later";
+        x11::set_needs_redraw(get_id());
         check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
                                      0, 0, 1, 1, true));
       }
@@ -901,6 +905,10 @@ namespace gui {
       if (type.get_cursor()) {
         mask |= CWCursor;
         wa.cursor = type.get_cursor();
+      }
+      if (type.get_style ()) {
+        mask |= CWWinGravity;
+        wa.win_gravity = type.get_style();
       }
 
       if (mask) {

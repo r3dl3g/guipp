@@ -27,6 +27,7 @@
 #endif // WIN32
 #ifdef X11
 # include <unistd.h>
+# include <set>
 #endif // X11
 
 // --------------------------------------------------------------------------
@@ -62,8 +63,7 @@ namespace gui {
 
     namespace detail {
 
-      void set_id (window* w,
-                   os::window id) {
+      void set_id (window* w, os::window id) {
         w->id = id;
       }
 
@@ -82,6 +82,10 @@ namespace gui {
         SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
+      bool check_expose (const core::event& e) {
+        return false;
+      }
+
       bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, os::event_result& resultValue) {
         window* w = get_window(hwnd);
         if (w && w->is_valid()) {
@@ -94,6 +98,10 @@ namespace gui {
         window* w = reinterpret_cast<window*>(lParam);
         set_id(w, id);
       }
+
+    } // namespace detail
+
+    namespace win32 {
 
       LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
@@ -131,6 +139,10 @@ namespace gui {
         return DefWindowProc(hwnd, msg, wParam, lParam);
       }
 
+    } // namespace win32
+
+    namespace detail {
+
 #endif // WIN32
 #ifdef X11
       typedef std::map<os::window, win::window*> window_map;
@@ -149,11 +161,38 @@ namespace gui {
         global_window_map.erase(id);
       }
 
+      bool check_expose (const core::event& e) {
+//        return (e.type == Expose) && (e.xexpose.count > 0);
+        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
+      }
+
       inline win::window* get_event_window (const core::event& e) {
         switch (e.type) {
         case ConfigureNotify: return get_window(e.xconfigure.window);
         default: return get_window(e.xany.window);
         }
+      }
+
+    } // namespace detail
+
+    namespace x11 {
+
+      typedef std::set<os::window> window_set;
+      window_set needs_redraw_set;
+
+      void set_needs_redraw (os::window id) {
+//        LogDebug << "set_needs_redraw:" << id;
+        needs_redraw_set.emplace(id);
+      }
+
+      void clear_needs_redraw (os::window id) {
+//        LogDebug << "clear_needs_redraw:" << id;
+        needs_redraw_set.erase(id);
+      }
+
+      bool needs_redraw (os::window id) {
+//        LogDebug << "check_needs_redraw:" << id;
+        return needs_redraw_set.find(id) != needs_redraw_set.end();
       }
 
       typedef std::map<os::window, XIC> window_ic_map;
@@ -175,7 +214,7 @@ namespace gui {
 
 #endif // X11
 
-    } // detail
+    } // namespace x11
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -327,36 +366,36 @@ namespace gui {
           return;
         }
 
-        if (!detail::s_im) {
-          detail::s_im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
+        if (!x11::s_im) {
+          x11::s_im = XOpenIM(core::global::get_instance(), NULL, NULL, NULL);
           XIMStyle app_supported_styles = XIMPreeditNone | XIMPreeditNothing | XIMPreeditArea |
                                           XIMStatusNone | XIMStatusNothing | XIMStatusArea;
 
           XIMStyles *im_supported_styles;
           /* figure out which styles the IM can support */
-          XGetIMValues(detail::s_im, XNQueryInputStyle, &im_supported_styles, NULL);
+          XGetIMValues(x11::s_im, XNQueryInputStyle, &im_supported_styles, NULL);
           auto count = im_supported_styles->count_styles;
           for (decltype(count) i = 0; i < count; ++i) {
             XIMStyle style = im_supported_styles->supported_styles[i];
             if ((style & app_supported_styles) == style) { /* if we can handle it */
-              detail::s_best_style = std::min(style, detail::s_best_style);
+              x11::s_best_style = std::min(style, x11::s_best_style);
             }
           }
           XFree(im_supported_styles);
         }
 
-        XIC ic = XCreateIC(detail::s_im, XNInputStyle, detail::s_best_style, XNClientWindow, id, NULL);
-        detail::s_window_ic_map[id] = ic;
+        XIC ic = XCreateIC(x11::s_im, XNInputStyle, x11::s_best_style, XNClientWindow, id, NULL);
+        x11::s_window_ic_map[id] = ic;
       }
 
       void unregister_utf8_window (os::window id) {
-        detail::window_ic_map::iterator i = detail::s_window_ic_map.find(id);
-        if (i != detail::s_window_ic_map.end()) {
+        x11::window_ic_map::iterator i = x11::s_window_ic_map.find(id);
+        if (i != x11::s_window_ic_map.end()) {
           XIC ic = i->second;
           if (ic) {
             XDestroyIC(ic);
           }
-          detail::s_window_ic_map.erase(id);
+          x11::s_window_ic_map.erase(id);
         }
       }
 
@@ -373,16 +412,6 @@ namespace gui {
         }
       }
       return false;
-    }
-
-    // --------------------------------------------------------------------------
-    bool check_expose (const core::event& e) {
-#ifdef WIN32
-      return false;
-#endif // WIN32
-#ifdef X11
-      return (e.type == Expose) && (e.xexpose.count > 0);
-#endif // X11
     }
 
     // --------------------------------------------------------------------------
@@ -504,7 +533,7 @@ namespace gui {
       // Wait for X Event or a Timer
       select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
 
-      while (detail::queued_actions.try_dequeue(action)) {
+      while (x11::queued_actions.try_dequeue(action)) {
         action();
       }
 
@@ -527,6 +556,10 @@ namespace gui {
             LogFatal << "exception in run_main_loop: " << ex;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
+          }
+
+          if (e.type == Expose) {
+            x11::clear_needs_redraw(e.xexpose.window);
           }
 
           if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
@@ -553,7 +586,7 @@ namespace gui {
     main_loop_is_running = true;
     detail::main_thread_id = global::get_current_thread_id();
     return run_loop(main_loop_is_running, [] (const core::event & e) {
-      return check_expose(e) || check_message_filter(e) || check_hot_key(e);
+      return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
     });
   }
 
@@ -563,7 +596,7 @@ namespace gui {
 
   void run_on_main (std::function<void()> action) {
 #ifdef X11
-    detail::queued_actions.enqueue(action);
+    x11::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
     PostThreadMessage(robbery::get_native_thread_id(detail::main_thread_id),

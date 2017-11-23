@@ -83,7 +83,7 @@ namespace gui {
 
         void set_selection(const range &sel, event_source);
         range get_selection () const;
-        void make_cursor_visible ();
+        void make_selection_visible ();
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);

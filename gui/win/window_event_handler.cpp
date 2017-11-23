@@ -316,7 +316,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     std::string get_key_chars (const core::event& e) {
-      XIC ic = detail::get_window_ic(e.xany.window);
+      XIC ic = x11::get_window_ic(e.xany.window);
       if (ic) {
         Status status;
         char text[8] = {0};

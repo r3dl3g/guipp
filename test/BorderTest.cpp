@@ -156,7 +156,7 @@ my_main_window::my_main_window ()
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 
   register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
-    LogDebug << "Destroyed!";
+    LogDebug << *this << " Destroyed!";
     win::quit_main_loop();
   }));
 
@@ -754,6 +754,6 @@ int gui_main(const std::vector<std::string>& args) {
   main.set_visible();
 
   int ret = win::run_main_loop();
-  LogDebug << "run_main_loop finished!";
+  LogDebug << main << " run_main_loop finished!";
   return ret;
 }

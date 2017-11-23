@@ -78,7 +78,7 @@ namespace gui {
         super::layout();
       }));
       view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
-        view.make_cursor_visible();
+        view.make_selection_visible();
         const core::point& pos = view.get_scroll_pos();
         hscroll.set_value(pos.x(), false);
         vscroll.set_value(pos.y(), false);

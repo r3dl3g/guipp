@@ -207,10 +207,10 @@ namespace gui {
         }
         data.cursor_pos = new_pos;
 
-        make_cursor_visible();
+        make_selection_visible();
       }
 
-      void edit_base::make_cursor_visible () {
+      void edit_base::make_selection_visible () {
         // make cursor pos visible
         if (data.cursor_pos < data.scroll_pos) {
           data.scroll_pos = 0;

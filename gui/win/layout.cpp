@@ -65,12 +65,12 @@ namespace gui {
       }));
 #else
       main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
-        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
+//        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
         f1(sz);
       }));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
         core::size sz = main->client_size();
-        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
+//        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
         f1(sz);
       }));
 #endif
@@ -82,12 +82,12 @@ namespace gui {
       main->register_event_handler(REGISTER_FUNCTION, win::show_event(f2));
 #else
       main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
-        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
+//        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
         f1(sz);
       }));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f2]() {
         core::size sz = main->client_size();
-        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
+//        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
         f2();
       }));
 #endif

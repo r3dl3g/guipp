@@ -86,7 +86,7 @@ namespace gui {
 
         core::rectangle get_virtual_place () const;
 
-        void make_cursor_visible ();
+        void make_selection_visible ();
         void enable_select_by_mouse ();
 
         position find_prev_word (const position& pos);

@@ -267,7 +267,7 @@ namespace gui {
         return core::rectangle(-data.offset, data.virtual_size);
       }
 
-      void textbox_base::make_cursor_visible () {
+      void textbox_base::make_selection_visible () {
         if (data.cursor_pos >= position::zero) {
           const auto old_pos = data.offset;
           core::rectangle area(data.offset, client_size());

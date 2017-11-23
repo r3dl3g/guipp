@@ -117,10 +117,10 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info>
     class dir_file_view : public win::vertical_split_view<win::sorted_dir_tree,
-                                                          win::file_list<T>> {
+                                                          win::file_column_list<T>> {
     public:
       typedef win::sorted_dir_tree dir_tree_type;
-      typedef win::file_list<T> file_list_type;
+      typedef win::file_column_list<T> file_list_type;
       typedef win::vertical_split_view<dir_tree_type, file_list_type> super;
 
       dir_file_view ();

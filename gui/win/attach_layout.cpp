@@ -40,7 +40,7 @@ namespace gui {
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &attach::layout));
 #else
       main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, main] (const core::size & sz) {
-        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
+//        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
         layout(sz);
       }));
 #endif

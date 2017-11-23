@@ -475,7 +475,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
-      LogDebug << "Enter modal loop";
+      LogDebug << *this << " Enter modal loop";
 
       os::window win = get_id();
 
@@ -495,7 +495,7 @@ namespace gui {
         case LeaveNotify:
           return is_deeper_window(win, e.xany.window);
         case ClientMessage:
-          LogDebug << "ClientMessage:" << e.xclient.message_type;
+//          LogDebug << *this << " ClientMessage:" << e.xclient.message_type;
           break;
         }
 #endif // X11
@@ -514,10 +514,10 @@ namespace gui {
             }
           }
         }
-        return false;
+        return detail::check_expose(e);
       });
 
-      LogDebug << "Exit modal loop";
+      LogDebug << *this << " Exit modal loop";
     }
 
 #ifdef X11

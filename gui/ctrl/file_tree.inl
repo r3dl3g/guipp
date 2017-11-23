@@ -78,10 +78,47 @@ namespace gui {
 
     } // path_tree
 
+    // --------------------------------------------------------------------------
     template<typename T>
     inline file_list<T>::file_list (core::size::type item_size,
-                                 os::color background,
-                                 bool grab_focus)
+                                    os::color background,
+                                    bool grab_focus)
+      : super(item_size, background, grab_focus)
+    {
+      super::set_drawer([&] (std::size_t idx,
+                             const draw::graphics& g,
+                             const core::rectangle& r,
+                             const draw::brush& b,
+                             bool selected,
+                             bool) {
+        const sys_fs::path& path = current_dir[idx];
+        win::paint::text_item(g, r, b, path.filename().string(), selected, text_origin::vcenter_left);
+      });
+    }
+
+    template<typename T>
+    inline void file_list<T>::set_path (const sys_fs::path& dir) {
+      current_dir = T::sub_nodes(dir);
+      super::set_count(current_dir.size());
+      super::clear_selection(event_source::logic);
+      super::set_scroll_offset(0);
+      super::redraw_later();
+    }
+
+    template<typename T>
+    inline sys_fs::path file_list<T>::get_selected_path () const {
+      int selection = super::get_selection();
+      if (selection > -1) {
+        return current_dir[selection];
+      }
+      return sys_fs::path();
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline file_column_list<T>::file_column_list (core::size::type item_size,
+                                                  os::color background,
+                                                  bool grab_focus)
       : super(item_size, background, grab_focus)
     {
       detail::init_file_list_layout(super::get_column_layout());
@@ -93,16 +130,16 @@ namespace gui {
     }
 
     template<typename T>
-    inline void file_list<T>::set_path (const sys_fs::path& dir) {
+    inline void file_column_list<T>::set_path (const sys_fs::path& dir) {
       current_dir = T::sub_nodes(dir);
       super::list.set_count(current_dir.size());
       super::list.clear_selection(event_source::logic);
-      super::list.set_scroll_pos(0);
+      super::list.set_scroll_offset(0);
       super::redraw_later();
     }
 
     template<typename T>
-    inline sys_fs::path file_list<T>::get_selected_path () const {
+    inline sys_fs::path file_column_list<T>::get_selected_path () const {
       int selection = super::list.get_selection();
       if (selection > -1) {
         return current_dir[selection];

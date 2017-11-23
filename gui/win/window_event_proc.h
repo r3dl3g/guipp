@@ -40,24 +40,36 @@ namespace gui {
 
     class window;
 
-    namespace detail {
-
 #ifdef WIN32
+    namespace win32 {
 
       LRESULT CALLBACK WindowEventProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+    } // namespace win32
 #endif // WIN32
+
+#ifdef X11
+    namespace x11 {
+
+      XIC get_window_ic (os::window);
+
+      void set_needs_redraw (os::window);
+      void clear_needs_redraw (os::window);
+      bool needs_redraw (os::window);
+
+    } // namespace x11
+#endif // X11
+
+    namespace detail {
 
       window* get_window (os::window id);
       void set_window (os::window id, window* win);
       void unset_window (os::window id);
 
+      bool check_expose (const core::event& e);
+
       typedef bool (filter_fn)(const core::event&);
       typedef std::function<filter_fn> filter_call;
-
-#ifdef X11
-      XIC get_window_ic (os::window);
-#endif // X11
 
     } // namespace detail
 

@@ -26,6 +26,8 @@
 #include <gui/win/window.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/draw/graphics.h>
+#include <gui/draw/drawers.h>
+#include <gui/draw/frames.h>
 
 
 namespace gui {

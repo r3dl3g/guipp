@@ -161,6 +161,7 @@ private:
   win::text_button calc_button;
   win::text_button inc_button;
   win::text_button dec_button;
+  win::text_button invert_button;
 
   win::text_button ok_button;
   win::text_button del_button;
@@ -278,6 +279,7 @@ private:
   core::point last_pos;
 
   bool calc_pressed;
+  bool draw_invert;
 };
 
 int gui_main(const std::vector<std::string>& args) {
@@ -339,6 +341,7 @@ my_main_window::my_main_window ()
   , at_paint1(true)
   , at_drag(false)
   , calc_pressed(false)
+  , draw_invert(false)
 {
   main_split_view.second.second.list.set_item_size_and_background(16, color::very_light_gray);
   list1.set_item_size(25);
@@ -715,6 +718,10 @@ my_main_window::my_main_window ()
   dec_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     scroll_view.resize(scroll_view.size() - core::size{5, 5});
   }));
+  invert_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    draw_invert = !draw_invert;
+    window2.redraw_later();
+  }));
 
   vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
     layout();
@@ -875,6 +882,7 @@ void my_main_window::created_children () {
 
   inc_button.create(main, "+", core::rectangle(400, 20, 25, 25));
   dec_button.create(main, "-", core::rectangle(435, 20, 25, 25));
+  invert_button.create(main, "invert", core::rectangle(470, 20, 100, 25));
 
   list1.create(main, core::rectangle(330, 50, 70, 250));
   list1.set_count(20);
@@ -1155,7 +1163,7 @@ void my_main_window::created_children () {
 }
 
 win::paint_event my_main_window::create_paint1 () {
-  return win::paint_event(draw::buffered_paint([](const draw::graphics& graph) {
+  return win::paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
     using namespace draw;
@@ -1230,6 +1238,10 @@ win::paint_event my_main_window::create_paint1 () {
       }
     }
 
+    if (draw_invert) {
+      graph.invert({10, 10, 100, 100});
+    }
+
   }));
 }
 
@@ -1274,6 +1286,10 @@ win::paint_event my_main_window::create_paint2 () {
     //color cyan = color::cyan;
     //color cyan_trans = cyan.transparency(0.5);
     //graph.fill(rectangle(core::rectangle(pos1 + core::size(20, 30), core::size(100, 120))), cyan_trans);
+
+    if (draw_invert) {
+      graph.invert({10, 10, 100, 100});
+    }
 
   });
 }

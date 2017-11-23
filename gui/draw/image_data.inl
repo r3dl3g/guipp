@@ -131,16 +131,20 @@ namespace gui {
       return f == 0 ? bw_pixel::black : p;
     }
 
+    inline byte pixel_mul (byte p, float f) {
+      return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
+    }
+
     inline gray_pixel operator* (gray_pixel p, float f) {
-      return {static_cast<byte>(std::min<int>(0xff, static_cast<int>(p.value * f)))};
+      return {pixel_mul(p.value, f)};
     }
 
     inline rgb_pixel operator* (rgb_pixel p, float f) {
-      return {p.red * f, p.green * f, p.blue * f};
+      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f)};
     }
 
     inline rgba_pixel operator* (rgba_pixel p, float f) {
-      return {p.red * f, p.green * f, p.blue * f, p.alpha};
+      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
 
     // --------------------------------------------------------------------------

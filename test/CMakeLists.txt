@@ -42,6 +42,7 @@ enable_testing()
 set(tests
   WindowTest
   BorderTest
+  hello_world
 )
 
 foreach(test ${tests})

@@ -49,7 +49,6 @@ namespace gui {
 
       template<typename T, size_t N>
       inline std::string make_string (T(&t)[N]) {
-        const auto sz = sizeof (t);
         return std::string((const char*)t, N);
       }
 

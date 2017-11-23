@@ -112,9 +112,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue.value), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green.value), 1);
-          out.write(reinterpret_cast<char*>(&pixel.red.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.red), 1);
         }
       }
     }
@@ -127,9 +127,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue.value), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green.value), 1);
-          out.write(reinterpret_cast<char*>(&pixel.red.value), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.red), 1);
         }
       }
     }
@@ -144,9 +144,9 @@ namespace gui {
         auto row = data.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto& pixel = row[x];
-          in.read(reinterpret_cast<char*>(&pixel.blue.value), 1);
-          in.read(reinterpret_cast<char*>(&pixel.green.value), 1);
-          in.read(reinterpret_cast<char*>(&pixel.red.value), 1);
+          in.read(reinterpret_cast<char*>(&pixel.blue), 1);
+          in.read(reinterpret_cast<char*>(&pixel.green), 1);
+          in.read(reinterpret_cast<char*>(&pixel.red), 1);
         }
       }
       return img;
@@ -247,14 +247,13 @@ namespace gui {
     template<>
     void write_pnm<PNM::P3>(std::ostream& out, const draw::const_image_data<BPP::RGB>& img) {
       const draw::bitmap_info& bmi = img.get_info();
-      const std::size_t n = bmi.mem_size();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue.value) << ' '
-              << static_cast<int>(pixel.green.value) << ' '
-              << static_cast<int>(pixel.red.value) << ' ';
+          out << static_cast<int>(pixel.blue) << ' '
+              << static_cast<int>(pixel.green) << ' '
+              << static_cast<int>(pixel.red) << ' ';
         }
         out << std::endl;
       }
@@ -264,14 +263,13 @@ namespace gui {
     template<>
     void write_pnm_rgba<false> (std::ostream& out, const draw::const_image_data<BPP::RGBA>& img) {
       const draw::bitmap_info& bmi = img.get_info();
-      const std::size_t n = bmi.mem_size();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue.value) << ' '
-              << static_cast<int>(pixel.green.value) << ' '
-              << static_cast<int>(pixel.red.value) << ' ';
+          out << static_cast<int>(pixel.blue) << ' '
+              << static_cast<int>(pixel.green) << ' '
+              << static_cast<int>(pixel.red) << ' ';
         }
         out << std::endl;
       }
@@ -288,7 +286,7 @@ namespace gui {
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int d0, d1, d2;
           in >> d2 >> d1 >> d0;
-          row[x] = {
+          row[x] = draw::rgb_pixel{
             static_cast<byte>(d0),
             static_cast<byte>(d1),
             static_cast<byte>(d2)
@@ -302,7 +300,6 @@ namespace gui {
     template<>
     void write_pnm<PNM::P2>(std::ostream& out, const draw::const_image_data<BPP::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
-      const std::size_t n = bmi.mem_size();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
@@ -334,7 +331,6 @@ namespace gui {
     template<>
     void write_pnm<PNM::P1>(std::ostream& out, const draw::const_image_data<BPP::BW>& img) {
       const draw::bitmap_info& bmi = img.get_info();
-      const std::size_t n = bmi.mem_size();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {

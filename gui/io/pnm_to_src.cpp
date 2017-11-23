@@ -65,9 +65,9 @@ namespace gui {
       }
 
       std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel) {
-        out << std::setw(3) << static_cast<int>(pixel.red.value) << ", "
-            << std::setw(3) << static_cast<int>(pixel.green.value) << ", "
-            << std::setw(3) << static_cast<int>(pixel.blue.value);
+        out << std::setw(3) << static_cast<int>(pixel.red) << ", "
+            << std::setw(3) << static_cast<int>(pixel.green) << ", "
+            << std::setw(3) << static_cast<int>(pixel.blue);
         return out;
       }
 

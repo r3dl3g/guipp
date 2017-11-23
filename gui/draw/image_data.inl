@@ -77,20 +77,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline void rgb_pixel::operator= (bw_pixel bw) {
-      red = green = blue = bw;
+      red = green = blue = system_bw_bits::value[static_cast<bool>(bw)];
     }
 
     inline void rgb_pixel::operator= (gray_pixel gray) {
-      red = green = blue = gray;
+      red = green = blue = gray.value;
     }
     inline void rgb_pixel::operator= (rgba_pixel rgba) {
       *this = static_cast<rgb_pixel>(rgba);
     }
 
     inline gray_pixel rgb_pixel::get_gray () const {
-      return {static_cast<byte>((static_cast<uint16_t>(red.value) +
-                                static_cast<uint16_t>(green.value) +
-                                static_cast<uint16_t>(blue.value)) / 3)};
+      return {static_cast<byte>((static_cast<uint16_t>(red) +
+                                static_cast<uint16_t>(green) +
+                                static_cast<uint16_t>(blue)) / 3)};
     }
 
     inline bw_pixel rgb_pixel::get_bw () const {
@@ -101,29 +101,29 @@ namespace gui {
     inline rgba_pixel::rgba_pixel ()
     {}
 
-    inline rgba_pixel::rgba_pixel (gray_pixel r, gray_pixel g, gray_pixel b, gray_pixel a)
+    inline rgba_pixel::rgba_pixel (byte r, byte g, byte b, byte a)
       : rgb_pixel{r, g, b}
       , alpha(a)
     {}
 
-    inline rgba_pixel::rgba_pixel (gray_pixel r, gray_pixel g, gray_pixel b)
+    inline rgba_pixel::rgba_pixel (byte r, byte g, byte b)
       : rgb_pixel{r, g, b}
       , alpha{0}
     {}
 
     inline void rgba_pixel::operator= (bw_pixel bw) {
       rgb_pixel::operator=(bw);
-      alpha.value = 0;
+      alpha = 0;
     }
 
     inline void rgba_pixel::operator= (gray_pixel gray) {
       rgb_pixel::operator=(gray);
-      alpha.value = 0;
+      alpha = 0;
     }
 
     inline void rgba_pixel::operator= (rgb_pixel rgb) {
       rgb_pixel::operator=(rgb);
-      alpha.value = 0;
+      alpha = 0;
     }
 
     // --------------------------------------------------------------------------

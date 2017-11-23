@@ -61,9 +61,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct rgb_pixel {
-      gray_pixel red;
-      gray_pixel green;
-      gray_pixel blue;
+      byte red;
+      byte green;
+      byte blue;
 
       void operator= (bw_pixel bw);
       void operator= (gray_pixel gray);
@@ -75,11 +75,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct rgba_pixel : public rgb_pixel {
-      gray_pixel alpha;
+      byte alpha;
 
       rgba_pixel ();
-      rgba_pixel (gray_pixel r, gray_pixel g, gray_pixel b, gray_pixel a);
-      rgba_pixel (gray_pixel r, gray_pixel g, gray_pixel b);
+      rgba_pixel (byte r, byte g, byte b, byte a);
+      rgba_pixel (byte r, byte g, byte b);
 
       void operator= (bw_pixel bw);
       void operator= (gray_pixel gray);

@@ -32,7 +32,7 @@ namespace gui {
   //
   namespace robbery {
 
-#ifdef X11
+#if defined(__GNUC__) && !defined(__clang__)
 # pragma GCC diagnostic ignored "-Wnon-template-friend"
 #endif // X11
 
@@ -43,7 +43,7 @@ namespace gui {
       friend Type rob (jugger);
     };
 
-#ifdef X11
+#if defined(__GNUC__) && !defined(__clang__)
 # pragma GCC diagnostic pop
 #endif // X11
 

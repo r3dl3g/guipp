@@ -22,6 +22,7 @@
 //
 // Common includes
 //
+#include <algorithm>
 
 // --------------------------------------------------------------------------
 //
@@ -40,7 +41,7 @@ namespace gui {
              unsigned gap = 0,
              unsigned sep = 2,
              unsigned min = 0,
-             unsigned max = -1,
+             unsigned max = std::numeric_limits<unsigned>::max(),
              origin R = origin::start>
     class adaption_layout : public detail::origin_layout<H, R> {
     public:
@@ -62,7 +63,7 @@ namespace gui {
              unsigned gap = 0,
              unsigned sep = 2,
              unsigned min = 0,
-             unsigned max = -1,
+             unsigned max = std::numeric_limits<unsigned>::max(),
              origin o = origin::start>
     using horizontal_adaption = adaption_layout<orientation::horizontal, border, gap, sep, min, max, o>;
 
@@ -71,7 +72,7 @@ namespace gui {
              unsigned gap = 0,
              unsigned sep = 2,
              unsigned min = 0,
-             unsigned max = -1,
+             unsigned max = std::numeric_limits<unsigned>::max(),
              origin o = origin::start>
     using vertical_adaption = adaption_layout<orientation::vertical, border, gap, sep, min, max, o>;
 

@@ -34,7 +34,7 @@ namespace gui {
     template<os::color foreground = color::black,
              os::color background = color::very_light_gray,
              uint32_t min = 6,
-             uint32_t max = -1,
+             uint32_t max = std::numeric_limits<uint32_t>::max(),
              uint32_t border = 0,
              uint32_t gap = 0>
     using top_tab_group = htoggle_group<foreground, background,
@@ -44,7 +44,7 @@ namespace gui {
     template<os::color foreground = color::black,
              os::color background = color::very_light_gray,
              uint32_t min = 6,
-             uint32_t max = -1,
+             uint32_t max = std::numeric_limits<uint32_t>::max(),
              uint32_t border = 0,
              uint32_t gap = 0>
     using bottom_tab_group = htoggle_group<foreground, background,
@@ -55,7 +55,7 @@ namespace gui {
     template<os::color foreground = color::black,
              os::color background = color::very_light_gray,
              uint32_t min = 20,
-             uint32_t max = -1,
+             uint32_t max = std::numeric_limits<uint32_t>::max(),
              uint32_t border = 0,
              uint32_t gap = 0>
     using left_tab_group = vtoggle_group<foreground, background,
@@ -65,7 +65,7 @@ namespace gui {
     template<os::color foreground = color::black,
              os::color background = color::very_light_gray,
              uint32_t min = 20,
-             uint32_t max = -1,
+             uint32_t max = std::numeric_limits<uint32_t>::max(),
              uint32_t border = 0,
              uint32_t gap = 0>
     using right_tab_group = vtoggle_group<foreground, background,

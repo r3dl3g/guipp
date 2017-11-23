@@ -95,8 +95,12 @@ namespace gui {
 
       static constexpr os::event_id mask = Mask;
 
-      event_handler (const function cb)
+      event_handler (const function& cb)
         : caller(cb)
+      {}
+
+      event_handler (function&& cb)
+        : caller(std::move(cb))
       {}
 
       template<typename T, typename F>

@@ -101,7 +101,7 @@ namespace gui {
       current_dir = T::sub_nodes(dir);
       super::set_count(current_dir.size());
       super::clear_selection(event_source::logic);
-      super::set_scroll_offset(0);
+      super::set_scroll_pos(0);
       super::redraw_later();
     }
 
@@ -134,7 +134,7 @@ namespace gui {
       current_dir = T::sub_nodes(dir);
       super::list.set_count(current_dir.size());
       super::list.clear_selection(event_source::logic);
-      super::list.set_scroll_offset(0);
+      super::list.set_scroll_pos(0);
       super::redraw_later();
     }
 

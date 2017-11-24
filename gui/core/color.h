@@ -73,38 +73,38 @@ namespace gui {
 
     template<part P, os::color C>
     struct extract_primary {
-      static const type value = (type)((C & (mask<P>::value)) >> static_cast<type>(P));
+      static constexpr type value = (type)((C & (mask<P>::value)) >> static_cast<type>(P));
     };
 
 
     template<type R, type G, type B>
     struct rgb {
-      static const os::color value = build_primary<part::red, R>::value |
-                                     build_primary<part::green, G>::value |
-                                     build_primary<part::blue, B>::value;
+      static constexpr os::color value = build_primary<part::red, R>::value |
+                                         build_primary<part::green, G>::value |
+                                         build_primary<part::blue, B>::value;
     };
 
     template<type V>
     struct rgb_gray {
-      static const os::color value = build_primary<part::red, V>::value |
-                                     build_primary<part::green, V>::value |
-                                     build_primary<part::blue, V>::value;
+      static constexpr os::color value = build_primary<part::red, V>::value |
+                                         build_primary<part::green, V>::value |
+                                         build_primary<part::blue, V>::value;
     };
 
     template<type R, type G, type B, type A>
     struct rgba {
-      static const os::color value = build_primary<part::red, R>::value |
-                                     build_primary<part::green, G>::value |
-                                     build_primary<part::blue, B>::value |
-                                     build_primary<part::alpha, A>::value;
+      static constexpr os::color value = build_primary<part::red, R>::value |
+                                         build_primary<part::green, G>::value |
+                                         build_primary<part::blue, B>::value |
+                                         build_primary<part::alpha, A>::value;
     };
 
     template<type V, type A>
     struct rgba_gray {
-      static const os::color value = build_primary<part::red, V>::value |
-                                     build_primary<part::green, V>::value |
-                                     build_primary<part::blue, V>::value |
-                                     build_primary<part::alpha, A>::value;
+      static constexpr os::color value = build_primary<part::red, V>::value |
+                                         build_primary<part::green, V>::value |
+                                         build_primary<part::blue, V>::value |
+                                         build_primary<part::alpha, A>::value;
     };
 
     template<part P>

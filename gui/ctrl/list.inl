@@ -380,7 +380,7 @@ namespace gui {
 
     template<orientation V>
     void lines_list<V>::set_selection (int sel, event_source notify) {
-      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count()));
+      const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
       if (super::data.selection != new_selection) {
         super::data.selection = new_selection;
         make_selection_visible();

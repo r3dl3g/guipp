@@ -107,12 +107,12 @@ namespace gui {
         switch (msg) {
         case WM_INITDIALOG:
           SetWindowLongPtr(hwnd, GWLP_USERDATA, lParam);
-          set_window_id(lParam, hwnd);
+          detail::set_window_id(lParam, hwnd);
           break;
         case WM_CREATE: {
           CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
           SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams);
-          set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
+          detail::set_window_id((LONG_PTR)cs->lpCreateParams, hwnd);
           break;
         }
 # ifdef KEY_DEBUG
@@ -129,7 +129,7 @@ namespace gui {
         }
 
         os::event_result result = 0;
-        window* w = get_window(hwnd);
+        window* w = detail::get_window(hwnd);
         if (w && w->is_valid()) {
           w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
           if (result) {

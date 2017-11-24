@@ -141,8 +141,8 @@ namespace gui {
     inline int basic_tile_view<V>::get_index_at_point (const core::point& pt) {
       if (super::client_area().is_inside(pt)) {
         const int per_line = static_cast<int>(get_items_per_line());
-        const auto line = static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos() - get_line_border() + get_line_spacing()) / (get_line_size() + get_line_spacing()));
-        const auto offs = static_cast<int>((super::get_other_dimension(pt) - get_item_border() + get_item_spacing()) / (get_item_size() + get_item_spacing()));
+        const auto line = static_cast<int>((traits::get(pt) + super::get_scroll_pos() - get_line_border() + get_line_spacing()) / (get_line_size() + get_line_spacing()));
+        const auto offs = static_cast<int>((traits::get_other(pt) - get_item_border() + get_item_spacing()) / (get_item_size() + get_item_spacing()));
         const auto idx = (line * per_line) + offs;
         return (idx < super::get_count()) && get_place_of_index(idx).is_inside(pt) ? idx : -1;
       }
@@ -159,8 +159,8 @@ namespace gui {
       const auto isz = get_item_size();
 
       core::rectangle place;
-      super::set_dimension(place, (lsz + get_line_spacing()) * line - super::get_scroll_pos() + get_line_border(), lsz);
-      super::set_other_dimension(place, (isz + get_item_spacing()) * offs + get_item_border(), isz);
+      traits::set(place, (lsz + get_line_spacing()) * line - super::get_scroll_pos() + get_line_border(), lsz);
+      traits::set_other(place, (isz + get_item_spacing()) * offs + get_item_border(), isz);
       return place;
     }
 
@@ -174,8 +174,8 @@ namespace gui {
       const auto isz = get_item_size() + get_item_spacing();
 
       core::rectangle place;
-      super::set_dimension(place, lsz * line - super::get_scroll_pos() + get_line_border(), lsz);
-      super::set_other_dimension(place, isz * offs + get_item_border(), isz);
+      traits::set(place, lsz * line - super::get_scroll_pos() + get_line_border(), lsz);
+      traits::set_other(place, isz * offs + get_item_border(), isz);
       return place;
     }
 
@@ -251,12 +251,12 @@ namespace gui {
         int idx = first_line * per_line;
         core::rectangle place = get_place_of_index(idx);
 
-        const auto start = super::get_dimension(place.top_left());
+        const auto start = traits::get(place.top_left());
 
-        for (; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
+        for (; (idx < last) && (traits::get(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
           if (isp > 0) {
-            super::set_other_dimension(place, super::get_other_dimension(place.bottom_right()), isp);
+            traits::set_other(place, traits::get_other(place.bottom_right()), isp);
             graph.fill(draw::rectangle(place), back_brush);
           }
           place = get_place_of_index(idx + 1);
@@ -265,7 +265,7 @@ namespace gui {
         const int last_line = div_ceil(idx, per_line);
 
         place = get_full_place_of_index(idx);
-        for (; (super::get_dimension(place.top_left()) < list_sz); ++idx) {
+        for (; (traits::get(place.top_left()) < list_sz); ++idx) {
           graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
         }
@@ -275,29 +275,29 @@ namespace gui {
         if (lsp > 0) {
           const auto lw = (isz + isp) * per_line;
           for (int line = first_line; line < last_line; ++line) {
-            super::set_dimension(place, (lsz + lsp) * line - scp + lb + lsz, lsp);
-            super::set_other_dimension(place, ib, lw);
+            traits::set(place, (lsz + lsp) * line - scp + lb + lsz, lsp);
+            traits::set_other(place, ib, lw);
             graph.fill(draw::rectangle(place), back_brush);
           }
         }
 
         const auto width = (isz + isp) * per_line + ib;
-        const auto max_width = super::get_other_dimension(area.bottom_right());
+        const auto max_width = traits::get_other(area.bottom_right());
         if (max_width > width) {
           core::rectangle space = area;
-          super::set_other_dimension(space, width, max_width - width);
+          traits::set_other(space, width, max_width - width);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
         if (ib > 0) {
           core::rectangle space = area;
-          super::set_other_dimension(space, super::get_dimension(area.top_left()), ib);
+          traits::set_other(space, traits::get(area.top_left()), ib);
           graph.fill(draw::rectangle(space), back_brush);
         }
 
         if (start > 0) {
           core::rectangle space = area;
-          super::set_dimension(space, super::get_other_dimension(area.top_left()), start);
+          traits::set(space, traits::get_other(area.top_left()), start);
           graph.fill(draw::rectangle(space), back_brush);
         }
       }
@@ -319,7 +319,7 @@ namespace gui {
       const core::rectangle r = super::client_area();
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
-          pos_t delta = super::get_dimension(super::get_last_mouse_point()) - super::get_dimension(pt);
+          pos_t delta = traits::get(super::get_last_mouse_point()) - traits::get(pt);
           set_scroll_pos(super::get_scroll_pos() + delta);
           super::get_state().set_moved(true);
         }
@@ -381,7 +381,7 @@ namespace gui {
     void basic_tile_view<V>::init () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_tile_view::paint)));
       super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_tile_view::handle_left_btn_up));
-      super::register_event_handler(REGISTER_FUNCTION, typename super::traits::wheel_event_type(this, &basic_tile_view::handle_wheel));
+      super::register_event_handler(REGISTER_FUNCTION, typename wheel_traits<V>::wheel_event_type(this, &basic_tile_view::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &basic_tile_view::handle_key));
       super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_tile_view::handle_mouse_move));
       super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &) {

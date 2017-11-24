@@ -67,7 +67,11 @@ namespace gui {
         w->id = id;
       }
 
+    } // namespace detail
+
 #ifdef WIN32
+    namespace detail {
+
       const os::event_id ACTION_MESSAGE = WM_USER + 0x101;
 
       window* get_window (os::window id) {
@@ -141,39 +145,8 @@ namespace gui {
 
     } // namespace win32
 
-    namespace detail {
-
 #endif // WIN32
 #ifdef X11
-      typedef std::map<os::window, win::window*> window_map;
-      window_map global_window_map;
-
-      window* get_window (os::window id) {
-        return global_window_map[id];
-      }
-
-      void set_window (os::window id, window* win) {
-        global_window_map[id] = win;
-      }
-
-      void unset_window (os::window id) {
-        clear_last_place(id);
-        global_window_map.erase(id);
-      }
-
-      bool check_expose (const core::event& e) {
-//        return (e.type == Expose) && (e.xexpose.count > 0);
-        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
-      }
-
-      inline win::window* get_event_window (const core::event& e) {
-        switch (e.type) {
-        case ConfigureNotify: return get_window(e.xconfigure.window);
-        default: return get_window(e.xany.window);
-        }
-      }
-
-    } // namespace detail
 
     namespace x11 {
 
@@ -212,9 +185,44 @@ namespace gui {
       typedef core::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
 
+    } // namespace x11
+
+    namespace detail {
+
+      typedef std::map<os::window, win::window*> window_map;
+      window_map global_window_map;
+
+      window* get_window (os::window id) {
+        return global_window_map[id];
+      }
+
+      void set_window (os::window id, window* win) {
+        global_window_map[id] = win;
+        x11::set_needs_redraw(id);
+      }
+
+      void unset_window (os::window id) {
+        clear_last_place(id);
+        global_window_map.erase(id);
+        x11::clear_needs_redraw(id);
+      }
+
+      bool check_expose (const core::event& e) {
+//        return (e.type == Expose) && (e.xexpose.count > 0);
+        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
+      }
+
+      inline win::window* get_event_window (const core::event& e) {
+        switch (e.type) {
+        case ConfigureNotify: return get_window(e.xconfigure.window);
+        default: return get_window(e.xany.window);
+        }
+      }
+
+    } // namespace detail
+
 #endif // X11
 
-    } // namespace x11
 
     // --------------------------------------------------------------------------
     namespace detail {

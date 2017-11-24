@@ -98,6 +98,77 @@ namespace gui {
 
     } // namespace detail
 
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    struct list_traits {
+      static core::point::type get (const core::point&);
+      static core::size::type get (const core::size&);
+
+      static core::point::type get_other (const core::point&);
+      static core::size::type get_other (const core::size&);
+
+      static void set (core::point&, core::point::type dim, core::point::type other);
+      static void set (core::size&, core::size::type dim, core::size::type other);
+
+      static void set (core::rectangle&, core::point::type, core::size::type);
+      static void set_other (core::rectangle&, core::point::type, core::size::type);
+    };
+
+    template<orientation V>
+    struct wheel_traits {};
+
+    template<>
+    struct wheel_traits<orientation::horizontal> {
+      typedef wheel_x_event wheel_event_type;
+
+    };
+
+    template<>
+    struct wheel_traits<orientation::vertical> {
+      typedef wheel_y_event wheel_event_type;
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    class basic_list : public detail::list_base {
+    public:
+      typedef detail::list_base super;
+      typedef typename super::pos_t pos_t;
+      typedef list_traits<V> traits;
+      typedef basic_scroll_bar<V> scroll_bar_type;
+      typedef no_erase_window_class<basic_list> clazz;
+
+      const pos_t zero = pos_t(0);
+
+      basic_list (os::color background = color::white,
+                  bool grab_focus = true);
+      basic_list (const basic_list& rhs);
+      basic_list (basic_list&& rhs);
+
+      core::size client_size () const;
+
+      void create_scroll_bar ();
+      void enable_scroll_bar (bool enable);
+      bool is_scroll_bar_visible () const;
+      pos_t get_scroll_pos () const;
+
+      void clear_selection (event_source notify);
+
+      void set_hilite (int sel, bool notify = true);
+      void clear_hilite (bool notify = true);
+
+    protected:
+      pos_t get_list_size () const;
+      core::rectangle get_scroll_bar_area () const;
+
+      scroll_bar_type scrollbar;
+
+    private:
+      void init ();
+
+    };
+
+    // --------------------------------------------------------------------------
     template<typename T>
     void default_list_item_drawer (const T& t,
                                    const draw::graphics& g,
@@ -146,69 +217,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation V>
-    struct list_traits {};
-
-    template<>
-    struct list_traits<orientation::horizontal> {
-      typedef wheel_x_event wheel_event_type;
-    };
-
-    template<>
-    struct list_traits<orientation::vertical> {
-      typedef wheel_y_event wheel_event_type;
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation V>
-    class basic_list : public detail::list_base {
-    public:
-      typedef detail::list_base super;
-      typedef typename super::pos_t pos_t;
-      typedef list_traits<V> traits;
-      typedef basic_scroll_bar<V> scroll_bar_type;
-      typedef no_erase_window_class<basic_list> clazz;
-
-      const pos_t zero = pos_t(0);
-
-      basic_list (os::color background = color::white,
-                  bool grab_focus = true);
-      basic_list (const basic_list& rhs);
-      basic_list (basic_list&& rhs);
-
-      core::size client_size () const;
-
-      void create_scroll_bar ();
-      void enable_scroll_bar (bool enable);
-      bool is_scroll_bar_visible () const;
-      pos_t get_scroll_pos () const;
-
-      void clear_selection (event_source notify);
-
-      void set_hilite (int sel, bool notify = true);
-      void clear_hilite (bool notify = true);
-
-    protected:
-      pos_t get_dimension (const core::point&) const;
-      pos_t get_other_dimension (const core::point&) const;
-
-      void set_dimension (core::rectangle &, pos_t, pos_t) const;
-      void set_other_dimension (core::rectangle &, pos_t, pos_t) const;
-
-      pos_t get_list_size () const;
-      core::rectangle get_scroll_bar_area () const;
-
-      scroll_bar_type scrollbar;
-
-    private:
-      void init ();
-
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation V>
     class lines_list : public basic_list<V> {
     public:
       typedef basic_list<V> super;
+      typedef typename super::traits traits;
       typedef typename super::pos_t pos_t;
 
       lines_list (core::size::type item_size = 20,

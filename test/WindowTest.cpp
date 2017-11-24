@@ -21,7 +21,7 @@
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/list.h>
-#include <gui/ctrl/scroll_view.h>
+#include <gui/ctrl/virtual_view.h>
 #include <gui/ctrl/slider.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/edit.h>
@@ -257,7 +257,6 @@ private:
 
   typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
-  //my_column_list_t::standard_data column_list_data;
   my_column_list_t::row_drawer column_list_drawer;
 
   win::table_edit table_view;
@@ -266,7 +265,7 @@ private:
   typedef win::virtual_view<win::editbox> editbox_view;
   editbox_view editor;
 
-  typedef win::basic_textbox<text_origin::top_right, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef win::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
   typedef win::virtual_view<textbox_type> textbox_view;
 
   textbox_view textbox;

@@ -48,6 +48,7 @@ namespace gui {
     class basic_tile_view : public basic_list<V> {
     public:
       typedef basic_list<V> super;
+      typedef typename super::traits traits;
       typedef typename super::pos_t pos_t;
 
       basic_tile_view (const core::size& item_size = { 20, 20 },

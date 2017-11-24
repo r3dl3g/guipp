@@ -110,6 +110,96 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    inline core::point::type list_traits<orientation::horizontal>::get (const core::point& pt) {
+      return pt.x();
+    }
+
+    template<>
+    inline core::size::type list_traits<orientation::horizontal>::get (const core::size& sz) {
+      return sz.width();
+    }
+
+    template<>
+    inline core::point::type list_traits<orientation::horizontal>::get_other (const core::point& pt) {
+      return pt.y();
+    }
+
+    template<>
+    inline core::size::type list_traits<orientation::horizontal>::get_other (const core::size& sz) {
+      return sz.height();
+    }
+
+    template<>
+    inline void list_traits<orientation::horizontal>::set (core::point& pt, core::point::type dim, core::point::type other) {
+      pt.x(dim);
+      pt.y(other);
+    }
+
+    template<>
+    inline void list_traits<orientation::horizontal>::set (core::size& sz, core::size::type dim, core::size::type other) {
+      sz.width(dim);
+      sz.height(other);
+    }
+
+    template<>
+    inline void list_traits<orientation::horizontal>::set (core::rectangle& r, core::point::type v, core::size::type s) {
+      r.x(v);
+      r.width(s);
+    }
+
+    template<>
+    inline void list_traits<orientation::horizontal>::set_other (core::rectangle& r, core::point::type v, core::size::type s) {
+      r.y(v);
+      r.height(s);
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    inline core::point::type list_traits<orientation::vertical>::get (const core::point& pt) {
+      return pt.y();
+    }
+
+    template<>
+    inline core::size::type list_traits<orientation::vertical>::get (const core::size& sz) {
+      return sz.height();
+    }
+
+    template<>
+    inline core::point::type list_traits<orientation::vertical>::get_other (const core::point& pt) {
+      return pt.x();
+    }
+
+    template<>
+    inline core::size::type list_traits<orientation::vertical>::get_other (const core::size& sz) {
+      return sz.width();
+    }
+
+    template<>
+    inline void list_traits<orientation::vertical>::set (core::point& pt, core::point::type dim, core::point::type other) {
+      pt.y(dim);
+      pt.x(other);
+    }
+
+    template<>
+    inline void list_traits<orientation::vertical>::set (core::size& sz, core::size::type dim, core::size::type other) {
+      sz.height(dim);
+      sz.width(other);
+    }
+
+    template<>
+    inline void list_traits<orientation::vertical>::set (core::rectangle& r, core::point::type v, core::size::type s) {
+      r.y(v);
+      r.height(s);
+    }
+
+    template<>
+    inline void list_traits<orientation::vertical>::set_other (core::rectangle& r, core::point::type v, core::size::type s) {
+      r.x(v);
+      r.width(s);
+    }
+
+    // --------------------------------------------------------------------------
     template<orientation V>
     inline basic_list<V>::basic_list (os::color background,
                                       bool grab_focus)
@@ -217,49 +307,26 @@ namespace gui {
       }));
     }
 
-    // --------------------------------------------------------------------------
-    template<>
-    core::rectangle basic_list<orientation::horizontal>::get_scroll_bar_area () const;
+    template<orientation V>
+    inline auto basic_list<V>::get_list_size () const -> pos_t {
+      return traits::get(size());
+    }
 
-    template<>
-    auto basic_list<orientation::horizontal>::get_list_size () const -> pos_t;
+    template<orientation V>
+    core::size basic_list<V>::client_size () const {
+      core::size sz = super::client_size();
+      if (is_scroll_bar_visible()) {
+        traits::set(sz, traits::get(sz), traits::get_other(sz) - scroll_bar::get_scroll_bar_width());
+      }
+      return sz;
+    }
 
-    template<>
-    auto basic_list<orientation::horizontal>::get_dimension (const core::point &) const -> pos_t;
-
-    template<>
-    auto basic_list<orientation::horizontal>::get_other_dimension (const core::point &) const -> pos_t;
-
-    template<>
-    void basic_list<orientation::horizontal>::set_dimension (core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    void basic_list<orientation::horizontal>::set_other_dimension (core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    core::size basic_list<orientation::horizontal>::client_size () const;
-
-    // --------------------------------------------------------------------------
-    template<>
-    core::rectangle basic_list<orientation::vertical>::get_scroll_bar_area () const;
-
-    template<>
-    auto basic_list<orientation::vertical>::get_list_size () const->pos_t;
-
-    template<>
-    auto basic_list<orientation::vertical>::get_dimension (const core::point &) const->pos_t;
-
-    template<>
-    auto basic_list<orientation::vertical>::get_other_dimension (const core::point &) const->pos_t;
-
-    template<>
-    void basic_list<orientation::vertical>::set_dimension (core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    void basic_list<orientation::vertical>::set_other_dimension (core::rectangle &, pos_t, pos_t) const;
-
-    template<>
-    core::size basic_list<orientation::vertical>::client_size () const;
+    template<orientation V>
+    core::rectangle basic_list<V>::get_scroll_bar_area () const {
+      core::rectangle r(super::client_size());
+      traits::set_other(r, traits::get_other(r.size()) - scroll_bar::get_scroll_bar_width(), scroll_bar::get_scroll_bar_width());
+      return r;
+    }
 
     // --------------------------------------------------------------------------
     template<orientation V>
@@ -362,7 +429,7 @@ namespace gui {
     template<orientation V>
     inline int lines_list<V>::get_index_at_point (const core::point& pt) {
       if (super::client_area().is_inside(pt)) {
-        return static_cast<int>((super::get_dimension(pt) + super::get_scroll_pos()) / get_item_size());
+        return static_cast<int>((traits::get(pt) + super::get_scroll_pos()) / get_item_size());
       }
       return -1;
     }
@@ -372,7 +439,7 @@ namespace gui {
       if (super::is_valid_idx(idx)) {
         core::rectangle place(super::client_size());
         const auto is = get_item_size();
-        super::set_dimension(place, is * idx - super::get_scroll_pos(), is);
+        traits::set(place, is * idx - super::get_scroll_pos(), is);
         return place;
       }
       return core::rectangle::zero;
@@ -428,11 +495,11 @@ namespace gui {
       const auto last = super::get_count();
       const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / get_item_size());
 
-      super::set_dimension(place, get_item_size() * first - super::get_scroll_pos(), get_item_size());
+      traits::set(place, get_item_size() * first - super::get_scroll_pos(), get_item_size());
 
-      for (auto idx = first; (idx < last) && (super::get_dimension(place.top_left()) < list_sz); ++idx) {
+      for (auto idx = first; (idx < last) && (traits::get(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
-        super::set_dimension(place, super::get_dimension(place.top_left()) + get_item_size(), get_item_size());
+        traits::set(place, traits::get(place.top_left()) + get_item_size(), get_item_size());
       }
 
       if (place.y() < area.y2()) {
@@ -456,7 +523,7 @@ namespace gui {
       const core::rectangle r = super::client_area();
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
-          pos_t delta = super::get_dimension(super::get_last_mouse_point()) - super::get_dimension(pt);
+          pos_t delta = traits::get(super::get_last_mouse_point()) - traits::get(pt);
           set_scroll_pos(super::get_scroll_pos() + delta);
           super::get_state().set_moved(true);
         }
@@ -522,7 +589,7 @@ namespace gui {
     void lines_list<V>::init () {
       super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &lines_list::paint)));
       super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &lines_list::handle_left_btn_up));
-      super::register_event_handler(REGISTER_FUNCTION, typename super::traits::wheel_event_type(this, &lines_list::handle_wheel));
+      super::register_event_handler(REGISTER_FUNCTION, typename wheel_traits<V>::wheel_event_type(this, &lines_list::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &lines_list::handle_key));
       super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &lines_list::handle_mouse_move));
       super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &) {

@@ -77,6 +77,7 @@ namespace gui {
       dim_type get_item_spacing () const;
 
       std::size_t get_items_per_line (const core::size& list_size) const;
+      std::size_t get_line_count (size_t count, const core::size& list_size) const;
 
       core::size item_size;
       core::size border;

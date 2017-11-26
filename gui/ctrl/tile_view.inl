@@ -120,7 +120,7 @@ namespace gui {
                                                  dim_type scroll_pos,
                                                  size_t count,
                                                  const core::size& list_size) const {
-      const int per_line = static_cast<int>(get_items_per_line(list_size));
+      const auto per_line = static_cast<int>(get_items_per_line(list_size));
       const auto line = static_cast<int>((super::get(pt) + scroll_pos - get_line_border()) / get_line_size());
       const auto offs = static_cast<int>((super::get_other(pt) - get_item_border()) / (get_item_size() + get_item_spacing()));
       const auto idx = (line * per_line) + offs;
@@ -152,15 +152,16 @@ namespace gui {
 
     template<orientation V>
     inline std::size_t tile_list_traits<V>::get_items_per_line (const core::size& list_size) const {
-      auto ls = super::get_other(list_size);
-      auto lsp = get_line_spacing();
-      auto ib = get_item_border();
-      auto isp = get_item_spacing();
-      auto is = get_item_size();
-      auto avail = (ls - lsp - ib * 2 + isp);
-      auto need = (is + isp);
-      auto count = static_cast<std::size_t>(std::max(avail / need, 1.0f));
-      return count;
+      const auto isp = get_item_spacing();
+      const auto avail = (super::get_other(list_size) - get_line_spacing() - get_item_border() * 2 + isp);
+      const auto need = (get_item_size() + isp);
+      return static_cast<std::size_t>(std::max(avail / need, 1.0f));
+    }
+
+    template<orientation V>
+    inline std::size_t tile_list_traits<V>::get_line_count (size_t count,
+                                                            const core::size& list_size) const {
+      return div_ceil(count, get_items_per_line(list_size));
     }
 
     // --------------------------------------------------------------------------
@@ -189,7 +190,7 @@ namespace gui {
 
     template<orientation V>
     inline std::size_t basic_tile_view<V>::get_line_count () const {
-      return div_ceil(super::get_count(), super::traits.get_items_per_line(super::client_size()));
+      return super::traits.get_line_count(super::get_count(), super::client_size());
     }
 
     template<orientation V>

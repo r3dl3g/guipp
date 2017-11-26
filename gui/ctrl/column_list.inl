@@ -38,16 +38,16 @@ namespace gui {
 
       inline column_list_layout::column_list_layout (win::window* main, const column_list_layout& rhs)
         : main(main)
+        , list(nullptr)
         , widths(rhs.widths)
         , aligns(rhs.aligns)
-        , list(nullptr)
       {}
 
       inline column_list_layout::column_list_layout (win::window* main, column_list_layout&& rhs)
         : main(main)
+        , list(std::move(rhs.list))
         , widths(std::move(rhs.widths))
         , aligns(std::move(rhs.aligns))
-        , list(std::move(rhs.list))
       {}
 
       inline void column_list_layout::init_auto_layout () {

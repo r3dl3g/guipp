@@ -73,11 +73,12 @@ namespace gui {
       protected:
         void redraw_views ();
 
+        win::window* main;
+        list_type* list;
+
         std::vector<column_size_type> widths;
         std::vector<text_origin> aligns;
 
-        win::window* main;
-        list_type* list;
       };
 
     }

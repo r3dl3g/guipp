@@ -214,9 +214,6 @@ namespace gui {
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
-      void adjust_scroll_bar ();
-      void set_scroll_pos (pos_t pos);
-
       void set_count (std::size_t count);
 
       template<typename F>
@@ -232,9 +229,12 @@ namespace gui {
       core::size client_size () const;
       core::rectangle client_area () const;
 
+      void adjust_scroll_bar ();
+      void set_scroll_pos (pos_t pos);
+      pos_t get_scroll_pos () const;
+
       void enable_scroll_bar (bool enable);
       bool is_scroll_bar_visible () const;
-      pos_t get_scroll_pos () const;
 
       void clear_selection (event_source notify);
 

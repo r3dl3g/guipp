@@ -109,7 +109,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void lines_list<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
+    void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
       case keys::left:
       case keys::numpad::left:
@@ -123,7 +123,7 @@ namespace gui {
     }
 
     template<>
-    void lines_list<orientation::vertical>::handle_direction_key (os::key_symbol key) {
+    void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
       case keys::up:
       case keys::numpad::up:
@@ -142,23 +142,23 @@ namespace gui {
 
       data.editor.register_event_handler(REGISTER_FUNCTION,
                                          win::btn_down_event([&](os::key_state, const core::point & pt) {
-                                                               if (!data.editor.client_area().is_inside(pt)) {
-                                                                 commit_edit();
-                                                               }
-                                                             }));
+        if (!data.editor.client_area().is_inside(pt)) {
+          commit_edit();
+        }
+      }));
 
       data.editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
       data.editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
 
       super::scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-                                                                                if (data.editor.is_visible()) {
-                                                                                  data.editor.place(super::get_place_of_index(super::get_selection()));
-                                                                                }
-                                                                              }));
+        if (data.editor.is_visible()) {
+          data.editor.place(super::get_place_of_index(super::get_selection()));
+        }
+      }));
 
       super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
-                                                                                      commit_edit();
-                                                                                    }));
+        commit_edit();
+      }));
 
     }
 

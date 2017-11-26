@@ -99,76 +99,6 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation V>
-    struct list_traits {
-      static core::point::type get (const core::point&);
-      static core::size::type get (const core::size&);
-
-      static core::point::type get_other (const core::point&);
-      static core::size::type get_other (const core::size&);
-
-      static void set (core::point&, core::point::type dim, core::point::type other);
-      static void set (core::size&, core::size::type dim, core::size::type other);
-
-      static void set (core::rectangle&, core::point::type, core::size::type);
-      static void set_other (core::rectangle&, core::point::type, core::size::type);
-    };
-
-    template<orientation V>
-    struct wheel_traits {};
-
-    template<>
-    struct wheel_traits<orientation::horizontal> {
-      typedef wheel_x_event wheel_event_type;
-
-    };
-
-    template<>
-    struct wheel_traits<orientation::vertical> {
-      typedef wheel_y_event wheel_event_type;
-    };
-
-    // --------------------------------------------------------------------------
-    template<orientation V>
-    class basic_list : public detail::list_base {
-    public:
-      typedef detail::list_base super;
-      typedef typename super::pos_t pos_t;
-      typedef list_traits<V> traits;
-      typedef basic_scroll_bar<V> scroll_bar_type;
-      typedef no_erase_window_class<basic_list> clazz;
-
-      const pos_t zero = pos_t(0);
-
-      basic_list (os::color background = color::white,
-                  bool grab_focus = true);
-      basic_list (const basic_list& rhs);
-      basic_list (basic_list&& rhs);
-
-      core::size client_size () const;
-
-      void create_scroll_bar ();
-      void enable_scroll_bar (bool enable);
-      bool is_scroll_bar_visible () const;
-      pos_t get_scroll_pos () const;
-
-      void clear_selection (event_source notify);
-
-      void set_hilite (int sel, bool notify = true);
-      void clear_hilite (bool notify = true);
-
-    protected:
-      pos_t get_list_size () const;
-      core::rectangle get_scroll_bar_area () const;
-
-      scroll_bar_type scrollbar;
-
-    private:
-      void init ();
-
-    };
-
-    // --------------------------------------------------------------------------
     template<typename T>
     void default_list_item_drawer (const T& t,
                                    const draw::graphics& g,
@@ -217,33 +147,72 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation V>
-    class lines_list : public basic_list<V> {
-    public:
-      typedef basic_list<V> super;
-      typedef typename super::traits traits;
-      typedef typename super::pos_t pos_t;
+    struct orientation_traits {
+      static core::point::type get (const core::point&);
+      static core::point::type get_other (const core::point&);
 
-      lines_list (core::size::type item_size = 20,
+      static core::size::type get (const core::size&);
+      static core::size::type get_other (const core::size&);
+
+      static void set (core::point&, core::point::type dim, core::point::type other);
+      static void set (core::size&, core::size::type dim, core::size::type other);
+
+      static void set (core::point&, core::point::type dim);
+      static void set_other (core::point&, core::point::type other);
+
+      static void set (core::size&, core::size::type dim);
+      static void set_other (core::size&, core::size::type other);
+
+      static void set (core::rectangle&, core::point::type, core::size::type);
+      static void set_other (core::rectangle&, core::point::type, core::size::type);
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    struct wheel_traits {};
+
+    template<>
+    struct wheel_traits<orientation::horizontal> {
+      typedef wheel_x_event wheel_event_type;
+
+    };
+
+    template<>
+    struct wheel_traits<orientation::vertical> {
+      typedef wheel_y_event wheel_event_type;
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V, typename T>
+    class basic_list : public detail::list_base {
+    public:
+      typedef detail::list_base super;
+      typedef T traits_type;
+      typedef typename traits_type::size_type size_type;
+      typedef typename super::pos_t pos_t;
+      typedef basic_scroll_bar<V> scroll_bar_type;
+      typedef no_erase_window_class<basic_list> clazz;
+
+      const pos_t zero = pos_t(0);
+
+      basic_list (size_type item_size,
                   os::color background = color::white,
                   bool grab_focus = true);
-
-      lines_list (const lines_list& rhs);
-
-      lines_list (lines_list&& rhs);
+      basic_list (const basic_list& rhs);
+      basic_list (basic_list&& rhs);
 
       void create (const container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      template<typename T,
-               list_item_drawer<T> F = default_list_item_drawer<T> >
+      template<typename U,
+               list_item_drawer<U> F = default_list_item_drawer<U> >
       void create (const container& parent,
                    const core::rectangle& place,
-                   const simple_list_data<T, F>& data);
+                   const simple_list_data<U, F>& data);
 
       core::size::type get_item_size () const;
-
-      void set_item_size (core::size::type item_size);
-      void set_item_size_and_background (core::size::type item_size, os::color background);
+      void set_item_size (size_type item_size);
+      void set_item_size_and_background (size_type item_size, os::color background);
 
       void adjust_scroll_bar ();
       void set_scroll_pos (pos_t pos);
@@ -256,14 +225,85 @@ namespace gui {
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);
 
+      bool try_to_select (int sel, event_source notify);
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
 
-      void paint (const draw::graphics& graph);
+      core::size client_size () const;
+      core::rectangle client_area () const;
+
+      void create_scroll_bar ();
+      void enable_scroll_bar (bool enable);
+      bool is_scroll_bar_visible () const;
+      pos_t get_scroll_pos () const;
+
+      void clear_selection (event_source notify);
+
+      void set_hilite (int sel, bool notify = true);
+      void clear_hilite (bool notify = true);
 
       void handle_wheel (const pos_t delta, const core::point&);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
+
+    protected:
+      pos_t get_list_size () const;
+
+      core::rectangle get_scroll_bar_area () const;
+
+      scroll_bar_type scrollbar;
+      traits_type traits;
+
+    private:
+      void init ();
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    struct linear_list_traits : public orientation_traits<V> {
+      typedef orientation_traits<V> super;
+      typedef core::size::type size_type;
+
+      linear_list_traits (size_type item_size);
+
+      size_type get_invisible_size (const core::size& list_size, size_t count) const;
+
+      size_type get_maximum_pos (const core::size& item_size, size_t count) const;
+
+      int get_index_at_point (const core::point& pt,
+                              size_type scroll_pos,
+                              size_t /*count*/,
+                              const core::size& /*list_size*/) const;
+
+      core::rectangle get_place_of_index (core::rectangle place,
+                                          int idx,
+                                          size_type scroll_pos,
+                                          const core::size& /*list_size*/) const;
+
+      size_type get_offset_of_index (int idx, const core::size& /*list_width*/) const;
+
+      size_type get_line_size () const;
+
+      size_type item_size;
+    };
+
+    // --------------------------------------------------------------------------
+    template<orientation V>
+    class linear_list : public basic_list<V, linear_list_traits<V>> {
+    public:
+      typedef basic_list<V, linear_list_traits<V>> super;
+
+      linear_list (core::size::type item_size = 20,
+                   os::color background = color::white,
+                   bool grab_focus = true);
+
+      linear_list (const linear_list& rhs);
+
+      linear_list (linear_list&& rhs);
+
+      void paint (const draw::graphics& graph);
+
       void handle_key (os::key_state,
                        os::key_symbol key,
                        const std::string&);
@@ -272,14 +312,11 @@ namespace gui {
       void handle_direction_key (os::key_symbol key);
 
       void init ();
-
-      core::size::type item_size;
-
     };
 
     // --------------------------------------------------------------------------
-    typedef lines_list<orientation::horizontal> horizontal_list;
-    typedef lines_list<orientation::vertical> vertical_list;
+    typedef linear_list<orientation::horizontal> horizontal_list;
+    typedef linear_list<orientation::vertical> vertical_list;
     typedef vertical_list list;
 
     // --------------------------------------------------------------------------

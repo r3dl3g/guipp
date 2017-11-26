@@ -483,7 +483,8 @@ namespace gui {
     template<orientation V, typename T>
     core::rectangle basic_list<V, T>::get_scroll_bar_area () const {
       core::rectangle r(super::client_size());
-      traits.set_other(r, traits.get_other(r.size()) - scroll_bar::get_scroll_bar_width(), scroll_bar::get_scroll_bar_width());
+      float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
+      traits.set_other(r, traits.get_other(r.size()) - sz, sz);
       return r;
     }
 

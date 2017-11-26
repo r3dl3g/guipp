@@ -190,7 +190,7 @@ namespace gui {
     class column_list_header : public window {
     public:
       typedef Layout layout_type;
-      typedef layout_container<Layout> super;
+      typedef window super;
       typedef no_erase_window_class<column_list_header> clazz;
 
       typedef void (cell_draw)(std::size_t,            // idx

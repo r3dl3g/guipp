@@ -58,39 +58,15 @@ namespace gui {
     }
 
     void layout_base::init (std::function<size_callback> f1) {
-#ifdef NDEBUG
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(f1));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
         f1(main->client_size());
       }));
-#else
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
-//        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
-        core::size sz = main->client_size();
-//        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
-#endif
     }
 
     void layout_base::init (std::function<size_callback> f1, std::function<show_callback> f2) {
-#ifdef NDEBUG
       main->register_event_handler(REGISTER_FUNCTION, win::size_event(f1));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event(f2));
-#else
-      main->register_event_handler(REGISTER_FUNCTION, win::size_event([&, f1](const core::size & sz) {
-//        LogDebug << "layout_base size_event " << main->get_class_name() << " " << sz;
-        f1(sz);
-      }));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f2]() {
-        core::size sz = main->client_size();
-//        LogDebug << "layout_base show_event " << main->get_class_name() << " " << sz;
-        f2();
-      }));
-#endif
     }
 
     void layout_base::update () {

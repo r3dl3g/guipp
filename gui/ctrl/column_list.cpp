@@ -66,13 +66,9 @@ namespace gui {
         return get_column_left_pos(i + 1);
       }
 
-      core::size::type column_list_layout::get_available_width (const core::size& sz) const {
-        return sz.width() - (list && list->is_scroll_bar_visible() ? win::scroll_bar::get_scroll_bar_width() : 0);
-      }
-
       core::size::type column_list_layout::get_available_width () const {
         if (list) {
-          return get_available_width(main->client_size());
+          return list->client_size().width();
         }
         return 0;
       }
@@ -114,8 +110,6 @@ namespace gui {
         aligns[i] = info.align;
         set_column_width(i, info.width, update);
       }
-
-      void column_list_layout::layout (const core::size& new_size) {}
 
       void column_list_layout::redraw_views () {
         main->redraw_later();
@@ -218,7 +212,7 @@ namespace gui {
         full_weight = 1.0F;
       }
 
-      core::size::type available_width = get_available_width(sz);
+      core::size::type available_width = get_available_width();
       column_size_type space = available_width - full_width;
 
 
@@ -227,7 +221,6 @@ namespace gui {
         super::set_column_width(i, w, false);
       }
 
-      super::layout(sz);
       list->redraw_later();
     }
 

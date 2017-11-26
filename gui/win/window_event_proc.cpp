@@ -154,17 +154,14 @@ namespace gui {
       window_set needs_redraw_set;
 
       void set_needs_redraw (os::window id) {
-//        LogDebug << "set_needs_redraw:" << id;
         needs_redraw_set.emplace(id);
       }
 
       void clear_needs_redraw (os::window id) {
-//        LogDebug << "clear_needs_redraw:" << id;
         needs_redraw_set.erase(id);
       }
 
       bool needs_redraw (os::window id) {
-//        LogDebug << "check_needs_redraw:" << id;
         return needs_redraw_set.find(id) != needs_redraw_set.end();
       }
 
@@ -208,8 +205,8 @@ namespace gui {
       }
 
       bool check_expose (const core::event& e) {
-//        return (e.type == Expose) && (e.xexpose.count > 0);
-        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
+        return (e.type == Expose) && (e.xexpose.count > 0);
+//        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
       }
 
       inline win::window* get_event_window (const core::event& e) {

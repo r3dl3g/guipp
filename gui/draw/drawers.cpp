@@ -868,7 +868,7 @@ namespace gui {
                        {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
       }
 
-      if ((target_right > left) && (target_bottom > top) && (source_right >= left) && (source_bottom >= top)) {
+      if ((target_right >= left) && (target_bottom >= top) && (source_right >= left) && (source_bottom >= top)) {
         const uint32_t target_inner_width = target_right - left;
         const uint32_t target_inner_height = target_bottom - top;
         const uint32_t source_inner_width = source_right - left;

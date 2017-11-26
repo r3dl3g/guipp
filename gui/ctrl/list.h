@@ -232,7 +232,6 @@ namespace gui {
       core::size client_size () const;
       core::rectangle client_area () const;
 
-      void create_scroll_bar ();
       void enable_scroll_bar (bool enable);
       bool is_scroll_bar_visible () const;
       pos_t get_scroll_pos () const;
@@ -255,6 +254,8 @@ namespace gui {
       traits_type traits;
 
     private:
+      void create_scroll_bar ();
+
       void init ();
 
     };
@@ -269,19 +270,16 @@ namespace gui {
 
       size_type get_invisible_size (const core::size& list_size, size_t count) const;
 
-      size_type get_maximum_pos (const core::size& item_size, size_t count) const;
+      size_type get_offset_of_index (const core::size& list_size, int idx) const;
 
-      int get_index_at_point (const core::point& pt,
+      int get_index_at_point (const core::size& list_size,
+                              const core::point& pt,
                               size_type scroll_pos,
-                              size_t /*count*/,
-                              const core::size& /*list_size*/) const;
+                              size_t /*count*/) const;
 
-      core::rectangle get_place_of_index (core::rectangle place,
+      core::rectangle get_place_of_index (const core::size& list_size,
                                           int idx,
-                                          size_type scroll_pos,
-                                          const core::size& /*list_size*/) const;
-
-      size_type get_offset_of_index (int idx, const core::size& /*list_width*/) const;
+                                          size_type scroll_pos) const;
 
       size_type get_line_size () const;
 

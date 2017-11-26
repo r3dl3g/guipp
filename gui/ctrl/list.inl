@@ -296,34 +296,29 @@ namespace gui {
     template<orientation V>
     inline auto linear_list_traits<V>::get_invisible_size (const core::size& list_size,
                                                            size_t count) const -> size_type {
-      return (item_size * size_type(count)) - super::get(list_size);
+      return std::max(size_type(0), (item_size * size_type(count)) - super::get(list_size));
     }
 
     template<orientation V>
-    inline auto linear_list_traits<V>::get_maximum_pos (const core::size& item_size,
-                                                        size_t count) const -> size_type {
-      return std::max(size_type(0), get_invisible_size(item_size, count));
-    }
-
-    template<orientation V>
-    inline int linear_list_traits<V>::get_index_at_point (const core::point& pt,
+    inline int linear_list_traits<V>::get_index_at_point (const core::size& /*list_size*/,
+                                                          const core::point& pt,
                                                           size_type scroll_pos,
-                                                          size_t /*count*/,
-                                                          const core::size& /*list_size*/) const {
+                                                          size_t /*count*/) const {
       return static_cast<int>((super::get(pt) + scroll_pos) / item_size);
     }
 
     template<orientation V>
-    inline core::rectangle linear_list_traits<V>::get_place_of_index (core::rectangle place,
+    inline core::rectangle linear_list_traits<V>::get_place_of_index (const core::size& list_size,
                                                                       int idx,
-                                                                      size_type scroll_pos,
-                                                                      const core::size& /*list_size*/) const {
+                                                                      size_type scroll_pos) const {
+      core::rectangle place;
       super::set(place, item_size * idx - scroll_pos, item_size);
+      super::set_other(place, 0, super::get_other(list_size));
       return place;
     }
 
     template<orientation V>
-    inline auto linear_list_traits<V>::get_offset_of_index (int idx, const core::size& /*list_width*/) const -> size_type {
+    inline auto linear_list_traits<V>::get_offset_of_index (const core::size&, int idx) const -> size_type {
       return item_size * idx;
     }
 
@@ -555,7 +550,7 @@ namespace gui {
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = client_area();
       if (rect.is_inside(pt)) {
-        return traits.get_index_at_point(pt, get_scroll_pos(), get_count(), rect.size());
+        return traits.get_index_at_point(rect.size(), pt, get_scroll_pos(), get_count());
       }
       return -1;
     }
@@ -563,8 +558,7 @@ namespace gui {
     template<orientation V, typename T>
     core::rectangle basic_list<V, T>::get_place_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        auto rect = client_area();
-        return traits.get_place_of_index(rect, idx, get_scroll_pos(), rect.size());
+        return traits.get_place_of_index(client_size(), idx, get_scroll_pos());
       }
       return core::rectangle::zero;
     }
@@ -598,7 +592,7 @@ namespace gui {
         const auto list_sz = traits.get(list_size);
         const auto scroll_pos = get_scroll_pos();
         const auto line_size = traits.get_line_size();
-        const auto sel_pos = traits.get_offset_of_index(super::get_selection(), list_size);
+        const auto sel_pos = traits.get_offset_of_index(list_size, super::get_selection());
 
         if (sel_pos < scroll_pos) {
           set_scroll_pos(sel_pos);
@@ -612,8 +606,7 @@ namespace gui {
 
     template<orientation V, typename T>
     void basic_list<V, T>::set_scroll_pos (pos_t pos) {
-      const auto max_delta = traits.get_maximum_pos(client_size(), super::get_count());
-      auto value = std::min(std::max(zero, pos), max_delta);
+      auto value = std::max(zero, std::min(pos, traits.get_invisible_size(client_size(), super::get_count())));
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value);
       }
@@ -643,7 +636,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = traits.get_index_at_point(pt, get_scroll_pos(), get_count(), client_size());
+        const int new_selection = traits.get_index_at_point(client_size(), pt, get_scroll_pos(), get_count());
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);

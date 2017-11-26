@@ -348,8 +348,10 @@ namespace gui {
       // --------------------------------------------------------------------------
       void simple_frame (const draw::graphics& graph,
                          const core::rectangle& r,
-                         bool hilite) {
-        graph.copy(draw::frame_image(r, hilite ? get_simple_frame().brightness(1.025F) : get_simple_frame(), 3), r.top_left());
+                         bool hilite,
+                         uint32_t horizontal,
+                         uint32_t vertical) {
+        graph.copy(draw::frame_image(r, hilite ? get_simple_frame().brightness(1.025F) : get_simple_frame(), horizontal, vertical), r.top_left());
       }
 
       // --------------------------------------------------------------------------

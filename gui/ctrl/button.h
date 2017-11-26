@@ -78,7 +78,9 @@ namespace gui {
 
       void simple_frame (const draw::graphics& graph,
                          const core::rectangle& r,
-                         bool hilite = false);
+                         bool hilite = false,
+                         uint32_t horizontal = 3,
+                         uint32_t vertical = 3);
 
       void flat_button (const draw::graphics& g,
                         const core::rectangle& r,

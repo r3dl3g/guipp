@@ -31,27 +31,26 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline column_list_layout::column_list_layout (win::container* main)
-        : super(main)
+      inline column_list_layout::column_list_layout (win::window* main)
+        : main(main)
         , list(nullptr)
       {}
 
-      inline column_list_layout::column_list_layout (win::container* main, const column_list_layout& rhs)
-        : super(main, rhs)
+      inline column_list_layout::column_list_layout (win::window* main, const column_list_layout& rhs)
+        : main(main)
         , widths(rhs.widths)
         , aligns(rhs.aligns)
         , list(nullptr)
       {}
 
-      inline column_list_layout::column_list_layout (win::container* main, column_list_layout&& rhs)
-        : super(main, std::move(rhs))
+      inline column_list_layout::column_list_layout (win::window* main, column_list_layout&& rhs)
+        : main(main)
         , widths(std::move(rhs.widths))
         , aligns(std::move(rhs.aligns))
         , list(std::move(rhs.list))
       {}
 
       inline void column_list_layout::init_auto_layout () {
-        super::init(core::bind_method(this, &column_list_layout::layout));
       }
 
       inline std::size_t column_list_layout::get_column_count () const {
@@ -96,7 +95,7 @@ namespace gui {
         data.list->resize(sz - core::size(0, 20));
       }
 
-      inline void base_column_list_layout::set_header_and_list (win::container* header, list_type* list) {
+      inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
         data.list = list;
         data.header = header;
       }
@@ -109,16 +108,16 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    inline simple_column_list_layout::simple_column_list_layout (win::container* main)
+    inline simple_column_list_layout::simple_column_list_layout (win::window* main)
       : super(main)
     {}
 
-    inline simple_column_list_layout::simple_column_list_layout (win::container* main, const simple_column_list_layout& rhs)
+    inline simple_column_list_layout::simple_column_list_layout (win::window* main, const simple_column_list_layout& rhs)
       : super(main, rhs)
       , min_widths(rhs.min_widths)
     {}
 
-    inline simple_column_list_layout::simple_column_list_layout (win::container* main, simple_column_list_layout&& rhs)
+    inline simple_column_list_layout::simple_column_list_layout (win::window* main, simple_column_list_layout&& rhs)
       : super(main, std::move(rhs))
       , min_widths(std::move(rhs.min_widths))
     {}
@@ -144,22 +143,25 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline weight_column_list_layout::weight_column_list_layout (win::container* main)
+    inline weight_column_list_layout::weight_column_list_layout (win::window* main)
       : super(main)
     {}
 
-    inline weight_column_list_layout::weight_column_list_layout (win::container* main, const weight_column_list_layout& rhs)
+    inline weight_column_list_layout::weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs)
       : super(main, rhs)
       , weights(rhs.weights)
     {}
 
-    inline weight_column_list_layout::weight_column_list_layout (win::container* main, weight_column_list_layout&& rhs)
+    inline weight_column_list_layout::weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs)
       : super(main, std::move(rhs))
       , weights(std::move(rhs.weights))
     {}
 
     inline void weight_column_list_layout::init_auto_layout () {
-      super::init(core::bind_method(this, &weight_column_list_layout::layout));
+      main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &weight_column_list_layout::layout));
+      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+        layout(list->client_size());
+      }));
     }
 
     inline void weight_column_list_layout::set_column_count (std::size_t i) {
@@ -184,10 +186,11 @@ namespace gui {
     template<typename Layout, os::color background>
     column_list_header<Layout, background>::column_list_header ()
       : down_idx(-1)
+      , layouter(this)
     {
       super::set_accept_focus(false);
       set_cell_drawer(default_header_cell_drawer);
-      this->get_layout().init_auto_layout();
+      layouter.init_auto_layout();
       this->register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &column_list_header::paint)));
       this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
       this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
@@ -202,9 +205,9 @@ namespace gui {
       core::rectangle r = area;
       draw::brush back_brush(background);
 
-      auto count = this->get_layout().get_column_count();
+      auto count = layouter.get_column_count();
       for (decltype(count) i = 0;i < count;++i) {
-        layout::column_size_type w = this->get_layout().get_column_width(i);
+        layout::column_size_type w = layouter.get_column_width(i);
         r.width(w);
         if (cell_drawer) {
           cell_drawer(i, g, r, back_brush);
@@ -231,7 +234,7 @@ namespace gui {
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::handle_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;
-      down_idx = this->get_layout().split_idx_at(pt.x(), 2.0F);
+      down_idx = layouter.split_idx_at(pt.x(), 2.0F);
       super::set_cursor(down_idx > -1 ? cursor::size_h() : cursor::move());
       super::capture_pointer();
     }
@@ -250,14 +253,24 @@ namespace gui {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
-            this->get_layout().set_column_width(down_idx, this->get_layout().get_column_width(down_idx) + delta);
+            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta);
           }
         }
         last_mouse_point = pt;
       } else {
-        const int idx = this->get_layout().split_idx_at(pt.x(), 2.0F);
+        const int idx = layouter.split_idx_at(pt.x(), 2.0F);
         super::set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
       }
+    }
+
+    template<typename Layout, os::color background>
+    inline auto column_list_header<Layout, background>::get_column_layout () -> layout_type& {
+      return layouter;
+    }
+
+    template<typename Layout, os::color background>
+    inline auto column_list_header<Layout, background>::get_column_layout () const -> const layout_type& {
+      return layouter;
     }
 
     // --------------------------------------------------------------------------
@@ -292,24 +305,23 @@ namespace gui {
       }
 
       template<typename Layout>
-      auto base_column_list<Layout>::get_column_layout()->layout_type & {
-        return header.get_layout();
+      auto base_column_list<Layout>::get_column_layout() -> layout_type & {
+        return header.get_column_layout();
       }
 
       template<typename Layout>
       auto base_column_list<Layout>::get_column_layout() const->const layout_type &{
-        return header.get_layout();
+        return header.get_column_layout();
       }
 
       template<typename Layout>
       void base_column_list<Layout>::create (const container& parent,
                                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
-        header.create(*reinterpret_cast<container*>(this), core::rectangle(0, 0, place.width(), 20));
+        header.create(*this, core::rectangle(0, 0, place.width(), 20));
         header.set_visible();
-        list.create(*reinterpret_cast<container*>(this), core::rectangle(0, 20, place.width(), place.height() - 20));
+        list.create(*this, core::rectangle(0, 20, place.width(), place.height() - 20));
         list.set_visible();
-        header.layout();
       }
 
       template<typename Layout>

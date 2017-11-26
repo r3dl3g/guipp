@@ -54,19 +54,16 @@ namespace gui {
 
       dim_type get_invisible_size (const core::size& list_size, size_t count) const;
 
-      dim_type get_maximum_pos (const core::size& list_size, size_t count) const;
+      dim_type get_offset_of_index(const core::size& list_size, int idx) const;
 
-      int get_index_at_point (const core::point& pt,
+      int get_index_at_point (const core::size& list_size,
+                              const core::point& pt,
                               dim_type scroll_pos,
-                              size_t count,
-                              const core::size& list_size) const;
+                              size_t count) const;
 
-      core::rectangle get_place_of_index (core::rectangle place,
+      core::rectangle get_place_of_index (const core::size& list_size,
                                           int idx,
-                                          dim_type scroll_pos,
-                                          const core::size& list_size) const;
-
-      dim_type get_offset_of_index(int idx, const core::size& list_size) const;
+                                          dim_type scroll_pos) const;
 
       dim_type get_line_size () const;
       dim_type get_line_border () const;

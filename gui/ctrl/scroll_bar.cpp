@@ -248,7 +248,7 @@ namespace gui {
           }
         }
         if (!thumb.empty()) {
-          paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite);
+          paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite, 3, horizontal ? 3 : 13);
           if (scrollbar_state::thumb_button == state) {
             draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
           }

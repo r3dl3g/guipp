@@ -39,18 +39,15 @@ namespace gui {
 
     namespace detail {
 
-      class column_list_layout : protected layout_base {
+      class column_list_layout {
       public:
-        typedef layout_base super;
         typedef win::vertical_list list_type;
 
-        column_list_layout (win::container* main);
-        column_list_layout (win::container* main, const column_list_layout& rhs);
-        column_list_layout (win::container* main, column_list_layout&& rhs);
+        column_list_layout (win::window* main);
+        column_list_layout (win::window* main, const column_list_layout& rhs);
+        column_list_layout (win::window* main, column_list_layout&& rhs);
 
         void init_auto_layout ();
-
-        void layout (const core::size& new_size);
 
         std::size_t get_column_count () const;
         void set_column_count (std::size_t i);
@@ -70,7 +67,6 @@ namespace gui {
         void set_columns (std::initializer_list<column_info> infos, bool update = true);
 
         core::size::type get_available_width () const;
-        core::size::type get_available_width (const core::size&) const;
 
         void set_list (list_type* l);
 
@@ -80,6 +76,7 @@ namespace gui {
         std::vector<column_size_type> widths;
         std::vector<text_origin> aligns;
 
+        win::window* main;
         list_type* list;
       };
 
@@ -97,9 +94,9 @@ namespace gui {
     public:
       typedef detail::column_list_layout super;
 
-      simple_column_list_layout (win::container* main);
-      simple_column_list_layout (win::container* main, const simple_column_list_layout& rhs);
-      simple_column_list_layout (win::container* main, simple_column_list_layout&& rhs);
+      simple_column_list_layout (win::window* main);
+      simple_column_list_layout (win::window* main, const simple_column_list_layout& rhs);
+      simple_column_list_layout (win::window* main, simple_column_list_layout&& rhs);
 
       void set_column_width (std::size_t i, column_size_type w, bool update = true);
       void set_column_count (std::size_t i);
@@ -126,9 +123,9 @@ namespace gui {
     public:
       typedef simple_column_list_layout super;
 
-      weight_column_list_layout (win::container* main);
-      weight_column_list_layout (win::container* main, const weight_column_list_layout& rhs);
-      weight_column_list_layout (win::container* main, weight_column_list_layout&& rhs);
+      weight_column_list_layout (win::window* main);
+      weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs);
+      weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs);
 
       void layout (const core::size& new_size);
 
@@ -159,7 +156,7 @@ namespace gui {
         base_column_list_layout (win::container* m, base_column_list_layout&& rhs);
 
         void layout (const core::size& sz);
-        void set_header_and_list (win::container* header, list_type* list);
+        void set_header_and_list (win::window* header, list_type* list);
 
       protected:
         struct data {
@@ -168,7 +165,7 @@ namespace gui {
             , list(nullptr)
           {}
 
-          win::container* header;
+          win::window* header;
           list_type* list;
         } data;
 
@@ -189,7 +186,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename Layout, os::color background = color::very_very_light_gray>
-    class column_list_header : public layout_container<Layout> {
+    class column_list_header : public window {
     public:
       typedef Layout layout_type;
       typedef layout_container<Layout> super;
@@ -213,10 +210,14 @@ namespace gui {
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
       void handle_mouse_move (os::key_state keys, const core::point& pt);
 
+      layout_type& get_column_layout ();
+      const layout_type& get_column_layout () const;
+
     private:
       std::function<cell_draw> cell_drawer;
       core::point last_mouse_point;
       int down_idx;
+      layout_type layouter;
 
       void operator= (column_list_header&) = delete;
     };

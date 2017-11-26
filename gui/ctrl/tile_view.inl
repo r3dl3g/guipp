@@ -106,32 +106,25 @@ namespace gui {
                                                          size_t count) const -> dim_type {
       const auto ipl = get_items_per_line(list_size);
       const auto lines = (ipl > 0 ? div_ceil(count, ipl) : 1);
-      return ((get_line_size()) * lines + get_line_border() * 2) - super::get(list_size);
+      return std::max(dim_type(0), ((get_line_size()) * lines + get_line_border() * 2) - super::get(list_size));
     }
 
     template<orientation V>
-    inline auto tile_list_traits<V>::get_maximum_pos (const core::size& list_size,
-                                                      size_t count) const -> dim_type {
-      return std::max(dim_type(0), get_invisible_size(list_size, count));
-    }
-
-    template<orientation V>
-    int tile_list_traits<V>::get_index_at_point (const core::point& pt,
+    int tile_list_traits<V>::get_index_at_point (const core::size& list_size,
+                                                 const core::point& pt,
                                                  dim_type scroll_pos,
-                                                 size_t count,
-                                                 const core::size& list_size) const {
+                                                 size_t count) const {
       const auto per_line = static_cast<int>(get_items_per_line(list_size));
       const auto line = static_cast<int>((super::get(pt) + scroll_pos - get_line_border()) / get_line_size());
       const auto offs = static_cast<int>((super::get_other(pt) - get_item_border()) / (get_item_size() + get_item_spacing()));
       const auto idx = (line * per_line) + offs;
-      return (idx < count) && get_place_of_index(core::rectangle(), idx, scroll_pos, list_size).is_inside(pt) ? idx : -1;
+      return (idx < count) && get_place_of_index(list_size, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
 
     template<orientation V>
-    core::rectangle tile_list_traits<V>::get_place_of_index (core::rectangle place,
+    core::rectangle tile_list_traits<V>::get_place_of_index (const core::size& list_size,
                                                              int idx,
-                                                             dim_type scroll_pos,
-                                                             const core::size& list_size) const {
+                                                             dim_type scroll_pos) const {
       const auto per_line = get_items_per_line(list_size);
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
       const auto offs = idx - (line * per_line);
@@ -139,13 +132,14 @@ namespace gui {
       const auto lsz = get_line_size();
       const auto isz = get_item_size();
 
+      core::rectangle place;
       super::set(place, lsz * line - scroll_pos + get_line_border(), lsz - get_line_spacing());
       super::set_other(place, (isz + get_item_spacing()) * offs + get_item_border(), isz);
       return place;
     }
 
     template<orientation V>
-    inline auto tile_list_traits<V>::get_offset_of_index (int idx, const core::size& list_size) const -> dim_type {
+    inline auto tile_list_traits<V>::get_offset_of_index (const core::size& list_size, int idx) const -> dim_type {
       const int line = idx / static_cast<int>(get_items_per_line(list_size));
       return(get_line_size() * line) + get_line_border();
     }
@@ -230,7 +224,7 @@ namespace gui {
         const int first_line = static_cast<int>((scp - lb + lsp) / lsz);
 
         int idx = first_line * per_line;
-        core::rectangle place = super::traits.get_place_of_index(area, idx, scp, list_size);
+        core::rectangle place = super::traits.get_place_of_index(list_size, idx, scp);
 
         const auto start = super::traits.get(place.top_left());
 
@@ -240,7 +234,7 @@ namespace gui {
             super::traits.set_other(place, super::traits.get_other(place.bottom_right()), isp);
             graph.fill(draw::rectangle(place), back_brush);
           }
-          place = super::traits.get_place_of_index(area, idx + 1, scp, list_size);
+          place = super::traits.get_place_of_index(list_size, idx + 1, scp);
         }
 
         const int last_line = div_ceil(idx, per_line);

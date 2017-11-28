@@ -139,7 +139,7 @@ namespace gui {
         if (open) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
-            sys_fs::path path = dir_tree.get_item(idx);
+            sys_fs::path path = dir_tree.get_item(idx).path;
             path /= input_line.get_text();
             action(path);
           }

@@ -41,35 +41,67 @@ namespace gui {
       return lhs.iterator != rhs.iterator;
     }
 
+    inline bool file_info::is_directory () const {
+      return sys_fs::is_directory(status);
+    }
+
+    inline std::string file_info::filename () const {
+      return path.filename().string();
+    }
+
+    inline bool file_info::operator== (const file_info& rhs) const {
+      return path == rhs.path;
+    }
+
+    inline bool file_info::operator!= (const file_info& rhs) const {
+      return path != rhs.path;
+    }
+
+    inline bool file_info::operator< (const file_info& rhs) const {
+      return path < rhs.path;
+    }
+
+    inline bool file_info::operator<= (const file_info& rhs) const {
+      return path <= rhs.path;
+    }
+
+    inline bool file_info::operator> (const file_info& rhs) const {
+      return path > rhs.path;
+    }
+
+    inline bool file_info::operator>= (const file_info& rhs) const {
+      return path >= rhs.path;
+    }
+
   } // namespace fs
 
   namespace win {
 
     namespace path_tree {
 
-      inline sys_fs::directory_iterator path_iterator (sys_fs::path const& n) {
+      inline sys_fs::directory_iterator path_iterator (fs::file_info const& n) {
 #ifdef WIN32
-        return sys_fs::directory_iterator(n);
+        return sys_fs::directory_iterator(n.path);
 #endif // WIN32
 #ifdef X11
-        return sys_fs::directory_iterator(n, sys_fs::directory_options::skip_permission_denied);
+        return sys_fs::directory_iterator(n.path, sys_fs::directory_options::skip_permission_denied);
 #endif // X11
       }
 
       inline bool path_info::has_sub_nodes (type const& n) {
-        return sys_fs::is_directory(n);
+        return n.is_directory();
       }
 
-      inline auto path_info::make_reference(type const & n)->reference {
+      inline auto path_info::make_reference(type const & n) -> reference {
         return n;
       }
 
-      inline auto path_info::dereference(reference const & r)->type const & {
+      inline auto path_info::dereference(reference const & r) -> type const& {
         return r;
       }
 
       inline std::string path_info::label (type const& n) {
-        return n.filename().string();
+        return n.filename();
       }
 
       inline const draw::masked_bitmap& path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
@@ -91,8 +123,8 @@ namespace gui {
                              const draw::brush& b,
                              bool selected,
                              bool) {
-        const sys_fs::path& path = current_dir[idx];
-        win::paint::text_item(g, r, b, path.filename().string(), selected, text_origin::vcenter_left);
+        const fs::file_info& path = current_dir[idx];
+        win::paint::text_item(g, r, b, path.filename(), selected, text_origin::vcenter_left);
       });
     }
 
@@ -109,7 +141,7 @@ namespace gui {
     inline sys_fs::path file_list<T>::get_selected_path () const {
       int selection = super::get_selection();
       if (selection > -1) {
-        return current_dir[selection];
+        return current_dir[selection].path;
       }
       return sys_fs::path();
     }
@@ -171,7 +203,7 @@ namespace gui {
     inline sys_fs::path file_column_list<T>::get_selected_path () const {
       int selection = super::list.get_selection();
       if (selection > -1) {
-        return current_dir[selection];
+        return current_dir[selection].path;
       }
       return sys_fs::path();
     }

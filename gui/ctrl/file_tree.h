@@ -92,6 +92,26 @@ namespace gui {
     bool operator!= (const filtered_iterator& lhs,
                      const filtered_iterator& rhs);
 
+    struct file_info {
+      file_info (const sys_fs::path& path);
+      file_info ();
+
+      sys_fs::path path;
+      sys_fs::file_status status;
+      sys_fs::file_time_type last_write_time;
+      uintmax_t size;
+
+      bool is_directory () const;
+      std::string filename () const;
+
+      bool operator== (const file_info& rhs) const;
+      bool operator!= (const file_info& rhs) const;
+      bool operator< (const file_info& rhs) const;
+      bool operator<= (const file_info& rhs) const;
+      bool operator> (const file_info& rhs) const;
+      bool operator>= (const file_info& rhs) const;
+    };
+
   } // namespace fs
 
   namespace win {
@@ -101,9 +121,9 @@ namespace gui {
       sys_fs::directory_iterator path_iterator (sys_fs::path const& n);
 
       struct path_info {
-        typedef sys_fs::path type;
+        typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
-        typedef sys_fs::path reference;
+        typedef fs::file_info reference;
 
         static bool has_sub_nodes (type const& n);
         static reference make_reference (type const& n);
@@ -165,18 +185,18 @@ namespace gui {
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
                                        const draw::masked_bitmap*,
-                                       sys_fs::path,
-                                       sys_fs::path,
+                                       fs::file_info,
+                                       fs::file_info,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
       file_list_row_drawer create_file_list_row_drawer ();
 
       typedef column_list_row_t<const draw::masked_bitmap*,
-                                sys_fs::path,
-                                sys_fs::path,
+                                fs::file_info,
+                                fs::file_info,
                                 sys_fs::file_time_type> file_list_row;
 
-      file_list_row build_file_list_row (const sys_fs::path&, bool selected);
+      file_list_row build_file_list_row (const fs::file_info&, bool selected);
 
       std::string format_file_size (uintmax_t s);
 
@@ -196,7 +216,7 @@ namespace gui {
       sys_fs::path get_selected_path () const;
 
     private:
-      std::vector<sys_fs::path> current_dir;
+      std::vector<fs::file_info> current_dir;
 
     };
 
@@ -210,15 +230,15 @@ namespace gui {
       date_down
     };
 
-    void sort_list_by (std::vector<sys_fs::path>& list, sort_order);
+    void sort_list_by (std::vector<fs::file_info>& list, sort_order);
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
     class file_column_list : public win::column_list_t<layout::weight_column_list_layout,
-                                                       const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> {
+                                                       const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
     public:
       typedef win::column_list_t<layout::weight_column_list_layout,
-                                 const draw::masked_bitmap*, sys_fs::path, sys_fs::path, sys_fs::file_time_type> super;
+                                 const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
       file_column_list (core::size::type item_size = 20,
                         os::color background = color::white,
@@ -238,7 +258,7 @@ namespace gui {
       void handle_header_mouse_up (os::key_state, const core::point&);
 
       core::point mouse_down_point;
-      std::vector<sys_fs::path> current_dir;
+      std::vector<fs::file_info> current_dir;
       sort_order order;
 
     };

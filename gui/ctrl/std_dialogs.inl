@@ -62,7 +62,7 @@ namespace gui {
       super::first.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
         int idx = super::first.get_selection();
         if (idx > -1) {
-          super::second.set_path(super::first.get_item(idx));
+          super::second.set_path(super::first.get_item(idx).path);
         }
       }));
       super::second.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&, action] () {
@@ -102,7 +102,7 @@ namespace gui {
           } else {
             int idx = super::content_view.first.get_selection();
             if (idx > -1) {
-              action(super::content_view.first.get_item(idx));
+              action(super::content_view.first.get_item(idx).path);
             }
           }
         }

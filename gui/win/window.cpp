@@ -692,9 +692,11 @@ namespace gui {
     void window::redraw_later () {
       if (get_id()) {
 //        LogDebug << *this << "::redraw_later";
-        x11::set_needs_redraw(get_id());
-        check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                     0, 0, 1, 1, true));
+        if (!x11::needs_redraw(get_id())) {
+          x11::set_needs_redraw(get_id());
+          check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
+                                       0, 0, 1, 1, true));
+        }
       }
     }
 

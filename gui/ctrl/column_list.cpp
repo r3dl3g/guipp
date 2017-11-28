@@ -116,6 +116,9 @@ namespace gui {
         list->redraw_later();
       }
 
+      void column_list_layout::layout (const core::size&) {
+      }
+
     } // detail
 
     // --------------------------------------------------------------------------
@@ -198,6 +201,7 @@ namespace gui {
     }
 
     void weight_column_list_layout::layout (const core::size& sz) {
+      LogDebug << "weight_column_list_layout::layout(" << sz << ")";
       auto count = get_column_count();
 
       float full_weight = 0.0F;

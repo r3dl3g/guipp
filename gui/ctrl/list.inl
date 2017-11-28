@@ -624,6 +624,7 @@ namespace gui {
       const core::rectangle r = client_area();
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
+          super::set_cursor(cursor::move());
           pos_t delta = traits.get(super::get_last_mouse_point()) - traits.get(pt);
           set_scroll_pos(get_scroll_pos() + delta);
           super::get_state().set_moved(true);
@@ -649,6 +650,7 @@ namespace gui {
         }
         super::redraw_later();
       }
+      super::set_cursor(cursor::arrow());
       super::data.last_mouse_point = core::point::undefined;
     }
 

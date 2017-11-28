@@ -162,7 +162,6 @@ namespace gui {
     namespace detail {
 
       void init_file_list_layout (layout::weight_column_list_layout&);
-      void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
                                        const draw::masked_bitmap*,
@@ -201,6 +200,18 @@ namespace gui {
 
     };
 
+    enum class sort_order : unsigned short {
+      none = 0,
+      name_up,
+      name_down,
+      size_up,
+      size_down,
+      date_up,
+      date_down
+    };
+
+    void sort_list_by (std::vector<sys_fs::path>& list, sort_order);
+
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
     class file_column_list : public win::column_list_t<layout::weight_column_list_layout,
@@ -216,8 +227,19 @@ namespace gui {
       void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;
 
+      void sort_by (sort_order order);
+      sort_order get_sort_order () const;
+
+    protected:
+      void init_file_list_header (column_list_header<layout::weight_column_list_layout>&);
+
     private:
+      void handle_header_mouse_down (os::key_state, const core::point&);
+      void handle_header_mouse_up (os::key_state, const core::point&);
+
+      core::point mouse_down_point;
       std::vector<sys_fs::path> current_dir;
+      sort_order order;
 
     };
 

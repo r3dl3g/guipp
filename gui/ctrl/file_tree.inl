@@ -120,13 +120,35 @@ namespace gui {
                                                   os::color background,
                                                   bool grab_focus)
       : super(item_size, background, grab_focus)
+      , order(sort_order::none)
     {
       detail::init_file_list_layout(super::get_column_layout());
-      detail::init_file_list_header(super::header);
+      init_file_list_header(super::header);
       super::set_drawer(detail::create_file_list_row_drawer());
       super::set_data([&](std::size_t i) {
         return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
       }, 0);
+      super::header.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &file_column_list::handle_header_mouse_down));
+      super::header.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &file_column_list::handle_header_mouse_up));
+    }
+
+    template<typename T>
+    inline void file_column_list<T>::handle_header_mouse_down (os::key_state, const core::point& pt) {
+      mouse_down_point = pt;
+    }
+
+    template<typename T>
+    inline void file_column_list<T>::handle_header_mouse_up (os::key_state, const core::point& pt) {
+      if (mouse_down_point == pt) {
+        int i = super::get_column_layout().index_at(pt.x());
+        const unsigned short idx = static_cast<unsigned short>(order);
+        if (idx == i * 2) { // down
+          sort_by(sort_order(i * 2 - 1)); // up
+        } else {
+          sort_by(sort_order(i * 2));     // down
+        }
+      }
+      mouse_down_point = core::point::undefined;
     }
 
     template<typename T>
@@ -135,7 +157,14 @@ namespace gui {
       super::list.set_count(current_dir.size());
       super::list.clear_selection(event_source::logic);
       super::list.set_scroll_pos(0);
-      super::redraw_later();
+      if (order == sort_order::none) {
+        order = sort_order::name_up;
+      }
+      if (order != sort_order::name_up) {
+        sort_list_by(current_dir, order);
+      }
+      super::list.redraw_later();
+      super::header.redraw_later();
     }
 
     template<typename T>
@@ -146,6 +175,44 @@ namespace gui {
       }
       return sys_fs::path();
     }
+
+    template<typename T>
+    void file_column_list<T>::sort_by (sort_order new_order) {
+      if (order != new_order) {
+        order = new_order;
+        sort_list_by(current_dir, order);
+        super::list.redraw_later();
+        super::header.redraw_later();
+      }
+    }
+
+    template<typename T>
+    sort_order file_column_list<T>::get_sort_order () const {
+      return order;
+    }
+
+    void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
+    void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
+
+    template<typename T>
+    void file_column_list<T>::init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
+      header.set_cell_drawer([&] (std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {
+        static std::string title[] = {"", "Name", "Size", "Changed"};
+        g.fill(draw::rectangle(r), background);
+        draw::frame::raised_relief(g, r);
+        g.text(draw::text_box(title[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
+        if (order != sort_order::none) {
+          core::rectangle s = r.right_width(r.height()).shrinked({7, 8});
+          const unsigned short idx = static_cast<unsigned short>(order);
+          if (idx == i * 2) {
+            draw_arrow_down(g, s, color::black);
+          } else if (idx == i * 2 - 1) {
+            draw_arrow_up(g, s, color::black);
+          }
+        }
+      });
+    }
+
 
   } // win
 

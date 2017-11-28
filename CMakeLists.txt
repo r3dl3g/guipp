@@ -15,7 +15,7 @@ if(UNIX)
 endif(UNIX)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_definitions(-Wno-switch)
-endif(UNIX)
+endif()
 
 add_subdirectory(gui)
 add_subdirectory(test)

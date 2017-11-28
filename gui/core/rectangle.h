@@ -100,6 +100,9 @@ namespace gui {
       self with_width (const type w) const;
       self with_height (const type h) const;
 
+      self right_width (const type w) const;
+      self bottom_height (const type h) const;
+
       self grown (const size_t& s) const;
       self shrinked (const size_t& s) const;
 

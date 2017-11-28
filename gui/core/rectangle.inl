@@ -251,6 +251,16 @@ namespace gui {
     }
 
     template<typename T>
+    inline auto basic_rectangle<T>::right_width (const type w) const -> self {
+      return {x2() - w, y(), w, height()};
+    }
+
+    template<typename T>
+    inline auto basic_rectangle<T>::bottom_height (const type h) const -> self {
+      return {x(), y2() - h, width(), h};
+    }
+
+    template<typename T>
     inline auto basic_rectangle<T>::with_size (const size_t& sz) const -> self {
       return {position(), sz};
     }

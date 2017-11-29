@@ -193,7 +193,7 @@ namespace gui {
       return (container*)this;
     }
 
-    bool window::handle_event (const core::event& e, os::event_result& result) {
+    bool window::handle_event (const core::event& e, os::event_result& result) const {
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -204,8 +204,8 @@ namespace gui {
       return events.handle_event(e, result);
     }
 
-    void window::shift_focus (bool backward) {
-      container* parent = get_parent();
+    void window::shift_focus (bool backward) const {
+      const container* parent = get_parent();
       if (parent) {
         parent->shift_focus(*this, backward);
         redraw_later();
@@ -326,7 +326,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus () {
+    void window::take_focus () const {
       if (is_valid()) {
         SetFocus(get_id());
         redraw_later();
@@ -345,13 +345,13 @@ namespace gui {
       }
     }
 
-    void window::redraw_now () {
+    void window::redraw_now () const {
       if (is_valid()) {
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
-    void window::redraw_later () {
+    void window::redraw_later () const {
       if (is_valid()) {
         InvalidateRect(get_id(), nullptr, TRUE);
       }
@@ -665,7 +665,7 @@ namespace gui {
       }
     }
 
-    void window::take_focus () {
+    void window::take_focus () const {
       check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
       redraw_later();
@@ -679,19 +679,13 @@ namespace gui {
       check_xlib_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
-    void window::redraw_now () {
-      if (get_id()) {
-//        LogDebug << *this << "::redraw_now";
-        x11::set_needs_redraw(get_id());
-        check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                     0, 0, 1, 1, true));
-        core::global::sync();
-      }
+    void window::redraw_now () const {
+      redraw_later();
+      core::global::sync();
     }
 
-    void window::redraw_later () {
+    void window::redraw_later () const {
       if (get_id()) {
-//        LogDebug << *this << "::redraw_later";
         if (!x11::needs_redraw(get_id())) {
           x11::set_needs_redraw(get_id());
           check_xlib_return(XClearArea(core::global::get_instance(), get_id(),

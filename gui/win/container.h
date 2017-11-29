@@ -50,8 +50,8 @@ namespace gui {
 
       std::vector<window*> get_children () const;
 
-      void shift_focus (window&, bool backward = false);
-      void forward_focus (bool backward = false);
+      void shift_focus (const window&, bool backward = false) const;
+      void forward_focus (bool backward = false) const;
 
     protected:
       container (const container&);

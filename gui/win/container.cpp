@@ -201,7 +201,7 @@ namespace gui {
       return false;
     }
 
-    void container::shift_focus (window& focus, bool backward) {
+    void container::shift_focus (const window& focus, bool backward) const {
       std::vector<window*> children = get_children();
       if (children.size() > 0) {
         if (backward) {
@@ -222,7 +222,7 @@ namespace gui {
       }
     }
 
-    void container::forward_focus (bool backward) {
+    void container::forward_focus (bool backward) const {
       std::vector<window*> children = get_children();
       if (children.size() > 0) {
         if (backward) {

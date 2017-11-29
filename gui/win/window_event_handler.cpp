@@ -233,14 +233,18 @@ namespace gui {
 
     void send_client_message (const window* win, os::event_id message, long l1, long l2) {
       if (win && win->is_valid()) {
-        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+        os::event_result result;
+        os::event event{ win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+        win->handle_event(event, result);
+//        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
       }
     }
 
     void post_client_message (const window* win, os::event_id message, long l1, long l2) {
-      if (win && win->is_valid()) {
-        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
-      }
+      send_client_message(win, message, l1, l2);
+//      if (win && win->is_valid()) {
+//        PostMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+//      }
     }
 
 #endif // Win32
@@ -284,8 +288,10 @@ namespace gui {
           client.data.l[3] = l4;
           client.data.l[4] = l5;
 
+          os::event_result result;
+          win->handle_event(event, result);
           /* Send the data off to the other process */
-          XSendEvent(client.display, client.window, True, 0, &event);
+          //XSendEvent(client.display, client.window, True, 0, &event);
 
           //        core::global::sync();
         }

@@ -182,28 +182,28 @@ namespace gui {
 
         set_accept_focus(true);
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point & pt) {
 #ifndef NO_CAPTURE
-                                                                        capture_pointer();
+          capture_pointer();
 #endif // NO_CAPTURE
-                                                                        start_mouse_point = client_to_screen(pt);
-                                                                        start_window_point = position();
-                                                                        take_focus();
-                                                                      }));
+          start_mouse_point = client_to_screen(pt);
+          start_window_point = position();
+          take_focus();
+        }));
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&] (os::key_state, const core::point & pt) {
 #ifndef NO_CAPTURE
-                                                                      uncapture_pointer();
+          uncapture_pointer();
 #endif // NO_CAPTURE
-                                                                      start_mouse_point = core::point::undefined;
-                                                                      start_window_point = core::point::undefined;
-                                                                    }));
-        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
-                                                                    redraw_later();
-                                                                  }));
-        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
-                                                                     redraw_later();
-                                                                   }));
+          start_mouse_point = core::point::undefined;
+          start_window_point = core::point::undefined;
+        }));
+        register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+          redraw_later();
+        }));
+        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+          redraw_later();
+        }));
       }
 
       void slider_base::set_min (type i) {

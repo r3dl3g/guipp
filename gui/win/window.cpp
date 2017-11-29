@@ -753,6 +753,24 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
+
+        core::event e;
+        XConfigureEvent& c = e.xconfigure;
+
+        e.type = ConfigureNotify;
+        c.serial = 1;	/* # of last request processed by server */
+        c.send_event = false;	/* true if this came from a SendEvent request */
+        c.display = core::global::get_instance();	/* Display the event was read from */
+        c.event = get_id();
+        c.window = get_id();
+        unsigned int depth = 0;
+        XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+        c.x = pt.os_x();
+        c.y = pt.os_y();
+        c.override_redirect = False;
+        os::event_result result;
+        handle_event(e, result);
+
         check_xlib_return(XMoveWindow(core::global::get_instance(), get_id(),
                                       pt.os_x(), pt.os_y()));
         if (repaint) {
@@ -767,6 +785,24 @@ namespace gui {
       } else {
         set_visible();
         if (size() != sz) {
+
+          core::event e;
+          XConfigureEvent& c = e.xconfigure;
+
+          e.type = ConfigureNotify;
+          c.serial = 1;	/* # of last request processed by server */
+          c.send_event = false;	/* true if this came from a SendEvent request */
+          c.display = core::global::get_instance();	/* Display the event was read from */
+          c.event = get_id();
+          c.window = get_id();
+          unsigned int depth = 0;
+          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+          c.width = sz.os_width();
+          c.height = sz.os_height();
+          c.override_redirect = False;
+          os::event_result result;
+          handle_event(e, result);
+
           check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
                                           sz.os_width(), sz.os_height()));
           if (repaint) {
@@ -782,6 +818,26 @@ namespace gui {
       } else {
         set_visible();
         if (place() != r) {
+
+          core::event e;
+          XConfigureEvent& c = e.xconfigure;
+
+          e.type = ConfigureNotify;
+          c.serial = 1;	/* # of last request processed by server */
+          c.send_event = false;	/* true if this came from a SendEvent request */
+          c.display = core::global::get_instance();	/* Display the event was read from */
+          c.event = get_id();
+          c.window = get_id();
+          unsigned int depth = 0;
+          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+          c.x = r.os_x();
+          c.y = r.os_y();
+          c.width = r.os_width();
+          c.height = r.os_height();
+          c.override_redirect = False;
+          os::event_result result;
+          handle_event(e, result);
+
           check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
                                               r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));

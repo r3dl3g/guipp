@@ -81,6 +81,7 @@ namespace std {
     return out;
   }
 
+#ifdef X11
   template<typename T>
   inline streamfkt position (const T& t) {
     return [&] (ostream& out) { out << " pos: (" << t.x << ", " << t.y << ")"; };
@@ -220,4 +221,16 @@ namespace std {
     }
     return out;
   }
+
+#endif // X11
+
+#ifdef WIN32
+  std::ostream& operator<< (std::ostream& out, const gui::core::event& e) {
+    out << " window:" << e.id << " message: " << e.type;
+    return out;
+  }
+
+#endif // WIN32
+
+
 }

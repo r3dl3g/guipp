@@ -234,8 +234,8 @@ namespace gui {
     void send_client_message (const window* win, os::event_id message, long l1, long l2) {
       if (win && win->is_valid()) {
         os::event_result result;
-        os::event event{ win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
-        win->handle_event(event, result);
+        core::event e{ win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
+        win->handle_event(e, result);
 //        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
       }
     }

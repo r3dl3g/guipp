@@ -273,11 +273,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
         if (win && win->is_valid()) {
-          static XEvent event;
+          XEvent event;
           XClientMessageEvent& client = event.xclient;
 
           client.type = ClientMessage;
           client.serial = 0;
+          client.send_event = True;
           client.display = core::global::get_instance();
           client.window = win->get_id();
           client.message_type = message;
@@ -288,7 +289,7 @@ namespace gui {
           client.data.l[3] = l4;
           client.data.l[4] = l5;
 
-          os::event_result result;
+          os::event_result result = 0;
           win->handle_event(event, result);
           /* Send the data off to the other process */
           //XSendEvent(client.display, client.window, True, 0, &event);

@@ -27,7 +27,6 @@
 #endif // WIN32
 #ifdef X11
 # include <unistd.h>
-# include <set>
 #endif // X11
 
 // --------------------------------------------------------------------------
@@ -150,21 +149,6 @@ namespace gui {
 
     namespace x11 {
 
-      typedef std::set<os::window> window_set;
-      window_set needs_redraw_set;
-
-      void set_needs_redraw (os::window id) {
-        needs_redraw_set.emplace(id);
-      }
-
-      void clear_needs_redraw (os::window id) {
-        needs_redraw_set.erase(id);
-      }
-
-      bool needs_redraw (os::window id) {
-        return needs_redraw_set.find(id) != needs_redraw_set.end();
-      }
-
       typedef std::map<os::window, XIC> window_ic_map;
       window_ic_map s_window_ic_map;
 
@@ -195,18 +179,15 @@ namespace gui {
 
       void set_window (os::window id, window* win) {
         global_window_map[id] = win;
-        x11::set_needs_redraw(id);
       }
 
       void unset_window (os::window id) {
         clear_last_place(id);
         global_window_map.erase(id);
-        x11::clear_needs_redraw(id);
       }
 
       bool check_expose (const core::event& e) {
         return (e.type == Expose) && (e.xexpose.count > 0);
-//        return (e.type == Expose) && !x11::needs_redraw(e.xexpose.window);
       }
 
       inline win::window* get_event_window (const core::event& e) {
@@ -487,6 +468,21 @@ namespace gui {
 
 #endif // X11
 
+  struct in_event_handle_state {
+    inline in_event_handle_state (const window& win)
+      : state(win.get_state())
+    {
+      state.set_in_event_handle(true);
+    }
+
+    inline ~in_event_handle_state () {
+      state.set_in_event_handle(false);
+    }
+
+    window_state state;
+  };
+
+
   // --------------------------------------------------------------------------
   int run_loop (volatile bool& running, detail::filter_call filter) {
 
@@ -556,15 +552,12 @@ namespace gui {
           resultValue = 0;
 
           try {
+            in_event_handle_state guard(*win);
             win->handle_event(e, resultValue);
           } catch (std::exception& ex) {
             LogFatal << "exception in run_main_loop: " << ex;
           } catch (...) {
             LogFatal << "Unknown exception in run_main_loop()";
-          }
-
-          if (e.type == Expose) {
-            x11::clear_needs_redraw(e.xexpose.window);
           }
 
           if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {

@@ -49,20 +49,28 @@ namespace gui {
       bool set_accept_focus (bool a);
       bool disable_redraw (bool on = true);
 
+      bool set_in_event_handle (bool on);
+      bool is_in_event_handle () const;
+
+      bool set_needs_redraw (bool on) const;
+      bool needs_redraw () const;
+
     protected:
       struct flags {
         enum {
           focus_accepting = 0,
           redraw_disabled,
           window_disabled,
+          in_event_handle,
+          needs_redraw,
           last_window_state_enum
         };
       };
 
       bool get_flag (byte bit) const;
-      bool set_flag (byte bit, bool a);
+      bool set_flag (byte bit, bool a) const;
 
-      window& get_win ();
+      window& get_win () const;
 
       const window& win;
     };

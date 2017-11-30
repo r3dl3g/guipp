@@ -43,44 +43,49 @@ namespace gui {
   namespace win {
 
 #ifdef X11
+
+    namespace x11 {
+
 # define XLIB_ERROR_CODE(a) case a: LogFatal << # a;break;
 
-    bool check_xlib_return (int r) {
+      bool check_return (int r) {
 # ifndef NDEBUG
-      core::global::sync();
+        core::global::sync();
 # endif
-      switch (r) {
-      case Success:
-      case True:
-        return true;
-        XLIB_ERROR_CODE(BadValue)
-        XLIB_ERROR_CODE(BadWindow)
-        XLIB_ERROR_CODE(BadPixmap)
-        XLIB_ERROR_CODE(BadAtom)
-        XLIB_ERROR_CODE(BadCursor)
-        XLIB_ERROR_CODE(BadFont)
-        XLIB_ERROR_CODE(BadMatch)
-        XLIB_ERROR_CODE(BadDrawable)
-        XLIB_ERROR_CODE(BadAccess)
-        XLIB_ERROR_CODE(BadAlloc)
-        XLIB_ERROR_CODE(BadColor)
-        XLIB_ERROR_CODE(BadGC)
-        XLIB_ERROR_CODE(BadIDChoice)
-        XLIB_ERROR_CODE(BadName)
-        XLIB_ERROR_CODE(BadLength)
-        XLIB_ERROR_CODE(BadImplementation)
+        switch (r) {
+          case Success:
+          case True:
+          return true;
+          XLIB_ERROR_CODE(BadValue)
+          XLIB_ERROR_CODE(BadWindow)
+          XLIB_ERROR_CODE(BadPixmap)
+          XLIB_ERROR_CODE(BadAtom)
+          XLIB_ERROR_CODE(BadCursor)
+          XLIB_ERROR_CODE(BadFont)
+          XLIB_ERROR_CODE(BadMatch)
+          XLIB_ERROR_CODE(BadDrawable)
+          XLIB_ERROR_CODE(BadAccess)
+          XLIB_ERROR_CODE(BadAlloc)
+          XLIB_ERROR_CODE(BadColor)
+          XLIB_ERROR_CODE(BadGC)
+          XLIB_ERROR_CODE(BadIDChoice)
+          XLIB_ERROR_CODE(BadName)
+          XLIB_ERROR_CODE(BadLength)
+          XLIB_ERROR_CODE(BadImplementation)
+        }
+        return false;
       }
-      return false;
-//      return true;
-    }
 
-    bool check_xlib_status (Status s) {
-      if (s) {
-        return true;
-      }
+      bool check_status (Status s) {
+        if (s) {
+          return true;
+        }
 //      LogFatal << "xlib Status failed";
-      return false;
-    }
+        return false;
+      }
+
+    } // namespace x11
+
 #endif // X11
 
     struct log_hierarchy {
@@ -201,7 +206,19 @@ namespace gui {
           shift_focus(shift_key_bit_mask::is_set(state));
         }
       }
-      return events.handle_event(e, result);
+//      LogDebug << "handle_event: " << e;
+      auto r = events.handle_event(e, result);
+
+#ifdef X11
+      if (e.type == Expose) {
+        get_state().set_needs_redraw(false);
+      }
+      if (get_state().needs_redraw()) {
+        redraw_now();
+      }
+#endif // X11
+
+      return r;
     }
 
     void window::shift_focus (bool backward) const {
@@ -556,7 +573,7 @@ namespace gui {
     void window::destroy () {
       if (get_id()) {
         hidden::window_class_map.erase(get_id());
-        check_xlib_return(XDestroyWindow(core::global::get_instance(), get_id()));
+        x11::check_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
         id = 0;
       }
@@ -574,7 +591,7 @@ namespace gui {
       Window focus = 0;
       int revert_to = 0;
       if (is_valid()) {
-        if (check_xlib_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
+        if (x11::check_return(XGetInputFocus(core::global::get_instance(), &focus, &revert_to))) {
           return focus == get_id();
         }
       }
@@ -587,7 +604,7 @@ namespace gui {
       Window *children = 0;
       unsigned int nchildren = 0;
 
-      check_xlib_status(XQueryTree(core::global::get_instance(),
+      x11::check_status(XQueryTree(core::global::get_instance(),
                                    get_id(),
                                    &root,
                                    &parent,
@@ -602,7 +619,7 @@ namespace gui {
       Window *children = 0;
       unsigned int nchildren = 0;
 
-      check_xlib_status(XQueryTree(core::global::get_instance(),
+      x11::check_status(XQueryTree(core::global::get_instance(),
                                    get_id(),
                                    &root,
                                    &parent,
@@ -617,13 +634,13 @@ namespace gui {
 
     bool window::has_border () const {
       XWindowAttributes a = {0};
-      return (check_xlib_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
+      return (x11::check_status(XGetWindowAttributes(core::global::get_instance(), get_id(), &a)) &&
               (a.border_width > 0));
     }
 
     void window::set_parent (const container& parent) {
       core::point pt = position();
-      check_xlib_return(XReparentWindow(core::global::get_instance(), get_id(),
+      x11::check_return(XReparentWindow(core::global::get_instance(), get_id(),
                                         parent.get_id(), pt.x(), pt.y()));
     }
 
@@ -633,7 +650,7 @@ namespace gui {
       Window *children_return = 0;
       unsigned int nchildren_return = 0;
 
-      check_xlib_return(XQueryTree(core::global::get_instance(),
+      x11::check_return(XQueryTree(core::global::get_instance(),
                                    get_id(),
                                    &root_return,
                                    &parent_return,
@@ -650,7 +667,7 @@ namespace gui {
       if (is_valid()) {
         XWindowAttributes a = {0};
         int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
-        return (check_xlib_status(result) && (a.map_state == IsViewable));
+        return (x11::check_status(result) && (a.map_state == IsViewable));
       }
       return false;
     }
@@ -658,38 +675,59 @@ namespace gui {
     void window::set_visible (bool s) {
       if (get_id()) {
         if (s) {
-          check_xlib_return(XMapWindow(core::global::get_instance(), get_id()));
+          x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
         } else {
-          check_xlib_return(XUnmapWindow(core::global::get_instance(), get_id()));
+          x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
         }
       }
     }
 
     void window::take_focus () const {
-      check_xlib_return(XSetInputFocus(core::global::get_instance(), get_id(),
+      x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
       redraw_later();
     }
 
     void window::to_front () {
-      check_xlib_return(XRaiseWindow(core::global::get_instance(), get_id()));
+      x11::check_return(XRaiseWindow(core::global::get_instance(), get_id()));
     }
 
     void window::to_back () {
-      check_xlib_return(XLowerWindow(core::global::get_instance(), get_id()));
+      x11::check_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
     void window::redraw_now () const {
-      redraw_later();
+
+      static XEvent event;
+
+      XExposeEvent& e = event.xexpose;
+      e.type = Expose;
+      e.serial = 0;
+      e.send_event = False;
+      e.display = core::global::get_instance();
+      e.window = get_id();
+      e.x = e.y = 0;
+      auto s = size();
+      e.width = s.width();
+      e.height = s.height();
+      e.count = 0;
+      os::event_result result;
+
+//      LogDebug << "redraw_now: " << event;
+      events.handle_event(event, result);
+
+      get_state().set_needs_redraw(false);
+
       core::global::sync();
     }
 
     void window::redraw_later () const {
       if (get_id()) {
-        if (!x11::needs_redraw(get_id())) {
-          x11::set_needs_redraw(get_id());
-          check_xlib_return(XClearArea(core::global::get_instance(), get_id(),
-                                       0, 0, 1, 1, true));
+        if (get_state().is_in_event_handle()) {
+//          LogDebug << "set_needs_redraw: " << get_id();
+          get_state().set_needs_redraw(true);
+        } else {
+          redraw_now();
         }
       }
     }
@@ -701,7 +739,7 @@ namespace gui {
       unsigned int border_width = 0;
       unsigned int depth = 0;
       Window wid = get_id();
-      if (wid && check_xlib_status(XGetGeometry(core::global::get_instance(), wid,
+      if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::size::type(width), core::size::type(height)};
       }
@@ -714,7 +752,7 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
+      if (x11::check_return(XGetGeometry(core::global::get_instance(), get_id(),
                                          &root, &x, &y, &width, &height, &border_width, &depth))) {
         return {core::point::type(x), core::point::type(y)};
       }
@@ -727,7 +765,7 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (check_xlib_return(XGetGeometry(core::global::get_instance(), get_id(),
+      if (x11::check_return(XGetGeometry(core::global::get_instance(), get_id(),
                                          &root, &x, &y, &width, &height, &border_width, &depth))) {
         return core::rectangle(core::point::type(x), core::point::type(y),
                                core::size::type(width), core::size::type(height));
@@ -754,24 +792,24 @@ namespace gui {
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
 
-        core::event e;
-        XConfigureEvent& c = e.xconfigure;
+//        core::event e;
+//        XConfigureEvent& c = e.xconfigure;
 
-        e.type = ConfigureNotify;
-        c.serial = 1;	/* # of last request processed by server */
-        c.send_event = false;	/* true if this came from a SendEvent request */
-        c.display = core::global::get_instance();	/* Display the event was read from */
-        c.event = get_id();
-        c.window = get_id();
-        unsigned int depth = 0;
-        XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-        c.x = pt.os_x();
-        c.y = pt.os_y();
-        c.override_redirect = False;
-        os::event_result result;
-        handle_event(e, result);
+//        e.type = ConfigureNotify;
+//        c.serial = 1;	/* # of last request processed by server */
+//        c.send_event = false;	/* true if this came from a SendEvent request */
+//        c.display = core::global::get_instance();	/* Display the event was read from */
+//        c.event = get_id();
+//        c.window = get_id();
+//        unsigned int depth = 0;
+//        XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+//        c.x = pt.os_x();
+//        c.y = pt.os_y();
+//        c.override_redirect = False;
+//        os::event_result result;
+//        events.handle_event(e, result);
 
-        check_xlib_return(XMoveWindow(core::global::get_instance(), get_id(),
+        x11::check_return(XMoveWindow(core::global::get_instance(), get_id(),
                                       pt.os_x(), pt.os_y()));
         if (repaint) {
           redraw_later();
@@ -786,24 +824,24 @@ namespace gui {
         set_visible();
         if (size() != sz) {
 
-          core::event e;
-          XConfigureEvent& c = e.xconfigure;
+//          core::event e;
+//          XConfigureEvent& c = e.xconfigure;
 
-          e.type = ConfigureNotify;
-          c.serial = 1;	/* # of last request processed by server */
-          c.send_event = false;	/* true if this came from a SendEvent request */
-          c.display = core::global::get_instance();	/* Display the event was read from */
-          c.event = get_id();
-          c.window = get_id();
-          unsigned int depth = 0;
-          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-          c.width = sz.os_width();
-          c.height = sz.os_height();
-          c.override_redirect = False;
-          os::event_result result;
-          handle_event(e, result);
+//          e.type = ConfigureNotify;
+//          c.serial = 1;	/* # of last request processed by server */
+//          c.send_event = false;	/* true if this came from a SendEvent request */
+//          c.display = core::global::get_instance();	/* Display the event was read from */
+//          c.event = get_id();
+//          c.window = get_id();
+//          unsigned int depth = 0;
+//          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+//          c.width = sz.os_width();
+//          c.height = sz.os_height();
+//          c.override_redirect = False;
+//          os::event_result result;
+//          events.handle_event(e, result);
 
-          check_xlib_return(XResizeWindow(core::global::get_instance(), get_id(),
+          x11::check_return(XResizeWindow(core::global::get_instance(), get_id(),
                                           sz.os_width(), sz.os_height()));
           if (repaint) {
             redraw_later();
@@ -819,26 +857,26 @@ namespace gui {
         set_visible();
         if (place() != r) {
 
-          core::event e;
-          XConfigureEvent& c = e.xconfigure;
+//          core::event e;
+//          XConfigureEvent& c = e.xconfigure;
 
-          e.type = ConfigureNotify;
-          c.serial = 1;	/* # of last request processed by server */
-          c.send_event = false;	/* true if this came from a SendEvent request */
-          c.display = core::global::get_instance();	/* Display the event was read from */
-          c.event = get_id();
-          c.window = get_id();
-          unsigned int depth = 0;
-          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-          c.x = r.os_x();
-          c.y = r.os_y();
-          c.width = r.os_width();
-          c.height = r.os_height();
-          c.override_redirect = False;
-          os::event_result result;
-          handle_event(e, result);
+//          e.type = ConfigureNotify;
+//          c.serial = 1;	/* # of last request processed by server */
+//          c.send_event = false;	/* true if this came from a SendEvent request */
+//          c.display = core::global::get_instance();	/* Display the event was read from */
+//          c.event = get_id();
+//          c.window = get_id();
+//          unsigned int depth = 0;
+//          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
+//          c.x = r.os_x();
+//          c.y = r.os_y();
+//          c.width = r.os_width();
+//          c.height = r.os_height();
+//          c.override_redirect = False;
+//          os::event_result result;
+//          events.handle_event(e, result);
 
-          check_xlib_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
+          x11::check_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
                                               r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (repaint) {
@@ -852,7 +890,7 @@ namespace gui {
       int x, y;
       Window child_return;
       auto display = core::global::get_instance();
-      check_xlib_return(XTranslateCoordinates(display,
+      x11::check_return(XTranslateCoordinates(display,
                                               get_id(),
                                               DefaultRootWindow(display),
                                               pt.os_x(),
@@ -867,7 +905,7 @@ namespace gui {
       int x, y;
       Window child_return;
       auto display = core::global::get_instance();
-      check_xlib_return(XTranslateCoordinates(display,
+      x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
                                               get_id(),
                                               pt.os_x(),
@@ -885,7 +923,7 @@ namespace gui {
     void window::capture_pointer () {
       LogDebug << "capture_pointer:" << get_id();
       hidden::capture_stack.push_back(get_id());
-      check_xlib_return(XGrabPointer(core::global::get_instance(), get_id(),
+      x11::check_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
                                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
@@ -898,11 +936,11 @@ namespace gui {
         } else {
           LogDebug << "uncapture_pointer:" << get_id();
         }
-        check_xlib_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
+        x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
           LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
-          check_xlib_return(XGrabPointer(core::global::get_instance(), hidden::capture_stack.back(),
+          x11::check_return(XGrabPointer(core::global::get_instance(), hidden::capture_stack.back(),
                                          False,
                                          ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
@@ -915,10 +953,10 @@ namespace gui {
         auto i = hidden::window_event_mask.find(this);
         if (i != hidden::window_event_mask.end()) {
           i->second |= mask;
-          check_xlib_return(XSelectInput(core::global::get_instance(), get_id(), i->second));
+          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), i->second));
         } else {
           hidden::window_event_mask[this] = mask;
-          check_xlib_return(XSelectInput(core::global::get_instance(), get_id(), mask));
+          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), mask));
         }
       } else {
         os::event_id& old_mask = hidden::window_event_mask[this];
@@ -931,40 +969,60 @@ namespace gui {
                                       os::window parent_id,
                                       window* data) {
       auto display = core::global::get_instance();
-      os::window id = XCreateSimpleWindow(display,
-                                          parent_id,
-                                          r.os_x(),
-                                          r.os_y(),
-                                          r.os_width(),
-                                          r.os_height(),
-                                          0,
-                                          0,
-                                          type.get_background());
-      detail::set_window(id, data);
+      auto screen = core::global::get_screen();
 
-      auto i = hidden::window_event_mask.find(data);
-      if (i != hidden::window_event_mask.end()) {
-        check_xlib_return(XSelectInput(display, id, i->second));
-      }
+      XVisualInfo vinfo;
+      XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
+      auto visual = vinfo.visual;
+      auto depth = vinfo.depth;
 
       unsigned long mask = 0;
       XSetWindowAttributes wa;
 
-      if (color::extract<color::part::alpha>(type.get_background()) == 0xff) {
+      if (type.get_background() == color::transparent) {
         mask |= CWBackPixmap;
         wa.background_pixmap = None;
+      } else {
+        mask |= CWBackPixel;
+        wa.background_pixel = type.get_background();
       }
       if (type.get_cursor()) {
         mask |= CWCursor;
         wa.cursor = type.get_cursor();
       }
-      if (type.get_style ()) {
-        mask |= CWWinGravity;
-        wa.win_gravity = type.get_style();
-      }
+//      if (type.get_style ()) {
+//        mask |= CWWinGravity;
+//        wa.win_gravity = type.get_style();
+//      }
+      mask |= CWBitGravity;
+      wa.bit_gravity = ForgetGravity;
+      mask |= CWBackingStore;
+      wa.backing_store = WhenMapped;
 
-      if (mask) {
-        XChangeWindowAttributes(display, id, mask, &wa);
+      mask |= CWColormap;
+      wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
+
+//      mask |= CWBorderPixel;
+//      wa.border_pixel = color::black;
+
+      os::window id = XCreateWindow(display,
+                                    parent_id,
+                                    r.os_x(),
+                                    r.os_y(),
+                                    r.os_width(),
+                                    r.os_height(),
+                                    0,
+                                    depth,
+                                    InputOutput,
+                                    visual,
+                                    mask,
+                                    &wa);
+
+      detail::set_window(id, data);
+
+      auto i = hidden::window_event_mask.find(data);
+      if (i != hidden::window_event_mask.end()) {
+        x11::check_return(XSelectInput(display, id, i->second));
       }
 
       if (0 == hidden::window_class_info_map.count(type.get_class_name())) {

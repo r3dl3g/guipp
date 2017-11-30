@@ -57,11 +57,11 @@ namespace gui {
 #endif // X11
     }
 
-    window& window_state::get_win () {
+    window& window_state::get_win () const {
       return const_cast<window&>(win);
     }
 
-    bool window_state::set_flag (byte bit, bool a) {
+    bool window_state::set_flag (byte bit, bool a) const {
       if (win.get_flag(bit) != a) {
         get_win().set_flag(bit, a);
         return true;
@@ -77,6 +77,22 @@ namespace gui {
       return set_flag(flags::redraw_disabled, on);
     }
 
+    bool window_state::set_in_event_handle (bool on) {
+      return set_flag(flags::in_event_handle, on);
+    }
+
+    bool window_state::is_in_event_handle () const {
+      return get_flag(flags::in_event_handle);
+    }
+
+    bool window_state::set_needs_redraw (bool on) const {
+      return set_flag(flags::needs_redraw, on);
+    }
+
+    bool window_state::needs_redraw () const {
+      return get_flag(flags::needs_redraw);
+    }
+
 #ifdef WIN32
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
@@ -90,7 +106,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
 
-    bool check_xlib_return (int r);
+    namespace x11 {
+      bool check_return (int r);
+    }
 
     bool window_state::set_enable (bool on) {
       if (set_flag(flags::window_disabled, !on)) {
@@ -99,7 +117,7 @@ namespace gui {
           XSetWindowAttributes wa = {0};
           wa.cursor = on ? win.get_window_class().get_cursor()
                       : (os::cursor)win::cursor::arrow();
-          check_xlib_return(XChangeWindowAttributes(core::global::get_instance(), win.get_id(), mask, &wa));
+          x11::check_return(XChangeWindowAttributes(core::global::get_instance(), win.get_id(), mask, &wa));
         }
         get_win().redraw_later();
         return true;

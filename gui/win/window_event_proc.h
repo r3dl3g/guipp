@@ -53,10 +53,6 @@ namespace gui {
 
       XIC get_window_ic (os::window);
 
-      void set_needs_redraw (os::window);
-      void clear_needs_redraw (os::window);
-      bool needs_redraw (os::window);
-
     } // namespace x11
 #endif // X11
 

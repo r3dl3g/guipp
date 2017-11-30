@@ -303,6 +303,13 @@ namespace gui {
         auto screen = get_screen();
         auto visual = get_visual();
         auto colormap = DefaultColormap(display, screen);
+
+//        XVisualInfo vinfo;
+//        XMatchVisualInfo(display, screen, 32, TrueColor, &vinfo);
+
+//        auto visual = vinfo.visual;
+//        auto colormap = XCreateColormap(display, target, visual, AllocNone);
+
         s_xft = XftDrawCreate(display, target, visual, colormap);
       } else {
         XftDrawChange(s_xft, target);

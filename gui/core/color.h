@@ -81,14 +81,16 @@ namespace gui {
     struct rgb {
       static constexpr os::color value = build_primary<part::red, R>::value |
                                          build_primary<part::green, G>::value |
-                                         build_primary<part::blue, B>::value;
+                                         build_primary<part::blue, B>::value/* |
+                                         mask<part::alpha>::value*/;
     };
 
     template<type V>
     struct rgb_gray {
       static constexpr os::color value = build_primary<part::red, V>::value |
                                          build_primary<part::green, V>::value |
-                                         build_primary<part::blue, V>::value;
+                                         build_primary<part::blue, V>::value/* |
+                                         mask<part::alpha>::value*/;
     };
 
     template<type R, type G, type B, type A>
@@ -118,7 +120,7 @@ namespace gui {
     }
 
     constexpr os::color calc_rgb (type r, type g, type b) {
-      return build<part::red>(r) | build<part::green>(g) | build<part::blue>(b);
+      return build<part::red>(r) | build<part::green>(g) | build<part::blue>(b)/* | mask<part::alpha>::value*/;
     }
 
     constexpr os::color calc_rgba (type r, type g, type b, type a) {
@@ -164,12 +166,12 @@ namespace gui {
                                                    detail::fast_mul_2(extract<part::blue>(c))));
     }
 
-    constexpr os::color add_transparency (os::color c, float faktor) {
-      return (c & ~(mask<part::alpha>::value)) | build<part::alpha>(static_cast<type>(faktor * 255));
+    constexpr os::color remove_transparency (os::color c) {
+      return (c | ~mask<part::alpha>::value);
     }
 
-    constexpr os::color remove_transparency (os::color c) {
-      return (c & ~(mask<part::alpha>::value));
+    constexpr os::color add_transparency (os::color c, float faktor) {
+      return remove_transparency(c) | build<part::alpha>(static_cast<type>((1.0F - faktor) * 255));
     }
 
     template<part P>

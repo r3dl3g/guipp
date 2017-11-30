@@ -539,12 +539,12 @@ my_main_window::my_main_window ()
   ok_button.register_event_handler(REGISTER_FUNCTION, win::button_pushed_event([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
-    label.redraw_now();
+    label.redraw_later();
   }));
   ok_button.register_event_handler(REGISTER_FUNCTION, win::button_released_event([&] () {
     LogDebug << "Button released";
     label.set_text("Released!");
-    label.redraw_now();
+    label.redraw_later();
   }));
   radio_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     LogDebug << "Radio clicked";

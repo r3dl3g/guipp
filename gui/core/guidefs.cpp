@@ -59,7 +59,8 @@ namespace gui {
                     " Request_code: " << (int)errev->request_code <<
                     " Minor_code: " << (int)errev->minor_code <<
                     " Text: " << buffer;
-                    return 0;
+
+        return 0;
       }
 
       int IOErrorHandler (Display* dpy) {

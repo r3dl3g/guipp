@@ -105,8 +105,10 @@ namespace gui {
 
     }
 
-    extern bool check_xlib_return (int r);
-    extern bool check_xlib_status (Status s);
+    namespace x11 {
+      bool check_return (int r);
+      bool check_status (Status s);
+    }
 
     // --------------------------------------------------------------------------
     bool container::is_parent_of (const window& child) const {
@@ -115,9 +117,9 @@ namespace gui {
 
     void container::set_children_visible (bool show) {
       if (show) {
-        check_xlib_return(XMapSubwindows(core::global::get_instance(), get_id()));
+        x11::check_return(XMapSubwindows(core::global::get_instance(), get_id()));
       } else {
-        check_xlib_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
+        x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
       }
     }
 
@@ -130,7 +132,7 @@ namespace gui {
         Window *children = 0;
         unsigned int nchildren = 0;
 
-        if (check_xlib_status(XQueryTree(core::global::get_instance(),
+        if (x11::check_status(XQueryTree(core::global::get_instance(),
                                          get_id(),
                                          &root,
                                          &parent,
@@ -317,12 +319,12 @@ namespace gui {
     }
 
     void overlapped_window::set_title (const std::string& title) {
-      check_xlib_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
+      x11::check_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
     }
 
     std::string overlapped_window::get_title () const {
       char *window_name;
-      check_xlib_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
+      x11::check_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
       return std::string(window_name);
     }
 

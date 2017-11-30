@@ -31,6 +31,8 @@
 //
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
+#include <gui/core/logger.h>
+
 
 #ifdef X11
 
@@ -401,7 +403,14 @@ namespace gui {
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
-      super::create({w, h, core::global::get_device_bits_per_pixel()});
+//      int count = 0;
+//      XPixmapFormatValues* fmts = XListPixmapFormats(core::global::get_instance(), &count);
+//      for (int i = 0; i < count; ++i) {
+//        LogDebug << "PixmapFormat " << i << ": bits:" << fmts[i].bits_per_pixel << " depth:" << fmts[i].depth << " pad:" << fmts[i].scanline_pad;
+//      }
+//      BPP bpp = BPP::RGBA;
+      BPP bpp = core::global::get_device_bits_per_pixel();
+      super::create({w, h, bpp});
 #endif
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");

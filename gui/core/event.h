@@ -37,6 +37,7 @@ namespace gui {
 
   namespace core {
 
+    // --------------------------------------------------------------------------
     using event = IF_WIN32_ELSE(win32::event, XEvent);
 
     typedef bool (event_handler_callback)(const event&, os::event_result&);
@@ -44,3 +45,8 @@ namespace gui {
   } // core
 
 } // gui
+
+namespace std {
+  // --------------------------------------------------------------------------
+  std::ostream& operator<< (std::ostream& out, const gui::core::event& t);
+}

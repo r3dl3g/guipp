@@ -112,9 +112,9 @@ namespace gui {
       core::size client_size () const;
       core::rectangle client_area () const;
 
-      void move (const core::point&, bool repaint = false);
-      void resize (const core::size&, bool repaint = false);
-      void place (const core::rectangle&, bool repaint = false);
+      void move (const core::point&, bool repaint = true);
+      void resize (const core::size&, bool repaint = true);
+      void place (const core::rectangle&, bool repaint = true);
 
       core::point window_to_screen (const core::point&) const;
       core::point screen_to_window (const core::point&) const;

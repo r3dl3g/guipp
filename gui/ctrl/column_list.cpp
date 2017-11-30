@@ -103,7 +103,6 @@ namespace gui {
 
       void column_list_layout::set_column_align (std::size_t i, text_origin a) {
         aligns[i] = a;
-        list->redraw_later();
       }
 
       void column_list_layout::set_column_info (std::size_t i, const column_info& info, bool update) {
@@ -112,8 +111,8 @@ namespace gui {
       }
 
       void column_list_layout::redraw_views () {
-        main->redraw_later();
-        list->redraw_later();
+        main->redraw();
+        list->redraw();
       }
 
       void column_list_layout::layout (const core::size&) {
@@ -224,8 +223,6 @@ namespace gui {
         column_size_type w = get_column_width(i) + static_cast<column_size_type>(space * get_column_weight(i) / full_weight);
         super::set_column_width(i, w, false);
       }
-
-      list->redraw_later();
     }
 
   } // layout

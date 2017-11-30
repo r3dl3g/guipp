@@ -199,27 +199,33 @@ namespace gui {
           start_window_point = core::point::undefined;
         }));
         register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
-          redraw_later();
+          redraw();
         }));
         register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
-          redraw_later();
+          redraw();
         }));
       }
 
       void slider_base::set_min (type i) {
-        min = i;
-        redraw_later();
+        if (min != i) {
+          min = i;
+          redraw();
+        }
       }
 
       void slider_base::set_max (type i) {
-        max = i;
-        redraw_later();
+        if (max != i) {
+          max = i;
+          redraw();
+        }
       }
 
       void slider_base::set_min_max (type mi, type ma) {
-        min = mi;
-        max = ma;
-        redraw_later();
+        if ((min != mi) || (max != ma)) {
+          min = mi;
+          max = ma;
+          redraw();
+        }
       }
 
     } // detail

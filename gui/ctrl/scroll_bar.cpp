@@ -70,11 +70,11 @@ namespace gui {
       static int initialized = detail::init_control_messages();
 #endif // X11
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
-        redraw_later();
+        redraw();
       }));
       register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
         set_hilite(scrollbar_state::nothing);
-        redraw_later();
+        redraw();
       }));
 
       set_accept_focus(true);
@@ -111,34 +111,44 @@ namespace gui {
     }
 
     void scroll_bar::set_min (type mi) {
-      data.min = mi;
-      data.value = std::max(data.value, data.min);
-      redraw_later();
+      if (data.min != mi) {
+        data.min = mi;
+        data.value = std::max(data.value, data.min);
+        redraw();
+      }
     }
 
     void scroll_bar::set_max (type ma) {
-      data.max = ma;
-      data.value = std::min(data.value, data.max);
-      redraw_later();
+      if (data.max != ma) {
+        data.max = ma;
+        data.value = std::min(data.value, data.max);
+        redraw();
+      }
     }
 
     void scroll_bar::set_min_max (type mi, type ma) {
-      data.min = mi;
-      data.max = ma;
-      data.value = std::max(data.value, data.min);
-      redraw_later();
+      if ((data.min != mi) || (data.max != ma)) {
+        data.min = mi;
+        data.max = ma;
+        data.value = std::max(data.value, data.min);
+        redraw();
+      }
     }
 
     void scroll_bar::set_step (type s) {
-      data.step = s;
-      redraw_later();
+      if (data.step != s) {
+        data.step = s;
+        redraw();
+      }
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {
-      data.min = mi;
-      data.max = ma;
-      data.step = s;
-      redraw_later();
+      if ((data.min != mi) || (data.max != ma) || (data.step != s)) {
+        data.min = mi;
+        data.max = ma;
+        data.step = s;
+        redraw();
+      }
     }
 
     void scroll_bar::set_min_max_step_value (type mi, type ma, type s, type v) {
@@ -150,7 +160,7 @@ namespace gui {
       v = std::min(std::max(v, data.min), data.max);
       if (v != data.value) {
         data.value = v;
-        redraw_later();
+        redraw();
         if (notify) {
           send_notify();
         }
@@ -300,7 +310,6 @@ namespace gui {
           } else {
             set_hilite(scrollbar_state::nothing);
           }
-          redraw_later();
         }
       }
     }
@@ -380,7 +389,6 @@ namespace gui {
           } else {
             set_hilite(scrollbar_state::nothing);
           }
-          redraw_later();
         }
       }
     }

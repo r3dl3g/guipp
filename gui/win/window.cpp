@@ -210,10 +210,11 @@ namespace gui {
       auto r = events.handle_event(e, result);
 
 #ifdef X11
+      auto state = get_state();
       if (e.type == Expose) {
-        get_state().set_needs_redraw(false);
+        state.set_needs_redraw(false);
       }
-      if (get_state().needs_redraw()) {
+      if (state.needs_redraw()) {
         redraw_now();
       }
 #endif // X11
@@ -225,7 +226,7 @@ namespace gui {
       const container* parent = get_parent();
       if (parent) {
         parent->shift_focus(*this, backward);
-        redraw_later();
+        redraw();
       }
     }
 
@@ -346,7 +347,7 @@ namespace gui {
     void window::take_focus () const {
       if (is_valid()) {
         SetFocus(get_id());
-        redraw_later();
+        redraw();
       }
     }
 
@@ -368,7 +369,7 @@ namespace gui {
       }
     }
 
-    void window::redraw_later () const {
+    void window::redraw () const {
       if (is_valid()) {
         InvalidateRect(get_id(), nullptr, TRUE);
       }
@@ -419,7 +420,7 @@ namespace gui {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
         if (repaint) {
-          redraw_later();
+          redraw();
         }
       }
     }
@@ -428,7 +429,7 @@ namespace gui {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
         if (repaint) {
-          redraw_later();
+          redraw();
         }
       }
     }
@@ -677,6 +678,7 @@ namespace gui {
         if (s) {
           x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
         } else {
+          LogDebug << "Hide window:" << *this;
           x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
         }
       }
@@ -685,7 +687,7 @@ namespace gui {
     void window::take_focus () const {
       x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
-      redraw_later();
+      redraw();
     }
 
     void window::to_front () {
@@ -698,7 +700,14 @@ namespace gui {
 
     void window::redraw_now () const {
 
-      static XEvent event;
+      auto state = get_state();
+
+      if (state.is_redraw_disabled()) {
+        get_state().set_needs_redraw(true);
+        return;
+      }
+
+      XEvent event;
 
       XExposeEvent& e = event.xexpose;
       e.type = Expose;
@@ -713,18 +722,18 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-//      LogDebug << "redraw_now: " << event;
+      LogDebug << "redraw_now: " << event;
       events.handle_event(event, result);
 
-      get_state().set_needs_redraw(false);
+      state.set_needs_redraw(false);
 
       core::global::sync();
     }
 
-    void window::redraw_later () const {
+    void window::redraw () const {
       if (get_id()) {
+        LogDebug << "redraw: " << get_id();
         if (get_state().is_in_event_handle()) {
-//          LogDebug << "set_needs_redraw: " << get_id();
           get_state().set_needs_redraw(true);
         } else {
           redraw_now();
@@ -791,28 +800,10 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
-
-//        core::event e;
-//        XConfigureEvent& c = e.xconfigure;
-
-//        e.type = ConfigureNotify;
-//        c.serial = 1;	/* # of last request processed by server */
-//        c.send_event = false;	/* true if this came from a SendEvent request */
-//        c.display = core::global::get_instance();	/* Display the event was read from */
-//        c.event = get_id();
-//        c.window = get_id();
-//        unsigned int depth = 0;
-//        XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-//        c.x = pt.os_x();
-//        c.y = pt.os_y();
-//        c.override_redirect = False;
-//        os::event_result result;
-//        events.handle_event(e, result);
-
         x11::check_return(XMoveWindow(core::global::get_instance(), get_id(),
                                       pt.os_x(), pt.os_y()));
         if (repaint) {
-          redraw_later();
+          redraw();
         }
       }
     }
@@ -823,28 +814,10 @@ namespace gui {
       } else {
         set_visible();
         if (size() != sz) {
-
-//          core::event e;
-//          XConfigureEvent& c = e.xconfigure;
-
-//          e.type = ConfigureNotify;
-//          c.serial = 1;	/* # of last request processed by server */
-//          c.send_event = false;	/* true if this came from a SendEvent request */
-//          c.display = core::global::get_instance();	/* Display the event was read from */
-//          c.event = get_id();
-//          c.window = get_id();
-//          unsigned int depth = 0;
-//          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-//          c.width = sz.os_width();
-//          c.height = sz.os_height();
-//          c.override_redirect = False;
-//          os::event_result result;
-//          events.handle_event(e, result);
-
           x11::check_return(XResizeWindow(core::global::get_instance(), get_id(),
                                           sz.os_width(), sz.os_height()));
           if (repaint) {
-            redraw_later();
+            redraw();
           }
         }
       }
@@ -856,31 +829,11 @@ namespace gui {
       } else {
         set_visible();
         if (place() != r) {
-
-//          core::event e;
-//          XConfigureEvent& c = e.xconfigure;
-
-//          e.type = ConfigureNotify;
-//          c.serial = 1;	/* # of last request processed by server */
-//          c.send_event = false;	/* true if this came from a SendEvent request */
-//          c.display = core::global::get_instance();	/* Display the event was read from */
-//          c.event = get_id();
-//          c.window = get_id();
-//          unsigned int depth = 0;
-//          XGetGeometry(c.display, c.window, &c.above, &c.x, &c.y, (unsigned int*)&c.width, (unsigned int*)&c.height, (unsigned int*)&c.border_width, &depth);
-//          c.x = r.os_x();
-//          c.y = r.os_y();
-//          c.width = r.os_width();
-//          c.height = r.os_height();
-//          c.override_redirect = False;
-//          os::event_result result;
-//          events.handle_event(e, result);
-
           x11::check_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
                                               r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (repaint) {
-            redraw_later();
+            redraw();
           }
         }
       }

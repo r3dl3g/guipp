@@ -79,10 +79,10 @@ namespace gui {
           }
         }));
         register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
-          redraw_later();
+          redraw();
         }));
         register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
-          redraw_later();
+          redraw();
         }));
       }
 

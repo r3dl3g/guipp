@@ -69,10 +69,6 @@ namespace gui {
       main->register_event_handler(REGISTER_FUNCTION, win::show_event(f2));
     }
 
-    void layout_base::update () {
-      main->redraw_later();
-    }
-
   } // layout
 
 } // gui

@@ -171,7 +171,7 @@ namespace gui {
         data.scroll_pos = 0;
         data.selection.clear();
         notify_content_changed();
-        redraw_later();
+        redraw();
       }
 
       const std::string& edit_base::get_text () const {
@@ -184,7 +184,7 @@ namespace gui {
 
       void edit_base::set_selection (const edit_base::range& sel, event_source) {
         data.selection = sel;
-        redraw_later();
+        redraw();
       }
 
       edit_base::range edit_base::get_selection () const {
@@ -212,6 +212,7 @@ namespace gui {
 
       void edit_base::make_selection_visible () {
         // make cursor pos visible
+        auto old_pos = data.scroll_pos;
         if (data.cursor_pos < data.scroll_pos) {
           data.scroll_pos = 0;
         }
@@ -224,7 +225,9 @@ namespace gui {
           sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         }
 
-        redraw_later();
+        if (old_pos != data.scroll_pos) {
+          redraw();
+        }
       }
 
       edit_base::pos_t edit_base::get_cursor_pos () const {
@@ -248,7 +251,7 @@ namespace gui {
         data.text.replace(sel.first, sel.last - sel.first, new_text);
         set_cursor_pos(sel.first + new_text.size(), false);
         notify_content_changed();
-        redraw_later();
+        redraw();
       }
 
       std::string edit_base::get_text_in_range (const edit_base::range& r) const {
@@ -324,7 +327,7 @@ namespace gui {
               ++cp;
             }
             data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
-            redraw_later();
+            redraw();
             notify_content_changed();
           } else {
             replace_selection(std::string());

@@ -84,7 +84,6 @@ namespace gui {
           super::hide_children(children);
         }
       }
-      super::update();
     }
 
   } // namespace layout

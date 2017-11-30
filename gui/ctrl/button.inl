@@ -145,7 +145,7 @@ namespace gui {
     template<class T, typename U, U D>
     inline void basic_text_button<T, U, D>::set_text (const text_source& t) {
       text = t;
-      super::redraw_later();
+      super::redraw();
     }
 
     template<class T, typename U, U D>

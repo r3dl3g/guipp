@@ -71,7 +71,6 @@ namespace gui {
       static bool is_child_visible (win::window*);
       static void hide_children (std::vector<win::window*>&);
 
-      void update ();
       core::size get_main_size () const;
 
     protected:

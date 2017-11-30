@@ -47,6 +47,9 @@ namespace gui {
       range (type v = type());
       range (type f, type l);
 
+      bool operator== (const range&);
+      bool operator!= (const range&);
+
       bool is_inside (type i) const;
       void sort ();
       bool empty () const;

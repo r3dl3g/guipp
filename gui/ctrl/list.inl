@@ -402,7 +402,7 @@ namespace gui {
         data.selection = -1;
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
-          super::redraw_later();
+          super::redraw();
         }
       }
     }
@@ -417,7 +417,7 @@ namespace gui {
         data.hilite = new_hilite;
         if (notify) {
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
-          super::redraw_later();
+          super::redraw();
         }
       }
     }
@@ -428,7 +428,7 @@ namespace gui {
         data.hilite = -1;
         if (notify) {
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
-          super::redraw_later();
+          super::redraw();
         }
       }
     }
@@ -436,7 +436,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::init () {
       scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (pos_t) {
-        super::redraw_later();
+        super::redraw();
       }));
       if (scrollbar.is_focus_accepting()) {
         super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point &) {
@@ -453,10 +453,12 @@ namespace gui {
       super::register_event_handler(REGISTER_FUNCTION, typename wheel_traits<V>::wheel_event_type(this, &basic_list::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_list::handle_mouse_move));
       super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &) {
+//        scrollbar.disable_redraw(true);
         if (scrollbar.is_valid()) {
           scrollbar.place(get_scroll_bar_area());
         }
         adjust_scroll_bar();
+//        scrollbar.disable_redraw(false);
       }));
     }
 
@@ -536,7 +538,7 @@ namespace gui {
           create_scroll_bar();
         }
         scrollbar.set_visible(show_scroll);
-        super::redraw_later();
+        super::redraw();
       }
     }
 
@@ -572,7 +574,7 @@ namespace gui {
         make_selection_visible();
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
-          super::redraw_later();
+          super::redraw();
         }
       }
     }
@@ -599,8 +601,6 @@ namespace gui {
           set_scroll_pos(sel_pos);
         } else if (sel_pos + line_size - scroll_pos > list_sz) {
           set_scroll_pos(sel_pos + line_size - list_sz);
-        } else {
-          super::redraw_later();
         }
       }
     }
@@ -648,7 +648,6 @@ namespace gui {
         } else if (control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
-        super::redraw_later();
       }
       super::set_cursor(cursor::arrow());
       super::data.last_mouse_point = core::point::undefined;

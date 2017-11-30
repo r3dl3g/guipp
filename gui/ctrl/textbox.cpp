@@ -120,7 +120,7 @@ namespace gui {
         data.selection.clear();
         notify_content_changed();
         notify_selection_changed();
-        redraw_later();
+        redraw();
       }
 
       std::string textbox_base::get_text () const {
@@ -128,11 +128,14 @@ namespace gui {
       }
 
       void textbox_base::set_scroll_pos (const core::point& pos) {
-        data.offset = pos;
-        redraw_later();
+        if (data.offset != pos) {
+          data.offset = pos;
+          redraw();
+        }
       }
 
       void textbox_base::set_selection (const textbox_base::range& s) {
+        auto old_selection = data.selection;
         auto row = std::min<int>(s.last.y(), static_cast<int>(row_count()) - 1);
         if (row > -1) {
           auto column = std::min<int>(s.last.x(), static_cast<int>(data.lines[row].size()));
@@ -140,7 +143,9 @@ namespace gui {
         } else {
           data.selection = s;
         }
-        redraw_later();
+        if (old_selection != data.selection) {
+          redraw();
+        }
       }
 
       void textbox_base::set_cursor_pos (const textbox_base::position& p, bool shift) {
@@ -175,8 +180,8 @@ namespace gui {
         }
         if (old_pos != data.cursor_pos) {
           notify_selection_changed();
+          redraw();
         }
-        redraw_later();
       }
 
       textbox_base::position textbox_base::get_position_at_point (const core::point& pt) const {
@@ -231,7 +236,7 @@ namespace gui {
           set_cursor_pos(position::zero);
         }
         notify_content_changed();
-        redraw_later();
+        redraw();
       }
 
       std::string textbox_base::get_text_in_range (const textbox_base::range& r) const {
@@ -289,7 +294,7 @@ namespace gui {
             data.offset.x(x + 3 - area.width());
           }
           if (data.offset != old_pos) {
-            redraw_later();
+            redraw();
           }
         }
       }
@@ -368,10 +373,10 @@ namespace gui {
           clipboard::get().set_text(*this, get_selected_text());
         }));
         register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
-          redraw_later();
+          redraw();
         }));
         register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
-          redraw_later();
+          redraw();
         }));
       }
 

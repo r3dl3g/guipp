@@ -501,7 +501,7 @@ void my_main_window::open () {
       bmp[0] = img.convert<BPP::RGB>();
       gray[0] = img.convert<BPP::GRAY>();
       bw[0] = img.convert<BPP::BW>();
-      window1.redraw_later();
+      window1.redraw();
     }
   });
 }
@@ -543,7 +543,7 @@ void my_main_window::copy () {
   gray[0] = img;
   bw[0] = img;
 
-  window1.redraw_later();
+  window1.redraw();
 }
 
 void my_main_window::del () {
@@ -554,7 +554,7 @@ void my_main_window::del () {
     gray[i].clear();
     bw[i].clear();
   }
-  window1.redraw_later();
+  window1.redraw();
 }
 
 void my_main_window::cut () {
@@ -616,7 +616,7 @@ void my_main_window::cut () {
   io::ofpnm<io::PNM::P4>("p4") << bw[1];
   io::ofpnm<io::PNM::P1>("p1") << bw[1];
 
-  window1.redraw_later();
+  window1.redraw();
 }
 
 template<io::PNM P>
@@ -661,7 +661,7 @@ void my_main_window::paste () {
   read_write_rgba<io::PNM::P3>(rgba[0]);
   read_write_rgba<io::PNM::P6>(rgba[1]);
 
-  window1.redraw_later();
+  window1.redraw();
 }
 
 void my_main_window::test_rgb () {
@@ -706,7 +706,7 @@ void my_main_window::test_rgb () {
   rgba[0] = blue;
   rgba[1] = blue24;
 
-  window1.redraw_later();
+  window1.redraw();
 }
 
 void my_main_window::save_all_bin () {

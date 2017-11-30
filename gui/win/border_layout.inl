@@ -328,7 +328,6 @@ namespace gui {
       if (super::get_center() && is_child_visible(super::get_center())) {
         place_child(super::get_center(), r);
       }
-      update();
     }
 
     template<border_layout_type type>

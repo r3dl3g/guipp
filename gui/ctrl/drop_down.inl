@@ -86,24 +86,23 @@ namespace gui {
       super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point &) {
         toggle_popup();
         super::take_focus();
-        super::redraw_later();
       }));
 
       super::register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &drop_down_list::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
 
       data.button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
-                                                                          paint::drop_down_button(graph,
-                                                                                                  data.button.client_area(),
-                                                                                                  data.button.get_state(),
-                                                                                                  is_popup_visible());
-                                                                        }));
+        paint::drop_down_button(graph,
+                                data.button.client_area(),
+                                data.button.get_state(),
+                                is_popup_visible());
+      }));
       data.button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
 
       data.items.register_event_handler(REGISTER_FUNCTION, selection_changed_event(this, &drop_down_list::handle_selection_changed));
-      data.button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
-                                                                               super::redraw_later();
-                                                                             }));
+      data.button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        super::redraw();
+      }));
       data.button.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &drop_down_list::handle_key));
 
       data.items.set_drawer([&](std::size_t idx,
@@ -112,8 +111,8 @@ namespace gui {
                                 const draw::brush & b,
                                 bool selected,
                                 bool hilited) {
-                              D(data.source(idx), g, r, b, selected, hilited);
-                            });
+        D(data.source(idx), g, r, b, selected, hilited);
+      });
     }
 
     template<typename T, drop_down_drawer<T> D>
@@ -157,7 +156,7 @@ namespace gui {
       int idx = data.items.get_selection();
       if (idx > -1) {
         data.selection = idx;
-        super::redraw_later();
+        super::redraw();
         if (src == event_source::mouse) {
           hide_popup();
         }
@@ -203,13 +202,11 @@ namespace gui {
       data.items.set_selection(data.selection, event_source::logic);
       data.items.make_selection_visible();
       data.popup.set_visible();
-      data.button.redraw_later();
     }
 
     template<typename T, drop_down_drawer<T> D>
     inline void drop_down_list<T, D>::hide_popup () {
       data.popup.set_visible(false);
-      data.button.redraw_later();
     }
 
     template<typename T, drop_down_drawer<T> D>
@@ -323,7 +320,7 @@ namespace gui {
     void drop_down_list<T, D>::handle_wheel (const core::point::type delta, const core::point&) {
       if (!is_popup_visible()) {
         set_selection(get_selection() + static_cast<int>(delta), event_source::mouse);
-        super::redraw_later();
+        super::redraw();
       }
     }
 

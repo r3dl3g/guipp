@@ -97,7 +97,7 @@ namespace gui {
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
         EnableWindow(win.get_id(), on);
-        get_win().redraw_later();
+        get_win().redraw();
         return true;
       }
       return false;
@@ -119,7 +119,7 @@ namespace gui {
                       : (os::cursor)win::cursor::arrow();
           x11::check_return(XChangeWindowAttributes(core::global::get_instance(), win.get_id(), mask, &wa));
         }
-        get_win().redraw_later();
+        get_win().redraw();
         return true;
       }
       return false;

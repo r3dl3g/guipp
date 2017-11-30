@@ -70,7 +70,6 @@ namespace gui {
           super::hide_children(children);
         }
       }
-      super::update();
     }
 
     template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>

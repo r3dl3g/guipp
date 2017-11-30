@@ -134,7 +134,7 @@ namespace gui {
       super::set_count(current_dir.size());
       super::clear_selection(event_source::logic);
       super::set_scroll_pos(0);
-      super::redraw_later();
+      super::redraw();
     }
 
     template<typename T>
@@ -195,8 +195,8 @@ namespace gui {
       if (order != sort_order::name_up) {
         sort_list_by(current_dir, order);
       }
-      super::list.redraw_later();
-      super::header.redraw_later();
+      super::list.redraw();
+      super::header.redraw();
     }
 
     template<typename T>
@@ -213,8 +213,8 @@ namespace gui {
       if (order != new_order) {
         order = new_order;
         sort_list_by(current_dir, order);
-        super::list.redraw_later();
-        super::header.redraw_later();
+        super::list.redraw();
+        super::header.redraw();
       }
     }
 

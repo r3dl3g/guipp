@@ -35,6 +35,16 @@ namespace gui {
     {}
 
     template<typename T>
+    bool range<T>::operator== (const range& rhs) {
+      return (first == rhs.first) && (last == rhs.last);
+    }
+
+    template<typename T>
+    bool range<T>::operator!= (const range& rhs) {
+      return (first != rhs.first) || (last != rhs.last);
+    }
+
+    template<typename T>
     bool range<T>::is_inside (type i) const {
       return (i > first) && (i < last);
     }

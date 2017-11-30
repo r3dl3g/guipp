@@ -145,7 +145,6 @@ namespace gui {
         if (get_state() != scrollbar_state::nothing) {
           capture_pointer();
         }
-        redraw_later();
       }
     }
 
@@ -183,7 +182,6 @@ namespace gui {
           uncapture_pointer();
           send_notify();
         }
-        redraw_later();
       }
     }
 

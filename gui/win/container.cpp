@@ -449,7 +449,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
-      redraw_later();
+      redraw();
 #endif // X11
     }
 
@@ -481,7 +481,7 @@ namespace gui {
 
       os::window win = get_id();
 
-      redraw_later();
+      redraw();
 
       is_modal = true;
 

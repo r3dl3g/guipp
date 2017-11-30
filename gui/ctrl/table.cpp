@@ -436,9 +436,7 @@ namespace gui {
       if ((hscroll.get_state() == scrollbar_state::nothing) && (vscroll.get_state() == scrollbar_state::nothing)) {
         set_scroll_maximum(scroll_maximum(data.client_size(), pos, core::point(hscroll.get_max(), vscroll.get_max())));
       }
-      data.redraw_later();
-      columns.redraw_later();
-      rows.redraw_later();
+      redraw_all();
     }
 
     void table_view::init () {
@@ -554,9 +552,9 @@ namespace gui {
     }
 
     void table_view::redraw_all () {
-      data.redraw_later();
-      rows.redraw_later();
-      columns.redraw_later();
+      data.redraw();
+      rows.redraw();
+      columns.redraw();
     }
 
     core::size::type table_view::row_width () const {

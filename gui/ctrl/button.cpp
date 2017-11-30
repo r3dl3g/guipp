@@ -138,10 +138,10 @@ namespace gui {
 
       set_accept_focus(true);
       register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
-         redraw_later();
+         redraw();
        }));
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
-        redraw_later();
+        redraw();
       }));
       register_event_handler(REGISTER_FUNCTION, mouse_enter_event([&] () {
         set_hilited(true);
@@ -167,21 +167,21 @@ namespace gui {
     void button_base::set_hilited (bool h) {
       if (get_state().set_hilited(h)) {
         send_client_message(this, detail::HILITE_CHANGE_MESSAGE, h);
-        redraw_later();
+        redraw();
       }
     }
 
     void button_base::set_pushed (bool p) {
       if (get_state().set_pushed(p)) {
         send_client_message(this, p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
-        redraw_later();
+        redraw();
       }
     }
 
     void button_base::set_checked (bool f) {
       if (get_state().set_checked(f)) {
         send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
-        redraw_later();
+        redraw();
       }
     }
 
@@ -276,7 +276,7 @@ namespace gui {
         while (animation_step < 1.0F) {
           animation_step += 0.25F;
           run_on_main([&] () {
-            btn.redraw_later();
+            btn.redraw_now();
           });
           std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }

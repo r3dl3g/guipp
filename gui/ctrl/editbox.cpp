@@ -162,7 +162,7 @@ namespace gui {
               prev.append(current);
               erase_line(data.cursor_pos.y());
               set_cursor_pos(pos, false);
-              redraw_later();
+              redraw();
             }
           } else {
             replace_selection(std::string());

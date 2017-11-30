@@ -65,7 +65,6 @@ namespace gui {
           hide_children(children);
         }
       }
-      update();
     }
 
     template<unsigned W, unsigned H, unsigned B, unsigned G>
@@ -125,7 +124,6 @@ namespace gui {
           hide_children(children);
         }
       }
-      update();
     }
 
     template<unsigned C, unsigned R, unsigned B, unsigned G>

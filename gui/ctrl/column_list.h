@@ -63,9 +63,9 @@ namespace gui {
         column_size_type get_column_right_pos (std::size_t i) const;
 
         void set_column_align (std::size_t i, text_origin a);
-        void set_column_width (std::size_t i, column_size_type w, bool update = true);
-        void set_column_info (std::size_t i, const column_info& info, bool update = true);
-        void set_columns (std::initializer_list<column_info> infos, bool update = true);
+        void set_column_width (std::size_t i, column_size_type w, bool update = false);
+        void set_column_info (std::size_t i, const column_info& info, bool update = false);
+        void set_columns (std::initializer_list<column_info> infos, bool update = false);
 
         core::size::type get_available_width () const;
 

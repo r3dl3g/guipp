@@ -57,7 +57,7 @@ namespace gui {
 
       void label_base::set_text (const text_source& t) {
         text = t;
-        redraw_later();
+        redraw();
       }
 
       std::string label_base::get_text () const {

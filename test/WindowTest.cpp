@@ -522,7 +522,7 @@ my_main_window::my_main_window ()
       window2.unregister_event_handler(paint2);
       window2.register_event_handler(REGISTER_FUNCTION, paint1);
     }
-    window2.redraw_later();
+    window2.redraw();
   }));
   window2.register_event_handler(REGISTER_FUNCTION, win::show_event([] () {
     LogDebug << "Window2 show:";
@@ -539,12 +539,10 @@ my_main_window::my_main_window ()
   ok_button.register_event_handler(REGISTER_FUNCTION, win::button_pushed_event([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
-    label.redraw_later();
   }));
   ok_button.register_event_handler(REGISTER_FUNCTION, win::button_released_event([&] () {
     LogDebug << "Button released";
     label.set_text("Released!");
-    label.redraw_later();
   }));
   radio_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     LogDebug << "Radio clicked";
@@ -719,7 +717,7 @@ my_main_window::my_main_window ()
   }));
   invert_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
     draw_invert = !draw_invert;
-    window2.redraw_later();
+    window2.redraw();
   }));
 
   vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
@@ -779,10 +777,10 @@ my_main_window::my_main_window ()
   }));
 
   start_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
-    window2.redraw_later();
+    window2.redraw();
   }));
   end_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
-    window2.redraw_later();
+    window2.redraw();
   }));
   /*
     window2.register_event_handler(REGISTER_FUNCTION, win::mouse_enter_event([]() {

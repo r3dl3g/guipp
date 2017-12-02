@@ -236,7 +236,6 @@ namespace gui {
         os::event_result result;
         core::event e{ win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
         win->handle_event(e, result);
-//        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
       }
     }
 
@@ -244,10 +243,9 @@ namespace gui {
       if (win && win->is_valid()) {
         os::event_result result;
         os::size s = sz;
-        long l1 = (long)s.width << 16 | (long)s.height;
-        core::event e{ win->get_id(), message, static_cast<WPARAM>(l1), 0 };
+        long l2 = (long)s.cy << 16 | (long)s.cx;
+        core::event e{ win->get_id(), message, 0, static_cast<WPARAM>(l2)};
         win->handle_event(e, result);
-//        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
       }
     }
 

@@ -53,23 +53,15 @@ namespace gui {
     template<int I, typename T>
     T get_param (const core::event& e);
     // --------------------------------------------------------------------------
-    template<>
-    os::graphics get_param<0>(const core::event& e);
-    template<>
-    window* get_param<0>(const core::event& e);
-    template<>
-    bool get_param<0>(const core::event& e);
-    template<>
-    unsigned int get_param<0>(const core::event& e);
-    template<>
-    int get_param<0>(const core::event& e);
+    template<> os::graphics get_param<0>(const core::event& e);
+    template<> window* get_param<0>(const core::event& e);
+    template<> bool get_param<0>(const core::event& e);
+    template<> unsigned int get_param<0>(const core::event& e);
+    template<> int get_param<0>(const core::event& e);
     // --------------------------------------------------------------------------
-    template<>
-    window* get_param<1>(const core::event& e);
-    template<>
-    core::point get_param<1>(const core::event& e);
-    template<>
-    core::size get_param<1>(const core::event& e);
+    template<> window* get_param<1>(const core::event& e);
+    template<> core::point get_param<1>(const core::event& e);
+    template<> core::size get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
@@ -346,7 +338,7 @@ namespace gui {
 
     using layout_event = core::event_handler<WM_LAYOUT_WINDOW, 0,
                                        core::params<core::size>::
-                                       getter<get_param<0, core::size>>;
+                                       getter<get_param<1, core::size>>>;
 
     using os_paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 

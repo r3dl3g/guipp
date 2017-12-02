@@ -240,6 +240,17 @@ namespace gui {
       }
     }
 
+    void send_client_message (const window* win, os::event_id message, const core::size& sz) {
+      if (win && win->is_valid()) {
+        os::event_result result;
+        os::size s = sz;
+        long l1 = (long)s.width << 16 | (long)s.height;
+        core::event e{ win->get_id(), message, static_cast<WPARAM>(l1), 0 };
+        win->handle_event(e, result);
+//        SendMessage(win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2));
+      }
+    }
+
     void post_client_message (const window* win, os::event_id message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
 //      if (win && win->is_valid()) {
@@ -249,6 +260,8 @@ namespace gui {
 
 #endif // Win32
 #ifdef X11
+    Atom WM_LAYOUT_WINDOW = 0;
+
     namespace x11 {
 
       Atom WM_CREATE_WINDOW = 0;
@@ -261,6 +274,7 @@ namespace gui {
         init_atom(WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
         init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
         init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
+        init_atom(WM_LAYOUT_WINDOW, "WM_LAYOUT_WINDOW");
         return 1;
       }
 
@@ -351,6 +365,12 @@ namespace gui {
       x11::send_client_message(win, message, l1, l2);
     }
 
+    void send_client_message (const window* win, Atom message, const core::size& sz) {
+      os::size s = sz;
+      long l0 = (long)s.cx << 16 | (long)s.cy;
+      x11::send_client_message(win, message, l0);
+    }
+
     void post_client_message (const window* win, Atom message, long l1, long l2) {
       x11::post_client_message(win, message, l1, l2);
     }
@@ -365,6 +385,15 @@ namespace gui {
       unsigned short h = s & 0xffff;
       os::rectangle r = {x, y, w, h};
       return core::rectangle(r);
+    }
+
+    // --------------------------------------------------------------------------
+    core::size get_client_data_size (const core::event& e) {
+      long s = e.xclient.data.l[0];
+      unsigned short w = s >> 16;
+      unsigned short h = s & 0xffff;
+      os::size sz = {w, h};
+      return core::size(sz);
     }
 
     // --------------------------------------------------------------------------

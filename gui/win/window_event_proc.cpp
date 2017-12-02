@@ -564,7 +564,7 @@ namespace gui {
             running = false;
           }
 
-          core::global::sync();
+//          core::global::sync();
 
           if (e.type == ConfigureNotify) {
             update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));

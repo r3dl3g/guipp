@@ -101,14 +101,15 @@ namespace gui {
     template<orientation O>
     void split_view<O>::layout (const core::size& sz) {
       double pos = get_split_pos(sz);
+      LogTrace << "split_view::layout(" << sz << ") split_pos: " << pos;
       if (data.first) {
-        data.first->place(get_first_place(sz, pos));
+        data.first->place(get_first_place(sz, pos), false);
       }
       if (data.second) {
-        data.second->place(get_second_place(sz, pos));
+        data.second->place(get_second_place(sz, pos), false);
       }
       if (data.slider) {
-        data.slider->place(get_slider_place(sz, pos));
+        data.slider->place(get_slider_place(sz, pos), false);
       }
     }
 

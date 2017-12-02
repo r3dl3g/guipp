@@ -191,6 +191,14 @@ namespace gui {
       std::ostringstream m_buffer;
     };
 
+    class null_recoder {
+    public:
+      template <typename T>
+      inline null_recoder& operator<< (T const&) {
+        return *this;
+      }
+    };
+
 
   } // namespace log
 
@@ -199,9 +207,19 @@ namespace gui {
 #include <gui/core/logger.inl>
 
 /// Log macro trace
-#define LogTrace gui::log::recorder (gui::log::level::trace)
+#if defined(ENABLE_TRACE) || !defined(NDEBUG)
+# define LogTrace gui::log::recorder (gui::log::level::trace)
+#else
+# define LogTrace gui::log::null_recoder ()
+#endif // ENABLE_TRACE
+
 /// Log macro debug
-#define LogDebug gui::log::recorder (gui::log::level::debug)
+#if defined(NDEBUG)
+# define LogDebug gui::log::null_recoder ()
+#else
+# define LogDebug gui::log::recorder (gui::log::level::debug)
+#endif // NDEBUG
+
 /// Log macro info
 #define LogInfo  gui::log::recorder (gui::log::level::info)
 /// Log macro warning

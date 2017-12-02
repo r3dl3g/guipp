@@ -443,7 +443,7 @@ namespace gui {
       set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
       register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
-      register_event_handler(REGISTER_FUNCTION, win::size_event(this, &table_view::handle_size));
+      register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &table_view::handle_size));
       vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
                                                                        handle_scroll(core::point(geometrie.widths.get_offset(), pos));
                                                                      }));

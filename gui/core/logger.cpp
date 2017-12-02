@@ -108,7 +108,7 @@ namespace gui {
     }
 
     std::ostream& operator << (std::ostream& out, const std::exception& ex) {
-#if defined(DEBUG) && defined(USE_BOOST)
+#if !defined(NDEBUG) && defined(USE_BOOST)
       out << boost::current_exception_diagnostic_information();
 #else
       out << ex.what();
@@ -158,12 +158,12 @@ namespace gui {
       if (!m_is_active) {
         m_is_active = true;
         add_sink(&std::clog,
-#ifdef _DEBUG
-        level::debug
+#ifdef NDEBUG
+                 level::info
 #else
-        level::info
+                 level::trace
 #endif
-        , get_console_formatter());
+        , get_standard_formatter());
 
       m_sink_thread = std::thread(core::logging_sink_call, this);
     }

@@ -46,44 +46,23 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                        const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, start_window_point.x() + p.x() - start_mouse_point.x()));
-            core::point::type dx = new_x - start_window_point.x();
-            if (dx != 0) {
-              start_mouse_point = p;
-              start_window_point.x(new_x);
-              move(start_window_point);
-              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dx));
-            }
+            set_value(start_window_point.x() + p.x() - start_mouse_point.x());
           }
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
-           core::point::type dx = 0;
            switch (key) {
              case keys::left:
-               dx = -1;
+               set_value(position().x() - (control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
              case keys::right:
-               dx = 1;
+               set_value(position().x() + (control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
              case keys::home:
-               dx = -100000;
+               set_value(min);
                break;
              case keys::end:
-               dx = 100000;
+               set_value(max);
                break;
-           }
-           if (dx) {
-             if (control_key_bit_mask::is_set(state)) {
-               dx *= 10;
-             }
-             core::point pos = position();
-             core::point::type new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, pos.x() + dx));
-             dx = new_x - pos.x();
-             if (dx) {
-               pos.x(new_x);
-               move(pos);
-               send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dx));
-             }
            }
          }));
       }
@@ -91,11 +70,10 @@ namespace gui {
       template<>
       void basic_slider<orientation::vertical>::set_value (core::point::type v) {
         const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
-        const auto old_pt = position();
-        const auto old_x = old_pt.x();
-        if (new_x != old_x) {
-          move(core::point(new_x, old_pt.y()));
-          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_x - old_x));
+        const auto pt = position();
+        if (new_x != pt.x()) {
+          move(core::point(new_x, pt.y()), true);
+          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_x - pt.x()));
         }
 
       }
@@ -111,57 +89,35 @@ namespace gui {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                            const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
-            core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, start_window_point.y() + p.y() - start_mouse_point.y()));
-            core::point::type dy = new_y - start_window_point.y();
-            if (dy != 0) {
-              start_mouse_point = p;
-              start_window_point.y(new_y);
-              move(start_window_point);
-              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dy));
-            }
+            set_value(start_window_point.y() + p.y() - start_mouse_point.y());
           }
           return;
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
-          core::point::type dy = 0;
-          switch (key) {
-            case keys::up:
-              dy = -1;
-              break;
-            case keys::down:
-              dy = 1;
-              break;
-            case keys::home:
-              dy = -100000;
-              break;
-            case keys::end:
-              dy = 100000;
-              break;
-          }
-          if (dy) {
-            if (control_key_bit_mask::is_set(state)) {
-              dy *= 10;
-            }
-            core::point pos = position();
-            core::point::type new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, pos.y() + dy));
-            dy = new_y - pos.y();
-            if (dy) {
-              pos.y(new_y);
-              move(pos);
-              send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(dy));
-            }
-          }
+           switch (key) {
+             case keys::up:
+               set_value(position().y() - (control_key_bit_mask::is_set(state) ? 10 : 1));
+               break;
+             case keys::down:
+               set_value(position().y() + (control_key_bit_mask::is_set(state) ? 10 : 1));
+               break;
+             case keys::home:
+               set_value(min);
+               break;
+             case keys::end:
+               set_value(max);
+               break;
+           }
         }));
       }
 
       template<>
       void basic_slider<orientation::horizontal>::set_value (core::point::type v) {
         const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
-        const auto old_pt = position();
-        const auto old_y = old_pt.y();
-        if (new_y != old_y) {
-          move(core::point(old_pt.x(), new_y));
-          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_y - old_y));
+        const auto pt = position();
+        if (new_y != pt.y()) {
+          move(core::point(pt.x(), new_y), true);
+          send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_y - pt.y()));
         }
 
       }

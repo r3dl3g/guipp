@@ -50,8 +50,8 @@ namespace gui {
         , aligns(std::move(rhs.aligns))
       {}
 
-//      inline void column_list_layout::init_auto_layout () {
-//      }
+      inline void column_list_layout::init_auto_layout () {
+      }
 
       inline std::size_t column_list_layout::get_column_count () const {
         return widths.size();
@@ -91,8 +91,9 @@ namespace gui {
       }
 
       inline void base_column_list_layout::layout (const core::size& sz) {
-        data.header->resize(core::size(sz.width(), 20));
-        data.list->resize(sz - core::size(0, 20));
+        LogTrace << "base_column_list_layout::layout(" << sz << ")";
+        data.header->resize(core::size(sz.width(), 20), false);
+        data.list->resize(sz - core::size(0, 20), false);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
@@ -157,12 +158,12 @@ namespace gui {
       , weights(std::move(rhs.weights))
     {}
 
-//    inline void weight_column_list_layout::init_auto_layout () {
-//      main->register_event_handler(REGISTER_FUNCTION, win::size_event(this, &weight_column_list_layout::layout));
-//      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
-//        layout(list->client_size());
-//      }));
-//    }
+    inline void weight_column_list_layout::init_auto_layout () {
+      main->register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &weight_column_list_layout::layout));
+      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+        layout(list->client_size());
+      }));
+    }
 
     inline void weight_column_list_layout::set_column_count (std::size_t i) {
       weights.resize(i);
@@ -190,7 +191,7 @@ namespace gui {
     {
       super::set_accept_focus(false);
       set_cell_drawer(default_header_cell_drawer);
-//      layouter.init_auto_layout();
+      layouter.init_auto_layout();
       this->register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &column_list_header::paint)));
       this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
       this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
@@ -275,6 +276,7 @@ namespace gui {
 
     template<typename Layout, os::color background>
     inline void column_list_header<Layout, background>::layout () {
+      LogTrace << "column_list_header::layout()";
       layouter.layout(client_size());
     }
 
@@ -333,7 +335,7 @@ namespace gui {
       void base_column_list<Layout>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::register_event_handler(REGISTER_FUNCTION, win::size_event([&] (const core::size&) {
+        super::register_event_handler(REGISTER_FUNCTION, win::layout_event([&] (const core::size&) {
           header.layout();
         }));
       }

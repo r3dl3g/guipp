@@ -428,6 +428,7 @@ namespace gui {
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
+        send_client_message(this, WM_LAYOUT_WINDOW, this, sz);
         if (repaint) {
           redraw();
         }
@@ -437,6 +438,7 @@ namespace gui {
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
         MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
+        send_client_message(this, WM_LAYOUT_WINDOW, this, r.size());
       }
     }
 
@@ -676,6 +678,7 @@ namespace gui {
     void window::set_visible (bool s) {
       if (get_id()) {
         if (s) {
+          LogDebug << "Show window:" << *this;
           x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
         } else {
           LogDebug << "Hide window:" << *this;
@@ -698,11 +701,11 @@ namespace gui {
       x11::check_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
-    void window::redraw_now () const {
+    void window::redraw_now_from (char const caller_name[]) const {
 
       auto state = get_state();
 
-      if (state.is_redraw_disabled()) {
+      if (state.is_redraw_disabled() && !is_visible()) {
         get_state().set_needs_redraw(true);
         return;
       }
@@ -722,7 +725,7 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-      LogDebug << "redraw_now: " << event;
+      LogDebug << "redraw_now: " << event << " from " << caller_name;
       events.handle_event(event, result);
 
       state.set_needs_redraw(false);
@@ -730,14 +733,21 @@ namespace gui {
       core::global::sync();
     }
 
-    void window::redraw () const {
-      if (get_id()) {
-        LogDebug << "redraw: " << get_id();
+    void window::redraw_from (char const caller_name[]) const {
+      if (get_id() && is_visible()) {
+        LogDebug << "redraw: " << get_id() << " from " << caller_name;
         if (get_state().is_in_event_handle()) {
           get_state().set_needs_redraw(true);
         } else {
           redraw_now();
         }
+      }
+    }
+
+    void window::redraw_later_from (char const caller_name[]) const {
+      if (get_id() && is_visible()) {
+        LogDebug << "redraw_later: " << get_id() << " from " << caller_name;
+        get_state().set_needs_redraw(true);
       }
     }
 
@@ -810,12 +820,17 @@ namespace gui {
 
     void window::resize (const core::size& sz, bool repaint) {
       if (sz.empty()) {
-        set_visible(false);
+        if (is_visible()) {
+          set_visible(false);
+        }
       } else {
-        set_visible();
         if (size() != sz) {
+          if (!is_visible()) {
+            set_visible();
+          }
           x11::check_return(XResizeWindow(core::global::get_instance(), get_id(),
                                           sz.os_width(), sz.os_height()));
+          send_client_message(this, WM_LAYOUT_WINDOW, sz);
           if (repaint) {
             redraw();
           }
@@ -825,15 +840,23 @@ namespace gui {
 
     void window::place (const core::rectangle& r, bool repaint) {
       if (r.empty()) {
-        set_visible(false);
+        if (is_visible()) {
+          set_visible(false);
+        }
       } else {
-        set_visible();
-        if (place() != r) {
+        const auto current = place();
+        if (current != r) {
+          if (!is_visible()) {
+            set_visible();
+          }
           x11::check_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
                                               r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
-          if (repaint) {
-            redraw();
+          if (current.size() != r.size()) {
+            send_client_message(this, WM_LAYOUT_WINDOW, r.size());
+            if (repaint) {
+              redraw();
+            }
           }
         }
       }

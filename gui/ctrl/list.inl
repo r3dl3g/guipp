@@ -361,7 +361,7 @@ namespace gui {
     inline void basic_list<V, T>::create (const container& parent,
                                        const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
-      adjust_scroll_bar();
+      adjust_scroll_bar(place.size());
     }
 
     template<orientation V, typename T>
@@ -370,9 +370,9 @@ namespace gui {
     }
 
     template<orientation V, typename T>
-    void basic_list<V, T>::create_scroll_bar () {
+    void basic_list<V, T>::create_scroll_bar (const core::size& sz) {
       if (!scrollbar.is_valid()) {
-        scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area());
+        scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area(sz));
       }
     }
 
@@ -380,7 +380,7 @@ namespace gui {
     void basic_list<V, T>::enable_scroll_bar (bool enable) {
       super::get_state().set_scroll_bar_enabled(enable);
       if (enable) {
-        create_scroll_bar();
+        create_scroll_bar(client_size());
       }
       scrollbar.enable(enable);
       scrollbar.set_visible(enable && scrollbar.get_max());
@@ -452,13 +452,8 @@ namespace gui {
       super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_list::handle_left_btn_up));
       super::register_event_handler(REGISTER_FUNCTION, typename wheel_traits<V>::wheel_event_type(this, &basic_list::handle_wheel));
       super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_list::handle_mouse_move));
-      super::register_event_handler(REGISTER_FUNCTION, size_event([&](const core::size &) {
-//        scrollbar.disable_redraw(true);
-        if (scrollbar.is_valid()) {
-          scrollbar.place(get_scroll_bar_area());
-        }
-        adjust_scroll_bar();
-//        scrollbar.disable_redraw(false);
+      super::register_event_handler(REGISTER_FUNCTION, layout_event([&](const core::size& sz) {
+        adjust_scroll_bar(sz);
       }));
     }
 
@@ -481,10 +476,9 @@ namespace gui {
       return core::rectangle(client_size());
     }
 
-
     template<orientation V, typename T>
-    core::rectangle basic_list<V, T>::get_scroll_bar_area () const {
-      core::rectangle r(super::client_size());
+    core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
+      core::rectangle r(s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
       traits.set_other(r, traits.get_other(r.size()) - sz, sz);
       return r;
@@ -512,14 +506,19 @@ namespace gui {
 
     template<orientation V, typename T>
     void basic_list<V, T>::adjust_scroll_bar () {
+      adjust_scroll_bar(client_size());
+    }
+
+    template<orientation V, typename T>
+    void basic_list<V, T>::adjust_scroll_bar (const core::size& sz) {
       if (super::is_scroll_bar_enabled()) {
-        scroll_bar::type invisible = traits.get_invisible_size(client_size(),
-                                                                super::get_count());
+        scroll_bar::type invisible = traits.get_invisible_size(sz, super::get_count());
         const bool show_scroll = (invisible > zero);
         if (show_scroll) {
-          create_scroll_bar();
+          create_scroll_bar(sz);
+          scrollbar.place(get_scroll_bar_area(sz), false);
+          scrollbar.set_max(std::max(invisible, zero));
         }
-        scrollbar.set_max(std::max(invisible, zero));
         scrollbar.set_visible(show_scroll);
       }
     }
@@ -535,7 +534,7 @@ namespace gui {
       if (super::is_valid()) {
         const bool show_scroll = (invisible > zero) && super::is_scroll_bar_enabled();
         if (show_scroll) {
-          create_scroll_bar();
+          create_scroll_bar(sz);
         }
         scrollbar.set_visible(show_scroll);
         super::redraw();

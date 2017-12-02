@@ -26,11 +26,11 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      inline auto slider_base::get_min() const->type {
+      inline auto slider_base::get_min() const -> type {
         return min;
       }
 
-      inline auto slider_base::get_max() const->type {
+      inline auto slider_base::get_max() const -> type {
         return max;
       }
 

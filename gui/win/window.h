@@ -101,8 +101,13 @@ namespace gui {
       void to_front ();
       void to_back ();
 
-      void redraw_now () const;
-      void redraw () const;
+      void redraw_from (char const caller_name[]) const;
+      void redraw_now_from (char const caller_name[]) const;
+      void redraw_later_from (char const caller_name[]) const;
+
+#define redraw() redraw_from(REGISTER_FUNCTION)
+#define redraw_now() redraw_now_from(REGISTER_FUNCTION)
+#define redraw_later() redraw_later_from(REGISTER_FUNCTION)
 
       core::size size () const;
       core::point position () const;
@@ -112,7 +117,7 @@ namespace gui {
       core::size client_size () const;
       core::rectangle client_area () const;
 
-      void move (const core::point&, bool repaint = true);
+      void move (const core::point&, bool repaint = false);
       void resize (const core::size&, bool repaint = true);
       void place (const core::rectangle&, bool repaint = true);
 

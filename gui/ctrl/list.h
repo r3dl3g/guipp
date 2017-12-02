@@ -248,13 +248,14 @@ namespace gui {
     protected:
       pos_t get_list_size () const;
 
-      core::rectangle get_scroll_bar_area () const;
+      core::rectangle get_scroll_bar_area (const core::size&) const;
+      void adjust_scroll_bar (const core::size&);
 
       scroll_bar_type scrollbar;
       traits_type traits;
 
     private:
-      void create_scroll_bar ();
+      void create_scroll_bar (const core::size&);
 
       void init ();
 

@@ -307,6 +307,7 @@ namespace gui {
 
     template<border_layout_type type>
     void border_layout<type>::layout (const core::size& sz) {
+      LogTrace << "border_layout::layout(" << sz << ")";
       core::rectangle r = core::rectangle(core::point(super::get_left_width(), super::get_top_height()),
                                           core::point(sz.width() - super::get_right_width(), sz.height() - super::get_bottom_height()));
       if (super::get_top() && is_child_visible(super::get_top())) {

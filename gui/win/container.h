@@ -66,6 +66,8 @@ namespace gui {
     public:
       typedef container super;
 
+      overlapped_window ();
+
       void set_title (const std::string&);
       std::string get_title () const;
 

@@ -43,6 +43,7 @@ namespace gui {
 
     template<orientation height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin rows>
     void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::size& sz) {
+      LogTrace << "lineup_layout::layout(" << sz << ")";
       std::vector<win::window*> children = super::get_children();
       const std::size_t count = children.size();
       const std::size_t sep_count = super::separator_count();

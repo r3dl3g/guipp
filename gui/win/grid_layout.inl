@@ -44,6 +44,7 @@ namespace gui {
 
     template<unsigned width, unsigned height, unsigned border, unsigned gap>
     void grid_lineup<width, height, border, gap>::layout (const core::size& sz) {
+      LogTrace << "grid_lineup::layout(" << sz << ")";
       std::vector<win::window*> children = get_children();
       const type xmax = sz.width() - border;
       const type ymax = sz.height() - border;
@@ -95,6 +96,7 @@ namespace gui {
 
     template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
     void grid_adaption<columns, rows, border, gap>::layout (const core::size& sz) {
+      LogTrace << "grid_adaption::layout(" << sz << ")";
       std::vector<win::window*> children = get_children();
       const type border2 = (border * 2);
       const type xspace = sz.width() - border2;

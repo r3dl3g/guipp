@@ -249,6 +249,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    overlapped_window::overlapped_window () {
+      register_event_handler(REGISTER_FUNCTION, size_event([&] (const core::size& sz) {
+        send_client_message(this, WM_LAYOUT_WINDOW, sz);
+      }));
+    }
+
 #ifdef WIN32
     void overlapped_window::create (const class_info& type,
                                     const window& parent,

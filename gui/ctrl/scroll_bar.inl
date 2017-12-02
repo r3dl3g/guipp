@@ -181,6 +181,7 @@ namespace gui {
           set_state(scrollbar_state::nothing);
           uncapture_pointer();
           send_notify();
+          redraw();
         }
       }
     }

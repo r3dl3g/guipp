@@ -47,7 +47,7 @@ namespace gui {
         column_list_layout (win::window* main, const column_list_layout& rhs);
         column_list_layout (win::window* main, column_list_layout&& rhs);
 
-//        void init_auto_layout ();
+        void init_auto_layout ();
         void layout (const core::size& new_size);
 
         std::size_t get_column_count () const;
@@ -131,7 +131,7 @@ namespace gui {
 
       void layout (const core::size& new_size);
 
-//      void init_auto_layout ();
+      void init_auto_layout ();
 
       void set_column_width (std::size_t i, column_size_type w, bool update = true);
       void set_column_count (std::size_t i);

@@ -41,6 +41,7 @@ namespace gui {
 
     template<typename T>
     inline void virtual_layout<T>::layout (const core::size& new_size) {
+      LogTrace << "virtual_layout::layout()";
       if (client) {
         auto available = super::layout(new_size, client->get_virtual_place());
         client->place(available);

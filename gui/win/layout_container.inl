@@ -50,6 +50,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::layout () {
+        LogTrace << *this << " layout()";
         layouter.layout(super::size());
       }
 

@@ -56,12 +56,12 @@ namespace gui {
       typedef std::function<event_handler_callback> event_handler_function;
 
       void register_event_handler (char const name[], const event_handler_function&);
-      void register_event_handler(char const name[], event_handler_function &&);
+      void register_event_handler (char const name[], event_handler_function &&);
 
       template<typename T>
-      void register_event_handler(char const name[],
-                                  T* t,
-                                  bool (T::*method)(const core::event &, os::event_result &));
+      void register_event_handler (char const name[],
+                                   T* t,
+                                   bool (T::*method)(const core::event &, os::event_result &));
 
       void unregister_event_handler (const event_handler_function&);
 

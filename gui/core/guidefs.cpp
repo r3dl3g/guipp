@@ -221,9 +221,9 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 int main (int argc, char* argv[]) {
 
 #ifndef NDEBUG
-  gui::log::core::instance().add_sink(&std::cerr,
-                                     gui::log::level::debug,
-                                     gui::log::core::get_standard_formatter());
+//  gui::log::core::instance().add_sink(&std::cerr,
+//                                     gui::log::level::debug,
+//                                     gui::log::core::get_standard_formatter());
 #endif // NDEBUG
 
   std::vector<std::string> args;

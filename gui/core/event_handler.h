@@ -29,6 +29,7 @@
 //
 #include <gui/core/bind_method.h>
 #include <gui/core/event.h>
+#include <gui/core/logger.h>
 
 
 namespace gui {
@@ -122,6 +123,9 @@ namespace gui {
 
       bool operator() (const event& e, os::event_result& result) {
         if (match(e) && caller) {
+          if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
+            LogDebug << "Call " << e;
+          }
           caller(e);
           result = R;
           return true;

@@ -97,14 +97,14 @@ namespace gui {
 
       template<>
       void split_view<orientation::vertical>::init () {
-        slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
+        slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int dy) {
           get_layout().layout(size());
         }));
       }
 
       template<>
       void split_view<orientation::horizontal>::init () {
-        slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int) {
+        slider.register_event_handler(REGISTER_FUNCTION, slider_event([&] (int dx) {
           get_layout().layout(size());
         }));
       }

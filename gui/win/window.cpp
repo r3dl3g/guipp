@@ -363,14 +363,23 @@ namespace gui {
       }
     }
 
-    void window::redraw_now () const {
+    void window::redraw_now_from (char const caller_name[]) const {
       if (is_valid()) {
+        LogDebug << "redraw_now: " << get_id() << " from " << caller_name;
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
-    void window::redraw () const {
+    void window::redraw_from (char const caller_name[]) const {
       if (is_valid()) {
+        LogDebug << "redraw: " << get_id() << " from " << caller_name;
+        InvalidateRect(get_id(), nullptr, TRUE);
+      }
+    }
+
+    void window::redraw_later_from (char const caller_name[]) const {
+      if (is_valid()) {
+        LogDebug << "redraw_later: " << get_id() << " from " << caller_name;
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
@@ -428,7 +437,7 @@ namespace gui {
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-        send_client_message(this, WM_LAYOUT_WINDOW, this, sz);
+        send_client_message(this, WM_LAYOUT_WINDOW, sz);
         if (repaint) {
           redraw();
         }
@@ -438,7 +447,7 @@ namespace gui {
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
         MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
-        send_client_message(this, WM_LAYOUT_WINDOW, this, r.size());
+        send_client_message(this, WM_LAYOUT_WINDOW, r.size());
       }
     }
 

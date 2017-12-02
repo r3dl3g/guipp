@@ -516,7 +516,7 @@ namespace gui {
         const bool show_scroll = (invisible > zero);
         if (show_scroll) {
           create_scroll_bar(sz);
-          scrollbar.place(get_scroll_bar_area(sz), false);
+          scrollbar.place(get_scroll_bar_area(sz), IF_WIN32_ELSE(true, false));
           scrollbar.set_max(std::max(invisible, zero));
         }
         scrollbar.set_visible(show_scroll);

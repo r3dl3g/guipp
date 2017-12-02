@@ -274,7 +274,7 @@ namespace gui {
     void basic_animated_button_traits::start_animation (button_base& btn) {
       animation_thread = std::thread([&] () {
         while (animation_step < 1.0F) {
-          animation_step += 0.25F;
+          animation_step += 0.1F;
           run_on_main([&] () {
             btn.redraw_now();
           });

@@ -67,6 +67,8 @@ namespace gui {
 
       basic_editbox ();
 
+      void enable_select_by_mouse ();
+
       void handle_paint (const draw::graphics& graph);
 
     };

@@ -64,6 +64,7 @@ namespace gui {
     template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
       register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_textbox::handle_paint)));
+      enable_select_by_mouse();
     }
 
     template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
@@ -73,6 +74,11 @@ namespace gui {
                       fg, bg, align,
                       data.selection, data.cursor_pos, data.offset, has_focus());
       frame(graph, area);
+    }
+
+    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    inline void basic_textbox<align, frame, fg, bg>::enable_select_by_mouse () {
+      super::enable_select_by_mouse(align);
     }
 
   } // win

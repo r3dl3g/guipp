@@ -87,19 +87,20 @@ namespace gui {
         core::rectangle get_virtual_place () const;
 
         void make_selection_visible ();
-        void enable_select_by_mouse ();
 
         position find_prev_word (const position& pos);
         position find_next_word (const position& pos);
 
       protected:
-        position get_position_at_point (const core::point& pt) const;
+        position get_position_at_point (const core::point& pt, const text_origin origin) const;
 
         void erase_lines (int first, int last);
         void erase_line (int first);
 
         void notify_content_changed () const;
         void notify_selection_changed () const;
+
+        void enable_select_by_mouse (const text_origin origin);
 
         struct data {
           data ();
@@ -127,6 +128,8 @@ namespace gui {
       typedef detail::textbox_base super;
 
       basic_textbox ();
+
+      void enable_select_by_mouse ();
 
     private:
       void handle_paint (const draw::graphics& graph);

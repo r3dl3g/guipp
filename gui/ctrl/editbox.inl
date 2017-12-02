@@ -26,6 +26,7 @@ namespace gui {
     template<draw::frame::drawer frame, os::color foreground, os::color background>
     basic_editbox<frame, foreground, background>::basic_editbox () {
       register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_editbox::handle_paint)));
+      enable_select_by_mouse();
     }
 
     template<draw::frame::drawer frame, os::color foreground, os::color background>
@@ -35,6 +36,11 @@ namespace gui {
                       foreground, background, text_origin::vcenter_left,
                       data.selection, data.cursor_pos, data.offset, has_focus());
       frame(graph, area);
+    }
+
+    template<draw::frame::drawer frame, os::color fg, os::color bg>
+    inline void basic_editbox<frame, fg, bg>::enable_select_by_mouse () {
+      super::enable_select_by_mouse(text_origin::top_left);
     }
 
   } // win

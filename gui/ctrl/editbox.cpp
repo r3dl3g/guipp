@@ -46,7 +46,6 @@ namespace gui {
         set_accept_focus(true);
         register_event_handler(REGISTER_FUNCTION, create_event(this, &editbox_base::handle_create));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &editbox_base::handle_key));
-        enable_select_by_mouse();
       }
 
       void editbox_base::create (const container& parent,

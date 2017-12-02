@@ -34,7 +34,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       edit_base::pos_t get_line_cursor (const core::basic_point<int>& cursor_pos, size_t idx) {
-        return (cursor_pos.x() == idx) ? cursor_pos.x() : -1;
+        return (cursor_pos.y() == idx) ? cursor_pos.x() : -1;
       }
 
       edit_base::range get_line_selection (const core::range<core::basic_point<int> >& selection, size_t idx) {
@@ -184,10 +184,21 @@ namespace gui {
         }
       }
 
-      textbox_base::position textbox_base::get_position_at_point (const core::point& pt) const {
+      textbox_base::position textbox_base::get_position_at_point (const core::point& pt, const text_origin origin) const {
         const auto row_sz = data.font.line_height();
-        const auto row = static_cast<int>(pt.y() + data.offset.y()) / row_sz;
-        if ((row > -1) && (row < row_count())) {
+        const auto last = row_count();
+        const auto diff = client_size().height() - (last * row_sz);
+        core::point::type y = 0;
+        if (diff > 0) {
+          if (origin_is_v_center(origin)) {
+            y = diff / 2;
+          } else if (origin_is_bottom(origin)) {
+            y = diff;
+          }
+        }
+
+        const auto row = static_cast<int>(pt.y() + data.offset.y() - y) / row_sz;
+        if ((row > -1) && (row < last)) {
           const std::string& text = data.lines[row];
           const int max_chars = static_cast<int>(text.size());
           const auto x = pt.x() + data.offset.x();
@@ -346,27 +357,27 @@ namespace gui {
         return pos;
       }
 
-      void textbox_base::enable_select_by_mouse () {
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+      void textbox_base::enable_select_by_mouse (const text_origin origin) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, origin](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt));
+          set_cursor_pos(get_position_at_point(pt, origin));
         }));
         register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
           data.last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&, origin](os::key_state, const core::point & pt) {
           take_focus();
           data.last_mouse_point = pt;
-          const auto p = get_position_at_point(pt);
+          const auto p = get_position_at_point(pt, origin);
           const auto l = find_prev_word(p);
           const auto r = find_next_word(p);
           set_cursor_pos(p);
           set_selection({l, r});
         }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&, origin](os::key_state keys, const core::point & pt) {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
-            set_cursor_pos(get_position_at_point(pt), true);
+            set_cursor_pos(get_position_at_point(pt, origin), true);
           }
         }));
         register_event_handler(REGISTER_FUNCTION, key_down_event<keys::c, state::control>([&]() {

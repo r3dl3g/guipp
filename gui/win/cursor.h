@@ -43,7 +43,7 @@ namespace gui {
       no
     };
 
-    class cursor {
+    class GUIPP_EXPORT cursor {
     public:
       static const cursor& none ();
       static const cursor& arrow ();

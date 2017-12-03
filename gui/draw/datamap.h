@@ -32,7 +32,7 @@ namespace gui {
     template<BPP T>
     class datamap;
 
-    class basic_datamap {
+    class GUIPP_EXPORT basic_datamap {
     public:
       bool is_valid () const;
 
@@ -117,6 +117,9 @@ namespace gui {
     typedef datamap<BPP::GRAY> graymap;
     typedef datamap<BPP::RGB> rgbmap;
     typedef datamap<BPP::RGBA> rgbamap;
+
+    GUIPP_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
+    GUIPP_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);
 
   } //namespace draw
 

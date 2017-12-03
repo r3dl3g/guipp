@@ -30,7 +30,7 @@ namespace gui {
 
 #ifdef WIN32
     template<typename T>
-    struct Use {
+    struct GUIPP_EXPORT Use {
       Use (os::graphics g, const T& t)
         : g(g)
         , obj(t)
@@ -59,7 +59,7 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     template<typename T>
-    struct Use {
+    struct GUIPP_EXPORT Use {
       Use (os::graphics g, const T& t)
         : g(g) {
         set(t);

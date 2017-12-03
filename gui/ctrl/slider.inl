@@ -40,6 +40,26 @@ namespace gui {
         super::create(clazz::get(), parent, place);
       }
 
+      // --------------------------------------------------------------------------
+      template<>
+      GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider ();
+
+      template<>
+      GUIPP_EXPORT void basic_slider<orientation::vertical>::set_value (core::point::type v);
+
+      template<>
+      GUIPP_EXPORT core::point::type basic_slider<orientation::vertical>::get_value () const;
+
+      // --------------------------------------------------------------------------
+      template<>
+      GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider ();
+
+      template<>
+      GUIPP_EXPORT void basic_slider<orientation::horizontal>::set_value (core::point::type v);
+
+      template<>
+      GUIPP_EXPORT core::point::type basic_slider<orientation::horizontal>::get_value () const;
+
     } // namespace detail
 
     // --------------------------------------------------------------------------

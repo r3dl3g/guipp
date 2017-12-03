@@ -342,10 +342,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+    GUIPP_EXPORT void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    GUIPP_EXPORT void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
   } // win
 

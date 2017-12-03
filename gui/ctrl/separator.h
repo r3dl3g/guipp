@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class separator_base : public window {
+      class GUIPP_EXPORT separator_base : public window {
       public:
         typedef window super;
         typedef no_erase_window_class<separator_base> clazz;

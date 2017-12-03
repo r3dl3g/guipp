@@ -44,7 +44,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class slider_base : public window {
+      class GUIPP_EXPORT slider_base : public window {
       public:
         typedef window super;
         typedef core::point::type type;
@@ -95,26 +95,6 @@ namespace gui {
         void set_value (core::point::type v);
         core::point::type get_value () const;
       };
-
-      // --------------------------------------------------------------------------
-      template<>
-      basic_slider<orientation::vertical>::basic_slider ();
-
-      template<>
-      void basic_slider<orientation::vertical>::set_value (core::point::type v);
-
-      template<>
-      core::point::type basic_slider<orientation::vertical>::get_value () const;
-
-      // --------------------------------------------------------------------------
-      template<>
-      basic_slider<orientation::horizontal>::basic_slider ();
-
-      template<>
-      void basic_slider<orientation::horizontal>::set_value (core::point::type v);
-
-      template<>
-      core::point::type basic_slider<orientation::horizontal>::get_value () const;
 
     } // namespace detail
 

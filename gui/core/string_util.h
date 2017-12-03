@@ -27,6 +27,12 @@
 #include <iterator>
 #include <sstream>
 
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <gui++-export.h>
+
 
 /**
 * Provides an API to stream into OutputDebugString.
@@ -36,17 +42,17 @@ namespace gui {
   namespace string {
 
     // --------------------------------------------------------------------------
-    std::string utf16_to_utf8 (const std::wstring&);
-    std::string utf16_to_utf8 (wchar_t wc);
-    std::wstring utf8_to_utf16 (const std::string&);
+    GUIPP_EXPORT std::string utf16_to_utf8 (const std::wstring&);
+    GUIPP_EXPORT std::string utf16_to_utf8 (wchar_t wc);
+    GUIPP_EXPORT std::wstring utf8_to_utf16 (const std::string&);
 
     // --------------------------------------------------------------------------
-    bool starts_with (const std::string& str, const std::string& prefix);
-    bool ends_with (const std::string& str, const std::string& suffix);
+    GUIPP_EXPORT bool starts_with (const std::string& str, const std::string& prefix);
+    GUIPP_EXPORT bool ends_with (const std::string& str, const std::string& suffix);
 
     // --------------------------------------------------------------------------
-    std::string::size_type find_left_space (const std::string& text, std::size_t cursor_pos);
-    std::string::size_type find_right_space(const std::string& text, std::size_t cursor_pos);
+    GUIPP_EXPORT std::string::size_type find_left_space (const std::string& text, std::size_t cursor_pos);
+    GUIPP_EXPORT std::string::size_type find_right_space(const std::string& text, std::size_t cursor_pos);
 
     // --------------------------------------------------------------------------
     template<char delimiter>
@@ -69,7 +75,7 @@ namespace gui {
       return v;
     }
 
-    std::string merge (const std::vector<std::string>& v, char delimiter);
+    GUIPP_EXPORT std::string merge (const std::vector<std::string>& v, char delimiter);
 
     template<char delimiter>
     std::string merge (const std::vector<std::string>& v) {
@@ -80,10 +86,10 @@ namespace gui {
 
   namespace utf8 {
 
-    bool is_continuation_char (char ch);
+    GUIPP_EXPORT bool is_continuation_char (char ch);
 
-    std::size_t get_left_char (const std::string& s, std::size_t pos);
-    std::size_t get_right_char (const std::string& s, std::size_t pos);
+    GUIPP_EXPORT std::size_t get_left_char (const std::string& s, std::size_t pos);
+    GUIPP_EXPORT std::size_t get_right_char (const std::string& s, std::size_t pos);
 
   } // namespace utf8
 

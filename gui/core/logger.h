@@ -35,6 +35,7 @@
 //
 // Library includes
 //
+#include <gui++-export.h>
 #include <gui/core/blocking_queue.h>
 #include <gui/core/log_level.h>
 
@@ -47,13 +48,13 @@ namespace gui {
   namespace log {
 
     /// convenience stream operator to print log level to ostream.
-    std::ostream& operator << (std::ostream& out, level const& lvl);
+    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, level const& lvl);
 
     /// convenience stream operator to print system_clock to ostream.
-    std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp);
+    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp);
 
     /// convenience stream operator to print exception infos to ostream.
-    std::ostream& operator << (std::ostream& out, const std::exception& ex);
+    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, const std::exception& ex);
 
     /**
     * Id for current logged line.
@@ -66,12 +67,12 @@ namespace gui {
     };
 
     /// convenience stream operator to print line id to ostream.
-    std::ostream& operator << (std::ostream& out, line_id const& id);
+    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, line_id const& id);
 
     /**
     * Logging record. Holds data for one record.
     */
-    class record {
+    class GUIPP_EXPORT record {
     public:
       record (const std::chrono::system_clock::time_point& time_point,
               log::level lvl,
@@ -104,7 +105,7 @@ namespace gui {
     /**
     * Sink description with target ostream, level to log and log record formatter
     */
-    struct sink {
+    struct GUIPP_EXPORT sink {
       sink (std::ostream* stream,
             level lvl,
             const record_formatter& formatter);
@@ -117,7 +118,7 @@ namespace gui {
     /**
     * Logging core. Manage sinks and thread safe logging.
     */
-    class core {
+    class GUIPP_EXPORT core {
     public:
       core ();
       ~core ();
@@ -170,7 +171,7 @@ namespace gui {
     /**
     * Logging recorder. Capture data for one record.
     */
-    class recorder {
+    class GUIPP_EXPORT recorder {
     public:
       recorder (log::level lvl);
 

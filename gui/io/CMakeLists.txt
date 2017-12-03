@@ -1,19 +1,33 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project("gui_io" CXX)
+project("gui++-io" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
 add_subdirectory(./../draw gui_draw)
 
-if(NOT TARGET gui_io)
+if(NOT TARGET gui++-io-obj)
 
-include_directories(${gui_Include})
+    include_directories(${gui_Include})
 
-file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
-link_directories(${gui_io_Lib})
+    add_library(gui++-io-obj OBJECT ${SOURCE_FILES})
+    set_target_properties(gui++-io-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-add_library(gui_io ${SOURCE_FILES})
+    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_library(gui++-io-static STATIC $<TARGET_OBJECTS:gui++-io-obj>)
+    endif(GUIPP_BUILD_STATIC_MODULE_LIBS)
+
+    if (GUIPP_BUILD_SHARED_MODULE_LIBS)
+        add_library(gui++-io SHARED $<TARGET_OBJECTS:gui++-io-obj>)
+
+        target_link_libraries(gui++-io gui++-draw gui++-core)
+
+        set_target_properties(gui++-io PROPERTIES
+            POSITION_INDEPENDENT_CODE ON
+            VERSION ${gui_VERSION}
+            SOVERSION ${gui_VERSION_MAJOR})
+    endif(GUIPP_BUILD_SHARED_MODULE_LIBS)
 
 endif()

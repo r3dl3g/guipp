@@ -57,7 +57,7 @@ namespace gui {
     typedef bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
     // --------------------------------------------------------------------------
-    struct hot_key {
+    struct GUIPP_EXPORT hot_key {
       typedef void (fn)();
       typedef std::function<fn> call;
 

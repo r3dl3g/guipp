@@ -223,9 +223,6 @@ namespace gui {
       return order;
     }
 
-    void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
-    void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
-
     template<typename T>
     void file_column_list<T>::init_file_list_header (column_list_header<layout::weight_column_list_layout>& header) {
       header.set_cell_drawer([&] (std::size_t i, const draw::graphics& g, const core::rectangle& r, const draw::brush& background) {

@@ -188,29 +188,29 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation::vertical>::init ();
+    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::init ();
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation::horizontal>::init ();
+    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::init ();
 
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
 
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
+    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
 
     // --------------------------------------------------------------------------
     template<>

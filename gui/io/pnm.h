@@ -47,8 +47,8 @@ namespace gui {
       P6 = 6
     };
 
-    std::ostream& operator<< (std::ostream&, const PNM&);
-    std::istream& operator>> (std::istream&, PNM&);
+    GUIPP_EXPORT std::ostream& operator<< (std::ostream&, const PNM&);
+    GUIPP_EXPORT std::istream& operator>> (std::istream&, PNM&);
 
     // --------------------------------------------------------------------------
     template<PNM>
@@ -98,35 +98,35 @@ namespace gui {
     template<> struct BPP2MAX<BPP::RGBA> { static constexpr int max = 255; };
 
     // --------------------------------------------------------------------------
-    void write_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
-    draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
+    GUIPP_EXPORT void write_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
+    GUIPP_EXPORT draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
 
     template<PNM i>
     void write_pnm (std::ostream& out, const draw::const_image_data<PNM2BPP<i>::bpp>&);
 
-    template<> void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<BPP::BW>&);
-    template<> void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
-    template<> void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
-    template<> void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<BPP::BW>&);
-    template<> void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
-    template<> void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<BPP::BW>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<BPP::BW>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
+    template<> GUIPP_EXPORT void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
 
     template<bool BIN>
     void write_pnm_rgba (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
 
-    template<> void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
-    template<> void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+    template<> GUIPP_EXPORT void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+    template<> GUIPP_EXPORT void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
 
     // --------------------------------------------------------------------------
     template<PNM i>
     draw::datamap<PNM2BPP<i>::bpp> read_pnm (std::istream& in, const draw::bitmap_info&);
 
-    template<> draw::datamap<BPP::BW>   read_pnm<PNM::P1> (std::istream&, const draw::bitmap_info& bmi);
-    template<> draw::datamap<BPP::GRAY> read_pnm<PNM::P2> (std::istream&, const draw::bitmap_info& bmi);
-    template<> draw::datamap<BPP::RGB>  read_pnm<PNM::P3> (std::istream&, const draw::bitmap_info& bmi);
-    template<> draw::datamap<BPP::BW>   read_pnm<PNM::P4> (std::istream&, const draw::bitmap_info& bmi);
-    template<> draw::datamap<BPP::GRAY> read_pnm<PNM::P5> (std::istream&, const draw::bitmap_info& bmi);
-    template<> draw::datamap<BPP::RGB>  read_pnm<PNM::P6> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::BW>   read_pnm<PNM::P1> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::GRAY> read_pnm<PNM::P2> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::RGB>  read_pnm<PNM::P3> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::BW>   read_pnm<PNM::P4> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::GRAY> read_pnm<PNM::P5> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_EXPORT draw::datamap<BPP::RGB>  read_pnm<PNM::P6> (std::istream&, const draw::bitmap_info& bmi);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -182,8 +182,8 @@ namespace gui {
     template<BPP T>
     void load_pnm (const std::string& name, draw::datamap<T>& bmp);
 
-    void load_pnm (std::istream& in, draw::basic_datamap& bmp);
-    void load_pnm (const std::string& name, draw::basic_datamap& bmp);
+    GUIPP_EXPORT void load_pnm (std::istream& in, draw::basic_datamap& bmp);
+    GUIPP_EXPORT void load_pnm (const std::string& name, draw::basic_datamap& bmp);
 
     // --------------------------------------------------------------------------
     template<bool BIN, BPP T>

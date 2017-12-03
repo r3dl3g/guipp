@@ -33,7 +33,7 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    class drop_down {
+    class GUIPP_EXPORT drop_down {
     public:
       drop_down (win::container* m);
       drop_down (win::container* m, const drop_down&);
@@ -69,14 +69,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
 
-      void drop_down_item (const draw::graphics& g,
+      GUIPP_EXPORT void drop_down_item (const draw::graphics& g,
                            const core::rectangle& r,
                            const draw::brush& background,
                            const std::string& label,
                            bool selected,
                            bool hilited);
 
-      void drop_down_button (const draw::graphics& graph,
+      GUIPP_EXPORT void drop_down_button (const draw::graphics& graph,
                              const core::rectangle& r,
                              const button_state& state,
                              bool is_open);

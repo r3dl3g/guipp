@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
 
-      void text_box (const draw::graphics& graph,
+      GUIPP_EXPORT void text_box (const draw::graphics& graph,
                      const core::rectangle& area,
                      const std::vector<std::string>& lines,
                      const draw::font& fnt,
@@ -50,7 +50,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class textbox_base : public window {
+      class GUIPP_EXPORT textbox_base : public window {
       public:
         typedef window super;
         typedef no_erase_window_class<textbox_base, cursor_type::ibeam> clazz;

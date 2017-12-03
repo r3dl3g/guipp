@@ -745,10 +745,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+    GUIPP_EXPORT void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    GUIPP_EXPORT void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
     inline edit_list::edit_list (core::size::type item_size,

@@ -56,7 +56,7 @@ namespace gui {
       static constexpr os::style class_style = 0;
     };
 
-    class class_info {
+    class GUIPP_EXPORT class_info {
     public:
       class_info ();
       class_info (const class_info&);

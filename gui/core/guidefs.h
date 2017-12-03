@@ -30,7 +30,9 @@
 //
 // Library includes
 //
+#include <gui++-export.h>
 #include <gui/core/bits.h>
+
 
 #ifdef WIN32
 # include <gui/core/win32defs.h>
@@ -242,15 +244,15 @@ namespace gui {
 
     namespace global {
 
-      void init (os::instance instance);
-      os::instance get_instance ();
+      GUIPP_EXPORT void init (os::instance instance);
+      GUIPP_EXPORT os::instance get_instance ();
 
-      void sync ();
+      GUIPP_EXPORT void sync ();
 
-      BPP get_device_bits_per_pixel ();
-      int get_device_depth ();
+      GUIPP_EXPORT BPP get_device_bits_per_pixel ();
+      GUIPP_EXPORT int get_device_depth ();
 
-      os::key_state get_key_state ();
+      GUIPP_EXPORT os::key_state get_key_state ();
 
     }
 

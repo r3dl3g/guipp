@@ -59,7 +59,7 @@ namespace gui {
 
   namespace fs {
 
-    struct filtered_iterator {
+    struct GUIPP_EXPORT filtered_iterator {
       typedef bool (filter_fn)(const sys_fs::directory_entry&);
 
       filtered_iterator ();
@@ -92,7 +92,7 @@ namespace gui {
     bool operator!= (const filtered_iterator& lhs,
                      const filtered_iterator& rhs);
 
-    struct file_info {
+    struct GUIPP_EXPORT file_info {
       file_info (const sys_fs::path& path);
       file_info ();
 
@@ -230,7 +230,7 @@ namespace gui {
       date_down
     };
 
-    void sort_list_by (std::vector<fs::file_info>& list, sort_order);
+    GUIPP_EXPORT void sort_list_by (std::vector<fs::file_info>& list, sort_order);
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
@@ -262,6 +262,9 @@ namespace gui {
       sort_order order;
 
     };
+
+    GUIPP_EXPORT void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
+    GUIPP_EXPORT void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
 
   } // win
 

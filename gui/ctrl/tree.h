@@ -38,11 +38,11 @@ namespace gui {
     namespace paint {
 
       // --------------------------------------------------------------------------
-      void tree_button (const draw::graphics& graph,
+      GUIPP_EXPORT void tree_button (const draw::graphics& graph,
                         const core::rectangle& area,
                         bool is_open);
 
-      void tree_node (const draw::graphics& graph,
+      GUIPP_EXPORT void tree_node (const draw::graphics& graph,
                       const core::rectangle& area,
                       const draw::brush& background,
                       std::size_t depth,
@@ -58,11 +58,11 @@ namespace gui {
     namespace tree {
 
       // --------------------------------------------------------------------------
-      const draw::masked_bitmap& open_folder_icon (bool selected);
-      const draw::masked_bitmap& closed_folder_icon (bool selected);
-      const draw::masked_bitmap& file_icon (bool selected);
+      GUIPP_EXPORT const draw::masked_bitmap& open_folder_icon (bool selected);
+      GUIPP_EXPORT const draw::masked_bitmap& closed_folder_icon (bool selected);
+      GUIPP_EXPORT const draw::masked_bitmap& file_icon (bool selected);
 
-      const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected);
+      GUIPP_EXPORT const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected);
 
       // --------------------------------------------------------------------------
       template<typename I>

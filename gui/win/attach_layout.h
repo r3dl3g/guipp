@@ -182,7 +182,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class attach {
+    class GUIPP_EXPORT attach {
     public:
       attach (win::container* m);
       attach (win::container* m, const attach&);

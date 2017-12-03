@@ -113,9 +113,6 @@ namespace gui {
       memcpy(this->data.data(), data.raw_data().data(0, sz), sz);
     }
 
-    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
-    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);
-
     template<BPP T>
     inline void datamap<T>::copy_from (const datamap& src_img,
                                        const core::rectangle& src_rect,

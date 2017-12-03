@@ -35,7 +35,7 @@ namespace gui {
       class list_base;
 
       // --------------------------------------------------------------------------
-      struct list_state : public window_state {
+      struct GUIPP_EXPORT list_state : public window_state {
         typedef window_state super;
 
         list_state (const list_base& win);

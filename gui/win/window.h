@@ -52,7 +52,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class window {
+    class GUIPP_EXPORT window {
     public:
       typedef core::event_container::event_handler_function event_handler_function;
 

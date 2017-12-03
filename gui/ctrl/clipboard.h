@@ -29,7 +29,7 @@ namespace gui {
 
   namespace win {
 
-    class clipboard {
+    class GUIPP_EXPORT clipboard {
     public:
       typedef void (text_callback)(const std::string&);
 

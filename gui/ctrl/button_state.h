@@ -32,7 +32,7 @@ namespace gui {
     class button_base;
 
      // --------------------------------------------------------------------------
-    struct button_state : public window_state {
+    struct GUIPP_EXPORT button_state : public window_state {
       typedef window_state super;
 
       button_state (const button_base& win);

@@ -30,7 +30,7 @@ namespace gui {
 
   namespace draw {
 
-    struct /*immutable*/ pen {
+    struct GUIPP_EXPORT /*immutable*/ pen {
 
       const static pen default_pen;
 

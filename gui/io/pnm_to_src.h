@@ -40,14 +40,14 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
+      GUIPP_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
       template<BPP p>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
 
-      std::ostream& operator<< (std::ostream& out, draw::bw_pixel pixel);
-      std::ostream& operator<< (std::ostream& out, draw::gray_pixel pixel);
-      std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel);
+      GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, draw::bw_pixel pixel);
+      GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, draw::gray_pixel pixel);
+      GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel);
 
       template<BPP T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);

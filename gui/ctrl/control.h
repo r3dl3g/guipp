@@ -117,11 +117,11 @@ namespace gui {
 
 #ifdef WIN32
     template<>
-    event_source get_param<0, event_source>(const core::event& e);
+    GUIPP_EXPORT event_source get_param<0, event_source>(const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e);
+    GUIPP_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
     struct paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
@@ -161,7 +161,7 @@ namespace gui {
        // --------------------------------------------------------------------------
 #ifdef X11
     // --------------------------------------------------------------------------
-    draw::graphics get_draw_graphics (const core::event& e);
+    GUIPP_EXPORT draw::graphics get_draw_graphics (const core::event& e);
 
     using paint_event = core::event_handler<Expose, ExposureMask,
                                       core::params<draw::graphics>::
@@ -201,7 +201,7 @@ namespace gui {
        // --------------------------------------------------------------------------
 
     namespace paint {
-      void text_item (const draw::graphics&,
+      GUIPP_EXPORT void text_item (const draw::graphics&,
                       const core::rectangle& place,
                       const draw::brush& background,
                       const std::string& text,

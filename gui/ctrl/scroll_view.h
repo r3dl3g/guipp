@@ -31,7 +31,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    class scroll_view_base : protected layout_base {
+    class GUIPP_EXPORT scroll_view_base : protected layout_base {
     public:
       typedef layout_base super;
 
@@ -59,7 +59,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class scroll_view : public scroll_view_base {
+    class GUIPP_EXPORT scroll_view : public scroll_view_base {
     public:
       typedef scroll_view_base super;
 
@@ -86,7 +86,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    class scroll_view : public layout_container<layout::scroll_view> {
+    class GUIPP_EXPORT scroll_view : public layout_container<layout::scroll_view> {
     public:
       typedef layout_container<layout::scroll_view> super;
       typedef window_class<scroll_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;

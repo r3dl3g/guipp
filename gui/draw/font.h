@@ -36,7 +36,7 @@ namespace gui {
 
   namespace draw {
 
-    struct /*immutable*/ font {
+    struct GUIPP_EXPORT /*immutable*/ font {
 
       static const font& system ();
       static const font& system_bold ();
@@ -108,7 +108,7 @@ namespace gui {
       os::font_type info;
     };
 
-    std::ostream& operator<< (std::ostream& out, const font& c);
+    GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, const font& c);
 
   }
 

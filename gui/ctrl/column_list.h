@@ -39,7 +39,7 @@ namespace gui {
 
     namespace detail {
 
-      class column_list_layout {
+      class GUIPP_EXPORT column_list_layout {
       public:
         typedef win::vertical_list list_type;
 
@@ -92,7 +92,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class simple_column_list_layout : public detail::column_list_layout {
+    class GUIPP_EXPORT simple_column_list_layout : public detail::column_list_layout {
     public:
       typedef detail::column_list_layout super;
 
@@ -121,7 +121,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class weight_column_list_layout : public simple_column_list_layout {
+    class GUIPP_EXPORT weight_column_list_layout : public simple_column_list_layout {
     public:
       typedef simple_column_list_layout super;
 
@@ -181,7 +181,7 @@ namespace gui {
 
   namespace win {
 
-    void default_header_cell_drawer (std::size_t i,
+    GUIPP_EXPORT void default_header_cell_drawer (std::size_t i,
                                      const draw::graphics& g,
                                      const core::rectangle& r,
                                      const draw::brush& background);

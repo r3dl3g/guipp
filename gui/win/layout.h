@@ -51,7 +51,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class layout_base {
+    class GUIPP_EXPORT layout_base {
     public:
       typedef void (size_callback) (const core::size& sz);
       typedef void (show_callback) ();

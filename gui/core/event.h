@@ -48,5 +48,5 @@ namespace gui {
 
 namespace std {
   // --------------------------------------------------------------------------
-  std::ostream& operator<< (std::ostream& out, const gui::core::event& t);
+  GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::event& t);
 }

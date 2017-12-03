@@ -40,7 +40,7 @@ namespace gui {
     class graphics;
 
     // --------------------------------------------------------------------------
-    struct line {
+    struct GUIPP_EXPORT line {
       line (const core::point& from,
             const core::point& to);
 
@@ -52,7 +52,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct rectangle {
+    struct GUIPP_EXPORT rectangle {
       rectangle (const core::rectangle& rect);
       rectangle (const core::point& pos,
                  const core::size& sz);
@@ -68,7 +68,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct ellipse {
+    struct GUIPP_EXPORT ellipse {
       ellipse (const core::rectangle& rect);
       ellipse (const core::point& pos,
                const core::size& sz);
@@ -84,7 +84,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct round_rectangle {
+    struct GUIPP_EXPORT round_rectangle {
       round_rectangle (const core::rectangle& rect, const core::size& size);
 
       void operator() (const graphics&, const brush&, const pen&) const;
@@ -97,7 +97,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct arc {
+    struct GUIPP_EXPORT arc {
       arc (const core::point& pos, unsigned int radius, float startrad, float endrad);
 
       void operator() (const graphics&, const brush&, const pen&) const;
@@ -112,7 +112,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct polygon {
+    struct GUIPP_EXPORT polygon {
       polygon (const std::vector<core::point>& pts);
       polygon (std::initializer_list<core::point> pts);
 
@@ -125,7 +125,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct text_box {
+    struct GUIPP_EXPORT text_box {
       text_box (const std::string& str,
                 const core::rectangle& rect,
                 text_origin origin = text_origin::top_left,
@@ -141,7 +141,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct bounding_box {
+    struct GUIPP_EXPORT bounding_box {
       bounding_box (const std::string& str,
                     core::rectangle& rect,
                     text_origin origin = text_origin::top_left);
@@ -158,7 +158,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct text {
+    struct GUIPP_EXPORT text {
       text (const std::string& str,
             const core::point& pos,
             text_origin origin = text_origin::top_left,

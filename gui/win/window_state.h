@@ -34,7 +34,7 @@ namespace gui {
     class window;
 
     // --------------------------------------------------------------------------
-    struct window_state {
+    struct GUIPP_EXPORT window_state {
       window_state (const window& win)
         : win(win)
       {}

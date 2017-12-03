@@ -12,7 +12,12 @@ if(NOT TARGET gui++-core-obj)
 
     add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
 
+    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
+    endif()
+
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
+
     set_target_properties(gui++-core-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
@@ -21,6 +26,8 @@ if(NOT TARGET gui++-core-obj)
 
     if (GUIPP_BUILD_SHARED_MODULE_LIBS)
         add_library(gui++-core SHARED $<TARGET_OBJECTS:gui++-core-obj>)
+
+        target_link_libraries(gui++-core ${gui_sys_libraries})
 
         set_target_properties(gui++-core PROPERTIES
             POSITION_INDEPENDENT_CODE ON

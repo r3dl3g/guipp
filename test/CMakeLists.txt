@@ -17,6 +17,8 @@ endif(UNIX)
 add_subdirectory(./../gui gui)
 
 message(STATUS "gui_Include:" ${gui_Include})
+message(STATUS "gui_libraries:" ${gui_libraries})
+message(STATUS "gui_sys_libraries:" ${gui_sys_libraries})
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
@@ -39,10 +41,6 @@ set(tests
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} gui++ gui++-app)
-    if(UNIX)
-      #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
-      target_link_libraries(${test} stdc++fs X11 Xft fontconfig pthread)
-    endif(UNIX)
+    target_link_libraries(${test} ${gui_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

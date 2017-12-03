@@ -12,6 +12,10 @@ if(NOT TARGET gui++-app-obj)
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
+    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
+    endif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+
     add_library(gui++-app-obj OBJECT ${SOURCE_FILES})
     set_target_properties(gui++-app-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

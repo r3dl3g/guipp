@@ -23,7 +23,7 @@
 #include <gui/core/logger.h>
 
 
-#ifdef GUIPP_EXPORT
+#ifdef GUIPP_BUILT_AS_STATIC
 #define NO_EXPORT
 
 DEFINE_LOGGING_CORE(NO_EXPORT)

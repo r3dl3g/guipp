@@ -17,14 +17,28 @@ set (gui_Include
 
 if(UNIX)
   set (gui_Include ${gui_Include} /usr/include/freetype2)
+  set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
 endif(UNIX)
+
+if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+    set (gui_libraries gui++-ctrl-static gui++-io-static gui++-draw-static gui++-win-static gui++-core-static gui++ gui++-app)
+elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+    set (gui_libraries gui++-ctrl gui++-app)
+else()
+    set (gui_libraries gui++ gui++-app)
+endif()
+
+set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
+
+set (gui_Include ${gui_Include} PARENT_SCOPE)
+set (gui_libraries ${gui_libraries} PARENT_SCOPE)
+set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
+
 
 set (gui_VERSION_MAJOR 0)
 set (gui_VERSION_MINOR 1)
 set (gui_VERSION_PATCH 0)
 set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
-
-set (gui_Include ${gui_Include} PARENT_SCOPE)
 
 add_subdirectory(core gui_core)
 add_subdirectory(win gui_win)
@@ -43,17 +57,24 @@ if(NOT TARGET gui++)
 
     include_directories(${gui_Include} ${PROJECT_BINARY_DIR})
 
-    add_library(gui++ SHARED gui.cpp
-							 $<TARGET_OBJECTS:gui++-core-obj>
-                             $<TARGET_OBJECTS:gui++-win-obj>
-                             $<TARGET_OBJECTS:gui++-draw-obj>
-                             $<TARGET_OBJECTS:gui++-io-obj>
-                             $<TARGET_OBJECTS:gui++-ctrl-obj>)
+    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
+        add_library(gui++ STATIC gui.cpp)
+    elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+        add_library(gui++ SHARED gui.cpp)
+    else()
+        add_library(gui++ SHARED gui.cpp
+                                 $<TARGET_OBJECTS:gui++-core-obj>
+                                 $<TARGET_OBJECTS:gui++-win-obj>
+                                 $<TARGET_OBJECTS:gui++-draw-obj>
+                                 $<TARGET_OBJECTS:gui++-io-obj>
+                                 $<TARGET_OBJECTS:gui++-ctrl-obj>)
+    endif()
 
     set_target_properties(gui++ PROPERTIES
-        POSITION_INDEPENDENT_CODE ON
-        VERSION ${gui_VERSION}
-        SOVERSION ${gui_VERSION_MAJOR})
+                          POSITION_INDEPENDENT_CODE ON
+                          VERSION ${gui_VERSION}
+                          SOVERSION ${gui_VERSION_MAJOR})
 
 endif()
 

@@ -25,9 +25,11 @@
 #include <gui/core/dbgstream.h>
 #include <gui/core/guidefs.h>
 #include <gui/core/string_util.h>
+#include <gui_version.h>
+#include <gui++-export.h>
 
 
-#ifndef GUIPP_EXPORT
+#ifndef GUIPP_BUILT_AS_STATIC
 #define NO_EXPORT
 
 DEFINE_LOGGING_CORE(NO_EXPORT)

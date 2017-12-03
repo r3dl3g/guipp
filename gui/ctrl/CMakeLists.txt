@@ -13,6 +13,10 @@ if(NOT TARGET gui++-ctrl-obj)
 
     add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
 
+    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
+    endif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
     add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES})
@@ -25,7 +29,7 @@ if(NOT TARGET gui++-ctrl-obj)
     if (GUIPP_BUILD_SHARED_MODULE_LIBS)
         add_library(gui++-ctrl SHARED $<TARGET_OBJECTS:gui++-ctrl-obj>)
 
-        target_link_libraries(gui++-ctrl gui++-core gui++-draw gui++-win gui++-io)
+        target_link_libraries(gui++-ctrl gui++-core gui++-draw gui++-win gui++-io ${gui_sys_libraries})
 
         set_target_properties(gui++-ctrl PROPERTIES
             POSITION_INDEPENDENT_CODE ON

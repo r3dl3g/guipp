@@ -120,7 +120,7 @@ namespace gui {
 
       sys_fs::directory_iterator path_iterator (sys_fs::path const& n);
 
-      struct path_info {
+      struct GUIPP_EXPORT path_info {
         typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
         typedef fs::file_info reference;
@@ -133,37 +133,37 @@ namespace gui {
 
       };
 
-      struct unsorted_path_info : public path_info {
+      struct GUIPP_EXPORT unsorted_path_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct unsorted_dir_info : public path_info {
+      struct GUIPP_EXPORT unsorted_dir_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct unsorted_file_info : public path_info {
+      struct GUIPP_EXPORT unsorted_file_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct sorted_path_info : public path_info {
+      struct GUIPP_EXPORT sorted_path_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct sorted_dir_info : public path_info {
+      struct GUIPP_EXPORT sorted_dir_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct sorted_file_info : public path_info {
+      struct GUIPP_EXPORT sorted_file_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
@@ -181,7 +181,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      void init_file_list_layout (layout::weight_column_list_layout&);
+      GUIPP_EXPORT void init_file_list_layout (layout::weight_column_list_layout&);
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
                                        const draw::masked_bitmap*,
@@ -189,16 +189,16 @@ namespace gui {
                                        fs::file_info,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
-      file_list_row_drawer create_file_list_row_drawer ();
+      GUIPP_EXPORT file_list_row_drawer create_file_list_row_drawer ();
 
       typedef column_list_row_t<const draw::masked_bitmap*,
                                 fs::file_info,
                                 fs::file_info,
                                 sys_fs::file_time_type> file_list_row;
 
-      file_list_row build_file_list_row (const fs::file_info&, bool selected);
+      GUIPP_EXPORT file_list_row build_file_list_row (const fs::file_info&, bool selected);
 
-      std::string format_file_size (uintmax_t s);
+      GUIPP_EXPORT std::string format_file_size (uintmax_t s);
 
     } // detail
 

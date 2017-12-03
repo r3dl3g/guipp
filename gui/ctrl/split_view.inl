@@ -171,8 +171,8 @@ namespace gui {
       template<orientation O>
       inline split_view<O>::split_view (split_view&& rhs)
         : super(std::move(rhs))
+        , slider(std::move(rhs.slider))
       {
-        std::swap(slider, rhs.slider);
         init();
       }
 
@@ -224,9 +224,9 @@ namespace gui {
     template<orientation O, typename F, typename S>
     inline basic_split_view<O, F, S>::basic_split_view (basic_split_view&& rhs)
       : super(std::move(rhs))
+      , first(std::move(rhs.first))
+      , second(std::move(rhs.second))
     {
-      std::swap(first, rhs.first);
-      std::swap(second, rhs.second);
       super::get_layout().set(&first, &second, &(super::slider));
     }
 

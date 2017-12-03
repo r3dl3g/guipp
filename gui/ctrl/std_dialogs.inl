@@ -28,10 +28,10 @@ namespace gui {
       : super(top, 45, 0, 0)
     {}
 
-    //-----------------------------------------------------------------------------
     template<typename T>
-    inline standard_dialog<T>::standard_dialog (float top)
+    inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
       : super(top)
+      , content_view(view)
     {}
 
     template<typename T>
@@ -78,6 +78,11 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
+    template<typename T>
+    path_open_dialog_base<T>::path_open_dialog_base ()
+      : super(dir_file_view<T>())
+    {}
+
     template<typename T>
     void path_open_dialog_base<T>::create (win::container& parent,
                                            const std::string& title,

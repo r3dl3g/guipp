@@ -92,6 +92,12 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<>
+    core::rectangle get_param<1>(const core::event& e) {
+      return get_rect<WINDOWPOS>(e);
+    }
+
+    // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);

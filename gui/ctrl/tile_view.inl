@@ -283,6 +283,7 @@ namespace gui {
 
     }
 
+    // --------------------------------------------------------------------------
     template<orientation V>
     void basic_tile_view<V>::handle_key (os::key_state,
                                          os::key_symbol key,
@@ -339,13 +340,6 @@ namespace gui {
     const core::size& basic_tile_view<V>::get_spacing () const {
       return super::traits.spacing;
     }
-
-    // --------------------------------------------------------------------------
-    template<>
-    GUIPP_EXPORT void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key);
-
-    template<>
-    GUIPP_EXPORT void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
   } // win
 

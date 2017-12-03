@@ -124,7 +124,7 @@ namespace gui {
     GUIPP_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
-    struct paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
+    struct GUIPP_EXPORT paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
       typedef core::params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
       typedef super::function function;
 

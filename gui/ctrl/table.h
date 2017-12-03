@@ -352,7 +352,7 @@ namespace gui {
         void init ();
       };
 
-      std::string build_std_column_name (std::size_t c);
+      GUIPP_EXPORT std::string build_std_column_name (std::size_t c);
 
     } // table
 

@@ -68,7 +68,7 @@ namespace gui {
       typedef standard_dialog_base super;
       typedef T content_view_type;
 
-      standard_dialog (float top = 0);
+      standard_dialog (const content_view_type& view, float top = 0);
       standard_dialog (content_view_type&& view, float top = 0);
 
       void create (win::container& parent,
@@ -83,8 +83,8 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_EXPORT yes_no_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
-                                                                   color::very_light_gray,
-                                                                   float, float, float, float>> {
+                                                                                color::very_light_gray,
+                                                                                float, float, float, float>> {
     public:
       typedef win::basic_textbox<text_origin::center, draw::frame::sunken_relief, color::black, color::very_light_gray> message_view_type;
       typedef win::group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view_type;
@@ -134,6 +134,8 @@ namespace gui {
     class path_open_dialog_base : public standard_dialog<dir_file_view<T>> {
     public:
       typedef standard_dialog<dir_file_view<T>> super;
+
+      path_open_dialog_base ();
 
       void create (win::container& parent,
                    const std::string& title,

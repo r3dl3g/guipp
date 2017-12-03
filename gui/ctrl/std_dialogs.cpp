@@ -104,7 +104,7 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     file_save_dialog::file_save_dialog ()
-      : super(25)
+      : super(dir_file_view<>(), 25)
       , top_view(2, 2, 120, 2)
     {}
 

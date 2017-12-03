@@ -47,7 +47,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class border_layout_base : protected layout_base {
+      class GUIPP_EXPORT border_layout_base : protected layout_base {
       public:
         typedef layout_base super;
 

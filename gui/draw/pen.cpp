@@ -34,7 +34,7 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
-    const pen pen::default_pen((os::pen)GetStockObject(BLACK_PEN));
+    const pen default_pen((os::pen)GetStockObject(BLACK_PEN));
 
     pen::pen (os::pen id)
       : id(id)
@@ -103,7 +103,7 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    const pen pen::default_pen;
+    const pen default_pen;
 
     pen::pen (const os::color& color, size_type size, Style style)
       : m_color(color)

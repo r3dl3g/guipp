@@ -45,6 +45,10 @@
 # pragma error "Unknown target system"
 #endif
 
+#ifdef WIN32
+#pragma warning (disable: 4251)
+#endif
+
 namespace gui {
 
   // --------------------------------------------------------------------------

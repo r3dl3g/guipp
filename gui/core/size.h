@@ -39,7 +39,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    struct GUIPP_EXPORT basic_size {
+    struct basic_size {
       typedef T type;
       typedef basic_size self;
 

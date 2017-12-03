@@ -11,6 +11,11 @@ if(NOT TARGET gui++-ctrl-obj)
 
     include_directories(${gui_Include})
 
+    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
+	if(CMAKE_COMPILER_IS_CLANG)
+		add_definitions(-Wno-inconsistent-dllimport)
+	endif()
+
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
     add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES})

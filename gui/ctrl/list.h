@@ -314,6 +314,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<>
+    GUIPP_EXPORT void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+
+    template<>
+    GUIPP_EXPORT void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
+
+    // --------------------------------------------------------------------------
     typedef linear_list<orientation::horizontal> horizontal_list;
     typedef linear_list<orientation::vertical> vertical_list;
     typedef vertical_list list;

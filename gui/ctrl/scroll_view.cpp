@@ -36,6 +36,20 @@ namespace gui {
       , edge(nullptr)
     {}
 
+    scroll_view_base::scroll_view_base (win::container* main, const scroll_view_base& rhs)
+      : super(main, rhs)
+      , vscroll(nullptr)
+      , hscroll(nullptr)
+      , edge(nullptr)
+    {}
+
+    scroll_view_base::scroll_view_base (win::container* main, scroll_view_base&& rhs)
+      : super(main, std::move(rhs))
+      , vscroll(nullptr)
+      , hscroll(nullptr)
+      , edge(nullptr)
+    {}
+
     void scroll_view_base::init (win::vertical_scroll_bar* vscroll,
                                  win::horizontal_scroll_bar* hscroll,
                                  win::window* edge) {
@@ -162,6 +176,25 @@ namespace gui {
     {
       super::init(core::bind_method(this, &scroll_view::layout));
     }
+
+    scroll_view::scroll_view (win::container* main, const scroll_view& rhs)
+      : super(main, rhs)
+      , me(core::bind_method(this, &scroll_view::handle_child_move))
+      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , in_scroll_event(false)
+    {
+      super::init(core::bind_method(this, &scroll_view::layout));
+    }
+
+    scroll_view::scroll_view (win::container* main, scroll_view&& rhs)
+      : super(main, std::move(rhs))
+      , me(core::bind_method(this, &scroll_view::handle_child_move))
+      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , in_scroll_event(false)
+    {
+      super::init(core::bind_method(this, &scroll_view::layout));
+    }
+
 
     void scroll_view::layout (const core::size& new_size) {
       std::vector<win::window*> children = main->get_children();

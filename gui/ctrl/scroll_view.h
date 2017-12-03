@@ -36,6 +36,8 @@ namespace gui {
       typedef layout_base super;
 
       scroll_view_base (win::container* main);
+      scroll_view_base (win::container* m, const scroll_view_base&);
+      scroll_view_base (win::container* m, scroll_view_base&&);
 
       void init (win::vertical_scroll_bar* vscroll,
                  win::horizontal_scroll_bar* hscroll,
@@ -64,6 +66,8 @@ namespace gui {
       typedef scroll_view_base super;
 
       scroll_view (win::container* main);
+      scroll_view (win::container* m, const scroll_view&);
+      scroll_view (win::container* m, scroll_view&&);
 
       void layout (const core::size& new_size);
 

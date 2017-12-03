@@ -38,7 +38,7 @@ namespace gui {
   namespace draw {
 
 #ifdef WIN32
-    const brush brush::default_brush((os::brush)GetStockObject(WHITE_BRUSH));
+    const brush default_brush((os::brush)GetStockObject(WHITE_BRUSH));
 
     brush::brush (os::brush os_id)
       : id(os_id) {
@@ -113,7 +113,7 @@ namespace gui {
 
 #endif // WIN32
 #ifdef X11
-    const brush brush::default_brush;
+    const brush default_brush;
 
     brush::brush (const os::color& color, Style style)
       : m_color(color)

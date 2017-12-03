@@ -39,6 +39,9 @@
 #include <gui/core/blocking_queue.h>
 #include <gui/core/log_level.h>
 
+#ifdef WIN32
+#pragma warning (disable: 4251)
+#endif
 
 /**
 * Provides an API for stream logging to multiple sinks.
@@ -59,7 +62,7 @@ namespace gui {
     /**
     * Id for current logged line.
     */
-    struct line_id {
+    struct GUIPP_EXPORT line_id {
       line_id (unsigned int i);
       line_id ();
 

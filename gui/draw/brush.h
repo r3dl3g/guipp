@@ -32,8 +32,6 @@ namespace gui {
 
     struct GUIPP_EXPORT /*immutable*/ brush {
 
-      const static brush default_brush;
-
       enum Style {
         solid = IF_WIN32_ELSE(BS_SOLID, FillSolid)
       };
@@ -69,6 +67,8 @@ namespace gui {
 #endif // X11
 
     };
+
+    const extern brush default_brush;
 
   }
 

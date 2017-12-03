@@ -32,8 +32,6 @@ namespace gui {
 
     struct GUIPP_EXPORT /*immutable*/ pen {
 
-      const static pen default_pen;
-
 #ifdef WIN32
       typedef int size_type;
 #endif // WIN32
@@ -87,6 +85,8 @@ namespace gui {
 #endif // X11
 
     };
+
+    const extern pen default_pen;
 
   }
 

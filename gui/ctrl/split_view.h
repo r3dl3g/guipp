@@ -41,7 +41,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation O>
-    class GUIPP_EXPORT split_view : protected layout_base {
+    class split_view : protected layout_base {
     public:
       typedef layout_base super;
 

@@ -41,10 +41,10 @@ namespace gui {
     class window;
 
     // --------------------------------------------------------------------------
-    os::key_state get_key_state (const core::event& e);
-    os::key_symbol get_key_symbol (const core::event& e);
-    std::string get_key_chars (const core::event& e);
-    core::point get_root_mouse_pos (const core::event& e);
+    GUIPP_EXPORT os::key_state get_key_state (const core::event& e);
+    GUIPP_EXPORT os::key_symbol get_key_symbol (const core::event& e);
+    GUIPP_EXPORT std::string get_key_chars (const core::event& e);
+    GUIPP_EXPORT core::point get_root_mouse_pos (const core::event& e);
 
 #ifdef WIN32
     const os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
@@ -53,15 +53,16 @@ namespace gui {
     template<int I, typename T>
     T get_param (const core::event& e);
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT template<> os::graphics get_param<0>(const core::event& e);
-    GUIPP_EXPORT template<> window* get_param<0>(const core::event& e);
-    GUIPP_EXPORT template<> bool get_param<0>(const core::event& e);
-    GUIPP_EXPORT template<> unsigned int get_param<0>(const core::event& e);
-    GUIPP_EXPORT template<> int get_param<0>(const core::event& e);
+    template<> GUIPP_EXPORT os::graphics get_param<0>(const core::event& e);
+    template<> GUIPP_EXPORT window* get_param<0>(const core::event& e);
+    template<> GUIPP_EXPORT bool get_param<0>(const core::event& e);
+    template<> GUIPP_EXPORT unsigned int get_param<0>(const core::event& e);
+    template<> GUIPP_EXPORT int get_param<0>(const core::event& e);
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT template<> window* get_param<1>(const core::event& e);
-    GUIPP_EXPORT template<> core::point get_param<1>(const core::event& e);
-    GUIPP_EXPORT template<> core::size get_param<1>(const core::event& e);
+    template<> GUIPP_EXPORT window* get_param<1>(const core::event& e);
+    template<> GUIPP_EXPORT core::point get_param<1>(const core::event& e);
+    template<> GUIPP_EXPORT core::size get_param<1>(const core::event& e);
+    template<> GUIPP_EXPORT core::rectangle get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
@@ -117,8 +118,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT pos_changing_getter : core::params<core::rectangle>::getter<get_param<0, core::rectangle>> {
-      typedef core::params<core::rectangle>::getter<get_param<0, core::rectangle>> super;
+    struct GUIPP_EXPORT pos_changing_getter : core::params<core::rectangle>::getter<get_param<1, core::rectangle>> {
+      typedef core::params<core::rectangle>::getter<get_param<1, core::rectangle>> super;
 
       pos_changing_getter (const function cb)
         : super(cb)

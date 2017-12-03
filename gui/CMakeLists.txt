@@ -31,6 +31,7 @@ add_subdirectory(win gui_win)
 add_subdirectory(draw gui_draw)
 add_subdirectory(io gui_io)
 add_subdirectory(ctrl gui_ctrl)
+add_subdirectory(app gui_app)
 
 if(NOT TARGET gui++)
 

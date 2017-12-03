@@ -11,9 +11,6 @@ if(NOT TARGET gui++-core-obj)
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
     add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
-	if(CMAKE_COMPILER_IS_CLANG)
-		add_definitions(-Wno-inconsistent-dllimport)
-	endif()
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
     set_target_properties(gui++-core-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)

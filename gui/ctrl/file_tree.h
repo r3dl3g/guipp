@@ -243,6 +243,7 @@ namespace gui {
       file_column_list (core::size::type item_size = 20,
                         os::color background = color::white,
                         bool grab_focus = true);
+      file_column_list (file_column_list&& rhs);
 
       void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;
@@ -256,6 +257,8 @@ namespace gui {
     private:
       void handle_header_mouse_down (os::key_state, const core::point&);
       void handle_header_mouse_up (os::key_state, const core::point&);
+
+      void init ();
 
       core::point mouse_down_point;
       std::vector<fs::file_info> current_dir;

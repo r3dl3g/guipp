@@ -200,6 +200,7 @@ namespace gui {
                                const draw::brush&);    // background
 
       column_list_header ();
+      column_list_header (column_list_header&& rhs);
 
       void paint (const draw::graphics& g);
 
@@ -222,6 +223,8 @@ namespace gui {
       core::point last_mouse_point;
       int down_idx;
       layout_type layouter;
+
+      void init ();
 
       void operator= (column_list_header&) = delete;
     };
@@ -470,6 +473,7 @@ namespace gui {
       column_list_t (core::size::type item_size = 20,
                      os::color background = color::white,
                      bool grab_focus = true);
+      column_list_t (column_list_t&& rhs);
 
       void set_drawer (data_drawer drawer);
 

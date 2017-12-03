@@ -45,14 +45,23 @@ namespace gui {
       GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider ();
 
       template<>
+      GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider (basic_slider&&);
+
+      template<>
       GUIPP_EXPORT void basic_slider<orientation::vertical>::set_value (core::point::type v);
 
       template<>
       GUIPP_EXPORT core::point::type basic_slider<orientation::vertical>::get_value () const;
 
+      template<>
+      GUIPP_EXPORT void basic_slider<orientation::vertical>::init ();
+
       // --------------------------------------------------------------------------
       template<>
       GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider ();
+
+      template<>
+      GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider (basic_slider&&);
 
       template<>
       GUIPP_EXPORT void basic_slider<orientation::horizontal>::set_value (core::point::type v);
@@ -60,12 +69,23 @@ namespace gui {
       template<>
       GUIPP_EXPORT core::point::type basic_slider<orientation::horizontal>::get_value () const;
 
+      template<>
+      GUIPP_EXPORT void basic_slider<orientation::horizontal>::init ();
+
     } // namespace detail
 
     // --------------------------------------------------------------------------
     template<orientation O,
              draw::frame::drawer F>
     inline basic_framed_slider<O, F>::basic_framed_slider () {
+      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_framed_slider::paint));
+    }
+
+    template<orientation O,
+             draw::frame::drawer F>
+    inline basic_framed_slider<O, F>::basic_framed_slider (basic_framed_slider&& rhs)
+      : super(std::move(rhs))
+    {
       super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_framed_slider::paint));
     }
 

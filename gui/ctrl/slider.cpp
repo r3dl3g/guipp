@@ -43,6 +43,18 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       basic_slider<orientation::vertical>::basic_slider () {
+        init();
+      }
+
+      template<>
+      basic_slider<orientation::vertical>::basic_slider (basic_slider&& rhs)
+        : super(std::move(rhs))
+      {
+        init();
+      }
+
+      template<>
+      void basic_slider<orientation::vertical>::init () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                        const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -86,6 +98,18 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       basic_slider<orientation::horizontal>::basic_slider () {
+        init();
+      }
+
+      template<>
+      basic_slider<orientation::horizontal>::basic_slider (basic_slider&& rhs)
+        : super(std::move(rhs))
+      {
+        init();
+      }
+
+      template<>
+      void basic_slider<orientation::horizontal>::init () {
         register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
                                                                            const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
@@ -132,6 +156,20 @@ namespace gui {
         : min(0)
         , max(std::numeric_limits<type>::max())
       {
+        init();
+      }
+
+      slider_base::slider_base (slider_base&& rhs)
+        : super(std::move(rhs))
+        , min(std::move(rhs.min))
+        , max(std::move(rhs.max))
+        , start_mouse_point(std::move(rhs.start_mouse_point))
+        , start_window_point(std::move(rhs.start_window_point))
+      {
+        init();
+      }
+
+      void slider_base::init () {
 #ifdef X11
         static int initialized = detail::init_control_messages();
 #endif // X11

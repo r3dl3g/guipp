@@ -50,6 +50,7 @@ namespace gui {
         typedef core::point::type type;
 
         slider_base ();
+        slider_base (slider_base&& rhs);
 
         void set_min (type min);
         void set_max (type min);
@@ -64,6 +65,9 @@ namespace gui {
 
         core::point start_mouse_point;
         core::point start_window_point;
+
+      private:
+        void init ();
       };
 
       // --------------------------------------------------------------------------
@@ -88,12 +92,16 @@ namespace gui {
         typedef no_erase_window_class<basic_slider, slider_cursor<O>::value> clazz;
 
         basic_slider ();
+        basic_slider (basic_slider&& rhs);
 
         void create (const container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         void set_value (core::point::type v);
         core::point::type get_value () const;
+
+      private:
+        void init ();
       };
 
     } // namespace detail
@@ -106,6 +114,7 @@ namespace gui {
       typedef detail::basic_slider<O> super;
 
       basic_framed_slider ();
+      basic_framed_slider (basic_framed_slider&& rhs);
 
     private:
       void paint (const draw::graphics& g);

@@ -39,7 +39,7 @@ set(tests
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} gui++)
+    target_link_libraries(${test} gui++ gui++-app)
     if(UNIX)
       #SET_TARGET_PROPERTIES(${test} PROPERTIES PREFIX "lib")
       target_link_libraries(${test} stdc++fs X11 Xft fontconfig pthread)

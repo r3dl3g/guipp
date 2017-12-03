@@ -154,6 +154,20 @@ namespace gui {
       : super(item_size, background, grab_focus)
       , order(sort_order::none)
     {
+      init();
+    }
+
+    template<typename T>
+    inline file_column_list<T>::file_column_list (file_column_list&& rhs)
+      : super(std::move(rhs))
+      , mouse_down_point(std::move(rhs.mouse_down_point))
+      , order(std::move(rhs.order))
+    {
+      init();
+    }
+
+    template<typename T>
+    void file_column_list<T>::init () {
       detail::init_file_list_layout(super::get_column_layout());
       init_file_list_header(super::header);
       super::set_drawer(detail::create_file_list_row_drawer());

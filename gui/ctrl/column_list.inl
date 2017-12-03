@@ -192,6 +192,22 @@ namespace gui {
       super::set_accept_focus(false);
       set_cell_drawer(default_header_cell_drawer);
       layouter.init_auto_layout();
+      init();
+    }
+
+    template<typename Layout, os::color background>
+    column_list_header<Layout, background>::column_list_header (column_list_header&& rhs)
+      : super(std::move(rhs))
+      , cell_drawer(std::move(rhs.cell_drawer))
+      , last_mouse_point(std::move(rhs.last_mouse_point))
+      , down_idx(std::move(rhs.down_idx))
+      , layouter(std::move(rhs.layouter))
+    {
+      init();
+    }
+
+    template<typename Layout, os::color background>
+    void column_list_header<Layout, background>::init () {
       this->register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &column_list_header::paint)));
       this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
       this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
@@ -545,6 +561,15 @@ namespace gui {
                                             os::color background,
                                             bool grab_focus)
       : super(item_size, background, grab_focus)
+    {
+      this->get_column_layout().set_column_count(size);
+    }
+
+    template<typename L, typename ... A>
+    column_list_t<L, A ...>::column_list_t (column_list_t&& rhs)
+      : super(std::move(rhs))
+      , drawer(std::move(rhs.drawer))
+      , data(std::move(rhs.data))
     {
       this->get_column_layout().set_column_count(size);
     }

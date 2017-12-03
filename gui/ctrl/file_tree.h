@@ -211,6 +211,8 @@ namespace gui {
       file_list (core::size::type item_size = 20,
                  os::color background = color::white,
                  bool grab_focus = true);
+      file_list (const file_list&);
+      file_list (file_list&&);
 
       void set_path (const sys_fs::path& dir);
       sys_fs::path get_selected_path () const;
@@ -218,6 +220,7 @@ namespace gui {
     private:
       std::vector<fs::file_info> current_dir;
 
+      void init ();
     };
 
     enum class sort_order : unsigned short {
@@ -243,6 +246,7 @@ namespace gui {
       file_column_list (core::size::type item_size = 20,
                         os::color background = color::white,
                         bool grab_focus = true);
+      file_column_list (const file_column_list& rhs);
       file_column_list (file_column_list&& rhs);
 
       void set_path (const sys_fs::path& dir);

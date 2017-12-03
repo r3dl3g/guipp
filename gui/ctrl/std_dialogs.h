@@ -123,8 +123,6 @@ namespace gui {
       typedef win::file_column_list<T> file_list_type;
       typedef win::vertical_split_view<dir_tree_type, file_list_type> super;
 
-      dir_file_view ();
-
       void init (std::function<file_selected> action);
 
     };
@@ -136,6 +134,8 @@ namespace gui {
       typedef standard_dialog<dir_file_view<T>> super;
 
       path_open_dialog_base ();
+      path_open_dialog_base (const path_open_dialog_base&);
+      path_open_dialog_base (path_open_dialog_base&&);
 
       void create (win::container& parent,
                    const std::string& title,

@@ -41,9 +41,10 @@ if(NOT TARGET gui++)
         "${PROJECT_BINARY_DIR}/gui_version.h"
         )
 
-    include_directories(${PROJECT_BINARY_DIR})
+    include_directories(${gui_Include} ${PROJECT_BINARY_DIR})
 
-    add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
+    add_library(gui++ SHARED gui.cpp
+							 $<TARGET_OBJECTS:gui++-core-obj>
                              $<TARGET_OBJECTS:gui++-win-obj>
                              $<TARGET_OBJECTS:gui++-draw-obj>
                              $<TARGET_OBJECTS:gui++-io-obj>

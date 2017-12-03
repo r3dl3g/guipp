@@ -2,9 +2,6 @@
 #include <gui/win/container.h>
 #include <gui/ctrl/control.h>
 
-#define NO_EXPORT
-
-DEFINE_LOGGING_CORE(NO_EXPORT)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& args) {

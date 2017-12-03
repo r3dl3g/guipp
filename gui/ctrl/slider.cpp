@@ -47,6 +47,13 @@ namespace gui {
       }
 
       template<>
+      basic_slider<orientation::vertical>::basic_slider (const basic_slider& rhs)
+        : super(rhs)
+      {
+        init();
+      }
+
+      template<>
       basic_slider<orientation::vertical>::basic_slider (basic_slider&& rhs)
         : super(std::move(rhs))
       {
@@ -98,6 +105,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       basic_slider<orientation::horizontal>::basic_slider () {
+        init();
+      }
+
+      template<>
+      basic_slider<orientation::horizontal>::basic_slider (const basic_slider& rhs)
+        : super(rhs)
+      {
         init();
       }
 
@@ -155,6 +169,16 @@ namespace gui {
       slider_base::slider_base ()
         : min(0)
         , max(std::numeric_limits<type>::max())
+      {
+        init();
+      }
+
+      slider_base::slider_base (const slider_base& rhs)
+        : super(rhs)
+        , min(rhs.min)
+        , max(rhs.max)
+        , start_mouse_point(rhs.start_mouse_point)
+        , start_window_point(rhs.start_window_point)
       {
         init();
       }

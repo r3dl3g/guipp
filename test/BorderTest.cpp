@@ -29,11 +29,6 @@
 #include <gui/ctrl/tab_group.h>
 
 
-#define NO_EXPORT
-
-DEFINE_LOGGING_CORE(NO_EXPORT)
-
-
 using namespace gui;
 using namespace gui::draw;
 using namespace gui::layout;

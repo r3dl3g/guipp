@@ -117,12 +117,33 @@ namespace gui {
                                     bool grab_focus)
       : super(item_size, background, grab_focus)
     {
+      init ();
+    }
+
+    template<typename T>
+    inline file_list<T>::file_list (const file_list& rhs)
+      : super(rhs)
+      , current_dir(rhs.current_dir)
+    {
+      init ();
+    }
+
+    template<typename T>
+    inline file_list<T>::file_list (file_list&& rhs)
+      : super(std::move(rhs))
+      , current_dir(std::move(rhs.current_dir))
+    {
+      init ();
+    }
+
+    template<typename T>
+    inline void file_list<T>::init () {
       super::set_drawer([&] (std::size_t idx,
-                             const draw::graphics& g,
-                             const core::rectangle& r,
-                             const draw::brush& b,
-                             bool selected,
-                             bool) {
+        const draw::graphics& g,
+        const core::rectangle& r,
+        const draw::brush& b,
+        bool selected,
+        bool) {
         const fs::file_info& path = current_dir[idx];
         win::paint::text_item(g, r, b, path.filename(), selected, text_origin::vcenter_left);
       });
@@ -153,6 +174,15 @@ namespace gui {
                                                   bool grab_focus)
       : super(item_size, background, grab_focus)
       , order(sort_order::none)
+    {
+      init();
+    }
+
+    template<typename T>
+    inline file_column_list<T>::file_column_list (const file_column_list& rhs)
+      : super(rhs)
+      , mouse_down_point(rhs.mouse_down_point)
+      , order(rhs.order)
     {
       init();
     }

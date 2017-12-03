@@ -54,10 +54,6 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
-    inline dir_file_view<T>::dir_file_view ()
-    {}
-
-    template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action) {
       super::first.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
         int idx = super::first.get_selection();
@@ -81,6 +77,16 @@ namespace gui {
     template<typename T>
     path_open_dialog_base<T>::path_open_dialog_base ()
       : super(dir_file_view<T>())
+    {}
+
+    template<typename T>
+    path_open_dialog_base<T>::path_open_dialog_base (const path_open_dialog_base& rhs)
+      : super(rhs)
+    {}
+
+    template<typename T>
+    path_open_dialog_base<T>::path_open_dialog_base (path_open_dialog_base&& rhs)
+      : super(std::move(rhs))
     {}
 
     template<typename T>

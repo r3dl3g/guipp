@@ -27,6 +27,13 @@
 #include <gui/core/string_util.h>
 
 
+#ifndef GUIPP_EXPORT
+#define NO_EXPORT
+
+DEFINE_LOGGING_CORE(NO_EXPORT)
+#endif // GUIPP_EXPORT
+
+
 #ifdef WIN32
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
                       _In_opt_ HINSTANCE hPrevInstance,

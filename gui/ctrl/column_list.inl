@@ -196,6 +196,17 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
+    column_list_header<Layout, background>::column_list_header (const column_list_header& rhs)
+      : super(rhs)
+      , cell_drawer(rhs.cell_drawer)
+      , last_mouse_point(rhs.last_mouse_point)
+      , down_idx(rhs.down_idx)
+      , layouter(rhs.layouter)
+    {
+      init();
+    }
+
+    template<typename Layout, os::color background>
     column_list_header<Layout, background>::column_list_header (column_list_header&& rhs)
       : super(std::move(rhs))
       , cell_drawer(std::move(rhs.cell_drawer))
@@ -561,6 +572,15 @@ namespace gui {
                                             os::color background,
                                             bool grab_focus)
       : super(item_size, background, grab_focus)
+    {
+      this->get_column_layout().set_column_count(size);
+    }
+
+    template<typename L, typename ... A>
+    column_list_t<L, A ...>::column_list_t (const column_list_t& rhs)
+      : super(rhs)
+      , drawer(rhs.drawer)
+      , data(rhs.data)
     {
       this->get_column_layout().set_column_count(size);
     }

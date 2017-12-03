@@ -39,9 +39,6 @@ std::ostream& operator<<(std::ostream& out, const bool& b) {
   return out;
 }
 
-#define NO_EXPORT
-
-DEFINE_LOGGING_CORE(NO_EXPORT)
 
 using namespace gui;
 

@@ -15,9 +15,9 @@ if(NOT TARGET gui++-core-obj)
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
     endif()
-	if (MSVC)
-		add_compile_options(/Y-)
-	endif()
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        add_compile_options(/Y-)
+    endif()
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
 

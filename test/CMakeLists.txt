@@ -36,7 +36,7 @@ set(tests
 )
 
 foreach(test ${tests})
-    if (MSVC)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         add_compile_options(/Y-)
     endif()
     add_executable(${test} WIN32 ${test}.cpp)

@@ -85,7 +85,7 @@ namespace gui {
         SetWindowLongPtr(id, GWLP_USERDATA, 0);
       }
 
-      bool check_expose (const core::event& e) {
+      bool check_expose (const core::event&) {
         return false;
       }
 
@@ -293,7 +293,9 @@ namespace gui {
       }
 
       window* get_application_main_window() {
-        GUITHREADINFO info{ sizeof(GUITHREADINFO), 0 };
+        GUITHREADINFO info;
+        memset(&info, 0, sizeof(info));
+        info.cbSize = sizeof(GUITHREADINFO);
         if (GetGUIThreadInfo(robbery::get_native_thread_id(detail::main_thread_id), &info)) {
           HWND win = info.hwndActive;
           if (win) {

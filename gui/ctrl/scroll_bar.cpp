@@ -209,7 +209,7 @@ namespace gui {
                       scrollbar_state hilite,
                       bool is_enabled,
                       bool horizontal,
-                      bool has_focus,
+                      bool /*has_focus*/,
                       const core::rectangle& up,
                       const core::rectangle& down,
                       const core::rectangle& thumb,

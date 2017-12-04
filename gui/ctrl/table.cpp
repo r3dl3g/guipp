@@ -427,7 +427,7 @@ namespace gui {
       enable_v_size = v_size;
     }
 
-    void table_view::handle_size (const core::size& sz) {
+    void table_view::handle_size (const core::size&) {
       set_scroll_maximum(scroll_maximum(data.client_size(), geometrie.get_offset(), core::point(hscroll.get_max(), vscroll.get_max())));
     }
 
@@ -574,7 +574,7 @@ namespace gui {
       hscroll.set_max(pos.x());
     }
 
-    void table_view::handle_created (win::window* win, const core::rectangle& place) {
+    void table_view::handle_created (win::window*, const core::rectangle& place) {
       edge.create(*this, core::rectangle(0, 0, row_width(), column_height()));
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
       columns.create(*this, core::rectangle(row_width(), 0, 160, column_height()));

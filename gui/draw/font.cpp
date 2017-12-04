@@ -62,7 +62,9 @@ namespace gui {
 
 #ifdef WIN32
     os::font_type get_menu_font () {
-      NONCLIENTMETRICS metrics = {sizeof (NONCLIENTMETRICS), 0};
+      NONCLIENTMETRICS metrics;
+      memset(&metrics, 0, sizeof(metrics));
+      metrics.cbSize = sizeof (NONCLIENTMETRICS);
       SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICS), &metrics, 0);
       return metrics.lfMenuFont;
     }

@@ -46,7 +46,7 @@ namespace gui {
 #endif
     }
 
-    void attach::layout (const core::size& sz) {
+    void attach::layout (const core::size&) {
       typedef std::pair<core::rectangle, core::size> place_and_size;
       typedef std::map<win::window*, place_and_size> window_places;
       typedef window_places::iterator iterator;

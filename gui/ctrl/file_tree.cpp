@@ -71,7 +71,7 @@ namespace gui {
     }
 
     bool filtered_iterator::is_excluded (const sys_fs::directory_entry& i) {
-      return (filter && filter(*iterator));
+      return (filter && filter(i));
     }
 
     filtered_iterator& filtered_iterator::operator++ () {

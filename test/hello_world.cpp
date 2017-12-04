@@ -4,7 +4,7 @@
 
 
 // --------------------------------------------------------------------------
-int gui_main(const std::vector<std::string>& args) {
+int gui_main(const std::vector<std::string>& /*args*/) {
   gui::win::main_window main;
 
   main.register_event_handler(REGISTER_FUNCTION, gui::win::paint_event([&] (const gui::draw::graphics& g) {

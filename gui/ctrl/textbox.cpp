@@ -358,15 +358,15 @@ namespace gui {
       }
 
       void textbox_base::enable_select_by_mouse (const text_origin origin) {
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, origin](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(pt, origin));
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&, origin](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           const auto p = get_position_at_point(pt, origin);
@@ -375,7 +375,7 @@ namespace gui {
           set_cursor_pos(p);
           set_selection({l, r});
         }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&, origin](os::key_state keys, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&, origin](os::key_state keys, const core::point& pt) {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt, origin), true);
           }

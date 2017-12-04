@@ -511,7 +511,7 @@ namespace gui {
 
 # endif // WIN32_DEPRECATED
 
-    void window::prepare_for_event (os::event_id id)
+    void window::prepare_for_event (os::event_id)
     {}
 
     os::window window::create_window (const class_info& type,

@@ -122,7 +122,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    os::key_state get_key_state (const core::event& e) {
+    os::key_state get_key_state (const core::event&) {
       return core::global::get_key_state();
     }
 
@@ -186,7 +186,9 @@ namespace gui {
       case WM_MOUSEMOVE:
         if (!s_mouse_inside[e.id]) {
           s_mouse_inside[e.id] = true;
-          TRACKMOUSEEVENT tme = {sizeof (TRACKMOUSEEVENT), 0};
+          TRACKMOUSEEVENT tme;
+          memset(&tme, 0, sizeof(tme));
+          tme.cbSize = sizeof(TRACKMOUSEEVENT);
           tme.dwFlags = TME_LEAVE;
           tme.hwndTrack = e.id;
           TrackMouseEvent(&tme);

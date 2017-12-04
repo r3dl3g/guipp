@@ -201,7 +201,7 @@ namespace gui {
 
         set_accept_focus(true);
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
@@ -210,7 +210,7 @@ namespace gui {
           take_focus();
         }));
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&] (os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&] (os::key_state, const core::point&) {
 #ifndef NO_CAPTURE
           uncapture_pointer();
 #endif // NO_CAPTURE

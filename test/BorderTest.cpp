@@ -373,7 +373,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   left_list.set_drawer([](std::size_t idx,
                           const graphics& g,
                           const core::rectangle& place,
-                          const brush& background,
+                          const brush& /*background*/,
                           bool selected,
                           bool hilited) {
     g.fill(rectangle(place), selected ? color::dark_red : (hilited ? color::very_light_gray : color::light_gray));
@@ -739,7 +739,7 @@ void my_main_window::save_all_src () {
 }
 
 // --------------------------------------------------------------------------
-int gui_main(const std::vector<std::string>& args) {
+int gui_main(const std::vector<std::string>& /*args*/) {
   my_main_window main;
 
   const core::rectangle r = core::rectangle(50, 50, 800, 600);

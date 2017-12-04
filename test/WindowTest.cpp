@@ -62,7 +62,7 @@ public:
   init_result_handler() {
   }
 
-  bool operator()(const core::event& e, os::event_result& result) {
+  bool operator()(const core::event&, os::event_result&) {
     return false;
   }
 };
@@ -278,8 +278,7 @@ private:
   bool draw_invert;
 };
 
-int gui_main(const std::vector<std::string>& args) {
-
+int gui_main(const std::vector<std::string>& /*args*/) {
 
   my_main_window main;
 
@@ -399,10 +398,10 @@ my_main_window::my_main_window ()
 //    LogDebug << "Button " << (on ? "" : "de") << "activate";
 //  }));
 //#endif
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::set_focus_event([] (win::window* win) {
+  ok_button.register_event_handler(REGISTER_FUNCTION, win::set_focus_event([] (win::window*) {
     LogDebug << "Button Set Focus";
   }));
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::lost_focus_event([&] (win::window* win) {
+  ok_button.register_event_handler(REGISTER_FUNCTION, win::lost_focus_event([&] (win::window*) {
     LogDebug << "Button Lost Focus";
   }));
 
@@ -457,7 +456,7 @@ my_main_window::my_main_window ()
     LogDebug << "Window Mouse up at " << p;
   }));
 
-  window1.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state keys,
+  window1.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state,
                                                                                const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -466,7 +465,7 @@ my_main_window::my_main_window ()
       window1.move(window1.position() + delta);
     }
   }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state keys,
+  window2.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state,
                                                                                const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
@@ -500,7 +499,7 @@ my_main_window::my_main_window ()
     core::rectangle car = window1.client_area();
     LogDebug << "Client: " << car;
   }));
-  register_event_handler(REGISTER_FUNCTION, win::right_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  register_event_handler(REGISTER_FUNCTION, win::right_btn_dblclk_event([&] (os::key_state, const core::point&) {
     window1.move({50, 50});
   }));
 
@@ -603,7 +602,7 @@ my_main_window::my_main_window ()
                          const core::rectangle& place,
                          const draw::brush& background,
                          bool selected,
-                         bool hilited) {
+                         bool /*hilited*/) {
     using namespace draw;
 
     std::ostringstream strm;
@@ -919,7 +918,7 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [] (const int& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush&b, bool s, bool h, text_origin align) {
+        const draw::brush&, bool, bool, text_origin) {
       win::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
@@ -929,7 +928,7 @@ void my_main_window::created_children () {
     win::cell_drawer<int, draw::frame::sunken_relief>,
 
     [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush& b, bool s, bool h, text_origin align) {
+        const draw::brush& b, bool s, bool, text_origin align) {
       std::string text = v ? u8"♣" : u8"♥";
       win::paint::text_item(g, r, b, text, s, align);
       draw::frame::sunken_relief(g, r);

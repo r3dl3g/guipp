@@ -36,6 +36,9 @@ set(tests
 )
 
 foreach(test ${tests})
+    if (MSVC)
+        add_compile_options(/Y-)
+    endif()
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} ${gui_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})

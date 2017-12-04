@@ -58,7 +58,11 @@ if(NOT TARGET gui++)
     include_directories(${gui_include} ${PROJECT_BINARY_DIR})
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-        add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
+		if (MSVC)
+			add_compile_options(/Y-)
+		endif()
+        
+		add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
                                  $<TARGET_OBJECTS:gui++-win-obj>
                                  $<TARGET_OBJECTS:gui++-draw-obj>
                                  $<TARGET_OBJECTS:gui++-io-obj>

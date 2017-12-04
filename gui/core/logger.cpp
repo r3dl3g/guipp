@@ -47,12 +47,6 @@ using namespace boost;
 
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)
 
-//#ifndef GUIPP_BUILT_AS_STATIC
-//#define NO_EXPORT
-//
-//DEFINE_LOGGING_CORE(NO_EXPORT)
-//#endif // GUIPP_EXPORT
-
 namespace gui {
 
   namespace log {
@@ -60,8 +54,6 @@ namespace gui {
 #if (defined WIN32 || defined _WIN32 || defined WINCE || defined __CYGWIN__) && !defined(thread_local)
 #define thread_local __declspec(thread)
 #endif
-
-    //extern core& get_logging_core ();
 
     static thread_local const char* t_thread_name = "main";
 

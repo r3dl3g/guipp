@@ -70,12 +70,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline text_box::text_box (const std::string& str,
                                const core::rectangle& rect,
-                               text_origin origin,
-                               bool clear_background)
+                               text_origin origin)
       : str(str)
       , rect(rect)
       , origin(origin)
-      , clear_background(clear_background)
     {}
 
     // --------------------------------------------------------------------------
@@ -90,12 +88,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline text::text (const std::string& str,
                        const core::point& pos,
-                       text_origin origin,
-                       bool clear_background)
+                       text_origin origin)
       : str(str)
       , pos(pos)
       , origin(origin)
-      , clear_background(clear_background)
     {}
 
     // --------------------------------------------------------------------------

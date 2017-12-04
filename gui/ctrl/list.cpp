@@ -68,6 +68,7 @@ namespace gui {
         bool grab_focus = state.is_grab_focus();
 #ifdef X11
         static int initialized = detail::init_control_messages();
+        (void)initialized;
 #endif // X11
 
         set_accept_focus(true);

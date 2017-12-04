@@ -154,6 +154,7 @@ namespace gui {
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
+        (void)st;
         return {
           static_cast<uint32_t>(w),
           static_cast<uint32_t>(h),
@@ -187,6 +188,7 @@ namespace gui {
       };
 
       Status st = XInitImage(&im);
+      (void)st;
       int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
       res = XFreeGC(display, gc);
     }

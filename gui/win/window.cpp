@@ -579,6 +579,7 @@ namespace gui {
 
     void window::init () {
       static int initialized = x11::init_messages();
+      (void)initialized;
       prepare_for_event(KeyPressMask);
     }
 

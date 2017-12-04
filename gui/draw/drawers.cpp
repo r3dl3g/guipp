@@ -238,7 +238,7 @@ namespace gui {
                                os::color c) const {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
-      int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
+      int old_mode = SetBkMode(g, TRANSPARENT);
       RECT Rect = rect;
 
       std::wstring wstr = string::utf8_to_utf16(str);
@@ -277,7 +277,7 @@ namespace gui {
                            os::color c) const {
       Use<font> fn(g, f);
       os::color old_color = SetTextColor(g, c);
-      int old_mode = SetBkMode(g, clear_background ? OPAQUE : TRANSPARENT);
+      int old_mode = SetBkMode(g, TRANSPARENT);
       int px = pos.os_x();
       int py = pos.os_y();
       unsigned int old_align = static_cast<unsigned int>(text_origin::top_left);

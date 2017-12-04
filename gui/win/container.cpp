@@ -92,8 +92,6 @@ namespace gui {
       Atom NET_WM_STATE_HIDDEN = 0;
 
       int init_for_net_wm_state () {
-        auto dpy = core::global::get_instance();
-
         init_atom(NET_WM_STATE, "_NET_WM_STATE");
         init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
         init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
@@ -165,6 +163,7 @@ namespace gui {
     void container::init () {
 #ifdef X11
       static int initialized = x11::init_for_net_wm_state();
+      (void)initialized;
 #endif // X11
 
       set_accept_focus(true);

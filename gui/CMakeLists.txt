@@ -18,7 +18,7 @@ if(NOT TARGET gui++)
     )
 
     if(UNIX)
-        set (APPEND gui_include /usr/include/freetype2)
+        set (gui_include ${gui_include} /usr/include/freetype2)
         set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
     endif(UNIX)
 
@@ -30,7 +30,7 @@ if(NOT TARGET gui++)
         set (gui_libraries gui++ gui++-app)
     endif()
 
-    set (APPEND gui_libraries ${gui_sys_libraries})
+    set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
 
     set (gui_include ${gui_include} PARENT_SCOPE)
     set (gui_libraries ${gui_libraries} PARENT_SCOPE)

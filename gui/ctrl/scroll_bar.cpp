@@ -68,6 +68,7 @@ namespace gui {
     void scroll_bar::init () {
 #ifdef X11
       static int initialized = detail::init_control_messages();
+      (void)initialized;
 #endif // X11
       register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
         redraw();

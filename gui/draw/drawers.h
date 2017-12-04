@@ -128,8 +128,7 @@ namespace gui {
     struct GUIPP_EXPORT text_box {
       text_box (const std::string& str,
                 const core::rectangle& rect,
-                text_origin origin = text_origin::top_left,
-                bool clear_background = false);
+                text_origin origin = text_origin::top_left);
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
@@ -137,7 +136,6 @@ namespace gui {
       const std::string str;
       const core::rectangle rect;
       const text_origin origin;
-      bool clear_background;
     };
 
     // --------------------------------------------------------------------------
@@ -161,8 +159,7 @@ namespace gui {
     struct GUIPP_EXPORT text {
       text (const std::string& str,
             const core::point& pos,
-            text_origin origin = text_origin::top_left,
-            bool clear_background = false);
+            text_origin origin = text_origin::top_left);
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
@@ -170,7 +167,6 @@ namespace gui {
       const std::string str;
       const core::point pos;
       const text_origin origin;
-      bool clear_background;
     };
 
     // --------------------------------------------------------------------------

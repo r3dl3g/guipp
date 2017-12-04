@@ -150,7 +150,7 @@ namespace gui {
         set_hilited(false);
       }));
       register_event_handler(REGISTER_FUNCTION, any_key_down_event(
-        [&] (os::key_state m, os::key_symbol k, const std::string &) {
+        [&] (os::key_state, os::key_symbol k, const std::string &) {
         if ((k == keys::enter) || (k == keys::space)) {
           set_pushed(true);
         }
@@ -197,7 +197,7 @@ namespace gui {
         }
       }));
       btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
-        [&] (os::key_state m, os::key_symbol k) {
+        [&] (os::key_state, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
@@ -219,7 +219,7 @@ namespace gui {
         }
       }));
       btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
-        [&] (os::key_state m, os::key_symbol k) {
+        [&] (os::key_state, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           btn.set_checked(!btn.is_checked());
@@ -242,7 +242,7 @@ namespace gui {
         }
       }));
       btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
-        [&] (os::key_state m, os::key_symbol k) {
+        [&] (os::key_state, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {
@@ -299,7 +299,7 @@ namespace gui {
         }
       }));
       btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
-        [&] (os::key_state m, os::key_symbol k) {
+        [&] (os::key_state, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           prepare_animation();
@@ -326,7 +326,7 @@ namespace gui {
         }
       }));
       btn.register_event_handler(REGISTER_FUNCTION, any_key_up_event(
-        [&] (os::key_state m, os::key_symbol k) {
+        [&] (os::key_state, os::key_symbol k) {
         if (((k == keys::enter) || (k == keys::space)) && btn.is_pushed()) {
           btn.set_pushed(false);
           if (!btn.is_checked()) {

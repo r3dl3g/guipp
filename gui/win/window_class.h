@@ -69,11 +69,11 @@ namespace gui {
                   os::style class_style);
 
       const std::string& get_class_name () const;
-      const os::color get_background () const;
-      const os::cursor get_cursor () const;
-      const os::style get_class_style () const;
-      const os::style get_style () const;
-      const os::style get_ex_style () const;
+      os::color get_background () const;
+      os::cursor get_cursor () const;
+      os::style get_class_style () const;
+      os::style get_style () const;
+      os::style get_ex_style () const;
 
       bool is_valid () const;
 

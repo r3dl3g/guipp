@@ -134,7 +134,7 @@ namespace gui {
       static constexpr const char*const pgm = "pgm";
       static constexpr const char*const pbm = "pbm";
 
-      static constexpr const char*const get_suffix (PNM i) {
+      static constexpr const char* get_suffix (PNM i) {
         return ((static_cast<int>(i) - 1) % 3 == 0 ? pbm : ((static_cast<int>(i) - 1) % 3 == 1 ? pgm : ppm));
       }
 

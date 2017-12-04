@@ -38,6 +38,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
                       _In_ int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
+  UNREFERENCED_PARAMETER(nCmdShow);
 
   gui::core::odebugstream dbgStrm;
   gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());

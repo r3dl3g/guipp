@@ -76,27 +76,27 @@ namespace gui {
       return class_name;
     }
 
-    const os::color class_info::get_background () const {
+    os::color class_info::get_background () const {
       return background;
     }
 
-    const os::cursor class_info::get_cursor () const {
+    os::cursor class_info::get_cursor () const {
       return cursor;
     }
 
-    const os::style class_info::get_class_style () const {
+    os::style class_info::get_class_style () const {
       return class_style;
     }
 
-    const os::style class_info::get_style () const {
+    os::style class_info::get_style () const {
       return style;
     }
 
-    const os::style class_info::get_ex_style () const {
+    os::style class_info::get_ex_style () const {
       return ex_style;
     }
 
-    bool class_info::is_valid () const {
+    class_info::is_valid () const {
       return !class_name.empty();
     }
 

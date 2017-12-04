@@ -229,7 +229,7 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
-      RECT r = {0};
+      RECT r = {0, 0, 0, 0};
       os::window id = WindowFromDC(gc);
       if (id) {
         GetWindowRect(id, &r);

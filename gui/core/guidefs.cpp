@@ -84,7 +84,7 @@ namespace gui {
 
         bool is_initialized () const {
 #ifdef WIN32
-          return (instance > 0);
+          return (instance != nullptr);
 #endif // WIN32
 #ifdef X11
           return (instance != nullptr);

@@ -143,9 +143,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      inline core::rectangle origin_layout<orientation::horizontal, origin::start>::init_area (
-        type border, const core::size& is, const core::size& sz,
-        int, std::size_t, int, std::size_t) {
+      inline core::rectangle origin_layout<orientation::horizontal, origin::start>::init_area (type border,
+                                                                                               const core::size& is,
+                                                                                               const core::size&,
+                                                                                               int,
+                                                                                               std::size_t,
+                                                                                               int,
+                                                                                               std::size_t) {
         return core::rectangle(core::point(border, border), is);
       }
 
@@ -161,9 +165,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      inline core::rectangle origin_layout<orientation::vertical, origin::start>::init_area (
-        type border, const core::size& is, const core::size& sz,
-        int, std::size_t, int, std::size_t) {
+      inline core::rectangle origin_layout<orientation::vertical, origin::start>::init_area (type border,
+                                                                                             const core::size& is,
+                                                                                             const core::size&,
+                                                                                             int,
+                                                                                             std::size_t,
+                                                                                             int,
+                                                                                             std::size_t) {
         return core::rectangle(core::point(border, border), is);
       }
 
@@ -179,9 +187,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      inline core::rectangle origin_layout<orientation::horizontal, origin::end>::init_area (
-        type border, const core::size& is, const core::size& sz, int,
-        std::size_t, int, std::size_t) {
+      inline core::rectangle origin_layout<orientation::horizontal, origin::end>::init_area (type border,
+                                                                                             const core::size& is,
+                                                                                             const core::size& sz,
+                                                                                             int,
+                                                                                             std::size_t,
+                                                                                             int,
+                                                                                             std::size_t) {
         return core::rectangle(core::point(sz.width() - is.width() - border, border), is);
       }
 

@@ -23,8 +23,8 @@ include_directories(${PROJECT_BINARY_DIR}
                     ${gui_include}
 )
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+if (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
+    set(APPEND CMAKE_CXX_FLAGS /bigobj)
 endif()
 
 enable_testing()
@@ -36,7 +36,7 @@ set(tests
 )
 
 foreach(test ${tests})
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
         add_compile_options(/Y-)
     endif()
     add_executable(${test} WIN32 ${test}.cpp)

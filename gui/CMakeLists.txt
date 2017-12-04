@@ -18,7 +18,7 @@ if(NOT TARGET gui++)
     )
 
     if(UNIX)
-        set (gui_include ${gui_include} /usr/include/freetype2)
+        set (APPEND gui_include /usr/include/freetype2)
         set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
     endif(UNIX)
 
@@ -30,12 +30,11 @@ if(NOT TARGET gui++)
         set (gui_libraries gui++ gui++-app)
     endif()
 
-    set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
+    set (APPEND gui_libraries ${gui_sys_libraries})
 
     set (gui_include ${gui_include} PARENT_SCOPE)
     set (gui_libraries ${gui_libraries} PARENT_SCOPE)
     set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
-
 
     set (gui_VERSION_MAJOR 0)
     set (gui_VERSION_MINOR 1)
@@ -58,9 +57,6 @@ if(NOT TARGET gui++)
     include_directories(${gui_include} ${PROJECT_BINARY_DIR})
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-        if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-            add_compile_options(/Y-)
-        endif()
 
         add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
                                  $<TARGET_OBJECTS:gui++-win-obj>

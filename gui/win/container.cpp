@@ -485,14 +485,14 @@ namespace gui {
     void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
       LogDebug << *this << " Enter modal loop";
 
-      os::window win = get_id();
-
       redraw();
 
       is_modal = true;
 
-      run_loop(is_modal, [&, win](const core::event & e)->bool {
 #ifdef X11
+      os::window win = get_id();
+
+      run_loop(is_modal, [&, win](const core::event & e)->bool {
         switch (e.type) {
         case MotionNotify:
         case ButtonPress:
@@ -509,7 +509,8 @@ namespace gui {
 #endif // X11
 
 #ifdef WIN32
-        if (e.type == WM_KEYDOWN) {
+        run_loop(is_modal, [&](const core::event & e)->bool {
+          if (e.type == WM_KEYDOWN) {
 #endif // WIN32
 #ifdef X11
         if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {

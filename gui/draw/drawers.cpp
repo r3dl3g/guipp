@@ -259,7 +259,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
-                                   os::color c) const {
+                                   os::color) const {
       Use<font> fn(g, f);
       RECT r = rect;
       std::wstring wstr = string::utf8_to_utf16(str);

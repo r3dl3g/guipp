@@ -132,7 +132,7 @@ namespace gui {
                     const std::string& message)
       : m_time_point(time_point)
       , m_level(lvl)
-      , m_thread_name(t_thread_name)
+      , m_thread_name(thread_name)
       , m_line(line)
       , m_message(message)
     {}

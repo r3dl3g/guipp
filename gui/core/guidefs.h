@@ -65,7 +65,7 @@ namespace gui {
   struct system_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
 
   // --------------------------------------------------------------------------
-  struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {
+  struct GUIPP_EXPORT system_bw_bits : public bw_bits<os::bitmap_bit_order> {
     static constexpr byte mask[8] = {
       system_bit_mask<0>::value,
       system_bit_mask<1>::value,

@@ -105,7 +105,7 @@ namespace gui {
 
       void set_columns (std::initializer_list<simple_column_info> infos, bool update = true);
       void set_column_min_width (std::size_t i, const column_size_type w);
-      const column_size_type get_column_min_width (std::size_t i) const;
+      column_size_type get_column_min_width (std::size_t i) const;
 
     protected:
       std::vector<column_size_type> min_widths;

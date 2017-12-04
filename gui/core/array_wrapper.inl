@@ -30,13 +30,19 @@ namespace gui {
 #ifndef NDEBUG
         : maximum(maximum)
 #endif // NDEBUG
-      {}
+      {
+#ifdef NDEBUG
+        (void)maximum;
+#endif // NDEBUG
+      }
 
       inline void boundary_check::operator () (size_t i) const {
 #ifndef NDEBUG
         if (i >= maximum) {
           throw std::out_of_range("array_wrapper try to access element beyond size");
         }
+#else
+        (void)i;
 #endif // NDEBUG
       }
 

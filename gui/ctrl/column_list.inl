@@ -139,7 +139,7 @@ namespace gui {
       }
     }
 
-    inline const column_size_type simple_column_list_layout::get_column_min_width (std::size_t i) const {
+    inline column_size_type simple_column_list_layout::get_column_min_width (std::size_t i) const {
       return min_widths[i];
     }
 
@@ -551,7 +551,9 @@ namespace gui {
       text_origin align = l.get_column_align(I);
 
       core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
-      std::get<I>(*this)(std::get<I>(data), g, place, background, selected, hilited, align);
+      auto dat = std::get<I>(data);
+      auto drw = std::get<I>(static_cast<std::tuple<cell_drawer_t<A>...>&>(*this));
+      drw(dat, g, place, background, selected, hilited, align);
       draw_cell<I + 1, Args ...>(data, l, g, r, x + width, background, selected, hilited);
     }
 

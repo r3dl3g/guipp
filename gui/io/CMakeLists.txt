@@ -15,9 +15,6 @@ if(NOT TARGET gui++-io-obj)
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
     endif()
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        add_compile_options(/Y-)
-    endif()
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 

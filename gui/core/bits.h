@@ -83,14 +83,14 @@ namespace gui {
   struct bw_bits {};
 
   template<>
-  struct bw_bits<bit_order::lsb> {
+  struct GUIPP_EXPORT bw_bits<bit_order::lsb> {
     static constexpr byte value[2] = {0, 0xff};
     static constexpr bool white = true;
     static constexpr bool black = false;
   };
 
   template<>
-  struct bw_bits<bit_order::msb> {
+  struct GUIPP_EXPORT bw_bits<bit_order::msb> {
     static constexpr byte value[2] = {0xff, 0};
     static constexpr bool white = false;
     static constexpr bool black = true;

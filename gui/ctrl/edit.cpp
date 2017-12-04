@@ -397,22 +397,22 @@ namespace gui {
       }
 
       void edit_base::register_handler (text_origin alignment) {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics & graph) {
+        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
           core::rectangle area = client_area();
           draw::frame::sunken_relief(graph, area);
           area.shrink({3, 2});
           paint::edit_line(graph, area, data.text, draw::font::system(), color::windowTextColor(), color::white, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
         }));
         register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &edit_base::handle_key));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(pt));
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
         }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(pt);
@@ -421,7 +421,7 @@ namespace gui {
           pos_t r = string::find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
         }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point & pt) {
+        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
           if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }

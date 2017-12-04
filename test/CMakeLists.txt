@@ -7,24 +7,20 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(NOT CMAKE_DEBUG_POSTFIX)
-  set(CMAKE_DEBUG_POSTFIX d)
+    set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
 if(UNIX)
-  add_definitions(-DX11 -std=c++11)
+    add_definitions(-DX11 -std=c++11)
 endif(UNIX)
 
 add_subdirectory(./../gui gui)
-
-message(STATUS "gui_Include:" ${gui_Include})
-message(STATUS "gui_libraries:" ${gui_libraries})
-message(STATUS "gui_sys_libraries:" ${gui_sys_libraries})
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
 include_directories(${PROJECT_BINARY_DIR}
-                    ${gui_Include}
+                    ${gui_include}
 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -34,9 +30,9 @@ endif()
 enable_testing()
 
 set(tests
-  WindowTest
-  BorderTest
-  hello_world
+    WindowTest
+    BorderTest
+    hello_world
 )
 
 foreach(test ${tests})

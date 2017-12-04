@@ -6,7 +6,7 @@ project("gui++-core" CXX)
 
 if(NOT TARGET gui++-core-obj)
 
-    include_directories(${gui_Include})
+    include_directories(${gui_include})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
@@ -25,16 +25,14 @@ if(NOT TARGET gui++-core-obj)
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
-		#add_subdirectory(.. gui)
-
         add_library(gui++-core SHARED $<TARGET_OBJECTS:gui++-core-obj>)
 
-        target_link_libraries(gui++-core gui++ ${gui_sys_libraries})
+        target_link_libraries(gui++-core ${gui_sys_libraries})
 
         set_target_properties(gui++-core PROPERTIES
-            POSITION_INDEPENDENT_CODE ON
-            VERSION ${gui_VERSION}
-            SOVERSION ${gui_VERSION_MAJOR})
+                                         POSITION_INDEPENDENT_CODE ON
+                                         VERSION ${gui_VERSION}
+                                         SOVERSION ${gui_VERSION_MAJOR})
     endif()
 
 endif()

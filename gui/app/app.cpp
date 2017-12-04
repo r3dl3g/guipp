@@ -31,13 +31,6 @@
 #include <gui++-export.h>
 
 
-//#ifdef GUIPP_BUILT_AS_STATIC
-//#define NO_EXPORT
-//
-//DEFINE_LOGGING_CORE(NO_EXPORT)
-//#endif // GUIPP_EXPORT
-
-
 #ifdef WIN32
 int APIENTRY WinMain (_In_ HINSTANCE hInstance,
                       _In_opt_ HINSTANCE hPrevInstance,
@@ -61,12 +54,6 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 #ifdef X11
 int main (int argc, char* argv[]) {
 
-#ifndef NDEBUG
-//  gui::log::core::instance().add_sink(&std::cerr,
-//                                     gui::log::level::debug,
-//                                     gui::log::core::get_standard_formatter());
-#endif // NDEBUG
-
   std::vector<std::string> args;
   for (int i = 0; i < argc; ++i) {
     args.push_back(argv[i]);
@@ -84,9 +71,6 @@ int main (int argc, char* argv[]) {
   }
 
 #ifndef NDEBUG
-#ifdef X11
-//  gui::log::core::instance().remove_sink(&std::cerr);
-#endif // X11
 #ifdef WIN32
   gui::log::core::instance().remove_sink(&log_file);
 #endif // WIN32

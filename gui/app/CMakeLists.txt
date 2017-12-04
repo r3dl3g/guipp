@@ -4,11 +4,11 @@ project("gui++-app" CXX)
 
 # see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
 
-add_subdirectory(./../core gui_core)
-
 if(NOT TARGET gui++-app-obj)
 
-    include_directories(${gui_Include})
+    add_subdirectory(./../core gui_core)
+
+    include_directories(${gui_include})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 

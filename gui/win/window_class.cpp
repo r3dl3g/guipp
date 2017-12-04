@@ -96,7 +96,7 @@ namespace gui {
       return ex_style;
     }
 
-    class_info::is_valid () const {
+    bool class_info::is_valid () const {
       return !class_name.empty();
     }
 

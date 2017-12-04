@@ -8,7 +8,7 @@ if "%VisualStudioVersion%" == "15.0" (
 	echo Visual Studio Version 2017
 	set BUILD_DIR=%BUILD_DIR%\vc15
 	set GENERATOR=%GENERATOR% 15 2017 Win64
-	set REM CLANG_TOOLSET=v141_clang_c2
+	REM set CLANG_TOOLSET=v141_clang_c2
 	set CLANG_TOOLSET=LLVM-vs2014
 ) else (
 	if "%VisualStudioVersion%" == "14.0" (

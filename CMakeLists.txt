@@ -23,7 +23,7 @@ if(UNIX)
   add_definitions(-DX11 -std=c++11)
 endif(UNIX)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  add_definitions(-std=c++11 -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare)
+  add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare )
 endif()
 
 add_subdirectory(gui)

@@ -2,7 +2,7 @@
 
 call get_versions.cmd
 
-set BUILD_DIR=%BUILD_DIR%-clang
+set BUILD_DIR=%BUILD_DIR%-%CLANG_TOOLSET%
 
 mkdir %BUILD_DIR%\gui
 pushd %BUILD_DIR%\gui

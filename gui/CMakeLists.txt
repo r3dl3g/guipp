@@ -9,51 +9,51 @@ include (GenerateExportHeader)
 set(GUIPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, default Off")
 set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library for each submodule, default Off")
 
-set (gui_Include
-     ${CMAKE_CURRENT_SOURCE_DIR}/..
-     ${CMAKE_CURRENT_BINARY_DIR}
-     ${PROJECT_BINARY_DIR}
-)
-
-if(UNIX)
-  set (gui_Include ${gui_Include} /usr/include/freetype2)
-  set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
-endif(UNIX)
-
-if (GUIPP_BUILD_STATIC_MODULE_LIBS)
-    set (gui_libraries gui++-ctrl-static gui++-io-static gui++-draw-static gui++-win-static gui++-core-static gui++ gui++-app)
-elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (gui_libraries gui++-ctrl gui++-app)
-else()
-    set (gui_libraries gui++ gui++-app)
-endif()
-
-set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
-
-set (gui_Include ${gui_Include} PARENT_SCOPE)
-set (gui_libraries ${gui_libraries} PARENT_SCOPE)
-set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
-
-
-set (gui_VERSION_MAJOR 0)
-set (gui_VERSION_MINOR 1)
-set (gui_VERSION_PATCH 0)
-set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
-
-add_subdirectory(core gui_core)
-add_subdirectory(win gui_win)
-add_subdirectory(draw gui_draw)
-add_subdirectory(io gui_io)
-add_subdirectory(ctrl gui_ctrl)
-add_subdirectory(app gui_app)
-
 if(NOT TARGET gui++)
+
+	set (gui_Include
+		 ${CMAKE_CURRENT_SOURCE_DIR}/..
+		 ${CMAKE_CURRENT_BINARY_DIR}
+		 ${PROJECT_BINARY_DIR}
+	)
+
+	if(UNIX)
+	  set (gui_Include ${gui_Include} /usr/include/freetype2)
+	  set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
+	endif(UNIX)
+
+	if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+		set (gui_libraries gui++-ctrl-static gui++-io-static gui++-draw-static gui++-win-static gui++-core-static gui++ gui++-app)
+	elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+		set (gui_libraries gui++-ctrl gui++ gui++-app)
+	else()
+		set (gui_libraries gui++ gui++-app)
+	endif()
+
+	set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
+
+	set (gui_Include ${gui_Include} PARENT_SCOPE)
+	set (gui_libraries ${gui_libraries} PARENT_SCOPE)
+	set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
+
+
+	set (gui_VERSION_MAJOR 0)
+	set (gui_VERSION_MINOR 1)
+	set (gui_VERSION_PATCH 0)
+	set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
+
+	add_subdirectory(core gui_core)
+	add_subdirectory(win gui_win)
+	add_subdirectory(draw gui_draw)
+	add_subdirectory(io gui_io)
+	add_subdirectory(ctrl gui_ctrl)
+	add_subdirectory(app gui_app)
 
     # header file to pass version settings to the source code
     configure_file (
         "${PROJECT_SOURCE_DIR}/Version.h.in"
         "${PROJECT_BINARY_DIR}/gui_version.h"
-        )
+    )
 
     include_directories(${gui_Include} ${PROJECT_BINARY_DIR})
 
@@ -83,5 +83,5 @@ GENERATE_EXPORT_HEADER(gui++
                        EXPORT_MACRO_NAME GUIPP_EXPORT
                        EXPORT_FILE_NAME gui++-export.h
                        STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-                       )
+)
 

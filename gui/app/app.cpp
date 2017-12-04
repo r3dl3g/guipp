@@ -16,7 +16,9 @@
  * @file
  */
 
-// --------------------------------------------------------------------------
+#include <fstream>
+
+ // --------------------------------------------------------------------------
 //
 // Library includes
 //
@@ -29,11 +31,11 @@
 #include <gui++-export.h>
 
 
-#ifndef GUIPP_BUILT_AS_STATIC
-#define NO_EXPORT
-
-DEFINE_LOGGING_CORE(NO_EXPORT)
-#endif // GUIPP_EXPORT
+//#ifdef GUIPP_BUILT_AS_STATIC
+//#define NO_EXPORT
+//
+//DEFINE_LOGGING_CORE(NO_EXPORT)
+//#endif // GUIPP_EXPORT
 
 
 #ifdef WIN32
@@ -47,6 +49,10 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   gui::core::odebugstream dbgStrm;
   gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());
 
+#ifndef NDEBUG
+  std::ofstream log_file("gui++.log");
+  gui::log::core::instance().add_sink(&log_file, gui::log::level::trace, gui::log::core::get_standard_formatter());
+#endif // NDEBUG
 
   std::vector<std::string> args = gui::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
@@ -77,11 +83,14 @@ int main (int argc, char* argv[]) {
     ret = 1;
   }
 
-#ifdef X11
 #ifndef NDEBUG
-//  gui::log::core::instance().removeSink(&std::cerr);
-#endif // NDEBUG
+#ifdef X11
+//  gui::log::core::instance().remove_sink(&std::cerr);
 #endif // X11
+#ifdef WIN32
+  gui::log::core::instance().remove_sink(&log_file);
+#endif // WIN32
+#endif // NDEBUG
 
   gui::log::core::instance().finish();
 

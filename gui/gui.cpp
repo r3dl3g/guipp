@@ -20,12 +20,12 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
+//#include <gui/core/logger.h>
 
 
-#ifdef GUIPP_BUILT_AS_STATIC
-#define NO_EXPORT
-
-DEFINE_LOGGING_CORE(NO_EXPORT)
-#endif // GUIPP_EXPORT
+//#ifndef GUIPP_BUILT_AS_STATIC
+//#define NO_EXPORT
+//
+//DEFINE_LOGGING_CORE(NO_EXPORT)
+//#endif // GUIPP_EXPORT
 

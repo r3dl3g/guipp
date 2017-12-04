@@ -29,49 +29,6 @@
 #include <gui/core/logger.h>
 
 
-namespace {
-
-  const char* event_names[] = {
-    "Unknown0",
-    "Unknown1",
-    "KeyPress",
-    "KeyRelease",
-    "ButtonPress",
-    "ButtonRelease",
-    "MotionNotify",
-    "EnterNotify",
-    "LeaveNotify",
-    "FocusIn",
-    "FocusOut",
-    "KeymapNotify",
-    "Expose",
-    "GraphicsExpose",
-    "NoExpose",
-    "VisibilityNotify",
-    "CreateNotify",
-    "DestroyNotify",
-    "UnmapNotify",
-    "MapNotify",
-    "MapRequest",
-    "ReparentNotify",
-    "ConfigureNotify",
-    "ConfigureRequest",
-    "GravityNotify",
-    "ResizeRequest",
-    "CirculateNotify",
-    "CirculateRequest",
-    "PropertyNotify",
-    "SelectionClear",
-    "SelectionRequest",
-    "SelectionNotify",
-    "ColormapNotify",
-    "ClientMessage",
-    "MappingNotify",
-    "GenericEvent",
-  };
-
-}
-
 namespace std {
 
   typedef function<void(ostream&)> streamfkt;
@@ -82,6 +39,49 @@ namespace std {
   }
 
 #ifdef X11
+  namespace {
+
+    const char* event_names[] = {
+      "Unknown0",
+      "Unknown1",
+      "KeyPress",
+      "KeyRelease",
+      "ButtonPress",
+      "ButtonRelease",
+      "MotionNotify",
+      "EnterNotify",
+      "LeaveNotify",
+      "FocusIn",
+      "FocusOut",
+      "KeymapNotify",
+      "Expose",
+      "GraphicsExpose",
+      "NoExpose",
+      "VisibilityNotify",
+      "CreateNotify",
+      "DestroyNotify",
+      "UnmapNotify",
+      "MapNotify",
+      "MapRequest",
+      "ReparentNotify",
+      "ConfigureNotify",
+      "ConfigureRequest",
+      "GravityNotify",
+      "ResizeRequest",
+      "CirculateNotify",
+      "CirculateRequest",
+      "PropertyNotify",
+      "SelectionClear",
+      "SelectionRequest",
+      "SelectionNotify",
+      "ColormapNotify",
+      "ClientMessage",
+      "MappingNotify",
+      "GenericEvent",
+    };
+
+  }
+
   template<typename T>
   inline streamfkt position (const T& t) {
     return [&] (ostream& out) { out << " pos: (" << t.x << ", " << t.y << ")"; };

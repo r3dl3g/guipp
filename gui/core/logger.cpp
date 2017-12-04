@@ -45,6 +45,14 @@ using namespace boost;
 #include <gui/core/time_util.h>
 
 
+DEFINE_LOGGING_CORE(GUIPP_EXPORT)
+
+//#ifndef GUIPP_BUILT_AS_STATIC
+//#define NO_EXPORT
+//
+//DEFINE_LOGGING_CORE(NO_EXPORT)
+//#endif // GUIPP_EXPORT
+
 namespace gui {
 
   namespace log {
@@ -53,7 +61,7 @@ namespace gui {
 #define thread_local __declspec(thread)
 #endif
 
-    extern core& get_logging_core ();
+    //extern core& get_logging_core ();
 
     static thread_local const char* t_thread_name = "main";
 
@@ -363,3 +371,4 @@ namespace gui {
   } // namespace log
 
 } // namespace gui
+

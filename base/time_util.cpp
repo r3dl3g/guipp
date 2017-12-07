@@ -26,14 +26,14 @@
 //
 // Library includes
 //
-#include <gui/core/time_util.h>
-#include <gui/core/ostreamfmt.h>
+#include "time_util.h"
+#include "ostreamfmt.h"
 
 
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace gui {
+namespace basepp {
 
   namespace time {
 
@@ -83,4 +83,4 @@ namespace gui {
 
   } // namespace time
 
-} // namespace gui
+} // namespace basepp

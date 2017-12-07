@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/core/point.h>
+#include "point.h"
 
 
 namespace gui {

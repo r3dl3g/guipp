@@ -32,10 +32,10 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
-#include <gui/core/ostreamfmt.h>
+#include <base/logger.h>
+#include <base/ostreamfmt.h>
 #ifdef WIN32
-# include <gui/core/string_util.h>
+# include <base/string_util.h>
 #endif // WIN32
 
 #include <gui/draw/graphics.h>
@@ -244,7 +244,7 @@ namespace gui {
       std::wstring wstr = string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
-      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
+      if (basepp::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();
@@ -921,8 +921,8 @@ namespace gui {
         return;
       }
 
-      const uint32_t width = roundup<uint32_t>(rect.width());
-      const uint32_t height = roundup<uint32_t>(rect.height());
+      const uint32_t width = basepp::roundup<uint32_t>(rect.width());
+      const uint32_t height = basepp::roundup<uint32_t>(rect.height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_raw(), dest.get_raw(),

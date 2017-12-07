@@ -43,18 +43,18 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    typedef bit_mask<os::key_state, state::left_button> left_button_bit_mask;
-    typedef bit_mask<os::key_state, state::middle_button> middle_button_bit_mask;
-    typedef bit_mask<os::key_state, state::right_button> right_button_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::left_button> left_button_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::middle_button> middle_button_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::right_button> right_button_bit_mask;
 
-    typedef bit_mask<os::key_state, state::control> control_key_bit_mask;
-    typedef bit_mask<os::key_state, state::shift> shift_key_bit_mask;
-    typedef bit_mask<os::key_state, state::alt> alt_key_bit_mask;
-    typedef bit_mask<os::key_state, state::system> system_key_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::control> control_key_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::shift> shift_key_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::alt> alt_key_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::system> system_key_bit_mask;
 
-    typedef bit_mask<os::key_state, state::num_lock> num_lock_bit_mask;
-    typedef bit_mask<os::key_state, state::scroll_lock> scroll_lock_bit_mask;
-    typedef bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::num_lock> num_lock_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::scroll_lock> scroll_lock_bit_mask;
+    typedef basepp::bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
     // --------------------------------------------------------------------------
     struct GUIPP_EXPORT hot_key {

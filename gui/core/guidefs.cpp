@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
+#include <base/logger.h>
 #include <gui/core/guidefs.h>
 
 
@@ -186,11 +186,5 @@ namespace gui {
 
     }
   } // core
-
-  constexpr byte bw_bits<bit_order::lsb>::value[];
-  constexpr byte bw_bits<bit_order::msb>::value[];
-
-  constexpr byte system_bw_bits::mask[];
-  constexpr byte system_bw_bits::shift[];
 
 } // gui

@@ -22,11 +22,11 @@
 //
 // Library includes
 //
+#include <base/dbgstream.h>
+#include <base/logger.h>
+#include <base/string_util.h>
 #include <gui/app/app.h>
-#include <gui/core/logger.h>
-#include <gui/core/dbgstream.h>
 #include <gui/core/guidefs.h>
-#include <gui/core/string_util.h>
 #include <gui_version.h>
 #include <gui++-export.h>
 
@@ -40,8 +40,8 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
   UNREFERENCED_PARAMETER(nCmdShow);
 
-  gui::core::odebugstream dbgStrm;
-  gui::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());
+  basepp::odebugstream dbgStrm;
+  basepp::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());
 
 #ifndef NDEBUG
   std::ofstream log_file("gui++.log");
@@ -77,7 +77,7 @@ int main (int argc, char* argv[]) {
 #endif // WIN32
 #endif // NDEBUG
 
-  gui::log::core::instance().finish();
+  basepp::log::core::instance().finish();
 
   return ret;
 }

@@ -70,7 +70,7 @@ namespace gui {
 
     template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline void grid_lineup<W, H, B, G>::init () {
-      super::init(core::bind_method(this, &grid_lineup::layout), [&] () {
+      super::init(basepp::bind_method(this, &grid_lineup::layout), [&] () {
         layout(get_main_size());
       });
     }
@@ -130,7 +130,7 @@ namespace gui {
 
     template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline void grid_adaption<C, R, B, G>::init () {
-      super::init(core::bind_method(this, &grid_adaption::layout), [&] () {
+      super::init(basepp::bind_method(this, &grid_adaption::layout), [&] () {
         layout(get_main_size());
       });
     }

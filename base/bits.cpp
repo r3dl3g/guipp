@@ -11,23 +11,32 @@
  *
  * Customer   -
  *
- * @brief     C++ API: basic structures
+ * @brief     C++ API: basic window types
  *
  * @file
  */
-
-#pragma once
 
 // --------------------------------------------------------------------------
 //
 // Common includes
 //
+#ifdef X11
+# include <X11/XKBlib.h>
+#endif
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include "rectangle.h"
-#include "range.h"
+#include "bits.h"
 
-// --------------------------------------------------------------------------
+
+namespace basepp {
+
+  constexpr byte bw_bits<bit_order::lsb>::value[];
+  constexpr byte bw_bits<bit_order::msb>::value[];
+
+  constexpr byte system_bw_bits::mask[];
+  constexpr byte system_bw_bits::shift[];
+
+} // gui

@@ -41,13 +41,13 @@ using namespace boost;
 //
 // Library includes
 //
-#include <gui/core/logger.h>
-#include <gui/core/time_util.h>
+#include "logger.h"
+#include "time_util.h"
 
 
-DEFINE_LOGGING_CORE(GUIPP_EXPORT)
+DEFINE_LOGGING_CORE(BASEPP_EXPORT)
 
-namespace gui {
+namespace basepp {
 
   namespace log {
 
@@ -139,7 +139,7 @@ namespace gui {
 
     record::record ()
       : m_time_point(std::chrono::system_clock::time_point())
-      , m_level(gui::log::level::undefined)
+      , m_level(log::level::undefined)
       , m_thread_name(t_thread_name)
     {}
 
@@ -362,5 +362,5 @@ namespace gui {
 
   } // namespace log
 
-} // namespace gui
+} // namespace basepp
 

@@ -10,7 +10,7 @@
 //
 // Library includes
 //
-#include <gui/core/time_util.h>
+#include <base/time_util.h>
 #include <gui/win/window.h>
 #include <gui/win/attach_layout.h>
 #include <gui/win/lineup_layout.h>
@@ -155,7 +155,7 @@ my_main_window::my_main_window ()
     win::quit_main_loop();
   }));
 
-  register_event_handler(REGISTER_FUNCTION, win::close_event(core::bind_method(this, &my_main_window::quit)));
+  register_event_handler(REGISTER_FUNCTION, win::close_event(basepp::bind_method(this, &my_main_window::quit)));
 
   window1.register_event_handler(REGISTER_FUNCTION, paint_event([&](const graphics& graph){
     core::rectangle place = window1.client_area();
@@ -228,8 +228,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.set_visible();
 
   file_sub_menu.data.add_entries({
-    menu_entry("Open", 'O', core::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
-    menu_entry("Sace As", 'S', core::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
+    menu_entry("Open", 'O', basepp::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
+    menu_entry("Sace As", 'S', basepp::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
@@ -269,7 +269,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       select_sub_menu.popup_at(file_sub_menu.sub_menu_position(2), file_sub_menu);
     }, true),
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
-    menu_entry("Exit", 'x', core::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
+    menu_entry("Exit", 'x', basepp::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
   file_sub_menu.data.register_hot_keys(this);
 
@@ -281,17 +281,17 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', core::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', core::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', core::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', core::bind_method(this, &my_main_window::del), hot_key(keys::del)));
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));
   edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
   edit_sub_menu.data.register_hot_keys(this);
 
   tool_bar.create(top_view);
 
-  global::register_hot_key(hot_key(keys::f7), core::bind_method(this, &my_main_window::test_rgb), this);
+  global::register_hot_key(hot_key(keys::f7), basepp::bind_method(this, &my_main_window::test_rgb), this);
 
   int i = 0;
   for (tool_bar_button& b : buttons) {

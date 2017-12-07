@@ -30,26 +30,26 @@
 //
 // Library includes
 //
-#include <gui++-export.h>
+#include <base++-export.h>
 
 
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace gui {
+namespace basepp {
 
   namespace time {
 
-    GUIPP_EXPORT std::string format_time (std::chrono::system_clock::time_point const& tp,
+    BASEPP_EXPORT std::string format_time (std::chrono::system_clock::time_point const& tp,
                                           const char* year_delem = "-",
                                           const char* sparator = " ",
                                           const char* time_delem = ":");
 
-    GUIPP_EXPORT std::tm local_time (std::chrono::system_clock::time_point const& tp);
-    GUIPP_EXPORT std::tm local_time_now ();
+    BASEPP_EXPORT std::tm local_time (std::chrono::system_clock::time_point const& tp);
+    BASEPP_EXPORT std::tm local_time_now ();
 
-    GUIPP_EXPORT std::ostream& operator<< (std::ostream&, std::chrono::system_clock::time_point const&);
+    BASEPP_EXPORT std::ostream& operator<< (std::ostream&, std::chrono::system_clock::time_point const&);
 
   } // namespace time
 
-} // namespace gui
+} // namespace basepp

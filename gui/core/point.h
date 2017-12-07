@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/core/size.h>
+#include "size.h"
 
 
 namespace gui {

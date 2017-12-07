@@ -75,7 +75,7 @@ namespace gui {
 
     template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline void lineup_layout<H, D, B, G, S, R>::init () {
-      super::init(core::bind_method(this, &lineup_layout::layout), [&] () {
+      super::init(basepp::bind_method(this, &lineup_layout::layout), [&] () {
         layout(super::get_main_size());
       });
     }

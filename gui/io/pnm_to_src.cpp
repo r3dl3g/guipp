@@ -28,8 +28,8 @@
 //
 // Library includes
 //
+#include <base/string_util.h>
 #include <gui/io/pnm_to_src.h>
-#include <gui/core/string_util.h>
 
 
 namespace gui {

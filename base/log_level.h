@@ -22,7 +22,7 @@
 /**
 * Provides an API for stream logging to multiple sinks.
 */
-namespace gui {
+namespace basepp {
 
   namespace log {
 
@@ -35,4 +35,4 @@ namespace gui {
 
   } // namespace log
 
-} // namespace gui
+} // namespace basepp

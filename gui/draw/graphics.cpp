@@ -31,10 +31,10 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
-#include <gui/core/ostreamfmt.h>
+#include <base/logger.h>
+#include <base/ostreamfmt.h>
 #ifdef WIN32
-# include <gui/core/string_util.h>
+# include <base/string_util.h>
 #endif // WIN32
 
 #include <gui/draw/graphics.h>

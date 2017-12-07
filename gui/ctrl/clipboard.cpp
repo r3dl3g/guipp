@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <gui/core/string_util.h>
+#include <base/string_util.h>
 #include <gui/ctrl/clipboard.h>
 
 namespace gui {

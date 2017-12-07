@@ -34,11 +34,11 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
+#include <base/logger.h>
 #include <gui/draw/font.h>
 
 #ifdef WIN32
-# include <gui/core/string_util.h>
+# include <base/string_util.h>
 #endif // WIN32
 
 

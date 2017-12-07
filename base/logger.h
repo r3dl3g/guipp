@@ -35,9 +35,9 @@
 //
 // Library includes
 //
-#include <gui++-export.h>
-#include <gui/core/blocking_queue.h>
-#include <gui/core/log_level.h>
+#include <base++-export.h>
+#include "blocking_queue.h"
+#include "log_level.h"
 
 #ifdef WIN32
 #pragma warning (disable: 4251)
@@ -46,23 +46,23 @@
 /**
 * Provides an API for stream logging to multiple sinks.
 */
-namespace gui {
+namespace basepp {
 
   namespace log {
 
     /// convenience stream operator to print log level to ostream.
-    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, level const& lvl);
+    BASEPP_EXPORT std::ostream& operator << (std::ostream& out, level const& lvl);
 
     /// convenience stream operator to print system_clock to ostream.
-    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp);
+    BASEPP_EXPORT std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp);
 
     /// convenience stream operator to print exception infos to ostream.
-    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, const std::exception& ex);
+    BASEPP_EXPORT std::ostream& operator << (std::ostream& out, const std::exception& ex);
 
     /**
     * Id for current logged line.
     */
-    struct GUIPP_EXPORT line_id {
+    struct BASEPP_EXPORT line_id {
       line_id (unsigned int i);
       line_id ();
 
@@ -70,15 +70,15 @@ namespace gui {
     };
 
     /// convenience stream operator to print line id to ostream.
-    GUIPP_EXPORT std::ostream& operator << (std::ostream& out, line_id const& id);
+    BASEPP_EXPORT std::ostream& operator << (std::ostream& out, line_id const& id);
 
     /**
     * Logging record. Holds data for one record.
     */
-    class GUIPP_EXPORT record {
+    class BASEPP_EXPORT record {
     public:
       record (const std::chrono::system_clock::time_point& time_point,
-              log::level lvl,
+              level lvl,
               const std::string& thread_name,
               const line_id& line,
               const std::string& message);
@@ -87,7 +87,7 @@ namespace gui {
 
       const line_id& line () const;
       const std::chrono::system_clock::time_point& time_point () const;
-      const log::level& level () const;
+      const level& level () const;
       const std::string& thread_name () const;
       const std::string& message () const;
 
@@ -108,7 +108,7 @@ namespace gui {
     /**
     * Sink description with target ostream, level to log and log record formatter
     */
-    struct GUIPP_EXPORT sink {
+    struct BASEPP_EXPORT sink {
       sink (std::ostream* stream,
             level lvl,
             const record_formatter& formatter);
@@ -121,7 +121,7 @@ namespace gui {
     /**
     * Logging core. Manage sinks and thread safe logging.
     */
-    class GUIPP_EXPORT core {
+    class BASEPP_EXPORT core {
     public:
       core ();
       ~core ();
@@ -164,7 +164,7 @@ namespace gui {
       typedef std::vector<sink> Sinks;
       Sinks m_sinks;
 
-      typedef gui::core::blocking_queue<record, 0xffff> Messages;
+      typedef basepp::blocking_queue<record, 0xffff> Messages;
       Messages m_messages;
 
       std::thread m_sink_thread;
@@ -174,9 +174,9 @@ namespace gui {
     /**
     * Logging recorder. Capture data for one record.
     */
-    class GUIPP_EXPORT recorder {
+    class BASEPP_EXPORT recorder {
     public:
-      recorder (log::level lvl);
+      recorder (level lvl);
 
       ~recorder ();
 
@@ -191,7 +191,7 @@ namespace gui {
 
     private:
       std::chrono::system_clock::time_point m_time_point;
-      log::level m_level;
+      level m_level;
       std::ostringstream m_buffer;
     };
 
@@ -206,38 +206,38 @@ namespace gui {
 
   } // namespace log
 
-} // namespace gui
+} // namespace basepp
 
-#include <gui/core/logger.inl>
+#include "logger.inl"
 
 /// Log macro trace
 #if defined(ENABLE_TRACE) || !defined(NDEBUG)
-# define LogTrace gui::log::recorder (gui::log::level::trace)
+# define LogTrace basepp::log::recorder (basepp::log::level::trace)
 #else
-# define LogTrace gui::log::null_recoder ()
+# define LogTrace basepp::log::null_recoder ()
 #endif // ENABLE_TRACE
 
 /// Log macro debug
 #if defined(NDEBUG)
-# define LogDebug gui::log::null_recoder ()
+# define LogDebug basepp::log::null_recoder ()
 #else
-# define LogDebug gui::log::recorder (gui::log::level::debug)
+# define LogDebug basepp::log::recorder (basepp::log::level::debug)
 #endif // NDEBUG
 
 /// Log macro info
-#define LogInfo  gui::log::recorder (gui::log::level::info)
+#define LogInfo  basepp::log::recorder (basepp::log::level::info)
 /// Log macro warning
-#define LogWarng gui::log::recorder (gui::log::level::warning)
+#define LogWarng basepp::log::recorder (basepp::log::level::warning)
 /// Log macro error
-#define LogError gui::log::recorder (gui::log::level::error)
+#define LogError basepp::log::recorder (basepp::log::level::error)
 /// Log macro fatal
-#define LogFatal gui::log::recorder (gui::log::level::fatal)
+#define LogFatal basepp::log::recorder (basepp::log::level::fatal)
 
 /**
 * Macro to declare the login core singleton.
 */
 #define DECLARE_LOGGING_CORE(EXP) \
-  namespace gui { namespace log {\
+  namespace basepp { namespace log {\
     EXP core& get_logging_core();\
   }}
 
@@ -255,9 +255,9 @@ namespace gui {
 #if (_MSC_VER >= 1900) || !defined(_MSC_VER)
 
 #define DEFINE_LOGGING_CORE(EXP) \
-  namespace gui { namespace log {\
-    EXP gui::log::core& get_logging_core() {\
-      static gui::log::core s_logging_core; \
+  namespace basepp { namespace log {\
+    EXP basepp::log::core& get_logging_core() {\
+      static basepp::log::core s_logging_core; \
       return s_logging_core; \
     }\
   }}
@@ -269,7 +269,7 @@ namespace gui {
 * No longer needed for modern C++11 compilers, except Visual Studio 2013.
 */
 #define DEFINE_LOGGING_CORE(EXP) \
-  namespace gui { namespace log {\
+  namespace basepp { namespace log {\
     static std::atomic<core*> s_logging_core;\
     static std::mutex s_logging_core_mutex;\
     EXP core& get_logging_core() {\
@@ -287,4 +287,3 @@ namespace gui {
   }}
 
 #endif
-

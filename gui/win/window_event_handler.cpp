@@ -32,7 +32,7 @@
 #include <gui/win/window.h>
 
 #ifdef WIN32
-# include <gui/core/string_util.h>
+# include <base/string_util.h>
 #endif // WIN32
 
 

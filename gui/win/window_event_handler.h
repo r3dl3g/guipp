@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
+#include <base/logger.h>
 #include <gui/core/event_handler.h>
 #include <gui/core/gui_types.h>
 #include <gui/win/window_event_proc.h>
@@ -95,7 +95,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<os::event_id id, os::key_symbol sym, os::key_state state>
     bool key_symbol_matcher (const core::event& e) {
-      return match_key(e, id, sym) && bit_mask<os::key_state, state>::is_set(get_key_state(e));
+      return match_key(e, id, sym) && basepp::bit_mask<os::key_state, state>::is_set(get_key_state(e));
     }
 
     template<os::key_symbol sym, os::key_state state>
@@ -164,7 +164,7 @@ namespace gui {
 
       template<class T>
       os_paint_getter (T* t, void(T::*callback_)(os::graphics &))
-        : super(gui::core::bind_method(t, callback_))
+        : super(gui::basepp::bind_method(t, callback_))
       {}
 
       void operator() (const core::event& e);
@@ -540,7 +540,7 @@ namespace gui {
     inline bool key_symbol_matcher (const core::event& e) {
       return (e.type == E) &&
              (get_key_symbol(e) == symbol) &&
-             bit_mask<os::key_state, state>::is_set(get_key_state(e));
+             basepp::bit_mask<os::key_state, state>::is_set(get_key_state(e));
     }
 
     // --------------------------------------------------------------------------

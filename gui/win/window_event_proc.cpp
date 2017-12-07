@@ -33,13 +33,12 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
-#include <gui/core/robbery.h>
+#include <base/logger.h>
+#include <base/robbery.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_proc.h>
 
-
-namespace gui {
+namespace basepp {
 
   namespace robbery {
 
@@ -57,6 +56,11 @@ namespace gui {
     }
 
   } // namespace robbery
+
+} // namespace basepp
+
+namespace gui {
+
 
   namespace win {
 
@@ -163,7 +167,7 @@ namespace gui {
       XIM s_im = nullptr;
       XIMStyle s_best_style = 0x0F1F;
 
-      typedef core::blocking_queue<std::function<simple_action>> simple_action_queue;
+      typedef basepp::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
 
     } // namespace x11

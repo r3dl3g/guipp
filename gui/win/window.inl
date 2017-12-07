@@ -92,7 +92,7 @@ namespace gui {
                                                 bool (T::*method)(const core::event &,
                                                                   os::event_result & result),
                                                 os::event_id mask) {
-      register_event_handler(name, core::bind_method(t, method), mask);
+      register_event_handler(name, basepp::bind_method(t, method), mask);
     }
 
     // --------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/core/bind_method.h>
+#include <base/bind_method.h>
 
 
 namespace gui {
@@ -49,7 +49,7 @@ namespace gui {
 
     template<orientation H, unsigned B, unsigned G, unsigned S, unsigned I, unsigned A, origin O>
     inline void adaption_layout<H, B, G, S, I, A, O>::init () {
-      super::init(core::bind_method(this, &adaption_layout::layout), [&] () {
+      super::init(basepp::bind_method(this, &adaption_layout::layout), [&] () {
         layout(super::get_main_size());
       });
     }

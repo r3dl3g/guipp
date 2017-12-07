@@ -29,10 +29,10 @@
 //
 // Library includes
 //
-#include <gui/core/string_util.h>
+#include "string_util.h"
 
 
-namespace gui {
+namespace basepp {
 
   namespace string {
 
@@ -135,4 +135,4 @@ namespace gui {
 
   } // utf8
 
-} // namespace gui
+} // namespace basepp

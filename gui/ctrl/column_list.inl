@@ -102,7 +102,7 @@ namespace gui {
       }
 
       inline void base_column_list_layout::init () {
-        super::init(core::bind_method(this, &base_column_list_layout::layout));
+        super::init(basepp::bind_method(this, &base_column_list_layout::layout));
       }
 
       // --------------------------------------------------------------------------
@@ -422,7 +422,7 @@ namespace gui {
     template<typename L>
     void simple_column_list<L>::set_drawer (std::function<cell_draw> drawer) {
       this->drawer = drawer;
-      this->list.set_drawer(core::bind_method(this, &simple_column_list::draw_cells));
+      this->list.set_drawer(basepp::bind_method(this, &simple_column_list::draw_cells));
     }
 
     template<typename L>
@@ -599,7 +599,7 @@ namespace gui {
     template<typename L, typename ... A>
     void column_list_t<L, A ...>::set_drawer (data_drawer drawer) {
       this->drawer = drawer;
-      this->list.set_drawer(core::bind_method(this, &column_list_t::draw_cells_t));
+      this->list.set_drawer(basepp::bind_method(this, &column_list_t::draw_cells_t));
     }
 
     template<typename L, typename ... A>

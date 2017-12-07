@@ -34,7 +34,7 @@
 // Library includes
 //
 #include <gui/core/event.h>
-#include <gui/core/bind_method.h>
+#include <base/bind_method.h>
 
 
 #ifndef REGISTER_FUNCTION

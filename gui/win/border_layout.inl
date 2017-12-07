@@ -333,7 +333,7 @@ namespace gui {
 
     template<border_layout_type type>
     void border_layout<type>::init () {
-      super::init(core::bind_method(this, &border_layout::layout), [&](){
+      super::init(basepp::bind_method(this, &border_layout::layout), [&](){
         layout(get_main_size());
       });
     }

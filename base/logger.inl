@@ -18,7 +18,7 @@
 
 #pragma once
 
-namespace gui {
+namespace basepp {
 
   namespace log {
 
@@ -38,7 +38,7 @@ namespace gui {
       return m_time_point;
     }
 
-    inline const log::level& record::level () const {
+    inline const level& record::level () const {
       return m_level;
     }
 
@@ -74,4 +74,4 @@ namespace gui {
 
   } // namespace log
 
-} // namespace gui
+} // namespace basepp

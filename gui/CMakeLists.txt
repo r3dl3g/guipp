@@ -11,7 +11,10 @@ set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library 
 
 if(NOT TARGET gui++)
 
+    add_subdirectory(../base base)
+
     set (gui_include
+        ${basepp_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
         ${CMAKE_CURRENT_BINARY_DIR}
         ${PROJECT_BINARY_DIR}
@@ -19,7 +22,7 @@ if(NOT TARGET gui++)
 
     if(UNIX)
         set (gui_include ${gui_include} /usr/include/freetype2)
-        set (gui_sys_libraries stdc++fs X11 Xft fontconfig pthread)
+        set (gui_sys_libraries X11 Xft fontconfig)
     endif(UNIX)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
@@ -30,7 +33,7 @@ if(NOT TARGET gui++)
         set (gui_libraries gui++ gui++-app)
     endif()
 
-    set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
+    set (gui_libraries ${gui_libraries} ${basepp_libraries} ${gui_sys_libraries})
 
     set (gui_include ${gui_include} PARENT_SCOPE)
     set (gui_libraries ${gui_libraries} PARENT_SCOPE)
@@ -54,7 +57,7 @@ if(NOT TARGET gui++)
         "${PROJECT_BINARY_DIR}/gui_version.h"
     )
 
-    include_directories(${gui_include} ${PROJECT_BINARY_DIR})
+    include_directories(${gui_include})
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
 

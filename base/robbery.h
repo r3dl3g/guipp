@@ -24,7 +24,7 @@
 //
 #include <functional>
 
-namespace gui {
+namespace basepp {
 
   // technique for accessing private class members
   //
@@ -56,4 +56,4 @@ namespace gui {
 
   } // namespace robbery
 
-} // gui
+} // basepp

@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/core/logger.h>
+#include <base/logger.h>
 #include <gui/win/keys.h>
 
 

@@ -55,7 +55,7 @@ namespace gui {
 
       template<BPP T>
       const const_image_data<T> get_raw () const {
-        return const_image_data<T>(core::array_wrapper<const byte>(data), info);
+        return const_image_data<T>(basepp::array_wrapper<const byte>(data), info);
       }
 
       bitmap_info info;
@@ -93,7 +93,7 @@ namespace gui {
       }
 
       image_data<T> get_raw () {
-        return image_data<T>(core::array_wrapper<byte>(data), info);
+        return image_data<T>(basepp::array_wrapper<byte>(data), info);
       }
 
       void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h);

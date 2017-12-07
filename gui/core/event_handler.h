@@ -27,9 +27,9 @@
 //
 // Library includes
 //
-#include <gui/core/bind_method.h>
+#include <base/bind_method.h>
 #include <gui/core/event.h>
-#include <gui/core/logger.h>
+#include <base/logger.h>
 
 
 namespace gui {
@@ -67,7 +67,7 @@ namespace gui {
 
         template<class C>
         getter (C* t, void(C::*method)(Types...))
-          : f(core::bind_method(t, method))
+          : f(basepp::bind_method(t, method))
         {}
 
         operator bool () const {
@@ -106,7 +106,7 @@ namespace gui {
 
       template<typename T, typename F>
       event_handler (T* t, F f)
-        : caller(core::bind_method(t, f))
+        : caller(basepp::bind_method(t, f))
       {}
 
       event_handler (const event_handler& rhs)

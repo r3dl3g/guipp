@@ -34,32 +34,28 @@
 //
 // Library includes
 //
-#include <gui/core/redirect_stream.h>
+#include "redirect_stream.h"
 
 
 /**
 * Provides an API to stream into OutputDebugString.
 */
-namespace gui {
+namespace basepp {
 
-  namespace core {
+  struct debug_log {
+    debug_log ()
+    {}
 
-    struct debug_log {
-      debug_log ()
-      {}
-
-      void operator ()(const std::string& t) {
+    void operator ()(const std::string& t) {
 #ifdef WIN32
-        ::OutputDebugString(t.c_str());
+      ::OutputDebugString(t.c_str());
 #endif
 #ifdef UNIX
-        std::cerr << t << std::endl;
+      std::cerr << t << std::endl;
 #endif // UNIX
-      }
-    };
+    }
+  };
 
-    typedef oredirect_stream<debug_log> odebugstream;
+  typedef oredirect_stream<debug_log> odebugstream;
 
-  } // namespace core
-
-} // namespace gui
+} // namespace basepp

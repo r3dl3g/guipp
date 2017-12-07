@@ -30,8 +30,8 @@
 //
 // Library includes
 //
+#include <base/bits.h>
 #include <gui++-export.h>
-#include <gui/core/bits.h>
 
 
 #ifdef WIN32
@@ -51,92 +51,20 @@
 
 namespace gui {
 
+  namespace os {
+    using namespace basepp::os;
+  }
+
+  typedef uint8_t byte;
+  typedef byte* byteptr;
+  typedef const byte* cbyteptr;
+
+  typedef uint16_t word;
+  typedef word* wordptr;
+  typedef const word* cwordptr;
+
   // --------------------------------------------------------------------------
   typedef std::vector<byte> blob;
-
-  // --------------------------------------------------------------------------
-  template<byte bit, bit_order O = os::bitmap_bit_order>
-  struct system_bit_mask {};
-
-  template<byte bit>
-  struct system_bit_mask<bit, bit_order::lsb> : lsb_bit_mask<bit> {};
-
-  template<byte bit>
-  struct system_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
-
-  // --------------------------------------------------------------------------
-  struct GUIPP_EXPORT system_bw_bits : public bw_bits<os::bitmap_bit_order> {
-    static constexpr byte mask[8] = {
-      system_bit_mask<0>::value,
-      system_bit_mask<1>::value,
-      system_bit_mask<2>::value,
-      system_bit_mask<3>::value,
-      system_bit_mask<4>::value,
-      system_bit_mask<5>::value,
-      system_bit_mask<6>::value,
-      system_bit_mask<7>::value
-    };
-    static constexpr byte shift[8] = {
-      system_bit_mask<0>::shift,
-      system_bit_mask<1>::shift,
-      system_bit_mask<2>::shift,
-      system_bit_mask<3>::shift,
-      system_bit_mask<4>::shift,
-      system_bit_mask<5>::shift,
-      system_bit_mask<6>::shift,
-      system_bit_mask<7>::shift
-    };
-  };
-
-  // --------------------------------------------------------------------------
-  inline bool get_bit (byte value, byte bit) {
-    const auto mask = system_bw_bits::mask[bit];
-    return (value & mask) == mask;
-  }
-
-  inline void set_bit (byte& value, byte bit, bool b) {
-    const auto mask = system_bw_bits::mask[bit];
-    value = b ? (value | mask) : (value & ~mask);
-  }
-
-  // --------------------------------------------------------------------------
-  template<typename T>
-  struct bit_wrapper {
-    inline bit_wrapper (byte& value, byte bit)
-      : value(value)
-      , bit(bit)
-    {}
-
-    inline operator T () const {
-      return static_cast<T>(get_bit(value, bit));
-    }
-
-    inline T operator= (T b) {
-      set_bit(value, bit, static_cast<bool>(b));
-      return b;
-    }
-
-  private:
-    byte& value;
-    const byte bit;
-  };
-
-  // --------------------------------------------------------------------------
-  template<typename T>
-  struct bit_wrapper<T const> {
-    inline bit_wrapper (byte value, byte bit)
-      : value(value)
-      , bit(bit)
-    {}
-
-    inline operator T () const {
-      return static_cast<T>(get_bit(value, bit));
-    }
-
-  private:
-    const byte value;
-    const byte bit;
-  };
 
   // --------------------------------------------------------------------------
   enum class BPP : byte {

@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include <gui/core/bits.h>
+#include <base/bits.h>
 
 
 #ifndef MK_MENU
@@ -51,9 +51,6 @@
 namespace gui {
 
   namespace os {
-
-    const platform system_platform = platform::win32;
-    const bit_order bitmap_bit_order = bit_order::msb;
 
     typedef HINSTANCE instance;
     typedef HWND window;
@@ -94,9 +91,6 @@ namespace gui {
       typedef LOGBRUSH brush_type;
       typedef LOGPEN pen_type;
     }
-
-#define IF_WIN32_ELSE(A, B) A
-#define IF_X11_ELSE(A, B) B
 
   } // os
 

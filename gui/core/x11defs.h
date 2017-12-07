@@ -31,15 +31,12 @@
 //
 // Library includes
 //
-#include <gui/core/bits.h>
+#include <base/bits.h>
 
 
 namespace gui {
 
   namespace os {
-
-    const platform system_platform = platform::x11;
-    const bit_order bitmap_bit_order = bit_order::lsb;
 
     typedef Display* instance;
     typedef Window window;
@@ -79,9 +76,6 @@ namespace gui {
       typedef int screen;
       typedef Visual* visual;
     }
-
-#define IF_WIN32_ELSE(A, B) B
-#define IF_X11_ELSE(A, B) A
 
   } // os
 

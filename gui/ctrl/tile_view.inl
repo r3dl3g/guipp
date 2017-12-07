@@ -105,7 +105,7 @@ namespace gui {
     inline auto tile_list_traits<V>::get_invisible_size (const core::size& list_size,
                                                          size_t count) const -> dim_type {
       const auto ipl = get_items_per_line(list_size);
-      const auto lines = (ipl > 0 ? div_ceil(count, ipl) : 1);
+      const auto lines = (ipl > 0 ? basepp::div_ceil(count, ipl) : 1);
       return std::max(dim_type(0), ((get_line_size()) * lines + get_line_border() * 2) - super::get(list_size));
     }
 
@@ -237,7 +237,7 @@ namespace gui {
           place = super::traits.get_place_of_index(list_size, idx + 1, scp);
         }
 
-        const int last_line = div_ceil(idx, per_line);
+        const int last_line = basepp::div_ceil(idx, per_line);
 
         place = get_full_place_of_index(idx);
         for (; (super::traits.get(place.top_left()) < list_sz); ++idx) {

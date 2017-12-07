@@ -28,9 +28,9 @@
 //
 // Library includes
 //
+#include <base/bind_method.h>
 #include <gui/core/gui_types.h>
 #include <gui/core/color.h>
-#include <gui/core/bind_method.h>
 #include <gui/draw/pen.h>
 #include <gui/draw/brush.h>
 #include <gui/draw/font.h>

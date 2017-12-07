@@ -27,9 +27,9 @@
 //
 // Library includes
 //
+#include <base/array_wrapper.h>
 #include <gui/core/guidefs.h>
 #include <gui/core/rectangle.h>
-#include <gui/core/array_wrapper.h>
 #include <gui/draw/image_data.h>
 
 

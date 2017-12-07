@@ -115,7 +115,7 @@ namespace gui {
 
     template<orientation O>
     inline void split_view<O>::init () {
-      super::init(core::bind_method(this, &split_view::layout));
+      super::init(basepp::bind_method(this, &split_view::layout));
     }
 
     // --------------------------------------------------------------------------

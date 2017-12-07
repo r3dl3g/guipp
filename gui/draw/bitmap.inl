@@ -161,7 +161,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       get(data, bmi);
-      const auto img = core::array_wrapper<const byte>(data);
+      const auto img = basepp::array_wrapper<const byte>(data);
 
       if (bmi.bits_per_pixel == T) {
         return datamap<T>(const_image_data<T>(img, bmi));

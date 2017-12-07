@@ -27,7 +27,7 @@ namespace gui {
     inline virtual_layout<T>::virtual_layout (win::container* main)
       : super(main)
     {
-      super::init(core::bind_method(this, &virtual_layout::layout));
+      super::init(basepp::bind_method(this, &virtual_layout::layout));
     }
 
     template<typename T>

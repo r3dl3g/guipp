@@ -30,7 +30,7 @@
 //
 // Library includes
 //
-#include <gui/core/guidefs.h>
+#include "guidefs.h"
 
 
 namespace gui {

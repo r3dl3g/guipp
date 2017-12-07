@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/core/ostreamfmt.h>
+#include <base/ostreamfmt.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/draw/graphics.h>
@@ -134,7 +134,7 @@ namespace gui {
 
       template<class T>
       paint_caller (T* t, void(T::*callback_)(const draw::graphics &))
-        : super(gui::core::bind_method(t, callback_))
+        : super(gui::basepp::bind_method(t, callback_))
       {}
 
       void operator() (const core::event& e);

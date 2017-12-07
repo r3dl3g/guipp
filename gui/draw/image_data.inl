@@ -19,45 +19,45 @@
 #pragma once
 
 
+namespace basepp {
+
+  template<>
+  struct array_wrapper<gui::draw::bw_pixel> : public bit_array_wrapper<gui::draw::bw_pixel> {
+    typedef bit_array_wrapper<gui::draw::bw_pixel> super;
+    typedef super::type type;
+
+    inline array_wrapper (type* data, size_t size)
+      : super(data, size)
+    {}
+
+    inline array_wrapper (std::vector<type>& data)
+      : super(data)
+    {}
+  };
+
+  template<>
+  struct array_wrapper<gui::draw::bw_pixel const> : public bit_array_wrapper<gui::draw::bw_pixel const> {
+    typedef bit_array_wrapper<gui::draw::bw_pixel const> super;
+    typedef super::type type;
+
+    inline array_wrapper (const type* data, size_t size)
+      : super(data, size)
+    {}
+
+    inline array_wrapper (const std::vector<type>& data)
+      : super(data)
+    {}
+  };
+
+} // namespace basepp
+
 namespace gui {
-
-  namespace core {
-
-    template<>
-    struct array_wrapper<draw::bw_pixel> : public bit_array_wrapper<draw::bw_pixel> {
-      typedef bit_array_wrapper<draw::bw_pixel> super;
-      typedef super::type type;
-
-      inline array_wrapper (type* data, size_t size)
-        : super(data, size)
-      {}
-
-      inline array_wrapper (std::vector<type>& data)
-        : super(data)
-      {}
-    };
-
-    template<>
-    struct array_wrapper<draw::bw_pixel const> : public bit_array_wrapper<draw::bw_pixel const> {
-      typedef bit_array_wrapper<draw::bw_pixel const> super;
-      typedef super::type type;
-
-      inline array_wrapper (const type* data, size_t size)
-        : super(data, size)
-      {}
-
-      inline array_wrapper (const std::vector<type>& data)
-        : super(data)
-      {}
-    };
-
-  } // namespace core
 
   namespace draw {
 
     // --------------------------------------------------------------------------
     inline gray_pixel gray_pixel::operator= (bw_pixel bw) {
-      value = system_bw_bits::value[static_cast<bool>(bw)];
+      value = basepp::system_bw_bits::value[static_cast<bool>(bw)];
       return *this;
     }
 
@@ -77,7 +77,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline void rgb_pixel::operator= (bw_pixel bw) {
-      red = green = blue = system_bw_bits::value[static_cast<bool>(bw)];
+      red = green = blue = basepp::system_bw_bits::value[static_cast<bool>(bw)];
     }
 
     inline void rgb_pixel::operator= (gray_pixel gray) {

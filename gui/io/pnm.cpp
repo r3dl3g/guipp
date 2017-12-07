@@ -26,7 +26,7 @@
 //
 // Library includes
 //
-#include <gui/core/string_util.h>
+#include <base/string_util.h>
 #include <gui/io/pnm.h>
 
 
@@ -180,23 +180,23 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<bit_order O>
+    template<basepp::bit_order O>
     void write_pnm4_line (std::ostream&, const draw::const_image_data<BPP::BW>::raw_type, int);
 
     template<>
-    inline void write_pnm4_line<bit_order::msb>(std::ostream& out,
+    inline void write_pnm4_line<basepp::bit_order::msb>(std::ostream& out,
                                                 const draw::const_image_data<BPP::BW>::raw_type data,
                                                 int bytes) {
       out.write(reinterpret_cast<const char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void write_pnm4_line<bit_order::lsb>(std::ostream& out,
+    inline void write_pnm4_line<basepp::bit_order::lsb>(std::ostream& out,
                                                 const draw::const_image_data<BPP::BW>::raw_type data,
                                                 int bytes) {
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
-        line[x] = reverse_bit_order(data[x]) ^ 0xff;
+        line[x] = basepp::reverse_bit_order(data[x]) ^ 0xff;
       }
       out.write(reinterpret_cast<char*>(line.data()), bytes);
     }
@@ -213,20 +213,20 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<bit_order O>
+    template<basepp::bit_order O>
     void read_pnm4_line (std::istream& in, draw::image_data<BPP::BW>::raw_type, int bytes);
 
     template<>
-    inline void read_pnm4_line<bit_order::msb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::msb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
       in.read(reinterpret_cast<char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void read_pnm4_line<bit_order::lsb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::lsb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
       std::vector<byte> line(bytes);
       in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {
-        data[x] = reverse_bit_order(line[x]) ^ 0xff;
+        data[x] = basepp::reverse_bit_order(line[x]) ^ 0xff;
       }
     }
 

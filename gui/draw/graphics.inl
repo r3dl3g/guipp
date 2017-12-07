@@ -38,7 +38,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline buffered_paint::buffered_paint (T* t, F f)
-      : p(core::bind_method(t, f))
+      : p(basepp::bind_method(t, f))
     {}
 
     // --------------------------------------------------------------------------

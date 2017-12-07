@@ -65,7 +65,7 @@ namespace gui {
 
       template<typename I>
       void basic_tree<I>::init () {
-        super::set_drawer(core::bind_method(this, &basic_tree::draw_list_item));
+        super::set_drawer(basepp::bind_method(this, &basic_tree::draw_list_item));
         super::register_event_handler(REGISTER_FUNCTION, selection_commit_event([&]() {
           toggle_node(super::get_selection());
         }));

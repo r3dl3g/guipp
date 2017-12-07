@@ -9,8 +9,8 @@
 //
 // Library includes
 //
-#include <gui/core/string_util.h>
-#include <gui/core/logger.h>
+#include <base/string_util.h>
+#include <base/logger.h>
 
 #include <gui/win/dbg_win_message.h>
 #include <gui/win/attach_layout.h>

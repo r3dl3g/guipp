@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <gui/core/array_wrapper.h>
+#include <base/array_wrapper.h>
 #include <gui/draw/bitmap_info.h>
 
 
@@ -38,8 +38,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     enum class bw_pixel : bool {
-      black = system_bw_bits::black,
-      white = system_bw_bits::white
+      black = basepp::system_bw_bits::black,
+      white = basepp::system_bw_bits::white
     };
 
 #pragma pack(push, 1)
@@ -96,14 +96,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<BPP T>
-    using image_row = core::array_wrapper<typename BPP2Pixel<T>::pixel>;
+    using image_row = basepp::array_wrapper<typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
     template<BPP T>
     struct image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = core::array_wrapper<byte>;
-      using row_type = core::array_wrapper<pixel_type>;
+      using raw_type = basepp::array_wrapper<byte>;
+      using row_type = basepp::array_wrapper<pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       image_data (raw_type data, const bitmap_info& info);
@@ -119,14 +119,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<BPP T>
-    using const_image_row = core::array_wrapper<const typename BPP2Pixel<T>::pixel>;
+    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
     template<BPP T>
     struct const_image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = core::array_wrapper<const byte>;
-      using row_type = core::array_wrapper<const pixel_type>;
+      using raw_type = basepp::array_wrapper<const byte>;
+      using row_type = basepp::array_wrapper<const pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       const_image_data (raw_type data, const bitmap_info& info);

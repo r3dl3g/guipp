@@ -50,7 +50,7 @@ namespace sys_fs = std::experimental::filesystem;
 //
 // Library includes
 //
-#include <gui/core/string_util.h>
+#include <base/string_util.h>
 #include <gui/ctrl/tree.h>
 #include <gui/ctrl/column_list.h>
 

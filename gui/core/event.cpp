@@ -26,7 +26,7 @@
 // Library includes
 //
 #include <gui/core/event.h>
-#include <gui/core/logger.h>
+#include <base/logger.h>
 
 
 namespace std {

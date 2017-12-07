@@ -32,7 +32,7 @@
 //
 // Library includes
 //
-#include <gui/core/ostreamfmt.h>
+#include <base/ostreamfmt.h>
 #include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>

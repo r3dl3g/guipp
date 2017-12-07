@@ -170,29 +170,29 @@ namespace gui {
     // --------------------------------------------------------------------------
     scroll_view::scroll_view (win::container* main)
       : super(main)
-      , me(core::bind_method(this, &scroll_view::handle_child_move))
-      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , me(basepp::bind_method(this, &scroll_view::handle_child_move))
+      , se(basepp::bind_method(this, &scroll_view::handle_child_size))
       , in_scroll_event(false)
     {
-      super::init(core::bind_method(this, &scroll_view::layout));
+      super::init(basepp::bind_method(this, &scroll_view::layout));
     }
 
     scroll_view::scroll_view (win::container* main, const scroll_view& rhs)
       : super(main, rhs)
-      , me(core::bind_method(this, &scroll_view::handle_child_move))
-      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , me(basepp::bind_method(this, &scroll_view::handle_child_move))
+      , se(basepp::bind_method(this, &scroll_view::handle_child_size))
       , in_scroll_event(false)
     {
-      super::init(core::bind_method(this, &scroll_view::layout));
+      super::init(basepp::bind_method(this, &scroll_view::layout));
     }
 
     scroll_view::scroll_view (win::container* main, scroll_view&& rhs)
       : super(main, std::move(rhs))
-      , me(core::bind_method(this, &scroll_view::handle_child_move))
-      , se(core::bind_method(this, &scroll_view::handle_child_size))
+      , me(basepp::bind_method(this, &scroll_view::handle_child_move))
+      , se(basepp::bind_method(this, &scroll_view::handle_child_size))
       , in_scroll_event(false)
     {
-      super::init(core::bind_method(this, &scroll_view::layout));
+      super::init(basepp::bind_method(this, &scroll_view::layout));
     }
 
 

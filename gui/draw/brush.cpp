@@ -29,7 +29,7 @@
 #include <gui/draw/brush.h>
 
 #ifdef DEBUG_LOGGING
-# include <gui/core/logger.h>
+# include <base/logger.h>
 #endif // DEBUG_LOGGING
 
 

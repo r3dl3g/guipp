@@ -31,7 +31,7 @@
 //
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
-#include <gui/core/logger.h>
+#include <base/logger.h>
 
 
 #ifdef X11
@@ -389,7 +389,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
-      return bwmap(const_image_data<BPP::BW>(core::array_wrapper<const byte>(data), bmi));
+      return bwmap(const_image_data<BPP::BW>(basepp::array_wrapper<const byte>(data), bmi));
     }
 
     bitmap::operator bwmap () const {

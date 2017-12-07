@@ -467,7 +467,7 @@ namespace gui {
 
     void main_menu::init () {
       set_accept_focus(true);
-      data.set_mouse_function(core::bind_method(this, &main_menu::handle_mouse));
+      data.set_mouse_function(basepp::bind_method(this, &main_menu::handle_mouse));
 
       register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &main_menu::paint)));
 
@@ -783,7 +783,7 @@ namespace gui {
         close();
         parent_data.clear_close_function();
       });
-      parent_data.set_key_function(core::bind_method(this, &popup_menu::handle_key));
+      parent_data.set_key_function(basepp::bind_method(this, &popup_menu::handle_key));
 
       data.set_mouse_function([&] (bool btn, const core::point & gpt) {
         if (absolute_place().is_inside(gpt)) {

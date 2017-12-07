@@ -87,7 +87,7 @@ namespace basepp {
 
       const line_id& line () const;
       const std::chrono::system_clock::time_point& time_point () const;
-      const level& level () const;
+      const log::level& level () const;
       const std::string& thread_name () const;
       const std::string& message () const;
 

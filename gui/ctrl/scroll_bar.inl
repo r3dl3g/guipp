@@ -24,7 +24,7 @@ namespace gui {
   namespace win {
 
     inline auto scroll_bar::get_range() const -> type {
-      return get_max() + get_min();
+      return get_max() - get_min();
     }
 
     // --------------------------------------------------------------------------

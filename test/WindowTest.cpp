@@ -18,7 +18,7 @@
 #include <gui/win/lineup_layout.h>
 #include <gui/win/grid_layout.h>
 
-#include <gui/ctrl/label.h>
+#include <gui/ctrl/progress_bar.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/list.h>
 #include <gui/ctrl/virtual_view.h>
@@ -230,6 +230,7 @@ private:
 
   win::vertical_scroll_bar vscroll;
   win::horizontal_scroll_bar hscroll;
+  win::progress_bar progress;
 
   win::check_box<> scroll_check_box;
 
@@ -727,6 +728,7 @@ my_main_window::my_main_window ()
     main_split_view.set_split_pos((double)pos / 100.0);
     editor.hscroll.set_value(pos);
     textbox.hscroll.set_value(pos);
+    progress.set_value(pos);
   }));
   main_split_view.slider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&){
     hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
@@ -1009,6 +1011,7 @@ void my_main_window::created_children () {
   vtileview.set_count(30);
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
+  progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
 
   vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()), 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());

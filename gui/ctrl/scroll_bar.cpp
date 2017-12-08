@@ -151,12 +151,8 @@ namespace gui {
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {
-      if ((data.min != mi) || (data.max != ma) || (data.step != s)) {
-        data.min = mi;
-        data.max = ma;
-        data.step = s;
-        redraw();
-      }
+      set_step(s);
+      set_min_max(mi, ma);
     }
 
     void scroll_bar::set_min_max_step_page (type mi, type ma, type s, type p) {

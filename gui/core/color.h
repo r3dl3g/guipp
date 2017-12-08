@@ -271,14 +271,14 @@ namespace gui {
 
     constexpr os::color light_red = rgb<255, 128, 128>::value;
     constexpr os::color light_green = rgb<128, 255, 128>::value;
-    constexpr os::color light_blue = rgb<128, 128, 255>::value;
+    constexpr os::color light_blue = rgb<64, 128, 255>::value;
     constexpr os::color light_cyan = rgb<128, 255, 255>::value;
     constexpr os::color light_magenta = rgb<255, 128, 255>::value;
     constexpr os::color light_yellow = rgb<255, 255, 128>::value;
 
     constexpr os::color very_light_red = rgb<255, 192, 192>::value;
     constexpr os::color very_light_green = rgb<192, 255, 192>::value;
-    constexpr os::color very_light_blue = rgb<192, 192, 255>::value;
+    constexpr os::color very_light_blue = rgb<128, 192, 255>::value;
     constexpr os::color very_light_cyan = rgb<192, 255, 255>::value;
     constexpr os::color very_light_magenta = rgb<255, 192, 255>::value;
     constexpr os::color very_light_yellow = rgb<255, 255, 192>::value;

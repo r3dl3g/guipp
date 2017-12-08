@@ -42,11 +42,13 @@ namespace basepp {
 
   namespace robbery {
 
-#ifdef X11
+#ifdef _LIBCPP_THREAD
+    using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
+    template struct robber<thread_id, &std::thread::id::__id_>;
+#elif X11
     using thread_id = jugger<std::thread::native_handle_type, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_M_thread>;
-#endif // X11
-#ifdef WIN32
+#elif WIN32
     using thread_id = jugger<_Thrd_id_t, std::thread::id>;
     template struct robber<thread_id, &std::thread::id::_Id>;
 #endif // WIN32

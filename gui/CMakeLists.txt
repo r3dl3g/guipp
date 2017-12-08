@@ -33,6 +33,8 @@ if(NOT TARGET gui++)
         set (gui_libraries gui++ gui++-app)
     endif()
 
+    message(STATUS "basepp_libraries: ${basepp_libraries}")
+
     set (gui_libraries ${gui_libraries} ${basepp_libraries} ${gui_sys_libraries})
 
     set (gui_include ${gui_include} PARENT_SCOPE)

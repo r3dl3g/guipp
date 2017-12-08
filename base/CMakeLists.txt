@@ -17,9 +17,11 @@ if(NOT TARGET base++-obj)
         ${PROJECT_BINARY_DIR}
     )
 
-    if(UNIX)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set (basepp_sys_libraries stdc++fs pthread)
-    endif(UNIX)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set (basepp_sys_libraries stdc++fs pthread)
+    endif()
 
     if (BASEPP_BUILD_STATIC_MODULE_LIBS)
         set (basepp_libraries base++-static)

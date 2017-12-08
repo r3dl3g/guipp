@@ -687,12 +687,17 @@ namespace gui {
 
     void window::set_visible (bool s) {
       if (get_id()) {
-        if (s) {
-          LogDebug << "Show window:" << *this;
-          x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
-        } else {
-          LogDebug << "Hide window:" << *this;
-          x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
+        auto state = get_state();
+        bool current = state.is_visible();
+        if (current != s) {
+          if (s) {
+            LogDebug << "Show window:" << *this;
+            x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
+          } else {
+            LogDebug << "Hide window:" << *this;
+            x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
+          }
+          state.set_visible(s);
         }
       }
     }
@@ -769,7 +774,8 @@ namespace gui {
       unsigned int depth = 0;
       Window wid = get_id();
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
-                                                &root, &x, &y, &width, &height, &border_width, &depth))) {
+                                                &root, &x, &y, &width, &height,
+                                                &border_width, &depth))) {
         return {core::size::type(width), core::size::type(height)};
       }
       return core::size::zero;
@@ -781,8 +787,10 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (x11::check_return(XGetGeometry(core::global::get_instance(), get_id(),
-                                         &root, &x, &y, &width, &height, &border_width, &depth))) {
+      Window wid = get_id();
+      if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
+                                                &root, &x, &y, &width, &height,
+                                                &border_width, &depth))) {
         return {core::point::type(x), core::point::type(y)};
       }
       return core::point::undefined;
@@ -794,8 +802,10 @@ namespace gui {
       unsigned int width = 0, height = 0;
       unsigned int border_width = 0;
       unsigned int depth = 0;
-      if (x11::check_return(XGetGeometry(core::global::get_instance(), get_id(),
-                                         &root, &x, &y, &width, &height, &border_width, &depth))) {
+      Window wid = get_id();
+      if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
+                                                &root, &x, &y, &width, &height,
+                                                &border_width, &depth))) {
         return core::rectangle(core::point::type(x), core::point::type(y),
                                core::size::type(width), core::size::type(height));
       }
@@ -965,12 +975,12 @@ namespace gui {
       unsigned long mask = 0;
       XSetWindowAttributes wa;
 
-      if (type.get_background() == color::transparent) {
-        mask |= CWBackPixmap;
-        wa.background_pixmap = None;
-      } else {
+      if (type.get_background() != color::transparent) {
         mask |= CWBackPixel;
         wa.background_pixel = type.get_background();
+      } else {
+        mask |= CWBackPixmap;
+        wa.background_pixmap = None;
       }
       if (type.get_cursor()) {
         mask |= CWCursor;
@@ -983,7 +993,7 @@ namespace gui {
       mask |= CWBitGravity;
       wa.bit_gravity = ForgetGravity;
       mask |= CWBackingStore;
-      wa.backing_store = WhenMapped;
+      wa.backing_store = NotUseful;
 
       mask |= CWColormap;
       wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);

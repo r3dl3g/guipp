@@ -33,7 +33,8 @@ namespace gui {
     }
 
     bool window_state::is_visible () const {
-      return win.is_visible();
+//      return win.is_visible();
+      return get_flag(flags::is_visible);
     }
 
     bool window_state::has_focus () const {
@@ -55,6 +56,10 @@ namespace gui {
 #ifdef X11
       return !get_flag(flags::window_disabled);
 #endif // X11
+    }
+
+    bool window_state::set_visible (bool a) {
+      return set_flag(flags::is_visible, a);
     }
 
     window& window_state::get_win () const {

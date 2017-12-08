@@ -23,23 +23,36 @@ namespace gui {
 
   namespace win {
 
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit () {
-      register_handler(A);
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_edit<A, D, F, B>::basic_edit () {
+      init();
     }
 
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit (const basic_edit& rhs)
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_edit<A, D, F, B>::basic_edit (const basic_edit& rhs)
       : super(rhs)
     {
-      register_handler(A);
+      init();
     }
 
-    template<text_origin A>
-    inline basic_edit<A>::basic_edit (basic_edit&& rhs)
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_edit<A, D, F, B>::basic_edit (basic_edit&& rhs)
       : super(std::move(rhs))
     {
-      register_handler(A);
+      init();
+    }
+
+    template<text_origin alignment, draw::frame::drawer frame, os::color foreground, os::color background>
+    inline void basic_edit<alignment, frame, foreground, background>::paint (const draw::graphics& graph) {
+      auto area = frame(graph, client_area());
+      area.shrink(core::size::one);
+      paint::edit_line(graph, area, data.text, draw::font::system(), foreground, background, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_edit<A, D, F, B>::init () {
+      super::register_handler();
+      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_edit::paint));
     }
 
   } // win

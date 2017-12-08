@@ -132,6 +132,18 @@ namespace basepp {
 
   };
 
+  template<typename T, std:: size_t S>
+  inline blocking_queue<T, S>& operator<< (blocking_queue<T, S>& queue, const T& t) {
+    queue.enqueue(t);
+    return queue;
+  }
+
+  template<typename T, std:: size_t S>
+  inline blocking_queue<T, S>& operator>> (blocking_queue<T, S>& queue, T& t) {
+    t = queue.dequeue();
+    return queue;
+  }
+
 } // namespace basepp
 
 // --------------------------------------------------------------------------

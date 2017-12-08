@@ -68,6 +68,7 @@ namespace gui {
       type min;
       type max;
       type step;
+      type page;
       type value;
 
       type last_value;
@@ -85,17 +86,20 @@ namespace gui {
       type get_min () const;
       type get_max () const;
       type get_step () const;
+      type get_page () const;
       type get_value () const;
       type get_range () const;
 
-      void set_min(type);
-      void set_max(type);
-      void set_min_max(type, type);
-      void set_step(type);
+      void set_min (type);
+      void set_max (type);
+      void set_min_max (type, type);
+      void set_step (type);
+      void set_page (type);
       void set_value(type, bool notify = true);
 
-      void set_min_max_step(type, type, type);
-      void set_min_max_step_value(type, type, type, type);
+      void set_min_max_step (type, type, type);
+      void set_min_max_step_page (type, type, type, type);
+      void set_min_max_step_value (type, type, type, type);
 
       void handle_wheel (const core::point::type delta, const core::point&);
 
@@ -132,11 +136,6 @@ namespace gui {
       scroll_bar_data data;
 
     };
-
-    // --------------------------------------------------------------------------
-    inline auto scroll_bar::get_range() const->type {
-      return get_max() + get_step() - get_min();
-    }
 
     // --------------------------------------------------------------------------
     namespace paint {

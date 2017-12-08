@@ -158,7 +158,7 @@ namespace gui {
     class GUIPP_EXPORT file_save_dialog : public standard_dialog<dir_file_view<>> {
     public:
       typedef standard_dialog<dir_file_view<>> super;
-      typedef group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> top_view_type;
+      typedef group_window<layout::border_layout<>, color::very_very_light_gray, float, float, float, float> top_view_type;
 
       file_save_dialog ();
 
@@ -179,8 +179,12 @@ namespace gui {
                         std::function<file_selected> action);
 
       top_view_type top_view;
-      edit input_line;
-      label_right input_label;
+      basic_edit<text_origin::vcenter_left,
+                 draw::frame::sunken_deep_relief> input_line;
+      basic_label<text_origin::vcenter_right,
+                  draw::frame::no_frame,
+                  color::black,
+                  color::very_very_light_gray> input_label;
 
     };
 

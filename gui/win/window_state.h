@@ -46,6 +46,7 @@ namespace gui {
       bool is_redraw_disabled () const;
 
       bool set_enable (bool on);
+      bool set_visible (bool on);
       bool set_accept_focus (bool a);
       bool disable_redraw (bool on = true);
 
@@ -63,6 +64,7 @@ namespace gui {
           window_disabled,
           in_event_handle,
           needs_redraw,
+          is_visible,
           last_window_state_enum
         };
       };

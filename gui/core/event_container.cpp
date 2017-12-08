@@ -30,7 +30,6 @@
 #include <base/logger.h>
 #include <gui/core/event_container.h>
 
-
 namespace gui {
 
   namespace core {
@@ -64,8 +63,7 @@ namespace gui {
       typedef event_handler_list::size_type size_type;
       for (size_type i = 0; i < event_handlers.size(); ++i) {
         try {
-          const event_handler_function& fn = event_handlers[i];
-          result |= fn(ev, resultValue);
+          result |= event_handlers[i](ev, resultValue);
         } catch (std::exception& e) {
           LogFatal << "exception in event_container::handle_event: " << e;
         } catch (...) {

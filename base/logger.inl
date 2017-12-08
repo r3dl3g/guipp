@@ -68,10 +68,6 @@ namespace basepp {
       return operator<<(value.c_str());
     }
 
-    inline std::ostream& recorder::ostream () {
-      return m_buffer;
-    }
-
   } // namespace log
 
 } // namespace basepp

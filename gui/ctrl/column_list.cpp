@@ -68,7 +68,7 @@ namespace gui {
 
       core::size::type column_list_layout::get_available_width () const {
         if (list) {
-          return list->client_size().width();
+          return list->content_size().width();
         }
         return 0;
       }
@@ -215,7 +215,7 @@ namespace gui {
         full_weight = 1.0F;
       }
 
-      core::size::type available_width = get_available_width();
+      core::size::type available_width = sz.width();
       column_size_type space = available_width - full_width;
 
 

@@ -217,7 +217,7 @@ namespace gui {
       layout_type& get_column_layout ();
       const layout_type& get_column_layout () const;
 
-      void layout ();
+      void layout (const core::size&);
 
     private:
       std::function<cell_draw> cell_drawer;

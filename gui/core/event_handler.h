@@ -29,7 +29,6 @@
 //
 #include <base/bind_method.h>
 #include <gui/core/event.h>
-#include <base/logger.h>
 
 
 namespace gui {

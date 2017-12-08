@@ -55,6 +55,18 @@ namespace gui {
       }
 
       template<typename B, typename L, typename ... A>
+      inline void layout_container_base<B, L, A...>::resize (const core::size& sz, bool repaint) {
+        layouter.layout(sz);
+        super::resize(sz, repaint);
+      }
+
+      template<typename B, typename L, typename ... A>
+      inline void layout_container_base<B, L, A...>::place (const core::rectangle& r, bool repaint) {
+        layouter.layout(r.size());
+        super::place(r, repaint);
+      }
+
+      template<typename B, typename L, typename ... A>
       inline auto layout_container_base<B, L, A...>::get_layout () -> layout_type& {
         return layouter;
       }

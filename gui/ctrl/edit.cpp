@@ -207,10 +207,10 @@ namespace gui {
         }
         data.cursor_pos = new_pos;
 
-        make_selection_visible();
+        make_selection_visible(true);
       }
 
-      void edit_base::make_selection_visible () {
+      void edit_base::make_selection_visible (bool update) {
         // make cursor pos visible
         auto old_pos = data.scroll_pos;
         if (data.cursor_pos < data.scroll_pos) {
@@ -225,7 +225,7 @@ namespace gui {
           sz = draw::font::system().get_text_size(data.text.substr(data.scroll_pos, data.cursor_pos - data.scroll_pos));
         }
 
-        if (old_pos != data.scroll_pos) {
+        if (update || (old_pos != data.scroll_pos)) {
           redraw();
         }
       }
@@ -396,18 +396,12 @@ namespace gui {
         }
       }
 
-      void edit_base::register_handler (text_origin alignment) {
-        register_event_handler(REGISTER_FUNCTION, paint_event([&, alignment] (const gui::draw::graphics& graph) {
-          core::rectangle area = client_area();
-          draw::frame::sunken_relief(graph, area);
-          area.shrink({3, 2});
-          paint::edit_line(graph, area, data.text, draw::font::system(), color::windowTextColor(), color::white, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
-        }));
+      void edit_base::register_handler () {
         register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &edit_base::handle_key));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point& pt) {
+        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt));
+          set_cursor_pos(get_position_at_point(pt), shift_key_bit_mask::is_set(state));
         }));
         register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;

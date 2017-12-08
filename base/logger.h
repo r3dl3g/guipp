@@ -187,8 +187,6 @@ namespace basepp {
       recorder& operator<< (const char* value);
       recorder& operator<< (const std::string& value);
 
-      std::ostream& ostream ();
-
     private:
       std::chrono::system_clock::time_point m_time_point;
       level m_level;
@@ -202,7 +200,6 @@ namespace basepp {
         return *this;
       }
     };
-
 
   } // namespace log
 

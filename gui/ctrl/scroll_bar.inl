@@ -23,6 +23,11 @@ namespace gui {
 
   namespace win {
 
+    inline auto scroll_bar::get_range() const -> type {
+      return get_max() + get_min();
+    }
+
+    // --------------------------------------------------------------------------
     template<orientation H>
     inline basic_scroll_bar<H>::basic_scroll_bar (bool grab_focus) {
       set_accept_focus(grab_focus);
@@ -50,7 +55,7 @@ namespace gui {
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_geometry() const->geometry {
+    inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
       core::size sz = client_size();
       type l = length(sz);
       type t = thickness(sz);
@@ -63,32 +68,32 @@ namespace gui {
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_scale() const->type {
+    inline auto basic_scroll_bar<H>::get_scale() const -> type {
       return get_geometry().scale;
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::get_scale(type spc_size, type tmb_size) const->type {
+    inline auto basic_scroll_bar<H>::get_scale (type spc_size, type tmb_size) const->type {
       return (spc_size - tmb_size) / (get_max() - get_min());
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::button_size(type length, type thickness)->type {
+    inline auto basic_scroll_bar<H>::button_size (type length, type thickness)->type {
       return std::min(thickness, length / type(2));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::space_size(type length, type btn_size)->type {
+    inline auto basic_scroll_bar<H>::space_size (type length, type btn_size)->type {
       return std::max(length - btn_size * 2, type(0));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::thumb_size(type spc_size, type btn_size) const->type {
-      return std::max(get_step() * spc_size / get_range(), std::min(btn_size, spc_size));
+    inline auto basic_scroll_bar<H>::thumb_size (type spc_size, type btn_size) const->type {
+      return std::max(get_page() * spc_size / (get_range() + get_page()), std::min(btn_size, spc_size));
     }
 
     template<orientation H>
-    inline auto basic_scroll_bar<H>::thumb_top(type btn_size, type scale) const->type {
+    inline auto basic_scroll_bar<H>::thumb_top (type btn_size, type scale) const->type {
       return btn_size + (get_value() - get_min()) * scale;
     }
 
@@ -155,22 +160,22 @@ namespace gui {
         switch (get_state()) {
         case scrollbar_state::up_button:
           if (up_button_place(geo).is_inside(pt)) {
-            set_value(get_value() - 1, true);
+            set_value(get_value() - get_step(), true);
           }
           break;
         case scrollbar_state::down_button:
           if (down_button_place(geo).is_inside(pt)) {
-            set_value(get_value() + 1, true);
+            set_value(get_value() + get_step(), true);
           }
           break;
         case scrollbar_state::page_up:
           if (page_up_place(geo).is_inside(pt)) {
-            set_value(get_value() - get_step(), true);
+            set_value(get_value() - get_page(), true);
           }
           break;
         case scrollbar_state::page_down:
           if (page_down_place(geo).is_inside(pt)) {
-            set_value(get_value() + get_step(), true);
+            set_value(get_value() + get_page(), true);
           }
           break;
         case scrollbar_state::thumb_button:

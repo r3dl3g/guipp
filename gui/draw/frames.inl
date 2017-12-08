@@ -25,22 +25,23 @@ namespace gui {
 
     namespace frame {
 
-      inline void no_frame (const draw::graphics&, const core::rectangle&)
-      {}
+      inline core::rectangle no_frame (const draw::graphics&, const core::rectangle& r) {
+        return r;
+      }
 
-      inline void relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
+      inline core::rectangle relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
         if (sunken) {
-          sunken_relief(g, r);
+          return sunken_relief(g, r);
         } else {
-          raised_relief(g, r);
+          return raised_relief(g, r);
         }
       }
 
-      inline void deep_relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
+      inline core::rectangle deep_relief (const draw::graphics& g, const core::rectangle& r, bool sunken) {
         if (sunken) {
-          sunken_deep_relief(g, r);
+          return sunken_deep_relief(g, r);
         } else {
-          raised_deep_relief(g, r);
+          return raised_deep_relief(g, r);
         }
       }
 

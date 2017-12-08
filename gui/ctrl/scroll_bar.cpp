@@ -42,6 +42,7 @@ namespace gui {
       , min(0)
       , max(100)
       , step(1)
+      , page(10)
       , value(0)
       , last_value(0)
     {}
@@ -99,6 +100,10 @@ namespace gui {
       return data.step;
     }
 
+    scroll_bar::type scroll_bar::get_page () const {
+      return data.page;
+    }
+
     scroll_bar::type scroll_bar::get_value () const {
       return data.value;
     }
@@ -137,10 +142,12 @@ namespace gui {
     }
 
     void scroll_bar::set_step (type s) {
-      if (data.step != s) {
-        data.step = s;
-        redraw();
-      }
+      data.step = s;
+      data.page = std::max(s, data.page);
+    }
+
+    void scroll_bar::set_page (type p) {
+      data.page = p;
     }
 
     void scroll_bar::set_min_max_step (type mi, type ma, type s) {
@@ -150,6 +157,11 @@ namespace gui {
         data.step = s;
         redraw();
       }
+    }
+
+    void scroll_bar::set_min_max_step_page (type mi, type ma, type s, type p) {
+      set_page(p);
+      set_min_max_step(mi, ma, s);
     }
 
     void scroll_bar::set_min_max_step_value (type mi, type ma, type s, type v) {
@@ -198,6 +210,7 @@ namespace gui {
 
     void scroll_bar::handle_wheel (const core::point::type delta, const core::point&) {
       if (is_enabled()) {
+        LogTrace << "scroll_bar::handle_wheel(" << delta << ") step: " << get_step();
         set_value(get_value() - delta * get_step(), true);
       }
     }
@@ -321,19 +334,19 @@ namespace gui {
         switch (key) {
         case keys::left:
         case keys::numpad::left:
-          set_value(get_value() - 1, true);
+          set_value(get_value() - get_step(), true);
           break;
         case keys::right:
         case keys::numpad::right:
-          set_value(get_value() + 1, true);
+          set_value(get_value() + get_step(), true);
           break;
         case keys::page_up:
         case keys::numpad::page_up:
-          set_value(get_value() - get_step(), true);
+          set_value(get_value() - get_page(), true);
           break;
         case keys::page_down:
         case keys::numpad::page_down:
-          set_value(get_value() + get_step(), true);
+          set_value(get_value() + get_page(), true);
           break;
         case keys::home:
         case keys::numpad::home:
@@ -400,19 +413,19 @@ namespace gui {
         switch (key) {
         case keys::up:
         case keys::numpad::up:
-          set_value(get_value() - 1, true);
+          set_value(get_value() - get_step(), true);
           break;
         case keys::down:
         case keys::numpad::down:
-          set_value(get_value() + 1, true);
+          set_value(get_value() + get_step(), true);
           break;
         case keys::page_up:
         case keys::numpad::page_up:
-          set_value(get_value() - get_step(), true);
+          set_value(get_value() - get_page(), true);
           break;
         case keys::page_down:
         case keys::numpad::page_down:
-          set_value(get_value() + get_step(), true);
+          set_value(get_value() + get_page(), true);
           break;
         case keys::home:
         case keys::numpad::home:

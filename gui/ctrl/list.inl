@@ -459,11 +459,11 @@ namespace gui {
 
     template<orientation V, typename T>
     inline auto basic_list<V, T>::get_list_size () const -> pos_t {
-      return traits.get(client_size());
+      return traits.get(content_size());
     }
 
     template<orientation V, typename T>
-    core::size basic_list<V, T>::client_size () const {
+    core::size basic_list<V, T>::content_size () const {
       core::size sz = super::client_size();
       if (is_scroll_bar_visible()) {
         traits.set_other(sz, traits.get_other(sz) - scroll_bar::get_scroll_bar_width());
@@ -472,8 +472,8 @@ namespace gui {
     }
 
     template<orientation V, typename T>
-    core::rectangle basic_list<V, T>::client_area () const {
-      return core::rectangle(client_size());
+    core::rectangle basic_list<V, T>::content_area () const {
+      return core::rectangle(content_size());
     }
 
     template<orientation V, typename T>
@@ -529,12 +529,13 @@ namespace gui {
 
       const auto sz = client_size();
       scroll_bar::type invisible = traits.get_invisible_size(sz, count);
-      scrollbar.set_min_max_step(zero, std::max(invisible, zero), traits.get(sz));
+      scrollbar.set_min_max_step_page(zero, std::max(invisible, zero), traits.get_line_size(), traits.get(sz));
 
       if (super::is_valid()) {
         const bool show_scroll = (invisible > zero) && super::is_scroll_bar_enabled();
         if (show_scroll) {
           create_scroll_bar(sz);
+          scrollbar.place(get_scroll_bar_area(sz), IF_WIN32_ELSE(true, false));
         }
         scrollbar.set_visible(show_scroll);
         super::redraw();
@@ -550,7 +551,7 @@ namespace gui {
 
     template<orientation V, typename T>
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
-      auto rect = client_area();
+      auto rect = content_area();
       if (rect.is_inside(pt)) {
         return traits.get_index_at_point(rect.size(), pt, get_scroll_pos(), get_count());
       }
@@ -560,7 +561,7 @@ namespace gui {
     template<orientation V, typename T>
     core::rectangle basic_list<V, T>::get_place_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
-        return traits.get_place_of_index(client_size(), idx, get_scroll_pos());
+        return traits.get_place_of_index(content_size(), idx, get_scroll_pos());
       }
       return core::rectangle::zero;
     }
@@ -590,7 +591,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::make_selection_visible () {
       if (super::data.selection > -1) {
-        const auto list_size = client_size();
+        const auto list_size = content_size();
         const auto list_sz = traits.get(list_size);
         const auto scroll_pos = get_scroll_pos();
         const auto line_size = traits.get_line_size();
@@ -606,7 +607,7 @@ namespace gui {
 
     template<orientation V, typename T>
     void basic_list<V, T>::set_scroll_pos (pos_t pos) {
-      auto value = std::max(zero, std::min(pos, traits.get_invisible_size(client_size(), super::get_count())));
+      auto value = std::max(zero, std::min(pos, traits.get_invisible_size(content_size(), super::get_count())));
       if (value != scrollbar.get_value()) {
         scrollbar.set_value(value);
       }
@@ -620,7 +621,7 @@ namespace gui {
 
     template<orientation V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      const core::rectangle r = client_area();
+      const core::rectangle r = content_area();
       if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
           super::set_cursor(cursor::move());
@@ -637,7 +638,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
-        const int new_selection = traits.get_index_at_point(client_size(), pt, get_scroll_pos(), get_count());
+        const int new_selection = traits.get_index_at_point(content_size(), pt, get_scroll_pos(), get_count());
         if (new_selection != super::get_selection()) {
           if ((new_selection < 0) || control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);
@@ -678,7 +679,7 @@ namespace gui {
 
     template<orientation V>
     void linear_list<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area(super::client_size());
+      const core::rectangle area(super::content_size());
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());

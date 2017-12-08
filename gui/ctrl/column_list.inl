@@ -161,7 +161,7 @@ namespace gui {
     inline void weight_column_list_layout::init_auto_layout () {
       main->register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &weight_column_list_layout::layout));
       main->register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
-        layout(list->client_size());
+        layout(list->content_size());
       }));
     }
 
@@ -281,7 +281,8 @@ namespace gui {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
-            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta);
+            layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, true);
+            redraw();
           }
         }
         last_mouse_point = pt;
@@ -302,9 +303,9 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    inline void column_list_header<Layout, background>::layout () {
-      LogTrace << "column_list_header::layout()";
-      layouter.layout(client_size());
+    inline void column_list_header<Layout, background>::layout (const core::size& sz) {
+      LogTrace << "column_list_header::layout(" << sz << ")";
+      layouter.layout(sz);
     }
 
     // --------------------------------------------------------------------------
@@ -362,8 +363,8 @@ namespace gui {
       void base_column_list<Layout>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::register_event_handler(REGISTER_FUNCTION, win::layout_event([&] (const core::size&) {
-          header.layout();
+        super::register_event_handler(REGISTER_FUNCTION, win::layout_event([&] (const core::size& sz) {
+          header.layout(sz);
         }));
       }
 

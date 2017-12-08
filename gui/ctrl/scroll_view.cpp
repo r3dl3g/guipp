@@ -119,7 +119,7 @@ namespace gui {
 
 //        LogDebug << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
 
-        vscroll->set_min_max_step(ymin, ymax, st);
+        vscroll->set_min_max_step_page(ymin, ymax, 1, st);
       }
 
       if (show_h) {
@@ -130,7 +130,7 @@ namespace gui {
 
 //        LogDebug << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
 
-        hscroll->set_min_max_step(xmin, xmax, st);
+        hscroll->set_min_max_step_page(xmin, xmax, 1, st);
       }
 
       if (vscroll) {

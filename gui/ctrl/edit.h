@@ -83,7 +83,7 @@ namespace gui {
 
         void set_selection(const range &sel, event_source);
         range get_selection () const;
-        void make_selection_visible ();
+        void make_selection_visible (bool update = true);
 
         pos_t get_cursor_pos () const;
         void set_cursor_pos (pos_t pos, bool shift = false);
@@ -93,7 +93,7 @@ namespace gui {
         std::string get_selected_text () const;
 
       protected:
-        void register_handler(text_origin);
+        void register_handler ();
 
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt);
@@ -119,7 +119,10 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<text_origin A>
+    template<text_origin alignment,
+             draw::frame::drawer frame = draw::frame::sunken_relief,
+             os::color foreground = color::black,
+             os::color background = color::white>
     class basic_edit : public detail::edit_base {
     public:
       typedef detail::edit_base super;
@@ -128,6 +131,10 @@ namespace gui {
       basic_edit (const basic_edit& rhs);
       basic_edit (basic_edit&& rhs);
 
+      void paint (const draw::graphics& graph);
+
+    private:
+      void init ();
     };
 
     // --------------------------------------------------------------------------

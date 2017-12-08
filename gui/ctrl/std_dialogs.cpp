@@ -104,8 +104,8 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     file_save_dialog::file_save_dialog ()
-      : super(dir_file_view<>(), 25)
-      , top_view(2, 2, 120, 2)
+      : super(dir_file_view<>(), 38)
+      , top_view(8, 8, 60, 8)
     {}
 
     void file_save_dialog::create (win::container& parent,

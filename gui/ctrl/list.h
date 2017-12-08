@@ -226,8 +226,8 @@ namespace gui {
       void set_selection (int sel, event_source notify);
       void make_selection_visible ();
 
-      core::size client_size () const;
-      core::rectangle client_area () const;
+      core::size content_size () const;
+      core::rectangle content_area () const;
 
       void adjust_scroll_bar ();
       void set_scroll_pos (pos_t pos);

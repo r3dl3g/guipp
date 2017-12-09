@@ -37,7 +37,7 @@ namespace gui {
   namespace win {
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT container : public window {
+    class GUIPP_WIN_EXPORT container : public window {
     public:
       typedef window super;
 
@@ -62,7 +62,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT overlapped_window : public container {
+    class GUIPP_WIN_EXPORT overlapped_window : public container {
     public:
       typedef container super;
 
@@ -96,7 +96,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT modal_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT modal_window : public overlapped_window {
     public:
       typedef overlapped_window super;
 
@@ -115,7 +115,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT main_window : public overlapped_window {
+    class GUIPP_WIN_EXPORT main_window : public overlapped_window {
     public:
       typedef overlapped_window super;
       using clazz = cls::main_window_class<main_window>;
@@ -128,7 +128,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT popup_window : public modal_window {
+    class GUIPP_WIN_EXPORT popup_window : public modal_window {
     public:
       typedef modal_window super;
       using clazz = cls::popup_window_class<popup_window>;
@@ -141,7 +141,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT dialog_window : public modal_window {
+    class GUIPP_WIN_EXPORT dialog_window : public modal_window {
     public:
       typedef modal_window super;
       using clazz = cls::dialog_window_class<dialog_window>;

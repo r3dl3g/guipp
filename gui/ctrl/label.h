@@ -31,7 +31,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      class GUIPP_EXPORT label_base : public gui::win::window {
+      class GUIPP_CTRL_EXPORT label_base : public gui::win::window {
       public:
         typedef window super;
         typedef no_erase_window_class<label_base> clazz;
@@ -77,7 +77,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
 
-      GUIPP_EXPORT void label (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void label (const draw::graphics& graph,
                   const core::rectangle& area,
                   const std::string& text,
                   os::color foreground,

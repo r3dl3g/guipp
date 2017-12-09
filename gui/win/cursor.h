@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui++-win-export.h>
 
 
 namespace gui {
@@ -43,7 +44,7 @@ namespace gui {
       no
     };
 
-    class GUIPP_EXPORT cursor {
+    class GUIPP_WIN_EXPORT cursor {
     public:
       static const cursor& none ();
       static const cursor& arrow ();

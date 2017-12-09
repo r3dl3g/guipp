@@ -41,10 +41,10 @@ namespace gui {
     class window;
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT os::key_state get_key_state (const core::event& e);
-    GUIPP_EXPORT os::key_symbol get_key_symbol (const core::event& e);
-    GUIPP_EXPORT std::string get_key_chars (const core::event& e);
-    GUIPP_EXPORT core::point get_root_mouse_pos (const core::event& e);
+    GUIPP_WIN_EXPORT os::key_state get_key_state (const core::event& e);
+    GUIPP_WIN_EXPORT os::key_symbol get_key_symbol (const core::event& e);
+    GUIPP_WIN_EXPORT std::string get_key_chars (const core::event& e);
+    GUIPP_WIN_EXPORT core::point get_root_mouse_pos (const core::event& e);
 
 #ifdef WIN32
     const os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
@@ -53,16 +53,16 @@ namespace gui {
     template<int I, typename T>
     T get_param (const core::event& e);
     // --------------------------------------------------------------------------
-    template<> GUIPP_EXPORT os::graphics get_param<0>(const core::event& e);
-    template<> GUIPP_EXPORT window* get_param<0>(const core::event& e);
-    template<> GUIPP_EXPORT bool get_param<0>(const core::event& e);
-    template<> GUIPP_EXPORT unsigned int get_param<0>(const core::event& e);
-    template<> GUIPP_EXPORT int get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT os::graphics get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT window* get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT bool get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT unsigned int get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT int get_param<0>(const core::event& e);
     // --------------------------------------------------------------------------
-    template<> GUIPP_EXPORT window* get_param<1>(const core::event& e);
-    template<> GUIPP_EXPORT core::point get_param<1>(const core::event& e);
-    template<> GUIPP_EXPORT core::size get_param<1>(const core::event& e);
-    template<> GUIPP_EXPORT core::rectangle get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT window* get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::point get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::size get_param<1>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT core::rectangle get_param<1>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
@@ -74,23 +74,23 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT window* get_window_from_cs (const core::event& e);
+    GUIPP_WIN_EXPORT window* get_window_from_cs (const core::event& e);
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT unsigned int get_flags_from_wp (const core::event& e);
+    GUIPP_WIN_EXPORT unsigned int get_flags_from_wp (const core::event& e);
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT core::point::type get_wheel_delta (const core::event& e);
+    GUIPP_WIN_EXPORT core::point::type get_wheel_delta (const core::event& e);
     // --------------------------------------------------------------------------
     template<bool down>
     bool any_button_matcher (const core::event& e);
 
     template<>
-    GUIPP_EXPORT bool any_button_matcher<true> (const core::event& e);
+    GUIPP_WIN_EXPORT bool any_button_matcher<true> (const core::event& e);
 
     template<>
-    GUIPP_EXPORT bool any_button_matcher<false> (const core::event& e);
+    GUIPP_WIN_EXPORT bool any_button_matcher<false> (const core::event& e);
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT bool match_key (const core::event& e, os::event_id id, os::key_symbol sym);
+    GUIPP_WIN_EXPORT bool match_key (const core::event& e, os::event_id id, os::key_symbol sym);
 
     // --------------------------------------------------------------------------
     template<os::event_id id, os::key_symbol sym, os::key_state state>
@@ -109,7 +109,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT bool mouse_enter_matcher (const core::event& e);
+    GUIPP_WIN_EXPORT bool mouse_enter_matcher (const core::event& e);
 
     // --------------------------------------------------------------------------
     template<os::event_id id, bool show>
@@ -118,7 +118,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT pos_changing_getter : core::params<core::rectangle>::getter<get_param<1, core::rectangle>> {
+    struct GUIPP_WIN_EXPORT pos_changing_getter : core::params<core::rectangle>::getter<get_param<1, core::rectangle>> {
       typedef core::params<core::rectangle>::getter<get_param<1, core::rectangle>> super;
 
       pos_changing_getter (const function cb)
@@ -133,7 +133,7 @@ namespace gui {
       void operator() (const core::event& e);
     };
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT minmax_getter {
+    struct GUIPP_WIN_EXPORT minmax_getter {
       typedef std::function<void (const core::size&, const core::point&, core::size&, core::size&)> function;
 
       minmax_getter (const function cb)
@@ -155,7 +155,7 @@ namespace gui {
       function callback;
     };
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT os_paint_getter : core::params<os::graphics>::getter<get_param<0, os::graphics>> {
+    struct GUIPP_WIN_EXPORT os_paint_getter : core::params<os::graphics>::getter<get_param<0, os::graphics>> {
       typedef core::params<os::graphics>::getter<get_param<0, os::graphics>> super;
 
       os_paint_getter (const function cb)
@@ -344,11 +344,11 @@ namespace gui {
     using os_paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
-    GUIPP_EXPORT void send_client_message (const window* win, os::event_id message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::size& sz);
 
-    GUIPP_EXPORT void post_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void post_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
 #endif //WIN32
 
@@ -363,18 +363,18 @@ namespace gui {
       extern Atom WM_PROTOCOLS;
       extern Atom WM_TAKE_FOCUS;
 
-      GUIPP_EXPORT int init_messages ();
+      GUIPP_WIN_EXPORT int init_messages ();
 
-      GUIPP_EXPORT void init_atom (Atom& message, const char* name);
+      GUIPP_WIN_EXPORT void init_atom (Atom& message, const char* name);
 
-      GUIPP_EXPORT void send_client_message (const window* win, Atom message,
+      GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message,
                                 long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
 
-      GUIPP_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
+      GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
 
     } // namespace x11
 
-    GUIPP_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);
 
     // --------------------------------------------------------------------------
     template<os::event_id id, os::event_id btn>
@@ -460,17 +460,17 @@ namespace gui {
     T& get_last_place (os::window);
 
     template<>
-    GUIPP_EXPORT core::size& get_last_place<core::size>(os::window);
+    GUIPP_WIN_EXPORT core::size& get_last_place<core::size>(os::window);
 
     template<>
-    GUIPP_EXPORT core::point& get_last_place<core::point>(os::window);
+    GUIPP_WIN_EXPORT core::point& get_last_place<core::point>(os::window);
 
     template<>
-    GUIPP_EXPORT core::rectangle& get_last_place<core::rectangle>(os::window);
+    GUIPP_WIN_EXPORT core::rectangle& get_last_place<core::rectangle>(os::window);
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT void update_last_place (os::window, const core::rectangle&);
-    GUIPP_EXPORT void clear_last_place (os::window);
+    GUIPP_WIN_EXPORT void update_last_place (os::window, const core::rectangle&);
+    GUIPP_WIN_EXPORT void clear_last_place (os::window);
 
     // --------------------------------------------------------------------------
     template<typename T, os::event_id E, typename C>
@@ -508,11 +508,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT core::rectangle get_client_data_rect (const core::event& e);
-    GUIPP_EXPORT core::size get_client_data_size (const core::event& e);
+    GUIPP_WIN_EXPORT core::rectangle get_client_data_rect (const core::event& e);
+    GUIPP_WIN_EXPORT core::size get_client_data_size (const core::event& e);
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT window* get_client_data<0, window*>(const core::event& e);
+    GUIPP_WIN_EXPORT window* get_client_data<0, window*>(const core::event& e);
     // --------------------------------------------------------------------------
     template<typename T>
     inline window* get_window (const core::event& e) {
@@ -520,9 +520,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT window* get_current_focus_window (const core::event&);
+    GUIPP_WIN_EXPORT window* get_current_focus_window (const core::event&);
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT os::graphics get_graphics (const core::event&);
+    GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
     template<Atom& M>
     inline bool client_message_matcher (const core::event& e) {
@@ -775,9 +775,9 @@ namespace gui {
                                          getter<get_graphics>>;
 
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
 
-    GUIPP_EXPORT void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
+    GUIPP_WIN_EXPORT void post_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);
 
     // --------------------------------------------------------------------------
 #endif // X11

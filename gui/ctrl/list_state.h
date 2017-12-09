@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/win/window_state.h>
+#include <gui++-ctrl-export.h>
 
 
 namespace gui {
@@ -35,7 +36,7 @@ namespace gui {
       class list_base;
 
       // --------------------------------------------------------------------------
-      struct GUIPP_EXPORT list_state : public window_state {
+      struct GUIPP_CTRL_EXPORT list_state : public window_state {
         typedef window_state super;
 
         list_state (const list_base& win);

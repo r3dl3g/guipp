@@ -59,7 +59,7 @@ namespace gui {
 
   namespace fs {
 
-    struct GUIPP_EXPORT filtered_iterator {
+    struct GUIPP_CTRL_EXPORT filtered_iterator {
       typedef bool (filter_fn)(const sys_fs::directory_entry&);
 
       filtered_iterator ();
@@ -92,7 +92,7 @@ namespace gui {
     bool operator!= (const filtered_iterator& lhs,
                      const filtered_iterator& rhs);
 
-    struct GUIPP_EXPORT file_info {
+    struct GUIPP_CTRL_EXPORT file_info {
       file_info (const sys_fs::path& path);
       file_info ();
 
@@ -120,7 +120,7 @@ namespace gui {
 
       sys_fs::directory_iterator path_iterator (sys_fs::path const& n);
 
-      struct GUIPP_EXPORT path_info {
+      struct GUIPP_CTRL_EXPORT path_info {
         typedef fs::file_info type;
         typedef fs::filtered_iterator iterator;
         typedef fs::file_info reference;
@@ -133,37 +133,37 @@ namespace gui {
 
       };
 
-      struct GUIPP_EXPORT unsorted_path_info : public path_info {
+      struct GUIPP_CTRL_EXPORT unsorted_path_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct GUIPP_EXPORT unsorted_dir_info : public path_info {
+      struct GUIPP_CTRL_EXPORT unsorted_dir_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct GUIPP_EXPORT unsorted_file_info : public path_info {
+      struct GUIPP_CTRL_EXPORT unsorted_file_info : public path_info {
         typedef tree::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct GUIPP_EXPORT sorted_path_info : public path_info {
+      struct GUIPP_CTRL_EXPORT sorted_path_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct GUIPP_EXPORT sorted_dir_info : public path_info {
+      struct GUIPP_CTRL_EXPORT sorted_dir_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
       };
 
-      struct GUIPP_EXPORT sorted_file_info : public path_info {
+      struct GUIPP_CTRL_EXPORT sorted_file_info : public path_info {
         typedef std::vector<type> range;
 
         static range sub_nodes (type const& n);
@@ -181,7 +181,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      GUIPP_EXPORT void init_file_list_layout (layout::weight_column_list_layout&);
+      GUIPP_CTRL_EXPORT void init_file_list_layout (layout::weight_column_list_layout&);
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
                                        const draw::masked_bitmap*,
@@ -189,16 +189,16 @@ namespace gui {
                                        fs::file_info,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
-      GUIPP_EXPORT file_list_row_drawer create_file_list_row_drawer ();
+      GUIPP_CTRL_EXPORT file_list_row_drawer create_file_list_row_drawer ();
 
       typedef column_list_row_t<const draw::masked_bitmap*,
                                 fs::file_info,
                                 fs::file_info,
                                 sys_fs::file_time_type> file_list_row;
 
-      GUIPP_EXPORT file_list_row build_file_list_row (const fs::file_info&, bool selected);
+      GUIPP_CTRL_EXPORT file_list_row build_file_list_row (const fs::file_info&, bool selected);
 
-      GUIPP_EXPORT std::string format_file_size (uintmax_t s);
+      GUIPP_CTRL_EXPORT std::string format_file_size (uintmax_t s);
 
     } // detail
 
@@ -233,7 +233,7 @@ namespace gui {
       date_down
     };
 
-    GUIPP_EXPORT void sort_list_by (std::vector<fs::file_info>& list, sort_order);
+    GUIPP_CTRL_EXPORT void sort_list_by (std::vector<fs::file_info>& list, sort_order);
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
@@ -270,8 +270,8 @@ namespace gui {
 
     };
 
-    GUIPP_EXPORT void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
-    GUIPP_EXPORT void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
+    GUIPP_CTRL_EXPORT void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
+    GUIPP_CTRL_EXPORT void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
 
   } // win
 

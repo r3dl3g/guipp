@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/win/window_state.h>
+#include <gui++-ctrl-export.h>
 
 
 namespace gui {
@@ -32,7 +33,7 @@ namespace gui {
     class button_base;
 
      // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT button_state : public window_state {
+    struct GUIPP_CTRL_EXPORT button_state : public window_state {
       typedef window_state super;
 
       button_state (const button_base& win);

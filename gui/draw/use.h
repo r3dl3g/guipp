@@ -22,6 +22,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
@@ -30,7 +31,7 @@ namespace gui {
 
 #ifdef WIN32
     template<typename T>
-    struct GUIPP_EXPORT Use {
+    struct GUIPP_DRAW_EXPORT Use {
       Use (os::graphics g, const T& t)
         : g(g)
         , obj(t)
@@ -59,7 +60,7 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     template<typename T>
-    struct GUIPP_EXPORT Use {
+    struct GUIPP_DRAW_EXPORT Use {
       Use (os::graphics g, const T& t)
         : g(g) {
         set(t);

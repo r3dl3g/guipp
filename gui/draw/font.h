@@ -30,13 +30,14 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
 
   namespace draw {
 
-    struct GUIPP_EXPORT /*immutable*/ font {
+    struct GUIPP_DRAW_EXPORT /*immutable*/ font {
 
       static const font& system ();
       static const font& system_bold ();
@@ -108,7 +109,7 @@ namespace gui {
       os::font_type info;
     };
 
-    GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, const font& c);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const font& c);
 
   }
 

@@ -51,7 +51,7 @@ namespace gui {
 
   namespace core {
 
-    class GUIPP_EXPORT event_container {
+    class GUIPP_CORE_EXPORT event_container {
     public:
       typedef std::function<event_handler_callback> event_handler_function;
 

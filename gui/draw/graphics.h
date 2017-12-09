@@ -52,7 +52,7 @@ namespace gui {
     typedef void (copyable) (const graphics&, const core::point&);
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT graphics {
+    class GUIPP_DRAW_EXPORT graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
       graphics (draw::pixmap& target);
@@ -123,7 +123,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT buffered_paint {
+    struct GUIPP_DRAW_EXPORT buffered_paint {
       typedef std::function<void (const draw::graphics&)> painter;
 
       buffered_paint (const painter& f);
@@ -139,7 +139,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT clip {
+    struct GUIPP_DRAW_EXPORT clip {
       clip (const graphics& g, const core::rectangle& r);
       ~clip ();
 

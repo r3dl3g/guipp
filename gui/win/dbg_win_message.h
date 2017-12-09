@@ -29,14 +29,15 @@
 // Library includes
 //
 #include <gui/core/event.h>
+#include <gui++-win-export.h>
 
 
 namespace gui {
 
   namespace win {
 
-    GUIPP_EXPORT bool is_frequent_event (const core::event& e);
-    GUIPP_EXPORT bool is_none_client_event (const core::event& e);
+    GUIPP_WIN_EXPORT bool is_frequent_event (const core::event& e);
+    GUIPP_WIN_EXPORT bool is_none_client_event (const core::event& e);
 
   } // namespace win
 

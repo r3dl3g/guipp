@@ -68,21 +68,21 @@ namespace gui {
 #endif // X11
     // --------------------------------------------------------------------------
     namespace paint {
-      GUIPP_EXPORT void button_frame (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void button_frame (const draw::graphics& graph,
                          const core::rectangle& r,
                          const button_state& state);
 
-      GUIPP_EXPORT void button_frame_w95 (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void button_frame_w95 (const draw::graphics& graph,
                              const core::rectangle& r,
                              const button_state& state);
 
-      GUIPP_EXPORT void simple_frame (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void simple_frame (const draw::graphics& graph,
                          const core::rectangle& r,
                          bool hilite = false,
                          uint32_t horizontal = 3,
                          uint32_t vertical = 3);
 
-      GUIPP_EXPORT void flat_button (const draw::graphics& g,
+      GUIPP_CTRL_EXPORT void flat_button (const draw::graphics& g,
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state,
@@ -98,33 +98,33 @@ namespace gui {
         flat_button(g, r, text, state, foreground, background);
       }
 
-      GUIPP_EXPORT void push_button (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void push_button (const draw::graphics& graph,
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state);
 
-      GUIPP_EXPORT void radio_button (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void radio_button (const draw::graphics& graph,
                          const core::rectangle& area,
                          const std::string& text,
                          const button_state& state);
 
-      GUIPP_EXPORT void check_box (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void check_box (const draw::graphics& graph,
                       const core::rectangle& area,
                       const std::string& text,
                       const button_state& state);
 
-      GUIPP_EXPORT void switch_button (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void switch_button (const draw::graphics& graph,
                           const core::rectangle& rect,
                           const std::string& text,
                           const button_state& state);
 
-      GUIPP_EXPORT void animated_switch_button (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void animated_switch_button (const draw::graphics& graph,
                                    const core::rectangle& rect,
                                    const std::string& text,
                                    const button_state& state,
                                    float animation_step = 1.0F);
 
-      GUIPP_EXPORT void tab_button (const draw::graphics& g,
+      GUIPP_CTRL_EXPORT void tab_button (const draw::graphics& g,
                        const core::rectangle& r,
                        const std::string& text,
                        const button_state& state,
@@ -164,7 +164,7 @@ namespace gui {
                                                 float); // animation_step
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT button_base : public window {
+    class GUIPP_CTRL_EXPORT button_base : public window {
     public:
       typedef window super;
       typedef no_erase_window_class<button_base> clazz;
@@ -192,7 +192,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT push_button_traits {
+    struct GUIPP_CTRL_EXPORT push_button_traits {
       void init (button_base&);
 
       template<text_button_drawer& D>
@@ -233,7 +233,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT basic_animated_button_traits {
+    struct GUIPP_CTRL_EXPORT basic_animated_button_traits {
 
       basic_animated_button_traits ();
       ~basic_animated_button_traits ();

@@ -24,13 +24,14 @@
 //
 #include <gui/core/gui_types.h>
 #include <gui/core/color.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
 
   namespace draw {
 
-    struct GUIPP_EXPORT /*immutable*/ pen {
+    struct GUIPP_DRAW_EXPORT /*immutable*/ pen {
 
 #ifdef WIN32
       typedef int size_type;

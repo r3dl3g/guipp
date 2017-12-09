@@ -30,7 +30,7 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT basic_map {
+    class GUIPP_DRAW_EXPORT basic_map {
     public:
       explicit basic_map (os::bitmap id);
 
@@ -68,7 +68,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT bitmap : public basic_map {
+    class GUIPP_DRAW_EXPORT bitmap : public basic_map {
     public:
       typedef basic_map super;
 
@@ -97,7 +97,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT pixmap : public basic_map {
+    class GUIPP_DRAW_EXPORT pixmap : public basic_map {
     public:
       typedef basic_map super;
 
@@ -142,7 +142,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT masked_bitmap {
+    class GUIPP_DRAW_EXPORT masked_bitmap {
     public:
       typedef pixmap super;
 

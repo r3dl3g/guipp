@@ -47,7 +47,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class GUIPP_EXPORT border_layout_base : protected layout_base {
+      class border_layout_base : protected layout_base {
       public:
         typedef layout_base super;
 
@@ -55,7 +55,7 @@ namespace gui {
                             float top_height = 0,
                             float bottom_height = 0,
                             float left_width = 0,
-                           float right_width = 0);
+                            float right_width = 0);
         border_layout_base (win::container* m, const border_layout_base& rhs);
         border_layout_base (win::container* m, border_layout_base&& rhs);
 

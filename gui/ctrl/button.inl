@@ -60,19 +60,19 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void toggle_button_traits<false>::init (button_base&);
+    GUIPP_CTRL_EXPORT void toggle_button_traits<false>::init (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void toggle_button_traits<true>::init (button_base&);
+    GUIPP_CTRL_EXPORT void toggle_button_traits<true>::init (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void animated_button_traits<false>::init (button_base&);
+    GUIPP_CTRL_EXPORT void animated_button_traits<false>::init (button_base&);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void animated_button_traits<true>::init (button_base&);
+    GUIPP_CTRL_EXPORT void animated_button_traits<true>::init (button_base&);
 
     // --------------------------------------------------------------------------
     template<class T>

@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
 
-      GUIPP_EXPORT void edit_line (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void edit_line (const draw::graphics& graph,
                       const core::rectangle& area,
                       const std::string& text,
                       const draw::font& fnt,
@@ -49,7 +49,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT edit_base : public window {
+      class GUIPP_CTRL_EXPORT edit_base : public window {
       public:
         typedef window super;
         typedef size_t pos_t;

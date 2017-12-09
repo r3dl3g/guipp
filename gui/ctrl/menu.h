@@ -37,7 +37,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT menu_entry {
+    struct GUIPP_CTRL_EXPORT menu_entry {
       typedef void (menu_action)();
       typedef draw::masked_bitmap icon_type;
 
@@ -101,7 +101,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT sub_menu_entry : public menu_entry {
+    struct GUIPP_CTRL_EXPORT sub_menu_entry : public menu_entry {
     public:
       sub_menu_entry (const std::string& label,
                       char menu_key,
@@ -112,7 +112,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT main_menu_entry : public menu_entry {
+    struct GUIPP_CTRL_EXPORT main_menu_entry : public menu_entry {
     public:
       main_menu_entry (const std::string& label,
                        char menu_key,
@@ -123,14 +123,14 @@ namespace gui {
     namespace paint {
 
       // --------------------------------------------------------------------------
-      GUIPP_EXPORT void draw_menu_label (const draw::graphics& g,
+      GUIPP_CTRL_EXPORT void draw_menu_label (const draw::graphics& g,
                             const core::rectangle& r,
                             const std::string& label,
                             char menu_key,
                             os::color color);
 
       // --------------------------------------------------------------------------
-      GUIPP_EXPORT void menu_item (const draw::graphics& g,
+      GUIPP_CTRL_EXPORT void menu_item (const draw::graphics& g,
                       const core::rectangle& r,
                       const draw::brush& background,
                       core::point::type text_pos,
@@ -146,7 +146,7 @@ namespace gui {
                       bool disabled);
 
       // --------------------------------------------------------------------------
-      GUIPP_EXPORT void main_menu_item (const draw::graphics& g,
+      GUIPP_CTRL_EXPORT void main_menu_item (const draw::graphics& g,
                            const core::rectangle& r,
                            const draw::brush& background,
                            const std::string& label,
@@ -159,7 +159,7 @@ namespace gui {
     } // namespace paint
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT menu_data {
+    class GUIPP_CTRL_EXPORT menu_data {
     public:
       typedef std::vector<menu_entry> vector;
       typedef vector::iterator iterator;
@@ -247,7 +247,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT main_menu : public win::window {
+    class GUIPP_CTRL_EXPORT main_menu : public win::window {
     public:
       typedef window super;
       typedef win::window_class<main_menu, color::very_light_gray> clazz;
@@ -274,7 +274,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT popup_menu : public win::popup_window {
+    class GUIPP_CTRL_EXPORT popup_menu : public win::popup_window {
     public:
       typedef win::popup_window super;
 

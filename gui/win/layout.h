@@ -31,6 +31,7 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui++-win-export.h>
 
 
 namespace gui {
@@ -51,7 +52,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT layout_base {
+    class GUIPP_WIN_EXPORT layout_base {
     public:
       typedef void (size_callback) (const core::size& sz);
       typedef void (show_callback) ();

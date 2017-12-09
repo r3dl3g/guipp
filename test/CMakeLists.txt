@@ -18,6 +18,7 @@ add_subdirectory(./../gui gui)
 
 add_definitions(${gui_defines})
 message(STATUS "app gui_defines: ${gui_defines}")
+message(STATUS "ctrl gui_include: ${gui_include}")
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h

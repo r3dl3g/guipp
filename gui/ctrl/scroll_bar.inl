@@ -193,29 +193,29 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::init ();
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::init ();
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::init ();
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::init ();
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
-    GUIPP_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
 
     // --------------------------------------------------------------------------
     template<>

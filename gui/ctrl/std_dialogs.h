@@ -41,7 +41,7 @@ namespace gui {
       typedef void (yes_no_action) (bool);
 
     //-----------------------------------------------------------------------------
-    class GUIPP_EXPORT standard_dialog_base : public layout_dialog_window<layout::border_layout<>, float, float, float, float> {
+    class GUIPP_CTRL_EXPORT standard_dialog_base : public layout_dialog_window<layout::border_layout<>, float, float, float, float> {
     public:
       typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> super;
       typedef group_window<layout::horizontal_adaption<>, color::very_light_gray> button_view_type;
@@ -82,7 +82,7 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    class GUIPP_EXPORT yes_no_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
+    class GUIPP_CTRL_EXPORT yes_no_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
                                                                                 color::very_light_gray,
                                                                                 float, float, float, float>> {
     public:
@@ -155,7 +155,7 @@ namespace gui {
     typedef path_open_dialog_base<path_tree::sorted_dir_info> dir_open_dialog;
 
     //-----------------------------------------------------------------------------
-    class GUIPP_EXPORT file_save_dialog : public standard_dialog<dir_file_view<>> {
+    class GUIPP_CTRL_EXPORT file_save_dialog : public standard_dialog<dir_file_view<>> {
     public:
       typedef standard_dialog<dir_file_view<>> super;
       typedef group_window<layout::border_layout<>, color::very_very_light_gray, float, float, float, float> top_view_type;

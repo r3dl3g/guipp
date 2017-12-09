@@ -32,7 +32,7 @@
 //
 #include <base/bits.h>
 #include <base/logger.h>
-#include <gui++-export.h>
+#include <gui++-core-export.h>
 
 
 #ifdef WIN32
@@ -52,7 +52,7 @@
 
 
 #if defined(BASEPP_BUILT_AS_STATIC)
-DECLARE_LOGGING_CORE(GUIPP_EXPORT)
+DECLARE_LOGGING_CORE(GUIPP_CORE_EXPORT)
 #endif
 
 namespace gui {
@@ -182,15 +182,15 @@ namespace gui {
 
     namespace global {
 
-      GUIPP_EXPORT void init (os::instance instance);
-      GUIPP_EXPORT os::instance get_instance ();
+      GUIPP_CORE_EXPORT void init (os::instance instance);
+      GUIPP_CORE_EXPORT os::instance get_instance ();
 
-      GUIPP_EXPORT void sync ();
+      GUIPP_CORE_EXPORT void sync ();
 
-      GUIPP_EXPORT BPP get_device_bits_per_pixel ();
-      GUIPP_EXPORT int get_device_depth ();
+      GUIPP_CORE_EXPORT BPP get_device_bits_per_pixel ();
+      GUIPP_CORE_EXPORT int get_device_depth ();
 
-      GUIPP_EXPORT os::key_state get_key_state ();
+      GUIPP_CORE_EXPORT os::key_state get_key_state ();
 
     }
 

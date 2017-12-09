@@ -32,7 +32,7 @@ namespace gui {
 #ifdef WIN32
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT float get_param<0, float>(const core::event& e);
+    GUIPP_CTRL_EXPORT float get_param<0, float>(const core::event& e);
 
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
                                        core::params<core::point::type>::getter<get_param<0, core::point::type> > >;
@@ -57,7 +57,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT scroll_bar_data {
+    struct GUIPP_CTRL_EXPORT scroll_bar_data {
       typedef core::point::type type;
 
       scroll_bar_data ();
@@ -76,7 +76,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT scroll_bar : public window {
+    class GUIPP_CTRL_EXPORT scroll_bar : public window {
     public:
       typedef window super;
       typedef scroll_bar_data::type type;
@@ -139,7 +139,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     namespace paint {
-      GUIPP_EXPORT void scrollbar (const draw::graphics &g,
+      GUIPP_CTRL_EXPORT void scrollbar (const draw::graphics &g,
                       scrollbar_state state,
                       scrollbar_state hilite,
                       bool is_enabled,

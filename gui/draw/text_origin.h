@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {

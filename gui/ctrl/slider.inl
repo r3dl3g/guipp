@@ -42,41 +42,41 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider ();
+      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider ();
 
       template<>
-      GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider (const basic_slider&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_EXPORT basic_slider<orientation::vertical>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider (basic_slider&&);
 
       template<>
-      GUIPP_EXPORT void basic_slider<orientation::vertical>::set_value (core::point::type v);
+      GUIPP_CTRL_EXPORT void basic_slider<orientation::vertical>::set_value (core::point::type v);
 
       template<>
-      GUIPP_EXPORT core::point::type basic_slider<orientation::vertical>::get_value () const;
+      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation::vertical>::get_value () const;
 
       template<>
-      GUIPP_EXPORT void basic_slider<orientation::vertical>::init ();
+      GUIPP_CTRL_EXPORT void basic_slider<orientation::vertical>::init ();
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider ();
+      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider ();
 
       template<>
-      GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider (const basic_slider&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_EXPORT basic_slider<orientation::horizontal>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider (basic_slider&&);
 
       template<>
-      GUIPP_EXPORT void basic_slider<orientation::horizontal>::set_value (core::point::type v);
+      GUIPP_CTRL_EXPORT void basic_slider<orientation::horizontal>::set_value (core::point::type v);
 
       template<>
-      GUIPP_EXPORT core::point::type basic_slider<orientation::horizontal>::get_value () const;
+      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation::horizontal>::get_value () const;
 
       template<>
-      GUIPP_EXPORT void basic_slider<orientation::horizontal>::init ();
+      GUIPP_CTRL_EXPORT void basic_slider<orientation::horizontal>::init ();
 
     } // namespace detail
 

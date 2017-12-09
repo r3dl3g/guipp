@@ -23,13 +23,14 @@
 // Library includes
 //
 #include <gui/core/gui_types.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
 
   namespace draw {
 
-    struct GUIPP_EXPORT bitmap_info {
+    struct GUIPP_DRAW_EXPORT bitmap_info {
       bitmap_info ();
       bitmap_info (const core::uint32_size&, BPP bpp);
       bitmap_info (uint32_t w, uint32_t h, BPP bpp);

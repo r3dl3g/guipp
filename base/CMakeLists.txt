@@ -69,7 +69,7 @@ if(NOT TARGET base++-obj)
     if(BASEPP_BUILD_SHARED_MODULE_LIBS)
         add_library(base++ SHARED $<TARGET_OBJECTS:base++-obj>)
 
-        target_link_libraries(base++ ${basepp_sys_libraries})
+        target_link_libraries(base++ PRIVATE ${basepp_sys_libraries})
 
         set_target_properties(base++ PROPERTIES
                                      POSITION_INDEPENDENT_CODE ON

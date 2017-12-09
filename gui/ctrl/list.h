@@ -35,7 +35,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT list_base : public window {
+      class GUIPP_CTRL_EXPORT list_base : public window {
       public:
         typedef window super;
         typedef core::size::type pos_t;
@@ -315,10 +315,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    GUIPP_EXPORT void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
     typedef linear_list<orientation::horizontal> horizontal_list;
@@ -326,7 +326,7 @@ namespace gui {
     typedef vertical_list list;
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT edit_list : public vertical_list {
+    class GUIPP_CTRL_EXPORT edit_list : public vertical_list {
     public:
       typedef vertical_list super;
 

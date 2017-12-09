@@ -29,6 +29,8 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
+#include <gui++-win-export.h>
+
 
 #ifdef WIN32
 # include <gui/win/win32keys.h>
@@ -57,7 +59,7 @@ namespace gui {
     typedef basepp::bit_mask<os::key_state, state::caps_lock> caps_lock_bit_mask;
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT hot_key {
+    struct GUIPP_WIN_EXPORT hot_key {
       typedef void (fn)();
       typedef std::function<fn> call;
 

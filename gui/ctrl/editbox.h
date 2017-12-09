@@ -33,7 +33,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT editbox_base : public textbox_base {
+      class GUIPP_CTRL_EXPORT editbox_base : public textbox_base {
       public:
         typedef textbox_base super;
         typedef no_erase_window_class<editbox_base, cursor_type::ibeam> clazz;

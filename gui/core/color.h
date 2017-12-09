@@ -283,28 +283,28 @@ namespace gui {
     constexpr os::color very_light_magenta = rgb<255, 192, 255>::value;
     constexpr os::color very_light_yellow = rgb<255, 255, 192>::value;
 
-    GUIPP_EXPORT os::color scrollBarColor ();
-    GUIPP_EXPORT os::color menuColor ();
-    GUIPP_EXPORT os::color menuTextColor ();
-    GUIPP_EXPORT os::color menuColorHighlight ();
-    GUIPP_EXPORT os::color backGroundColor ();
-    GUIPP_EXPORT os::color activeCaptionColor ();
-    GUIPP_EXPORT os::color inActiveCaptionColor ();
-    GUIPP_EXPORT os::color windowColor ();
-    GUIPP_EXPORT os::color windowFrameColor ();
-    GUIPP_EXPORT os::color windowTextColor ();
-    GUIPP_EXPORT os::color captionTextColor ();
-    GUIPP_EXPORT os::color inActiveCaptionTextColor ();
-    GUIPP_EXPORT os::color activeBorderColor ();
-    GUIPP_EXPORT os::color inActiveBorderColor ();
-    GUIPP_EXPORT os::color workSpaceColor ();
-    GUIPP_EXPORT os::color highLightColor ();
-    GUIPP_EXPORT os::color highLightTextColor ();
-    GUIPP_EXPORT os::color disabledTextColor ();
-    GUIPP_EXPORT os::color buttonColor ();
-    GUIPP_EXPORT os::color shadowColor ();
-    GUIPP_EXPORT os::color buttonTextColor ();
-    GUIPP_EXPORT os::color buttonHighLightColor ();
+    GUIPP_CORE_EXPORT os::color scrollBarColor ();
+    GUIPP_CORE_EXPORT os::color menuColor ();
+    GUIPP_CORE_EXPORT os::color menuTextColor ();
+    GUIPP_CORE_EXPORT os::color menuColorHighlight ();
+    GUIPP_CORE_EXPORT os::color backGroundColor ();
+    GUIPP_CORE_EXPORT os::color activeCaptionColor ();
+    GUIPP_CORE_EXPORT os::color inActiveCaptionColor ();
+    GUIPP_CORE_EXPORT os::color windowColor ();
+    GUIPP_CORE_EXPORT os::color windowFrameColor ();
+    GUIPP_CORE_EXPORT os::color windowTextColor ();
+    GUIPP_CORE_EXPORT os::color captionTextColor ();
+    GUIPP_CORE_EXPORT os::color inActiveCaptionTextColor ();
+    GUIPP_CORE_EXPORT os::color activeBorderColor ();
+    GUIPP_CORE_EXPORT os::color inActiveBorderColor ();
+    GUIPP_CORE_EXPORT os::color workSpaceColor ();
+    GUIPP_CORE_EXPORT os::color highLightColor ();
+    GUIPP_CORE_EXPORT os::color highLightTextColor ();
+    GUIPP_CORE_EXPORT os::color disabledTextColor ();
+    GUIPP_CORE_EXPORT os::color buttonColor ();
+    GUIPP_CORE_EXPORT os::color shadowColor ();
+    GUIPP_CORE_EXPORT os::color buttonTextColor ();
+    GUIPP_CORE_EXPORT os::color buttonHighLightColor ();
 
   } // color
 

@@ -8,9 +8,11 @@ if(NOT TARGET gui++-win-obj)
 
     add_subdirectory(../core gui_core)
 
+    set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
+    set(gui_include ${gui_include} PARENT_SCOPE)
     include_directories(${gui_include})
 
-    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
+    add_definitions(-DWIN32_LEAN_AND_MEAN ${gui_defines})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
@@ -19,18 +21,25 @@ if(NOT TARGET gui++-win-obj)
     set_target_properties(gui++-win-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_WIN_BUILT_AS_STATIC)
         add_library(gui++-win-static STATIC $<TARGET_OBJECTS:gui++-win-obj>)
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
+        add_definitions(-Dgui___win_obj_EXPORTS)
         add_library(gui++-win SHARED $<TARGET_OBJECTS:gui++-win-obj>)
-
-        target_link_libraries(gui++-win gui++-core ${gui_sys_libraries})
-
+        target_link_libraries(gui++-win PRIVATE gui++-core ${gui_sys_libraries})
         set_target_properties(gui++-win PROPERTIES
                                         POSITION_INDEPENDENT_CODE ON
                                         VERSION ${gui_VERSION}
                                         SOVERSION ${gui_VERSION_MAJOR})
     endif()
+
+    GENERATE_EXPORT_HEADER(gui++-win-obj
+        BASE_NAME GUIPP_WIN
+        EXPORT_MACRO_NAME GUIPP_WIN_EXPORT
+        EXPORT_FILE_NAME gui++-win-export.h
+        STATIC_DEFINE GUIPP_WIN_BUILT_AS_STATIC
+    )
 
 endif()

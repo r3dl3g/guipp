@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class GUIPP_EXPORT progress_bar_base : public label_base {
+      class GUIPP_CTRL_EXPORT progress_bar_base : public label_base {
       public:
         typedef label_base super;
         typedef core::size::type type;
@@ -72,7 +72,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
 
-      GUIPP_EXPORT void progress_bar (const draw::graphics& graph,
+      GUIPP_CTRL_EXPORT void progress_bar (const draw::graphics& graph,
                                       const core::rectangle& area,
                                       const std::string& text,
                                       os::color foreground,

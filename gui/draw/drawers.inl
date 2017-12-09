@@ -134,16 +134,16 @@ namespace gui {
     {}
 
     template<>
-    GUIPP_EXPORT void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_EXPORT void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_EXPORT void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_EXPORT void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const;
 
     // --------------------------------------------------------------------------
     template<BPP T>

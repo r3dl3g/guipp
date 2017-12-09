@@ -31,28 +31,23 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     endif(UNIX)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
-        set (gui_libraries gui++-ctrl-static
-                           gui++-io-static
-                           gui++-draw-static
-                           gui++-win-static
-                           gui++-core-static
+        set (gui_libraries ${basepp_libraries}
                            gui++-app
-                           ${basepp_libraries}
+                           gui++-core-static
+                           gui++-win-static
+                           gui++-draw-static
+                           gui++-io-static
+                           gui++-ctrl-static
         )
         set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
     elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_libraries gui++-ctrl gui++-io gui++-draw gui++-win gui++-core gui++-app)
+        set (gui_libraries gui++-app gui++-core gui++-win gui++-draw gui++-io gui++-ctrl)
         set (gui_sys_libraries ${gui_sys_libraries} gui++ ${basepp_libraries})
     else()
-        set (gui_libraries gui++ gui++-app)
+        set (gui_libraries gui++-app gui++)
     endif()
 
-    set (gui_defines ${gui_defines} PARENT_SCOPE)
     set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
-
-    set (gui_include ${gui_include} PARENT_SCOPE)
-    set (gui_libraries ${gui_libraries} PARENT_SCOPE)
-    set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
 
     set (gui_VERSION_MAJOR 0)
     set (gui_VERSION_MINOR 1)
@@ -65,6 +60,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     add_subdirectory(io gui_io)
     add_subdirectory(ctrl gui_ctrl)
     add_subdirectory(app gui_app)
+
+    set (gui_defines ${gui_defines} PARENT_SCOPE)
+    set (gui_include ${gui_include} PARENT_SCOPE)
+    set (gui_libraries ${gui_libraries} PARENT_SCOPE)
+    set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
 
     # header file to pass version settings to the source code
     configure_file (
@@ -86,7 +86,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                                  gui.cpp
         )
 
-        target_link_libraries(gui++ ${basepp_libraries})
+        target_link_libraries(gui++ PRIVATE ${basepp_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON

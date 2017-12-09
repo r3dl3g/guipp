@@ -48,7 +48,7 @@ namespace gui {
                       bool hilited);
 
       template<>
-      GUIPP_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
+      GUIPP_CTRL_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
                                                          const draw::graphics& graph,
                                                          const core::rectangle& place,
                                                          const text_origin align,
@@ -130,7 +130,7 @@ namespace gui {
       } // data
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT layout {
+      class GUIPP_CTRL_EXPORT layout {
       public:
         layout (core::size::type default_size);
 
@@ -204,7 +204,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
-        GUIPP_EXPORT void draw_table_data (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_data (const draw::graphics& graph,
                               const core::rectangle& place,
                               const metric& geometrie,
                               const data::matrix<text_origin>& aligns,
@@ -214,7 +214,7 @@ namespace gui {
                               const std::function<filter::selection_and_hilite>& selection_filter,
                               const std::function<filter::selection_and_hilite>& hilite_filter);
 
-        GUIPP_EXPORT void draw_table_column (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_column (const draw::graphics& graph,
                                 const core::rectangle& place,
                                 const metric& geometrie,
                                 const data::vector<text_origin>& aligns,
@@ -224,7 +224,7 @@ namespace gui {
                                 const std::function<filter::selection_and_hilite>& selection_filter,
                                 const std::function<filter::selection_and_hilite>& hilite_filter);
 
-        GUIPP_EXPORT void draw_table_row (const draw::graphics& graph,
+        GUIPP_CTRL_EXPORT void draw_table_row (const draw::graphics& graph,
                              const core::rectangle& place,
                              const metric& geometrie,
                              const data::vector<text_origin>& aligns,
@@ -292,11 +292,11 @@ namespace gui {
       typedef std::string (data_source)(const position&);
       typedef void (data_target)(const position&, const std::string&);
 
-      GUIPP_EXPORT std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src);
-      GUIPP_EXPORT std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src);
+      GUIPP_CTRL_EXPORT std::function<cell_drawer> default_data_drawer (const std::function<data_source>& src);
+      GUIPP_CTRL_EXPORT std::function<cell_drawer> default_header_drawer (const std::function<data_source>& src);
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT data_view : public cell_view<data::matrix> {
+      class GUIPP_CTRL_EXPORT data_view : public cell_view<data::matrix> {
       public:
         typedef cell_view<data::matrix> super;
 
@@ -315,7 +315,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT column_view : public cell_view<data::vector> {
+      class GUIPP_CTRL_EXPORT column_view : public cell_view<data::vector> {
       public:
         typedef cell_view<data::vector> super;
 
@@ -334,7 +334,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT row_view : public cell_view<data::vector> {
+      class GUIPP_CTRL_EXPORT row_view : public cell_view<data::vector> {
       public:
         typedef cell_view<data::vector> super;
 
@@ -352,19 +352,19 @@ namespace gui {
         void init ();
       };
 
-      GUIPP_EXPORT std::string build_std_column_name (std::size_t c);
+      GUIPP_CTRL_EXPORT std::string build_std_column_name (std::size_t c);
 
     } // table
 
     // --------------------------------------------------------------------------
     typedef core::point (scroll_maximum_calcer)(const core::size&, const core::point&, const core::point&);
 
-    GUIPP_EXPORT core::point default_scroll_maximum (const core::size& sz,
+    GUIPP_CTRL_EXPORT core::point default_scroll_maximum (const core::size& sz,
                                         const core::point& current_pos,
                                         const core::point& current_max);
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT table_view : public group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
+    class GUIPP_CTRL_EXPORT table_view : public group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
                                            color::very_very_light_gray, float, float, float, float> {
     public:
       typedef group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
@@ -450,7 +450,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_EXPORT table_edit : public table_view {
+    class GUIPP_CTRL_EXPORT table_edit : public table_view {
     public:
       table_edit (core::size::type default_width = 80,
                   core::size::type default_height = 20,

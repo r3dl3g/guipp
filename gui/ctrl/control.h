@@ -28,7 +28,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
-#include <gui++-export.h>
+#include <gui++-ctrl-export.h>
 
 
 namespace gui {
@@ -118,14 +118,14 @@ namespace gui {
 
 #ifdef WIN32
     template<>
-    GUIPP_EXPORT event_source get_param<0, event_source>(const core::event& e);
+    GUIPP_CTRL_EXPORT event_source get_param<0, event_source>(const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
+    GUIPP_CTRL_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
+    struct GUIPP_CTRL_EXPORT paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
       typedef core::params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
       typedef super::function function;
 
@@ -162,7 +162,7 @@ namespace gui {
        // --------------------------------------------------------------------------
 #ifdef X11
     // --------------------------------------------------------------------------
-    GUIPP_EXPORT draw::graphics get_draw_graphics (const core::event& e);
+    GUIPP_CTRL_EXPORT draw::graphics get_draw_graphics (const core::event& e);
 
     using paint_event = core::event_handler<Expose, ExposureMask,
                                       core::params<draw::graphics>::
@@ -202,7 +202,7 @@ namespace gui {
        // --------------------------------------------------------------------------
 
     namespace paint {
-      GUIPP_EXPORT void text_item (const draw::graphics&,
+      GUIPP_CTRL_EXPORT void text_item (const draw::graphics&,
                       const core::rectangle& place,
                       const draw::brush& background,
                       const std::string& text,

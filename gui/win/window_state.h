@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/core/guidefs.h>
-
+#include <gui++-win-export.h>
 
 namespace gui {
 
@@ -34,7 +34,7 @@ namespace gui {
     class window;
 
     // --------------------------------------------------------------------------
-    struct GUIPP_EXPORT window_state {
+    struct GUIPP_WIN_EXPORT window_state {
       window_state (const window& win)
         : win(win)
       {}

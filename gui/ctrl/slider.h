@@ -44,7 +44,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_EXPORT slider_base : public window {
+      class GUIPP_CTRL_EXPORT slider_base : public window {
       public:
         typedef window super;
         typedef core::point::type type;

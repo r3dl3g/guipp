@@ -24,13 +24,14 @@
 //
 #include <gui/core/gui_types.h>
 #include <gui/core/color.h>
+#include <gui++-draw-export.h>
 
 
 namespace gui {
 
   namespace draw {
 
-    struct GUIPP_EXPORT /*immutable*/ brush {
+    struct GUIPP_DRAW_EXPORT /*immutable*/ brush {
 
       enum Style {
         solid = IF_WIN32_ELSE(BS_SOLID, FillSolid)

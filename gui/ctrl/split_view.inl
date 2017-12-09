@@ -120,33 +120,33 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT double split_view<orientation::vertical>::get_split_pos (const core::size&) const;
+    GUIPP_CTRL_EXPORT double split_view<orientation::vertical>::get_split_pos (const core::size&) const;
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::vertical>::get_first_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_first_place (const core::size&,
                                                                         double);
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::vertical>::get_second_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_second_place (const core::size&,
                                                                          double);
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::vertical>::get_slider_place (const core::size&, double);
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_slider_place (const core::size&, double);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_EXPORT double split_view<orientation::horizontal>::get_split_pos (const core::size&) const;
+    GUIPP_CTRL_EXPORT double split_view<orientation::horizontal>::get_split_pos (const core::size&) const;
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::horizontal>::get_first_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_first_place (const core::size&,
                                                                           double);
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::horizontal>::get_second_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_second_place (const core::size&,
                                                                            double);
 
     template<>
-    GUIPP_EXPORT core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::size&, double);
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::size&, double);
     // --------------------------------------------------------------------------
 
   } // namespace layout
@@ -198,11 +198,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_EXPORT void split_view<orientation::vertical>::init ();
+      GUIPP_CTRL_EXPORT void split_view<orientation::vertical>::init ();
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_EXPORT void split_view<orientation::horizontal>::init ();
+      GUIPP_CTRL_EXPORT void split_view<orientation::horizontal>::init ();
 
     } // namespace detail
 

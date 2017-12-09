@@ -241,7 +241,7 @@ namespace gui {
       int old_mode = SetBkMode(g, TRANSPARENT);
       RECT Rect = rect;
 
-      std::wstring wstr = string::utf8_to_utf16(str);
+      std::wstring wstr = basepp::string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
       if (basepp::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
@@ -262,7 +262,7 @@ namespace gui {
                                    os::color) const {
       Use<font> fn(g, f);
       RECT r = rect;
-      std::wstring wstr = string::utf8_to_utf16(str);
+      std::wstring wstr = basepp::string::utf8_to_utf16(str);
       DrawTextW(g, wstr.c_str(), (int)wstr.size(), &r, static_cast<unsigned int>(origin) | DT_CALCRECT);
       rect = core::rectangle(r);
       //auto sz = f.get_text_size(str);
@@ -281,7 +281,7 @@ namespace gui {
       int px = pos.os_x();
       int py = pos.os_y();
       unsigned int old_align = static_cast<unsigned int>(text_origin::top_left);
-      std::wstring wstr = string::utf8_to_utf16(str);
+      std::wstring wstr = basepp::string::utf8_to_utf16(str);
 
       switch (origin) {
       case text_origin::top_left:

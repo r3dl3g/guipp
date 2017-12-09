@@ -33,6 +33,7 @@
 // Library includes
 //
 #include <base/ostreamfmt.h>
+#include <base/logger.h>
 #include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>
@@ -525,6 +526,7 @@ namespace gui {
                        : (color::extract<color::part::alpha>(type.get_background()) == 0xff)
                        ? NULL : CreateSolidBrush(type.get_background());
 
+      std::string name = type.get_class_name().substr(0, 255);
       WNDCLASS wc = {
         /* Register the window class. */
         type.get_class_style(),
@@ -536,16 +538,21 @@ namespace gui {
         type.get_cursor(),
         back,
         nullptr,
-        type.get_class_name().c_str()
+        name.c_str()
       };
 
       ATOM cls_id = RegisterClass(&wc);
       if (cls_id) {
         hidden::window_class_info_map[type.get_class_name()] = type;
+      } else {
+        auto error_no = GetLastError();
+        if (error_no != 1410) {
+          LogDebug << getLastErrorText() << " class name length: " << name.length();
+        }
       }
-
+      
       os::window id = CreateWindowEx(type.get_ex_style(),
-                                     type.get_class_name().c_str(),
+                                     name.c_str(),
                                      nullptr,         // address of window text
                                      type.get_style(),  // window style
                                      r.os_x(),        // horizontal position of window

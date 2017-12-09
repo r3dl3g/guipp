@@ -11,7 +11,7 @@ if(NOT TARGET gui++-ctrl-obj)
 
     include_directories(${gui_include})
 
-    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
+    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 

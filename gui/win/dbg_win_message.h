@@ -38,20 +38,6 @@ namespace gui {
     GUIPP_EXPORT bool is_frequent_event (const core::event& e);
     GUIPP_EXPORT bool is_none_client_event (const core::event& e);
 
-    struct EventId {
-      inline EventId (const core::event& e)
-        : id(e.type)
-      {}
-
-      os::event_id id;
-    };
-
   } // namespace win
 
 } // namespace gui
-
-namespace std {
-
-  GUIPP_EXPORT std::ostream& operator<< (std::ostream& out, const gui::win::EventId& e);
-
-} // namespace std

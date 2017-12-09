@@ -28,6 +28,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui++-export.h>
 
 
 namespace gui {

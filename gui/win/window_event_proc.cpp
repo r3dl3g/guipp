@@ -302,7 +302,7 @@ namespace gui {
         GUITHREADINFO info;
         memset(&info, 0, sizeof(info));
         info.cbSize = sizeof(GUITHREADINFO);
-        if (GetGUIThreadInfo(robbery::get_native_thread_id(detail::main_thread_id), &info)) {
+        if (GetGUIThreadInfo(basepp::robbery::get_native_thread_id(detail::main_thread_id), &info)) {
           HWND win = info.hwndActive;
           if (win) {
             HWND parent = GetParent(win);
@@ -605,7 +605,7 @@ namespace gui {
     x11::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
-    PostThreadMessage(robbery::get_native_thread_id(detail::main_thread_id),
+    PostThreadMessage(basepp::robbery::get_native_thread_id(detail::main_thread_id),
                       detail::ACTION_MESSAGE,
                       0,
                       (ULONG_PTR)new std::function<void()>(action));

@@ -238,6 +238,10 @@ namespace basepp {
     EXP core& get_logging_core();\
   }}
 
+#if !defined(BASEPP_BUILT_AS_STATIC)
+DECLARE_LOGGING_CORE(BASEPP_EXPORT)
+#endif
+
 /**
 * Macro to define the login core singleton.
 * Since statics are not shared over DLL boundaries, implement this somewhere

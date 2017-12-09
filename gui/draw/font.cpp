@@ -228,7 +228,7 @@ namespace gui {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
       SIZE sz = {0, 0};
-      std::wstring wstr = string::utf8_to_utf16(str);
+      std::wstring wstr = basepp::string::utf8_to_utf16(str);
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);

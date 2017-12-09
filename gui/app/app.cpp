@@ -41,14 +41,14 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(nCmdShow);
 
   basepp::odebugstream dbgStrm;
-  basepp::log::core::instance().add_sink(&dbgStrm, gui::log::level::debug, gui::log::core::get_console_formatter());
+  basepp::log::core::instance().add_sink(&dbgStrm, basepp::log::level::debug, basepp::log::core::get_console_formatter());
 
 #ifndef NDEBUG
   std::ofstream log_file("gui++.log");
-  gui::log::core::instance().add_sink(&log_file, gui::log::level::trace, gui::log::core::get_standard_formatter());
+  basepp::log::core::instance().add_sink(&log_file, basepp::log::level::trace, basepp::log::core::get_standard_formatter());
 #endif // NDEBUG
 
-  std::vector<std::string> args = gui::string::split<' '>(lpCmdLine);
+  std::vector<std::string> args = basepp::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
 #endif // WIN32
 
@@ -73,7 +73,7 @@ int main (int argc, char* argv[]) {
 
 #ifndef NDEBUG
 #ifdef WIN32
-  gui::log::core::instance().remove_sink(&log_file);
+  basepp::log::core::instance().remove_sink(&log_file);
 #endif // WIN32
 #endif // NDEBUG
 

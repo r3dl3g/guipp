@@ -101,14 +101,14 @@ namespace basepp {
 
   template<>
   struct bw_bits<bit_order::lsb> {
-    BASEPP_EXPORT static constexpr byte value[2] = {0, 0xff};
+    static constexpr byte value[2] = {0, 0xff};
     static constexpr bool white = true;
     static constexpr bool black = false;
   };
 
   template<>
   struct bw_bits<bit_order::msb> {
-    BASEPP_EXPORT static constexpr byte value[2] = {0xff, 0};
+    static constexpr byte value[2] = {0xff, 0};
     static constexpr bool white = false;
     static constexpr bool black = true;
   };
@@ -126,7 +126,7 @@ namespace basepp {
   // --------------------------------------------------------------------------
   struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {
     typedef bw_bits<os::bitmap_bit_order> super;
-    BASEPP_EXPORT static constexpr byte mask[8] = {
+    static constexpr byte mask[8] = {
       system_bit_mask<0>::value,
       system_bit_mask<1>::value,
       system_bit_mask<2>::value,
@@ -136,7 +136,7 @@ namespace basepp {
       system_bit_mask<6>::value,
       system_bit_mask<7>::value
     };
-    BASEPP_EXPORT static constexpr byte shift[8] = {
+    static constexpr byte shift[8] = {
       system_bit_mask<0>::shift,
       system_bit_mask<1>::shift,
       system_bit_mask<2>::shift,
@@ -161,7 +161,7 @@ namespace basepp {
 
   // --------------------------------------------------------------------------
   template<typename T>
-  struct BASEPP_EXPORT bit_wrapper {
+  struct bit_wrapper {
     inline bit_wrapper (byte& value, byte bit)
       : value(value)
       , bit(bit)
@@ -183,7 +183,7 @@ namespace basepp {
 
   // --------------------------------------------------------------------------
   template<typename T>
-  struct BASEPP_EXPORT bit_wrapper<T const> {
+  struct bit_wrapper<T const> {
     inline bit_wrapper (byte value, byte bit)
       : value(value)
       , bit(bit)

@@ -37,6 +37,8 @@ namespace gui {
 
   namespace win {
 
+    GUIPP_EXPORT std::string getLastErrorText ();
+
     template<os::platform P = os::system_platform>
     struct window_class_defaults {};
 

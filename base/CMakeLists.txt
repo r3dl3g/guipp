@@ -6,8 +6,11 @@ project("base++" CXX)
 
 include (GenerateExportHeader)
 
-set(BASEPP_BUILD_STATIC_MODULE_LIBS ON CACHE BOOL "On to build a static library for each submodule, default Off")
-set(BASEPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library for each submodule, default Off")
+unset(BASEPP_BUILD_STATIC_MODULE_LIBS CACHE)
+unset(BASEPP_BUILD_SHARED_MODULE_LIBS CACHE)
+
+set(BASEPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, default Off")
+set(BASEPP_BUILD_SHARED_MODULE_LIBS ON CACHE BOOL "On to build a shared library for each submodule, default Off")
 
 if(NOT TARGET base++-obj)
 
@@ -25,6 +28,7 @@ if(NOT TARGET base++-obj)
 
     if (BASEPP_BUILD_STATIC_MODULE_LIBS)
         set (basepp_libraries base++-static)
+        set (basepp_defines "-DBASEPP_BUILT_AS_STATIC")
     else()
         set (basepp_libraries base++)
     endif()
@@ -33,6 +37,9 @@ if(NOT TARGET base++-obj)
     set (basepp_sys_libraries ${basepp_sys_libraries} PARENT_SCOPE)
     set (basepp_include ${basepp_include} PARENT_SCOPE)
     set (basepp_libraries ${basepp_libraries} PARENT_SCOPE)
+    set (basepp_defines ${basepp_defines} PARENT_SCOPE)
+
+    message(STATUS "basepp_defines: ${basepp_defines}")
 
     set (BASEPP_VERSION_MAJOR 0)
     set (BASEPP_VERSION_MINOR 1)
@@ -49,11 +56,7 @@ if(NOT TARGET base++-obj)
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
-    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dbase___obj_EXPORTS)
-
-    if(BASEPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DBASEPP_BUILT_AS_STATIC)
-    endif()
+    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dbase___obj_EXPORTS ${basepp_defines})
 
     add_library(base++-obj OBJECT ${SOURCE_FILES})
 

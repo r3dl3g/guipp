@@ -45,7 +45,12 @@ using namespace boost;
 #include "time_util.h"
 
 
+#if !defined(BASEPP_BUILT_AS_STATIC)
 DEFINE_LOGGING_CORE(BASEPP_EXPORT)
+#else
+DECLARE_LOGGING_CORE(BASEPP_EXPORT)
+#endif // BASEPP_BUILD_SHARED_MODULE_LIBS
+
 
 namespace basepp {
 

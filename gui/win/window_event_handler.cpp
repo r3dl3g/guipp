@@ -118,7 +118,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::point::type get_wheel_delta (const core::event& e) {
-      return static_cast<core::point::type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
+      return static_cast<core::point::type>(basepp::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -159,7 +159,7 @@ namespace gui {
       //UINT sc2 = MapVirtualKey(e.wParam, MAPVK_VK_TO_VSC);
       //UINT vk2 = MapVirtualKey(sc, MAPVK_VSC_TO_VK);
       //wchar_t ch = MapVirtualKey(e.wParam, MAPVK_VK_TO_CHAR);
-      return string::utf16_to_utf8(std::wstring(wbuffer, len));
+      return basepp::string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
 
     // --------------------------------------------------------------------------

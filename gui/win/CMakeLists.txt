@@ -10,15 +10,12 @@ if(NOT TARGET gui++-win-obj)
 
     include_directories(${gui_include})
 
-    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
-
-    if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    endif()
+    add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
     add_library(gui++-win-obj OBJECT ${SOURCE_FILES})
+
     set_target_properties(gui++-win-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)

@@ -31,6 +31,7 @@
 // Library includes
 //
 #include <base/bits.h>
+#include <base/logger.h>
 #include <gui++-export.h>
 
 
@@ -47,6 +48,11 @@
 
 #ifdef WIN32
 #pragma warning (disable: 4251)
+#endif
+
+
+#if defined(BASEPP_BUILT_AS_STATIC)
+DECLARE_LOGGING_CORE(GUIPP_EXPORT)
 #endif
 
 namespace gui {

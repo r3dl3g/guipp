@@ -16,6 +16,9 @@ endif(UNIX)
 
 add_subdirectory(./../gui gui)
 
+add_definitions(${gui_defines})
+message(STATUS "app gui_defines: ${gui_defines}")
+
 # add the binary tree to the search path for include files
 # so that we will find Version.h
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
@@ -34,6 +37,8 @@ set(tests
     BorderTest
     hello_world
 )
+
+message(STATUS "gui_libraries: ${gui_libraries}")
 
 foreach(test ${tests})
     if (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)

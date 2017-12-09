@@ -51,7 +51,7 @@ public:
     if ((result == 0x0) &&
         !win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      LogDebug << "Message: " << win::EventId(e) << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
+      LogDebug << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
     }
     return false;
   }
@@ -978,6 +978,7 @@ void my_main_window::created_children () {
   table_view.enable_size(true, true);
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
+  LogDebug << "Create editor: " << editor.get_id();
   editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
                        "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
                        "3. magna aliquyam erat, sed diam voluptua.\n"

@@ -10,11 +10,9 @@ if(NOT TARGET gui++-core-obj)
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
-    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS)
+    message(STATUS "gui_defines: ${gui_defines}")
 
-    if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DGUIPP_BUILT_AS_STATIC)
-    endif()
+    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
 

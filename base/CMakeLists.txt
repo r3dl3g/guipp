@@ -7,10 +7,7 @@ project("base++" CXX)
 include (GenerateExportHeader)
 
 unset(BASEPP_BUILD_STATIC_MODULE_LIBS CACHE)
-unset(BASEPP_BUILD_SHARED_MODULE_LIBS CACHE)
-
-set(BASEPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, default Off")
-set(BASEPP_BUILD_SHARED_MODULE_LIBS ON CACHE BOOL "On to build a shared library for each submodule, default Off")
+set(BASEPP_BUILD_STATIC_MODULE_LIBS ON CACHE BOOL "On to build a static library for each submodule, Off for shared library. default On")
 
 if(NOT TARGET base++-obj)
 
@@ -64,9 +61,7 @@ if(NOT TARGET base++-obj)
 
     if(BASEPP_BUILD_STATIC_MODULE_LIBS)
         add_library(base++-static STATIC $<TARGET_OBJECTS:base++-obj>)
-    endif()
-
-    if(BASEPP_BUILD_SHARED_MODULE_LIBS)
+    else()
         add_library(base++ SHARED $<TARGET_OBJECTS:base++-obj>)
 
         target_link_libraries(base++ PRIVATE ${basepp_sys_libraries})

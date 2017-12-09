@@ -24,7 +24,7 @@ if(NOT TARGET gui++-ctrl-obj)
     set_target_properties(gui++-ctrl-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DGUIPP_CTRL_BUILT_AS_STATIC)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-ctrl-static STATIC $<TARGET_OBJECTS:gui++-ctrl-obj>)
     endif()
 
@@ -42,7 +42,7 @@ if(NOT TARGET gui++-ctrl-obj)
         BASE_NAME GUIPP_CTRL
         EXPORT_MACRO_NAME GUIPP_CTRL_EXPORT
         EXPORT_FILE_NAME gui++-ctrl-export.h
-        STATIC_DEFINE GUIPP_CTRL_BUILT_AS_STATIC
+        STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
 
 endif()

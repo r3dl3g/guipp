@@ -48,8 +48,8 @@ using namespace boost;
 #if !defined(BASEPP_BUILT_AS_STATIC)
 DEFINE_LOGGING_CORE(BASEPP_EXPORT)
 #else
-DECLARE_LOGGING_CORE(BASEPP_EXPORT)
-#endif // BASEPP_BUILD_SHARED_MODULE_LIBS
+DECLARE_LOGGING_CORE(extern)
+#endif
 
 
 namespace basepp {

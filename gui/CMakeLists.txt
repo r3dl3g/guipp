@@ -9,14 +9,17 @@ include (GenerateExportHeader)
 unset(GUIPP_BUILD_STATIC_MODULE_LIBS CACHE)
 unset(GUIPP_BUILD_SHARED_MODULE_LIBS CACHE)
 
-set(GUIPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, default Off")
-set(GUIPP_BUILD_SHARED_MODULE_LIBS ON CACHE BOOL "On to build a shared library for each submodule, default Off")
+set(GUIPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, Off to build shared libraries. Default Off")
+set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library for each submodule, Off to build static libraries. default Off")
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     add_subdirectory(../base base)
 
     set (gui_defines ${basepp_defines})
+
+	message(STATUS "gui gui_defines: ${gui_defines}")
+	message(STATUS "gui basepp_libraries: ${basepp_libraries}")
 
     set (gui_include
         ${basepp_include}
@@ -38,13 +41,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                            gui++-draw-static
                            gui++-io-static
                            gui++-ctrl-static
+                           gui++-static
         )
         set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
     elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_libraries gui++-app gui++-core gui++-win gui++-draw gui++-io gui++-ctrl)
+        set (gui_libraries ${basepp_libraries} gui++-app gui++-core gui++-win gui++-draw gui++-io gui++-ctrl)
         set (gui_sys_libraries ${gui_sys_libraries} gui++ ${basepp_libraries})
     else()
-        set (gui_libraries gui++-app gui++)
+        set (gui_libraries ${basepp_libraries} gui++-app gui++)
     endif()
 
     set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
@@ -53,6 +57,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (gui_VERSION_MINOR 1)
     set (gui_VERSION_PATCH 0)
     set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
+
+    if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
+        set (gui_defines ${gui_defines} -Dgui___core_obj_EXPORTS -Dgui___win_obj_EXPORTS -Dgui___draw_obj_EXPORTS -Dgui___io_obj_EXPORTS -Dgui___ctrl_obj_EXPORTS)
+    endif()
 
     add_subdirectory(core gui_core)
     add_subdirectory(win gui_win)
@@ -106,6 +114,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
         
         add_library(gui++ SHARED gui.cpp)
+
+        target_link_libraries(gui++ PRIVATE ${basepp_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON

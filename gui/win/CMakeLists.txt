@@ -21,7 +21,7 @@ if(NOT TARGET gui++-win-obj)
     set_target_properties(gui++-win-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DGUIPP_WIN_BUILT_AS_STATIC)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-win-static STATIC $<TARGET_OBJECTS:gui++-win-obj>)
     endif()
 
@@ -39,7 +39,7 @@ if(NOT TARGET gui++-win-obj)
         BASE_NAME GUIPP_WIN
         EXPORT_MACRO_NAME GUIPP_WIN_EXPORT
         EXPORT_FILE_NAME gui++-win-export.h
-        STATIC_DEFINE GUIPP_WIN_BUILT_AS_STATIC
+        STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
 
 endif()

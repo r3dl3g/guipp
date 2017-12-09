@@ -169,6 +169,9 @@ namespace basepp {
 
       std::thread m_sink_thread;
       volatile bool m_is_active;
+
+      core (const core&) = delete;
+      void operator= (const core&) = delete;
     };
 
     /**

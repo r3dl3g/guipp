@@ -20,7 +20,7 @@ if(NOT TARGET gui++-draw-obj)
     set_target_properties(gui++-draw-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
-        add_definitions(-DGUIPP_DRAW_BUILT_AS_STATIC)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-draw-static STATIC $<TARGET_OBJECTS:gui++-draw-obj>)
     endif()
 
@@ -38,7 +38,7 @@ if(NOT TARGET gui++-draw-obj)
         BASE_NAME GUIPP_DRAW
         EXPORT_MACRO_NAME GUIPP_DRAW_EXPORT
         EXPORT_FILE_NAME gui++-draw-export.h
-        STATIC_DEFINE GUIPP_DRAW_BUILT_AS_STATIC
+        STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
 
 endif()

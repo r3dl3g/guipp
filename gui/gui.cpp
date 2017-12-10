@@ -30,10 +30,7 @@
 #include <gui++-export.h>
 
 #if defined(BASEPP_BUILT_AS_STATIC)
-//# if !defined(GUIPP_BUILT_AS_STATIC)
-#pragma message ("Export basepp::get_logging_core in gui++ DLL")
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)
-//# endif
 #endif
 
 GUIPP_EXPORT std::string guipp_version = gui_PRODUCT_VERSION;

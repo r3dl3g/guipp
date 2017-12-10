@@ -6,8 +6,8 @@ project("gui++" CXX)
 
 include (GenerateExportHeader)
 
-unset(GUIPP_BUILD_STATIC_MODULE_LIBS CACHE)
-unset(GUIPP_BUILD_SHARED_MODULE_LIBS CACHE)
+#unset(GUIPP_BUILD_STATIC_MODULE_LIBS CACHE)
+#unset(GUIPP_BUILD_SHARED_MODULE_LIBS CACHE)
 
 set(GUIPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, Off to build shared libraries. Default Off")
 set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library for each submodule, Off to build static libraries. default Off")
@@ -16,11 +16,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     add_subdirectory(../base base)
 
+    message(STATUS "gui basepp_libraries: ${basepp_libraries}")
+    message(STATUS "gui basepp_sys_libraries: ${basepp_sys_libraries}")
+
     set (gui_defines ${basepp_defines})
-
-	message(STATUS "gui gui_defines: ${gui_defines}")
-	message(STATUS "gui basepp_libraries: ${basepp_libraries}")
-
     set (gui_include
         ${basepp_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -34,24 +33,34 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     endif(UNIX)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+        set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
         set (gui_libraries ${basepp_libraries}
-                           gui++-app
-                           gui++-core-static
-                           gui++-win-static
-                           gui++-draw-static
-                           gui++-io-static
                            gui++-ctrl-static
+                           gui++-io-static
+                           gui++-draw-static
+                           gui++-win-static
+                           gui++-core-static
+                           gui++-app
                            gui++-static
         )
-        set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
+        set (gui_sys_libraries ${gui_sys_libraries} ${basepp_sys_libraries})
     elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_libraries ${basepp_libraries} gui++-app gui++-core gui++-win gui++-draw gui++-io gui++-ctrl)
-        set (gui_sys_libraries ${gui_sys_libraries} gui++ ${basepp_libraries})
+        set (gui_libraries ${basepp_libraries}
+                           gui++-ctrl
+                           gui++-io
+                           gui++-draw
+                           gui++-win
+                           gui++-core
+                           gui++-app
+                           gui++
+        )
+        set (gui_sys_libraries ${gui_sys_libraries} ${basepp_sys_libraries})
     else()
-        set (gui_libraries ${basepp_libraries} gui++-app gui++)
+        set (gui_libraries gui++-app
+                           gui++
+        )
+        set (gui_sys_libraries ${basepp_libraries} ${gui_sys_libraries} ${basepp_sys_libraries})
     endif()
-
-    set (gui_libraries ${gui_libraries} ${gui_sys_libraries})
 
     set (gui_VERSION_MAJOR 0)
     set (gui_VERSION_MINOR 1)
@@ -74,6 +83,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (gui_libraries ${gui_libraries} PARENT_SCOPE)
     set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
 
+    message(STATUS "gui gui_defines: ${gui_defines}")
+    message(STATUS "gui gui_include: ${gui_include}")
+    message(STATUS "gui gui_libraries: ${gui_libraries}")
+    message(STATUS "gui gui_sys_libraries: ${gui_sys_libraries}")
+
     # header file to pass version settings to the source code
     configure_file (
         "${PROJECT_SOURCE_DIR}/Version.h.in"
@@ -83,6 +97,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     include_directories(${gui_include})
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
+        message(STATUS "gui build global shared gui library")
 
         add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
 
@@ -94,7 +109,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                                  gui.cpp
         )
 
-        target_link_libraries(gui++ PRIVATE ${basepp_libraries})
+        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON
@@ -110,12 +125,13 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         )
 
     elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
+        message(STATUS "gui build multiple shared gui libraries")
 
         add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
         
         add_library(gui++ SHARED gui.cpp)
 
-        target_link_libraries(gui++ PRIVATE ${basepp_libraries})
+        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON
@@ -130,7 +146,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
             STATIC_DEFINE GUIPP_BUILT_AS_STATIC
         )
 
-	else()
+    else()
+        message(STATUS "gui build multiple static gui libraries")
 
         add_definitions(-DWIN32_LEAN_AND_MEAN ${gui_defines})
         
@@ -148,6 +165,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
             EXPORT_FILE_NAME gui++-export.h
             STATIC_DEFINE GUIPP_BUILT_AS_STATIC
         )
+
     endif()
     
 endif()

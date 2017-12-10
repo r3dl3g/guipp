@@ -18,8 +18,10 @@ add_subdirectory(./../gui gui)
 
 add_definitions(${gui_defines})
 message(STATUS "app gui_defines: ${gui_defines}")
-message(STATUS "ctrl gui_include: ${gui_include}")
-message(STATUS "ctrl gui_libraries: ${gui_libraries}")
+message(STATUS "app gui_include: ${gui_include}")
+message(STATUS "app gui_libraries: ${gui_libraries}")
+message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
+
 
 # add the binary tree to the search path for include files
 # so that we will find Version.h
@@ -48,6 +50,6 @@ endif()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} ${gui_libraries})
+    target_link_libraries(${test} ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)

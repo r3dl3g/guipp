@@ -45,16 +45,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         )
         set (gui_sys_libraries ${gui_sys_libraries} ${basepp_sys_libraries})
     elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_libraries ${basepp_libraries}
-                           gui++-ctrl
+        set (gui_libraries gui++-ctrl
                            gui++-io
                            gui++-draw
                            gui++-win
                            gui++-core
                            gui++-app
-                           gui++
         )
-        set (gui_sys_libraries ${gui_sys_libraries} ${basepp_sys_libraries})
+        set (gui_sys_libraries ${basepp_libraries} gui++ ${gui_sys_libraries} ${basepp_sys_libraries})
     else()
         set (gui_libraries gui++-app
                            gui++
@@ -131,7 +129,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         
         add_library(gui++ SHARED gui.cpp)
 
-        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
+        target_link_libraries(gui++ PRIVATE ${basepp_libraries} ${gui_sys_libraries} ${basepp_sys_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON

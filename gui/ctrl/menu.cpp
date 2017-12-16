@@ -300,7 +300,7 @@ namespace gui {
         close();
         data.selection = new_selection;
         data.hilite = new_selection;
-        win->redraw();
+        win->redraw_now();
         send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
     }
@@ -797,7 +797,7 @@ namespace gui {
       run_modal();
     }
 
-    core::point popup_menu::sub_menu_position (int idx) {
+    core::point popup_menu::sub_menu_position (int idx) const {
       auto r = absolute_position();
       return (r + core::point(size().width(), static_cast<core::point::type>(idx * item_height)));
     }
@@ -810,6 +810,7 @@ namespace gui {
     }
 
     void popup_menu::close () {
+      get_state().disable_redraw();
       data.close();
       uncapture_pointer();
       set_visible(false);

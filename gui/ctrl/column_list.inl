@@ -166,7 +166,7 @@ namespace gui {
     }
 
     inline void weight_column_list_layout::set_column_count (std::size_t i) {
-      weights.resize(i);
+      weights.resize(i, 1.0F / i);
       super::set_column_count(i);
     }
 
@@ -257,6 +257,20 @@ namespace gui {
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::set_cell_drawer (std::function<cell_draw> cd) {
       cell_drawer = cd;
+    }
+
+    template<typename L, os::color B>
+    void column_list_header<L, B>::set_labels (std::initializer_list<std::string> args) {
+      std::vector<std::string> labels(args);
+      set_cell_drawer([labels] (std::size_t i,
+                                const draw::graphics& g,
+                                const core::rectangle& r,
+                                const draw::brush& background) {
+        using namespace draw;
+        g.fill(rectangle(r), background);
+        frame::raised_relief(g, r);
+        g.text(text_box(labels[i], r, text_origin::center), font::system(), color::windowTextColor());
+      });
     }
 
     template<typename Layout, os::color background>

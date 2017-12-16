@@ -206,11 +206,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.data.add_entries({
     main_menu_entry("File", 'F', [&]() {
       labels[0].set_text("File...");
-      file_sub_menu.popup_at(menu.sub_menu_position(0), menu);
+      file_sub_menu.popup(menu);
     }), 
     main_menu_entry("Edit", 'E', [&]() {
       labels[0].set_text("Edit...");
-      edit_sub_menu.popup_at(menu.sub_menu_position(1), menu);
+      edit_sub_menu.popup(menu);
     }),
     main_menu_entry("Window", 'W', [&]() {
       labels[0].set_text("Window...");
@@ -221,7 +221,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       help_sub_menu.data.add_entry(
         menu_entry("About", 'A', [&]() { labels[0].set_text("about"); })
       );
-      help_sub_menu.popup_at(menu.sub_menu_position(3), menu);
+      help_sub_menu.popup(menu);
     })
   });
   menu.create(top_view);
@@ -251,11 +251,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
               sub_sub_menu2.data.add_entry(
                 menu_entry("item 3-3-1", '1', [&]() { labels[0].set_text("item 3-3-1"); })
               );
-              sub_sub_menu2.popup_at(sub_sub_menu.sub_menu_position(2), sub_sub_menu);
+              sub_sub_menu2.popup(sub_sub_menu);
             }),
             menu_entry("item 3-4", '4', [&]() { labels[0].set_text("item 3-4"); })
           });
-          sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(2), select_sub_menu);
+          sub_sub_menu.popup(select_sub_menu);
         }),
         sub_menu_entry("item 4", '4', [&]() {
           labels[0].set_text("item 4...");
@@ -263,10 +263,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
           sub_sub_menu.data.add_entry(
             menu_entry("item 4-1", '1', [&]() { labels[0].set_text("item 4-1"); })
           );
-          sub_sub_menu.popup_at(select_sub_menu.sub_menu_position(3), select_sub_menu);
+          sub_sub_menu.popup(select_sub_menu);
         })
       });
-      select_sub_menu.popup_at(file_sub_menu.sub_menu_position(2), file_sub_menu);
+      select_sub_menu.popup(file_sub_menu);
     }, true),
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
     menu_entry("Exit", 'x', basepp::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)

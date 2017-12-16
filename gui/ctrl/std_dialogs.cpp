@@ -28,47 +28,46 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     void standard_dialog_base::create (win::container& parent,
-                                       const std::string& title,
-                                       const std::string& yes_label,
-                                       const std::string& no_label,
-                                       const core::rectangle& rect,
-                                       std::function<yes_no_action> action) {
-      yes.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, action] () {
-        set_visible(false);
-        end_modal();
-        if (action) {
-          action(true);
-        }
-      }));
-      no.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, action] () {
-        set_visible(false);
-        end_modal();
-        if (action) {
-          action(false);
-        }
-      }));
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
-        yes.take_focus();
-      }));
-
-      get_layout().set_bottom(&buttons);
-
+                              const std::string& title,
+                              const core::rectangle& rect,
+                              std::function<dialog_action> action,
+                              const std::initializer_list<std::string>& labels) {
+      get_layout().set_bottom(&button_views);
       super::create(parent, rect);
       set_title(title);
-      buttons.create(*this);
-      no.create(buttons, no_label);
-      yes.create(buttons, yes_label);
+      button_views.create(*this);
+      buttons.resize(labels.size());
+
+      auto i = 0;
+      for (auto l : labels) {
+        text_button& btn = buttons[i];
+        btn.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, action, i] () {
+          end_modal();
+          if (action) {
+            action(i);
+          }
+        }));
+        btn.create(button_views, l);
+        ++i;
+      }
+      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+        buttons[0].take_focus();
+      }));
     }
 
     void standard_dialog_base::show (win::container& parent) {
       set_children_visible();
       set_visible();
       parent.disable();
-      run_modal({
-                  hot_key_action{ hot_key(keys::escape, state::none), [&] () {
-                                    end_modal();
-                                  }}
-                });
+      run_modal(
+        {
+          hot_key_action{
+            hot_key(keys::escape, state::none), [&] () {
+              end_modal();
+            }
+          }
+        }
+      );
       parent.enable();
       parent.take_focus();
     }
@@ -87,7 +86,9 @@ namespace gui {
                                 const std::string& no_label,
                                 const core::rectangle& rect,
                                 std::function<yes_no_action> action) {
-      super::create(parent, title, yes_label, no_label, rect, action);
+      super::create(parent, title, rect, [action] (int i) {
+        action(i == 1);
+      }, {no_label, yes_label});
       message_view.create(content_view, message, rect);
     }
 
@@ -133,10 +134,10 @@ namespace gui {
       top_view.get_layout().set_left(&input_label);
       get_layout().set_top(&top_view);
 
-      super::create(parent, title, ok_label, cancel_label,
+      super::create(parent, title,
                     core::rectangle(300, 200, 600, 400),
-                    [&, action] (bool open) {
-        if (open) {
+                    [&, action] (int btn) {
+        if (1 == btn) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
             sys_fs::path path = dir_tree.get_item(idx).path;
@@ -144,7 +145,7 @@ namespace gui {
             action(path);
           }
         }
-      });
+      }, {cancel_label, ok_label});
 
       top_view.create(*this, core::rectangle(0, 0, 100, 100));
       input_label.create(top_view, name_label, core::rectangle(0, 0, 100, 100));

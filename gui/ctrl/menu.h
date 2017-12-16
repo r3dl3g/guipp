@@ -266,6 +266,9 @@ namespace gui {
       core::point sub_menu_position (std::size_t idx) const;
       int get_index_at_point (const core::point& pt) const;
 
+      int get_selection () const;
+      core::point get_selection_position () const;
+
       menu_data data;
 
     private:
@@ -291,8 +294,14 @@ namespace gui {
       bool handle_key (os::key_symbol);
       void handle_mouse (bool, const core::point&);
 
-      core::point sub_menu_position (int idx);
+      core::point sub_menu_position (int idx) const;
       int get_index_at_point (const core::point& pt) const;
+
+      int get_selection () const;
+      core::point get_selection_position () const;
+
+      void popup (popup_menu& parent);
+      void popup (main_menu& parent);
 
       void popup_at (const core::point& pt, popup_menu& parent);
       void popup_at (const core::point& pt, main_menu& parent);

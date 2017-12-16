@@ -40,15 +40,51 @@ namespace basepp {
 
   namespace time {
 
-    BASEPP_EXPORT std::string format_time (std::chrono::system_clock::time_point const& tp,
-                                          const char* year_delem = "-",
-                                          const char* sparator = " ",
-                                          const char* time_delem = ":");
+    // --------------------------------------------------------------------------
+    using time_point = std::chrono::system_clock::time_point;
+    using duration = std::chrono::system_clock::duration;
 
-    BASEPP_EXPORT std::tm local_time (std::chrono::system_clock::time_point const& tp);
+    // --------------------------------------------------------------------------
+    BASEPP_EXPORT std::tm local_time (time_point const& tp);
     BASEPP_EXPORT std::tm local_time_now ();
 
-    BASEPP_EXPORT std::ostream& operator<< (std::ostream&, std::chrono::system_clock::time_point const&);
+    // --------------------------------------------------------------------------
+    BASEPP_EXPORT std::ostream& format_time (std::ostream&,
+                                             time_point const& tp,
+                                             const char* year_delem = "-",
+                                             const char* sparator = " ",
+                                             const char* time_delem = ":",
+                                             bool add_millis = false);
+
+    BASEPP_EXPORT std::string format_time (time_point const& tp,
+                                           const char* year_delem = "-",
+                                           const char* sparator = " ",
+                                           const char* time_delem = ":",
+                                           bool add_millis = false);
+
+    BASEPP_EXPORT time_point parse_time (const std::string& s);
+    BASEPP_EXPORT time_point parse_time (std::istream& in);
+
+    BASEPP_EXPORT std::ostream& operator<< (std::ostream&, time_point const&);
+    BASEPP_EXPORT std::istream& operator>> (std::istream&, time_point&);
+
+    // --------------------------------------------------------------------------
+    BASEPP_EXPORT std::ostream& format_duration (std::ostream&,
+                                                 duration const& d,
+                                                 const char* sparator = " ",
+                                                 const char* time_delem = ":",
+                                                 bool add_millis = false);
+
+    BASEPP_EXPORT std::string format_duration (duration const& d,
+                                               const char* sparator = " ",
+                                               const char* time_delem = ":",
+                                               bool add_millis = false);
+
+    BASEPP_EXPORT duration parse_duration (const std::string& s);
+    BASEPP_EXPORT duration parse_duration (std::istream& in);
+
+    BASEPP_EXPORT std::ostream& operator<< (std::ostream&, duration const&);
+    BASEPP_EXPORT std::istream& operator>> (std::istream&, duration&);
 
   } // namespace time
 

@@ -14,12 +14,17 @@ set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library 
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
+    set (gui_VERSION_MAJOR 0)
+    set (gui_VERSION_MINOR 1)
+    set (gui_VERSION_PATCH 0)
+    set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
+
     add_subdirectory(../base base)
 
     message(STATUS "gui basepp_libraries: ${basepp_libraries}")
     message(STATUS "gui basepp_sys_libraries: ${basepp_sys_libraries}")
 
-    set (gui_defines ${basepp_defines})
+    set (gui_defines ${basepp_defines} -DWIN32_LEAN_AND_MEAN)
     set (gui_include
         ${basepp_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -30,6 +35,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     if(UNIX)
         set (gui_include ${gui_include} /usr/include/freetype2)
         set (gui_sys_libraries X11 Xft fontconfig)
+        set (gui_defines ${gui_defines} -DX11 -std=c++11)
     endif(UNIX)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
@@ -54,16 +60,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         )
         set (gui_sys_libraries ${basepp_libraries} gui++ ${gui_sys_libraries} ${basepp_sys_libraries})
     else()
-        set (gui_libraries gui++-app
-                           gui++
-        )
+        set (gui_libraries gui++-app gui++)
         set (gui_sys_libraries ${basepp_libraries} ${gui_sys_libraries} ${basepp_sys_libraries})
     endif()
-
-    set (gui_VERSION_MAJOR 0)
-    set (gui_VERSION_MINOR 1)
-    set (gui_VERSION_PATCH 0)
-    set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
         set (gui_defines ${gui_defines} -Dgui___core_obj_EXPORTS -Dgui___win_obj_EXPORTS -Dgui___draw_obj_EXPORTS -Dgui___io_obj_EXPORTS -Dgui___ctrl_obj_EXPORTS)
@@ -97,7 +96,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
         message(STATUS "gui build global shared gui library")
 
-        add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
+        add_definitions(-Dgui___EXPORTS ${gui_defines})
 
         add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
                                  $<TARGET_OBJECTS:gui++-win-obj>
@@ -125,7 +124,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
         message(STATUS "gui build multiple shared gui libraries")
 
-        add_definitions(-DWIN32_LEAN_AND_MEAN -Dgui___EXPORTS ${gui_defines})
+        add_definitions(-Dgui___EXPORTS ${gui_defines})
         
         add_library(gui++ SHARED gui.cpp)
 
@@ -147,7 +146,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     else()
         message(STATUS "gui build multiple static gui libraries")
 
-        add_definitions(-DWIN32_LEAN_AND_MEAN ${gui_defines})
+        add_definitions(${gui_defines})
         
         add_library(gui++-static STATIC gui.cpp)
 

@@ -186,10 +186,34 @@ namespace gui {
       win::window::create(clazz::get(), parent, place);
     }
 
+    inline int main_menu::get_selection () const {
+      return data.get_selection();
+    }
+
+    inline core::point main_menu::get_selection_position () const {
+      return sub_menu_position(get_selection());
+    }
+
     // --------------------------------------------------------------------------
     inline popup_menu::popup_menu (std::initializer_list<menu_entry> entries)
       : popup_menu() {
       data.add_entries(entries);
+    }
+
+    inline int popup_menu::get_selection () const {
+      return data.get_selection();
+    }
+
+    inline core::point popup_menu::get_selection_position () const {
+      return sub_menu_position(get_selection());
+    }
+
+    inline void popup_menu::popup (popup_menu& parent) {
+      popup_at(parent.get_selection_position(), parent);
+    }
+
+    inline void popup_menu::popup (main_menu& parent) {
+      popup_at(parent.get_selection_position(), parent);
     }
 
     inline void popup_menu::popup_at (const core::point& pt, popup_menu& parent) {

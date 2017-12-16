@@ -296,6 +296,10 @@ namespace gui {
         : label(label)
       {}
 
+      inline node::node (const char* label)
+        : label(label)
+      {}
+
       inline node::node (std::string&& label)
         : label(std::move(label))
       {}

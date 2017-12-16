@@ -115,6 +115,18 @@ namespace gui {
         list->redraw();
       }
 
+      void column_list_layout::set_default_width (column_size_type w) {
+        for (column_size_type& width  : widths) {
+          width = w;
+        }
+      }
+
+      void column_list_layout::set_default_align (text_origin a) {
+        for (text_origin& align  : aligns) {
+          align = a;
+        }
+      }
+
       void column_list_layout::layout (const core::size&) {
       }
 

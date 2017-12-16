@@ -544,9 +544,16 @@ namespace gui {
 
     template<orientation V, typename T>
     template<typename F>
-    inline void basic_list<V, T>::set_data (const F& data) {
+    inline void basic_list<V, T>::set_data (const simple_list_data<F>& data) {
       super::set_drawer(data);
       set_count(data.size());
+    }
+
+    template<orientation V, typename T>
+    template<typename F>
+    inline void basic_list<V, T>::set_data (std::initializer_list<T> args) {
+      super::set_drawer(simple_list_data<F>(args));
+      set_count(args.size());
     }
 
     template<orientation V, typename T>

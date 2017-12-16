@@ -71,39 +71,8 @@ namespace basepp {
       return out;
     }
 
-    class ostream_resetter {
-    public:
-      inline ostream_resetter (std::ostream& out)
-        : m_out(out)
-        , m_fill(out.fill()) {}
-
-      inline ~ostream_resetter () {
-        m_out.fill(m_fill);
-      }
-
-    private:
-      std::ostream& m_out;
-      const char m_fill;
-    };
-
-    std::ostream& operator << (std::ostream& out, std::chrono::system_clock::time_point const& tp) {
-      ostream_resetter r(out);
-
-      std::tm t = time::local_time(tp);
-
-      std::time_t now = std::chrono::system_clock::to_time_t(tp);
-      std::chrono::system_clock::time_point t0 = std::chrono::system_clock::from_time_t(now);
-      std::chrono::microseconds micros = std::chrono::duration_cast<std::chrono::microseconds>(tp - t0);
-
-      out << std::setfill('0')
-        << (t.tm_year + 1900) << '-'
-        << std::setw(2) << (t.tm_mon + 1) << '-'
-        << std::setw(2) << t.tm_mday << ' '
-        << std::setw(2) << t.tm_hour << ':'
-        << std::setw(2) << t.tm_min << ':'
-        << std::setw(2) << t.tm_sec << '.'
-        << std::setw(6) << micros.count();
-      return out;
+    std::ostream& operator << (std::ostream& out, time::time_point const& tp) {
+      return time::format_time(out, tp, "-", " ", ":", true);
     }
 
     std::ostream& operator << (std::ostream& out, line_id const& id) {
@@ -130,7 +99,7 @@ namespace basepp {
       }
     }
 
-    record::record (const std::chrono::system_clock::time_point& time_point,
+    record::record (const time::time_point& time_point,
                     log::level lvl,
                     const std::string& thread_name,
                     const line_id& line,
@@ -143,7 +112,7 @@ namespace basepp {
     {}
 
     record::record ()
-      : m_time_point(std::chrono::system_clock::time_point())
+      : m_time_point(time::time_point())
       , m_level(log::level::undefined)
       , m_thread_name(t_thread_name)
     {}
@@ -201,7 +170,7 @@ namespace basepp {
     }
 
     void core::log (level lvl,
-                    const std::chrono::system_clock::time_point& time_point,
+                    const time::time_point& time_point,
                     const std::string& message) {
       unsigned int id = ++m_line_id;
       record r(time_point, lvl, t_thread_name, id, message);

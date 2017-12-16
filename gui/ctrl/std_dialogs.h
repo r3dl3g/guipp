@@ -37,28 +37,31 @@ namespace gui {
 
   namespace win {
 
-      //-----------------------------------------------------------------------------
-      typedef void (yes_no_action) (bool);
+    //-----------------------------------------------------------------------------
+    typedef void (dialog_action) (int); // Button no. pressed
 
     //-----------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT standard_dialog_base : public layout_dialog_window<layout::border_layout<>, float, float, float, float> {
+    class GUIPP_CTRL_EXPORT standard_dialog_base :
+        public layout_dialog_window<layout::border_layout<>,
+                                    float, float, float, float> {
     public:
-      typedef layout_dialog_window<layout::border_layout<>, float, float, float, float> super;
-      typedef group_window<layout::horizontal_adaption<>, color::very_light_gray> button_view_type;
+      typedef layout_dialog_window<layout::border_layout<>,
+                                   float, float, float, float> super;
+      typedef group_window<layout::horizontal_adaption<>,
+                           color::very_light_gray> button_view_type;
 
       standard_dialog_base (float top = 0);
 
       void create (win::container& parent,
                    const std::string& title,
-                   const std::string& yes_label,
-                   const std::string& no_label,
                    const core::rectangle& rect,
-                   std::function<yes_no_action> action);
+                   std::function<dialog_action> action,
+                   const std::initializer_list<std::string>& labels);
 
       void show (win::container& parent);
 
-      button_view_type buttons;
-      text_button yes, no;
+      button_view_type button_views;
+      std::vector<text_button> buttons;
     };
 
     //-----------------------------------------------------------------------------
@@ -73,21 +76,28 @@ namespace gui {
 
       void create (win::container& parent,
                    const std::string& title,
-                   const std::string& yes_label,
-                   const std::string& no_label,
                    const core::rectangle& rect,
-                   std::function<yes_no_action> action);
+                   std::function<dialog_action> action,
+                   const std::initializer_list<std::string>& labels);
 
       content_view_type content_view;
     };
 
     //-----------------------------------------------------------------------------
+    typedef void (yes_no_action) (bool);
+
+    //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT yes_no_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
-                                                                                color::very_light_gray,
-                                                                                float, float, float, float>> {
+                                                                   color::very_light_gray,
+                                                                   float, float, float, float>> {
     public:
-      typedef win::basic_textbox<text_origin::center, draw::frame::sunken_relief, color::black, color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border_layout<>, color::very_light_gray, float, float, float, float> content_view_type;
+      typedef win::basic_textbox<text_origin::center,
+                                 draw::frame::sunken_relief,
+                                 color::black,
+                                 color::very_light_gray> message_view_type;
+      typedef win::group_window<layout::border_layout<>,
+                                color::very_light_gray,
+                                float, float, float, float> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       yes_no_dialog ();

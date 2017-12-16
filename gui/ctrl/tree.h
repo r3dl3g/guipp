@@ -159,6 +159,7 @@ namespace gui {
         typedef node_list::const_iterator iterator;
 
         node (const std::string& label = std::string());
+        node (const char* label);
         node (std::string&& label);
         node (const std::string& label, std::initializer_list<node> nodes);
 

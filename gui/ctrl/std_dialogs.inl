@@ -28,6 +28,7 @@ namespace gui {
       : super(top, 45, 0, 0)
     {}
 
+    //-----------------------------------------------------------------------------
     template<typename T>
     inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
       : super(top)
@@ -43,12 +44,11 @@ namespace gui {
     template<typename T>
     void standard_dialog<T>::create (win::container& parent,
                                      const std::string& title,
-                                     const std::string& yes_label,
-                                     const std::string& no_label,
                                      const core::rectangle& rect,
-                                     std::function<yes_no_action> action) {
+                                     std::function<dialog_action> action,
+                                     const std::initializer_list<std::string>& labels) {
       get_layout().set_center(&content_view);
-      super::create(parent, title, yes_label, no_label, rect, action);
+      super::create(parent, title, rect, action, labels);
       content_view.create(*this, rect);
     }
 
@@ -104,10 +104,10 @@ namespace gui {
         action(path);
       });
 
-      super::create(parent, title, ok_label, cancel_label,
+      super::create(parent, title,
                     core::rectangle(300, 200, 600, 400),
-                    [&] (bool open) {
-        if (open) {
+                    [&] (int btn) {
+        if (1 == btn) {
           if (super::content_view.second.list.get_selection() > -1) {
             action(super::content_view.second.get_selected_path());
           } else {
@@ -117,7 +117,7 @@ namespace gui {
             }
           }
         }
-      });
+      }, {cancel_label, ok_label});
 
       super::content_view.set_split_pos(0.3);
 

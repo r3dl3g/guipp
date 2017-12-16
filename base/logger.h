@@ -48,6 +48,25 @@
 */
 namespace basepp {
 
+  class ostream_resetter {
+  public:
+    inline ostream_resetter (std::ostream& out)
+      : m_out(out)
+      , m_fill(out.fill())
+      , m_width(out.width())
+    {}
+
+    inline ~ostream_resetter () {
+      m_out.fill(m_fill);
+      m_out.width(m_width);
+    }
+
+  private:
+    std::ostream& m_out;
+    const char m_fill;
+    std::streamsize m_width;
+  };
+
   namespace log {
 
     /// convenience stream operator to print log level to ostream.

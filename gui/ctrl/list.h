@@ -217,7 +217,10 @@ namespace gui {
       void set_count (std::size_t count);
 
       template<typename F>
-      void set_data (const F& data);
+      void set_data (const simple_list_data<F>& data);
+
+      template<typename F>
+      void set_data (std::initializer_list<T> args);
 
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);

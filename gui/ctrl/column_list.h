@@ -61,13 +61,15 @@ namespace gui {
 
         column_size_type get_column_left_pos (std::size_t i) const;
         column_size_type get_column_right_pos (std::size_t i) const;
+        core::size::type get_available_width () const;
 
         void set_column_align (std::size_t i, text_origin a);
         void set_column_width (std::size_t i, column_size_type w, bool update = false);
         void set_column_info (std::size_t i, const column_info& info, bool update = false);
         void set_columns (std::initializer_list<column_info> infos, bool update = false);
 
-        core::size::type get_available_width () const;
+        void set_default_width (column_size_type);
+        void set_default_align (text_origin);
 
         void set_list (list_type* l);
 
@@ -182,9 +184,9 @@ namespace gui {
   namespace win {
 
     GUIPP_CTRL_EXPORT void default_header_cell_drawer (std::size_t i,
-                                     const draw::graphics& g,
-                                     const core::rectangle& r,
-                                     const draw::brush& background);
+                                                       const draw::graphics& g,
+                                                       const core::rectangle& r,
+                                                       const draw::brush& background);
 
     // --------------------------------------------------------------------------
     template<typename Layout, os::color background = color::very_very_light_gray>
@@ -193,7 +195,6 @@ namespace gui {
       typedef Layout layout_type;
       typedef window super;
       typedef no_erase_window_class<column_list_header> clazz;
-
       typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
                                const core::rectangle&, // place
@@ -209,6 +210,7 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
+      void set_labels (std::initializer_list<std::string> labels);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);
@@ -451,15 +453,10 @@ namespace gui {
 
       typedef Layout layout_type;
       typedef detail::base_column_list<layout_type> super;
-
       typedef column_list_row_t<Arguments ...> row;
-
       typedef static_column_list_data_t<Arguments ...> standard_data;
-
       typedef column_list_row_drawer_t<layout_type, Arguments ...> row_drawer;
-
       typedef row (get_row_data_t)(std::size_t idy);
-
       typedef void (draw_row_data_t)(const row&,             // r
                                      const layout_type&,     // l
                                      const draw::graphics&,  // g
@@ -478,7 +475,6 @@ namespace gui {
       column_list_t (column_list_t&& rhs);
 
       void set_drawer (data_drawer drawer);
-
       void set_data (data_provider data, std::size_t count);
 
     protected:

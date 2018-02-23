@@ -104,6 +104,33 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
+    message_dialog::message_dialog ()
+      : super(content_view_type(20, 15, 15, 15))
+    {
+      content_view.get_layout().set_center(&message_view);
+    }
+
+    void message_dialog::create (win::container& parent,
+                                const std::string& title,
+                                const std::string& message,
+                                const std::string& ok_label,
+                                const core::rectangle& rect) {
+      super::create(parent, title, rect, [&] (int) {
+        end_modal();
+      }, {ok_label});
+      message_view.create(content_view, message, rect);
+    }
+
+    void message_dialog::show (win::container& parent,
+                               const std::string& title,
+                               const std::string& message,
+                               const std::string& ok_label) {
+      message_dialog dialog;
+      dialog.create(parent, title, message, ok_label, core::rectangle(300, 200, 400, 170));
+      dialog.super::show(parent);
+    }
+
+    //-----------------------------------------------------------------------------
     file_save_dialog::file_save_dialog ()
       : super(dir_file_view<>(), 38)
       , top_view(8, 8, 60, 8)

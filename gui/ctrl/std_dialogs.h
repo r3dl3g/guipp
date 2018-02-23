@@ -56,7 +56,7 @@ namespace gui {
                    const std::string& title,
                    const core::rectangle& rect,
                    std::function<dialog_action> action,
-                   const std::initializer_list<std::string>& labels);
+                   const std::initializer_list<std::string>& button_labels);
 
       void show (win::container& parent);
 
@@ -78,9 +78,40 @@ namespace gui {
                    const std::string& title,
                    const core::rectangle& rect,
                    std::function<dialog_action> action,
-                   const std::initializer_list<std::string>& labels);
+                   const std::initializer_list<std::string>& button_labels);
 
       content_view_type content_view;
+    };
+
+    //-----------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT message_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
+                                                                    color::very_light_gray,
+                                                                    float, float, float, float>> {
+    public:
+      typedef win::basic_textbox<text_origin::center,
+                                 draw::frame::sunken_relief,
+                                 color::black,
+                                 color::very_light_gray> message_view_type;
+      typedef win::group_window<layout::border_layout<>,
+                                color::very_light_gray,
+                                float, float, float, float> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+
+      message_dialog ();
+
+      void create (win::container& parent,
+                   const std::string& title,
+                   const std::string& message,
+                   const std::string& ok_label,
+                   const core::rectangle& rect);
+
+      static void show (win::container& parent,
+                       const std::string& title,
+                       const std::string& message,
+                       const std::string& ok_label);
+
+      message_view_type message_view;
+
     };
 
     //-----------------------------------------------------------------------------

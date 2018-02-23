@@ -104,7 +104,7 @@ namespace basepp {
     }
 
     time_point parse_time (std::istream& strm) {
-      int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, millis = 0;
+      int year = 0, month = 1, day = 1, hour = 0, minute = 0, second = 0, millis = 0;
       try {
         if (strm.good()) {
           strm >> year;

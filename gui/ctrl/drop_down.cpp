@@ -88,9 +88,9 @@ namespace gui {
         if (!r.empty()) {
           std::vector<core::point> p;
           if (is_open) {
-            p = {{r.center_x(), r.y()}, r.bottom_right(), r.bottom_left()};
+            p = {r.bottom_right(), {r.center_x(), r.y()}, r.bottom_left()};
           } else {
-            p = {r.top_left(), r.top_right(), {r.center_x(), r.y2()}};
+            p = {r.top_left(), {r.center_x(), r.y2()}, r.top_right()};
           }
           graph.fill(draw::polygon(p), color::black);
         }

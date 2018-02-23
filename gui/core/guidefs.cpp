@@ -39,8 +39,12 @@ namespace gui {
     namespace global {
 
 #ifdef X11
+      namespace {
+        bool at_shutdown = false;
+      }
+
       int ErrorHandler (Display* dpy, XErrorEvent* errev) {
-        if ((errev->error_code == 143) && (errev->request_code == 139)) {
+        if (at_shutdown || ((errev->error_code == 143) && (errev->request_code == 139))) {
           return 0;
         }
 
@@ -93,7 +97,8 @@ namespace gui {
 
         ~gui_init () {
 #ifdef X11
-          XSync(instance, False);
+          at_shutdown = true;
+//          XSync(instance, False);
           XCloseDisplay(instance);
           screen = 0;
 #endif // X11

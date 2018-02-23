@@ -82,14 +82,31 @@ struct date {
 };
 
 std::ostream& operator<< (std::ostream& out, const date& dt) {
-  out << dt.year << '-' << dt.month << '-' << dt.day;
+  basepp::ostream_resetter r(out);
+  out << std::setfill('0') << dt.year
+      << '-' << std::setw(2) << dt.month
+      << '-' << std::setw(2) << dt.day;
   return out;
 }
 
 std::istream& operator>> (std::istream& in, date& dt) {
   char ch;
-  uint32_t y, m, d;
-  in >> y >> ch >> m >> ch >> d;
+  uint32_t y = 0, m = 1, d = 1;
+  if (in.good()) {
+    in >> y;
+    while (in.good() && !isdigit(in.peek())) {
+      in.ignore(1);
+    }
+    if (in.good()) {
+      in >> m;
+      while (in.good() && !isdigit(in.peek())) {
+        in.ignore(1);
+      }
+      if (in.good()) {
+        in >> d;
+      }
+    }
+  }
   dt = {y, m, d};
   return in;
 }
@@ -580,7 +597,9 @@ public:
     });
 
   }
-  void about () {}
+  void about () {
+    message_dialog::show(*this, "About TimeTracker", "TimeTracker Version 0.0.1", "Ok");
+  }
 
   void category_add () {}
   void category_remove () {}

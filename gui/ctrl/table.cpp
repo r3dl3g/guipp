@@ -40,11 +40,11 @@ namespace gui {
                                                          bool hilited) {
         using namespace draw;
         const os::color back = (selected ? color::highLightColor()
-                                : (hilited ? color::darker(background, 0.05F)
-                                   : background));
+                                         : (hilited ? color::darker(background, 0.05F)
+                                                    : background));
         const os::color fore = (selected ? color::highLightTextColor()
-                                : (hilited ? color::darker(foreground, 0.25F)
-                                   : foreground));
+                                         : (hilited ? color::darker(foreground, 0.25F)
+                                                    : foreground));
         graph.fill(rectangle(place), back);
         graph.text(text_box(t, place, align), font::system(), fore);
       }

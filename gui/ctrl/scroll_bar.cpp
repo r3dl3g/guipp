@@ -20,6 +20,7 @@
 //
 // Library includes
 //
+#include <base/string_util.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/button.h>
 
@@ -212,6 +213,18 @@ namespace gui {
     }
 
     namespace paint {
+
+      namespace {
+        std::string up_left_arrows[] = {
+          "\xe2\x96\xb4", // up
+          "\xe2\x97\x82", // left
+          };
+        std::string down_right_arrows[] = {
+          "\xe2\x96\xbe",  // down
+          "\xe2\x96\xb8", // right
+        };
+      }
+
       // --------------------------------------------------------------------------
       void scrollbar (const draw::graphics &g,
                       scrollbar_state state,
@@ -240,32 +253,16 @@ namespace gui {
           if (scrollbar_state::up_button == state) {
             draw::frame::sunken_relief(g, up.shrinked(core::size::two));
           }
-          core::rectangle r = up.shrinked({5, 5});
-          if (!r.empty()) {
-            std::vector<core::point> p;
-            if (horizontal) {
-              p = {{r.x(), r.center_y()}, r.top_right(), r.bottom_right()};
-            } else {
-              p = {{r.center_x(), r.y()}, r.bottom_right(), r.bottom_left()};
-            }
-            g.fill(draw::polygon(p), col);
-          }
+          auto s = up_left_arrows[horizontal];
+          g.text(draw::text_box(s, up, text_origin::center), draw::font::system(), col);
         }
         if (!down.empty()) {
           paint::simple_frame(g, down, scrollbar_state::down_button == hilite);
           if (scrollbar_state::down_button == state) {
             draw::frame::sunken_relief(g, down.shrinked(core::size::two));
           }
-          core::rectangle r = down.shrinked({5, 5});
-          if (!r.empty()) {
-            std::vector<core::point> p;
-            if (horizontal) {
-              p = {r.top_left(), r.bottom_left(), {r.x2(), r.center_y()}};
-            } else {
-              p = {r.top_left(), r.top_right(), {r.center_x(), r.y2()}};
-            }
-            g.fill(draw::polygon(p), col);
-          }
+          auto s = down_right_arrows[horizontal];
+          g.text(draw::text_box(s, down, text_origin::center), draw::font::system(), col);
         }
         if (!thumb.empty()) {
           paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite, 3, horizontal ? 3 : 13);

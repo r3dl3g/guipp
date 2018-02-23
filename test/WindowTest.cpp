@@ -84,7 +84,7 @@ std::vector<core::point> calc_star(core::point::type x, core::point::type y, cor
 }
 
 template<draw::frame::drawer F = draw::frame::sunken_relief>
-void tile_drawer (std::size_t idx,
+void htile_drawer (std::size_t idx,
                   const draw::graphics& g,
                   const core::rectangle& place,
                   const draw::brush& background,
@@ -92,9 +92,24 @@ void tile_drawer (std::size_t idx,
                   bool hilited) {
   using namespace draw;
 
-  win::paint::text_cell<std::size_t, F>(static_cast<int>(idx), g, place,
-                                        text_origin::center, color::black,
-                                        background.color(), selected, hilited);
+  win::paint::text_cell<std::size_t, F>(idx,
+                                        g, place, text_origin::center, color::black, background.color(),
+                                        selected, hilited);
+}
+
+template<draw::frame::drawer F = draw::frame::sunken_relief>
+void vtile_drawer (std::size_t idx,
+                  const draw::graphics& g,
+                  const core::rectangle& place,
+                  const draw::brush& background,
+                  bool selected,
+                  bool hilited) {
+  using namespace draw;
+
+  std::string s = basepp::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
+  win::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
+                                        g, place, text_origin::vcenter_left, color::black, background.color(),
+                                        selected, hilited);
 }
 
 namespace gui {
@@ -818,13 +833,13 @@ my_main_window::my_main_window ()
   htileview.set_border({ 10, 20 });
   htileview.set_spacing({ 2, 4 });
   
-  vtileview.set_item_size({ 40, 60 });
+  vtileview.set_item_size({ 70, 25 });
   vtileview.set_background(color::very_light_gray);
-  vtileview.set_border({ 20, 10 });
-  vtileview.set_spacing({ 5, 5 });
+  vtileview.set_border({ 10, 10 });
+  vtileview.set_spacing({ 1, 1 });
 
-  htileview.set_drawer(tile_drawer<draw::frame::sunken_relief>);
-  vtileview.set_drawer(tile_drawer<draw::frame::raised_relief>);
+  htileview.set_drawer(htile_drawer<draw::frame::sunken_relief>);
+  vtileview.set_drawer(vtile_drawer<draw::frame::raised_relief>);
 
   register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
 }
@@ -1009,7 +1024,7 @@ void my_main_window::created_children () {
   htileview.set_count(20);
 
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
-  vtileview.set_count(30);
+  vtileview.set_count(0xffff - 32);
 
   hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
   progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));

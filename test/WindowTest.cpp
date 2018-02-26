@@ -915,7 +915,7 @@ void my_main_window::created_children () {
 
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
   main_split_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-  main_split_view.second.first.set_data(win::simple_list_data<float>(floats));
+  main_split_view.second.first.set_data<float>(win::simple_list_data<float>(floats));
   main_split_view.second.second.get_column_layout().set_columns(columns);
   main_split_view.second.second.set_data(col_data);
 

@@ -25,7 +25,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -231,7 +231,7 @@ namespace gui {
                       const os::color & background,
                       bool selected,
                       bool hilited) {
-                 win::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
+                 ctrl::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
                                                                         align, foreground, background,
                                                                         selected, hilited);
         };
@@ -247,7 +247,7 @@ namespace gui {
                       const os::color & background,
                       bool selected,
                       bool hilited) {
-                 win::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
+                 ctrl::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
                                                                                 align, foreground, background,
                                                                                 selected, hilited);
         };
@@ -295,9 +295,9 @@ namespace gui {
 
       void data_view::init () {
         set_accept_focus(true);
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph){
-                                                                                            paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-                                                                                          })));
+        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph){
+          paint::draw_table_data(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
       }
 
       // --------------------------------------------------------------------------
@@ -326,9 +326,9 @@ namespace gui {
       }
 
       void column_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph) {
-                                                                                            paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-                                                                                          })));
+        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph) {
+          paint::draw_table_column(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
       }
 
       // --------------------------------------------------------------------------
@@ -357,9 +357,9 @@ namespace gui {
       }
 
       void row_view::init () {
-        super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint([&](const draw::graphics & graph){
-                                                                                            paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
-                                                                                          })));
+        super::on_paint(draw::buffered_paint([&](const draw::graphics & graph){
+          paint::draw_table_row(graph, client_area(), geometrie, aligns, foregrounds, backgrounds, drawer, selection_filter, hilite_filter);
+        }));
       }
 
     } // table
@@ -442,44 +442,43 @@ namespace gui {
     void table_view::init () {
       set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
-      register_event_handler(REGISTER_FUNCTION, create_event(this, &table_view::handle_created));
-      register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &table_view::handle_size));
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-                                                                       handle_scroll(core::point(geometrie.widths.get_offset(), pos));
-                                                                     }));
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type pos) {
-                                                                       handle_scroll(core::point(pos, geometrie.heights.get_offset()));
-                                                                     }));
+      on_create(basepp::bind_method(this, &table_view::handle_created));
+      on_layout(basepp::bind_method(this, &table_view::handle_size));
+      vscroll.on_scroll([&] (core::point::type pos) {
+        handle_scroll(core::point(geometrie.widths.get_offset(), pos));
+      });
+      hscroll.on_scroll([&] (core::point::type pos) {
+        handle_scroll(core::point(pos, geometrie.heights.get_offset()));
+      });
 
-      data.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &table_view::handle_key));
-      data.register_event_handler(REGISTER_FUNCTION,
-                                  win::left_btn_dblclk_event([&](os::key_state, const core::point &) {
-                                                               send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-                                                             }));
+      data.on_any_key_down(basepp::bind_method(this, &table_view::handle_key));
+      data.on_left_btn_dblclk([&](os::key_state, const core::point &) {
+        send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
+      });
 
-      data.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type delta, const core::point & pt){
-                                                                     hscroll.handle_wheel(delta, pt);
-                                                                   }));
-      data.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type delta, const core::point & pt){
-                                                                     vscroll.handle_wheel(delta, pt);
-                                                                   }));
-      data.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_mouse_move));
-      data.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_left_btn_down));
-      data.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_left_btn_up));
+      data.on_wheel_x([&](const core::point::type delta, const core::point & pt){
+        hscroll.handle_wheel(delta, pt);
+      });
+      data.on_wheel_y([&](const core::point::type delta, const core::point & pt){
+        vscroll.handle_wheel(delta, pt);
+      });
+      data.on_mouse_move(basepp::bind_method(this, &table_view::handle_mouse_move));
+      data.on_left_btn_down(basepp::bind_method(this, &table_view::handle_left_btn_down));
+      data.on_left_btn_up(basepp::bind_method(this, &table_view::handle_left_btn_up));
 
-      columns.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&](const core::point::type delta, const core::point & pt){
-                                                                        hscroll.handle_wheel(delta, pt);
-                                                                      }));
-      columns.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_column_mouse_move));
-      columns.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_column_left_btn_down));
-      columns.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_column_left_btn_up));
+      columns.on_wheel_x([&](const core::point::type delta, const core::point & pt){
+        hscroll.handle_wheel(delta, pt);
+      });
+      columns.on_mouse_move(basepp::bind_method(this, &table_view::handle_column_mouse_move));
+      columns.on_left_btn_down(basepp::bind_method(this, &table_view::handle_column_left_btn_down));
+      columns.on_left_btn_up(basepp::bind_method(this, &table_view::handle_column_left_btn_up));
 
-      rows.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&](const core::point::type delta, const core::point & pt){
-                                                                     vscroll.handle_wheel(delta, pt);
-                                                                   }));
-      rows.register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &table_view::handle_row_mouse_move));
-      rows.register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &table_view::handle_row_left_btn_down));
-      rows.register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &table_view::handle_row_left_btn_up));
+      rows.on_wheel_y([&](const core::point::type delta, const core::point & pt){
+        vscroll.handle_wheel(delta, pt);
+      });
+      rows.on_mouse_move(basepp::bind_method(this, &table_view::handle_row_mouse_move));
+      rows.on_left_btn_down(basepp::bind_method(this, &table_view::handle_row_left_btn_down));
+      rows.on_left_btn_up(basepp::bind_method(this, &table_view::handle_row_left_btn_up));
 
     }
 
@@ -579,8 +578,8 @@ namespace gui {
       data.create(*this, core::rectangle(row_width(), column_height(), 160, 80));
       columns.create(*this, core::rectangle(row_width(), 0, 160, column_height()));
       rows.create(*this, core::rectangle(0, row_width(), column_height(), 80));
-      vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size::type>(win::scroll_bar::scroll_bar_width), 80));
-      hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size::type>(win::scroll_bar::scroll_bar_width)));
+      vscroll.create(*this, core::rectangle(240, 0, static_cast<core::size::type>(scroll_bar::scroll_bar_width), 80));
+      hscroll.create(*this, core::rectangle(0, 100, 240, static_cast<core::size::type>(scroll_bar::scroll_bar_width)));
 
       vscroll.set_max(place.height() * 2);
       vscroll.set_step(column_height());
@@ -600,7 +599,7 @@ namespace gui {
       moved = false;
       data.take_focus();
       down_idx.clear();
-      set_cursor(cursor::move());
+      set_cursor(win::cursor::move());
     }
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
@@ -608,18 +607,18 @@ namespace gui {
         const auto new_selection = data.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (control_key_bit_mask::is_set(keys)) {
+        } else if (win::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
       down_idx.clear();
-      set_cursor(cursor::arrow());
+      set_cursor(win::cursor::arrow());
     }
 
     void table_view::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = data.client_area();
-      if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = last_mouse_point - pt;
           set_scroll_pos(get_scroll_pos() + delta);
@@ -642,7 +641,7 @@ namespace gui {
       if (enable_h_size) {
         down_idx.x(geometrie.widths.split_idx_at(pt.x(), 2.0F));
       }
-      columns.set_cursor(down_idx.x() > -1 ? cursor::size_h() : cursor::move());
+      columns.set_cursor(down_idx.x() > -1 ? win::cursor::size_h() : win::cursor::move());
       columns.capture_pointer();
     }
 
@@ -651,18 +650,18 @@ namespace gui {
         const auto new_selection = columns.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (control_key_bit_mask::is_set(keys)) {
+        } else if (win::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
       down_idx.clear();
-      columns.set_cursor(cursor::arrow());
+      columns.set_cursor(win::cursor::arrow());
       columns.uncapture_pointer();
     }
 
     void table_view::handle_column_mouse_move (os::key_state keys, const core::point& pt) {
-      if (left_button_bit_mask::is_set(keys)) {
+      if (win::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx.x() > -1) {
@@ -678,7 +677,7 @@ namespace gui {
         last_mouse_point = pt;
       } else {
         const int idx = enable_h_size ? geometrie.widths.split_idx_at(pt.x(), 2.0F) : -1;
-        columns.set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
+        columns.set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
         if (idx < 0) {
           const auto new_hilite = columns.get_index_at_point(pt);
           if (geometrie.hilite != new_hilite) {
@@ -696,7 +695,7 @@ namespace gui {
       if (enable_v_size) {
         down_idx.y(geometrie.heights.split_idx_at(pt.y(), 2.0F));
       }
-      rows.set_cursor(down_idx.y() > -1 ? cursor::size_v() : cursor::move());
+      rows.set_cursor(down_idx.y() > -1 ? win::cursor::size_v() : win::cursor::move());
       rows.capture_pointer();
     }
 
@@ -705,18 +704,18 @@ namespace gui {
         const auto new_selection = rows.get_index_at_point(pt);
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
-        } else if (control_key_bit_mask::is_set(keys)) {
+        } else if (win::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
       last_mouse_point = core::point::undefined;
       down_idx.clear();
-      rows.set_cursor(cursor::arrow());
+      rows.set_cursor(win::cursor::arrow());
       rows.uncapture_pointer();
     }
 
     void table_view::handle_row_mouse_move (os::key_state keys, const core::point& pt) {
-      if (left_button_bit_mask::is_set(keys)) {
+      if (win::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.y() - last_mouse_point.y();
           if (down_idx.y() > -1) {
@@ -732,7 +731,7 @@ namespace gui {
         last_mouse_point = pt;
       } else {
         const int idx = enable_v_size ? geometrie.heights.split_idx_at(pt.y(), 2.0F) : -1;
-        rows.set_cursor(idx > -1 ? cursor::size_v() : cursor::arrow());
+        rows.set_cursor(idx > -1 ? win::cursor::size_v() : win::cursor::arrow());
         if (idx < 0) {
           const auto new_hilite = rows.get_index_at_point(pt);
           if (geometrie.hilite != new_hilite) {
@@ -748,27 +747,27 @@ namespace gui {
                                  os::key_symbol key,
                                  const std::string&) {
       switch (key) {
-      case keys::up:
-      case keys::numpad::up:
+      case win::keys::up:
+      case win::keys::numpad::up:
         set_selection(get_selection() - table::offset(0, 1), event_source::keyboard);
         break;
-      case keys::down:
-      case keys::numpad::down:
+      case win::keys::down:
+      case win::keys::numpad::down:
         set_selection(get_selection() + table::offset(0, 1), event_source::keyboard);
         break;
-      case keys::left:
-      case keys::numpad::left:
+      case win::keys::left:
+      case win::keys::numpad::left:
         set_selection(get_selection() - table::offset(1, 0), event_source::keyboard);
         break;
-      case keys::right:
-      case keys::numpad::right:
+      case win::keys::right:
+      case win::keys::numpad::right:
         set_selection(get_selection() + table::offset(1, 0), event_source::keyboard);
         break;
-      case keys::page_up:
-      case keys::numpad::page_up: {
+      case win::keys::page_up:
+      case win::keys::numpad::page_up: {
         const core::point pt = geometrie.position_of(geometrie.selection);
         core::size sz = data.client_size();
-        if (alt_key_bit_mask::is_set(state)) {
+        if (win::alt_key_bit_mask::is_set(state)) {
           sz.height(0);
         } else {
           sz.width(0);
@@ -777,11 +776,11 @@ namespace gui {
         set_selection(geometrie.index_at(pt), event_source::logic);
         break;
       }
-      case keys::page_down:
-      case keys::numpad::page_down: {
+      case win::keys::page_down:
+      case win::keys::numpad::page_down: {
         const core::point pt = geometrie.position_of(geometrie.selection);
         core::size sz = data.client_size();
-        if (alt_key_bit_mask::is_set(state)) {
+        if (win::alt_key_bit_mask::is_set(state)) {
           sz.height(0);
         } else {
           sz.width(0);
@@ -791,15 +790,15 @@ namespace gui {
         break;
       }
       break;
-      case keys::home:
-      case keys::numpad::home:
+      case win::keys::home:
+      case win::keys::numpad::home:
         set_selection(table::position(0, 0), event_source::keyboard);
         break;
-      case keys::f2:
-      case keys::enter:
+      case win::keys::f2:
+      case win::keys::enter:
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         break;
-      case keys::escape:
+      case win::keys::escape:
         clear_selection(event_source::keyboard);
         break;
       }
@@ -818,32 +817,31 @@ namespace gui {
                    align, foreground, background, header_background)
       , enable_edit(true)
     {
-      register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::enter_edit));
+      register_event_handler(selection_commit_event(basepp::bind_method(this, &table_edit::enter_edit)));
 
-      editor.register_event_handler(REGISTER_FUNCTION,
-                                    win::btn_down_event([&](os::key_state, const core::point & pt) {
-                                                          if (!editor.client_area().is_inside(pt)) {
-                                                            commit_edit();
-                                                          }
-                                                        }));
+      editor.on_btn_down([&](os::key_state, const core::point & pt) {
+        if (!editor.client_area().is_inside(pt)) {
+          commit_edit();
+        }
+      });
 
-      editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &table_edit::cancel_edit));
-      editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &table_edit::commit_edit));
+      editor.on_selection_cancel(basepp::bind_method(this, &table_edit::cancel_edit));
+      editor.on_selection_commit(basepp::bind_method(this, &table_edit::commit_edit));
 
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-                                                                       if (editor.is_visible()) {
-                                                                         editor.move(geometrie.position_of(get_selection()));
-                                                                       }
-                                                                     }));
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
-                                                                       if (editor.is_visible()) {
-                                                                         editor.move(geometrie.position_of(get_selection()));
-                                                                       }
-                                                                     }));
+      vscroll.on_scroll([&] (core::point::type) {
+        if (editor.is_visible()) {
+          editor.move(geometrie.position_of(get_selection()));
+        }
+      });
+      hscroll.on_scroll([&] (core::point::type) {
+        if (editor.is_visible()) {
+          editor.move(geometrie.position_of(get_selection()));
+        }
+      });
 
-      register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] (event_source) {
-                                                                               commit_edit();
-                                                                             }));
+      register_event_handler(selection_changed_event([&] (event_source) {
+        commit_edit();
+      }));
 
     }
 
@@ -883,6 +881,6 @@ namespace gui {
       this->data_target = data_target;
     }
 
-  } // win
+  } // ctrl
 
 } // gui

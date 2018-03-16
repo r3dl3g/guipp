@@ -239,7 +239,7 @@ namespace gui {
 
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     void default_header_cell_drawer (std::size_t i,
                                      const draw::graphics& g,
@@ -252,6 +252,6 @@ namespace gui {
     }
 
 
-  } // win
+  } // ctrl
 
 } // gui

@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
 #ifdef WIN32
@@ -36,17 +36,17 @@ namespace gui {
 #endif //WIN32
 #ifdef X11
     using slider_event = core::event_handler<ClientMessage, 0,
-                                       core::params<int>::getter<get_client_data<0, int> >,
-                                       0, client_message_matcher<detail::SLIDER_MESSAGE> >;
+                                       core::params<int>::getter<win::get_client_data<0, int> >,
+                                       0, win::client_message_matcher<detail::SLIDER_MESSAGE> >;
 #endif // X11
        // --------------------------------------------------------------------------
 
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT slider_base : public window {
+      class GUIPP_CTRL_EXPORT slider_base : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef core::point::type type;
 
         slider_base ();
@@ -59,6 +59,8 @@ namespace gui {
 
         inline type get_min () const;
         inline type get_max () const;
+
+        void on_slide (std::function<void(int)>&& f);
 
       protected:
         type min;
@@ -77,12 +79,12 @@ namespace gui {
 
       template<>
       struct slider_cursor<orientation::horizontal> {
-        static constexpr cursor_type value = cursor_type::size_v;
+        static constexpr win::cursor_type value = win::cursor_type::size_v;
       };
 
       template<>
       struct slider_cursor<orientation::vertical> {
-        static constexpr cursor_type value = cursor_type::size_h;
+        static constexpr win::cursor_type value = win::cursor_type::size_h;
       };
 
       // --------------------------------------------------------------------------
@@ -96,7 +98,7 @@ namespace gui {
         basic_slider (const basic_slider& rhs);
         basic_slider (basic_slider&& rhs);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         void set_value (core::point::type v);
@@ -129,7 +131,7 @@ namespace gui {
     using vertical_slider = basic_framed_slider<orientation::vertical>;
     using horizontal_slider = basic_framed_slider<orientation::horizontal>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

@@ -28,7 +28,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -36,8 +36,8 @@ namespace gui {
       class list_base;
 
       // --------------------------------------------------------------------------
-      struct GUIPP_CTRL_EXPORT list_state : public window_state {
-        typedef window_state super;
+      struct GUIPP_CTRL_EXPORT list_state : public win::window_state {
+        typedef win::window_state super;
 
         list_state (const list_base& win);
 
@@ -50,7 +50,7 @@ namespace gui {
         bool set_grab_focus (bool b);
 
       protected:
-        struct flags : public window_state::flags {
+        struct flags : public win::window_state::flags {
           enum {
             mouse_moved = last_window_state_enum,
             scroll_bar_enabled,
@@ -63,6 +63,6 @@ namespace gui {
 
     } // namespace detail
 
-  } // namespace win
+  } // namespace ctrl
 
 } // namespace gui

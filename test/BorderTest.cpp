@@ -86,8 +86,8 @@ private:
   vertical_list left_list;
 
   typedef tree_view simple_tree;
-  typedef win::sorted_file_tree file_tree;
-  win::horizontal_split_view<simple_tree, file_tree> right_view;
+  typedef ctrl::sorted_file_tree file_tree;
+  ctrl::horizontal_split_view<simple_tree, file_tree> right_view;
 
   group_window<attach, color::rgb_gray<224>::value> client_view;
 
@@ -96,7 +96,7 @@ private:
   left_tab_group<color::black, color::very_light_gray, 30, 100> vsegmented1;
   right_tab_group<color::black, color::very_light_gray, 50, 80> vsegmented2;
 
-  client_window<color::rgb_gray<0xda>::value> window1;
+  client_control<color::rgb_gray<0xda>::value> window1;
   rgbamap rgba[2];
   rgbmap bmp[2];
   graymap gray[2];
@@ -148,16 +148,16 @@ my_main_window::my_main_window ()
   , left_list(50, color::rgb_gray<224>::value)
   , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
-  register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
+  on_create(basepp::bind_method(this, &my_main_window::onCreated));
 
-  register_event_handler(REGISTER_FUNCTION, win::destroy_event([&]() {
+  on_destroy([&]() {
     LogDebug << *this << " Destroyed!";
     win::quit_main_loop();
-  }));
+  });
 
-  register_event_handler(REGISTER_FUNCTION, win::close_event(basepp::bind_method(this, &my_main_window::quit)));
+  on_close(basepp::bind_method(this, &my_main_window::quit));
 
-  window1.register_event_handler(REGISTER_FUNCTION, paint_event([&](const graphics& graph){
+  window1.on_paint([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
@@ -196,7 +196,7 @@ my_main_window::my_main_window ()
       }
       x += 110;
     }
-  }));
+  });
 }
 
 // --------------------------------------------------------------------------
@@ -300,30 +300,30 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       separators[i / 4].create(tool_bar);
       tool_bar.get_layout().add_separator(&(separators[i / 4]));
     }
-    b.register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
+    b.on_hilite_changed([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
-    }));
+    });
     ++i;
   }
 
   buttons[0].set_text("cut");
-  buttons[0].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::cut));
+  buttons[0].on_clicked(basepp::bind_method(this, &my_main_window::cut));
   buttons[1].set_text("copy");
-  buttons[1].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::copy));
+  buttons[1].on_clicked(basepp::bind_method(this, &my_main_window::copy));
   buttons[2].set_text("paste");
-  buttons[2].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::paste));
+  buttons[2].on_clicked(basepp::bind_method(this, &my_main_window::paste));
   buttons[3].set_text("rgb");
-  buttons[3].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::test_rgb));
+  buttons[3].on_clicked(basepp::bind_method(this, &my_main_window::test_rgb));
   buttons[4].set_text("bin");
-  buttons[4].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_bin));
+  buttons[4].on_clicked(basepp::bind_method(this, &my_main_window::save_all_bin));
   buttons[5].set_text("ascii");
-  buttons[5].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_ascii));
+  buttons[5].on_clicked(basepp::bind_method(this, &my_main_window::save_all_ascii));
   buttons[6].set_text("src");
-  buttons[6].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::save_all_src));
+  buttons[6].on_clicked(basepp::bind_method(this, &my_main_window::save_all_src));
   buttons[7].set_text("start");
-  buttons[7].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::start_thread));
+  buttons[7].on_clicked(basepp::bind_method(this, &my_main_window::start_thread));
   buttons[8].set_text("stop");
-  buttons[8].register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &my_main_window::stop_thread));
+  buttons[8].on_clicked(basepp::bind_method(this, &my_main_window::stop_thread));
 
   for (i = 9; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));
@@ -383,21 +383,21 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), selected ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
-  left_list.register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&](bool){
+  left_list.on_hilite_changed([&](bool){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " hilited"));
-  }));
-  left_list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source){
+  });
+  left_list.on_selection_changed([&](event_source){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " selected"));
-  }));
-  left_list.register_event_handler(REGISTER_FUNCTION, selection_commit_event([&](){
+  });
+  left_list.on_selection_commit([&](){
     labels[0].set_text(ostreamfmt("list item " << left_list.get_hilite() << " commited"));
-  }));
+  });
 
   client_view.create(*this);
 
-  window1.register_event_handler(REGISTER_FUNCTION, right_btn_up_event([&](os::key_state, const core::point& pt){
+  window1.on_right_btn_up([&](os::key_state, const core::point& pt){
     edit_sub_menu.popup_at(window1.window_to_screen(pt), window1);
-  }));
+  });
 
   window1.create(client_view, core::rectangle(69, 40, 600, 400));
   window1.set_visible();
@@ -410,19 +410,19 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   hsegmented2.create(client_view, core::rectangle(75, 439, 300, 25));
   hsegmented2.set_visible();
 
-  hsegmented2.get_button(0).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&]() {
+  hsegmented2.get_button(0).on_clicked([&]() {
     hsegmented1.get_button(0).disable();
     hsegmented2.get_button(3).disable();
     vsegmented1.get_button(1).disable();
     vsegmented2.disable();
-  }));
+  });
 
-  hsegmented2.get_button(1).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&]() {
+  hsegmented2.get_button(1).on_clicked([&]() {
     hsegmented1.get_button(0).enable();
     hsegmented2.get_button(3).enable();
     vsegmented1.get_button(1).enable();
     vsegmented2.enable();
-  }));
+  });
 
   vsegmented1.add_buttons({"one", "two", "three", "four"});
   vsegmented1.create(client_view, core::rectangle(10, 40, 60, 60));
@@ -433,18 +433,18 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   vsegmented2.set_visible();
 
   for (int i = 0; i < 4; ++i) {
-    vsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
+    vsegmented1.get_button(i).on_clicked([&, i]() {
       labels[1].set_text(ostreamfmt("vsegment " << i << " selected"));
-    }));
-    vsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
+    });
+    vsegmented1.get_button(i).on_hilite_changed([&, i](bool b) {
       labels[1].set_text(ostreamfmt("vsegment " << i << (b ? " " : " un") << "hilited"));
-    }));
-    hsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, i]() {
+    });
+    hsegmented1.get_button(i).on_clicked([&, i]() {
       labels[2].set_text(ostreamfmt("hsegment " << i << " selected"));
-    }));
-    hsegmented1.get_button(i).register_event_handler(REGISTER_FUNCTION, hilite_changed_event([&, i](bool b) {
+    });
+    hsegmented1.get_button(i).on_hilite_changed([&, i](bool b) {
       labels[2].set_text(ostreamfmt("hsegment " << i << (b ? " " : " un") << "hilited"));
-    }));
+    });
   }
 
   client_view.get_layout().attach_fix<What::right, Where::width, -110>(&hsegmented1, &client_view);
@@ -705,7 +705,7 @@ void my_main_window::test_rgb () {
 }
 
 void my_main_window::save_all_bin () {
-  win::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (const sys_fs::path& file) {
+  ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (const sys_fs::path& file) {
     sys_fs::current_path(file);
     std::ofstream("rgba0.b.ppm") << io::opnm<true, BPP::RGBA>(rgba[0]);
     std::ofstream("rgba1.b.ppm") << io::opnm<true, BPP::RGBA>(rgba[1]);

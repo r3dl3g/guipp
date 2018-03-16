@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -49,13 +49,13 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT edit_base : public window {
+      class GUIPP_CTRL_EXPORT edit_base : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef size_t pos_t;
 
         template<typename T = edit_base, os::color C = color::white>
-        using clazz = window_class<T, C, cursor_type::ibeam>;
+        using clazz = win::window_class<T, C, win::cursor_type::ibeam>;
 
         typedef core::range<pos_t> range;
 
@@ -65,11 +65,11 @@ namespace gui {
 
         ~edit_base ();
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const std::string& txt = std::string(),
                      const core::rectangle& place = core::rectangle::def);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         void set_text (const std::string&);
@@ -143,7 +143,7 @@ namespace gui {
     using edit_right = basic_edit<text_origin::vcenter_right>;
     using edit_center = basic_edit<text_origin::center>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

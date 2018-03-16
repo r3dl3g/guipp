@@ -84,7 +84,7 @@ namespace gui {
         str = buffer.data();
       } else {
         switch (key) {
-        case keys::system:
+        case win::keys::system:
           str = "Win";
           break;
         default:

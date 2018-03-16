@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
     inline basic_edit<A, D, F, B>::basic_edit () {
@@ -52,9 +52,9 @@ namespace gui {
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
     inline void basic_edit<A, D, F, B>::init () {
       super::register_handler();
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_edit::paint));
+      super::on_paint(basepp::bind_method(this, &basic_edit::paint));
     }
 
-  } // win
+  } // ctrl
 
 } // gui

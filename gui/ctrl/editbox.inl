@@ -21,11 +21,11 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<draw::frame::drawer frame, os::color foreground, os::color background>
     basic_editbox<frame, foreground, background>::basic_editbox () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_editbox::handle_paint)));
+      on_paint(draw::buffered_paint(this, &basic_editbox::handle_paint));
       enable_select_by_mouse();
     }
 
@@ -43,6 +43,6 @@ namespace gui {
       super::enable_select_by_mouse(text_origin::top_left);
     }
 
-  } // win
+  } // ctrl
 
 } // gui

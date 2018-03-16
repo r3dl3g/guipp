@@ -28,12 +28,12 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     class button_base;
 
      // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT button_state : public window_state {
+    struct GUIPP_CTRL_EXPORT button_state : public win::window_state {
       typedef window_state super;
 
       button_state (const button_base& win);
@@ -58,6 +58,6 @@ namespace gui {
 
     };
 
-  } // namespace win
+  } // namespace ctrl
 
 } // namespace gui

@@ -39,8 +39,8 @@ namespace gui {
       scroll_view_base (win::container* m, const scroll_view_base&);
       scroll_view_base (win::container* m, scroll_view_base&&);
 
-      void init (win::vertical_scroll_bar* vscroll,
-                 win::horizontal_scroll_bar* hscroll,
+      void init (ctrl::vertical_scroll_bar* vscroll,
+                 ctrl::horizontal_scroll_bar* hscroll,
                  win::window* edge);
 
       core::rectangle layout (const core::size& new_size, const core::rectangle& required);
@@ -55,9 +55,9 @@ namespace gui {
         super::init(f1);
       }
 
-      win::vertical_scroll_bar*   vscroll;
-      win::horizontal_scroll_bar* hscroll;
-      win::window*                edge;
+      ctrl::vertical_scroll_bar*   vscroll;
+      ctrl::horizontal_scroll_bar* hscroll;
+      win::window*                 edge;
     };
 
     // --------------------------------------------------------------------------
@@ -87,13 +87,13 @@ namespace gui {
     // --------------------------------------------------------------------------
   } // namespace layout
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT scroll_view : public layout_container<layout::scroll_view> {
+    class GUIPP_CTRL_EXPORT scroll_view : public win::layout_container<layout::scroll_view> {
     public:
-      typedef layout_container<layout::scroll_view> super;
-      typedef window_class<scroll_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
+      typedef win::layout_container<layout::scroll_view> super;
+      typedef win::window_class<scroll_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
       scroll_view ();
 
@@ -105,7 +105,7 @@ namespace gui {
       bool is_vscroll_bar_enabled () const;
       bool is_hscroll_bar_enabled () const;
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void move_children (const core::size& delta);
@@ -119,11 +119,11 @@ namespace gui {
       core::point           current_pos;
       vertical_scroll_bar   vscroll;
       horizontal_scroll_bar hscroll;
-      client_window<>       edge;
+      win::client_window<>       edge;
 
     };
 
-  } // namespace win
+  } // namespace ctrl
 
 } // gui
 

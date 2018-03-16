@@ -24,7 +24,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     //-----------------------------------------------------------------------------
     void standard_dialog_base::create (win::container& parent,
@@ -41,18 +41,18 @@ namespace gui {
       auto i = 0;
       for (auto l : labels) {
         text_button& btn = buttons[i];
-        btn.register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, action, i] () {
+        btn.on_clicked([&, action, i] () {
           end_modal();
           if (action) {
             action(i);
           }
-        }));
+        });
         btn.create(button_views, l);
         ++i;
       }
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+      on_set_focus([&] (window*) {
         buttons[0].take_focus();
-      }));
+      });
     }
 
     void standard_dialog_base::show (win::container& parent) {
@@ -61,8 +61,8 @@ namespace gui {
       parent.disable();
       run_modal(
         {
-          hot_key_action{
-            hot_key(keys::escape, state::none), [&] () {
+          win::hot_key_action{
+            win::hot_key(win::keys::escape, win::state::none), [&] () {
               end_modal();
             }
           }
@@ -153,9 +153,9 @@ namespace gui {
         action(path);
       });
 
-      files.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&] (event_source) {
+      files.list.on_selection_changed([&] (event_source) {
         input_line.set_text(files.get_selected_path().filename().string());
-      }));
+      });
 
       top_view.get_layout().set_center(&input_line);
       top_view.get_layout().set_left(&input_label);
@@ -205,6 +205,6 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
 
-  } // win
+  } // ctrl
 
 } // gui

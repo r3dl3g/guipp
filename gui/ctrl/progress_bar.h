@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -107,7 +107,7 @@ namespace gui {
     using progress_bar = basic_progress_bar<text_origin::center,
                                             draw::frame::sunken_relief>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

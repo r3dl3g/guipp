@@ -27,19 +27,19 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class GUIPP_CTRL_EXPORT separator_base : public window {
+      class GUIPP_CTRL_EXPORT separator_base : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef no_erase_window_class<separator_base> clazz;
 
         separator_base ();
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
       };
@@ -79,7 +79,7 @@ namespace gui {
     using horizontal_separator = basic_separator<orientation::horizontal>;
     using vertical_separator = basic_separator<orientation::vertical>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

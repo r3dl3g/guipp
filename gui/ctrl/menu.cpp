@@ -469,47 +469,45 @@ namespace gui {
       set_accept_focus(true);
       data.set_mouse_function(basepp::bind_method(this, &main_menu::handle_mouse));
 
-      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &main_menu::paint)));
+      on_paint(draw::buffered_paint(this, &main_menu::paint));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&] (os::key_state, const core::point & pt) {
+      on_mouse_move_abs([&] (os::key_state, const core::point & pt) {
         data.handle_mouse(false, pt);
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
+      on_mouse_leave(basepp::bind_method(&data, &menu_data::clear_hilite));
 
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+      on_set_focus([&] (window*) {
         if (data.get_hilite() == -1) {
           data.set_hilite(0);
         }
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+      on_lost_focus([&] (window*) {
         if (data.get_hilite() > -1) {
           data.clear_hilite();
         }
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+      on_selection_changed([&] (event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
           data[idx].select();
         }
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point & pt) {
+      on_left_btn_down([&] (os::key_state, const core::point & pt) {
         take_focus();
         data.handle_mouse(true, client_to_screen(pt));
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&] (os::key_state,
-                                                                        os::key_symbol key,
-                                                                        const std::string &) {
+      on_any_key_down([&] (os::key_state, os::key_symbol key, const std::string &) {
         handle_key(key);
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, create_event([&] (window *, const core::rectangle &) {
+      on_create([&] (window *, const core::rectangle &) {
         data.register_menu_keys(this);
-      }));
+      });
     }
 
     void main_menu::handle_mouse (bool btn, const core::point& gpt){
@@ -540,8 +538,8 @@ namespace gui {
         return true;
       }
       switch (key) {
-      case keys::left:
-      case keys::numpad::left:
+      case win::keys::left:
+      case win::keys::numpad::left:
         if (data.is_open()) {
           data.rotate_selection(-1);
         } else {
@@ -549,8 +547,8 @@ namespace gui {
         }
         return true;
 
-      case keys::right:
-      case keys::numpad::right:
+      case win::keys::right:
+      case win::keys::numpad::right:
         if (data.is_open()) {
           data.rotate_selection(1);
         } else {
@@ -558,16 +556,16 @@ namespace gui {
         }
         return true;
 
-      case keys::up:
-      case keys::numpad::up:
-      case keys::escape:
+      case win::keys::up:
+      case win::keys::numpad::up:
+      case win::keys::escape:
         data.close();
         redraw();
         return true;
 
-      case keys::down:
-      case keys::numpad::down:
-      case keys::enter:
+      case win::keys::down:
+      case win::keys::numpad::down:
+      case win::keys::enter:
         if (!data.is_open() && (data.get_hilite() > -1)) {
           data.set_selection(data.get_hilite(), event_source::keyboard);
         }
@@ -645,15 +643,16 @@ namespace gui {
     }
 
     void popup_menu::init () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &popup_menu::paint));
+      register_event_handler(paint_event(basepp::bind_method(this, &popup_menu::paint)));
+//      on_paint(basepp::bind_method(this, &popup_menu::paint));
 
-      register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state, const core::point & pt) {
+      on_mouse_move_abs([&](os::key_state, const core::point & pt) {
         data.handle_mouse(false, pt);
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event(&data, &menu_data::clear_hilite));
+      on_mouse_leave(basepp::bind_method(&data, &menu_data::clear_hilite));
 
-      register_event_handler(REGISTER_FUNCTION, selection_changed_event([&](event_source) {
+      register_event_handler(selection_changed_event([&](event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
           if (!data[idx].is_sub_menu()) {
@@ -663,25 +662,23 @@ namespace gui {
         }
       }));
 
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point & pt) {
+      on_left_btn_down([&](os::key_state, const core::point & pt) {
         data.handle_mouse(true, client_to_screen(pt));
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*) {
+      on_lost_focus([&](window*) {
         redraw();
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, any_key_down_event([&] (os::key_state,
-                                                                        os::key_symbol key,
-                                                                        const std::string &) {
+      on_any_key_down([&] (os::key_state, os::key_symbol key, const std::string &) {
         handle_key(key);
-      }));
+      });
 
-      register_event_handler(REGISTER_FUNCTION, show_event([&] () {
+      on_show([&] () {
         capture_pointer();
-      }));
+      });
 
-//      register_event_handler(REGISTER_FUNCTION, create_event([&](window*, const core::rectangle&){
+//      register_event_handler(create_event([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
 //      }));
     }
@@ -695,9 +692,9 @@ namespace gui {
         return true;
       }
       switch (key) {
-      case keys::left:
-      case keys::numpad::left:
-      case keys::escape:
+      case win::keys::left:
+      case win::keys::numpad::left:
+      case win::keys::escape:
         if (data.is_open()) {
           int idx = data.get_hilite();
           data.close();
@@ -706,13 +703,13 @@ namespace gui {
           return true;
         }
         break;
-      case keys::up:
-      case keys::numpad::up:
+      case win::keys::up:
+      case win::keys::numpad::up:
         data.rotate_hilite(-1);
         return true;
 
-      case keys::right:
-      case keys::numpad::right: {
+      case win::keys::right:
+      case win::keys::numpad::right: {
         int idx = data.get_hilite();
         if (!data.is_open() && (idx > -1) && data[idx].is_sub_menu()) {
           data.set_selection(idx, event_source::keyboard);
@@ -720,12 +717,12 @@ namespace gui {
         }
         break;
       }
-      case keys::down:
-      case keys::numpad::down:
+      case win::keys::down:
+      case win::keys::numpad::down:
         data.rotate_hilite(1);
         return true;
 
-      case keys::enter:
+      case win::keys::enter:
         if (data.get_hilite() > -1) {
           data.set_selection(data.get_hilite(), event_source::keyboard);
         }

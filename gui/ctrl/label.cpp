@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -87,6 +87,6 @@ namespace gui {
 
     } //paint
 
-  } // win
+  } // ctrl
 
 } // gui

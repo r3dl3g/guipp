@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -323,7 +323,7 @@ namespace gui {
       {}
 
       template<template<typename U> class T>
-      void cell_view<T>::create (const container& parent,
+      void cell_view<T>::create (const win::container& parent,
                                  const core::rectangle& place) {
         window::create(clazz::get(), parent, place);
       }
@@ -389,6 +389,6 @@ namespace gui {
       return enable_edit;
     }
 
-  } // win
+  } // ctrl
 
 } // gui

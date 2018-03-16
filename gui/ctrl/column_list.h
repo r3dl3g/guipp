@@ -41,7 +41,7 @@ namespace gui {
 
       class GUIPP_CTRL_EXPORT column_list_layout {
       public:
-        typedef win::vertical_list list_type;
+        typedef ctrl::vertical_list list_type;
 
         column_list_layout (win::window* main);
         column_list_layout (win::window* main, const column_list_layout& rhs);
@@ -153,7 +153,7 @@ namespace gui {
       class base_column_list_layout : protected layout_base {
       public:
         typedef layout_base super;
-        typedef win::vertical_list list_type;
+        typedef ctrl::vertical_list list_type;
 
         base_column_list_layout (win::container* m);
         base_column_list_layout (win::container* m, const base_column_list_layout& rhs);
@@ -181,7 +181,7 @@ namespace gui {
 
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     GUIPP_CTRL_EXPORT void default_header_cell_drawer (std::size_t i,
                                                        const draw::graphics& g,
@@ -190,10 +190,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename Layout, os::color background = color::very_very_light_gray>
-    class column_list_header : public window {
+    class column_list_header : public control {
     public:
       typedef Layout layout_type;
-      typedef window super;
+      typedef control super;
       typedef no_erase_window_class<column_list_header> clazz;
       typedef void (cell_draw)(std::size_t,            // idx
                                const draw::graphics&,  // gc
@@ -206,7 +206,7 @@ namespace gui {
 
       void paint (const draw::graphics& g);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_cell_drawer (std::function<cell_draw> cd);
@@ -236,12 +236,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename Layout>
-      class base_column_list : public layout_container<layout::detail::base_column_list_layout> {
+      class base_column_list : public win::layout_container<layout::detail::base_column_list_layout> {
       public:
         typedef Layout layout_type;
-        typedef layout_container<layout::detail::base_column_list_layout> super;
+        typedef win::layout_container<layout::detail::base_column_list_layout> super;
         typedef column_list_header<layout_type> header_type;
-        typedef win::vertical_list list_type;
+        typedef vertical_list list_type;
         typedef no_erase_window_class<base_column_list> clazz;
 
         base_column_list (core::size::type item_size = 20,
@@ -320,7 +320,7 @@ namespace gui {
 
       void set_drawer (std::function<cell_draw> drawer);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       template<typename T, draw::frame::drawer F = draw::frame::no_frame>
@@ -489,7 +489,7 @@ namespace gui {
       data_provider data;
     };
     // --------------------------------------------------------------------------
-  } // win
+  } // ctrl
 
 } // gui
 

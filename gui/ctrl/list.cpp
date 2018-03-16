@@ -25,7 +25,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -72,19 +72,19 @@ namespace gui {
 #endif // X11
 
         set_accept_focus(true);
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, grab_focus] (os::key_state, const core::point & pt) {
+        on_left_btn_down([&, grab_focus] (os::key_state, const core::point & pt) {
           data.last_mouse_point = pt;
           get_state().set_moved(false);
           if (grab_focus) {
             take_focus();
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+        });
+        on_set_focus([&] (window*) {
           redraw();
-        }));
-        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        });
+        on_lost_focus([&] (window*) {
           redraw();
-        }));
+        });
       }
 
       void list_base::set_drawer (const std::function<draw_list_item>& drawer) {
@@ -112,12 +112,12 @@ namespace gui {
     template<>
     void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-      case keys::left:
-      case keys::numpad::left:
+      case win::keys::left:
+      case win::keys::numpad::left:
         set_selection(super::get_selection() - 1, event_source::keyboard);
         break;
-      case keys::right:
-      case keys::numpad::right:
+      case win::keys::right:
+      case win::keys::numpad::right:
         set_selection(super::get_selection() + 1, event_source::keyboard);
         break;
       }
@@ -126,12 +126,12 @@ namespace gui {
     template<>
     void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-      case keys::up:
-      case keys::numpad::up:
+      case win::keys::up:
+      case win::keys::numpad::up:
         set_selection(super::get_selection() - 1, event_source::keyboard);
         break;
-      case keys::down:
-      case keys::numpad::down:
+      case win::keys::down:
+      case win::keys::numpad::down:
         set_selection(super::get_selection() + 1, event_source::keyboard);
         break;
       }
@@ -139,27 +139,26 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void edit_list::init () {
-      super::register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::enter_edit));
+      super::on_selection_commit(basepp::bind_method(this, &edit_list::enter_edit));
 
-      data.editor.register_event_handler(REGISTER_FUNCTION,
-                                         win::btn_down_event([&](os::key_state, const core::point & pt) {
+      data.editor.on_btn_down([&](os::key_state, const core::point & pt) {
         if (!data.editor.client_area().is_inside(pt)) {
           commit_edit();
         }
-      }));
+      });
 
-      data.editor.register_event_handler(REGISTER_FUNCTION, win::selection_cancel_event(this, &edit_list::cancel_edit));
-      data.editor.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event(this, &edit_list::commit_edit));
+      data.editor.on_selection_cancel(basepp::bind_method(this, &edit_list::cancel_edit));
+      data.editor.on_selection_commit(basepp::bind_method(this, &edit_list::commit_edit));
 
-      super::scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type) {
+      super::scrollbar.on_scroll([&] (core::point::type) {
         if (data.editor.is_visible()) {
           data.editor.place(super::get_place_of_index(super::get_selection()));
         }
-      }));
+      });
 
-      super::register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+      super::on_selection_changed([&](event_source) {
         commit_edit();
-      }));
+      });
 
     }
 
@@ -176,7 +175,7 @@ namespace gui {
         auto cell = super::get_selection();
         auto area = super::get_place_of_index(cell);
         if (!data.editor.is_valid()) {
-          data.editor.create(*reinterpret_cast<container*>(this), area);
+          data.editor.create(*reinterpret_cast<win::container*>(this), area);
         }
         data.editor.place(area);
         data.editor.set_text(data.data_source(cell));
@@ -206,6 +205,6 @@ namespace gui {
       data.data_target = data_target;
     }
 
-  } // win
+  } // ctrl
 
 } // gui

@@ -41,7 +41,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -149,17 +149,17 @@ namespace gui {
       }
 
       edit_base::~edit_base () {
-        global::unregister_utf8_window(get_id());
+        win::global::unregister_utf8_window(get_id());
       }
 
-      void edit_base::create (const container& parent,
+      void edit_base::create (const win::container& parent,
                               const std::string& txt,
                               const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
       }
 
-      void edit_base::create (const container& parent,
+      void edit_base::create (const win::container& parent,
                               const core::rectangle& place) {
         super::create(clazz<>::get(), parent, place);
         prepare_input();
@@ -179,7 +179,7 @@ namespace gui {
       }
 
       void edit_base::prepare_input () {
-        global::register_utf8_window(get_id());
+        win::global::register_utf8_window(get_id());
       }
 
       void edit_base::set_selection (const edit_base::range& sel, event_source) {
@@ -283,12 +283,12 @@ namespace gui {
       void edit_base::handle_key (os::key_state keystate,
                                   os::key_symbol keycode,
                                   const std::string& chars) {
-        bool shift = shift_key_bit_mask::is_set(keystate);
-        bool ctrl = control_key_bit_mask::is_set(keystate);
+        bool shift = win::shift_key_bit_mask::is_set(keystate);
+        bool ctrl = win::control_key_bit_mask::is_set(keystate);
 
         switch (keycode) {
-        case keys::left:
-        case keys::numpad::left:
+        case win::keys::left:
+        case win::keys::numpad::left:
           if (ctrl) {
             // next word begin
             if (data.cursor_pos > 1) {
@@ -303,24 +303,24 @@ namespace gui {
             return;
           }
           break;
-        case keys::right:
-        case keys::numpad::right:
+        case win::keys::right:
+        case win::keys::numpad::right:
           if (ctrl) {
             set_cursor_pos(basepp::string::find_right_space(data.text, data.cursor_pos), shift);
           } else if (data.cursor_pos < get_text_length()) {
             set_cursor_pos(basepp::utf8::get_right_char(data.text, data.cursor_pos), shift);
           }
           break;
-        case keys::home:
-        case keys::numpad::home:
+        case win::keys::home:
+        case win::keys::numpad::home:
           set_cursor_pos(0, shift);
           break;
-        case keys::end:
-        case keys::numpad::end:
+        case win::keys::end:
+        case win::keys::numpad::end:
           set_cursor_pos(get_text_length(), shift);
           break;
-        case keys::del:
-        case keys::numpad::del:
+        case win::keys::del:
+        case win::keys::numpad::del:
           if (data.selection.empty()) {
             std::size_t cp = data.cursor_pos + 1;
             while ((cp < get_text_length()) && basepp::utf8::is_continuation_char(data.text.at(cp))) {
@@ -334,7 +334,7 @@ namespace gui {
             set_cursor_pos(data.selection.first, false);
           }
           break;
-        case keys::back_space:
+        case win::keys::back_space:
           if (data.selection.empty()) {
             if (data.cursor_pos > 0) {
               std::size_t cp = data.cursor_pos - 1;
@@ -350,37 +350,37 @@ namespace gui {
             set_cursor_pos(data.selection.first, false);
           }
           break;
-        case keys::escape:
+        case win::keys::escape:
           set_selection(range(), event_source::keyboard);
           send_client_message(this, detail::SELECTION_CANCEL_MESSAGE);
           break;
-        case keys::clear:
+        case win::keys::clear:
           set_selection(range(0, data.text.size()), event_source::keyboard);
           replace_selection(std::string());
           set_cursor_pos(0, false);
           break;
-        case keys::tab:
+        case win::keys::tab:
           break;
-        case keys::enter:
+        case win::keys::enter:
           send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
           break;
         default: {
           if (ctrl) {
             switch (keycode) {
-            case keys::a:
+            case win::keys::a:
               // select all
               set_selection(range(0, data.text.size()), event_source::keyboard);
               break;
-            case keys::v: {
-              clipboard::get().get_text(*this, [&](const std::string & t) {
-                                          replace_selection(t);
-                                        });
+            case win::keys::v: {
+              win::clipboard::get().get_text(*this, [&](const std::string & t) {
+                replace_selection(t);
+              });
               break;
-            case keys::c:
-              clipboard::get().set_text(*this, get_selected_text());
+            case win::keys::c:
+              win::clipboard::get().set_text(*this, get_selected_text());
               break;
-            case keys::x:
-              clipboard::get().set_text(*this, get_selected_text());
+            case win::keys::x:
+              win::clipboard::get().set_text(*this, get_selected_text());
               replace_selection(std::string());
               break;
             }
@@ -397,16 +397,16 @@ namespace gui {
       }
 
       void edit_base::register_handler () {
-        register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &edit_base::handle_key));
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state state, const core::point& pt) {
+        on_any_key_down(basepp::bind_method(this, &edit_base::handle_key));
+        on_left_btn_down([&](os::key_state state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
-          set_cursor_pos(get_position_at_point(pt), shift_key_bit_mask::is_set(state));
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point&) {
+          set_cursor_pos(get_position_at_point(pt), win::shift_key_bit_mask::is_set(state));
+        });
+        on_left_btn_up([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&](os::key_state, const core::point& pt) {
+        });
+        on_left_btn_dblclk([&](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(pt);
@@ -414,16 +414,16 @@ namespace gui {
           pos_t l = basepp::string::find_left_space(data.text, p);
           pos_t r = basepp::string::find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
-        }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+        });
+        on_mouse_move([&](os::key_state keys, const core::point& pt) {
+          if ((data.last_mouse_point != core::point::undefined) && win::left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt), true);
           }
-        }));
+        });
       }
 
     } // detail
 
-  } // win
+  } // ctrl
 
 } // gui

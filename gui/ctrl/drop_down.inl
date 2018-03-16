@@ -48,7 +48,7 @@ namespace gui {
   } // layout
 
   // --------------------------------------------------------------------------
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     template<typename T, drop_down_drawer<T> D>
@@ -82,28 +82,28 @@ namespace gui {
     void drop_down_list<T, D>::init () {
       super::get_layout().init(&(data.button));
 
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &drop_down_list::paint));
-      super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state, const core::point &) {
+      super::register_event_handler(paint_event(basepp::bind_method(this, &drop_down_list::paint)));
+      super::on_left_btn_down([&](os::key_state, const core::point &) {
         toggle_popup();
         super::take_focus();
-      }));
+      });
 
-      super::register_event_handler(REGISTER_FUNCTION, wheel_y_event(this, &drop_down_list::handle_wheel));
-      super::register_event_handler(REGISTER_FUNCTION, create_event(this, &drop_down_list::create_children));
+      super::on_wheel_y(basepp::bind_method(this, &drop_down_list::handle_wheel));
+      super::on_create(basepp::bind_method(this, &drop_down_list::create_children));
 
-      data.button.register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
+      data.button.on_paint([&](const draw::graphics & graph) {
         paint::drop_down_button(graph,
                                 data.button.client_area(),
                                 data.button.get_state(),
                                 is_popup_visible());
-      }));
-      data.button.register_event_handler(REGISTER_FUNCTION, button_clicked_event(this, &drop_down_list::toggle_popup));
+      });
+      data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
 
-      data.items.register_event_handler(REGISTER_FUNCTION, selection_changed_event(this, &drop_down_list::handle_selection_changed));
-      data.button.register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
+      data.button.on_lost_focus([&] (window*) {
         super::redraw();
-      }));
-      data.button.register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &drop_down_list::handle_key));
+      });
+      data.button.on_any_key_down(basepp::bind_method(this, &drop_down_list::handle_key));
 
       data.items.set_drawer([&](std::size_t idx,
                                 const draw::graphics & g,
@@ -137,14 +137,14 @@ namespace gui {
                                            os::key_symbol key,
                                            const std::string& t) {
       if (is_popup_visible()) {
-        if (key == keys::tab) {
+        if (key == win::keys::tab) {
           hide_popup();
         }
         data.items.handle_key(state, key, t);
       } else {
         switch (key) {
-        case keys::down:
-        case keys::numpad::down:
+        case win::keys::down:
+        case win::keys::numpad::down:
           show_popup();
           break;
         }
@@ -250,12 +250,12 @@ namespace gui {
     }
 
     template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (const std::function<win::list::draw_list_item>& drawer) {
+    inline void drop_down_list<T, D>::set_drawer (const std::function<list::draw_list_item>& drawer) {
       data.items.set_drawer(drawer);
     }
 
     template<typename T, drop_down_drawer<T> D>
-    inline void drop_down_list<T, D>::set_drawer (std::function<win::list::draw_list_item>&& drawer) {
+    inline void drop_down_list<T, D>::set_drawer (std::function<list::draw_list_item>&& drawer) {
       data.items.set_drawer(std::move(drawer));
     }
 
@@ -280,32 +280,32 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     void drop_down_list<T, D>::create_popup (const core::rectangle& place) {
-      data.popup.register_event_handler(REGISTER_FUNCTION, size_event([&] (const core::size & sz) {
+      data.popup.on_size([&] (const core::size & sz) {
         data.items.place(core::rectangle(sz));
-      }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, create_event([&] (window *, const core::rectangle & r) {
+      });
+      data.popup.on_create([&] (window *, const core::rectangle & r) {
         data.items.create(data.popup, core::rectangle(r.size()));
         data.items.set_visible();
-      }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, show_event([&] () {
-        data.filter_id = global::register_message_filter([&] (const core::event & e)->bool {
+      });
+      data.popup.on_show([&] () {
+        data.filter_id = win::global::register_message_filter([&] (const core::event & e)->bool {
           if (is_button_event_outside(data.popup, e)) {
             hide_popup();
             return true;
           }
           return false;
         });
-      }));
-      data.popup.register_event_handler(REGISTER_FUNCTION, hide_event([&] () {
+      });
+      data.popup.on_hide([&] () {
         if (data.filter_id) {
-          global::unregister_message_filter(data.filter_id);
+          win::global::unregister_message_filter(data.filter_id);
         }
-      }));
+      });
       data.popup.create(*this, place);
 
       auto* root = super::get_root();
       if (root) {
-        root->register_event_handler(REGISTER_FUNCTION, me);
+        root->register_event_handler(me);
       }
     }
 
@@ -333,6 +333,6 @@ namespace gui {
       , filter_id(-1)
     {}
 
-  } // win
+  } // ctrl
 
 } // gui

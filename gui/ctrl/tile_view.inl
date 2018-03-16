@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<typename T>
     inline void default_tile_item_drawer (const T& t,
@@ -290,24 +290,24 @@ namespace gui {
                                          const std::string&) {
       handle_direction_key(key);
       switch (key) {
-      case keys::page_up:
-      case keys::numpad::page_up:
+      case win::keys::page_up:
+      case win::keys::numpad::page_up:
         super::try_to_select(super::get_selection() - static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
-      case keys::page_down:
-      case keys::numpad::page_down:
+      case win::keys::page_down:
+      case win::keys::numpad::page_down:
         super::try_to_select(super::get_selection() + static_cast<int>((super::get_list_size() + super::traits.get_line_spacing()) / super::traits.get_line_size()), event_source::keyboard);
         break;
-      case keys::home:
-      case keys::numpad::home:
+      case win::keys::home:
+      case win::keys::numpad::home:
         super::try_to_select(0, event_source::keyboard);
         break;
-      case keys::end:
-      case keys::numpad::end:
+      case win::keys::end:
+      case win::keys::numpad::end:
         super::try_to_select(static_cast<int>(super::get_count()) - 1,
           event_source::keyboard);
         break;
-      case keys::enter:
+      case win::keys::enter:
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
@@ -315,8 +315,8 @@ namespace gui {
 
     template<orientation V>
     void basic_tile_view<V>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_tile_view::paint)));
-      super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &basic_tile_view::handle_key));
+      super::on_paint(draw::buffered_paint(this, &basic_tile_view::paint));
+      super::on_any_key_down(basepp::bind_method(this, &basic_tile_view::handle_key));
     }
 
     template<orientation V>
@@ -341,6 +341,6 @@ namespace gui {
       return super::traits.spacing;
     }
 
-  } // win
+  } // ctrl
 
 } // gui

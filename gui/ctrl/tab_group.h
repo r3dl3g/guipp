@@ -29,7 +29,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<os::color foreground = color::black,
              os::color background = color::very_light_gray,
@@ -72,6 +72,6 @@ namespace gui {
                                           tab_button<foreground, alignment::right, true>,
                                           layout::vertical_adaption<border, gap, 0, min, max>>;
 
-  } // win
+  } // ctrl
 
 } // gui

@@ -28,7 +28,7 @@ namespace gui {
   namespace layout {
 
     void drop_down::init () {
-      data.main->register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &drop_down::layout));
+      data.main->on_layout(basepp::bind_method(this, &drop_down::layout));
     }
 
     core::rectangle drop_down::label_place (const core::size& sz) {
@@ -54,7 +54,7 @@ namespace gui {
 
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -83,7 +83,7 @@ namespace gui {
                              const core::rectangle& area,
                              const button_state& state,
                              bool is_open) {
-        win::paint::button_frame(graph, area, state);
+        paint::button_frame(graph, area, state);
         core::rectangle r = area.shrinked(core::size(4, 5));
         if (!r.empty()) {
           std::vector<core::point> p;
@@ -98,6 +98,6 @@ namespace gui {
 
     } // paint
 
-  } // win
+  } // ctrl
 
 } // gui

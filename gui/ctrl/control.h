@@ -34,8 +34,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -71,11 +70,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             win::cursor_type C = window_class_defaults<>::cursor,
-             os::style S = window_class_defaults<>::style,
-             os::style ES = window_class_defaults<>::ex_style,
-             os::style CS = window_class_defaults<>::class_style>
-    using no_erase_window_class = window_class<T, color::transparent, C, S, ES, CS>;
+             win::cursor_type C = win::window_class_defaults<>::cursor,
+             os::style S = win::window_class_defaults<>::style,
+             os::style ES = win::window_class_defaults<>::ex_style,
+             os::style CS = win::window_class_defaults<>::class_style>
+    using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -170,33 +169,33 @@ namespace gui {
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,
                                                   core::params<event_source>::
-                                                  getter<get_client_data<0, event_source> >,
+                                                  getter<win::get_client_data<0, event_source> >,
                                                   0,
-                                                  client_message_matcher<detail::SELECTION_CHANGE_MESSAGE> >;
+                                                  win::client_message_matcher<detail::SELECTION_CHANGE_MESSAGE> >;
 
     using selection_commit_event = core::event_handler<ClientMessage, 0,
                                                  core::params<>::
                                                  getter<>,
                                                  0,
-                                                 client_message_matcher<detail::SELECTION_COMMIT_MESSAGE> >;
+                                                 win::client_message_matcher<detail::SELECTION_COMMIT_MESSAGE> >;
 
     using selection_cancel_event = core::event_handler<ClientMessage, 0,
                                                  core::params<>::
                                                  getter<>,
                                                  0,
-                                                 client_message_matcher<detail::SELECTION_CANCEL_MESSAGE> >;
+                                                 win::client_message_matcher<detail::SELECTION_CANCEL_MESSAGE> >;
 
     using hilite_changed_event = core::event_handler<ClientMessage, 0,
                                                core::params<bool>::
-                                               getter<get_client_data<0, bool> >,
+                                               getter<win::get_client_data<0, bool> >,
                                                0,
-                                               client_message_matcher<detail::HILITE_CHANGE_MESSAGE> >;
+                                               win::client_message_matcher<detail::HILITE_CHANGE_MESSAGE> >;
 
     using content_changed_event = core::event_handler<ClientMessage, 0,
                                                 core::params<>::
                                                 getter<>,
                                                 0,
-                                                client_message_matcher<detail::CONTENT_CHANGED_MESSAGE> >;
+                                                win::client_message_matcher<detail::CONTENT_CHANGED_MESSAGE> >;
 
 #endif // X11
        // --------------------------------------------------------------------------
@@ -210,6 +209,65 @@ namespace gui {
                       text_origin origin = text_origin::vcenter_left);
     }
 
-  } // win
+    // --------------------------------------------------------------------------
+    class GUIPP_CTRL_EXPORT control : public win::window {
+    public:
+      typedef win::window super;
+
+      void on_paint (std::function<void(draw::graphics)>&& f);
+      void on_selection_changed (std::function<void(event_source)>&& f);
+      void on_selection_commit (std::function<void()>&& f);
+      void on_selection_cancel (std::function<void()>&& f);
+      void on_hilite_changed (std::function<void(bool)>&& f);
+      void on_content_changed (std::function<void()>&& f);
+
+    };
+
+    // --------------------------------------------------------------------------
+    inline void control::on_paint (paint_event::function&& f) {
+      register_event_handler(paint_event(std::move(f)), paint_event::mask);
+    }
+
+    inline void control::on_selection_changed (selection_changed_event::function&& f) {
+      register_event_handler(selection_changed_event(std::move(f)), selection_changed_event::mask);
+    }
+
+    inline void control::on_selection_commit (selection_commit_event::function&& f) {
+      register_event_handler(selection_commit_event(std::move(f)), selection_commit_event::mask);
+    }
+
+    inline void control::on_selection_cancel (selection_cancel_event::function&& f) {
+      register_event_handler(selection_cancel_event(std::move(f)), selection_cancel_event::mask);
+    }
+
+    inline void control::on_hilite_changed (hilite_changed_event::function&& f) {
+      register_event_handler(hilite_changed_event(std::move(f)), hilite_changed_event::mask);
+    }
+
+    inline void control::on_content_changed (content_changed_event::function&& f) {
+      register_event_handler(content_changed_event(std::move(f)), content_changed_event::mask);
+    }
+
+    // --------------------------------------------------------------------------
+    template<os::color background = color::very_light_gray>
+    class client_control : public control {
+    public:
+      typedef control super;
+      typedef win::window_class<client_control, background> clazz;
+
+      void create (const win::container& parent,
+                   const core::rectangle& r = core::rectangle::def);
+    };
+
+    // --------------------------------------------------------------------------
+    template<os::color B>
+    inline void client_control<B>::create (const win::container& parent,
+                                           const core::rectangle& r) {
+      super::create(clazz::get(), parent, r);
+    }
+
+    // --------------------------------------------------------------------------
+
+  } // ctrl
 
 } // gui

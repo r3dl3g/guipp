@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     inline auto scroll_bar::get_range() const -> type {
       return get_max() - get_min();
@@ -49,7 +49,7 @@ namespace gui {
     }
 
     template<orientation H>
-    inline void basic_scroll_bar<H>::create (const container& parent,
+    inline void basic_scroll_bar<H>::create (const win::container& parent,
                                              const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
@@ -260,6 +260,6 @@ namespace gui {
       return core::point(0, pos);
     }
 
-  } // win
+  } // ctrl
 
 } // gui

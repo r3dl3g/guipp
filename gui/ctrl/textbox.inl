@@ -21,16 +21,16 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
-      inline void textbox_base::create (const container& parent,
+      inline void textbox_base::create (const win::container& parent,
                                         const core::rectangle& r) {
         window::create(clazz::get(), parent, r);
       }
 
-      inline void textbox_base::create (const container& parent,
+      inline void textbox_base::create (const win::container& parent,
                                         const std::string& txt,
                                         const core::rectangle& place) {
         create(parent, place);
@@ -63,7 +63,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &basic_textbox::handle_paint)));
+      on_paint(draw::buffered_paint(this, &basic_textbox::handle_paint));
       enable_select_by_mouse();
     }
 
@@ -81,6 +81,6 @@ namespace gui {
       super::enable_select_by_mouse(align);
     }
 
-  } // win
+  } // ctrl
 
 } // gui

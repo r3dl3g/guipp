@@ -38,8 +38,8 @@ namespace gui {
 
       virtual_layout (win::container* main);
 
-      void init (win::vertical_scroll_bar* vscroll,
-                 win::horizontal_scroll_bar* hscroll,
+      void init (ctrl::vertical_scroll_bar* vscroll,
+                 ctrl::horizontal_scroll_bar* hscroll,
                  win::window* edge,
                  view_type* client);
 
@@ -53,33 +53,33 @@ namespace gui {
     // --------------------------------------------------------------------------
   } // namespace layout
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     template<typename T, os::color background = color::transparent>
-    class virtual_view : public layout_container<layout::virtual_layout<T> > {
+    class virtual_view : public win::layout_container<layout::virtual_layout<T> > {
     public:
       typedef layout::virtual_layout<T> layout_type;
-      typedef layout_container<layout_type> super;
+      typedef win::layout_container<layout_type> super;
       typedef no_erase_window_class<virtual_view> clazz;
       typedef T view_type;
 
       virtual_view ();
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& r = core::rectangle::def);
 
       view_type             view;
       horizontal_scroll_bar hscroll;
       vertical_scroll_bar   vscroll;
-      client_window<>       edge;
+      win::client_window<>  edge;
 
     private:
-      void handle_create (window*, const core::rectangle& r);
+      void handle_create (win::window*, const core::rectangle& r);
 
     };
 
-  } // namespace win
+  } // ctrl
 
 } // gui
 

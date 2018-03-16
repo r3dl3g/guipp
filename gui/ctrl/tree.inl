@@ -33,7 +33,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace tree {
 
@@ -66,11 +66,10 @@ namespace gui {
       template<typename I>
       void basic_tree<I>::init () {
         super::set_drawer(basepp::bind_method(this, &basic_tree::draw_list_item));
-        super::register_event_handler(REGISTER_FUNCTION, selection_commit_event([&]() {
+        super::on_selection_commit([&]() {
           toggle_node(super::get_selection());
-        }));
-        super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&](os::key_state,
-                                                                             const core::point & pt) {
+        });
+        super::on_left_btn_down([&](os::key_state, const core::point & pt) {
           int idx = super::get_index_at_point(pt);
           if ((idx > -1) && (idx < size())) {
             const depth_info& i = nodes[idx];
@@ -79,13 +78,11 @@ namespace gui {
               toggle_node(idx);
             }
           }
-        }));
-        super::register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state,
-                                                                                os::key_symbol key,
-                                                                                const std::string &){
+        });
+        super::on_any_key_down([&](os::key_state, os::key_symbol key, const std::string &){
           switch (key) {
-            case keys::left:
-            case keys::numpad::left: {
+            case win::keys::left:
+            case win::keys::numpad::left: {
               int idx = super::get_selection();
               if (is_valid_idx(idx)) {
                 const reference ref = get_item(idx);
@@ -101,12 +98,12 @@ namespace gui {
               }
               break;
             }
-            case keys::right:
-            case keys::numpad::right:
+            case win::keys::right:
+            case win::keys::numpad::right:
               open_node(super::get_selection());
               break;
           }
-        }));
+        });
       }
 
       template<typename I>
@@ -386,6 +383,6 @@ namespace gui {
 
     } // tree
 
-  } // win
+  } // ctrl
 
 } // gui

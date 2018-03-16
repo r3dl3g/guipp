@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -35,7 +35,7 @@ namespace gui {
       }
 
       template<orientation O>
-      inline void basic_slider<O>::create (const container& parent,
+      inline void basic_slider<O>::create (const win::container& parent,
                                            const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
       }
@@ -106,7 +106,7 @@ namespace gui {
     template<orientation O,
              draw::frame::drawer F>
       void basic_framed_slider<O, F>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_framed_slider::paint));
+      super::on_paint(basepp::bind_method(this, &basic_framed_slider::paint));
     }
 
     template<orientation O,
@@ -120,6 +120,6 @@ namespace gui {
       }
     }
 
-  } // win
+  } // ctrl
 
 } // gui

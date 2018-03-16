@@ -25,14 +25,14 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
       separator_base::separator_base ()
       {}
 
-      void separator_base::create (const container& parent,
+      void separator_base::create (const win::container& parent,
                                    const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
       }

@@ -58,15 +58,15 @@ namespace gui {
     }
 
     void layout_base::init (std::function<size_callback> f1) {
-      main->register_event_handler(REGISTER_FUNCTION, win::layout_event(f1));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&, f1]() {
+      main->on_layout(std::move(f1));
+      main->on_show([&, f1]() {
         f1(main->client_size());
-      }));
+      });
     }
 
     void layout_base::init (std::function<size_callback> f1, std::function<show_callback> f2) {
-      main->register_event_handler(REGISTER_FUNCTION, win::layout_event(f1));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event(f2));
+      main->on_layout(std::move(f1));
+      main->on_show(std::move(f2));
     }
 
   } // layout

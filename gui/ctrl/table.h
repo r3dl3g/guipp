@@ -31,7 +31,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -237,9 +237,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<template<typename U> class T>
-      class cell_view : public window {
+      class cell_view : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef no_erase_window_class<cell_view> clazz;
 
         template<typename U>
@@ -258,7 +258,7 @@ namespace gui {
         cell_view (const cell_view&) = delete;
         cell_view (cell_view&&) = delete;
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
         void set_drawer (const std::function<cell_drawer>& drawer);
@@ -364,7 +364,7 @@ namespace gui {
                                         const core::point& current_max);
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT table_view : public group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
+    class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
                                            color::very_very_light_gray, float, float, float, float> {
     public:
       typedef group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
@@ -472,14 +472,14 @@ namespace gui {
                                        const std::function<table::data_target>& data_target);
 
     protected:
-      win::edit editor;
+      edit editor;
       std::function<table::data_source> data_source;
       std::function<table::data_target> data_target;
       bool enable_edit;
 
     };
 
-  } // win
+  } // ctrl
 
 } // gui
 

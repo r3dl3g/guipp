@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     toggle_group<O, FG, BG, B, L>::~toggle_group () {
@@ -47,9 +47,9 @@ namespace gui {
     inline void toggle_group<O, FG, BG, B, L>::add_button (const text_source& label) {
       button_type* b = new button_type(label);
       buttons.push_back(b);
-      b->register_event_handler(REGISTER_FUNCTION, button_clicked_event([&, b] () {
+      b->on_clicked([&, b] () {
         uncheck_buttons(b);
-      }));
+      });
     }
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
@@ -76,7 +76,7 @@ namespace gui {
     }
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
-    void toggle_group<O, FG, BG, B, L>::create (const container& parent,
+    void toggle_group<O, FG, BG, B, L>::create (const win::container& parent,
                                                 const core::rectangle& place) {
       super::create(parent, place);
       for (auto* b : buttons) {
@@ -94,6 +94,6 @@ namespace gui {
       }
     }
 
-  } // win
+  } // ctrl
 
 } // gui

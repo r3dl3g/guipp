@@ -92,7 +92,7 @@ void htile_drawer (std::size_t idx,
                   bool hilited) {
   using namespace draw;
 
-  win::paint::text_cell<std::size_t, F>(idx,
+  ctrl::paint::text_cell<std::size_t, F>(idx,
                                         g, place, text_origin::center, color::black, background.color(),
                                         selected, hilited);
 }
@@ -107,7 +107,7 @@ void vtile_drawer (std::size_t idx,
   using namespace draw;
 
   std::string s = basepp::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
-  win::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
+  ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
                                         g, place, text_origin::vcenter_left, color::black, background.color(),
                                         selected, hilited);
 }
@@ -120,6 +120,9 @@ namespace gui {
       return ostreamfmt("#" << std::setfill('0') << std::setw(6) << std::hex << c);
     }
 
+  } // namespace win
+
+  namespace ctrl {
     template<>
     void default_drop_down_drawer<os::color> (const os::color& c,
                                               const draw::graphics& graph,
@@ -128,7 +131,7 @@ namespace gui {
                                               bool selected,
                                               bool hilited) {
       graph.fill(draw::rectangle(place), c);
-      graph.text(draw::text_box(color_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
+      graph.text(draw::text_box(win::color_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
 
       if (hilited) {
         graph.frame(draw::rectangle(place), color::highLightColor());
@@ -152,8 +155,8 @@ public:
   void query_state ();
   void set_size_null ();
 
-  win::paint_event create_paint1();
-  win::paint_event create_paint2();
+  ctrl::paint_event create_paint1();
+  ctrl::paint_event create_paint2();
 
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
@@ -162,25 +165,25 @@ public:
   }
 
 private:
-  win::scroll_view scroll_view;
+  ctrl::scroll_view scroll_view;
 
   win::client_window<> window1;
   win::client_window<> window2;
 
-  win::horizontal_separator hseparator;
-  win::vertical_separator vseparator;
+  ctrl::horizontal_separator hseparator;
+  ctrl::vertical_separator vseparator;
 
-  win::text_button calc_button;
-  win::text_button inc_button;
-  win::text_button dec_button;
-  win::text_button invert_button;
+  ctrl::text_button calc_button;
+  ctrl::text_button inc_button;
+  ctrl::text_button dec_button;
+  ctrl::text_button invert_button;
 
-  win::text_button ok_button;
-  win::text_button del_button;
-  win::text_button clear_button;
+  ctrl::text_button ok_button;
+  ctrl::text_button del_button;
+  ctrl::text_button clear_button;
 
-  win::vertical_separator btn_sep1;
-  win::vertical_separator btn_sep2;
+  ctrl::vertical_separator btn_sep1;
+  ctrl::vertical_separator btn_sep2;
 
   win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin::end>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
@@ -188,103 +191,103 @@ private:
   win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group;
 
   win::group_window<layout::horizontal_lineup<30, 5, 5>> h_lineup_group;
-  win::label h_lineup_labels[4];
+  ctrl::label h_lineup_labels[4];
 
   win::group_window<layout::vertical_lineup<30, 5, 5>> v_lineup_group;
-  win::label v_lineup_labels[4];
+  ctrl::label v_lineup_labels[4];
 
   win::group_window<layout::grid_lineup<30, 30, 5, 5>> grid_lineup_group;
-  win::label grid_lineup_labels[4];
+  ctrl::label grid_lineup_labels[4];
 
   win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
-  win::label grid_adaption_labels[4];
+  ctrl::label grid_adaption_labels[4];
 
   win::group_window<layout::horizontal_lineup<30, 5, 5, 2, origin::center>> hc_lineup_group;
-  win::label hc_lineup_labels[4];
+  ctrl::label hc_lineup_labels[4];
 
   win::group_window<layout::vertical_lineup<30, 5, 5, 2, origin::center>> vc_lineup_group;
-  win::label vc_lineup_labels[4];
+  ctrl::label vc_lineup_labels[4];
 
-  win::radio_button<> radio_button, radio_button2;
-  win::check_box<> check_box;
-  win::switch_button<> switch_button;
-  win::animated_switch_button<> switch_button2;
+  ctrl::radio_button<> radio_button, radio_button2;
+  ctrl::check_box<> check_box;
+  ctrl::switch_button<> switch_button;
+  ctrl::animated_switch_button<> switch_button2;
 
-  win::horizontal_scroll_bar start_angle;
-  win::horizontal_scroll_bar end_angle;
+  ctrl::horizontal_scroll_bar start_angle;
+  ctrl::horizontal_scroll_bar end_angle;
 
-  win::label label;
-  win::basic_label<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
-  win::label_right labelR;
+  ctrl::label label;
+  ctrl::basic_label<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  ctrl::label_right labelR;
 
-  win::text_button min_button;
-  win::text_button max_button;
-  win::text_button norm_button;
-  win::text_button info_button;
-  win::text_button null_button;
-  win::text_button full_button;
+  ctrl::text_button min_button;
+  ctrl::text_button max_button;
+  ctrl::text_button norm_button;
+  ctrl::text_button info_button;
+  ctrl::text_button null_button;
+  ctrl::text_button full_button;
 
-  win::simple_list_data<std::string> data;
+  ctrl::simple_list_data<std::string> data;
 
-  typedef win::vertical_list List1;
-  typedef win::edit_list List2;
-  typedef win::vertical_list List3;
+  typedef ctrl::vertical_list List1;
+  typedef ctrl::edit_list List2;
+  typedef ctrl::vertical_list List3;
 
   List1 list1;
   List2& list2;
   List3& list3;
 
-  typedef win::vertical_split_view<List2, List3> list_split_view;
-  typedef win::simple_column_list<layout::simple_column_list_layout> simple_list;
-  typedef win::vertical_split_view<win::horizontal_list, simple_list> column_list_split_view;
+  typedef ctrl::vertical_split_view<List2, List3> list_split_view;
+  typedef ctrl::simple_column_list<layout::simple_column_list_layout> simple_list;
+  typedef ctrl::vertical_split_view<ctrl::horizontal_list, simple_list> column_list_split_view;
 
-  win::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
+  ctrl::horizontal_split_view<list_split_view, column_list_split_view> main_split_view;
 
-  win::text_button up_button;
-  win::text_button down_button;
+  ctrl::text_button up_button;
+  ctrl::text_button down_button;
 
-  win::vertical_scroll_bar vscroll;
-  win::horizontal_scroll_bar hscroll;
-  win::progress_bar progress;
+  ctrl::vertical_scroll_bar vscroll;
+  ctrl::horizontal_scroll_bar hscroll;
+  ctrl::progress_bar progress;
 
-  win::check_box<> scroll_check_box;
+  ctrl::check_box<> scroll_check_box;
 
-  win::horizontal_slider hslider;
-  win::vertical_slider vslider;
-  const win::paint_event paint1;
-  const win::paint_event paint2;
+  ctrl::horizontal_slider hslider;
+  ctrl::vertical_slider vslider;
+  const ctrl::paint_event paint1;
+  const ctrl::paint_event paint2;
 
-  win::edit edit1;
+  ctrl::edit edit1;
 
   win::group_window<layout::horizontal_adaption<0, 2>> edit_btn_group;
-  win::text_button cur_plus;
-  win::text_button cur_minus;
-  win::text_button sel_first_plus;
-  win::text_button sel_first_minus;
-  win::text_button sel_last_plus;
-  win::text_button sel_last_minus;
+  ctrl::text_button cur_plus;
+  ctrl::text_button cur_minus;
+  ctrl::text_button sel_first_plus;
+  ctrl::text_button sel_first_minus;
+  ctrl::text_button sel_last_plus;
+  ctrl::text_button sel_last_minus;
 
-  win::custom_push_button custom_button;
-  win::drop_down_list<std::string> drop_down;
-  win::drop_down_list<os::color> color_drop_down;
+  ctrl::custom_push_button custom_button;
+  ctrl::drop_down_list<std::string> drop_down;
+  ctrl::drop_down_list<os::color> color_drop_down;
 
-  typedef win::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
+  typedef ctrl::column_list_t<layout::weight_column_list_layout, int, std::string, float, int, bool> my_column_list_t;
   my_column_list_t column_list;
   my_column_list_t::row_drawer column_list_drawer;
 
-  win::table_edit table_view;
-  win::table::data::matrix<std::string> table_data;
+  ctrl::table_edit table_view;
+  ctrl::table::data::matrix<std::string> table_data;
 
-  typedef win::virtual_view<win::editbox> editbox_view;
+  typedef ctrl::virtual_view<ctrl::editbox> editbox_view;
   editbox_view editor;
 
-  typedef win::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
-  typedef win::virtual_view<textbox_type> textbox_view;
+  typedef ctrl::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef ctrl::virtual_view<textbox_type> textbox_view;
 
   textbox_view textbox;
 
-  win::horizontal_tile_view htileview;
-  win::vertical_tile_view vtileview;
+  ctrl::horizontal_tile_view htileview;
+  ctrl::vertical_tile_view vtileview;
 
   bool at_paint1;
   bool at_drag;
@@ -304,11 +307,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
   size_t cln_size = sizeof(win::client_window<>);
-  size_t btn_size = sizeof(win::button_base);
-  size_t push_size = sizeof(win::button_base);
-  size_t tgl_size = sizeof(win::basic_button<win::push_button_traits>);
-  size_t tbtn_size = sizeof(win::text_button);
-  size_t pnt_size = sizeof(win::paint_event);
+  size_t btn_size = sizeof(ctrl::button_base);
+  size_t push_size = sizeof(ctrl::button_base);
+  size_t tgl_size = sizeof(ctrl::basic_button<ctrl::push_button_traits>);
+  size_t tbtn_size = sizeof(ctrl::text_button);
+  size_t pnt_size = sizeof(ctrl::paint_event);
 
   LogInfo << "Sizes: "
           <<   "std::string:" << str_size
@@ -322,7 +325,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           << ", paint_event:" << pnt_size;
 
 //#ifdef WIN32
-//  main.register_event_handler(REGISTER_FUNCTION, win::get_minmax_event([](const core::size& sz,
+//  main.on_get_minmax([](const core::size& sz,
 //    const core::point& pos,
 //    core::size& mi, core::size& ma) {
 //    mi = { 300, 200 };
@@ -358,145 +361,143 @@ my_main_window::my_main_window ()
   list1.set_item_size(25);
   list3.set_item_size_and_background(20, color::light_gray);
 
-  register_event_handler(REGISTER_FUNCTION, init_result_handler(), 0);
+  register_event_handler(init_result_handler(), 0);
 
-  register_event_handler(REGISTER_FUNCTION, win::destroy_event([&] () {
+  on_destroy([&] () {
     LogDebug << "Destroyed!";
     win::quit_main_loop();
-  }));
+  });
 
-  register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+  on_show([&] () {
     btn_group.layout();
     group_group.layout();
-  }));
+  });
 
 //#ifdef WIN32
-//  register_event_handler(REGISTER_FUNCTION, win::close_event([&]() {
+//  on_close([&]() {
 //    LogDebug << "Close!";
 //    destroy();
-//  }));
-//  register_event_handler(REGISTER_FUNCTION, win::enable_event([](bool on) {
+//  });
+//  on_enable([](bool on) {
 //    LogDebug << (on ? "Enableed" : "Disabled");
-//  }));
-//  register_event_handler(REGISTER_FUNCTION, win::activate_event([](bool on, win::window* win) {
+//  });
+//  on_activate([](bool on, win::window* win) {
 //    LogDebug << "Main " << (on ? "activate" : "deactivate");
-//  }));
-//  register_event_handler(REGISTER_FUNCTION, win::begin_size_or_move_event([]() { LogDebug << "Start Move/Size"; }));
-//  register_event_handler(REGISTER_FUNCTION, win::end_size_or_move_event([]() { LogDebug << "Finish Move/Size"; }));
-//  register_event_handler(REGISTER_FUNCTION, win::activate_app_event([](bool on) {
+//  });
+//  on_begin_size_or_move([]() { LogDebug << "Start Move/Size"; });
+//  on_end_size_or_move([]() { LogDebug << "Finish Move/Size"; });
+//  on_activate_app([](bool on) {
 //    LogDebug << (on ? "A" : "Dea") << "ctivate App";
-//  }));
+//  });
 
 //#endif
 
-  //register_event_handler(REGISTER_FUNCTION, win::moving_event([] (const core::point& r) {
+  //on_moving([] (const core::point& r) {
   //  LogDebug << "Main moving: " << r;
-  //}));
-  //register_event_handler(REGISTER_FUNCTION, win::sizing_event([] (const core::size& r) {
+  //});
+  //on_sizing([] (const core::size& r) {
   //  LogDebug << "Main sizing: " << r;
-  //}));
-  //register_event_handler(REGISTER_FUNCTION, win::placing_event([] (const core::rectangle& r) {
+  //});
+  //on_placing([] (const core::rectangle& r) {
   //  LogDebug << "Main placing: " << r;
-  //}));
+  //});
 
-  //register_event_handler(REGISTER_FUNCTION, win::move_event([] (const core::point& p) {
+  //on_move([] (const core::point& p) {
   //  LogDebug << "Main move: " << p;
-  //}));
-  //register_event_handler(REGISTER_FUNCTION, win::size_event([] (const core::size& s) {
+  //});
+  //on_size([] (const core::size& s) {
   //  LogDebug << "Main size: " << s;
-  //}));
-  //register_event_handler(REGISTER_FUNCTION, win::place_event([] (const core::rectangle& r) {
+  //});
+  //on_place([] (const core::rectangle& r) {
   //  LogDebug << "Main place: " << r;
-  //}));
+  //});
 
 //#ifdef WIN32
-//  ok_button.register_event_handler(REGISTER_FUNCTION, win::activate_event([](bool on, win::window* win) {
+//  ok_button.on_activate([](bool on, win::window* win) {
 //    LogDebug << "Button " << (on ? "" : "de") << "activate";
-//  }));
+//  });
 //#endif
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::set_focus_event([] (win::window*) {
+  ok_button.on_set_focus([] (win::window*) {
     LogDebug << "Button Set Focus";
-  }));
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::lost_focus_event([&] (win::window*) {
+  });
+  ok_button.on_lost_focus([&] (win::window*) {
     LogDebug << "Button Lost Focus";
-  }));
+  });
 
-  register_event_handler(REGISTER_FUNCTION, win::left_btn_down_event([&] (os::key_state, const core::point& p) {
+  on_left_btn_down([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Down at " << p;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::left_btn_up_event([&] (os::key_state, const core::point& p) {
+  });
+  on_left_btn_up([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Up at " << p;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::right_btn_down_event([&] (os::key_state, const core::point& p) {
+  });
+  on_right_btn_down([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Down at " << p;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::right_btn_up_event([&] (os::key_state, const core::point& p) {
+  });
+  on_right_btn_up([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Up at " << p;
-  }));
-  window1.register_event_handler(REGISTER_FUNCTION, win::wheel_x_event([&] (core::point::type delta,
+  });
+  window1.on_wheel_x([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
-  }));
-  window1.register_event_handler(REGISTER_FUNCTION, win::wheel_y_event([&] (core::point::type delta,
+  });
+  window1.on_wheel_y([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(0, delta));
     }
-  }));
+  });
 
-  window1.register_event_handler(REGISTER_FUNCTION, win::left_btn_down_event([&](os::key_state, const core::point& p) {
+  window1.on_left_btn_down([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
     LogDebug << "Window1 Mouse down at " << p;
-  }));
-  window1.register_event_handler(REGISTER_FUNCTION, win::left_btn_up_event([&](os::key_state, const core::point& p) {
+  });
+  window1.on_left_btn_up([&](os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
-  }));
+  });
 
-  window2.register_event_handler(REGISTER_FUNCTION, win::left_btn_down_event([&](os::key_state, const core::point& p) {
+  window2.on_left_btn_down([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
     LogDebug << "Window2 Mouse down at " << p;
-  }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::left_btn_up_event([&](os::key_state, const core::point& p) {
+  });
+  window2.on_left_btn_up([&](os::key_state, const core::point& p) {
     window2.uncapture_pointer();
     at_drag = false;
     LogDebug << "Window Mouse up at " << p;
-  }));
+  });
 
-  window1.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state,
-                                                                               const core::point& p) {
+  window1.on_mouse_move([&] (os::key_state, const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
       window1.move(window1.position() + delta);
     }
-  }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::mouse_move_event([&] (os::key_state,
-                                                                               const core::point& p) {
+  });
+  window2.on_mouse_move([&] (os::key_state, const core::point& p) {
     //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
       window2.move(window2.position() + delta);
     }
-  }));
+  });
 
-  window1.register_event_handler(REGISTER_FUNCTION, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  window1.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
     LogDebug << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
-  }));
+  });
 
-  register_event_handler(REGISTER_FUNCTION, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
     LogDebug << "Double Click up at " << p;
 
     core::point pos = window1.position();
@@ -514,63 +515,63 @@ my_main_window::my_main_window ()
 
     core::rectangle car = window1.client_area();
     LogDebug << "Client: " << car;
-  }));
-  register_event_handler(REGISTER_FUNCTION, win::right_btn_dblclk_event([&] (os::key_state, const core::point&) {
+  });
+  on_right_btn_dblclk([&] (os::key_state, const core::point&) {
     window1.move({50, 50});
-  }));
+  });
 
-  window2.register_event_handler(REGISTER_FUNCTION, paint1);
+  window2.register_event_handler(paint1);
 
   at_paint1 = true;
 
-  window2.register_event_handler(REGISTER_FUNCTION, win::left_btn_dblclk_event([&] (os::key_state, const core::point& p) {
+  window2.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
     LogDebug << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
       window2.unregister_event_handler(paint1);
-      window2.register_event_handler(REGISTER_FUNCTION, paint2);
+      window2.register_event_handler(paint2);
     } else {
       at_paint1 = true;
       window2.unregister_event_handler(paint2);
-      window2.register_event_handler(REGISTER_FUNCTION, paint1);
+      window2.register_event_handler(paint1);
     }
     window2.redraw();
-  }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::show_event([] () {
+  });
+  window2.on_show([] () {
     LogDebug << "Window2 show:";
-  }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::hide_event([] () {
+  });
+  window2.on_hide([] () {
     LogDebug << "Window2 hide:";
-  }));
+  });
 
 //#ifdef WIN32
-//  ok_button.register_event_handler(REGISTER_FUNCTION, win::button_state_event([](bool state) {
+//  ok_button.on_state_changed([](bool state) {
 //    LogDebug << "Button " << (state ? "hilited" : "unhilited");
-//  }));
+//  });
 //#endif // WIN32
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::button_pushed_event([&] () {
+  ok_button.on_pushed([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
-  }));
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::button_released_event([&] () {
+  });
+  ok_button.on_released([&] () {
     LogDebug << "Button released";
     label.set_text("Released!");
-  }));
-  radio_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  radio_button.on_clicked([&] () {
     LogDebug << "Radio clicked";
     labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
-  }));
-  radio_button2.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  radio_button2.on_clicked([&] () {
     LogDebug << "Radio2 clicked";
     labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
-  }));
-  check_box.register_event_handler(REGISTER_FUNCTION, win::button_state_event([&] (bool on) {
+  });
+  check_box.on_state_changed([&] (bool on) {
     LogDebug << "Check clicked";
     label.set_text("Check clicked!");
     radio_button.enable(on);
@@ -581,37 +582,37 @@ my_main_window::my_main_window ()
     table_view.set_enable_edit(on);
     up_button.enable(on);
     switch_button.enable(on);
-  }));
+  });
 
-  min_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  min_button.on_clicked([&] () {
     LogDebug << "Min clicked";
     minimize();
     query_state();
-  }));
-  max_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  max_button.on_clicked([&] () {
     LogDebug << "Max clicked";
     maximize();
     query_state();
-  }));
-  norm_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  norm_button.on_clicked([&] () {
     LogDebug << "Norm clicked";
     restore();
     query_state();
-  }));
-  info_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  info_button.on_clicked([&] () {
     LogDebug << "Info clicked";
     query_state();
     textbox.view.set_text(editor.view.get_selected_text());
     textbox.layout();
-  }));
-  null_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  null_button.on_clicked([&] () {
     LogDebug << "0 clicked";
     vslider.set_value(vslider.get_min());
-  }));
-  full_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  full_button.on_clicked([&] () {
     LogDebug << "Full clicked";
     vslider.set_value(size().width() - 15);
-  }));
+  });
 
   auto list_drawer = [] (std::size_t idx,
                          const draw::graphics& g,
@@ -624,27 +625,27 @@ my_main_window::my_main_window ()
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    win::paint::text_item(g, place, background, strm.str(), selected);
+    ctrl::paint::text_item(g, place, background, strm.str(), selected);
   };
 
   list1.set_drawer(list_drawer);
-  list1.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
+  list1.on_selection_changed([&](ctrl::event_source) {
     labelC.set_text(ostreamfmt("List1 item " << list1.get_selection()));
-  }));
-  list1.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
+  });
+  list1.on_selection_commit([&] () {
     labelC.set_text(ostreamfmt("List1 commited " << list1.get_selection()));
-  }));
+  });
 
-  up_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    list1.set_selection(list1.get_selection() - 1, win::event_source::mouse);
-    list2.set_selection(list2.get_selection() - 1, win::event_source::mouse);
-    list3.set_selection(list3.get_selection() - 1, win::event_source::mouse);
-  }));
-  down_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
-    list1.set_selection(list1.get_selection() + 1, win::event_source::mouse);
-    list2.set_selection(list2.get_selection() + 1, win::event_source::mouse);
-    list3.set_selection(list3.get_selection() + 1, win::event_source::mouse);
-  }));
+  up_button.on_clicked([&] () {
+    list1.set_selection(list1.get_selection() - 1, ctrl::event_source::mouse);
+    list2.set_selection(list2.get_selection() - 1, ctrl::event_source::mouse);
+    list3.set_selection(list3.get_selection() - 1, ctrl::event_source::mouse);
+  });
+  down_button.on_clicked([&] () {
+    list1.set_selection(list1.get_selection() + 1, ctrl::event_source::mouse);
+    list2.set_selection(list2.get_selection() + 1, ctrl::event_source::mouse);
+    list3.set_selection(list3.get_selection() + 1, ctrl::event_source::mouse);
+  });
 
   data.insert(data.end(), { "Eins", "Zwei", "Drei", "View", "Fünf", "Fuß" });
   list2.set_drawer([&] (std::size_t idx,
@@ -661,163 +662,163 @@ my_main_window::my_main_window ()
     data[idx] = s;
   });
 
-  list2.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
+  list2.on_selection_changed([&](ctrl::event_source) {
     std::ostringstream strm;
     strm << "List2 item " << list2.get_selection() << ": ";
     if (list2.get_selection() > -1) {
       strm  << data[list2.get_selection()];
     }
     labelC.set_text(strm.str());
-  }));
-  list2.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
+  });
+  list2.on_selection_commit([&] () {
     labelC.set_text(ostreamfmt("List2 commited " << list2.get_selection()));
-  }));
+  });
 
-  column_list.list.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](win::event_source) {
+  column_list.list.on_selection_changed([&](ctrl::event_source) {
     labelC.set_text(ostreamfmt("column_list item " << column_list.list.get_selection()));
-  }));
-  column_list.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&] () {
+  });
+  column_list.list.on_selection_commit([&] () {
     labelC.set_text(ostreamfmt("column_list commited " << column_list.list.get_selection()));
-  }));
+  });
 
-  ok_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  ok_button.on_clicked([&] () {
     LogDebug << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     data.update_list(list2);
-  }));
+  });
 
-  del_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  del_button.on_clicked([&] () {
     LogDebug << "Del Button clicked";
     label.set_text("Del Clicked!");
     if (!data.empty()) {
       data.erase(data.begin());
       data.update_list(list2);
     }
-  }));
+  });
 
-  clear_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  clear_button.on_clicked([&] () {
     LogDebug << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
     data.update_list(list2);
-  }));
+  });
 
-  scroll_check_box.register_event_handler(REGISTER_FUNCTION, win::button_state_event([&] (bool on) {
+  scroll_check_box.on_state_changed([&] (bool on) {
     list1.enable_scroll_bar(on);
     list2.enable_scroll_bar(on);
-  }));
+  });
 
-  vscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
+  vscroll.on_scroll([&](core::point::type pos) {
     list1.set_scroll_pos(pos);
     list2.set_scroll_pos(pos);
     list3.set_scroll_pos(pos);
     editor.vscroll.set_value(pos);
     textbox.vscroll.set_value(pos);
-  }));
+  });
 
-  calc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  calc_button.on_clicked([&] () {
     calc_pressed = true;
     scroll_view.layout();
-  }));
+  });
 
-  inc_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  inc_button.on_clicked([&] () {
     scroll_view.resize(scroll_view.size() + core::size{5, 5});
-  }));
-  dec_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  dec_button.on_clicked([&] () {
     scroll_view.resize(scroll_view.size() - core::size{5, 5});
-  }));
-  invert_button.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  invert_button.on_clicked([&] () {
     draw_invert = !draw_invert;
     window2.redraw();
-  }));
+  });
 
-  vslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
+  vslider.on_move([&](const core::point&) {
     layout();
-  }));
-  hslider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&) {
+  });
+  hslider.on_move([&](const core::point&) {
     layout();
-  }));
+  });
 
-  hscroll.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type pos) {
+  hscroll.on_scroll([&](core::point::type pos) {
     main_split_view.set_split_pos((double)pos / 100.0);
     editor.hscroll.set_value(pos);
     textbox.hscroll.set_value(pos);
     progress.set_value(pos);
-  }));
-  main_split_view.slider.register_event_handler(REGISTER_FUNCTION, win::move_event([&](const core::point&){
-    hscroll.set_value(static_cast<win::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
-  }));
+  });
+  main_split_view.slider.on_move([&](const core::point&){
+    hscroll.set_value(static_cast<ctrl::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
+  });
 
-  cur_plus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  cur_plus.on_clicked([&] () {
     edit1.set_cursor_pos(edit1.get_cursor_pos() + 1);
-  }));
-  cur_minus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  cur_minus.on_clicked([&] () {
     if (edit1.get_cursor_pos() > 0) {
       edit1.set_cursor_pos(edit1.get_cursor_pos() - 1);
     }
-  }));
-  sel_first_plus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  sel_first_plus.on_clicked([&] () {
     auto r = edit1.get_selection();
     (r.first)++;
-    edit1.set_selection(r, win::event_source::mouse);
-  }));
-  sel_first_minus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    edit1.set_selection(r, ctrl::event_source::mouse);
+  });
+  sel_first_minus.on_clicked([&] () {
     auto r = edit1.get_selection();
     if (r.first > 0) {
       (r.first)--;
-      edit1.set_selection(r, win::event_source::mouse);
+      edit1.set_selection(r, ctrl::event_source::mouse);
     }
-  }));
-  sel_last_plus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+  });
+  sel_last_plus.on_clicked([&] () {
     auto r = edit1.get_selection();
     (r.last)++;
-    edit1.set_selection(r, win::event_source::mouse);
-  }));
-  sel_last_minus.register_event_handler(REGISTER_FUNCTION, win::button_clicked_event([&] () {
+    edit1.set_selection(r, ctrl::event_source::mouse);
+  });
+  sel_last_minus.on_clicked([&] () {
     auto r = edit1.get_selection();
     if (r.last > 0) {
       (r.last)--;
-      edit1.set_selection(r, win::event_source::mouse);
+      edit1.set_selection(r, ctrl::event_source::mouse);
     }
-  }));
+  });
 
-  custom_button.register_event_handler(REGISTER_FUNCTION, win::mouse_enter_event([&]() {
+  custom_button.on_mouse_enter([&]() {
     custom_button.set_hilited(true);
-  }));
-  custom_button.register_event_handler(REGISTER_FUNCTION, win::mouse_leave_event([&]() {
+  });
+  custom_button.on_mouse_leave([&]() {
     custom_button.set_hilited(false);
-  }));
+  });
 
-  start_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
+  start_angle.on_scroll([&](core::point::type) {
     window2.redraw();
-  }));
-  end_angle.register_event_handler(REGISTER_FUNCTION, win::scroll_event([&](core::point::type) {
+  });
+  end_angle.on_scroll([&](core::point::type) {
     window2.redraw();
-  }));
+  });
   /*
-    window2.register_event_handler(REGISTER_FUNCTION, win::mouse_enter_event([]() {
+    window2.on_mouse_enter([]() {
     LogDebug << "Window2 mouse enter";
-  }));
-  window2.register_event_handler(REGISTER_FUNCTION, win::mouse_leave_event([]() {
+  });
+  window2.on_mouse_leave([]() {
     LogDebug << "Window2 mouse leave";
-  }));
-  window1.register_event_handler(REGISTER_FUNCTION, win::move_event([](const core::point& p) {
+  });
+  window1.on_move([](const core::point& p) {
     LogDebug << "Window1 move: " << p;
-  }));
-  window1.register_event_handler(REGISTER_FUNCTION, win::size_event([](const core::size& s) {
+  });
+  window1.on_size([](const core::size& s) {
     LogDebug << "Window1 size: " << s;
   }));
   */
 
-//  table_view.columns.set_selection_filter([] (const win::table::position& cell,
-//                                              const win::table::metric& geo) {
+//  table_view.columns.set_selection_filter([] (const ctrl::table::position& cell,
+//                                              const ctrl::table::metric& geo) {
 //    return (geo.selection.column == cell.column);
 //  });
 
-  table_view.set_data_source_and_target([&](const win::table::position& cell) -> std::string {
+  table_view.set_data_source_and_target([&](const ctrl::table::position& cell) -> std::string {
     return table_data.get_cell(cell);
-  }, [&](const win::table::position& cell, const std::string& s) {
+  }, [&](const ctrl::table::position& cell, const std::string& s) {
     table_data.set_cell(cell, s);
   });
   table_view.set_scroll_maximum_calcer([&](const core::size& size,
@@ -841,7 +842,7 @@ my_main_window::my_main_window ()
   htileview.set_drawer(htile_drawer<draw::frame::sunken_relief>);
   vtileview.set_drawer(vtile_drawer<draw::frame::raised_relief>);
 
-  register_event_handler(REGISTER_FUNCTION, win::create_event(this, &my_main_window::onCreated));
+  on_create(basepp::bind_method(this, &my_main_window::onCreated));
 }
 
 void my_main_window::query_state () {
@@ -860,14 +861,14 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
 }
 
 template<int T>
-void create_buttons (win::container& m, win::label labels[T]) {
+void create_buttons (win::container& m, ctrl::label labels[T]) {
   for (int i = 0; i < T; ++i) {
-    labels[i].create(m, win::const_text(ostreamfmt("No. " << (i + 1))));
+    labels[i].create(m, ctrl::const_text(ostreamfmt("No. " << (i + 1))));
   }
 }
 
 template<int T, typename C>
-void create_group (win::container& m, C& c, win::label labels[T]) {
+void create_group (win::container& m, C& c, ctrl::label labels[T]) {
   c.create(m);
   create_buttons<T>(c, labels);
 }
@@ -905,7 +906,7 @@ void my_main_window::created_children () {
     layout::simple_column_info{ 30, text_origin::vcenter_left, 20 }
   };
 
-  win::simple_column_list_data<int, draw::frame::lines> col_data = {
+  ctrl::simple_column_list_data<int, draw::frame::lines> col_data = {
     { 1, 2, 3 },
     { 3, 4, 5 },
     { 5, 6, 7 },
@@ -914,8 +915,8 @@ void my_main_window::created_children () {
   };
 
   main_split_view.create(main, core::rectangle(410, 50, 160, 250));
-  main_split_view.first.second.set_data(win::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-  main_split_view.second.first.set_data(win::simple_list_data<float>(floats));
+  main_split_view.first.second.set_data(ctrl::simple_list_data<int>({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
+  main_split_view.second.first.set_data(ctrl::simple_list_data<float>(floats));
   main_split_view.second.second.get_column_layout().set_columns(columns);
   main_split_view.second.second.set_data(col_data);
 
@@ -936,18 +937,18 @@ void my_main_window::created_children () {
   column_list_drawer = {
     [] (const int& v, const draw::graphics& g, const core::rectangle& r,
         const draw::brush&, bool, bool, text_origin) {
-      win::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
+      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
 
-    win::cell_drawer<std::string, draw::frame::sunken_relief>,
-    win::cell_drawer<float, draw::frame::sunken_relief>,
-    win::cell_drawer<int, draw::frame::sunken_relief>,
+    ctrl::cell_drawer<std::string, draw::frame::sunken_relief>,
+    ctrl::cell_drawer<float, draw::frame::sunken_relief>,
+    ctrl::cell_drawer<int, draw::frame::sunken_relief>,
 
     [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
         const draw::brush& b, bool s, bool, text_origin align) {
       std::string text = v ? u8"♣" : u8"♥";
-      win::paint::text_item(g, r, b, text, s, align);
+      ctrl::paint::text_item(g, r, b, text, s, align);
       draw::frame::sunken_relief(g, r);
     }
   };
@@ -970,22 +971,22 @@ void my_main_window::created_children () {
 
   table_view.create(main, core::rectangle(740, 50, 150, 250));
 
-  table_view.data.set_drawer(win::table::default_data_drawer([&](const win::table::position& cell) -> std::string {
-    return table_data.get_cell(cell);//ostreamfmt(win::table::build_std_column_name(column) << ':' << (row + 1));
+  table_view.data.set_drawer(ctrl::table::default_data_drawer([&](const ctrl::table::position& cell) -> std::string {
+    return table_data.get_cell(cell);//ostreamfmt(ctrl::table::build_std_column_name(column) << ':' << (row + 1));
   }));
   table_view.data.foregrounds.set_column(1, color::blue);
   table_view.data.foregrounds.set_column(2, color::red);
   table_view.data.foregrounds.set_row(3, color::dark_green);
-  table_view.data.foregrounds.set_cell(win::table::position(2, 3), color::black);
-  table_view.data.backgrounds.set_cell(win::table::position(2, 3), color::yellow);
-  table_view.data.foregrounds.set_cell(win::table::position(3, 4), color::blue);
+  table_view.data.foregrounds.set_cell(ctrl::table::position(2, 3), color::black);
+  table_view.data.backgrounds.set_cell(ctrl::table::position(2, 3), color::yellow);
+  table_view.data.foregrounds.set_cell(ctrl::table::position(3, 4), color::blue);
 
-  table_view.columns.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
-    return win::table::build_std_column_name(cell.x());
+  table_view.columns.set_drawer(ctrl::table::default_header_drawer([](const ctrl::table::position& cell) -> std::string {
+    return ctrl::table::build_std_column_name(cell.x());
   }));
   table_view.geometrie.widths.set_size(2, 40);
 
-  table_view.rows.set_drawer(win::table::default_header_drawer([](const win::table::position& cell) -> std::string {
+  table_view.rows.set_drawer(ctrl::table::default_header_drawer([](const ctrl::table::position& cell) -> std::string {
     return ostreamfmt((1 + cell.y()));
   }));
 
@@ -1026,12 +1027,12 @@ void my_main_window::created_children () {
   vtileview.create(main, core::rectangle(220, 580, 400, 250));
   vtileview.set_count(0xffff - 32);
 
-  hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
-  progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())));
+  hscroll.create(main, core::rectangle(550, 305, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
+  progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
 
-  vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()), 250));
+  vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()), 250));
   vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());
-  vscroll.set_step(static_cast<win::scroll_bar::type>(list1.get_item_size()));
+  vscroll.set_step(static_cast<ctrl::scroll_bar::type>(list1.get_item_size()));
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));
 
@@ -1076,8 +1077,8 @@ void my_main_window::created_children () {
 
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
-                               const win::button_state& s) {
-    win::paint::flat_button(g, r, "Custom", s);
+                               const ctrl::button_state& s) {
+    ctrl::paint::flat_button(g, r, "Custom", s);
   });
 
   custom_button.create(main, core::rectangle(290, 410, 100, 25));
@@ -1174,8 +1175,8 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
 }
 
-win::paint_event my_main_window::create_paint1 () {
-  return win::paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
+ctrl::paint_event my_main_window::create_paint1 () {
+  return ctrl::paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
     using namespace draw;
@@ -1257,8 +1258,8 @@ win::paint_event my_main_window::create_paint1 () {
   }));
 }
 
-win::paint_event my_main_window::create_paint2 () {
-  return win::paint_event([&](const draw::graphics& graph) {
+ctrl::paint_event my_main_window::create_paint2 () {
+  return ctrl::paint_event([&](const draw::graphics& graph) {
     //LogDebug << "win::paint 2";
     using namespace draw;
 

@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -50,20 +50,20 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT textbox_base : public window {
+      class GUIPP_CTRL_EXPORT textbox_base : public control {
       public:
-        typedef window super;
-        typedef no_erase_window_class<textbox_base, cursor_type::ibeam> clazz;
+        typedef control super;
+        typedef no_erase_window_class<textbox_base, win::cursor_type::ibeam> clazz;
         typedef std::vector<std::string> strings;
         typedef strings::size_type size_type;
 
         typedef core::basic_point<int> position;
         typedef core::range<position> range;
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& r = core::rectangle::def);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 
@@ -139,7 +139,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     using textbox = basic_textbox<>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

@@ -30,10 +30,10 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
-    inline void button_base::create (const container& parent,
+    inline void button_base::create (const win::container& parent,
                                      const core::rectangle& place) {
       window::create(clazz::get(), parent, place);
     }
@@ -56,6 +56,22 @@ namespace gui {
 
     inline bool button_base::is_checked () const {
       return get_state().is_checked();
+    }
+
+    inline void button_base::on_clicked (button_clicked_event::function&& f) {
+      register_event_handler(button_clicked_event(std::move(f)), button_clicked_event::mask);
+    }
+
+    inline void button_base::on_pushed (button_pushed_event::function&& f) {
+      register_event_handler(button_pushed_event(std::move(f)), button_pushed_event::mask);
+    }
+
+    inline void button_base::on_released (button_released_event::function&& f) {
+      register_event_handler(button_released_event(std::move(f)), button_released_event::mask);
+    }
+
+    inline void button_base::on_state_changed (button_state_event::function&& f) {
+      register_event_handler(button_state_event(std::move(f)), button_state_event::mask);
     }
 
     // --------------------------------------------------------------------------
@@ -117,22 +133,22 @@ namespace gui {
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const container& parent,
-                                                 const core::rectangle& place) {
+    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+                                                    const core::rectangle& place) {
       super::create(parent, place);
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const container& parent,
-                                                 const std::string& txt,
-                                                 const core::rectangle& place) {
+    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+                                                    const std::string& txt,
+                                                    const core::rectangle& place) {
       create(parent, const_text(txt), place);
     }
 
     template<class T, typename U, U D>
-    inline void basic_text_button<T, U, D>::create (const container& parent,
-                                                 const text_source& txt,
-                                                 const core::rectangle& place) {
+    inline void basic_text_button<T, U, D>::create (const win::container& parent,
+                                                    const text_source& txt,
+                                                    const core::rectangle& place) {
       super::create(parent, place);
       set_text(txt);
     }
@@ -155,12 +171,12 @@ namespace gui {
 
     template<class T, typename U, U D>
     void basic_text_button<T, U, D>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&](const draw::graphics & graph) {
+      super::on_paint([&](const draw::graphics & graph) {
         auto r = super::client_area();
         auto t = get_text();
         auto s = super::get_state();
         super::traits.template draw<D>(graph, r, t, s);
-      }));
+      });
     }
 
     // --------------------------------------------------------------------------
@@ -184,7 +200,7 @@ namespace gui {
     }
 
     template<class T>
-    inline void custom_button<T>::create (const container& parent,
+    inline void custom_button<T>::create (const win::container& parent,
                                           const core::rectangle& place) {
       super::create(parent, place);
     }
@@ -196,13 +212,13 @@ namespace gui {
 
     template<class T>
     void custom_button<T>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event([&] (const draw::graphics & graph) {
+      super::on_paint([&] (const draw::graphics & graph) {
         if (drawer) {
           drawer(graph, super::client_area(), super::get_state());
         }
-      }));
+      });
     }
 
-  } // namespace win
+  } // namespace ctrl
 
 } // namespace gui

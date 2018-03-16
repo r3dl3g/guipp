@@ -30,16 +30,16 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<orientation O,
              os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
              typename B = flat_toggle_button<foreground, background, true>,
              typename L = layout::adaption_layout<O>>
-    class toggle_group : public group_window<L, background> {
+    class toggle_group : public win::group_window<L, background> {
     public:
-      typedef group_window<L, background> super;
+      typedef win::group_window<L, background> super;
       typedef L layout;
       typedef B button_type;
 
@@ -55,7 +55,7 @@ namespace gui {
       void enable (bool on = true);
       void disable ();
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
     private:
@@ -77,7 +77,7 @@ namespace gui {
              typename layout_type = layout::vertical_adaption<>>
     using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type, layout_type>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

@@ -177,13 +177,8 @@ namespace gui {
       return p ? p->screen_to_client(pt) : pt;
     }
 
-    void window::register_event_handler (char const name[], const event_handler_function& f, os::event_id mask) {
-      events.register_event_handler(name, f);
-      prepare_for_event(mask);
-    }
-
-    void window::register_event_handler (char const name[], event_handler_function&& f, os::event_id mask) {
-      events.register_event_handler(name, std::move(f));
+    void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
+      events.register_event_handler(std::move(f));
       prepare_for_event(mask);
     }
 
@@ -723,7 +718,7 @@ namespace gui {
       x11::check_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
-    void window::redraw_now_from (char const caller_name[]) const {
+    void window::redraw_now () const {
 
       auto state = get_state();
 
@@ -747,7 +742,7 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-      LogDebug << "redraw_now: " << event << " from " << caller_name;
+      LogDebug << "redraw_now: " << event;
       events.handle_event(event, result);
 
       state.set_needs_redraw(false);
@@ -755,9 +750,9 @@ namespace gui {
       core::global::sync();
     }
 
-    void window::redraw_from (char const caller_name[]) const {
+    void window::redraw () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw: " << get_id() << " from " << caller_name;
+        LogDebug << "redraw: " << get_id();
         if (get_state().is_in_event_handle()) {
           get_state().set_needs_redraw(true);
         } else {
@@ -766,9 +761,9 @@ namespace gui {
       }
     }
 
-    void window::redraw_later_from (char const caller_name[]) const {
+    void window::redraw_later () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw_later: " << get_id() << " from " << caller_name;
+        LogDebug << "redraw_later: " << get_id();
         get_state().set_needs_redraw(true);
       }
     }

@@ -35,20 +35,20 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     //-----------------------------------------------------------------------------
     typedef void (dialog_action) (int); // Button no. pressed
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT standard_dialog_base :
-        public layout_dialog_window<layout::border_layout<>,
-                                    float, float, float, float> {
+        public win::layout_dialog_window<layout::border_layout<>,
+                                         float, float, float, float> {
     public:
-      typedef layout_dialog_window<layout::border_layout<>,
-                                   float, float, float, float> super;
-      typedef group_window<layout::horizontal_adaption<>,
-                           color::very_light_gray> button_view_type;
+      typedef win::layout_dialog_window<layout::border_layout<>,
+                                        float, float, float, float> super;
+      typedef win::group_window<layout::horizontal_adaption<>,
+                                color::very_light_gray> button_view_type;
 
       standard_dialog_base (float top = 0);
 
@@ -88,10 +88,10 @@ namespace gui {
                                                                     color::very_light_gray,
                                                                     float, float, float, float>> {
     public:
-      typedef win::basic_textbox<text_origin::center,
-                                 draw::frame::sunken_relief,
-                                 color::black,
-                                 color::very_light_gray> message_view_type;
+      typedef basic_textbox<text_origin::center,
+                            draw::frame::sunken_relief,
+                            color::black,
+                            color::very_light_gray> message_view_type;
       typedef win::group_window<layout::border_layout<>,
                                 color::very_light_gray,
                                 float, float, float, float> content_view_type;
@@ -122,10 +122,10 @@ namespace gui {
                                                                    color::very_light_gray,
                                                                    float, float, float, float>> {
     public:
-      typedef win::basic_textbox<text_origin::center,
-                                 draw::frame::sunken_relief,
-                                 color::black,
-                                 color::very_light_gray> message_view_type;
+      typedef basic_textbox<text_origin::center,
+                            draw::frame::sunken_relief,
+                            color::black,
+                            color::very_light_gray> message_view_type;
       typedef win::group_window<layout::border_layout<>,
                                 color::very_light_gray,
                                 float, float, float, float> content_view_type;
@@ -157,12 +157,12 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T = path_tree::sorted_path_info>
-    class dir_file_view : public win::vertical_split_view<win::sorted_dir_tree,
-                                                          win::file_column_list<T>> {
+    class dir_file_view : public vertical_split_view<sorted_dir_tree,
+                                                     file_column_list<T>> {
     public:
-      typedef win::sorted_dir_tree dir_tree_type;
-      typedef win::file_column_list<T> file_list_type;
-      typedef win::vertical_split_view<dir_tree_type, file_list_type> super;
+      typedef sorted_dir_tree dir_tree_type;
+      typedef file_column_list<T> file_list_type;
+      typedef vertical_split_view<dir_tree_type, file_list_type> super;
 
       void init (std::function<file_selected> action);
 
@@ -199,7 +199,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT file_save_dialog : public standard_dialog<dir_file_view<>> {
     public:
       typedef standard_dialog<dir_file_view<>> super;
-      typedef group_window<layout::border_layout<>, color::very_very_light_gray, float, float, float, float> top_view_type;
+      typedef win::group_window<layout::border_layout<>, color::very_very_light_gray, float, float, float, float> top_view_type;
 
       file_save_dialog ();
 
@@ -229,7 +229,7 @@ namespace gui {
 
     };
 
-  } // win
+  } // ctrl
 
 } // gui
 

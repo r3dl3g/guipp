@@ -390,22 +390,22 @@ using namespace gui::win;
 using namespace gui::ctrl;
 
 void name_drawer (const std::string& txt, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-  win::paint::text_item(g, r, b, txt, s, align);
+  ctrl::paint::text_item(g, r, b, txt, s, align);
   draw::frame::lines(g, r);
 }
 
 void duration_drawer (const duration_type& d, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-  win::paint::text_item(g, r, b, ostreamfmt(d), s, align);
+  ctrl::paint::text_item(g, r, b, ostreamfmt(d), s, align);
   draw::frame::lines(g, r);
 }
 
 void money_drawer (const double& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-  win::paint::text_item(g, r, b, ostreamfmt(std::setprecision(2) << std::fixed << v << " €"), s, align);
+  ctrl::paint::text_item(g, r, b, ostreamfmt(std::setprecision(2) << std::fixed << v << " €"), s, align);
   draw::frame::lines(g, r);
 }
 
 void time_drawer (const time_point& t, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-  win::paint::text_item(g, r, b, ostreamfmt(t), s, align);
+  ctrl::paint::text_item(g, r, b, ostreamfmt(t), s, align);
   draw::frame::lines(g, r);
 }
 
@@ -427,7 +427,7 @@ public:
     , category_view(top_view.first)
     , project_view(top_view.second)
   {
-    register_event_handler(REGISTER_FUNCTION, win::create_event(this, &TimeTracker::onCreated));
+    on_create(basepp::bind_method(this, &TimeTracker::onCreated));
 
     category_view.set_drawer(category_view_type::row_drawer{name_drawer, duration_drawer, money_drawer, money_drawer});
     project_view.set_drawer(project_view_type::row_drawer{name_drawer, duration_drawer, money_drawer, money_drawer, money_drawer});
@@ -499,7 +499,7 @@ public:
     category_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     category_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
     category_view.header.set_labels({"Category", "Duration", "Costs", "Budget"});
-    category_view.list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+    category_view.list.on_selection_changed([&] (event_source) {
       auto csel = category_view.list.get_selection();
       if (csel < categories.size()) {
         tt_category& category = categories[csel];
@@ -508,13 +508,13 @@ public:
         project_view.list.set_count(0);
       }
       entry_view.list.set_count(0);
-    }));
+    });
 
     project_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     project_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
     project_view.header.set_labels({"Project", "Duration", "Costs", "Budget", "Costs/h"});
 
-    project_view.list.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+    project_view.list.on_selection_changed([&] (event_source) {
       auto csel = category_view.list.get_selection();
       if (csel < categories.size()) {
         tt_category& category = categories[csel];
@@ -526,7 +526,7 @@ public:
         }
       }
       entry_view.list.set_count(0);
-    }));
+    });
 
     entry_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     entry_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
@@ -661,7 +661,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   TimeTracker main;
 
   main.create({50, 50, 800, 600});
-  main.register_event_handler(REGISTER_FUNCTION, destroy_event([&]() {
+  main.register_event_handler(destroy_event([&]() {
     quit_main_loop();
   }));
   main.set_title("TimeTracker");

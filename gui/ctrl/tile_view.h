@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<typename T>
     void default_tile_item_drawer (const T& t,
@@ -130,7 +130,7 @@ namespace gui {
     typedef basic_tile_view<orientation::vertical> vertical_tile_view;
     typedef vertical_tile_view tile_view;
 
-  } // win
+  } // ctrl
 
 } // gui
 

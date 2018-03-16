@@ -28,7 +28,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -38,23 +38,23 @@ namespace gui {
       }
 
       editbox_base::~editbox_base () {
-        global::unregister_utf8_window(get_id());
+        win::global::unregister_utf8_window(get_id());
       }
 
       void editbox_base::init () {
         data.lines.emplace_back(std::string());
         set_accept_focus(true);
-        register_event_handler(REGISTER_FUNCTION, create_event(this, &editbox_base::handle_create));
-        register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &editbox_base::handle_key));
+        on_create(basepp::bind_method(this, &editbox_base::handle_create));
+        on_any_key_down(basepp::bind_method(this, &editbox_base::handle_key));
       }
 
-      void editbox_base::create (const container& parent,
+      void editbox_base::create (const win::container& parent,
                                  const core::rectangle& r) {
         window::create(clazz::get(), parent, r);
       }
 
       void editbox_base::handle_create (window*, const core::rectangle&) {
-        global::register_utf8_window(get_id());
+        win::global::register_utf8_window(get_id());
       }
 
       std::string& editbox_base::current_line () {
@@ -64,13 +64,13 @@ namespace gui {
       void editbox_base::handle_key (os::key_state keystate,
                                      os::key_symbol keycode,
                                      const std::string& chars) {
-        bool shift = shift_key_bit_mask::is_set(keystate);
-        bool ctrl = control_key_bit_mask::is_set(keystate);
+        bool shift = win::shift_key_bit_mask::is_set(keystate);
+        bool ctrl = win::control_key_bit_mask::is_set(keystate);
         std::string& current = current_line();
 
         switch (keycode) {
-        case keys::left:
-        case keys::numpad::left:
+        case win::keys::left:
+        case win::keys::numpad::left:
           if (ctrl) {
             // next word begin
             set_cursor_pos(find_prev_word(data.cursor_pos), shift);
@@ -82,8 +82,8 @@ namespace gui {
             set_cursor_pos({position::end.x(), row}, shift);
           }
           break;
-        case keys::right:
-        case keys::numpad::right:
+        case win::keys::right:
+        case win::keys::numpad::right:
           if (ctrl) {
             set_cursor_pos(find_next_word(data.cursor_pos), shift);
           } else if (data.cursor_pos.x() < current.size()) {
@@ -92,36 +92,36 @@ namespace gui {
             set_cursor_pos({0, data.cursor_pos.y() + 1}, shift);
           }
           break;
-        case keys::up:
-        case keys::numpad::up:
+        case win::keys::up:
+        case win::keys::numpad::up:
           if (ctrl) {} else if (data.cursor_pos.y() > 0) {
             set_cursor_pos({data.cursor_pos.x(), data.cursor_pos.y() - 1}, shift);
           }
           break;
-        case keys::down:
-        case keys::numpad::down:
+        case win::keys::down:
+        case win::keys::numpad::down:
           if (ctrl) {} else if (data.cursor_pos.y() < (row_count() - 1)) {
             set_cursor_pos({data.cursor_pos.x(), data.cursor_pos.y() + 1}, shift);
           }
           break;
-        case keys::home:
-        case keys::numpad::home:
+        case win::keys::home:
+        case win::keys::numpad::home:
           if (ctrl) {
             set_cursor_pos(position::zero, shift);
           } else {
             set_cursor_pos({0, data.cursor_pos.y()}, shift);
           }
           break;
-        case keys::end:
-        case keys::numpad::end:
+        case win::keys::end:
+        case win::keys::numpad::end:
           if (ctrl) {
             set_cursor_pos(position::end, shift);
           } else {
             set_cursor_pos({position::end.x(), data.cursor_pos.y()}, shift);
           }
           break;
-        case keys::del:
-        case keys::numpad::del:
+        case win::keys::del:
+        case win::keys::numpad::del:
           if (data.selection.empty()) {
             if (current.empty()) {
               erase_line(data.cursor_pos.y());
@@ -141,7 +141,7 @@ namespace gui {
             set_cursor_pos(data.selection.first, false);
           }
           break;
-        case keys::back_space:
+        case win::keys::back_space:
           if (data.selection.empty()) {
             if (current.empty()) {
               erase_line(data.cursor_pos.y());
@@ -168,17 +168,17 @@ namespace gui {
             set_cursor_pos(data.selection.first, false);
           }
           break;
-        case keys::escape:
+        case win::keys::escape:
           set_selection({});
           break;
-        case keys::clear:
+        case win::keys::clear:
           set_selection({position::zero, position::end});
           replace_selection(std::string());
           set_cursor_pos(position::zero, false);
           break;
-        case keys::tab:
+        case win::keys::tab:
           break;
-        case keys::enter: {
+        case win::keys::enter: {
           if (!data.selection.empty()) {
             replace_selection(std::string());
             set_cursor_pos(data.selection.first, false);
@@ -194,17 +194,17 @@ namespace gui {
         default: {
           if (ctrl) {
             switch (keycode) {
-            case keys::a:
+            case win::keys::a:
               // select all
               set_selection({position::zero, position::end});
               break;
-            case keys::v: {
-              clipboard::get().get_text(*this, [&](const std::string & t) {
+            case win::keys::v: {
+              win::clipboard::get().get_text(*this, [&](const std::string & t) {
                                           replace_selection(t);
                                         });
               break;
-            case keys::x:
-              clipboard::get().set_text(*this, get_selected_text());
+            case win::keys::x:
+              win::clipboard::get().set_text(*this, get_selected_text());
               replace_selection(std::string());
               break;
             }
@@ -224,6 +224,6 @@ namespace gui {
 
     } // namespace detail
 
-  } // win
+  } // ctrl
 
 } // gui

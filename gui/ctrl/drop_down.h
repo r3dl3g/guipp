@@ -64,7 +64,7 @@ namespace gui {
 
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace paint {
@@ -106,9 +106,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T,
              drop_down_drawer<T> D = default_drop_down_drawer<T> >
-    class drop_down_list : public group_window<layout::drop_down> {
+    class drop_down_list : public win::group_window<layout::drop_down> {
     public:
-      typedef group_window<layout::drop_down> super;
+      typedef win::group_window<layout::drop_down> super;
       typedef vertical_list list_type;
 
       typedef T (get_data_t)(std::size_t);
@@ -149,8 +149,8 @@ namespace gui {
 
       void toggle_popup ();
 
-      void set_drawer (const std::function<win::list::draw_list_item>& drawer);
-      void set_drawer (std::function<win::list::draw_list_item>&& drawer);
+      void set_drawer (const std::function<list::draw_list_item>& drawer);
+      void set_drawer (std::function<list::draw_list_item>&& drawer);
 
       void set_count (std::size_t n);
 
@@ -169,7 +169,7 @@ namespace gui {
 
         data_provider source;
         push_button button;
-        popup_window popup;
+        win::popup_window popup;
         list_type items;
         int selection;
         int visible_items;
@@ -177,11 +177,11 @@ namespace gui {
 
       } data;
 
-      move_event me;
+      win::move_event me;
 
     };
 
-  } // win
+  } // ctrl
 
 } // gui
 

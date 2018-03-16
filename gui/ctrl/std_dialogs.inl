@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     //-----------------------------------------------------------------------------
     inline standard_dialog_base::standard_dialog_base (float top)
@@ -55,13 +55,13 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action) {
-      super::first.register_event_handler(REGISTER_FUNCTION, win::selection_changed_event([&](event_source) {
+      super::first.on_selection_changed([&](event_source) {
         int idx = super::first.get_selection();
         if (idx > -1) {
           super::second.set_path(super::first.get_item(idx).path);
         }
-      }));
-      super::second.list.register_event_handler(REGISTER_FUNCTION, win::selection_commit_event([&, action] () {
+      });
+      super::second.list.on_selection_commit([&, action] () {
         auto path = super::second.get_selected_path();
         if (sys_fs::is_directory(path)) {
           super::first.open_node(path.parent_path());
@@ -70,7 +70,7 @@ namespace gui {
         } else {
           action(path);
         }
-      }));
+      });
     }
 
     //-----------------------------------------------------------------------------
@@ -142,6 +142,6 @@ namespace gui {
       dialog.super::show(parent);
     }
 
-  } // win
+  } // ctrl
 
 } // gui

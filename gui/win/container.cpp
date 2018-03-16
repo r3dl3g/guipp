@@ -167,14 +167,14 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window * w){
+      on_set_focus([&](window* w){
         if (w == this) {
           forward_focus(shift_key_bit_mask::is_set(core::global::get_key_state()));
         }
-      }));
-      register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+      });
+      on_show([&]() {
         set_children_visible();
-      }));
+      });
     }
 
     bool container::is_sub_window (const window* child) const {
@@ -249,9 +249,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
-      register_event_handler(REGISTER_FUNCTION, size_event([&] (const core::size& sz) {
+      on_size([&] (const core::size& sz) {
         send_client_message(this, WM_LAYOUT_WINDOW, sz);
-      }));
+      });
     }
 
 #ifdef WIN32
@@ -445,9 +445,9 @@ namespace gui {
 
     void modal_window::init () {
 #ifdef WIN32
-      register_event_handler(REGISTER_FUNCTION, close_event([&]() {
-                                                              is_modal = false;
-                                                            }));
+      on_close([&]() {
+        is_modal = false;
+      });
 #endif // WIN32
     }
 

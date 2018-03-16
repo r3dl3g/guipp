@@ -21,23 +21,23 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
-      inline void label_base::create (const container& parent,
+      inline void label_base::create (const win::container& parent,
                                       const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
       }
 
-      inline void label_base::create (const container& parent,
+      inline void label_base::create (const win::container& parent,
                                       const text_source& txt,
                                       const core::rectangle& place) {
         create(parent, place);
         set_text(txt);
       }
 
-      inline void label_base::create (const container& parent,
+      inline void label_base::create (const win::container& parent,
                                       const std::string& txt,
                                       const core::rectangle& place) {
         create(parent, const_text(txt), place);
@@ -89,11 +89,11 @@ namespace gui {
 
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
     inline void basic_label<A, D, F, B>::init () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_label::paint));
+      on_paint(basepp::bind_method(this, &basic_label::paint));
     }
 
     // --------------------------------------------------------------------------
 
-  } // win
+  } // ctrl
 
 } // gui

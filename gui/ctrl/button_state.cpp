@@ -24,7 +24,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     button_state::button_state (const button_base& win)
@@ -55,6 +55,6 @@ namespace gui {
       return set_flag(flags::button_checked, f);
     }
 
-  } // win
+  } // ctrl
 
 } // gui

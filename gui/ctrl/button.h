@@ -35,7 +35,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
@@ -55,16 +55,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     using button_clicked_event = core::event_handler<ClientMessage, 0,
                                                      core::params<>::getter<>, 0,
-                                                     client_message_matcher<detail::BN_CLICKED_MESSAGE> >;
+                                                     win::client_message_matcher<detail::BN_CLICKED_MESSAGE> >;
     using button_pushed_event = core::event_handler<ClientMessage, 0,
                                                     core::params<>::getter<>, 0,
-                                                    client_message_matcher<detail::BN_PUSHED_MESSAGE> >;
+                                                    win::client_message_matcher<detail::BN_PUSHED_MESSAGE> >;
     using button_released_event = core::event_handler<ClientMessage, 0,
                                                       core::params<>::getter<>, 0,
-                                                      client_message_matcher<detail::BN_UNPUSHED_MESSAGE> >;
+                                                      win::client_message_matcher<detail::BN_UNPUSHED_MESSAGE> >;
     using button_state_event = core::event_handler<ClientMessage, 0,
-                                                   core::params<bool>::getter<get_client_data<0, bool> >, 0,
-                                                   client_message_matcher<detail::BN_STATE_MESSAGE> >;
+                                                   core::params<bool>::getter<win::get_client_data<0, bool> >, 0,
+                                                   win::client_message_matcher<detail::BN_STATE_MESSAGE> >;
 #endif // X11
     // --------------------------------------------------------------------------
     namespace paint {
@@ -164,16 +164,16 @@ namespace gui {
                                                 float); // animation_step
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT button_base : public window {
+    class GUIPP_CTRL_EXPORT button_base : public control {
     public:
-      typedef window super;
+      typedef control super;
       typedef no_erase_window_class<button_base> clazz;
 
       button_base ();
       button_base (const button_base&);
       button_base (button_base&&);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       const button_state get_state () const;
@@ -186,6 +186,11 @@ namespace gui {
       void set_hilited (bool b);
       void set_pushed (bool b);
       void set_checked (bool b);
+
+      void on_clicked (std::function<void()>&& f);
+      void on_pushed (std::function<void()>&& f);
+      void on_released (std::function<void()>&& f);
+      void on_state_changed (std::function<void(bool)>&& f);
 
     private:
       void init ();
@@ -293,12 +298,12 @@ namespace gui {
       basic_text_button (const basic_text_button& rhs);
       basic_text_button (basic_text_button&& rhs);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const std::string& txt,
                    const core::rectangle& place = core::rectangle::def);
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const text_source& txt,
                    const core::rectangle& place = core::rectangle::def);
 
@@ -370,7 +375,7 @@ namespace gui {
       custom_button (const custom_button& rhs);
       custom_button (custom_button&& rhs);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
       void set_drawer (std::function<button_drawer> d);
 
@@ -387,7 +392,7 @@ namespace gui {
     using custom_toggle_button = custom_button<toggle_button_traits<keep_state> >;
 
     // --------------------------------------------------------------------------
-  } // win
+  } // ctrl
 
 } // gui
 

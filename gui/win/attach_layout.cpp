@@ -37,12 +37,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     void attach::init (win::container* main) {
 #ifdef NDEBUG
-      main->register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &attach::layout));
+      main->on_layout(basepp::bind_method(this, &attach::layout));
 #else
-      main->register_event_handler(REGISTER_FUNCTION, win::layout_event([&, main] (const core::size & sz) {
+      main->on_layout([&, main] (const core::size & sz) {
 //        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
         layout(sz);
-      }));
+      });
 #endif
     }
 

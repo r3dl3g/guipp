@@ -25,28 +25,28 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     template<>
     void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-        case keys::left:
-        case keys::numpad::left: {
+        case win::keys::left:
+        case win::keys::numpad::left: {
           try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case keys::right:
-        case keys::numpad::right: {
+        case win::keys::right:
+        case win::keys::numpad::right: {
           try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case keys::up:
-        case keys::numpad::up: {
+        case win::keys::up:
+        case win::keys::numpad::up: {
           try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
-        case keys::down:
-        case keys::numpad::down: {
+        case win::keys::down:
+        case win::keys::numpad::down: {
           try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
@@ -56,23 +56,23 @@ namespace gui {
     template<>
     void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
-        case keys::left:
-        case keys::numpad::left: {
+        case win::keys::left:
+        case win::keys::numpad::left: {
           try_to_select(super::get_selection() - 1, event_source::keyboard);
           break;
         }
-        case keys::right:
-        case keys::numpad::right: {
+        case win::keys::right:
+        case win::keys::numpad::right: {
           try_to_select(super::get_selection() + 1, event_source::keyboard);
           break;
         }
-        case keys::up:
-        case keys::numpad::up: {
+        case win::keys::up:
+        case win::keys::numpad::up: {
           try_to_select(super::get_selection() - static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
-        case keys::down:
-        case keys::numpad::down: {
+        case win::keys::down:
+        case win::keys::numpad::down: {
           try_to_select(super::get_selection() + static_cast<int>(super::traits.get_items_per_line(super::client_size())), event_source::keyboard);
           break;
         }
@@ -80,6 +80,6 @@ namespace gui {
     }
 
 
-  } // win
+  } // ctrl
 
 } // gui

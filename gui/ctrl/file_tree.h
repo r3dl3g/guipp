@@ -114,7 +114,7 @@ namespace gui {
 
   } // namespace fs
 
-  namespace win {
+  namespace ctrl {
 
     namespace path_tree {
 
@@ -204,9 +204,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
-    class file_list : public win::vertical_list {
+    class file_list : public vertical_list {
     public:
-      typedef win::vertical_list super;
+      typedef vertical_list super;
 
       file_list (core::size::type item_size = 20,
                  os::color background = color::white,
@@ -237,11 +237,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
-    class file_column_list : public win::column_list_t<layout::weight_column_list_layout,
-                                                       const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
+    class file_column_list : public column_list_t<layout::weight_column_list_layout,
+                                                  const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
     public:
-      typedef win::column_list_t<layout::weight_column_list_layout,
-                                 const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
+      typedef column_list_t<layout::weight_column_list_layout,
+                            const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
       file_column_list (core::size::type item_size = 20,
                         os::color background = color::white,
@@ -273,7 +273,7 @@ namespace gui {
     GUIPP_CTRL_EXPORT void draw_arrow_up (const draw::graphics& g, const core::rectangle& r, os::color col);
     GUIPP_CTRL_EXPORT void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col);
 
-  } // win
+  } // ctrl
 
 } // gui
 

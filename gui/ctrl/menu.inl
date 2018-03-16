@@ -142,7 +142,7 @@ namespace gui {
       return data.selection;
     }
 
-    inline void menu_data::clear_selection (win::event_source src) {
+    inline void menu_data::clear_selection (event_source src) {
       set_selection(-1, src);
     }
 

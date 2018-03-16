@@ -25,7 +25,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -60,6 +60,6 @@ namespace gui {
 
     } // namespace detail
 
-  } // namespace win
+  } // namespace ctrl
 
 } // namespace gui

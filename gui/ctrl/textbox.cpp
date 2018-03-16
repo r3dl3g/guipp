@@ -28,7 +28,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -90,10 +90,10 @@ namespace gui {
         }
 
         for (auto idx = first; (idx < last) && (r.y() < height); ++idx) {
-          win::paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
-                                detail::get_line_selection(selection, idx),
-                                detail::get_line_cursor(cursor_pos, idx),
-                                0, true);
+          paint::edit_line(graph, r, lines[idx], fnt, foreground, background, origin,
+                           detail::get_line_selection(selection, idx),
+                           detail::get_line_cursor(cursor_pos, idx),
+                           0, true);
           r.move_y(row_sz);
         }
 
@@ -345,7 +345,7 @@ namespace gui {
       }
 
       textbox_base::position textbox_base::find_next_word (const textbox_base::position& pos) {
-        if (pos.is_valid() && (pos.x() < data.lines[pos.y()].size())) {
+        if (pos.is_valid() && (pos.y() < data.lines.size()) && (pos.x() < data.lines[pos.y()].size())) {
           std::string::size_type p = basepp::string::find_right_space(data.lines[pos.y()], pos.x());
           if (p != std::string::npos) {
             return {static_cast<decltype(pos.y())>(p), pos.y()};
@@ -358,15 +358,15 @@ namespace gui {
       }
 
       void textbox_base::enable_select_by_mouse (const text_origin origin) {
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&, origin](os::key_state, const core::point& pt) {
+        on_left_btn_down([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           set_cursor_pos(get_position_at_point(pt, origin));
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&](os::key_state, const core::point&) {
+        });
+        on_left_btn_up([&](os::key_state, const core::point&) {
           data.last_mouse_point = core::point::undefined;
-        }));
-        register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&, origin](os::key_state, const core::point& pt) {
+        });
+        on_left_btn_dblclk([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;
           const auto p = get_position_at_point(pt, origin);
@@ -374,25 +374,25 @@ namespace gui {
           const auto r = find_next_word(p);
           set_cursor_pos(p);
           set_selection({l, r});
-        }));
-        register_event_handler(REGISTER_FUNCTION, mouse_move_event([&, origin](os::key_state keys, const core::point& pt) {
-          if ((data.last_mouse_point != core::point::undefined) && left_button_bit_mask::is_set(keys)) {
+        });
+        on_mouse_move([&, origin](os::key_state keys, const core::point& pt) {
+          if ((data.last_mouse_point != core::point::undefined) && win::left_button_bit_mask::is_set(keys)) {
             set_cursor_pos(get_position_at_point(pt, origin), true);
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, key_down_event<keys::c, state::control>([&]() {
-          clipboard::get().set_text(*this, get_selected_text());
-        }));
-        register_event_handler(REGISTER_FUNCTION, set_focus_event([&](window*){
+        });
+        on_key_down<win::keys::c, win::state::control>([&]() {
+          win::clipboard::get().set_text(*this, get_selected_text());
+        });
+        on_set_focus([&](window*){
           redraw();
-        }));
-        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&](window*){
+        });
+        on_lost_focus([&](window*){
           redraw();
-        }));
+        });
       }
 
     } // namespace detail
 
-  } // win
+  } // ctrl
 
 } // gui

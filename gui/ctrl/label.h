@@ -27,13 +27,13 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace detail {
-      class GUIPP_CTRL_EXPORT label_base : public gui::win::window {
+      class GUIPP_CTRL_EXPORT label_base : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef no_erase_window_class<label_base> clazz;
 
         label_base (const std::string& = std::string());
@@ -42,14 +42,14 @@ namespace gui {
         label_base (const label_base& rhs);
         label_base (label_base&& rhs);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const text_source& txt,
                      const core::rectangle& place = core::rectangle::def);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 
@@ -123,7 +123,7 @@ namespace gui {
                                      color::black,
                                      color::very_light_gray>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

@@ -50,8 +50,8 @@ namespace gui {
       , edge(nullptr)
     {}
 
-    void scroll_view_base::init (win::vertical_scroll_bar* vscroll,
-                                 win::horizontal_scroll_bar* hscroll,
+    void scroll_view_base::init (ctrl::vertical_scroll_bar* vscroll,
+                                 ctrl::horizontal_scroll_bar* hscroll,
                                  win::window* edge) {
       this->vscroll = vscroll;
       this->hscroll = hscroll;
@@ -60,34 +60,34 @@ namespace gui {
 
     core::rectangle scroll_view_base::get_vscroll_area (const core::size& sz, bool hscroll_bar_enabled) {
       core::rectangle r(sz);
-      r.x(r.x2() - win::scroll_bar::get_scroll_bar_width());
-      r.width(static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()));
+      r.x(r.x2() - ctrl::scroll_bar::get_scroll_bar_width());
+      r.width(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
       if (hscroll_bar_enabled) {
-        r.height(r.height() - win::scroll_bar::get_scroll_bar_width());
+        r.height(r.height() - ctrl::scroll_bar::get_scroll_bar_width());
       }
       return r;
     }
 
     core::rectangle scroll_view_base::get_hscroll_area (const core::size& sz, bool vscroll_bar_enabled) {
       core::rectangle r(sz);
-      r.y(r.y2() - win::scroll_bar::get_scroll_bar_width());
-      r.height(static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()));
+      r.y(r.y2() - ctrl::scroll_bar::get_scroll_bar_width());
+      r.height(static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
       if (vscroll_bar_enabled) {
-        r.width(r.width() - win::scroll_bar::get_scroll_bar_width());
+        r.width(r.width() - ctrl::scroll_bar::get_scroll_bar_width());
       }
       return r;
     }
 
     core::rectangle scroll_view_base::get_client_area (const core::size& sz) {
-      return core::rectangle(sz - core::size {static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()),
-                                              static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width())});
+      return core::rectangle(sz - core::size {static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()),
+                                              static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())});
     }
 
     core::rectangle scroll_view_base::get_edge_area (const core::size& sz) {
-      return core::rectangle(sz.width() - win::scroll_bar::get_scroll_bar_width(),
-                             sz.height() - win::scroll_bar::get_scroll_bar_width(),
-                             static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()),
-                             static_cast<core::size::type>(win::scroll_bar::get_scroll_bar_width()));
+      return core::rectangle(sz.width() - ctrl::scroll_bar::get_scroll_bar_width(),
+                             sz.height() - ctrl::scroll_bar::get_scroll_bar_width(),
+                             static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()),
+                             static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()));
     }
 
     core::rectangle scroll_view_base::layout (const core::size& new_size, const core::rectangle& required) {
@@ -97,18 +97,18 @@ namespace gui {
 
       bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
       if (show_h) {
-        space.height(space.height() - win::scroll_bar::get_scroll_bar_width());
+        space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
       }
 
       bool show_v = vscroll && ((required.y() < space.y()) || (required.y2() > space.y2()));
       if (show_v) {
-        space.width(space.width() - win::scroll_bar::get_scroll_bar_width());
+        space.width(space.width() - ctrl::scroll_bar::get_scroll_bar_width());
 
         if (!show_h) {
           // re-check h
           bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
           if (show_h) {
-            space.height(space.height() - win::scroll_bar::get_scroll_bar_width());
+            space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
           }
         }
 
@@ -211,8 +211,8 @@ namespace gui {
 
       for (win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-          win->register_event_handler(REGISTER_FUNCTION, me);
-          win->register_event_handler(REGISTER_FUNCTION, se);
+          win->register_event_handler(me);
+          win->register_event_handler(se);
         }
       }
     }
@@ -235,19 +235,19 @@ namespace gui {
 
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     scroll_view::scroll_view () {
       get_layout().init(&vscroll, &hscroll, &edge);
 
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type y) {
-                                                                       move_children(core::size(0, y - current_pos.y()));
-                                                                     }));
+      vscroll.on_scroll([&](core::point::type y) {
+        move_children(core::size(0, y - current_pos.y()));
+      });
 
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&](core::point::type x) {
-                                                                       move_children(core::size(x - current_pos.x(), 0));
-                                                                     }));
+      hscroll.on_scroll([&](core::point::type x) {
+        move_children(core::size(x - current_pos.x(), 0));
+      });
     }
 
     void scroll_view::create (const container& parent,
@@ -331,10 +331,10 @@ namespace gui {
       return hscroll;
     }
 
-    window& scroll_view::get_edge () {
+    win::window& scroll_view::get_edge () {
       return edge;
     }
 
-  } // win
+  } // ctrl
 
 } // gui

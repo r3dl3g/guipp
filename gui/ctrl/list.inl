@@ -21,7 +21,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -358,8 +358,8 @@ namespace gui {
     }
 
     template<orientation V, typename T>
-    inline void basic_list<V, T>::create (const container& parent,
-                                       const core::rectangle& place) {
+    inline void basic_list<V, T>::create (const win::container& parent,
+                                          const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
       adjust_scroll_bar(place.size());
     }
@@ -372,7 +372,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::create_scroll_bar (const core::size& sz) {
       if (!scrollbar.is_valid()) {
-        scrollbar.create(*reinterpret_cast<container*>(this), get_scroll_bar_area(sz));
+        scrollbar.create(*reinterpret_cast<win::container*>(this), get_scroll_bar_area(sz));
       }
     }
 
@@ -435,26 +435,26 @@ namespace gui {
 
     template<orientation V, typename T>
     void basic_list<V, T>::init () {
-      scrollbar.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (pos_t) {
+      scrollbar.on_scroll([&] (pos_t) {
         super::redraw();
-      }));
+      });
       if (scrollbar.is_focus_accepting()) {
-        super::register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point &) {
+        super::on_left_btn_down([&] (os::key_state, const core::point &) {
           super::take_focus();
-        }));
+        });
       }
-      super::register_event_handler(REGISTER_FUNCTION, left_btn_dblclk_event([&] (os::key_state keys, const core::point & pt) {
+      super::on_left_btn_dblclk([&] (os::key_state keys, const core::point & pt) {
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
-      }));
-      super::register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
+      });
+      super::on_mouse_leave([&] () {
         clear_hilite();
-      }));
-      super::register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_list::handle_left_btn_up));
-      super::register_event_handler(REGISTER_FUNCTION, typename wheel_traits<V>::wheel_event_type(this, &basic_list::handle_wheel));
-      super::register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_list::handle_mouse_move));
-      super::register_event_handler(REGISTER_FUNCTION, layout_event([&](const core::size& sz) {
+      });
+      super::on_left_btn_up(basepp::bind_method(this, &basic_list::handle_left_btn_up));
+      super::register_event_handler(typename wheel_traits<V>::wheel_event_type(this, &basic_list::handle_wheel));
+      super::on_mouse_move(basepp::bind_method(this, &basic_list::handle_mouse_move));
+      super::on_layout([&](const core::size& sz) {
         adjust_scroll_bar(sz);
-      }));
+      });
     }
 
     template<orientation V, typename T>
@@ -486,7 +486,7 @@ namespace gui {
 
     template<orientation V, typename T>
     template<typename U, list_item_drawer<U> F>
-    inline void basic_list<V, T>::create (const container& parent,
+    inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place,
                                           const simple_list_data<U, F>& data) {
       super::create(clazz::get(), parent, place);
@@ -629,9 +629,9 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = content_area();
-      if (left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
+      if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
         if (super::get_last_mouse_point() != core::point::undefined) {
-          super::set_cursor(cursor::move());
+          super::set_cursor(win::cursor::move());
           pos_t delta = traits.get(super::get_last_mouse_point()) - traits.get(pt);
           set_scroll_pos(get_scroll_pos() + delta);
           super::get_state().set_moved(true);
@@ -647,16 +647,16 @@ namespace gui {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
         const int new_selection = traits.get_index_at_point(content_size(), pt, get_scroll_pos(), get_count());
         if (new_selection != super::get_selection()) {
-          if ((new_selection < 0) || control_key_bit_mask::is_set(keys)) {
+          if ((new_selection < 0) || win::control_key_bit_mask::is_set(keys)) {
             clear_selection(event_source::mouse);
           } else {
             set_selection(new_selection, event_source::mouse);
           }
-        } else if (control_key_bit_mask::is_set(keys)) {
+        } else if (win::control_key_bit_mask::is_set(keys)) {
           clear_selection(event_source::mouse);
         }
       }
-      super::set_cursor(cursor::arrow());
+      super::set_cursor(win::cursor::arrow());
       super::data.last_mouse_point = core::point::undefined;
     }
 
@@ -718,28 +718,28 @@ namespace gui {
                                     const std::string&) {
       handle_direction_key(key);
       switch (key) {
-      case keys::page_up:
-      case keys::numpad::page_up:
+      case win::keys::page_up:
+      case win::keys::numpad::page_up:
         super::set_selection(super::get_selection() -
                       static_cast<int>(super::get_list_size() / super::get_item_size()),
                       event_source::keyboard);
         break;
-      case keys::page_down:
-      case keys::numpad::page_down:
+      case win::keys::page_down:
+      case win::keys::numpad::page_down:
         super::set_selection(super::get_selection() +
                       static_cast<int>(super::get_list_size() / super::get_item_size()),
                       event_source::keyboard);
         break;
-      case keys::home:
-      case keys::numpad::home:
+      case win::keys::home:
+      case win::keys::numpad::home:
         super::set_selection(0, event_source::keyboard);
         break;
-      case keys::end:
-      case keys::numpad::end:
+      case win::keys::end:
+      case win::keys::numpad::end:
         super::set_selection(static_cast<int>(super::get_count()) - 1,
                       event_source::keyboard);
         break;
-      case keys::enter:
+      case win::keys::enter:
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
         break;
       }
@@ -747,8 +747,8 @@ namespace gui {
 
     template<orientation V>
     void linear_list<V>::init () {
-      super::register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &linear_list::paint)));
-      super::register_event_handler(REGISTER_FUNCTION, any_key_down_event(this, &linear_list::handle_key));
+      super::on_paint(draw::buffered_paint(this, &linear_list::paint));
+      super::on_any_key_down(basepp::bind_method(this, &linear_list::handle_key));
     }
 
     // --------------------------------------------------------------------------
@@ -778,6 +778,6 @@ namespace gui {
       : enable_edit(true)
     {}
 
-  } // namespace win
+  } // namespace ctrl
 
 } // namespace gui

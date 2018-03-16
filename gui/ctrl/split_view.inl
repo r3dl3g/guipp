@@ -80,19 +80,19 @@ namespace gui {
     }
 
     template<orientation O>
-    inline win::detail::slider_base* split_view<O>::get_slider () const {
+    inline ctrl::detail::slider_base* split_view<O>::get_slider () const {
       return data.slider;
     }
 
     template<orientation O>
-    inline void split_view<O>::set_slider (win::detail::slider_base* slider) {
+    inline void split_view<O>::set_slider (ctrl::detail::slider_base* slider) {
       data.slider = slider;
     }
 
     template<orientation O>
     inline void split_view<O>::set (win::window* first,
                                     win::window* second,
-                                    win::detail::slider_base* slider) {
+                                    ctrl::detail::slider_base* slider) {
       data.first = first;
       data.second = second;
       data.slider = slider;
@@ -151,7 +151,7 @@ namespace gui {
 
   } // namespace layout
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -177,7 +177,7 @@ namespace gui {
       }
 
       template<orientation O>
-      void split_view<O>::create (const container& parent,
+      void split_view<O>::create (const win::container& parent,
                                   const core::rectangle& place,
                                   double split_pos) {
         super::create(clazz::get(), parent, place);
@@ -239,7 +239,7 @@ namespace gui {
     }
 
     template<orientation O, typename F, typename S>
-    void basic_split_view<O, F, S>::create (const container& parent,
+    void basic_split_view<O, F, S>::create (const win::container& parent,
                                             const core::rectangle& place,
                                             double split_pos) {
       super::create(parent, place, split_pos);
@@ -250,6 +250,6 @@ namespace gui {
       second.set_visible();
     }
 
-  } // win
+  } // ctrl
 
 } // gui

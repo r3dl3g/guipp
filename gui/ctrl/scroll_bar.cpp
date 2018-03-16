@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
 #ifdef WIN32
     template<>
@@ -72,19 +72,19 @@ namespace gui {
       static int initialized = detail::init_control_messages();
       (void)initialized;
 #endif // X11
-      register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+      on_lost_focus([&] (window*) {
         redraw();
-      }));
-      register_event_handler(REGISTER_FUNCTION, mouse_leave_event([&] () {
+      });
+      on_mouse_leave([&] () {
         set_hilite(scrollbar_state::nothing);
         redraw();
-      }));
+      });
 
       set_accept_focus(true);
     }
 
-    void scroll_bar::create (const class_info& type,
-                             const container& parent,
+    void scroll_bar::create (const win::class_info& type,
+                             const win::container& parent,
                              const core::rectangle& place) {
       super::create(type, parent, place);
     }
@@ -212,6 +212,10 @@ namespace gui {
       }
     }
 
+    void scroll_bar::on_scroll (scroll_event::function&& f) {
+      register_event_handler(scroll_event(std::move(f)), scroll_event::mask);
+    }
+
     namespace paint {
 
       namespace {
@@ -277,12 +281,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::horizontal>::init () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_scroll_bar::handle_paint));
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &basic_scroll_bar::handle_left_btn_down));
-      register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_scroll_bar::handle_left_btn_up));
-      register_event_handler(REGISTER_FUNCTION, wheel_x_event((super*)this, &scroll_bar::handle_wheel));
-      register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_scroll_bar::handle_mouse_move));
-      register_event_handler(REGISTER_FUNCTION, any_key_up_event(this, &basic_scroll_bar::handle_any_key_up));
+      on_paint(basepp::bind_method(this, &basic_scroll_bar::handle_paint));
+      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
+      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
+      on_wheel_x(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
+      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
+      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
     }
 
     template<>
@@ -296,7 +300,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
-        if (left_button_bit_mask::is_set(keys)) {
+        if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_state() == scrollbar_state::thumb_button) {
             type delta = (pt.x() - get_last_mouse_point().x()) / get_scale();
@@ -325,28 +329,28 @@ namespace gui {
     void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-        case keys::left:
-        case keys::numpad::left:
+        case win::keys::left:
+        case win::keys::numpad::left:
           set_value(get_value() - get_step(), true);
           break;
-        case keys::right:
-        case keys::numpad::right:
+        case win::keys::right:
+        case win::keys::numpad::right:
           set_value(get_value() + get_step(), true);
           break;
-        case keys::page_up:
-        case keys::numpad::page_up:
+        case win::keys::page_up:
+        case win::keys::numpad::page_up:
           set_value(get_value() - get_page(), true);
           break;
-        case keys::page_down:
-        case keys::numpad::page_down:
+        case win::keys::page_down:
+        case win::keys::numpad::page_down:
           set_value(get_value() + get_page(), true);
           break;
-        case keys::home:
-        case keys::numpad::home:
+        case win::keys::home:
+        case win::keys::numpad::home:
           set_value(get_min(), true);
           break;
-        case keys::end:
-        case keys::numpad::end:
+        case win::keys::end:
+        case win::keys::numpad::end:
           set_value(get_min(), true);
           break;
         }
@@ -356,12 +360,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::vertical>::init () {
-      register_event_handler(REGISTER_FUNCTION, paint_event(this, &basic_scroll_bar::handle_paint));
-      register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &basic_scroll_bar::handle_left_btn_down));
-      register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &basic_scroll_bar::handle_left_btn_up));
-      register_event_handler(REGISTER_FUNCTION, wheel_y_event((super*)this, &scroll_bar::handle_wheel));
-      register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &basic_scroll_bar::handle_mouse_move));
-      register_event_handler(REGISTER_FUNCTION, any_key_up_event(this, &basic_scroll_bar::handle_any_key_up));
+      on_paint(basepp::bind_method(this, &basic_scroll_bar::handle_paint));
+      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
+      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
+      on_wheel_y(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
+      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
+      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
     }
 
     template<>
@@ -375,7 +379,7 @@ namespace gui {
     template<>
     void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
-        if (left_button_bit_mask::is_set(keys)) {
+        if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
           if (get_state() == scrollbar_state::thumb_button) {
             type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
@@ -404,34 +408,34 @@ namespace gui {
     void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
-        case keys::up:
-        case keys::numpad::up:
+        case win::keys::up:
+        case win::keys::numpad::up:
           set_value(get_value() - get_step(), true);
           break;
-        case keys::down:
-        case keys::numpad::down:
+        case win::keys::down:
+        case win::keys::numpad::down:
           set_value(get_value() + get_step(), true);
           break;
-        case keys::page_up:
-        case keys::numpad::page_up:
+        case win::keys::page_up:
+        case win::keys::numpad::page_up:
           set_value(get_value() - get_page(), true);
           break;
-        case keys::page_down:
-        case keys::numpad::page_down:
+        case win::keys::page_down:
+        case win::keys::numpad::page_down:
           set_value(get_value() + get_page(), true);
           break;
-        case keys::home:
-        case keys::numpad::home:
+        case win::keys::home:
+        case win::keys::numpad::home:
           set_value(get_min(), true);
           break;
-        case keys::end:
-        case keys::numpad::end:
+        case win::keys::end:
+        case win::keys::numpad::end:
           set_value(get_min(), true);
           break;
         }
       }
     }
 
-  } // win
+  } // ctrl
 
 } // gui

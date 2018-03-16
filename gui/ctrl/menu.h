@@ -194,8 +194,8 @@ namespace gui {
       int get_index_of (const menu_entry&) const;
 
       int get_selection () const;
-      void set_selection(int, win::event_source);
-      void clear_selection(win::event_source);
+      void set_selection(int, event_source);
+      void clear_selection(event_source);
       void rotate_selection (int delta = 1);
 
       int get_hilite () const;
@@ -247,9 +247,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT main_menu : public win::window {
+    class GUIPP_CTRL_EXPORT main_menu : public control {
     public:
-      typedef window super;
+      typedef control super;
       typedef win::window_class<main_menu, color::very_light_gray> clazz;
 
       main_menu ();

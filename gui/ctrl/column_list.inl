@@ -159,10 +159,10 @@ namespace gui {
     {}
 
     inline void weight_column_list_layout::init_auto_layout () {
-      main->register_event_handler(REGISTER_FUNCTION, win::layout_event(this, &weight_column_list_layout::layout));
-      main->register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+      main->on_layout(basepp::bind_method(this, &weight_column_list_layout::layout));
+      main->on_show([&] () {
         layout(list->content_size());
-      }));
+      });
     }
 
     inline void weight_column_list_layout::set_column_count (std::size_t i) {
@@ -181,7 +181,7 @@ namespace gui {
     // --------------------------------------------------------------------------
   } // layout
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     template<typename Layout, os::color background>
@@ -219,10 +219,10 @@ namespace gui {
 
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::init () {
-      this->register_event_handler(REGISTER_FUNCTION, paint_event(draw::buffered_paint(this, &column_list_header::paint)));
-      this->register_event_handler(REGISTER_FUNCTION, mouse_move_event(this, &column_list_header::handle_mouse_move));
-      this->register_event_handler(REGISTER_FUNCTION, left_btn_down_event(this, &column_list_header::handle_left_btn_down));
-      this->register_event_handler(REGISTER_FUNCTION, left_btn_up_event(this, &column_list_header::handle_left_btn_up));
+      this->on_paint(draw::buffered_paint(this, &column_list_header::paint));
+      this->on_mouse_move(basepp::bind_method(this, &column_list_header::handle_mouse_move));
+      this->on_left_btn_down(basepp::bind_method(this, &column_list_header::handle_left_btn_down));
+      this->on_left_btn_up(basepp::bind_method(this, &column_list_header::handle_left_btn_up));
     }
 
     template<typename Layout, os::color background>
@@ -249,7 +249,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    void column_list_header<Layout, background>::create (const container& parent,
+    void column_list_header<Layout, background>::create (const win::container& parent,
                                                          const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
@@ -277,7 +277,7 @@ namespace gui {
     void column_list_header<Layout, background>::handle_left_btn_down (os::key_state, const core::point& pt) {
       last_mouse_point = pt;
       down_idx = layouter.split_idx_at(pt.x(), 2.0F);
-      super::set_cursor(down_idx > -1 ? cursor::size_h() : cursor::arrow());
+      super::set_cursor(down_idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
       super::capture_pointer();
     }
 
@@ -285,13 +285,13 @@ namespace gui {
     void column_list_header<Layout, background>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       last_mouse_point = core::point::undefined;
       down_idx = -1;
-      super::set_cursor(cursor::arrow());
+      super::set_cursor(win::cursor::arrow());
       super::uncapture_pointer();
     }
 
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      if (left_button_bit_mask::is_set(keys)) {
+      if (win::left_button_bit_mask::is_set(keys)) {
         if (last_mouse_point != core::point::undefined) {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
@@ -302,7 +302,7 @@ namespace gui {
         last_mouse_point = pt;
       } else {
         const int idx = layouter.split_idx_at(pt.x(), 2.0F);
-        super::set_cursor(idx > -1 ? cursor::size_h() : cursor::arrow());
+        super::set_cursor(idx > -1 ? win::cursor::size_h() : win::cursor::arrow());
       }
     }
 
@@ -364,7 +364,7 @@ namespace gui {
       }
 
       template<typename Layout>
-      void base_column_list<Layout>::create (const container& parent,
+      void base_column_list<Layout>::create (const win::container& parent,
                                              const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
         header.create(*this, core::rectangle(0, 0, place.width(), 20));
@@ -377,9 +377,9 @@ namespace gui {
       void base_column_list<Layout>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::register_event_handler(REGISTER_FUNCTION, win::layout_event([&] (const core::size& sz) {
+        super::on_layout([&] (const core::size& sz) {
           header.layout(sz);
-        }));
+        });
       }
 
       // --------------------------------------------------------------------------
@@ -441,7 +441,7 @@ namespace gui {
     }
 
     template<typename L>
-    void simple_column_list<L>::create (const container& parent,
+    void simple_column_list<L>::create (const win::container& parent,
                                         const core::rectangle& place) {
       super::create(parent, place);
     }
@@ -634,7 +634,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-  } // win
+  } // ctrl
 
 } // gui
 

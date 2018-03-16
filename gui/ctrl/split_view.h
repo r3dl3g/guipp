@@ -36,7 +36,7 @@ namespace gui {
 
       win::window* first;
       win::window* second;
-      win::detail::slider_base* slider;
+      ctrl::detail::slider_base* slider;
     };
 
     // --------------------------------------------------------------------------
@@ -51,15 +51,15 @@ namespace gui {
 
       win::window* get_first () const;
       win::window* get_second () const;
-      win::detail::slider_base* get_slider () const;
+      ctrl::detail::slider_base* get_slider () const;
 
       void set_first (win::window* first);
       void set_second (win::window* second);
-      void set_slider (win::detail::slider_base* slider);
+      void set_slider (ctrl::detail::slider_base* slider);
 
       void set (win::window* first,
                 win::window* second,
-                win::detail::slider_base* slider);
+                ctrl::detail::slider_base* slider);
 
       static core::rectangle get_first_place (const core::size&, double pos);
       static core::rectangle get_second_place (const core::size&, double pos);
@@ -81,25 +81,25 @@ namespace gui {
 
   } // namespace layout
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
       // --------------------------------------------------------------------------
       template<orientation O>
-      class split_view : public layout_container<layout::split_view<O> > {
+      class split_view : public win::layout_container<layout::split_view<O> > {
       public:
-        typedef layout_container<layout::split_view<O> > super;
+        typedef win::layout_container<layout::split_view<O> > super;
         typedef typename super::layout_type layout_type;
-        typedef window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
+        typedef win::window_class<split_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
-        typedef win::basic_framed_slider<O, draw::frame::raised_relief> slider_type;
+        typedef basic_framed_slider<O, draw::frame::raised_relief> slider_type;
 
         split_view ();
         split_view (const split_view& rhs);
         split_view (split_view&& rhs);
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& place = core::rectangle::def,
                      double split_pos = 0.5);
 
@@ -127,7 +127,7 @@ namespace gui {
       basic_split_view (basic_split_view&& rhs);
       basic_split_view (First&& first, Second&& second);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def,
                    double split_pos = 0.5);
 
@@ -142,7 +142,7 @@ namespace gui {
     template<typename First, typename Second>
     using horizontal_split_view = basic_split_view<orientation::horizontal, First, Second>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

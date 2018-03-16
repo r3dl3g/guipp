@@ -30,14 +30,14 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class GUIPP_CTRL_EXPORT list_base : public window {
+      class GUIPP_CTRL_EXPORT list_base : public control {
       public:
-        typedef window super;
+        typedef control super;
         typedef core::size::type pos_t;
 
         list_base (os::color background = color::white,
@@ -173,13 +173,13 @@ namespace gui {
 
     template<>
     struct wheel_traits<orientation::horizontal> {
-      typedef wheel_x_event wheel_event_type;
+      typedef win::wheel_x_event wheel_event_type;
 
     };
 
     template<>
     struct wheel_traits<orientation::vertical> {
-      typedef wheel_y_event wheel_event_type;
+      typedef win::wheel_y_event wheel_event_type;
     };
 
     // --------------------------------------------------------------------------
@@ -201,12 +201,12 @@ namespace gui {
       basic_list (const basic_list& rhs);
       basic_list (basic_list&& rhs);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       template<typename U,
                list_item_drawer<U> F = default_list_item_drawer<U> >
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place,
                    const simple_list_data<U, F>& data);
 
@@ -360,7 +360,7 @@ namespace gui {
       struct data {
         data ();
 
-        win::edit editor;
+        edit editor;
         std::function<source> data_source;
         std::function<target> data_target;
         bool enable_edit;
@@ -368,7 +368,7 @@ namespace gui {
 
     };
 
-  } // win
+  } // ctrl
 
 } // gui
 

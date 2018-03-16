@@ -107,7 +107,7 @@ namespace gui {
 
   } // namespace fs
 
-  namespace win {
+  namespace ctrl {
 
     namespace path_tree {
 
@@ -254,19 +254,19 @@ namespace gui {
             draw::frame::lines(g, r);
           },
           [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-            win::paint::text_item(g, r, b, path.filename(), s, align);
+            paint::text_item(g, r, b, path.filename(), s, align);
             draw::frame::lines(g, r);
           },
           [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
             if (path.is_directory()) {
-              win::paint::text_item(g, r, b, std::string(), s, align);
+              paint::text_item(g, r, b, std::string(), s, align);
             } else {
-              win::paint::text_item(g, r, b, format_file_size(path.size), s, align);
+              paint::text_item(g, r, b, format_file_size(path.size), s, align);
             }
             draw::frame::lines(g, r);
           },
           [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-            win::paint::text_item(g, r, b, basepp::time::format_time(tp), s, align);
+            paint::text_item(g, r, b, basepp::time::format_time(tp), s, align);
             draw::frame::lines(g, r);
           }
         };
@@ -342,6 +342,6 @@ namespace gui {
     }
 
 
-  } // win
+  } // ctrl
 
 } // gui

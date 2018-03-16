@@ -78,9 +78,9 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::init () {
-        super::register_event_handler(REGISTER_FUNCTION, win::show_event([&] () {
+        super::on_show([&] () {
           layout();
-        }));
+        });
       }
 
     } // namespace detail

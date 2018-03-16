@@ -36,7 +36,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace detail {
 
@@ -62,28 +62,28 @@ namespace gui {
 
       template<>
       void basic_slider<orientation::vertical>::init () {
-        register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
-                                                                       const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
+        on_mouse_move_abs([&](os::key_state keys,
+                          const core::point & p) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
             set_value(start_window_point.x() + p.x() - start_mouse_point.x());
           }
-        }));
-        register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
+        });
+        on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
            switch (key) {
-             case keys::left:
-               set_value(position().x() - (control_key_bit_mask::is_set(state) ? 10 : 1));
+             case win::keys::left:
+               set_value(position().x() - (win::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case keys::right:
-               set_value(position().x() + (control_key_bit_mask::is_set(state) ? 10 : 1));
+             case win::keys::right:
+               set_value(position().x() + (win::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case keys::home:
+             case win::keys::home:
                set_value(min);
                break;
-             case keys::end:
+             case win::keys::end:
                set_value(max);
                break;
            }
-         }));
+         });
       }
 
       template<>
@@ -124,29 +124,29 @@ namespace gui {
 
       template<>
       void basic_slider<orientation::horizontal>::init () {
-        register_event_handler(REGISTER_FUNCTION, mouse_move_abs_event([&](os::key_state keys,
-                                                                           const core::point & p) {
-          if ((start_mouse_point != core::point::undefined) && is_enabled() && left_button_bit_mask::is_set(keys)) {
+        on_mouse_move_abs([&](os::key_state keys,
+                          const core::point & p) {
+          if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
             set_value(start_window_point.y() + p.y() - start_mouse_point.y());
           }
           return;
-        }));
-        register_event_handler(REGISTER_FUNCTION, any_key_down_event([&](os::key_state state, os::key_symbol key, const std::string &) {
+        });
+        on_any_key_down([&](os::key_state state, os::key_symbol key, const std::string &) {
            switch (key) {
-             case keys::up:
-               set_value(position().y() - (control_key_bit_mask::is_set(state) ? 10 : 1));
+             case win::keys::up:
+               set_value(position().y() - (win::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case keys::down:
-               set_value(position().y() + (control_key_bit_mask::is_set(state) ? 10 : 1));
+             case win::keys::down:
+               set_value(position().y() + (win::control_key_bit_mask::is_set(state) ? 10 : 1));
                break;
-             case keys::home:
+             case win::keys::home:
                set_value(min);
                break;
-             case keys::end:
+             case win::keys::end:
                set_value(max);
                break;
            }
-        }));
+        });
       }
 
       template<>
@@ -201,28 +201,28 @@ namespace gui {
 
         set_accept_focus(true);
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_down_event([&] (os::key_state, const core::point& pt) {
+        on_left_btn_down([&] (os::key_state, const core::point& pt) {
 #ifndef NO_CAPTURE
           capture_pointer();
 #endif // NO_CAPTURE
           start_mouse_point = client_to_screen(pt);
           start_window_point = position();
           take_focus();
-        }));
+        });
 
-        register_event_handler(REGISTER_FUNCTION, left_btn_up_event([&] (os::key_state, const core::point&) {
+        on_left_btn_up([&] (os::key_state, const core::point&) {
 #ifndef NO_CAPTURE
           uncapture_pointer();
 #endif // NO_CAPTURE
           start_mouse_point = core::point::undefined;
           start_window_point = core::point::undefined;
-        }));
-        register_event_handler(REGISTER_FUNCTION, set_focus_event([&] (window*) {
+        });
+        on_set_focus([&] (window*) {
           redraw();
-        }));
-        register_event_handler(REGISTER_FUNCTION, lost_focus_event([&] (window*) {
+        });
+        on_lost_focus([&] (window*) {
           redraw();
-        }));
+        });
       }
 
       void slider_base::set_min (type i) {
@@ -247,8 +247,12 @@ namespace gui {
         }
       }
 
+      void slider_base::on_slide (std::function<void(int)>&& f) {
+        register_event_handler(slider_event(std::move(f)), slider_event::mask);
+      }
+
     } // detail
 
-  } // win
+  } // ctrl
 
 } // gui

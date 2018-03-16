@@ -33,7 +33,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -212,7 +212,7 @@ namespace gui {
 
     typedef tree::basic_tree<tree::default_node_info> tree_view;
 
-  } // win
+  } // ctrl
 
 } // gui
 

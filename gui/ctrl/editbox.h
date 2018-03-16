@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     namespace detail {
@@ -36,12 +36,12 @@ namespace gui {
       class GUIPP_CTRL_EXPORT editbox_base : public textbox_base {
       public:
         typedef textbox_base super;
-        typedef no_erase_window_class<editbox_base, cursor_type::ibeam> clazz;
+        typedef no_erase_window_class<editbox_base, win::cursor_type::ibeam> clazz;
 
         editbox_base ();
         ~editbox_base ();
 
-        void create (const container& parent,
+        void create (const win::container& parent,
                      const core::rectangle& r = core::rectangle::def);
 
         void handle_key (os::key_state, os::key_symbol, const std::string&);
@@ -76,7 +76,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     typedef basic_editbox<> editbox;
 
-  } // win
+  } // ctrl
 
 } // gui
 

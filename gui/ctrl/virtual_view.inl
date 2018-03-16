@@ -31,8 +31,8 @@ namespace gui {
     }
 
     template<typename T>
-    inline void virtual_layout<T>::init (win::vertical_scroll_bar* vscroll,
-                                         win::horizontal_scroll_bar* hscroll,
+    inline void virtual_layout<T>::init (ctrl::vertical_scroll_bar* vscroll,
+                                         ctrl::horizontal_scroll_bar* hscroll,
                                          win::window* edge,
                                          view_type* client) {
       super::init(vscroll, hscroll, edge);
@@ -52,47 +52,45 @@ namespace gui {
 
   } // namespace layout
 
-  namespace win {
+  namespace ctrl {
 
     template<typename T, os::color B>
-    void virtual_view<T, B>::create (const container& parent,
+    void virtual_view<T, B>::create (const win::container& parent,
                                      const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }
 
     template<typename T, os::color B>
     virtual_view<T, B>::virtual_view () {
-      super::register_event_handler(REGISTER_FUNCTION, create_event(this, &virtual_view::handle_create));
+      super::on_create(basepp::bind_method(this, &virtual_view::handle_create));
       super::get_layout().init(&vscroll, &hscroll, &edge, &view);
 
-      vscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type y) {
+      vscroll.on_scroll([&] (core::point::type y) {
         view.set_scroll_pos(core::point(hscroll.get_value(), y));
-      }));
-      hscroll.register_event_handler(REGISTER_FUNCTION, scroll_event([&] (core::point::type x) {
+      });
+      hscroll.on_scroll([&] (core::point::type x) {
         view.set_scroll_pos(core::point(x, vscroll.get_value()));
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, content_changed_event([&] () {
+      });
+      view.on_content_changed([&] () {
         super::layout();
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, selection_changed_event([&] (event_source) {
+      });
+      view.on_selection_changed([&] (event_source) {
         view.make_selection_visible();
         const core::point& pos = view.get_scroll_pos();
         hscroll.set_value(pos.x(), false);
         vscroll.set_value(pos.y(), false);
         super::layout();
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_x_event([&] (const core::point::type delta,
-                                                                        const core::point & pt) {
+      });
+      view.on_wheel_x([&] (const core::point::type delta, const core::point & pt) {
         hscroll.handle_wheel(delta, pt);
-      }));
-      view.register_event_handler(REGISTER_FUNCTION, wheel_y_event([&] (const core::point::type delta,
-                                                                        const core::point & pt) {
+      });
+      view.on_wheel_y([&] (const core::point::type delta, const core::point & pt) {
         vscroll.handle_wheel(delta, pt);
-      }));
+      });
     }
 
     template<typename T, os::color B>
-    void virtual_view<T, B>::handle_create (window*, const core::rectangle& r) {
+    void virtual_view<T, B>::handle_create (win::window*, const core::rectangle& r) {
       core::size sz = r.size();
       vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
       hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));
@@ -101,6 +99,6 @@ namespace gui {
       view.set_visible();
     }
 
-  } // namespace win
+  } // namespace ctrl
 
 } // gui

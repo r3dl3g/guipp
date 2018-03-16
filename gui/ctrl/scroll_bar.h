@@ -27,7 +27,7 @@
 
 namespace gui {
 
-  namespace win {
+  namespace ctrl {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
@@ -41,8 +41,8 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     using scroll_event = core::event_handler<ClientMessage, 0,
-                                       core::params<core::point::type>::getter<get_client_data<0, core::point::type> >,
-                                       0, client_message_matcher<detail::SCROLLBAR_MESSAGE> >;
+                                       core::params<core::point::type>::getter<win::get_client_data<0, core::point::type> >,
+                                       0, win::client_message_matcher<detail::SCROLLBAR_MESSAGE> >;
     // --------------------------------------------------------------------------
 #endif // X11
 
@@ -76,9 +76,9 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT scroll_bar : public window {
+    class GUIPP_CTRL_EXPORT scroll_bar : public control {
     public:
-      typedef window super;
+      typedef control super;
       typedef scroll_bar_data::type type;
 
       static constexpr int scroll_bar_width = 17;
@@ -112,13 +112,15 @@ namespace gui {
 
       void send_notify ();
 
+      void on_scroll (std::function<void(core::point::type)>&& f);
+
     protected:
       scroll_bar ();
       scroll_bar (const scroll_bar&);
       scroll_bar (scroll_bar&&);
 
-      void create (const class_info& type,
-                   const container& parent,
+      void create (const win::class_info& type,
+                   const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void set_state (scrollbar_state);
@@ -158,7 +160,7 @@ namespace gui {
 
     template<orientation H>
     struct scroll_bar_traits<H, os::platform::win32> {
-      static constexpr os::style style = window_class_defaults<>::style;
+      static constexpr os::style style = win::window_class_defaults<>::style;
     };
 
     template<>
@@ -177,14 +179,14 @@ namespace gui {
     public:
       typedef scroll_bar super;
       typedef no_erase_window_class<basic_scroll_bar,
-                                    window_class_defaults<>::cursor,
+                                    win::window_class_defaults<>::cursor,
                                     scroll_bar_traits<H>::style> clazz;
 
       basic_scroll_bar (bool grab_focus = true);
       basic_scroll_bar (const basic_scroll_bar& rhs);
       basic_scroll_bar (basic_scroll_bar&& rhs);
 
-      void create (const container& parent,
+      void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
       void handle_paint (const draw::graphics&);
@@ -234,7 +236,7 @@ namespace gui {
     using vertical_scroll_bar = basic_scroll_bar<orientation::vertical>;
     using horizontal_scroll_bar = basic_scroll_bar<orientation::horizontal>;
 
-  } // win
+  } // ctrl
 
 } // gui
 

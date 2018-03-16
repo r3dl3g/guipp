@@ -101,13 +101,9 @@ namespace gui {
       void to_front ();
       void to_back ();
 
-      void redraw_from (char const caller_name[]) const;
-      void redraw_now_from (char const caller_name[]) const;
-      void redraw_later_from (char const caller_name[]) const;
-
-#define redraw() redraw_from(REGISTER_FUNCTION)
-#define redraw_now() redraw_now_from(REGISTER_FUNCTION)
-#define redraw_later() redraw_later_from(REGISTER_FUNCTION)
+      void redraw () const;
+      void redraw_now () const;
+      void redraw_later () const;
 
       core::size size () const;
       core::point position () const;
@@ -135,23 +131,77 @@ namespace gui {
       void capture_pointer ();
       void uncapture_pointer ();
 
-      void register_event_handler (char const name[], const event_handler_function& f, os::event_id mask);
-      void register_event_handler (char const name[], event_handler_function&& f, os::event_id mask);
+      typedef void(create_fn)(window*, core::rectangle);
+      typedef void(notification_fn)();
+      typedef void(mouse_fn)(os::key_state, core::point);
+      typedef void(wheel_fn)(core::point::type, core::point);
+      typedef void(window_fn)(window*);
+      typedef void(move_fn)(core::point);
+      typedef void(size_fn)(core::size);
+      typedef void(place_fn)(core::rectangle);
 
+      void on_create (std::function<create_fn>&& f);
+
+      void on_close (std::function<notification_fn>&& f);
+      void on_destroy (std::function<notification_fn>&& f);
+
+      void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
+      void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
+
+      template<os::key_symbol symbol, os::key_state state>
+      void on_key_down (std::function<notification_fn>&& f);
+
+      template<os::key_symbol symbol, os::key_state state>
+      void on_key_up (std::function<notification_fn>&& f);
+
+      void on_mouse_move (std::function<mouse_fn>&& f);
+      void on_mouse_move_abs (std::function<mouse_fn>&& f);
+
+      void on_left_btn_down (std::function<mouse_fn>&& f);
+      void on_left_btn_up (std::function<mouse_fn>&& f);
+      void on_right_btn_down (std::function<mouse_fn>&& f);
+      void on_right_btn_up (std::function<mouse_fn>&& f);
+      void on_middle_btn_down (std::function<mouse_fn>&& f);
+      void on_middle_btn_up (std::function<mouse_fn>&& f);
+
+      void on_btn_down (std::function<mouse_fn>&& f);
+      void on_btn_up (std::function<mouse_fn>&& f);
+
+      void on_left_btn_dblclk (std::function<mouse_fn>&& f);
+      void on_right_btn_dblclk (std::function<mouse_fn>&& f);
+      void on_middle_btn_dblclk (std::function<mouse_fn>&& f);
+
+      void on_wheel_x (std::function<wheel_fn>&& f);
+      void on_wheel_y (std::function<wheel_fn>&& f);
+
+      void on_show (std::function<notification_fn>&& f);
+      void on_hide (std::function<notification_fn>&& f);
+
+      void on_set_focus (std::function<window_fn>&& f);
+      void on_lost_focus (std::function<window_fn>&& f);
+
+      void on_mouse_enter (std::function<notification_fn>&& f);
+      void on_mouse_leave (std::function<notification_fn>&& f);
+
+      void on_move (std::function<move_fn>&& f);
+      void on_size (std::function<size_fn>&& f);
+      void on_place (std::function<place_fn>&& f);
+
+      void on_moving (std::function<move_fn>&& f);
+      void on_sizing (std::function<size_fn>&& f);
+      void on_placing (std::function<place_fn>&& f);
+
+      void on_layout (std::function<size_fn>&& f);
+
+      void on_os_paint (std::function<void(os::graphics)>&& f);
+
+      template<typename H>
+      void register_event_handler (H&& h);
       void unregister_event_handler (const event_handler_function& f);
 
-      template<typename H>
-      void register_event_handler (char const name[], const H& h);
-
-      template<typename H>
-      void register_event_handler (char const name[], H&& h);
-
-      template<typename T>
-      void register_event_handler (char const name[], T * t, bool (T::*method)(const core::event &, os::event_result & result), os::event_id mask);
+      void prepare_for_event (os::event_id mask);
 
       bool handle_event (const core::event&, os::event_result&) const;
-
-      void prepare_for_event (os::event_id mask);
 
     protected:
       window (const window&);
@@ -169,6 +219,8 @@ namespace gui {
                    const core::rectangle&);
 
       void set_accept_focus (bool a);
+
+      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
       friend struct window_state;
@@ -196,10 +248,6 @@ namespace gui {
     public:
       typedef window super;
       typedef window_class<client_window, background> clazz;
-
-      client_window ();
-      client_window (const client_window& rhs);
-      client_window (client_window&& rhs);
 
       void create (const container& parent,
                    const core::rectangle& r = core::rectangle::def);

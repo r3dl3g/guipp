@@ -35,7 +35,7 @@ namespace gui {
 
   } // image_data
 
-  namespace win {
+  namespace ctrl {
 
     namespace paint {
 
@@ -169,6 +169,6 @@ namespace gui {
 
     } // tree
 
-  } // win
+  } // ctrl
 
 } // gui

@@ -551,7 +551,7 @@ namespace gui {
 
     template<orientation V, typename T>
     template<typename F>
-    inline void basic_list<V, T>::set_data (std::initializer_list<T> args) {
+    inline void basic_list<V, T>::set_data (std::initializer_list<F> args) {
       super::set_drawer(simple_list_data<F>(args));
       set_count(args.size());
     }

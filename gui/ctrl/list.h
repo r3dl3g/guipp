@@ -220,7 +220,7 @@ namespace gui {
       void set_data (const simple_list_data<F>& data);
 
       template<typename F>
-      void set_data (std::initializer_list<T> args);
+      void set_data (std::initializer_list<F> args);
 
       int get_index_at_point (const core::point& pt);
       core::rectangle get_place_of_index (int idx);

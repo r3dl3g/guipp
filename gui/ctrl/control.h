@@ -70,11 +70,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T,
-             win::cursor_type C = win::window_class_defaults<>::cursor,
-             os::style S = win::window_class_defaults<>::style,
-             os::style ES = win::window_class_defaults<>::ex_style,
-             os::style CS = win::window_class_defaults<>::class_style>
-    using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
+      win::cursor_type C = win::window_class_defaults<>::cursor,
+      os::style S = win::window_class_defaults<>::style,
+      os::style ES = win::window_class_defaults<>::ex_style,
+      os::style CS = win::window_class_defaults<>::class_style>
+      using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -116,16 +116,23 @@ namespace gui {
     };
 
 #ifdef WIN32
+  } // namespace ctrl
+
+  namespace win {
+
     template<>
-    GUIPP_CTRL_EXPORT event_source get_param<0, event_source>(const core::event& e);
+    GUIPP_CTRL_EXPORT ctrl::event_source get_param<0, ctrl::event_source>(const core::event& e);
 
     // --------------------------------------------------------------------------
     template<>
     GUIPP_CTRL_EXPORT draw::graphics get_param<0, draw::graphics>(const core::event& e);
 
+  } // namespace win
+
+  namespace ctrl {
     // --------------------------------------------------------------------------
-    struct GUIPP_CTRL_EXPORT paint_caller : core::params<draw::graphics>::getter<get_param<0, draw::graphics> > {
-      typedef core::params<draw::graphics>::getter<get_param<0, draw::graphics> > super;
+    struct GUIPP_CTRL_EXPORT paint_caller : core::params<draw::graphics>::getter<win::get_param<0, draw::graphics> > {
+      typedef core::params<draw::graphics>::getter<win::get_param<0, draw::graphics> > super;
       typedef super::function function;
 
       paint_caller (const function cb)
@@ -146,22 +153,24 @@ namespace gui {
 
     using selection_changed_event = core::event_handler<detail::SELECTION_CHANGE_MESSAGE, 0,
                                                   core::params<event_source>::
-                                                  getter<get_param<0, event_source> > >;
+                                                  getter<win::get_param<0, event_source> > >;
 
     using selection_commit_event = core::event_handler<detail::SELECTION_COMMIT_MESSAGE>;
 
     using selection_cancel_event = core::event_handler<detail::SELECTION_CANCEL_MESSAGE>;
 
     using hilite_changed_event = core::event_handler<detail::HILITE_CHANGE_MESSAGE, 0,
-                                               core::params<bool>::getter<get_param<0, bool> > >;
+                                               core::params<bool>::getter<win::get_param<0, bool> > >;
 
     using content_changed_event = core::event_handler<detail::CONTENT_CHANGED_MESSAGE>;
 
 #endif //WIN32
-       // --------------------------------------------------------------------------
-#ifdef X11
+
     // --------------------------------------------------------------------------
     using paint_function = std::function<void(draw::graphics)>;
+
+#ifdef X11
+    // --------------------------------------------------------------------------
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,
                                                   core::params<event_source>::

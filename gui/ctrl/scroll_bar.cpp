@@ -27,15 +27,18 @@
 
 namespace gui {
 
-  namespace ctrl {
-
 #ifdef WIN32
+  namespace win {
+
     template<>
     float get_param<0, float>(const core::event& e) {
       return (float)e.wParam;
     }
 
+  } // namespace win
 #endif //WIN32
+
+  namespace ctrl {
 
     scroll_bar_data::scroll_bar_data ()
       : state(scrollbar_state::nothing)

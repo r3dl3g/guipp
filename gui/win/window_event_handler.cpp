@@ -67,6 +67,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
+    os::window get_param<0, os::window>(const core::event& e) {
+      return (os::window)e.wParam;
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
     os::graphics get_param<0, os::graphics>(const core::event& e) {
       return (os::graphics)e.wParam;
     }

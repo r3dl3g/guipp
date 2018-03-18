@@ -58,6 +58,7 @@ namespace gui {
     template<> GUIPP_WIN_EXPORT bool get_param<0>(const core::event& e);
     template<> GUIPP_WIN_EXPORT unsigned int get_param<0>(const core::event& e);
     template<> GUIPP_WIN_EXPORT int get_param<0>(const core::event& e);
+    template<> GUIPP_WIN_EXPORT os::window get_param<0, os::window>(const core::event& e);
     // --------------------------------------------------------------------------
     template<> GUIPP_WIN_EXPORT window* get_param<1>(const core::event& e);
     template<> GUIPP_WIN_EXPORT core::point get_param<1>(const core::event& e);

@@ -93,10 +93,14 @@ namespace gui {
     }
 
     template<>
-    void window::on_wheel<orientation::horizontal> (wheel_x_event::function&&);
+    inline void window::on_wheel<orientation::horizontal> (wheel_x_event::function&& f) {
+      on_wheel_x(std::move(f));
+    }
 
     template<>
-    void window::on_wheel<orientation::vertical> (wheel_y_event::function&&);
+    inline void window::on_wheel<orientation::vertical> (wheel_y_event::function&& f) {
+      on_wheel_y(std::move(f));
+    }
 
     template<os::key_symbol symbol, os::key_state state>
     inline void window::on_key_down (std::function<notification_fn>&& f) {

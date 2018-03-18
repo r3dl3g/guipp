@@ -6,7 +6,9 @@
 #include <gui/ctrl/control.h>
 #endif // WITH_CTRL
 
-DEFINE_LOGGING_CORE()
+#define NOTHING
+
+DEFINE_LOGGING_CORE(NOTHING)
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

@@ -66,18 +66,25 @@ namespace gui {
     } // detail
 
 #ifdef WIN32
+  } // namespace ctrl
+
+  namespace win {
 
     // --------------------------------------------------------------------------
     template<>
-    draw::graphics get_param<0, draw::graphics>(const core::event& e) {
+    draw::graphics get_param<0, draw::graphics> (const core::event& e) {
       return draw::graphics(e.id, (os::graphics)e.wParam);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    event_source get_param<0, event_source>(const core::event& e) {
-      return event_source(e.wParam);
+    ctrl::event_source get_param<0, ctrl::event_source> (const core::event& e) {
+      return ctrl::event_source(e.wParam);
     }
+
+  } // namespace win
+
+  namespace ctrl {
 
     // --------------------------------------------------------------------------
     void paint_caller::operator() (const core::event& e) {

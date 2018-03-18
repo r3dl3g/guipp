@@ -32,7 +32,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 #ifdef WIN32
     using slider_event = core::event_handler<detail::SLIDER_MESSAGE, 0,
-                                       core::params<int>::getter<get_param<0, int> > >;
+                                       core::params<int>::getter<win::get_param<0, int> > >;
 #endif //WIN32
 #ifdef X11
     using slider_event = core::event_handler<ClientMessage, 0,

@@ -302,22 +302,12 @@ namespace gui {
       on<middle_btn_dblclk_event>(std::move(f));
     }
 
-    template<>
-    void window::on_wheel<orientation::horizontal> (wheel_x_event::function&& f) {
+    void window::on_wheel_x (wheel_x_event::function&& f) {
       on<wheel_x_event>(std::move(f));
     }
 
-    template<>
-    void window::on_wheel<orientation::vertical> (wheel_y_event::function&& f) {
-      on<wheel_y_event>(std::move(f));
-    }
-
-    void window::on_wheel_x (wheel_x_event::function&& f) {
-      on_wheel<orientation::horizontal>(std::move(f));
-    }
-
     void window::on_wheel_y (wheel_y_event::function&& f) {
-      on_wheel<orientation::vertical>(std::move(f));
+      on<wheel_y_event>(std::move(f));
     }
 
     void window::on_show (show_event::function&& f) {
@@ -501,23 +491,23 @@ namespace gui {
       }
     }
 
-    void window::redraw_now_from (char const caller_name[]) const {
+    void window::redraw_now () const {
       if (is_valid()) {
-        LogDebug << "redraw_now: " << get_id() << " from " << caller_name;
+        LogDebug << "redraw_now: " << get_id();
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
-    void window::redraw_from (char const caller_name[]) const {
+    void window::redraw () const {
       if (is_valid()) {
-        LogDebug << "redraw: " << get_id() << " from " << caller_name;
+        LogDebug << "redraw: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
 
-    void window::redraw_later_from (char const caller_name[]) const {
+    void window::redraw_later () const {
       if (is_valid()) {
-        LogDebug << "redraw_later: " << get_id() << " from " << caller_name;
+        LogDebug << "redraw_later: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }

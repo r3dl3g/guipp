@@ -27,15 +27,22 @@
 
 namespace gui {
 
+#ifdef WIN32
+  namespace win {
+
+    template<>
+    GUIPP_CTRL_EXPORT float get_param<0, float>(const core::event& e);
+
+  } // namespace win
+#endif //WIN32
+
   namespace ctrl {
 
 #ifdef WIN32
     // --------------------------------------------------------------------------
-    template<>
-    GUIPP_CTRL_EXPORT float get_param<0, float>(const core::event& e);
 
     using scroll_event = core::event_handler<detail::SCROLLBAR_MESSAGE, 0,
-                                       core::params<core::point::type>::getter<get_param<0, core::point::type> > >;
+                                       core::params<core::point::type>::getter<win::get_param<0, core::point::type> > >;
     // --------------------------------------------------------------------------
 #endif //WIN32
 #ifdef X11

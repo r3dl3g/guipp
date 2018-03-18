@@ -47,7 +47,7 @@ namespace gui {
                                                      core::params<>::getter<> >;
     using button_state_event = core::event_handler<detail::BN_STATE_MESSAGE, 0,
                                                    core::params<bool>::
-                                                   getter<get_param<0, bool> > >;
+                                                   getter<win::get_param<0, bool> > >;
 // --------------------------------------------------------------------------
 #endif //WIN32
 

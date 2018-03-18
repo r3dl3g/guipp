@@ -515,11 +515,11 @@ my_main_window::my_main_window ()
     LogDebug << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
-      window2.unregister_event_handler<win::os_paint_event>(draw::paint(paint1));
+      window2.unregister_event_handler<win::paint_event>(draw::paint(paint1));
       window2.on_paint(draw::paint(paint2));
     } else {
       at_paint1 = true;
-      window2.unregister_event_handler<win::os_paint_event>(draw::paint(paint2));
+      window2.unregister_event_handler<win::paint_event>(draw::paint(paint2));
       window2.on_paint(draw::paint(paint1));
     }
     window2.redraw();

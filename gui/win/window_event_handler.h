@@ -343,7 +343,7 @@ namespace gui {
                                        core::params<core::size>::
                                        getter<get_param<1, core::size>>>;
 
-    using os_paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
+    using paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
@@ -774,7 +774,7 @@ namespace gui {
                                        client_message_matcher<WM_LAYOUT_WINDOW>>;
 
     // --------------------------------------------------------------------------
-    using os_paint_event = core::event_handler<Expose, ExposureMask,
+    using paint_event = core::event_handler<Expose, ExposureMask,
                                          core::params<os::window, os::graphics>::
                                          getter<get_draw_window, get_graphics>>;
 

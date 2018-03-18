@@ -372,8 +372,8 @@ namespace gui {
       on<layout_event>(std::move(f));
     }
 
-    void window::on_paint (os_paint_event::function&& f) {
-      on<os_paint_event>(std::move(f));
+    void window::on_paint (paint_event::function&& f) {
+      on<paint_event>(std::move(f));
     }
 
     // --------------------------------------------------------------------------

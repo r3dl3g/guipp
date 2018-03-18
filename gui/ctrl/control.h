@@ -161,12 +161,6 @@ namespace gui {
        // --------------------------------------------------------------------------
 #ifdef X11
     // --------------------------------------------------------------------------
-//    GUIPP_CTRL_EXPORT draw::graphics get_draw_graphics (const core::event& e);
-
-//    using paint_event = core::event_handler<Expose, ExposureMask,
-//                                      core::params<draw::graphics>::
-//                                      getter<get_draw_graphics> >;
-
     using paint_function = std::function<void(draw::graphics)>;
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,

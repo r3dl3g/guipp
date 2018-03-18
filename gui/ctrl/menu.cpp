@@ -643,7 +643,7 @@ namespace gui {
     }
 
     void popup_menu::init () {
-      on_paint(draw::paint(basepp::bind_method(this, &popup_menu::paint)));
+      on_paint(draw::paint(this, &popup_menu::paint));
 
       on_mouse_move_abs([&](os::key_state, const core::point & pt) {
         data.handle_mouse(false, pt);

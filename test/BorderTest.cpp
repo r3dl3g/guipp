@@ -157,7 +157,7 @@ my_main_window::my_main_window ()
 
   on_close(basepp::bind_method(this, &my_main_window::quit));
 
-  window1.on_paint([&](const graphics& graph){
+  window1.on_paint(draw::paint([&](const graphics& graph){
     core::rectangle place = window1.client_area();
     frame::raised_relief(graph, place);
 
@@ -196,7 +196,7 @@ my_main_window::my_main_window ()
       }
       x += 110;
     }
-  });
+  }));
 }
 
 // --------------------------------------------------------------------------

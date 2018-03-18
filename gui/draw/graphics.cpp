@@ -569,6 +569,22 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    paint::paint (const painter& f)
+      : p(f)
+    {}
+
+    paint::paint (painter&& f)
+      : p(std::move(f))
+    {}
+
+    void paint::operator() (os::window id, const os::graphics& g) {
+      if (p) {
+        draw::graphics graph(id, g);
+        p(graph);
+      }
+    }
+
+    // --------------------------------------------------------------------------
     buffered_paint::buffered_paint (const painter& f)
       : p(f)
     {}
@@ -577,13 +593,14 @@ namespace gui {
       : p(std::move(f))
     {}
 
-    void buffered_paint::operator() (const draw::graphics& g) {
+    void buffered_paint::operator() (os::window id, const os::graphics& g) {
       if (p) {
-        const auto area = g.area();
+        draw::graphics graph(id, g);
+        const auto area = graph.area();
         draw::pixmap buffer(area.size());
-        draw::graphics graph(buffer);
-        p(graph);
-        g.copy_from(graph);
+        draw::graphics buffer_graph(buffer);
+        p(buffer_graph);
+        graph.copy_from(buffer_graph);
       }
     }
 

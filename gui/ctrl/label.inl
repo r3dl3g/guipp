@@ -89,7 +89,7 @@ namespace gui {
 
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
     inline void basic_label<A, D, F, B>::init () {
-      on_paint(basepp::bind_method(this, &basic_label::paint));
+      on_paint(draw::paint(this, &basic_label::paint));
     }
 
     // --------------------------------------------------------------------------

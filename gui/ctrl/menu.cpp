@@ -643,8 +643,7 @@ namespace gui {
     }
 
     void popup_menu::init () {
-      register_event_handler(paint_event(basepp::bind_method(this, &popup_menu::paint)));
-//      on_paint(basepp::bind_method(this, &popup_menu::paint));
+      on_paint(draw::paint(basepp::bind_method(this, &popup_menu::paint)));
 
       on_mouse_move_abs([&](os::key_state, const core::point & pt) {
         data.handle_mouse(false, pt);
@@ -652,7 +651,7 @@ namespace gui {
 
       on_mouse_leave(basepp::bind_method(&data, &menu_data::clear_hilite));
 
-      register_event_handler(selection_changed_event([&](event_source) {
+      on<selection_changed_event>([&](event_source) {
         int idx = data.get_selection();
         if (idx > -1) {
           if (!data[idx].is_sub_menu()) {
@@ -660,7 +659,7 @@ namespace gui {
           }
           data[idx].select();
         }
-      }));
+      });
 
       on_left_btn_down([&](os::key_state, const core::point & pt) {
         data.handle_mouse(true, client_to_screen(pt));
@@ -678,9 +677,9 @@ namespace gui {
         capture_pointer();
       });
 
-//      register_event_handler(create_event([&](window*, const core::rectangle&){
+//      on_create([&](window*, const core::rectangle&){
 //        data.register_menu_keys();
-//      }));
+//      });
     }
 
     bool compare_menu_key (os::key_symbol key, const menu_entry& e) {

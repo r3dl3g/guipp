@@ -75,8 +75,8 @@ namespace gui {
       bool is_in_scroll_event () const;
 
     private:
-      const win::move_event me;
-      const win::size_event se;
+      const win::move_event::function me;
+      const win::size_event::function se;
 
       bool in_scroll_event;
 

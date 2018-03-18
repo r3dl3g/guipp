@@ -52,7 +52,7 @@ namespace gui {
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
     inline void basic_edit<A, D, F, B>::init () {
       super::register_handler();
-      super::on_paint(basepp::bind_method(this, &basic_edit::paint));
+      super::on_paint(draw::paint(this, &basic_edit::paint));
     }
 
   } // ctrl

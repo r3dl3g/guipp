@@ -450,7 +450,7 @@ namespace gui {
         clear_hilite();
       });
       super::on_left_btn_up(basepp::bind_method(this, &basic_list::handle_left_btn_up));
-      super::register_event_handler(typename wheel_traits<V>::wheel_event_type(this, &basic_list::handle_wheel));
+      super::on_wheel<V>(basepp::bind_method(this, &basic_list::handle_wheel));
       super::on_mouse_move(basepp::bind_method(this, &basic_list::handle_mouse_move));
       super::on_layout([&](const core::size& sz) {
         adjust_scroll_bar(sz);

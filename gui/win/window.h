@@ -148,10 +148,10 @@ namespace gui {
       void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
       void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);
 
-      template<os::key_symbol symbol, os::key_state state>
+      template<os::key_symbol symbol, os::key_state state = state::none>
       void on_key_down (std::function<notification_fn>&& f);
 
-      template<os::key_symbol symbol, os::key_state state>
+      template<os::key_symbol symbol, os::key_state state = state::none>
       void on_key_up (std::function<notification_fn>&& f);
 
       void on_mouse_move (std::function<mouse_fn>&& f);
@@ -170,6 +170,9 @@ namespace gui {
       void on_left_btn_dblclk (std::function<mouse_fn>&& f);
       void on_right_btn_dblclk (std::function<mouse_fn>&& f);
       void on_middle_btn_dblclk (std::function<mouse_fn>&& f);
+
+      template<orientation V>
+      void on_wheel (std::function<wheel_fn>&& f);
 
       void on_wheel_x (std::function<wheel_fn>&& f);
       void on_wheel_y (std::function<wheel_fn>&& f);
@@ -193,11 +196,16 @@ namespace gui {
 
       void on_layout (std::function<size_fn>&& f);
 
-      void on_os_paint (std::function<void(os::graphics)>&& f);
+      void on_paint (std::function<void(os::window, os::graphics)>&& f);
 
       template<typename H>
-      void register_event_handler (H&& h);
-      void unregister_event_handler (const event_handler_function& f);
+      void on (typename H::function&& f);
+
+      template<typename H>
+      void on (const typename H::function& f);
+
+      template<typename H>
+      void unregister_event_handler (const typename H::function& f);
 
       void prepare_for_event (os::event_id mask);
 
@@ -220,7 +228,6 @@ namespace gui {
 
       void set_accept_focus (bool a);
 
-      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
       friend struct window_state;
@@ -234,6 +241,8 @@ namespace gui {
                                        const core::rectangle& r,
                                        os::window parent_id,
                                        window* data);
+
+      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
       void init ();
 

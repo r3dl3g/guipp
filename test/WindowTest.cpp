@@ -48,21 +48,10 @@ public:
   }
 
   bool operator()(const core::event& e, os::event_result& result) {
-    if ((result == 0x0) &&
-        !win::is_none_client_event(e) &&
+    if (!win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
       LogDebug << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
     }
-    return false;
-  }
-};
-
-class init_result_handler {
-public:
-  init_result_handler() {
-  }
-
-  bool operator()(const core::event&, os::event_result&) {
     return false;
   }
 };
@@ -155,8 +144,8 @@ public:
   void query_state ();
   void set_size_null ();
 
-  ctrl::paint_event create_paint1();
-  ctrl::paint_event create_paint2();
+  ctrl::paint_function create_paint1 ();
+  ctrl::paint_function create_paint2 ();
 
   typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
@@ -254,8 +243,8 @@ private:
 
   ctrl::horizontal_slider hslider;
   ctrl::vertical_slider vslider;
-  const ctrl::paint_event paint1;
-  const ctrl::paint_event paint2;
+  const ctrl::paint_function paint1;
+  const ctrl::paint_function paint2;
 
   ctrl::edit edit1;
 
@@ -311,7 +300,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t push_size = sizeof(ctrl::button_base);
   size_t tgl_size = sizeof(ctrl::basic_button<ctrl::push_button_traits>);
   size_t tbtn_size = sizeof(ctrl::text_button);
-  size_t pnt_size = sizeof(ctrl::paint_event);
+  size_t pnt_size = sizeof(ctrl::paint_function);
 
   LogInfo << "Sizes: "
           <<   "std::string:" << str_size
@@ -361,9 +350,7 @@ my_main_window::my_main_window ()
   list1.set_item_size(25);
   list3.set_item_size_and_background(20, color::light_gray);
 
-  register_event_handler(init_result_handler(), 0);
-
-  on_destroy([&] () {
+  on_destroy([] () {
     LogDebug << "Destroyed!";
     win::quit_main_loop();
   });
@@ -436,14 +423,14 @@ my_main_window::my_main_window ()
   on_right_btn_up([&] (os::key_state, const core::point& p) {
     LogDebug << "Right Button Up at " << p;
   });
-  window1.on_wheel_x([&] (core::point::type delta,
+  window1.on_wheel<orientation::horizontal>([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   });
-  window1.on_wheel_y([&] (core::point::type delta,
+  window1.on_wheel<orientation::vertical>([&] (core::point::type delta,
                                                          const core::point& p) {
     LogDebug << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
@@ -520,7 +507,7 @@ my_main_window::my_main_window ()
     window1.move({50, 50});
   });
 
-  window2.register_event_handler(paint1);
+  window2.on_paint(draw::paint(paint1));
 
   at_paint1 = true;
 
@@ -528,12 +515,12 @@ my_main_window::my_main_window ()
     LogDebug << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
-      window2.unregister_event_handler(paint1);
-      window2.register_event_handler(paint2);
+      window2.unregister_event_handler<win::os_paint_event>(draw::paint(paint1));
+      window2.on_paint(draw::paint(paint2));
     } else {
       at_paint1 = true;
-      window2.unregister_event_handler(paint2);
-      window2.register_event_handler(paint1);
+      window2.unregister_event_handler<win::os_paint_event>(draw::paint(paint2));
+      window2.on_paint(draw::paint(paint1));
     }
     window2.redraw();
   });
@@ -1175,8 +1162,8 @@ void my_main_window::created_children () {
   get_layout().attach_fix<What::bottom, Where::height, -50>(&vtileview, this);
 }
 
-ctrl::paint_event my_main_window::create_paint1 () {
-  return ctrl::paint_event(draw::buffered_paint([&](const draw::graphics& graph) {
+ctrl::paint_function my_main_window::create_paint1 () {
+  return [&](const draw::graphics& graph) {
     //LogDebug << "win::paint 1";
 
     using namespace draw;
@@ -1255,11 +1242,11 @@ ctrl::paint_event my_main_window::create_paint1 () {
       graph.invert({10, 10, 100, 100});
     }
 
-  }));
+  };
 }
 
-ctrl::paint_event my_main_window::create_paint2 () {
-  return ctrl::paint_event([&](const draw::graphics& graph) {
+ctrl::paint_function my_main_window::create_paint2 () {
+  return [&](const draw::graphics& graph) {
     //LogDebug << "win::paint 2";
     using namespace draw;
 
@@ -1304,5 +1291,5 @@ ctrl::paint_event my_main_window::create_paint2 () {
       graph.invert({10, 10, 100, 100});
     }
 
-  });
+  };
 }

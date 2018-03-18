@@ -58,22 +58,6 @@ namespace gui {
       return get_state().is_checked();
     }
 
-    inline void button_base::on_clicked (button_clicked_event::function&& f) {
-      register_event_handler(button_clicked_event(std::move(f)), button_clicked_event::mask);
-    }
-
-    inline void button_base::on_pushed (button_pushed_event::function&& f) {
-      register_event_handler(button_pushed_event(std::move(f)), button_pushed_event::mask);
-    }
-
-    inline void button_base::on_released (button_released_event::function&& f) {
-      register_event_handler(button_released_event(std::move(f)), button_released_event::mask);
-    }
-
-    inline void button_base::on_state_changed (button_state_event::function&& f) {
-      register_event_handler(button_state_event(std::move(f)), button_state_event::mask);
-    }
-
     // --------------------------------------------------------------------------
     template<>
     GUIPP_CTRL_EXPORT void toggle_button_traits<false>::init (button_base&);
@@ -171,12 +155,12 @@ namespace gui {
 
     template<class T, typename U, U D>
     void basic_text_button<T, U, D>::init () {
-      super::on_paint([&](const draw::graphics & graph) {
+      super::on_paint(draw::paint([&](const draw::graphics & graph) {
         auto r = super::client_area();
         auto t = get_text();
         auto s = super::get_state();
         super::traits.template draw<D>(graph, r, t, s);
-      });
+      }));
     }
 
     // --------------------------------------------------------------------------
@@ -212,11 +196,11 @@ namespace gui {
 
     template<class T>
     void custom_button<T>::init () {
-      super::on_paint([&] (const draw::graphics & graph) {
+      super::on_paint(draw::paint([&] (const draw::graphics & graph) {
         if (drawer) {
           drawer(graph, super::client_area(), super::get_state());
         }
-      });
+      }));
     }
 
   } // namespace ctrl

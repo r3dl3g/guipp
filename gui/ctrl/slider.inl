@@ -106,7 +106,7 @@ namespace gui {
     template<orientation O,
              draw::frame::drawer F>
       void basic_framed_slider<O, F>::init () {
-      super::on_paint(basepp::bind_method(this, &basic_framed_slider::paint));
+      super::on_paint(draw::paint(this, &basic_framed_slider::paint));
     }
 
     template<orientation O,

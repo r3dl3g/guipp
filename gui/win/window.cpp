@@ -182,10 +182,6 @@ namespace gui {
       prepare_for_event(mask);
     }
 
-    void window::unregister_event_handler (const event_handler_function& f) {
-      events.unregister_event_handler(f);
-    }
-
     container* window::get_root () const {
       container* parent = get_parent();
       if (parent) {
@@ -232,6 +228,152 @@ namespace gui {
 
     const class_info& window::get_window_class () const {
       return hidden::window_class_info_map[get_class_name()];
+    }
+
+    void window::on_create (create_event::function&& f) {
+      on<create_event>(std::move(f));
+    }
+
+    void window::on_close (close_event::function&& f) {
+      on<close_event>(std::move(f));
+    }
+
+    void window::on_destroy (destroy_event::function&& f) {
+      on<destroy_event>(std::move(f));
+    }
+
+    void window::on_any_key_down (any_key_down_event::function&& f) {
+      on<any_key_down_event>(std::move(f));
+    }
+
+    void window::on_any_key_up (any_key_up_event::function&& f) {
+      on<any_key_up_event>(std::move(f));
+    }
+
+    void window::on_mouse_move (mouse_move_event::function&& f) {
+      on<mouse_move_event>(std::move(f));
+    }
+
+    void window::on_mouse_move_abs (mouse_move_abs_event::function&& f) {
+      on<mouse_move_abs_event>(std::move(f));
+    }
+
+    void window::on_left_btn_down (left_btn_down_event::function&& f) {
+      on<left_btn_down_event>(std::move(f));
+    }
+
+    void window::on_left_btn_up (left_btn_up_event::function&& f) {
+      on<left_btn_up_event>(std::move(f));
+    }
+
+    void window::on_right_btn_down (right_btn_down_event::function&& f) {
+      on<right_btn_down_event>(std::move(f));
+    }
+
+    void window::on_right_btn_up (right_btn_up_event::function&& f) {
+      on<right_btn_up_event>(std::move(f));
+    }
+
+    void window::on_middle_btn_down (middle_btn_down_event::function&& f) {
+      on<middle_btn_down_event>(std::move(f));
+    }
+
+    void window::on_middle_btn_up (middle_btn_up_event::function&& f) {
+      on<middle_btn_up_event>(std::move(f));
+    }
+
+    void window::on_btn_down (btn_down_event::function&& f) {
+      on<btn_down_event>(std::move(f));
+    }
+
+    void window::on_btn_up (btn_up_event::function&& f) {
+      on<btn_up_event>(std::move(f));
+    }
+
+    void window::on_left_btn_dblclk (left_btn_dblclk_event::function&& f) {
+      on<left_btn_dblclk_event>(std::move(f));
+    }
+
+    void window::on_right_btn_dblclk (right_btn_dblclk_event::function&& f) {
+      on<right_btn_dblclk_event>(std::move(f));
+    }
+
+    void window::on_middle_btn_dblclk (middle_btn_dblclk_event::function&& f) {
+      on<middle_btn_dblclk_event>(std::move(f));
+    }
+
+    template<>
+    void window::on_wheel<orientation::horizontal> (wheel_x_event::function&& f) {
+      on<wheel_x_event>(std::move(f));
+    }
+
+    template<>
+    void window::on_wheel<orientation::vertical> (wheel_y_event::function&& f) {
+      on<wheel_y_event>(std::move(f));
+    }
+
+    void window::on_wheel_x (wheel_x_event::function&& f) {
+      on_wheel<orientation::horizontal>(std::move(f));
+    }
+
+    void window::on_wheel_y (wheel_y_event::function&& f) {
+      on_wheel<orientation::vertical>(std::move(f));
+    }
+
+    void window::on_show (show_event::function&& f) {
+      on<show_event>(std::move(f));
+    }
+
+    void window::on_hide (hide_event::function&& f) {
+      on<hide_event>(std::move(f));
+    }
+
+    void window::on_set_focus (set_focus_event::function&& f) {
+      on<set_focus_event>(std::move(f));
+    }
+
+    void window::on_lost_focus (lost_focus_event::function&& f) {
+      on<lost_focus_event>(std::move(f));
+    }
+
+    void window::on_mouse_enter (mouse_enter_event::function&& f) {
+      on<mouse_enter_event>(std::move(f));
+    }
+
+    void window::on_mouse_leave (mouse_leave_event::function&& f) {
+      on<mouse_leave_event>(std::move(f));
+    }
+
+    void window::on_move (move_event::function&& f) {
+      on<move_event>(std::move(f));
+    }
+
+    void window::on_size (size_event::function&& f) {
+      on<size_event>(std::move(f));
+    }
+
+    void window::on_place (place_event::function&& f) {
+      on<place_event>(std::move(f));
+    }
+
+    void window::on_moving (moving_event::function&& f) {
+      on<moving_event>(std::move(f));
+    }
+
+    void window::on_sizing (sizing_event::function&& f) {
+      on<sizing_event>(std::move(f));
+    }
+
+    void window::on_placing (placing_event::function&& f) {
+      on<placing_event>(std::move(f));
+    }
+
+    void window::on_layout (layout_event::function&& f) {
+      on<layout_event>(std::move(f));
+    }
+
+    void window::on_paint (os_paint_event::function&& f) {
+      on<os_paint_event>(std::move(f));
     }
 
     // --------------------------------------------------------------------------

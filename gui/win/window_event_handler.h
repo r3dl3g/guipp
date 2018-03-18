@@ -155,15 +155,17 @@ namespace gui {
       function callback;
     };
     // --------------------------------------------------------------------------
-    struct GUIPP_WIN_EXPORT os_paint_getter : core::params<os::graphics>::getter<get_param<0, os::graphics>> {
-      typedef core::params<os::graphics>::getter<get_param<0, os::graphics>> super;
+    struct GUIPP_WIN_EXPORT os_paint_getter :
+      core::params<os::window, os::graphics>::getter<get_param<0, os::window>, get_param<0, os::graphics>> {
+
+      typedef core::params<os::window, os::graphics>::getter<get_param<0, os::window>, get_param<0, os::graphics>> super;
 
       os_paint_getter (const function cb)
         : super(cb)
       {}
 
       template<class T>
-      os_paint_getter (T* t, void(T::*callback_)(os::graphics &))
+      os_paint_getter (T* t, void(T::*callback_)(os::window, os::graphics &))
         : super(gui::basepp::bind_method(t, callback_))
       {}
 
@@ -524,6 +526,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT os::graphics get_graphics (const core::event&);
     // --------------------------------------------------------------------------
+    GUIPP_WIN_EXPORT os::window get_draw_window (const core::event&);
+    // --------------------------------------------------------------------------
     template<Atom& M>
     inline bool client_message_matcher (const core::event& e) {
       return (e.type == ClientMessage) && (e.xclient.message_type == M);
@@ -771,8 +775,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     using os_paint_event = core::event_handler<Expose, ExposureMask,
-                                         core::params<os::graphics>::
-                                         getter<get_graphics>>;
+                                         core::params<os::window, os::graphics>::
+                                         getter<get_draw_window, get_graphics>>;
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, long l1 = 0, long l2 = 0);

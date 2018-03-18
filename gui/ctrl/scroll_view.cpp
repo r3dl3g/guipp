@@ -202,8 +202,8 @@ namespace gui {
       for (win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
           required |= win->place();
-          win->unregister_event_handler(me);
-          win->unregister_event_handler(se);
+          win->unregister_event_handler<win::move_event>(me);
+          win->unregister_event_handler<win::size_event>(se);
         }
       }
 
@@ -211,8 +211,8 @@ namespace gui {
 
       for (win::window* win : children) {
         if ((win != vscroll) && (win != hscroll) && (win != edge)) {
-          win->register_event_handler(me);
-          win->register_event_handler(se);
+          win->on<win::move_event>(me);
+          win->on<win::size_event>(se);
         }
       }
     }

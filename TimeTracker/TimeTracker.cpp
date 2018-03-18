@@ -661,9 +661,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   TimeTracker main;
 
   main.create({50, 50, 800, 600});
-  main.register_event_handler(destroy_event([&]() {
-    quit_main_loop();
-  }));
+  main.on_destroy(&quit_main_loop);
   main.set_title("TimeTracker");
   main.set_visible();
 

@@ -77,7 +77,7 @@ namespace gui {
 
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B, os::color C>
     inline void basic_progress_bar<A, D, F, B, C>::init () {
-      on_paint(basepp::bind_method(this, &basic_progress_bar::paint));
+      on_paint(draw::paint(this, &basic_progress_bar::paint));
     }
 
     // --------------------------------------------------------------------------

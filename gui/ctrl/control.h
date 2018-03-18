@@ -161,11 +161,13 @@ namespace gui {
        // --------------------------------------------------------------------------
 #ifdef X11
     // --------------------------------------------------------------------------
-    GUIPP_CTRL_EXPORT draw::graphics get_draw_graphics (const core::event& e);
+//    GUIPP_CTRL_EXPORT draw::graphics get_draw_graphics (const core::event& e);
 
-    using paint_event = core::event_handler<Expose, ExposureMask,
-                                      core::params<draw::graphics>::
-                                      getter<get_draw_graphics> >;
+//    using paint_event = core::event_handler<Expose, ExposureMask,
+//                                      core::params<draw::graphics>::
+//                                      getter<get_draw_graphics> >;
+
+    using paint_function = std::function<void(draw::graphics)>;
 
     using selection_changed_event = core::event_handler<ClientMessage, 0,
                                                   core::params<event_source>::
@@ -214,7 +216,6 @@ namespace gui {
     public:
       typedef win::window super;
 
-      void on_paint (std::function<void(draw::graphics)>&& f);
       void on_selection_changed (std::function<void(event_source)>&& f);
       void on_selection_commit (std::function<void()>&& f);
       void on_selection_cancel (std::function<void()>&& f);
@@ -224,28 +225,24 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    inline void control::on_paint (paint_event::function&& f) {
-      register_event_handler(paint_event(std::move(f)), paint_event::mask);
-    }
-
     inline void control::on_selection_changed (selection_changed_event::function&& f) {
-      register_event_handler(selection_changed_event(std::move(f)), selection_changed_event::mask);
+      on<selection_changed_event>(std::move(f));
     }
 
     inline void control::on_selection_commit (selection_commit_event::function&& f) {
-      register_event_handler(selection_commit_event(std::move(f)), selection_commit_event::mask);
+      on<selection_commit_event>(std::move(f));
     }
 
     inline void control::on_selection_cancel (selection_cancel_event::function&& f) {
-      register_event_handler(selection_cancel_event(std::move(f)), selection_cancel_event::mask);
+      on<selection_cancel_event>(std::move(f));
     }
 
     inline void control::on_hilite_changed (hilite_changed_event::function&& f) {
-      register_event_handler(hilite_changed_event(std::move(f)), hilite_changed_event::mask);
+      on<hilite_changed_event>(std::move(f));
     }
 
     inline void control::on_content_changed (content_changed_event::function&& f) {
-      register_event_handler(content_changed_event(std::move(f)), content_changed_event::mask);
+      on<content_changed_event>(std::move(f));
     }
 
     // --------------------------------------------------------------------------

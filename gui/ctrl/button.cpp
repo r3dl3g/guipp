@@ -184,6 +184,22 @@ namespace gui {
       }
     }
 
+    void button_base::on_clicked (button_clicked_event::function&& f) {
+      on<button_clicked_event>(std::move(f));
+    }
+
+    void button_base::on_pushed (button_pushed_event::function&& f) {
+      on<button_pushed_event>(std::move(f));
+    }
+
+    void button_base::on_released (button_released_event::function&& f) {
+      on<button_released_event>(std::move(f));
+    }
+
+    void button_base::on_state_changed (button_state_event::function&& f) {
+      on<button_state_event>(std::move(f));
+    }
+
     // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {

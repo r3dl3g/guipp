@@ -177,7 +177,7 @@ namespace gui {
 
       } data;
 
-      win::move_event me;
+      win::move_event::function me;
 
     };
 

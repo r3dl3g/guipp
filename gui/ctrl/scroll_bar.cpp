@@ -213,7 +213,7 @@ namespace gui {
     }
 
     void scroll_bar::on_scroll (scroll_event::function&& f) {
-      register_event_handler(scroll_event(std::move(f)), scroll_event::mask);
+      on<scroll_event>(std::move(f));
     }
 
     namespace paint {
@@ -281,10 +281,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::horizontal>::init () {
-      on_paint(basepp::bind_method(this, &basic_scroll_bar::handle_paint));
+      on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
       on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
       on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
-      on_wheel_x(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
+      on_wheel<orientation::horizontal>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
       on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
       on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
     }
@@ -360,10 +360,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::vertical>::init () {
-      on_paint(basepp::bind_method(this, &basic_scroll_bar::handle_paint));
+      on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
       on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
       on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
-      on_wheel_y(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
+      on_wheel<orientation::vertical>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
       on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
       on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
     }

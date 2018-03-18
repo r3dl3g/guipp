@@ -456,24 +456,24 @@ namespace gui {
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
       });
 
-      data.on_wheel_x([&](const core::point::type delta, const core::point & pt){
+      data.on_wheel<orientation::horizontal>([&](const core::point::type delta, const core::point & pt){
         hscroll.handle_wheel(delta, pt);
       });
-      data.on_wheel_y([&](const core::point::type delta, const core::point & pt){
+      data.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
       data.on_mouse_move(basepp::bind_method(this, &table_view::handle_mouse_move));
       data.on_left_btn_down(basepp::bind_method(this, &table_view::handle_left_btn_down));
       data.on_left_btn_up(basepp::bind_method(this, &table_view::handle_left_btn_up));
 
-      columns.on_wheel_x([&](const core::point::type delta, const core::point & pt){
+      columns.on_wheel<orientation::horizontal>([&](const core::point::type delta, const core::point & pt){
         hscroll.handle_wheel(delta, pt);
       });
       columns.on_mouse_move(basepp::bind_method(this, &table_view::handle_column_mouse_move));
       columns.on_left_btn_down(basepp::bind_method(this, &table_view::handle_column_left_btn_down));
       columns.on_left_btn_up(basepp::bind_method(this, &table_view::handle_column_left_btn_up));
 
-      rows.on_wheel_y([&](const core::point::type delta, const core::point & pt){
+      rows.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
       rows.on_mouse_move(basepp::bind_method(this, &table_view::handle_row_mouse_move));
@@ -817,7 +817,7 @@ namespace gui {
                    align, foreground, background, header_background)
       , enable_edit(true)
     {
-      register_event_handler(selection_commit_event(basepp::bind_method(this, &table_edit::enter_edit)));
+      on<selection_commit_event>(basepp::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::point & pt) {
         if (!editor.client_area().is_inside(pt)) {
@@ -839,9 +839,9 @@ namespace gui {
         }
       });
 
-      register_event_handler(selection_changed_event([&] (event_source) {
+      on<selection_changed_event>([&] (event_source) {
         commit_edit();
-      }));
+      });
 
     }
 

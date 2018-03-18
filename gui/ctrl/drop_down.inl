@@ -55,7 +55,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (core::size::type item_size,
                                                  os::color background)
       : data(item_size, background)
-      , me(this, &drop_down_list::handle_move)
+      , me(basepp::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -64,7 +64,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (const drop_down_list& rhs)
       : super(rhs)
       , data(rhs.data)
-      , me(this, &drop_down_list::handle_move)
+      , me(basepp::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -73,7 +73,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (drop_down_list&& rhs)
       : super(std::move(rhs))
       , data(std::move(rhs.data))
-      , me(this, &drop_down_list::handle_move)
+      , me(basepp::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -82,21 +82,21 @@ namespace gui {
     void drop_down_list<T, D>::init () {
       super::get_layout().init(&(data.button));
 
-      super::register_event_handler(paint_event(basepp::bind_method(this, &drop_down_list::paint)));
+      super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
       super::on_left_btn_down([&](os::key_state, const core::point &) {
         toggle_popup();
         super::take_focus();
       });
 
-      super::on_wheel_y(basepp::bind_method(this, &drop_down_list::handle_wheel));
+      super::on_wheel<orientation::vertical>(basepp::bind_method(this, &drop_down_list::handle_wheel));
       super::on_create(basepp::bind_method(this, &drop_down_list::create_children));
 
-      data.button.on_paint([&](const draw::graphics & graph) {
+      data.button.on_paint(draw::paint([&](const draw::graphics & graph) {
         paint::drop_down_button(graph,
                                 data.button.client_area(),
                                 data.button.get_state(),
                                 is_popup_visible());
-      });
+      }));
       data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
 
       data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
@@ -268,7 +268,7 @@ namespace gui {
     drop_down_list<T, D>::~drop_down_list () {
       auto* root = super::get_root();
       if (root) {
-        root->unregister_event_handler(me);
+        root->unregister_event_handler<win::move_event>(me);
       }
     }
 
@@ -305,7 +305,7 @@ namespace gui {
 
       auto* root = super::get_root();
       if (root) {
-        root->register_event_handler(me);
+        root->on<win::move_event>(me);
       }
     }
 

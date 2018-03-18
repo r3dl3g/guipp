@@ -123,6 +123,22 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    struct GUIPP_DRAW_EXPORT paint {
+      typedef std::function<void (const draw::graphics&)> painter;
+
+      paint (const painter& f);
+      paint (painter&& f);
+
+      template<typename T, typename F>
+      paint (T* t, F f);
+
+      void operator() (os::window, const os::graphics& g);
+
+    private:
+      painter p;
+    };
+
+    // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT buffered_paint {
       typedef std::function<void (const draw::graphics&)> painter;
 
@@ -132,7 +148,7 @@ namespace gui {
       template<typename T, typename F>
       buffered_paint (T* t, F f);
 
-      void operator() (const draw::graphics& g);
+      void operator() (os::window, const os::graphics& g);
 
     private:
       painter p;

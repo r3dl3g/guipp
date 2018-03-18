@@ -248,7 +248,7 @@ namespace gui {
       }
 
       void slider_base::on_slide (std::function<void(int)>&& f) {
-        register_event_handler(slider_event(std::move(f)), slider_event::mask);
+        on<slider_event>(std::move(f));
       }
 
     } // detail

@@ -92,9 +92,9 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
 
-    draw::graphics get_draw_graphics (const core::event& e) {
-      return draw::graphics(e.xany.window, win::get_graphics(e));
-    }
+//    draw::graphics get_draw_graphics (const core::event& e) {
+//      return draw::graphics(e.xany.window, win::get_graphics(e));
+//    }
 
 #endif // X11
 

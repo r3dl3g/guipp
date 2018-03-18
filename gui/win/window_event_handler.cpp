@@ -207,7 +207,7 @@ namespace gui {
       if (f) {
         PAINTSTRUCT ps;
         os::graphics id = BeginPaint(e.id, &ps);
-        f(id);
+        f(e.id, id);
         EndPaint(e.id, &ps);
       }
     }
@@ -364,6 +364,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     os::graphics get_graphics (const core::event& e) {
       return DefaultGCOfScreen(DefaultScreenOfDisplay(e.xany.display));
+    }
+
+    // --------------------------------------------------------------------------
+    os::window get_draw_window (const core::event& e) {
+      return e.xany.window;
     }
 
     // --------------------------------------------------------------------------

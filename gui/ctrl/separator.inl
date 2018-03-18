@@ -83,7 +83,7 @@ namespace gui {
 
     template<orientation O, bool S, os::color B>
     inline basic_separator<O, S, B>::basic_separator () {
-      on_paint(basepp::bind_method(this, &basic_separator::paint));
+      on_paint(draw::paint(this, &basic_separator::paint));
     }
 
     template<orientation O, bool S, os::color B>

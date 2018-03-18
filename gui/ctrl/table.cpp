@@ -804,6 +804,26 @@ namespace gui {
       }
     }
 
+    void table_view::on_selection_changed (selection_changed_event::function&& f) {
+      on<selection_changed_event>(std::move(f));
+    }
+
+    void table_view::on_selection_commit (selection_commit_event::function&& f) {
+      on<selection_commit_event>(std::move(f));
+    }
+
+    void table_view::on_selection_cancel (selection_cancel_event::function&& f) {
+      on<selection_cancel_event>(std::move(f));
+    }
+
+    void table_view::on_hilite_changed (hilite_changed_event::function&& f) {
+      on<hilite_changed_event>(std::move(f));
+    }
+
+    void table_view::on_content_changed (content_changed_event::function&& f) {
+      on<content_changed_event>(std::move(f));
+    }
+
     // --------------------------------------------------------------------------
     table_edit::table_edit (core::size::type default_width,
                             core::size::type default_height,
@@ -817,7 +837,7 @@ namespace gui {
                    align, foreground, background, header_background)
       , enable_edit(true)
     {
-      on<selection_commit_event>(basepp::bind_method(this, &table_edit::enter_edit));
+      on_selection_commit(basepp::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::point & pt) {
         if (!editor.client_area().is_inside(pt)) {
@@ -839,7 +859,7 @@ namespace gui {
         }
       });
 
-      on<selection_changed_event>([&] (event_source) {
+      on_selection_changed([&] (event_source) {
         commit_edit();
       });
 
@@ -880,6 +900,8 @@ namespace gui {
       this->data_source = data_source;
       this->data_target = data_target;
     }
+
+    // --------------------------------------------------------------------------
 
   } // ctrl
 

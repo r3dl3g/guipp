@@ -147,7 +147,7 @@ namespace gui {
     void clipboard::get_text (window& win, const std::function<clipboard::text_callback>& cb) {
       auto id = win.get_id();
       //Atom incrid = XInternAtom(display, "INCR", False);
-      win.prepare_for_event(PropertyChangeMask);
+      x11::prepare_win_for_event(&win, PropertyChangeMask);
       int fid = global::register_message_filter([&](const core::event & e)->bool {
         if ((e.type != SelectionNotify) || (e.xselection.selection != detail::CLIPBOARD)) {
           return false;

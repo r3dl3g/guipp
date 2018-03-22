@@ -179,7 +179,7 @@ namespace gui {
 
     void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
       events.register_event_handler(std::move(f));
-      prepare_for_event(mask);
+      x11::prepare_win_for_event(this, mask);
     }
 
     container* window::get_root () const {
@@ -639,9 +639,6 @@ namespace gui {
 
 # endif // WIN32_DEPRECATED
 
-    void window::prepare_for_event (os::event_id)
-    {}
-
     os::window window::create_window (const class_info& type,
                                       const core::rectangle& r,
                                       os::window parent_id,
@@ -708,13 +705,12 @@ namespace gui {
 #ifdef X11
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
-      std::map<window*, os::event_id> window_event_mask;
     }
 
     void window::init () {
       static int initialized = x11::init_messages();
       (void)initialized;
-      prepare_for_event(KeyPressMask);
+      x11::prepare_win_for_event(this, KeyPressMask);
     }
 
     void window::destroy () {
@@ -722,6 +718,7 @@ namespace gui {
         hidden::window_class_map.erase(get_id());
         x11::check_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
+        x11::unprepare_win(this);
         id = 0;
       }
     }
@@ -1078,22 +1075,6 @@ namespace gui {
       }
     }
 
-    void window::prepare_for_event (os::event_id mask) {
-      if (get_id()) {
-        auto i = hidden::window_event_mask.find(this);
-        if (i != hidden::window_event_mask.end()) {
-          i->second |= mask;
-          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), i->second));
-        } else {
-          hidden::window_event_mask[this] = mask;
-          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), mask));
-        }
-      } else {
-        os::event_id& old_mask = hidden::window_event_mask[this];
-        old_mask |= mask;
-      }
-    }
-
     os::window window::create_window (const class_info& type,
                                       const core::rectangle& r,
                                       os::window parent_id,
@@ -1149,11 +1130,9 @@ namespace gui {
                                     &wa);
 
       detail::set_window(id, data);
+      data->id = id;
 
-      auto i = hidden::window_event_mask.find(data);
-      if (i != hidden::window_event_mask.end()) {
-        x11::check_return(XSelectInput(display, id, i->second));
-      }
+      x11::prepare_win_for_event(data, 0);
 
       if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
         hidden::window_class_info_map[type.get_class_name()] = type;

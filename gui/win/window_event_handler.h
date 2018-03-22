@@ -375,6 +375,9 @@ namespace gui {
 
       GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
 
+      GUIPP_WIN_EXPORT void prepare_win_for_event (const window* win, os::event_id mask);
+      GUIPP_WIN_EXPORT void unprepare_win (const window* win);
+
     } // namespace x11
 
     GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);

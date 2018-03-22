@@ -207,8 +207,6 @@ namespace gui {
       template<typename H>
       void unregister_event_handler (const typename H::function& f);
 
-      void prepare_for_event (os::event_id mask);
-
       bool handle_event (const core::event&, os::event_result&) const;
 
     protected:

@@ -250,7 +250,7 @@ namespace gui {
         os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
         XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
-          win->prepare_for_event(KeyPressMask);
+          x11::prepare_win_for_event(win, KeyPressMask);
         }
 #endif // X11
 

@@ -179,7 +179,9 @@ namespace gui {
 
     void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
       events.register_event_handler(std::move(f));
+#ifdef X11
       x11::prepare_win_for_event(this, mask);
+#endif // X11
     }
 
     container* window::get_root () const {

@@ -166,7 +166,7 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);
@@ -177,7 +177,7 @@ namespace gui {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
     }
 
@@ -188,7 +188,7 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);

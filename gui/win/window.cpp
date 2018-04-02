@@ -1150,6 +1150,95 @@ namespace gui {
 
 #endif // X11
 
+#ifdef COCOA
+
+#ifdef __OBJC__
+    - (void)editColor:(NSColor *)color locatedAtScreenRect:(NSRect)rect {
+      
+      // code unrelated to event monitoring deleted here.....
+      
+      // Start watching events to figure out when to close the window
+      auto _eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
+                       (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask)
+                                                            handler:^(NSEvent *incomingEvent) {
+                       NSEvent *result = incomingEvent;
+                       NSWindow *targetWindowForEvent = [incomingEvent window];
+                       if (targetWindowForEvent != _window) {
+                       [self _closeAndSendAction:NO];
+                       } else if ([incomingEvent type] == NSKeyDown) {
+                       if ([incomingEvent keyCode] == 53) {
+                       // Escape
+                       [self _closeAndSendAction:NO];
+                       result = nil; // Don't process the event
+                       } else if ([incomingEvent keyCode] == 36) {
+                       // Enter
+                       [self _closeAndSendAction:YES];
+                       result = nil;
+                       }
+                       }
+                       return result;
+                       }];
+    }
+    
+    void send_event () {
+      CGPoint newloc;
+      CGEventRef eventRef;
+      newloc.x = x;
+      newloc.y = y;
+      
+      eventRef = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, newloc,
+                                         kCGMouseButtonCenter);
+      //Apparently, a bug in xcode requires this next line
+      CGEventSetType(eventRef, kCGEventMouseMoved);
+      CGEventPost(kCGSessionEventTap, eventRef);
+      CFRelease(eventRef);
+      
+      return 0;
+    }
+    
+    void attachEventHandlers () {
+      
+      //create our event type spec for the keyup
+      EventTypeSpec eventType;
+      eventType.eventClass = kEventClassKeyboard;
+      eventType.eventKind = kEventRawKeyUp;
+      
+      //create a callback for our event to fire in
+      EventHandlerUPP handlerFunction = NewEventHandlerUPP(globalKeyPress);
+      
+      //install the event handler
+      OSStatus err = InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 1, &eventType, self, NULL);
+      
+      //error checking
+      if( err )
+      {
+        //TODO: need an alert sheet here
+        NSLog(@"Error registering keyboard handler...%d", err);
+      }
+      
+      //create our event type spec for the mouse events
+      EventTypeSpec eventTypeM;
+      eventTypeM.eventClass = kEventClassMouse;
+      eventTypeM.eventKind = kEventMouseUp;
+      
+      //create a callback for our event to fire in
+      EventHandlerUPP handlerFunctionM = NewEventHandlerUPP(globalMousePress);
+      
+      //install the event handler
+      OSStatus errM = InstallEventHandler(GetEventMonitorTarget(), handlerFunctionM, 1, &eventTypeM, self, NULL);
+      
+      //error checking
+      if( errM )
+      {
+        //TODO: need an alert sheet here
+        NSLog(@"Error registering mouse handler...%d", err);
+      }
+    }
+
+#endif // __OBJC__
+    
+#endif // COCOA
+    
     // --------------------------------------------------------------------------
 
   } // win

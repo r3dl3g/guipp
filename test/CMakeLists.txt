@@ -7,11 +7,13 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(NOT CMAKE_DEBUG_POSTFIX)
-    set(CMAKE_DEBUG_POSTFIX d)
+  set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
-if(UNIX)
-    add_definitions(-DX11 -std=c++11)
+if (APPLE)
+  add_definitions(-DCOCOA -std=c++11)
+elseif (UNIX)
+  add_definitions(-DX11 -std=c++11)
 endif(UNIX)
 
 add_subdirectory(./../gui gui)

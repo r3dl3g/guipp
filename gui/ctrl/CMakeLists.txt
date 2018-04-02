@@ -13,10 +13,14 @@ if(NOT TARGET gui++-ctrl-obj)
     set(gui_include ${gui_include} PARENT_SCOPE)
     include_directories(${gui_include})
 
-    add_definitions(-DWIN32_LEAN_AND_MEAN ${gui_defines})
+    if (WIN32)
+      add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif (WIN32)
 
-	message(STATUS "ctrl gui_defines: ${gui_defines}")
-	message(STATUS "ctrl gui_include: ${gui_include}")
+    add_definitions(${gui_defines})
+
+    message(STATUS "ctrl gui_defines: ${gui_defines}")
+    message(STATUS "ctrl gui_include: ${gui_include}")
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 

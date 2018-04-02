@@ -45,7 +45,7 @@ namespace gui {
 
 #endif // WIN32
 
-#ifdef X11
+#if defined(X11) || defined(COCOA)
 
     enum SystemColor {
       COLOR_SCROLLBAR,

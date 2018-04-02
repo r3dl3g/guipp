@@ -34,14 +34,28 @@
 #ifdef WIN32
 # define IF_WIN32_ELSE(A, B) A
 # define IF_X11_ELSE(A, B) B
+# define IF_COCOA_ELSE(A, B) B
 #elif defined(X11)
 # define IF_WIN32_ELSE(A, B) B
 # define IF_X11_ELSE(A, B) A
+# define IF_COCOA_ELSE(A, B) B
+#elif defined(COCOA)
+# define IF_WIN32_ELSE(A, B) B
+# define IF_X11_ELSE(A, B) B
+# define IF_COCOA_ELSE(A, B) A
 #else
 # pragma error "Unknown target system"
 #endif
 
 namespace basepp {
+
+  typedef unsigned char byte;
+  typedef byte* byteptr;
+  typedef const byte* cbyteptr;
+
+  typedef unsigned short word;
+  typedef word* wordptr;
+  typedef const word* cwordptr;
 
   // --------------------------------------------------------------------------
   enum class bit_order : bool {
@@ -52,23 +66,16 @@ namespace basepp {
   namespace os {
 
     // --------------------------------------------------------------------------
-    enum class platform : bool {
+    enum class platform : byte {
       win32,
-      x11
+      x11,
+      cocoa
     };
 
-    const platform system_platform = IF_WIN32_ELSE(platform::win32, platform::x11);
+    const platform system_platform = IF_WIN32_ELSE(platform::win32, IF_X11_ELSE(platform::x11, platform::cocoa));
     const bit_order bitmap_bit_order = IF_WIN32_ELSE(bit_order::msb, bit_order::lsb);
 
   } // namespace os
-
-  typedef unsigned char byte;
-  typedef byte* byteptr;
-  typedef const byte* cbyteptr;
-
-  typedef unsigned short word;
-  typedef word* wordptr;
-  typedef const word* cwordptr;
 
   // --------------------------------------------------------------------------
   template<typename T, T mask>

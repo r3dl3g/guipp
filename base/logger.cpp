@@ -27,7 +27,7 @@
 #include <chrono>
 #include <thread>
 
-#if defined(NO_BOOST) || ((_MSC_VER >= 1900) && defined(EXPERIMENTAL)) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3)) || (__clang__)
+#if defined(NO_BOOST) || ((_MSC_VER >= 1900) && defined(EXPERIMENTAL)) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3)) || ((__clang__) && !__APPLE__)
 #include <experimental/filesystem>
 using namespace std::experimental;
 #else

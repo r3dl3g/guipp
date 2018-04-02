@@ -41,8 +41,11 @@
 #ifdef X11
 # include <gui/core/x11defs.h>
 #endif
+#ifdef COCOA
+# include <gui/core/cocoadefs.h>
+#endif
 
-#if !defined(WIN32) && !defined(X11)
+#if !defined(WIN32) && !defined(X11) && !defined(COCOA)
 # pragma error "Unknown target system"
 #endif
 

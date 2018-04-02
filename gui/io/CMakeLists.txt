@@ -12,7 +12,11 @@ if(NOT TARGET gui++-io-obj)
     set(gui_include ${gui_include} PARENT_SCOPE)
     include_directories(${gui_include})
 
-    add_definitions(-DWIN32_LEAN_AND_MEAN ${gui_defines})
+    if (WIN32)
+      add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif (WIN32)
+
+    add_definitions(${gui_defines})
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 

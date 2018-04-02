@@ -24,7 +24,12 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     message(STATUS "gui basepp_libraries: ${basepp_libraries}")
     message(STATUS "gui basepp_sys_libraries: ${basepp_sys_libraries}")
 
-    set (gui_defines ${basepp_defines} -DWIN32_LEAN_AND_MEAN)
+    if (WIN32)
+      set (gui_defines ${basepp_defines} -DWIN32_LEAN_AND_MEAN)
+    else ()
+      set (gui_defines ${basepp_defines})
+    endif (WIN32)
+
     set (gui_include
         ${basepp_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -32,11 +37,13 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         ${PROJECT_BINARY_DIR}
     )
 
-    if(UNIX)
+    if (APPLE)
+        set (gui_defines ${gui_defines} -std=c++11)
+    elseif (UNIX)
         set (gui_include ${gui_include} /usr/include/freetype2)
         set (gui_sys_libraries X11 Xft fontconfig)
         set (gui_defines ${gui_defines} -DX11 -std=c++11)
-    endif(UNIX)
+    endif (UNIX)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
         set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)

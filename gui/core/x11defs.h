@@ -70,7 +70,6 @@ namespace gui {
 
     typedef int event_id;
     typedef int event_result;
-    typedef void* event_callback;
 
     namespace x11 {
       typedef int screen;

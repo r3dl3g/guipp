@@ -71,10 +71,16 @@ namespace gui {
 
       struct gui_init {
         gui_init ()
+#ifdef WIN32
           : instance(nullptr)
+#endif // WIN32
 #ifdef X11
+          : instance(nullptr)
           , screen(0)
 #endif // X11
+#ifdef COCOA
+          : instance(0)
+#endif // COCOA
         {}
 
         void init (os::instance i) {
@@ -93,6 +99,9 @@ namespace gui {
 #ifdef X11
           return (instance != nullptr);
 #endif // X11
+#ifdef COCOA
+          return (instance != 0);
+#endif // COCOA
         }
 
         ~gui_init () {
@@ -143,6 +152,9 @@ namespace gui {
 #ifdef X11
         return DefaultDepth(get_instance(), get_screen());
 #endif // X11
+#ifdef COCOA
+        return 24;
+#endif // COCOA
       }
 
       BPP get_device_bits_per_pixel () {
@@ -155,6 +167,9 @@ namespace gui {
 #ifdef X11
         return BPP(DefaultDepth(get_instance(), get_screen()));
 #endif // X11
+#ifdef COCOA
+        return BPP::RGB;
+#endif // COCOA
       }
 
 #ifdef WIN32

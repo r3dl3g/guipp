@@ -48,6 +48,14 @@ namespace gui {
     };
 
     template<>
+    struct part_defaults<os::platform::cocoa> {
+      static constexpr type red = 0;
+      static constexpr type green = 8;
+      static constexpr type blue = 16;
+      static constexpr type alpha = 24;
+    };
+    
+    template<>
     struct part_defaults<os::platform::x11> {
       static constexpr type red = 16;
       static constexpr type green = 8;

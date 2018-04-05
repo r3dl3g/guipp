@@ -28,7 +28,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       set (gui_defines ${basepp_defines} -DWIN32_LEAN_AND_MEAN)
     else ()
       set (gui_defines ${basepp_defines})
-    endif (WIN32)
+    endif ()
 
     set (gui_include
         ${basepp_include}
@@ -43,7 +43,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         set (gui_include ${gui_include} /usr/include/freetype2)
         set (gui_sys_libraries X11 Xft fontconfig)
         set (gui_defines ${gui_defines} -DX11 -std=c++11)
-    endif (UNIX)
+    endif ()
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
         set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)

@@ -23,7 +23,7 @@ if (APPLE)
   add_definitions(-DCOCOA -std=c++11 -lstdc++fs)
 elseif (UNIX)
   add_definitions(-DX11 -std=c++11 -lstdc++fs)
-endif (UNIX)
+endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare )

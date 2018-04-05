@@ -14,7 +14,7 @@ if (APPLE)
   add_definitions(-DCOCOA -std=c++11)
 elseif (UNIX)
   add_definitions(-DX11 -std=c++11)
-endif(UNIX)
+endif()
 
 add_subdirectory(./../gui gui)
 

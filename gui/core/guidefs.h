@@ -195,6 +195,18 @@ namespace gui {
 
       GUIPP_CORE_EXPORT os::key_state get_key_state ();
 
+      GUIPP_CORE_EXPORT double get_scale_factor ();
+
+      template<typename T>
+      T scale (T v) {
+        return static_cast<T>((double)v * get_scale_factor());
+      }
+
+      template<typename T>
+      T unscale (T v) {
+        return static_cast<T>((double)v / get_scale_factor());
+      }
+
     }
 
   } // core

@@ -37,12 +37,12 @@ namespace gui {
 
     template<typename T>
     typename std::enable_if<std::is_unsigned<T>::value, T>::type os_dimension_cast (size::type v) {
-      return static_cast<T>(std::max<size::type>(v, 0));
+      return global::scale(static_cast<T>(std::max<size::type>(v, 0)));
     }
 
     template<typename T>
     typename std::enable_if<std::is_signed<T>::value, T>::type os_dimension_cast (size::type v) {
-      return static_cast<T>(v);
+      return global::scale(static_cast<T>(v));
     }
 
     template<typename T>

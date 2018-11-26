@@ -909,7 +909,8 @@ namespace gui {
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return {core::size::type(width), core::size::type(height)};
+        return core::size{core::global::unscale<core::size::type>(width),
+                          core::global::unscale<core::size::type>(height)};
       }
       return core::size::zero;
     }
@@ -924,7 +925,8 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return {core::point::type(x), core::point::type(y)};
+        return core::point{core::global::unscale<core::point::type>(x),
+                           core::global::unscale<core::point::type>(y)};
       }
       return core::point::undefined;
     }
@@ -939,8 +941,8 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::rectangle(core::point::type(x), core::point::type(y),
-                               core::size::type(width), core::size::type(height));
+        return core::rectangle(core::global::unscale(x), core::global::unscale(y),
+                               core::global::unscale(width), core::global::unscale(height));
       }
       return core::rectangle::def;
     }
@@ -963,8 +965,8 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
-        x11::check_return(XMoveWindow(core::global::get_instance(), get_id(),
-                                      pt.os_x(), pt.os_y()));
+        x11::check_return(XMoveWindow(core::global::get_instance(),
+                                      get_id(), pt.os_x(), pt.os_y()));
         if (repaint) {
           redraw();
         }
@@ -981,8 +983,8 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
-          x11::check_return(XResizeWindow(core::global::get_instance(), get_id(),
-                                          sz.os_width(), sz.os_height()));
+          x11::check_return(XResizeWindow(core::global::get_instance(),
+                                          get_id(), sz.os_width(), sz.os_height()));
           send_client_message(this, WM_LAYOUT_WINDOW, sz);
           if (repaint) {
             redraw();
@@ -1002,8 +1004,8 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
-          x11::check_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
-                                              r.os_x(), r.os_y(),
+          x11::check_return(XMoveResizeWindow(core::global::get_instance(),
+                                              get_id(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
             send_client_message(this, WM_LAYOUT_WINDOW, r.size());
@@ -1022,12 +1024,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               get_id(),
                                               DefaultRootWindow(display),
-                                              pt.os_x(),
-                                              pt.os_y(),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::point::type(x), core::point::type(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
@@ -1037,12 +1039,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
                                               get_id(),
-                                              pt.os_x(),
-                                              pt.os_y(),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::point::type(x), core::point::type(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     void window::set_cursor (os::cursor c) {
@@ -1120,13 +1122,8 @@ namespace gui {
 
       os::window id = XCreateWindow(display,
                                     parent_id,
-                                    r.os_x(),
-                                    r.os_y(),
-                                    r.os_width(),
-                                    r.os_height(),
-                                    0,
-                                    depth,
-                                    InputOutput,
+                                    r.os_x(), r.os_y(), r.os_width(), r.os_height(),
+                                    0, depth, InputOutput,
                                     visual,
                                     mask,
                                     &wa);

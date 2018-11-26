@@ -85,8 +85,6 @@ namespace gui {
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero) const;
-      const graphics& stretch_from (os::drawable, const core::rectangle& src,
-                                    const core::rectangle& dest) const;
 
       void invert (const core::rectangle&) const;
       void flush () const;

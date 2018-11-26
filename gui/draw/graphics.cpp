@@ -291,7 +291,16 @@ namespace gui {
       int x, y;
       unsigned int w, h, b, d;
       XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
-      return {(core::point::type)x, (core::point::type)y, (core::size::type)w, (core::size::type)h};
+      return {
+          (core::point::type)x,
+          (core::point::type)y,
+          (core::size::type)w,
+          (core::size::type)h
+//        core::global::unscale((core::point::type)x),
+//        core::global::unscale((core::point::type)y),
+//        core::global::unscale((core::size::type)w),
+//        core::global::unscale((core::size::type)h)
+      };
     }
 
 
@@ -409,7 +418,7 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
-      int res = XCopyArea(get_instance(), src, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
+      int res = XCopyArea(get_instance(), src, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
       if (!res) {
         throw std::runtime_error("graphics::copy_from failed");
       }
@@ -423,17 +432,11 @@ namespace gui {
       const int md = depth();
       int res = 0;
       if (dd == md) {
-        res = XCopyArea(get_instance(), w, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), pt.os_x(), pt.os_y());
+        res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
       } else {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
       return *this;
-    }
-
-    const graphics& graphics::stretch_from (os::drawable w,
-                                            const core::rectangle& r,
-                                            const core::rectangle& pt) const {
-      return copy_from(w, r, pt.position());
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
@@ -471,7 +474,7 @@ namespace gui {
     }
 
     void graphics::push_clipping (const core::rectangle& rect) const {
-      os::rectangle r = rect;
+      os::rectangle r = rect.os();
       clipping_stack.push_back(r);
       XSetClipRectangles(get_instance(), gc, 0, 0, &r, 1, Unsorted);
       XftDrawSetClipRectangles(get_xft(), 0, 0, &r, 1);

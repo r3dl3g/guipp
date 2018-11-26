@@ -289,7 +289,7 @@ namespace gui {
       info = XftFontOpen(core::global::get_instance(),
                          core::global::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
-                         XFT_SIZE, XftTypeDouble, (double)size,
+                         XFT_SIZE, XftTypeDouble, (double)core::global::scale(size),
                          XFT_WEIGHT, XftTypeInteger, (int)thickness,
                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
                          NULL);
@@ -346,7 +346,7 @@ namespace gui {
       if (info) {
         double sz;
         if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
-          return (font::size_type)sz;
+          return (font::size_type)core::global::unscale(sz);
         }
       }
       return STD_FONT_SIZE;
@@ -428,7 +428,7 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        return core::size(extents.xOff - extents.x, extents.height);
+        return core::size(core::global::unscale(extents.xOff - extents.x), core::global::unscale(extents.height));
       }
       return core::size::zero;
     }

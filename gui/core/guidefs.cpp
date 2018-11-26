@@ -181,6 +181,13 @@ namespace gui {
                                           (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
       }
 
+      float get_scale_factor () {
+        const static float scale_factor = []() {
+          return 1.0F;
+        } ();
+        return scale_factor;
+      }
+
 #endif // WIN32
 
 #ifdef X11
@@ -202,9 +209,32 @@ namespace gui {
         return DefaultVisual(get_instance(), get_screen());
       }
 
+      double get_scale_factor () {
+        const static double scale_factor = []() {
+          Screen* screen = ScreenOfDisplay(get_instance(), get_screen());
+          auto dots_w = (double)screen->width;
+//          auto dots_h = (double)screen->height;
+//          if ((3840 == dots_w) && (2160 == dots_h)) {
+//            return 2.0;
+//          }
+//          auto mm_h = screen->mheight;
+//          auto inch_h = (double)mm_h / 25.4;
+//          auto dpi_h = dots_h / inch_h;
+
+          auto mm_w = screen->mwidth;
+          auto inch_w = (double)mm_w / 25.4;
+          auto dpi_w = dots_w / inch_w;
+
+          return round((double)dpi_w / 96.0);
+//          return round((double)(dpi_w + dpi_h) / (96.0 * 2.0));
+        } ();
+        return scale_factor;
+      }
+
 #endif // X11
 
-    }
+    } // global
+
   } // core
 
 } // gui

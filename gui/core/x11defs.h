@@ -74,7 +74,7 @@ namespace gui {
     namespace x11 {
       typedef int screen;
       typedef Visual* visual;
-    }
+    } // x11
 
   } // os
 

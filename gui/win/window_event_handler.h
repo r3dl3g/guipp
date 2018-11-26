@@ -441,7 +441,8 @@ namespace gui {
     template<typename C>
     struct get<core::size, C> {
       static core::size param (const core::event& e) {
-        return core::size(event_type_cast<C>(e).width, event_type_cast<C>(e).height);
+        return core::size(core::global::unscale(event_type_cast<C>(e).width),
+                          core::global::unscale(event_type_cast<C>(e).height));
       }
 
     };
@@ -449,7 +450,8 @@ namespace gui {
     template<typename C>
     struct get<core::point, C> {
       static core::point param (const core::event& e) {
-        return core::point(event_type_cast<C>(e).x, event_type_cast<C>(e).y);
+        return core::point(core::global::unscale(event_type_cast<C>(e).x),
+                           core::global::unscale(event_type_cast<C>(e).y));
       }
 
     };

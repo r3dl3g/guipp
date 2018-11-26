@@ -1,4 +1,4 @@
-﻿
+
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -27,6 +27,7 @@
 #include <gui/ctrl/textbox.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/tab_group.h>
+#include <gui/io/wavelength_to_rgb.h>
 
 
 using namespace gui;
@@ -62,6 +63,8 @@ public:
 
   void start_thread ();
   void stop_thread ();
+
+  void settings ();
 
 private:
   volatile bool thread_is_active;
@@ -101,6 +104,8 @@ private:
   rgbmap bmp[2];
   graymap gray[2];
   bwmap bw[2];
+
+  rgbmap wave_color;
 };
 
 // --------------------------------------------------------------------------
@@ -196,6 +201,11 @@ my_main_window::my_main_window ()
       }
       x += 110;
     }
+
+    if (wave_color) {
+      graph.copy_from(wave_color, core::point::zero);
+    }
+
   }));
 }
 
@@ -285,8 +295,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, pixmap(), menu_state::disabled));
-  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
+  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', basepp::bind_method(this, &my_main_window::settings), hot_key(), true));
+  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.register_hot_keys(this);
 
   tool_bar.create(top_view);
@@ -541,7 +551,22 @@ void my_main_window::copy () {
   window1.redraw();
 }
 
-void my_main_window::del () {
+void my_main_window::settings () {
+    core::rectangle r = window1.client_area();
+    core::size sz = r.size();
+
+    pixmap img(sz);
+    graphics g(img);
+    double scale = 500.0 / sz.width();
+    for (int x = 0; x < sz.width(); ++x) {
+        os::color rgb = io::optics::wave_length_to_rgb(static_cast<double>(330.0 + x * scale));
+        g.draw_lines({core::point{x, r.y()}, core::point{x, r.y2()}}, draw::pen(rgb));
+    }
+    wave_color = img;
+    window1.redraw();
+}
+
+  void my_main_window::del () {
   labels[0].set_text("del");
   for (int i = 0; i < 2; ++i) {
     rgba[i].clear();

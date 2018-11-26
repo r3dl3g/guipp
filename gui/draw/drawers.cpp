@@ -711,7 +711,7 @@ namespace gui {
                            &extents);
         auto fi = f.font_type();
         height = fi->ascent;
-        width = extents.width;
+        width = extents.xOff;
         dx = 0;
         dy = fi->ascent - fi->descent;
       } else {
@@ -722,20 +722,22 @@ namespace gui {
       int py = rect.os_y();
 
       if (origin_is_h_center(origin)) {
-        px += (rect.width() - width) / 2;
+        px += (rect.os_width() - width) / 2;
       } else if (origin_is_right(origin)) {
-        px += rect.width() - width;
+        px += rect.os_width() - width;
       }
       if (origin_is_v_center(origin)) {
-        py += (rect.height() - dy) / 2;
+        py += (rect.os_height() - height) / 2;
       } else if (origin_is_bottom(origin)) {
-        py += rect.height() - height;
+        py += rect.os_height() - height;
       }
 
       xft_color xftcolor(c, g);
       clip clp(g, rect);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
+                        px + dx, py + dy,
+                        (XftChar8*)str.c_str(), int(str.size()));
     }
 
     // --------------------------------------------------------------------------
@@ -766,18 +768,18 @@ namespace gui {
       int py = rect.os_y();
 
       if (origin_is_h_center(origin)) {
-        px += (rect.width() - width) / 2;
+        px += (rect.os_width() - width) / 2;
       } else if (origin_is_right(origin)) {
-        px += rect.width() - width;
+        px += rect.os_width() - width;
       }
       if (origin_is_v_center(origin)) {
-        py += (rect.height() - dy) / 2;
+        py += (rect.os_height() - height) / 2;
       } else if (origin_is_bottom(origin)) {
-        py += rect.height() - height;
+        py += rect.os_height() - height;
       }
 
-      rect.top_left({core::point::type(px + dx), core::point::type(py)});
-      rect.set_size({core::size::type(width), core::size::type(height)});
+      rect.top_left({core::global::unscale<core::point::type>(px + dx), core::global::unscale<core::point::type>(py)});
+      rect.set_size({core::global::unscale<core::size::type>(width), core::global::unscale<core::size::type>(height)});
     }
 
     // --------------------------------------------------------------------------
@@ -821,7 +823,9 @@ namespace gui {
 
       xft_color xftcolor(c, g);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
+                        (px + dx), (py + dy),
+                        (XftChar8*)str.c_str(), int(str.size()));
     }
 
 #endif // X11
@@ -921,8 +925,8 @@ namespace gui {
         return;
       }
 
-      const uint32_t width = basepp::roundup<uint32_t>(rect.width());
-      const uint32_t height = basepp::roundup<uint32_t>(rect.height());
+      const uint32_t width = basepp::roundup<uint32_t>(rect.os_width());
+      const uint32_t height = basepp::roundup<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_raw(), dest.get_raw(),

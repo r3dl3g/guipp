@@ -41,7 +41,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         set (gui_defines ${gui_defines} -std=c++11)
     elseif (UNIX)
         set (gui_include ${gui_include} /usr/include/freetype2)
-        set (gui_sys_libraries X11 Xft fontconfig)
+        set (gui_sys_libraries X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
         set (gui_defines ${gui_defines} -DX11 -std=c++11)
     endif ()
 

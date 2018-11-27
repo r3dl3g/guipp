@@ -99,8 +99,8 @@ namespace gui {
         void set_imageFX (MMAL_PARAM_IMAGEFX_T imageFX);
         MMAL_PARAM_IMAGEFX_T get_imageFX ();
 
-        void set_colourFX (const MMAL_PARAM_COLOURFX_T& colourFX);
-        MMAL_PARAM_COLOURFX_T get_colourFX ();
+//        void set_colourFX (const MMAL_PARAM_COLOURFX_T& colourFX);
+//        MMAL_PARAM_COLOURFX_T get_colourFX ();
 
         void set_rotation (int rotation);
         int get_rotation ();
@@ -108,11 +108,11 @@ namespace gui {
         void set_flip (MMAL_PARAM_MIRROR_T mode);
         MMAL_PARAM_MIRROR_T get_flip ();
 
-        void set_ROI (PARAM_FLOAT_RECT_T rect);
-        PARAM_FLOAT_RECT_T get_ROI ();
+        void set_ROI (float x, float y, float w, float h);
+        void get_ROI (float& x, float& y, float& w, float& h);
 
-        void set_DRC (MMAL_PARAMETER_DRC_STRENGTH_T strength);
-        MMAL_PARAMETER_DRC_STRENGTH_T get_DRC ();
+//        void set_DRC (MMAL_PARAMETER_DRC_STRENGTH_T strength);
+//        MMAL_PARAMETER_DRC_STRENGTH_T get_DRC ();
 
         void set_stats_pass (bool stats_pass);
         bool get_stats_pass ();
@@ -129,7 +129,7 @@ namespace gui {
         template<typename T>
         T get_mode ();
 
-        MMAL_COMPONENT_T* canera_;
+        MMAL_COMPONENT_T* m_camera;
       };
 
     } // namespace camera

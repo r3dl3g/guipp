@@ -12,7 +12,7 @@ if(NOT TARGET gui++-raspi-obj)
 
     set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
     set(gui_include ${gui_include} PARENT_SCOPE)
-    include_directories(${gui_include})
+    include_directories(${gui_include} /opt/raspberrypi/sysroot/opt/vc/include)
 
     if (WIN32)
       add_definitions(-DWIN32_LEAN_AND_MEAN)

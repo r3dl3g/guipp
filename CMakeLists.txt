@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("gui-lib" CXX)
 
+function(print_var VAR)
+    message(STATUS "${VAR}: '" ${${VAR}} "'")
+endfunction(print_var)
+
+print_var(CMAKE_CXX_PLATFORM_ID)
+print_var(CMAKE_CXX_COMPILER_ID)
+print_var(CMAKE_SYSTEM_PROCESSOR)
+
 if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	message(STATUS "Building with Clang!")
         set(CMAKE_CXX_FLAGS "${_PLATFORM_DEFINES}${_PLATFORM_DEFINES_CXX} -fms-extensions -fms-compatibility -Fp -EHsc -D_WINDOWS")
@@ -33,3 +41,4 @@ add_subdirectory(base)
 add_subdirectory(gui)
 add_subdirectory(test)
 add_subdirectory(TimeTracker)
+add_subdirectory(raspi)

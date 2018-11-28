@@ -32,11 +32,8 @@
 #include <gui/core/color.h>
 
 // --------------------------------------------------------------------------
-//#ifdef RASPI
 #include <interface/mmal/mmal.h>
-//#else
-//typedef struct MMAL_COMPONENT_T {} MMAL_COMPONENT_T;
-//#endif
+#include <interface/mmal/util/mmal_connection.h>
 
 namespace gui {
 
@@ -48,7 +45,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       class raspi_camera {
       public:
-        raspi_camera ();
+        raspi_camera (int num = 0);
         ~raspi_camera ();
 
         void set_saturation (float saturation);
@@ -96,27 +93,38 @@ namespace gui {
         void set_awb_gains (float r_gain, float b_gain);
         void get_awb_gains (float& r_gain, float& b_gain);
 
-        void set_imageFX (MMAL_PARAM_IMAGEFX_T imageFX);
-        MMAL_PARAM_IMAGEFX_T get_imageFX ();
-
-//        void set_colourFX (const MMAL_PARAM_COLOURFX_T& colourFX);
-//        MMAL_PARAM_COLOURFX_T get_colourFX ();
-
         void set_rotation (int rotation);
         int get_rotation ();
 
         void set_flip (MMAL_PARAM_MIRROR_T mode);
         MMAL_PARAM_MIRROR_T get_flip ();
 
-        void set_ROI (float x, float y, float w, float h);
-        void get_ROI (float& x, float& y, float& w, float& h);
-
-//        void set_DRC (MMAL_PARAMETER_DRC_STRENGTH_T strength);
-//        MMAL_PARAMETER_DRC_STRENGTH_T get_DRC ();
+        void set_crop (float x, float y, float w, float h);
+        void get_crop (float& x, float& y, float& w, float& h);
 
         void set_stats_pass (bool stats_pass);
         bool get_stats_pass ();
 
+        void set_image_fx (MMAL_PARAM_IMAGEFX_T imageFX);
+        MMAL_PARAM_IMAGEFX_T get_image_fx ();
+
+        void set_color_fx (bool enable, uint32_t u, uint32_t v);
+        void get_color_fx (bool& enable, uint32_t& u, uint32_t& v);
+
+        void set_drc (MMAL_PARAMETER_DRC_STRENGTH_T drc);
+        MMAL_PARAMETER_DRC_STRENGTH_T get_drc ();
+
+        void set_stereo_mode (MMAL_STEREOSCOPIC_MODE_T mode, bool decimate = false, bool swap_eyes = false);
+        void get_stereo_mode (MMAL_STEREOSCOPIC_MODE_T& mode, bool& decimate, bool& swap_eyes);
+
+        void set_size (float w, float h);
+        void get_size (int& w, int& h);
+
+        MMAL_PARAMETER_CAMERA_CONFIG_T get_camera_config ();
+        void set_camera_config (MMAL_PARAMETER_CAMERA_CONFIG_T config);
+
+        MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info (int num);
+        MMAL_PARAMETER_CAMERA_INFO_T get_config ();
 
       private:
         void set_rational (uint32_t id, float v, float min, float max);
@@ -129,7 +137,16 @@ namespace gui {
         template<typename T>
         T get_mode ();
 
+        void set_camera_num (int32_t num);
+        int32_t get_camera_num ();
+
         MMAL_COMPONENT_T* m_camera;
+        MMAL_COMPONENT_T* m_encoder;
+        MMAL_CONNECTION_T* m_encoder_connection;
+        MMAL_POOL_T* m_encoder_pool;
+        MMAL_PORT_T* m_camera_still_port;
+        MMAL_PORT_T* m_encoder_input_port;
+        MMAL_PORT_T* m_encoder_output_port;
       };
 
     } // namespace camera

@@ -30,7 +30,11 @@ message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
 include_directories(${PROJECT_BINARY_DIR}
                     ${gui_include}
+                    /opt/raspberrypi/sysroot/opt/vc/include
 )
+
+set (MMAL_LIBS mmal_core mmal_util mmal_vc_client rt vcsm vchiq_arm vcos)
+# bcm_host
 
 enable_testing()
 
@@ -38,6 +42,7 @@ set(tests
     WindowTest
     BorderTest
     hello_world
+    raspicam_test
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")
@@ -46,8 +51,13 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_definitions(/Y- /bigobj)
 endif()
 
+LINK_DIRECTORIES(/opt/raspberrypi/sysroot/opt/vc/lib)
+
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)
+
+target_link_libraries(raspicam_test gui++-raspi-static ${MMAL_LIBS})
+

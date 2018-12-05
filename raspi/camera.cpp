@@ -112,52 +112,6 @@ namespace gui {
         return out;
       }
 
-      std::ostream& operator<< (std::ostream& out, const MMAL_RECT_T& v) {
-        out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
-        return out;
-      }
-
-      std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_CONFIG_T& v) {
-        out << "{w:" << v.max_stills_w << ", h:" << v.max_stills_w
-            << ", pw:" << v.max_preview_video_w  << ", ph:" << v.max_preview_video_h << "}";
-        return out;
-      }
-
-      std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T& v) {
-        out << "{name:" << v.camera_name << ", lens:" << v.lens_present
-            << ", w:" << v.max_width  << ", h:" << v.max_height << "}";
-        return out;
-      }
-
-      std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_RX_CONFIG_T& v) {
-        out << "{decode:" << v.decode << ", encode:" << v.encode
-            << ", unpack:" << v.unpack << ", pack:" << v.pack
-            << ", data_lanes:" << v.data_lanes << ", encode_block_length:" << v.encode_block_length
-            << ", embedded_data_lines:" << v.embedded_data_lines << ", image_id:" << v.image_id
-            << "}";
-        return out;
-      }
-
-      std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_RESIZE_T& v) {
-        out << "{mode:" << v.mode << ", max_bytes:" << v.max_bytes
-            << ", w:" << v.max_width << ", h:" << v.max_height
-            << ", aspect:" << v.preserve_aspect_ratio << ", upscaling:" << v.allow_upscaling
-            << "}";
-        return out;
-      }
-
-      std::ostream& operator<< (std::ostream& out, const MMAL_RESIZEMODE_T v) {
-        switch (v) {
-          case MMAL_RESIZE_NONE:  out << "NONE"; break;
-          case MMAL_RESIZE_CROP:  out << "CROP"; break;
-          case MMAL_RESIZE_BOX:   out << "BOX"; break;
-          case MMAL_RESIZE_BYTES: out << "BYTES"; break;
-          case MMAL_RESIZE_DUMMY: out << "DUMMY"; break;
-          default:                out << "UNKNOWN"; break;
-        }
-        return out;
-      }
-
       // --------------------------------------------------------------------------
       static void camera_control_callback (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
         if (buffer->cmd == MMAL_EVENT_PARAMETER_CHANGED) {
@@ -165,6 +119,12 @@ namespace gui {
           switch (param->hdr.id) {
             case MMAL_PARAMETER_CAMERA_SETTINGS: {
               MMAL_PARAMETER_CAMERA_SETTINGS_T *settings = (MMAL_PARAMETER_CAMERA_SETTINGS_T*)param;
+              LogDebug << "camera_control_callback for port:'" << port->name
+                       << "' encoding:'" << four_cc(port->format->encoding)
+                       << "' crop:" << port->format->es->video.crop
+                       << " size:" << port->format->es->video.width << " x " << port->format->es->video.width
+                       << " color_space:'" << four_cc(port->format->es->video.color_space) << "'";
+              // variant:'" << four_cc(port->format->encoding_variant) << "'";
               LogInfo << "Exposure now " << settings->exposure
                       << ", analog gain " << settings->analog_gain.num << "/" << settings->analog_gain.den
                       << ", digital gain " << settings->digital_gain.num << "/" << settings->digital_gain.den;
@@ -321,8 +281,8 @@ namespace gui {
 
         out << ", camera_config:" << get_camera_config();
         out << ", camera_info:" << get_camera_info();
-//        out << ", camera_rx_config:" << get_camera_rx_config();
 //        out << ", resize:" << get_resize();
+//        out << ", camera_rx_config:" << get_camera_rx_config();
       }
 
       // --------------------------------------------------------------------------
@@ -687,7 +647,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       MMAL_PARAMETER_RESIZE_T raspi_camera::get_resize () const {
-        MMAL_PARAMETER_RESIZE_T resize = {{MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)}};
+        MMAL_PARAMETER_RESIZE_T resize = {{MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)}/*, MMAL_RESIZE_DUMMY, 0*/};
         check_mmal_status(mmal_port_parameter_get(m_camera->control, &resize.hdr));
         return resize;
       }
@@ -810,6 +770,18 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      std::ostream& operator<< (std::ostream& out, const four_cc& fourcc) {
+        if (fourcc.m_strip) {
+          std::string str((const char*)&fourcc.m_type, 4);
+          basepp::string::trim(str);
+          out << str;
+        } else {
+          out.write((const char*)&fourcc.m_type, 4);
+        }
+        return out;
+      }
+
+      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
 
     } // camera
@@ -817,3 +789,52 @@ namespace gui {
   } // raspi
 
 } // gui
+
+namespace std {
+  std::ostream& operator<< (std::ostream& out, const MMAL_RECT_T& v) {
+    out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_CONFIG_T& v) {
+    out << "{w:" << v.max_stills_w << ", h:" << v.max_stills_w
+        << ", pw:" << v.max_preview_video_w  << ", ph:" << v.max_preview_video_h << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T& v) {
+    out << "{name:" << v.camera_name << ", lens:" << v.lens_present
+        << ", w:" << v.max_width  << ", h:" << v.max_height << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_RX_CONFIG_T& v) {
+    out << "{decode:" << v.decode << ", encode:" << v.encode
+        << ", unpack:" << v.unpack << ", pack:" << v.pack
+        << ", data_lanes:" << v.data_lanes << ", encode_block_length:" << v.encode_block_length
+        << ", embedded_data_lines:" << v.embedded_data_lines << ", image_id:" << v.image_id
+        << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_RESIZE_T& v) {
+    out << "{mode:" << v.mode << ", max_bytes:" << v.max_bytes
+        << ", w:" << v.max_width << ", h:" << v.max_height
+        << ", aspect:" << v.preserve_aspect_ratio << ", upscaling:" << v.allow_upscaling
+        << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_RESIZEMODE_T v) {
+    switch (v) {
+      case MMAL_RESIZE_NONE:  out << "NONE"; break;
+      case MMAL_RESIZE_CROP:  out << "CROP"; break;
+      case MMAL_RESIZE_BOX:   out << "BOX"; break;
+      case MMAL_RESIZE_BYTES: out << "BYTES"; break;
+      case MMAL_RESIZE_DUMMY: out << "DUMMY"; break;
+      default:                out << "UNKNOWN"; break;
+    }
+    return out;
+  }
+
+}

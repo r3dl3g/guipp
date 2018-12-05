@@ -108,6 +108,10 @@ namespace gui {
         MMAL_PARAM_MIRROR_T get_flip () const;
 
         struct crop {
+          crop (float x_ = 0.0F, float y_ = 0.0F, float w_ = 1.0F, float h_ = 1.0F)
+            : x(x_) , y(y_) , width(w_) , height(h_)
+          {}
+
           float x;
           float y;
           float width;
@@ -193,6 +197,7 @@ namespace gui {
 
       };
 
+      // --------------------------------------------------------------------------
       std::ostream& operator<< (std::ostream&, const raspi_camera&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::awb_gains&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::crop&);
@@ -200,13 +205,22 @@ namespace gui {
       std::ostream& operator<< (std::ostream&, const raspi_camera::stereo_mode&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::size&);
 
-      std::ostream& operator<< (std::ostream&, const MMAL_RECT_T&);
-      std::ostream& operator<< (std::ostream&, const MMAL_PARAMETER_CAMERA_CONFIG_T&);
-      std::ostream& operator<< (std::ostream&, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T&);
-      std::ostream& operator<< (std::ostream&, const MMAL_PARAMETER_CAMERA_RX_CONFIG_T&);
-      std::ostream& operator<< (std::ostream&, const MMAL_PARAMETER_RESIZE_T&);
+      // --------------------------------------------------------------------------
+      struct four_cc {
+        four_cc (MMAL_FOURCC_T t, bool strip = true)
+          : m_type(t)
+          , m_strip(strip)
+        {}
 
-      std::ostream& operator<< (std::ostream&, const MMAL_RESIZEMODE_T);
+        const MMAL_FOURCC_T m_type;
+        const bool m_strip;
+      };
+
+      // --------------------------------------------------------------------------
+      std::ostream& operator<< (std::ostream&, const four_cc&);
+
+      // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
 
     } // namespace camera
 
@@ -214,3 +228,12 @@ namespace gui {
 
 } // namespace gui
 
+namespace std {
+  ostream& operator<< (ostream&, const MMAL_RECT_T&);
+  ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_CONFIG_T&);
+  ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T&);
+  ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_RX_CONFIG_T&);
+  ostream& operator<< (ostream&, const MMAL_PARAMETER_RESIZE_T&);
+
+  ostream& operator<< (ostream&, const MMAL_RESIZEMODE_T);
+}

@@ -69,17 +69,19 @@ namespace gui {
         raspi_camera& m_camera;
       };
 
+      // --------------------------------------------------------------------------
       class raspi_raw_encoder : public raspi_encoder {
       public:
         using super = raspi_encoder;
 
-        raspi_raw_encoder (raspi_camera& camera);
+        raspi_raw_encoder (raspi_camera& camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8);
         ~raspi_raw_encoder ();
 
         void capture (uint32_t timeout = 1000);
 
       };
 
+      // --------------------------------------------------------------------------
       class raspi_image_encoder : public raspi_encoder {
       public:
         using super = raspi_encoder;
@@ -96,6 +98,9 @@ namespace gui {
         MMAL_PORT_T* m_encoder_input_port;
         MMAL_PORT_T* m_encoder_output_port;
       };
+
+      // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
 
     } // namespace camera
 

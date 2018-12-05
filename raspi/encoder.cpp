@@ -130,11 +130,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      raspi_raw_encoder::raspi_raw_encoder (raspi_camera& camera)
+      raspi_raw_encoder::raspi_raw_encoder (raspi_camera& camera, MMAL_FOURCC_T encoding)
         : super(camera)
       {
         auto camera_still_port = get_camera_still_port();
-        camera_still_port->format->encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8;//MMAL_ENCODING_BAYER_SRGGB10P;//
+        camera_still_port->format->encoding = encoding;//MMAL_ENCODING_BAYER_SRGGB10DPCM8;//MMAL_ENCODING_BAYER_SGRBG10P;//
 //        camera_still_port->buffer_size = camera_still_port->buffer_size_recommended;
         if (camera_still_port->buffer_size < camera_still_port->buffer_size_min) {
           camera_still_port->buffer_size = camera_still_port->buffer_size_min;

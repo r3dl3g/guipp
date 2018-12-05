@@ -104,6 +104,33 @@ namespace basepp {
       return oss.str();
     }
 
+    void ltrim (std::string& s) {
+      s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), isspace));
+    }
+ 
+    std::string ltrimed (std::string s) {
+      ltrim(s);
+      return s;
+    }
+
+    void rtrim (std::string& s) {
+      s.erase(std::find_if_not(s.rbegin(), s.rend(), isspace).base(), s.end());
+    }
+
+    std::string rtrimed (std::string s) {
+      rtrim(s);
+      return s;
+    }
+
+    void trim (std::string& s) {
+      ltrim(s);
+      rtrim(s);
+    }
+
+    std::string trimed (std::string s) {
+      trim(s);
+      return s;
+    }
 
   } // namespace string
 

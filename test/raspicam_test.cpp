@@ -8,53 +8,12 @@
 
 DEFINE_LOGGING_CORE(NOTHING)
 
-MMAL_FOURCC_T parse_fourcc (const std::string& str) {
-  gui::raspi::camera::four_cc fourcc = {MMAL_FOURCC(' ',' ',' ',' '), false};
-  std::istringstream(str) >> fourcc;
-  LogInfo << "Found encoding:'" << fourcc << "'";
-  return fourcc.m_type;
-}
-
-gui::raspi::camera::raspi_camera::crop parse_crop (const std::string& str) {
-  gui::raspi::camera::raspi_camera::crop crop;
-  std::istringstream(str) >> crop;
-  LogInfo << "Found crop:'" << crop << "'";
-  return crop;
-}
-
-gui::raspi::camera::raspi_camera::size parse_size (const std::string& str) {
-  gui::raspi::camera::raspi_camera::size size{0, 0};
-  std::istringstream(str) >> size;
-  LogInfo << "Found size:'" << size << "'";
-  return size;
-}
-
-uint32_t parse_shutter_speed (const std::string& str) {
-  uint32_t shutter_speed = 0;
-  std::istringstream(str) >> shutter_speed;
-  LogInfo << "Found shutter_speed:'" << shutter_speed << "'";
-  return shutter_speed;
-}
-
-uint32_t parse_iso (const std::string& str) {
-  uint32_t iso = 0;
-  std::istringstream(str) >> iso;
-  LogInfo << "Found ISO:'" << iso << "'";
-  return iso;
-}
-
-gui::raspi::camera::raspi_camera::awb_gains parse_awb_gains (const std::string& str) {
-  gui::raspi::camera::raspi_camera::awb_gains gains{0, 0};
-  std::istringstream(str) >> gains;
-  LogInfo << "Found AWB gains:'" << gains << "'";
-  return gains;
-}
-
-float parse_float (const std::string& str, const std::string& name) {
-  float f = 0.0F;
-  std::istringstream(str) >> f;
-  LogInfo << "Found " << name << ":'" << f << "'";
-  return f;
+template<typename T>
+T parse_arg (const std::string& str, const std::string& name) {
+  T t = T();
+  std::istringstream(str) >> t;
+  LogInfo << "Found " << name << ":'" << t << "'";
+  return t;
 }
 
 // --------------------------------------------------------------------------
@@ -72,9 +31,9 @@ int main(int argc, const char* argv[]) {
 
   basepp::command_line::parser("raspicam_test V 0.1.0",
   {
-    {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG(default), PPM, JPEG, GIF, TGA, bRA8, BD10, RGB3)",
+    {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG(default), PPM, JPEG, GIF, TGA)",
       [&](const std::string& arg) {
-        encoding = parse_fourcc(arg);
+        encoding = parse_arg<four_cc>(arg, "encoding").m_type;
       }},
     {"-r", "--raw", {}, "Use raw capture (-f: BD10, bRA8, bGA8, BGGR, RGAA, I420, S420, I422, S422, RGBA, rgba, RGB3, rgb3)",
       [&](const std::string&) {
@@ -83,45 +42,45 @@ int main(int argc, const char* argv[]) {
       }},
     {"-ss", "--shutter", "<us>", "Set shutter speed in us",
       [&](const std::string& arg) {
-        camera.set_shutter_speed(parse_shutter_speed(arg));
+        camera.set_shutter_speed(parse_arg<int>(arg, "Shutter speed"));
       }},
     {"-a", "--awb", "<R,B>", "Set AWB gains red (R) and blue (B)",
       [&](const std::string& arg) {
         camera.set_awb_mode(MMAL_PARAM_AWBMODE_OFF);
-        camera.set_awb_gains(parse_awb_gains(arg));
+        camera.set_awb_gains(parse_arg<raspi_camera::awb_gains>(arg, "AWB gains"));
       }},
     {"-c", "--crop", "<X,Y,W,H>", "Crop image by <X,Y,W,H> in normalised coordinates [0.0-1.0]",
       [&](const std::string& arg) {
-        camera.set_crop(parse_crop(arg));
+        camera.set_crop(parse_arg<raspi_camera::crop>(arg, "Crop"));
       }},
     {"-sz", "--size", "<W,H>", "Use image size <W,H>",
       [&](const std::string& arg) {
-        camera.set_size(parse_size(arg));
+        camera.set_size(parse_arg<raspi_camera::size>(arg, "Size"));
       }},
     {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
       [&](const std::string& arg) {
-        auto sz = parse_size(arg);
+        auto sz = parse_arg<raspi_camera::size>(arg, "Resize");
         camera.set_resize({{}, MMAL_RESIZE_CROP, sz.w, sz.h, 0, false, false});
       }},
     {"-i", "--iso", "<ISO>", "Set sensor ISO",
       [&](const std::string& arg) {
-        camera.set_iso(parse_iso(arg));
+        camera.set_iso(parse_arg<int>(arg, "ISO"));
       }},
     {"-sh", "--sharpness", "[-1.0-1.0]", "Set image sharpness",
       [&](const std::string& arg) {
-        camera.set_sharpness(parse_float(arg, "Sharpness"));
+        camera.set_sharpness(parse_arg<float>(arg, "Sharpness"));
       }},
     {"-co", "--contrast", "[-1.0-1.0]", "Set image contrast",
       [&](const std::string& arg) {
-        camera.set_contrast(parse_float(arg, "Contrast"));
+        camera.set_contrast(parse_arg<float>(arg, "Contrast"));
       }},
     {"-br", "--brightness", "[0.0-1.0]", "Set image brightness",
       [&](const std::string& arg) {
-        camera.set_brightness(parse_float(arg, "Brightness"));
+        camera.set_brightness(parse_arg<float>(arg, "Brightness"));
       }},
     {"-sa", "--saturation", "[-1.0-1.0]", "Set image saturation",
       [&](const std::string& arg) {
-        camera.set_saturation(parse_float(arg, "Saturation"));
+        camera.set_saturation(parse_arg<float>(arg, "Saturation"));
       }},
     {"-o", "--out", "<filename>", "Set output file name",
       [&](const std::string& arg) {

@@ -92,9 +92,21 @@ namespace gui {
         return out;
       }
 
+      std::istream& operator>> (std::istream& in, raspi_camera::awb_gains& gains) {
+        char delemiter;
+        in >> gains.r_gain >> delemiter >> gains.b_gain;
+        return in;
+      }
+
       std::ostream& operator<< (std::ostream& out, const raspi_camera::crop& v) {
         out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
         return out;
+      }
+
+      std::istream& operator>> (std::istream& in, raspi_camera::crop& v) {
+        char delemiter;
+        in >> v.x >> delemiter >> v.y >> delemiter >> v.width >> delemiter >> v.height;
+        return in;
       }
 
       std::ostream& operator<< (std::ostream& out, const raspi_camera::color_fx& v) {
@@ -110,6 +122,12 @@ namespace gui {
       std::ostream& operator<< (std::ostream& out, const raspi_camera::size& v) {
         out << v.w << ", " << v.h;
         return out;
+      }
+
+      std::istream& operator>> (std::istream& in, raspi_camera::size& sz) {
+        char delemiter;
+        in >> sz.w >> delemiter >> sz.h;
+        return in;
       }
 
       // --------------------------------------------------------------------------
@@ -779,6 +797,14 @@ namespace gui {
           out.write((const char*)&fourcc.m_type, 4);
         }
         return out;
+      }
+
+      std::istream& operator>> (std::istream& in, four_cc& fourcc) {
+        in >> *((char*)&fourcc.m_type);
+        in >> *(((char*)&fourcc.m_type)+1);
+        in >> *(((char*)&fourcc.m_type)+2);
+        in >> *(((char*)&fourcc.m_type)+3);
+        return in;
       }
 
       // --------------------------------------------------------------------------

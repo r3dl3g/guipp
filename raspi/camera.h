@@ -205,19 +205,24 @@ namespace gui {
       std::ostream& operator<< (std::ostream&, const raspi_camera::stereo_mode&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::size&);
 
+      std::istream& operator>> (std::istream&, raspi_camera::awb_gains&);
+      std::istream& operator>> (std::istream&, raspi_camera::crop&);
+      std::istream& operator>> (std::istream&, raspi_camera::size&);
+
       // --------------------------------------------------------------------------
       struct four_cc {
-        four_cc (MMAL_FOURCC_T t, bool strip = true)
+        four_cc (MMAL_FOURCC_T t = MMAL_FOURCC(' ',' ',' ',' '), bool strip = true)
           : m_type(t)
           , m_strip(strip)
         {}
 
-        const MMAL_FOURCC_T m_type;
+        MMAL_FOURCC_T m_type;
         const bool m_strip;
       };
 
       // --------------------------------------------------------------------------
       std::ostream& operator<< (std::ostream&, const four_cc&);
+      std::istream& operator>> (std::istream&, four_cc&);
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------

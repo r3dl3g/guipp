@@ -39,9 +39,9 @@ set (MMAL_LIBS mmal_core mmal_util mmal_vc_client rt vcsm vchiq_arm vcos)
 enable_testing()
 
 set(tests
-    WindowTest
-    BorderTest
-    hello_world
+#    WindowTest
+#    BorderTest
+#    hello_world
     raspicam_test
 )
 

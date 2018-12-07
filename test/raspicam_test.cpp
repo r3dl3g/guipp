@@ -66,19 +66,19 @@ int main(int argc, const char* argv[]) {
       [&](const std::string& arg) {
         camera.set_iso(parse_arg<int>(arg, "ISO"));
       }},
-    {"-sh", "--sharpness", "[-1.0-1.0]", "Set image sharpness",
+    {"-sh", "--sharpness", "[-1..1]", "Set image sharpness",
       [&](const std::string& arg) {
         camera.set_sharpness(parse_arg<float>(arg, "Sharpness"));
       }},
-    {"-co", "--contrast", "[-1.0-1.0]", "Set image contrast",
+    {"-co", "--contrast", "[-1..1]", "Set image contrast",
       [&](const std::string& arg) {
         camera.set_contrast(parse_arg<float>(arg, "Contrast"));
       }},
-    {"-br", "--brightness", "[0.0-1.0]", "Set image brightness",
+    {"-br", "--brightness", "[0..1]", "Set image brightness",
       [&](const std::string& arg) {
         camera.set_brightness(parse_arg<float>(arg, "Brightness"));
       }},
-    {"-sa", "--saturation", "[-1.0-1.0]", "Set image saturation",
+    {"-sa", "--saturation", "[-1..1]", "Set image saturation",
       [&](const std::string& arg) {
         camera.set_saturation(parse_arg<float>(arg, "Saturation"));
       }},

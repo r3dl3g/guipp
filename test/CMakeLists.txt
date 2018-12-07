@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("Gui-Test" CXX)
 
+set(BUILD_FOR_ARM OFF CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -15,6 +17,7 @@ if (APPLE)
 elseif (UNIX)
   add_definitions(-DX11 -std=c++11)
 endif()
+
 
 add_subdirectory(./../gui gui)
 
@@ -33,17 +36,24 @@ include_directories(${PROJECT_BINARY_DIR}
                     /opt/raspberrypi/sysroot/opt/vc/include
 )
 
-set (MMAL_LIBS mmal_core mmal_util mmal_vc_client rt vcsm vchiq_arm vcos)
-# bcm_host
-
 enable_testing()
 
-set(tests
-#    WindowTest
-#    BorderTest
-#    hello_world
-    raspicam_test
-)
+if (BUILD_FOR_ARM)
+    add_definitions(-DBUILD_FOR_ARM)
+    set (MMAL_LIBS mmal_core mmal_util mmal_vc_client rt vcsm vchiq_arm vcos)
+# bcm_host
+    set(tests
+        raspicam_test
+        spectrometer
+    )
+else()
+    set(tests
+        WindowTest
+        BorderTest
+        hello_world
+        spectrometer
+    )
+endif()
 
 message(STATUS "gui_libraries: ${gui_libraries}")
 
@@ -59,5 +69,7 @@ foreach(test ${tests})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)
 
-target_link_libraries(raspicam_test gui++-raspi-static ${MMAL_LIBS})
-
+if (BUILD_FOR_ARM)
+    target_link_libraries(raspicam_test gui++-raspi-static ${MMAL_LIBS})
+    target_link_libraries(spectrometer gui++-raspi-static ${MMAL_LIBS})
+endif()

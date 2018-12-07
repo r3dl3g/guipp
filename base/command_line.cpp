@@ -85,10 +85,18 @@ namespace basepp {
     void parser::show_help (std::ostream& out) {
       out << app_name << std::endl
           << "available options:"<< std::endl;
+      std::string::size_type min_len = 0;
       for (const arg& arg: commands) {
-        out << arg.short_cmd << arg.needed_arg
-            << "|" << arg.long_cmd << arg.needed_arg
-            << ": " << arg.explanation << std::endl;
+        min_len = std::max(min_len, arg.short_cmd.size() + arg.needed_arg.size() * 2 + 3 + arg.long_cmd.size());
+      }
+      for (const arg& arg: commands) {
+        int len = arg.short_cmd.size() + arg.needed_arg.size() * 2 + 3 + arg.long_cmd.size();
+        out << arg.short_cmd << arg.needed_arg << " | " << arg.long_cmd << arg.needed_arg;
+        while (len < min_len) {
+          out << ' ';
+          ++len;
+        }
+        out << " : " << arg.explanation << std::endl;
       }
     }
 

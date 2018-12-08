@@ -106,11 +106,13 @@ namespace gui {
     }
 
     template<BPP T>
-    inline void datamap<T>::create (const const_image_data<T>& data) {
-      info = data.get_info();
+    inline void datamap<T>::create (const const_image_data<T>& rhs) {
+      const bitmap_info& bmi = rhs.get_info();
+      info = bitmap_info(bmi.width, bmi.height, T);
       auto sz = info.mem_size();
-      this->data.resize(sz);
-      memcpy(this->data.data(), data.raw_data().data(0, sz), sz);
+      data.resize(sz);
+      image_data<T> lhs(data, info);
+      lhs = rhs;
     }
 
     template<BPP T>

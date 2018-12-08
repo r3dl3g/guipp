@@ -207,6 +207,38 @@ namespace gui {
 
     // --------------------------------------------------------------------------
 
+    template<BPP T>
+    image_data<T>& image_data<T>::operator= (const image_data<T>& rhs) {
+      if (info == rhs.get_info()) {
+        // copy 1:1
+        data.copy_from(rhs.raw_data(), info.mem_size());
+      } else {
+        // copy row:row
+        auto rows = std::min(info.height, rhs.get_info().height);
+        auto length = std::min(info.bytes_per_line, rhs.get_info().bytes_per_line);
+        for (int y = 0; y < rows; ++y) {
+          raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
+        }
+      }
+      return *this;
+    }
+
+    template<BPP T>
+    image_data<T>& image_data<T>::operator= (const const_image_data<T>& rhs) {
+      if (info == rhs.get_info()) {
+        // copy 1:1
+        data.copy_from(rhs.raw_data(), info.mem_size());
+      } else {
+        // copy row:row
+        auto rows = std::min(info.height, rhs.get_info().height);
+        auto length = std::min(info.bytes_per_line, rhs.get_info().bytes_per_line);
+        for (int y = 0; y < rows; ++y) {
+          raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
+        }
+      }
+      return *this;
+    }
+
   } //namespace draw
 
 } // namespace gui

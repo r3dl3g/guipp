@@ -96,6 +96,29 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<BPP T>
+    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
+    struct const_image_data {
+      using pixel_type = typename BPP2Pixel<T>::pixel;
+      using raw_type = basepp::array_wrapper<const byte>;
+      using row_type = basepp::array_wrapper<const pixel_type>;
+      static constexpr size_t pixel_size = sizeof(pixel_type);
+
+      const_image_data (raw_type data, const bitmap_info& info);
+      const row_type row (uint32_t y) const;
+      pixel_type pixel (uint32_t x, uint32_t y) const;
+      const bitmap_info& get_info () const;
+      const raw_type& raw_data () const;
+
+    private:
+      raw_type data;
+      bitmap_info info;
+    };
+
+    // --------------------------------------------------------------------------
+    template<BPP T>
     using image_row = basepp::array_wrapper<typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
@@ -112,28 +135,8 @@ namespace gui {
       const bitmap_info& get_info () const;
       raw_type& raw_data ();
 
-    private:
-      raw_type data;
-      bitmap_info info;
-    };
-
-    // --------------------------------------------------------------------------
-    template<BPP T>
-    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
-
-    // --------------------------------------------------------------------------
-    template<BPP T>
-    struct const_image_data {
-      using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = basepp::array_wrapper<const byte>;
-      using row_type = basepp::array_wrapper<const pixel_type>;
-      static constexpr size_t pixel_size = sizeof(pixel_type);
-
-      const_image_data (raw_type data, const bitmap_info& info);
-      const row_type row (uint32_t y) const;
-      pixel_type pixel (uint32_t x, uint32_t y) const;
-      const bitmap_info& get_info () const;
-      const raw_type& raw_data () const;
+      image_data& operator= (const image_data&);
+      image_data& operator= (const const_image_data<T>&);
 
     private:
       raw_type data;

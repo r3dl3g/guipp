@@ -43,6 +43,7 @@ namespace gui {
         uint32_t r = (v + D - 1) / D;
         return r + (r % M ? M - r % M : 0);
       }
+    }
 
 #ifdef X11
 
@@ -83,8 +84,6 @@ namespace gui {
       }
 
 #endif // WIN32
-
-    }
 
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info ()

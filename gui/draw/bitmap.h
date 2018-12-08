@@ -106,6 +106,9 @@ namespace gui {
       template<BPP T>
       pixmap (const datamap<T>& rhs);
 
+      template<BPP T>
+      pixmap (const const_image_data<T>& rhs);
+
       pixmap (uint32_t w, uint32_t h);
       pixmap (const core::uint32_size& sz);
       pixmap (const core::size& sz);

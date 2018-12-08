@@ -102,6 +102,22 @@ namespace gui {
       operator=(rhs);
     }
 
+    template<BPP T>
+    inline pixmap::pixmap (const const_image_data<T>& rhs) {
+      const auto& bmi = rhs.get_info();
+      create(bmi.size());
+      if (bits_per_pixel() == bmi.bits_per_pixel) {
+        put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
+      } else {
+        switch (bits_per_pixel()) {
+          case BPP::BW:   put(bwmap(datamap<T>(rhs))); break;
+          case BPP::GRAY: put(graymap(datamap<T>(rhs))); break;
+          case BPP::RGB:  put(rgbmap(datamap<T>(rhs)));  break;
+          case BPP::RGBA: put(rgbamap(datamap<T>(rhs))); break;
+        }
+      }
+    }
+
     inline pixmap::pixmap (uint32_t w, uint32_t h) {
       create(w, h);
     }

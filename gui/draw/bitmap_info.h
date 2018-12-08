@@ -38,8 +38,8 @@ namespace gui {
 
       uint32_t width;
       uint32_t height;
-      uint32_t bytes_per_line;
       BPP bits_per_pixel;
+      uint32_t bytes_per_line;
 
       core::uint32_size size () const;
 
@@ -52,6 +52,8 @@ namespace gui {
       bool operator== (const bitmap_info&) const;
 
     };
+
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp);
 
   } //namespace draw
 

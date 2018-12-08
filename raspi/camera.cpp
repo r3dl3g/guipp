@@ -120,13 +120,13 @@ namespace gui {
       }
 
       std::ostream& operator<< (std::ostream& out, const raspi_camera::size& v) {
-        out << v.w << ", " << v.h;
+        out << v.width << ", " << v.height;
         return out;
       }
 
       std::istream& operator>> (std::istream& in, raspi_camera::size& sz) {
         char delemiter;
-        in >> sz.w >> delemiter >> sz.h;
+        in >> sz.width >> delemiter >> sz.height;
         return in;
       }
 
@@ -491,12 +491,13 @@ namespace gui {
                                              static_cast<int32_t>(c.width * 65536.0F), static_cast<int32_t>(c.height * 65536.0F)}};
         check_mmal_status(mmal_port_parameter_set(m_camera->control, &crop.hdr));
 
-        int32_t w = static_cast<int32_t>(c.width * m_size.w);
-        int32_t h = static_cast<int32_t>(c.height * m_size.h);
+        uint32_t w = static_cast<uint32_t>(c.width * m_sensor_size.width);
+        uint32_t h = static_cast<uint32_t>(c.height * m_sensor_size.height);
 
+        set_size({w, h});
         MMAL_VIDEO_FORMAT_T& video = m_camera_still_port->format->es->video;
-//        video.crop.x = 0;//static_cast<int32_t>(c.x * m_size.w);
-//        video.crop.y = 0;//static_cast<int32_t>(c.y * m_size.h);
+        video.crop.x = static_cast<uint32_t>(c.x * m_sensor_size.width);
+        video.crop.y = static_cast<uint32_t>(c.y * m_sensor_size.height);
         video.crop.width = w;
         video.crop.height = h;
 //        video.width = w;
@@ -513,24 +514,27 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_abs_crop (const MMAL_RECT_T& c) {
-        float fx = 65536.0F / (float)m_size.w;
-        float fy = 65536.0F / (float)m_size.h;
+        float fx = 65536.0F / (float)m_sensor_size.width;
+        float fy = 65536.0F / (float)m_sensor_size.height;
         MMAL_PARAMETER_INPUT_CROP_T crop = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)},
                                             {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                                              static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)}};
         check_mmal_status(mmal_port_parameter_set(m_camera->control, &crop.hdr));
 
+        set_size({(uint32_t)c.width, (uint32_t)c.height});
         MMAL_VIDEO_FORMAT_T& video = m_camera_still_port->format->es->video;
         video.crop.x = c.x;
         video.crop.y = c.y;
         video.crop.width = c.width;
         video.crop.height = c.height;
+//        video.width = c.width;
+//        video.height = c.height;
         check_mmal_status(mmal_port_format_commit(m_camera_still_port));
       }
 
       MMAL_RECT_T raspi_camera::get_abs_crop () const {
-        float fx = (float)m_size.w / 65536.0F;
-        float fy = (float)m_size.h / 65536.0F;
+        float fx = (float)m_sensor_size.width / 65536.0F;
+        float fy = (float)m_sensor_size.height / 65536.0F;
 
         MMAL_PARAMETER_INPUT_CROP_T cr = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)}};
         check_mmal_status(mmal_port_parameter_get(m_camera->control, &cr.hdr));
@@ -589,16 +593,16 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_size (const size& sz) {
-        m_size = sz;
+        m_current_size = sz;
+//        MMAL_RECT_T& crop = m_camera_still_port->format->es->video.crop;
+//        crop.width = sz.width;
+//        crop.height = sz.height;
       }
 
       auto raspi_camera::get_size () const -> size {
-        return m_size;
-//        MMAL_PARAMETER_CAMERA_CONFIG_T config = get_camera_config();
-//        return size {
-//          .w = config.max_stills_w,
-//          .h = config.max_stills_h
-//        };
+        return m_current_size;
+//        MMAL_RECT_T& crop = m_camera_still_port->format->es->video.crop;
+//        return {(uint32_t)crop.width, (uint32_t)crop.height};
       }
 
       // --------------------------------------------------------------------------
@@ -611,7 +615,7 @@ namespace gui {
       void raspi_camera::set_camera_config (MMAL_PARAMETER_CAMERA_CONFIG_T camConfig) {
         camConfig.hdr = {MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)};
         check_mmal_status(mmal_port_parameter_set(m_camera->control, &camConfig.hdr));
-        m_size = {camConfig.max_stills_w, camConfig.max_stills_h};
+        m_current_size = m_sensor_size = {camConfig.max_stills_w, camConfig.max_stills_h};
       }
 
       // --------------------------------------------------------------------------

@@ -152,8 +152,8 @@ namespace gui {
         stereo_mode get_stereo_mode () const;
 
         struct size {
-          uint32_t w;
-          uint32_t h;
+          uint32_t width;
+          uint32_t height;
         };
 
         void set_size (const size&);
@@ -193,7 +193,9 @@ namespace gui {
 
         MMAL_COMPONENT_T* m_camera;
         MMAL_PORT_T* m_camera_still_port;
-        size m_size;
+
+        size m_sensor_size;
+        size m_current_size;
 
       };
 

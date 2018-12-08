@@ -77,6 +77,20 @@ namespace basepp {
     return data_ + offset;
   }
 
+  template<typename T>
+  array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<T>& rhs, size_t n) {
+    check_boundary(n - 1);
+    memcpy(data_, rhs.data(0, n), n);
+    return *this;
+  }
+
+  template<typename T>
+  array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<const T>& rhs, size_t n) {
+    check_boundary(n - 1);
+    memcpy(data_, rhs.data(0, n), n);
+    return *this;
+  }
+
   // --------------------------------------------------------------------------
   template<typename T>
   inline array_wrapper<T const>::array_wrapper (const type* data, size_t size)
@@ -131,6 +145,20 @@ namespace basepp {
   inline auto bit_array_wrapper<T>::sub (size_t offset, size_t n) -> bit_array_wrapper {
     check_boundary(offset + n - 1);
     return bit_array_wrapper(data_ + offset / 8, n);
+  }
+
+  template<typename T>
+  bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<T>& rhs, size_t n) {
+    check_boundary(n - 1);
+    memcpy(data_, rhs.data_, n / 8);
+    return *this;
+  }
+
+  template<typename T>
+  bit_array_wrapper<T>& bit_array_wrapper<T>::copy_from (const bit_array_wrapper<const T>& rhs, size_t n) {
+    check_boundary(n - 1);
+    memcpy(data_, rhs.data_, n / 8);
+    return *this;
   }
 
   // --------------------------------------------------------------------------

@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
     {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
       [&](const std::string& arg) {
         auto sz = parse_arg<raspi_camera::size>(arg, "Resize");
-        camera.set_resize({{}, MMAL_RESIZE_CROP, sz.w, sz.h, 0, false, false});
+        camera.set_resize({{}, MMAL_RESIZE_CROP, sz.width, sz.height, 0, false, false});
       }},
     {"-i", "--iso", "<ISO>", "Set sensor ISO",
       [&](const std::string& arg) {

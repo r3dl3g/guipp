@@ -78,6 +78,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::capture (uint32_t timeout) {
+        clear_data();
         m_camera.capture();
         vcos_semaphore_wait_timeout(&m_complete_semaphore, timeout);
       }
@@ -134,12 +135,10 @@ namespace gui {
         : super(camera)
       {
         auto camera_still_port = get_camera_still_port();
-        camera_still_port->format->encoding = encoding;//MMAL_ENCODING_BAYER_SRGGB10DPCM8;//MMAL_ENCODING_BAYER_SGRBG10P;//
-//        camera_still_port->buffer_size = camera_still_port->buffer_size_recommended;
+        camera_still_port->format->encoding = encoding;
         if (camera_still_port->buffer_size < camera_still_port->buffer_size_min) {
           camera_still_port->buffer_size = camera_still_port->buffer_size_min;
         }
-//        camera_still_port->buffer_num = camera_still_port->buffer_num_recommended;
         if (camera_still_port->buffer_num < camera_still_port->buffer_num_min) {
           camera_still_port->buffer_num = camera_still_port->buffer_num_min;
         }
@@ -158,15 +157,21 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::capture (uint32_t timeout) {
         auto camera_still_port = get_camera_still_port();
+
         camera_still_port->userdata = (struct MMAL_PORT_USERDATA_T*)this;
         check_mmal_status(mmal_port_enable(camera_still_port, raspi_encoder::callback_dispatcher));
+
         int num = mmal_queue_length(m_buffer_pool->queue);
         for (int i = 0; i < num; i++ ) {
-          check_mmal_status(mmal_port_send_buffer(camera_still_port, mmal_queue_get(m_buffer_pool->queue)));
+          MMAL_BUFFER_HEADER_T *new_buffer = mmal_queue_get(m_buffer_pool->queue);
+          if (new_buffer) {
+            check_mmal_status(mmal_port_send_buffer(camera_still_port, new_buffer));
+          }
         }
 
         super::capture(timeout);
 
+        check_mmal_status(mmal_port_flush(camera_still_port));
         check_mmal_status(mmal_port_disable(camera_still_port));
       }
 
@@ -214,6 +219,7 @@ namespace gui {
           m_buffer_pool = nullptr;
         }
         if (m_encoder_connection) {
+          mmal_connection_disable(m_encoder_connection);
           mmal_connection_destroy(m_encoder_connection);
           m_encoder_connection = nullptr;
         }
@@ -225,19 +231,25 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::capture (uint32_t timeout) {
+
         if (m_encoder_output_port->is_enabled) {
           throw std::invalid_argument("Encoder putput port has no enabled!");
         }
 
         m_encoder_output_port->userdata = (struct MMAL_PORT_USERDATA_T*)this;
         check_mmal_status(mmal_port_enable(m_encoder_output_port, raspi_encoder::callback_dispatcher));
+
         int num = mmal_queue_length(m_buffer_pool->queue);
         for (int i = 0; i < num; i++ ) {
-          check_mmal_status(mmal_port_send_buffer(m_encoder_output_port, mmal_queue_get(m_buffer_pool->queue)));
+          MMAL_BUFFER_HEADER_T *new_buffer = mmal_queue_get(m_buffer_pool->queue);
+          if (new_buffer) {
+            check_mmal_status(mmal_port_send_buffer(m_encoder_output_port, new_buffer));
+          }
         }
 
         super::capture(timeout);
 
+        check_mmal_status(mmal_port_flush(m_encoder_output_port));
         check_mmal_status(mmal_port_disable(m_encoder_output_port));
       }
 

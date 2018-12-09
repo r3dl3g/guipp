@@ -830,9 +830,9 @@ namespace gui {
 
 #endif // X11
 
-    template<BPP bpp>
-    void copy_frame_image (draw::const_image_data<bpp> src_img,
-                           draw::image_data<bpp> dest_img,
+    template<PixelFormat px_fmt>
+    void copy_frame_image (draw::const_image_data<px_fmt> src_img,
+                           draw::image_data<px_fmt> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
                            const core::uint32_rect& frame) {
 
@@ -853,22 +853,22 @@ namespace gui {
 
       // top left
       if (top && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, 0}, {0, 0, left, top});
+        copy::sub<px_fmt>(src_img, dest_img, {0, 0}, {0, 0, left, top});
       }
 
       // top right
       if (top && right) {
-        copy::sub<bpp>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
+        copy::sub<px_fmt>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
+        copy::sub<px_fmt>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
       }
 
       if (bottom && right) {
         // bottom right
-        copy::sub<bpp>(src_img, dest_img,
+        copy::sub<px_fmt>(src_img, dest_img,
                        {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
       }
 
@@ -880,42 +880,42 @@ namespace gui {
 
         // top center
         if (top && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, 0, source_inner_width, top},
                             {left, 0, target_inner_width, top});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, source_bottom, source_inner_width, bottom},
                             {left, target_bottom, target_inner_width, bottom});
         }
 
         // left center
         if (left && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {0, top, left, source_inner_height},
                             {0, top, left, target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {source_right, top, right, source_inner_height},
                             {target_right, top, right, target_inner_height});
         }
 
         // center
         if (target_inner_width && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, top, source_inner_width, source_inner_height},
                             {left, top, target_inner_width, target_inner_height});
         }
       }
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     void draw_image_frame (const graphics& g,
                            const core::point& pt,
                            const core::rectangle rect,
@@ -938,22 +938,22 @@ namespace gui {
     }
 
     template<>
-    void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::BW>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::GRAY>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::RGB>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::RGBA>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 

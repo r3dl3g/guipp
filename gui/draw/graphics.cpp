@@ -522,11 +522,11 @@ namespace gui {
         } else {
           switch (depth()) {
             case 24: {
-              return copy_from(pixmap(bmp.get<BPP::RGB>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<PixelFormat::RGB>()).get_id(), src, pt);
               break;
             }
             case 32: {
-              return copy_from(pixmap(bmp.get<BPP::RGBA>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<PixelFormat::RGBA>()).get_id(), src, pt);
               break;
             }
           }

@@ -76,7 +76,7 @@ namespace gui {
   typedef std::vector<byte> blob;
 
   // --------------------------------------------------------------------------
-  enum class BPP : int {
+  enum class PixelFormat : int {
     Undefined = 0,
     BW,
     GRAY,
@@ -90,16 +90,16 @@ namespace gui {
 
   constexpr byte color_depths[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
 
-  constexpr byte get_color_depth (BPP bpp) {
-    return color_depths[static_cast<byte>(bpp)];
+  constexpr byte get_color_depth (PixelFormat px_fmt) {
+    return color_depths[static_cast<byte>(px_fmt)];
   }
 
-  BPP get_BPP (int bits_per_pixel, int byte_order);
-  int get_BPP_byte_order (BPP bpp);
+  PixelFormat get_pixel_format (int pixel_format, int byte_order);
+  int get_pixel_format_byte_order (PixelFormat px_fmt);
 
-  template<BPP bpp>
+  template<PixelFormat px_fmt>
   struct color_depth {
-    static constexpr int bits = color_depths[static_cast<byte>(bpp)];
+    static constexpr int bits = color_depths[static_cast<byte>(px_fmt)];
   };
 
   // --------------------------------------------------------------------------
@@ -208,7 +208,7 @@ namespace gui {
 
       GUIPP_CORE_EXPORT void sync ();
 
-      GUIPP_CORE_EXPORT BPP get_device_bits_per_pixel ();
+      GUIPP_CORE_EXPORT PixelFormat get_device_pixel_format ();
       GUIPP_CORE_EXPORT int get_device_depth ();
 
       GUIPP_CORE_EXPORT os::key_state get_key_state ();

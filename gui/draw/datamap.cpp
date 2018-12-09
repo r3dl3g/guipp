@@ -62,8 +62,8 @@ namespace gui {
       info = bmi;
     }
 
-    BPP basic_datamap::bits_per_pixel () const {
-      return info.bits_per_pixel;
+    PixelFormat basic_datamap::pixel_format () const {
+      return info.pixel_format;
     }
 
     void basic_datamap::clear () {

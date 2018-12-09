@@ -178,22 +178,22 @@ namespace gui {
 #pragma pack(pop)
 
     // --------------------------------------------------------------------------
-    template<BPP T> struct BPP2Pixel {};
-    template<> struct BPP2Pixel<BPP::BW>    { using pixel = bw_pixel; };
-    template<> struct BPP2Pixel<BPP::GRAY>  { using pixel = gray_pixel ; };
-    template<> struct BPP2Pixel<BPP::RGB>   { using pixel = rgb_pixel; };
-    template<> struct BPP2Pixel<BPP::RGBA>  { using pixel = rgba_pixel; };
-    template<> struct BPP2Pixel<BPP::BGR>   { using pixel = bgr_pixel; };
-    template<> struct BPP2Pixel<BPP::BGRA>  { using pixel = bgra_pixel; };
-    template<> struct BPP2Pixel<BPP::ARGB>  { using pixel = argb_pixel; };
-    template<> struct BPP2Pixel<BPP::ABGR>  { using pixel = abgr_pixel; };
+    template<PixelFormat T> struct BPP2Pixel {};
+    template<> struct BPP2Pixel<PixelFormat::BW>    { using pixel = bw_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::GRAY>  { using pixel = gray_pixel ; };
+    template<> struct BPP2Pixel<PixelFormat::RGB>   { using pixel = rgb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::RGBA>  { using pixel = rgba_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGR>   { using pixel = bgr_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGRA>  { using pixel = bgra_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = argb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = abgr_pixel; };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     struct const_image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<const byte>;
@@ -212,11 +212,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     using image_row = basepp::array_wrapper<typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     struct image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<byte>;

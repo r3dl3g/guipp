@@ -37,17 +37,17 @@ namespace gui {
 
   namespace color {
 
-    color_parts get_color_parts (BPP bpp) {
-      switch (bpp) {
-        case BPP::RGB:
-        case BPP::RGBA:
+    color_parts get_color_parts (PixelFormat px_fmt) {
+      switch (px_fmt) {
+        case PixelFormat::RGB:
+        case PixelFormat::RGBA:
           return rgba_parts::get_color_parts();
-        case BPP::BGR:
-        case BPP::BGRA:
+        case PixelFormat::BGR:
+        case PixelFormat::BGRA:
           return bgra_parts::get_color_parts();
-        case BPP::ARGB:
+        case PixelFormat::ARGB:
           return argb_parts::get_color_parts();
-        case BPP::ABGR:
+        case PixelFormat::ABGR:
           return abgr_parts::get_color_parts();
         default:
           return gray_parts::get_color_parts();

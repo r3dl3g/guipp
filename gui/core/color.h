@@ -98,7 +98,7 @@ namespace gui {
       }
     };
 
-    color_parts get_color_parts (BPP bpp);
+    color_parts get_color_parts (PixelFormat px_fmt);
 
     template<os::platform P = os::system_platform>
     struct part_defaults {};

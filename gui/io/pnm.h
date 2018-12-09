@@ -55,79 +55,79 @@ namespace gui {
     template<PNM>
     struct PNM2BPP {};
 
-    template<> struct PNM2BPP<PNM::P1> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P2> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P3> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = false;  };
-    template<> struct PNM2BPP<PNM::P4> { static constexpr BPP bpp = BPP::BW;    static constexpr bool bin = true;   };
-    template<> struct PNM2BPP<PNM::P5> { static constexpr BPP bpp = BPP::GRAY;  static constexpr bool bin = true;   };
-    template<> struct PNM2BPP<PNM::P6> { static constexpr BPP bpp = BPP::RGB;   static constexpr bool bin = true;   };
+    template<> struct PNM2BPP<PNM::P1> { static constexpr PixelFormat px_fmt = PixelFormat::BW;    static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P2> { static constexpr PixelFormat px_fmt = PixelFormat::GRAY;  static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P3> { static constexpr PixelFormat px_fmt = PixelFormat::RGB;   static constexpr bool bin = false;  };
+    template<> struct PNM2BPP<PNM::P4> { static constexpr PixelFormat px_fmt = PixelFormat::BW;    static constexpr bool bin = true;   };
+    template<> struct PNM2BPP<PNM::P5> { static constexpr PixelFormat px_fmt = PixelFormat::GRAY;  static constexpr bool bin = true;   };
+    template<> struct PNM2BPP<PNM::P6> { static constexpr PixelFormat px_fmt = PixelFormat::RGB;   static constexpr bool bin = true;   };
 
-    inline BPP pnm2bpp (PNM pnm) {
+    inline PixelFormat pnm2bpp (PNM pnm) {
       switch (pnm) {
         case PNM::P1:
         case PNM::P4:
-          return BPP::BW;
+          return PixelFormat::BW;
         case PNM::P2:
         case PNM::P5:
-          return BPP::GRAY;
+          return PixelFormat::GRAY;
         case PNM::P3:
         case PNM::P6:
-          return BPP::RGB;
+          return PixelFormat::RGB;
       }
-      return BPP::Undefined;
+      return PixelFormat::Undefined;
     }
 
-    template<BPP, bool>
+    template<PixelFormat, bool>
     struct BPP2PNM {};
 
-    template<> struct BPP2PNM<BPP::BW, false>   {static constexpr PNM pnm = PNM::P1; };
-    template<> struct BPP2PNM<BPP::GRAY, false> {static constexpr PNM pnm = PNM::P2; };
-    template<> struct BPP2PNM<BPP::RGB, false>  {static constexpr PNM pnm = PNM::P3; };
-    template<> struct BPP2PNM<BPP::RGBA, false> {static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<PixelFormat::BW, false>   {static constexpr PNM pnm = PNM::P1; };
+    template<> struct BPP2PNM<PixelFormat::GRAY, false> {static constexpr PNM pnm = PNM::P2; };
+    template<> struct BPP2PNM<PixelFormat::RGB, false>  {static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<PixelFormat::RGBA, false> {static constexpr PNM pnm = PNM::P3; };
 
-    template<> struct BPP2PNM<BPP::BW, true>    {static constexpr PNM pnm = PNM::P4; };
-    template<> struct BPP2PNM<BPP::GRAY, true>  {static constexpr PNM pnm = PNM::P5; };
-    template<> struct BPP2PNM<BPP::RGB, true>   {static constexpr PNM pnm = PNM::P6; };
-    template<> struct BPP2PNM<BPP::RGBA, true>  {static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<PixelFormat::BW, true>    {static constexpr PNM pnm = PNM::P4; };
+    template<> struct BPP2PNM<PixelFormat::GRAY, true>  {static constexpr PNM pnm = PNM::P5; };
+    template<> struct BPP2PNM<PixelFormat::RGB, true>   {static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<PixelFormat::RGBA, true>  {static constexpr PNM pnm = PNM::P6; };
 
-    template<BPP>
+    template<PixelFormat>
     struct BPP2MAX {};
 
-    template<> struct BPP2MAX<BPP::BW> { static constexpr int max = 0; };
-    template<> struct BPP2MAX<BPP::GRAY> { static constexpr int max = 255; };
-    template<> struct BPP2MAX<BPP::RGB> { static constexpr int max = 255; };
-    template<> struct BPP2MAX<BPP::RGBA> { static constexpr int max = 255; };
+    template<> struct BPP2MAX<PixelFormat::BW> { static constexpr int max = 0; };
+    template<> struct BPP2MAX<PixelFormat::GRAY> { static constexpr int max = 255; };
+    template<> struct BPP2MAX<PixelFormat::RGB> { static constexpr int max = 255; };
+    template<> struct BPP2MAX<PixelFormat::RGBA> { static constexpr int max = 255; };
 
     // --------------------------------------------------------------------------
     GUIPP_IO_EXPORT void write_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
     GUIPP_IO_EXPORT draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
 
     template<PNM i>
-    void write_pnm (std::ostream& out, const draw::const_image_data<PNM2BPP<i>::bpp>&);
+    void write_pnm (std::ostream& out, const draw::const_image_data<PNM2BPP<i>::px_fmt>&);
 
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<BPP::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<BPP::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<BPP::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<BPP::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
 
     template<bool BIN>
-    void write_pnm_rgba (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+    void write_pnm_rgba (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
 
-    template<> GUIPP_IO_EXPORT void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
-    template<> GUIPP_IO_EXPORT void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<BPP::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
 
     // --------------------------------------------------------------------------
     template<PNM i>
-    draw::datamap<PNM2BPP<i>::bpp> read_pnm (std::istream& in, const draw::bitmap_info&);
+    draw::datamap<PNM2BPP<i>::px_fmt> read_pnm (std::istream& in, const draw::bitmap_info&);
 
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::BW>   read_pnm<PNM::P1> (std::istream&, const draw::bitmap_info& bmi);
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::GRAY> read_pnm<PNM::P2> (std::istream&, const draw::bitmap_info& bmi);
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::RGB>  read_pnm<PNM::P3> (std::istream&, const draw::bitmap_info& bmi);
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::BW>   read_pnm<PNM::P4> (std::istream&, const draw::bitmap_info& bmi);
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::GRAY> read_pnm<PNM::P5> (std::istream&, const draw::bitmap_info& bmi);
-    template<> GUIPP_IO_EXPORT draw::datamap<BPP::RGB>  read_pnm<PNM::P6> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::BW>   read_pnm<PNM::P1> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::GRAY> read_pnm<PNM::P2> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::RGB>  read_pnm<PNM::P3> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::BW>   read_pnm<PNM::P4> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::GRAY> read_pnm<PNM::P5> (std::istream&, const draw::bitmap_info& bmi);
+    template<> GUIPP_IO_EXPORT draw::datamap<PixelFormat::RGB>  read_pnm<PNM::P6> (std::istream&, const draw::bitmap_info& bmi);
 
     // --------------------------------------------------------------------------
     struct pnm_const {
@@ -171,23 +171,23 @@ namespace gui {
 
     };
 
-    template<BPP T>
+    template<PixelFormat T>
     void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary = true);
 
-    template<BPP T>
+    template<PixelFormat T>
     void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary = true);
 
-    template<BPP T>
+    template<PixelFormat T>
     void load_pnm (std::istream& in, draw::datamap<T>& bmp);
 
-    template<BPP T>
+    template<PixelFormat T>
     void load_pnm (const std::string& name, draw::datamap<T>& bmp);
 
     GUIPP_IO_EXPORT void load_pnm (std::istream& in, draw::basic_datamap& bmp);
     GUIPP_IO_EXPORT void load_pnm (const std::string& name, draw::basic_datamap& bmp);
 
     // --------------------------------------------------------------------------
-    template<bool BIN, BPP T>
+    template<bool BIN, PixelFormat T>
     class opnm {
     public:
       opnm (const draw::datamap<T>& bmp);
@@ -198,11 +198,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bool BIN, BPP T>
+    template<bool BIN, PixelFormat T>
     std::ostream& operator<< (std::ostream& out, const opnm<BIN, T>& p);
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     class ipnm {
     public:
       ipnm (draw::datamap<T>& bmp);
@@ -214,10 +214,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     std::istream &operator>> (std::istream& in, ipnm<T>& p);
 
-    template<BPP T>
+    template<PixelFormat T>
     std::istream &operator>> (std::istream& in, ipnm<T>&& p);
 
     // --------------------------------------------------------------------------
@@ -233,7 +233,7 @@ namespace gui {
       void open (const std::string& fname);
 
       void operator<< (const draw::pixmap& b);
-      void operator<< (const draw::datamap<PNM2BPP<i>::bpp>& b);
+      void operator<< (const draw::datamap<PNM2BPP<i>::px_fmt>& b);
 
     private:
       std::ofstream out;
@@ -252,7 +252,7 @@ namespace gui {
       void open (const std::string& fname);
 
       void operator>> (draw::pixmap& b);
-      void operator>> (draw::datamap<PNM2BPP<i>::bpp>& b);
+      void operator>> (draw::datamap<PNM2BPP<i>::px_fmt>& b);
 
     private:
       std::ifstream in;

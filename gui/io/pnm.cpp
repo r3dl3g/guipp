@@ -106,7 +106,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P6> (std::ostream& out, const draw::const_image_data<BPP::RGB>& img) {
+    void write_pnm<PNM::P6> (std::ostream& out, const draw::const_image_data<PixelFormat::RGB>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -121,7 +121,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm_rgba<true> (std::ostream& out, const draw::const_image_data<BPP::RGBA>& img) {
+    void write_pnm_rgba<true> (std::ostream& out, const draw::const_image_data<PixelFormat::RGBA>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -154,7 +154,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P5> (std::ostream& out, const draw::const_image_data<BPP::GRAY>& img) {
+    void write_pnm<PNM::P5> (std::ostream& out, const draw::const_image_data<PixelFormat::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
       out.write(reinterpret_cast<const char*>(img.raw_data().data(0, n)), n);
@@ -181,18 +181,18 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<basepp::bit_order O>
-    void write_pnm4_line (std::ostream&, const draw::const_image_data<BPP::BW>::raw_type, int);
+    void write_pnm4_line (std::ostream&, const draw::const_image_data<PixelFormat::BW>::raw_type, int);
 
     template<>
     inline void write_pnm4_line<basepp::bit_order::msb> (std::ostream& out,
-                                                         const draw::const_image_data<BPP::BW>::raw_type data,
+                                                         const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       out.write(reinterpret_cast<const char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
     inline void write_pnm4_line<basepp::bit_order::lsb> (std::ostream& out,
-                                                         const draw::const_image_data<BPP::BW>::raw_type data,
+                                                         const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
@@ -203,7 +203,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P4> (std::ostream& out, const draw::const_image_data<BPP::BW>& img) {
+    void write_pnm<PNM::P4> (std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       int bytes = (bmi.width + 7) / 8;
       const auto& raw = img.raw_data();
@@ -214,15 +214,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<basepp::bit_order O>
-    void read_pnm4_line (std::istream& in, draw::image_data<BPP::BW>::raw_type, int bytes);
+    void read_pnm4_line (std::istream& in, draw::image_data<PixelFormat::BW>::raw_type, int bytes);
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::msb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::msb>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       in.read(reinterpret_cast<char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::lsb>(std::istream& in, draw::image_data<BPP::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::lsb>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       std::vector<byte> line(bytes);
       in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {
@@ -245,7 +245,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P3> (std::ostream& out, const draw::const_image_data<BPP::RGB>& img) {
+    void write_pnm<PNM::P3> (std::ostream& out, const draw::const_image_data<PixelFormat::RGB>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -261,7 +261,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm_rgba<false> (std::ostream& out, const draw::const_image_data<BPP::RGBA>& img) {
+    void write_pnm_rgba<false> (std::ostream& out, const draw::const_image_data<PixelFormat::RGBA>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -298,7 +298,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P2>(std::ostream& out, const draw::const_image_data<BPP::GRAY>& img) {
+    void write_pnm<PNM::P2>(std::ostream& out, const draw::const_image_data<PixelFormat::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -329,7 +329,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P1>(std::ostream& out, const draw::const_image_data<BPP::BW>& img) {
+    void write_pnm<PNM::P1>(std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);

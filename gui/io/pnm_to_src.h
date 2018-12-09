@@ -42,21 +42,21 @@ namespace gui {
       // --------------------------------------------------------------------------
       GUIPP_IO_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
-      template<BPP p>
+      template<PixelFormat p>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
 
       GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, draw::bw_pixel pixel);
       GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, draw::gray_pixel pixel);
       GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel);
 
-      template<BPP T>
+      template<PixelFormat T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);
 
-      template<BPP T>
+      template<PixelFormat T>
       void save_pnm_src (const std::string& filename, const draw::datamap<T>& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
-      template<BPP T>
+      template<PixelFormat T>
       class opnm {
       public:
         opnm (const draw::datamap<T>& bmp, const std::string& name);
@@ -68,7 +68,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<BPP T>
+      template<PixelFormat T>
       std::ostream& operator<< (std::ostream& out, const opnm<T>& p);
 
     } // namespace src

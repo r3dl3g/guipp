@@ -97,27 +97,27 @@ namespace gui {
     inline pixmap::pixmap ()
     {}
 
-    template<BPP T>
+    template<PixelFormat T>
     inline pixmap::pixmap (const datamap<T>& rhs) {
       operator=(rhs);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline pixmap::pixmap (const const_image_data<T>& rhs) {
       const auto& bmi = rhs.get_info();
       create(bmi.size());
-      if (get_color_depth(bits_per_pixel()) == get_color_depth(bmi.bits_per_pixel)) {
+      if (get_color_depth(pixel_format()) == get_color_depth(bmi.pixel_format)) {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
-        switch (bits_per_pixel()) {
-          case BPP::BW:   put(bwmap(datamap<T>(rhs))); break;
-          case BPP::GRAY: put(graymap(datamap<T>(rhs))); break;
-          case BPP::RGB:  put(rgbmap(datamap<T>(rhs)));  break;
-          case BPP::RGBA: put(rgbamap(datamap<T>(rhs))); break;
-          case BPP::BGR:  put(bgrmap(datamap<T>(rhs)));  break;
-          case BPP::BGRA: put(bgramap(datamap<T>(rhs)));  break;
-          case BPP::ARGB: put(argbmap(datamap<T>(rhs)));  break;
-          case BPP::ABGR: put(abgrmap(datamap<T>(rhs)));  break;
+        switch (pixel_format()) {
+          case PixelFormat::BW:   put(bwmap(datamap<T>(rhs))); break;
+          case PixelFormat::GRAY: put(graymap(datamap<T>(rhs))); break;
+          case PixelFormat::RGB:  put(rgbmap(datamap<T>(rhs)));  break;
+          case PixelFormat::RGBA: put(rgbamap(datamap<T>(rhs))); break;
+          case PixelFormat::BGR:  put(bgrmap(datamap<T>(rhs)));  break;
+          case PixelFormat::BGRA: put(bgramap(datamap<T>(rhs)));  break;
+          case PixelFormat::ARGB: put(argbmap(datamap<T>(rhs)));  break;
+          case PixelFormat::ABGR: put(abgrmap(datamap<T>(rhs)));  break;
         }
       }
     }
@@ -142,37 +142,37 @@ namespace gui {
       create(sz.os_width(), sz.os_height());
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     void pixmap::invert () {
       datamap<T> data = get<T>();
       data.invert();
       operator=(data);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     void pixmap::put (const datamap<T>& rhs) {
       const auto& bmi = rhs.get_info();
       const auto raw = rhs.get_raw();
       put(raw.raw_data().data(0, bmi.mem_size()), bmi);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     void pixmap::operator= (const datamap<T>& rhs) {
       if (rhs) {
         const auto& bmi = rhs.get_info();
         create(bmi.size());
-        if (get_color_depth(bits_per_pixel()) == get_color_depth(bmi.bits_per_pixel)) {
+        if (get_color_depth(pixel_format()) == get_color_depth(bmi.pixel_format)) {
           put(rhs);
         } else {
-          switch (bits_per_pixel()) {
-            case BPP::BW:   put(bwmap(rhs)); break;
-            case BPP::GRAY: put(graymap(rhs)); break;
-            case BPP::RGB:  put(rgbmap(rhs));  break;
-            case BPP::RGBA: put(rgbamap(rhs)); break;
-            case BPP::BGR:  put(bgrmap(rhs));  break;
-            case BPP::BGRA: put(bgramap(rhs));  break;
-            case BPP::ARGB: put(argbmap(rhs));  break;
-            case BPP::ABGR: put(abgrmap(rhs));  break;
+          switch (pixel_format()) {
+            case PixelFormat::BW:   put(bwmap(rhs)); break;
+            case PixelFormat::GRAY: put(graymap(rhs)); break;
+            case PixelFormat::RGB:  put(rgbmap(rhs));  break;
+            case PixelFormat::RGBA: put(rgbamap(rhs)); break;
+            case PixelFormat::BGR:  put(bgrmap(rhs));  break;
+            case PixelFormat::BGRA: put(bgramap(rhs));  break;
+            case PixelFormat::ARGB: put(argbmap(rhs));  break;
+            case PixelFormat::ABGR: put(abgrmap(rhs));  break;
           }
         }
       } else {
@@ -180,31 +180,31 @@ namespace gui {
       }
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     datamap<T> pixmap::get () const {
       blob data;
       bitmap_info bmi;
       get(data, bmi);
       const auto img = basepp::array_wrapper<const byte>(data);
 
-      if (bmi.bits_per_pixel == T) {
+      if (bmi.pixel_format == T) {
         return datamap<T>(const_image_data<T>(img, bmi));
       } else {
-        switch (bits_per_pixel()) {
-          case BPP::BW:   return datamap<T>(datamap<BPP::BW>(const_image_data<BPP::BW>(img, bmi)));
-          case BPP::GRAY: return datamap<T>(datamap<BPP::GRAY>(const_image_data<BPP::GRAY>(img, bmi)));
-          case BPP::RGB:  return datamap<T>(datamap<BPP::RGB>(const_image_data<BPP::RGB>(img, bmi)));
-          case BPP::RGBA: return datamap<T>(datamap<BPP::RGBA>(const_image_data<BPP::RGBA>(img, bmi)));
-          case BPP::BGR:  return datamap<T>(datamap<BPP::BGR>(const_image_data<BPP::BGR>(img, bmi)));
-          case BPP::BGRA: return datamap<T>(datamap<BPP::BGRA>(const_image_data<BPP::BGRA>(img, bmi)));
-          case BPP::ARGB: return datamap<T>(datamap<BPP::ARGB>(const_image_data<BPP::ARGB>(img, bmi)));
-          case BPP::ABGR: return datamap<T>(datamap<BPP::ABGR>(const_image_data<BPP::ABGR>(img, bmi)));
+        switch (pixel_format()) {
+          case PixelFormat::BW:   return datamap<T>(datamap<PixelFormat::BW>(const_image_data<PixelFormat::BW>(img, bmi)));
+          case PixelFormat::GRAY: return datamap<T>(datamap<PixelFormat::GRAY>(const_image_data<PixelFormat::GRAY>(img, bmi)));
+          case PixelFormat::RGB:  return datamap<T>(datamap<PixelFormat::RGB>(const_image_data<PixelFormat::RGB>(img, bmi)));
+          case PixelFormat::RGBA: return datamap<T>(datamap<PixelFormat::RGBA>(const_image_data<PixelFormat::RGBA>(img, bmi)));
+          case PixelFormat::BGR:  return datamap<T>(datamap<PixelFormat::BGR>(const_image_data<PixelFormat::BGR>(img, bmi)));
+          case PixelFormat::BGRA: return datamap<T>(datamap<PixelFormat::BGRA>(const_image_data<PixelFormat::BGRA>(img, bmi)));
+          case PixelFormat::ARGB: return datamap<T>(datamap<PixelFormat::ARGB>(const_image_data<PixelFormat::ARGB>(img, bmi)));
+          case PixelFormat::ABGR: return datamap<T>(datamap<PixelFormat::ABGR>(const_image_data<PixelFormat::ABGR>(img, bmi)));
           default:        return datamap<T>();
         }
       }
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     pixmap::operator datamap<T> () const {
       return get<T>();
     }

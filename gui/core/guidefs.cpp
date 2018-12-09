@@ -34,36 +34,36 @@
 
 namespace gui {
 
-  BPP get_BPP (int bits_per_pixel, int byte_order) {
-    switch (bits_per_pixel) {
-      case 1: return BPP::BW;
-      case 8: return BPP::GRAY;
+  PixelFormat get_pixel_format (int pixel_format, int byte_order) {
+    switch (pixel_format) {
+      case 1: return PixelFormat::BW;
+      case 8: return PixelFormat::GRAY;
       default:
       case 24:
         switch (byte_order) {
-          case 0: return BPP::BGR;
-          case 1: return BPP::RGB;
+          case 0: return PixelFormat::BGR;
+          case 1: return PixelFormat::RGB;
         }
       case 32:
         switch (byte_order) {
-          case 0: return BPP::BGRA;
-          case 1: return BPP::RGBA;
+          case 0: return PixelFormat::BGRA;
+          case 1: return PixelFormat::RGBA;
         }
     }
   }
 
-  int get_BPP_byte_order (BPP bpp) {
-    switch (bpp) {
-      case BPP::BGR:
-      case BPP::BGRA:
-      case BPP::ABGR:
+  int get_pixel_format_byte_order (PixelFormat px_fmt) {
+    switch (px_fmt) {
+      case PixelFormat::BGR:
+      case PixelFormat::BGRA:
+      case PixelFormat::ABGR:
       default:
         return 0;
-      case BPP::BW:
-      case BPP::GRAY:
-      case BPP::RGB:
-      case BPP::RGBA:
-      case BPP::ARGB:
+      case PixelFormat::BW:
+      case PixelFormat::GRAY:
+      case PixelFormat::RGB:
+      case PixelFormat::RGBA:
+      case PixelFormat::ARGB:
         return 1;
     }
   }
@@ -191,19 +191,19 @@ namespace gui {
 #endif // COCOA
       }
 
-      BPP get_device_bits_per_pixel () {
+      PixelFormat get_device_pixel_format () {
 #ifdef WIN32
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return get_BPP(BPP(dbpp), 1);
+        return get_BPP(PixelFormat(dbpp), 1);
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
-        return get_BPP(DefaultDepth(inst, get_screen()), ImageByteOrder(inst));
+        return get_pixel_format(DefaultDepth(inst, get_screen()), ImageByteOrder(inst));
 #endif // X11
 #ifdef COCOA
-        return BPP::RGB;
+        return PixelFormat::RGB;
 #endif // COCOA
       }
 

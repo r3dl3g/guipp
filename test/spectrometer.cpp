@@ -397,8 +397,8 @@ void spectrometer::display () {
   auto sz = camera.get_size();
   LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line();
   if (data.size()) {
-    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, BPP::RGB);
-    const_image_data<BPP::RGB> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
+    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
+    const_image_data<PixelFormat::RGB> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
 //  rgbmap image(capture_view.size());
 //  image.stretch_from(rgbmap(image_data));
     capture_view.image = image_data;

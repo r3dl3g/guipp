@@ -29,11 +29,8 @@
 //
 // Library includes
 //
-#include <gui/core/color.h>
+#include "core.h"
 
-// --------------------------------------------------------------------------
-#include <interface/mmal/mmal.h>
-#include <interface/mmal/util/mmal_connection.h>
 
 namespace gui {
 
@@ -45,11 +42,38 @@ namespace gui {
       // --------------------------------------------------------------------------
       class raspi_camera {
       public:
+        typedef uint32_t SensorMode;
+
+        enum class SensorModeV1 : SensorMode {
+          SM_1920x1080_16_9_video_partial_fov = 1,
+          SM_2592x1944_4_3_video_still_low_fps,
+          SM_2592x1944_4_3_video_still_high_fps,
+          SM_1296x972_4_3_video_2x2,
+          SM_1296x730_16_9_video_2x2,
+          SM_640x480_4_3_video_4x4_low_fps,
+          SM_640x480_4_3_video_4x4_high_fps
+        };
+
+        enum class SensorModeV2 : SensorMode {
+          SM_1920x1080_16_9_video_partial_fov = 1,
+          SM_3280x2464_4_3_video_still_low_fps,
+          SM_3280x2464_4_3_video_still_high_fps,
+          SM_1640x1232_4_3_video_2x2,
+          SM_1640x922_16_9_video_2x2,
+          SM_1280x720_16_9_video_partial_fov_2x2,
+          SM_640x480_4_3_video_partial_fov_2x2
+        };
+
         raspi_camera (int num = 0);
         ~raspi_camera ();
 
         void set_defaults (int speed, int iso = 100);
         void show_current (std::ostream& out) const;
+
+        void set_sensor_mode (SensorModeV1 mode);
+        void set_sensor_mode (SensorModeV2 mode);
+        void set_sensor_mode (SensorMode mode);
+        SensorMode get_sensor_mode () const;
 
         void set_saturation (float saturation);
         float get_saturation () const;
@@ -92,6 +116,12 @@ namespace gui {
 
         void set_exposure_compensation (int exp_comp);
         int get_exposure_compensation () const;
+
+        void set_burst_mode (bool);
+        bool get_burst_mode () const;
+
+        void set_raw_mode (bool);
+        bool get_raw_mode () const;
 
         struct awb_gains {
           float r_gain;
@@ -159,23 +189,35 @@ namespace gui {
         void set_size (const size&);
         size get_size () const;
 
+        uint32_t get_pixel_per_line () const;
+
         MMAL_PARAMETER_CAMERA_CONFIG_T get_camera_config () const;
         void set_camera_config (MMAL_PARAMETER_CAMERA_CONFIG_T config);
 
         MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info (int num = -1) const;
         MMAL_PARAMETER_CAMERA_INFO_T get_config () const;
 
+#ifdef CAMERA_RX_CONFIG_AVAILABLE
         MMAL_PARAMETER_CAMERA_RX_CONFIG_T get_camera_rx_config () const;
         void set_camera_rx_config (MMAL_PARAMETER_CAMERA_RX_CONFIG_T config);
+#endif // CAMERA_RX_CONFIG_AVAILABLE
 
+#ifdef RESIZE_AVAILABLE
         MMAL_PARAMETER_RESIZE_T get_resize () const;
         void set_resize (MMAL_PARAMETER_RESIZE_T config);
+#endif // RESIZE_AVAILABLE
 
         void capture ();
 
+        void enable ();
+        void disable ();
+
+        core::port get_camera_still_port () const;
+
       protected:
-        friend class raspi_encoder;
-        MMAL_PORT_T* get_camera_still_port () const;
+
+        void init (int num);
+        void fini ();
 
       private:
         void set_rational (uint32_t id, float v, float min, float max);
@@ -191,8 +233,8 @@ namespace gui {
         void set_camera_num (int32_t num);
         int32_t get_camera_num () const;
 
-        MMAL_COMPONENT_T* m_camera;
-        MMAL_PORT_T* m_camera_still_port;
+        core::component m_camera;
+//        port m_camera_still_port;
 
         size m_sensor_size;
         size m_current_size;

@@ -158,7 +158,7 @@ namespace gui {
         return {
           static_cast<uint32_t>(w),
           static_cast<uint32_t>(h),
-          BPP(d)
+          get_BPP(d, ImageByteOrder(display))
         };
       }
       return {0, 0, 0, BPP::Undefined};
@@ -169,23 +169,31 @@ namespace gui {
       //auto screen = core::global::get_screen();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
+      color::color_parts parts = color::get_color_parts(bmi.bits_per_pixel);
+
+//      unsigned long red = 0xFFUL << parts.red;
+//      unsigned long green = 0xFFUL << parts.green;
+//      unsigned long blue = 0xFFUL << parts.blue;
+
+      int byte_order = get_BPP_byte_order(bmi.bits_per_pixel);
+
       XImage im {
         static_cast<int>(bmi.width),
         static_cast<int>(bmi.height),                           /* size of image */
         0,                                                      /* number of pixels offset in X direction */
         ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        ImageByteOrder(display),                                /* data byte order, LSBFirst, MSBFirst */
+        byte_order,                                             /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
         bmi.depth(),                                            /* depth of image */
         static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-        bmi.depth(),                                            /* bits per pixel (ZPixmap) */
-        color::mask<color::part::red>::value,                   /* bits in z arrangment */
-        color::mask<color::part::green>::value,
-        color::mask<color::part::blue>::value
+        bmi.depth()                                            /* bits per pixel (ZPixmap) */
       };
+//        red,                                                    /* bits in z arrangment */
+//        green,
+//        blue
 
       Status st = XInitImage(&im);
       (void)st;
@@ -202,12 +210,12 @@ namespace gui {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
           static_cast<uint32_t>(im->bytes_per_line),
-          BPP(im->bits_per_pixel)
+          get_BPP(im->bits_per_pixel, im->byte_order)
         };
         bmi = {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
-          BPP(im->depth)
+          src_bmi.bits_per_pixel
         };
         const size_t n = src_bmi.mem_size();
         if (src_bmi.bits_per_pixel != bmi.bits_per_pixel) {
@@ -224,13 +232,32 @@ namespace gui {
                                     im->width, im->height);
             }
             break;
-            case BPP::RGBA:
-              typedef draw::const_image_data<BPP::RGB> src_data;
-              typedef draw::image_data<BPP::RGBA> dst_data;
-              //<BPP::RGB, BPP::RGBA>
-              convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                    dst_data(dst_data::raw_type(data), bmi),
-                                    im->width, im->height);
+            case BPP::RGBA: {
+                typedef draw::const_image_data<BPP::RGB> src_data;
+                typedef draw::image_data<BPP::RGBA> dst_data;
+                //<BPP::RGB, BPP::RGBA>
+                convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
+            break;
+            case BPP::BGR: {
+                typedef draw::const_image_data<BPP::ABGR> src_data;
+                typedef draw::image_data<BPP::BGR> dst_data;
+                //<BPP::BGRA, BPP::BGR>
+                convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
+            break;
+            case BPP::BGRA: {
+                typedef draw::const_image_data<BPP::BGR> src_data;
+                typedef draw::image_data<BPP::BGRA> dst_data;
+                //<BPP::BGR, BPP::BGRA>
+                convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
             break;
           }
         } else {
@@ -264,7 +291,7 @@ namespace gui {
           static_cast<uint32_t>(bmp.bmWidth),
           static_cast<uint32_t>(bmp.bmHeight),
           static_cast<uint32_t>(bmp.bmWidthBytes),
-          BPP(bmp.bmBitsPixel)
+          get_BPP(bmp.bmBitsPixel, 1)
         };
       }
       return {};
@@ -432,6 +459,10 @@ namespace gui {
         case BPP::GRAY: invert<BPP::GRAY>(); break;
         case BPP::RGB:  invert<BPP::RGB>();  break;
         case BPP::RGBA: invert<BPP::RGBA>(); break;
+        case BPP::ARGB: invert<BPP::ARGB>();  break;
+        case BPP::BGR:  invert<BPP::BGR>();  break;
+        case BPP::BGRA: invert<BPP::BGRA>();  break;
+        case BPP::ABGR: invert<BPP::ABGR>();  break;
         default:  break;
       }
     }
@@ -447,7 +478,6 @@ namespace gui {
         bitmap_get_data(get_id(), data, bmi);
       }
     }
-
 
     // --------------------------------------------------------------------------
     void masked_bitmap::operator= (const masked_bitmap& rhs) {

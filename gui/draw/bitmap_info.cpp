@@ -48,16 +48,16 @@ namespace gui {
 #ifdef X11
 
       uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
-        switch (bpp) {
-        case BPP::BW:
+        switch (get_color_depth(bpp)) {
+        case 1:
           return up_modulo<8, 4>(w);
-        case BPP::GRAY:
+        case 8:
           return up_modulo<1, 4>(w);
-        case BPP::RGB:
+        case 24:
           return up_modulo<1, 4>(w * 3);
-        case BPP::RGBA:
+        case 32:
           return up_modulo<1, 4>(w * 4);
-        case BPP::Undefined:
+        default:
           break;
         }
         return -1;
@@ -68,19 +68,19 @@ namespace gui {
 #if WIN32
 
       uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
-        switch (bpp) {
-        case BPP::BW:
+        switch (get_color_depth(bpp)) {
+        case 1:
           return up_modulo<8, 2>(w);
-        case BPP::GRAY:
+        case 8:
           return up_modulo<1, 2>(w);
-        case BPP::RGB:
+        case 24:
           return up_modulo<1, 2>(w * 3);
-        case BPP::RGBA:
+        case 32:
           return up_modulo<1, 2>(w * 4);
-        case BPP::Undefined:
+        default:
           break;
         }
-        return ((((w * static_cast<byte>(bpp)) + 31) & ~31) >> 3);
+        return ((((w * color_depths[static_cast<byte>(bpp)]) + 31) & ~31) >> 3);
       }
 
 #endif // WIN32

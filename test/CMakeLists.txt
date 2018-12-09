@@ -40,7 +40,7 @@ enable_testing()
 
 if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
-    set (MMAL_LIBS mmal_core mmal_util mmal_vc_client rt vcsm vchiq_arm vcos)
+    set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
 # bcm_host
     set(tests
         raspicam_test

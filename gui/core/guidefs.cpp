@@ -34,6 +34,40 @@
 
 namespace gui {
 
+  BPP get_BPP (int bits_per_pixel, int byte_order) {
+    switch (bits_per_pixel) {
+      case 1: return BPP::BW;
+      case 8: return BPP::GRAY;
+      default:
+      case 24:
+        switch (byte_order) {
+          case 0: return BPP::BGR;
+          case 1: return BPP::RGB;
+        }
+      case 32:
+        switch (byte_order) {
+          case 0: return BPP::BGRA;
+          case 1: return BPP::RGBA;
+        }
+    }
+  }
+
+  int get_BPP_byte_order (BPP bpp) {
+    switch (bpp) {
+      case BPP::BGR:
+      case BPP::BGRA:
+      case BPP::ABGR:
+      default:
+        return 0;
+      case BPP::BW:
+      case BPP::GRAY:
+      case BPP::RGB:
+      case BPP::RGBA:
+      case BPP::ARGB:
+        return 1;
+    }
+  }
+
   namespace core {
 
     namespace global {
@@ -162,10 +196,11 @@ namespace gui {
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return BPP(dbpp);
+        return get_BPP(BPP(dbpp), 1);
 #endif // WIN32
 #ifdef X11
-        return BPP(DefaultDepth(get_instance(), get_screen()));
+        auto inst = get_instance();
+        return get_BPP(DefaultDepth(inst, get_screen()), ImageByteOrder(inst));
 #endif // X11
 #ifdef COCOA
         return BPP::RGB;

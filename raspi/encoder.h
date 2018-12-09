@@ -22,6 +22,8 @@
 //
 // Common includes
 //
+#include <sstream>
+#include <string>
 
 // --------------------------------------------------------------------------
 //
@@ -43,10 +45,9 @@ namespace gui {
       public:
         using image_data = std::basic_string<uint8_t>;
 
-        raspi_encoder (raspi_camera& camera);
+        raspi_encoder (core::port camera);
         ~raspi_encoder ();
 
-        void add_data (uint8_t *data, size_t size);
         image_data get_data () const;
 
         void clear_data ();
@@ -54,19 +55,26 @@ namespace gui {
       protected:
         using buffer_type = std::basic_ostringstream<uint8_t>;
 
-        MMAL_PORT_T* get_camera_still_port () const;
+        core::port get_camera_still_port () const;
+
+        void init ();
+        void fini ();
 
         void capture (uint32_t timeout);
+        void enable ();
+        void disable ();
 
         static void callback_dispatcher (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
-        void handle_callback (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
+        void handle_callback (core::port&, core::buffer&);
+
+        void add_data (const core::buffer&);
 
         VCOS_SEMAPHORE_T m_complete_semaphore;
 
         buffer_type m_buffer;
-        MMAL_POOL_T* m_buffer_pool;
+        core::pool m_buffer_pool;
 
-        raspi_camera& m_camera;
+        core::port m_camera;
       };
 
       // --------------------------------------------------------------------------
@@ -74,11 +82,17 @@ namespace gui {
       public:
         using super = raspi_encoder;
 
-        raspi_raw_encoder (raspi_camera& camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8);
+        raspi_raw_encoder (core::port camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8);
         ~raspi_raw_encoder ();
 
         void capture (uint32_t timeout = 1000);
+        void enable ();
+        void disable ();
 
+        core::port get_output_port ();
+
+        void init (MMAL_FOURCC_T encoding);
+        void fini ();
       };
 
       // --------------------------------------------------------------------------
@@ -86,17 +100,49 @@ namespace gui {
       public:
         using super = raspi_encoder;
 
-        raspi_image_encoder (raspi_camera& camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_PNG);
+        raspi_image_encoder (core::port camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_PNG);
         ~raspi_image_encoder ();
 
         void capture (uint32_t timeout = 1000);
+        void enable ();
+        void disable ();
+
+        core::port& get_output_port ();
+
+        void init (MMAL_FOURCC_T encoding);
+        void fini ();
 
       private:
-        MMAL_COMPONENT_T* m_encoder;
-        MMAL_CONNECTION_T* m_encoder_connection;
+        core::component m_encoder;
+        core::connection m_encoder_connection;
 
-        MMAL_PORT_T* m_encoder_input_port;
-        MMAL_PORT_T* m_encoder_output_port;
+        core::port m_encoder_input_port;
+        core::port m_encoder_output_port;
+      };
+
+      // --------------------------------------------------------------------------
+      class raspi_resize_encoder : public raspi_encoder {
+      public:
+        using super = raspi_encoder;
+
+        raspi_resize_encoder (core::port camera);
+        ~raspi_resize_encoder ();
+
+        void capture (uint32_t timeout = 1000);
+        void enable ();
+        void disable ();
+
+        core::port& get_output_port ();
+
+        void init (MMAL_FOURCC_T encoding);
+        void fini ();
+
+      private:
+        core::component m_encoder;
+        core::connection m_encoder_connection;
+
+        core::port m_encoder_input_port;
+        core::port m_encoder_output_port;
       };
 
       // --------------------------------------------------------------------------

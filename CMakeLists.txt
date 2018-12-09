@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("gui-lib" CXX)
 
+set(BUILD_FOR_ARM OFF CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
+
 function(print_var VAR)
     message(STATUS "${VAR}: '" ${${VAR}} "'")
 endfunction(print_var)
@@ -31,6 +33,10 @@ if (APPLE)
   add_definitions(-DCOCOA -std=c++11 -lstdc++fs)
 elseif (UNIX)
   add_definitions(-DX11 -std=c++11 -lstdc++fs)
+endif ()
+
+if (BUILD_FOR_ARM)
+    add_definitions(-DBUILD_FOR_ARM)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

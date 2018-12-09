@@ -408,8 +408,11 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state) {
+#ifdef BUILD_FOR_ARM
+        button_frame_w95(graph, r, state);
+#else
         button_frame(graph, r, state);
-
+#endif
         using namespace draw;
         graph.text(text_box(text, r, text_origin::center), font::system(),
                    state.is_enabled() ? color::windowTextColor() : color::disabledTextColor());

@@ -78,12 +78,18 @@ namespace gui {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
+        using namespace convert::bpp;
+
         datamap<T> dest(w, h);
         switch (bmi.bits_per_pixel) {
-          case BPP::BW:   convert::bpp::convert<BPP::BW, T>(get_raw<BPP::BW>(), dest.get_raw(), w, h); break;
-          case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(get_raw<BPP::GRAY>(), dest.get_raw(), w, h); break;
-          case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(get_raw<BPP::RGB>(), dest.get_raw(), w, h); break;
-          case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(get_raw<BPP::RGBA>(), dest.get_raw(), w, h); break;
+          case BPP::BW:   convert<BPP::BW,   T>(get_raw<BPP::BW>(),   dest.get_raw(), w, h); break;
+          case BPP::GRAY: convert<BPP::GRAY, T>(get_raw<BPP::GRAY>(), dest.get_raw(), w, h); break;
+          case BPP::RGB:  convert<BPP::RGB,  T>(get_raw<BPP::RGB>(),  dest.get_raw(), w, h); break;
+          case BPP::RGBA: convert<BPP::RGBA, T>(get_raw<BPP::RGBA>(), dest.get_raw(), w, h); break;
+          case BPP::BGR:  convert<BPP::BGR,  T>(get_raw<BPP::BGR>(),  dest.get_raw(), w, h); break;
+          case BPP::BGRA: convert<BPP::BGRA, T>(get_raw<BPP::BGRA>(), dest.get_raw(), w, h); break;
+          case BPP::ARGB: convert<BPP::ARGB, T>(get_raw<BPP::ARGB>(), dest.get_raw(), w, h); break;
+          case BPP::ABGR: convert<BPP::ABGR, T>(get_raw<BPP::ABGR>(), dest.get_raw(), w, h); break;
         }
         return dest;
       }

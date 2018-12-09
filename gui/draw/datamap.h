@@ -117,6 +117,10 @@ namespace gui {
     typedef datamap<BPP::GRAY> graymap;
     typedef datamap<BPP::RGB> rgbmap;
     typedef datamap<BPP::RGBA> rgbamap;
+    typedef datamap<BPP::BGR> bgrmap;
+    typedef datamap<BPP::BGRA> bgramap;
+    typedef datamap<BPP::ARGB> argbmap;
+    typedef datamap<BPP::ABGR> abgrmap;
 
     GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
     GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);

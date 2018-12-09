@@ -76,12 +76,30 @@ namespace gui {
   typedef std::vector<byte> blob;
 
   // --------------------------------------------------------------------------
-  enum class BPP : byte {
+  enum class BPP : int {
     Undefined = 0,
-    BW = 1,
-    GRAY = 8,
-    RGB = 24,
-    RGBA = 32
+    BW,
+    GRAY,
+    RGB,
+    BGR,
+    RGBA,
+    BGRA,
+    ARGB,
+    ABGR
+  };
+
+  constexpr byte color_depths[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
+
+  constexpr byte get_color_depth (BPP bpp) {
+    return color_depths[static_cast<byte>(bpp)];
+  }
+
+  BPP get_BPP (int bits_per_pixel, int byte_order);
+  int get_BPP_byte_order (BPP bpp);
+
+  template<BPP bpp>
+  struct color_depth {
+    static constexpr int bits = color_depths[static_cast<byte>(bpp)];
   };
 
   // --------------------------------------------------------------------------

@@ -88,18 +88,24 @@ public:
   pixmap image;
 };
 
+template<typename T>
 class value_block : public group_window<layout::vertical_adaption<>> {
 public:
   using super = layout_container<layout::vertical_adaption<>>;
-  using fnkt = std::function<void()>;
+  using fnkt = std::function<void(T)>;
 
-  value_block () {
+  value_block ()
+    : low_step(1)
+    , high_step(20)
+  {
     on_create(basepp::bind_method(this, &value_block::onCreated));
   }
 
   value_block (const std::string& l, text_source&& src)
     : label(l)
     , value(std::move(src))
+    , low_step(1)
+    , high_step(20)
   {
     on_create(basepp::bind_method(this, &value_block::onCreated));
   }
@@ -112,32 +118,54 @@ public:
     value.set_text(std::move(src));
   }
 
-  void onCreated (window*, const core::rectangle&) {
-    label.create(*this);
-    label.set_visible();
-    up_button.create(*this, "+");
-    up_button.set_visible();
-    value.create(*this);
-    value.set_visible();
-    down_button.create(*this, "-");
-    down_button.set_visible();
-    set_visible();
+  void set_steps (T low, T high) {
+    low_step = low;
+    high_step = high;
   }
 
-  void set_handler (fnkt&& up, fnkt&& down) {
-    up_button.on_clicked(std::move(up));
-    down_button.on_clicked(std::move(down));
+  void set_handler (fnkt f) {
+    up_button.on_clicked([&, f] () { f(low_step); });
+    fast_up_button.on_clicked([&, f] () { f(this->high_step); });
+    down_button.on_clicked([&, f] () { f(-low_step); });
+    fast_down_button.on_clicked([&, f] () { f(-high_step); });
+  }
+
+  void set_handler (T low, T high, fnkt f) {
+    set_steps(low, high);
+    set_handler(f);
   }
 
   void refresh () {
     value.redraw();
   }
 
+  void onCreated (window*, const core::rectangle&) {
+    label.create(*this);
+    up_view.create(*this);
+    up_button.create(up_view, "+");
+    fast_up_button.create(up_view, "++");
+    value.create(*this);
+    down_view.create(*this);
+    down_button.create(down_view, "-");
+    fast_down_button.create(down_view, "--");
+    set_children_visible();
+  }
+
 private:
+  group_window<layout::horizontal_adaption<0>> up_view;
+  group_window<layout::horizontal_adaption<0>> down_view;
+
   ctrl::text_button up_button;
+  ctrl::text_button fast_up_button;
+
   ctrl::text_button down_button;
+  ctrl::text_button fast_down_button;
+
   ctrl::label_center label;
   ctrl::label_center value;
+
+  T low_step;
+  T high_step;
 };
 
 // --------------------------------------------------------------------------
@@ -150,11 +178,18 @@ public:
   void quit ();
 
   void capture ();
+  void display ();
   void calc_spectrum ();
   void save_image ();
 
   void save_settings ();
   void load_settings ();
+
+  void set_crop (const raspi_camera::crop& c);
+  void change_crop_x (float v);
+  void change_crop_y (float v);
+  void change_crop_w (float v);
+  void change_crop_h (float v);
 
 private:
   group_window<layout::vertical_adaption<>> right_button_view;
@@ -167,15 +202,15 @@ private:
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
-  value_block x_pos;
-  value_block y_pos;
-  value_block w_pos;
-  value_block h_pos;
+  value_block<float> x_pos;
+  value_block<float> y_pos;
+  value_block<float> w_pos;
+  value_block<float> h_pos;
 
-  value_block ss;
-  value_block iso;
+  value_block<int> ss;
+  value_block<int> iso;
 
-  value_block extra;
+  value_block<int> extra;
   int extra_bytes;
 
   group_window<layout::horizontal_adaption<0, 5>> values_view;
@@ -191,8 +226,8 @@ private:
 
 spectrometer::spectrometer ()
   : super(160, 160, 0, 0)
-  , encoder(camera, MMAL_ENCODING_RGB24_SLICE)
-  , extra_bytes(24)
+  , encoder(camera.get_camera_still_port(), MMAL_ENCODING_RGB24_SLICE)
+  , extra_bytes(0)
 {
   on_create(basepp::bind_method(this, &spectrometer::onCreated));
   on_destroy(&gui::win::quit_main_loop);
@@ -212,135 +247,106 @@ spectrometer::spectrometer ()
     extra_bytes = 0;
     extra.refresh();
   });
-  fullview_button.on_clicked([&] () {
-    camera.set_crop({0,0,1,1});
-    auto sz = camera.get_size();
-    extra_bytes = VCOS_ALIGN_UP(sz.width, 32) - sz.width;
-    extra.refresh();
-    x_pos.refresh();
-    y_pos.refresh();
-    w_pos.refresh();
-    h_pos.refresh();
-  });
-  halfview_button.on_clicked([&] () {
-    camera.set_crop({0.25F, 0.25F, 0.5F, 0.5F});
-    auto sz = camera.get_size();
-    extra_bytes = VCOS_ALIGN_UP(sz.width, 32) - sz.width;
-    extra.refresh();
-    x_pos.refresh();
-    y_pos.refresh();
-    w_pos.refresh();
-    h_pos.refresh();
-  });
-  quarterview_button.on_clicked([&] () {
-    camera.set_crop({0.375F, 0.375F, 0.25F, 0.25F});
-    auto sz = camera.get_size();
-    extra_bytes = VCOS_ALIGN_UP(sz.width, 32) - sz.width;
-    extra.refresh();
-    x_pos.refresh();
-    y_pos.refresh();
-    w_pos.refresh();
-    h_pos.refresh();
-  });
+  fullview_button.on_clicked([&] () { set_crop({0,0,1,1}); });
+  halfview_button.on_clicked([&] () { set_crop({0.25F, 0.25F, 0.5F, 0.5F}); });
+  quarterview_button.on_clicked([&] () { set_crop({0.375F, 0.375F, 0.25F, 0.25F}); });
 
-  x_pos.set_handler([&] () {
-    auto crop = camera.get_crop();
-    crop.x = std::min(crop.x + 0.01F, 1.0F - crop.width);
-    camera.set_crop(crop);
-    x_pos.refresh();
-//    capture();
-  }, [&] () {
-    auto crop = camera.get_crop();
-    crop.x = std::max(crop.x - 0.01F, 0.0F);
-    camera.set_crop(crop);
-    x_pos.refresh();
-//    capture();
-  });
+  x_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_x));
   x_pos.set_label("X");
   x_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().x); });
 
-  y_pos.set_handler([&] () {
-    auto crop = camera.get_crop();
-    crop.y = std::min(crop.y + 0.01F, 1.0F - crop.height);
-    camera.set_crop(crop);
-    y_pos.refresh();
-//    capture();
-  }, [&] () {
-    auto crop = camera.get_crop();
-    crop.y = std::max(crop.y - 0.01F, 0.0F);
-    camera.set_crop(crop);
-    y_pos.refresh();
-//    capture();
-  });
+  y_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_y));
   y_pos.set_label("Y");
   y_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().y); });
 
-  w_pos.set_handler([&] () {
-    auto crop = camera.get_crop();
-    crop.width = std::min(crop.width + 0.01F, 1.0F - crop.x);
-    camera.set_crop(crop);
-    w_pos.refresh();
-//    capture();
-  }, [&] () {
-    auto crop = camera.get_crop();
-    crop.width = std::max(crop.width - 0.01F, 0.0F);
-    camera.set_crop(crop);
-    w_pos.refresh();
-//    capture();
-  });
+  w_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_w));
   w_pos.set_label("W");
   w_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().width); });
 
-  h_pos.set_handler([&] () {
-    auto crop = camera.get_crop();
-    crop.height = std::min(crop.height + 0.01F, 1.0F - crop.y);
-    camera.set_crop(crop);
-    h_pos.refresh();
-//    capture();
-  }, [&] () {
-    auto crop = camera.get_crop();
-    crop.height = std::max(crop.height - 0.01F, 0.0F);
-    camera.set_crop(crop);
-    h_pos.refresh();
-//    capture();
-  });
+  h_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_h));
   h_pos.set_label("H");
   h_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().height); });
 
-  ss.set_handler([&] () {
-    camera.set_shutter_speed(camera.get_shutter_speed() * 2);
-    ss.refresh();
-//    capture();
-  }, [&] () {
-    camera.set_shutter_speed(camera.get_shutter_speed() / 2);
+  ss.set_handler([&] (int step) {
+    auto current = camera.get_shutter_speed();
+    if (step > 0.0F) {
+      camera.set_shutter_speed(current * step);
+    } else {
+      camera.set_shutter_speed(current / -step);
+    }
     ss.refresh();
 //    capture();
   });
+  ss.set_steps(1.1F, 2.0F);
   ss.set_label("Shutter");
   ss.set_value([&] () { return ostreamfmt(camera.get_shutter_speed()); });
 
-  iso.set_handler([&] () {
-    camera.set_iso(camera.get_iso() * 2);
-    iso.refresh();
-//    capture();
-  }, [&] () {
-    camera.set_iso(std::max<uint32_t>(camera.get_iso() / 2, 25));
+  iso.set_handler([&] (int step) {
+    auto current = camera.get_iso();
+    if (step > 0.0F) {
+      camera.set_iso(current * step);
+    } else {
+      camera.set_iso(std::max<uint32_t>(current / -step, 25));
+    }
     iso.refresh();
 //    capture();
   });
+  iso.set_steps(2.0F, 4.0F);
   iso.set_label("ISO");
   iso.set_value([&] () { return ostreamfmt(camera.get_iso()); });
 
-  extra.set_handler([&] () {
-    extra_bytes += 12;
+  extra.set_handler([&] (int step) {
+    extra_bytes = std::max(extra_bytes + step, 0);
     extra.refresh();
-  }, [&] () {
-    extra_bytes = std::max(extra_bytes - 12, 0);
-    extra.refresh();
+    display();
   });
+  extra.set_steps(1, 10);
   extra.set_label("Extra");
   extra.set_value([&] () { return ostreamfmt(extra_bytes); });
 
+}
+
+void spectrometer::set_crop (const raspi_camera::crop& c) {
+  camera.set_crop(c);
+  auto sz = camera.get_size();
+  extra_bytes = VCOS_ALIGN_UP(sz.width, 32) - sz.width;
+  extra.refresh();
+  x_pos.refresh();
+  y_pos.refresh();
+  w_pos.refresh();
+  h_pos.refresh();
+}
+
+void spectrometer::change_crop_x (float v) {
+  auto crop = camera.get_crop();
+  crop.x = std::min(std::max(crop.x + v, 0.0F), 1.0F - crop.width);
+  camera.set_crop(crop);
+  x_pos.refresh();
+//    capture();
+}
+
+void spectrometer::change_crop_y (float v) {
+  auto crop = camera.get_crop();
+  crop.y = std::min(std::max(crop.y + v, 0.0F), 1.0F - crop.height);
+  camera.set_crop(crop);
+  y_pos.refresh();
+//    capture();
+}
+
+void spectrometer::change_crop_w (float v) {
+  auto crop = camera.get_crop();
+  crop.width = std::min(std::max(crop.width + v, 0.0F), 1.0F - crop.x);
+  camera.set_crop(crop);
+  w_pos.refresh();
+//    capture();
+}
+
+void spectrometer::change_crop_h (float v) {
+  auto crop = camera.get_crop();
+  crop.height = std::min(std::max(crop.height + v, 0.0F), 1.0F - crop.y);
+  camera.set_crop(crop);
+  h_pos.refresh();
+//    capture();
 }
 
 void spectrometer::quit () {
@@ -356,9 +362,9 @@ void spectrometer::quit () {
 }
 
 void spectrometer::onCreated (window*, const core::rectangle&) {
-  camera.set_crop({0.25,0.25,0.5,0.5});
+//  camera.set_crop({0.25,0.25,0.5,0.5});
   camera.set_iso(100);
-  camera.set_shutter_speed(10000);
+  camera.set_shutter_speed(50000);
 
   capture_view.create(*this);
   spectrum_view.create(*this);
@@ -387,6 +393,19 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   set_children_visible();
 }
 
+void spectrometer::display () {
+  auto sz = camera.get_size();
+  LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line();
+  if (data.size()) {
+    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, BPP::RGB);
+    const_image_data<BPP::RGB> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
+//  rgbmap image(capture_view.size());
+//  image.stretch_from(rgbmap(image_data));
+    capture_view.image = image_data;
+  }
+  capture_view.redraw();
+}
+
 void spectrometer::capture () {
   LogDebug << "Capture image";
   try {
@@ -395,25 +414,18 @@ void spectrometer::capture () {
 
     encoder.capture(2000);
     data = encoder.get_data();
-    auto sz = camera.get_size();
-    LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height;
-    if (data.size()) {
-      bitmap_info bmi(sz.width, sz.height, sz.width * 3 + extra_bytes, BPP::RGB);
-      const_image_data<BPP::RGB> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
-//  rgbmap image(capture_view.size());
-//  image.stretch_from(rgbmap(image_data));
-      capture_view.image = image_data;
-      calc_spectrum();
-    }
+    display();
+    calc_spectrum();
   } catch (std::exception& ex) {
     LogFatal << ex;
   }
-  capture_view.redraw();
 }
 
 void spectrometer::calc_spectrum () {
   auto sz = spectrum_view.size();
-  spectrum_view.image.create(sz);
+  if (spectrum_view.image.size() != sz) {
+    spectrum_view.image.create(sz);
+  }
   graphics g(spectrum_view.image);
   double scale = 500.0 / sz.width();
   for (int x = 0; x < sz.width(); ++x) {

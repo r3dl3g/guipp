@@ -37,6 +37,23 @@ namespace gui {
 
   namespace color {
 
+    color_parts get_color_parts (BPP bpp) {
+      switch (bpp) {
+        case BPP::RGB:
+        case BPP::RGBA:
+          return rgba_parts::get_color_parts();
+        case BPP::BGR:
+        case BPP::BGRA:
+          return bgra_parts::get_color_parts();
+        case BPP::ARGB:
+          return argb_parts::get_color_parts();
+        case BPP::ABGR:
+          return abgr_parts::get_color_parts();
+        default:
+          return gray_parts::get_color_parts();
+      }
+    }
+
 #ifdef WIN32
 
     os::color get_sys_color (int c) {

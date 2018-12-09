@@ -2,6 +2,7 @@
 #include "raspi/encoder.h"
 #include "base/ostreamfmt.h"
 #include "base/command_line.h"
+#include "base/logger.h"
 
 
 #define NOTHING
@@ -57,11 +58,11 @@ int main(int argc, const char* argv[]) {
       [&](const std::string& arg) {
         camera.set_size(parse_arg<raspi_camera::size>(arg, "Size"));
       }},
-    {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
-      [&](const std::string& arg) {
-        auto sz = parse_arg<raspi_camera::size>(arg, "Resize");
-        camera.set_resize({{}, MMAL_RESIZE_CROP, sz.width, sz.height, 0, false, false});
-      }},
+//    {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
+//      [&](const std::string& arg) {
+//        auto sz = parse_arg<raspi_camera::size>(arg, "Resize");
+//        camera.set_resize({{}, MMAL_RESIZE_CROP, sz.width, sz.height, 0, false, false});
+//      }},
     {"-i", "--iso", "<ISO>", "Set sensor ISO",
       [&](const std::string& arg) {
         camera.set_iso(parse_arg<int>(arg, "ISO"));
@@ -95,7 +96,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_RGB24_SLICE;
     }
-    raspi_raw_encoder encoder(camera, encoding);
+    raspi_raw_encoder encoder(camera.get_camera_still_port(), encoding);
     LogInfo << "raw capture " << four_cc(encoding);
     encoder.capture(5000);
 
@@ -110,7 +111,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_PNG;
     }
-    raspi_image_encoder encoder(camera, encoding);
+    raspi_image_encoder encoder(camera.get_camera_still_port(), encoding);
     LogInfo << "encoded capture " << four_cc(encoding);
     encoder.capture(10000);
 

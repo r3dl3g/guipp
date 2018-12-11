@@ -204,15 +204,14 @@ namespace gui {
     namespace global {
 
       GUIPP_CORE_EXPORT void init (os::instance instance);
-      GUIPP_CORE_EXPORT os::instance get_instance ();
+      GUIPP_CORE_EXPORT void fini ();
 
       GUIPP_CORE_EXPORT void sync ();
 
+      GUIPP_CORE_EXPORT os::instance get_instance ();
       GUIPP_CORE_EXPORT PixelFormat get_device_pixel_format ();
       GUIPP_CORE_EXPORT int get_device_depth ();
-
       GUIPP_CORE_EXPORT os::key_state get_key_state ();
-
       GUIPP_CORE_EXPORT double get_scale_factor ();
 
       template<typename T>

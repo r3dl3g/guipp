@@ -247,7 +247,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      core::port raspi_camera::get_camera_still_port () const {
+      core::port raspi_camera::get_still_output_port () const {
         return m_camera.still_port();
       }
 

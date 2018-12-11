@@ -408,7 +408,7 @@ namespace gui {
     }
 
     void send_client_message (const window* win, Atom message, const core::size& sz) {
-      os::size s = sz;
+      os::size s = sz.os();
       long l0 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l0);
     }

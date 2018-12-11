@@ -78,18 +78,16 @@ namespace gui {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
-        using namespace convert::format;
-
         datamap<T> dest(w, h);
         switch (bmi.pixel_format) {
-          case PixelFormat::BW:   convert<PixelFormat::BW,   T>(get_raw<PixelFormat::BW>(),   dest.get_raw(), w, h); break;
-          case PixelFormat::GRAY: convert<PixelFormat::GRAY, T>(get_raw<PixelFormat::GRAY>(), dest.get_raw(), w, h); break;
-          case PixelFormat::RGB:  convert<PixelFormat::RGB,  T>(get_raw<PixelFormat::RGB>(),  dest.get_raw(), w, h); break;
-          case PixelFormat::RGBA: convert<PixelFormat::RGBA, T>(get_raw<PixelFormat::RGBA>(), dest.get_raw(), w, h); break;
-          case PixelFormat::BGR:  convert<PixelFormat::BGR,  T>(get_raw<PixelFormat::BGR>(),  dest.get_raw(), w, h); break;
-          case PixelFormat::BGRA: convert<PixelFormat::BGRA, T>(get_raw<PixelFormat::BGRA>(), dest.get_raw(), w, h); break;
-          case PixelFormat::ARGB: convert<PixelFormat::ARGB, T>(get_raw<PixelFormat::ARGB>(), dest.get_raw(), w, h); break;
-          case PixelFormat::ABGR: convert<PixelFormat::ABGR, T>(get_raw<PixelFormat::ABGR>(), dest.get_raw(), w, h); break;
+          case PixelFormat::BW:   convert::format::convert<PixelFormat::BW,   T>(get_raw<PixelFormat::BW>(),   dest.get_raw(), w, h); break;
+          case PixelFormat::GRAY: convert::format::convert<PixelFormat::GRAY, T>(get_raw<PixelFormat::GRAY>(), dest.get_raw(), w, h); break;
+          case PixelFormat::RGB:  convert::format::convert<PixelFormat::RGB,  T>(get_raw<PixelFormat::RGB>(),  dest.get_raw(), w, h); break;
+          case PixelFormat::RGBA: convert::format::convert<PixelFormat::RGBA, T>(get_raw<PixelFormat::RGBA>(), dest.get_raw(), w, h); break;
+          case PixelFormat::BGR:  convert::format::convert<PixelFormat::BGR,  T>(get_raw<PixelFormat::BGR>(),  dest.get_raw(), w, h); break;
+          case PixelFormat::BGRA: convert::format::convert<PixelFormat::BGRA, T>(get_raw<PixelFormat::BGRA>(), dest.get_raw(), w, h); break;
+          case PixelFormat::ARGB: convert::format::convert<PixelFormat::ARGB, T>(get_raw<PixelFormat::ARGB>(), dest.get_raw(), w, h); break;
+          case PixelFormat::ABGR: convert::format::convert<PixelFormat::ABGR, T>(get_raw<PixelFormat::ABGR>(), dest.get_raw(), w, h); break;
         }
         return dest;
       }

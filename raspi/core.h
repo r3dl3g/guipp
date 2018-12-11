@@ -233,10 +233,11 @@ namespace gui {
         }
 
         MMAL_STATUS_T enable (MMAL_PORT_BH_CB_T cb) {
-          if (!data->is_enabled) {
-            return mmal_port_enable(data, cb);
+          disable();
+          if (data->is_enabled) {
+            return MMAL_ENOSPC;
           }
-          return MMAL_ENOSPC;
+          return mmal_port_enable(data, cb);
         }
 
         MMAL_STATUS_T disable () {
@@ -494,6 +495,77 @@ namespace gui {
 
       private:
         MMAL_COMPONENT_T* data;
+      };
+
+      // --------------------------------------------------------------------------
+      class semaphore {
+      public:
+        semaphore ()
+        {}
+
+        semaphore (const char *name, VCOS_UNSIGNED initial_count = 0) {
+          create(name, initial_count);
+        }
+
+        void create (const char *name, VCOS_UNSIGNED initial_count = 0) {
+          VCOS_STATUS_T vcos_status = vcos_semaphore_create(&m_semaphore, name, initial_count);
+          vcos_assert(vcos_status == VCOS_SUCCESS);
+        }
+
+        ~semaphore () {
+          vcos_semaphore_delete(&m_semaphore);
+        }
+
+        void wait (VCOS_UNSIGNED timeout) {
+          vcos_semaphore_wait_timeout(&m_semaphore, timeout);
+        }
+
+        void wait () {
+          vcos_semaphore_wait(&m_semaphore);
+        }
+
+        void try_wait () {
+          vcos_semaphore_trywait(&m_semaphore);
+        }
+
+        void post () {
+          vcos_semaphore_post(&m_semaphore);
+        }
+
+      private:
+        VCOS_SEMAPHORE_T m_semaphore;
+      };
+
+      // --------------------------------------------------------------------------
+      class mutex {
+      public:
+        mutex (const char *name) {
+          VCOS_STATUS_T vcos_status = vcos_mutex_create(&m_mutex, name);
+          vcos_assert(vcos_status == VCOS_SUCCESS);
+        }
+
+        ~mutex () {
+          vcos_mutex_delete(&m_mutex);
+        }
+
+        void lock () {
+          vcos_mutex_lock(&m_mutex);
+        }
+
+        void unlock () {
+          vcos_mutex_unlock(&m_mutex);
+        }
+
+        void try_lock () {
+          vcos_mutex_trylock(&m_mutex);
+        }
+
+        bool is_locked () {
+          return vcos_mutex_is_locked(&m_mutex) != 0;
+        }
+
+      private:
+        VCOS_MUTEX_T m_mutex;
       };
 
       // --------------------------------------------------------------------------

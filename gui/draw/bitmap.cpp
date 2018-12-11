@@ -169,12 +169,6 @@ namespace gui {
       //auto screen = core::global::get_screen();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
-      color::color_parts parts = color::get_color_parts(bmi.pixel_format);
-
-//      unsigned long red = 0xFFUL << parts.red;
-//      unsigned long green = 0xFFUL << parts.green;
-//      unsigned long blue = 0xFFUL << parts.blue;
-
       int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
 
       XImage im {
@@ -191,9 +185,6 @@ namespace gui {
         static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
         bmi.depth()                                            /* bits per pixel (ZPixmap) */
       };
-//        red,                                                    /* bits in z arrangment */
-//        green,
-//        blue
 
       Status st = XInitImage(&im);
       (void)st;

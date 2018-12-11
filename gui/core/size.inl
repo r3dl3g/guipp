@@ -101,29 +101,29 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::size& s)
-      : data(static_cast<type>(s.cx),
-             static_cast<type>(s.cy))
+      : data(global::unscale<type>(s.cx),
+             global::unscale<type>(s.cy))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::point& pt)
-      : data(static_cast<type>(pt.x),
-             static_cast<type>(pt.y))
+      : data(global::unscale<type>(pt.x),
+             global::unscale<type>(pt.y))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : data(static_cast<type>(r.right - r.left),
-             static_cast<type>(r.bottom - r.top))
+      : data(global::unscale<type>(r.right - r.left),
+             global::unscale<type>(r.bottom - r.top))
     {}
 
 #endif // WIN32
 #ifdef X11
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : data(static_cast<type>(r.width),
-             static_cast<type>(r.height))
+      : data(global::unscale<type>(r.width),
+             global::unscale<type>(r.height))
     {}
 
 #endif // X11
@@ -239,7 +239,7 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::operator os::point() const {
-      return {static_cast<os::point_type>(width()), static_cast<os::point_type>(height())};
+      return {static_cast<os::point_type>(os_width()), static_cast<os::point_type>(os_height())};
     }
 
     template<typename T>

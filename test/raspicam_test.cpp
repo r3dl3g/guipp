@@ -96,7 +96,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_RGB24_SLICE;
     }
-    raspi_raw_encoder encoder(camera.get_camera_still_port(), encoding);
+    raspi_raw_encoder encoder(camera.get_still_output_port(), encoding);
     LogInfo << "raw capture " << four_cc(encoding);
     encoder.capture(5000);
 
@@ -111,7 +111,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_PNG;
     }
-    raspi_image_encoder encoder(camera.get_camera_still_port(), encoding);
+    raspi_image_encoder encoder(camera.get_still_output_port(), encoding);
     LogInfo << "encoded capture " << four_cc(encoding);
     encoder.capture(10000);
 

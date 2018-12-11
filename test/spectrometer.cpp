@@ -14,10 +14,13 @@
 #include "raspi/encoder.h"
 #else
 #define MMAL_ENCODING_RGB24_SLICE 0
+#define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
+#define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
 namespace gui { namespace raspi { namespace camera {
   struct raspi_camera {
     raspi_camera ()
       : cr{0, 0, 1, 1}
+      , sz{3280, 2456}
       , g{1, 1}
       , ss(10000)
       , iso(100)
@@ -31,29 +34,48 @@ namespace gui { namespace raspi { namespace camera {
       float r_gain, b_gain;
     };
 
+    struct size {
+      int width, height;
+    };
+
     crop get_crop () const { return cr; }
     void set_crop (const crop& c) { cr = c; }
+    crop get_abs_crop () const { return cr; }
+    void set_abs_crop (const crop& c) { cr = c; }
+
+    size get_size () const { return sz; }
+    void set_size (const size& c) { sz = c; }
 
     int get_shutter_speed () const { return ss; }
     void set_shutter_speed (int s) { ss = s; }
     int get_iso () const { return iso; }
     void set_iso (int i) { iso = i; }
 
+    int get_still_output_port () const {
+      return 0;
+    }
+
+    int get_pixel_per_line () const {
+      return 0;
+    }
+
   private:
     crop cr;
+    size sz;
     awb_gains g;
     int ss;
     int iso;
   };
 
   struct raspi_raw_encoder {
-    raspi_raw_encoder(raspi_camera&, int) {}
+    raspi_raw_encoder(int, int) {}
 
     void capture (int) {}
 
     using image_data = std::basic_string<uint8_t>;
 
     image_data get_data () { return {}; }
+    void clear_data () {}
   };
 }}}
 #endif // BUILD_FOR_ARM
@@ -213,7 +235,7 @@ private:
   value_block<int> extra;
   int extra_bytes;
 
-  group_window<layout::horizontal_adaption<0, 5>> values_view;
+  group_window<layout::horizontal_adaption<1, 0>> values_view;
 
   image_view<color::black> capture_view;
   image_view<> spectrum_view;
@@ -226,12 +248,23 @@ private:
 
 spectrometer::spectrometer ()
   : super(160, 160, 0, 0)
-  , encoder(camera.get_camera_still_port(), MMAL_ENCODING_RGB24_SLICE)
+  , encoder(camera.get_still_output_port(), MMAL_ENCODING_RGB24_SLICE)
   , extra_bytes(0)
 {
   on_create(basepp::bind_method(this, &spectrometer::onCreated));
   on_destroy(&gui::win::quit_main_loop);
   on_close(basepp::bind_method(this, &spectrometer::quit));
+
+  //  camera.set_crop({0.25,0.25,0.5,0.5});
+    camera.set_iso(100);
+    camera.set_shutter_speed(50000);
+  //  auto sz = camera.get_size();
+
+  //  MMAL_PARAMETER_CROP_T crop = {{MMAL_PARAMETER_CROP, sizeof(MMAL_PARAMETER_CROP_T)}};
+  //  encoder.get_output_port().get(crop.hdr);
+  //  crop.rect.height = sz.height / 2;
+  //  crop.rect.width = sz.width;
+  //  encoder.get_output_port().set(crop.hdr);
 
   capture_button.set_text("Capture");
   save_button.set_text("Save");
@@ -362,10 +395,6 @@ void spectrometer::quit () {
 }
 
 void spectrometer::onCreated (window*, const core::rectangle&) {
-//  camera.set_crop({0.25,0.25,0.5,0.5});
-  camera.set_iso(100);
-  camera.set_shutter_speed(50000);
-
   capture_view.create(*this);
   spectrum_view.create(*this);
   values_view.create(*this);
@@ -457,7 +486,7 @@ void spectrometer::load_settings () {
 int gui_main(const std::vector<std::string>& /*args*/) {
   spectrometer main;
 
-  main.create({0, 0, 1920, 1080});
+  main.create({0, 0, 1420, 800});
   main.set_title("Raspi Spectrometer");
   main.set_visible();
 

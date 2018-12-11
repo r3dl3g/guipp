@@ -212,7 +212,7 @@ namespace gui {
         void enable ();
         void disable ();
 
-        core::port get_camera_still_port () const;
+        core::port get_still_output_port () const;
 
       protected:
 

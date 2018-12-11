@@ -45,7 +45,7 @@ namespace gui {
       public:
         using image_data = std::basic_string<uint8_t>;
 
-        raspi_encoder (core::port camera);
+        raspi_encoder (core::port source_output_port);
         ~raspi_encoder ();
 
         image_data get_data () const;
@@ -55,10 +55,7 @@ namespace gui {
       protected:
         using buffer_type = std::basic_ostringstream<uint8_t>;
 
-        core::port get_camera_still_port () const;
-
-        void init ();
-        void fini ();
+        core::port get_output_port () const;
 
         void capture (uint32_t timeout);
         void enable ();
@@ -69,12 +66,14 @@ namespace gui {
 
         void add_data (const core::buffer&);
 
-        VCOS_SEMAPHORE_T m_complete_semaphore;
+        core::semaphore m_complete_semaphore;
 
         buffer_type m_buffer;
         core::pool m_buffer_pool;
 
-        core::port m_camera;
+        core::port m_source_output_port;
+
+        void init ();
       };
 
       // --------------------------------------------------------------------------
@@ -82,7 +81,7 @@ namespace gui {
       public:
         using super = raspi_encoder;
 
-        raspi_raw_encoder (core::port camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8);
+        raspi_raw_encoder (core::port source_output_port, MMAL_FOURCC_T encoding = MMAL_ENCODING_BAYER_SRGGB10DPCM8);
         ~raspi_raw_encoder ();
 
         void capture (uint32_t timeout = 1000);
@@ -91,8 +90,9 @@ namespace gui {
 
         core::port get_output_port ();
 
+      protected:
         void init (MMAL_FOURCC_T encoding);
-        void fini ();
+
       };
 
       // --------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace gui {
       public:
         using super = raspi_encoder;
 
-        raspi_image_encoder (core::port camera, MMAL_FOURCC_T encoding = MMAL_ENCODING_PNG);
+        raspi_image_encoder (core::port source_output_port, MMAL_FOURCC_T encoding);
         ~raspi_image_encoder ();
 
         void capture (uint32_t timeout = 1000);
@@ -109,40 +109,28 @@ namespace gui {
 
         core::port& get_output_port ();
 
-        void init (MMAL_FOURCC_T encoding);
-        void fini ();
+      protected:
+        raspi_image_encoder (core::port source_output_port);
 
-      private:
         core::component m_encoder;
         core::connection m_encoder_connection;
 
         core::port m_encoder_input_port;
         core::port m_encoder_output_port;
+
+        void init (MMAL_FOURCC_T encoding);
       };
 
       // --------------------------------------------------------------------------
-      class raspi_resize_encoder : public raspi_encoder {
+      class raspi_resizer : public raspi_image_encoder {
       public:
-        using super = raspi_encoder;
+        using super = raspi_image_encoder;
 
-        raspi_resize_encoder (core::port camera);
-        ~raspi_resize_encoder ();
+        raspi_resizer (core::port source_output_port, MMAL_FOURCC_T encoding, bool isp);
+        ~raspi_resizer ();
 
-        void capture (uint32_t timeout = 1000);
-        void enable ();
-        void disable ();
-
-        core::port& get_output_port ();
-
-        void init (MMAL_FOURCC_T encoding);
-        void fini ();
-
-      private:
-        core::component m_encoder;
-        core::connection m_encoder_connection;
-
-        core::port m_encoder_input_port;
-        core::port m_encoder_output_port;
+        MMAL_PARAMETER_RESIZE_T get_resize () const;
+        void set_resize (MMAL_PARAMETER_RESIZE_T config);
       };
 
       // --------------------------------------------------------------------------

@@ -111,7 +111,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_PNG;
     }
-    raspi_image_encoder encoder(camera.get_still_output_port(), encoding);
+    raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding));
     LogInfo << "encoded capture " << four_cc(encoding);
     encoder.capture(10000);
 

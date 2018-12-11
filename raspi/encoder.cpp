@@ -47,6 +47,11 @@
 // Source:
 //
 
+#define MMAL_COMPONENT_DEFAULT_NULL_SINK "vc.null_sink"
+#define MMAL_COMPONENT_DEFAULT_RESIZER   "vc.ril.resize"
+#define MMAL_COMPONENT_DEFAULT_ISP       "vc.ril.isp"
+#define MMAL_COMPONENT_RAW_CAMERA        "vc.ril.rawcam"
+
 namespace gui {
 
   namespace raspi {
@@ -215,11 +220,11 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      raspi_image_encoder::raspi_image_encoder (core::port source_output_port, MMAL_FOURCC_T encoding)
+      raspi_image_encoder::raspi_image_encoder (core::port source_output_port, OutEncoding encoding)
         : super(source_output_port)
       {
         check_mmal_status(m_encoder.create(MMAL_COMPONENT_DEFAULT_IMAGE_ENCODER));
-        init(encoding);
+        init(static_cast<MMAL_FOURCC_T>(encoding));
       }
 
       // --------------------------------------------------------------------------
@@ -263,7 +268,7 @@ namespace gui {
         m_buffer_pool = m_encoder_output_port.create_buffer_pool();
 
         m_encoder_connection = m_source_output_port.connect_in_port(m_encoder_input_port,
-                                                                       MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
+                                                                    MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
         check_mmal_status(m_encoder_connection.enable());
       }
 
@@ -306,27 +311,28 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      raspi_resizer::raspi_resizer (core::port source_output_port, MMAL_FOURCC_T encoding, bool isp)
+      raspi_resizer::raspi_resizer (core::port source_output_port, OutEncoding encoding)
         : super(source_output_port)
       {
-        check_mmal_status(m_encoder.create(isp ? "vc.ril.isp" : "vc.ril.resize"));
-        init(encoding);
+        check_mmal_status(m_encoder.create(MMAL_COMPONENT_DEFAULT_RESIZER));
+        init(static_cast<MMAL_FOURCC_T>(encoding));
       }
 
       raspi_resizer::~raspi_resizer () {
       }
 
       // --------------------------------------------------------------------------
-      MMAL_PARAMETER_RESIZE_T raspi_resizer::get_resize () const {
-        MMAL_PARAMETER_RESIZE_T resize = {{MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)}/*, MMAL_RESIZE_DUMMY, 0*/};
-        check_mmal_status(m_encoder_output_port.get(resize.hdr));
-        return resize;
+      // --------------------------------------------------------------------------
+      raspi_isp::raspi_isp (core::port source_output_port, OutEncoding encoding)
+        : super(source_output_port)
+      {
+        check_mmal_status(m_encoder.create(MMAL_COMPONENT_DEFAULT_ISP));
+        init(static_cast<MMAL_FOURCC_T>(encoding));
       }
 
-      void raspi_resizer::set_resize (MMAL_PARAMETER_RESIZE_T resize) {
-        resize.hdr = {MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)};
-        check_mmal_status(m_encoder_output_port.set(resize.hdr));
+      raspi_isp::~raspi_isp () {
       }
+
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
 

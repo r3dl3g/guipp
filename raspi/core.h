@@ -22,6 +22,7 @@
 //
 // Common includes
 //
+#include <vector>
 
 // --------------------------------------------------------------------------
 //
@@ -151,6 +152,14 @@ namespace gui {
 
         buffer get_buffer () {
           return buffer(mmal_queue_get(data->queue));
+        }
+
+        buffer get_buffer (VCOS_UNSIGNED timeout) {
+          return buffer(mmal_queue_timedwait(data->queue, timeout));
+        }
+
+        buffer get_buffer_wait () {
+          return buffer(mmal_queue_wait(data->queue));
         }
 
         unsigned int queue_length () const {
@@ -334,6 +343,10 @@ namespace gui {
           return data->type;
         }
 
+        uint32_t get_bitrate () const {
+          return data->format->bitrate;
+        }
+
         bool is_enabled () const {
           return data->is_enabled;
         }
@@ -384,6 +397,30 @@ namespace gui {
 
         MMAL_STATUS_T capture () {
           return set_bool(MMAL_PARAMETER_CAPTURE, true);
+        }
+
+        std::vector<MMAL_FOURCC_T> get_supported_encodings () const {
+          std::vector<MMAL_FOURCC_T> encodings;
+
+          auto sz = sizeof(MMAL_PARAMETER_ENCODING_T);
+          MMAL_PARAMETER_ENCODING_T t = {{MMAL_PARAMETER_SUPPORTED_ENCODINGS, sz}};
+          MMAL_STATUS_T stat = get(t.hdr);
+          if (stat == MMAL_SUCCESS) {
+              encodings.emplace_back(t.encoding[0]);
+          } else if (stat == MMAL_ENOSPC) {
+            MMAL_PARAMETER_ENCODING_T* t2 = (MMAL_PARAMETER_ENCODING_T*)new char[t.hdr.size];
+            t2->hdr.id = MMAL_PARAMETER_SUPPORTED_ENCODINGS;
+            t2->hdr.size = t.hdr.size;
+            stat = get(t2->hdr);
+            if (MMAL_SUCCESS == stat) {
+              auto count = t2->hdr.size / sizeof(MMAL_FOURCC_T);
+              for (int i = 0; (i < count) && t2->encoding[i]; ++i) {
+                encodings.emplace_back(t2->encoding[i]);
+              }
+            }
+            delete [] (char*)t2;
+          }
+          return encodings;
         }
 
       private:

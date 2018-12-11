@@ -5,6 +5,7 @@
 #include <gui/win/adaption_layout.h>
 #include <gui/win/layout_container.h>
 #include <gui/ctrl/button.h>
+#include <gui/ctrl/drop_down.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
@@ -224,6 +225,8 @@ private:
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
+  ctrl::drop_down_list<std::string> encoding_down;
+
   value_block<float> x_pos;
   value_block<float> y_pos;
   value_block<float> w_pos;
@@ -416,6 +419,12 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   capture_button.create(right_button_view);
   save_button.create(right_button_view);
   clear_button.create(right_button_view);
+
+  auto encodings = encoder.get_output_port().get_supported_encodings();
+  encoding_down.set_data([=](std::size_t i) { return ostreamfmt(four_cc(encodings[i])); }, encodings.size());
+  encoding_down.create(right_button_view);
+  encoding_down.set_visible_items(8);
+  encoding_down.set_selection(0, event_source::logic);
 
   get_layout().set_center_top_bottom_left_right(&capture_view, &spectrum_view, &values_view, nullptr, nullptr);
   load_settings();

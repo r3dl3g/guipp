@@ -45,14 +45,14 @@ namespace gui {
       public:
         using image_data = std::basic_string<uint8_t>;
 
-        raspi_encoder (core::port source_output_port);
-        ~raspi_encoder ();
-
         image_data get_data () const;
 
         void clear_data ();
 
       protected:
+        raspi_encoder (core::port source_output_port);
+        ~raspi_encoder ();
+
         using buffer_type = std::basic_ostringstream<uint8_t>;
 
         core::port get_output_port () const;
@@ -100,7 +100,29 @@ namespace gui {
       public:
         using super = raspi_encoder;
 
-        raspi_image_encoder (core::port source_output_port, MMAL_FOURCC_T encoding);
+        enum class InEncoding : MMAL_FOURCC_T {
+          RGB16 = MMAL_ENCODING_RGB16,
+          RGB24 = MMAL_ENCODING_RGB24,
+          RGBA  = MMAL_ENCODING_RGBA,
+          BGRA  = MMAL_ENCODING_BGRA,
+          I420  = MMAL_ENCODING_I420,
+          I422  = MMAL_ENCODING_I422,
+          NV12  = MMAL_ENCODING_NV12,
+          YUYV  = MMAL_ENCODING_YUYV,
+          YVYU  = MMAL_ENCODING_YVYU,
+          VYUY  = MMAL_ENCODING_VYUY
+        };
+
+        enum class OutEncoding : MMAL_FOURCC_T {
+          JPEG  = MMAL_ENCODING_JPEG,
+          GIF   = MMAL_ENCODING_GIF,
+          PNG   = MMAL_ENCODING_PNG,
+          BMP   = MMAL_ENCODING_BMP,
+          PPM   = MMAL_ENCODING_PPM,
+          TGA   = MMAL_ENCODING_TGA
+        };
+
+        raspi_image_encoder (core::port source_output_port, OutEncoding encoding);
         ~raspi_image_encoder ();
 
         void capture (uint32_t timeout = 1000);
@@ -126,11 +148,81 @@ namespace gui {
       public:
         using super = raspi_image_encoder;
 
-        raspi_resizer (core::port source_output_port, MMAL_FOURCC_T encoding, bool isp);
+        enum class InEncoding : MMAL_FOURCC_T {
+          RGBA        = MMAL_ENCODING_RGBA,
+          RGBA_SLICE  = MMAL_ENCODING_RGBA_SLICE,
+          BGRA        = MMAL_ENCODING_BGRA,
+          BGRA_SLICE  = MMAL_ENCODING_BGRA_SLICE,
+          RGB16       = MMAL_ENCODING_RGB16,
+          RGB16_SLICE = MMAL_ENCODING_RGB16_SLICE,
+          I420        = MMAL_ENCODING_I420,
+          I420_SLICE  = MMAL_ENCODING_I420_SLICE
+        };
+
+        enum class OutEncoding : MMAL_FOURCC_T {
+          RGBA        = MMAL_ENCODING_RGBA,
+          RGBA_SLICE  = MMAL_ENCODING_RGBA_SLICE,
+          BGRA        = MMAL_ENCODING_BGRA,
+          BGRA_SLICE  = MMAL_ENCODING_BGRA_SLICE,
+          RGB16       = MMAL_ENCODING_RGB16,
+          RGB16_SLICE = MMAL_ENCODING_RGB16_SLICE,
+          I420        = MMAL_ENCODING_I420,
+          I420_SLICE  = MMAL_ENCODING_I420_SLICE
+        };
+
+        raspi_resizer (core::port source_output_port, OutEncoding encoding);
         ~raspi_resizer ();
 
-        MMAL_PARAMETER_RESIZE_T get_resize () const;
-        void set_resize (MMAL_PARAMETER_RESIZE_T config);
+      };
+
+      // --------------------------------------------------------------------------
+      class raspi_isp : public raspi_image_encoder {
+      public:
+        using super = raspi_image_encoder;
+
+        enum class InEncoding : MMAL_FOURCC_T {
+          BAYER_SBGGR8       = MMAL_ENCODING_BAYER_SBGGR8,
+          BAYER_SBGGR10DPCM8 = MMAL_ENCODING_BAYER_SBGGR10DPCM8,
+          BAYER_SBGGR10P     = MMAL_ENCODING_BAYER_SBGGR10P,
+          BAYER_SBGGR12P     = MMAL_ENCODING_BAYER_SBGGR12P,
+          YUYV               = MMAL_ENCODING_YUYV,
+          YVYU               = MMAL_ENCODING_YVYU,
+          VYUY               = MMAL_ENCODING_VYUY,
+          UYVY               = MMAL_ENCODING_UYVY,
+          I420               = MMAL_ENCODING_I420,
+          YV12               = MMAL_ENCODING_YV12,
+          I422               = MMAL_ENCODING_I422,
+          RGB24              = MMAL_ENCODING_RGB24,
+          BGR24              = MMAL_ENCODING_BGR24,
+          RGBA               = MMAL_ENCODING_RGBA,
+          BGRA               = MMAL_ENCODING_BGRA,
+          RGB16              = MMAL_ENCODING_RGB16,
+          YUVUV128           = MMAL_ENCODING_YUVUV128,
+          NV12               = MMAL_ENCODING_NV12,
+          NV21               = MMAL_ENCODING_NV21,
+        };
+
+        enum class OutEncoding : MMAL_FOURCC_T {
+          YUYV               = MMAL_ENCODING_YUYV,
+          YVYU               = MMAL_ENCODING_YVYU,
+          VYUY               = MMAL_ENCODING_VYUY,
+          UYVY               = MMAL_ENCODING_UYVY,
+          I420               = MMAL_ENCODING_I420,
+          YV12               = MMAL_ENCODING_YV12,
+          I422               = MMAL_ENCODING_I422,
+          RGB24              = MMAL_ENCODING_RGB24,
+          BGR24              = MMAL_ENCODING_BGR24,
+          RGBA               = MMAL_ENCODING_RGBA,
+          BGRA               = MMAL_ENCODING_BGRA,
+          RGB16              = MMAL_ENCODING_RGB16,
+          YUVUV128           = MMAL_ENCODING_YUVUV128,
+          NV12               = MMAL_ENCODING_NV12,
+          NV21               = MMAL_ENCODING_NV21,
+        };
+
+        raspi_isp (core::port source_output_port, OutEncoding encoding);
+        ~raspi_isp ();
+
       };
 
       // --------------------------------------------------------------------------

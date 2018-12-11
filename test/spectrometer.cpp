@@ -428,7 +428,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
 
   get_layout().set_center_top_bottom_left_right(&capture_view, &spectrum_view, &values_view, nullptr, nullptr);
   load_settings();
-  set_children_visible();
+//  set_children_visible();
 }
 
 void spectrometer::display () {

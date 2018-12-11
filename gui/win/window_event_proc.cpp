@@ -22,6 +22,8 @@
 // Common includes
 //
 #include <algorithm>
+#include <set>
+
 #ifdef WIN32
 # include <windowsx.h>
 #endif // WIN32
@@ -468,7 +470,7 @@ namespace gui {
                               &x, &y, &child);
 
         core::rectangle area = w.absolute_place();
-        return !area.is_inside(core::point(x, y));
+        return !area.is_inside(core::point(os::point{x, y}));
       }
       }
       return false;
@@ -569,6 +571,7 @@ namespace gui {
         }
 
         std::vector<core::event> retard_events;
+        std::set<win::window*> retard_windows;
 
         while (XPending(display) && running) {
           XNextEvent(display, &e);
@@ -580,7 +583,11 @@ namespace gui {
           }
 
           if (is_expose_event(e)) {
-            retard_events.emplace_back(e);
+            win::window* win = win::detail::get_event_window(e);
+            if (retard_windows.count(win) == 0) {
+              retard_events.emplace_back(e);
+              retard_windows.emplace(win);
+            }
           } else {
             process_event(e, resultValue);
             if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {

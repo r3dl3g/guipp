@@ -1024,15 +1024,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               get_id(),
                                               DefaultRootWindow(display),
-                                              static_cast<int>(pt.x()),
-                                              static_cast<int>(pt.y()),
-//                                              core::global::scale<int>(pt.x()),
-//                                              core::global::scale<int>(pt.y()),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {static_cast<core::point::type>(x), static_cast<core::point::type>(y)};
-//      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
@@ -1042,15 +1039,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
                                               get_id(),
-                                              static_cast<int>(pt.x()),
-                                              static_cast<int>(pt.y()),
-//                                              core::global::scale<int>(pt.x()),
-//                                              core::global::scale<int>(pt.y()),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {static_cast<core::point::type>(x), static_cast<core::point::type>(y)};
-//      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     void window::set_cursor (os::cursor c) {

@@ -18,6 +18,30 @@
 #define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
 #define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
 namespace gui { namespace raspi { namespace camera {
+
+  // --------------------------------------------------------------------------
+  struct four_cc {
+    four_cc (const std::string& type)
+      : m_type(type)
+    {}
+
+    std::string m_type;
+  };
+
+  std::ostream& operator<< (std::ostream& out, const four_cc& f) {
+    return out << f.m_type;
+  }
+
+  std::istream& operator>> (std::istream& in, four_cc& f) {
+    return in >> f.m_type;
+  }
+
+  struct port {
+    std::vector<four_cc> get_supported_encodings () {
+      return { {"RGB"}, {"RGBA"}, {"ARGB"}, {"BGR"}, {"BGRA"}, {"ABGR"} };
+    }
+  };
+
   struct raspi_camera {
     raspi_camera ()
       : cr{0, 0, 1, 1}
@@ -52,13 +76,8 @@ namespace gui { namespace raspi { namespace camera {
     int get_iso () const { return iso; }
     void set_iso (int i) { iso = i; }
 
-    int get_still_output_port () const {
-      return 0;
-    }
-
-    int get_pixel_per_line () const {
-      return 0;
-    }
+    port get_still_output_port () const { return {}; }
+    int get_pixel_per_line () const { return 0; }
 
   private:
     crop cr;
@@ -69,11 +88,13 @@ namespace gui { namespace raspi { namespace camera {
   };
 
   struct raspi_raw_encoder {
-    raspi_raw_encoder(int, int) {}
+    raspi_raw_encoder(port, int) {}
 
     void capture (int) {}
 
     using image_data = std::basic_string<uint8_t>;
+
+    port get_output_port () const { return {}; }
 
     image_data get_data () { return {}; }
     void clear_data () {}
@@ -100,7 +121,7 @@ class image_view : public client_control<background> {
 public:
   image_view () {
     this->on_paint(draw::paint([&] (const graphics& graph) {
-      if (image) {
+      if (image.is_valid()) {
         graph.copy_from(image, core::point::zero);
       } else {
         graph.fill(draw::rectangle(this->client_area()), background);

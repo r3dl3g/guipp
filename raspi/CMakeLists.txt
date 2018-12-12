@@ -20,7 +20,9 @@ if(NOT TARGET gui++-raspi-obj)
 
     add_definitions(${gui_defines})
 
+if (BUILD_FOR_ARM)
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+endif()
 
     add_library(gui++-raspi-obj OBJECT ${SOURCE_FILES})
     set_target_properties(gui++-raspi-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)

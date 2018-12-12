@@ -334,7 +334,7 @@ namespace gui {
                                          bool grab_focus)
       : super(background, grab_focus)
       , scrollbar(grab_focus)
-      , traits(item_size)
+      , traits(scale(item_size))
     {
       init();
     }
@@ -495,12 +495,12 @@ namespace gui {
 
     template<orientation V, typename T>
     inline void basic_list<V, T>::set_item_size (size_type item_size) {
-      traits.item_size = item_size;
+      traits.item_size = scale<size_type>(item_size);
     }
 
     template<orientation V, typename T>
     inline void basic_list<V, T>::set_item_size_and_background (size_type item_size, os::color background) {
-      traits.item_size = item_size;
+      traits.item_size = core::global::scale<size_type>(item_size);
       super::set_background(background);
     }
 

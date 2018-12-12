@@ -156,15 +156,25 @@ namespace gui {
       auto unsorted_path_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
-           return basepp::string::starts_with(i.path().filename().string(), ".");
-         }),
-         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
+          try {
+            return basepp::string::starts_with(i.path().filename().string(), ".");
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
+          return true;
+        }),
+        fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
 
       auto unsorted_dir_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
-          return !sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+          try {
+            return !sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
+          return true;
         }),
         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
@@ -172,7 +182,12 @@ namespace gui {
       auto unsorted_file_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
-          return sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+          try {
+            return sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
+          return true;
         }),
         fs::filtered_iterator(sys_fs::end(path_iterator(n))));
       }
@@ -180,10 +195,14 @@ namespace gui {
       auto sorted_path_info::sub_nodes(type const & n)->range {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)), e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          const bool is_hidden = basepp::string::starts_with(i->path().filename().string(), ".");
-          if (!is_hidden) {
-            v.emplace_back(*i);
-          }
+          try {
+            const bool is_hidden = basepp::string::starts_with(i->path().filename().string(), ".");
+            if (!is_hidden) {
+              v.emplace_back(*i);
+            }
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name_dirs_first<true>());
         return v;
@@ -193,9 +212,13 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          if (sys_fs::is_directory(i->path()) && !basepp::string::starts_with(i->path().filename().string(), ".")) {
-            v.emplace_back(*i);
-          }
+          try {
+            if (sys_fs::is_directory(i->path()) && !basepp::string::starts_with(i->path().filename().string(), ".")) {
+              v.emplace_back(*i);
+            }
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name<true>());
         return v;
@@ -205,9 +228,13 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
-          if (!(sys_fs::is_directory(i->path()) || basepp::string::starts_with(i->path().filename().string(), "."))) {
-            v.emplace_back(*i);
-          }
+          try {
+            if (!(sys_fs::is_directory(i->path()) || basepp::string::starts_with(i->path().filename().string(), "."))) {
+              v.emplace_back(*i);
+            }
+          } catch (std::exception& ex) {
+            LogWarng << ex;
+          } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name<true>());
         return v;

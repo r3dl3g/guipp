@@ -470,7 +470,8 @@ namespace gui {
                               &x, &y, &child);
 
         core::rectangle area = w.absolute_place();
-        return !area.is_inside(core::point(os::point{x, y}));
+        return !area.is_inside(core::point(os::point{static_cast<decltype(os::point::x)>(x),
+                                                     static_cast<decltype(os::point::x)>(y)}));
       }
       }
       return false;

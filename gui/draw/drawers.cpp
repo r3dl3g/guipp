@@ -378,7 +378,7 @@ namespace gui {
 
       Use<brush> br(g, b);
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
       Use<pen> pn(g, p);
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -389,7 +389,7 @@ namespace gui {
       Use<pen> pn(g, p);
       os::instance display = get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
     }
 
@@ -398,7 +398,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
 
       pen p(b.color());

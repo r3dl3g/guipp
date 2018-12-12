@@ -32,7 +32,7 @@
 #include <gui/ctrl/slider.h>
 
 
-//#define NO_CAPTURE
+#define NO_CAPTURE
 
 namespace gui {
 

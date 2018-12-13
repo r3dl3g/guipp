@@ -467,8 +467,8 @@ namespace gui {
 
       constexpr size_type two = size_type(2);
 
-      const size_type w = static_cast<size_type>(std::min(size.width(), rect.width() / 2));
-      const size_type h = static_cast<size_type>(std::min(size.height(), rect.height() / 2));
+      const size_type w = std::min(size.os_width(), static_cast<size_type>(rect.os_width() / 2));
+      const size_type h = std::min(size.os_height(), static_cast<size_type>(rect.os_height() / 2));
 
       const point_type x0 = rect.os_x();
       const point_type x3 = rect.os_x2();
@@ -566,7 +566,7 @@ namespace gui {
               unsigned int radius,
               float startrad,
               float endrad)
-      : pos(pos), radius(radius), start_radius(startrad), end_radius(endrad) {}
+      : pos(pos), radius(scale(radius)), start_radius(startrad), end_radius(endrad) {}
 
     void frame_arc (const graphics& g,
                     const pen& p,
@@ -574,16 +574,20 @@ namespace gui {
                     unsigned int radius,
                     float startrad,
                     float endrad) {
+
+      os::point_type mx = pos.os_x();
+      os::point_type my = pos.os_y();
+
       Use<pen> pn(g, p);
-      int x = pos.os_x() - radius;
-      int y = pos.os_y() - radius;
+      int x0 = mx - radius;
+      int y0 = my - radius;
       unsigned int sz = radius * 2;
 
       while (endrad < startrad) {
         endrad += 360;
       }
 
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
+      XDrawArc(get_instance(), g, g, x0, y0, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
 
       int istart = int(startrad * 1000.0F) % 360000;
       int iend = int(endrad * 1000.0F) % 360000;
@@ -591,12 +595,12 @@ namespace gui {
         double start = M_PI * startrad / 180.0;
         double end = M_PI * endrad / 180.0;
         os::point pt[3];
-        pt[0].x = short(pos.x() + int(radius * cos(start)));
-        pt[0].y = short(pos.y() - int(radius * sin(start)));
-        pt[1].x = short(pos.x());
-        pt[1].y = short(pos.y());
-        pt[2].x = short(pos.x() + int(radius * cos(end)));
-        pt[2].y = short(pos.y() - int(radius * sin(end)));
+        pt[0].x = short(mx + int(radius * cos(start)));
+        pt[0].y = short(my - int(radius * sin(start)));
+        pt[1].x = short(mx);
+        pt[1].y = short(my);
+        pt[2].x = short(mx + int(radius * cos(end)));
+        pt[2].y = short(my - int(radius * sin(end)));
         XDrawLines(get_instance(), g, g, pt, 3, CoordModeOrigin);
       }
     }

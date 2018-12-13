@@ -264,7 +264,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation H, scrollbar_drawer D = paint::scrollbar_w95>
+    template<orientation H,
+#ifdef BUILD_FOR_ARM
+             scrollbar_drawer D = paint::scrollbar_w95>
+#else
+             scrollbar_drawer D = paint::scrollbar>
+#endif
     class scroll_bar_base : public basic_scroll_bar<H> {
     public:
       typedef basic_scroll_bar<H> super;

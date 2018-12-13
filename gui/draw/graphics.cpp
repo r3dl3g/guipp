@@ -599,11 +599,15 @@ namespace gui {
     void buffered_paint::operator() (os::window id, const os::graphics& g) {
       if (p) {
         draw::graphics graph(id, g);
+#ifndef BUILD_FOR_ARM
         const auto area = graph.area();
         draw::pixmap buffer(area.size());
         draw::graphics buffer_graph(buffer);
         p(buffer_graph);
         graph.copy_from(buffer_graph);
+#else
+        p(graph);
+#endif
       }
     }
 

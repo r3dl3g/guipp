@@ -28,16 +28,45 @@
 //
 // Library includes
 //
-#include <interface/mmal/mmal.h>
-#include <interface/mmal/util/mmal_connection.h>
-#include <interface/mmal/util/mmal_util_params.h>
 #include <interface/mmal/util/mmal_util.h>
+#include <interface/mmal/util/mmal_util_params.h>
+#include <interface/mmal/util/mmal_connection.h>
 
 namespace gui {
 
   namespace raspi {
 
     namespace core {
+
+      // --------------------------------------------------------------------------
+      struct four_cc {
+        four_cc (MMAL_FOURCC_T t = MMAL_FOURCC(' ',' ',' ',' '))
+          : type{ .uint32 = t }
+        {}
+
+        operator bool () const {
+          return type.uint32 != 0;
+        }
+
+        operator MMAL_FOURCC_T () const {
+          return type.uint32;
+        }
+
+        bool operator== (const four_cc& rhs) const {
+          return type.uint32 == rhs.type.uint32;
+        }
+
+        four_cc& operator= (MMAL_FOURCC_T t) {
+          type.uint32 = t;
+          return *this;
+        }
+
+        union {
+          char          char4[4];
+          MMAL_FOURCC_T uint32;
+        } type;
+      };
+
       // --------------------------------------------------------------------------
       class buffer {
       public:
@@ -86,7 +115,7 @@ namespace gui {
           return data != nullptr;
         }
 
-        auto get_command () const -> decltype(MMAL_BUFFER_HEADER_T::cmd) {
+        uint32_t get_command () const {
           return data->cmd;
         }
 
@@ -100,6 +129,14 @@ namespace gui {
 
         uint32_t get_flags () const {
           return data->flags;
+        }
+
+        int64_t get_presentation_timestamp () const {
+          return data->pts;
+        }
+
+        int64_t get_decode_timestamp () const {
+          return data->dts;
         }
 
       private:
@@ -178,6 +215,18 @@ namespace gui {
           : data(d)
         {}
 
+        connection (connection&& rhs)
+          : data(std::move(rhs.data))
+        {
+          rhs.detach();
+        }
+
+        void operator= (connection&& rhs) {
+          destroy();
+          data = std::move(rhs.data);
+          rhs.detach();
+        }
+
         ~connection () {
           destroy();
         }
@@ -241,20 +290,9 @@ namespace gui {
           return data != nullptr;
         }
 
-        MMAL_STATUS_T enable (MMAL_PORT_BH_CB_T cb) {
-          disable();
-          if (data->is_enabled) {
-            return MMAL_ENOSPC;
-          }
-          return mmal_port_enable(data, cb);
-        }
+        MMAL_STATUS_T enable (MMAL_PORT_BH_CB_T cb);
 
-        MMAL_STATUS_T disable () {
-          if (data->is_enabled) {
-            return mmal_port_disable(data);
-          }
-          return MMAL_SUCCESS;
-        }
+        MMAL_STATUS_T disable ();
 
         MMAL_STATUS_T flush () {
           return mmal_port_flush(data);
@@ -285,16 +323,8 @@ namespace gui {
           return set(t.hdr);
         }
 
-        MMAL_STATUS_T set_bool (uint32_t id, bool v) {
-          MMAL_PARAMETER_BOOLEAN_T t = {{id, sizeof(MMAL_PARAMETER_BOOLEAN_T)}, v ? MMAL_TRUE : MMAL_FALSE};
-          return set(t.hdr);
-        }
-
-        bool get_bool (uint32_t id) {
-          MMAL_PARAMETER_BOOLEAN_T t = {{id, sizeof(MMAL_PARAMETER_BOOLEAN_T)}};
-          get(t.hdr);
-          return t.enable != MMAL_FALSE;
-        }
+        MMAL_STATUS_T set_bool (uint32_t id, bool v);
+        bool get_bool (uint32_t id);
 
         MMAL_STATUS_T set_int32 (uint32_t id, int32_t v) {
           return set<MMAL_PARAMETER_INT32_T>(id, v);
@@ -327,9 +357,7 @@ namespace gui {
           return r;
         }
 
-        MMAL_STATUS_T connect (port& rhs) {
-          return mmal_port_connect(data, rhs.data);
-        }
+        MMAL_STATUS_T connect (port& rhs);
 
         MMAL_STATUS_T disconnect () {
           return mmal_port_disconnect(data);
@@ -351,19 +379,19 @@ namespace gui {
           return data->is_enabled;
         }
 
-        size_num get_buffer_min () const {
+        size_num get_min_buffer_size () const {
           return {data->buffer_num_min, data->buffer_size_min};
         }
 
-        size_num get_buffer_recommended () const {
+        size_num get_recommended_buffer_size () const {
           return {data->buffer_num_recommended, data->buffer_size_recommended};
         }
 
-        size_num get_buffer () const {
+        size_num get_buffer_size () const {
           return {data->buffer_num, data->buffer_size};
         }
 
-        void set_buffer (size_num sz) {
+        void set_buffer_size (size_num sz) {
           data->buffer_num = sz.num;
           data->buffer_size = sz.size;
         }
@@ -376,9 +404,12 @@ namespace gui {
           return *data->format;
         }
 
-        MMAL_STATUS_T set_format (MMAL_ES_FORMAT_T& f) {
-          *(data->format) = f;
-          return commit_format_change();
+        MMAL_STATUS_T set_format (MMAL_ES_FORMAT_T& f);
+
+        MMAL_STATUS_T set_encoding (four_cc f);
+
+        four_cc get_encoding () const {
+          return data->format->encoding;
         }
 
         void copy_format_from (const port& rhs) {
@@ -389,39 +420,11 @@ namespace gui {
           data->userdata = (struct MMAL_PORT_USERDATA_T*)ptr;
         }
 
-        connection connect_in_port (port& in, uint32_t flags) {
-          MMAL_CONNECTION_T* con;
-          mmal_connection_create(&con, data, in.data, flags);
-          return connection(con);
-        }
+        connection connect_in_port (port& in, uint32_t flags);
 
-        MMAL_STATUS_T capture () {
-          return set_bool(MMAL_PARAMETER_CAPTURE, true);
-        }
+        MMAL_STATUS_T capture ();
 
-        std::vector<MMAL_FOURCC_T> get_supported_encodings () const {
-          std::vector<MMAL_FOURCC_T> encodings;
-
-          auto sz = sizeof(MMAL_PARAMETER_ENCODING_T);
-          MMAL_PARAMETER_ENCODING_T t = {{MMAL_PARAMETER_SUPPORTED_ENCODINGS, sz}};
-          MMAL_STATUS_T stat = get(t.hdr);
-          if (stat == MMAL_SUCCESS) {
-              encodings.emplace_back(t.encoding[0]);
-          } else if (stat == MMAL_ENOSPC) {
-            MMAL_PARAMETER_ENCODING_T* t2 = (MMAL_PARAMETER_ENCODING_T*)new char[t.hdr.size];
-            t2->hdr.id = MMAL_PARAMETER_SUPPORTED_ENCODINGS;
-            t2->hdr.size = t.hdr.size;
-            stat = get(t2->hdr);
-            if (MMAL_SUCCESS == stat) {
-              auto count = t2->hdr.size / sizeof(MMAL_FOURCC_T);
-              for (int i = 0; (i < count) && t2->encoding[i]; ++i) {
-                encodings.emplace_back(t2->encoding[i]);
-              }
-            }
-            delete [] (char*)t2;
-          }
-          return encodings;
-        }
+        std::vector<four_cc> get_supported_encodings () const;
 
       private:
         MMAL_PORT_T* data;

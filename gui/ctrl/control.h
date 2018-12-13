@@ -247,17 +247,6 @@ namespace gui {
       super::create(clazz::get(), parent, r);
     }
 
-    // --------------------------------------------------------------------------
-    template<typename T>
-    T scale (T v) {
-      return static_cast<T>(v * core::global::get_scale_factor());
-    }
-
-    template<typename T>
-    T unscale (T v) {
-      return static_cast<T>(v / core::global::get_scale_factor());
-    }
-
   } // ctrl
 
 } // gui

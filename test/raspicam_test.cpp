@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
 
   camera.set_defaults(1000);
 
-  MMAL_FOURCC_T encoding = 0;
+  gui::raspi::core::four_cc encoding = 0;
   bool raw = false;
   std::string outname = "raspicam_test";
 
@@ -34,7 +34,7 @@ int main(int argc, const char* argv[]) {
   {
     {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG(default), PPM, JPEG, GIF, TGA)",
       [&](const std::string& arg) {
-        encoding = parse_arg<four_cc>(arg, "encoding").m_type;
+        encoding = parse_arg<gui::raspi::core::four_cc>(arg, "encoding");
       }},
     {"-r", "--raw", {}, "Use raw capture (-f: BD10, bRA8, bGA8, BGGR, RGAA, I420, S420, I422, S422, RGBA, rgba, RGB3, rgb3)",
       [&](const std::string&) {
@@ -96,30 +96,30 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_RGB24_SLICE;
     }
-    raspi_raw_encoder encoder(camera.get_still_output_port(), encoding);
-    LogInfo << "raw capture " << four_cc(encoding);
+    raspi_raw_encoder encoder(camera.get_still_output_port(), encoding.type.uint32);
+    LogInfo << "raw capture " << encoding;
     encoder.capture(5000);
 
     raspi_encoder::image_data data = encoder.get_data();
 
     LogInfo << "get_data size:" << data.length();
 
-    std::ofstream file(ostreamfmt(outname << "." << four_cc(encoding)));
+    std::ofstream file(ostreamfmt(outname << "." << encoding));
     file.write((const char*)data.c_str(), data.length());
 
   } else {
     if (!encoding) {
       encoding = MMAL_ENCODING_PNG;
     }
-    raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding));
-    LogInfo << "encoded capture " << four_cc(encoding);
+    raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
+    LogInfo << "encoded capture " << encoding;
     encoder.capture(10000);
 
     auto data = encoder.get_data();
 
     LogInfo << "get_data size:" << data.length();
 
-    std::ofstream file(ostreamfmt(outname << "." << four_cc(encoding)));
+    std::ofstream file(ostreamfmt(outname << "." << encoding));
     file.write((const char*)data.c_str(), data.length());
   }
 

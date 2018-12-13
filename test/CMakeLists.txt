@@ -18,7 +18,6 @@ elseif (UNIX)
   add_definitions(-DX11 -std=c++11)
 endif()
 
-
 add_subdirectory(./../gui gui)
 
 add_definitions(${gui_defines})

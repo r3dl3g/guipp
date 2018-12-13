@@ -76,11 +76,16 @@ namespace gui {
                              const core::rectangle& r,
                              const button_state& state);
 
+      GUIPP_CTRL_EXPORT void button_frame_w95 (const draw::graphics& graph,
+                                               const core::rectangle& r,
+                                               bool enabled, bool pushed,
+                                               bool hilited, bool focused);
+
       GUIPP_CTRL_EXPORT void simple_frame (const draw::graphics& graph,
-                         const core::rectangle& r,
-                         bool hilite = false,
-                         uint32_t horizontal = 3,
-                         uint32_t vertical = 3);
+                                           const core::rectangle& r,
+                                           bool hilite = false,
+                                           uint32_t horizontal = 3,
+                                           uint32_t vertical = 3);
 
       GUIPP_CTRL_EXPORT void flat_button (const draw::graphics& g,
                         const core::rectangle& r,

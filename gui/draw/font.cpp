@@ -62,14 +62,20 @@ namespace gui {
 
     template<typename T>
     inline T font_scale (T v) {
+#ifdef BUILD_FOR_ARM
+      return static_cast<T>((double)v * core::global::get_scale_factor());
+#else
       return v;
-//      return static_cast<T>((double)v * core::global::get_scale_factor());
+#endif
     }
 
     template<typename T>
     inline T font_unscale (T v) {
+#ifdef BUILD_FOR_ARM
+      return static_cast<T>((double)v / core::global::get_scale_factor());
+#else
       return v;
-//      return static_cast<T>((double)v / core::global::get_scale_factor());
+#endif
     }
 
 #ifdef WIN32

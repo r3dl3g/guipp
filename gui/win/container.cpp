@@ -487,7 +487,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
-      LogDebug << *this << " Enter modal loop";
+      LogTrace << *this << " Enter modal loop";
 
       redraw();
 
@@ -530,7 +530,7 @@ namespace gui {
         return detail::check_expose(e);
       });
 
-      LogDebug << *this << " Exit modal loop";
+      LogTrace << *this << " Exit modal loop";
     }
 
 #ifdef X11

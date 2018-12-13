@@ -89,6 +89,7 @@ namespace gui {
         void disable ();
 
         core::port get_output_port ();
+        core::port get_input_port ();
 
       protected:
         void init (MMAL_FOURCC_T encoding);
@@ -101,6 +102,7 @@ namespace gui {
         using super = raspi_encoder;
 
         enum class InEncoding : MMAL_FOURCC_T {
+          OPAC  = MMAL_ENCODING_OPAQUE,
           RGB16 = MMAL_ENCODING_RGB16,
           RGB24 = MMAL_ENCODING_RGB24,
           RGBA  = MMAL_ENCODING_RGBA,
@@ -114,6 +116,7 @@ namespace gui {
         };
 
         enum class OutEncoding : MMAL_FOURCC_T {
+          OPAC  = MMAL_ENCODING_OPAQUE,
           JPEG  = MMAL_ENCODING_JPEG,
           GIF   = MMAL_ENCODING_GIF,
           PNG   = MMAL_ENCODING_PNG,
@@ -130,6 +133,7 @@ namespace gui {
         void disable ();
 
         core::port& get_output_port ();
+        core::port& get_input_port ();
 
       protected:
         raspi_image_encoder (core::port source_output_port);
@@ -140,6 +144,8 @@ namespace gui {
         core::port m_encoder_input_port;
         core::port m_encoder_output_port;
 
+        MMAL_FOURCC_T m_encoding;
+
         void init (MMAL_FOURCC_T encoding);
       };
 
@@ -149,6 +155,7 @@ namespace gui {
         using super = raspi_image_encoder;
 
         enum class InEncoding : MMAL_FOURCC_T {
+          OPAC        = MMAL_ENCODING_OPAQUE,
           RGBA        = MMAL_ENCODING_RGBA,
           RGBA_SLICE  = MMAL_ENCODING_RGBA_SLICE,
           BGRA        = MMAL_ENCODING_BGRA,
@@ -160,6 +167,7 @@ namespace gui {
         };
 
         enum class OutEncoding : MMAL_FOURCC_T {
+          OPAC        = MMAL_ENCODING_OPAQUE,
           RGBA        = MMAL_ENCODING_RGBA,
           RGBA_SLICE  = MMAL_ENCODING_RGBA_SLICE,
           BGRA        = MMAL_ENCODING_BGRA,
@@ -181,6 +189,7 @@ namespace gui {
         using super = raspi_image_encoder;
 
         enum class InEncoding : MMAL_FOURCC_T {
+          OPAC               = MMAL_ENCODING_OPAQUE,
           BAYER_SBGGR8       = MMAL_ENCODING_BAYER_SBGGR8,
           BAYER_SBGGR10DPCM8 = MMAL_ENCODING_BAYER_SBGGR10DPCM8,
           BAYER_SBGGR10P     = MMAL_ENCODING_BAYER_SBGGR10P,
@@ -203,6 +212,7 @@ namespace gui {
         };
 
         enum class OutEncoding : MMAL_FOURCC_T {
+          OPAC               = MMAL_ENCODING_OPAQUE,
           YUYV               = MMAL_ENCODING_YUYV,
           YVYU               = MMAL_ENCODING_YVYU,
           VYUY               = MMAL_ENCODING_VYUY,

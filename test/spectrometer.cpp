@@ -246,7 +246,9 @@ private:
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
-  ctrl::drop_down_list<std::string> encoding_down;
+  ctrl::drop_down_list<gui::raspi::core::four_cc> camera_out_encoding_down;
+  ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
+  ctrl::drop_down_list<raspi::core::four_cc> encoder_out_encoding_down;
 
   value_block<float> x_pos;
   value_block<float> y_pos;
@@ -265,14 +267,16 @@ private:
   image_view<> spectrum_view;
 
   raspi_camera camera;
-  raspi_raw_encoder encoder;
+
+  typedef raspi_image_encoder encoder_type;
+  encoder_type encoder;
 
   raspi_raw_encoder::image_data data;
 };
 
 spectrometer::spectrometer ()
   : super(160, 160, 0, 0)
-  , encoder(camera.get_still_output_port(), MMAL_ENCODING_RGB24_SLICE)
+  , encoder(camera.get_still_output_port(), encoder_type::OutEncoding::PPM)
   , extra_bytes(0)
 {
   on_create(basepp::bind_method(this, &spectrometer::onCreated));
@@ -296,6 +300,7 @@ spectrometer::spectrometer ()
 
   fullview_button.set_text("1/1");
   halfview_button.set_text("1/2");
+
   quarterview_button.set_text("1/4");
 
   capture_button.on_clicked(basepp::bind_method(this, &spectrometer::capture));
@@ -441,11 +446,37 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   save_button.create(right_button_view);
   clear_button.create(right_button_view);
 
-  auto encodings = encoder.get_output_port().get_supported_encodings();
-  encoding_down.set_data([=](std::size_t i) { return ostreamfmt(four_cc(encodings[i])); }, encodings.size());
-  encoding_down.create(right_button_view);
-  encoding_down.set_visible_items(8);
-  encoding_down.set_selection(0, event_source::logic);
+  auto still_out = camera.get_still_output_port();
+
+  auto out_encodings = still_out.get_supported_encodings();
+  camera_out_encoding_down.set_data([=](std::size_t i) { return out_encodings[i]; }, out_encodings.size());
+  camera_out_encoding_down.create(right_button_view, {0,0, 20, 20});
+  camera_out_encoding_down.set_visible_items(8);
+  camera_out_encoding_down.set_selected_item(still_out.get_encoding());
+  camera_out_encoding_down.items().on_selection_changed([&] (event_source) {
+    camera.get_still_output_port().set_encoding(camera_out_encoding_down.get_selected_item());
+  });
+
+  auto enc_in = encoder.get_input_port();
+  auto in_encodings = enc_in.get_supported_encodings();
+  encoder_in_encoding_down.set_data([=](std::size_t i) { return in_encodings[i]; }, in_encodings.size());;
+  encoder_in_encoding_down.create(right_button_view, {0,0, 20, 20});
+  encoder_in_encoding_down.set_visible_items(8);
+  encoder_in_encoding_down.set_selected_item(enc_in.get_encoding());
+//  encoder_in_encoding_down.set_selected_item(enc_in.get_format().encoding);
+  encoder_in_encoding_down.items().on_selection_changed([&] (event_source) {
+    encoder.get_input_port().set_encoding(encoder_in_encoding_down.get_selected_item());
+  });
+
+  auto enc_out = encoder.get_output_port();
+  auto out_encodings2 = encoder.get_output_port().get_supported_encodings();
+  encoder_out_encoding_down.set_data([=](std::size_t i) { return out_encodings2[i]; }, out_encodings2.size());;
+  encoder_out_encoding_down.create(right_button_view, {0,0, 20, 20});;
+  encoder_out_encoding_down.set_visible_items(8);;
+  encoder_out_encoding_down.set_selected_item(enc_out.get_encoding());
+  encoder_out_encoding_down.items().on_selection_changed([&] (event_source) {
+    encoder.get_output_port().set_encoding(encoder_out_encoding_down.get_selected_item());
+  });
 
   get_layout().set_center_top_bottom_left_right(&capture_view, &spectrum_view, &values_view, nullptr, nullptr);
   load_settings();
@@ -456,8 +487,8 @@ void spectrometer::display () {
   auto sz = camera.get_size();
   LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line();
   if (data.size()) {
-    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
-    const_image_data<PixelFormat::RGB> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
+    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
+    const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
 //  rgbmap image(capture_view.size());
 //  image.stretch_from(rgbmap(image_data));
     capture_view.image = image_data;

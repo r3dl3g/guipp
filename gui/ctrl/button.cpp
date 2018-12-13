@@ -363,18 +363,24 @@ namespace gui {
       void button_frame_w95 (const draw::graphics& graph,
                              const core::rectangle& r,
                              const button_state& state) {
+        button_frame_w95(graph, r, state.is_enabled(), state.is_pushed(),
+                         state.is_hilited(), state.has_focus());
+      }
+
+      // --------------------------------------------------------------------------
+      void button_frame_w95 (const draw::graphics& graph,
+                             const core::rectangle& r,
+                             bool enabled, bool pushed, bool hilited, bool focused) {
         core::rectangle area = r;
-        bool enabled = state.is_enabled();
-        bool pushed = state.is_pushed();
-        graph.fill(draw::rectangle(area), enabled && state.is_hilited() ? color::buttonHighLightColor() : color::buttonColor());
-        if (enabled && state.has_focus()) {
+        graph.fill(draw::rectangle(area), enabled && hilited ? color::buttonHighLightColor() : color::buttonColor());
+        if (enabled && focused) {
           graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
 
         draw::frame::deep_relief(graph, area, pushed);
 
-        if (enabled && state.has_focus() && !pushed) {
+        if (enabled && focused && !pushed) {
           core::rectangle area = r;
           area.shrink({6, 6});
           graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));

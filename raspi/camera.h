@@ -65,6 +65,7 @@ namespace gui {
         };
 
         enum class OutEncoding : MMAL_FOURCC_T {
+          OPAC =  MMAL_ENCODING_OPAQUE,
           I420 =  MMAL_ENCODING_I420,
           NV12 =  MMAL_ENCODING_NV12,
           I422 =  MMAL_ENCODING_I422,
@@ -271,21 +272,6 @@ namespace gui {
       std::istream& operator>> (std::istream&, raspi_camera::size&);
 
       // --------------------------------------------------------------------------
-      struct four_cc {
-        four_cc (MMAL_FOURCC_T t = MMAL_FOURCC(' ',' ',' ',' '), bool strip = true)
-          : m_type(t)
-          , m_strip(strip)
-        {}
-
-        MMAL_FOURCC_T m_type;
-        const bool m_strip;
-      };
-
-      // --------------------------------------------------------------------------
-      std::ostream& operator<< (std::ostream&, const four_cc&);
-      std::istream& operator>> (std::istream&, four_cc&);
-
-      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
 
     } // namespace camera
@@ -295,6 +281,9 @@ namespace gui {
 } // namespace gui
 
 namespace std {
+  std::ostream& operator<< (std::ostream&, const gui::raspi::core::four_cc&);
+  std::istream& operator>> (std::istream&, gui::raspi::core::four_cc&);
+  // --------------------------------------------------------------------------
   ostream& operator<< (ostream&, const MMAL_RECT_T&);
   ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_CONFIG_T&);
   ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T&);

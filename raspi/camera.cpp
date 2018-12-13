@@ -140,10 +140,10 @@ namespace gui {
             case MMAL_PARAMETER_CAMERA_SETTINGS: {
               MMAL_PARAMETER_CAMERA_SETTINGS_T *settings = (MMAL_PARAMETER_CAMERA_SETTINGS_T*)param;
               LogDebug << "camera_control_callback for port:'" << port->name
-                       << "' encoding:'" << four_cc(port->format->encoding)
+                       << "' encoding:'" << core::four_cc(port->format->encoding)
                        << "' crop:" << port->format->es->video.crop
                        << " size:" << port->format->es->video.width << " x " << port->format->es->video.width
-                       << " color_space:'" << four_cc(port->format->es->video.color_space) << "'";
+                       << " color_space:'" << core::four_cc(port->format->es->video.color_space) << "'";
               // variant:'" << four_cc(port->format->encoding_variant) << "'";
               LogInfo << "Exposure now " << settings->exposure
                       << ", analog gain " << settings->analog_gain.num << "/" << settings->analog_gain.den
@@ -856,26 +856,6 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      std::ostream& operator<< (std::ostream& out, const four_cc& fourcc) {
-        if (fourcc.m_strip) {
-          std::string str((const char*)&fourcc.m_type, 4);
-          basepp::string::trim(str);
-          out << str;
-        } else {
-          out.write((const char*)&fourcc.m_type, 4);
-        }
-        return out;
-      }
-
-      std::istream& operator>> (std::istream& in, four_cc& fourcc) {
-        in >> *((char*)&fourcc.m_type);
-        in >> *(((char*)&fourcc.m_type)+1);
-        in >> *(((char*)&fourcc.m_type)+2);
-        in >> *(((char*)&fourcc.m_type)+3);
-        return in;
-      }
-
-      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
 
     } // camera
@@ -885,6 +865,26 @@ namespace gui {
 } // gui
 
 namespace std {
+  std::ostream& operator<< (std::ostream& out, const gui::raspi::core::four_cc& fourcc) {
+//    if (fourcc.m_strip) {
+      std::string str(fourcc.type.char4, 4);
+      basepp::string::trim(str);
+      out << str;
+//    } else {
+//      out.write((const char*)&fourcc.m_type, 4);
+//    }
+    return out;
+  }
+
+  std::istream& operator>> (std::istream& in, gui::raspi::core::four_cc& fourcc) {
+    in >> *((char*)&fourcc.type.uint32);
+    in >> *(((char*)&fourcc.type.uint32)+1);
+    in >> *(((char*)&fourcc.type.uint32)+2);
+    in >> *(((char*)&fourcc.type.uint32)+3);
+    return in;
+  }
+
+  // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const MMAL_RECT_T& v) {
     out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
     return out;

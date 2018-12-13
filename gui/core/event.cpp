@@ -32,6 +32,20 @@
 #include <gui/core/event.h>
 #include <base/logger.h>
 
+namespace gui {
+  namespace win {
+    extern Atom WM_LAYOUT_WINDOW;
+
+    namespace x11 {
+
+      extern Atom WM_CREATE_WINDOW;
+      extern Atom WM_DELETE_WINDOW;
+      extern Atom WM_PROTOCOLS;
+      extern Atom WM_TAKE_FOCUS;
+
+    } // namespace x11
+  } // namespace win
+} // namespace gui
 
 namespace std {
 
@@ -629,8 +643,21 @@ namespace std {
       case ColormapNotify:
         out << window(e.xcolormap);
       break;
-      case ClientMessage:
+      case ClientMessage: {
+        using namespace gui::win;;
+        if (e.xclient.message_type == x11::WM_CREATE_WINDOW) {
+          out << " WM_CREATE_WINDOW ";
+        } else if (e.xclient.message_type == x11::WM_DELETE_WINDOW) {
+          out << " WM_DELETE_WINDOW ";
+        } else if (e.xclient.message_type == WM_LAYOUT_WINDOW) {
+          out << " WM_LAYOUT_WINDOW ";
+        } else if (e.xclient.message_type == x11::WM_PROTOCOLS) {
+          out << " WM_PROTOCOLS ";
+        } else if (e.xclient.message_type == x11::WM_TAKE_FOCUS) {
+          out << " WM_TAKE_FOCUS ";
+        }
         out << window(e.xclient);
+      }
       break;
       case MappingNotify:
         out << window(e.xmapping) << count(e.xmapping);

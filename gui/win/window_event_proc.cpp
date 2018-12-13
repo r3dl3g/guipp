@@ -22,6 +22,8 @@
 // Common includes
 //
 #include <algorithm>
+#include <set>
+
 #ifdef WIN32
 # include <windowsx.h>
 #endif // WIN32
@@ -416,202 +418,227 @@ namespace gui {
 #ifdef X11
       if (e.type == KeyPress) {
 #endif // X11
-      hot_key hk(get_key_symbol(e), get_key_state(e));
-      auto i = detail::hot_keys.find(hk);
-      if (i != detail::hot_keys.end()) {
-        i->second.second();
-        return true;
+        hot_key hk(get_key_symbol(e), get_key_state(e));
+        auto i = detail::hot_keys.find(hk);
+        if (i != detail::hot_keys.end()) {
+          i->second.second();
+          return true;
+        }
       }
-    }
 
-    return false;
-  }
+      return false;
+    }
 
 #ifdef WIN32
-  bool is_button_event_outside (const window& w, const core::event& e) {
-    switch (e.type) {
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONDOWN:
-    case WM_RBUTTONUP:
-    case WM_RBUTTONDBLCLK:
-    case WM_MBUTTONDOWN:
-    case WM_MBUTTONUP:
-    case WM_MBUTTONDBLCLK: {
-      POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
-      ClientToScreen(e.id, &pt);
-      RECT r;
-      GetWindowRect(w.get_id(), &r);
-      return !PtInRect(&r, pt);
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      switch (e.type) {
+      case WM_LBUTTONDOWN:
+      case WM_LBUTTONUP:
+      case WM_LBUTTONDBLCLK:
+      case WM_RBUTTONDOWN:
+      case WM_RBUTTONUP:
+      case WM_RBUTTONDBLCLK:
+      case WM_MBUTTONDOWN:
+      case WM_MBUTTONUP:
+      case WM_MBUTTONDBLCLK: {
+        POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
+        ClientToScreen(e.id, &pt);
+        RECT r;
+        GetWindowRect(w.get_id(), &r);
+        return !PtInRect(&r, pt);
+      }
+      }
+      return false;
     }
-    }
-    return false;
-  }
 
 #endif // WIN32
 #ifdef X11
-  bool is_button_event_outside (const window& w, const core::event& e) {
-    switch (e.type) {
-    case ButtonPress:
-    case ButtonRelease: {
-      if (e.xbutton.window == w.get_id()) {
-        return false;
-      }
-      int x, y;
-      Window child;
-      auto display = core::global::get_instance();
-      XTranslateCoordinates(display,
-                            e.xbutton.window,
-                            DefaultRootWindow(display),
-                            e.xbutton.x, e.xbutton.y,
-                            &x, &y, &child);
+    bool is_button_event_outside (const window& w, const core::event& e) {
+      switch (e.type) {
+      case ButtonPress:
+      case ButtonRelease: {
+        if (e.xbutton.window == w.get_id()) {
+          return false;
+        }
+        int x, y;
+        Window child;
+        auto display = core::global::get_instance();
+        XTranslateCoordinates(display,
+                              e.xbutton.window,
+                              DefaultRootWindow(display),
+                              e.xbutton.x, e.xbutton.y,
+                              &x, &y, &child);
 
-      core::rectangle area = w.absolute_place();
-      return !area.is_inside(core::point(x, y));
+        core::rectangle area = w.absolute_place();
+        return !area.is_inside(core::point(os::point{static_cast<decltype(os::point::x)>(x),
+                                                     static_cast<decltype(os::point::x)>(y)}));
+      }
+      }
+      return false;
     }
-    }
-    return false;
-  }
 
 #endif // X11
 
-  struct in_event_handle_state {
-    inline in_event_handle_state (const window& win)
-      : state(win.get_state())
-    {
-      state.set_in_event_handle(true);
+    struct in_event_handle_state {
+      inline in_event_handle_state (const window& win)
+        : state(win.get_state())
+      {
+        state.set_in_event_handle(true);
+      }
+
+      inline ~in_event_handle_state () {
+        state.set_in_event_handle(false);
+      }
+
+      window_state state;
+    };
+
+    // --------------------------------------------------------------------------
+    void process_event (const core::event& e, os::event_result& resultValue) {
+      win::window* win = win::detail::get_event_window(e);
+
+      if (win && win->is_valid()) {
+
+        resultValue = 0;
+
+        try {
+          in_event_handle_state guard(*win);
+          win->handle_event(e, resultValue);
+        } catch (std::exception& ex) {
+          LogFatal << "exception in run_main_loop: " << ex;
+        } catch (...) {
+          LogFatal << "Unknown exception in run_main_loop()";
+        }
+      }
     }
 
-    inline ~in_event_handle_state () {
-      state.set_in_event_handle(false);
+    inline bool is_expose_event (const core::event& e) {
+      return (e.type == Expose) || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
 
-    window_state state;
-  };
+    // --------------------------------------------------------------------------
+    int run_loop (volatile bool& running, detail::filter_call filter) {
 
-
-  // --------------------------------------------------------------------------
-  int run_loop (volatile bool& running, detail::filter_call filter) {
-
-    running = true;
+      running = true;
 
 #ifdef WIN32
-    MSG msg;
-    while (running && GetMessage(&msg, nullptr, 0, 0)) {
+      MSG msg;
+      while (running && GetMessage(&msg, nullptr, 0, 0)) {
 
-      if (msg.message == detail::ACTION_MESSAGE) {
-        std::function<void()>* action = (std::function<void()>*)msg.lParam;
-        if (action && *action) {
-          (*action)();
-          delete action;
-        }
-        continue;
-      }
-
-      TranslateMessage(&msg);
-
-      if (filter && filter(msg)) {
-        continue;
-      }
-
-      DispatchMessage(&msg);
-    }
-    return (int)msg.wParam;
-#endif // WIN32
-
-#ifdef X11
-    os::instance display = core::global::get_instance();
-    os::event_result resultValue = 0;
-
-    core::event e;
-    std::function<simple_action> action;
-
-    auto x11_fd = ConnectionNumber(display);
-
-    // Create a File Description Set containing x11_fd
-    fd_set in_fds;
-    FD_ZERO(&in_fds);
-    FD_SET(x11_fd, &in_fds);
-
-    while (running) {
-
-      // Set our timeout.  Ten milliseconds sounds good.
-      timeval timeout {0, 10000};
-
-      // Wait for X Event or a Timer
-      select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
-
-      while (x11::queued_actions.try_dequeue(action)) {
-        action();
-      }
-
-      while (XPending(display)) {
-        XNextEvent(display, &e);
-
-        if (filter && filter(e)) {
+        if (msg.message == detail::ACTION_MESSAGE) {
+          std::function<void()>* action = (std::function<void()>*)msg.lParam;
+          if (action && *action) {
+            (*action)();
+            delete action;
+          }
           continue;
         }
 
-        win::window* win = win::detail::get_event_window(e);
+        TranslateMessage(&msg);
 
-        if (win && win->is_valid()) {
+        if (filter && filter(msg)) {
+          continue;
+        }
 
-          resultValue = 0;
+        DispatchMessage(&msg);
+      }
+      return (int)msg.wParam;
+#endif // WIN32
 
-          try {
-            in_event_handle_state guard(*win);
-            win->handle_event(e, resultValue);
-          } catch (std::exception& ex) {
-            LogFatal << "exception in run_main_loop: " << ex;
-          } catch (...) {
-            LogFatal << "Unknown exception in run_main_loop()";
+#ifdef X11
+      os::instance display = core::global::get_instance();
+      os::event_result resultValue = 0;
+
+      core::event e;
+      std::function<simple_action> action;
+
+      auto x11_fd = ConnectionNumber(display);
+
+      // Create a File Description Set containing x11_fd
+      fd_set in_fds;
+      FD_ZERO(&in_fds);
+      FD_SET(x11_fd, &in_fds);
+
+      while (running) {
+
+        // Set our timeout.  Ten milliseconds sounds good.
+        timeval timeout {0, 10000};
+
+        // Wait for X Event or a Timer
+        select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
+        while (x11::queued_actions.try_dequeue(action)) {
+          action();
+        }
+
+        std::vector<core::event> retard_events;
+        std::set<win::window*> retard_windows;
+
+        while (XPending(display) && running) {
+          XNextEvent(display, &e);
+
+          LogTrace << e;
+
+          if (filter && filter(e)) {
+            continue;
           }
 
-          if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
-            running = false;
+          if (is_expose_event(e)) {
+            win::window* win = win::detail::get_event_window(e);
+            if (retard_windows.count(win) == 0) {
+              retard_events.emplace_back(e);
+              retard_windows.emplace(win);
+            }
+          } else {
+            process_event(e, resultValue);
+            if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+              running = false;
+            }
           }
 
-//          core::global::sync();
-
-          if (e.type == ConfigureNotify) {
+          if ((e.type == ConfigureNotify) && running) {
             update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
         }
+
+        if (running) {
+          for (auto& re : retard_events) {
+            process_event(re, resultValue);
+          }
+        }
+
       }
-    }
-    return resultValue;
+      return resultValue;
 #endif // X11
-  }
+    }
 
-  namespace {
-    bool main_loop_is_running = false;
-  }
+    namespace {
+      bool main_loop_is_running = false;
+    }
 
-  int run_main_loop () {
-    main_loop_is_running = true;
-    detail::main_thread_id = global::get_current_thread_id();
-    return run_loop(main_loop_is_running, [] (const core::event & e) {
-      return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
-    });
-  }
+    int run_main_loop () {
+      main_loop_is_running = true;
+      detail::main_thread_id = global::get_current_thread_id();
+      return run_loop(main_loop_is_running, [] (const core::event & e) {
+        return detail::check_expose(e) || check_message_filter(e) || check_hot_key(e);
+      });
+    }
 
-  void quit_main_loop () {
-    main_loop_is_running = false;
-  }
+    void quit_main_loop () {
+      main_loop_is_running = false;
+      core::global::fini();
+    }
 
-  void run_on_main (std::function<void()> action) {
+    void run_on_main (std::function<void()> action) {
 #ifdef X11
-    x11::queued_actions.enqueue(action);
+      x11::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
-    PostThreadMessage(basepp::robbery::get_native_thread_id(detail::main_thread_id),
-                      detail::ACTION_MESSAGE,
-                      0,
-                      (ULONG_PTR)new std::function<void()>(action));
+      PostThreadMessage(basepp::robbery::get_native_thread_id(detail::main_thread_id),
+                        detail::ACTION_MESSAGE,
+                        0,
+                        (ULONG_PTR)new std::function<void()>(action));
 #endif // WIN32
-  }
-
-}   // win
-
+    }
+  }   // win
 } // gui

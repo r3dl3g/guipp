@@ -249,9 +249,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
+      on_set_focus([&] (win::window* prev) {
+        send_client_message(this, WM_LAYOUT_WINDOW, client_size());
+      });
+#ifndef BUILD_FOR_ARM
       on_size([&] (const core::size& sz) {
         send_client_message(this, WM_LAYOUT_WINDOW, sz);
       });
+#endif
     }
 
 #ifdef WIN32
@@ -482,7 +487,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
-      LogDebug << *this << " Enter modal loop";
+      LogTrace << *this << " Enter modal loop";
 
       redraw();
 
@@ -525,7 +530,7 @@ namespace gui {
         return detail::check_expose(e);
       });
 
-      LogDebug << *this << " Exit modal loop";
+      LogTrace << *this << " Exit modal loop";
     }
 
 #ifdef X11

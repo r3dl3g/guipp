@@ -25,27 +25,27 @@ namespace gui {
 
     namespace src {
 
-      template<BPP T>
+      template<PixelFormat T>
       inline opnm<T>::opnm (const draw::datamap<T>& bmp, const std::string& name)
         : bmp(bmp)
         , name(name)
       {}
 
-      template<BPP T>
+      template<PixelFormat T>
       inline std::ostream& operator<< (std::ostream& out, const opnm<T>& p) {
         p.write(out);
         return out;
       }
 
       // --------------------------------------------------------------------------
-      template<BPP T>
+      template<PixelFormat T>
       void opnm<T>::write (std::ostream& out) const {
         const auto& bmi = bmp.get_info();
         save_pnm_header_src(out, name, BPP2PNM<T, true>::pnm, bmi.width, bmi.height, BPP2MAX<T>::max);
         save_pnm_src<T>(out, bmp.get_raw());
       }
       // --------------------------------------------------------------------------
-      template<BPP T>
+      template<PixelFormat T>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<T>& img) {
         auto& bmi = img.get_info();
         out.fill(' ');
@@ -65,12 +65,12 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<BPP T>
+      template<PixelFormat T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name) {
         out << opnm<T>(bmp, name);
       }
 
-      template<BPP T>
+      template<PixelFormat T>
       void save_pnm_src (const std::string& fname, const draw::datamap<T>& bmp, const std::string& name) {
         std::ofstream(fname) << opnm<T>(bmp, name);
       }

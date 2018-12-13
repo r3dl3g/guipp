@@ -230,7 +230,7 @@ namespace basepp {
 #include "logger.inl"
 
 /// Log macro trace
-#if defined(ENABLE_TRACE) || !defined(NDEBUG)
+#if defined(ENABLE_TRACE)
 # define LogTrace basepp::log::recorder (basepp::log::level::trace)
 #else
 # define LogTrace basepp::log::null_recoder ()

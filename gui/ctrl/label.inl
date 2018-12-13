@@ -63,7 +63,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
-    inline basic_label<A, D, F, B>::basic_label () {
+    inline basic_label<A, D, F, B>::basic_label (const std::string& t)
+      : super(t) {
+      init();
+    }
+
+    template<text_origin A, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_label<A, D, F, B>::basic_label (const text_source& t)
+      : super(t) {
       init();
     }
 

@@ -200,7 +200,7 @@ namespace gui {
           shift_focus(shift_key_bit_mask::is_set(state));
         }
       }
-//      LogDebug << "handle_event: " << e;
+//      LogTrace << "handle_event: " << e;
       auto r = events.handle_event(e, result);
 
 #ifdef X11
@@ -495,21 +495,21 @@ namespace gui {
 
     void window::redraw_now () const {
       if (is_valid()) {
-        LogDebug << "redraw_now: " << get_id();
+        LogTrace << "redraw_now: " << get_id();
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
     void window::redraw () const {
       if (is_valid()) {
-        LogDebug << "redraw: " << get_id();
+        LogTrace << "redraw: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
 
     void window::redraw_later () const {
       if (is_valid()) {
-        LogDebug << "redraw_later: " << get_id();
+        LogTrace << "redraw_later: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
@@ -601,7 +601,7 @@ namespace gui {
 
     void window::capture_pointer () {
       if (is_valid()) {
-        LogDebug << "capture_pointer:" << get_id();
+        LogTrace << "capture_pointer:" << get_id();
         hidden::capture_stack.push_back(get_id());
         SetCapture(get_id());
         s_wheel_hook.enable();
@@ -613,12 +613,12 @@ namespace gui {
         if (hidden::capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          LogDebug << "uncapture_pointer:" << get_id();
+          LogTrace << "uncapture_pointer:" << get_id();
         }
         ReleaseCapture();
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          LogTrace << "re-capture_pointer:" << hidden::capture_stack.back();
           SetCapture(hidden::capture_stack.back());
         } else {
           s_wheel_hook.disable();
@@ -673,7 +673,7 @@ namespace gui {
       } else {
         auto error_no = GetLastError();
         if (error_no != 1410) {
-          LogDebug << getLastErrorText() << " class name length: " << name.length();
+          LogTrace << getLastErrorText() << " class name length: " << name.length();
         }
       }
       
@@ -824,10 +824,10 @@ namespace gui {
         bool current = state.is_visible();
         if (current != s) {
           if (s) {
-            LogDebug << "Show window:" << *this;
+            LogTrace << "Show window:" << *this;
             x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
           } else {
-            LogDebug << "Hide window:" << *this;
+            LogTrace << "Hide window:" << *this;
             x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
           }
           state.set_visible(s);
@@ -873,7 +873,7 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-      LogDebug << "redraw_now: " << event;
+      LogTrace << "redraw_now: " << event;
       events.handle_event(event, result);
 
       state.set_needs_redraw(false);
@@ -883,7 +883,7 @@ namespace gui {
 
     void window::redraw () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw: " << get_id();
+        LogTrace << "redraw: " << get_id();
         if (get_state().is_in_event_handle()) {
           get_state().set_needs_redraw(true);
         } else {
@@ -894,7 +894,7 @@ namespace gui {
 
     void window::redraw_later () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw_later: " << get_id();
+        LogTrace << "redraw_later: " << get_id();
         get_state().set_needs_redraw(true);
       }
     }
@@ -1052,7 +1052,7 @@ namespace gui {
     }
 
     void window::capture_pointer () {
-      LogDebug << "capture_pointer:" << get_id();
+      LogTrace << "capture_pointer:" << get_id();
       hidden::capture_stack.push_back(get_id());
       x11::check_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
@@ -1065,12 +1065,12 @@ namespace gui {
         if (hidden::capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          LogDebug << "uncapture_pointer:" << get_id();
+          LogTrace << "uncapture_pointer:" << get_id();
         }
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          LogTrace << "re-capture_pointer:" << hidden::capture_stack.back();
           x11::check_return(XGrabPointer(core::global::get_instance(), hidden::capture_stack.back(),
                                          False,
                                          ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,

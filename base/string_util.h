@@ -82,6 +82,18 @@ namespace basepp {
       return merge(v, delimiter);
     }
 
+    // trim front
+    void ltrim (std::string& s);
+    std::string ltrimed (std::string s);
+
+    // trim end
+    void rtrim (std::string& s);
+    std::string rtrimed (std::string s);
+
+    // trim both ends
+    void trim (std::string& s);
+    std::string trimed (std::string s);
+
   } // namespace string
 
   namespace utf8 {

@@ -173,6 +173,16 @@ namespace gui {
     }
 
     template<typename T, drop_down_drawer<T> D>
+    inline void drop_down_list<T, D>::set_selected_item (T v) {
+      for (int i = 0; i < data.items.get_count(); ++i) {
+        if (data.source(i) == v) {
+          set_selection(i, event_source::logic);
+          return;
+        }
+      }
+    }
+
+    template<typename T, drop_down_drawer<T> D>
     inline void drop_down_list<T, D>::set_data (const data_provider& d, std::size_t count) {
       data.source = d;
       data.items.set_count(count);
@@ -262,6 +272,16 @@ namespace gui {
     template<typename T, drop_down_drawer<T> D>
     inline void drop_down_list<T, D>::set_count (std::size_t n) {
       data.items.set_count(n);
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    auto drop_down_list<T, D>::items () -> list_type& {
+      return data.items;
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    auto drop_down_list<T, D>::items () const -> const list_type& {
+      return data.items;
     }
 
     template<typename T, drop_down_drawer<T> D>

@@ -28,6 +28,7 @@
 // Library includes
 //
 #include <gui/win/layout.h>
+#include <base/bind_method.h>
 
 
 namespace gui {

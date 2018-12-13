@@ -47,14 +47,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct rgb_pixel;
     struct rgba_pixel;
+    struct bgr_pixel;
+    struct bgra_pixel;
+    struct argb_pixel;
+    struct abgr_pixel;
 
     // --------------------------------------------------------------------------
     struct gray_pixel {
       byte value;
 
-      gray_pixel operator= (bw_pixel bw);
-      gray_pixel operator= (rgb_pixel rgb);
-      gray_pixel operator= (rgba_pixel rgba);
+      gray_pixel operator= (bw_pixel);
+      gray_pixel operator= (rgb_pixel);
+      gray_pixel operator= (rgba_pixel);
+      gray_pixel operator= (bgr_pixel);
+      gray_pixel operator= (bgra_pixel);
+      gray_pixel operator= (argb_pixel);
+      gray_pixel operator= (abgr_pixel);
 
       bw_pixel get_bw () const;
     };
@@ -65,9 +73,13 @@ namespace gui {
       byte green;
       byte blue;
 
-      void operator= (bw_pixel bw);
-      void operator= (gray_pixel gray);
-      void operator= (rgba_pixel rgba);
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgba_pixel);
+      void operator= (bgr_pixel);
+      void operator= (bgra_pixel);
+      void operator= (argb_pixel);
+      void operator= (abgr_pixel);
 
       gray_pixel get_gray () const;
       bw_pixel get_bw () const;
@@ -81,25 +93,130 @@ namespace gui {
       rgba_pixel (byte r, byte g, byte b, byte a);
       rgba_pixel (byte r, byte g, byte b);
 
-      void operator= (bw_pixel bw);
-      void operator= (gray_pixel gray);
-      void operator= (rgb_pixel rgb);
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgb_pixel);
+      void operator= (bgr_pixel);
+      void operator= (bgra_pixel);
+      void operator= (argb_pixel);
+      void operator= (abgr_pixel);
     };
+
+    // --------------------------------------------------------------------------
+    struct bgr_pixel {
+      byte blue;
+      byte green;
+      byte red;
+
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgb_pixel);
+      void operator= (rgba_pixel);
+      void operator= (bgra_pixel);
+      void operator= (argb_pixel);
+      void operator= (abgr_pixel);
+
+      gray_pixel get_gray () const;
+      bw_pixel get_bw () const;
+    };
+
+    // --------------------------------------------------------------------------
+    struct bgra_pixel : public bgr_pixel {
+      byte alpha;
+
+      bgra_pixel ();
+      bgra_pixel (byte b, byte g, byte r, byte a);
+      bgra_pixel (byte b, byte g, byte r);
+
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgb_pixel);
+      void operator= (rgba_pixel);
+      void operator= (bgr_pixel);
+      void operator= (argb_pixel);
+      void operator= (abgr_pixel);
+    };
+
+    // --------------------------------------------------------------------------
+    struct argb_pixel {
+      byte alpha;
+      byte red;
+      byte green;
+      byte blue;
+
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgb_pixel);
+      void operator= (rgba_pixel);
+      void operator= (bgr_pixel);
+      void operator= (bgra_pixel);
+      void operator= (abgr_pixel);
+
+      gray_pixel get_gray () const;
+      bw_pixel get_bw () const;
+    };
+
+    // --------------------------------------------------------------------------
+    struct abgr_pixel {
+      byte alpha;
+      byte blue;
+      byte green;
+      byte red;
+
+      void operator= (bw_pixel);
+      void operator= (gray_pixel);
+      void operator= (rgb_pixel);
+      void operator= (rgba_pixel);
+      void operator= (bgr_pixel);
+      void operator= (bgra_pixel);
+      void operator= (argb_pixel);
+
+      gray_pixel get_gray () const;
+      bw_pixel get_bw () const;
+    };
+
 #pragma pack(pop)
 
     // --------------------------------------------------------------------------
-    template<BPP T> struct BPP2Pixel {};
-    template<> struct BPP2Pixel<BPP::BW>    { using pixel = bw_pixel; };
-    template<> struct BPP2Pixel<BPP::GRAY>  { using pixel = gray_pixel ; };
-    template<> struct BPP2Pixel<BPP::RGB>   { using pixel = rgb_pixel; };
-    template<> struct BPP2Pixel<BPP::RGBA>  { using pixel = rgba_pixel; };
+    template<PixelFormat T> struct BPP2Pixel {};
+    template<> struct BPP2Pixel<PixelFormat::BW>    { using pixel = bw_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::GRAY>  { using pixel = gray_pixel ; };
+    template<> struct BPP2Pixel<PixelFormat::RGB>   { using pixel = rgb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::RGBA>  { using pixel = rgba_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGR>   { using pixel = bgr_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGRA>  { using pixel = bgra_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = argb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = abgr_pixel; };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
+    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
+
+    // --------------------------------------------------------------------------
+    template<PixelFormat T>
+    struct const_image_data {
+      using pixel_type = typename BPP2Pixel<T>::pixel;
+      using raw_type = basepp::array_wrapper<const byte>;
+      using row_type = basepp::array_wrapper<const pixel_type>;
+      static constexpr size_t pixel_size = sizeof(pixel_type);
+
+      const_image_data (raw_type data, const bitmap_info& info);
+      const row_type row (uint32_t y) const;
+      pixel_type pixel (uint32_t x, uint32_t y) const;
+      const bitmap_info& get_info () const;
+      const raw_type& raw_data () const;
+
+    private:
+      raw_type data;
+      bitmap_info info;
+    };
+
+    // --------------------------------------------------------------------------
+    template<PixelFormat T>
     using image_row = basepp::array_wrapper<typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     struct image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<byte>;
@@ -112,28 +229,8 @@ namespace gui {
       const bitmap_info& get_info () const;
       raw_type& raw_data ();
 
-    private:
-      raw_type data;
-      bitmap_info info;
-    };
-
-    // --------------------------------------------------------------------------
-    template<BPP T>
-    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
-
-    // --------------------------------------------------------------------------
-    template<BPP T>
-    struct const_image_data {
-      using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = basepp::array_wrapper<const byte>;
-      using row_type = basepp::array_wrapper<const pixel_type>;
-      static constexpr size_t pixel_size = sizeof(pixel_type);
-
-      const_image_data (raw_type data, const bitmap_info& info);
-      const row_type row (uint32_t y) const;
-      pixel_type pixel (uint32_t x, uint32_t y) const;
-      const bitmap_info& get_info () const;
-      const raw_type& raw_data () const;
+      image_data& operator= (const image_data&);
+      image_data& operator= (const const_image_data<T>&);
 
     private:
       raw_type data;

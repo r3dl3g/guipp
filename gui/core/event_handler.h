@@ -123,7 +123,7 @@ namespace gui {
       bool operator() (const event& e, os::event_result& result) {
         if (match(e) && caller) {
           if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
-            LogDebug << "Call " << e;
+            LogTrace << "Call " << e;
           }
           caller(e);
           result = R;

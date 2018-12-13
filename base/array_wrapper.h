@@ -24,6 +24,7 @@
 //
 #include <stdexcept>
 #include <vector>
+#include <memory.h>
 
 
 // --------------------------------------------------------------------------
@@ -61,6 +62,9 @@ namespace basepp {
     array_wrapper sub (size_t offset, size_t n);
     type* data (size_t offset, size_t n);
 
+    array_wrapper& copy_from (const array_wrapper<T>& rhs, size_t n);
+    array_wrapper& copy_from (const array_wrapper<const T>& rhs, size_t n);
+
   private:
     type* data_;
     detail::boundary_check check_boundary;
@@ -94,6 +98,9 @@ namespace basepp {
     bit_wrapper<T> operator[] (size_t i);
     bit_array_wrapper sub (size_t offset, size_t n);
 
+    bit_array_wrapper& copy_from (const bit_array_wrapper<T>& rhs, size_t n);
+    bit_array_wrapper& copy_from (const bit_array_wrapper<const T>& rhs, size_t n);
+
   private:
     type* data_;
     detail::boundary_check check_boundary;
@@ -111,6 +118,7 @@ namespace basepp {
     bit_array_wrapper sub (size_t offset, size_t n);
 
   private:
+    friend struct bit_array_wrapper<T>;
     const type* data_;
     detail::boundary_check check_boundary;
   };

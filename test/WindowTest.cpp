@@ -843,8 +843,9 @@ void my_main_window::query_state () {
 }
 
 void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
-  LogDebug << "Main created: this:" << std::hex << this << ", w:" << w << ", rect:" << std::dec << r;
+  LogDebug << "Main created: this:" << std::hex << get_id() << ", w:" << w << ", rect:" << std::dec << r;
   created_children();
+  LogDebug << "Children created: this:" << std::hex << get_id() << ", count:" << get_children().size();
 }
 
 template<int T>

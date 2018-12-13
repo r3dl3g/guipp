@@ -113,30 +113,30 @@ namespace gui {
 
       core::rectangle raised_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        raised_relief(g, r, color::white, color::grey(80));
-        return place.shrinked(core::size::one);
+        return raised_relief(g, r, color::white, color::grey(80));
+//        return place.shrinked(core::size::one);
       }
 
       core::rectangle sunken_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
-        sunken_relief(g, r, color::white, color::grey(80));
-        return place.shrinked(core::size::one);
+        return sunken_relief(g, r, color::white, color::grey(80));
+        //return place.shrinked(core::size::one);
       }
 
       core::rectangle raised_deep_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
         raised_relief(g, r, color::white, color::grey(80));
         r.shrink(core::size::one);
-        raised_relief(g, r, color::grey(95), color::grey(90));
-        return place.shrinked(core::size::two);
+        return raised_relief(g, r, color::grey(95), color::grey(90));
+//        return place.shrinked(core::size::two);
       }
 
       core::rectangle sunken_deep_relief (const draw::graphics& g, const core::rectangle& place) {
         core::rectangle r = place - core::size::one;
         sunken_relief(g, r, color::white, color::grey(80));
         r.shrink(core::size::one);
-        sunken_relief(g, r, color::grey(95), color::grey(70));
-        return place.shrinked(core::size::two);
+        return sunken_relief(g, r, color::grey(95), color::grey(70));
+//        return place.shrinked(core::size::two);
       }
 
     } // frame

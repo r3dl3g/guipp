@@ -36,32 +36,81 @@ namespace gui {
 
     typedef unsigned char type;
 
+    struct color_parts {
+      type red;
+      type green;
+      type blue;
+      type alpha;
+    };
+
+    struct rgba_parts {
+      static constexpr type red = 0;
+      static constexpr type green = 8;
+      static constexpr type blue = 16;
+      static constexpr type alpha = 24;
+
+      static constexpr color_parts get_color_parts() {
+        return {red, green, blue, alpha};
+      }
+    };
+
+    struct bgra_parts {
+      static constexpr type blue = 0;
+      static constexpr type green = 8;
+      static constexpr type red = 16;
+      static constexpr type alpha = 24;
+
+      static constexpr color_parts get_color_parts() {
+        return {red, green, blue, alpha};
+      }
+    };
+
+    struct argb_parts {
+      static constexpr type alpha = 0;
+      static constexpr type red = 8;
+      static constexpr type green = 16;
+      static constexpr type blue = 24;
+
+      static constexpr color_parts get_color_parts() {
+        return {red, green, blue, alpha};
+      }
+    };
+
+    struct abgr_parts {
+      static constexpr type alpha = 0;
+      static constexpr type blue = 8;
+      static constexpr type green = 16;
+      static constexpr type red = 24;
+
+      static constexpr color_parts get_color_parts() {
+        return {red, green, blue, alpha};
+      }
+    };
+
+    struct gray_parts {
+      static constexpr type alpha = 0;
+      static constexpr type blue = 0;
+      static constexpr type green = 0;
+      static constexpr type red = 0;
+
+      static constexpr color_parts get_color_parts() {
+        return {red, green, blue, alpha};
+      }
+    };
+
+    color_parts get_color_parts (PixelFormat px_fmt);
+
     template<os::platform P = os::system_platform>
     struct part_defaults {};
 
     template<>
-    struct part_defaults<os::platform::win32> {
-      static constexpr type red = 0;
-      static constexpr type green = 8;
-      static constexpr type blue = 16;
-      static constexpr type alpha = 24;
-    };
+    struct part_defaults<os::platform::win32> : public rgba_parts {};
 
     template<>
-    struct part_defaults<os::platform::cocoa> {
-      static constexpr type red = 0;
-      static constexpr type green = 8;
-      static constexpr type blue = 16;
-      static constexpr type alpha = 24;
-    };
+    struct part_defaults<os::platform::cocoa> : public rgba_parts {};
     
     template<>
-    struct part_defaults<os::platform::x11> {
-      static constexpr type red = 16;
-      static constexpr type green = 8;
-      static constexpr type blue = 0;
-      static constexpr type alpha = 24;
-    };
+    struct part_defaults<os::platform::x11> : public bgra_parts {};
 
     enum struct part : type {
       red = part_defaults<>::red,

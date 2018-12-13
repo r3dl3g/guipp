@@ -27,9 +27,9 @@ namespace gui {
     //
     // inlines
     //
-    namespace bpp {
+    namespace format {
 
-      template<BPP From, BPP To>
+      template<PixelFormat From, PixelFormat To>
       void line<From, To>::convert (const draw::const_image_row<From> in,
                                     draw::image_row<To> out,
                                     uint32_t w) {
@@ -39,9 +39,9 @@ namespace gui {
       }
 
       template<>
-      struct line<BPP::BW, BPP::BW> {
-        static inline void convert (const draw::const_image_row<BPP::BW> in,
-                                    draw::image_row<BPP::BW> out,
+      struct line<PixelFormat::BW, PixelFormat::BW> {
+        static inline void convert (const draw::const_image_row<PixelFormat::BW> in,
+                                    draw::image_row<PixelFormat::BW> out,
                                     uint32_t w) {
           for (uint_fast32_t x = 0; x < w; ++x) {
             out[x] = in[x];
@@ -49,10 +49,10 @@ namespace gui {
         }
       };
 
-      template<BPP From>
-      struct line<From, BPP::BW> {
+      template<PixelFormat From>
+      struct line<From, PixelFormat::BW> {
         static inline void convert (const draw::const_image_row<From> in,
-                                    draw::image_row<BPP::BW> out,
+                                    draw::image_row<PixelFormat::BW> out,
                                     uint32_t w) {
           for (uint_fast32_t x = 0; x < w; ++x) {
             out[x] = in[x].get_bw();
@@ -60,7 +60,7 @@ namespace gui {
         }
       };
 
-      template<BPP From, BPP To>
+      template<PixelFormat From, PixelFormat To>
       void convert (const draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h) {
@@ -70,26 +70,26 @@ namespace gui {
       }
 
 
-    } // namespace bpp
+    } // namespace format
 
     namespace copy {
 
-      template<BPP bpp>
-      void row (const draw::const_image_row<bpp> src,
-                draw::image_row<bpp> dst,
+      template<PixelFormat px_fmt>
+      void row (const draw::const_image_row<px_fmt> src,
+                draw::image_row<px_fmt> dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           dst[dest_x0 + x] = src[src_x0 + x];
         }
       }
 
-      template<BPP bpp>
-      void sub (const draw::const_image_data<bpp> src_data,
-                draw::image_data<bpp> dest_data,
+      template<PixelFormat px_fmt>
+      void sub (const draw::const_image_data<px_fmt> src_data,
+                draw::image_data<px_fmt> dest_data,
                 const core::uint32_point& src,
                 const core::uint32_rect& dest) {
         for (uint_fast32_t y = 0; y < dest.height(); ++y) {
-          row<bpp>(src_data.row(src.y() + y),
+          row<px_fmt>(src_data.row(src.y() + y),
                    dest_data.row(dest.y() + y),
                    src.x(), dest.x(), dest.width());
         }
@@ -100,9 +100,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace stretch {
 
-      template<BPP bpp>
-      void row (const draw::const_image_row<bpp> src,
-                draw::image_row<bpp> dst,
+      template<PixelFormat px_fmt>
+      void row (const draw::const_image_row<px_fmt> src,
+                draw::image_row<px_fmt> dst,
                 uint32_t src_x0, uint32_t dest_x0,
                 uint32_t src_w, uint32_t dest_w) {
         for (uint_fast32_t x = 0; x < dest_w; ++x) {
@@ -111,14 +111,14 @@ namespace gui {
         }
       }
 
-      template<BPP bpp>
-      void sub (const draw::const_image_data<bpp> src_data,
-                draw::image_data<bpp> dest_data,
+      template<PixelFormat px_fmt>
+      void sub (const draw::const_image_data<px_fmt> src_data,
+                draw::image_data<px_fmt> dest_data,
                 const core::uint32_rect& src,
                 const core::uint32_rect& dest) {
         for (uint_fast32_t y = 0; y < dest.height(); ++y) {
           const uint32_t src_y = y * src.height() / dest.height();
-          row<bpp>(src_data.row(src.y() + src_y),
+          row<px_fmt>(src_data.row(src.y() + src_y),
                    dest_data.row(dest.y() + y),
                    src.x(), dest.x(), src.width(), dest.width());
         }
@@ -128,17 +128,17 @@ namespace gui {
 
     namespace brightness {
 
-      template<BPP bpp>
-      void row (draw::image_row<bpp> data, uint32_t w, float f) {
+      template<PixelFormat px_fmt>
+      void row (draw::image_row<px_fmt> data, uint32_t w, float f) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           data[x] = data[x] * f;
         }
       }
 
-      template<BPP bpp>
-      void adjust (draw::image_data<bpp> data, uint32_t w, uint32_t h, float f) {
+      template<PixelFormat px_fmt>
+      void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, float f) {
         for (uint_fast32_t y = 0; y < h; ++y) {
-          row<bpp>(data.row(y), w, f);
+          row<px_fmt>(data.row(y), w, f);
         }
       }
 

@@ -279,12 +279,57 @@ namespace gui {
         }
       }
 
+      void scrollbar_w95 (const draw::graphics &g,
+                          scrollbar_state state,
+                          scrollbar_state hilite,
+                          bool is_enabled,
+                          bool horizontal,
+                          bool has_focus,
+                          const core::rectangle& up,
+                          const core::rectangle& down,
+                          const core::rectangle& thumb,
+                          const core::rectangle& page_up,
+                          const core::rectangle& page_down) {
+        if (!page_up.empty()) {
+          g.fill(draw::rectangle(page_up),
+                 state == scrollbar_state::page_up ? color::light_gray
+                 : color::very_light_gray);
+        }
+        if (!page_down.empty()) {
+          g.fill(draw::rectangle(page_down + core::size::one),
+                 state == scrollbar_state::page_down ? color::light_gray
+                 : color::very_light_gray);
+        }
+        os::color col = is_enabled ? color::black : color::gray;
+        if (!up.empty()) {
+          paint::button_frame_w95(g, up, true, false, scrollbar_state::up_button == hilite, false);
+          if (scrollbar_state::up_button == state) {
+            draw::frame::sunken_relief(g, up.shrinked(core::size::two));
+          }
+          auto s = up_left_arrows[horizontal];
+          g.text(draw::text_box(s, up, text_origin::center), draw::font::system(), col);
+        }
+        if (!down.empty()) {
+          paint::button_frame_w95(g, down, true, false, scrollbar_state::down_button == hilite, false);
+          if (scrollbar_state::down_button == state) {
+            draw::frame::sunken_relief(g, down.shrinked(core::size::two));
+          }
+          auto s = down_right_arrows[horizontal];
+          g.text(draw::text_box(s, down, text_origin::center), draw::font::system(), col);
+        }
+        if (!thumb.empty()) {
+          paint::button_frame_w95(g, thumb, true, false, scrollbar_state::thumb_button == hilite, false);
+          if (scrollbar_state::thumb_button == state) {
+            draw::frame::sunken_relief(g, thumb.shrinked(core::size::two));
+          }
+        }
+      }
+
     } // paint
 
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::horizontal>::init () {
-      on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
       on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
       on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
       on_wheel<orientation::horizontal>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
@@ -293,13 +338,15 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g) {
-      auto geo = get_geometry();
-      paint::scrollbar(g, get_state(), get_hilite(), is_enabled(), true, has_focus(),
-                       up_button_place(geo), down_button_place(geo),
-                       thumb_button_place(geo), page_up_place(geo), page_down_place(geo));
+    void basic_scroll_bar<orientation::vertical>::init () {
+      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
+      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
+      on_wheel<orientation::vertical>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
+      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
+      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
     }
 
+    // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
@@ -329,6 +376,35 @@ namespace gui {
     }
 
     template<>
+    void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+      if (is_enabled()) {
+        if (win::left_button_bit_mask::is_set(keys)) {
+          // check if on thumb
+          if (get_state() == scrollbar_state::thumb_button) {
+            type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
+            set_value(get_last_value() + delta, true);
+          }
+        } else {
+          auto geo = get_geometry();
+          if (up_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::up_button);
+          } else if (down_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::down_button);
+          } else if (thumb_button_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::thumb_button);
+          } else if (page_up_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_up);
+          } else if (page_down_place(geo).is_inside(pt)) {
+            set_hilite(scrollbar_state::page_down);
+          } else {
+            set_hilite(scrollbar_state::nothing);
+          }
+        }
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
     void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
@@ -356,53 +432,6 @@ namespace gui {
         case win::keys::numpad::end:
           set_value(get_min(), true);
           break;
-        }
-      }
-    }
-
-    // --------------------------------------------------------------------------
-    template<>
-    void basic_scroll_bar<orientation::vertical>::init () {
-      on_paint(draw::paint(this, &basic_scroll_bar::handle_paint));
-      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
-      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
-      on_wheel<orientation::vertical>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
-      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
-      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
-    }
-
-    template<>
-    void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g) {
-      auto geo = get_geometry();
-      paint::scrollbar(g, get_state(), get_hilite(), is_enabled(), false, has_focus(),
-                       up_button_place(geo), down_button_place(geo),
-                       thumb_button_place(geo), page_up_place(geo), page_down_place(geo));
-    }
-
-    template<>
-    void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
-      if (is_enabled()) {
-        if (win::left_button_bit_mask::is_set(keys)) {
-          // check if on thumb
-          if (get_state() == scrollbar_state::thumb_button) {
-            type delta = (pt.y() - get_last_mouse_point().y()) / get_scale();
-            set_value(get_last_value() + delta, true);
-          }
-        } else {
-          auto geo = get_geometry();
-          if (up_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::up_button);
-          } else if (down_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::down_button);
-          } else if (thumb_button_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::thumb_button);
-          } else if (page_up_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_up);
-          } else if (page_down_place(geo).is_inside(pt)) {
-            set_hilite(scrollbar_state::page_down);
-          } else {
-            set_hilite(scrollbar_state::nothing);
-          }
         }
       }
     }

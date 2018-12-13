@@ -29,7 +29,7 @@ namespace gui {
 
   namespace draw {
 
-    template<BPP T>
+    template<PixelFormat T>
     class datamap;
 
     class GUIPP_DRAW_EXPORT basic_datamap {
@@ -41,19 +41,19 @@ namespace gui {
       const bitmap_info& get_info () const;
       bitmap_info& get_info ();
 
-      template<BPP T>
+      template<PixelFormat T>
       const datamap<T> convert () const;
 
       core::size size () const;
       byte depth () const;
-      BPP bits_per_pixel () const;
+      PixelFormat pixel_format () const;
 
       void clear ();
 
     protected:
       void create (const blob& data, const bitmap_info& bmi);
 
-      template<BPP T>
+      template<PixelFormat T>
       const const_image_data<T> get_raw () const {
         return const_image_data<T>(basepp::array_wrapper<const byte>(data), info);
       }
@@ -63,11 +63,11 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     class datamap : public basic_datamap {
     public:
       typedef basic_datamap super;
-      static constexpr BPP bpp = T;
+      static constexpr PixelFormat px_fmt = T;
 
       datamap ();
 
@@ -76,7 +76,7 @@ namespace gui {
       datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
 
-      template<BPP S>
+      template<PixelFormat S>
       datamap (const datamap<S>& src);
 
       void create (uint32_t w, uint32_t h);
@@ -113,10 +113,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    typedef datamap<BPP::BW> bwmap;
-    typedef datamap<BPP::GRAY> graymap;
-    typedef datamap<BPP::RGB> rgbmap;
-    typedef datamap<BPP::RGBA> rgbamap;
+    typedef datamap<PixelFormat::BW> bwmap;
+    typedef datamap<PixelFormat::GRAY> graymap;
+    typedef datamap<PixelFormat::RGB> rgbmap;
+    typedef datamap<PixelFormat::RGBA> rgbamap;
+    typedef datamap<PixelFormat::BGR> bgrmap;
+    typedef datamap<PixelFormat::BGRA> bgramap;
+    typedef datamap<PixelFormat::ARGB> argbmap;
+    typedef datamap<PixelFormat::ABGR> abgrmap;
 
     GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
     GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);

@@ -408,7 +408,7 @@ namespace gui {
     }
 
     void send_client_message (const window* win, Atom message, const core::size& sz) {
-      os::size s = sz;
+      os::size s = sz.os();
       long l0 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l0);
     }
@@ -453,7 +453,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
-      return core::point(me.x_root, me.y_root);
+      return core::point(core::global::unscale(me.x_root), core::global::unscale(me.y_root));
     }
 
     // --------------------------------------------------------------------------

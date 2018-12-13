@@ -185,10 +185,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<BPP T> class datamap;
+    template<PixelFormat T> class datamap;
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     struct image_frame {
       image_frame (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame);
 
@@ -203,16 +203,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame);
 
-    template<BPP T>
+    template<PixelFormat T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge);
 
-    template<BPP T>
+    template<PixelFormat T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical);
 
-    template<BPP T>
+    template<PixelFormat T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
 
   } // draw

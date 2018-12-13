@@ -34,6 +34,40 @@
 
 namespace gui {
 
+  PixelFormat get_pixel_format (int pixel_format, int byte_order) {
+    switch (pixel_format) {
+      case 1: return PixelFormat::BW;
+      case 8: return PixelFormat::GRAY;
+      default:
+      case 24:
+        switch (byte_order) {
+          case 0: return PixelFormat::BGR;
+          case 1: return PixelFormat::RGB;
+        }
+      case 32:
+        switch (byte_order) {
+          case 0: return PixelFormat::BGRA;
+          case 1: return PixelFormat::RGBA;
+        }
+    }
+  }
+
+  int get_pixel_format_byte_order (PixelFormat px_fmt) {
+    switch (px_fmt) {
+      case PixelFormat::BGR:
+      case PixelFormat::BGRA:
+      case PixelFormat::ABGR:
+      default:
+        return 0;
+      case PixelFormat::BW:
+      case PixelFormat::GRAY:
+      case PixelFormat::RGB:
+      case PixelFormat::RGBA:
+      case PixelFormat::ARGB:
+        return 1;
+    }
+  }
+
   namespace core {
 
     namespace global {
@@ -127,6 +161,13 @@ namespace gui {
         gui_static.init(instance);
       }
 
+      void fini () {
+#ifdef X11
+        at_shutdown = true;
+#endif // X11
+
+      }
+
       os::instance get_instance () {
         if (!gui_static.is_initialized()) {
           throw std::runtime_error("gui::core::global::init must be called before first use!");
@@ -157,18 +198,19 @@ namespace gui {
 #endif // COCOA
       }
 
-      BPP get_device_bits_per_pixel () {
+      PixelFormat get_device_pixel_format () {
 #ifdef WIN32
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return BPP(dbpp);
+        return get_BPP(PixelFormat(dbpp), 1);
 #endif // WIN32
 #ifdef X11
-        return BPP(DefaultDepth(get_instance(), get_screen()));
+        auto inst = get_instance();
+        return get_pixel_format(DefaultDepth(inst, get_screen()), ImageByteOrder(inst));
 #endif // X11
 #ifdef COCOA
-        return BPP::RGB;
+        return PixelFormat::RGB;
 #endif // COCOA
       }
 
@@ -212,7 +254,13 @@ namespace gui {
       double get_scale_factor () {
         const static double scale_factor = []() {
           Screen* screen = ScreenOfDisplay(get_instance(), get_screen());
-          auto dots_w = (double)screen->width;
+          const char* xscale = getenv("XSCALE");
+          if (xscale) {
+            double scale = 1.0;
+            std::stringstream(xscale) >> scale;
+            return scale;
+          } else {
+            auto dots_w = (double)screen->width;
 //          auto dots_h = (double)screen->height;
 //          if ((3840 == dots_w) && (2160 == dots_h)) {
 //            return 2.0;
@@ -221,12 +269,13 @@ namespace gui {
 //          auto inch_h = (double)mm_h / 25.4;
 //          auto dpi_h = dots_h / inch_h;
 
-          auto mm_w = screen->mwidth;
-          auto inch_w = (double)mm_w / 25.4;
-          auto dpi_w = dots_w / inch_w;
+            auto mm_w = screen->mwidth;
+            auto inch_w = (double)mm_w / 25.4;
+            auto dpi_w = dots_w / inch_w;
 
-          return round((double)dpi_w / 96.0);
+            return round((double)dpi_w / 96.0);
 //          return round((double)(dpi_w + dpi_h) / (96.0 * 2.0));
+          }
         } ();
         return scale_factor;
       }

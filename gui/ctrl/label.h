@@ -94,7 +94,8 @@ namespace gui {
     public:
       typedef detail::label_base super;
 
-      basic_label ();
+      basic_label (const std::string& = std::string());
+      basic_label (const text_source&);
       basic_label (const basic_label& rhs);
       basic_label (basic_label&& rhs);
 

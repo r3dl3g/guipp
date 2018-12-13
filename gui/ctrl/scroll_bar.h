@@ -149,18 +149,41 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace paint {
       GUIPP_CTRL_EXPORT void scrollbar (const draw::graphics &g,
-                      scrollbar_state state,
-                      scrollbar_state hilite,
-                      bool is_enabled,
-                      bool horizontal,
-                      bool has_focus,
-                      const core::rectangle& up,
-                      const core::rectangle& down,
-                      const core::rectangle& thumb,
-                      const core::rectangle& page_up,
-                      const core::rectangle& page_down);
+                                        scrollbar_state state,
+                                        scrollbar_state hilite,
+                                        bool is_enabled,
+                                        bool horizontal,
+                                        bool has_focus,
+                                        const core::rectangle& up,
+                                        const core::rectangle& down,
+                                        const core::rectangle& thumb,
+                                        const core::rectangle& page_up,
+                                        const core::rectangle& page_down);
+
+      GUIPP_CTRL_EXPORT void scrollbar_w95 (const draw::graphics &g,
+                                            scrollbar_state state,
+                                            scrollbar_state hilite,
+                                            bool is_enabled,
+                                            bool horizontal,
+                                            bool has_focus,
+                                            const core::rectangle& up,
+                                            const core::rectangle& down,
+                                            const core::rectangle& thumb,
+                                            const core::rectangle& page_up,
+                                            const core::rectangle& page_down);
     }
 
+    using scrollbar_drawer = void (*)(const draw::graphics &,
+                                      scrollbar_state,
+                                      scrollbar_state,
+                                      bool,
+                                      bool,
+                                      bool,
+                                      const core::rectangle&,
+                                      const core::rectangle&,
+                                      const core::rectangle&,
+                                      const core::rectangle&,
+                                      const core::rectangle&);
     // --------------------------------------------------------------------------
     template<orientation H, os::platform P = os::system_platform>
     struct scroll_bar_traits {};
@@ -196,15 +219,12 @@ namespace gui {
       void create (const win::container& parent,
                    const core::rectangle& place = core::rectangle::def);
 
-      void handle_paint (const draw::graphics&);
       void handle_left_btn_down (os::key_state, const core::point&);
       void handle_left_btn_up (os::key_state, const core::point&);
       void handle_mouse_move (os::key_state, const core::point&);
       void handle_any_key_up (os::key_state, os::key_symbol key);
 
-    private:
-      void init ();
-
+    protected:
       struct geometry {
         type length;
         type thickness;
@@ -216,6 +236,16 @@ namespace gui {
       };
 
       geometry get_geometry () const;
+
+      core::rectangle up_button_place (const geometry& m) const;
+      core::rectangle down_button_place (const geometry& m) const;
+      core::rectangle page_up_place (const geometry& m) const;
+      core::rectangle page_down_place (const geometry& m) const;
+      core::rectangle thumb_button_place (const geometry& m) const;
+
+    private:
+      void init ();
+
       type get_scale () const;
       type get_scale (type spc_size, type tmb_size) const;
 
@@ -231,17 +261,32 @@ namespace gui {
       type thumb_size (type spc_size, type btn_size) const;
       type thumb_top (type btn_size, type scale) const;
 
-      core::rectangle up_button_place (const geometry& m) const;
-      core::rectangle down_button_place (const geometry& m) const;
-      core::rectangle page_up_place (const geometry& m) const;
-      core::rectangle page_down_place (const geometry& m) const;
-      core::rectangle thumb_button_place (const geometry& m) const;
-
     };
 
     // --------------------------------------------------------------------------
-    using vertical_scroll_bar = basic_scroll_bar<orientation::vertical>;
-    using horizontal_scroll_bar = basic_scroll_bar<orientation::horizontal>;
+    template<orientation H,
+#ifdef BUILD_FOR_ARM
+             scrollbar_drawer D = paint::scrollbar_w95>
+#else
+             scrollbar_drawer D = paint::scrollbar>
+#endif
+    class scroll_bar_base : public basic_scroll_bar<H> {
+    public:
+      typedef basic_scroll_bar<H> super;
+
+      scroll_bar_base (bool grab_focus = true);
+      scroll_bar_base (const scroll_bar_base& rhs);
+      scroll_bar_base (scroll_bar_base&& rhs);
+
+      void handle_paint (const draw::graphics&);
+
+    private:
+      void init ();
+    };
+
+    // --------------------------------------------------------------------------
+    using vertical_scroll_bar = scroll_bar_base<orientation::vertical>;
+    using horizontal_scroll_bar = scroll_bar_base<orientation::horizontal>;
 
   } // ctrl
 

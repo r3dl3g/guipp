@@ -17,31 +17,46 @@
 #define MMAL_ENCODING_RGB24_SLICE 0
 #define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
 #define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
-namespace gui { namespace raspi { namespace camera {
+namespace gui { namespace raspi {
 
-  // --------------------------------------------------------------------------
-  struct four_cc {
-    four_cc (const std::string& type)
-      : m_type(type)
-    {}
+  namespace core {
+    // --------------------------------------------------------------------------
+    struct four_cc {
+      four_cc (const std::string& type)
+        : m_type(type)
+      {}
 
-    std::string m_type;
-  };
+      four_cc () = default;
 
-  std::ostream& operator<< (std::ostream& out, const four_cc& f) {
-    return out << f.m_type;
-  }
+      bool operator== (const four_cc& rhs) const {
+        return m_type == rhs.m_type;
+      }
 
-  std::istream& operator>> (std::istream& in, four_cc& f) {
-    return in >> f.m_type;
-  }
+      std::string m_type;
+    };
 
-  struct port {
-    std::vector<four_cc> get_supported_encodings () {
-      return { {"RGB"}, {"RGBA"}, {"ARGB"}, {"BGR"}, {"BGRA"}, {"ABGR"} };
+    std::ostream& operator<< (std::ostream& out, const four_cc& f) {
+      return out << f.m_type;
     }
-  };
 
+    std::istream& operator>> (std::istream& in, four_cc& f) {
+      return in >> f.m_type;
+    }
+
+
+    struct port {
+      std::vector<four_cc> get_supported_encodings () {
+        return { {"RGB"}, {"RGBA"}, {"ARGB"}, {"BGR"}, {"BGRA"}, {"ABGR"} };
+      }
+
+      four_cc get_encoding () const { return {"RGB"}; }
+
+      void set_encoding (four_cc) {}
+    };
+
+  } // namespace core
+
+  namespace camera {
   struct raspi_camera {
     raspi_camera ()
       : cr{0, 0, 1, 1}
@@ -76,7 +91,7 @@ namespace gui { namespace raspi { namespace camera {
     int get_iso () const { return iso; }
     void set_iso (int i) { iso = i; }
 
-    port get_still_output_port () const { return {}; }
+    core::port get_still_output_port () const { return {}; }
     int get_pixel_per_line () const { return 0; }
 
   private:
@@ -88,17 +103,23 @@ namespace gui { namespace raspi { namespace camera {
   };
 
   struct raspi_raw_encoder {
-    raspi_raw_encoder(port, int) {}
+    enum OutEncoding {
+      PPM
+    };
+    raspi_raw_encoder(core::port, int) {}
 
     void capture (int) {}
 
     using image_data = std::basic_string<uint8_t>;
 
-    port get_output_port () const { return {}; }
+    core::port get_output_port () const { return {}; }
+    core::port get_input_port () const { return {}; }
 
     image_data get_data () { return {}; }
     void clear_data () {}
   };
+
+  typedef raspi_raw_encoder raspi_image_encoder;
 }}}
 #endif // BUILD_FOR_ARM
 

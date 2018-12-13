@@ -50,6 +50,11 @@ namespace gui {
 
     namespace core {
 
+      void port::size_num::operator |= (const port::size_num& rhs) {
+        size = std::max(size, rhs.size);
+        num = std::max(num, rhs.num);
+      }
+
       // --------------------------------------------------------------------------
       MMAL_STATUS_T port::enable (MMAL_PORT_BH_CB_T cb) {
         disable();
@@ -77,42 +82,45 @@ namespace gui {
         return t.enable != MMAL_FALSE;
       }
 
-      MMAL_STATUS_T port::set_format (MMAL_ES_FORMAT_T& f) {
-        *(data->format) = f;
-        return commit_format_change();
+      void port::set_format (MMAL_ES_SPECIFIC_FORMAT_T& f) {
+        *(data->format->es) = f;
       }
 
-      MMAL_STATUS_T port::set_encoding (four_cc f) {
-        data->format->encoding = f;
+      void port::set_encoding (four_cc f) {
+        data->format->encoding = f.type.uint32;
         if (MMAL_ENCODING_OPAQUE == data->format->encoding) {
           data->format->encoding_variant = MMAL_ENCODING_I420;
         }
-        return commit_format_change();
+      }
+
+      void port::set_buffer_size (size_num sz) {
+        data->buffer_num = sz.num;
+        data->buffer_size = sz.size;
       }
 
       connection port::connect_in_port (port& in, uint32_t flags) {
         // 1. find matching formats
         MMAL_STATUS_T status = MMAL_SUCCESS;
 
-        four_cc my_enc = get_encoding();
-        four_cc in_enc = get_encoding();
-        std::vector<four_cc> in_encodings = in.get_supported_encodings();
-        std::vector<four_cc> out_encodings = get_supported_encodings();
-        auto i = std::find_first_of(out_encodings.begin(), out_encodings.end(), in_encodings.begin(), in_encodings.end());
-        if (i != out_encodings.end()) {
-          status = in.set_encoding(*i);
-        } else {
-          status = in.set_encoding(MMAL_ENCODING_OPAQUE);
-        }
-        copy_format_from(in);
+//        four_cc my_enc = get_encoding();
+//        four_cc in_enc = get_encoding();
+//        std::vector<four_cc> in_encodings = in.get_supported_encodings();
+//        std::vector<four_cc> out_encodings = get_supported_encodings();
+//        auto i = std::find_first_of(out_encodings.begin(), out_encodings.end(), in_encodings.begin(), in_encodings.end());
+//        if (i != out_encodings.end()) {
+//          status = in.set_encoding(*i);
+//        } else {
+//          status = in.set_encoding(MMAL_ENCODING_OPAQUE);
+//        }
+//        copy_format_from(in);
 
-        auto my_buf = get_buffer_size();
-        auto in_buf = in.get_buffer_size();
-        in_buf.num = my_buf.num = std::max(my_buf.num, in_buf.num);
-        in_buf.size = my_buf.size = std::max(my_buf.size, in_buf.size);
+//        auto my_buf = get_buffer_size();
+//        auto in_buf = in.get_buffer_size();
+//        in_buf.num = my_buf.num = std::max(my_buf.num, in_buf.num);
+//        in_buf.size = my_buf.size = std::max(my_buf.size, in_buf.size);
 
-        status = commit_format_change();
-        status = in.commit_format_change();
+//        status = commit_format_change();
+//        status = in.commit_format_change();
 
         MMAL_CONNECTION_T* con = nullptr;
         status = mmal_connection_create(&con, data, in.data, flags);

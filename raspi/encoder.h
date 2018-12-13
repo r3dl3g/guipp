@@ -43,7 +43,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       class raspi_encoder {
       public:
-        using image_data = std::basic_string<uint8_t>;
+        using image_data = std::string;
 
         image_data get_data () const;
 
@@ -53,7 +53,7 @@ namespace gui {
         raspi_encoder (core::port source_output_port);
         ~raspi_encoder ();
 
-        using buffer_type = std::basic_ostringstream<uint8_t>;
+        using buffer_type = std::ostringstream;
 
         core::port get_output_port () const;
 
@@ -135,6 +135,8 @@ namespace gui {
         core::port& get_output_port ();
         core::port& get_input_port ();
 
+        OutEncoding get_encoding () const;
+
       protected:
         raspi_image_encoder (core::port source_output_port);
 
@@ -181,6 +183,7 @@ namespace gui {
         raspi_resizer (core::port source_output_port, OutEncoding encoding);
         ~raspi_resizer ();
 
+        OutEncoding get_encoding () const;
       };
 
       // --------------------------------------------------------------------------
@@ -233,6 +236,7 @@ namespace gui {
         raspi_isp (core::port source_output_port, OutEncoding encoding);
         ~raspi_isp ();
 
+        OutEncoding get_encoding () const;
       };
 
       // --------------------------------------------------------------------------

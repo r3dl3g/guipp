@@ -81,12 +81,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::enable () {
-        //m_source_output_port.enable();
       }
 
       // --------------------------------------------------------------------------
       void raspi_encoder::disable () {
-        //m_source_output_port.disable();
       }
 
       // --------------------------------------------------------------------------
@@ -103,7 +101,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::add_data (const core::buffer& buf) {
-        m_buffer.write(buf.get_data(), buf.get_length());
+        m_buffer.write((const char*)buf.get_data(), buf.get_length());
       }
 
       // --------------------------------------------------------------------------
@@ -119,7 +117,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::callback_dispatcher (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
-//        LogTrace << "handle_callback cmd:" << buffer->cmd << ", length:" << buffer->length;
+        LogTrace << "handle_callback cmd:" << buffer->cmd << ", length:" << buffer->length << ", port:" << port->name;
         raspi_encoder* encoder = (raspi_encoder*)(port->userdata);
         if (encoder && (0 == buffer->cmd)) {
           core::port p(port);
@@ -146,7 +144,7 @@ namespace gui {
             LogError << "Unknown exception in raspi_encoder::handle_callback";
           }
           buf.unlock();
-          buf.destroy();
+          buf.release();
         }
 
         if (port.is_enabled() && m_buffer_pool.is_valid()) {
@@ -178,8 +176,6 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::init (MMAL_FOURCC_T encoding) {
         auto output_port = get_output_port();
-        auto format = output_port.get_format();
-        format.encoding = encoding;
         auto min = output_port.get_min_buffer_size();
         auto sz = output_port.get_buffer_size();
         if (sz.size < min.size) {
@@ -189,7 +185,8 @@ namespace gui {
           sz.num = min.num;
         }
         output_port.set_buffer_size(sz);
-        output_port.set_format(format);
+        output_port.set_encoding(encoding);
+        check_mmal_status(output_port.commit_format_change());
 
         m_buffer_pool = output_port.create_buffer_pool();
       }
@@ -250,11 +247,15 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
+        m_encoder_connection.disable();
+        m_encoder_connection.destroy();
         m_encoder.destroy();
       }
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::init (MMAL_FOURCC_T encoding) {
+
+        m_encoding = encoding;
 
         if ( !m_encoder.num_input_ports() || !m_encoder.num_output_ports()) {
           throw std::invalid_argument(ostreamfmt("Encoder has no input/output ports (in:" << m_encoder.num_input_ports() << ", out:" << m_encoder.num_output_ports() << ")"));
@@ -262,42 +263,32 @@ namespace gui {
 
         m_encoder_input_port = m_encoder.input_port(0);
         m_encoder_output_port = m_encoder.output_port(0);
+        m_encoder_output_port.copy_format_from(m_encoder_input_port);
+        m_encoder_output_port.set_encoding(m_encoding);
 
-        m_encoding = encoding;
+        auto sz = m_encoder_output_port.get_recommended_buffer_size();
+        sz |= m_encoder_output_port.get_min_buffer_size();
+
+        m_encoder_output_port.set_buffer_size(sz);
+        m_encoder_output_port.commit_format_change();
+
+        m_encoder.enable();
+        m_buffer_pool = m_encoder_output_port.create_buffer_pool();
+
+        m_encoder_connection = m_source_output_port.connect_in_port(m_encoder_input_port,
+                                                                    MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
+        check_mmal_status(m_encoder_connection.enable());
       }
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::enable () {
-        m_encoder_output_port.copy_format_from(m_encoder_input_port);
-
-        m_encoder_input_port.set_encoding(MMAL_ENCODING_OPAQUE);
-
-        auto format = m_encoder_output_port.get_format();
-        format.encoding = m_encoding;
-        auto min = m_encoder_output_port.get_min_buffer_size();
-        auto sz = m_encoder_output_port.get_recommended_buffer_size();
-        if (sz.size < min.size) {
-          sz.size = min.size;
-        }
-        min.num = std::max(min.num, 2U);
-        if (sz.num < min.num) {
-          sz.num = min.num;
-        }
-        m_encoder_output_port.set_buffer_size(sz);
-        m_encoder_output_port.set_format(format);
-
-        m_encoder.enable();
-        m_encoder_connection = m_source_output_port.connect_in_port(m_encoder_input_port,
-                                                                    MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
-        check_mmal_status(m_encoder_connection.enable());
 
         super::enable();
-
-        m_buffer_pool = m_encoder_output_port.create_buffer_pool();
 
         if (!m_encoder_connection.is_enabled()) {
           throw std::invalid_argument("Encoder connection port is no enabled!");
         }
+
         m_encoder_output_port.set_user_data(this);
         check_mmal_status(m_encoder_output_port.enable(raspi_encoder::callback_dispatcher));
 
@@ -314,8 +305,6 @@ namespace gui {
       void raspi_image_encoder::disable () {
         check_mmal_status(m_encoder_output_port.flush());
         check_mmal_status(m_encoder_output_port.disable());
-        m_encoder_connection.disable();
-        m_encoder_connection.destroy();
         super::disable();
       }
 
@@ -337,6 +326,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      auto raspi_image_encoder::get_encoding () const -> OutEncoding {
+        return OutEncoding((MMAL_FOURCC_T)m_encoder_output_port.get_encoding());
+      }
+
+      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
       raspi_resizer::raspi_resizer (core::port source_output_port, OutEncoding encoding)
         : super(source_output_port)
@@ -349,6 +343,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      auto raspi_resizer::get_encoding () const -> OutEncoding {
+        return OutEncoding((MMAL_FOURCC_T)m_encoder_output_port.get_encoding());
+      }
+
+      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
       raspi_isp::raspi_isp (core::port source_output_port, OutEncoding encoding)
         : super(source_output_port)
@@ -358,6 +357,11 @@ namespace gui {
       }
 
       raspi_isp::~raspi_isp () {
+      }
+
+      // --------------------------------------------------------------------------
+      auto raspi_isp::get_encoding () const -> OutEncoding {
+        return OutEncoding((MMAL_FOURCC_T)m_encoder_output_port.get_encoding());
       }
 
       // --------------------------------------------------------------------------

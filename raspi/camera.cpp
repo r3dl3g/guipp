@@ -212,21 +212,22 @@ namespace gui {
 
         core::port still_port = m_camera.still_port();
 
-        MMAL_ES_FORMAT_T format = still_port.get_format();
+        MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
 
-        format.encoding = MMAL_ENCODING_OPAQUE;
-        format.es->video.width = VCOS_ALIGN_UP(camConfig.max_stills_w, 32);
-        format.es->video.height = VCOS_ALIGN_UP(camConfig.max_stills_h, 16);
-        format.es->video.crop.x = 0;
-        format.es->video.crop.y = 0;
-        format.es->video.crop.width = camConfig.max_stills_w;
-        format.es->video.crop.height = camConfig.max_stills_h;
-        format.es->video.frame_rate.num = 0;
-        format.es->video.frame_rate.den = 1;
+        format.video.width = VCOS_ALIGN_UP(camConfig.max_stills_w, 32);
+        format.video.height = VCOS_ALIGN_UP(camConfig.max_stills_h, 16);
+        format.video.crop.x = 0;
+        format.video.crop.y = 0;
+        format.video.crop.width = camConfig.max_stills_w;
+        format.video.crop.height = camConfig.max_stills_h;
+        format.video.frame_rate.num = 0;
+        format.video.frame_rate.den = 1;
 
-        check_mmal_status(still_port.set_format(format));
+        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
+        still_port.set_format(format);
+        check_mmal_status(still_port.commit_format_change());
         check_mmal_status(m_camera.enable());
-//        enable();
+        enable();
       }
 
       // --------------------------------------------------------------------------

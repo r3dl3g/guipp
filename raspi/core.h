@@ -56,6 +56,10 @@ namespace gui {
           return type.uint32 == rhs.type.uint32;
         }
 
+        bool operator!= (const four_cc& rhs) const {
+          return type.uint32 != rhs.type.uint32;
+        }
+
         four_cc& operator= (MMAL_FOURCC_T t) {
           type.uint32 = t;
           return *this;
@@ -85,10 +89,17 @@ namespace gui {
         }
 
         ~buffer () {
-          destroy();
+          release();
         }
 
-        void destroy () {
+        void operator= (buffer&& rhs) {
+          if (&rhs != this) {
+            data = std::move(rhs.data);
+            rhs.detach();
+          }
+        }
+
+        void release () {
           if (data) {
             mmal_buffer_header_release(data);
             data = nullptr;
@@ -163,7 +174,7 @@ namespace gui {
           destroy();
         }
 
-        pool& operator= (pool&& rhs) {
+        void operator= (pool&& rhs) {
           if (&rhs != this) {
             data = std::move(rhs.data);
             port = std::move(rhs.port);
@@ -277,6 +288,8 @@ namespace gui {
         struct size_num {
           uint32_t num;
           uint32_t size;
+
+          void operator |= (const size_num&);
         };
 
         port (MMAL_PORT_T* d = nullptr)
@@ -296,10 +309,6 @@ namespace gui {
 
         MMAL_STATUS_T flush () {
           return mmal_port_flush(data);
-        }
-
-        MMAL_STATUS_T commit_format_change () {
-          return mmal_port_format_commit(data);
         }
 
         MMAL_STATUS_T set (const MMAL_PARAMETER_HEADER_T& param) {
@@ -391,25 +400,24 @@ namespace gui {
           return {data->buffer_num, data->buffer_size};
         }
 
-        void set_buffer_size (size_num sz) {
-          data->buffer_num = sz.num;
-          data->buffer_size = sz.size;
-        }
-
         pool create_buffer_pool () const {
           return pool(mmal_port_pool_create(data, data->buffer_num, data->buffer_size), data);
         }
 
-        MMAL_ES_FORMAT_T get_format () const {
-          return *data->format;
+        MMAL_ES_SPECIFIC_FORMAT_T get_format () const {
+          return *data->format->es;
         }
-
-        MMAL_STATUS_T set_format (MMAL_ES_FORMAT_T& f);
-
-        MMAL_STATUS_T set_encoding (four_cc f);
 
         four_cc get_encoding () const {
           return data->format->encoding;
+        }
+
+        void set_buffer_size (size_num sz);
+        void set_format (MMAL_ES_SPECIFIC_FORMAT_T& f);
+        void set_encoding (four_cc f);
+
+        MMAL_STATUS_T commit_format_change () {
+          return mmal_port_format_commit(data);
         }
 
         void copy_format_from (const port& rhs) {
@@ -472,10 +480,10 @@ namespace gui {
         }
 
         MMAL_STATUS_T enable () {
-          if (!data->is_enabled) {
+//          if (!data->is_enabled) {
             return mmal_component_enable(data);
-          }
-          return MMAL_SUCCESS;
+//          }
+//          return MMAL_SUCCESS;
         }
 
         MMAL_STATUS_T disable () {

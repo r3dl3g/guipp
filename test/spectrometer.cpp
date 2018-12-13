@@ -10,6 +10,8 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/io/wavelength_to_rgb.h>
+#include <gui/io/pnm.h>
+
 
 #ifdef BUILD_FOR_ARM
 #include "raspi/encoder.h"
@@ -289,15 +291,15 @@ private:
 
   raspi_camera camera;
 
-  typedef raspi_image_encoder encoder_type;
+  typedef raspi_resizer encoder_type;
   encoder_type encoder;
 
-  raspi_raw_encoder::image_data data;
+  encoder_type::image_data data;
 };
 
 spectrometer::spectrometer ()
   : super(160, 160, 0, 0)
-  , encoder(camera.get_still_output_port(), encoder_type::OutEncoding::PPM)
+  , encoder(camera.get_still_output_port(), encoder_type::OutEncoding::RGBA)
   , extra_bytes(0)
 {
   on_create(basepp::bind_method(this, &spectrometer::onCreated));
@@ -475,7 +477,9 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   camera_out_encoding_down.set_visible_items(8);
   camera_out_encoding_down.set_selected_item(still_out.get_encoding());
   camera_out_encoding_down.items().on_selection_changed([&] (event_source) {
-    camera.get_still_output_port().set_encoding(camera_out_encoding_down.get_selected_item());
+    auto port = camera.get_still_output_port();
+    port.set_encoding(camera_out_encoding_down.get_selected_item());
+    port.commit_format_change();
   });
 
   auto enc_in = encoder.get_input_port();
@@ -486,7 +490,9 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   encoder_in_encoding_down.set_selected_item(enc_in.get_encoding());
 //  encoder_in_encoding_down.set_selected_item(enc_in.get_format().encoding);
   encoder_in_encoding_down.items().on_selection_changed([&] (event_source) {
-    encoder.get_input_port().set_encoding(encoder_in_encoding_down.get_selected_item());
+    auto port = encoder.get_input_port();
+    port.set_encoding(encoder_in_encoding_down.get_selected_item());
+    port.commit_format_change();
   });
 
   auto enc_out = encoder.get_output_port();
@@ -496,7 +502,9 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   encoder_out_encoding_down.set_visible_items(8);;
   encoder_out_encoding_down.set_selected_item(enc_out.get_encoding());
   encoder_out_encoding_down.items().on_selection_changed([&] (event_source) {
-    encoder.get_output_port().set_encoding(encoder_out_encoding_down.get_selected_item());
+    auto port = encoder.get_output_port();
+    port.set_encoding(encoder_out_encoding_down.get_selected_item());
+    port.commit_format_change();
   });
 
   get_layout().set_center_top_bottom_left_right(&capture_view, &spectrum_view, &values_view, nullptr, nullptr);
@@ -508,11 +516,21 @@ void spectrometer::display () {
   auto sz = camera.get_size();
   LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line();
   if (data.size()) {
-    bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
-    const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>(data.c_str(), data.size()), bmi);
+    auto encoding = encoder.get_encoding();
+//    if (encoding == encoder_type::OutEncoding::PPM) {
+//      rgbmap image_data;
+//      std::istringstream strm(data);
+//      gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
+//      capture_view.image = image_data;
+//    } else
+    if (encoding == encoder_type::OutEncoding::RGBA) {
+      bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
+      const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+      capture_view.image = image_data;
+    }
+
 //  rgbmap image(capture_view.size());
 //  image.stretch_from(rgbmap(image_data));
-    capture_view.image = image_data;
   }
   capture_view.redraw();
 }
@@ -550,9 +568,11 @@ void spectrometer::save_image () {
   file_save_dialog::show(*this, "Save captured data", "spectrogram.ppm", "Name:", "OK", "Cancel",
                          [&] (const sys_fs::path& path) {
     std::ofstream file(path);
-    auto crop = camera.get_abs_crop();
-    file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
-    file.write((const char*)data.c_str(), data.size());
+//    if (encoder.get_encoding() != encoder_type::OutEncoding::PPM) {
+      auto crop = camera.get_abs_crop();
+      file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
+//    }
+    file.write(data.c_str(), data.size());
   });
 }
 

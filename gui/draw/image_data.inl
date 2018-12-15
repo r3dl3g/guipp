@@ -22,8 +22,8 @@
 namespace basepp {
 
   template<>
-  struct array_wrapper<gui::draw::bw_pixel> : public bit_array_wrapper<gui::draw::bw_pixel> {
-    typedef bit_array_wrapper<gui::draw::bw_pixel> super;
+  struct array_wrapper<gui::pixel::bw_pixel> : public bit_array_wrapper<gui::pixel::bw_pixel> {
+    typedef bit_array_wrapper<gui::pixel::bw_pixel> super;
     typedef super::type type;
 
     inline array_wrapper (type* data, size_t size)
@@ -36,8 +36,8 @@ namespace basepp {
   };
 
   template<>
-  struct array_wrapper<gui::draw::bw_pixel const> : public bit_array_wrapper<gui::draw::bw_pixel const> {
-    typedef bit_array_wrapper<gui::draw::bw_pixel const> super;
+  struct array_wrapper<gui::pixel::bw_pixel const> : public bit_array_wrapper<gui::pixel::bw_pixel const> {
+    typedef bit_array_wrapper<gui::pixel::bw_pixel const> super;
     typedef super::type type;
 
     inline array_wrapper (const type* data, size_t size)
@@ -53,349 +53,184 @@ namespace basepp {
 
 namespace gui {
 
-  namespace draw {
-
+  namespace pixel {
     // --------------------------------------------------------------------------
-    inline gray_pixel gray_pixel::operator= (bw_pixel bw) {
-      value = basepp::system_bw_bits::value[static_cast<bool>(bw)];
-      return *this;
+    template<typename T>
+    inline byte get_gray (T p) {
+      return static_cast<byte>((static_cast<uint16_t>(p.red) +
+                                static_cast<uint16_t>(p.green) +
+                                static_cast<uint16_t>(p.blue)) / 3);
     }
 
-    inline gray_pixel gray_pixel::operator= (rgb_pixel p) {
-      operator=(p.get_gray());
-      return *this;
+    template<typename T>
+    inline bw_pixel get_bw (T p) {
+      return get_gray(p) == 0 ? bw_pixel::black : bw_pixel::white;
     }
 
-    inline gray_pixel gray_pixel::operator= (rgba_pixel p) {
-      operator=(p.get_gray());
-      return *this;
+    template<typename T>
+    inline byte get_red (T p) {
+      return p.red;
     }
 
-    inline gray_pixel gray_pixel::operator= (bgr_pixel p) {
-      operator=(p.get_gray());
-      return *this;
+    template<typename T>
+    inline byte get_green (T p) {
+      return p.green;
     }
 
-    inline gray_pixel gray_pixel::operator= (bgra_pixel p) {
-      operator=(p.get_gray());
-      return *this;
+    template<typename T>
+    inline byte get_blue (T p) {
+      return p.blue;
     }
 
-    inline gray_pixel gray_pixel::operator= (argb_pixel p) {
-      operator=(p.get_gray());
-      return *this;
-    }
-
-    inline gray_pixel gray_pixel::operator= (abgr_pixel p) {
-      operator=(p.get_gray());
-      return *this;
-    }
-
-    inline bw_pixel gray_pixel::get_bw () const {
-      return value == 0 ? bw_pixel::black : bw_pixel::white;
+    template<typename T>
+    inline byte get_alpha (T p) {
+      return p.alpha;
     }
 
     // --------------------------------------------------------------------------
-    inline void rgb_pixel::operator= (bw_pixel bw) {
-      red = green = blue = basepp::system_bw_bits::value[static_cast<bool>(bw)];
+    inline bw_pixel get_bw (bw_pixel p) {
+      return p;
     }
 
-    inline void rgb_pixel::operator= (gray_pixel p) {
-      red = green = blue = p.value;
+    inline byte get_gray (bw_pixel p) {
+      return basepp::system_bw_bits::value[static_cast<bool>(p)];
     }
 
-    inline void rgb_pixel::operator= (rgba_pixel P) {
-      *this = static_cast<rgb_pixel>(P);
+    inline byte get_red (bw_pixel p) {
+      return get_gray(p);
     }
 
-    inline void rgb_pixel::operator= (bgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
+    inline byte get_green (bw_pixel p) {
+      return get_gray(p);
     }
 
-    inline void rgb_pixel::operator= (bgra_pixel P) {
-      operator=(static_cast<bgr_pixel>(P));
+    inline byte get_blue (bw_pixel p) {
+      return get_gray(p);
     }
 
-    inline void rgb_pixel::operator= (argb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-    }
-
-    inline void rgb_pixel::operator= (abgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-    }
-
-
-    inline gray_pixel rgb_pixel::get_gray () const {
-      return {static_cast<byte>((static_cast<uint16_t>(red) +
-                                static_cast<uint16_t>(green) +
-                                static_cast<uint16_t>(blue)) / 3)};
-    }
-
-    inline bw_pixel rgb_pixel::get_bw () const {
-      return get_gray().get_bw();
+    inline byte get_alpha (bw_pixel) {
+      return 0;
     }
 
     // --------------------------------------------------------------------------
-    inline rgba_pixel::rgba_pixel ()
-    {}
-
-    inline rgba_pixel::rgba_pixel (byte r, byte g, byte b, byte a)
-      : rgb_pixel{r, g, b}
-      , alpha(a)
-    {}
-
-    inline rgba_pixel::rgba_pixel (byte r, byte g, byte b)
-      : rgb_pixel{r, g, b}
-      , alpha{0}
-    {}
-
-    inline void rgba_pixel::operator= (bw_pixel bw) {
-      rgb_pixel::operator=(bw);
-      alpha = 0;
+    template<>
+    inline bw_pixel get_bw<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return static_cast<bw_pixel>(p);
     }
 
-    inline void rgba_pixel::operator= (gray_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = 0;
+    template<>
+    inline byte get_gray<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(static_cast<bw_pixel>(p));
     }
 
-    inline void rgba_pixel::operator= (rgb_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = 0;
+    template<>
+    inline byte get_red<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
     }
 
-    inline void rgba_pixel::operator= (bgr_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = 0;
+    template<>
+    inline byte get_green<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
     }
 
-    inline void rgba_pixel::operator= (bgra_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = p.alpha;
+    template<>
+    inline byte get_blue<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
     }
 
-    inline void rgba_pixel::operator= (argb_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = p.alpha;
-    }
-
-    inline void rgba_pixel::operator= (abgr_pixel p) {
-      rgb_pixel::operator=(p);
-      alpha = p.alpha;
+    template<>
+    inline byte get_alpha<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+      return 0;
     }
 
     // --------------------------------------------------------------------------
-    inline void bgr_pixel::operator= (bw_pixel bw) {
-      red = green = blue = basepp::system_bw_bits::value[static_cast<bool>(bw)];
+    template<typename T>
+    inline void gray_pixel::operator= (T rhs) {
+      value = get_gray(rhs);
     }
 
-    inline void bgr_pixel::operator= (gray_pixel p) {
-      red = green = blue = p.value;
+    inline bw_pixel get_bw (gray_pixel p) {
+      return p.value == 0 ? bw_pixel::black : bw_pixel::white;
     }
 
-    inline void bgr_pixel::operator= (rgb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
+    inline byte get_gray (gray_pixel p) {
+      return p.value;
     }
 
-    inline void bgr_pixel::operator= (rgba_pixel P) {
-      operator=(static_cast<rgb_pixel>(P));
+    inline byte get_red (gray_pixel p) {
+      return p.value;
     }
 
-    inline void bgr_pixel::operator= (bgra_pixel P) {
-      operator=(static_cast<bgr_pixel>(P));
+    inline byte get_green (gray_pixel p) {
+      return p.value;
     }
 
-    inline void bgr_pixel::operator= (argb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
+    inline byte get_blue (gray_pixel p) {
+      return p.value;
     }
 
-    inline void bgr_pixel::operator= (abgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
+    inline byte get_alpha (gray_pixel) {
+      return 0;
     }
 
-
-    inline gray_pixel bgr_pixel::get_gray () const {
-      return {static_cast<byte>((static_cast<uint16_t>(red) +
-                                static_cast<uint16_t>(green) +
-                                static_cast<uint16_t>(blue)) / 3)};
+    inline byte get_alpha (rgb_pixel) {
+      return 0;
     }
 
-    inline bw_pixel bgr_pixel::get_bw () const {
-      return get_gray().get_bw();
-    }
-
-
-    // --------------------------------------------------------------------------
-    inline bgra_pixel::bgra_pixel ()
-    {}
-
-    inline bgra_pixel::bgra_pixel (byte b, byte g, byte r, byte a)
-      : bgr_pixel{b, g, r}
-      , alpha(a)
-    {}
-
-    inline bgra_pixel::bgra_pixel (byte b, byte g, byte r)
-      : bgr_pixel{b, g, r}
-      , alpha{0}
-    {}
-
-    inline void bgra_pixel::operator= (bw_pixel bw) {
-      bgr_pixel::operator=(bw);
-      alpha = 0;
-    }
-
-    inline void bgra_pixel::operator= (gray_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = 0;
-    }
-
-    inline void bgra_pixel::operator= (rgb_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = 0;
-    }
-
-    inline void bgra_pixel::operator= (rgba_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = p.alpha;
-    }
-
-    inline void bgra_pixel::operator= (bgr_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = 0;
-    }
-
-    inline void bgra_pixel::operator= (argb_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = p.alpha;
-    }
-
-    inline void bgra_pixel::operator= (abgr_pixel p) {
-      bgr_pixel::operator=(p);
-      alpha = p.alpha;
+    inline byte get_alpha (bgr_pixel) {
+      return 0;
     }
 
     // --------------------------------------------------------------------------
-    inline void argb_pixel::operator= (bw_pixel p) {
-      red = green = blue = basepp::system_bw_bits::value[static_cast<bool>(p)];
-      alpha = 0;
-    }
-
-    inline void argb_pixel::operator= (gray_pixel p) {
-      red = green = blue = p.value;
-      alpha = 0;
-    }
-
-    inline void argb_pixel::operator= (rgb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = 0;
-    }
-
-    inline void argb_pixel::operator= (rgba_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
-    }
-
-    inline void argb_pixel::operator= (bgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = 0;
-    }
-
-    inline void argb_pixel::operator= (bgra_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
-    }
-
-    inline void argb_pixel::operator= (abgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
-    }
-
-    inline gray_pixel argb_pixel::get_gray () const {
-      return {static_cast<byte>((static_cast<uint16_t>(red) +
-                                static_cast<uint16_t>(green) +
-                                static_cast<uint16_t>(blue)) / 3)};
-    }
-
-    inline bw_pixel argb_pixel::get_bw () const {
-      return get_gray().get_bw();
+    template<typename T>
+    inline void rgb_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
     }
 
     // --------------------------------------------------------------------------
-    inline void abgr_pixel::operator= (bw_pixel p) {
-      red = green = blue = basepp::system_bw_bits::value[static_cast<bool>(p)];
-      alpha = 0;
+    template<typename T>
+    inline void rgba_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
+      alpha = pixel::get_alpha(rhs);
     }
 
-    inline void abgr_pixel::operator= (gray_pixel p) {
-      red = green = blue = p.value;
-      alpha = 0;
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline void bgr_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
     }
 
-    inline void abgr_pixel::operator= (rgb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = 0;
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline void bgra_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
+      alpha = pixel::get_alpha(rhs);
     }
 
-    inline void abgr_pixel::operator= (rgba_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline void argb_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
+      alpha = pixel::get_alpha(rhs);
     }
 
-    inline void abgr_pixel::operator= (bgr_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = 0;
-    }
-
-    inline void abgr_pixel::operator= (bgra_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
-    }
-
-    inline void abgr_pixel::operator= (argb_pixel p) {
-      red = p.red;
-      green = p.green;
-      blue = p.blue;
-      alpha = p.alpha;
-    }
-
-    inline gray_pixel abgr_pixel::get_gray () const {
-      return {static_cast<byte>((static_cast<uint16_t>(red) +
-                                static_cast<uint16_t>(green) +
-                                static_cast<uint16_t>(blue)) / 3)};
-    }
-
-    inline bw_pixel abgr_pixel::get_bw () const {
-      return get_gray().get_bw();
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline void abgr_pixel::operator= (T rhs) {
+      red = pixel::get_red(rhs);
+      green = pixel::get_green(rhs);
+      blue = pixel::get_blue(rhs);
+      alpha = pixel::get_alpha(rhs);
     }
 
     // --------------------------------------------------------------------------
@@ -418,6 +253,10 @@ namespace gui {
     inline rgba_pixel operator* (rgba_pixel p, float f) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
+
+  } // namespace pixel
+
+  namespace draw {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>

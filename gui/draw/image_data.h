@@ -34,7 +34,8 @@
 
 namespace gui {
 
-  namespace draw {
+  // --------------------------------------------------------------------------
+  namespace pixel {
 
     // --------------------------------------------------------------------------
     enum class bw_pixel : bool {
@@ -45,26 +46,11 @@ namespace gui {
 #pragma pack(push, 1)
 
     // --------------------------------------------------------------------------
-    struct rgb_pixel;
-    struct rgba_pixel;
-    struct bgr_pixel;
-    struct bgra_pixel;
-    struct argb_pixel;
-    struct abgr_pixel;
-
-    // --------------------------------------------------------------------------
     struct gray_pixel {
       byte value;
 
-      gray_pixel operator= (bw_pixel);
-      gray_pixel operator= (rgb_pixel);
-      gray_pixel operator= (rgba_pixel);
-      gray_pixel operator= (bgr_pixel);
-      gray_pixel operator= (bgra_pixel);
-      gray_pixel operator= (argb_pixel);
-      gray_pixel operator= (abgr_pixel);
-
-      bw_pixel get_bw () const;
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -73,33 +59,19 @@ namespace gui {
       byte green;
       byte blue;
 
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgba_pixel);
-      void operator= (bgr_pixel);
-      void operator= (bgra_pixel);
-      void operator= (argb_pixel);
-      void operator= (abgr_pixel);
-
-      gray_pixel get_gray () const;
-      bw_pixel get_bw () const;
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
-    struct rgba_pixel : public rgb_pixel {
+    struct rgba_pixel {
+      byte red;
+      byte green;
+      byte blue;
       byte alpha;
 
-      rgba_pixel ();
-      rgba_pixel (byte r, byte g, byte b, byte a);
-      rgba_pixel (byte r, byte g, byte b);
-
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgb_pixel);
-      void operator= (bgr_pixel);
-      void operator= (bgra_pixel);
-      void operator= (argb_pixel);
-      void operator= (abgr_pixel);
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -108,33 +80,19 @@ namespace gui {
       byte green;
       byte red;
 
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgb_pixel);
-      void operator= (rgba_pixel);
-      void operator= (bgra_pixel);
-      void operator= (argb_pixel);
-      void operator= (abgr_pixel);
-
-      gray_pixel get_gray () const;
-      bw_pixel get_bw () const;
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
     struct bgra_pixel : public bgr_pixel {
+      byte blue;
+      byte green;
+      byte red;
       byte alpha;
 
-      bgra_pixel ();
-      bgra_pixel (byte b, byte g, byte r, byte a);
-      bgra_pixel (byte b, byte g, byte r);
-
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgb_pixel);
-      void operator= (rgba_pixel);
-      void operator= (bgr_pixel);
-      void operator= (argb_pixel);
-      void operator= (abgr_pixel);
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -144,16 +102,8 @@ namespace gui {
       byte green;
       byte blue;
 
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgb_pixel);
-      void operator= (rgba_pixel);
-      void operator= (bgr_pixel);
-      void operator= (bgra_pixel);
-      void operator= (abgr_pixel);
-
-      gray_pixel get_gray () const;
-      bw_pixel get_bw () const;
+      template<typename T>
+      void operator= (T);
     };
 
     // --------------------------------------------------------------------------
@@ -163,30 +113,47 @@ namespace gui {
       byte green;
       byte red;
 
-      void operator= (bw_pixel);
-      void operator= (gray_pixel);
-      void operator= (rgb_pixel);
-      void operator= (rgba_pixel);
-      void operator= (bgr_pixel);
-      void operator= (bgra_pixel);
-      void operator= (argb_pixel);
-
-      gray_pixel get_gray () const;
-      bw_pixel get_bw () const;
+      template<typename T>
+      void operator= (T);
     };
 
 #pragma pack(pop)
 
+    bw_pixel get_bw (bw_pixel);
+    byte get_gray (bw_pixel);
+    byte get_red (bw_pixel);
+    byte get_green (bw_pixel);
+    byte get_blue (bw_pixel);
+    byte get_alpha (bw_pixel);
+
+    bw_pixel get_bw (gray_pixel);
+    byte get_gray (gray_pixel);
+    byte get_red (gray_pixel);
+    byte get_green (gray_pixel);
+    byte get_blue (gray_pixel);
+    byte get_alpha (gray_pixel);
+
+    template<typename T> bw_pixel get_bw (T);
+    template<typename T> byte get_gray (T);
+    template<typename T> byte get_red (T);
+    template<typename T> byte get_green (T);
+    template<typename T> byte get_blue (T);
+    template<typename T> byte get_alpha (T);
+
+  } // namespace pixel
+
+  namespace draw {
+
     // --------------------------------------------------------------------------
     template<PixelFormat T> struct BPP2Pixel {};
-    template<> struct BPP2Pixel<PixelFormat::BW>    { using pixel = bw_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::GRAY>  { using pixel = gray_pixel ; };
-    template<> struct BPP2Pixel<PixelFormat::RGB>   { using pixel = rgb_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::RGBA>  { using pixel = rgba_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::BGR>   { using pixel = bgr_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::BGRA>  { using pixel = bgra_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = argb_pixel; };
-    template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = abgr_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BW>    { using pixel = pixel::bw_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::GRAY>  { using pixel = pixel::gray_pixel ; };
+    template<> struct BPP2Pixel<PixelFormat::RGB>   { using pixel = pixel::rgb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::RGBA>  { using pixel = pixel::rgba_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGR>   { using pixel = pixel::bgr_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::BGRA>  { using pixel = pixel::bgra_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = pixel::argb_pixel; };
+    template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = pixel::abgr_pixel; };
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>

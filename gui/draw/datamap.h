@@ -79,6 +79,9 @@ namespace gui {
       template<PixelFormat S>
       datamap (const datamap<S>& src);
 
+      template<PixelFormat S>
+      datamap (const const_image_data<S>& src);
+
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
       void create (const core::uint32_size& sz);

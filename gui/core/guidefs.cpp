@@ -34,6 +34,23 @@
 
 namespace gui {
 
+  const char* PixelFormatNames[] = {
+    "Undefined",
+    "BW",
+    "GRAY",
+    "RGB",
+    "BGR",
+    "RGBA",
+    "BGRA",
+    "ARGB",
+    "ABGR"
+  };
+
+  std::ostream& operator<< (std::ostream& out, PixelFormat pf) {
+    out << PixelFormatNames[static_cast<int>(pf)];
+    return out;
+  }
+
   PixelFormat get_pixel_format (int pixel_format, int byte_order) {
     switch (pixel_format) {
       case 1: return PixelFormat::BW;

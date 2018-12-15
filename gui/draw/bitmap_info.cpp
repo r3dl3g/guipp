@@ -115,7 +115,7 @@ namespace gui {
     {}
 
     bool bitmap_info::operator== (const bitmap_info& rhs) const {
-      return (width == rhs.width) && (height == rhs.height) && (pixel_format == rhs.pixel_format);
+      return (width == rhs.width) && (height == rhs.height) && (pixel_format == rhs.pixel_format) && (bytes_per_line == rhs.bytes_per_line);
     }
 
     // --------------------------------------------------------------------------

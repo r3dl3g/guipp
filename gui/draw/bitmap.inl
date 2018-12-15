@@ -110,14 +110,14 @@ namespace gui {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
         switch (pixel_format()) {
-          case PixelFormat::BW:   put(bwmap(datamap<T>(rhs))); break;
-          case PixelFormat::GRAY: put(graymap(datamap<T>(rhs))); break;
-          case PixelFormat::RGB:  put(rgbmap(datamap<T>(rhs)));  break;
-          case PixelFormat::RGBA: put(rgbamap(datamap<T>(rhs))); break;
-          case PixelFormat::BGR:  put(bgrmap(datamap<T>(rhs)));  break;
-          case PixelFormat::BGRA: put(bgramap(datamap<T>(rhs)));  break;
-          case PixelFormat::ARGB: put(argbmap(datamap<T>(rhs)));  break;
-          case PixelFormat::ABGR: put(abgrmap(datamap<T>(rhs)));  break;
+          case PixelFormat::BW:   put(bwmap(rhs)); break;
+          case PixelFormat::GRAY: put(graymap(rhs)); break;
+          case PixelFormat::RGB:  put(rgbmap(rhs));  break;
+          case PixelFormat::RGBA: put(rgbamap(rhs)); break;
+          case PixelFormat::BGR:  put(bgrmap(rhs));  break;
+          case PixelFormat::BGRA: put(bgramap(rhs));  break;
+          case PixelFormat::ARGB: put(argbmap(rhs));  break;
+          case PixelFormat::ABGR: put(abgrmap(rhs));  break;
         }
       }
     }

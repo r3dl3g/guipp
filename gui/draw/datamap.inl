@@ -56,7 +56,13 @@ namespace gui {
 
     template<PixelFormat T>
     template<PixelFormat S>
-    inline datamap<T>::datamap (const datamap<S>& src) {
+    inline datamap<T>::datamap (const datamap<S>& src)
+      : datamap(src.get_raw())
+    {}
+
+    template<PixelFormat T>
+    template<PixelFormat S>
+    inline datamap<T>::datamap (const const_image_data<S>& src) {
       const bitmap_info& bmi = src.get_info();
 
       const auto w = bmi.width;
@@ -65,7 +71,7 @@ namespace gui {
       info = {w, h, T};
       data.resize(info.mem_size());
 
-      convert::format::convert<S, T>(src.get_raw(), get_raw(), w, h);
+      convert::format::convert<S, T>(src, get_raw(), w, h);
     }
 
     template<PixelFormat T>

@@ -29,6 +29,17 @@ namespace gui {
     //
     namespace format {
 
+      template<PixelFormat From>
+      struct line<From, PixelFormat::BW> {
+        static inline void convert (const draw::const_image_row<From> in,
+                                    draw::image_row<PixelFormat::BW> out,
+                                    uint32_t w) {
+          for (uint_fast32_t x = 0; x < w; ++x) {
+            out[x] = get_bw(in[x]);
+          }
+        }
+      };
+
       template<PixelFormat From, PixelFormat To>
       void line<From, To>::convert (const draw::const_image_row<From> in,
                                     draw::image_row<To> out,
@@ -38,27 +49,16 @@ namespace gui {
         }
       }
 
-      template<>
-      struct line<PixelFormat::BW, PixelFormat::BW> {
-        static inline void convert (const draw::const_image_row<PixelFormat::BW> in,
-                                    draw::image_row<PixelFormat::BW> out,
-                                    uint32_t w) {
-          for (uint_fast32_t x = 0; x < w; ++x) {
-            out[x] = in[x];
-          }
-        }
-      };
-
-      template<PixelFormat From>
-      struct line<From, PixelFormat::BW> {
-        static inline void convert (const draw::const_image_row<From> in,
-                                    draw::image_row<PixelFormat::BW> out,
-                                    uint32_t w) {
-          for (uint_fast32_t x = 0; x < w; ++x) {
-            out[x] = in[x].get_bw();
-          }
-        }
-      };
+//      template<>
+//      struct line<PixelFormat::BW, PixelFormat::BW> {
+//        static inline void convert (const draw::const_image_row<PixelFormat::BW> in,
+//                                    draw::image_row<PixelFormat::BW> out,
+//                                    uint32_t w) {
+//          for (uint_fast32_t x = 0; x < w; ++x) {
+//            out[x] = in[x];
+//          }
+//        }
+//      };
 
       template<PixelFormat From, PixelFormat To>
       void convert (const draw::const_image_data<From> in,

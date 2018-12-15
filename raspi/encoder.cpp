@@ -80,14 +80,6 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_encoder::enable () {
-      }
-
-      // --------------------------------------------------------------------------
-      void raspi_encoder::disable () {
-      }
-
-      // --------------------------------------------------------------------------
       core::port raspi_encoder::get_output_port () const {
         return m_source_output_port;
       }
@@ -193,7 +185,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::enable () {
-        super::enable();
         auto output_port = get_output_port();
 
         output_port.set_user_data(this);
@@ -203,7 +194,7 @@ namespace gui {
         for (int i = 0; i < num; i++ ) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
           if (new_buffer.is_valid()) {
-            output_port.send_buffer(new_buffer);
+            check_mmal_status(output_port.send_buffer(new_buffer));
           }
         }
       }
@@ -211,16 +202,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::disable () {
         auto output_port = get_output_port();
-        output_port.flush();
-        output_port.disable();
-        super::disable();
+        check_mmal_status(output_port.flush());
+        check_mmal_status(output_port.disable());
       }
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::capture (uint32_t timeout) {
-        enable();
         super::capture(timeout);
-        disable();
       }
 
       core::port raspi_raw_encoder::get_output_port () {
@@ -247,8 +235,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
-        m_encoder_connection.disable();
-        m_encoder_connection.destroy();
         m_encoder.destroy();
       }
 
@@ -263,27 +249,31 @@ namespace gui {
 
         m_encoder_input_port = m_encoder.input_port(0);
         m_encoder_output_port = m_encoder.output_port(0);
+
+      }
+
+      // --------------------------------------------------------------------------
+      void raspi_image_encoder::enable () {
+
+        m_encoder_input_port.copy_format_from(m_source_output_port);
+        check_mmal_status(m_encoder_input_port.commit_format_change());
         m_encoder_output_port.copy_format_from(m_encoder_input_port);
+
         m_encoder_output_port.set_encoding(m_encoding);
 
         auto sz = m_encoder_output_port.get_recommended_buffer_size();
         sz |= m_encoder_output_port.get_min_buffer_size();
 
         m_encoder_output_port.set_buffer_size(sz);
-        m_encoder_output_port.commit_format_change();
+        check_mmal_status(m_encoder_output_port.commit_format_change());
 
-        m_encoder.enable();
+        check_mmal_status(m_encoder.enable());
         m_buffer_pool = m_encoder_output_port.create_buffer_pool();
 
-        m_encoder_connection = m_source_output_port.connect_in_port(m_encoder_input_port,
+
+        m_encoder_connection = m_encoder_input_port.connect_in_port(m_source_output_port,
                                                                     MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
         check_mmal_status(m_encoder_connection.enable());
-      }
-
-      // --------------------------------------------------------------------------
-      void raspi_image_encoder::enable () {
-
-        super::enable();
 
         if (!m_encoder_connection.is_enabled()) {
           throw std::invalid_argument("Encoder connection port is no enabled!");
@@ -296,7 +286,7 @@ namespace gui {
         for (int i = 0; i < num; i++ ) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
           if (new_buffer.is_valid()) {
-            m_encoder_output_port.send_buffer(new_buffer);
+            check_mmal_status(m_encoder_output_port.send_buffer(new_buffer));
           }
         }
       }
@@ -305,14 +295,13 @@ namespace gui {
       void raspi_image_encoder::disable () {
         check_mmal_status(m_encoder_output_port.flush());
         check_mmal_status(m_encoder_output_port.disable());
-        super::disable();
+        check_mmal_status(m_encoder_connection.disable());
+        check_mmal_status(m_encoder_connection.destroy());
       }
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::capture (uint32_t timeout) {
-        enable();
         super::capture(timeout);
-        disable();
       }
 
       // --------------------------------------------------------------------------
@@ -328,6 +317,11 @@ namespace gui {
       // --------------------------------------------------------------------------
       auto raspi_image_encoder::get_encoding () const -> OutEncoding {
         return OutEncoding((MMAL_FOURCC_T)m_encoder_output_port.get_encoding());
+      }
+
+      // --------------------------------------------------------------------------
+      void raspi_image_encoder::set_encoding (OutEncoding enc) {
+        m_encoding = static_cast<MMAL_FOURCC_T>(enc);
       }
 
       // --------------------------------------------------------------------------

@@ -42,7 +42,6 @@ if (BUILD_FOR_ARM)
     set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
 # bcm_host
     set(tests
-        WindowTest
         raspicam_test
         spectrometer
     )

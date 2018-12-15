@@ -41,7 +41,7 @@
 #include <interface/mmal/util/mmal_util.h>
 #include <interface/mmal/util/mmal_util_params.h>
 #include <interface/mmal/util/mmal_default_components.h>
-#include "bcm_host.h"
+#include <bcm_host.h>
 
 // --------------------------------------------------------------------------
 //
@@ -223,8 +223,8 @@ namespace gui {
         format.video.frame_rate.num = 0;
         format.video.frame_rate.den = 1;
 
-        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         still_port.set_format(format);
+        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         check_mmal_status(still_port.commit_format_change());
         check_mmal_status(m_camera.enable());
         enable();
@@ -517,7 +517,7 @@ namespace gui {
       }
 
 #define USE_CROP
-#define USE_ES_VIDEOxx
+#define USE_ES_VIDEO
 
 
       // --------------------------------------------------------------------------
@@ -528,19 +528,26 @@ namespace gui {
                                              static_cast<int32_t>(c.width * 65536.0F), static_cast<int32_t>(c.height * 65536.0F)}};
         check_mmal_status(m_camera.control_port().set(crop.hdr));
 #endif // USE_CROP
+
         uint32_t w = static_cast<uint32_t>(c.width * m_sensor_size.width);
         uint32_t h = static_cast<uint32_t>(c.height * m_sensor_size.height);
 
-        set_size({w, h});
+        uint32_t w_up = VCOS_ALIGN_UP(w, 32);
+        uint32_t h_up = VCOS_ALIGN_UP(h, 16);
+
+        set_size({w_up, h_up});
+
 #ifdef USE_ES_VIDEO
-        MMAL_VIDEO_FORMAT_T& video = m_camera_still_port->format->es->video;
-        video.crop.x = static_cast<uint32_t>(c.x * m_sensor_size.width);
-        video.crop.y = static_cast<uint32_t>(c.y * m_sensor_size.height);
-        video.crop.width = w;
-        video.crop.height = h;
-        video.width = VCOS_ALIGN_UP(w, 32);
-        video.height = VCOS_ALIGN_UP(h, 16);
-        check_mmal_status(mmal_port_format_commit(m_camera_still_port));
+        auto still = m_camera.still_port();
+        auto fmt = still.get_format();
+        fmt.video.crop.x = static_cast<uint32_t>(c.x * m_sensor_size.width);
+        fmt.video.crop.y = static_cast<uint32_t>(c.y * m_sensor_size.height);
+        fmt.video.crop.width = w;
+        fmt.video.crop.height = h;
+        fmt.video.width = w_up;
+        fmt.video.height = h_up;
+        still.set_format(fmt);
+        still.commit_format_change();
 #endif // USE_ES_VIDEO
       }
 
@@ -551,7 +558,7 @@ namespace gui {
         auto& c = cr.rect;
         return {c.x / 65536.0F, c.y / 65536.0F, c.width / 65536.0F, c.height / 65536.0F};
 #endif // USE_CROP
-#ifdef USE_ES_VIDEO
+#ifdef USE_ES_VIDEOxx
         MMAL_RECT_T& c = m_camera_still_port->format->es->video.crop;
         return {(float)c.x / m_sensor_size.width, (float)c.y / m_sensor_size.height,
                 (float)c.width / m_sensor_size.width, (float)c.height / m_sensor_size.height};
@@ -568,17 +575,25 @@ namespace gui {
                                              static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)}};
         check_mmal_status(m_camera.control_port().set(crop.hdr));
 #endif // USE_CROP
-        set_size({(uint32_t)c.width, (uint32_t)c.height});
+
+        uint32_t w_up = VCOS_ALIGN_UP(c.width, 32);
+        uint32_t h_up = VCOS_ALIGN_UP(c.height, 16);
+
+        set_size({w_up, h_up});
+
 #ifdef USE_ES_VIDEO
-        MMAL_VIDEO_FORMAT_T& video = m_camera_still_port->format->es->video;
-        video.crop.x = c.x;
-        video.crop.y = c.y;
-        video.crop.width = c.width;
-        video.crop.height = c.height;
-        video.width = VCOS_ALIGN_UP(c.width, 32);
-        video.height = VCOS_ALIGN_UP(c.height, 16);
-        check_mmal_status(mmal_port_format_commit(m_camera_still_port));
+        auto still = m_camera.still_port();
+        auto fmt = still.get_format();
+        fmt.video.crop.x = c.x;
+        fmt.video.crop.y = c.y;
+        fmt.video.crop.width = c.width;
+        fmt.video.crop.height = c.height;
+        fmt.video.width = w_up;
+        fmt.video.height = h_up;
+        still.set_format(fmt);
+        still.commit_format_change();
 #endif // USE_ES_VIDEO
+
       }
 
       MMAL_RECT_T raspi_camera::get_abs_crop () const {
@@ -592,7 +607,7 @@ namespace gui {
         return {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                 static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)};
 #endif // USE_CROP
-#ifdef USE_ES_VIDEO
+#ifdef USE_ES_VIDEOxx
         return m_camera_still_port->format->es->video.crop;
 #endif // USE_ES_VIDEO
       }
@@ -867,13 +882,11 @@ namespace gui {
 
 namespace std {
   std::ostream& operator<< (std::ostream& out, const gui::raspi::core::four_cc& fourcc) {
-//    if (fourcc.m_strip) {
-      std::string str(fourcc.type.char4, 4);
-      basepp::string::trim(str);
-      out << str;
-//    } else {
-//      out.write((const char*)&fourcc.m_type, 4);
-//    }
+    if (fourcc.type.uint32) {
+      out.write(fourcc.type.char4, 4);
+    } else {
+      out << "[" << fourcc.type.uint32 << "]";
+    }
     return out;
   }
 
@@ -888,6 +901,11 @@ namespace std {
   // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const MMAL_RECT_T& v) {
     out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_RATIONAL_T& v) {
+    out << v.num << "/" << v.den;
     return out;
   }
 
@@ -916,6 +934,14 @@ namespace std {
     out << "{mode:" << v.mode << ", max_bytes:" << v.max_bytes
         << ", w:" << v.max_width << ", h:" << v.max_height
         << ", aspect:" << v.preserve_aspect_ratio << ", upscaling:" << v.allow_upscaling
+        << "}";
+    return out;
+  }
+
+  std::ostream& operator<< (std::ostream& out, const MMAL_VIDEO_FORMAT_T& v) {
+    out << "{w:" << v.width << ", h:" << v.height
+        << ", crop:" << v.crop<< ", framerate:" << v.frame_rate
+        << ", par:" << v.par << ", fourcc:" << gui::raspi::core::four_cc(v.color_space)
         << "}";
     return out;
   }

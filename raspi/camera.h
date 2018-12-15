@@ -289,6 +289,8 @@ namespace std {
   ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_INFO_CAMERA_T&);
   ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_RX_CONFIG_T&);
   ostream& operator<< (ostream&, const MMAL_PARAMETER_RESIZE_T&);
+  ostream& operator<< (ostream&, const MMAL_VIDEO_FORMAT_T&);
+  ostream& operator<< (ostream&, const MMAL_RATIONAL_T&);
 
   ostream& operator<< (ostream&, const MMAL_RESIZEMODE_T);
 }

@@ -37,6 +37,18 @@ namespace gui {
 
   namespace raspi {
 
+    // --------------------------------------------------------------------------
+    namespace encoder {
+
+      // --------------------------------------------------------------------------
+      struct component {
+        core::port m_input_port;
+        core::port m_output_port;
+      };
+
+
+    } // namespace camera
+
     namespace camera {
 
       // --------------------------------------------------------------------------
@@ -58,8 +70,6 @@ namespace gui {
         core::port get_output_port () const;
 
         void capture (uint32_t timeout);
-        void enable ();
-        void disable ();
 
         static void callback_dispatcher (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
         void handle_callback (core::port&, core::buffer&);
@@ -136,6 +146,7 @@ namespace gui {
         core::port& get_input_port ();
 
         OutEncoding get_encoding () const;
+        void set_encoding (OutEncoding enc);
 
       protected:
         raspi_image_encoder (core::port source_output_port);

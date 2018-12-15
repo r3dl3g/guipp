@@ -82,7 +82,7 @@ namespace gui {
         return t.enable != MMAL_FALSE;
       }
 
-      void port::set_format (MMAL_ES_SPECIFIC_FORMAT_T& f) {
+      void port::set_format (const MMAL_ES_SPECIFIC_FORMAT_T& f) {
         *(data->format->es) = f;
       }
 
@@ -102,22 +102,24 @@ namespace gui {
         // 1. find matching formats
         MMAL_STATUS_T status = MMAL_SUCCESS;
 
-//        four_cc my_enc = get_encoding();
-//        four_cc in_enc = get_encoding();
-//        std::vector<four_cc> in_encodings = in.get_supported_encodings();
-//        std::vector<four_cc> out_encodings = get_supported_encodings();
-//        auto i = std::find_first_of(out_encodings.begin(), out_encodings.end(), in_encodings.begin(), in_encodings.end());
-//        if (i != out_encodings.end()) {
-//          status = in.set_encoding(*i);
-//        } else {
-//          status = in.set_encoding(MMAL_ENCODING_OPAQUE);
-//        }
 //        copy_format_from(in);
 
-//        auto my_buf = get_buffer_size();
-//        auto in_buf = in.get_buffer_size();
-//        in_buf.num = my_buf.num = std::max(my_buf.num, in_buf.num);
-//        in_buf.size = my_buf.size = std::max(my_buf.size, in_buf.size);
+//        four_cc in_enc = in.get_encoding();
+
+////        std::vector<four_cc> in_encodings = in.get_supported_encodings();
+//        std::vector<four_cc> out_encodings = get_supported_encodings();
+//        auto i = std::find(out_encodings.begin(), out_encodings.end(), in_enc);
+//        if (i != out_encodings.end()) {
+//          set_encoding(*i);
+//        } else {
+//          in.set_encoding(MMAL_ENCODING_OPAQUE);
+//          set_encoding(MMAL_ENCODING_OPAQUE);
+//        }
+
+//        auto buf_sz = get_buffer_size();
+//        buf_sz |= in.get_buffer_size();
+//        set_buffer_size(buf_sz);
+//        in.set_buffer_size(buf_sz);
 
 //        status = commit_format_change();
 //        status = in.commit_format_change();
@@ -138,24 +140,26 @@ namespace gui {
       std::vector<four_cc> port::get_supported_encodings () const {
         std::vector<four_cc> encodings;
 
-        auto sz = sizeof(MMAL_PARAMETER_ENCODING_T);
-        MMAL_PARAMETER_ENCODING_T t = {{MMAL_PARAMETER_SUPPORTED_ENCODINGS, sz}};
-        MMAL_STATUS_T stat = get(t.hdr);
-        encodings.emplace_back(MMAL_ENCODING_OPAQUE);
-        if (stat == MMAL_SUCCESS) {
-          encodings.emplace_back(t.encoding[0]);
-        } else if (stat == MMAL_ENOSPC) {
-          MMAL_PARAMETER_ENCODING_T* t2 = (MMAL_PARAMETER_ENCODING_T*)new char[t.hdr.size + sz];
-          t2->hdr = {MMAL_PARAMETER_SUPPORTED_ENCODINGS, t.hdr.size + sz};
-          stat = get(t2->hdr);
-          if (MMAL_SUCCESS == stat) {
-            auto count = t2->hdr.size / sizeof(MMAL_FOURCC_T);
-            for (int i = 0; (i < count) && t2->encoding[i]; ++i) {
-              encodings.emplace_back(t2->encoding[i]);
-            }
-          }
-          delete [] (char*)t2;
+        std::vector<char*> buffer;
+        buffer.resize(sizeof(MMAL_PARAMETER_ENCODING_T));
+        MMAL_PARAMETER_ENCODING_T* t = (MMAL_PARAMETER_ENCODING_T*)buffer.data();
+        t->hdr = {MMAL_PARAMETER_SUPPORTED_ENCODINGS, buffer.size()};
+        MMAL_STATUS_T stat = get(t->hdr);
+        while (stat == MMAL_ENOSPC) {
+          auto sz = t->hdr.size + sizeof(MMAL_PARAMETER_HEADER_T);
+          buffer.resize(sz);
+          t = (MMAL_PARAMETER_ENCODING_T*)buffer.data();
+          t->hdr = {MMAL_PARAMETER_SUPPORTED_ENCODINGS, buffer.size()};
+          stat = get(t->hdr);
         }
+        if (MMAL_SUCCESS == stat) {
+          auto count = (t->hdr.size - sizeof(MMAL_PARAMETER_HEADER_T)) / sizeof(MMAL_FOURCC_T);
+          for (int i = 0; (i < count) && t->encoding[i]; ++i) {
+            encodings.emplace_back(t->encoding[i]);
+          }
+        }
+
+        encodings.emplace_back(MMAL_ENCODING_OPAQUE);
         return encodings;
       }
 

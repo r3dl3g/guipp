@@ -311,6 +311,18 @@ namespace gui {
           return mmal_port_flush(data);
         }
 
+        bool is_pass_through () const {
+          return data->capabilities & MMAL_PORT_CAPABILITY_PASSTHROUGH;
+        }
+
+        bool wants_allocate_buffer_payloads () const {
+          return data->capabilities & MMAL_PORT_CAPABILITY_ALLOCATION;
+        }
+
+        bool support_format_change_events () const {
+          return data->capabilities & MMAL_PORT_CAPABILITY_SUPPORTS_EVENT_FORMAT_CHANGE;
+        }
+
         MMAL_STATUS_T set (const MMAL_PARAMETER_HEADER_T& param) {
           return mmal_port_parameter_set(data, &param);
         }
@@ -352,7 +364,7 @@ namespace gui {
         }
 
         MMAL_STATUS_T set_float (uint32_t id, float v) {
-          return set<MMAL_PARAMETER_RATIONAL_T>(id, {static_cast<int32_t>(v * 100000.0F), 100000});
+          return set<MMAL_PARAMETER_RATIONAL_T>(id, {static_cast<int32_t>(v * 65536.0F), 65536});
         }
 
         float get_float (uint32_t id) {
@@ -413,7 +425,7 @@ namespace gui {
         }
 
         void set_buffer_size (size_num sz);
-        void set_format (MMAL_ES_SPECIFIC_FORMAT_T& f);
+        void set_format (const MMAL_ES_SPECIFIC_FORMAT_T& f);
         void set_encoding (four_cc f);
 
         MMAL_STATUS_T commit_format_change () {

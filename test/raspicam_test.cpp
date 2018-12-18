@@ -52,7 +52,7 @@ int main(int argc, const char* argv[]) {
       }},
     {"-c", "--crop", "<X,Y,W,H>", "Crop image by <X,Y,W,H> in normalised coordinates [0.0-1.0]",
       [&](const std::string& arg) {
-        camera.set_crop(parse_arg<raspi_camera::crop>(arg, "Crop"));
+        camera.set_input_crop(parse_arg<gui::raspi::core::crop>(arg, "Crop"));
       }},
     {"-sz", "--size", "<W,H>", "Use image size <W,H>",
       [&](const std::string& arg) {
@@ -96,7 +96,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_RGB24_SLICE;
     }
-    raspi_raw_encoder encoder(camera.get_still_output_port(), encoding.type.uint32);
+    raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
     LogInfo << "raw capture " << encoding;
     encoder.capture(5000);
 

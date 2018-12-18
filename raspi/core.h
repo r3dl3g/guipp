@@ -72,6 +72,19 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      struct crop {
+        crop (float x_ = 0.0F, float y_ = 0.0F, float w_ = 1.0F, float h_ = 1.0F)
+          : x(x_) , y(y_) , width(w_) , height(h_)
+        {}
+
+        float x;
+        float y;
+        float width;
+        float height;
+      };
+
+
+      // --------------------------------------------------------------------------
       class buffer {
       public:
         buffer (MMAL_BUFFER_HEADER_T *d)
@@ -445,6 +458,12 @@ namespace gui {
         MMAL_STATUS_T capture ();
 
         std::vector<four_cc> get_supported_encodings () const;
+
+        MMAL_PARAMETER_RESIZE_T get_resize () const;
+        MMAL_STATUS_T set_resize (MMAL_PARAMETER_RESIZE_T config);
+
+        MMAL_STATUS_T set_crop (const MMAL_RECT_T&);
+        MMAL_RECT_T get_crop () const;
 
       private:
         MMAL_PORT_T* data;

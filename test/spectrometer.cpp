@@ -82,8 +82,8 @@ namespace gui { namespace raspi {
       int width, height;
     };
 
-    crop get_crop () const { return cr; }
-    void set_crop (const crop& c) { cr = c; }
+    crop get_inout_crop () const { return cr; }
+    void set_inout_crop (const crop& c) { cr = c; }
     crop get_abs_crop () const { return cr; }
     void set_abs_crop (const crop& c) { cr = c; }
 
@@ -254,13 +254,18 @@ public:
   void save_settings ();
   void load_settings ();
 
-  void set_crop (const raspi_camera::crop& c);
-  void change_crop_x (float v);
-  void change_crop_y (float v);
-  void change_crop_w (float v);
-  void change_crop_h (float v);
+  void set_crop (const MMAL_RECT_T& c);
+  MMAL_RECT_T get_crop ();
+
+  void change_crop_x (int32_t v);
+  void change_crop_y (int32_t v);
+  void change_crop_w (int32_t v);
+  void change_crop_h (int32_t v);
 
   void update_encodings ();
+
+  typedef void(crop_fnkt)(MMAL_RECT_T&);
+  void change_crop (std::function<crop_fnkt>);
 
 private:
   group_window<layout::vertical_adaption<>> right_button_view;
@@ -277,10 +282,13 @@ private:
   ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
   ctrl::drop_down_list<raspi::core::four_cc> encoder_out_encoding_down;
 
-  value_block<float> x_pos;
-  value_block<float> y_pos;
-  value_block<float> w_pos;
-  value_block<float> h_pos;
+  value_block<int32_t> x_pos;
+  value_block<int32_t> y_pos;
+  value_block<int32_t> w_pos;
+  value_block<int32_t> h_pos;
+
+  value_block<int32_t> res_w_pos;
+  value_block<int32_t> res_h_pos;
 
   value_block<int> ss;
   value_block<int> iso;
@@ -297,52 +305,103 @@ private:
 
 //  typedef raspi_image_encoder encoder_type;
   typedef raspi_resizer encoder_type;
+//  typedef raspi_isp encoder_type;
+//  typedef raspi_raw_encoder encoder_type;
   encoder_type encoder;
 
   encoder_type::image_data data;
 };
 
-void spectrometer::set_crop (const raspi_camera::crop& c) {
-  camera.set_crop(c);
-  auto sz = camera.get_size();
-  extra_bytes = VCOS_ALIGN_UP(sz.width, 32) - sz.width;
+void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
+  auto crop = camera.get_abs_crop();
+  fnkt(crop);
+  camera.set_abs_crop(crop);
+
+//  MMAL_STATUS_T status =
+//  LogDebug << "camera.set_abs_crop(" << crop << ") returned :"
+//           << mmal_status_to_string(status);
+
+#ifdef TRY_CAMERA_CONFIG
+  auto cfg = camera.get_camera_config();
+  LogDebug << "Current camera config:" << cfg;
+
+  MMAL_RECT_T crop{0, 0, (int32_t)cfg.max_stills_w, (int32_t)cfg.max_stills_h};
+  fnkt(crop);
+  cfg.max_stills_w = crop.width;
+  cfg.max_stills_h = crop.height;
+
+  camera.set_camera_config(cfg);
+#endif // TRY_CAMERA_CONFIG
+#ifdef TRY_ENCODER_CROP
+  auto port = encoder.get_output_port();
+  auto resize = port.get_resize();
+  auto crop = port.get_crop();
+
+  fnkt(crop);
+
+  resize.mode = MMAL_RESIZE_CROP;
+  resize.max_width = crop.width;
+  resize.max_height = crop.height;
+  resize.preserve_aspect_ratio = MMAL_TRUE;
+  resize.allow_upscaling = MMAL_FALSE;
+
+  MMAL_STATUS_T status = MMAL_SUCCESS;
+//  status = port.set_resize(resize);
+//  LogDebug << "encoder.set_resize(" << resize << ") returned :"
+//           << mmal_status_to_string(status);
+
+  status = port.set_crop(crop);
+  LogDebug << "port.set_crop(" << crop << ") returned :"
+           << mmal_status_to_string(status);
+
+  status = port.commit_format_change();
+  LogDebug << "= port.commit_format_change() returned :"
+           << mmal_status_to_string(status);
+
+//  camera.set_abs_crop(crop);
+//  LogDebug << "camera.set_abs_crop(" << crop << ") returned :"
+//           << mmal_status_to_string(status);
+#endif // TRY_ENCODER_CROP
+
   extra.refresh();
   x_pos.refresh();
   y_pos.refresh();
   w_pos.refresh();
   h_pos.refresh();
+  res_w_pos.refresh();
+  res_h_pos.refresh();
 }
 
-void spectrometer::change_crop_x (float v) {
-  auto crop = camera.get_crop();
-  crop.x = std::min(std::max(crop.x + v, 0.0F), 1.0F - crop.width);
-  camera.set_crop(crop);
-  x_pos.refresh();
-//    capture();
+MMAL_RECT_T spectrometer::get_crop () {
+  return camera.get_abs_crop();
 }
 
-void spectrometer::change_crop_y (float v) {
-  auto crop = camera.get_crop();
-  crop.y = std::min(std::max(crop.y + v, 0.0F), 1.0F - crop.height);
-  camera.set_crop(crop);
-  y_pos.refresh();
-//    capture();
+void spectrometer::set_crop (const MMAL_RECT_T& crop) {
+  change_crop([=] (MMAL_RECT_T& c) { c = crop; });
 }
 
-void spectrometer::change_crop_w (float v) {
-  auto crop = camera.get_crop();
-  crop.width = std::min(std::max(crop.width + v, 0.0F), 1.0F - crop.x);
-  camera.set_crop(crop);
-  w_pos.refresh();
-//    capture();
+void spectrometer::change_crop_x (int32_t v) {
+  change_crop([&,v] (MMAL_RECT_T& crop) {
+    crop.x = std::min<int32_t>(std::max<int32_t>(crop.x + v, 0), camera.get_sensor_size().width - crop.width);
+  });
 }
 
-void spectrometer::change_crop_h (float v) {
-  auto crop = camera.get_crop();
-  crop.height = std::min(std::max(crop.height + v, 0.0F), 1.0F - crop.y);
-  camera.set_crop(crop);
-  h_pos.refresh();
-//    capture();
+void spectrometer::change_crop_y (int32_t v) {
+  change_crop([&,v] (MMAL_RECT_T& crop) {
+    crop.y = std::min<int32_t>(std::max<int32_t>(crop.y + v, 0), camera.get_sensor_size().height - crop.height);
+  });
+}
+
+void spectrometer::change_crop_w (int32_t v) {
+  change_crop([&,v] (MMAL_RECT_T& crop) {
+    crop.width = std::min<int32_t>(std::max<int32_t>(crop.width + v, 0), camera.get_sensor_size().width - crop.x);
+  });
+}
+
+void spectrometer::change_crop_h (int32_t v) {
+  change_crop([&,v] (MMAL_RECT_T& crop) {
+    crop.height = std::min<int32_t>(std::max<int32_t>(crop.height + v, 0), camera.get_sensor_size().height - crop.y);
+  });
 }
 
 void spectrometer::quit () {
@@ -371,6 +430,8 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   y_pos.create(values_view);
   w_pos.create(values_view);
   h_pos.create(values_view);
+  res_w_pos.create(values_view);
+  res_h_pos.create(values_view);
   ss.create(values_view);
   iso.create(values_view);
   extra.create(values_view);
@@ -461,25 +522,55 @@ spectrometer::spectrometer ()
     extra_bytes = 0;
     extra.refresh();
   });
-  fullview_button.on_clicked([&] () { set_crop({0,0,1,1}); });
-  halfview_button.on_clicked([&] () { set_crop({0.25F, 0.25F, 0.5F, 0.5F}); });
-  quarterview_button.on_clicked([&] () { set_crop({0.375F, 0.375F, 0.25F, 0.25F}); });
+  fullview_button.on_clicked([&] () {
+    auto sz = camera.get_sensor_size();
+    set_crop({0, 0, (int32_t)sz.width, (int32_t)sz.height});
+    camera.set_resolution(sz);
+  });
+  halfview_button.on_clicked([&] () {
+    raspi_camera::size sz = camera.get_sensor_size();
+    sz = raspi_camera::size{(uint32_t)(sz.width / 2), (uint32_t)(sz.height / 2)};
+    set_crop({(int32_t)(sz.width / 4), (int32_t)(sz.height / 4), (int32_t)sz.width, (int32_t)sz.height});
+    camera.set_resolution(sz);
+  });
+  quarterview_button.on_clicked([&] () {
+    raspi_camera::size sz = camera.get_sensor_size();
+    sz = raspi_camera::size{(uint32_t)(sz.width / 4), (uint32_t)(sz.height / 4)};
+    set_crop({(int32_t)((sz.width / 8) * 3), (int32_t)((sz.height / 8) * 3), (int32_t)sz.width, (int32_t)sz.height});
+    camera.set_resolution(sz);
+  });
 
-  x_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_x));
+  x_pos.set_handler(16, 160, basepp::bind_method(this, &spectrometer::change_crop_x));
   x_pos.set_label("X");
-  x_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().x); });
+  x_pos.set_value([&] () { return ostreamfmt(get_crop().x); });
 
-  y_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_y));
+  y_pos.set_handler(16, 80, basepp::bind_method(this, &spectrometer::change_crop_y));
   y_pos.set_label("Y");
-  y_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().y); });
+  y_pos.set_value([&] () { return ostreamfmt(get_crop().y); });
 
-  w_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_w));
+  w_pos.set_handler(32, 160, basepp::bind_method(this, &spectrometer::change_crop_w));
   w_pos.set_label("W");
-  w_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().width); });
+  w_pos.set_value([&] () { return ostreamfmt(get_crop().width); });
 
-  h_pos.set_handler(0.01F, 0.05F, basepp::bind_method(this, &spectrometer::change_crop_h));
+  h_pos.set_handler(16, 80, basepp::bind_method(this, &spectrometer::change_crop_h));
   h_pos.set_label("H");
-  h_pos.set_value([&] () { return ostreamfmt(camera.get_abs_crop().height); });
+  h_pos.set_value([&] () { return ostreamfmt(get_crop().height); });
+
+  res_w_pos.set_handler(16, 80, [&] (int32_t v) {
+    auto sz = camera.get_resolution();
+    sz.width += v;
+    camera.set_resolution(sz);
+  });
+  res_w_pos.set_label("Res X");
+  res_w_pos.set_value([&] () { return ostreamfmt(camera.get_resolution().width); });
+
+  res_h_pos.set_handler(16, 80, [&] (int32_t v) {
+    auto sz = camera.get_resolution();
+    sz.height += v;
+    camera.set_resolution(sz);
+  });
+  res_h_pos.set_label("Res Y");
+  res_h_pos.set_value([&] () { return ostreamfmt(camera.get_resolution().height); });
 
   ss.set_handler([&] (int step) {
     auto current = camera.get_shutter_speed();
@@ -545,23 +636,54 @@ void spectrometer::capture () {
 
 void spectrometer::display () {
   auto sz = camera.get_size();
-  LogDebug << "Captured " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line();
+  auto encoding = (MMAL_FOURCC_T)encoder.get_encoding();
+  LogDebug << "Display " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line() << " enc:" << raspi::core::four_cc(encoding);
   if (data.size()) {
-    auto encoding = encoder.get_encoding();
-    if ((MMAL_FOURCC_T)encoding == MMAL_ENCODING_PPM) {
-      rgbmap image_data;
-      std::istringstream strm(data);
-      gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
-      capture_view.image = image_data;
-      LogDebug << "Capture image with dimensions:" << image_data.size() << ", ppl:" << image_data.pixel_format();
-    } else if (((MMAL_FOURCC_T)encoding == MMAL_ENCODING_RGBA) || ((MMAL_FOURCC_T)encoding == MMAL_ENCODING_RGBA_SLICE)) {
-      bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
-      const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
-      capture_view.image = image_data;
-    } else if (((MMAL_FOURCC_T)encoding == MMAL_ENCODING_BGRA) || ((MMAL_FOURCC_T)encoding == MMAL_ENCODING_BGRA_SLICE)) {
-      bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::BGRA);
-      const_image_data<PixelFormat::BGRA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
-      capture_view.image = image_data;
+    switch (encoding) {
+      case MMAL_ENCODING_PPM: {
+        rgbmap image_data;
+        std::istringstream strm(data);
+        gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
+        LogDebug << "Display image with dimensions:" << image_data.size() << ", ppl:" << image_data.pixel_format();
+        capture_view.image = image_data;
+        break;
+      }
+      case MMAL_ENCODING_RGBA:
+      case MMAL_ENCODING_RGBA_SLICE: {
+        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
+        const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        capture_view.image = image_data;
+        break;
+      }
+      case MMAL_ENCODING_RGB24:
+      case MMAL_ENCODING_RGB24_SLICE: {
+        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
+        const_image_data<PixelFormat::RGB> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        capture_view.image = image_data;
+        break;
+      }
+      case MMAL_ENCODING_BGRA:
+      case MMAL_ENCODING_BGRA_SLICE: {
+        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::BGRA);
+        const_image_data<PixelFormat::BGRA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        capture_view.image = image_data;
+        break;
+      }
+      case MMAL_ENCODING_BGR24:
+      case MMAL_ENCODING_BGR24_SLICE: {
+        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::BGR);
+        const_image_data<PixelFormat::BGR> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        capture_view.image = image_data;
+        break;
+      }
+
+      default:
+        LogDebug << "Can not display image with encoding: " << encoding;
+        break;
     }
 
 //  rgbmap image(capture_view.size());

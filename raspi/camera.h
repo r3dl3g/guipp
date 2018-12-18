@@ -82,6 +82,28 @@ namespace gui {
           RGBA =  MMAL_ENCODING_RGBA
         };
 
+        struct size {
+          uint32_t width;
+          uint32_t height;
+        };
+
+        struct awb_gains {
+          float r_gain;
+          float b_gain;
+        };
+
+        struct color_fx {
+          bool enable;
+          uint32_t u;
+          uint32_t v;
+        };
+
+        struct stereo_mode {
+          MMAL_STEREOSCOPIC_MODE_T mode;
+          bool decimate;
+          bool swap_eyes;
+        };
+
         raspi_camera (int num = 0);
         ~raspi_camera ();
 
@@ -92,6 +114,9 @@ namespace gui {
         void set_sensor_mode (SensorModeV2 mode);
         void set_sensor_mode (SensorMode mode);
         SensorMode get_sensor_mode () const;
+
+        void set_resolution (const size&);
+        size get_resolution () const;
 
         void set_saturation (float saturation);
         float get_saturation () const;
@@ -107,6 +132,8 @@ namespace gui {
 
         void set_iso (uint32_t iso);
         uint32_t get_iso () const;
+
+        uint32_t get_min_iso () const;
 
         void set_shutter_speed (int speed);
         int get_shutter_speed () const;
@@ -141,11 +168,6 @@ namespace gui {
         void set_raw_mode (bool);
         bool get_raw_mode () const;
 
-        struct awb_gains {
-          float r_gain;
-          float b_gain;
-        };
-
         void set_awb_gains (const awb_gains&);
         awb_gains get_awb_gains () const;
 
@@ -155,19 +177,8 @@ namespace gui {
         void set_flip (MMAL_PARAM_MIRROR_T mode);
         MMAL_PARAM_MIRROR_T get_flip () const;
 
-        struct crop {
-          crop (float x_ = 0.0F, float y_ = 0.0F, float w_ = 1.0F, float h_ = 1.0F)
-            : x(x_) , y(y_) , width(w_) , height(h_)
-          {}
-
-          float x;
-          float y;
-          float width;
-          float height;
-        };
-
-        void set_crop (const crop&);
-        crop get_crop () const;
+        void set_input_crop (const core::crop&);
+        core::crop get_input_crop () const;
 
         void set_abs_crop (const MMAL_RECT_T&);
         MMAL_RECT_T get_abs_crop () const;
@@ -178,31 +189,14 @@ namespace gui {
         void set_image_fx (MMAL_PARAM_IMAGEFX_T imageFX);
         MMAL_PARAM_IMAGEFX_T get_image_fx () const;
 
-        struct color_fx {
-          bool enable;
-          uint32_t u;
-          uint32_t v;
-        };
-
         void set_color_fx (const color_fx&);
         color_fx get_color_fx () const;
 
         void set_drc (MMAL_PARAMETER_DRC_STRENGTH_T drc);
         MMAL_PARAMETER_DRC_STRENGTH_T get_drc () const;
 
-        struct stereo_mode {
-          MMAL_STEREOSCOPIC_MODE_T mode;
-          bool decimate;
-          bool swap_eyes;
-        };
-
         void set_stereo_mode (const stereo_mode&);
         stereo_mode get_stereo_mode () const;
-
-        struct size {
-          uint32_t width;
-          uint32_t height;
-        };
 
         void set_size (const size&);
         size get_size () const;
@@ -210,20 +204,18 @@ namespace gui {
         uint32_t get_pixel_per_line () const;
 
         MMAL_PARAMETER_CAMERA_CONFIG_T get_camera_config () const;
-        void set_camera_config (MMAL_PARAMETER_CAMERA_CONFIG_T config);
+        void set_camera_config (const MMAL_PARAMETER_CAMERA_CONFIG_T& config);
+        void config_camera (const size& max_still, const size& max_preview);
 
         MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info (int num = -1) const;
         MMAL_PARAMETER_CAMERA_INFO_T get_config () const;
+
+        size get_sensor_size () const;
 
 #ifdef CAMERA_RX_CONFIG_AVAILABLE
         MMAL_PARAMETER_CAMERA_RX_CONFIG_T get_camera_rx_config () const;
         void set_camera_rx_config (MMAL_PARAMETER_CAMERA_RX_CONFIG_T config);
 #endif // CAMERA_RX_CONFIG_AVAILABLE
-
-#ifdef RESIZE_AVAILABLE
-        MMAL_PARAMETER_RESIZE_T get_resize () const;
-        void set_resize (MMAL_PARAMETER_RESIZE_T config);
-#endif // RESIZE_AVAILABLE
 
         void capture ();
 
@@ -257,18 +249,17 @@ namespace gui {
         size m_sensor_size;
         size m_current_size;
 
+        MMAL_PARAMETER_CAMERA_CONFIG_T m_camera_config;
       };
 
       // --------------------------------------------------------------------------
       std::ostream& operator<< (std::ostream&, const raspi_camera&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::awb_gains&);
-      std::ostream& operator<< (std::ostream&, const raspi_camera::crop&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::color_fx&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::stereo_mode&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::size&);
 
       std::istream& operator>> (std::istream&, raspi_camera::awb_gains&);
-      std::istream& operator>> (std::istream&, raspi_camera::crop&);
       std::istream& operator>> (std::istream&, raspi_camera::size&);
 
       // --------------------------------------------------------------------------
@@ -283,6 +274,8 @@ namespace gui {
 namespace std {
   std::ostream& operator<< (std::ostream&, const gui::raspi::core::four_cc&);
   std::istream& operator>> (std::istream&, gui::raspi::core::four_cc&);
+  std::ostream& operator<< (std::ostream&, const gui::raspi::core::crop&);
+  std::istream& operator>> (std::istream&, gui::raspi::core::crop&);
   // --------------------------------------------------------------------------
   ostream& operator<< (ostream&, const MMAL_RECT_T&);
   ostream& operator<< (ostream&, const MMAL_PARAMETER_CAMERA_CONFIG_T&);

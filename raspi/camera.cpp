@@ -99,17 +99,6 @@ namespace gui {
         return in;
       }
 
-      std::ostream& operator<< (std::ostream& out, const raspi_camera::crop& v) {
-        out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
-        return out;
-      }
-
-      std::istream& operator>> (std::istream& in, raspi_camera::crop& v) {
-        char delemiter;
-        in >> v.x >> delemiter >> v.y >> delemiter >> v.width >> delemiter >> v.height;
-        return in;
-      }
-
       std::ostream& operator<< (std::ostream& out, const raspi_camera::color_fx& v) {
         out << "{enable:" << v.enable << ", u:" << v.u << ", v:" << v.v << "}";
         return out;
@@ -192,21 +181,22 @@ namespace gui {
 
         MMAL_PARAMETER_CAMERA_INFO_CAMERA_T info = get_camera_info(num);
 
-        MMAL_PARAMETER_CAMERA_CONFIG_T camConfig = {
+        m_camera_config = {
           .hdr = { MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T) },
           .max_stills_w = info.max_width,
           .max_stills_h = info.max_height,
           .stills_yuv422 = 0,
           .one_shot_stills = 1,
-          .max_preview_video_w = 1920,
-          .max_preview_video_h = 1080,
+          .max_preview_video_w = 320,
+          .max_preview_video_h = 240,
           .num_preview_video_frames = 1,
           .stills_capture_circular_buffer_height = 0,
           .fast_preview_resume = 0,
-          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RESET_STC
+          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
         };
 
-        set_camera_config(camConfig);
+        set_camera_config(m_camera_config);
+
         set_defaults(10000);
         set_raw_mode(false);
 
@@ -214,12 +204,12 @@ namespace gui {
 
         MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
 
-        format.video.width = VCOS_ALIGN_UP(camConfig.max_stills_w, 32);
-        format.video.height = VCOS_ALIGN_UP(camConfig.max_stills_h, 16);
+        format.video.width = VCOS_ALIGN_UP(m_camera_config.max_stills_w, 32);
+        format.video.height = VCOS_ALIGN_UP(m_camera_config.max_stills_h, 16);
         format.video.crop.x = 0;
         format.video.crop.y = 0;
-        format.video.crop.width = camConfig.max_stills_w;
-        format.video.crop.height = camConfig.max_stills_h;
+        format.video.crop.width = m_camera_config.max_stills_w;
+        format.video.crop.height = m_camera_config.max_stills_h;
         format.video.frame_rate.num = 0;
         format.video.frame_rate.den = 1;
 
@@ -307,7 +297,7 @@ namespace gui {
         out << ", image_fx:" << get_image_fx();
         out << ", color_fx:" << get_color_fx();
         out << ", flip:" << get_flip();
-        out << ", crop:" << get_crop();
+        out << ", crop:" << get_input_crop();
         out << ", abs_crop:" << get_abs_crop();
         out << ", rotation:" << get_rotation();
         out << ", drc:" << get_drc();
@@ -388,6 +378,16 @@ namespace gui {
       auto raspi_camera::get_sensor_mode () const -> SensorMode {
         return m_camera.control_port().get_uint32(MMAL_PARAMETER_CAMERA_CUSTOM_SENSOR_CONFIG);
       }
+
+      // --------------------------------------------------------------------------
+      void raspi_camera::set_resolution (const size& sz) {
+        config_camera(sz, sz);
+      }
+
+      auto raspi_camera::get_resolution () const -> size {
+        return {m_camera_config.max_stills_w, m_camera_config.max_stills_h};
+      }
+
       // --------------------------------------------------------------------------
       void raspi_camera::set_iso (uint32_t iso) {
         check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_ISO, iso));
@@ -395,6 +395,10 @@ namespace gui {
 
       uint32_t raspi_camera::get_iso () const {
         return m_camera.control_port().get_uint32(MMAL_PARAMETER_ISO);
+      }
+
+      uint32_t raspi_camera::get_min_iso () const {
+        return m_camera.control_port().get_uint32(MMAL_PARAMETER_CAMERA_MIN_ISO);
       }
 
       // --------------------------------------------------------------------------
@@ -511,24 +515,21 @@ namespace gui {
 
       MMAL_PARAM_MIRROR_T raspi_camera::get_flip () const {
         return m_camera.output_port(0).get<MMAL_PARAMETER_MIRROR_T>(MMAL_PARAMETER_MIRROR);
-//        MMAL_PARAMETER_MIRROR_T mirror = {{MMAL_PARAMETER_MIRROR, sizeof(MMAL_PARAMETER_MIRROR_T)}, MMAL_PARAM_MIRROR_NONE};
-//        check_mmal_status(m_camera.output_port(0).get(mirror.hdr));
-//        return mirror.value;
       }
 
 #define USE_CROP
-#define USE_ES_VIDEO
+#define USE_ES_VIDEOxx
 
 
       // --------------------------------------------------------------------------
-      void raspi_camera::set_crop (const crop& c) {
+      void raspi_camera::set_input_crop (const core::crop& c) {
 #ifdef USE_CROP
         MMAL_PARAMETER_INPUT_CROP_T crop = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)},
-                                            {static_cast<int32_t>(c.x * 65536.0F), static_cast<int32_t>(c.y * 65536.0F),
-                                             static_cast<int32_t>(c.width * 65536.0F), static_cast<int32_t>(c.height * 65536.0F)}};
+                                            {static_cast<int32_t>(c.x * 65535.0F), static_cast<int32_t>(c.y * 65535.0F),
+                                             static_cast<int32_t>(c.width * 65535.0F), static_cast<int32_t>(c.height * 65535.0F)}};
         check_mmal_status(m_camera.control_port().set(crop.hdr));
 #endif // USE_CROP
-
+#ifdef USE_SET_SIZE
         uint32_t w = static_cast<uint32_t>(c.width * m_sensor_size.width);
         uint32_t h = static_cast<uint32_t>(c.height * m_sensor_size.height);
 
@@ -536,7 +537,7 @@ namespace gui {
         uint32_t h_up = VCOS_ALIGN_UP(h, 16);
 
         set_size({w_up, h_up});
-
+#endif // USE_SET_SIZE
 #ifdef USE_ES_VIDEO
         auto still = m_camera.still_port();
         auto fmt = still.get_format();
@@ -551,15 +552,15 @@ namespace gui {
 #endif // USE_ES_VIDEO
       }
 
-      auto raspi_camera::get_crop () const -> crop {
+      core::crop raspi_camera::get_input_crop () const {
 #ifdef USE_CROP
         MMAL_PARAMETER_INPUT_CROP_T cr = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)}};
         check_mmal_status(m_camera.control_port().get(cr.hdr));
         auto& c = cr.rect;
-        return {c.x / 65536.0F, c.y / 65536.0F, c.width / 65536.0F, c.height / 65536.0F};
+        return {c.x / 65535.0F, c.y / 65535.0F, c.width / 65535.0F, c.height / 65535.0F};
 #endif // USE_CROP
-#ifdef USE_ES_VIDEOxx
-        MMAL_RECT_T& c = m_camera_still_port->format->es->video.crop;
+#ifdef USE_ES_VIDEO
+        MMAL_RECT_T& c = m_camera.still_port->format->es->video.crop;
         return {(float)c.x / m_sensor_size.width, (float)c.y / m_sensor_size.height,
                 (float)c.width / m_sensor_size.width, (float)c.height / m_sensor_size.height};
 #endif // USE_ES_VIDEO
@@ -567,20 +568,21 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_abs_crop (const MMAL_RECT_T& c) {
+//        check_mmal_status(m_camera.control_port().set_crop(c));
 #ifdef USE_CROP
-        float fx = 65536.0F / (float)m_sensor_size.width;
-        float fy = 65536.0F / (float)m_sensor_size.height;
+        float fx = 65535.0F / (float)m_sensor_size.width;
+        float fy = 65535.0F / (float)m_sensor_size.height;
         MMAL_PARAMETER_INPUT_CROP_T crop = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)},
                                             {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                                              static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)}};
         check_mmal_status(m_camera.control_port().set(crop.hdr));
 #endif // USE_CROP
-
+#ifdef USE_SET_SIZE
         uint32_t w_up = VCOS_ALIGN_UP(c.width, 32);
         uint32_t h_up = VCOS_ALIGN_UP(c.height, 16);
 
         set_size({w_up, h_up});
-
+#endif // USE_SET_SIZE
 #ifdef USE_ES_VIDEO
         auto still = m_camera.still_port();
         auto fmt = still.get_format();
@@ -597,9 +599,10 @@ namespace gui {
       }
 
       MMAL_RECT_T raspi_camera::get_abs_crop () const {
-#ifdef USE_CROP
-        float fx = (float)m_sensor_size.width / 65536.0F;
-        float fy = (float)m_sensor_size.height / 65536.0F;
+        return m_camera.control_port().get_crop();
+#ifdef USE_INPUT_CROP
+        float fx = (float)m_sensor_size.width / 65535.0F;
+        float fy = (float)m_sensor_size.height / 65535.0F;
 
         MMAL_PARAMETER_INPUT_CROP_T cr = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)}};
         check_mmal_status(m_camera.control_port().get(cr.hdr));
@@ -607,7 +610,7 @@ namespace gui {
         return {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                 static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)};
 #endif // USE_CROP
-#ifdef USE_ES_VIDEOxx
+#ifdef USE_ES_VIDEO
         return m_camera_still_port->format->es->video.crop;
 #endif // USE_ES_VIDEO
       }
@@ -682,15 +685,29 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       MMAL_PARAMETER_CAMERA_CONFIG_T raspi_camera::get_camera_config () const {
-        MMAL_PARAMETER_CAMERA_CONFIG_T camConfig = {{MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)}};
-        check_mmal_status(m_camera.control_port().get(camConfig.hdr));
-        return camConfig;
+//        MMAL_PARAMETER_CAMERA_CONFIG_T camConfig = {{MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)}};
+//        check_mmal_status(m_camera.control_port().get(camConfig.hdr));
+        return m_camera_config;
       }
 
-      void raspi_camera::set_camera_config (MMAL_PARAMETER_CAMERA_CONFIG_T camConfig) {
-        camConfig.hdr = {MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)};
-        check_mmal_status(m_camera.control_port().set(camConfig.hdr));
+      void raspi_camera::set_camera_config (const MMAL_PARAMETER_CAMERA_CONFIG_T& camConfig) {
+        bool was_enabled = m_camera.control_port().is_enabled();
+        m_camera.disable();
+        m_camera_config = camConfig;
+        m_camera_config.hdr = {MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)};
+        check_mmal_status(m_camera.control_port().set(m_camera_config.hdr));
         m_current_size = m_sensor_size = {camConfig.max_stills_w, camConfig.max_stills_h};
+        if (was_enabled) {
+          m_camera.enable();
+        }
+      }
+
+      void raspi_camera::config_camera (const size& max_still, const size& max_preview) {
+        m_camera_config.max_stills_w = max_still.width;
+        m_camera_config.max_stills_h = max_still.height;
+        m_camera_config.max_preview_video_w = max_preview.width;
+        m_camera_config.max_preview_video_h = max_preview.height;
+        set_camera_config(m_camera_config);
       }
 
       // --------------------------------------------------------------------------
@@ -728,6 +745,10 @@ namespace gui {
           mmal_component_destroy(component);
           throw ex;
         }
+      }
+
+      auto raspi_camera::get_sensor_size () const -> size {
+        return m_sensor_size;
       }
 
       // --------------------------------------------------------------------------
@@ -898,6 +919,17 @@ namespace std {
     return in;
   }
 
+  std::ostream& operator<< (std::ostream& out, const gui::raspi::core::crop& v) {
+    out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
+    return out;
+  }
+
+  std::istream& operator>> (std::istream& in, gui::raspi::core::crop& v) {
+    char delemiter;
+    in >> v.x >> delemiter >> v.y >> delemiter >> v.width >> delemiter >> v.height;
+    return in;
+  }
+
   // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const MMAL_RECT_T& v) {
     out << "{x:" << v.x << ", y:" << v.y << ", w:" << v.width << ", h:" << v.height << "}";
@@ -911,7 +943,11 @@ namespace std {
 
   std::ostream& operator<< (std::ostream& out, const MMAL_PARAMETER_CAMERA_CONFIG_T& v) {
     out << "{w:" << v.max_stills_w << ", h:" << v.max_stills_w
-        << ", pw:" << v.max_preview_video_w  << ", ph:" << v.max_preview_video_h << "}";
+        << ", stills_yuv422:" << v.stills_yuv422 << ", one_shot_stills:" << v.one_shot_stills
+        << ", max_preview_video_w:" << v.max_preview_video_w << ", max_preview_video_h:" << v.max_preview_video_h
+        << ", num_preview_video_frames:" << v.num_preview_video_frames << ", stills_capture_circular_buffer_height:" << v.stills_capture_circular_buffer_height
+        << ", fast_preview_resume:" << v.fast_preview_resume<< ", use_stc_timestamp:" << v.use_stc_timestamp
+        << "}";
     return out;
   }
 

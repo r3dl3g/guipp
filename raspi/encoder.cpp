@@ -80,7 +80,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      core::port raspi_encoder::get_output_port () const {
+      core::port raspi_encoder::get_source_output_port () const {
         return m_source_output_port;
       }
 
@@ -155,10 +155,10 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      raspi_raw_encoder::raspi_raw_encoder (core::port source_output_port, MMAL_FOURCC_T encoding)
+      raspi_raw_encoder::raspi_raw_encoder (core::port source_output_port, OutEncoding encoding)
         : super(source_output_port)
       {
-        init(encoding);
+        init((MMAL_FOURCC_T)encoding);
       }
 
       // --------------------------------------------------------------------------
@@ -212,11 +212,21 @@ namespace gui {
       }
 
       core::port raspi_raw_encoder::get_output_port () {
-        return super::get_output_port();
+        return super::get_source_output_port();
       }
 
       core::port raspi_raw_encoder::get_input_port () {
-        return super::get_output_port();
+        return super::get_source_output_port();
+      }
+
+      // --------------------------------------------------------------------------
+      core::four_cc raspi_raw_encoder::get_encoding () const {
+        return super::get_source_output_port().get_encoding();
+      }
+
+      // --------------------------------------------------------------------------
+      void raspi_raw_encoder::set_encoding (core::four_cc enc) {
+        super::get_source_output_port().set_encoding(enc);
       }
 
       // --------------------------------------------------------------------------
@@ -322,6 +332,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_image_encoder::set_encoding (OutEncoding enc) {
         m_encoding = static_cast<MMAL_FOURCC_T>(enc);
+        m_encoder_output_port.set_encoding(m_encoding);
       }
 
       // --------------------------------------------------------------------------

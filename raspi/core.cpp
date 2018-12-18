@@ -163,8 +163,52 @@ namespace gui {
         return encodings;
       }
 
-    // --------------------------------------------------------------------------
-    // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
+      MMAL_STATUS_T port::set_crop (const MMAL_RECT_T& c) {
+//        uint32_t w_up = VCOS_ALIGN_UP(c.width, 32);
+//        uint32_t h_up = VCOS_ALIGN_UP(c.height, 16);
+//        auto fmt = get_format();
+//        fmt.video.crop.x = c.x;
+//        fmt.video.crop.y = c.y;
+//        fmt.video.crop.width = c.width;
+//        fmt.video.crop.height = c.height;
+//        fmt.video.width = w_up;
+//        fmt.video.height = h_up;
+//        set_format(fmt);
+//        return MMAL_SUCCESS;
+
+        int32_t x = VCOS_ALIGN_DOWN(c.x, 32);
+        int32_t y = VCOS_ALIGN_DOWN(c.y, 16);
+        int32_t w = VCOS_ALIGN_UP(c.width, 32);
+        int32_t h = VCOS_ALIGN_UP(c.height, 16);
+        MMAL_PARAMETER_CROP_T crop = {{MMAL_PARAMETER_CROP, sizeof(MMAL_PARAMETER_CROP_T)}, {x, y, w, h}};
+        return set(crop.hdr);
+      }
+
+      MMAL_RECT_T port::get_crop () const {
+//        return get_format().video.crop;
+
+        MMAL_PARAMETER_CROP_T cr = {{MMAL_PARAMETER_CROP, sizeof(MMAL_PARAMETER_CROP_T)}};
+        if (get(cr.hdr) == MMAL_SUCCESS) {
+          return cr.rect;
+        }
+        return {};
+      }
+
+      // --------------------------------------------------------------------------
+      MMAL_PARAMETER_RESIZE_T port::get_resize () const {
+        MMAL_PARAMETER_RESIZE_T resize = {{MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)}, MMAL_RESIZE_DUMMY, 0};
+        get(resize.hdr);
+        return resize;
+      }
+
+      MMAL_STATUS_T port::set_resize (MMAL_PARAMETER_RESIZE_T resize) {
+        resize.hdr = {MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)};
+        return set(resize.hdr);
+      }
+
+      // --------------------------------------------------------------------------
+      // --------------------------------------------------------------------------
 
     } // namespace core
 

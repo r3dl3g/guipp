@@ -90,8 +90,11 @@ namespace gui {
     namespace global {
 
 #ifdef X11
+      double calc_scale_factor ();
+
       namespace {
         bool at_shutdown = false;
+        double scale_factor = 0.0;
       }
 
       int ErrorHandler (Display* dpy, XErrorEvent* errev) {
@@ -140,6 +143,7 @@ namespace gui {
           screen = DefaultScreen(instance);
           XSetErrorHandler(ErrorHandler);
           XSetIOErrorHandler(IOErrorHandler);
+          set_scale_factor(calc_scale_factor());
 #endif // X11
         }
 
@@ -268,16 +272,23 @@ namespace gui {
         return DefaultVisual(get_instance(), get_screen());
       }
 
+      void set_scale_factor (double s) {
+        scale_factor = s;
+      }
+
       double get_scale_factor () {
-        const static double scale_factor = []() {
+        return scale_factor;
+      }
+
+      double calc_scale_factor () {
+        const char* xscale = getenv("XSCALE");
+        if (xscale) {
+          double scale = 1.0;
+          std::stringstream(xscale) >> scale;
+          return scale;
+        } else {
           Screen* screen = ScreenOfDisplay(get_instance(), get_screen());
-          const char* xscale = getenv("XSCALE");
-          if (xscale) {
-            double scale = 1.0;
-            std::stringstream(xscale) >> scale;
-            return scale;
-          } else {
-            auto dots_w = (double)screen->width;
+          auto dots_w = (double)screen->width;
 //          auto dots_h = (double)screen->height;
 //          if ((3840 == dots_w) && (2160 == dots_h)) {
 //            return 2.0;
@@ -286,15 +297,13 @@ namespace gui {
 //          auto inch_h = (double)mm_h / 25.4;
 //          auto dpi_h = dots_h / inch_h;
 
-            auto mm_w = screen->mwidth;
-            auto inch_w = (double)mm_w / 25.4;
-            auto dpi_w = dots_w / inch_w;
+          auto mm_w = screen->mwidth;
+          auto inch_w = (double)mm_w / 25.4;
+          auto dpi_w = dots_w / inch_w;
 
-            return round((double)dpi_w / 96.0);
+          return round((double)dpi_w / 96.0);
 //          return round((double)(dpi_w + dpi_h) / (96.0 * 2.0));
-          }
-        } ();
-        return scale_factor;
+        }
       }
 
 #endif // X11

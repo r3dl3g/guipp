@@ -215,6 +215,7 @@ namespace gui {
       GUIPP_CORE_EXPORT int get_device_depth ();
       GUIPP_CORE_EXPORT os::key_state get_key_state ();
       GUIPP_CORE_EXPORT double get_scale_factor ();
+      GUIPP_CORE_EXPORT void set_scale_factor (double);
 
       template<typename T>
       T scale (T v) {

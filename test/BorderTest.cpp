@@ -59,6 +59,7 @@ public:
   void save_all_src ();
   void open ();
   void save_as ();
+  void wipe_space ();
 
   void start_thread ();
   void stop_thread ();
@@ -229,7 +230,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   file_sub_menu.data.add_entries({
     menu_entry("Open", 'O', basepp::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
-    menu_entry("Sace As", 'S', basepp::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
+    menu_entry("Save As", 'S', basepp::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
+    menu_entry("Wipe empty space", 'W', basepp::bind_method(this, &my_main_window::wipe_space), hot_key('W', state::control)),
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
@@ -519,6 +521,22 @@ void my_main_window::save_as () {
       take_focus();
     }
   });
+}
+
+void my_main_window::wipe_space () {
+//  sys_fs::current_path("C:\\");
+//  dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [](const sys_fs::path& dir) {
+  sys_fs::path file = "C:\\";// dir;
+    file /= "empty.tmp";
+    std::ofstream f(file);
+    const auto buffer_size = 1024 * 1024;
+    char buffer[buffer_size];
+    memset(buffer, 0, buffer_size);
+    while (!f.write(buffer, buffer_size).fail()) {
+    }
+    f.close();
+    sys_fs::remove(file);
+//  });
 }
 
 void my_main_window::copy () {

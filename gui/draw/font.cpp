@@ -60,6 +60,7 @@ namespace gui {
 
   namespace draw {
 
+#if defined(BUILD_FOR_ARM) || defined(WIN32)
     template<typename T>
     inline T font_scale (T v) {
       return static_cast<T>((double)v * core::global::get_scale_factor());
@@ -69,6 +70,17 @@ namespace gui {
     inline T font_unscale (T v) {
       return static_cast<T>((double)v / core::global::get_scale_factor());
     }
+#else
+    template<typename T>
+    inline T font_scale (T v) {
+      return v;
+    }
+
+    template<typename T>
+    inline T font_unscale (T v) {
+      return v;
+    }
+#endif
 
 #ifdef WIN32
     os::font_type get_menu_font () {

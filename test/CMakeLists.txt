@@ -50,7 +50,6 @@ else()
         WindowTest
         BorderTest
         hello_world
-        spectrometer
     )
 endif()
 

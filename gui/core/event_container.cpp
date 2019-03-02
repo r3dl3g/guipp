@@ -41,7 +41,7 @@ namespace gui {
 
     void event_container::register_event_handler (event_handler_function&& handler) {
       event_handlers.reserve(8);
-      event_handlers.emplace_back(handler);
+      event_handlers.emplace_back(std::move(handler));
     }
 
     void event_container::unregister_event_handler (const event_handler_function& handler) {

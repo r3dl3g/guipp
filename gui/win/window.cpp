@@ -143,6 +143,7 @@ namespace gui {
 
     window::~window () {
       destroy();
+      x11::unprepare_win(this);
     }
 
     void window::create (const class_info& type,
@@ -720,7 +721,6 @@ namespace gui {
         hidden::window_class_map.erase(get_id());
         x11::check_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
-        x11::unprepare_win(this);
         id = 0;
       }
     }

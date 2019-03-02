@@ -28,6 +28,7 @@
 # include <X11/cursorfont.h>
 #endif // X11
 
+
 // --------------------------------------------------------------------------
 //
 // Library includes
@@ -464,20 +465,23 @@ namespace gui {
     }
 
 #ifdef X11
-    bool is_deeper_window (os::window main, os::window sub) {
-      if (sub == main) {
-        return false;
+    bool is_deeper_window (const window* main, const window* sub) {
+      if (sub) {
+        if (sub == main) {
+          return false;
+        }
+
+        const container* parent = sub->get_parent();
+        if (parent) {
+          return is_deeper_window(main, parent);
+        }
       }
 
-      Window root = 0, parent = 0;
-      Window *children = 0;
-      unsigned int nchildren = 0;
-
-      XQueryTree(core::global::get_instance(), sub, &root, &parent, &children, &nchildren);
-      if (parent) {
-        return is_deeper_window(main, parent);
-      }
       return true;
+    }
+
+    bool is_deeper_window (os::window main, os::window sub) {
+      return is_deeper_window(detail::get_window(main), detail::get_window(sub));
     }
 
 #endif // X11

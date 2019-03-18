@@ -83,6 +83,9 @@ namespace gui {
       super::get_layout().init(&(data.button));
 
       super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
+      super::on_lost_focus([&] (window*) {
+        super::redraw();
+      });
       super::on_left_btn_down([&](os::key_state, const core::point &) {
         toggle_popup();
         super::take_focus();
@@ -99,12 +102,12 @@ namespace gui {
       }));
       data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
 
-      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
       data.button.on_lost_focus([&] (window*) {
         super::redraw();
       });
       data.button.on_any_key_down(basepp::bind_method(this, &drop_down_list::handle_key));
 
+      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
       data.items.set_drawer([&](std::size_t idx,
                                 const draw::graphics & g,
                                 const core::rectangle & r,

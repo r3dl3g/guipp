@@ -201,6 +201,7 @@ namespace gui {
           shift_focus(shift_key_bit_mask::is_set(state));
         }
       }
+
 //      LogTrace << "handle_event: " << e;
       auto r = events.handle_event(e, result);
 

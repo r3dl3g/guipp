@@ -330,20 +330,30 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void basic_scroll_bar<orientation::horizontal>::init () {
-      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
-      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
-      on_wheel<orientation::horizontal>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
-      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
-      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+        left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down);
+        left_btn_up_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_up);
+        wheel_x_event::if_match_call(e, this, &scroll_bar::handle_wheel);
+        mouse_move_event::if_match_call(e, this, &basic_scroll_bar::handle_mouse_move);
+        any_key_up_event::if_match_call(e, this, &basic_scroll_bar::handle_any_key_up);
+        return false;
+      }),
+      static_cast<os::event_id>(left_btn_down_event::mask | left_btn_up_event::mask | wheel_x_event::mask | mouse_move_event::mask | any_key_up_event::mask));
     }
 
     template<>
     void basic_scroll_bar<orientation::vertical>::init () {
-      on_left_btn_down(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_down));
-      on_left_btn_up(basepp::bind_method(this, &basic_scroll_bar::handle_left_btn_up));
-      on_wheel<orientation::vertical>(basepp::bind_method((super*)this, &scroll_bar::handle_wheel));
-      on_mouse_move(basepp::bind_method(this, &basic_scroll_bar::handle_mouse_move));
-      on_any_key_up(basepp::bind_method(this, &basic_scroll_bar::handle_any_key_up));
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+        left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down);
+        left_btn_up_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_up);
+        wheel_y_event::if_match_call(e, this, &scroll_bar::handle_wheel);
+        mouse_move_event::if_match_call(e, this, &basic_scroll_bar::handle_mouse_move);
+        any_key_up_event::if_match_call(e, this, &basic_scroll_bar::handle_any_key_up);
+        return false;
+      }),
+      static_cast<os::event_id>(left_btn_down_event::mask | left_btn_up_event::mask | wheel_y_event::mask | mouse_move_event::mask | any_key_up_event::mask));
     }
 
     // --------------------------------------------------------------------------

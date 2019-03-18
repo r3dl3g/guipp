@@ -138,29 +138,27 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      on_set_focus([&] (window*) {
-         redraw();
-       });
-      on_lost_focus([&] (window*) {
-        redraw();
-      });
-      on_mouse_enter([&] () {
-        set_hilited(true);
-      });
-      on_mouse_leave([&] () {
-        set_hilited(false);
-      });
-      on_any_key_down([&] (os::key_state, os::key_symbol k, const std::string &) {
-        if ((k == win::keys::enter) || (k == win::keys::space)) {
-          set_pushed(true);
-        }
-      });
-      on_left_btn_down([&] (os::key_state, const core::point &) {
-        if (is_enabled()) {
+
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+        if (set_focus_event::match(e) || lost_focus_event::match(e)) {
+          window::redraw();
+        } else if (mouse_enter_event::match(e)) {
+          button_base::set_hilited(true);
+        } else if (mouse_leave_event::match(e)) {
+          button_base::set_hilited(false);
+        } else if (any_key_down_event::match(e)) {
+          os::key_symbol k = get_key_symbol(e);
+          if ((k == win::keys::enter) || (k == win::keys::space)) {
+            set_pushed(true);
+          }
+        } else if (left_btn_down_event::match(e) && is_enabled()) {
           take_focus();
           set_pushed(true);
         }
-      });
+        return false;
+      }), static_cast<os::event_id>(set_focus_event::mask | lost_focus_event::mask | mouse_enter_event::mask | mouse_leave_event::mask | any_key_down_event::mask | left_btn_down_event::mask));
+
     }
 
     void button_base::set_hilited (bool h) {

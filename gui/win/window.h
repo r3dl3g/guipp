@@ -226,6 +226,7 @@ namespace gui {
 
       void set_accept_focus (bool a);
 
+      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
       friend struct window_state;
@@ -239,8 +240,6 @@ namespace gui {
                                        const core::rectangle& r,
                                        os::window parent_id,
                                        window* data);
-
-      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
       void init ();
 

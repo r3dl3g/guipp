@@ -165,11 +165,12 @@ namespace basepp {
     }
 
     // --------------------------------------------------------------------------
-    std::ostream& format_duration (std::ostream& out,
-                                   duration const& d,
-                                   const char* sparator,
-                                   const char* time_delem,
-                                   bool add_millis) {
+    std::ostream& format_duration_mt (std::ostream& out,
+                                      duration const& d,
+                                      int hours_per_mt,
+                                      const char* sparator,
+                                      const char* time_delem,
+                                      bool add_millis) {
       ostream_resetter r(out);
 
       auto t0 = std::chrono::duration_cast<std::chrono::seconds>(d);
@@ -178,8 +179,8 @@ namespace basepp {
       t = (t - secs) / 60;
       auto min = t % 60;
       t = (t - min) / 60;
-      auto hours = t % 24;
-      auto days = (t - hours) / 24;
+      auto hours = t % hours_per_mt;
+      auto days = (t - hours) / hours_per_mt;
       out << days << sparator << std::setfill('0')
           << std::setw(2) << hours << time_delem
           << std::setw(2) << min << time_delem
@@ -192,6 +193,40 @@ namespace basepp {
       return out;
     }
 
+    // --------------------------------------------------------------------------
+    std::ostream& format_duration_only_h (std::ostream& out,
+                                          duration const& d,
+                                          const char* time_delem,
+                                          bool add_millis) {
+      ostream_resetter r(out);
+
+      auto t0 = std::chrono::duration_cast<std::chrono::seconds>(d);
+      auto t = t0.count();
+      auto secs = t % 60;
+      t = (t - secs) / 60;
+      auto min = t % 60;
+      auto hours = (t - min) / 60;
+      out << std::setfill('0')
+          << std::setw(2) << hours << time_delem
+          << std::setw(2) << min << time_delem
+          << std::setw(2) << secs;
+      if (add_millis) {
+        auto tp = std::chrono::duration_cast<std::chrono::microseconds>(d);
+        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(tp - t0);
+        out << '.' << std::setw(3) << micros.count();
+      }
+      return out;
+    }
+    // --------------------------------------------------------------------------
+    std::ostream& format_duration (std::ostream& out,
+                                   duration const& d,
+                                   const char* sparator,
+                                   const char* time_delem,
+                                   bool add_millis) {
+      return format_duration_mt(out, d, 24, sparator, time_delem, add_millis);
+    }
+
+    // --------------------------------------------------------------------------
     std::string format_duration (duration const& d,
                                  const char* sparator,
                                  const char* time_delem,
@@ -201,6 +236,7 @@ namespace basepp {
       return strm.str();
     }
 
+    // --------------------------------------------------------------------------
     duration parse_duration (const std::string& s) {
       std::istringstream strm(s);
       return parse_duration(strm);

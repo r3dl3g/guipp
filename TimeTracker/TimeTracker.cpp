@@ -47,7 +47,7 @@ namespace std {
   }
 
   std::ostream& operator<< (std::ostream& o, duration_type const& d) {
-    return basepp::time::format_duration(o, d);
+    return basepp::time::format_duration_only_h(o, d);
   }
 
 }

@@ -35,11 +35,11 @@ namespace gui {
 
   namespace image_data {
 
-#include <gui/ctrl/button_frame.h>
-#include <gui/ctrl/button_pressed_frame.h>
-#include <gui/ctrl/button_rot_frame.h>
-#include <gui/ctrl/button_pressed_rot_frame.h>
-#include <gui/ctrl/simple_frame.h>
+#include <gui/ctrl/res/button_frame.h>
+#include <gui/ctrl/res/button_pressed_frame.h>
+#include <gui/ctrl/res/button_rot_frame.h>
+#include <gui/ctrl/res/button_pressed_rot_frame.h>
+#include <gui/ctrl/res/simple_frame.h>
 
   } // namespace image_data
 

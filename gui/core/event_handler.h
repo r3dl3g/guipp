@@ -77,6 +77,15 @@ namespace gui {
           f(Getter(e) ...);
         }
 
+        template<typename T, typename F>
+        static void call (const event& e, T* t, F f) {
+          (t->*f)(Getter(e) ...);
+        }
+
+        static void call_fn (const event& e, function f) {
+          f(Getter(e) ...);
+        }
+
       protected:
         function f;
       };
@@ -120,10 +129,27 @@ namespace gui {
         return Matcher(e);
       }
 
+      template<typename T, typename F>
+      static bool if_match_call (const event& e, T* t, F f) {
+        if (match(e)) {
+          Caller::call(e, t, f);
+          return true;
+        }
+        return false;
+      }
+
+      static bool if_match_call_fn (const event& e, function f) {
+        if (match(e)) {
+          Caller::call_fn(e, f);
+          return true;
+        }
+        return false;
+      }
+
       bool operator() (const event& e, os::event_result& result) {
         if (match(e) && caller) {
           if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
-            LogDebug << "Call " << e;
+            LogTrace << "Call " << e;
           }
           caller(e);
           result = R;

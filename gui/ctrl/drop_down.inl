@@ -83,6 +83,9 @@ namespace gui {
       super::get_layout().init(&(data.button));
 
       super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
+      super::on_lost_focus([&] (window*) {
+        super::redraw();
+      });
       super::on_left_btn_down([&](os::key_state, const core::point &) {
         toggle_popup();
         super::take_focus();
@@ -99,12 +102,12 @@ namespace gui {
       }));
       data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
 
-      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
       data.button.on_lost_focus([&] (window*) {
         super::redraw();
       });
       data.button.on_any_key_down(basepp::bind_method(this, &drop_down_list::handle_key));
 
+      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
       data.items.set_drawer([&](std::size_t idx,
                                 const draw::graphics & g,
                                 const core::rectangle & r,
@@ -170,6 +173,16 @@ namespace gui {
         return data.source(idx);
       }
       return T();
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    inline void drop_down_list<T, D>::set_selected_item (T v) {
+      for (int i = 0; i < data.items.get_count(); ++i) {
+        if (data.source(i) == v) {
+          set_selection(i, event_source::logic);
+          return;
+        }
+      }
     }
 
     template<typename T, drop_down_drawer<T> D>
@@ -262,6 +275,16 @@ namespace gui {
     template<typename T, drop_down_drawer<T> D>
     inline void drop_down_list<T, D>::set_count (std::size_t n) {
       data.items.set_count(n);
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    auto drop_down_list<T, D>::items () -> list_type& {
+      return data.items;
+    }
+
+    template<typename T, drop_down_drawer<T> D>
+    auto drop_down_list<T, D>::items () const -> const list_type& {
+      return data.items;
     }
 
     template<typename T, drop_down_drawer<T> D>

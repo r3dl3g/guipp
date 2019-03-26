@@ -54,17 +54,17 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      std::ostream& operator<< (std::ostream& out, draw::bw_pixel pixel) {
-        out << (static_cast<bool>(static_cast<draw::bw_pixel>(pixel)) ? '1' : '0');
+      std::ostream& operator<< (std::ostream& out, pixel::bw_pixel pixel) {
+        out << (static_cast<bool>(static_cast<pixel::bw_pixel>(pixel)) ? '1' : '0');
         return out;
       }
 
-      std::ostream& operator<< (std::ostream& out, draw::gray_pixel pixel) {
+      std::ostream& operator<< (std::ostream& out, pixel::gray_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.value);
         return out;
       }
 
-      std::ostream& operator<< (std::ostream& out, draw::rgb_pixel pixel) {
+      std::ostream& operator<< (std::ostream& out, pixel::rgb_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.red) << ", "
             << std::setw(3) << static_cast<int>(pixel.green) << ", "
             << std::setw(3) << static_cast<int>(pixel.blue);

@@ -75,6 +75,18 @@ namespace basepp {
                                                  const char* time_delem = ":",
                                                  bool add_millis = false);
 
+    BASEPP_EXPORT std::ostream& format_duration_mt (std::ostream& out,
+                                                    duration const& d,
+                                                    int hours_per_mt = 8,
+                                                    const char* sparator = " ",
+                                                    const char* time_delem = ":",
+                                                    bool add_millis = false);
+
+    BASEPP_EXPORT std::ostream& format_duration_only_h (std::ostream& out,
+                                                        duration const& d,
+                                                        const char* time_delem = ":",
+                                                        bool add_millis = false);
+
     BASEPP_EXPORT std::string format_duration (duration const& d,
                                                const char* sparator = " ",
                                                const char* time_delem = ":",

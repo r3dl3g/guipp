@@ -190,7 +190,7 @@ namespace gui {
       typedef T traits_type;
       typedef typename traits_type::size_type size_type;
       typedef typename super::pos_t pos_t;
-      typedef basic_scroll_bar<V> scroll_bar_type;
+      typedef scroll_bar_base<V> scroll_bar_type;
       typedef no_erase_window_class<basic_list> clazz;
 
       const pos_t zero = pos_t(0);

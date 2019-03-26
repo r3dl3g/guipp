@@ -41,8 +41,11 @@
 #ifdef X11
 # include <gui/core/x11defs.h>
 #endif
+#ifdef COCOA
+# include <gui/core/cocoadefs.h>
+#endif
 
-#if !defined(WIN32) && !defined(X11)
+#if !defined(WIN32) && !defined(X11) && !defined(COCOA)
 # pragma error "Unknown target system"
 #endif
 
@@ -73,12 +76,32 @@ namespace gui {
   typedef std::vector<byte> blob;
 
   // --------------------------------------------------------------------------
-  enum class BPP : byte {
+  enum class PixelFormat : int {
     Undefined = 0,
-    BW = 1,
-    GRAY = 8,
-    RGB = 24,
-    RGBA = 32
+    BW,
+    GRAY,
+    RGB,
+    BGR,
+    RGBA,
+    BGRA,
+    ARGB,
+    ABGR
+  };
+
+  std::ostream& operator<< (std::ostream&, PixelFormat);
+
+  constexpr byte color_depths[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
+
+  constexpr byte get_color_depth (PixelFormat px_fmt) {
+    return color_depths[static_cast<byte>(px_fmt)];
+  }
+
+  PixelFormat get_pixel_format (int pixel_format, int byte_order);
+  int get_pixel_format_byte_order (PixelFormat px_fmt);
+
+  template<PixelFormat px_fmt>
+  struct color_depth {
+    static constexpr int bits = color_depths[static_cast<byte>(px_fmt)];
   };
 
   // --------------------------------------------------------------------------
@@ -183,20 +206,32 @@ namespace gui {
     namespace global {
 
       GUIPP_CORE_EXPORT void init (os::instance instance);
-      GUIPP_CORE_EXPORT os::instance get_instance ();
+      GUIPP_CORE_EXPORT void fini ();
 
       GUIPP_CORE_EXPORT void sync ();
 
-      GUIPP_CORE_EXPORT BPP get_device_bits_per_pixel ();
+      GUIPP_CORE_EXPORT os::instance get_instance ();
+      GUIPP_CORE_EXPORT PixelFormat get_device_pixel_format ();
       GUIPP_CORE_EXPORT int get_device_depth ();
-
       GUIPP_CORE_EXPORT os::key_state get_key_state ();
+      GUIPP_CORE_EXPORT double get_scale_factor ();
+      GUIPP_CORE_EXPORT void set_scale_factor (double);
 
-    }
+      template<typename T>
+      T scale (T v) {
+        return static_cast<T>(v * get_scale_factor());
+      }
 
-  } // core
+      template<typename T>
+      T unscale (T v) {
+        return static_cast<T>(v / get_scale_factor());
+      }
 
-} //gui
+    } // namespace global
+
+  } // namespace core
+
+} //namespace gui
 
 // --------------------------------------------------------------------------
 

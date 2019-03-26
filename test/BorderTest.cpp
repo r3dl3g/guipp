@@ -1,4 +1,4 @@
-﻿
+
 // --------------------------------------------------------------------------
 //
 // Common includes
@@ -27,6 +27,7 @@
 #include <gui/ctrl/textbox.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/tab_group.h>
+#include <gui/io/wavelength_to_rgb.h>
 
 
 using namespace gui;
@@ -63,6 +64,8 @@ public:
 
   void start_thread ();
   void stop_thread ();
+
+  void settings ();
 
 private:
   volatile bool thread_is_active;
@@ -102,6 +105,8 @@ private:
   rgbmap bmp[2];
   graymap gray[2];
   bwmap bw[2];
+
+  rgbmap wave_color;
 };
 
 // --------------------------------------------------------------------------
@@ -197,6 +202,11 @@ my_main_window::my_main_window ()
       }
       x += 110;
     }
+
+    if (wave_color) {
+      graph.copy_from(wave_color, core::point::zero);
+    }
+
   }));
 }
 
@@ -287,8 +297,8 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', [&]() { labels[0].set_text("settings"); }, hot_key(), false, pixmap(), menu_state::disabled));
-  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), true));
+  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', basepp::bind_method(this, &my_main_window::settings), hot_key(), true));
+  edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.register_hot_keys(this);
 
   tool_bar.create(top_view);
@@ -494,10 +504,10 @@ void my_main_window::open () {
     if (sys_fs::exists(file)) {
       gui::draw::basic_datamap img;
       gui::io::load_pnm(file.string(), img);
-      rgba[0] = img.convert<BPP::RGBA>();
-      bmp[0] = img.convert<BPP::RGB>();
-      gray[0] = img.convert<BPP::GRAY>();
-      bw[0] = img.convert<BPP::BW>();
+      rgba[0] = img.convert<PixelFormat::RGBA>();
+      bmp[0] = img.convert<PixelFormat::RGB>();
+      gray[0] = img.convert<PixelFormat::GRAY>();
+      bw[0] = img.convert<PixelFormat::BW>();
       window1.redraw();
     }
   });
@@ -559,7 +569,22 @@ void my_main_window::copy () {
   window1.redraw();
 }
 
-void my_main_window::del () {
+void my_main_window::settings () {
+    core::rectangle r = window1.client_area();
+    core::size sz = r.size();
+
+    pixmap img(sz);
+    graphics g(img);
+    double scale = 500.0 / sz.width();
+    for (int x = 0; x < sz.width(); ++x) {
+        os::color rgb = io::optics::wave_length_to_rgb(static_cast<double>(330.0 + x * scale));
+        g.draw_lines({core::point{(float)x, r.y()}, core::point{(float)x, r.y2()}}, draw::pen(rgb));
+    }
+    wave_color = img;
+    window1.redraw();
+}
+
+  void my_main_window::del () {
   labels[0].set_text("del");
   for (int i = 0; i < 2; ++i) {
     rgba[i].clear();
@@ -592,8 +617,8 @@ void my_main_window::cut () {
   gray[0] = img;
   bw[0] = img;
 
-  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, BPP::RGBA>(rgba[0]);
-  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, BPP::RGBA>(rgba[0]);
+  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[0]);
+  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[0]);
 
   io::ofpnm<io::PNM::P6>("left_list.p6") << bmp[0];
   io::ofpnm<io::PNM::P3>("left_list.p3") << bmp[0];
@@ -611,8 +636,8 @@ void my_main_window::cut () {
 
   rgba[1] = drawer(sz);
 
-  std::ofstream("p6-rgba.ppm") << io::opnm<true, BPP::RGBA>(rgba[1]);
-  std::ofstream("p3-rgba.ppm") << io::opnm<false, BPP::RGBA>(rgba[1]);
+  std::ofstream("p6-rgba.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[1]);
+  std::ofstream("p3-rgba.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[1]);
 
   bmp[1] = drawer(sz);
 
@@ -633,7 +658,7 @@ void my_main_window::cut () {
 }
 
 template<io::PNM P>
-void read_write (datamap<io::PNM2BPP<P>::bpp>& bm) {
+void read_write (datamap<io::PNM2BPP<P>::px_fmt>& bm) {
   try {
     int i = static_cast<int>(P);
     std::string iname = ostreamfmt("p" << i);
@@ -647,14 +672,14 @@ void read_write (datamap<io::PNM2BPP<P>::bpp>& bm) {
 }
 
 template<io::PNM P>
-void read_write_rgba (datamap<BPP::RGBA>& bm) {
+void read_write_rgba (datamap<PixelFormat::RGBA>& bm) {
   try {
     int i = static_cast<int>(P);
     std::string iname = ostreamfmt("p" << i << "-rgba.ppm");
     std::string oname = ostreamfmt("test.p" << i << "-rgba.ppm");
-    io::ipnm<BPP::RGBA> ip(bm);
+    io::ipnm<PixelFormat::RGBA> ip(bm);
     std::ifstream(iname) >> ip;
-    std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin, BPP::RGBA>(bm);
+    std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin, PixelFormat::RGBA>(bm);
   }
   catch (std::exception& ex) {
     LogFatal << ex;
@@ -725,8 +750,8 @@ void my_main_window::test_rgb () {
 void my_main_window::save_all_bin () {
   ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (const sys_fs::path& file) {
     sys_fs::current_path(file);
-    std::ofstream("rgba0.b.ppm") << io::opnm<true, BPP::RGBA>(rgba[0]);
-    std::ofstream("rgba1.b.ppm") << io::opnm<true, BPP::RGBA>(rgba[1]);
+    std::ofstream("rgba0.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[0]);
+    std::ofstream("rgba1.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[1]);
     io::ofpnm<io::PNM::P6>("bmp0.b")  << bmp[0];
     io::ofpnm<io::PNM::P6>("bmp1.b")  << bmp[1];
     io::ofpnm<io::PNM::P5>("gray0.b") << gray[0];
@@ -737,8 +762,8 @@ void my_main_window::save_all_bin () {
 }
 
 void my_main_window::save_all_ascii() {
-  std::ofstream("rgba0.a.ppm") << io::opnm<false, BPP::RGBA>(rgba[0]);
-  std::ofstream("rgba1.a.ppm") << io::opnm<false, BPP::RGBA>(rgba[1]);
+  std::ofstream("rgba0.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[0]);
+  std::ofstream("rgba1.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[1]);
   io::ofpnm<io::PNM::P3>("bmp0.a") << bmp[0];
   io::ofpnm<io::PNM::P3>("bmp1.a") << bmp[1];
   io::ofpnm<io::PNM::P2>("gray0.a") << gray[0];

@@ -27,14 +27,19 @@
 #include <chrono>
 #include <thread>
 
-#if defined(NO_BOOST) || ((_MSC_VER >= 1900) && defined(EXPERIMENTAL)) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3)) || (__clang__)
+
+#if ((_MSC_VER >= 1900) && defined(EXPERIMENTAL)) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ >3)) || ((__clang__) && !__APPLE__)
 #include <experimental/filesystem>
 using namespace std::experimental;
-#else
+#define USE_STD_FS
+#elif !defined(NO_BOOST)
 #define USE_BOOST
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 using namespace boost;
+#define USE_STD_FS
+#else
+#include <unistd.h>
 #endif
 
 // --------------------------------------------------------------------------
@@ -285,10 +290,16 @@ namespace basepp {
         next_name += numstr;
       }
 
+#ifdef USE_STD_FS
       filesystem::path next_path(next_name);
       if (filesystem::exists(next_path)) {
         filesystem::remove(next_path);
       }
+#else
+      if (access(next_name.c_str(), F_OK) != -1) {
+        unlink(next_name.c_str());
+      }
+#endif
 
       if (num < maxnum) {
         std::string curr_name(name);
@@ -302,6 +313,7 @@ namespace basepp {
             curr_name += numstr;
         }
 
+#ifdef USE_STD_FS
         if (next_path.has_parent_path()) {
           filesystem::create_directories(next_path.parent_path());
         }
@@ -310,6 +322,11 @@ namespace basepp {
         if (filesystem::exists(curr_path)) {
           filesystem::rename(curr_path, next_path);
         }
+#else
+        if (access(curr_name.c_str(), F_OK) != -1) {
+          rename(curr_name.c_str(), next_name.c_str());
+        }
+#endif
 
       }
     }
@@ -328,9 +345,13 @@ namespace basepp {
 
     // ---------------------------------------------------------------------------
     std::string core::build_temp_log_file_name (const std::string& name) {
+#ifdef USE_STD_FS
       filesystem::path tmp = filesystem::temp_directory_path();
       tmp /= name;
       return tmp.string();
+#else
+      return tempnam(P_tmpdir, name.c_str());
+#endif
     }
 
 

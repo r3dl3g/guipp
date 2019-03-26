@@ -32,14 +32,14 @@ namespace gui {
 
     struct GUIPP_DRAW_EXPORT bitmap_info {
       bitmap_info ();
-      bitmap_info (const core::uint32_size&, BPP bpp);
-      bitmap_info (uint32_t w, uint32_t h, BPP bpp);
-      bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp);
+      bitmap_info (const core::uint32_size&, PixelFormat px_fmt);
+      bitmap_info (uint32_t w, uint32_t h, PixelFormat px_fmt);
+      bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, PixelFormat px_fmt);
 
       uint32_t width;
       uint32_t height;
+      PixelFormat pixel_format;
       uint32_t bytes_per_line;
-      BPP bits_per_pixel;
 
       core::uint32_size size () const;
 
@@ -52,6 +52,8 @@ namespace gui {
       bool operator== (const bitmap_info&) const;
 
     };
+
+    uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt);
 
   } //namespace draw
 

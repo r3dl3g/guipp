@@ -335,6 +335,31 @@ namespace gui {
         x11::send_client_message(win, message, l1, l2);
       }
 
+      namespace {
+        std::map<const window*, os::event_id> window_event_mask;
+      }
+
+      void prepare_win_for_event (const window* win, os::event_id mask) {
+        if (win && win->get_id()) {
+          auto i = window_event_mask.find(win);
+          if (i != window_event_mask.end()) {
+            i->second |= mask;
+            XSelectInput(core::global::get_instance(), win->get_id(), i->second);
+          } else {
+            window_event_mask[win] = mask;
+            XSelectInput(core::global::get_instance(), win->get_id(), mask);
+          }
+        } else {
+          os::event_id& old_mask = window_event_mask[win];
+          old_mask |= mask;
+        }
+      }
+
+      void unprepare_win (const window* win) {
+        window_event_mask.erase(win);
+      }
+
+
     } // namespace x11
 
     // --------------------------------------------------------------------------
@@ -383,7 +408,7 @@ namespace gui {
     }
 
     void send_client_message (const window* win, Atom message, const core::size& sz) {
-      os::size s = sz;
+      os::size s = sz.os();
       long l0 = (long)s.cx << 16 | (long)s.cy;
       x11::send_client_message(win, message, l0);
     }
@@ -428,7 +453,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
-      return core::point(me.x_root, me.y_root);
+      return core::point(core::global::unscale(me.x_root), core::global::unscale(me.y_root));
     }
 
     // --------------------------------------------------------------------------

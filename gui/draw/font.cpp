@@ -60,6 +60,28 @@ namespace gui {
 
   namespace draw {
 
+#if defined(BUILD_FOR_ARM) || defined(WIN32)
+    template<typename T>
+    inline T font_scale (T v) {
+      return static_cast<T>((double)v * core::global::get_scale_factor());
+    }
+
+    template<typename T>
+    inline T font_unscale (T v) {
+      return static_cast<T>((double)v / core::global::get_scale_factor());
+    }
+#else
+    template<typename T>
+    inline T font_scale (T v) {
+      return v;
+    }
+
+    template<typename T>
+    inline T font_unscale (T v) {
+      return v;
+    }
+#endif
+
 #ifdef WIN32
     os::font_type get_menu_font () {
       NONCLIENTMETRICS metrics;
@@ -289,7 +311,7 @@ namespace gui {
       info = XftFontOpen(core::global::get_instance(),
                          core::global::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
-                         XFT_SIZE, XftTypeDouble, (double)size,
+                         XFT_SIZE, XftTypeDouble, (double)font_scale(size),
                          XFT_WEIGHT, XftTypeInteger, (int)thickness,
                          XFT_SLANT, XftTypeInteger, (italic ? FC_SLANT_ITALIC : 0),
                          NULL);
@@ -346,7 +368,7 @@ namespace gui {
       if (info) {
         double sz;
         if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
-          return (font::size_type)sz;
+          return font_unscale<font::size_type>(sz);
         }
       }
       return STD_FONT_SIZE;
@@ -428,7 +450,7 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        return core::size(extents.xOff - extents.x, extents.height);
+        return core::size(font_unscale(extents.xOff - extents.x), font_unscale(extents.height));
       }
       return core::size::zero;
     }

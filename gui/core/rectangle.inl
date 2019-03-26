@@ -27,7 +27,7 @@ namespace gui {
 
     template<typename T>
     inline basic_rectangle<T>::basic_rectangle (const point_t& pos,
-                                        const size_t& sz)
+                                                const size_t& sz)
       : pos(pos)
       , sz(sz)
     {}
@@ -39,16 +39,16 @@ namespace gui {
 
     template<typename T>
     inline basic_rectangle<T>::basic_rectangle (const point_t& topleft,
-                                        const point_t& bottomright)
+                                                const point_t& bottomright)
       : pos(topleft)
       , sz(bottomright - topleft)
     {}
 
     template<typename T>
     inline basic_rectangle<T>::basic_rectangle (type x,
-                                        type y,
-                                        type width,
-                                        type height)
+                                                type y,
+                                                type width,
+                                                type height)
       : pos(x, y)
       , sz(width, height)
     {}
@@ -210,8 +210,8 @@ namespace gui {
       , sz(static_cast<type>(r.right - r.left), static_cast<type>(r.bottom - r.top))
 #endif // Win32
 #ifdef X11
-      : pos(static_cast<type>(r.x), static_cast<type>(r.y))
-      , sz(static_cast<type>(r.width), static_cast<type>(r.height))
+      : pos(global::unscale<type>(r.x), global::unscale<type>(r.y))
+      , sz(global::unscale<type>(r.width), global::unscale<type>(r.height))
 #endif // X11
     {}
 
@@ -395,12 +395,12 @@ namespace gui {
     template<typename T>
     os::rectangle basic_rectangle<T>::os () const {
       return {
-        static_cast<os::point_type>(x()), static_cast<os::point_type>(y()),
+        os_x(), os_y(),
 #ifdef WIN32
-        static_cast<os::point_type>(x2()), static_cast<os::point_type>(y2())
+        os_x2(), os_y2()
 #endif // Win32
 #ifdef X11
-        static_cast<os::size_type>(width()), static_cast<os::size_type>(height())
+        os_width(), os_height()
 #endif // X11
       };
     }

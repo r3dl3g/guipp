@@ -126,7 +126,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     image_frame<T>::image_frame (const core::rectangle& rect, const datamap<T>& img, const core::uint32_rect& frame)
       : rect(rect)
       , img(img)
@@ -134,34 +134,34 @@ namespace gui {
     {}
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::BW>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::GRAY>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::RGB>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::RGBA>::operator() (const graphics& g, const core::point& pt) const;
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame) {
       return image_frame<T>(r, img, frame);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge) {
       return image_frame<T>(r, img, {edge, edge, edge, edge});
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical) {
       return image_frame<T>(r, img, {horizontal, vertical, horizontal, vertical});
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
       return image_frame<T>(r, img, {left, top, right, bottom});
     }

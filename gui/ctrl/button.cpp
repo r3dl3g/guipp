@@ -35,11 +35,11 @@ namespace gui {
 
   namespace image_data {
 
-#include <gui/ctrl/button_frame.h>
-#include <gui/ctrl/button_pressed_frame.h>
-#include <gui/ctrl/button_rot_frame.h>
-#include <gui/ctrl/button_pressed_rot_frame.h>
-#include <gui/ctrl/simple_frame.h>
+#include <gui/ctrl/res/button_frame.h>
+#include <gui/ctrl/res/button_pressed_frame.h>
+#include <gui/ctrl/res/button_rot_frame.h>
+#include <gui/ctrl/res/button_pressed_rot_frame.h>
+#include <gui/ctrl/res/simple_frame.h>
 
   } // namespace image_data
 
@@ -138,29 +138,27 @@ namespace gui {
 #endif // X11
 
       set_accept_focus(true);
-      on_set_focus([&] (window*) {
-         redraw();
-       });
-      on_lost_focus([&] (window*) {
-        redraw();
-      });
-      on_mouse_enter([&] () {
-        set_hilited(true);
-      });
-      on_mouse_leave([&] () {
-        set_hilited(false);
-      });
-      on_any_key_down([&] (os::key_state, os::key_symbol k, const std::string &) {
-        if ((k == win::keys::enter) || (k == win::keys::space)) {
-          set_pushed(true);
-        }
-      });
-      on_left_btn_down([&] (os::key_state, const core::point &) {
-        if (is_enabled()) {
+
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+        if (set_focus_event::match(e) || lost_focus_event::match(e)) {
+          window::redraw();
+        } else if (mouse_enter_event::match(e)) {
+          button_base::set_hilited(true);
+        } else if (mouse_leave_event::match(e)) {
+          button_base::set_hilited(false);
+        } else if (any_key_down_event::match(e)) {
+          os::key_symbol k = get_key_symbol(e);
+          if ((k == win::keys::enter) || (k == win::keys::space)) {
+            set_pushed(true);
+          }
+        } else if (left_btn_down_event::match(e) && is_enabled()) {
           take_focus();
           set_pushed(true);
         }
-      });
+        return false;
+      }), static_cast<os::event_id>(set_focus_event::mask | lost_focus_event::mask | mouse_enter_event::mask | mouse_leave_event::mask | any_key_down_event::mask | left_btn_down_event::mask));
+
     }
 
     void button_base::set_hilited (bool h) {
@@ -363,18 +361,24 @@ namespace gui {
       void button_frame_w95 (const draw::graphics& graph,
                              const core::rectangle& r,
                              const button_state& state) {
+        button_frame_w95(graph, r, state.is_enabled(), state.is_pushed(),
+                         state.is_hilited(), state.has_focus());
+      }
+
+      // --------------------------------------------------------------------------
+      void button_frame_w95 (const draw::graphics& graph,
+                             const core::rectangle& r,
+                             bool enabled, bool pushed, bool hilited, bool focused) {
         core::rectangle area = r;
-        bool enabled = state.is_enabled();
-        bool pushed = state.is_pushed();
-        graph.fill(draw::rectangle(area), enabled && state.is_hilited() ? color::buttonHighLightColor() : color::buttonColor());
-        if (enabled && state.has_focus()) {
+        graph.fill(draw::rectangle(area), enabled && hilited ? color::buttonHighLightColor() : color::buttonColor());
+        if (enabled && focused) {
           graph.frame(draw::rectangle(area), color::black);
           area.shrink({1, 1});
         }
 
         draw::frame::deep_relief(graph, area, pushed);
 
-        if (enabled && state.has_focus() && !pushed) {
+        if (enabled && focused && !pushed) {
           core::rectangle area = r;
           area.shrink({6, 6});
           graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
@@ -408,8 +412,11 @@ namespace gui {
                         const core::rectangle& r,
                         const std::string& text,
                         const button_state& state) {
+#ifdef BUILD_FOR_ARM
+        button_frame_w95(graph, r, state);
+#else
         button_frame(graph, r, state);
-
+#endif
         using namespace draw;
         graph.text(text_box(text, r, text_origin::center), font::system(),
                    state.is_enabled() ? color::windowTextColor() : color::disabledTextColor());

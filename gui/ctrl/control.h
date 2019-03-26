@@ -206,12 +206,14 @@ namespace gui {
        // --------------------------------------------------------------------------
 
     namespace paint {
+
       GUIPP_CTRL_EXPORT void text_item (const draw::graphics&,
                       const core::rectangle& place,
                       const draw::brush& background,
                       const std::string& text,
                       bool selected,
                       text_origin origin = text_origin::vcenter_left);
+
     }
 
     // --------------------------------------------------------------------------
@@ -226,27 +228,6 @@ namespace gui {
       void on_content_changed (std::function<void()>&& f);
 
     };
-
-    // --------------------------------------------------------------------------
-    inline void control::on_selection_changed (selection_changed_event::function&& f) {
-      on<selection_changed_event>(std::move(f));
-    }
-
-    inline void control::on_selection_commit (selection_commit_event::function&& f) {
-      on<selection_commit_event>(std::move(f));
-    }
-
-    inline void control::on_selection_cancel (selection_cancel_event::function&& f) {
-      on<selection_cancel_event>(std::move(f));
-    }
-
-    inline void control::on_hilite_changed (hilite_changed_event::function&& f) {
-      on<hilite_changed_event>(std::move(f));
-    }
-
-    inline void control::on_content_changed (content_changed_event::function&& f) {
-      on<content_changed_event>(std::move(f));
-    }
 
     // --------------------------------------------------------------------------
     template<os::color background = color::very_light_gray>
@@ -265,8 +246,6 @@ namespace gui {
                                            const core::rectangle& r) {
       super::create(clazz::get(), parent, r);
     }
-
-    // --------------------------------------------------------------------------
 
   } // ctrl
 

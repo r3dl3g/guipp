@@ -207,8 +207,6 @@ namespace gui {
       template<typename H>
       void unregister_event_handler (const typename H::function& f);
 
-      void prepare_for_event (os::event_id mask);
-
       bool handle_event (const core::event&, os::event_result&) const;
 
     protected:
@@ -228,6 +226,7 @@ namespace gui {
 
       void set_accept_focus (bool a);
 
+      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
     private:
       friend struct window_state;
@@ -241,8 +240,6 @@ namespace gui {
                                        const core::rectangle& r,
                                        os::window parent_id,
                                        window* data);
-
-      void register_event_handler (event_handler_function&& f, os::event_id mask);
 
       void init ();
 

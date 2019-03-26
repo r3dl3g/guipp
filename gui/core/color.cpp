@@ -37,6 +37,23 @@ namespace gui {
 
   namespace color {
 
+    color_parts get_color_parts (PixelFormat px_fmt) {
+      switch (px_fmt) {
+        case PixelFormat::RGB:
+        case PixelFormat::RGBA:
+          return rgba_parts::get_color_parts();
+        case PixelFormat::BGR:
+        case PixelFormat::BGRA:
+          return bgra_parts::get_color_parts();
+        case PixelFormat::ARGB:
+          return argb_parts::get_color_parts();
+        case PixelFormat::ABGR:
+          return abgr_parts::get_color_parts();
+        default:
+          return gray_parts::get_color_parts();
+      }
+    }
+
 #ifdef WIN32
 
     os::color get_sys_color (int c) {
@@ -45,7 +62,7 @@ namespace gui {
 
 #endif // WIN32
 
-#ifdef X11
+#if defined(X11) || defined(COCOA)
 
     enum SystemColor {
       COLOR_SCROLLBAR,

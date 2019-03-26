@@ -419,6 +419,12 @@ namespace gui {
 
       void handle_scroll (const core::point& pos);
 
+      void on_selection_changed (std::function<void(event_source)>&& f);
+      void on_selection_commit (std::function<void()>&& f);
+      void on_selection_cancel (std::function<void()>&& f);
+      void on_hilite_changed (std::function<void(bool)>&& f);
+      void on_content_changed (std::function<void()>&& f);
+
       core::size::type row_width () const;
       core::size::type column_height () const;
 

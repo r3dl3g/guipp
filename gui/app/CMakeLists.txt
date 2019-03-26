@@ -12,7 +12,7 @@ if(NOT TARGET gui++-app-obj)
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
-	add_definitions(${gui_defines})
+	  add_definitions(${gui_defines})
 
     add_library(gui++-app-obj OBJECT ${SOURCE_FILES})
     set_target_properties(gui++-app-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)

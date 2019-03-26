@@ -17,6 +17,10 @@ if(NOT TARGET base++-obj)
         ${PROJECT_BINARY_DIR}
     )
 
+    if (APPLE)
+      set (basepp_include ${basepp_include} /usr/local/include)
+    endif (APPLE)
+
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set (basepp_sys_libraries stdc++fs pthread)
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -54,7 +58,11 @@ if(NOT TARGET base++-obj)
 
     file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
 
-    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN -Dbase___obj_EXPORTS ${basepp_defines})
+    if (WIN32)
+      add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif (WIN32)
+
+    add_definitions(-DEXPERIMENTAL -Dbase___obj_EXPORTS ${basepp_defines})
 
     add_library(base++-obj OBJECT ${SOURCE_FILES})
 

@@ -375,6 +375,9 @@ namespace gui {
 
       GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const window* w, const core::rectangle& r);
 
+      GUIPP_WIN_EXPORT void prepare_win_for_event (const window* win, os::event_id mask);
+      GUIPP_WIN_EXPORT void unprepare_win (const window* win);
+
     } // namespace x11
 
     GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);
@@ -438,7 +441,8 @@ namespace gui {
     template<typename C>
     struct get<core::size, C> {
       static core::size param (const core::event& e) {
-        return core::size(event_type_cast<C>(e).width, event_type_cast<C>(e).height);
+        return core::size(core::global::unscale(event_type_cast<C>(e).width),
+                          core::global::unscale(event_type_cast<C>(e).height));
       }
 
     };
@@ -446,7 +450,8 @@ namespace gui {
     template<typename C>
     struct get<core::point, C> {
       static core::point param (const core::event& e) {
-        return core::point(event_type_cast<C>(e).x, event_type_cast<C>(e).y);
+        return core::point(core::global::unscale(event_type_cast<C>(e).x),
+                           core::global::unscale(event_type_cast<C>(e).y));
       }
 
     };
@@ -692,17 +697,27 @@ namespace gui {
                                                   double_click_matcher<Button2>>;
 
     using wheel_x_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                        core::params<core::point::type, core::point>::
-                                        getter<get_wheel_delta<6, 7>,
-                                               get<core::point, XButtonEvent>::param>,
-                                        0,
-                                        wheel_button_matcher<6, 7>>;
+                                              core::params<core::point::type, core::point>::
+                                              getter<get_wheel_delta<6, 7>,
+                                              get<core::point, XButtonEvent>::param>,
+                                              0,
+                                              wheel_button_matcher<6, 7>>;
+
     using wheel_y_event = core::event_handler<ButtonPress, ButtonPressMask,
-                                        core::params<core::point::type, core::point>::
-                                        getter<get_wheel_delta<Button4, Button5>,
-                                               get<core::point, XButtonEvent>::param>,
-                                        0,
-                                        wheel_button_matcher<Button4, Button5>>;
+                                              core::params<core::point::type, core::point>::
+                                              getter<get_wheel_delta<Button4, Button5>,
+                                                     get<core::point, XButtonEvent>::param>,
+                                              0,
+                                              wheel_button_matcher<Button4, Button5>>;
+
+    template<orientation O>
+    struct wheel_event {};
+
+    template<>
+    struct wheel_event<orientation::horizontal> : public wheel_x_event {};
+
+    template<>
+    struct wheel_event<orientation::vertical> : public wheel_y_event {};
 
     using show_event = core::event_handler<MapNotify, StructureNotifyMask>;
     using hide_event = core::event_handler<UnmapNotify, StructureNotifyMask>;

@@ -47,12 +47,12 @@ namespace gui {
       bitmap_info get_info () const;
       core::size size () const;
       byte depth () const;
-      BPP bits_per_pixel () const;
+      PixelFormat pixel_format () const;
 
       void operator= (const basic_map& rhs);
       void operator= (basic_map&& rhs);
 
-      static uint32_t calc_bytes_per_line (uint32_t w, BPP bpp);
+      static uint32_t calc_bytes_per_line (uint32_t w, PixelFormat px_fmt);
 
     protected:
       basic_map ();
@@ -103,8 +103,11 @@ namespace gui {
 
       pixmap ();
 
-      template<BPP T>
+      template<PixelFormat T>
       pixmap (const datamap<T>& rhs);
+
+      template<PixelFormat T>
+      pixmap (const const_image_data<T>& rhs);
 
       pixmap (uint32_t w, uint32_t h);
       pixmap (const core::uint32_size& sz);
@@ -120,23 +123,23 @@ namespace gui {
 
       void invert ();
 
-      template<BPP T>
+      template<PixelFormat T>
       void operator= (const datamap<T>& rhs);
 
-      template<BPP T>
+      template<PixelFormat T>
       datamap<T> get () const;
 
-      template<BPP T>
+      template<PixelFormat T>
       operator datamap<T> () const;
 
     private:
-      template<BPP T>
+      template<PixelFormat T>
       void invert ();
 
       void put (cbyteptr data, const draw::bitmap_info& bmi);
       void get (blob& data, draw::bitmap_info& bmi) const;
 
-      template<BPP T>
+      template<PixelFormat T>
       void put (const datamap<T>& rhs);
 
     };

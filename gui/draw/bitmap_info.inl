@@ -33,7 +33,7 @@ namespace gui {
       }
 
     inline byte bitmap_info::depth () const {
-      return static_cast<byte>(bits_per_pixel);
+      return get_color_depth(pixel_format);
     }
 
     inline std::size_t bitmap_info::mem_size () const {

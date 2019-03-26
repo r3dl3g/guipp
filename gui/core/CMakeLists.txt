@@ -14,7 +14,11 @@ if(NOT TARGET gui++-core-obj)
 
     message(STATUS "gui_defines: ${gui_defines}")
 
-    add_definitions(-DEXPERIMENTAL -DWIN32_LEAN_AND_MEAN ${gui_defines})
+    if (WIN32)
+      add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif (WIN32)
+
+    add_definitions(-DEXPERIMENTAL ${gui_defines})
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
 

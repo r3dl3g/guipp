@@ -29,9 +29,9 @@ namespace gui {
 
   namespace image_data {
 
-#include <gui/ctrl/file_icon.h>
-#include <gui/ctrl/close_folder_icon.h>
-#include <gui/ctrl/open_folder_icon.h>
+#include <gui/ctrl/res/file_icon.h>
+#include <gui/ctrl/res/close_folder_icon.h>
+#include <gui/ctrl/res/open_folder_icon.h>
 
   } // image_data
 

@@ -30,33 +30,39 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
-    template<BPP T>
+    template<PixelFormat T>
     inline datamap<T>::datamap ()
     {}
 
-    template<BPP T>
+    template<PixelFormat T>
     inline datamap<T>::datamap (uint32_t w, uint32_t h) {
       create(w, h);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline datamap<T>::datamap (const core::uint32_size& sz) {
       create(sz);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline datamap<T>::datamap (const const_image_data<T>& data) {
       create(data);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline datamap<T>::datamap (const core::size& sz) {
       create(sz);
     }
 
-    template<BPP T>
-    template<BPP S>
-    inline datamap<T>::datamap (const datamap<S>& src) {
+    template<PixelFormat T>
+    template<PixelFormat S>
+    inline datamap<T>::datamap (const datamap<S>& src)
+      : datamap(src.get_raw())
+    {}
+
+    template<PixelFormat T>
+    template<PixelFormat S>
+    inline datamap<T>::datamap (const const_image_data<S>& src) {
       const bitmap_info& bmi = src.get_info();
 
       const auto w = bmi.width;
@@ -65,55 +71,61 @@ namespace gui {
       info = {w, h, T};
       data.resize(info.mem_size());
 
-      convert::bpp::convert<S, T>(src.get_raw(), get_raw(), w, h);
+      convert::format::convert<S, T>(src, get_raw(), w, h);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     const datamap<T> basic_datamap::convert () const {
       const bitmap_info& bmi = get_info();
 
-      if (T == bmi.bits_per_pixel) {
+      if (T == bmi.pixel_format) {
         return datamap<T>(get_raw<T>());
       } else {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
         datamap<T> dest(w, h);
-        switch (bmi.bits_per_pixel) {
-          case BPP::BW:   convert::bpp::convert<BPP::BW, T>(get_raw<BPP::BW>(), dest.get_raw(), w, h); break;
-          case BPP::GRAY: convert::bpp::convert<BPP::GRAY, T>(get_raw<BPP::GRAY>(), dest.get_raw(), w, h); break;
-          case BPP::RGB:  convert::bpp::convert<BPP::RGB, T>(get_raw<BPP::RGB>(), dest.get_raw(), w, h); break;
-          case BPP::RGBA: convert::bpp::convert<BPP::RGBA, T>(get_raw<BPP::RGBA>(), dest.get_raw(), w, h); break;
+        switch (bmi.pixel_format) {
+          case PixelFormat::BW:   convert::format::convert<PixelFormat::BW,   T>(get_raw<PixelFormat::BW>(),   dest.get_raw(), w, h); break;
+          case PixelFormat::GRAY: convert::format::convert<PixelFormat::GRAY, T>(get_raw<PixelFormat::GRAY>(), dest.get_raw(), w, h); break;
+          case PixelFormat::RGB:  convert::format::convert<PixelFormat::RGB,  T>(get_raw<PixelFormat::RGB>(),  dest.get_raw(), w, h); break;
+          case PixelFormat::RGBA: convert::format::convert<PixelFormat::RGBA, T>(get_raw<PixelFormat::RGBA>(), dest.get_raw(), w, h); break;
+          case PixelFormat::BGR:  convert::format::convert<PixelFormat::BGR,  T>(get_raw<PixelFormat::BGR>(),  dest.get_raw(), w, h); break;
+          case PixelFormat::BGRA: convert::format::convert<PixelFormat::BGRA, T>(get_raw<PixelFormat::BGRA>(), dest.get_raw(), w, h); break;
+          case PixelFormat::ARGB: convert::format::convert<PixelFormat::ARGB, T>(get_raw<PixelFormat::ARGB>(), dest.get_raw(), w, h); break;
+          case PixelFormat::ABGR: convert::format::convert<PixelFormat::ABGR, T>(get_raw<PixelFormat::ABGR>(), dest.get_raw(), w, h); break;
         }
         return dest;
       }
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::create (uint32_t w, uint32_t h) {
       info = {w, h, T};
       data.resize(info.mem_size());
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::create (const core::size& sz) {
       create(sz.os_width(), sz.os_height());
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::create (const core::uint32_size& sz) {
       create(sz.width(), sz.height());
     }
 
-    template<BPP T>
-    inline void datamap<T>::create (const const_image_data<T>& data) {
-      info = data.get_info();
+    template<PixelFormat T>
+    inline void datamap<T>::create (const const_image_data<T>& rhs) {
+      const bitmap_info& bmi = rhs.get_info();
+      info = bitmap_info(bmi.width, bmi.height, T);
       auto sz = info.mem_size();
-      this->data.resize(sz);
-      memcpy(this->data.data(), data.raw_data().data(0, sz), sz);
+      data.resize(sz);
+      image_data<T> lhs(data, info);
+      lhs = rhs;
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::copy_from (const datamap& src_img,
                                        const core::rectangle& src_rect,
                                        const core::point& dest_pt) {
@@ -130,7 +142,7 @@ namespace gui {
                             src.position(), dest);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
       datamap bmp(w, h);
       bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
@@ -138,12 +150,12 @@ namespace gui {
       std::swap(info, bmp.info);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::stretch_from (const datamap& src) {
       stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::stretch_from (const datamap& src_img,
                                           const core::rectangle& src_rect,
                                           const core::rectangle& dest_rect) {
@@ -159,12 +171,12 @@ namespace gui {
       convert::stretch::sub<T>(src_img.get_raw(), get_raw(), src, dest);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::adjust_brightness (float f) {
       convert::brightness::adjust<T>(get_raw(), info.width, info.height, f);
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
       bmp.copy_from(*this, 
@@ -173,7 +185,7 @@ namespace gui {
       return bmp;
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline auto datamap<T>::brightness (float f) const -> datamap {
       datamap bmp = *this;
       bitmap_info& bmi = bmp.info;
@@ -181,7 +193,7 @@ namespace gui {
       return bmp;
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     inline void datamap<T>::invert () {
       for (auto& c : data) {
         c = ~c;

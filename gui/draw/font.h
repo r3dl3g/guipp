@@ -52,7 +52,7 @@ namespace gui {
       enum Thickness {
         thin = IF_WIN32_ELSE(FW_THIN, FC_WEIGHT_THIN),
         ultraLight = IF_WIN32_ELSE(FW_ULTRALIGHT, FC_WEIGHT_ULTRALIGHT),
-        light = IF_WIN32_ELSE(FW_LIGHT, FC_WEIGHT_SEMILIGHT),
+        light = IF_WIN32_ELSE(FW_LIGHT, FC_WEIGHT_LIGHT),
         regular = IF_WIN32_ELSE(FW_REGULAR, FC_WEIGHT_REGULAR),
         medium = IF_WIN32_ELSE(FW_MEDIUM, FC_WEIGHT_MEDIUM),
         semiBold = IF_WIN32_ELSE(FW_SEMIBOLD, FC_WEIGHT_SEMIBOLD),

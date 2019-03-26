@@ -99,6 +99,7 @@ namespace gui {
 #endif // WIN32
 
     namespace paint {
+
       // --------------------------------------------------------------------------
       void text_item (const draw::graphics& g,
                       const core::rectangle& place,
@@ -111,6 +112,28 @@ namespace gui {
         g.text(text_box(text, place, origin), font::system(),
                selected ? color::highLightTextColor() : color::windowTextColor());
       }
+
+    } // namespace paint
+
+    // --------------------------------------------------------------------------
+    void control::on_selection_changed (selection_changed_event::function&& f) {
+      on<selection_changed_event>(std::move(f));
+    }
+
+    void control::on_selection_commit (selection_commit_event::function&& f) {
+      on<selection_commit_event>(std::move(f));
+    }
+
+    void control::on_selection_cancel (selection_cancel_event::function&& f) {
+      on<selection_cancel_event>(std::move(f));
+    }
+
+    void control::on_hilite_changed (hilite_changed_event::function&& f) {
+      on<hilite_changed_event>(std::move(f));
+    }
+
+    void control::on_content_changed (content_changed_event::function&& f) {
+      on<content_changed_event>(std::move(f));
     }
 
   } // ctrl

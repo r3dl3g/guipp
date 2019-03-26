@@ -83,7 +83,11 @@ namespace gui {
                              const core::rectangle& area,
                              const button_state& state,
                              bool is_open) {
+#ifdef BUILD_FOR_ARM
+        paint::button_frame_w95(graph, area, state);
+#else
         paint::button_frame(graph, area, state);
+#endif
         core::rectangle r = area.shrinked(core::size(4, 5));
         if (!r.empty()) {
           std::vector<core::point> p;

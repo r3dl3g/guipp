@@ -107,7 +107,7 @@ namespace gui {
           return i->second.second;
         }
       }
-      return {0, 0, 0, BPP::Undefined};
+      return {0, 0, 0, PixelFormat::Undefined};
     }
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -158,10 +158,10 @@ namespace gui {
         return {
           static_cast<uint32_t>(w),
           static_cast<uint32_t>(h),
-          BPP(d)
+          get_pixel_format(d, ImageByteOrder(display))
         };
       }
-      return {0, 0, 0, BPP::Undefined};
+      return {0, 0, 0, PixelFormat::Undefined};
     }
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -169,22 +169,21 @@ namespace gui {
       //auto screen = core::global::get_screen();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
+      int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+
       XImage im {
         static_cast<int>(bmi.width),
         static_cast<int>(bmi.height),                           /* size of image */
         0,                                                      /* number of pixels offset in X direction */
         ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        ImageByteOrder(display),                                /* data byte order, LSBFirst, MSBFirst */
+        byte_order,                                             /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
         bmi.depth(),                                            /* depth of image */
         static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-        bmi.depth(),                                            /* bits per pixel (ZPixmap) */
-        color::mask<color::part::red>::value,                   /* bits in z arrangment */
-        color::mask<color::part::green>::value,
-        color::mask<color::part::blue>::value
+        bmi.depth()                                            /* bits per pixel (ZPixmap) */
       };
 
       Status st = XInitImage(&im);
@@ -202,35 +201,54 @@ namespace gui {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
           static_cast<uint32_t>(im->bytes_per_line),
-          BPP(im->bits_per_pixel)
+          get_pixel_format(im->bits_per_pixel, im->byte_order)
         };
         bmi = {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
-          BPP(im->depth)
+          src_bmi.pixel_format
         };
         const size_t n = src_bmi.mem_size();
-        if (src_bmi.bits_per_pixel != bmi.bits_per_pixel) {
+        if (src_bmi.pixel_format != bmi.pixel_format) {
           data.resize(bmi.mem_size());
 
           byte* src = reinterpret_cast<byte*>(im->data);
-          switch (bmi.bits_per_pixel) {
-            case BPP::RGB: {
-              typedef draw::const_image_data<BPP::RGBA> src_data;
-              typedef draw::image_data<BPP::RGB> dst_data;
-              //<BPP::RGBA, BPP::RGB>
-              convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
+          switch (bmi.pixel_format) {
+            case PixelFormat::RGB: {
+              typedef draw::const_image_data<PixelFormat::RGBA> src_data;
+              typedef draw::image_data<PixelFormat::RGB> dst_data;
+              //<PixelFormat::RGBA, PixelFormat::RGB>
+              convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
                                     dst_data(dst_data::raw_type(data), bmi),
                                     im->width, im->height);
             }
             break;
-            case BPP::RGBA:
-              typedef draw::const_image_data<BPP::RGB> src_data;
-              typedef draw::image_data<BPP::RGBA> dst_data;
-              //<BPP::RGB, BPP::RGBA>
-              convert::bpp::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                    dst_data(dst_data::raw_type(data), bmi),
-                                    im->width, im->height);
+            case PixelFormat::RGBA: {
+                typedef draw::const_image_data<PixelFormat::RGB> src_data;
+                typedef draw::image_data<PixelFormat::RGBA> dst_data;
+                //<PixelFormat::RGB, PixelFormat::RGBA>
+                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
+            break;
+            case PixelFormat::BGR: {
+                typedef draw::const_image_data<PixelFormat::ABGR> src_data;
+                typedef draw::image_data<PixelFormat::BGR> dst_data;
+                //<PixelFormat::BGRA, PixelFormat::BGR>
+                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
+            break;
+            case PixelFormat::BGRA: {
+                typedef draw::const_image_data<PixelFormat::BGR> src_data;
+                typedef draw::image_data<PixelFormat::BGRA> dst_data;
+                //<PixelFormat::BGR, PixelFormat::BGRA>
+                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+                                      dst_data(dst_data::raw_type(data), bmi),
+                                      im->width, im->height);
+              }
             break;
           }
         } else {
@@ -264,7 +282,7 @@ namespace gui {
           static_cast<uint32_t>(bmp.bmWidth),
           static_cast<uint32_t>(bmp.bmHeight),
           static_cast<uint32_t>(bmp.bmWidthBytes),
-          BPP(bmp.bmBitsPixel)
+          get_BPP(bmp.bmBitsPixel, 1)
         };
       }
       return {};
@@ -332,8 +350,8 @@ namespace gui {
       return get_info().depth();
     }
 
-    BPP basic_map::bits_per_pixel () const {
-      return get_info().bits_per_pixel;
+    PixelFormat basic_map::pixel_format () const {
+      return get_info().pixel_format;
     }
 
     void basic_map::create (const bitmap_info& rhs) {
@@ -348,13 +366,13 @@ namespace gui {
       }
     }
 
-    uint32_t basic_map::calc_bytes_per_line (uint32_t w, BPP bpp) {
-      return draw::bitmap_info(w, 0, bpp).bytes_per_line;
+    uint32_t basic_map::calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+      return draw::bitmap_info(w, 0, px_fmt).bytes_per_line;
     }
 
     // --------------------------------------------------------------------------
     void bitmap::create (uint32_t w, uint32_t h) {
-      super::create({w, h, BPP::BW});
+      super::create({w, h, PixelFormat::BW});
       if (!is_valid()) {
         throw std::runtime_error("create bitmap failed");
       }
@@ -389,7 +407,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
-      return bwmap(const_image_data<BPP::BW>(basepp::array_wrapper<const byte>(data), bmi));
+      return bwmap(const_image_data<PixelFormat::BW>(basepp::array_wrapper<const byte>(data), bmi));
     }
 
     bitmap::operator bwmap () const {
@@ -408,11 +426,11 @@ namespace gui {
 //      int count = 0;
 //      XPixmapFormatValues* fmts = XListPixmapFormats(core::global::get_instance(), &count);
 //      for (int i = 0; i < count; ++i) {
-//        LogDebug << "PixmapFormat " << i << ": bits:" << fmts[i].bits_per_pixel << " depth:" << fmts[i].depth << " pad:" << fmts[i].scanline_pad;
+//        LogDebug << "PixmapFormat " << i << ": bits:" << fmts[i].pixel_format << " depth:" << fmts[i].depth << " pad:" << fmts[i].scanline_pad;
 //      }
-//      BPP bpp = BPP::RGBA;
-      BPP bpp = core::global::get_device_bits_per_pixel();
-      super::create({w, h, bpp});
+//      PixelFormat px_fmt = PixelFormat::RGBA;
+      PixelFormat px_fmt = core::global::get_device_pixel_format();
+      super::create({w, h, px_fmt});
 #endif
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
@@ -427,11 +445,15 @@ namespace gui {
     }
 
     void pixmap::invert () {
-      switch (bits_per_pixel()) {
-        case BPP::BW:   invert<BPP::BW>();   break;
-        case BPP::GRAY: invert<BPP::GRAY>(); break;
-        case BPP::RGB:  invert<BPP::RGB>();  break;
-        case BPP::RGBA: invert<BPP::RGBA>(); break;
+      switch (pixel_format()) {
+        case PixelFormat::BW:   invert<PixelFormat::BW>();   break;
+        case PixelFormat::GRAY: invert<PixelFormat::GRAY>(); break;
+        case PixelFormat::RGB:  invert<PixelFormat::RGB>();  break;
+        case PixelFormat::RGBA: invert<PixelFormat::RGBA>(); break;
+        case PixelFormat::ARGB: invert<PixelFormat::ARGB>();  break;
+        case PixelFormat::BGR:  invert<PixelFormat::BGR>();  break;
+        case PixelFormat::BGRA: invert<PixelFormat::BGRA>();  break;
+        case PixelFormat::ABGR: invert<PixelFormat::ABGR>();  break;
         default:  break;
       }
     }
@@ -447,7 +469,6 @@ namespace gui {
         bitmap_get_data(get_id(), data, bmi);
       }
     }
-
 
     // --------------------------------------------------------------------------
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
@@ -467,14 +488,14 @@ namespace gui {
     void masked_bitmap::operator= (const pixmap& rhs) {
       image = rhs;
       if (image.is_valid()) {
-        mask = image.get<BPP::BW>();
+        mask = image.get<PixelFormat::BW>();
       }
     }
 
     void masked_bitmap::operator= (pixmap&& rhs) {
       image = std::move(rhs);
       if (image.is_valid()) {
-        mask = image.get<BPP::BW>();
+        mask = image.get<PixelFormat::BW>();
       }
     }
 

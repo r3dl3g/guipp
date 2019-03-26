@@ -166,7 +166,7 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);
@@ -177,7 +177,7 @@ namespace gui {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
     }
 
@@ -188,7 +188,7 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);
@@ -378,7 +378,7 @@ namespace gui {
 
       Use<brush> br(g, b);
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
       Use<pen> pn(g, p);
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
@@ -389,7 +389,7 @@ namespace gui {
       Use<pen> pn(g, p);
       os::instance display = get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
     }
 
@@ -398,7 +398,7 @@ namespace gui {
       Use<brush> br(g, b);
       os::instance display = get_instance();
       const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      core::size sz(rect.size());// - unscale(core::size::one));
       XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
 
       pen p(b.color());
@@ -467,8 +467,8 @@ namespace gui {
 
       constexpr size_type two = size_type(2);
 
-      const size_type w = static_cast<size_type>(std::min(size.width(), rect.width() / 2));
-      const size_type h = static_cast<size_type>(std::min(size.height(), rect.height() / 2));
+      const size_type w = std::min(size.os_width(), static_cast<size_type>(rect.os_width() / 2));
+      const size_type h = std::min(size.os_height(), static_cast<size_type>(rect.os_height() / 2));
 
       const point_type x0 = rect.os_x();
       const point_type x3 = rect.os_x2();
@@ -566,7 +566,7 @@ namespace gui {
               unsigned int radius,
               float startrad,
               float endrad)
-      : pos(pos), radius(radius), start_radius(startrad), end_radius(endrad) {}
+      : pos(pos), radius(scale(radius)), start_radius(startrad), end_radius(endrad) {}
 
     void frame_arc (const graphics& g,
                     const pen& p,
@@ -574,16 +574,20 @@ namespace gui {
                     unsigned int radius,
                     float startrad,
                     float endrad) {
+
+      os::point_type mx = pos.os_x();
+      os::point_type my = pos.os_y();
+
       Use<pen> pn(g, p);
-      int x = pos.os_x() - radius;
-      int y = pos.os_y() - radius;
+      int x0 = mx - radius;
+      int y0 = my - radius;
       unsigned int sz = radius * 2;
 
       while (endrad < startrad) {
         endrad += 360;
       }
 
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
+      XDrawArc(get_instance(), g, g, x0, y0, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
 
       int istart = int(startrad * 1000.0F) % 360000;
       int iend = int(endrad * 1000.0F) % 360000;
@@ -591,12 +595,12 @@ namespace gui {
         double start = M_PI * startrad / 180.0;
         double end = M_PI * endrad / 180.0;
         os::point pt[3];
-        pt[0].x = short(pos.x() + int(radius * cos(start)));
-        pt[0].y = short(pos.y() - int(radius * sin(start)));
-        pt[1].x = short(pos.x());
-        pt[1].y = short(pos.y());
-        pt[2].x = short(pos.x() + int(radius * cos(end)));
-        pt[2].y = short(pos.y() - int(radius * sin(end)));
+        pt[0].x = short(mx + int(radius * cos(start)));
+        pt[0].y = short(my - int(radius * sin(start)));
+        pt[1].x = short(mx);
+        pt[1].y = short(my);
+        pt[2].x = short(mx + int(radius * cos(end)));
+        pt[2].y = short(my - int(radius * sin(end)));
         XDrawLines(get_instance(), g, g, pt, 3, CoordModeOrigin);
       }
     }
@@ -711,7 +715,7 @@ namespace gui {
                            &extents);
         auto fi = f.font_type();
         height = fi->ascent;
-        width = extents.width;
+        width = extents.xOff;
         dx = 0;
         dy = fi->ascent - fi->descent;
       } else {
@@ -722,20 +726,22 @@ namespace gui {
       int py = rect.os_y();
 
       if (origin_is_h_center(origin)) {
-        px += (rect.width() - width) / 2;
+        px += (rect.os_width() - width) / 2;
       } else if (origin_is_right(origin)) {
-        px += rect.width() - width;
+        px += rect.os_width() - width;
       }
       if (origin_is_v_center(origin)) {
-        py += (rect.height() - dy) / 2;
+        py += (rect.os_height() - height) / 2;
       } else if (origin_is_bottom(origin)) {
-        py += rect.height() - height;
+        py += rect.os_height() - height;
       }
 
       xft_color xftcolor(c, g);
       clip clp(g, rect);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
+                        px + dx, py + dy,
+                        (XftChar8*)str.c_str(), int(str.size()));
     }
 
     // --------------------------------------------------------------------------
@@ -766,18 +772,18 @@ namespace gui {
       int py = rect.os_y();
 
       if (origin_is_h_center(origin)) {
-        px += (rect.width() - width) / 2;
+        px += (rect.os_width() - width) / 2;
       } else if (origin_is_right(origin)) {
-        px += rect.width() - width;
+        px += rect.os_width() - width;
       }
       if (origin_is_v_center(origin)) {
-        py += (rect.height() - dy) / 2;
+        py += (rect.os_height() - height) / 2;
       } else if (origin_is_bottom(origin)) {
-        py += rect.height() - height;
+        py += rect.os_height() - height;
       }
 
-      rect.top_left({core::point::type(px + dx), core::point::type(py)});
-      rect.set_size({core::size::type(width), core::size::type(height)});
+      rect.top_left({core::global::unscale<core::point::type>(px + dx), core::global::unscale<core::point::type>(py)});
+      rect.set_size({core::global::unscale<core::size::type>(width), core::global::unscale<core::size::type>(height)});
     }
 
     // --------------------------------------------------------------------------
@@ -821,14 +827,16 @@ namespace gui {
 
       xft_color xftcolor(c, g);
 
-      XftDrawStringUtf8(g, &xftcolor, f.font_type(), px + dx, py + dy, (XftChar8*)str.c_str(), int(str.size()));
+      XftDrawStringUtf8(g, &xftcolor, f.font_type(),
+                        (px + dx), (py + dy),
+                        (XftChar8*)str.c_str(), int(str.size()));
     }
 
 #endif // X11
 
-    template<BPP bpp>
-    void copy_frame_image (draw::const_image_data<bpp> src_img,
-                           draw::image_data<bpp> dest_img,
+    template<PixelFormat px_fmt>
+    void copy_frame_image (draw::const_image_data<px_fmt> src_img,
+                           draw::image_data<px_fmt> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
                            const core::uint32_rect& frame) {
 
@@ -849,22 +857,22 @@ namespace gui {
 
       // top left
       if (top && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, 0}, {0, 0, left, top});
+        copy::sub<px_fmt>(src_img, dest_img, {0, 0}, {0, 0, left, top});
       }
 
       // top right
       if (top && right) {
-        copy::sub<bpp>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
+        copy::sub<px_fmt>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<bpp>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
+        copy::sub<px_fmt>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
       }
 
       if (bottom && right) {
         // bottom right
-        copy::sub<bpp>(src_img, dest_img,
+        copy::sub<px_fmt>(src_img, dest_img,
                        {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
       }
 
@@ -876,42 +884,42 @@ namespace gui {
 
         // top center
         if (top && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, 0, source_inner_width, top},
                             {left, 0, target_inner_width, top});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, source_bottom, source_inner_width, bottom},
                             {left, target_bottom, target_inner_width, bottom});
         }
 
         // left center
         if (left && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {0, top, left, source_inner_height},
                             {0, top, left, target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {source_right, top, right, source_inner_height},
                             {target_right, top, right, target_inner_height});
         }
 
         // center
         if (target_inner_width && target_inner_height) {
-          stretch::sub<bpp>(src_img, dest_img,
+          stretch::sub<px_fmt>(src_img, dest_img,
                             {left, top, source_inner_width, source_inner_height},
                             {left, top, target_inner_width, target_inner_height});
         }
       }
     }
 
-    template<BPP T>
+    template<PixelFormat T>
     void draw_image_frame (const graphics& g,
                            const core::point& pt,
                            const core::rectangle rect,
@@ -921,8 +929,8 @@ namespace gui {
         return;
       }
 
-      const uint32_t width = basepp::roundup<uint32_t>(rect.width());
-      const uint32_t height = basepp::roundup<uint32_t>(rect.height());
+      const uint32_t width = basepp::roundup<uint32_t>(rect.os_width());
+      const uint32_t height = basepp::roundup<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_raw(), dest.get_raw(),
@@ -934,22 +942,22 @@ namespace gui {
     }
 
     template<>
-    void image_frame<BPP::BW>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::BW>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::GRAY>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::GRAY>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::RGB>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::RGB>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<BPP::RGBA>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<PixelFormat::RGBA>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 

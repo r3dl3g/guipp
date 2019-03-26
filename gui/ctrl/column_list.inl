@@ -219,10 +219,17 @@ namespace gui {
 
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::init () {
-      this->on_paint(draw::buffered_paint(this, &column_list_header::paint));
-      this->on_mouse_move(basepp::bind_method(this, &column_list_header::handle_mouse_move));
-      this->on_left_btn_down(basepp::bind_method(this, &column_list_header::handle_left_btn_down));
-      this->on_left_btn_up(basepp::bind_method(this, &column_list_header::handle_left_btn_up));
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+        if (!paint_event::if_match_call_fn(e, draw::buffered_paint(this, &column_list_header::paint))) {
+          if (!mouse_move_event::if_match_call(e, this, &column_list_header::handle_mouse_move)) {
+            if (!left_btn_down_event::if_match_call(e, this, &column_list_header::handle_left_btn_down)) {
+              left_btn_up_event::if_match_call(e, this, &column_list_header::handle_left_btn_up);
+            }
+          }
+        }
+        return false;
+      }), static_cast<os::event_id>(paint_event::mask | mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask));
     }
 
     template<typename Layout, os::color background>

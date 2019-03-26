@@ -196,9 +196,6 @@ namespace gui {
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::init ();
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_paint (const draw::graphics& g);
-
-    template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
@@ -207,9 +204,6 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::init ();
-
-    template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_paint (const draw::graphics& g);
 
     template<>
     GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
@@ -260,6 +254,45 @@ namespace gui {
       return core::point(0, pos);
     }
 
+    // --------------------------------------------------------------------------
+    template<orientation H, scrollbar_drawer D>
+    scroll_bar_base<H, D>::scroll_bar_base (bool grab_focus)
+      : super(grab_focus)
+    {
+      init();
+    }
+
+    template<orientation H, scrollbar_drawer D>
+    scroll_bar_base<H, D>::scroll_bar_base (const scroll_bar_base& rhs)
+      : super(rhs)
+    {
+      init();
+    }
+
+    template<orientation H, scrollbar_drawer D>
+    scroll_bar_base<H, D>::scroll_bar_base (scroll_bar_base&& rhs)
+      : super(std::move(rhs))
+    {
+      init();
+    }
+
+    // --------------------------------------------------------------------------
+    template<orientation H, scrollbar_drawer D>
+    void scroll_bar_base<H, D>::handle_paint (const draw::graphics& g) {
+      auto geo = super::get_geometry();
+      D(g, super::get_state(), super::get_hilite(), super::is_enabled(), H == orientation::horizontal, super::has_focus(),
+        super::up_button_place(geo), super::down_button_place(geo),
+        super::thumb_button_place(geo), super::page_up_place(geo), super::page_down_place(geo));
+    }
+
+    // --------------------------------------------------------------------------
+    template<orientation H, scrollbar_drawer D>
+    void scroll_bar_base<H, D>::init () {
+      super::on_paint(draw::paint(this, &scroll_bar_base::handle_paint));
+    }
+
+    // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
   } // ctrl
 
 } // gui

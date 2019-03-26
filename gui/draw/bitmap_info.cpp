@@ -43,20 +43,21 @@ namespace gui {
         uint32_t r = (v + D - 1) / D;
         return r + (r % M ? M - r % M : 0);
       }
+    }
 
 #ifdef X11
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
-        switch (bpp) {
-        case BPP::BW:
+      uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+        switch (get_color_depth(px_fmt)) {
+        case 1:
           return up_modulo<8, 4>(w);
-        case BPP::GRAY:
+        case 8:
           return up_modulo<1, 4>(w);
-        case BPP::RGB:
+        case 24:
           return up_modulo<1, 4>(w * 3);
-        case BPP::RGBA:
+        case 32:
           return up_modulo<1, 4>(w * 4);
-        case BPP::Undefined:
+        default:
           break;
         }
         return -1;
@@ -66,57 +67,55 @@ namespace gui {
 
 #if WIN32
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, BPP bpp) {
-        switch (bpp) {
-        case BPP::BW:
+      uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+        switch (get_color_depth(px_fmt)) {
+        case 1:
           return up_modulo<8, 2>(w);
-        case BPP::GRAY:
+        case 8:
           return up_modulo<1, 2>(w);
-        case BPP::RGB:
+        case 24:
           return up_modulo<1, 2>(w * 3);
-        case BPP::RGBA:
+        case 32:
           return up_modulo<1, 2>(w * 4);
-        case BPP::Undefined:
+        default:
           break;
         }
-        return ((((w * static_cast<byte>(bpp)) + 31) & ~31) >> 3);
+        return ((((w * color_depths[static_cast<byte>(px_fmt)]) + 31) & ~31) >> 3);
       }
 
 #endif // WIN32
-
-    }
 
     // --------------------------------------------------------------------------
     bitmap_info::bitmap_info ()
       : width(0)
       , height(0)
       , bytes_per_line(0)
-      , bits_per_pixel(BPP::Undefined)
+      , pixel_format(PixelFormat::Undefined)
     {}
 
-    bitmap_info::bitmap_info (const core::uint32_size& sz, BPP bpp)
+    bitmap_info::bitmap_info (const core::uint32_size& sz, PixelFormat px_fmt)
       : width(sz.width())
       , height(sz.height())
-      , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), bpp))
-      , bits_per_pixel(bpp)
+      , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), px_fmt))
+      , pixel_format(px_fmt)
     {}
 
-    bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, BPP bpp)
+    bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, PixelFormat px_fmt)
       : width(w)
       , height(h)
       , bytes_per_line(bpl)
-      , bits_per_pixel(bpp)
+      , pixel_format(px_fmt)
     {}
 
-    bitmap_info::bitmap_info (uint32_t w, uint32_t h, BPP bpp)
+    bitmap_info::bitmap_info (uint32_t w, uint32_t h, PixelFormat px_fmt)
       : width(w)
       , height(h)
-      , bytes_per_line(bitmap_calc_bytes_per_line(w, bpp))
-      , bits_per_pixel(bpp)
+      , bytes_per_line(bitmap_calc_bytes_per_line(w, px_fmt))
+      , pixel_format(px_fmt)
     {}
 
     bool bitmap_info::operator== (const bitmap_info& rhs) const {
-      return (width == rhs.width) && (height == rhs.height) && (bits_per_pixel == rhs.bits_per_pixel);
+      return (width == rhs.width) && (height == rhs.height) && (pixel_format == rhs.pixel_format) && (bytes_per_line == rhs.bytes_per_line);
     }
 
     // --------------------------------------------------------------------------

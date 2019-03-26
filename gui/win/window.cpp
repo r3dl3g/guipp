@@ -143,6 +143,7 @@ namespace gui {
 
     window::~window () {
       destroy();
+      x11::unprepare_win(this);
     }
 
     void window::create (const class_info& type,
@@ -179,7 +180,9 @@ namespace gui {
 
     void window::register_event_handler (event_handler_function&& f, os::event_id mask) {
       events.register_event_handler(std::move(f));
-      prepare_for_event(mask);
+#ifdef X11
+      x11::prepare_win_for_event(this, mask);
+#endif // X11
     }
 
     container* window::get_root () const {
@@ -198,7 +201,8 @@ namespace gui {
           shift_focus(shift_key_bit_mask::is_set(state));
         }
       }
-//      LogDebug << "handle_event: " << e;
+
+//      LogTrace << "handle_event: " << e;
       auto r = events.handle_event(e, result);
 
 #ifdef X11
@@ -493,21 +497,21 @@ namespace gui {
 
     void window::redraw_now () const {
       if (is_valid()) {
-        LogDebug << "redraw_now: " << get_id();
+        LogTrace << "redraw_now: " << get_id();
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
     void window::redraw () const {
       if (is_valid()) {
-        LogDebug << "redraw: " << get_id();
+        LogTrace << "redraw: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
 
     void window::redraw_later () const {
       if (is_valid()) {
-        LogDebug << "redraw_later: " << get_id();
+        LogTrace << "redraw_later: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
@@ -599,7 +603,7 @@ namespace gui {
 
     void window::capture_pointer () {
       if (is_valid()) {
-        LogDebug << "capture_pointer:" << get_id();
+        LogTrace << "capture_pointer:" << get_id();
         hidden::capture_stack.push_back(get_id());
         SetCapture(get_id());
         s_wheel_hook.enable();
@@ -611,12 +615,12 @@ namespace gui {
         if (hidden::capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          LogDebug << "uncapture_pointer:" << get_id();
+          LogTrace << "uncapture_pointer:" << get_id();
         }
         ReleaseCapture();
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          LogTrace << "re-capture_pointer:" << hidden::capture_stack.back();
           SetCapture(hidden::capture_stack.back());
         } else {
           s_wheel_hook.disable();
@@ -638,9 +642,6 @@ namespace gui {
     }
 
 # endif // WIN32_DEPRECATED
-
-    void window::prepare_for_event (os::event_id)
-    {}
 
     os::window window::create_window (const class_info& type,
                                       const core::rectangle& r,
@@ -674,7 +675,7 @@ namespace gui {
       } else {
         auto error_no = GetLastError();
         if (error_no != 1410) {
-          LogDebug << getLastErrorText() << " class name length: " << name.length();
+          LogTrace << getLastErrorText() << " class name length: " << name.length();
         }
       }
       
@@ -708,13 +709,12 @@ namespace gui {
 #ifdef X11
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
-      std::map<window*, os::event_id> window_event_mask;
     }
 
     void window::init () {
       static int initialized = x11::init_messages();
       (void)initialized;
-      prepare_for_event(KeyPressMask);
+      x11::prepare_win_for_event(this, KeyPressMask);
     }
 
     void window::destroy () {
@@ -825,10 +825,10 @@ namespace gui {
         bool current = state.is_visible();
         if (current != s) {
           if (s) {
-            LogDebug << "Show window:" << *this;
+            LogTrace << "Show window:" << *this;
             x11::check_return(XMapWindow(core::global::get_instance(), get_id()));
           } else {
-            LogDebug << "Hide window:" << *this;
+            LogTrace << "Hide window:" << *this;
             x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
           }
           state.set_visible(s);
@@ -874,7 +874,7 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-      LogDebug << "redraw_now: " << event;
+      LogTrace << "redraw_now: " << event;
       events.handle_event(event, result);
 
       state.set_needs_redraw(false);
@@ -884,7 +884,7 @@ namespace gui {
 
     void window::redraw () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw: " << get_id();
+        LogTrace << "redraw: " << get_id();
         if (get_state().is_in_event_handle()) {
           get_state().set_needs_redraw(true);
         } else {
@@ -895,7 +895,7 @@ namespace gui {
 
     void window::redraw_later () const {
       if (get_id() && is_visible()) {
-        LogDebug << "redraw_later: " << get_id();
+        LogTrace << "redraw_later: " << get_id();
         get_state().set_needs_redraw(true);
       }
     }
@@ -910,7 +910,8 @@ namespace gui {
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return {core::size::type(width), core::size::type(height)};
+        return core::size{core::global::unscale<core::size::type>(width),
+                          core::global::unscale<core::size::type>(height)};
       }
       return core::size::zero;
     }
@@ -925,7 +926,8 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return {core::point::type(x), core::point::type(y)};
+        return core::point{core::global::unscale<core::point::type>(x),
+                           core::global::unscale<core::point::type>(y)};
       }
       return core::point::undefined;
     }
@@ -940,8 +942,8 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::rectangle(core::point::type(x), core::point::type(y),
-                               core::size::type(width), core::size::type(height));
+        return core::rectangle(core::global::unscale(x), core::global::unscale(y),
+                               core::global::unscale(width), core::global::unscale(height));
       }
       return core::rectangle::def;
     }
@@ -964,8 +966,8 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
-        x11::check_return(XMoveWindow(core::global::get_instance(), get_id(),
-                                      pt.os_x(), pt.os_y()));
+        x11::check_return(XMoveWindow(core::global::get_instance(),
+                                      get_id(), pt.os_x(), pt.os_y()));
         if (repaint) {
           redraw();
         }
@@ -982,8 +984,8 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
-          x11::check_return(XResizeWindow(core::global::get_instance(), get_id(),
-                                          sz.os_width(), sz.os_height()));
+          x11::check_return(XResizeWindow(core::global::get_instance(),
+                                          get_id(), sz.os_width(), sz.os_height()));
           send_client_message(this, WM_LAYOUT_WINDOW, sz);
           if (repaint) {
             redraw();
@@ -1003,8 +1005,8 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
-          x11::check_return(XMoveResizeWindow(core::global::get_instance(), get_id(),
-                                              r.os_x(), r.os_y(),
+          x11::check_return(XMoveResizeWindow(core::global::get_instance(),
+                                              get_id(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
             send_client_message(this, WM_LAYOUT_WINDOW, r.size());
@@ -1023,12 +1025,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               get_id(),
                                               DefaultRootWindow(display),
-                                              pt.os_x(),
-                                              pt.os_y(),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::point::type(x), core::point::type(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
@@ -1038,12 +1040,12 @@ namespace gui {
       x11::check_return(XTranslateCoordinates(display,
                                               DefaultRootWindow(display),
                                               get_id(),
-                                              pt.os_x(),
-                                              pt.os_y(),
+                                              core::global::scale<int>(pt.x()),
+                                              core::global::scale<int>(pt.y()),
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::point::type(x), core::point::type(y)};
+      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
     }
 
     void window::set_cursor (os::cursor c) {
@@ -1051,7 +1053,7 @@ namespace gui {
     }
 
     void window::capture_pointer () {
-      LogDebug << "capture_pointer:" << get_id();
+      LogTrace << "capture_pointer:" << get_id();
       hidden::capture_stack.push_back(get_id());
       x11::check_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
@@ -1064,33 +1066,17 @@ namespace gui {
         if (hidden::capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
         } else {
-          LogDebug << "uncapture_pointer:" << get_id();
+          LogTrace << "uncapture_pointer:" << get_id();
         }
         x11::check_return(XUngrabPointer(core::global::get_instance(), CurrentTime));
         hidden::capture_stack.pop_back();
         if (!hidden::capture_stack.empty()) {
-          LogDebug << "re-capture_pointer:" << hidden::capture_stack.back();
+          LogTrace << "re-capture_pointer:" << hidden::capture_stack.back();
           x11::check_return(XGrabPointer(core::global::get_instance(), hidden::capture_stack.back(),
                                          False,
                                          ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
         }
-      }
-    }
-
-    void window::prepare_for_event (os::event_id mask) {
-      if (get_id()) {
-        auto i = hidden::window_event_mask.find(this);
-        if (i != hidden::window_event_mask.end()) {
-          i->second |= mask;
-          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), i->second));
-        } else {
-          hidden::window_event_mask[this] = mask;
-          x11::check_return(XSelectInput(core::global::get_instance(), get_id(), mask));
-        }
-      } else {
-        os::event_id& old_mask = hidden::window_event_mask[this];
-        old_mask |= mask;
       }
     }
 
@@ -1137,23 +1123,16 @@ namespace gui {
 
       os::window id = XCreateWindow(display,
                                     parent_id,
-                                    r.os_x(),
-                                    r.os_y(),
-                                    r.os_width(),
-                                    r.os_height(),
-                                    0,
-                                    depth,
-                                    InputOutput,
+                                    r.os_x(), r.os_y(), r.os_width(), r.os_height(),
+                                    0, depth, InputOutput,
                                     visual,
                                     mask,
                                     &wa);
 
       detail::set_window(id, data);
+      data->id = id;
 
-      auto i = hidden::window_event_mask.find(data);
-      if (i != hidden::window_event_mask.end()) {
-        x11::check_return(XSelectInput(display, id, i->second));
-      }
+      x11::prepare_win_for_event(data, 0);
 
       if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
         hidden::window_class_info_map[type.get_class_name()] = type;
@@ -1169,6 +1148,95 @@ namespace gui {
 
 #endif // X11
 
+#ifdef COCOA
+
+#ifdef __OBJC__
+    - (void)editColor:(NSColor *)color locatedAtScreenRect:(NSRect)rect {
+      
+      // code unrelated to event monitoring deleted here.....
+      
+      // Start watching events to figure out when to close the window
+      auto _eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
+                       (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask)
+                                                            handler:^(NSEvent *incomingEvent) {
+                       NSEvent *result = incomingEvent;
+                       NSWindow *targetWindowForEvent = [incomingEvent window];
+                       if (targetWindowForEvent != _window) {
+                       [self _closeAndSendAction:NO];
+                       } else if ([incomingEvent type] == NSKeyDown) {
+                       if ([incomingEvent keyCode] == 53) {
+                       // Escape
+                       [self _closeAndSendAction:NO];
+                       result = nil; // Don't process the event
+                       } else if ([incomingEvent keyCode] == 36) {
+                       // Enter
+                       [self _closeAndSendAction:YES];
+                       result = nil;
+                       }
+                       }
+                       return result;
+                       }];
+    }
+    
+    void send_event () {
+      CGPoint newloc;
+      CGEventRef eventRef;
+      newloc.x = x;
+      newloc.y = y;
+      
+      eventRef = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, newloc,
+                                         kCGMouseButtonCenter);
+      //Apparently, a bug in xcode requires this next line
+      CGEventSetType(eventRef, kCGEventMouseMoved);
+      CGEventPost(kCGSessionEventTap, eventRef);
+      CFRelease(eventRef);
+      
+      return 0;
+    }
+    
+    void attachEventHandlers () {
+      
+      //create our event type spec for the keyup
+      EventTypeSpec eventType;
+      eventType.eventClass = kEventClassKeyboard;
+      eventType.eventKind = kEventRawKeyUp;
+      
+      //create a callback for our event to fire in
+      EventHandlerUPP handlerFunction = NewEventHandlerUPP(globalKeyPress);
+      
+      //install the event handler
+      OSStatus err = InstallEventHandler(GetEventMonitorTarget(), handlerFunction, 1, &eventType, self, NULL);
+      
+      //error checking
+      if( err )
+      {
+        //TODO: need an alert sheet here
+        NSLog(@"Error registering keyboard handler...%d", err);
+      }
+      
+      //create our event type spec for the mouse events
+      EventTypeSpec eventTypeM;
+      eventTypeM.eventClass = kEventClassMouse;
+      eventTypeM.eventKind = kEventMouseUp;
+      
+      //create a callback for our event to fire in
+      EventHandlerUPP handlerFunctionM = NewEventHandlerUPP(globalMousePress);
+      
+      //install the event handler
+      OSStatus errM = InstallEventHandler(GetEventMonitorTarget(), handlerFunctionM, 1, &eventTypeM, self, NULL);
+      
+      //error checking
+      if( errM )
+      {
+        //TODO: need an alert sheet here
+        NSLog(@"Error registering mouse handler...%d", err);
+      }
+    }
+
+#endif // __OBJC__
+    
+#endif // COCOA
+    
     // --------------------------------------------------------------------------
 
   } // win

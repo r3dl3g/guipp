@@ -130,6 +130,7 @@ namespace gui {
       void handle_selection_changed (event_source src);
 
       T get_selected_item () const;
+      void set_selected_item (T);
 
       void set_data (const data_provider& d, std::size_t count);
       void set_data (data_provider && d, std::size_t count);
@@ -153,6 +154,9 @@ namespace gui {
       void set_drawer (std::function<list::draw_list_item>&& drawer);
 
       void set_count (std::size_t n);
+
+      list_type& items ();
+      const list_type& items () const;
 
       ~drop_down_list ();
 

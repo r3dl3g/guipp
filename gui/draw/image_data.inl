@@ -93,7 +93,11 @@ namespace gui {
     }
 
     inline byte get_gray (bw_pixel p) {
+#ifdef WIN32
+      return basepp::system_bw_bits::value[static_cast<byte>(p)];
+#else
       return basepp::system_bw_bits::value[static_cast<bool>(p)];
+#endif
     }
 
     inline byte get_red (bw_pixel p) {
@@ -343,7 +347,7 @@ namespace gui {
         // copy row:row
         auto rows = std::min(info.height, rhs.get_info().height);
         auto length = std::min(info.bytes_per_line, rhs.get_info().bytes_per_line);
-        for (int y = 0; y < rows; ++y) {
+        for (decltype(rows) y = 0; y < rows; ++y) {
           raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
         }
       }

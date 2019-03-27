@@ -32,6 +32,7 @@
 #include <gui/core/event.h>
 #include <base/logger.h>
 
+#ifdef X11
 namespace gui {
   namespace win {
     extern Atom WM_LAYOUT_WINDOW;
@@ -46,6 +47,7 @@ namespace gui {
     } // namespace x11
   } // namespace win
 } // namespace gui
+#endif // X11
 
 namespace std {
 

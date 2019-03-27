@@ -21,6 +21,7 @@
 // Common includes
 //
 #include <iostream>
+#include <algorithm>
 
 // --------------------------------------------------------------------------
 //
@@ -90,7 +91,7 @@ namespace basepp {
         min_len = std::max(min_len, arg.short_cmd.size() + arg.needed_arg.size() * 2 + 3 + arg.long_cmd.size());
       }
       for (const arg& arg: commands) {
-        int len = arg.short_cmd.size() + arg.needed_arg.size() * 2 + 3 + arg.long_cmd.size();
+        size_t len = arg.short_cmd.size() + arg.needed_arg.size() * 2 + 3 + arg.long_cmd.size();
         out << arg.short_cmd << arg.needed_arg << " | " << arg.long_cmd << arg.needed_arg;
         while (len < min_len) {
           out << ' ';

@@ -179,7 +179,11 @@ namespace basepp {
     }
 
     inline T operator= (T b) {
+#ifdef WIN32
+      set_bit(value, bit, static_cast<byte>(b) != 0);
+#else
       set_bit(value, bit, static_cast<bool>(b));
+#endif
       return b;
     }
 

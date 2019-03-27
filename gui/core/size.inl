@@ -101,21 +101,21 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::size& s)
-      : data(global::unscale<type>(s.cx),
-             global::unscale<type>(s.cy))
+      : data(global::unscale<type>(static_cast<T>(s.cx)),
+             global::unscale<type>(static_cast<T>(s.cy)))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::point& pt)
-      : data(global::unscale<type>(pt.x),
-             global::unscale<type>(pt.y))
+      : data(global::unscale<type>(static_cast<T>(pt.x)),
+             global::unscale<type>(static_cast<T>(pt.y)))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : data(global::unscale<type>(r.right - r.left),
-             global::unscale<type>(r.bottom - r.top))
+      : data(global::unscale<type>(static_cast<T>(r.right - r.left)),
+             global::unscale<type>(static_cast<T>(r.bottom - r.top)))
     {}
 
 #endif // WIN32

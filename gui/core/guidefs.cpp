@@ -55,7 +55,6 @@ namespace gui {
     switch (pixel_format) {
       case 1: return PixelFormat::BW;
       case 8: return PixelFormat::GRAY;
-      default:
       case 24:
         switch (byte_order) {
           case 0: return PixelFormat::BGR;
@@ -67,6 +66,7 @@ namespace gui {
           case 1: return PixelFormat::RGBA;
         }
     }
+    return PixelFormat::Undefined;
   }
 
   int get_pixel_format_byte_order (PixelFormat px_fmt) {
@@ -224,7 +224,7 @@ namespace gui {
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return get_BPP(PixelFormat(dbpp), 1);
+        return get_pixel_format(static_cast<int>(PixelFormat(dbpp)), 1);
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
@@ -244,9 +244,9 @@ namespace gui {
                                           (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
       }
 
-      float get_scale_factor () {
-        const static float scale_factor = []() {
-          return 1.0F;
+      double get_scale_factor () {
+        const static double scale_factor = []() {
+          return 1.0;
         } ();
         return scale_factor;
       }

@@ -282,7 +282,7 @@ namespace gui {
           static_cast<uint32_t>(bmp.bmWidth),
           static_cast<uint32_t>(bmp.bmHeight),
           static_cast<uint32_t>(bmp.bmWidthBytes),
-          get_BPP(bmp.bmBitsPixel, 1)
+          get_pixel_format(bmp.bmBitsPixel, 1)
         };
       }
       return {};

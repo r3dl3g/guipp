@@ -141,11 +141,6 @@ namespace gui {
       std::swap(id, rhs.id);
     }
 
-    window::~window () {
-      destroy();
-      x11::unprepare_win(this);
-    }
-
     void window::create (const class_info& type,
                          const container& parent,
                          const core::rectangle& r) {
@@ -414,6 +409,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     void window::init ()
     {}
+
+    window::~window () {
+      destroy();
+    }
 
     void window::destroy () {
       if (get_id()) {
@@ -709,6 +708,11 @@ namespace gui {
 #ifdef X11
     namespace hidden {
       std::map<os::window, std::string> window_class_map;
+    }
+
+    window::~window () {
+      destroy();
+      x11::unprepare_win(this);
     }
 
     void window::init () {

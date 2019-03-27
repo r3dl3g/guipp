@@ -172,6 +172,7 @@ namespace gui {
       return *this;
     }
 
+    /*
     const graphics& graphics::stretch_from (os::drawable w,
                                             const core::rectangle& src,
                                             const core::rectangle& dst) const {
@@ -194,6 +195,7 @@ namespace gui {
       }
       return *this;
     }
+    */
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
       if (bmp.image) {

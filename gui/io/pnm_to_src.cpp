@@ -55,7 +55,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       std::ostream& operator<< (std::ostream& out, pixel::bw_pixel pixel) {
-        out << (static_cast<bool>(static_cast<pixel::bw_pixel>(pixel)) ? '1' : '0');
+        static const char values[] = {'0', '1'};
+#ifdef WIN32
+        out << (values[static_cast<byte>(pixel)]);
+#else
+        out << (values[static_cast<bool>(pixel)]);
+#endif
         return out;
       }
 

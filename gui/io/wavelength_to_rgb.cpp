@@ -45,7 +45,7 @@ namespace gui {
 
       byte adjust (double color, double factor) {
         if (0.0 == color) {
-          return 0.0;
+          return 0;
         } else {
           return static_cast<byte>(round(255.0 * pow(color * factor, 0.80)));
         }

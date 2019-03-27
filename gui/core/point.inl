@@ -77,15 +77,15 @@ namespace gui {
 
     template<typename T>
     inline basic_point<T>::basic_point (const os::point& rhs)
-      : data(global::unscale<type>(rhs.x),
-             global::unscale<type>(rhs.y))
+      : data(global::unscale<type>(static_cast<T>(rhs.x)),
+             global::unscale<type>(static_cast<T>(rhs.y)))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_point<T>::basic_point (const os::rectangle& rhs)
-      : data(global::unscale<type>(rhs.left),
-             global::unscale<type>(rhs.top))
+      : data(global::unscale<type>(static_cast<T>(rhs.left)),
+             global::unscale<type>(static_cast<T>(rhs.top)))
     {}
 
 #endif // WIN32

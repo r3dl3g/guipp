@@ -221,15 +221,14 @@ namespace gui {
     void column_list_header<Layout, background>::init () {
       using namespace win;
       super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
-        if (!paint_event::if_match_call_fn(e, draw::buffered_paint(this, &column_list_header::paint))) {
-          if (!mouse_move_event::if_match_call(e, this, &column_list_header::handle_mouse_move)) {
-            if (!left_btn_down_event::if_match_call(e, this, &column_list_header::handle_left_btn_down)) {
-              left_btn_up_event::if_match_call(e, this, &column_list_header::handle_left_btn_up);
-            }
+        if (!mouse_move_event::if_match_call(e, this, &column_list_header::handle_mouse_move)) {
+          if (!left_btn_down_event::if_match_call(e, this, &column_list_header::handle_left_btn_down)) {
+            left_btn_up_event::if_match_call(e, this, &column_list_header::handle_left_btn_up);
           }
         }
         return false;
-      }), static_cast<os::event_id>(paint_event::mask | mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask));
+      }), static_cast<os::event_id>(mouse_move_event::mask | left_btn_down_event::mask | left_btn_up_event::mask));
+      super::on_paint(draw::buffered_paint(this, &column_list_header::paint));
     }
 
     template<typename Layout, os::color background>

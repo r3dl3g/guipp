@@ -477,8 +477,6 @@ namespace gui {
       return false;
     }
 
-#endif // X11
-
     struct in_event_handle_state {
       inline in_event_handle_state (const window& win)
         : state(win.get_state())
@@ -515,6 +513,8 @@ namespace gui {
     inline bool is_expose_event (const core::event& e) {
       return (e.type == Expose) || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
+
+#endif // X11
 
     // --------------------------------------------------------------------------
     int run_loop (volatile bool& running, detail::filter_call filter) {

@@ -90,7 +90,6 @@ std::ostream& operator<< (std::ostream& out, const date& dt) {
 }
 
 std::istream& operator>> (std::istream& in, date& dt) {
-  char ch;
   uint32_t y = 0, m = 1, d = 1;
   if (in.good()) {
     in >> y;
@@ -278,7 +277,7 @@ struct tt_project {
       if ((f.path().extension().string() == PROPS) && (f.path().filename().string() != SETTINGS)) {
         try {
           boost::property_tree::ptree pt;
-          boost::property_tree::ini_parser::read_ini(f.path(), pt);
+          boost::property_tree::ini_parser::read_ini(f.path().string(), pt);
           events.emplace_back(tt_event(*this, f.path().stem().string(), pt));
         } catch (std::exception& ex) {
           LogFatal << ex;
@@ -289,9 +288,9 @@ struct tt_project {
 
   void write (boost::property_tree::ptree& pt) {
     pt.put(PRICE_PER_HOUR, price_per_hour);
-    int count = prices_per_hour.size();
+    auto count = prices_per_hour.size();
     pt.put(PRICE_PER_HOUR_COUNT, count);
-    for (int i = 0; i < count; ++i) {
+    for (auto i = 0; i < count; ++i) {
       prices_per_hour[i].write(pt, i);
     }
   }
@@ -353,7 +352,7 @@ struct tt_category {
           sys_fs::path sub(f.path());
           sub /= SETTINGS;
           if (sys_fs::exists(sub)) {
-            boost::property_tree::ini_parser::read_ini(sub, pt);
+            boost::property_tree::ini_parser::read_ini(sub.string(), pt);
           }
           tt_project prj(*this, f.path().stem().string(), pt);
           prj.read_events(f.path());
@@ -366,9 +365,9 @@ struct tt_category {
   }
 
   void write (boost::property_tree::ptree& pt) {
-    int count = budgets.size();
+    auto count = budgets.size();
     pt.put(BUDGET_COUNT, count);
-    for (int i = 0; i < count; ++i) {
+    for (auto i = 0; i < count; ++i) {
       budgets[i].write(pt, i);
     }
   }
@@ -582,7 +581,7 @@ public:
               sys_fs::path sub(f.path());
               sub /= SETTINGS;
               if (sys_fs::exists(sub)) {
-                boost::property_tree::ini_parser::read_ini(sub, pt);
+                boost::property_tree::ini_parser::read_ini(sub.string(), pt);
               }
               tt_category cat(f.path().stem().string(), pt);
               cat.read_projects(f.path());

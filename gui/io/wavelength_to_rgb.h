@@ -30,6 +30,7 @@
 // Library includes
 //
 #include <gui/core/color.h>
+#include <gui++-io-export.h>
 
 
 namespace gui {
@@ -40,7 +41,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
-      os::color wave_length_to_rgb (const double wave);
+      GUIPP_IO_EXPORT os::color wave_length_to_rgb (const double wave);
 
     } // namespace optics
 

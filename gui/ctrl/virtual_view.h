@@ -72,7 +72,7 @@ namespace gui {
       view_type             view;
       horizontal_scroll_bar hscroll;
       vertical_scroll_bar   vscroll;
-      win::client_window<>  edge;
+      client_control<>      edge;
 
     private:
       void handle_create (win::window*, const core::rectangle& r);

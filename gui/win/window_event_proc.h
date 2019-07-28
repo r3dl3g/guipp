@@ -32,6 +32,7 @@
 // Library includes
 //
 #include <gui/win/keys.h>
+#include <gui/core/rectangle.h>
 
 
 namespace gui {
@@ -52,6 +53,7 @@ namespace gui {
     namespace x11 {
 
       GUIPP_WIN_EXPORT XIC get_window_ic (os::window);
+      GUIPP_WIN_EXPORT void invalidate_window (os::window id, const core::rectangle& r = core::rectangle::zero);
 
     } // namespace x11
 #endif // X11

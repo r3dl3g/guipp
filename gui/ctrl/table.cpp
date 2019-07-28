@@ -551,9 +551,9 @@ namespace gui {
     }
 
     void table_view::redraw_all () {
-      data.redraw();
-      rows.redraw();
-      columns.redraw();
+      data.invalidate();
+      rows.invalidate();
+      columns.invalidate();
     }
 
     core::size::type table_view::row_width () const {

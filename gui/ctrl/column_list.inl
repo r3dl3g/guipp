@@ -302,7 +302,7 @@ namespace gui {
           auto delta = pt.x() - last_mouse_point.x();
           if (down_idx > -1) {
             layouter.set_column_width(down_idx, layouter.get_column_width(down_idx) + delta, true);
-            redraw();
+            invalidate();
           }
         }
         last_mouse_point = pt;

@@ -91,26 +91,4 @@ namespace gui {
 
   }
 
-  namespace ctrl {
-
-    namespace detail {
-
-      template<>
-      void split_view<orientation::vertical>::init () {
-        slider.on_slide([&] (int) {
-          get_layout().layout(size());
-        });
-      }
-
-      template<>
-      void split_view<orientation::horizontal>::init () {
-        slider.on_slide([&] (int) {
-          get_layout().layout(size());
-        });
-      }
-
-    }
-
-  } // ctrl
-
 } // gui

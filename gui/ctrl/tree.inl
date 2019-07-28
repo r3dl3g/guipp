@@ -228,7 +228,7 @@ namespace gui {
         nodes.clear();
         collect_children(root);
         super::set_count(nodes.size());
-        super::redraw();
+        super::invalidate();
       }
 
       template<typename I>

@@ -200,15 +200,15 @@ namespace gui {
 //      LogTrace << "handle_event: " << e;
       auto r = events.handle_event(e, result);
 
-#ifdef X11
-      auto state = get_state();
-      if (e.type == Expose) {
-        state.set_needs_redraw(false);
-      }
-      if (state.needs_redraw()) {
-        redraw_now();
-      }
-#endif // X11
+//#ifdef X11
+//      auto state = get_state();
+//      if (e.type == Expose) {
+//        state.set_needs_redraw(false);
+//      }
+//      if (state.needs_redraw()) {
+//        redraw();
+//      }
+//#endif // X11
 
       return r;
     }
@@ -217,7 +217,7 @@ namespace gui {
       const container* parent = get_parent();
       if (parent) {
         parent->shift_focus(*this, backward);
-        redraw();
+        invalidate();
       }
     }
 
@@ -478,7 +478,7 @@ namespace gui {
     void window::take_focus () const {
       if (is_valid()) {
         SetFocus(get_id());
-        redraw();
+        invalidate();
       }
     }
 
@@ -494,23 +494,16 @@ namespace gui {
       }
     }
 
-    void window::redraw_now () const {
+    void window::redraw () const {
       if (is_valid()) {
-        LogTrace << "redraw_now: " << get_id();
+        LogTrace << "redraw: " << get_id();
         RedrawWindow(get_id(), nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_ERASENOW);
       }
     }
 
-    void window::redraw () const {
+    void window::invalidate () const {
       if (is_valid()) {
-        LogTrace << "redraw: " << get_id();
-        InvalidateRect(get_id(), nullptr, TRUE);
-      }
-    }
-
-    void window::redraw_later () const {
-      if (is_valid()) {
-        LogTrace << "redraw_later: " << get_id();
+        LogTrace << "invalidate: " << get_id();
         InvalidateRect(get_id(), nullptr, TRUE);
       }
     }
@@ -560,7 +553,7 @@ namespace gui {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, pt.os_x(), pt.os_y(), 0, 0, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
         if (repaint) {
-          redraw();
+          invalidate();
         }
       }
     }
@@ -570,7 +563,7 @@ namespace gui {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
         send_client_message(this, WM_LAYOUT_WINDOW, sz);
         if (repaint) {
-          redraw();
+          invalidate();
         }
       }
     }
@@ -637,7 +630,7 @@ namespace gui {
     void window::set_style (os::style style, bool enable) {
       LONG new_style = enable ? get_style() | style : get_style(~style);
       SetWindowLong(get_id(), GWL_STYLE, new_style);
-      redraw_now();
+      redraw();
     }
 
 # endif // WIN32_DEPRECATED
@@ -843,7 +836,7 @@ namespace gui {
     void window::take_focus () const {
       x11::check_return(XSetInputFocus(core::global::get_instance(), get_id(),
                                        RevertToParent, CurrentTime));
-      redraw();
+      invalidate();
     }
 
     void window::to_front () {
@@ -854,12 +847,12 @@ namespace gui {
       x11::check_return(XLowerWindow(core::global::get_instance(), get_id()));
     }
 
-    void window::redraw_now () const {
+    void window::redraw () const {
 
       auto state = get_state();
 
       if (state.is_redraw_disabled() && !is_visible()) {
-        get_state().set_needs_redraw(true);
+//        get_state().set_needs_redraw(true);
         return;
       }
 
@@ -868,7 +861,7 @@ namespace gui {
       XExposeEvent& e = event.xexpose;
       e.type = Expose;
       e.serial = 0;
-      e.send_event = False;
+      e.send_event = true;
       e.display = core::global::get_instance();
       e.window = get_id();
       e.x = e.y = 0;
@@ -878,29 +871,17 @@ namespace gui {
       e.count = 0;
       os::event_result result;
 
-      LogTrace << "redraw_now: " << event;
+      LogTrace << "redraw: " << event;
       events.handle_event(event, result);
 
-      state.set_needs_redraw(false);
+//      state.set_needs_redraw(false);
 
       core::global::sync();
     }
 
-    void window::redraw () const {
+    void window::invalidate () const {
       if (get_id() && is_visible()) {
-        LogTrace << "redraw: " << get_id();
-        if (get_state().is_in_event_handle()) {
-          get_state().set_needs_redraw(true);
-        } else {
-          redraw_now();
-        }
-      }
-    }
-
-    void window::redraw_later () const {
-      if (get_id() && is_visible()) {
-        LogTrace << "redraw_later: " << get_id();
-        get_state().set_needs_redraw(true);
+        x11::invalidate_window(get_id());
       }
     }
 
@@ -970,10 +951,11 @@ namespace gui {
 
     void window::move (const core::point& pt, bool repaint) {
       if (position() != pt) {
-        x11::check_return(XMoveWindow(core::global::get_instance(),
-                                      get_id(), pt.os_x(), pt.os_y()));
+        auto ox = pt.os_x();
+        auto oy = pt.os_y();
+        x11::check_return(XMoveWindow(core::global::get_instance(), get_id(), ox, oy));
         if (repaint) {
-          redraw();
+          invalidate();
         }
       }
     }
@@ -992,7 +974,7 @@ namespace gui {
                                           get_id(), sz.os_width(), sz.os_height()));
           send_client_message(this, WM_LAYOUT_WINDOW, sz);
           if (repaint) {
-            redraw();
+            invalidate();
           }
         }
       }
@@ -1009,13 +991,14 @@ namespace gui {
           if (!is_visible()) {
             set_visible();
           }
+
           x11::check_return(XMoveResizeWindow(core::global::get_instance(),
                                               get_id(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
             send_client_message(this, WM_LAYOUT_WINDOW, r.size());
             if (repaint) {
-              redraw();
+              invalidate();
             }
           }
         }

@@ -612,6 +612,7 @@ public:
   void project_proce () {}
 
   void event_add () {}
+
   void event_remove () {}
   void event_edit () {}
 
@@ -629,7 +630,7 @@ private:
           entry_view_type;
   typedef vertical_split_view<category_view_type, project_view_type> top_view_type;
   typedef horizontal_split_view<top_view_type, entry_view_type> main_view_type;
-  typedef client_window<> bottom_view_type;
+  typedef client_control<> bottom_view_type;
   typedef horizontal_split_view<main_view_type, bottom_view_type> right_view_type;
   typedef vertical_split_view<left_view_type, right_view_type> content_view_type;
 

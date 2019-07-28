@@ -39,6 +39,7 @@
 #include <base/robbery.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_proc.h>
+#include <gui/win/dbg_win_message.h>
 
 namespace basepp {
 
@@ -173,6 +174,19 @@ namespace gui {
 
       typedef basepp::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
+
+      typedef std::map<os::window, core::rectangle> window_rectangle_map;
+      window_rectangle_map s_invalidated_windows;
+
+      void invalidate_window (os::window id, const core::rectangle& r) {
+        LogTrace << "invalidate_window: " << id;
+        s_invalidated_windows[id] |= r;
+      }
+
+      void validate_window (os::window id) {
+        LogTrace << "validate_window: " << id;
+        s_invalidated_windows.erase(id);
+      }
 
     } // namespace x11
 
@@ -511,7 +525,7 @@ namespace gui {
     }
 
     inline bool is_expose_event (const core::event& e) {
-      return (e.type == Expose) || (e.type == GraphicsExpose);// || (e.type == NoExpose);
+      return (e.type == Expose);// || (e.type == GraphicsExpose);// || (e.type == NoExpose);
     }
 
 #endif // X11
@@ -571,29 +585,24 @@ namespace gui {
           action();
         }
 
-        std::vector<core::event> retard_events;
-        std::set<win::window*> retard_windows;
-
         while (XPending(display) && running) {
           XNextEvent(display, &e);
 
-          LogTrace << e;
+          if (!win::is_frequent_event(e)) {
+            LogTrace << e;
+          }
 
           if (filter && filter(e)) {
             continue;
           }
 
           if (is_expose_event(e)) {
-            win::window* win = win::detail::get_event_window(e);
-            if (retard_windows.count(win) == 0) {
-              retard_events.emplace_back(e);
-              retard_windows.emplace(win);
-            }
+            x11::invalidate_window(e.xany.window);
           } else {
             process_event(e, resultValue);
-            if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
-              running = false;
-            }
+          }
+          if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+            running = false;
           }
 
           if ((e.type == ConfigureNotify) && running) {
@@ -602,10 +611,12 @@ namespace gui {
         }
 
         if (running) {
-          for (auto& re : retard_events) {
-            process_event(re, resultValue);
+          for (auto& w : x11::s_invalidated_windows) {
+            win::window* win = detail::get_window(w.first);
+            win->redraw();
           }
         }
+        x11::s_invalidated_windows.clear();
 
       }
       return resultValue;

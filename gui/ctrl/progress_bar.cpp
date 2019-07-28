@@ -58,24 +58,24 @@ namespace gui {
 
       void progress_bar_base::set_min (type mi) {
         data.min = mi;
-        redraw();
+        invalidate();
       }
 
       void progress_bar_base::set_max (type ma) {
         data.max = ma;
-        redraw();
+        invalidate();
       }
 
       void progress_bar_base::set_value (type v) {
         data.value = v;
         set_text(ostreamfmt(v));
-        redraw();
+        invalidate();
       }
 
       void progress_bar_base::set_min_max (type mi, type ma) {
         data.min = mi;
         data.max = ma;
-        redraw();
+        invalidate();
       }
 
       void progress_bar_base::set_min_max_value (type mi, type ma, type v) {

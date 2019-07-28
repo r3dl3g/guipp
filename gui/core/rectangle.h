@@ -147,11 +147,15 @@ namespace gui {
       inline os::size_type os_width () const;
       inline os::size_type os_height () const;
 
-      // union
-      self& operator&= (const self& rhs);
-
       // intersection
+      self& operator&= (const self& rhs);
+      self operator& (const self& rhs) const;
+      self intersection (const self& rhs) const;
+
+      // union
       self& operator|= (const self& rhs);
+      self operator| (const self& rhs) const;
+      self Union (const self& rhs) const;
 
     private:
       point_t pos;

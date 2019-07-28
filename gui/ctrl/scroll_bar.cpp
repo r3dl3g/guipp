@@ -76,11 +76,11 @@ namespace gui {
       (void)initialized;
 #endif // X11
       on_lost_focus([&] (window*) {
-        redraw();
+        invalidate();
       });
       on_mouse_leave([&] () {
         set_hilite(scrollbar_state::nothing);
-        redraw();
+        invalidate();
       });
 
       set_accept_focus(true);
@@ -124,7 +124,7 @@ namespace gui {
       if (data.min != mi) {
         data.min = mi;
         data.value = std::max(data.value, data.min);
-        redraw();
+        invalidate();
       }
     }
 
@@ -132,7 +132,7 @@ namespace gui {
       if (data.max != ma) {
         data.max = ma;
         data.value = std::min(data.value, data.max);
-        redraw();
+        invalidate();
       }
     }
 
@@ -141,7 +141,7 @@ namespace gui {
         data.min = mi;
         data.max = ma;
         data.value = std::max(data.value, data.min);
-        redraw();
+        invalidate();
       }
     }
 
@@ -173,7 +173,7 @@ namespace gui {
       v = std::min(std::max(v, data.min), data.max);
       if (v != data.value) {
         data.value = v;
-        redraw();
+        invalidate();
         if (notify) {
           send_notify();
         }

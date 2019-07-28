@@ -101,9 +101,8 @@ namespace gui {
       void to_front ();
       void to_back ();
 
+      void invalidate () const;
       void redraw () const;
-      void redraw_now () const;
-      void redraw_later () const;
 
       core::size size () const;
       core::point position () const;

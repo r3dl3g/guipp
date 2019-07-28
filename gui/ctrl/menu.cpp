@@ -300,7 +300,7 @@ namespace gui {
         close();
         data.selection = new_selection;
         data.hilite = new_selection;
-        win->redraw_now();
+        win->invalidate();
         send_client_message(win, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(src));
       }
     }
@@ -347,14 +347,14 @@ namespace gui {
       if (data.hilite != new_hilite) {
         close();
         data.hilite = new_hilite;
-        win->redraw();
+        win->invalidate();
         send_client_message(win, detail::HILITE_CHANGE_MESSAGE, true);
       }
     }
 
     void menu_data::clear_hilite () {
       data.hilite = -1;
-      win->redraw();
+      win->invalidate();
       send_client_message(win, detail::HILITE_CHANGE_MESSAGE, false);
     }
 
@@ -366,7 +366,7 @@ namespace gui {
       data.hilite = -1;
       data.close_caller = nullptr;
       data.key_caller = nullptr;
-      win->redraw();
+      win->invalidate();
     }
 
     void menu_data::handle_mouse (bool b, const core::point& pt) {
@@ -560,7 +560,7 @@ namespace gui {
       case win::keys::numpad::up:
       case win::keys::escape:
         data.close();
-        redraw();
+        invalidate();
         return true;
 
       case win::keys::down:
@@ -666,7 +666,7 @@ namespace gui {
       });
 
       on_lost_focus([&](window*) {
-        redraw();
+        invalidate();
       });
 
       on_any_key_down([&] (os::key_state, os::key_symbol key, const std::string &) {
@@ -698,7 +698,7 @@ namespace gui {
           int idx = data.get_hilite();
           data.close();
           data.set_hilite(idx);
-          redraw();
+          invalidate();
           return true;
         }
         break;

@@ -60,7 +60,7 @@ namespace gui {
 
   namespace draw {
 
-#if defined(BUILD_FOR_ARM) || defined(WIN32)
+#if defined(BUILD_FOR_ARM) || defined(WIN32) || defined(X11x)
     template<typename T>
     inline T font_scale (T v) {
       return static_cast<T>((double)v * core::global::get_scale_factor());

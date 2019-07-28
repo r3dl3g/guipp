@@ -460,7 +460,7 @@ namespace gui {
     void modal_window::end_modal () {
       is_modal = false;
 #ifdef X11
-      redraw();
+      invalidate();
 #endif // X11
     }
 
@@ -493,7 +493,7 @@ namespace gui {
     void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
       LogTrace << *this << " Enter modal loop";
 
-      redraw();
+      invalidate();
 
       is_modal = true;
 

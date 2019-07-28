@@ -508,7 +508,7 @@ void my_main_window::open () {
       bmp[0] = img.convert<PixelFormat::RGB>();
       gray[0] = img.convert<PixelFormat::GRAY>();
       bw[0] = img.convert<PixelFormat::BW>();
-      window1.redraw();
+      window1.invalidate();
     }
   });
 }
@@ -566,7 +566,7 @@ void my_main_window::copy () {
   gray[0] = img;
   bw[0] = img;
 
-  window1.redraw();
+  window1.invalidate();
 }
 
 void my_main_window::settings () {
@@ -581,7 +581,7 @@ void my_main_window::settings () {
         g.draw_lines({core::point{(float)x, r.y()}, core::point{(float)x, r.y2()}}, draw::pen(rgb));
     }
     wave_color = img;
-    window1.redraw();
+    window1.invalidate();
 }
 
   void my_main_window::del () {
@@ -592,7 +592,7 @@ void my_main_window::settings () {
     gray[i].clear();
     bw[i].clear();
   }
-  window1.redraw();
+  window1.invalidate();
 }
 
 void my_main_window::cut () {
@@ -654,7 +654,7 @@ void my_main_window::cut () {
   io::ofpnm<io::PNM::P4>("p4") << bw[1];
   io::ofpnm<io::PNM::P1>("p1") << bw[1];
 
-  window1.redraw();
+  window1.invalidate();
 }
 
 template<io::PNM P>
@@ -699,7 +699,7 @@ void my_main_window::paste () {
   read_write_rgba<io::PNM::P3>(rgba[0]);
   read_write_rgba<io::PNM::P6>(rgba[1]);
 
-  window1.redraw();
+  window1.invalidate();
 }
 
 void my_main_window::test_rgb () {
@@ -744,7 +744,7 @@ void my_main_window::test_rgb () {
   rgba[0] = blue;
   rgba[1] = blue24;
 
-  window1.redraw();
+  window1.invalidate();
 }
 
 void my_main_window::save_all_bin () {

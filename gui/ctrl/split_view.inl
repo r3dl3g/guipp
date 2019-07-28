@@ -197,12 +197,12 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<>
-      GUIPP_CTRL_EXPORT void split_view<orientation::vertical>::init ();
-
-      // --------------------------------------------------------------------------
-      template<>
-      GUIPP_CTRL_EXPORT void split_view<orientation::horizontal>::init ();
+      template<orientation O>
+      void split_view<O>::init () {
+        slider.on_slide([&] (int) {
+          super::get_layout().layout(super::size());
+        });
+      }
 
     } // namespace detail
 

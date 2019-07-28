@@ -120,7 +120,7 @@ namespace gui {
         data.selection.clear();
         notify_content_changed();
         notify_selection_changed();
-        redraw();
+        invalidate();
       }
 
       std::string textbox_base::get_text () const {
@@ -130,7 +130,7 @@ namespace gui {
       void textbox_base::set_scroll_pos (const core::point& pos) {
         if (data.offset != pos) {
           data.offset = pos;
-          redraw();
+          invalidate();
         }
       }
 
@@ -144,7 +144,7 @@ namespace gui {
           data.selection = s;
         }
         if (old_selection != data.selection) {
-          redraw();
+          invalidate();
         }
       }
 
@@ -180,7 +180,7 @@ namespace gui {
         }
         if (old_pos != data.cursor_pos) {
           notify_selection_changed();
-          redraw();
+          invalidate();
         }
       }
 
@@ -247,7 +247,7 @@ namespace gui {
           set_cursor_pos(position::zero);
         }
         notify_content_changed();
-        redraw();
+        invalidate();
       }
 
       std::string textbox_base::get_text_in_range (const textbox_base::range& r) const {
@@ -305,7 +305,7 @@ namespace gui {
             data.offset.x(x + 3 - area.width());
           }
           if (data.offset != old_pos) {
-            redraw();
+            invalidate();
           }
         }
       }
@@ -384,10 +384,10 @@ namespace gui {
           win::clipboard::get().set_text(*this, get_selected_text());
         });
         on_set_focus([&](window*){
-          redraw();
+          invalidate();
         });
         on_lost_focus([&](window*){
-          redraw();
+          invalidate();
         });
       }
 

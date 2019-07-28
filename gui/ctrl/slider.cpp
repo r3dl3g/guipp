@@ -30,6 +30,7 @@
 // Library includes
 //
 #include <gui/ctrl/slider.h>
+#include <gui/core/guidefs.h>
 
 
 #define NO_CAPTURExx
@@ -91,6 +92,7 @@ namespace gui {
         const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_x != pt.x()) {
+//          LogDebug << "slider::set_value old:" << pt.x() << " new:" << new_x;
           move(core::point(new_x, pt.y()), true);
           send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_x - pt.x()));
         }
@@ -154,6 +156,7 @@ namespace gui {
         const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_y != pt.y()) {
+//          LogDebug << "slider::set_value old:" << pt.y() << " new:" << new_y;
           move(core::point(pt.x(), new_y), true);
           send_client_message(this, detail::SLIDER_MESSAGE, static_cast<long>(new_y - pt.y()));
         }
@@ -218,24 +221,24 @@ namespace gui {
           start_window_point = core::point::undefined;
         });
         on_set_focus([&] (window*) {
-          redraw();
+          invalidate();
         });
         on_lost_focus([&] (window*) {
-          redraw();
+          invalidate();
         });
       }
 
       void slider_base::set_min (type i) {
         if (min != i) {
           min = i;
-          redraw();
+          invalidate();
         }
       }
 
       void slider_base::set_max (type i) {
         if (max != i) {
           max = i;
-          redraw();
+          invalidate();
         }
       }
 
@@ -243,7 +246,7 @@ namespace gui {
         if ((min != mi) || (max != ma)) {
           min = mi;
           max = ma;
-          redraw();
+          invalidate();
         }
       }
 

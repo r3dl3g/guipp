@@ -402,7 +402,7 @@ namespace gui {
         data.selection = -1;
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
-          super::redraw();
+          super::invalidate();
         }
       }
     }
@@ -417,7 +417,7 @@ namespace gui {
         data.hilite = new_hilite;
         if (notify) {
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, new_hilite != -1);
-          super::redraw();
+          super::invalidate();
         }
       }
     }
@@ -428,7 +428,7 @@ namespace gui {
         data.hilite = -1;
         if (notify) {
           send_client_message(this, detail::HILITE_CHANGE_MESSAGE, false);
-          super::redraw();
+          super::invalidate();
         }
       }
     }
@@ -436,7 +436,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::init () {
       scrollbar.on_scroll([&] (pos_t) {
-        super::redraw();
+        super::invalidate();
       });
       if (scrollbar.is_focus_accepting()) {
         super::on_left_btn_down([&] (os::key_state, const core::point &) {
@@ -538,7 +538,7 @@ namespace gui {
           scrollbar.place(get_scroll_bar_area(sz), IF_WIN32_ELSE(true, false));
         }
         scrollbar.set_visible(show_scroll);
-        super::redraw();
+        super::invalidate();
       }
     }
 
@@ -581,7 +581,7 @@ namespace gui {
         make_selection_visible();
         if (notify != event_source::logic) {
           send_client_message(this, detail::SELECTION_CHANGE_MESSAGE, static_cast<int>(notify));
-          super::redraw();
+          super::invalidate();
         }
       }
     }

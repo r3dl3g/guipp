@@ -80,10 +80,10 @@ namespace gui {
           }
         });
         on_set_focus([&] (window*) {
-          redraw();
+          invalidate();
         });
         on_lost_focus([&] (window*) {
-          redraw();
+          invalidate();
         });
       }
 

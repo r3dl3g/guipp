@@ -219,12 +219,12 @@ namespace gui {
 
       template<typename T>
       T scale (T v) {
-        return static_cast<T>(v * get_scale_factor());
+        return static_cast<T>(round(v * get_scale_factor()));
       }
 
       template<typename T>
       T unscale (T v) {
-        return static_cast<T>(v / get_scale_factor());
+        return static_cast<T>(round(v / get_scale_factor()));
       }
 
     } // namespace global

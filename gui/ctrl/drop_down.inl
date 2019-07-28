@@ -84,7 +84,7 @@ namespace gui {
 
       super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
       super::on_lost_focus([&] (window*) {
-        super::redraw();
+        super::invalidate();
       });
       super::on_left_btn_down([&](os::key_state, const core::point &) {
         toggle_popup();
@@ -103,7 +103,7 @@ namespace gui {
       data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
 
       data.button.on_lost_focus([&] (window*) {
-        super::redraw();
+        super::invalidate();
       });
       data.button.on_any_key_down(basepp::bind_method(this, &drop_down_list::handle_key));
 
@@ -159,7 +159,7 @@ namespace gui {
       int idx = data.items.get_selection();
       if (idx > -1) {
         data.selection = idx;
-        super::redraw();
+        super::invalidate();
         if (src == event_source::mouse) {
           hide_popup();
         }
@@ -343,7 +343,7 @@ namespace gui {
     void drop_down_list<T, D>::handle_wheel (const core::point::type delta, const core::point&) {
       if (!is_popup_visible()) {
         set_selection(get_selection() + static_cast<int>(delta), event_source::mouse);
-        super::redraw();
+        super::invalidate();
       }
     }
 

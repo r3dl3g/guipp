@@ -56,6 +56,7 @@ namespace gui {
       case EnterNotify:
       case LeaveNotify:
       case Expose:
+      case NoExpose:
 #endif
         return true;
       default:

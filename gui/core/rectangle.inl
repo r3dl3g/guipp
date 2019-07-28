@@ -196,7 +196,7 @@ namespace gui {
 
 #ifdef WIN32
     template<typename T>
-    const basic_rectangle<T> basic_rectangle<T>::def(point_t(-1, -1), point_t(-1, -1));
+    const basic_rectangle<T> basic_rectangle<T>::def(point_t(-1, -1), point_t(-2, -2));
 #endif // WIN32
 #ifdef X11
     template<typename T>
@@ -450,12 +450,34 @@ namespace gui {
     }
 
     template<typename T>
+    auto basic_rectangle<T>::operator| (const self& rhs) const -> self {
+      self r = *this;
+      return r |= rhs;
+    }
+
+    template<typename T>
+    auto basic_rectangle<T>::Union (const self& rhs) const -> self {
+      return *this | rhs;
+    }
+
+    template<typename T>
     auto basic_rectangle<T>::operator&= (const self& rhs) -> self& {
       type x0 = std::max(x(), rhs.x());
       type y0 = std::max(y(), rhs.y());
       type x1 = std::min(x2(), rhs.x2());
       type y1 = std::min(y2(), rhs.y2());
       return operator= ({point_t {x0, y0}, point_t {x1, y1}});
+    }
+
+    template<typename T>
+    auto basic_rectangle<T>::operator& (const self& rhs) const -> self {
+      self r = *this;
+      return r &= rhs;
+    }
+
+    template<typename T>
+    auto basic_rectangle<T>::intersection (const self& rhs) const -> self {
+      return *this & rhs;
     }
 
     template<typename T>

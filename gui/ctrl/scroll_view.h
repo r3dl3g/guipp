@@ -119,7 +119,7 @@ namespace gui {
       core::point           current_pos;
       vertical_scroll_bar   vscroll;
       horizontal_scroll_bar hscroll;
-      win::client_window<>       edge;
+      client_control<>      edge;
 
     };
 

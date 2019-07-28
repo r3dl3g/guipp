@@ -156,8 +156,8 @@ public:
 private:
   ctrl::scroll_view scroll_view;
 
-  win::client_window<> window1;
-  win::client_window<> window2;
+  ctrl::client_control<> window1;
+  ctrl::client_control<> window2;
 
   ctrl::horizontal_separator hseparator;
   ctrl::vertical_separator vseparator;
@@ -295,7 +295,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
-  size_t cln_size = sizeof(win::client_window<>);
+  size_t cln_size = sizeof(ctrl::client_control<>);
   size_t btn_size = sizeof(ctrl::button_base);
   size_t push_size = sizeof(ctrl::button_base);
   size_t tgl_size = sizeof(ctrl::basic_button<ctrl::push_button_traits>);
@@ -306,7 +306,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
           <<   "std::string:" << str_size
           << ", event_container:" << evc_size
           << ", window:" << win_size
-          << ", client_window:" << cln_size
+          << ", client_control:" << cln_size
           << ", button:" << btn_size
           << ", push_button:" << push_size
           << ", toggle_button:" << tgl_size
@@ -522,7 +522,7 @@ my_main_window::my_main_window ()
       window2.unregister_event_handler<win::paint_event>(draw::paint(paint2));
       window2.on_paint(draw::paint(paint1));
     }
-    window2.redraw();
+    window2.invalidate();
   });
   window2.on_show([] () {
     LogDebug << "Window2 show:";
@@ -717,7 +717,7 @@ my_main_window::my_main_window ()
   });
   invert_button.on_clicked([&] () {
     draw_invert = !draw_invert;
-    window2.redraw();
+    window2.invalidate();
   });
 
   vslider.on_move([&](const core::point&) {
@@ -733,9 +733,9 @@ my_main_window::my_main_window ()
     textbox.hscroll.set_value(pos);
     progress.set_value(pos);
   });
-  main_split_view.slider.on_move([&](const core::point&){
-    hscroll.set_value(static_cast<ctrl::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()));
-  });
+//  main_split_view.slider.on_move([&](const core::point&){
+//    hscroll.set_value(static_cast<ctrl::scroll_bar::type>(main_split_view.get_split_pos() * hscroll.get_max()), false);
+//  });
 
   cur_plus.on_clicked([&] () {
     edit1.set_cursor_pos(edit1.get_cursor_pos() + 1);
@@ -778,10 +778,10 @@ my_main_window::my_main_window ()
   });
 
   start_angle.on_scroll([&](core::point::type) {
-    window2.redraw();
+    window2.invalidate();
   });
   end_angle.on_scroll([&](core::point::type) {
-    window2.redraw();
+    window2.invalidate();
   });
   /*
     window2.on_mouse_enter([]() {

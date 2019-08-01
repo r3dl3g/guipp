@@ -23,8 +23,8 @@ namespace gui {
 
   namespace ctrl {
 
-    inline const std::string& menu_entry::get_label () const {
-      return label;
+    inline std::string menu_entry::get_label () const {
+      return label();
     }
 
     inline const win::hot_key& menu_entry::get_hot_key () const {
@@ -63,7 +63,7 @@ namespace gui {
       return state == menu_state::enabled;
     }
 
-    inline void menu_entry::set_label (const std::string& l) {
+    inline void menu_entry::set_label (const text_source& l) {
       label = l;
     }
 
@@ -86,7 +86,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline sub_menu_entry::sub_menu_entry (const std::string& label,
+    inline sub_menu_entry::sub_menu_entry (const text_source& label,
                                            char menu_key,
                                            const std::function<menu_action>& action,
                                            bool separator,
@@ -95,12 +95,28 @@ namespace gui {
       : menu_entry(true, label, menu_key, action, win::hot_key(), separator, icon, state)
     {}
 
+    inline sub_menu_entry::sub_menu_entry (const std::string& label,
+                                           char menu_key,
+                                           const std::function<menu_action>& action,
+                                           bool separator,
+                                           const icon_type& icon,
+                                           menu_state state)
+      : menu_entry(true, const_text(label), menu_key, action, win::hot_key(), separator, icon, state)
+    {}
+
     // --------------------------------------------------------------------------
-    inline main_menu_entry::main_menu_entry (const std::string& label,
+    inline main_menu_entry::main_menu_entry (const text_source& label,
                                              char menu_key,
                                              const std::function<menu_action>& action,
                                              menu_state state)
       : menu_entry(true, label, menu_key, action, win::hot_key(), false, icon_type(), state)
+    {}
+
+    inline main_menu_entry::main_menu_entry (const std::string& label,
+                                             char menu_key,
+                                             const std::function<menu_action>& action,
+                                             menu_state state)
+      : menu_entry(true, const_text(label), menu_key, action, win::hot_key(), false, icon_type(), state)
     {}
 
     // --------------------------------------------------------------------------

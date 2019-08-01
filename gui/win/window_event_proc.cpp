@@ -613,7 +613,9 @@ namespace gui {
         if (running) {
           for (auto& w : x11::s_invalidated_windows) {
             win::window* win = detail::get_window(w.first);
-            win->redraw();
+            if (win && win->is_visible()) {
+              win->redraw();
+            }
           }
         }
         x11::s_invalidated_windows.clear();

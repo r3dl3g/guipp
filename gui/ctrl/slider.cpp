@@ -33,8 +33,6 @@
 #include <gui/core/guidefs.h>
 
 
-#define NO_CAPTURExx
-
 namespace gui {
 
   namespace ctrl {
@@ -205,18 +203,14 @@ namespace gui {
         set_accept_focus(true);
 
         on_left_btn_down([&] (os::key_state, const core::point& pt) {
-#ifndef NO_CAPTURE
           capture_pointer();
-#endif // NO_CAPTURE
           start_mouse_point = client_to_screen(pt);
           start_window_point = position();
           take_focus();
         });
 
         on_left_btn_up([&] (os::key_state, const core::point&) {
-#ifndef NO_CAPTURE
           uncapture_pointer();
-#endif // NO_CAPTURE
           start_mouse_point = core::point::undefined;
           start_window_point = core::point::undefined;
         });

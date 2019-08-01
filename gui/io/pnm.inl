@@ -132,7 +132,9 @@ namespace gui {
         case PixelFormat::BW:   opnm<super::bin, PixelFormat::BW>(b.get<PixelFormat::BW>()).write(out); break;
         case PixelFormat::GRAY: opnm<super::bin, PixelFormat::GRAY>(b.get<PixelFormat::GRAY>()).write(out); break;
         case PixelFormat::RGB:  opnm<super::bin, PixelFormat::RGB>(b.get<PixelFormat::RGB>()).write(out); break;
+        case PixelFormat::BGR:  opnm<super::bin, PixelFormat::RGB>(b.get<PixelFormat::RGB>()).write(out); break;
         case PixelFormat::RGBA: opnm<super::bin, PixelFormat::RGBA>(b.get<PixelFormat::RGBA>()).write(out); break;
+        case PixelFormat::BGRA: opnm<super::bin, PixelFormat::RGBA>(b.get<PixelFormat::RGBA>()).write(out); break;
       }
     }
 

@@ -83,12 +83,16 @@ namespace gui {
     template<> struct BPP2PNM<PixelFormat::BW, false>   {static constexpr PNM pnm = PNM::P1; };
     template<> struct BPP2PNM<PixelFormat::GRAY, false> {static constexpr PNM pnm = PNM::P2; };
     template<> struct BPP2PNM<PixelFormat::RGB, false>  {static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<PixelFormat::BGR, false>  {static constexpr PNM pnm = PNM::P3; };
     template<> struct BPP2PNM<PixelFormat::RGBA, false> {static constexpr PNM pnm = PNM::P3; };
+    template<> struct BPP2PNM<PixelFormat::BGRA, false> {static constexpr PNM pnm = PNM::P3; };
 
     template<> struct BPP2PNM<PixelFormat::BW, true>    {static constexpr PNM pnm = PNM::P4; };
     template<> struct BPP2PNM<PixelFormat::GRAY, true>  {static constexpr PNM pnm = PNM::P5; };
     template<> struct BPP2PNM<PixelFormat::RGB, true>   {static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<PixelFormat::BGR, true>   {static constexpr PNM pnm = PNM::P6; };
     template<> struct BPP2PNM<PixelFormat::RGBA, true>  {static constexpr PNM pnm = PNM::P6; };
+    template<> struct BPP2PNM<PixelFormat::BGRA, true>  {static constexpr PNM pnm = PNM::P6; };
 
     template<PixelFormat>
     struct BPP2MAX {};

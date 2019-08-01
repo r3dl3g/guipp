@@ -39,6 +39,9 @@
 #include <gui/win/window_event_handler.h>
 
 
+//#define NO_CAPTURE
+
+
 namespace gui {
 
   namespace win {
@@ -717,6 +720,7 @@ namespace gui {
     void window::destroy () {
       if (get_id()) {
         hidden::window_class_map.erase(get_id());
+        x11::validate_window(get_id());
         x11::check_return(XDestroyWindow(core::global::get_instance(), get_id()));
         detail::unset_window(get_id());
         id = 0;
@@ -1040,15 +1044,18 @@ namespace gui {
     }
 
     void window::capture_pointer () {
+#ifndef NO_CAPTURE
       LogTrace << "capture_pointer:" << get_id();
       hidden::capture_stack.push_back(get_id());
       x11::check_return(XGrabPointer(core::global::get_instance(), get_id(),
                                      False,
                                      ButtonPressMask | ButtonReleaseMask | PointerMotionMask | EnterWindowMask | LeaveWindowMask,
                                      GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
+#endif // NO_CAPTURE
     }
 
     void window::uncapture_pointer () {
+#ifndef NO_CAPTURE
       if (!hidden::capture_stack.empty()) {
         if (hidden::capture_stack.back() != get_id()) {
           LogFatal << "uncapture_pointer:" << get_id() << " differs from stack back:(" << hidden::capture_stack.back() << ")";
@@ -1065,6 +1072,7 @@ namespace gui {
                                          GrabModeAsync, GrabModeAsync, None, None, CurrentTime));
         }
       }
+#endif // NO_CAPTURE
     }
 
     os::window window::create_window (const class_info& type,

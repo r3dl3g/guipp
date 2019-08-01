@@ -155,7 +155,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    menu_entry::menu_entry (const std::string& label,
+    menu_entry::menu_entry (const text_source& label,
                             char menu_key,
                             const std::function<menu_action>& action,
                             const hot_key& hotkey,
@@ -163,6 +163,24 @@ namespace gui {
                             const icon_type& icon,
                             menu_state state)
       : label(label)
+      , hotkey(hotkey)
+      , icon(icon)
+      , action(action)
+      , menu_key(menu_key)
+      , width(0)
+      , separator(separator)
+      , state(state)
+      , sub_menu(false)
+    {}
+
+    menu_entry::menu_entry (const std::string& label,
+                            char menu_key,
+                            const std::function<menu_action>& action,
+                            const hot_key& hotkey,
+                            bool separator,
+                            const icon_type& icon,
+                            menu_state state)
+      : label(const_text(label))
       , hotkey(hotkey)
       , icon(icon)
       , action(action)
@@ -198,7 +216,7 @@ namespace gui {
     {}
 
     menu_entry::menu_entry (bool sub_menu,
-                            const std::string& label,
+                            const text_source& label,
                             char menu_key,
                             const std::function<menu_action>& action,
                             const hot_key& hotkey,

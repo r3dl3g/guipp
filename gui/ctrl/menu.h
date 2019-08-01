@@ -41,6 +41,14 @@ namespace gui {
       typedef void (menu_action)();
       typedef draw::masked_bitmap icon_type;
 
+      menu_entry (const text_source& label,
+                  char menu_key,
+                  const std::function<menu_action>& action,
+                  const win::hot_key& hotkey = win::hot_key(),
+                  bool separator = false,
+                  const icon_type& icon = icon_type(),
+                  menu_state state = menu_state::enabled);
+
       menu_entry (const std::string& label,
                   char menu_key,
                   const std::function<menu_action>& action,
@@ -55,7 +63,7 @@ namespace gui {
       menu_entry (menu_entry&&);
       void operator= (menu_entry&&);
 
-      const std::string& get_label () const;
+      std::string get_label () const;
       const win::hot_key& get_hot_key () const;
       const icon_type& get_icon () const;
       core::size::type get_width () const;
@@ -67,7 +75,7 @@ namespace gui {
       bool is_enabled () const;
       bool has_separator () const;
 
-      void set_label (const std::string& l);
+      void set_label (const text_source& l);
       void set_icon (const icon_type& i);
       void set_enabled (bool d);
       void set_width (core::size::type w);
@@ -78,7 +86,7 @@ namespace gui {
 
     protected:
       menu_entry (bool sub_menu,
-                  const std::string& label,
+                  const text_source& label,
                   char menu_key,
                   const std::function<menu_action>& action,
                   const win::hot_key& hotkey,
@@ -89,7 +97,7 @@ namespace gui {
       menu_entry ();
 
     private:
-      std::string label;
+      text_source label;
       win::hot_key hotkey;
       icon_type icon;
       std::function<menu_action> action;
@@ -103,6 +111,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT sub_menu_entry : public menu_entry {
     public:
+      sub_menu_entry (const text_source& label,
+                      char menu_key,
+                      const std::function<menu_action>& action,
+                      bool separator = false,
+                      const icon_type& icon = icon_type(),
+                      menu_state state = menu_state::enabled);
+
       sub_menu_entry (const std::string& label,
                       char menu_key,
                       const std::function<menu_action>& action,
@@ -114,6 +129,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct GUIPP_CTRL_EXPORT main_menu_entry : public menu_entry {
     public:
+      main_menu_entry (const text_source& label,
+                       char menu_key,
+                       const std::function<menu_action>& action,
+                       menu_state state = menu_state::enabled);
+
       main_menu_entry (const std::string& label,
                        char menu_key,
                        const std::function<menu_action>& action,

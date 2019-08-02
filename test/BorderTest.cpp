@@ -285,15 +285,23 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   });
   file_sub_menu.data.register_hot_keys(this);
 
-  core::rectangle icon_rect(0, 0, 16, 16);
-  pixmap cut_icon(16, 16);
-  pixmap copy_icon(16, 16);
-  pixmap paste_icon(16, 16);
+  const int icn_sz = core::global::scale(16);
+  core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
+  pixmap cut_icon(icn_sz, icn_sz);
+  pixmap copy_icon(icn_sz, icn_sz);
+  pixmap paste_icon(icn_sz, icn_sz);
   graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, text_origin::center), font::menu(), color::dark_red);
   graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
   graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
+  draw::masked_bitmap cut_mask(cut_icon);
+
+  io::ofpnm<io::PNM::P6>("cut_icon") << cut_icon;
+  io::ofpnm<io::PNM::P6>("cut_image") << cut_mask.image;
+  io::ofpnm<io::PNM::P4>("cut_mask") << cut_mask.mask;
+
+
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_mask));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));

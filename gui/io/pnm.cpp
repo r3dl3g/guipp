@@ -106,7 +106,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P6> (std::ostream& out, const draw::const_image_data<PixelFormat::RGB>& img) {
+    void write_pnm<PNM::P6, PixelFormat::RGB> (std::ostream& out,
+                                               const draw::const_image_data<PixelFormat::RGB>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -121,7 +122,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm_rgba<true> (std::ostream& out, const draw::const_image_data<PixelFormat::RGBA>& img) {
+    void write_pnm<PNM::P6, PixelFormat::RGBA> (std::ostream& out,
+                                                const draw::const_image_data<PixelFormat::RGBA>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -154,7 +156,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P5> (std::ostream& out, const draw::const_image_data<PixelFormat::GRAY>& img) {
+    void write_pnm<PNM::P5, PixelFormat::GRAY> (std::ostream& out,
+                                                const draw::const_image_data<PixelFormat::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       const std::size_t n = bmi.mem_size();
       out.write(reinterpret_cast<const char*>(img.raw_data().data(0, n)), n);
@@ -203,7 +206,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P4> (std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
+    void write_pnm<PNM::P4, PixelFormat::BW> (std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       int bytes = (bmi.width + 7) / 8;
       const auto& raw = img.raw_data();
@@ -245,7 +248,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P3> (std::ostream& out, const draw::const_image_data<PixelFormat::RGB>& img) {
+    void write_pnm<PNM::P3, PixelFormat::RGB> (std::ostream& out, const draw::const_image_data<PixelFormat::RGB>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -261,7 +264,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm_rgba<false> (std::ostream& out, const draw::const_image_data<PixelFormat::RGBA>& img) {
+    void write_pnm<PNM::P3, PixelFormat::RGBA> (std::ostream& out, const draw::const_image_data<PixelFormat::RGBA>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -298,7 +301,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P2>(std::ostream& out, const draw::const_image_data<PixelFormat::GRAY>& img) {
+    void write_pnm<PNM::P2, PixelFormat::GRAY>(std::ostream& out, const draw::const_image_data<PixelFormat::GRAY>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);
@@ -329,7 +332,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void write_pnm<PNM::P1>(std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
+    void write_pnm<PNM::P1, PixelFormat::BW>(std::ostream& out, const draw::const_image_data<PixelFormat::BW>& img) {
       const draw::bitmap_info& bmi = img.get_info();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
         auto row = img.row(y);

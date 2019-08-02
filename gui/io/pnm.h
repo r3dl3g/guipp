@@ -106,21 +106,17 @@ namespace gui {
     GUIPP_IO_EXPORT void write_pnm_header (std::ostream& out, PNM magic_num, const draw::bitmap_info&, int max);
     GUIPP_IO_EXPORT draw::bitmap_info read_pnm_header (std::istream& in, PNM& magic_num, int& max);
 
-    template<PNM i>
-    void write_pnm (std::ostream& out, const draw::const_image_data<PNM2BPP<i>::px_fmt>&);
+    template<PNM i, PixelFormat fmt>
+    void write_pnm (std::ostream& out, const draw::const_image_data<fmt>&);
 
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
-    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
-
-    template<bool BIN>
-    void write_pnm_rgba (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
-
-    template<> GUIPP_IO_EXPORT void write_pnm_rgba<false> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
-    template<> GUIPP_IO_EXPORT void write_pnm_rgba<true> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P1, PixelFormat::BW> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P2, PixelFormat::GRAY> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, PixelFormat::RGB> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P3, PixelFormat::RGBA> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P4, PixelFormat::BW> (std::ostream&, const draw::const_image_data<PixelFormat::BW>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P5, PixelFormat::GRAY> (std::ostream&, const draw::const_image_data<PixelFormat::GRAY>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, PixelFormat::RGB> (std::ostream&, const draw::const_image_data<PixelFormat::RGB>&);
+    template<> GUIPP_IO_EXPORT void write_pnm<PNM::P6, PixelFormat::RGBA> (std::ostream&, const draw::const_image_data<PixelFormat::RGBA>&);
 
     // --------------------------------------------------------------------------
     template<PNM i>

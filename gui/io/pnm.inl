@@ -32,22 +32,22 @@ namespace gui {
     inline void opnm<BIN, T>::write (std::ostream& out) const {
       const draw::bitmap_info& bmi = bmp.get_info();
       write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
-      write_pnm<BPP2PNM<T, BIN>::pnm>(out, bmp.get_raw());
+      write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp.get_raw());
     }
 
-    template<>
-    inline void opnm<false, PixelFormat::RGBA>::write (std::ostream& out) const {
-      const draw::bitmap_info& bmi = bmp.get_info();
-      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, false>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
-      write_pnm_rgba<false>(out, bmp.get_raw());
-    }
+//    template<>
+//    inline void opnm<false, PixelFormat::RGBA>::write (std::ostream& out) const {
+//      const draw::bitmap_info& bmi = bmp.get_info();
+//      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, false>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
+//      write_pnm_rgba<false>(out, bmp.get_raw());
+//    }
 
-    template<>
-    inline void opnm<true, PixelFormat::RGBA>::write (std::ostream& out) const {
-      const draw::bitmap_info& bmi = bmp.get_info();
-      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, true>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
-      write_pnm_rgba<true>(out, bmp.get_raw());
-    }
+//    template<>
+//    inline void opnm<true, PixelFormat::RGBA>::write (std::ostream& out) const {
+//      const draw::bitmap_info& bmi = bmp.get_info();
+//      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, true>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
+//      write_pnm_rgba<true>(out, bmp.get_raw());
+//    }
 
     // --------------------------------------------------------------------------
     template<bool BIN, PixelFormat T>

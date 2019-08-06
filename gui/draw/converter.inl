@@ -144,6 +144,24 @@ namespace gui {
 
     }
 
+    namespace fill {
+
+      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      void row (draw::image_row<px_fmt> data, uint32_t w, const pixel_type& px) {
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          data[x] = px;
+        }
+      }
+
+      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      void fill (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, const pixel_type& px) {
+        for (uint_fast32_t y = 0; y < h; ++y) {
+          row<px_fmt>(data.row(y), w, px);
+        }
+      }
+
+    }
+
   } // namespace convert
 
 } // namespace gui

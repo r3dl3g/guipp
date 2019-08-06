@@ -54,7 +54,7 @@ namespace gui {
       void create (const blob& data, const bitmap_info& bmi);
 
       template<PixelFormat T>
-      const const_image_data<T> get_raw () const {
+      const const_image_data<T> get_data () const {
         return const_image_data<T>(basepp::array_wrapper<const byte>(data), info);
       }
 
@@ -67,6 +67,7 @@ namespace gui {
     class datamap : public basic_datamap {
     public:
       typedef basic_datamap super;
+      using pixel_type = typename BPP2Pixel<T>::pixel;
       static constexpr PixelFormat px_fmt = T;
 
       datamap ();
@@ -75,6 +76,7 @@ namespace gui {
       datamap (const core::uint32_size& sz);
       datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
+      datamap (const blob& data, const bitmap_info& bmi);
 
       template<PixelFormat S>
       datamap (const datamap<S>& src);
@@ -91,11 +93,11 @@ namespace gui {
                       const core::rectangle& src_rect,
                       const core::point& dest_pt);
 
-      const const_image_data<T> get_raw () const {
-        return super::get_raw<T>();
+      const const_image_data<T> get_data () const {
+        return super::get_data<T>();
       }
 
-      image_data<T> get_raw () {
+      image_data<T> get_data () {
         return image_data<T>(basepp::array_wrapper<byte>(data), info);
       }
 
@@ -108,6 +110,8 @@ namespace gui {
 
       void adjust_brightness (float f);
       void invert ();
+
+      void fill (const pixel_type&);
 
       datamap sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
 

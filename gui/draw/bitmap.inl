@@ -109,7 +109,7 @@ namespace gui {
       if (get_color_depth(pixel_format()) == get_color_depth(bmi.pixel_format)) {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
-        switch (pixel_format()) {
+        switch (bmi.pixel_format()) {
           case PixelFormat::BW:   put(bwmap(rhs)); break;
           case PixelFormat::GRAY: put(graymap(rhs)); break;
           case PixelFormat::RGB:  put(rgbmap(rhs));  break;
@@ -152,7 +152,7 @@ namespace gui {
     template<PixelFormat T>
     void pixmap::put (const datamap<T>& rhs) {
       const auto& bmi = rhs.get_info();
-      const auto raw = rhs.get_raw();
+      const auto raw = rhs.get_data();
       put(raw.raw_data().data(0, bmi.mem_size()), bmi);
     }
 
@@ -185,21 +185,20 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       get(data, bmi);
-      const auto img = basepp::array_wrapper<const byte>(data);
 
       if (bmi.pixel_format == T) {
-        return datamap<T>(const_image_data<T>(img, bmi));
+        return datamap<T>(data, bmi);
       } else {
-        switch (pixel_format()) {
-          case PixelFormat::BW:   return datamap<T>(datamap<PixelFormat::BW>(const_image_data<PixelFormat::BW>(img, bmi)));
-          case PixelFormat::GRAY: return datamap<T>(datamap<PixelFormat::GRAY>(const_image_data<PixelFormat::GRAY>(img, bmi)));
-          case PixelFormat::RGB:  return datamap<T>(datamap<PixelFormat::RGB>(const_image_data<PixelFormat::RGB>(img, bmi)));
-          case PixelFormat::RGBA: return datamap<T>(datamap<PixelFormat::RGBA>(const_image_data<PixelFormat::RGBA>(img, bmi)));
-          case PixelFormat::BGR:  return datamap<T>(datamap<PixelFormat::BGR>(const_image_data<PixelFormat::BGR>(img, bmi)));
-          case PixelFormat::BGRA: return datamap<T>(datamap<PixelFormat::BGRA>(const_image_data<PixelFormat::BGRA>(img, bmi)));
-          case PixelFormat::ARGB: return datamap<T>(datamap<PixelFormat::ARGB>(const_image_data<PixelFormat::ARGB>(img, bmi)));
-          case PixelFormat::ABGR: return datamap<T>(datamap<PixelFormat::ABGR>(const_image_data<PixelFormat::ABGR>(img, bmi)));
-          default:        return datamap<T>();
+        switch (bmi.pixel_format) {
+          case PixelFormat::BW:   return datamap<PixelFormat::BW>(data, bmi).convert<T>();
+          case PixelFormat::GRAY: return datamap<PixelFormat::GRAY>(data, bmi).convert<T>();
+          case PixelFormat::RGB:  return datamap<PixelFormat::RGB>(data, bmi).convert<T>();
+          case PixelFormat::RGBA: return datamap<PixelFormat::RGBA>(data, bmi).convert<T>();
+          case PixelFormat::BGR:  return datamap<PixelFormat::BGR>(data, bmi).convert<T>();
+          case PixelFormat::BGRA: return datamap<PixelFormat::BGRA>(data, bmi).convert<T>();
+          case PixelFormat::ARGB: return datamap<PixelFormat::ARGB>(data, bmi).convert<T>();
+          case PixelFormat::ABGR: return datamap<PixelFormat::ABGR>(data, bmi).convert<T>();
+          default:                return datamap<T>();
         }
       }
     }

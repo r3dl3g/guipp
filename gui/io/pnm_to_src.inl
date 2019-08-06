@@ -42,7 +42,7 @@ namespace gui {
       void opnm<T>::write (std::ostream& out) const {
         const auto& bmi = bmp.get_info();
         save_pnm_header_src(out, name, BPP2PNM<T, true>::pnm, bmi.width, bmi.height, BPP2MAX<T>::max);
-        save_pnm_src<T>(out, bmp.get_raw());
+        save_pnm_src<T>(out, bmp.get_data());
       }
       // --------------------------------------------------------------------------
       template<PixelFormat T>
@@ -50,10 +50,10 @@ namespace gui {
         auto& bmi = img.get_info();
         out.fill(' ');
         for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-          auto row = img.row(y);
+          const auto& row = img.row(y);
           for (uint_fast32_t x = 0; x < bmi.width; ++x) {
-            auto pixel = row[x];
-            out << pixel;
+            const auto& pixel = row[x];
+            write_pixel(out, pixel);
             if ((y == bmi.height - 1) && (x == bmi.width - 1)) {
               out << "};";
             } else {

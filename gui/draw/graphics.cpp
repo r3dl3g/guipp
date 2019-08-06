@@ -338,7 +338,7 @@ namespace gui {
       get_xft();
     }
 
-    graphics::graphics (draw::pixmap& target)
+    graphics::graphics (draw::basic_map& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -360,6 +360,7 @@ namespace gui {
     }
 
     graphics::~graphics () {
+      flush();
       destroy();
     }
 
@@ -388,16 +389,21 @@ namespace gui {
       }
     }
 
-    const graphics& graphics::draw_pixel (const core::point& pt,
+    const graphics& graphics::draw_pixel (const core::uint32_point& pt,
                                           os::color c) const {
       Use<pen> pn(gc, pen(c));
-      XDrawPoint(get_instance(), target, gc, pt.os_x(), pt.os_y());
+      XDrawPoint(get_instance(), target, gc, pt.x(), pt.y());
       return *this;
     }
 
-    os::color graphics::get_pixel (const core::point& pt) const {
-      // TBD
-      return color::black;
+    os::color graphics::get_pixel (const core::uint32_point& pt) const {
+      XImage* im = XGetImage(get_instance(), target, pt.x(), pt.y(), 1, 1, AllPlanes, ZPixmap);
+      os::color c = color::black;
+      if (im) {
+        c = XGetPixel(im, 0, 0);
+        XDestroyImage(im);
+      }
+      return c;
     }
 
     const graphics& graphics::draw_lines (std::initializer_list<core::point> pts,
@@ -512,9 +518,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     const graphics& graphics::clear (os::color color) const {
-      rectangle r(core::rectangle(0, 0, 0xffff, 0xffff));
-      r.operator() (*this, brush(color));
-      return *this;
+      return draw(rectangle(area()), color, color);
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {

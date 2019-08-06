@@ -43,79 +43,130 @@ namespace gui {
       white = basepp::system_bw_bits::white
     };
 
+    std::ostream& operator<< (std::ostream& out, const bw_pixel&);
+
 #pragma pack(push, 1)
 
     // --------------------------------------------------------------------------
     struct gray_pixel {
+      static const gray_pixel black;
+      static const gray_pixel white;
+
       byte value;
+
+      bool operator== (const gray_pixel&) const;
 
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const gray_pixel&);
 
     // --------------------------------------------------------------------------
     struct rgb_pixel {
+      static const rgb_pixel black;
+      static const rgb_pixel white;
+
       byte red;
       byte green;
       byte blue;
 
+      bool operator== (const rgb_pixel&) const;
+
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
 
     // --------------------------------------------------------------------------
     struct rgba_pixel {
+      static const rgba_pixel black;
+      static const rgba_pixel white;
+
       byte red;
       byte green;
       byte blue;
       byte alpha;
 
+      bool operator== (const rgba_pixel&) const;
+
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
 
     // --------------------------------------------------------------------------
     struct bgr_pixel {
+      static const bgr_pixel black;
+      static const bgr_pixel white;
+
       byte blue;
       byte green;
       byte red;
+
+      bool operator== (const bgr_pixel&) const;
 
       template<typename T>
       void operator= (T);
     };
 
+    std::ostream& operator<< (std::ostream& out, const bgr_pixel&);
+
     // --------------------------------------------------------------------------
-    struct bgra_pixel : public bgr_pixel {
+    struct bgra_pixel {
+      static const bgra_pixel black;
+      static const bgra_pixel white;
+
       byte blue;
       byte green;
       byte red;
       byte alpha;
 
+      bool operator== (const bgra_pixel&) const;
+
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const bgra_pixel&);
 
     // --------------------------------------------------------------------------
     struct argb_pixel {
+      static const argb_pixel black;
+      static const argb_pixel white;
+
       byte alpha;
       byte red;
       byte green;
       byte blue;
 
+      bool operator== (const argb_pixel&) const;
+
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const argb_pixel&);
 
     // --------------------------------------------------------------------------
     struct abgr_pixel {
+      static const abgr_pixel black;
+      static const abgr_pixel white;
+
       byte alpha;
       byte blue;
       byte green;
       byte red;
 
+      bool operator== (const abgr_pixel&) const;
+
       template<typename T>
       void operator= (T);
     };
+
+    std::ostream& operator<< (std::ostream& out, const abgr_pixel&);
 
 #pragma pack(pop)
 
@@ -168,9 +219,13 @@ namespace gui {
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       const_image_data (raw_type data, const bitmap_info& info);
+
       const row_type row (uint32_t y) const;
+
       pixel_type pixel (uint32_t x, uint32_t y) const;
+
       const bitmap_info& get_info () const;
+
       const raw_type& raw_data () const;
 
     private:
@@ -191,9 +246,13 @@ namespace gui {
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       image_data (raw_type data, const bitmap_info& info);
+
       row_type row (uint32_t y);
+
       pixel_type& pixel (uint32_t x, uint32_t y);
+
       const bitmap_info& get_info () const;
+
       raw_type& raw_data ();
 
       image_data& operator= (const image_data&);

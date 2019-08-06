@@ -933,7 +933,7 @@ namespace gui {
       const uint32_t height = basepp::roundup<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
-      copy_frame_image<T>(img.get_raw(), dest.get_raw(),
+      copy_frame_image<T>(img.get_data(), dest.get_data(),
                           img.get_info(), dest.get_info(), frame);
 
       pixmap buffer;

@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+
+set (testlib_Include "${CMAKE_CURRENT_SOURCE_DIR}")
+set (testlib_Include ${testlib_Include} PARENT_SCOPE)
+
+if(NOT TARGET testlib)
+  include_directories(${testlib_Include})
+  file(GLOB SOURCE_FILES "*.cpp")
+  add_library(testlib ${SOURCE_FILES})
+endif()

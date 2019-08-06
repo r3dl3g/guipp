@@ -53,6 +53,8 @@ namespace gui {
 
     };
 
+    std::ostream& operator<< (std::ostream& out, const bitmap_info&);
+
     uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt);
 
   } //namespace draw

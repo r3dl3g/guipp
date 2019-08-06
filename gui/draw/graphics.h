@@ -55,17 +55,17 @@ namespace gui {
     class GUIPP_DRAW_EXPORT graphics {
     public:
       graphics (os::drawable target, os::graphics gc);
-      graphics (draw::pixmap& target);
+      graphics (draw::basic_map& target);
       graphics (const graphics&);
       ~graphics ();
 
       void operator= (const graphics&);
 
       const graphics& clear (os::color color) const;
-      const graphics& draw_pixel (const core::point& pt,
+      const graphics& draw_pixel (const core::uint32_point& pt,
                                   os::color color) const;
 
-      os::color get_pixel (const core::point&) const;
+      os::color get_pixel (const core::uint32_point&) const;
 
       const graphics& draw_lines (std::initializer_list<core::point> points,
                                   const pen& pen) const;

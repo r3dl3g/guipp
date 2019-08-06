@@ -59,6 +59,8 @@ namespace gui {
     draw::bitmap_info bitmap_get_info (os::bitmap id);
 
 #ifdef X11
+//    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi);
+//    void pixmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi);
 
 # ifdef USE_XSHM
     std::map<os::bitmap, std::pair<XShmSegmentInfo, draw::bitmap_info>> pixmaps;
@@ -125,7 +127,9 @@ namespace gui {
         XShmSegmentInfo& shminfo = i->second.first;
         bmi = i->second.second;
         byteptr d = reinterpret_cast<byteptr>(shminfo.shmaddr);
-        data.assign(d, d + bmi.mem_size());
+        auto sz = bmi.mem_size();
+        data.resize(sz);
+        memcpy(data.data(), d, sz);
       }
     }
 
@@ -166,7 +170,6 @@ namespace gui {
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
       auto display = core::global::get_instance();
-      //auto screen = core::global::get_screen();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
       int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
@@ -194,71 +197,120 @@ namespace gui {
 
     void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
       bmi = bitmap_get_info(id);
-      auto display = core::global::get_instance();
-      XImage* im = XGetImage(display, id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
+      XImage* im = XGetImage(core::global::get_instance(), id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
       if (im) {
-        draw::bitmap_info src_bmi = {
+        bmi = {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
           static_cast<uint32_t>(im->bytes_per_line),
           get_pixel_format(im->bits_per_pixel, im->byte_order)
         };
-        bmi = {
-          static_cast<uint32_t>(im->width),
-          static_cast<uint32_t>(im->height),
-          src_bmi.pixel_format
-        };
-        const size_t n = src_bmi.mem_size();
-        if (src_bmi.pixel_format != bmi.pixel_format) {
-          data.resize(bmi.mem_size());
-
-          byte* src = reinterpret_cast<byte*>(im->data);
-          switch (bmi.pixel_format) {
-            case PixelFormat::RGB: {
-              typedef draw::const_image_data<PixelFormat::RGBA> src_data;
-              typedef draw::image_data<PixelFormat::RGB> dst_data;
-              //<PixelFormat::RGBA, PixelFormat::RGB>
-              convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                    dst_data(dst_data::raw_type(data), bmi),
-                                    im->width, im->height);
-            }
-            break;
-            case PixelFormat::RGBA: {
-                typedef draw::const_image_data<PixelFormat::RGB> src_data;
-                typedef draw::image_data<PixelFormat::RGBA> dst_data;
-                //<PixelFormat::RGB, PixelFormat::RGBA>
-                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                      dst_data(dst_data::raw_type(data), bmi),
-                                      im->width, im->height);
-              }
-            break;
-            case PixelFormat::BGR: {
-                typedef draw::const_image_data<PixelFormat::ABGR> src_data;
-                typedef draw::image_data<PixelFormat::BGR> dst_data;
-                //<PixelFormat::BGRA, PixelFormat::BGR>
-                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                      dst_data(dst_data::raw_type(data), bmi),
-                                      im->width, im->height);
-              }
-            break;
-            case PixelFormat::BGRA: {
-                typedef draw::const_image_data<PixelFormat::BGR> src_data;
-                typedef draw::image_data<PixelFormat::BGRA> dst_data;
-                //<PixelFormat::BGR, PixelFormat::BGRA>
-                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
-                                      dst_data(dst_data::raw_type(data), bmi),
-                                      im->width, im->height);
-              }
-            break;
-          }
-        } else {
-          data.assign(im->data, im->data + n);
-        }
+        const size_t n = bmi.mem_size();
+        data.resize(n);
+        memcpy(data.data(), im->data, n);
         XDestroyImage(im);
       } else {
         throw std::runtime_error("get image failed");
       }
     }
+
+//    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
+//      auto display = core::global::get_instance();
+//      //auto screen = core::global::get_screen();
+//      auto gc = XCreateGC(display, id, 0, nullptr);
+
+//      int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+
+//      XImage im {
+//        static_cast<int>(bmi.width),
+//        static_cast<int>(bmi.height),                           /* size of image */
+//        0,                                                      /* number of pixels offset in X direction */
+//        ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
+//        const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
+//        byte_order,                                             /* data byte order, LSBFirst, MSBFirst */
+//        BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
+//        BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
+//        BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
+//        bmi.depth(),                                            /* depth of image */
+//        static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
+//        bmi.depth()                                            /* bits per pixel (ZPixmap) */
+//      };
+
+//      Status st = XInitImage(&im);
+//      (void)st;
+//      int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
+//      res = XFreeGC(display, gc);
+//    }
+
+//    void pixmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+//      bmi = bitmap_get_info(id);
+//      auto display = core::global::get_instance();
+//      XImage* im = XGetImage(display, id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
+//      if (im) {
+//        draw::bitmap_info src_bmi = {
+//          static_cast<uint32_t>(im->width),
+//          static_cast<uint32_t>(im->height),
+//          static_cast<uint32_t>(im->bytes_per_line),
+//          get_pixel_format(im->bits_per_pixel, im->byte_order)
+//        };
+//        bmi = {
+//          static_cast<uint32_t>(im->width),
+//          static_cast<uint32_t>(im->height),
+//          src_bmi.pixel_format
+//        };
+//        const size_t n = src_bmi.mem_size();
+//        if (src_bmi.pixel_format != bmi.pixel_format) {
+//          data.resize(n);
+
+//          byte* src = reinterpret_cast<byte*>(im->data);
+//          switch (bmi.pixel_format) {
+//            case PixelFormat::RGB: {
+//              typedef draw::const_image_data<PixelFormat::RGBA> src_data;
+//              typedef draw::image_data<PixelFormat::RGB> dst_data;
+//              //<PixelFormat::RGBA, PixelFormat::RGB>
+//              convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+//                                    dst_data(dst_data::raw_type(data), bmi),
+//                                    im->width, im->height);
+//            }
+//            break;
+//            case PixelFormat::RGBA: {
+//                typedef draw::const_image_data<PixelFormat::RGB> src_data;
+//                typedef draw::image_data<PixelFormat::RGBA> dst_data;
+//                //<PixelFormat::RGB, PixelFormat::RGBA>
+//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+//                                      dst_data(dst_data::raw_type(data), bmi),
+//                                      im->width, im->height);
+//              }
+//            break;
+//            case PixelFormat::BGR: {
+//                typedef draw::const_image_data<PixelFormat::ABGR> src_data;
+//                typedef draw::image_data<PixelFormat::BGR> dst_data;
+//                //<PixelFormat::BGRA, PixelFormat::BGR>
+//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+//                                      dst_data(dst_data::raw_type(data), bmi),
+//                                      im->width, im->height);
+//              }
+//            break;
+//            case PixelFormat::BGRA: {
+//                typedef draw::const_image_data<PixelFormat::BGR> src_data;
+//                typedef draw::image_data<PixelFormat::BGRA> dst_data;
+//                //<PixelFormat::BGR, PixelFormat::BGRA>
+//                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
+//                                      dst_data(dst_data::raw_type(data), bmi),
+//                                      im->width, im->height);
+//              }
+//            break;
+//          }
+//        } else {
+//          data.resize(n);
+//          memcpy(data.data(), im->data, n);
+////          data.assign(im->data, im->data + n);
+//        }
+//        XDestroyImage(im);
+//      } else {
+//        throw std::runtime_error("get image failed");
+//      }
+//    }
 
 # endif // !USE_XSHM
 
@@ -394,7 +446,7 @@ namespace gui {
 
     void bitmap::operator= (const bwmap& rhs) {
       if (rhs) {
-        const auto raw = rhs.get_raw();
+        const auto raw = rhs.get_data();
         const auto& bmi = raw.get_info();
         create(bmi.size());
         bitmap_put_data(get_id(), raw.raw_data().data(0, bmi.mem_size()), bmi);
@@ -407,7 +459,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
-      return bwmap(const_image_data<PixelFormat::BW>(basepp::array_wrapper<const byte>(data), bmi));
+      return bwmap(data, bmi);
     }
 
     bitmap::operator bwmap () const {

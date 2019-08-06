@@ -118,6 +118,11 @@ namespace gui {
       return (width == rhs.width) && (height == rhs.height) && (pixel_format == rhs.pixel_format) && (bytes_per_line == rhs.bytes_per_line);
     }
 
+    std::ostream& operator<< (std::ostream& out, const bitmap_info& bmi) {
+      out << "bitmap_info{" << bmi.width << ", " << bmi.height << ", " << bmi.bytes_per_line << ", " << bmi.pixel_format << "}";
+      return out;
+    }
+
     // --------------------------------------------------------------------------
   } // namespace draw
 

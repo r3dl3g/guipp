@@ -62,6 +62,10 @@ namespace basepp {
     array_wrapper sub (size_t offset, size_t n);
     type* data (size_t offset, size_t n);
 
+    const type& operator[] (size_t i) const;
+    array_wrapper sub (size_t offset, size_t sz) const;
+    const type* data (size_t offset, size_t n) const;
+
     array_wrapper& copy_from (const array_wrapper<T>& rhs, size_t n);
     array_wrapper& copy_from (const array_wrapper<const T>& rhs, size_t n);
 

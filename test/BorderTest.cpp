@@ -211,6 +211,18 @@ my_main_window::my_main_window ()
 }
 
 // --------------------------------------------------------------------------
+pixmap create_text_pixmap (const std::string& str,
+                           const core::rectangle& rect,
+                           const os::color color) {
+  pixmap img(rect.size());
+  graphics g(img);
+  text_box box(str, rect, text_origin::center);
+  g.clear(color::transparent);
+  g.text(box, font::menu(), color);
+  return img;
+}
+
+// --------------------------------------------------------------------------
 void my_main_window::onCreated (win::window*, const core::rectangle&) {
   top_view.create(*this);
 
@@ -287,19 +299,15 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   const int icn_sz = core::global::scale(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
-  pixmap cut_icon(icn_sz, icn_sz);
-  pixmap copy_icon(icn_sz, icn_sz);
-  pixmap paste_icon(icn_sz, icn_sz);
-  graphics(cut_icon).clear(color::transparent).text(text_box(u8"♠", icon_rect, text_origin::center), font::menu(), color::dark_red);
-  graphics(copy_icon).clear(color::transparent).text(text_box(u8"♣", icon_rect, text_origin::center), font::menu(), color::dark_blue);
-  graphics(paste_icon).clear(color::transparent).text(text_box(u8"♥", icon_rect, text_origin::center), font::menu(), color::dark_green);
+
+  pixmap cut_icon = create_text_pixmap(u8"♠", icon_rect, color::dark_red);
+  pixmap copy_icon = create_text_pixmap(u8"♣", icon_rect, color::dark_blue);
+  pixmap paste_icon = create_text_pixmap(u8"♥", icon_rect, color::dark_green);
+
+  io::ofpnm<io::PNM::P3>("cut_icon.p3") << cut_icon;
+  io::ofpnm<io::PNM::P6>("cut_icon.p6") << cut_icon;
 
   draw::masked_bitmap cut_mask(cut_icon);
-
-  io::ofpnm<io::PNM::P6>("cut_icon") << cut_icon;
-  io::ofpnm<io::PNM::P6>("cut_image") << cut_mask.image;
-  io::ofpnm<io::PNM::P4>("cut_mask") << cut_mask.mask;
-
 
   edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_mask));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));

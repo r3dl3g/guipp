@@ -32,21 +32,21 @@ namespace gui {
     inline void opnm<BIN, T>::write (std::ostream& out) const {
       const draw::bitmap_info& bmi = bmp.get_info();
       write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
-      write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp.get_raw());
+      write_pnm<BPP2PNM<T, BIN>::pnm, T>(out, bmp.get_data());
     }
 
 //    template<>
 //    inline void opnm<false, PixelFormat::RGBA>::write (std::ostream& out) const {
 //      const draw::bitmap_info& bmi = bmp.get_info();
 //      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, false>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
-//      write_pnm_rgba<false>(out, bmp.get_raw());
+//      write_pnm_rgba<false>(out, bmp.get_data());
 //    }
 
 //    template<>
 //    inline void opnm<true, PixelFormat::RGBA>::write (std::ostream& out) const {
 //      const draw::bitmap_info& bmi = bmp.get_info();
 //      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, true>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
-//      write_pnm_rgba<true>(out, bmp.get_raw());
+//      write_pnm_rgba<true>(out, bmp.get_data());
 //    }
 
     // --------------------------------------------------------------------------
@@ -132,9 +132,9 @@ namespace gui {
         case PixelFormat::BW:   opnm<super::bin, PixelFormat::BW>(b.get<PixelFormat::BW>()).write(out); break;
         case PixelFormat::GRAY: opnm<super::bin, PixelFormat::GRAY>(b.get<PixelFormat::GRAY>()).write(out); break;
         case PixelFormat::RGB:  opnm<super::bin, PixelFormat::RGB>(b.get<PixelFormat::RGB>()).write(out); break;
-        case PixelFormat::BGR:  opnm<super::bin, PixelFormat::RGB>(b.get<PixelFormat::RGB>()).write(out); break;
+        case PixelFormat::BGR:  opnm<super::bin, PixelFormat::BGR>(b.get<PixelFormat::BGR>()).write(out); break;
         case PixelFormat::RGBA: opnm<super::bin, PixelFormat::RGBA>(b.get<PixelFormat::RGBA>()).write(out); break;
-        case PixelFormat::BGRA: opnm<super::bin, PixelFormat::RGBA>(b.get<PixelFormat::RGBA>()).write(out); break;
+        case PixelFormat::BGRA: opnm<super::bin, PixelFormat::BGRA>(b.get<PixelFormat::BGRA>()).write(out); break;
       }
     }
 

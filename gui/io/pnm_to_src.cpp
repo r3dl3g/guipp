@@ -54,26 +54,23 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      std::ostream& operator<< (std::ostream& out, pixel::bw_pixel pixel) {
+      void write_pixel (std::ostream& out, pixel::bw_pixel pixel) {
         static const char values[] = {'0', '1'};
 #ifdef WIN32
         out << (values[static_cast<byte>(pixel)]);
 #else
         out << (values[static_cast<bool>(pixel)]);
 #endif
-        return out;
       }
 
-      std::ostream& operator<< (std::ostream& out, pixel::gray_pixel pixel) {
+      void write_pixel (std::ostream& out, pixel::gray_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.value);
-        return out;
       }
 
-      std::ostream& operator<< (std::ostream& out, pixel::rgb_pixel pixel) {
+      void write_pixel (std::ostream& out, pixel::rgb_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.red) << ", "
             << std::setw(3) << static_cast<int>(pixel.green) << ", "
             << std::setw(3) << static_cast<int>(pixel.blue);
-        return out;
       }
 
     } // src

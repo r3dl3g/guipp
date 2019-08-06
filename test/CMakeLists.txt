@@ -36,6 +36,7 @@ include_directories(${PROJECT_BINARY_DIR}
 )
 
 enable_testing()
+add_subdirectory(./../testlib testlib)
 
 if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
@@ -50,6 +51,8 @@ else()
         WindowTest
         BorderTest
         hello_world
+        datamap_test
+        pixmap_test
     )
 endif()
 
@@ -63,11 +66,11 @@ LINK_DIRECTORIES(/opt/raspberrypi/sysroot/opt/vc/lib)
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
-    target_link_libraries(${test} ${gui_libraries} ${gui_sys_libraries})
+    target_link_libraries(${test} testlib ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)
 
 if (BUILD_FOR_ARM)
-    target_link_libraries(raspicam_test gui++-raspi-static ${MMAL_LIBS})
-    target_link_libraries(spectrometer gui++-raspi-static ${MMAL_LIBS})
+    target_link_libraries(raspicam_test testlib gui++-raspi-static ${MMAL_LIBS})
+    target_link_libraries(spectrometer testlib gui++-raspi-static ${MMAL_LIBS})
 endif()

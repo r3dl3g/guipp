@@ -78,6 +78,24 @@ namespace basepp {
   }
 
   template<typename T>
+  inline auto array_wrapper<T>::operator[] (size_t i) const -> const type& {
+    check_boundary(i);
+    return data_[i];
+  }
+
+  template<typename T>
+  inline auto array_wrapper<T>::sub (size_t offset, size_t sz) const -> array_wrapper {
+    check_boundary(offset + sz - 1);
+    return array_wrapper(data_ + offset, sz);
+  }
+
+  template<typename T>
+  inline auto array_wrapper<T>::data (size_t offset, size_t n) const -> const type* {
+    check_boundary(offset + n - 1);
+    return data_ + offset;
+  }
+
+  template<typename T>
   array_wrapper<T>& array_wrapper<T>::copy_from (const array_wrapper<T>& rhs, size_t n) {
     check_boundary(n - 1);
     memcpy(data_, rhs.data(0, n), n);

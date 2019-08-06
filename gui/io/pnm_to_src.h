@@ -45,9 +45,9 @@ namespace gui {
       template<PixelFormat p>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
 
-      GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, pixel::bw_pixel pixel);
-      GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, pixel::gray_pixel pixel);
-      GUIPP_IO_EXPORT std::ostream& operator<< (std::ostream& out, pixel::rgb_pixel pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::bw_pixel pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::gray_pixel pixel);
+      GUIPP_IO_EXPORT void write_pixel (std::ostream& out, pixel::rgb_pixel pixel);
 
       template<PixelFormat T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);

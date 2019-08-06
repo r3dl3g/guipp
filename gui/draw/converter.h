@@ -100,6 +100,17 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    namespace fill {
+
+      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      void row (draw::image_row<px_fmt> data, uint32_t w, const pixel_type& px);
+
+      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      void fill (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, const pixel_type& px);
+
+    }
+
+    // --------------------------------------------------------------------------
   } // namespace convert
 
 } // namespace gui

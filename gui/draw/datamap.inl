@@ -57,7 +57,7 @@ namespace gui {
     template<PixelFormat T>
     template<PixelFormat S>
     inline datamap<T>::datamap (const datamap<S>& src)
-      : datamap(src.get_raw())
+      : datamap(src.get_data())
     {}
 
     template<PixelFormat T>
@@ -71,7 +71,12 @@ namespace gui {
       info = {w, h, T};
       data.resize(info.mem_size());
 
-      convert::format::convert<S, T>(src, get_raw(), w, h);
+      convert::format::convert<S, T>(src, get_data(), w, h);
+    }
+
+    template<PixelFormat T>
+    inline datamap<T>::datamap (const blob& data, const bitmap_info& bmi) {
+      super::create(data, bmi);
     }
 
     template<PixelFormat T>
@@ -79,21 +84,21 @@ namespace gui {
       const bitmap_info& bmi = get_info();
 
       if (T == bmi.pixel_format) {
-        return datamap<T>(get_raw<T>());
+        return datamap<T>(get_data<T>());
       } else {
         const auto w = bmi.width;
         const auto h = bmi.height;
 
         datamap<T> dest(w, h);
         switch (bmi.pixel_format) {
-          case PixelFormat::BW:   convert::format::convert<PixelFormat::BW,   T>(get_raw<PixelFormat::BW>(),   dest.get_raw(), w, h); break;
-          case PixelFormat::GRAY: convert::format::convert<PixelFormat::GRAY, T>(get_raw<PixelFormat::GRAY>(), dest.get_raw(), w, h); break;
-          case PixelFormat::RGB:  convert::format::convert<PixelFormat::RGB,  T>(get_raw<PixelFormat::RGB>(),  dest.get_raw(), w, h); break;
-          case PixelFormat::RGBA: convert::format::convert<PixelFormat::RGBA, T>(get_raw<PixelFormat::RGBA>(), dest.get_raw(), w, h); break;
-          case PixelFormat::BGR:  convert::format::convert<PixelFormat::BGR,  T>(get_raw<PixelFormat::BGR>(),  dest.get_raw(), w, h); break;
-          case PixelFormat::BGRA: convert::format::convert<PixelFormat::BGRA, T>(get_raw<PixelFormat::BGRA>(), dest.get_raw(), w, h); break;
-          case PixelFormat::ARGB: convert::format::convert<PixelFormat::ARGB, T>(get_raw<PixelFormat::ARGB>(), dest.get_raw(), w, h); break;
-          case PixelFormat::ABGR: convert::format::convert<PixelFormat::ABGR, T>(get_raw<PixelFormat::ABGR>(), dest.get_raw(), w, h); break;
+          case PixelFormat::BW:   convert::format::convert<PixelFormat::BW,   T>(get_data<PixelFormat::BW>(),   dest.get_data(), w, h); break;
+          case PixelFormat::GRAY: convert::format::convert<PixelFormat::GRAY, T>(get_data<PixelFormat::GRAY>(), dest.get_data(), w, h); break;
+          case PixelFormat::RGB:  convert::format::convert<PixelFormat::RGB,  T>(get_data<PixelFormat::RGB>(),  dest.get_data(), w, h); break;
+          case PixelFormat::RGBA: convert::format::convert<PixelFormat::RGBA, T>(get_data<PixelFormat::RGBA>(), dest.get_data(), w, h); break;
+          case PixelFormat::BGR:  convert::format::convert<PixelFormat::BGR,  T>(get_data<PixelFormat::BGR>(),  dest.get_data(), w, h); break;
+          case PixelFormat::BGRA: convert::format::convert<PixelFormat::BGRA, T>(get_data<PixelFormat::BGRA>(), dest.get_data(), w, h); break;
+          case PixelFormat::ARGB: convert::format::convert<PixelFormat::ARGB, T>(get_data<PixelFormat::ARGB>(), dest.get_data(), w, h); break;
+          case PixelFormat::ABGR: convert::format::convert<PixelFormat::ABGR, T>(get_data<PixelFormat::ABGR>(), dest.get_data(), w, h); break;
         }
         return dest;
       }
@@ -121,8 +126,8 @@ namespace gui {
       info = bitmap_info(bmi.width, bmi.height, T);
       auto sz = info.mem_size();
       data.resize(sz);
-      image_data<T> lhs(data, info);
-      lhs = rhs;
+      memcpy(data.data(), rhs.raw_data().data(0, sz), sz);
+//      data.assign(raw, raw + sz);
     }
 
     template<PixelFormat T>
@@ -138,7 +143,7 @@ namespace gui {
         return;
       }
 
-      convert::copy::sub<T>(src_img.get_raw(), get_raw(),
+      convert::copy::sub<T>(src_img.get_data(), get_data(),
                             src.position(), dest);
     }
 
@@ -168,12 +173,12 @@ namespace gui {
         return;
       }
 
-      convert::stretch::sub<T>(src_img.get_raw(), get_raw(), src, dest);
+      convert::stretch::sub<T>(src_img.get_data(), get_data(), src, dest);
     }
 
     template<PixelFormat T>
     inline void datamap<T>::adjust_brightness (float f) {
-      convert::brightness::adjust<T>(get_raw(), info.width, info.height, f);
+      convert::brightness::adjust<T>(get_data(), info.width, info.height, f);
     }
 
     template<PixelFormat T>
@@ -189,7 +194,7 @@ namespace gui {
     inline auto datamap<T>::brightness (float f) const -> datamap {
       datamap bmp = *this;
       bitmap_info& bmi = bmp.info;
-      convert::brightness::adjust<T>(bmp.get_raw(), bmi.width, bmi.height, f);
+      convert::brightness::adjust<T>(bmp.get_data(), bmi.width, bmi.height, f);
       return bmp;
     }
 
@@ -198,6 +203,11 @@ namespace gui {
       for (auto& c : data) {
         c = ~c;
       }
+    }
+
+    template<PixelFormat T>
+    inline void datamap<T>::fill (const pixel_type& c) {
+      convert::fill::fill<T>(get_data(), info.width, info.height, c);
     }
 
   }

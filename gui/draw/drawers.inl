@@ -108,7 +108,7 @@ namespace gui {
     inline void image<I>::operator() (const graphics& g, const brush& b) const {
       g.fill(draw::rectangle(rect), b);
 
-      auto sz = img.size();
+      auto sz = core::global::unscale(img.size());
       core::point::type px = rect.x();
       core::point::type py = rect.y();
 

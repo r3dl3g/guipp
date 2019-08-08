@@ -119,7 +119,7 @@ namespace gui {
         }
       }, {cancel_label, ok_label});
 
-      super::content_view.set_split_pos(0.3);
+      super::content_view.set_split_pos(0.5);
 
       sys_fs::path current = sys_fs::current_path();
       dir_tree.root = current.root_path();

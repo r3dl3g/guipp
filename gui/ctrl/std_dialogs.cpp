@@ -177,7 +177,7 @@ namespace gui {
       top_view.create(*this, core::rectangle(0, 0, 100, 100));
       input_label.create(top_view, name_label, core::rectangle(0, 0, 100, 100));
       input_line.create(top_view, default_name, core::rectangle(0, 0, 100, 100));
-      content_view.set_split_pos(0.3);
+      content_view.set_split_pos(0.5);
 
       sys_fs::path current = sys_fs::current_path();
       dir_tree.root = current.root_path();

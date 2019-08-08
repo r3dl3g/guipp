@@ -171,6 +171,14 @@ namespace gui {
     typedef basic_rectangle<uint32_t> uint32_rect;
 
     // --------------------------------------------------------------------------
+    namespace global {
+
+      template<>
+      core::rectangle unscale (const core::rectangle& v);
+
+    } // namespace global
+
+    // --------------------------------------------------------------------------
   } // namespace core
 
 } // namespace gui

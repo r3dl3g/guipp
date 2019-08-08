@@ -486,6 +486,15 @@ namespace gui {
       return out;
     }
 
+    namespace global {
+
+      template<>
+      inline core::rectangle unscale (const core::rectangle& v) {
+        return core::rectangle(unscale(v.position()), unscale(v.size()));
+      }
+
+    } // namespace global
+
   } // namespace core
 
 } // namespace gui

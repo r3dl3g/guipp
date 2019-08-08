@@ -83,8 +83,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const rgba_pixel rgba_pixel::black = { 0, 0, 0, 0xff };
-    const rgba_pixel rgba_pixel::white = { 0xff, 0xff, 0xff, 0xff };
+    const rgba_pixel rgba_pixel::black = { 0, 0, 0, 0 };
+    const rgba_pixel rgba_pixel::white = { 0xff, 0xff, 0xff, 0 };
 
     bool rgba_pixel::operator== (const rgba_pixel& rhs) const {
       return (red == rhs.red) && (green == rhs.green) && (blue == rhs.blue) && (alpha == rhs.alpha);
@@ -99,11 +99,15 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const bgra_pixel bgra_pixel::black = { 0, 0, 0, 0xff };
-    const bgra_pixel bgra_pixel::white = { 0xff, 0xff, 0xff, 0xff };
+    const bgra_pixel bgra_pixel::black = { 0, 0, 0, 0 };
+    const bgra_pixel bgra_pixel::white = { 0xff, 0xff, 0xff, 0 };
 
     bool bgra_pixel::operator== (const bgra_pixel& rhs) const {
       return (red == rhs.red) && (green == rhs.green) && (blue == rhs.blue) && (alpha == rhs.alpha);
+    }
+
+    bool bgra_pixel::operator== (const bgr_pixel& rhs) const {
+      return (red == rhs.red) && (green == rhs.green) && (blue == rhs.blue);
     }
 
     std::ostream& operator<< (std::ostream& out, const bgra_pixel& px) {
@@ -115,8 +119,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const argb_pixel argb_pixel::black = { 0xff, 0, 0, 0 };
-    const argb_pixel argb_pixel::white = { 0xff, 0xff, 0xff, 0xff };
+    const argb_pixel argb_pixel::black = { 0, 0, 0, 0 };
+    const argb_pixel argb_pixel::white = { 0, 0xff, 0xff, 0xff };
 
     bool argb_pixel::operator== (const argb_pixel& rhs) const {
       return (red == rhs.red) && (green == rhs.green) && (blue == rhs.blue) && (alpha == rhs.alpha);
@@ -131,8 +135,8 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    const abgr_pixel abgr_pixel::black = { 0xff, 0, 0, 0 };
-    const abgr_pixel abgr_pixel::white = { 0xff, 0xff, 0xff, 0xff };
+    const abgr_pixel abgr_pixel::black = { 0, 0, 0, 0 };
+    const abgr_pixel abgr_pixel::white = { 0, 0xff, 0xff, 0xff };
 
     bool abgr_pixel::operator== (const abgr_pixel& rhs) const {
       return (red == rhs.red) && (green == rhs.green) && (blue == rhs.blue) && (alpha == rhs.alpha);

@@ -218,12 +218,12 @@ namespace gui {
       GUIPP_CORE_EXPORT void set_scale_factor (double);
 
       template<typename T>
-      T scale (T v) {
+      T scale (const T& v) {
         return static_cast<T>(round(v * get_scale_factor()));
       }
 
       template<typename T>
-      T unscale (T v) {
+      T unscale (const T& v) {
         return static_cast<T>(round(v / get_scale_factor()));
       }
 

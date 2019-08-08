@@ -113,6 +113,14 @@ namespace gui {
     typedef basic_point<uint32_t> uint32_point;
 
     // --------------------------------------------------------------------------
+    namespace global {
+
+      template<>
+      core::point unscale (const core::point& v);
+
+    } // namespace global
+
+    // --------------------------------------------------------------------------
   } // namespace core
 
 } // namespace gui

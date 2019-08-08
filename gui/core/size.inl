@@ -254,6 +254,15 @@ namespace gui {
       return out;
     }
 
+    namespace global {
+
+      template<>
+      inline core::size unscale (const core::size& v) {
+        return core::size(unscale(v.width()), unscale(v.height()));
+      }
+
+    } // namespace global
+
   } // namespace core
 
 } // namespace gui

@@ -20,7 +20,7 @@ DECLARE_TEST(test_rgb2gray);
 DECLARE_TEST(test_rgb2bgr);
 
 // --------------------------------------------------------------------------
-TEST_MAIN()
+TEST_MAIN(datamap)
   RUN_TEST(test_bw);
   RUN_TEST(test_gray);
   RUN_TEST(test_rgb);
@@ -30,7 +30,7 @@ TEST_MAIN()
   RUN_TEST(test_gray2rgb);
   RUN_TEST(test_rgb2gray);
   RUN_TEST(test_rgb2bgr);
-TEST_MAIN_END()
+TEST_MAIN_END(datamap)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bw)

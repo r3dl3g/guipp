@@ -125,6 +125,7 @@ namespace gui {
       byte alpha;
 
       bool operator== (const bgra_pixel&) const;
+      bool operator== (const bgr_pixel&) const;
 
       template<typename T>
       void operator= (T);

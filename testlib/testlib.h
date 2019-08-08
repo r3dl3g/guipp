@@ -5,27 +5,34 @@
 
 using namespace std;
 
-#define TEST_MAIN()\
+#define TEST_MAIN(a)\
 namespace {\
-  int guipp_test_result = 0;\
+  int guipp_failed_test_count = 0;\
+  int guipp_test_count = 0;\
 }\
 \
-int gui_main(const std::vector<std::string>& /*args*/) {
+int gui_main(const std::vector<std::string>& /*args*/) {\
+  LogWarng << "Running " #a " tests";
 
-#define TEST_MAIN_END()\
-  if (!guipp_test_result) LogWarng << "All pixmap tests passed";\
-  return guipp_test_result;\
+#define TEST_MAIN_END(a)\
+  if (guipp_failed_test_count) {\
+    LogWarng << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+  } else {\
+    LogWarng << #a << ": all " << guipp_test_count << " tests passed";\
+  }\
+  return guipp_failed_test_count;\
 }
 
 #define DECLARE_TEST(a)\
   void a ()
 
 #define RUN_TEST(a)\
+  ++guipp_test_count;\
   try {\
     a();\
   } catch (std::exception& ex) {\
+    ++guipp_failed_test_count;\
     LogFatal << #a << " failed with " << ex.what();\
-    guipp_test_result = 1;\
   }
 
 #define DEFINE_TEST(a)\

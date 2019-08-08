@@ -19,13 +19,13 @@ DECLARE_TEST(test_pixmap_draw);
 DECLARE_TEST(test_pixmap2bitmap);
 
 // --------------------------------------------------------------------------
-TEST_MAIN() {
+TEST_MAIN(pixmap_test)
   RUN_TEST(test_bitmap_black);
   RUN_TEST(test_bitmap_white);
   RUN_TEST(test_pixmap);
   RUN_TEST(test_pixmap_draw);
   RUN_TEST(test_pixmap2bitmap);
-} TEST_MAIN_END()
+TEST_MAIN_END(pixmap_test)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bitmap_black) {
@@ -120,7 +120,7 @@ DEFINE_TEST(test_pixmap_draw) {
     EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
     EXPECT_EQUAL(g.get_pixel({2, 2}), color::blue);
     EXPECT_EQUAL(g.get_pixel({3, 3}), color::blue);
-    EXPECT_EQUAL(g.get_pixel({4, 4}), color::blue);
+    EXPECT_EQUAL(g.get_pixel({4, 4}), color::black);
     EXPECT_EQUAL(g.get_pixel({5, 5}), color::black);
   }
 
@@ -149,16 +149,16 @@ DEFINE_TEST(test_pixmap_draw) {
 
   EXPECT_EQUAL(buffer.str(), "000000ff 000000ff 000000ff 000000ff 000000ff 000000ff\n"
                              "000000ff 000000ff 000000ff 000000ff 000000ff 000000ff\n"
-                             "000000ff 000000ff ff0000ff ff0000ff ff0000ff 000000ff\n"
-                             "000000ff 000000ff ff0000ff ff0000ff ff0000ff 000000ff\n"
-                             "000000ff 000000ff ff0000ff ff0000ff ff0000ff 000000ff\n"
+                             "000000ff 000000ff ff0000ff ff0000ff 000000ff 000000ff\n"
+                             "000000ff 000000ff ff0000ff ff0000ff 000000ff 000000ff\n"
+                             "000000ff 000000ff 000000ff 000000ff 000000ff 000000ff\n"
                              "000000ff 000000ff 000000ff 000000ff 000000ff 000000ff");
 
   bgramap rgb = img.get<PixelFormat::BGRA>();
 
   auto raw = rgb.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgra_pixel::black);
-  EXPECT_NOT_EQUAL(raw.pixel(2, 2), pixel::bgra_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgr_pixel::black) ;
+  EXPECT_NOT_EQUAL(raw.pixel(2, 2), pixel::bgr_pixel::black);
 
 
   int red_pix = 0;
@@ -179,7 +179,7 @@ DEFINE_TEST(test_pixmap_draw) {
 
   EXPECT_EQUAL(red_pix, 0);
   EXPECT_EQUAL(green_pix, 0);
-  EXPECT_EQUAL(blue_pix, 9);
+  EXPECT_EQUAL(blue_pix, 4);
 }
 END_TEST(test_pixmap_draw)
 
@@ -223,8 +223,8 @@ DEFINE_TEST(test_pixmap2bitmap) {
 
   {
     graphics g(img);
-    for (int y = 0; y < 2; ++y) {
-      for (int x = 0; x < 2; ++x) {
+    for (uint32_t y = 0; y < 2; ++y) {
+      for (uint32_t x = 0; x < 2; ++x) {
         EXPECT_EQUAL(g.get_pixel({x, y}), static_cast<int>(pixel::bw_pixel::white));
       }
     }

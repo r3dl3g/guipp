@@ -257,6 +257,15 @@ namespace gui {
       return out;
     }
 
+    namespace global {
+
+      template<>
+      inline core::point unscale (const core::point& v) {
+        return core::point(unscale(v.x()), unscale(v.y()));
+      }
+
+    } // namespace global
+
   } // namespace core
 
 } // namespace gui

@@ -98,7 +98,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT arc {
-      arc (const core::point& pos, unsigned int radius, float startrad, float endrad);
+      arc (const core::point& pos, float radius, float start_angle, float end_angle);
 
       void operator() (const graphics&, const brush&, const pen&) const;
       void operator() (const graphics&, const pen&) const;
@@ -106,9 +106,9 @@ namespace gui {
 
     private:
       const core::point pos;
-      unsigned int radius;
-      float start_radius;
-      float end_radius;
+      float radius;
+      float start_angle;
+      float end_angle;
     };
 
     // --------------------------------------------------------------------------

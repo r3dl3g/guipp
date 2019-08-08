@@ -367,7 +367,14 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       Use<pen> pn(g, p);
-      XDrawLine(get_instance(), g, g, from.os_x(), from.os_y(), to.os_x(), to.os_y());
+      const auto x0 = from.os_x();
+      const auto y0 = from.os_y();
+      const auto x1 = to.os_x();
+      const auto y1 = to.os_y();
+      os::instance display = get_instance();
+      XDrawLine(display, g, g, x0, y0, x1, y1);
+      XDrawPoint(display, g, g, x0, y0);
+      XDrawPoint(display, g, g, x1, y1);
     }
 
     // --------------------------------------------------------------------------
@@ -376,34 +383,34 @@ namespace gui {
                                 const pen& p) const {
       os::instance display = get_instance();
 
-      Use<brush> br(g, b);
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size());// - unscale(core::size::one));
-      XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
-      Use<pen> pn(g, p);
-      XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
+      const os::rectangle r = rect.os();
+      if ((1 == r.width) && (1 == r.height)) {
+        Use<pen> pn(g, p);
+        XDrawPoint(display, g, g, r.x, r.y);
+      } else if ((r.width > 1) && (r.height > 1)) {
+        if ((r.width > 2) && (r.height > 2)) {
+          Use<brush> br(g, b);
+          XFillRectangle(display, g, g, r.x + 1, r.y + 1, r.width - 2, r.height - 2);
+        }
+        Use<pen> pn(g, p);
+        XDrawRectangle(display, g, g, r.x, r.y, r.width - 1, r.height - 1);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
       Use<pen> pn(g, p);
-      os::instance display = get_instance();
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size());// - unscale(core::size::one));
-      XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
+      const os::rectangle r = rect.os();
+      if ((1 == r.width) && (1 == r.height)) {
+        XDrawPoint(get_instance(), g, g, r.x, r.y);
+      } else if ((r.width > 1) && (r.height > 1)) {
+        XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width - 1, r.height - 1);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const brush& b) const {
-      Use<brush> br(g, b);
-      os::instance display = get_instance();
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size());// - unscale(core::size::one));
-      XFillRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
-
-      pen p(b.color());
-      Use<pen> pn(g, p);
-      XDrawRectangle(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height());
+      operator ()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
@@ -419,41 +426,28 @@ namespace gui {
                               const pen& p) const {
       Use<brush> br(g, b);
       os::instance display = get_instance();
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      const os::rectangle r = rect.os();
 
       XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
+      XFillArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
       Use<pen> pn(g, p);
       XSetArcMode(display, g, ArcChord);
-      XDrawArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
+      XDrawArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
     }
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
       Use<pen> pn(g, p);
       os::instance display = get_instance();
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
+      const os::rectangle r = rect.os();
 
       XSetArcMode(display, g, ArcChord);
-      XDrawArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
+      XDrawArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
     }
 
     void ellipse::operator() (const graphics& g,
                               const brush& b) const {
-      Use<brush> br(g, b);
-      os::instance display = get_instance();
-      const core::point& pt = rect.top_left();
-      core::size sz(rect.size() - core::size::one);
-
-      XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
-
-      pen p(b.color());
-      Use<pen> pn(g, p);
-      XSetArcMode(display, g, ArcChord);
-      XDrawArc(display, g, g, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), 0, degree_360);
+      operator ()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
@@ -467,16 +461,19 @@ namespace gui {
 
       constexpr size_type two = size_type(2);
 
-      const size_type w = std::min(size.os_width(), static_cast<size_type>(rect.os_width() / 2));
-      const size_type h = std::min(size.os_height(), static_cast<size_type>(rect.os_height() / 2));
+      const os::rectangle r = rect.os();
+      const os::size s = size.os();
 
-      const point_type x0 = rect.os_x();
-      const point_type x3 = rect.os_x2();
+      const size_type w = std::min(s.cx, static_cast<size_type>(r.width / 2));
+      const size_type h = std::min(s.cy, static_cast<size_type>(r.height / 2));
+
+      const point_type x0 = r.x;
+      const point_type x3 = r.x + r.width;
       const point_type x1 = x0 + w;
       const point_type x2 = x3 - w;
 
-      const point_type y0 = rect.os_y();
-      const point_type y3 = rect.os_y2();
+      const point_type y0 = r.y;
+      const point_type y3 = r.y + r.height;
       const point_type y1 = y0 + h;
       const point_type y2 = y3 - h;
 
@@ -563,86 +560,89 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     arc::arc (const core::point& pos,
-              unsigned int radius,
-              float startrad,
-              float endrad)
-      : pos(pos), radius(scale(radius)), start_radius(startrad), end_radius(endrad) {}
+              float radius,
+              float start_angle,
+              float end_angle)
+      : pos(pos), radius(radius), start_angle(start_angle), end_angle(end_angle) {}
 
     void frame_arc (const graphics& g,
                     const pen& p,
                     const core::point& pos,
-                    unsigned int radius,
-                    float startrad,
-                    float endrad) {
+                    float radius,
+                    float start_angle,
+                    float end_angle) {
 
-      os::point_type mx = pos.os_x();
-      os::point_type my = pos.os_y();
+      os::instance display = get_instance();
 
-      Use<pen> pn(g, p);
-      int x0 = mx - radius;
-      int y0 = my - radius;
-      unsigned int sz = radius * 2;
+      const auto tl = pos - core::size(radius, radius);
+      const unsigned int sz = scale(radius * 2);
 
-      while (endrad < startrad) {
-        endrad += 360;
+      while (end_angle < start_angle) {
+        end_angle += 360;
       }
 
-      XDrawArc(get_instance(), g, g, x0, y0, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
+      Use<pen> pn(g, p);
+      XDrawArc(display, g, g, tl.os_x(), tl.os_y(), sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
 
-      int istart = int(startrad * 1000.0F) % 360000;
-      int iend = int(endrad * 1000.0F) % 360000;
+      int istart = int(start_angle * 1000.0F) % 360000;
+      int iend = int(end_angle * 1000.0F) % 360000;
       if (istart != iend) {
-        double start = M_PI * startrad / 180.0;
-        double end = M_PI * endrad / 180.0;
+        double start = M_PI * start_angle / 180.0;
+        double end = M_PI * end_angle / 180.0;
         os::point pt[3];
-        pt[0].x = short(mx + int(radius * cos(start)));
-        pt[0].y = short(my - int(radius * sin(start)));
-        pt[1].x = short(mx);
-        pt[1].y = short(my);
-        pt[2].x = short(mx + int(radius * cos(end)));
-        pt[2].y = short(my - int(radius * sin(end)));
-        XDrawLines(get_instance(), g, g, pt, 3, CoordModeOrigin);
+        pt[0].x = short(scale(pos.x() + radius * cos(start)));
+        pt[0].y = short(scale(pos.y() - radius * sin(start)));
+        pt[1].x = short(scale(pos.x()));
+        pt[1].y = short(scale(pos.y()));
+        pt[2].x = short(scale(pos.x() + radius * cos(end)));
+        pt[2].y = short(scale(pos.y() - radius * sin(end)));
+        XDrawLines(display, g, g, pt, 3, CoordModeOrigin);
+        XDrawPoint(display, g, g, pt[0].x, pt[0].y);
+        XDrawPoint(display, g, g, pt[2].x, pt[2].y);
       }
     }
 
     void fill_arc (const graphics& g,
                    const brush& b,
                    const core::point& pos,
-                   unsigned int radius,
-                   float startrad,
-                   float endrad) {
+                   float radius,
+                   float start_angle,
+                   float end_angle) {
       Use<brush> br(g, b);
-      int x = pos.os_x() - radius;
-      int y = pos.os_y() - radius;
-      unsigned int sz = radius * 2;
 
-      while (endrad < startrad) {
-        endrad += 360;
+      const auto tl = pos - core::size(radius, radius);
+      const unsigned int sz = scale(radius * 2);
+
+      int x = tl.os_x();
+      int y = tl.os_y();
+
+      while (end_angle < start_angle) {
+        end_angle += 360;
       }
 
       os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
+      XFillArc(display, g, g, x, y, sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
 
-      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(startrad * 64), int((endrad - startrad) * 64));
+      XDrawArc(get_instance(), g, g, x, y, sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
     }
 
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      fill_arc(g, b, pos, radius, start_radius, end_radius);
-      frame_arc(g, p, pos, radius, start_radius, end_radius);
+      fill_arc(g, b, pos, radius, start_angle, end_angle);
+      frame_arc(g, p, pos, radius, start_angle, end_angle);
     }
 
     void arc::operator() (const graphics& g,
                           const pen& p) const {
-      frame_arc(g, p, pos, radius, start_radius, end_radius);
+      frame_arc(g, p, pos, radius, start_angle, end_angle);
     }
 
     void arc::operator() (const graphics& g,
                           const brush& b) const {
-      fill_arc(g, b, pos, radius, start_radius, end_radius);
-      frame_arc(g, pen(b.color()), pos, radius, start_radius, end_radius);
+      fill_arc(g, b, pos, radius, start_angle, end_angle);
+      frame_arc(g, pen(b.color()), pos, radius, start_angle, end_angle);
     }
 
     // --------------------------------------------------------------------------

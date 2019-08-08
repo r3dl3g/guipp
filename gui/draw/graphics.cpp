@@ -478,7 +478,7 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
-      return get_drawable_area(target);
+      return core::global::unscale(get_drawable_area(target));
     }
 
     void graphics::push_clipping (const core::rectangle& rect) const {

@@ -42,19 +42,23 @@ if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
     set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
 # bcm_host
-    set(tests
+    set(apps
         raspicam_test
         spectrometer
     )
 else()
-    set(tests
+    set(apps
         WindowTest
         BorderTest
         hello_world
-        datamap_test
-        pixmap_test
     )
 endif()
+
+set(tests
+    datamap_test
+    pixmap_test
+    drawer_test
+)
 
 message(STATUS "gui_libraries: ${gui_libraries}")
 

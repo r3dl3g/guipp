@@ -221,6 +221,15 @@ namespace basepp {
   }
 
   // --------------------------------------------------------------------------
+  constexpr u_int32_t reverse_byte_order (u_int32_t n) {
+    return ((n & 0xff) << 24) | ((n & 0xff00) << 8) | ((n & 0xff0000) >> 8) | ((n & 0xff000000) >> 24);
+  }
+
+  constexpr u_int16_t reverse_byte_order (u_int16_t n) {
+    return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
+  }
+
+  // --------------------------------------------------------------------------
   // the honour goes to user79758 : http://stackoverflow.com/a/4609795
   template<typename T>
   constexpr int signum (T x, std::false_type) {

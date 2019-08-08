@@ -617,8 +617,8 @@ namespace gui {
               win->redraw();
             }
           }
+          x11::s_invalidated_windows.clear();
         }
-        x11::s_invalidated_windows.clear();
 
       }
       return resultValue;

@@ -384,7 +384,6 @@ namespace gui {
       data.hilite = -1;
       data.close_caller = nullptr;
       data.key_caller = nullptr;
-      win->invalidate();
     }
 
     void menu_data::handle_mouse (bool b, const core::point& pt) {
@@ -598,7 +597,7 @@ namespace gui {
         int idx = -1;
         for (auto& i : data) {
           ++idx;
-          pos += i.get_width() + 20;
+          pos += i.get_width();// + 20;
           if (pt.x() < pos) {
             return idx;
           }
@@ -614,7 +613,7 @@ namespace gui {
         if (idx < 1) {
           break;
         }
-        pos += i.get_width() + 20;
+        pos += i.get_width();// + 20;
         --idx;
       }
       return (r + core::point(pos, size().height()));
@@ -627,7 +626,7 @@ namespace gui {
       int idx = -1;
       for (auto& i : data) {
         ++idx;
-        auto w = i.get_width() + 20;
+        auto w = i.get_width();// + 20;
         r.width(w);
         paint::main_menu_item(g, r, back_brush, i.get_label(), i.get_menu_key(),
                               (idx == data.get_selection()),
@@ -861,7 +860,7 @@ namespace gui {
         hotkey_width = std::max(hotkey_width, f.get_text_size(i.get_hot_key().get_key_string()).width());
       }
       pos.text = 36;
-      pos.hotkey = pos.text + label_width + 20;
+      pos.hotkey = pos.text + label_width;// + 20;
       return pos.hotkey + (hotkey_width ? hotkey_width + 10 : 0) + (has_sub ? 20 : 0);
     }
 

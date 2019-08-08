@@ -478,7 +478,7 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
-      return core::global::unscale(get_drawable_area(target));
+      return get_drawable_area(target);
     }
 
     void graphics::push_clipping (const core::rectangle& rect) const {
@@ -518,7 +518,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     const graphics& graphics::clear (os::color color) const {
-      return draw(rectangle(area()), color, color);
+      return draw(rectangle(unscale(area())), color, color);
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {

@@ -51,6 +51,7 @@ else()
         WindowTest
         BorderTest
         hello_world
+        filemanager
     )
 endif()
 
@@ -72,6 +73,12 @@ foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} testlib ${gui_libraries} ${gui_sys_libraries})
     add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
+endforeach(test)
+
+foreach(test ${apps})
+    add_executable(${test} WIN32 ${test}.cpp)
+    target_link_libraries(${test} testlib ${gui_libraries} ${gui_sys_libraries})
+    #add_test(${test} ${CMAKE_BINARY_DIR}/bin/${test})
 endforeach(test)
 
 if (BUILD_FOR_ARM)

@@ -44,6 +44,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 #        set (gui_sys_libraries X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
         set (gui_sys_libraries X11 Xft X11-xcb fontconfig xcb xcb-xrm Xdmcp freetype Xrender)
         set (gui_defines ${gui_defines} -DX11 -std=c++11)
+    elseif (WIN32)
+        set (gui_sys_libraries Shcore)
     endif ()
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)

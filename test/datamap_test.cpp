@@ -42,7 +42,7 @@ DEFINE_TEST(test_bw)
   EXPECT_EQUAL(img.size(), core::size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 4, PixelFormat::BW));
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
 
   image_data<PixelFormat::BW> raw = img.get_data();
   basepp::array_wrapper<pixel::bw_pixel> row = raw.row(0);
@@ -67,7 +67,7 @@ DEFINE_TEST(test_gray)
   EXPECT_EQUAL(img.size(), core::size(2, 2));
   EXPECT_EQUAL(img.depth(), 8);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 4, PixelFormat::GRAY));
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
 
   image_data<PixelFormat::GRAY> raw = img.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::gray_pixel::black);
@@ -87,7 +87,7 @@ DEFINE_TEST(test_rgb)
   EXPECT_EQUAL(img.size(), core::size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGB));
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::RGB));
 
   auto raw = img.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::rgb_pixel::black);
@@ -107,7 +107,7 @@ DEFINE_TEST(test_bgr)
   EXPECT_EQUAL(img.size(), core::size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGR);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGR));
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::BGR));
 
   auto raw = img.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgr_pixel::black);
@@ -170,7 +170,7 @@ DEFINE_TEST(test_gray2rgb)
   EXPECT_EQUAL(rgb.size(), core::size(2, 2));
   EXPECT_EQUAL(rgb.depth(), 24);
   EXPECT_EQUAL(rgb.pixel_format(), PixelFormat::RGB);
-  EXPECT_EQUAL(rgb.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGB));
+  EXPECT_EQUAL(rgb.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::RGB));
 
   auto raw = rgb.get_data();
   pixel::rgb_pixel expected = {0x7F, 0x7F, 0x7F};
@@ -191,7 +191,7 @@ DEFINE_TEST(test_rgb2gray)
   EXPECT_EQUAL(gray.size(), core::size(2, 2));
   EXPECT_EQUAL(gray.depth(), 8);
   EXPECT_EQUAL(gray.pixel_format(), PixelFormat::GRAY);
-  EXPECT_EQUAL(gray.get_info(), bitmap_info(2, 2, 4, PixelFormat::GRAY));
+  EXPECT_EQUAL(gray.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
 
   auto raw = gray.get_data();
   pixel::gray_pixel expected = {0x40};
@@ -212,7 +212,7 @@ DEFINE_TEST(test_rgb2bgr)
   EXPECT_EQUAL(bgr.size(), core::size(2, 2));
   EXPECT_EQUAL(bgr.depth(), 24);
   EXPECT_EQUAL(bgr.pixel_format(), PixelFormat::BGR);
-  EXPECT_EQUAL(bgr.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGR));
+  EXPECT_EQUAL(bgr.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::BGR));
 
   auto raw = bgr.get_data();
   pixel::bgr_pixel expected = {0x60, 0x40, 0x20};

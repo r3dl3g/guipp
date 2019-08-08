@@ -24,6 +24,7 @@
 //
 #include <cmath>
 #include <type_traits>
+#include <cstdint>
 
 // --------------------------------------------------------------------------
 //
@@ -116,8 +117,8 @@ namespace basepp {
   template<>
   struct bw_bits<bit_order::msb> {
     static constexpr byte value[2] = {0xff, 0};
-    static constexpr bool white = false;
-    static constexpr bool black = true;
+    static constexpr bool white = true;
+    static constexpr bool black = false;
   };
 
   // --------------------------------------------------------------------------
@@ -221,11 +222,11 @@ namespace basepp {
   }
 
   // --------------------------------------------------------------------------
-  constexpr u_int32_t reverse_byte_order (u_int32_t n) {
+  constexpr uint32_t reverse_byte_order (uint32_t n) {
     return ((n & 0xff) << 24) | ((n & 0xff00) << 8) | ((n & 0xff0000) >> 8) | ((n & 0xff000000) >> 24);
   }
 
-  constexpr u_int16_t reverse_byte_order (u_int16_t n) {
+  constexpr uint16_t reverse_byte_order (uint16_t n) {
     return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
   }
 

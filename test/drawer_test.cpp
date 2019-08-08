@@ -1623,11 +1623,11 @@ pixmap_str pixmap2string (const pixmap& img) {
 #endif // X11
 #ifdef WIN32
   BITMAP bmi;
-  GetObject(pixmap.get_id(), sizeof (BITMAP), &bmi);
+  GetObject(img.get_id(), sizeof (BITMAP), &bmi);
   blob data;
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-  GetBitmapBits(pixmap.get_id(), (LONG)data.size(), data.data());
-  std::string str = data2string(data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
+  GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  auto str = data2string((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
 #endif // WIN32
   return str;
 }
@@ -1666,11 +1666,11 @@ colormap pixmap2colormap (const pixmap& img) {
 #endif // X11
 #ifdef WIN32
   BITMAP bmi;
-  GetObject(pixmap.get_id(), sizeof (BITMAP), &bmi);
+  GetObject(img.get_id(), sizeof (BITMAP), &bmi);
   blob data;
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-  GetBitmapBits(pixmap.get_id(), (LONG)data.size(), data.data());
-  auto result = data2colormap(data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
+  GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  auto result = data2colormap((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
 #endif // WIN32
   return result;
 }

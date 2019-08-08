@@ -56,7 +56,7 @@ namespace gui {
       , ref_gc(false)
     {}
 
-    graphics::graphics (draw::pixmap& target)
+    graphics::graphics (draw::basic_map& target)
       : gc(0)
       , target(target)
       , own_gc(false)
@@ -112,14 +112,14 @@ namespace gui {
       }
     }
 
-    const graphics& graphics::draw_pixel (const core::point& pt,
+    const graphics& graphics::draw_pixel (const core::uint32_point& pt,
                                           os::color c) const {
-      SetPixel(gc, pt.os_x(), pt.os_y(), c);
+      SetPixel(gc, pt.x(), pt.y(), c);
       return *this;
     }
 
-    os::color graphics::get_pixel (const core::point& pt) const {
-      return GetPixel(gc, pt.os_x(), pt.os_y());
+    os::color graphics::get_pixel (const core::uint32_point& pt) const {
+      return GetPixel(gc, pt.x(), pt.y());
     }
 
     const graphics& graphics::draw_lines (std::initializer_list<core::point> points,
@@ -518,7 +518,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     const graphics& graphics::clear (os::color color) const {
-      return draw(rectangle(unscale(area())), color, color);
+      return draw(rectangle(core::global::unscale(area())), color, color);
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {

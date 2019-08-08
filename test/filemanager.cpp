@@ -1,6 +1,7 @@
 
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
+#include <base/string_util.h>
 
 #define NOTHING
 
@@ -71,7 +72,14 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.second.set_path(current);
     client.init([] (const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {
-        LogDebug << "exec return:" << std::system(path.c_str());
+#ifdef WIN32
+        std::string path_str = basepp::string::utf16_to_utf8(path.c_str());
+#endif // WIN32
+#ifdef X11
+        std::string path_str = path.c_str();
+#endif // X11
+
+        LogDebug << "exec return:" << std::system(path_str.c_str());
       }
     });
   });

@@ -24,6 +24,10 @@
 # include <X11/XKBlib.h>
 # include <xcb/xcb_xrm.h>
 #endif
+#ifdef WIN32
+#include <shellscalingapi.h>
+#endif // WIN32
+
 
 // --------------------------------------------------------------------------
 //
@@ -90,12 +94,17 @@ namespace gui {
 
     namespace global {
 
-#ifdef X11
       double calc_scale_factor ();
 
       namespace {
+        double scale_factor = 1.0;
+      }
+
+#ifdef X11
+
+      namespace {
         bool at_shutdown = false;
-        double scale_factor = 0.0;
+        double scale_factor = 1.0;
       }
 
       int ErrorHandler (Display* dpy, XErrorEvent* errev) {
@@ -145,8 +154,8 @@ namespace gui {
           XSetErrorHandler(ErrorHandler);
           XSetIOErrorHandler(IOErrorHandler);
           xcb_connection = XGetXCBConnection(instance);
-          set_scale_factor(calc_scale_factor());
 #endif // X11
+          set_scale_factor(calc_scale_factor());
         }
 
         bool is_initialized () const {
@@ -171,8 +180,10 @@ namespace gui {
         }
 
         os::instance instance;
+#ifdef X11
         os::x11::screen screen;
         xcb_connection_t *xcb_connection;
+#endif // X11
 
       };
 
@@ -245,14 +256,20 @@ namespace gui {
                                           (GetKeyState(VK_RWIN) & 0x8000 ? MK_SYTEM : 0));
       }
 
-      double get_scale_factor () {
-        const static double scale_factor = []() {
-          return 1.0;
-        } ();
-        return scale_factor;
+      double calc_scale_factor () {
+        return (double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
       }
 
 #endif // WIN32
+
+      void set_scale_factor (double s) {
+        scale_factor = s;
+      }
+
+      double get_scale_factor () {
+        return scale_factor;
+      }
+
 
 #ifdef X11
       os::key_state get_key_state () {
@@ -271,14 +288,6 @@ namespace gui {
 
       os::x11::visual get_visual () {
         return DefaultVisual(get_instance(), get_screen());
-      }
-
-      void set_scale_factor (double s) {
-        scale_factor = s;
-      }
-
-      double get_scale_factor () {
-        return scale_factor;
       }
 
       long get_cxb_dpi_of_screen (xcb_screen_t *data) {
@@ -305,13 +314,13 @@ namespace gui {
           LogError << "Could not open Xresources database falling back to highest dpi found";
         }
 
-	for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
-	  if (i.data != NULL) {
-	    dpi = std::max(dpi, get_cxb_dpi_of_screen(i.data));
-	  }
-	}
+	      for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
+	        if (i.data != NULL) {
+	          dpi = std::max(dpi, get_cxb_dpi_of_screen(i.data));
+	        }
+	      }
 
-	LogDebug << "XCB.dpi = " << dpi;
+	      LogDebug << "XCB.dpi = " << dpi;
 
         return dpi;
       }

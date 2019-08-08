@@ -151,13 +151,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     arc::arc (const core::point& pos,
-              unsigned int radius,
-              float start_radius,
-              float end_radius)
+              float radius,
+              float start_angle,
+              float end_angle)
       : pos(pos)
       , radius(radius)
-      , start_radius(start_radius)
-      , end_radius(end_radius) {}
+      , start_angle(start_angle)
+      , end_angle(end_angle) 
+    {}
 
     void arc::operator() (const graphics& g,
                           const brush& b,
@@ -166,7 +167,7 @@ namespace gui {
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);
@@ -177,7 +178,7 @@ namespace gui {
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
       LineTo(g, pos.os_x(), pos.os_y());
     }
 
@@ -188,7 +189,7 @@ namespace gui {
       pen p(b.color());
       Use<pen> pn(g, p);
       MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), radius, start_radius, end_radius - start_radius);
+      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
       LineTo(g, pos.os_x(), pos.os_y());
       EndPath(g);
       StrokeAndFillPath(g);

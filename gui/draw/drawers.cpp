@@ -55,56 +55,87 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       Use<pen> pn(g, p);
-      MoveToEx(g, from.os_x(), from.os_y(), nullptr);
-      LineTo(g, to.os_x(), to.os_y());
+      const auto x = from.os_x();
+      const auto y = from.os_y();
+      const auto x2 = to.os_x();
+      const auto y2 = to.os_y();
+      MoveToEx(g, x, y, nullptr);
+      LineTo(g, x2, y2);
+      SetPixel(g, x2, y2, p.color());
     }
 
     // --------------------------------------------------------------------------
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      Use<brush> br(g, b);
-      Use<pen> pn(g, p);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      const auto x = rect.os_x();
+      const auto y = rect.os_y();
+      const auto x2 = rect.os_x2();
+      const auto y2 = rect.os_y2();
+      if ((x + 1 == x2) && (y + 1 == y2)) {
+        SetPixel(g, x, y, p.color());
+      } else {
+        Use<brush> br(g, b);
+        Use<pen> pn(g, p);
+        Rectangle(g, x, y, x2, y2);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
-      Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      const auto x = rect.os_x();
+      const auto y = rect.os_y();
+      const auto x2 = rect.os_x2();
+      const auto y2 = rect.os_y2();
+      if ((x + 1 == x2) && (y + 1 == y2)) {
+        SetPixel(g, x, y, p.color());
+      } else {
+        Use<pen> pn(g, p);
+        Use<brush> br(g, null_brush);
+        Rectangle(g, x, y, x2, y2);
+      }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const brush& b) const {
-      Use<brush> br(g, b);
-      pen p(b.color());
-      Use<pen> pn(g, p);
-      Rectangle(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
     void ellipse::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
+      const auto x = rect.os_x();
+      const auto y = rect.os_y();
+      const auto x2 = rect.os_x2();
+      const auto y2 = rect.os_y2();
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      if ((x2 - x < 3) || (y2 - y < 3)) {
+        Rectangle(g, x, y, x2 + 1, y2 + 1);
+      } else {
+        Ellipse(g, x, y, x2 + 1, y2 + 1);
+      }
     }
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
+      const auto x = rect.os_x();
+      const auto y = rect.os_y();
+      const auto x2 = rect.os_x2();
+      const auto y2 = rect.os_y2();
       Use<pen> pn(g, p);
       Use<brush> br(g, null_brush);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      if ((x2 - x < 3) || (y2 - y < 3)) {
+        Rectangle(g, x, y, x2 + 1, y2 + 1);
+      } else {
+        Ellipse(g, x, y, x2 + 1, y2 + 1);
+      }
     }
 
     void ellipse::operator() (const graphics& g,
                               const brush& b) const {
-      Use<brush> br(g, b);
-      pen p(b.color());
-      Use<pen> pn(g, p);
-      Ellipse(g, rect.os_x(), rect.os_y(), rect.os_x2(), rect.os_y2());
+      operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------
@@ -163,36 +194,72 @@ namespace gui {
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      BeginPath(g);
+      const unsigned int sz = static_cast<unsigned int>(core::global::scale(radius * 2));
+
+      auto end_a = end_angle;
+      while (end_a < start_angle) {
+        end_a += 360;
+      }
+
       Use<brush> br(g, b);
       Use<pen> pn(g, p);
-      MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
-      LineTo(g, pos.os_x(), pos.os_y());
-      EndPath(g);
-      StrokeAndFillPath(g);
+      if ((end_a - start_angle == 360)) {
+        const auto tl = pos - core::size(radius, radius);
+        const auto x = tl.os_x();
+        const auto y = tl.os_y();
+        if (sz < 3) {
+          Rectangle(g, x, y, x + sz + 1, y + sz + 1);
+        } else {
+          Ellipse(g, x, y, x + sz + 1, y + sz + 1);
+        }
+      } else {
+        const auto x = pos.os_x();
+        const auto y = pos.os_y();
+        const auto r = static_cast<DWORD>(core::global::scale(radius));
+        BeginPath(g);
+        MoveToEx(g, x, x, nullptr);
+        AngleArc(g, x, x, r, start_angle, end_a - start_angle);
+        LineTo(g, x, x);
+        EndPath(g);
+        StrokeAndFillPath(g);
+      }
     }
 
     void arc::operator() (const graphics& g,
                           const pen& p) const {
+      const unsigned int sz = static_cast<unsigned int>(core::global::scale(radius * 2));
+
+      auto end_a = end_angle;
+      while (end_a < start_angle) {
+        end_a += 360;
+      }
       Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
-      MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
-      LineTo(g, pos.os_x(), pos.os_y());
+      if ((end_a - start_angle == 360)) {
+        const auto tl = pos - core::size(radius, radius);
+        const auto x = tl.os_x();
+        const auto y = tl.os_y();
+        Use<brush> br(g, null_brush);
+        if (sz < 3) {
+          Rectangle(g, x, y, x + sz + 1, y + sz + 1);
+        } else {
+          Ellipse(g, x, y, x + sz + 1, y + sz + 1);
+        }
+      } else {
+        const auto x = pos.os_x();
+        const auto y = pos.os_y();
+        const auto r = static_cast<DWORD>(core::global::scale(radius));
+        BeginPath(g);
+        MoveToEx(g, x, y, nullptr);
+        AngleArc(g, x, y, r, start_angle, end_a - start_angle);
+        LineTo(g, x, y);
+        EndPath(g);
+        StrokePath(g);
+      }
     }
 
     void arc::operator() (const graphics& g,
                           const brush& b) const {
-      BeginPath(g);
-      Use<brush> br(g, b);
-      pen p(b.color());
-      Use<pen> pn(g, p);
-      MoveToEx(g, pos.os_x(), pos.os_y(), nullptr);
-      AngleArc(g, pos.os_x(), pos.os_y(), static_cast<DWORD>(radius), start_angle, end_angle - start_angle);
-      LineTo(g, pos.os_x(), pos.os_y());
-      EndPath(g);
-      StrokeAndFillPath(g);
+      operator()(g, b, b.color());
     }
 
     // --------------------------------------------------------------------------

@@ -39,8 +39,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     enum class bw_pixel : bool {
-      black = basepp::system_bw_bits::black,
-      white = basepp::system_bw_bits::white
+      black = false,
+      white = true
     };
 
     std::ostream& operator<< (std::ostream& out, const bw_pixel&);

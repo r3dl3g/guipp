@@ -56,37 +56,37 @@ namespace gui {
     return out;
   }
 
-  PixelFormat get_pixel_format (int pixel_format, int byte_order) {
+  PixelFormat get_pixel_format (int pixel_format, basepp::byte_order byte_order) {
     switch (pixel_format) {
       case 1: return PixelFormat::BW;
       case 8: return PixelFormat::GRAY;
       case 24:
         switch (byte_order) {
-          case 0: return PixelFormat::BGR;
-          case 1: return PixelFormat::RGB;
+          case basepp::byte_order::little_endian: return PixelFormat::BGR;
+          case basepp::byte_order::big_endian: return PixelFormat::RGB;
         }
       case 32:
         switch (byte_order) {
-          case 0: return PixelFormat::BGRA;
-          case 1: return PixelFormat::RGBA;
+          case basepp::byte_order::little_endian: return PixelFormat::BGRA;
+          case basepp::byte_order::big_endian: return PixelFormat::RGBA;
         }
     }
     return PixelFormat::Undefined;
   }
 
-  int get_pixel_format_byte_order (PixelFormat px_fmt) {
+  basepp::byte_order get_pixel_format_byte_order (PixelFormat px_fmt) {
     switch (px_fmt) {
       case PixelFormat::BW:
       case PixelFormat::BGR:
       case PixelFormat::BGRA:
       case PixelFormat::ABGR:
       default:
-        return 0;
+        return basepp::byte_order::little_endian;
       case PixelFormat::GRAY:
       case PixelFormat::RGB:
       case PixelFormat::RGBA:
       case PixelFormat::ARGB:
-        return 1;
+        return basepp::byte_order::big_endian;
     }
   }
 
@@ -236,7 +236,7 @@ namespace gui {
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return get_pixel_format(static_cast<int>(PixelFormat(dbpp)), 1);
+        return get_pixel_format(static_cast<int>(PixelFormat(dbpp)), os::bitmap_byte_order);
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();

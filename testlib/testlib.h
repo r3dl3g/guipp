@@ -16,9 +16,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
 
 #define TEST_MAIN_END(a)\
   if (guipp_failed_test_count) {\
-    LogWarng << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+    LogError << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
   } else {\
-    LogWarng << #a << ": all " << guipp_test_count << " tests passed";\
+    LogError << #a << ": all " << guipp_test_count << " tests passed";\
   }\
   return guipp_failed_test_count;\
 }

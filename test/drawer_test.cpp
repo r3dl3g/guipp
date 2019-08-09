@@ -16,6 +16,7 @@ using namespace gui::draw;
 // --------------------------------------------------------------------------
 typedef std::vector<uint32_t> colorline;
 typedef std::vector<colorline> colormap;
+colormap data2colormap (const char* data, const int bytes_per_pixel, const int bytes_per_line, const int height);
 colormap pixmap2colormap (const pixmap&);
 std::ostream& operator<< (std::ostream&, const colormap&);
 
@@ -31,6 +32,7 @@ pixmap_str mk_str(std::initializer_list<std::string>);
 std::ostream& operator<< (std::ostream&, const pixmap_str&);
 
 // --------------------------------------------------------------------------
+DECLARE_TEST(test_data2colormap);
 DECLARE_TEST(test_draw_line_4x4);
 DECLARE_TEST(test_draw_line_3x3);
 DECLARE_TEST(test_draw_line_2x2);
@@ -123,6 +125,7 @@ DECLARE_TEST(test_draw_polygon);
 
 // --------------------------------------------------------------------------
 TEST_MAIN(drawer_test) {
+  RUN_TEST(test_data2colormap);
 #ifdef TEST_LINE
   RUN_TEST(test_draw_line_4x4);
   RUN_TEST(test_draw_line_3x3);
@@ -221,9 +224,24 @@ TEST_MAIN(drawer_test) {
 } TEST_MAIN_END(drawer_test)
 
 // --------------------------------------------------------------------------
-constexpr os::color _ = color::rgba_gray<0, 255>::value;
-constexpr os::color X = color::rgba<0, 0, 255, 255>::value;
-constexpr os::color O = color::rgba<255, 0, 0, 255>::value;
+constexpr os::color _ = IF_WIN32_ELSE(color::black, (color::rgba_gray<0, 255>::value));
+constexpr os::color X = IF_WIN32_ELSE(color::red,   (color::rgba<0, 0, 255, 255>::value));
+constexpr os::color O = IF_WIN32_ELSE(color::blue,  (color::rgba<255, 0, 0, 255>::value));
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_data2colormap) {
+
+  std::vector<uint32_t> testdata = { 0x00000000, 0x00000001, 0x00000002, 0x00000003,
+                                     0x40000000, 0x30000000, 0x20000000, 0x10000000,
+                                     0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F};
+  colormap result = data2colormap ((const char*)testdata.data(), 4, 16, 3);
+
+  EXPECT_EQUAL(result, MM({ {0x00000000, 0x00000001, 0x00000002, 0x00000003},
+                            {0x40000000, 0x30000000, 0x20000000, 0x10000000},
+                            {0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F}}));
+
+}
+END_TEST(test_data2colormap)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_4x4) {
@@ -232,7 +250,7 @@ DEFINE_TEST(test_frame_rect_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), X);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -252,7 +270,7 @@ DEFINE_TEST(test_frame_rect_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), X);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -272,7 +290,7 @@ DEFINE_TEST(test_frame_rect_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), X);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -292,7 +310,7 @@ DEFINE_TEST(test_frame_rect_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), X);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -312,7 +330,7 @@ DEFINE_TEST(test_frame_rect_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), X);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -332,7 +350,7 @@ DEFINE_TEST(test_fill_rect_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::rectangle(core::point(1, 1), core::size(4, 4)), X);
+  graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -352,7 +370,7 @@ DEFINE_TEST(test_fill_rect_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::rectangle(core::point(1, 1), core::size(3, 3)), X);
+  graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -372,7 +390,7 @@ DEFINE_TEST(test_fill_rect_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::rectangle(core::point(1, 1), core::size(2, 2)), X);
+  graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -392,7 +410,7 @@ DEFINE_TEST(test_fill_rect_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::rectangle(core::point(1, 1), core::size(1, 1)), X);
+  graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -412,7 +430,7 @@ DEFINE_TEST(test_fill_rect_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::rectangle(core::point(1, 1), core::size(0, 0)), X);
+  graphics(img).clear(color::black).fill(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -432,7 +450,7 @@ DEFINE_TEST(test_draw_rect_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::rectangle(core::point(1, 1), core::size(4, 4)), O, X);
+  graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -452,7 +470,7 @@ DEFINE_TEST(test_draw_rect_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::rectangle(core::point(1, 1), core::size(3, 3)), O, X);
+  graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -472,7 +490,7 @@ DEFINE_TEST(test_draw_rect_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::rectangle(core::point(1, 1), core::size(2, 2)), O, X);
+  graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -492,7 +510,7 @@ DEFINE_TEST(test_draw_rect_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::rectangle(core::point(1, 1), core::size(1, 1)), O, X);
+  graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -512,7 +530,7 @@ DEFINE_TEST(test_draw_rect_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::rectangle(core::point(1, 1), core::size(0, 0)), O, X);
+  graphics(img).clear(color::black).draw(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -532,7 +550,7 @@ DEFINE_TEST(test_draw_line_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(1, 1), core::point(4, 4)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(1, 1), core::point(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -552,7 +570,7 @@ DEFINE_TEST(test_draw_line_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(1, 1), core::point(3, 3)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(1, 1), core::point(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -572,7 +590,7 @@ DEFINE_TEST(test_draw_line_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(1, 1), core::point(2, 2)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(1, 1), core::point(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -592,7 +610,7 @@ DEFINE_TEST(test_draw_line_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(1, 1), core::point(1, 1)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(1, 1), core::point(1, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -612,7 +630,7 @@ DEFINE_TEST(test_draw_line_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(1, 1), core::point(0, 0)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(1, 1), core::point(0, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -632,7 +650,7 @@ DEFINE_TEST(test_draw_line_top_left) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(1, 1)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(1, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -652,7 +670,7 @@ DEFINE_TEST(test_draw_line_top_left_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(0, 0)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(0, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -672,7 +690,7 @@ DEFINE_TEST(test_draw_line_top_right) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(3, 1)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(3, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -692,7 +710,7 @@ DEFINE_TEST(test_draw_line_top_right_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(4, 0)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(4, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -712,7 +730,7 @@ DEFINE_TEST(test_draw_line_bottom_left) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(1, 3)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(1, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -732,7 +750,7 @@ DEFINE_TEST(test_draw_line_bottom_left_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(0, 4)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(0, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -752,7 +770,7 @@ DEFINE_TEST(test_draw_line_bottom_right) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(3, 3)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -772,7 +790,7 @@ DEFINE_TEST(test_draw_line_bottom_right_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::line(core::point(2, 2), core::point(4, 4)), X);
+  graphics(img).clear(color::black).frame(draw::line(core::point(2, 2), core::point(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -791,7 +809,7 @@ DEFINE_TEST(test_frame_ellipse_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::ellipse(core::point(0, 0), core::point(4, 4)), X);
+  graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -808,7 +826,7 @@ DEFINE_TEST(test_frame_ellipse_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::ellipse(core::point(0, 0), core::point(3, 3)), X);
+  graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -825,15 +843,15 @@ DEFINE_TEST(test_frame_ellipse_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::ellipse(core::point(0, 0), core::point(2, 2)), X);
+  graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{X, X, X, _, _},
                            {X, _, X, _, _},
                            {X, X, X, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _}}));
+
 } END_TEST(test_frame_ellipse_2x2)
 
 // --------------------------------------------------------------------------
@@ -842,7 +860,7 @@ DEFINE_TEST(test_frame_ellipse_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::ellipse(core::point(0, 0), core::point(1, 1)), X);
+  graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(1, 1)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -859,7 +877,7 @@ DEFINE_TEST(test_frame_ellipse_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::ellipse(core::point(0, 0), core::point(0, 0)), X);
+  graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(0, 0)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -876,7 +894,7 @@ DEFINE_TEST(test_fill_ellipse) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::ellipse(core::point(0, 0), core::point(4, 4)), X);
+  graphics(img).clear(color::black).fill(draw::ellipse(core::point(0, 0), core::point(4, 4)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -893,7 +911,7 @@ DEFINE_TEST(test_draw_ellipse_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::ellipse(core::point(0, 0), core::point(4, 4)), O, X);
+  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(4, 4)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -910,15 +928,15 @@ DEFINE_TEST(test_draw_ellipse_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::ellipse(core::point(0, 0), core::point(2, 2)), O, X);
+  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(2, 2)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{X, X, X, _, _},
-                           {X, O, X, _, _},
-                           {X, X, X, _, _},
-                           {_, _, _, _, _},
-                           {_, _, _, _, _}}));
+  EXPECT_EQUAL(buffer, MM({ {X, X, X, _, _},
+                            {X, O, X, _, _},
+                            {X, X, X, _, _},
+                            {_, _, _, _, _},
+                            {_, _, _, _, _}}));
 } END_TEST(test_draw_ellipse_2x2)
 
 // --------------------------------------------------------------------------
@@ -927,7 +945,7 @@ DEFINE_TEST(test_draw_ellipse_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::ellipse(core::point(0, 0), core::point(1, 1)), O, X);
+  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(1, 1)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -944,7 +962,7 @@ DEFINE_TEST(test_draw_ellipse_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::ellipse(core::point(0, 0), core::point(0, 0)), O, X);
+  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(0, 0)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -962,7 +980,7 @@ DEFINE_TEST(test_frame_round_rectangle) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), X);
+  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -982,7 +1000,7 @@ DEFINE_TEST(test_fill_round_rectangle) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), X);
+  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1002,7 +1020,7 @@ DEFINE_TEST(test_draw_round_rectangle) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), O, X);
+  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(0, 0, 5, 5), core::size(2, 2)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1022,7 +1040,7 @@ DEFINE_TEST(test_frame_round_rectangle_2) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).frame(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), X);
+  graphics(img).clear(color::black).frame(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1044,7 +1062,7 @@ DEFINE_TEST(test_fill_round_rectangle_2) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).fill(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), X);
+  graphics(img).clear(color::black).fill(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1066,7 +1084,7 @@ DEFINE_TEST(test_draw_round_rectangle_2) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).draw(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), O, X);
+  graphics(img).clear(color::black).draw(draw::round_rectangle(core::rectangle(0, 0, 7, 7), core::size(3, 3)), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1087,7 +1105,7 @@ DEFINE_TEST(test_frame_arc_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 2, 0, 360), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1104,7 +1122,7 @@ DEFINE_TEST(test_frame_arc_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 1.5, 0, 360), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 1.5, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1121,7 +1139,7 @@ DEFINE_TEST(test_frame_arc_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 1, 0, 360), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 1, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1138,7 +1156,7 @@ DEFINE_TEST(test_frame_arc_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 0.5, 0, 360), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 0.5, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1155,7 +1173,7 @@ DEFINE_TEST(test_frame_arc_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 0, 0, 360), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 0, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1172,7 +1190,7 @@ DEFINE_TEST(test_fill_arc_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::arc(core::point(2, 2), 2, 0, 360), X);
+  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 2, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1189,7 +1207,7 @@ DEFINE_TEST(test_fill_arc_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::arc(core::point(2, 2), 1.5, 0, 360), X);
+  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 1.5, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1206,7 +1224,7 @@ DEFINE_TEST(test_fill_arc_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::arc(core::point(2, 2), 1, 0, 360), X);
+  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 1, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1223,7 +1241,7 @@ DEFINE_TEST(test_fill_arc_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::arc(core::point(2, 2), 0.5, 0, 360), X);
+  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 0.5, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1239,7 +1257,7 @@ DEFINE_TEST(test_fill_arc_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).fill(draw::arc(core::point(2, 2), 0, 0, 360), X);
+  graphics(img).clear(color::black).fill(draw::arc(core::point(2, 2), 0, 0, 360), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1255,7 +1273,7 @@ DEFINE_TEST(test_draw_arc_4x4) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 2, 0, 360), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 0, 360), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1271,7 +1289,7 @@ DEFINE_TEST(test_draw_arc_3x3) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 1.5, 0, 360), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 1.5, 0, 360), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1287,7 +1305,7 @@ DEFINE_TEST(test_draw_arc_2x2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 1, 0, 360), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 1, 0, 360), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1303,7 +1321,7 @@ DEFINE_TEST(test_draw_arc_1x1) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 0.5, 0, 360), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 0.5, 0, 360), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1319,7 +1337,7 @@ DEFINE_TEST(test_draw_arc_0x0) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 0, 0, 360), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 0, 0, 360), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1336,7 +1354,7 @@ DEFINE_TEST(test_frame_arc_45_135) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 2, 45, 135), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 45, 135), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1352,7 +1370,7 @@ DEFINE_TEST(test_frame_arc_135_225) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 2, 135, 225), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 135, 225), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1368,7 +1386,7 @@ DEFINE_TEST(test_frame_arc_225_315) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 2, 225, 315), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 225, 315), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1384,7 +1402,7 @@ DEFINE_TEST(test_frame_arc_315_405) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 2), 2, 315, 405), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 2), 2, 315, 405), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1401,7 +1419,7 @@ DEFINE_TEST(test_draw_arc_45_135) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 2, 45, 135), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 45, 135), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1418,7 +1436,7 @@ DEFINE_TEST(test_draw_arc_135_225) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 2, 135, 225), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 135, 225), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1435,7 +1453,7 @@ DEFINE_TEST(test_draw_arc_225_315) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 2, 225, 315), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 225, 315), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1452,7 +1470,7 @@ DEFINE_TEST(test_draw_arc_315_405) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).draw(draw::arc(core::point(2, 2), 2, 315, 405), O, X);
+  graphics(img).clear(color::black).draw(draw::arc(core::point(2, 2), 2, 315, 405), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1469,7 +1487,7 @@ DEFINE_TEST(test_frame_arc_45_135_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 3), 3, 45, 135), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 3), 3, 45, 135), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1486,7 +1504,7 @@ DEFINE_TEST(test_frame_arc_135_225_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(3, 2), 3, 135, 225), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(3, 2), 3, 135, 225), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1503,7 +1521,7 @@ DEFINE_TEST(test_frame_arc_225_315_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(2, 1), 3, 225, 315), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(2, 1), 3, 225, 315), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1520,7 +1538,7 @@ DEFINE_TEST(test_frame_arc_315_405_2) {
 
   pixmap img(5, 5);
 
-  graphics(img).clear(_).frame(draw::arc(core::point(1, 2), 3, 315, 405), X);
+  graphics(img).clear(color::black).frame(draw::arc(core::point(1, 2), 3, 315, 405), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1537,7 +1555,7 @@ DEFINE_TEST(test_frame_polygon) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).frame(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), X);
+  graphics(img).clear(color::black).frame(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1558,7 +1576,7 @@ DEFINE_TEST(test_fill_polygon) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).fill(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), X);
+  graphics(img).clear(color::black).fill(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1579,7 +1597,7 @@ DEFINE_TEST(test_draw_polygon) {
 
   pixmap img(7, 7);
 
-  graphics(img).clear(_).draw(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), O, X);
+  graphics(img).clear(color::black).draw(draw::polygon({{1,1}, {1, 5}, {3,3}, {5,5}, {5,1}}), color::red, color::blue);
 
   auto buffer = pixmap2colormap(img);
 
@@ -1665,12 +1683,15 @@ colormap pixmap2colormap (const pixmap& img) {
   XDestroyImage(xim);
 #endif // X11
 #ifdef WIN32
-  BITMAP bmi;
-  GetObject(img.get_id(), sizeof (BITMAP), &bmi);
+  BITMAP bmp;
+  GetObject(img.get_id(), sizeof (BITMAP), &bmp);
   blob data;
-  data.resize(bmi.bmHeight * bmi.bmWidthBytes);
-  GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
-  auto result = data2colormap((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
+  data.resize(bmp.bmWidthBytes * bmp.bmHeight);
+  int res = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
+  if (res != data.size()) {
+    LogError << "GetBitmapBits returned " << res << " expected:" << data.size();
+  }
+  auto result = data2colormap((const char*)data.data(), bmp.bmBitsPixel / 8, bmp.bmWidthBytes, bmp.bmHeight);
 #endif // WIN32
   return result;
 }

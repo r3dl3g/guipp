@@ -64,7 +64,28 @@ namespace basepp {
     msb
   };
 
+  // --------------------------------------------------------------------------
+  enum class byte_order : bool {
+    little_endian,
+    big_endian
+  };
+
   namespace os {
+
+    // --------------------------------------------------------------------------
+    constexpr bit_order get_bit_order () {
+      return IF_WIN32_ELSE(bit_order::msb, bit_order::lsb);
+    }
+
+    // --------------------------------------------------------------------------
+    constexpr byte_order get_byte_order () {
+      constexpr union {
+        uint32_t i;
+        char c[4];
+      } trait = { 0x01020300 };
+
+      return byte_order(trait.c[0] == 1);
+    }
 
     // --------------------------------------------------------------------------
     enum class platform : byte {
@@ -74,7 +95,8 @@ namespace basepp {
     };
 
     const platform system_platform = IF_WIN32_ELSE(platform::win32, IF_X11_ELSE(platform::x11, platform::cocoa));
-    const bit_order bitmap_bit_order = IF_WIN32_ELSE(bit_order::msb, bit_order::lsb);
+    const byte_order bitmap_byte_order = get_byte_order();
+    const bit_order bitmap_bit_order = get_bit_order();
 
   } // namespace os
 
@@ -117,8 +139,8 @@ namespace basepp {
   template<>
   struct bw_bits<bit_order::msb> {
     static constexpr byte value[2] = {0xff, 0};
-    static constexpr bool white = true;
-    static constexpr bool black = false;
+    static constexpr bool white = false;
+    static constexpr bool black = true;
   };
 
   // --------------------------------------------------------------------------

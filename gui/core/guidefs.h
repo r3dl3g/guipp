@@ -96,8 +96,8 @@ namespace gui {
     return color_depths[static_cast<byte>(px_fmt)];
   }
 
-  PixelFormat get_pixel_format (int pixel_format, int byte_order);
-  int get_pixel_format_byte_order (PixelFormat px_fmt);
+  PixelFormat get_pixel_format (int pixel_format, basepp::byte_order byte_order);
+  basepp::byte_order get_pixel_format_byte_order (PixelFormat px_fmt);
 
   template<PixelFormat px_fmt>
   struct color_depth {

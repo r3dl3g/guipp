@@ -77,14 +77,16 @@ namespace basepp {
       return IF_WIN32_ELSE(bit_order::msb, bit_order::lsb);
     }
 
-    // --------------------------------------------------------------------------
-    constexpr byte_order get_byte_order () {
+    namespace detail {
       constexpr union {
         uint32_t i;
         char c[4];
-      } trait = { 0x01020300 };
+      } endianess_check = { 0x01020300 };
+    }
 
-      return byte_order(trait.c[0] == 1);
+    // --------------------------------------------------------------------------
+    constexpr byte_order get_byte_order () {
+      return byte_order(detail::endianess_check.c[0] == 1);
     }
 
     // --------------------------------------------------------------------------

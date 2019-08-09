@@ -162,7 +162,7 @@ namespace gui {
         return {
           static_cast<uint32_t>(w),
           static_cast<uint32_t>(h),
-          get_pixel_format(d, ImageByteOrder(display))
+          get_pixel_format(d, basepp::byte_order(ImageByteOrder(display)))
         };
       }
       return {0, 0, 0, PixelFormat::Undefined};
@@ -172,7 +172,7 @@ namespace gui {
       auto display = core::global::get_instance();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
-      int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+      basepp::byte_order byte_order = get_pixel_format_byte_order(bmi.pixel_format);
 
       XImage im {
         static_cast<int>(bmi.width),
@@ -180,7 +180,7 @@ namespace gui {
         0,                                                      /* number of pixels offset in X direction */
         ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        byte_order,                                             /* data byte order, LSBFirst, MSBFirst */
+        static_cast<bool>(byte_order),                          /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
@@ -203,7 +203,7 @@ namespace gui {
           static_cast<uint32_t>(im->width),
           static_cast<uint32_t>(im->height),
           static_cast<uint32_t>(im->bytes_per_line),
-          get_pixel_format(im->bits_per_pixel, im->byte_order)
+          get_pixel_format(im->bits_per_pixel, basepp::byte_order(im->byte_order))
         };
         const size_t n = bmi.mem_size();
         data.resize(n);

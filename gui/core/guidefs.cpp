@@ -104,7 +104,6 @@ namespace gui {
 
       namespace {
         bool at_shutdown = false;
-        double scale_factor = 1.0;
       }
 
       int ErrorHandler (Display* dpy, XErrorEvent* errev) {
@@ -240,7 +239,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
-        return get_pixel_format(DefaultDepth(inst, get_screen()), ImageByteOrder(inst));
+        return get_pixel_format(DefaultDepth(inst, get_screen()), basepp::byte_order(ImageByteOrder(inst)));
 #endif // X11
 #ifdef COCOA
         return PixelFormat::RGB;

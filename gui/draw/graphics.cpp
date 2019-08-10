@@ -400,7 +400,11 @@ namespace gui {
       XImage* im = XGetImage(get_instance(), target, pt.x(), pt.y(), 1, 1, AllPlanes, ZPixmap);
       os::color c = color::black;
       if (im) {
-        c = XGetPixel(im, 0, 0);
+        if (im->bits_per_pixel == 1) {
+          c = XGetPixel(im, 0, 0) ? color::white : color::black;
+        } else {
+          c = XGetPixel(im, 0, 0);
+        }
         XDestroyImage(im);
       }
       return c;

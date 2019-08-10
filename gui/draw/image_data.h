@@ -30,6 +30,7 @@
 //
 #include <base/array_wrapper.h>
 #include <gui/draw/bitmap_info.h>
+#include <gui/core/color.h>
 
 
 namespace gui {
@@ -54,6 +55,11 @@ namespace gui {
 
       byte value;
 
+      gray_pixel (byte value = 0);
+
+      template<typename T>
+      gray_pixel (T);
+
       bool operator== (const gray_pixel&) const;
 
       template<typename T>
@@ -70,6 +76,11 @@ namespace gui {
       byte red;
       byte green;
       byte blue;
+
+      rgb_pixel (byte r, byte g, byte b);
+
+      template<typename T>
+      rgb_pixel (T);
 
       bool operator== (const rgb_pixel&) const;
 
@@ -89,6 +100,11 @@ namespace gui {
       byte blue;
       byte alpha;
 
+      rgba_pixel (byte r, byte g, byte b, byte a);
+
+      template<typename T>
+      rgba_pixel (T);
+
       bool operator== (const rgba_pixel&) const;
 
       template<typename T>
@@ -98,6 +114,8 @@ namespace gui {
     std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
 
     // --------------------------------------------------------------------------
+    struct bgra_pixel;
+
     struct bgr_pixel {
       static const bgr_pixel black;
       static const bgr_pixel white;
@@ -106,7 +124,13 @@ namespace gui {
       byte green;
       byte red;
 
+      bgr_pixel (byte, byte, byte);
+
+      template<typename T>
+      bgr_pixel (T);
+
       bool operator== (const bgr_pixel&) const;
+      bool operator== (const bgra_pixel&) const;
 
       template<typename T>
       void operator= (T);
@@ -123,6 +147,11 @@ namespace gui {
       byte green;
       byte red;
       byte alpha;
+
+      bgra_pixel (byte, byte, byte, byte);
+
+      template<typename T>
+      bgra_pixel (T);
 
       bool operator== (const bgra_pixel&) const;
       bool operator== (const bgr_pixel&) const;
@@ -143,6 +172,11 @@ namespace gui {
       byte green;
       byte blue;
 
+      argb_pixel (byte, byte, byte, byte);
+
+      template<typename T>
+      argb_pixel (T);
+
       bool operator== (const argb_pixel&) const;
 
       template<typename T>
@@ -160,6 +194,11 @@ namespace gui {
       byte blue;
       byte green;
       byte red;
+
+      abgr_pixel (byte, byte, byte, byte);
+
+      template<typename T>
+      abgr_pixel (T);
 
       bool operator== (const abgr_pixel&) const;
 

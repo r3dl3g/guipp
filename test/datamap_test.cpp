@@ -163,7 +163,7 @@ DEFINE_TEST(test_gray2rgb)
   using namespace gui::draw;
 
   graymap gray(2, 2);
-  gray.fill({0x7F});
+  gray.fill({byte(0x7F)});
   auto rgb = gray.convert<PixelFormat::RGB>();
 
   EXPECT_TRUE(rgb.is_valid());
@@ -194,7 +194,7 @@ DEFINE_TEST(test_rgb2gray)
   EXPECT_EQUAL(gray.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
 
   auto raw = gray.get_data();
-  pixel::gray_pixel expected = {0x40};
+  pixel::gray_pixel expected = {byte(0x40)};
   EXPECT_EQUAL(raw.pixel(0, 0), expected);
 
 END_TEST(test_rgb2gray)

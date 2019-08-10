@@ -291,6 +291,26 @@ namespace gui {
              static_cast<int>(calc_weight_gray(rhs));
     }
 
+    inline type get_gray (os::color c) {
+      return calc_medium_gray(c);
+    }
+
+    inline type get_red (os::color c) {
+      return extract<part::red>(c);
+    }
+
+    inline type get_green (os::color c) {
+      return extract<part::green>(c);
+    }
+
+    inline type get_blue (os::color c) {
+      return extract<part::blue>(c);
+    }
+
+    inline type get_alpha (os::color c) {
+      return extract<part::alpha>(c);
+    }
+
     constexpr os::color transparent = rgba_gray<0, 0xff>::value;
 
     constexpr os::color black = rgb_gray<0>::value;

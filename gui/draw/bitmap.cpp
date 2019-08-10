@@ -152,6 +152,7 @@ namespace gui {
     }
 
     draw::bitmap_info bitmap_get_info (os::bitmap id) {
+      draw::bitmap_info bmi;
       if (id) {
         Window root;
         int x, y;
@@ -159,13 +160,24 @@ namespace gui {
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
         (void)st;
-        return {
-          static_cast<uint32_t>(w),
-          static_cast<uint32_t>(h),
-          get_pixel_format(d, basepp::byte_order(ImageByteOrder(display)))
-        };
+        XImage* im = XGetImage(core::global::get_instance(), id, 0, 0, w, h, 0, ZPixmap);
+        if (im) {
+          bmi = {
+            static_cast<uint32_t>(im->width),
+            static_cast<uint32_t>(im->height),
+            static_cast<uint32_t>(im->bytes_per_line),
+            get_pixel_format(im->bits_per_pixel, basepp::byte_order(im->byte_order))
+          };
+          XDestroyImage(im);
+        } else {
+          bmi = {
+            static_cast<uint32_t>(w),
+            static_cast<uint32_t>(h),
+            get_pixel_format(d, basepp::byte_order(ImageByteOrder(display)))
+          };
+        }
       }
-      return {0, 0, 0, PixelFormat::Undefined};
+      return bmi;
     }
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -459,7 +471,7 @@ namespace gui {
       blob data;
       bitmap_info bmi;
       bitmap_get_data(get_id(), data, bmi);
-      return bwmap(data, bmi);
+      return bwmap(std::move(data), std::move(bmi));
     }
 
     bitmap::operator bwmap () const {
@@ -467,6 +479,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+
     void pixmap::create (uint32_t w, uint32_t h) {
 #if WIN32
       clear();
@@ -475,15 +488,9 @@ namespace gui {
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
-//      int count = 0;
-//      XPixmapFormatValues* fmts = XListPixmapFormats(core::global::get_instance(), &count);
-//      for (int i = 0; i < count; ++i) {
-//        LogDebug << "PixmapFormat " << i << ": bits:" << fmts[i].pixel_format << " depth:" << fmts[i].depth << " pad:" << fmts[i].scanline_pad;
-//      }
-//      PixelFormat px_fmt = PixelFormat::RGBA;
       PixelFormat px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
-#endif
+#endif //X11
       if (!is_valid()) {
         throw std::runtime_error("create pixmap failed");
       }

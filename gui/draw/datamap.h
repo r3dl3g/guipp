@@ -36,6 +36,8 @@ namespace gui {
     public:
       bool is_valid () const;
 
+      basic_datamap ();
+
       operator bool () const;
 
       const bitmap_info& get_info () const;
@@ -51,7 +53,8 @@ namespace gui {
       void clear ();
 
     protected:
-      void create (const blob& data, const bitmap_info& bmi);
+      basic_datamap (const blob&, const bitmap_info&);
+      basic_datamap (blob&&, bitmap_info&&);
 
       template<PixelFormat T>
       const const_image_data<T> get_data () const {
@@ -77,6 +80,7 @@ namespace gui {
       datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
       datamap (const blob& data, const bitmap_info& bmi);
+      datamap (blob&& data, bitmap_info&& bmi);
 
       template<PixelFormat S>
       datamap (const datamap<S>& src);

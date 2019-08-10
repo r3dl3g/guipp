@@ -187,17 +187,17 @@ namespace gui {
       get(data, bmi);
 
       if (bmi.pixel_format == T) {
-        return datamap<T>(data, bmi);
+        return datamap<T>(std::move(data), std::move(bmi));
       } else {
         switch (bmi.pixel_format) {
-          case PixelFormat::BW:   return datamap<PixelFormat::BW>(data, bmi).convert<T>();
-          case PixelFormat::GRAY: return datamap<PixelFormat::GRAY>(data, bmi).convert<T>();
-          case PixelFormat::RGB:  return datamap<PixelFormat::RGB>(data, bmi).convert<T>();
-          case PixelFormat::RGBA: return datamap<PixelFormat::RGBA>(data, bmi).convert<T>();
-          case PixelFormat::BGR:  return datamap<PixelFormat::BGR>(data, bmi).convert<T>();
-          case PixelFormat::BGRA: return datamap<PixelFormat::BGRA>(data, bmi).convert<T>();
-          case PixelFormat::ARGB: return datamap<PixelFormat::ARGB>(data, bmi).convert<T>();
-          case PixelFormat::ABGR: return datamap<PixelFormat::ABGR>(data, bmi).convert<T>();
+          case PixelFormat::BW:   return datamap<PixelFormat::BW>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::GRAY: return datamap<PixelFormat::GRAY>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::RGB:  return datamap<PixelFormat::RGB>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::RGBA: return datamap<PixelFormat::RGBA>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::BGR:  return datamap<PixelFormat::BGR>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::BGRA: return datamap<PixelFormat::BGRA>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::ARGB: return datamap<PixelFormat::ARGB>(std::move(data), std::move(bmi)).convert<T>();
+          case PixelFormat::ABGR: return datamap<PixelFormat::ABGR>(std::move(data), std::move(bmi)).convert<T>();
           default:                return datamap<T>();
         }
       }

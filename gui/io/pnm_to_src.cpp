@@ -54,7 +54,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void write_pixel (std::ostream& out, pixel::bw_pixel pixel) {
+      void write_pixel (std::ostream& out, const basepp::bit_wrapper<const pixel::bw_pixel>& pixel) {
+        write_pixel(out, static_cast<const pixel::bw_pixel>(pixel));
+      }
+
+      void write_pixel (std::ostream& out, const pixel::bw_pixel pixel) {
         static const char values[] = {'0', '1'};
 #ifdef WIN32
         out << (values[static_cast<byte>(pixel)]);
@@ -63,11 +67,11 @@ namespace gui {
 #endif
       }
 
-      void write_pixel (std::ostream& out, pixel::gray_pixel pixel) {
+      void write_pixel (std::ostream& out, const pixel::gray_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.value);
       }
 
-      void write_pixel (std::ostream& out, pixel::rgb_pixel pixel) {
+      void write_pixel (std::ostream& out, const pixel::rgb_pixel pixel) {
         out << std::setw(3) << static_cast<int>(pixel.red) << ", "
             << std::setw(3) << static_cast<int>(pixel.green) << ", "
             << std::setw(3) << static_cast<int>(pixel.blue);

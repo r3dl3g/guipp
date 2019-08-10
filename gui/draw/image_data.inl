@@ -62,6 +62,16 @@ namespace gui {
                                 static_cast<uint16_t>(p.blue)) / 3);
     }
 
+    template<>
+    inline byte get_gray<gray_pixel> (gray_pixel p) {
+      return p.value;
+    }
+
+    template<>
+    inline byte get_gray<byte> (byte p) {
+      return p;
+    }
+
     template<typename T>
     inline bw_pixel get_bw (T p) {
       return get_gray(p) == 0 ? bw_pixel::black : bw_pixel::white;
@@ -87,6 +97,26 @@ namespace gui {
       return p.alpha;
     }
 
+    template<>
+    inline byte get_red<os::color> (os::color c) {
+      return color::get_red(c);
+    }
+
+    template<>
+    inline byte get_green<os::color> (os::color c) {
+      return color::get_green(c);
+    }
+
+    template<>
+    inline byte get_blue<os::color> (os::color c) {
+      return color::get_blue(c);
+    }
+
+    template<>
+    inline byte get_alpha<os::color> (os::color c) {
+      return color::get_alpha(c);
+    }
+
     // --------------------------------------------------------------------------
     inline bw_pixel get_bw (bw_pixel p) {
       return p;
@@ -98,6 +128,11 @@ namespace gui {
 #else
       return basepp::system_bw_bits::value[static_cast<bool>(p)];
 #endif
+    }
+
+    template<>
+    inline byte get_gray<bw_pixel> (bw_pixel p) {
+      return get_gray(p);
     }
 
     inline byte get_red (bw_pixel p) {
@@ -149,6 +184,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
+    inline gray_pixel::gray_pixel (T rhs)
+      : value(get_gray(rhs))
+    {}
+
+    template<typename T>
     inline void gray_pixel::operator= (T rhs) {
       value = get_gray(rhs);
     }
@@ -187,54 +227,100 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
+    inline rgb_pixel::rgb_pixel (T rhs)
+      : red(get_red(rhs))
+      , green(get_green(rhs))
+      , blue(get_blue(rhs))
+    {}
+
+    template<typename T>
     inline void rgb_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    inline rgba_pixel::rgba_pixel (T rhs)
+      : red(get_red(rhs))
+      , green(get_green(rhs))
+      , blue(get_blue(rhs))
+      , alpha(get_alpha(rhs))
+    {}
+
     template<typename T>
     inline void rgba_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
-      alpha = pixel::get_alpha(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+      alpha = get_alpha(rhs);
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    inline bgr_pixel::bgr_pixel (T rhs)
+      : blue(get_blue(rhs))
+      , red(get_red(rhs))
+      , green(get_green(rhs))
+    {}
+
     template<typename T>
     inline void bgr_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    inline bgra_pixel::bgra_pixel (T rhs)
+      : blue(get_blue(rhs))
+      , red(get_red(rhs))
+      , green(get_green(rhs))
+      , alpha(get_alpha(rhs))
+    {}
+
     template<typename T>
     inline void bgra_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
-      alpha = pixel::get_alpha(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+      alpha = get_alpha(rhs);
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    inline argb_pixel::argb_pixel (T rhs)
+      : alpha(get_alpha(rhs))
+      , red(get_red(rhs))
+      , green(get_green(rhs))
+      , blue(get_blue(rhs))
+    {}
+
     template<typename T>
     inline void argb_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
-      alpha = pixel::get_alpha(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+      alpha = get_alpha(rhs);
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
+    inline abgr_pixel::abgr_pixel (T rhs)
+      : alpha(get_alpha(rhs))
+      , blue(get_blue(rhs))
+      , green(get_green(rhs))
+      , red(get_red(rhs))
+    {}
+
+    template<typename T>
     inline void abgr_pixel::operator= (T rhs) {
-      red = pixel::get_red(rhs);
-      green = pixel::get_green(rhs);
-      blue = pixel::get_blue(rhs);
-      alpha = pixel::get_alpha(rhs);
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+      alpha = get_alpha(rhs);
     }
 
     // --------------------------------------------------------------------------

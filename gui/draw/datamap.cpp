@@ -33,6 +33,19 @@ namespace gui {
 
   namespace draw {
 
+    basic_datamap::basic_datamap ()
+    {}
+
+    basic_datamap::basic_datamap (const blob& data, const bitmap_info& info)
+      : data(data)
+      , info(info)
+    {}
+
+    basic_datamap::basic_datamap (blob&& data, bitmap_info&& info)
+      : data(std::move(data))
+      , info(std::move(info))
+    {}
+
     bool basic_datamap::is_valid () const {
       return data.size() > 0;
     }
@@ -55,11 +68,6 @@ namespace gui {
 
     byte basic_datamap::depth () const {
       return info.depth();
-    }
-
-    void basic_datamap::create (const blob& data, const bitmap_info& bmi) {
-      this->data = data;
-      info = bmi;
     }
 
     PixelFormat basic_datamap::pixel_format () const {

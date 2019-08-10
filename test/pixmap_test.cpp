@@ -14,6 +14,9 @@ DEFINE_LOGGING_CORE(NOTHING)
 DECLARE_TEST(test_bitmap_black);
 DECLARE_TEST(test_bitmap_white);
 DECLARE_TEST(test_pixmap_black);
+DECLARE_TEST(test_pixmap_red);
+DECLARE_TEST(test_pixmap_green);
+DECLARE_TEST(test_pixmap_blue);
 DECLARE_TEST(test_pixmap_white);
 DECLARE_TEST(test_pixmap);
 DECLARE_TEST(test_pixmap_draw);
@@ -25,6 +28,9 @@ TEST_MAIN(pixmap_test)
   RUN_TEST(test_bitmap_black);
   RUN_TEST(test_bitmap_white);
   RUN_TEST(test_pixmap_black);
+  RUN_TEST(test_pixmap_red);
+  RUN_TEST(test_pixmap_green);
+  RUN_TEST(test_pixmap_blue);
   RUN_TEST(test_pixmap_white);
   RUN_TEST(test_pixmap);
   RUN_TEST(test_pixmap_draw);
@@ -34,18 +40,11 @@ TEST_MAIN_END(pixmap_test)
 using namespace gui;
 using namespace gui::draw;
 
-#ifdef X11
-constexpr PixelFormat PixFmt = PixelFormat::BGR;
-using MapType = bgrmap;
-const auto black = pixel::bgr_pixel::black;
-const auto white = pixel::bgr_pixel::white;
-#endif // X11
-#ifdef WIN32
-constexpr PixelFormat PixFmt = PixelFormat::BGRA;
-using MapType = bgramap;
-const auto black = pixel::bgra_pixel::black;
-const auto white = pixel::bgra_pixel::white;
-#endif // WIN32
+const pixel::bgr_pixel black = color::black;
+const pixel::bgr_pixel white = color::white;
+const pixel::bgr_pixel red = color::red;
+const pixel::bgr_pixel green = color::green;
+const pixel::bgr_pixel blue = color::blue;
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bitmap_black) {
@@ -94,13 +93,13 @@ DEFINE_TEST(test_pixmap_black) {
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(2, 2));
-  EXPECT_EQUAL(img.depth(), IF_WIN32_ELSE(32, 24));
-  EXPECT_EQUAL(img.pixel_format(), PixFmt);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixFmt));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
 
-  MapType rgb = img.get<PixFmt>();
+  bgramap rgb = img.get<PixelFormat::BGRA>();
 
-  const_image_data<PixFmt> raw = static_cast<const MapType&>(rgb).get_data();
+  const_image_data<PixelFormat::BGRA> raw = static_cast<const bgramap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black);
   EXPECT_EQUAL(raw.pixel(0, 1), black);
   EXPECT_EQUAL(raw.pixel(1, 0), black);
@@ -109,18 +108,78 @@ DEFINE_TEST(test_pixmap_black) {
 END_TEST(test_pixmap_black)
 
 // --------------------------------------------------------------------------
+DEFINE_TEST(test_pixmap_red) {
+  pixmap img(2, 2);
+  graphics(img).clear(color::red);
+  EXPECT_TRUE(img.is_valid());
+  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
+
+  bgramap rgb = img.get<PixelFormat::BGRA>();
+
+  const_image_data<PixelFormat::BGRA> raw = static_cast<const bgramap&>(rgb).get_data();
+  EXPECT_EQUAL(raw.pixel(0, 0), red);
+  EXPECT_EQUAL(raw.pixel(0, 1), red);
+  EXPECT_EQUAL(raw.pixel(1, 0), red);
+  EXPECT_EQUAL(raw.pixel(0, 1), red);
+}
+END_TEST(test_pixmap_red)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_pixmap_green) {
+  pixmap img(2, 2);
+  graphics(img).clear(color::green);
+  EXPECT_TRUE(img.is_valid());
+  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
+
+  bgramap rgb = img.get<PixelFormat::BGRA>();
+
+  const_image_data<PixelFormat::BGRA> raw = static_cast<const bgramap&>(rgb).get_data();
+  EXPECT_EQUAL(raw.pixel(0, 0), green);
+  EXPECT_EQUAL(raw.pixel(0, 1), green);
+  EXPECT_EQUAL(raw.pixel(1, 0), green);
+  EXPECT_EQUAL(raw.pixel(0, 1), green);
+}
+END_TEST(test_pixmap_green)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_pixmap_blue) {
+  pixmap img(2, 2);
+  graphics(img).clear(color::blue);
+  EXPECT_TRUE(img.is_valid());
+  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
+
+  bgramap rgb = img.get<PixelFormat::BGRA>();
+
+  const_image_data<PixelFormat::BGRA> raw = static_cast<const bgramap&>(rgb).get_data();
+  EXPECT_EQUAL(raw.pixel(0, 0), blue);
+  EXPECT_EQUAL(raw.pixel(0, 1), blue);
+  EXPECT_EQUAL(raw.pixel(1, 0), blue);
+  EXPECT_EQUAL(raw.pixel(0, 1), blue);
+}
+END_TEST(test_pixmap_blue)
+
+// --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_white) {
   pixmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(2, 2));
-  EXPECT_EQUAL(img.depth(), IF_WIN32_ELSE(32, 24));
-  EXPECT_EQUAL(img.pixel_format(), PixFmt);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixFmt));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
 
-  MapType rgb = img.get<PixFmt>();
+  bgramap rgb = img.get<PixelFormat::BGRA>();
 
-  const_image_data<PixFmt> raw = static_cast<const MapType&>(rgb).get_data();
+  const_image_data<PixelFormat::BGRA> raw = static_cast<const bgramap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), white);
   EXPECT_EQUAL(raw.pixel(0, 1), white);
   EXPECT_EQUAL(raw.pixel(1, 0), white);
@@ -143,11 +202,11 @@ DEFINE_TEST(test_pixmap) {
   }
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(2, 2));
-  EXPECT_EQUAL(img.depth(), IF_WIN32_ELSE(32, 24));
-  EXPECT_EQUAL(img.pixel_format(), PixFmt);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixFmt));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
 
-  MapType rgb = img.get<PixFmt>();
+  bgramap rgb = img.get<PixelFormat::BGRA>();
 
   auto raw = rgb.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black);
@@ -187,9 +246,9 @@ DEFINE_TEST(test_pixmap_draw) {
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(6, 6));
-  EXPECT_EQUAL(img.depth(), IF_WIN32_ELSE(32, 24));
-  EXPECT_EQUAL(img.pixel_format(), PixFmt);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, IF_WIN32_ELSE(24, 20), PixFmt));
+  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, 24, PixelFormat::BGRA));
 
 #ifdef X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 6, 6, AllPlanes, ZPixmap);
@@ -229,7 +288,7 @@ DEFINE_TEST(test_pixmap_draw) {
                              EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY "\n"
                              EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY);
 
-  MapType rgb = img.get<PixFmt>();
+  bgramap rgb = img.get<PixelFormat::BGRA>();
 
   auto raw = rgb.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black) ;
@@ -275,6 +334,13 @@ DEFINE_TEST(test_pixmap2bitmap) {
   EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::bgr_pixel::white);
   EXPECT_EQUAL(bgr_raw.pixel(1, 0), pixel::bgr_pixel::white);
   EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::bgr_pixel::white);
+
+  rgbmap rgb = pix.get<PixelFormat::RGB>();
+  auto rgb_raw = rgb.get_data();
+  EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::rgb_pixel::white);
+  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::rgb_pixel::white);
+  EXPECT_EQUAL(rgb_raw.pixel(1, 0), pixel::rgb_pixel::white);
+  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::rgb_pixel::white);
 
   bwmap bw1 = pix.get<PixelFormat::BW>();
 

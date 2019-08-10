@@ -75,9 +75,14 @@ namespace gui {
     }
 
     template<PixelFormat T>
-    inline datamap<T>::datamap (const blob& data, const bitmap_info& bmi) {
-      super::create(data, bmi);
-    }
+    inline datamap<T>::datamap (const blob& data, const bitmap_info& bmi)
+      : super(data, bmi)
+    {}
+
+    template<PixelFormat T>
+    inline datamap<T>::datamap (blob&& data, bitmap_info&& bmi)
+      : super(std::move(data), std::move(bmi))
+    {}
 
     template<PixelFormat T>
     const datamap<T> basic_datamap::convert () const {

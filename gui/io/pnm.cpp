@@ -219,14 +219,14 @@ namespace gui {
     void write_pnm4_line (std::ostream&, const draw::const_image_data<PixelFormat::BW>::raw_type, int);
 
     template<>
-    inline void write_pnm4_line<basepp::bit_order::msb> (std::ostream& out,
+    inline void write_pnm4_line<basepp::bit_order::msb_first> (std::ostream& out,
                                                          const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       out.write(reinterpret_cast<const char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void write_pnm4_line<basepp::bit_order::lsb> (std::ostream& out,
+    inline void write_pnm4_line<basepp::bit_order::lsb_first> (std::ostream& out,
                                                          const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       std::vector<byte> line(bytes);
@@ -252,12 +252,12 @@ namespace gui {
     void read_pnm4_line (std::istream& in, draw::image_data<PixelFormat::BW>::raw_type, int bytes);
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::msb>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::msb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       in.read(reinterpret_cast<char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::lsb>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<basepp::bit_order::lsb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       std::vector<byte> line(bytes);
       in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {

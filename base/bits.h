@@ -60,8 +60,8 @@ namespace basepp {
 
   // --------------------------------------------------------------------------
   enum class bit_order : bool {
-    lsb,
-    msb
+    lsb_first,
+    msb_first
   };
 
   // --------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace basepp {
 
     // --------------------------------------------------------------------------
     constexpr bit_order get_bit_order () {
-      return IF_WIN32_ELSE(bit_order::msb, bit_order::lsb);
+      return IF_WIN32_ELSE(bit_order::msb_first, bit_order::lsb_first);
     }
 
     namespace detail {
@@ -132,14 +132,14 @@ namespace basepp {
   struct bw_bits {};
 
   template<>
-  struct bw_bits<bit_order::lsb> {
+  struct bw_bits<bit_order::lsb_first> {
     static constexpr byte value[2] = {0, 0xff};
     static constexpr bool white = true;
     static constexpr bool black = false;
   };
 
   template<>
-  struct bw_bits<bit_order::msb> {
+  struct bw_bits<bit_order::msb_first> {
     static constexpr byte value[2] = {0xff, 0};
     static constexpr bool white = false;
     static constexpr bool black = true;
@@ -150,10 +150,10 @@ namespace basepp {
   struct system_bit_mask {};
 
   template<byte bit>
-  struct system_bit_mask<bit, bit_order::lsb> : lsb_bit_mask<bit> {};
+  struct system_bit_mask<bit, bit_order::lsb_first> : lsb_bit_mask<bit> {};
 
   template<byte bit>
-  struct system_bit_mask<bit, bit_order::msb> : msb_bit_mask<bit> {};
+  struct system_bit_mask<bit, bit_order::msb_first> : msb_bit_mask<bit> {};
 
   // --------------------------------------------------------------------------
   struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {

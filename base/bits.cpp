@@ -33,8 +33,8 @@
 
 namespace basepp {
 
-  constexpr byte bw_bits<bit_order::lsb>::value[];
-  constexpr byte bw_bits<bit_order::msb>::value[];
+  constexpr byte bw_bits<bit_order::lsb_first>::value[];
+  constexpr byte bw_bits<bit_order::msb_first>::value[];
 
   constexpr byte system_bw_bits::mask[];
   constexpr byte system_bw_bits::shift[];

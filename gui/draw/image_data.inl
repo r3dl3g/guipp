@@ -234,6 +234,15 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    inline bool operator== (const rgb_pixel& lhs, const rgba_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
+
+    inline bool operator== (const rgba_pixel& lhs, const rgb_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
+
+    // --------------------------------------------------------------------------
     inline bool operator== (const bgr_pixel& lhs, const bgr_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
     }

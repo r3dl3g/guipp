@@ -62,13 +62,13 @@ namespace gui {
       case 8: return PixelFormat::GRAY;
       case 24:
         switch (byte_order) {
-          case basepp::byte_order::little_endian: return PixelFormat::BGR;
-          case basepp::byte_order::big_endian: return PixelFormat::RGB;
+          case basepp::byte_order::little_endian: return PixelFormat::RGB;
+          case basepp::byte_order::big_endian: return PixelFormat::BGR;
         }
       case 32:
         switch (byte_order) {
-          case basepp::byte_order::little_endian: return PixelFormat::BGRA;
-          case basepp::byte_order::big_endian: return PixelFormat::RGBA;
+          case basepp::byte_order::little_endian: return PixelFormat::RGBA;
+          case basepp::byte_order::big_endian: return PixelFormat::BGRA;
         }
     }
     return PixelFormat::Undefined;
@@ -77,16 +77,16 @@ namespace gui {
   basepp::byte_order get_pixel_format_byte_order (PixelFormat px_fmt) {
     switch (px_fmt) {
       case PixelFormat::BW:
-      case PixelFormat::BGR:
-      case PixelFormat::BGRA:
-      case PixelFormat::ABGR:
-      default:
-        return basepp::byte_order::little_endian;
-      case PixelFormat::GRAY:
       case PixelFormat::RGB:
       case PixelFormat::RGBA:
       case PixelFormat::ARGB:
-        return basepp::byte_order::big_endian;
+      default:
+        return basepp::byte_order::little_endian;
+      case PixelFormat::GRAY:
+      case PixelFormat::BGR:
+      case PixelFormat::BGRA:
+      case PixelFormat::ABGR:
+      return basepp::byte_order::big_endian;
     }
   }
 

@@ -75,9 +75,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct rgb_pixel {
 
-      byte red;
-      byte green;
       byte blue;
+      byte green;
+      byte red;
 
       template<typename T>
       void operator= (T);
@@ -96,9 +96,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct rgba_pixel {
-      byte red;
-      byte green;
+
       byte blue;
+      byte green;
+      byte red;
       byte alpha;
 
       template<typename T>
@@ -110,6 +111,10 @@ namespace gui {
     GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
 
     // --------------------------------------------------------------------------
+    bool operator== (const rgb_pixel&, const rgba_pixel&);
+    bool operator== (const rgba_pixel&, const rgb_pixel&);
+
+    // --------------------------------------------------------------------------
     template<>
     struct color<rgba_pixel> {
       static constexpr rgba_pixel black = {0, 0, 0, 0};
@@ -119,9 +124,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct bgr_pixel {
 
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
 
       template<typename T>
       void operator= (T);
@@ -141,9 +146,9 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct bgra_pixel {
 
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
       byte alpha;
 
       template<typename T>
@@ -169,9 +174,9 @@ namespace gui {
     struct argb_pixel {
 
       byte alpha;
-      byte red;
-      byte green;
       byte blue;
+      byte green;
+      byte red;
 
       template<typename T>
       void operator= (T);
@@ -192,9 +197,9 @@ namespace gui {
     struct abgr_pixel {
 
       byte alpha;
-      byte blue;
-      byte green;
       byte red;
+      byte green;
+      byte blue;
 
       template<typename T>
       void operator= (T);

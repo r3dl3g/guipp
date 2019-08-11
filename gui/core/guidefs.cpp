@@ -256,7 +256,14 @@ namespace gui {
       }
 
       double calc_scale_factor () {
-        return (double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
+        const char* xscale = getenv("XSCALE");
+        if (xscale) {
+          double scale = 1.0;
+          std::stringstream(xscale) >> scale;
+          return scale;
+        } else {
+          return (double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
+        }
       }
 
 #endif // WIN32

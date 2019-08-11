@@ -194,6 +194,22 @@ namespace gui {
       return out;
     }
 
+    byte get_alpha (bw_pixel) {
+      return 0;//IF_WIN32_ELSE(0, 255);
+    }
+
+    byte get_alpha (gray_pixel) {
+      return 0;//IF_WIN32_ELSE(0, 255);
+    }
+
+    byte get_alpha (rgb_pixel) {
+      return 0;//IF_WIN32_ELSE(0, 255);
+    }
+
+    byte get_alpha (bgr_pixel) {
+      return 0;//IF_WIN32_ELSE(0, 255);
+    }
+
   } // namespace pixel
 
 } // namespace gui

@@ -224,6 +224,9 @@ namespace gui {
     byte get_blue (gray_pixel);
     byte get_alpha (gray_pixel);
 
+    byte get_alpha (rgb_pixel);
+    byte get_alpha (bgr_pixel);
+
     template<typename T> bw_pixel get_bw (T);
     template<typename T> byte get_gray (T);
     template<typename T> byte get_red (T);

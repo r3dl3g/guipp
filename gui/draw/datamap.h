@@ -36,7 +36,7 @@ namespace gui {
     public:
       bool is_valid () const;
 
-      basic_datamap ();
+      basic_datamap () = default;
 
       operator bool () const;
 
@@ -73,12 +73,13 @@ namespace gui {
       using pixel_type = typename BPP2Pixel<T>::pixel;
       static constexpr PixelFormat px_fmt = T;
 
-      datamap ();
+      datamap () = default;
 
       datamap (uint32_t w, uint32_t h);
       datamap (const core::uint32_size& sz);
       datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
+
       datamap (const blob& data, const bitmap_info& bmi);
       datamap (blob&& data, bitmap_info&& bmi);
 

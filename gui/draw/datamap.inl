@@ -31,10 +31,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    inline datamap<T>::datamap ()
-    {}
-
-    template<PixelFormat T>
     inline datamap<T>::datamap (uint32_t w, uint32_t h) {
       create(w, h);
     }

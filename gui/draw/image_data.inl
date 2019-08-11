@@ -147,10 +147,6 @@ namespace gui {
       return get_gray(p);
     }
 
-    inline byte get_alpha (bw_pixel) {
-      return 0;
-    }
-
     // --------------------------------------------------------------------------
     template<>
     inline bw_pixel get_bw<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
@@ -179,7 +175,7 @@ namespace gui {
 
     template<>
     inline byte get_alpha<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return 0;
+      return IF_WIN32_ELSE(0, 255);
     }
 
     // --------------------------------------------------------------------------
@@ -211,18 +207,6 @@ namespace gui {
 
     inline byte get_blue (gray_pixel p) {
       return p.value;
-    }
-
-    inline byte get_alpha (gray_pixel) {
-      return 0;
-    }
-
-    inline byte get_alpha (rgb_pixel) {
-      return 0;
-    }
-
-    inline byte get_alpha (bgr_pixel) {
-      return 0;
     }
 
     // --------------------------------------------------------------------------

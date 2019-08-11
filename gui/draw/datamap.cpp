@@ -33,9 +33,6 @@ namespace gui {
 
   namespace draw {
 
-    basic_datamap::basic_datamap ()
-    {}
-
     basic_datamap::basic_datamap (const blob& data, const bitmap_info& info)
       : data(data)
       , info(info)

@@ -154,7 +154,7 @@ namespace gui {
     draw::bitmap_info bitmap_get_info (os::bitmap id) {
       draw::bitmap_info bmi;
       if (id) {
-        Window root;
+        Window root = 0;
         int x, y;
         unsigned int w, h, b, d;
         auto display = core::global::get_instance();
@@ -196,9 +196,9 @@ namespace gui {
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
-        bmi.depth(),                                            /* depth of image */
+        std::min(byte(24), bmi.depth()),                        /* depth of image */
         static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-        bmi.depth()                                            /* bits per pixel (ZPixmap) */
+        bmi.depth()                                             /* bits per pixel (ZPixmap) */
       };
 
       Status st = XInitImage(&im);

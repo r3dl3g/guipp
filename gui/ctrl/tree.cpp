@@ -135,8 +135,7 @@ namespace gui {
           mask.stretch_from(rhs);
         }
         mask.invert();
-        draw::pixmap icon(mask.size());
-        icon = mask;
+        draw::pixmap icon(mask);
         if (!selected) {
           icon.invert();
         }

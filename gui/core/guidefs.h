@@ -88,7 +88,7 @@ namespace gui {
     ABGR
   };
 
-  std::ostream& operator<< (std::ostream&, PixelFormat);
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream&, PixelFormat);
 
   constexpr byte color_depths[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
 

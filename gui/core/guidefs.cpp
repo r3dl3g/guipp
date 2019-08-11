@@ -262,7 +262,7 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
-          return (double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
+          return 1.0;//(double)GetScaleFactorForDevice(DEVICE_PRIMARY) / 100.0;
         }
       }
 

@@ -44,188 +44,192 @@ namespace gui {
       white = true
     };
 
-    std::ostream& operator<< (std::ostream& out, const bw_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bw_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct color {};
 
 #pragma pack(push, 1)
 
     // --------------------------------------------------------------------------
     struct gray_pixel {
-      static const gray_pixel black;
-      static const gray_pixel white;
 
       byte value;
 
-      gray_pixel (byte value = 0);
-
-      template<typename T>
-      gray_pixel (T);
-
-      bool operator== (const gray_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const gray_pixel&);
+    bool operator== (const gray_pixel&, const gray_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const gray_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<gray_pixel> {
+      static constexpr gray_pixel black = { 0 };
+      static constexpr gray_pixel white = { 0xff };
+    };
 
     // --------------------------------------------------------------------------
     struct rgb_pixel {
-      static const rgb_pixel black;
-      static const rgb_pixel white;
 
       byte red;
       byte green;
       byte blue;
 
-      rgb_pixel (byte r, byte g, byte b);
-
-      template<typename T>
-      rgb_pixel (T);
-
-      bool operator== (const rgb_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
+    bool operator== (const rgb_pixel&, const rgb_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<rgb_pixel> {
+      static constexpr rgb_pixel black = {0, 0, 0};
+      static constexpr rgb_pixel white = {0xff, 0xff, 0xff};
+    };
 
     // --------------------------------------------------------------------------
     struct rgba_pixel {
-      static const rgba_pixel black;
-      static const rgba_pixel white;
-
       byte red;
       byte green;
       byte blue;
       byte alpha;
 
-      rgba_pixel (byte r, byte g, byte b, byte a);
-
-      template<typename T>
-      rgba_pixel (T);
-
-      bool operator== (const rgba_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
+    bool operator== (const rgba_pixel&, const rgba_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
 
     // --------------------------------------------------------------------------
-    struct bgra_pixel;
+    template<>
+    struct color<rgba_pixel> {
+      static constexpr rgba_pixel black = {0, 0, 0, 0};
+      static constexpr rgba_pixel white = {0xff, 0xff, 0xff, 0};
+    };
 
+    // --------------------------------------------------------------------------
     struct bgr_pixel {
-      static const bgr_pixel black;
-      static const bgr_pixel white;
 
       byte blue;
       byte green;
       byte red;
 
-      bgr_pixel (byte, byte, byte);
-
-      template<typename T>
-      bgr_pixel (T);
-
-      bool operator== (const bgr_pixel&) const;
-      bool operator== (const bgra_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const bgr_pixel&);
+    bool operator== (const bgr_pixel&, const bgr_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgr_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<bgr_pixel> {
+      static constexpr bgr_pixel black = {0, 0, 0};
+      static constexpr bgr_pixel white = {0xff, 0xff, 0xff};
+    };
 
     // --------------------------------------------------------------------------
     struct bgra_pixel {
-      static const bgra_pixel black;
-      static const bgra_pixel white;
 
       byte blue;
       byte green;
       byte red;
       byte alpha;
 
-      bgra_pixel (byte, byte, byte, byte);
-
-      template<typename T>
-      bgra_pixel (T);
-
-      bool operator== (const bgra_pixel&) const;
-      bool operator== (const bgr_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const bgra_pixel&);
+    bool operator== (const bgra_pixel&, const bgra_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgra_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<bgra_pixel> {
+      static constexpr bgra_pixel black = {0, 0, 0, 0};
+      static constexpr bgra_pixel white = {0xff, 0xff, 0xff, 0};
+    };
+
+    // --------------------------------------------------------------------------
+    bool operator== (const bgr_pixel&, const bgra_pixel&);
+    bool operator== (const bgra_pixel&, const bgr_pixel&);
 
     // --------------------------------------------------------------------------
     struct argb_pixel {
-      static const argb_pixel black;
-      static const argb_pixel white;
 
       byte alpha;
       byte red;
       byte green;
       byte blue;
 
-      argb_pixel (byte, byte, byte, byte);
-
-      template<typename T>
-      argb_pixel (T);
-
-      bool operator== (const argb_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const argb_pixel&);
+    bool operator== (const argb_pixel&, const argb_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const argb_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<argb_pixel> {
+      static constexpr argb_pixel black = {0, 0, 0, 0};
+      static constexpr argb_pixel white = {0, 0xff, 0xff, 0xff};
+    };
 
     // --------------------------------------------------------------------------
     struct abgr_pixel {
-      static const abgr_pixel black;
-      static const abgr_pixel white;
 
       byte alpha;
       byte blue;
       byte green;
       byte red;
 
-      abgr_pixel (byte, byte, byte, byte);
-
-      template<typename T>
-      abgr_pixel (T);
-
-      bool operator== (const abgr_pixel&) const;
-
       template<typename T>
       void operator= (T);
     };
 
-    std::ostream& operator<< (std::ostream& out, const abgr_pixel&);
+    bool operator== (const abgr_pixel&, const abgr_pixel&);
+
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const abgr_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<abgr_pixel> {
+      static constexpr abgr_pixel black = {0, 0, 0, 0};
+      static constexpr abgr_pixel white = {0, 0xff, 0xff, 0xff};
+    };
 
 #pragma pack(pop)
+    // --------------------------------------------------------------------------
 
     bw_pixel get_bw (bw_pixel);
     byte get_gray (bw_pixel);
     byte get_red (bw_pixel);
     byte get_green (bw_pixel);
     byte get_blue (bw_pixel);
-    byte get_alpha (bw_pixel);
+    GUIPP_DRAW_EXPORT byte get_alpha (bw_pixel);
 
     bw_pixel get_bw (gray_pixel);
     byte get_gray (gray_pixel);
     byte get_red (gray_pixel);
     byte get_green (gray_pixel);
     byte get_blue (gray_pixel);
-    byte get_alpha (gray_pixel);
+    GUIPP_DRAW_EXPORT byte get_alpha (gray_pixel);
 
-    byte get_alpha (rgb_pixel);
-    byte get_alpha (bgr_pixel);
+    GUIPP_DRAW_EXPORT byte get_alpha (rgb_pixel);
+    GUIPP_DRAW_EXPORT byte get_alpha (bgr_pixel);
 
     template<typename T> bw_pixel get_bw (T);
     template<typename T> byte get_gray (T);

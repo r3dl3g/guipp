@@ -40,11 +40,17 @@ TEST_MAIN_END(pixmap_test)
 using namespace gui;
 using namespace gui::draw;
 
-const pixel::bgr_pixel black = color::black;
-const pixel::bgr_pixel white = color::white;
-const pixel::bgr_pixel red = color::red;
-const pixel::bgr_pixel green = color::green;
-const pixel::bgr_pixel blue = color::blue;
+inline pixel::bgr_pixel color2bgr (os::color c) {
+  pixel::bgr_pixel p;
+  p = c;
+  return p;
+}
+
+const pixel::bgr_pixel black = color2bgr(color::black);
+const pixel::bgr_pixel white = color2bgr(color::white);
+const pixel::bgr_pixel red = color2bgr(color::red);
+const pixel::bgr_pixel green = color2bgr(color::green);
+const pixel::bgr_pixel blue = color2bgr(color::blue);
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bitmap_black) {
@@ -330,17 +336,17 @@ DEFINE_TEST(test_pixmap2bitmap) {
 
   bgrmap bgr = pix.get<PixelFormat::BGR>();
   auto bgr_raw = bgr.get_data();
-  EXPECT_EQUAL(bgr_raw.pixel(0, 0), pixel::bgr_pixel::white);
-  EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::bgr_pixel::white);
-  EXPECT_EQUAL(bgr_raw.pixel(1, 0), pixel::bgr_pixel::white);
-  EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::bgr_pixel::white);
+  EXPECT_EQUAL(bgr_raw.pixel(0, 0), pixel::color<pixel::bgr_pixel>::white);
+  EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::color<pixel::bgr_pixel>::white);
+  EXPECT_EQUAL(bgr_raw.pixel(1, 0), pixel::color<pixel::bgr_pixel>::white);
+  EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::color<pixel::bgr_pixel>::white);
 
   rgbmap rgb = pix.get<PixelFormat::RGB>();
   auto rgb_raw = rgb.get_data();
-  EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::rgb_pixel::white);
-  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::rgb_pixel::white);
-  EXPECT_EQUAL(rgb_raw.pixel(1, 0), pixel::rgb_pixel::white);
-  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::rgb_pixel::white);
+  EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb_pixel>::white);
+  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb_pixel>::white);
+  EXPECT_EQUAL(rgb_raw.pixel(1, 0), pixel::color<pixel::rgb_pixel>::white);
+  EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb_pixel>::white);
 
   bwmap bw1 = pix.get<PixelFormat::BW>();
 

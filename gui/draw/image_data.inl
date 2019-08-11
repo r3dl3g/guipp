@@ -99,22 +99,22 @@ namespace gui {
 
     template<>
     inline byte get_red<os::color> (os::color c) {
-      return color::get_red(c);
+      return gui::color::get_red(c);
     }
 
     template<>
     inline byte get_green<os::color> (os::color c) {
-      return color::get_green(c);
+      return gui::color::get_green(c);
     }
 
     template<>
     inline byte get_blue<os::color> (os::color c) {
-      return color::get_blue(c);
+      return gui::color::get_blue(c);
     }
 
     template<>
     inline byte get_alpha<os::color> (os::color c) {
-      return color::get_alpha(c);
+      return gui::color::get_alpha(c);
     }
 
     // --------------------------------------------------------------------------
@@ -180,13 +180,12 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    inline gray_pixel::gray_pixel (T rhs)
-      : value(get_gray(rhs))
-    {}
-
-    template<typename T>
     inline void gray_pixel::operator= (T rhs) {
       value = get_gray(rhs);
+    }
+
+    inline bool operator== (const gray_pixel& l, const gray_pixel& r) {
+      return l.value == r.value;
     }
 
     inline bw_pixel get_bw (gray_pixel p) {
@@ -210,12 +209,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline rgb_pixel::rgb_pixel (T rhs)
-      : red(get_red(rhs))
-      , green(get_green(rhs))
-      , blue(get_blue(rhs))
-    {}
+    inline bool operator== (const rgb_pixel& lhs, const rgb_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
 
     template<typename T>
     inline void rgb_pixel::operator= (T rhs) {
@@ -225,13 +221,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline rgba_pixel::rgba_pixel (T rhs)
-      : red(get_red(rhs))
-      , green(get_green(rhs))
-      , blue(get_blue(rhs))
-      , alpha(get_alpha(rhs))
-    {}
+    inline bool operator== (const rgba_pixel& lhs, const rgba_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
+    }
 
     template<typename T>
     inline void rgba_pixel::operator= (T rhs) {
@@ -242,13 +234,10 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline bgr_pixel::bgr_pixel (T rhs)
-      : blue(get_blue(rhs))
-      , red(get_red(rhs))
-      , green(get_green(rhs))
-    {}
-
+    inline bool operator== (const bgr_pixel& lhs, const bgr_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
+    
     template<typename T>
     inline void bgr_pixel::operator= (T rhs) {
       red = get_red(rhs);
@@ -257,13 +246,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline bgra_pixel::bgra_pixel (T rhs)
-      : blue(get_blue(rhs))
-      , red(get_red(rhs))
-      , green(get_green(rhs))
-      , alpha(get_alpha(rhs))
-    {}
+    inline bool operator== (const bgra_pixel& lhs, const bgra_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
+    }
 
     template<typename T>
     inline void bgra_pixel::operator= (T rhs) {
@@ -274,13 +259,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline argb_pixel::argb_pixel (T rhs)
-      : alpha(get_alpha(rhs))
-      , red(get_red(rhs))
-      , green(get_green(rhs))
-      , blue(get_blue(rhs))
-    {}
+    inline bool operator== (const bgr_pixel& lhs, const bgra_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
+
+    inline bool operator== (const bgra_pixel& lhs, const bgr_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
+
+    // --------------------------------------------------------------------------
+    inline bool operator== (const argb_pixel& lhs, const argb_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
+    }
 
     template<typename T>
     inline void argb_pixel::operator= (T rhs) {
@@ -291,13 +281,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline abgr_pixel::abgr_pixel (T rhs)
-      : alpha(get_alpha(rhs))
-      , blue(get_blue(rhs))
-      , green(get_green(rhs))
-      , red(get_red(rhs))
-    {}
+    inline bool operator== (const abgr_pixel& lhs, const abgr_pixel& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
+    }
 
     template<typename T>
     inline void abgr_pixel::operator= (T rhs) {

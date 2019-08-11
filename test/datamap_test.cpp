@@ -70,11 +70,11 @@ DEFINE_TEST(test_gray)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
 
   image_data<PixelFormat::GRAY> raw = img.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::gray_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::gray_pixel>::black);
 
-  raw.pixel(0, 0) = pixel::gray_pixel::white;
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::gray_pixel::white);
-  EXPECT_EQUAL(raw.pixel(1, 1), pixel::gray_pixel::black);
+  raw.pixel(0, 0) = pixel::color<pixel::gray_pixel>::white;
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::gray_pixel>::white);
+  EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::gray_pixel>::black);
 END_TEST(test_gray)
 
 // --------------------------------------------------------------------------
@@ -90,11 +90,11 @@ DEFINE_TEST(test_rgb)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::RGB));
 
   auto raw = img.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::rgb_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgb_pixel>::black);
 
-  raw.pixel(0, 0) = pixel::rgb_pixel::white;
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::rgb_pixel::white);
-  EXPECT_EQUAL(raw.pixel(1, 1), pixel::rgb_pixel::black);
+  raw.pixel(0, 0) = pixel::color<pixel::rgb_pixel>::white;
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgb_pixel>::white);
+  EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::rgb_pixel>::black);
 END_TEST(test_rgb)
 
 // --------------------------------------------------------------------------
@@ -110,11 +110,11 @@ DEFINE_TEST(test_bgr)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::BGR));
 
   auto raw = img.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgr_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgr_pixel>::black);
 
-  raw.pixel(0, 0) = pixel::bgr_pixel::white;
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgr_pixel::white);
-  EXPECT_EQUAL(raw.pixel(1, 1), pixel::bgr_pixel::black);
+  raw.pixel(0, 0) = pixel::color<pixel::bgr_pixel>::white;
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgr_pixel>::white);
+  EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::bgr_pixel>::black);
 END_TEST(test_bgr)
 
 // --------------------------------------------------------------------------
@@ -130,11 +130,11 @@ DEFINE_TEST(test_rgba)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
 
   auto raw = img.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::rgba_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgba_pixel>::black);
 
-  raw.pixel(0, 0) = pixel::rgba_pixel::white;
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::rgba_pixel::white);
-  EXPECT_EQUAL(raw.pixel(1, 1), pixel::rgba_pixel::black);
+  raw.pixel(0, 0) = pixel::color<pixel::rgba_pixel>::white;
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::rgba_pixel>::white);
+  EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::rgba_pixel>::black);
 END_TEST(test_rgba)
 
 // --------------------------------------------------------------------------
@@ -150,11 +150,11 @@ DEFINE_TEST(test_bgra)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
 
   auto raw = img.get_data();
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgra_pixel::black);
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgra_pixel>::black);
 
-  raw.pixel(0, 0) = pixel::bgra_pixel::white;
-  EXPECT_EQUAL(raw.pixel(0, 0), pixel::bgra_pixel::white);
-  EXPECT_EQUAL(raw.pixel(1, 1), pixel::bgra_pixel::black);
+  raw.pixel(0, 0) = pixel::color<pixel::bgra_pixel>::white;
+  EXPECT_EQUAL(raw.pixel(0, 0), pixel::color<pixel::bgra_pixel>::white);
+  EXPECT_EQUAL(raw.pixel(1, 1), pixel::color<pixel::bgra_pixel>::black);
 END_TEST(test_bgra)
 
 // --------------------------------------------------------------------------

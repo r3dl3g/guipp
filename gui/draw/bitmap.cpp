@@ -139,7 +139,8 @@ namespace gui {
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
       auto display = core::global::get_instance();
       auto visual = DefaultRootWindow(display);
-      os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, bmi.depth());
+      const auto depth = bmi.depth();
+      os::bitmap id = XCreatePixmap(display, visual, bmi.width, bmi.height, depth);
       if (data) {
         bitmap_put_data(id, data, bmi);
       }
@@ -196,9 +197,9 @@ namespace gui {
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
-        std::min(byte(24), bmi.depth()),                        /* depth of image */
+        bmi.depth(),                                            /* depth of image */
         static_cast<int>(bmi.bytes_per_line),                   /* accelarator to next line */
-        bmi.depth()                                             /* bits per pixel (ZPixmap) */
+        bmi.bits_per_pixel()                                    /* bits per pixel (ZPixmap) */
       };
 
       Status st = XInitImage(&im);
@@ -384,11 +385,14 @@ namespace gui {
     void basic_map::operator= (const basic_map& rhs) {
       if (&rhs != this) {
         if (rhs) {
-          blob bin;
-          bitmap_info bmi;
-          bitmap_get_data(rhs.get_id(), bin, bmi);
+          bitmap_info bmi = rhs.get_info();
           create(bmi);
-          bitmap_put_data(get_id(), bin.data(), bmi);
+          graphics(*this).copy_from((os::drawable)rhs, core::rectangle(0, 0, bmi.width, bmi.height));
+//          blob bin;
+//          bitmap_info bmi;
+//          bitmap_get_data(rhs.get_id(), bin, bmi);
+//          create(bmi);
+//          bitmap_put_data(get_id(), bin.data(), bmi);
         } else {
           clear();
         }

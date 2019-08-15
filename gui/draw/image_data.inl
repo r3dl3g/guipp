@@ -98,6 +98,16 @@ namespace gui {
     }
 
     template<>
+    inline bw_pixel get_bw<os::color> (os::color c) {
+      return bw_pixel(c != gui::color::black);
+    }
+
+    template<>
+    inline byte get_gray<os::color> (os::color c) {
+      return gui::color::calc_medium_gray(c);
+    }
+
+    template<>
     inline byte get_red<os::color> (os::color c) {
       return gui::color::get_red(c);
     }
@@ -175,7 +185,7 @@ namespace gui {
 
     template<>
     inline byte get_alpha<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return IF_WIN32_ELSE(0, 255);
+      return 0;//IF_WIN32_ELSE(0, 255);
     }
 
     // --------------------------------------------------------------------------
@@ -329,35 +339,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    inline image_data<T>::image_data (raw_type data, const bitmap_info& info)
-      : data(data)
-      , info(info)
-    {}
-
-    template<PixelFormat T>
-    inline auto image_data<T>::row (uint32_t y) -> row_type {
-      byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
-      using raw_type = typename row_type::type;
-      return row_type(reinterpret_cast<raw_type*>(row), info.width);
-    }
-
-    template<PixelFormat T>
-    inline auto image_data<T>::pixel (uint32_t x, uint32_t y) -> pixel_type& {
-      return row(y)[x];
-    }
-
-    template<PixelFormat T>
-    inline const bitmap_info& image_data<T>::get_info () const {
-      return info;
-    }
-
-    template<PixelFormat T>
-    inline auto image_data<T>::raw_data () -> raw_type& {
-      return data;
-    }
-
-    // --------------------------------------------------------------------------
-    template<PixelFormat T>
     inline const_image_data<T>::const_image_data (raw_type data, const bitmap_info& info)
       : data(data)
       , info(info)
@@ -382,6 +363,35 @@ namespace gui {
 
     template<PixelFormat T>
     inline auto const_image_data<T>::raw_data () const -> const raw_type& {
+      return data;
+    }
+
+    // --------------------------------------------------------------------------
+    template<PixelFormat T>
+    inline image_data<T>::image_data (raw_type data, const bitmap_info& info)
+      : data(data)
+      , info(info)
+    {}
+
+    template<PixelFormat T>
+    inline auto image_data<T>::row (uint32_t y) -> row_type {
+      byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+      using raw_type = typename row_type::type;
+      return row_type(reinterpret_cast<raw_type*>(row), info.width);
+    }
+
+    template<PixelFormat T>
+    inline auto image_data<T>::pixel (uint32_t x, uint32_t y) -> pixel_type& {
+      return row(y)[x];
+    }
+
+    template<PixelFormat T>
+    inline const bitmap_info& image_data<T>::get_info () const {
+      return info;
+    }
+
+    template<PixelFormat T>
+    inline auto image_data<T>::raw_data () -> raw_type& {
       return data;
     }
 

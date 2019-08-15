@@ -209,6 +209,8 @@ namespace basepp {
       recorder& operator<< (const char* value);
       recorder& operator<< (const std::string& value);
 
+      operator std::ostream& ();
+
     private:
       std::chrono::system_clock::time_point m_time_point;
       level m_level;

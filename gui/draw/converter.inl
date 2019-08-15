@@ -31,8 +31,8 @@ namespace gui {
 
       template<PixelFormat From>
       struct line<From, PixelFormat::BW> {
-        static inline void convert (const draw::const_image_row<From> in,
-                                    draw::image_row<PixelFormat::BW> out,
+        static inline void convert (const typename draw::const_image_data<From>::row_type in,
+                                    typename draw::image_data<PixelFormat::BW>::row_type out,
                                     uint32_t w) {
           for (uint_fast32_t x = 0; x < w; ++x) {
             out[x] = get_bw(in[x]);
@@ -41,8 +41,8 @@ namespace gui {
       };
 
       template<PixelFormat From, PixelFormat To>
-      void line<From, To>::convert (const draw::const_image_row<From> in,
-                                    draw::image_row<To> out,
+      void line<From, To>::convert (const typename draw::const_image_data<From>::row_type in,
+                                    typename draw::image_data<To>::row_type out,
                                     uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           out[x] = in[x];
@@ -50,7 +50,7 @@ namespace gui {
       }
 
       template<PixelFormat From, PixelFormat To>
-      void convert (const draw::const_image_data<From> in,
+      void convert (const typename draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h) {
         for (uint_fast32_t y = 0; y < h; ++y) {
@@ -64,8 +64,8 @@ namespace gui {
     namespace copy {
 
       template<PixelFormat px_fmt>
-      void row (const draw::const_image_row<px_fmt> src,
-                draw::image_row<px_fmt> dst,
+      void row (const typename draw::const_image_data<px_fmt>::row_type src,
+                typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           dst[dest_x0 + x] = src[src_x0 + x];
@@ -73,7 +73,7 @@ namespace gui {
       }
 
       template<PixelFormat px_fmt>
-      void sub (const draw::const_image_data<px_fmt> src_data,
+      void sub (const typename draw::const_image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::uint32_point& src,
                 const core::uint32_rect& dest) {
@@ -90,8 +90,8 @@ namespace gui {
     namespace stretch {
 
       template<PixelFormat px_fmt>
-      void row (const draw::const_image_row<px_fmt> src,
-                draw::image_row<px_fmt> dst,
+      void row (const typename draw::const_image_data<px_fmt>::row_type src,
+                typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0,
                 uint32_t src_w, uint32_t dest_w) {
         for (uint_fast32_t x = 0; x < dest_w; ++x) {
@@ -101,7 +101,7 @@ namespace gui {
       }
 
       template<PixelFormat px_fmt>
-      void sub (const draw::const_image_data<px_fmt> src_data,
+      void sub (const typename draw::const_image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::uint32_rect& src,
                 const core::uint32_rect& dest) {
@@ -118,7 +118,7 @@ namespace gui {
     namespace brightness {
 
       template<PixelFormat px_fmt>
-      void row (draw::image_row<px_fmt> data, uint32_t w, float f) {
+      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, float f) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           data[x] = data[x] * f;
         }
@@ -136,7 +136,7 @@ namespace gui {
     namespace fill {
 
       template<PixelFormat px_fmt, typename pixel_type>
-      void row (draw::image_row<px_fmt> data, uint32_t w, const pixel_type& px) {
+      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, const pixel_type& px) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           data[x] = px;
         }

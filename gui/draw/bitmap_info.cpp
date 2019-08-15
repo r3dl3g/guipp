@@ -48,14 +48,18 @@ namespace gui {
 #ifdef X11
 
       uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
-        switch (get_color_depth(px_fmt)) {
-        case 1:
+        switch (px_fmt) {
+        case PixelFormat::BW:
           return up_modulo<8, 4>(w);
-        case 8:
+        case PixelFormat::GRAY:
           return up_modulo<1, 4>(w);
-        case 24:
+        case PixelFormat::RGB:
+        case PixelFormat::BGR:
           return up_modulo<1, 4>(w * 3);
-        case 32:
+        case PixelFormat::RGBA:
+        case PixelFormat::ARGB:
+        case PixelFormat::BGRA:
+        case PixelFormat::ABGR:
           return up_modulo<1, 4>(w * 4);
         default:
           break;
@@ -68,14 +72,18 @@ namespace gui {
 #if WIN32
 
       uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
-        switch (get_color_depth(px_fmt)) {
-        case 1:
+        switch (px_fmt) {
+        case PixelFormat::BW:
           return up_modulo<8, 2>(w);
-        case 8:
+        case PixelFormat::GRAY:
           return up_modulo<1, 2>(w);
-        case 24:
+        case PixelFormat::RGB:
+        case PixelFormat::BGR:
           return up_modulo<1, 2>(w * 3);
-        case 32:
+        case PixelFormat::RGBA:
+        case PixelFormat::ARGB:
+        case PixelFormat::BGRA:
+        case PixelFormat::ABGR:
           return up_modulo<1, 2>(w * 4);
         default:
           break;

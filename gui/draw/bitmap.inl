@@ -106,7 +106,7 @@ namespace gui {
     inline pixmap::pixmap (const const_image_data<T>& rhs) {
       const auto& bmi = rhs.get_info();
       create(bmi.size());
-      if (get_color_depth(pixel_format()) == get_color_depth(bmi.pixel_format)) {
+      if (pixel_format() == bmi.pixel_format) {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
         switch (bmi.pixel_format()) {
@@ -161,7 +161,7 @@ namespace gui {
       if (rhs) {
         const auto& bmi = rhs.get_info();
         create(bmi.size());
-        if (get_color_depth(pixel_format()) == get_color_depth(bmi.pixel_format)) {
+        if (pixel_format() == bmi.pixel_format) {
           put(rhs);
         } else {
           switch (pixel_format()) {

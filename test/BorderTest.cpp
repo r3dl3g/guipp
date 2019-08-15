@@ -217,7 +217,7 @@ pixmap create_text_pixmap (const std::string& str,
   pixmap img(rect.size());
   graphics g(img);
   text_box box(str, rect, text_origin::center);
-  g.clear(color::transparent);
+  g.clear(color::black);
   g.text(box, font::menu(), color);
   return img;
 }
@@ -799,6 +799,7 @@ void my_main_window::save_all_src () {
 
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
+//  gui::core::global::set_scale_factor(1.0);
   my_main_window main;
 
   const core::rectangle r = core::rectangle(50, 50, 800, 600);

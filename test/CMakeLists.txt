@@ -59,6 +59,7 @@ set(tests
     datamap_test
     pixmap_test
     drawer_test
+    icon_test
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")

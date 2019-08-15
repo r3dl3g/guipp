@@ -128,13 +128,12 @@ namespace gui {
         std::istringstream in(get_icon_chars(type));
         io::load_pnm(in, mask);
 
-
         if (core::global::get_scale_factor() != 1.0) {
           draw::bwmap rhs = mask;
           mask.create(rhs.size());  // size() will be scaled by reading
           mask.stretch_from(rhs);
         }
-        mask.invert();
+//        mask.invert();
         draw::pixmap icon(mask);
         if (!selected) {
           icon.invert();

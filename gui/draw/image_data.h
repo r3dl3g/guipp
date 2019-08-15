@@ -258,9 +258,6 @@ namespace gui {
     template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = pixel::argb_pixel; };
     template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = pixel::abgr_pixel; };
 
-    // --------------------------------------------------------------------------
-    template<PixelFormat T>
-    using const_image_row = basepp::array_wrapper<const typename BPP2Pixel<T>::pixel>;
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
@@ -287,10 +284,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    using image_row = basepp::array_wrapper<typename BPP2Pixel<T>::pixel>;
-
-    // --------------------------------------------------------------------------
-    template<PixelFormat T>
     struct image_data {
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<byte>;
@@ -309,6 +302,45 @@ namespace gui {
 
       image_data& operator= (const image_data&);
       image_data& operator= (const const_image_data<T>&);
+
+    private:
+      raw_type data;
+      bitmap_info info;
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct image_data<PixelFormat::BW> {
+      using pixel_type = pixel::bw_pixel;
+      using raw_type = basepp::array_wrapper<byte>;
+      using row_type = basepp::bit_array_wrapper<pixel_type>;
+      static constexpr size_t pixel_size = sizeof(pixel_type);
+
+      image_data (raw_type data, const bitmap_info& info)
+        : data(data)
+        , info(info)
+      {}
+
+      row_type row (uint32_t y) {
+        byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+        using raw_type = typename row_type::type;
+        return std::move(row_type(reinterpret_cast<raw_type*>(row), info.width));
+      }
+
+      basepp::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {
+        return row(y)[x];
+      }
+
+      const bitmap_info& get_info () const {
+        return info;
+      }
+
+      raw_type& raw_data () {
+        return data;
+      }
+
+      image_data& operator= (const image_data&);
+      image_data& operator= (const const_image_data<PixelFormat::BW>&);
 
     private:
       raw_type data;

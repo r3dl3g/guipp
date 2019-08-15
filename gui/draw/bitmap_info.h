@@ -47,6 +47,7 @@ namespace gui {
       core::basic_size<T> size () const;
 
       byte depth () const;
+      byte bits_per_pixel () const;
       std::size_t mem_size () const;
 
       bool operator== (const bitmap_info&) const;

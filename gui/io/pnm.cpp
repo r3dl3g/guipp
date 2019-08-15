@@ -113,9 +113,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green), 1);
           out.write(reinterpret_cast<char*>(&pixel.red), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
         }
       }
     }
@@ -129,9 +129,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green), 1);
           out.write(reinterpret_cast<char*>(&pixel.red), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
         }
       }
     }
@@ -145,9 +145,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green), 1);
           out.write(reinterpret_cast<char*>(&pixel.red), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
         }
       }
     }
@@ -161,9 +161,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
-          out.write(reinterpret_cast<char*>(&pixel.green), 1);
           out.write(reinterpret_cast<char*>(&pixel.red), 1);
+          out.write(reinterpret_cast<char*>(&pixel.green), 1);
+          out.write(reinterpret_cast<char*>(&pixel.blue), 1);
         }
       }
     }
@@ -178,9 +178,9 @@ namespace gui {
         auto row = data.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto& pixel = row[x];
-          in.read(reinterpret_cast<char*>(&pixel.blue), 1);
-          in.read(reinterpret_cast<char*>(&pixel.green), 1);
           in.read(reinterpret_cast<char*>(&pixel.red), 1);
+          in.read(reinterpret_cast<char*>(&pixel.green), 1);
+          in.read(reinterpret_cast<char*>(&pixel.blue), 1);
         }
       }
       return img;
@@ -261,7 +261,7 @@ namespace gui {
       std::vector<byte> line(bytes);
       in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {
-        data[x] = basepp::reverse_bit_order(line[x]) ^ 0xff;
+        data[x] = basepp::reverse_bit_order(line[x])/* ^ 0xff*/;
       }
     }
 
@@ -286,9 +286,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue) << ' '
+          out << static_cast<int>(pixel.red) << ' '
               << static_cast<int>(pixel.green) << ' '
-              << static_cast<int>(pixel.red) << ' ';
+              << static_cast<int>(pixel.blue) << ' ';
         }
         out << std::endl;
       }
@@ -302,9 +302,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue) << ' '
+          out << static_cast<int>(pixel.red) << ' '
               << static_cast<int>(pixel.green) << ' '
-              << static_cast<int>(pixel.red) << ' ';
+              << static_cast<int>(pixel.blue) << ' ';
         }
         out << std::endl;
       }
@@ -318,9 +318,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue) << ' '
+          out << static_cast<int>(pixel.red) << ' '
               << static_cast<int>(pixel.green) << ' '
-              << static_cast<int>(pixel.red) << ' ';
+              << static_cast<int>(pixel.blue) << ' ';
         }
         out << std::endl;
       }
@@ -334,9 +334,9 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << static_cast<int>(pixel.blue) << ' '
+          out << static_cast<int>(pixel.red) << ' '
               << static_cast<int>(pixel.green) << ' '
-              << static_cast<int>(pixel.red) << ' ';
+              << static_cast<int>(pixel.blue) << ' ';
         }
         out << std::endl;
       }
@@ -354,9 +354,9 @@ namespace gui {
           int r, g, b;
           in >> b >> g >> r;
           row[x] = pixel::rgb_pixel{
-            static_cast<byte>(r),
+            static_cast<byte>(b),
             static_cast<byte>(g),
-            static_cast<byte>(b)
+            static_cast<byte>(r)
           };
         }
       }

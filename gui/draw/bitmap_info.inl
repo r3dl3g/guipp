@@ -36,6 +36,10 @@ namespace gui {
       return get_color_depth(pixel_format);
     }
 
+    inline byte bitmap_info::bits_per_pixel () const {
+      return get_bits_per_pixel(pixel_format);
+    }
+
     inline std::size_t bitmap_info::mem_size () const {
       return static_cast<size_t>(bytes_per_line) * static_cast<size_t>(height);
     }

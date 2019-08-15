@@ -45,6 +45,9 @@ namespace gui {
       return out;
     }
 
+    constexpr gray_pixel color<gray_pixel>::black;
+    constexpr gray_pixel color<gray_pixel>::white;
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const rgb_pixel& px) {
       out << "r:" << static_cast<int>(px.red)
@@ -52,6 +55,9 @@ namespace gui {
           << ", b:" << static_cast<int>(px.blue);
       return out;
     }
+
+    constexpr rgb_pixel color<rgb_pixel>::black;
+    constexpr rgb_pixel color<rgb_pixel>::white;
 
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const rgba_pixel& px) {
@@ -62,6 +68,9 @@ namespace gui {
       return out;
     }
 
+    constexpr rgba_pixel color<rgba_pixel>::black;
+    constexpr rgba_pixel color<rgba_pixel>::white;
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const bgr_pixel& px) {
       out << "b:" << static_cast<int>(px.blue)
@@ -69,6 +78,9 @@ namespace gui {
           << ", r:" << static_cast<int>(px.red);
       return out;
     }
+
+    constexpr bgr_pixel color<bgr_pixel>::black;
+    constexpr bgr_pixel color<bgr_pixel>::white;
 
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const bgra_pixel& px) {
@@ -79,6 +91,9 @@ namespace gui {
       return out;
     }
 
+    constexpr bgra_pixel color<bgra_pixel>::black;
+    constexpr bgra_pixel color<bgra_pixel>::white;
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const argb_pixel& px) {
       out << "a:" << static_cast<int>(px.alpha)
@@ -88,6 +103,9 @@ namespace gui {
       return out;
     }
 
+    constexpr argb_pixel color<argb_pixel>::black;
+    constexpr argb_pixel color<argb_pixel>::white;
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const abgr_pixel& px) {
       out << "a:" << static_cast<int>(px.alpha)
@@ -96,6 +114,9 @@ namespace gui {
           << ", r:" << static_cast<int>(px.red);
       return out;
     }
+
+    constexpr abgr_pixel color<abgr_pixel>::black;
+    constexpr abgr_pixel color<abgr_pixel>::white;
 
     // --------------------------------------------------------------------------
     byte get_alpha (bw_pixel) {
@@ -115,5 +136,38 @@ namespace gui {
     }
 
   } // namespace pixel
+
+  namespace draw {
+
+    // --------------------------------------------------------------------------
+//    template<>
+//    image_data<PixelFormat::BW>::image_data (raw_type data, const bitmap_info& info)
+//      : data(data)
+//      , info(info)
+//    {}
+
+//    template<>
+//    auto image_data<PixelFormat::BW>::row (uint32_t y) -> row_type {
+//      byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+//      using raw_type = typename row_type::type;
+//      return row_type(reinterpret_cast<raw_type*>(row), info.width);
+//    }
+
+//    template<>
+//    auto image_data<PixelFormat::BW>::pixel (uint32_t x, uint32_t y) -> pixel_type {
+//      return row(y)[x];
+//    }
+
+//    template<>
+//    const bitmap_info& image_data<PixelFormat::BW>::get_info () const {
+//      return info;
+//    }
+
+//    template<>
+//    auto image_data<PixelFormat::BW>::raw_data () -> raw_type& {
+//      return data;
+//    }
+
+  } // namespace draw
 
 } // namespace gui

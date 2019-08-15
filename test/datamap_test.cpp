@@ -45,7 +45,7 @@ DEFINE_TEST(test_bw)
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
 
   image_data<PixelFormat::BW> raw = img.get_data();
-  basepp::array_wrapper<pixel::bw_pixel> row = raw.row(0);
+  auto row = raw.row(0);
   pixel::bw_pixel px = row[0];
   EXPECT_EQUAL(px, pixel::bw_pixel::black);
 
@@ -125,7 +125,7 @@ DEFINE_TEST(test_rgba)
   rgbamap img(2, 2);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(2, 2));
-  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
 
@@ -145,7 +145,7 @@ DEFINE_TEST(test_bgra)
   bgramap img(2, 2);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.size(), core::size(2, 2));
-  EXPECT_EQUAL(img.depth(), 32);
+  EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
 

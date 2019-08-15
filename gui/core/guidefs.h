@@ -90,10 +90,16 @@ namespace gui {
 
   GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream&, PixelFormat);
 
-  constexpr byte color_depths[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
+  constexpr byte color_depths[] = {0, 1, 8, 24, 24, 24, 24, 24, 24};
 
   constexpr byte get_color_depth (PixelFormat px_fmt) {
     return color_depths[static_cast<byte>(px_fmt)];
+  }
+
+  constexpr byte bits_per_pixels[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
+
+  constexpr byte get_bits_per_pixel (PixelFormat px_fmt) {
+    return bits_per_pixels[static_cast<byte>(px_fmt)];
   }
 
   PixelFormat get_pixel_format (int pixel_format, basepp::byte_order byte_order);
@@ -102,6 +108,11 @@ namespace gui {
   template<PixelFormat px_fmt>
   struct color_depth {
     static constexpr int bits = color_depths[static_cast<byte>(px_fmt)];
+  };
+
+  template<PixelFormat px_fmt>
+  struct bits_per_pixel {
+    static constexpr int bits = bits_per_pixels[static_cast<byte>(px_fmt)];
   };
 
   // --------------------------------------------------------------------------

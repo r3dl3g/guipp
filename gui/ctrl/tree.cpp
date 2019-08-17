@@ -133,7 +133,9 @@ namespace gui {
           mask.create(rhs.size());  // size() will be scaled by reading
           mask.stretch_from(rhs);
         }
-//        mask.invert();
+#ifdef WIN32
+        mask.invert();
+#endif // WIN32
         draw::pixmap icon(mask);
         if (!selected) {
           icon.invert();

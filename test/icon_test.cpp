@@ -101,6 +101,7 @@ bool expected_bit_at_inv (int x, int y) {
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_native_impl) {
+#ifdef X11
   os::instance display = core::global::get_instance();
   os::x11::screen screen = core::global::get_screen();
   os::drawable drawable = DefaultRootWindow(display);
@@ -175,7 +176,7 @@ DEFINE_TEST(test_native_impl) {
   }
 
   XDestroyImage(im);
-
+#endif // X11
 } END_TEST(test_native_impl)
 
 // --------------------------------------------------------------------------
@@ -315,22 +316,36 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
 
   draw::bitmap mask(bw);
   draw::pixmap pix(bw);
-  pix.invert();
 
   draw::pixmap mem(20, 20);
   {
     os::instance display = core::global::get_instance();
 
     draw::graphics gc(mem);
-    XSetForeground(display, gc, color::gray);
-    XFillRectangle(display, mem, gc, 0, 0, 20, 20);
-
+    gc.clear(color::gray);
+#ifdef X11
+  	pix.invert();
+    
     XSetClipMask(display, gc, mask);
     XSetClipOrigin(display, gc, 0, 0);
 
     XCopyArea(display, pix, mem, gc, 0, 0, 20, 20, 0, 0);
 
     XSetClipMask(display, gc, None);
+#endif // X11
+#ifdef WIN32
+    mask.invert();
+    HDC mask_dc = CreateCompatibleDC(gc);
+    SelectObject(mask_dc, mask.get_id());
+    //HDC img_dc = CreateCompatibleDC(gc);
+    //SelectObject(img_dc, pix.get_id());
+
+    BitBlt(gc, 0, 0, 20, 20, mask_dc, 0, 0, SRCAND);
+    //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
+    //DeleteDC(img_dc);
+    DeleteDC(mask_dc);
+#endif // WIN32
+
   }
 
   draw::rgbmap img = mem.get<PixelFormat::RGB>();
@@ -345,7 +360,7 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
       const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
                                                                   : gray;
       const pixel::rgb_pixel test = row[x];
-      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
 

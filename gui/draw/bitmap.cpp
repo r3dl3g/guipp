@@ -332,7 +332,7 @@ namespace gui {
 #if WIN32
 
     os::bitmap create_bitmap (const draw::bitmap_info& bmi, cbyteptr data) {
-      return CreateBitmap(bmi.width, bmi.height, 1, bmi.depth(), data);
+      return CreateBitmap(bmi.width, bmi.height, 1, bmi.bits_per_pixel(), data);
     }
 
     void free_bitmap (os::bitmap id) {

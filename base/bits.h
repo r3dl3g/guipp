@@ -140,7 +140,7 @@ namespace basepp {
 
   template<>
   struct bw_bits<bit_order::msb_first> {
-    static constexpr byte value[2] = {0xff, 0};
+    static constexpr byte value[2] = {0, 0xff};
     static constexpr bool white = false;
     static constexpr bool black = true;
   };

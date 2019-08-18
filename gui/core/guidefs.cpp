@@ -22,7 +22,9 @@
 //
 #ifdef X11
 # include <X11/XKBlib.h>
-# include <xcb/xcb_xrm.h>
+# ifdef XCB
+#  include <xcb/xcb_xrm.h>
+# endif // XCB
 #endif
 #ifdef WIN32
 #include <shellscalingapi.h>
@@ -152,7 +154,10 @@ namespace gui {
           screen = DefaultScreen(instance);
           XSetErrorHandler(ErrorHandler);
           XSetIOErrorHandler(IOErrorHandler);
+# ifdef XCB
           xcb_connection = XGetXCBConnection(instance);
+# endif // XCB
+
 #endif // X11
           set_scale_factor(calc_scale_factor());
         }
@@ -181,7 +186,9 @@ namespace gui {
         os::instance instance;
 #ifdef X11
         os::x11::screen screen;
+# ifdef XCB
         xcb_connection_t *xcb_connection;
+# endif // XCB
 #endif // X11
 
       };
@@ -296,6 +303,7 @@ namespace gui {
         return DefaultVisual(get_instance(), get_screen());
       }
 
+# ifdef XCB
       long get_cxb_dpi_of_screen (xcb_screen_t *data) {
         const int dpi_w = static_cast<int>(static_cast<double>(data->width_in_pixels) * 25.4 / static_cast<double>(data->width_in_millimeters));
         const int dpi_h = static_cast<int>(static_cast<double>(data->height_in_pixels) * 25.4 / static_cast<double>(data->height_in_millimeters));
@@ -320,16 +328,17 @@ namespace gui {
           LogError << "Could not open Xresources database falling back to highest dpi found";
         }
 
-	      for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
-	        if (i.data != NULL) {
-	          dpi = std::max(dpi, get_cxb_dpi_of_screen(i.data));
-	        }
-	      }
+        for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
+          if (i.data != NULL) {
+            dpi = std::max(dpi, get_cxb_dpi_of_screen(i.data));
+          }
+        }
 
-	      LogDebug << "XCB.dpi = " << dpi;
+         LogDebug << "XCB.dpi = " << dpi;
 
         return dpi;
       }
+# endif // XCB
 
       int get_xlib_dpi_of_screen (Screen* screen) {
         const int dpi_w = static_cast<int>(static_cast<double>(screen->width) * 25.4 / static_cast<double>(screen->mwidth));
@@ -356,7 +365,11 @@ namespace gui {
           std::stringstream(xscale) >> scale;
           return scale;
         } else {
+# ifdef XCB
           int dpi = std::max(get_xlib_dpi(), get_cxb_dpi());
+# else
+          int dpi = get_xlib_dpi();
+# endif // XCB
           if (dpi == 0) {
             LogError <<  "Could get highest dpi, using 96 as default";
             dpi = 96;

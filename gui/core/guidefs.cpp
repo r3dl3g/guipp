@@ -230,7 +230,7 @@ namespace gui {
         return dbpp;
 #endif // WIN32
 #ifdef X11
-        return DefaultDepth(get_instance(), get_screen());
+        return DefaultDepth(get_instance(), x11::get_screen());
 #endif // X11
 #ifdef COCOA
         return 24;
@@ -246,7 +246,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
-        return get_pixel_format(DefaultDepth(inst, get_screen()), basepp::byte_order(ImageByteOrder(inst)));
+        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), basepp::byte_order(ImageByteOrder(inst)));
 #endif // X11
 #ifdef COCOA
         return PixelFormat::RGB;
@@ -291,16 +291,18 @@ namespace gui {
         return state.base_mods;
       }
 
-      os::x11::screen get_screen () {
-        return gui_static.screen;
-      }
+      namespace x11 {
+        os::x11::screen get_screen () {
+          return gui_static.screen;
+        }
 
-      void set_screen (os::x11::screen screen) {
-        gui_static.screen = screen;
-      }
+        void set_screen (os::x11::screen screen) {
+          gui_static.screen = screen;
+        }
 
-      os::x11::visual get_visual () {
-        return DefaultVisual(get_instance(), get_screen());
+        os::x11::visual get_visual () {
+          return DefaultVisual(get_instance(), get_screen());
+        }
       }
 
 # ifdef XCB

@@ -151,20 +151,39 @@ namespace gui {
 
       masked_bitmap ();
 
+      /// Copy/Move
       masked_bitmap (const masked_bitmap&);
       masked_bitmap (masked_bitmap&&);
 
+      /**
+       * Create from B/W Bitmap.
+       * White will be transparent, black will be black.
+       */
+      masked_bitmap (const bitmap& mask);
+      masked_bitmap (bitmap&& mask);
+
+      /**
+       * Create from colored Pixmap.
+       * Black will be transparent, all other will be painted.
+       */
       masked_bitmap (const pixmap& bmp);
       masked_bitmap (pixmap&& bmp);
 
+      /**
+       * Create from colored Pixmap with bitmap mask.
+       * Bitmap black will be transparent, Bitmap white will be painted from pixmap.
+       */
       masked_bitmap (const pixmap& bmp, const bitmap& mask);
       masked_bitmap (pixmap&& bmp, bitmap&& mask);
+
+      void operator= (const pixmap& bmp);
+      void operator= (pixmap&& bmp);
 
       void operator= (const masked_bitmap& rhs);
       void operator= (masked_bitmap&&);
 
-      void operator= (const pixmap& bmp);
-      void operator= (pixmap&& bmp);
+      void operator= (const bitmap& bmp);
+      void operator= (bitmap&& bmp);
 
       core::size size () const;
 

@@ -190,6 +190,13 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
+    gray_pixel gray_pixel::build(T t) {
+      gray_pixel p;
+       p = t;
+       return p;
+    }
+
+    template<typename T>
     inline void gray_pixel::operator= (T rhs) {
       value = get_gray(rhs);
     }
@@ -219,6 +226,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    rgb_pixel rgb_pixel::build(T t) {
+      rgb_pixel p;
+       p = t;
+       return p;
+    }
+
     inline bool operator== (const rgb_pixel& lhs, const rgb_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
     }
@@ -231,6 +245,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    rgba_pixel rgba_pixel::build(T t) {
+      rgba_pixel p;
+       p = t;
+       return p;
+    }
+
     inline bool operator== (const rgba_pixel& lhs, const rgba_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
     }
@@ -258,6 +279,13 @@ namespace gui {
     }
     
     template<typename T>
+    bgr_pixel bgr_pixel::build(T t) {
+      bgr_pixel p;
+       p = t;
+       return p;
+    }
+
+    template<typename T>
     inline void bgr_pixel::operator= (T rhs) {
       red = get_red(rhs);
       green = get_green(rhs);
@@ -265,6 +293,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    bgra_pixel bgra_pixel::build(T t) {
+      bgra_pixel p;
+       p = t;
+       return p;
+    }
+
     inline bool operator== (const bgra_pixel& lhs, const bgra_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
     }
@@ -287,6 +322,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    template<typename T>
+    argb_pixel argb_pixel::build(T t) {
+      argb_pixel p;
+       p = t;
+       return p;
+    }
+
     inline bool operator== (const argb_pixel& lhs, const argb_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
     }
@@ -302,6 +344,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline bool operator== (const abgr_pixel& lhs, const abgr_pixel& rhs) {
       return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
+    }
+
+    template<typename T>
+    abgr_pixel abgr_pixel::build(T t) {
+      abgr_pixel p;
+       p = t;
+       return p;
     }
 
     template<typename T>

@@ -386,7 +386,7 @@ namespace gui {
     }
 
     void overlapped_window::minimize () {
-      XIconifyWindow(core::global::get_instance(), get_id(), core::global::get_screen());
+      XIconifyWindow(core::global::get_instance(), get_id(), core::global::x11::get_screen());
     }
 
     void send_net_wm_state (os::window id,

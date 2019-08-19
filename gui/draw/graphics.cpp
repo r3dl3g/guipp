@@ -42,6 +42,36 @@
 #include <gui/draw/drawers.h>
 #include <gui/draw/use.h>
 
+#ifdef X11
+// For debugging
+std::ostream& operator<< (std::ostream& out, const XGCValues& v) {
+  out << "{function="    << std::hex << v.function
+      << ", plane_mask=" << v.plane_mask
+      << ", foreground=" << v.foreground
+      << ", background=" << v.background
+      << ", line_width=" << v.line_width
+      << ", line_style=" << v.line_style
+      << ", cap_style="  << v.cap_style
+      << ", fill_style=" << v.fill_style
+      << ", fill_rule="  << v.fill_rule
+      << ", arc_mode="   << v.arc_mode
+      << ", tile="       << v.tile
+      << ", stipple="    << v.stipple
+      << ", ts_x_origin="<< v.ts_x_origin
+      << ", ts_y_origin="<< v.ts_y_origin
+      << ", font="       << v.font
+      << ", subwindow_mode=" << v.subwindow_mode
+      << ", graphics_exposures="<< v.graphics_exposures
+      << ", clip_x_origin=" << v.clip_x_origin
+      << ", clip_y_origin=" << v.clip_y_origin
+      << ", clip_mask="     << v.clip_mask
+      << ", dash_offset="   << v.dash_offset
+      << ", dashes="        << (int)v.dashes
+      << "}";
+  return out;
+}
+#endif // X11
+
 
 namespace gui {
 
@@ -151,20 +181,21 @@ namespace gui {
 
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
-                                         const core::point& pt) const {
+                                         const core::point& pt,
+                                         const copy_mode mode) const {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
         HGDIOBJ old = SelectObject(source_gc, w);
         if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
-                    source_gc, r.os_x(), r.os_y(), SRCCOPY)) {
+                    source_gc, r.os_x(), r.os_y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
       } else {
         if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
-                    source_gc, r.os_x(), r.os_y(), SRCCOPY)) {
+                    source_gc, r.os_x(), r.os_y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         ReleaseDC((HWND)w, source_gc);
@@ -302,10 +333,6 @@ namespace gui {
           (core::point::type)y,
           (core::size::type)w,
           (core::size::type)h
-//        core::global::unscale((core::point::type)x),
-//        core::global::unscale((core::point::type)y),
-//        core::global::unscale((core::size::type)w),
-//        core::global::unscale((core::size::type)h)
       };
     }
 
@@ -315,8 +342,8 @@ namespace gui {
 
       if (!s_xft) {
         auto display = get_instance();
-        auto screen = get_screen();
-        auto visual = get_visual();
+        auto screen = x11::get_screen();
+        auto visual = x11::get_visual();
         auto colormap = DefaultColormap(display, screen);
 
 //        XVisualInfo vinfo;
@@ -443,12 +470,24 @@ namespace gui {
 
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
-                                         const core::point& pt) const {
+                                         const core::point& pt,
+                                         const copy_mode mode) const {
       const int dd = get_drawable_depth(w);
       const int md = depth();
-      int res = 0;
       if (dd == md) {
-        res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
+        auto display = core::global::get_instance();
+        XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
+        XChangeGC(display, gc, GCFunction, &values);
+        int res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
+        values = { GXcopy }; // .function =
+        XChangeGC(display, gc, GCFunction, &values);
+      } else if (1 == dd) {
+        auto display = core::global::get_instance();
+        XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
+        XChangeGC(display, gc, GCFunction, &values);
+        int res = XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y(), 1);
+        values = { GXcopy }; // .function =
+        XChangeGC(display, gc, GCFunction, &values);
       } else {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
@@ -458,25 +497,54 @@ namespace gui {
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
-      XGCValues values = { .function = GXcopy };
-      XChangeGC(display, gc, GCFunction, &values);
+      XGCValues org_values = {0};
+      res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
+
+//      LogDebug << "XGCValues:" << org_values;
+
       if (bmp.mask) {
-        res = XSetClipMask(display, gc, bmp.mask.get_id());
-        res = XSetClipOrigin(display, gc, pt.os_x(), pt.os_y());
+        auto screen = core::global::x11::get_screen();
+        XGCValues values = {
+          //function
+            static_cast<int>(copy_mode::bit_and)
+          //plane_mask
+          , 0
+          //foreground
+          , bmp.image ? XBlackPixel(display, screen)
+                      : XWhitePixel(display, screen)
+          //background
+          , bmp.image ? XWhitePixel(display, screen)
+                      : XBlackPixel(display, screen)
+        };
+        res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &values);
+        auto sz = bmp.mask.size();
+        res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.os_x(), pt.os_y(), 1);
       }
       if (bmp.image) {
-        copy_from(bmp.image, core::rectangle(bmp.image.size()), pt);
+        XGCValues values = {
+          static_cast<int>(copy_mode::bit_or) //function
+        };
+        res = XChangeGC(display, gc, GCFunction, &values);
+        auto sz = bmp.image.size();
+        res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.os_x(), pt.os_y());
       }
-      res = XSetClipMask(display, gc, None);
+      res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
       return *this;
     }
 
     void graphics::invert (const core::rectangle& r) const {
-      pixmap img(r.size());
-      graphics rhs(img);
-      rhs.copy_from(*this, r);
-      img.invert();
-      copy_from(img, core::rectangle(r.size()), r.position());
+      auto display = core::global::get_instance();
+      XGCValues values = { GXinvert };  // .function =
+      XChangeGC(display, gc, GCFunction, &values);
+      int res = XCopyArea(get_instance(), 0, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), r.os_x(), r.os_y());
+      values = { GXcopy }; // .function =
+      XChangeGC(display, gc, GCFunction, &values);
+
+//      pixmap img(r.size());
+//      graphics rhs(img);
+//      rhs.copy_from(*this, r);
+//      img.invert();
+//      copy_from(img, core::rectangle(r.size()), r.position());
     }
 
     void graphics::flush () const {

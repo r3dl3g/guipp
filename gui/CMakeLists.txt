@@ -11,6 +11,7 @@ include (GenerateExportHeader)
 
 set(GUIPP_BUILD_STATIC_MODULE_LIBS OFF CACHE BOOL "On to build a static library for each submodule, Off to build shared libraries. Default Off")
 set(GUIPP_BUILD_SHARED_MODULE_LIBS OFF CACHE BOOL "On to build a shared library for each submodule, Off to build static libraries. default Off")
+set(GUIPP_USE_XCB OFF CACHE BOOL "On to make use uf the xcb library. Default Off")
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
@@ -48,8 +49,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         set (gui_sys_libraries Shcore)
     endif ()
 
-    if (XCB)
-        set (gui_sys_libraries gui_sys_libraries X11-xcb xcb xcb-xrm)
+    if (GUIPP_USE_XCB)
+        set (gui_sys_libraries ${gui_sys_libraries} X11-xcb xcb xcb-xrm)
         set (gui_defines ${gui_defines} -DXCB)
     endif ()
 

@@ -51,6 +51,20 @@ namespace gui {
     typedef void (textable) (const graphics&, const font& font, os::color color);
     typedef void (copyable) (const graphics&, const core::point&);
 
+    enum class copy_mode : uint32_t {
+      bit_copy = IF_WIN32_ELSE(SRCCOPY, GXcopy),
+      bit_and = IF_WIN32_ELSE(SRCAND, GXand),
+      bit_or = IF_WIN32_ELSE(SRCPAINT, GXor),
+      bit_xor = IF_WIN32_ELSE(SRCINVERT, GXxor),
+      bit_dest_clear = IF_WIN32_ELSE(BLACKNESS, GXclear),
+      bit_dest_set = IF_WIN32_ELSE(WHITENESS, GXset),
+      bit_dest_invert = IF_WIN32_ELSE(DSTINVERT, GXinvert),
+      bit_not_src_or_dst = IF_WIN32_ELSE(MERGEPAINT, GXorInverted),
+      bit_not_src = IF_WIN32_ELSE(NOTSRCCOPY, GXcopyInverted),
+      bit_not_src_and_not_dst = IF_WIN32_ELSE(NOTSRCERASE, GXnor),
+      bit_and_not = IF_WIN32_ELSE(SRCERASE, GXandReverse),
+    };
+
     // --------------------------------------------------------------------------
     class GUIPP_DRAW_EXPORT graphics {
     public:
@@ -84,7 +98,8 @@ namespace gui {
       const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
-                                 const core::point& dest = core::point::zero) const;
+                                 const core::point& dest = core::point::zero,
+                                 const copy_mode = copy_mode::bit_copy) const;
 
       void invert (const core::rectangle&) const;
       void flush () const;

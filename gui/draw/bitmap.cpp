@@ -31,6 +31,7 @@
 //
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
+#include <gui/draw/use.h>
 #include <base/logger.h>
 
 
@@ -229,7 +230,7 @@ namespace gui {
 
 //    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
 //      auto display = core::global::get_instance();
-//      //auto screen = core::global::get_screen();
+//      //auto screen = core::global::x11::get_screen();
 //      auto gc = XCreateGC(display, id, 0, nullptr);
 
 //      int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
@@ -534,6 +535,24 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    masked_bitmap::masked_bitmap (const pixmap& image, const bitmap& mask)
+      : image(image)
+      , mask(mask)
+    {
+      graphics g(this->image);
+      Use<pen> use(g, color::white);
+      g.copy_from(this->mask, core::rectangle(this->image.size()), core::point::zero, copy_mode::bit_and);
+    }
+
+    masked_bitmap::masked_bitmap (pixmap&& img, bitmap&& msk)
+      : image(std::move(image))
+      , mask(std::move(mask))
+    {
+      graphics g(this->image);
+      Use<pen> use(g, color::white);
+      g.copy_from(this->mask, core::rectangle(this->image.size()), core::point::zero, copy_mode::bit_and);
+    }
+
     void masked_bitmap::operator= (const masked_bitmap& rhs) {
       if (&rhs != this) {
         image = rhs.image;
@@ -552,6 +571,7 @@ namespace gui {
       image = rhs;
       if (image.is_valid()) {
         mask = image.get<PixelFormat::BW>();
+//        mask.invert();
       }
     }
 
@@ -559,7 +579,18 @@ namespace gui {
       image = std::move(rhs);
       if (image.is_valid()) {
         mask = image.get<PixelFormat::BW>();
+//        mask.invert();
       }
+    }
+
+    void masked_bitmap::operator= (const bitmap& rhs) {
+      mask = rhs;
+      image.clear();
+    }
+
+    void masked_bitmap::operator= (bitmap&& rhs) {
+      mask = std::move(rhs);
+      image.clear();
     }
 
     // --------------------------------------------------------------------------

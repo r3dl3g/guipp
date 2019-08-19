@@ -87,7 +87,7 @@ namespace gui {
         r += core::point(16, 0);
 
         if (icon) {
-          core::size sz = icon.image.size();
+          core::size sz = icon.size();
           core::point::type y = r.y() + (r.height() - core::global::unscale(sz.height())) / 2;
           graph.copy_from(icon, core::point(r.x(), y));
           r += core::point(core::global::unscale(sz.width()) + 5, 0);
@@ -133,14 +133,8 @@ namespace gui {
           mask.create(rhs.size());  // size() will be scaled by reading
           mask.stretch_from(rhs);
         }
-#ifdef WIN32
         mask.invert();
-#endif // WIN32
-        draw::pixmap icon(mask);
-        if (!selected) {
-          icon.invert();
-        }
-        return draw::masked_bitmap(icon, mask);
+        return draw::masked_bitmap(draw::bitmap(mask));
       }
 
     } // detail

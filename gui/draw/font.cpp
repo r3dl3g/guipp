@@ -309,7 +309,7 @@ namespace gui {
       : info(nullptr)
     {
       info = XftFontOpen(core::global::get_instance(),
-                         core::global::get_screen(),
+                         core::global::x11::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
                          XFT_SIZE, XftTypeDouble, (double)font_scale(size),
                          XFT_WEIGHT, XftTypeInteger, (int)thickness,

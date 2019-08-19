@@ -3,6 +3,7 @@
 
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
+#include <gui/draw/drawers.h>
 #include <gui/io/pnm.h>
 #include <testlib/testlib.h>
 
@@ -24,6 +25,7 @@ DECLARE_TEST(test_bitmap_get_image_inv);
 DECLARE_TEST(test_bitmap_get_image_mask);
 DECLARE_TEST(test_copy_bitmap);
 DECLARE_TEST(test_copy_pixmap);
+DECLARE_TEST(test_masked_from_pixmap);
 DECLARE_TEST(test_masked_bitmap);
 DECLARE_TEST(test_file_icon);
 DECLARE_TEST(test_file_icon_selected);
@@ -41,6 +43,7 @@ TEST_MAIN(icon_test)
   RUN_TEST(test_bitmap_get_image_mask);
   RUN_TEST(test_copy_bitmap);
   RUN_TEST(test_copy_pixmap);
+  RUN_TEST(test_masked_from_pixmap);
   RUN_TEST(test_masked_bitmap);
   RUN_TEST(test_file_icon);
 //  RUN_TEST(test_file_icon_selected);
@@ -103,7 +106,7 @@ bool expected_bit_at_inv (int x, int y) {
 DEFINE_TEST(test_native_impl) {
 #ifdef X11
   os::instance display = core::global::get_instance();
-  os::x11::screen screen = core::global::get_screen();
+  os::x11::screen screen = core::global::x11::get_screen();
   os::drawable drawable = DefaultRootWindow(display);
   int depth = core::global::get_device_depth();
 
@@ -191,9 +194,9 @@ DEFINE_TEST(test_bitmap_get_data) {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const bool expected = expected_bit_at_inv(x, y);
+      const pixel::bw_pixel expected = expected_bit_at_inv(x, y) ? pixel::bw_pixel::white : pixel::bw_pixel::black;
       const pixel::bw_pixel test = row[x];
-      EXPECT_EQUAL(static_cast<bool>(test), expected, " at x:", x, ", y:", y);
+      EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
 
@@ -247,6 +250,65 @@ DEFINE_TEST(test_bitmap_get_image_inv) {
   }
 
 } END_TEST(test_bitmap_get_image_inv)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_bitmap_get_image_mask) {
+  core::global::set_scale_factor(1.0);
+
+  draw::bwmap bw;
+  std::istringstream in(make_string(image_data::file_icon_bits));
+  io::load_pnm(in, bw);
+
+  draw::bitmap mask(bw);
+  draw::pixmap pix(bw);
+
+  draw::pixmap mem(20, 20);
+  {
+    os::instance display = core::global::get_instance();
+
+    draw::graphics gc(mem);
+    gc.clear(color::gray);
+#ifdef X11
+    pix.invert();
+
+    XSetClipMask(display, gc, mask);
+    XSetClipOrigin(display, gc, 0, 0);
+
+    XCopyArea(display, pix, mem, gc, 0, 0, 20, 20, 0, 0);
+
+    XSetClipMask(display, gc, None);
+#endif // X11
+#ifdef WIN32
+    mask.invert();
+    HDC mask_dc = CreateCompatibleDC(gc);
+    SelectObject(mask_dc, mask.get_id());
+    //HDC img_dc = CreateCompatibleDC(gc);
+    //SelectObject(img_dc, pix.get_id());
+
+    BitBlt(gc, 0, 0, 20, 20, mask_dc, 0, 0, SRCAND);
+    //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
+    //DeleteDC(img_dc);
+    DeleteDC(mask_dc);
+#endif // WIN32
+
+  }
+
+  draw::rgbmap img = mem.get<PixelFormat::RGB>();
+  auto data = img.get_data();
+
+  auto gray = pixel::rgb_pixel::build(color::gray);
+
+  for (uint32_t y = 0; y < 20; ++y) {
+    auto row = data.row(y);
+    for (uint32_t x = 0; x < 20; ++x) {
+      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
+                                                                  : gray;
+      const pixel::rgb_pixel test = row[x];
+      EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+    }
+  }
+
+} END_TEST(test_bitmap_get_image_mask)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_copy_bitmap) {
@@ -307,98 +369,83 @@ DEFINE_TEST(test_copy_pixmap) {
 } END_TEST(test_copy_pixmap)
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_bitmap_get_image_mask) {
+DEFINE_TEST(test_masked_from_pixmap) {
   core::global::set_scale_factor(1.0);
 
-  draw::bwmap bw;
-  std::istringstream in(make_string(image_data::file_icon_bits));
-  io::load_pnm(in, bw);
+  draw::pixmap pix(5, 5);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
 
-  draw::bitmap mask(bw);
-  draw::pixmap pix(bw);
+  os::color expected_color[5][5] = {
+    {color::black, color::black, color::black, color::black, color::black},
+    {color::black, color::blue,  color::blue,  color::blue,  color::black},
+    {color::black, color::blue,  color::red,   color::blue,  color::black},
+    {color::black, color::blue,  color::blue,  color::blue,  color::black},
+    {color::black, color::black, color::black, color::black, color::black}
+  };
 
-  draw::pixmap mem(20, 20);
   {
-    os::instance display = core::global::get_instance();
-
-    draw::graphics gc(mem);
-    gc.clear(color::gray);
-#ifdef X11
-  	pix.invert();
-    
-    XSetClipMask(display, gc, mask);
-    XSetClipOrigin(display, gc, 0, 0);
-
-    XCopyArea(display, pix, mem, gc, 0, 0, 20, 20, 0, 0);
-
-    XSetClipMask(display, gc, None);
-#endif // X11
-#ifdef WIN32
-    mask.invert();
-    HDC mask_dc = CreateCompatibleDC(gc);
-    SelectObject(mask_dc, mask.get_id());
-    //HDC img_dc = CreateCompatibleDC(gc);
-    //SelectObject(img_dc, pix.get_id());
-
-    BitBlt(gc, 0, 0, 20, 20, mask_dc, 0, 0, SRCAND);
-    //BitBlt(gc, 0, 0, 20, 20, img_dc, 0, 0, SRCPAINT);
-    //DeleteDC(img_dc);
-    DeleteDC(mask_dc);
-#endif // WIN32
-
-  }
-
-  draw::rgbmap img = mem.get<PixelFormat::RGB>();
-  auto data = img.get_data();
-
-  pixel::rgb_pixel gray;
-  gray = color::gray;
-
-  for (uint32_t y = 0; y < 20; ++y) {
-    auto row = data.row(y);
-    for (uint32_t x = 0; x < 20; ++x) {
-      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
-                                                                  : gray;
-      const pixel::rgb_pixel test = row[x];
-      TEST_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+    auto img = pix.get<PixelFormat::RGB>();
+    auto data = img.get_data();
+    for (uint32_t y = 0; y < 5; ++y) {
+      auto row = data.row(y);
+      for (uint32_t x = 0; x < 5; ++x) {
+        const pixel::rgb_pixel expected = pixel::rgb_pixel::build(expected_color[x][y]);
+        const pixel::rgb_pixel test = row[x];
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      }
     }
   }
 
-} END_TEST(test_bitmap_get_image_mask)
+  pixel::bw_pixel expected_bw[5][5] = {
+    {pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black},
+    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
+    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
+    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
+    {pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black}
+  };
+
+  draw::masked_bitmap icon(pix);
+
+  {
+    auto img = icon.mask.get();
+    auto data = img.get_data();
+    for (uint32_t y = 0; y < 5; ++y) {
+      auto row = data.row(y);
+      for (uint32_t x = 0; x < 5; ++x) {
+        const pixel::bw_pixel expected = expected_bw[x][y];// == pixel::bw_pixel::black ? pixel::bw_pixel::white : pixel::bw_pixel::black;
+        const pixel::bw_pixel test = row[x];
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      }
+    }
+  }
+
+} END_TEST(test_masked_from_pixmap)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_masked_bitmap) {
   core::global::set_scale_factor(1.0);
 
-  draw::bwmap bw;
-  std::istringstream in(make_string(image_data::file_icon_bits));
-  io::load_pnm(in, bw);
+  draw::pixmap pix(5, 5);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
 
-  draw::bitmap mask(bw);
-  draw::pixmap pix(bw);
-  pix.invert();
+  draw::masked_bitmap icon(pix);
 
-  draw::masked_bitmap icon(pix, mask);
+  draw::pixmap mem(5, 5);
+  draw::graphics g(mem);
+  g.clear(color::gray).copy_from(icon);
 
-  draw::pixmap mem(20, 20);
-  {
-    draw::graphics gc(mem);
-    gc.clear(color::gray);
-    gc.copy_from(icon);
-  }
+  os::color expected_color[5][5] = {
+    {color::gray, color::gray, color::gray, color::gray, color::gray},
+    {color::gray, color::blue, color::blue, color::blue, color::gray},
+    {color::gray, color::blue, color::red,  color::blue, color::gray},
+    {color::gray, color::blue, color::blue, color::blue, color::gray},
+    {color::gray, color::gray, color::gray, color::gray, color::gray}
+  };
 
-  draw::rgbmap img = mem.get<PixelFormat::RGB>();
-  auto data = img.get_data();
-
-  pixel::rgb_pixel gray;
-  gray = color::gray;
-
-  for (uint32_t y = 0; y < 20; ++y) {
-    auto row = data.row(y);
-    for (uint32_t x = 0; x < 20; ++x) {
-      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
-                                                                  : gray;
-      const pixel::rgb_pixel test = row[x];
+  for (uint32_t y = 0; y < 5; ++y) {
+    for (uint32_t x = 0; x < 5; ++x) {
+      const os::color expected = expected_color[x][y];
+      const os::color test = g.get_pixel({x, y});
       EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
@@ -441,15 +488,13 @@ DEFINE_TEST(test_file_icon) {
   }
 
   draw::bitmap m(mask);
-
   draw::pixmap img(mask);
-  img.invert();
 
   {
     draw::graphics g(img);
     for (uint32_t y = 0; y < 20; ++y) {
       for (uint32_t x = 0; x < 20; ++x) {
-        const os::color  expected = expected_bit_at_inv(x, y) ? color::black : color::white;
+        const os::color  expected = expected_bit_at_inv(x, y) ? color::white : color::black;
         const os::color test = g.get_pixel({x, y});
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
@@ -463,11 +508,10 @@ DEFINE_TEST(test_file_icon) {
     draw::graphics g(mem);
     g.clear(color::gray);
     g.copy_from(icon);
-    g.flush();
 
     for (uint32_t y = 0; y < 20; ++y) {
       for (uint32_t x = 0; x < 20; ++x) {
-        os::color expected = expected_bit_at_inv(x, y) ? color::black : color::gray;
+        os::color expected = expected_bit_at_inv(x, y) ? color::white : color::gray;
         os::color test = g.get_pixel({x, y});
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }

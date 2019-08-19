@@ -1080,7 +1080,7 @@ namespace gui {
                                       os::window parent_id,
                                       window* data) {
       auto display = core::global::get_instance();
-      auto screen = core::global::get_screen();
+      auto screen = core::global::x11::get_screen();
 
       XVisualInfo vinfo;
       XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);

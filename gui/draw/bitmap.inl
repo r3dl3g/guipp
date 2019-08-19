@@ -229,26 +229,24 @@ namespace gui {
       operator= (std::move(rhs));
     }
 
-    inline masked_bitmap::masked_bitmap (const pixmap& image, const bitmap& mask)
-      : image(image)
-      , mask(mask)
-    {}
+    inline masked_bitmap::masked_bitmap (const bitmap& rhs) {
+      operator= (rhs);
+    }
 
-    inline masked_bitmap::masked_bitmap (pixmap&& img, bitmap&& msk) {
-      std::swap(image, img);
-      std::swap(mask, msk);
+    inline masked_bitmap::masked_bitmap (bitmap&& rhs) {
+      operator= (std::move(rhs));
     }
 
     inline core::size masked_bitmap::size () const {
-      return image.size();
+      return mask.size();
     }
 
     inline bool masked_bitmap::is_valid () const {
-      return image.is_valid();
+      return mask.is_valid();
     }
 
     inline masked_bitmap::operator bool () const {
-      return image.is_valid();
+      return is_valid();
     }
 
   } // namespace draw

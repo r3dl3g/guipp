@@ -304,12 +304,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   pixmap copy_icon = create_text_pixmap(u8"♣", icon_rect, color::dark_blue);
   pixmap paste_icon = create_text_pixmap(u8"♥", icon_rect, color::dark_green);
 
-  io::ofpnm<io::PNM::P3>("cut_icon.p3") << cut_icon;
-  io::ofpnm<io::PNM::P6>("cut_icon.p6") << cut_icon;
+//  io::ofpnm<io::PNM::P3>("cut_icon.p3") << cut_icon;
+//  io::ofpnm<io::PNM::P6>("cut_icon.p6") << cut_icon;
 
-  draw::masked_bitmap cut_mask(cut_icon);
-
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_mask));
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
   edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
   edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));
@@ -383,7 +381,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     }),
     tree::node("leaf 3")
   });
-  right_view.first.open_all();
+//  right_view.first.open_all();
   right_view.first.update_node_list();
   right_view.second.root = 
 #ifdef WIN32

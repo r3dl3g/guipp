@@ -58,6 +58,9 @@ namespace gui {
       byte value;
 
       template<typename T>
+      static gray_pixel build(T t);
+
+      template<typename T>
       void operator= (T);
     };
 
@@ -78,6 +81,9 @@ namespace gui {
       byte blue;
       byte green;
       byte red;
+
+      template<typename T>
+      static rgb_pixel build(T t);
 
       template<typename T>
       void operator= (T);
@@ -101,6 +107,9 @@ namespace gui {
       byte green;
       byte red;
       byte alpha;
+
+      template<typename T>
+      static rgba_pixel build(T t);
 
       template<typename T>
       void operator= (T);
@@ -129,6 +138,9 @@ namespace gui {
       byte blue;
 
       template<typename T>
+      static bgr_pixel build(T t);
+
+      template<typename T>
       void operator= (T);
     };
 
@@ -150,6 +162,9 @@ namespace gui {
       byte green;
       byte blue;
       byte alpha;
+
+      template<typename T>
+      static bgra_pixel build(T t);
 
       template<typename T>
       void operator= (T);
@@ -179,6 +194,9 @@ namespace gui {
       byte red;
 
       template<typename T>
+      static argb_pixel build(T t);
+
+      template<typename T>
       void operator= (T);
     };
 
@@ -200,6 +218,9 @@ namespace gui {
       byte red;
       byte green;
       byte blue;
+
+      template<typename T>
+      static abgr_pixel build(T t);
 
       template<typename T>
       void operator= (T);

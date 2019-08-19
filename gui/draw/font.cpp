@@ -254,7 +254,7 @@ namespace gui {
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);
-      return core::size(font_unscale(sz.cx), font_unscale(sz.cy));
+      return core::size(font_unscale(static_cast<float>(sz.cx)), font_unscale(static_cast<float>(sz.cy)));
     }
 
 #endif // WIN32

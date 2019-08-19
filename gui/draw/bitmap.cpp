@@ -388,7 +388,7 @@ namespace gui {
         if (rhs) {
           bitmap_info bmi = rhs.get_info();
           create(bmi);
-          graphics(*this).copy_from((os::drawable)rhs, core::rectangle(0, 0, bmi.width, bmi.height));
+          graphics(*this).copy_from((os::drawable)rhs, core::rectangle(0, 0, static_cast<float>(bmi.width), static_cast<float>(bmi.height)));
 //          blob bin;
 //          bitmap_info bmi;
 //          bitmap_get_data(rhs.get_id(), bin, bmi);
@@ -571,7 +571,6 @@ namespace gui {
       image = rhs;
       if (image.is_valid()) {
         mask = image.get<PixelFormat::BW>();
-//        mask.invert();
       }
     }
 
@@ -579,7 +578,6 @@ namespace gui {
       image = std::move(rhs);
       if (image.is_valid()) {
         mask = image.get<PixelFormat::BW>();
-//        mask.invert();
       }
     }
 

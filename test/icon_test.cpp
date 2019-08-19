@@ -474,7 +474,11 @@ DEFINE_TEST(test_file_icon) {
     auto raw = data.raw_data();
 
     for (int i = 0; i < size_of_array(expected_file_icon_bits); ++i) {
+#ifdef WIN32
+      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
+#else
       EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)basepp::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
+#endif // WIN32
     }
 
     for (uint32_t y = 0; y < 20; ++y) {

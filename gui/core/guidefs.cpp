@@ -28,6 +28,7 @@
 #endif
 #ifdef WIN32
 #include <shellscalingapi.h>
+#pragma warning(disable:4996)
 #endif // WIN32
 
 

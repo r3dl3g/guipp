@@ -229,25 +229,23 @@ namespace gui {
     */
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
-      if (bmp.image) {
-        core::size sz = bmp.image.size();
-        if (bmp.mask) {
-          HDC mask_dc = CreateCompatibleDC(gc);
-          SelectObject(mask_dc, bmp.mask.get_id());
+      if (bmp.mask) {
+        core::size sz = bmp.mask.size();
+        HDC mask_dc = CreateCompatibleDC(gc);
+        SelectObject(mask_dc, bmp.mask.get_id());
+        BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mask_dc, 0, 0, bmp.image ? (DWORD)(0x00220326) : SRCAND); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
+        DeleteDC(mask_dc);
+        if (bmp.image) {
+          core::size sz = bmp.image.size();
           HDC img_dc = CreateCompatibleDC(gc);
           SelectObject(img_dc, bmp.image.get_id());
-          // To Test:
-          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mask_dc, 0, 0, MERGEPAINT);
-          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCPAINT);
-
-          //BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCINVERT);
-          //BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mask_dc, 0, 0, SRCAND);
-          //BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCINVERT);
+          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCPAINT);  // DSo
           DeleteDC(img_dc);
-          DeleteDC(mask_dc);
-        } else {
-          copy_from(bmp.image, core::rectangle(sz), pt);
         }
+
+      } else {
+        core::size sz = bmp.image.size();
+        copy_from(bmp.image, core::rectangle(sz), pt);
       }
       return *this;
     }

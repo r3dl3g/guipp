@@ -300,9 +300,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   const float icn_sz = core::global::scale(16.0F);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
-  pixmap cut_icon = create_text_pixmap(u8"\x2660", icon_rect, color::dark_red); // u8"♠"
-  pixmap copy_icon = create_text_pixmap(u8"\x2663", icon_rect, color::dark_blue); // u8"♣"
-  pixmap paste_icon = create_text_pixmap(u8"\x2665", icon_rect, color::dark_green); // u8"♥"
+  pixmap cut_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);
+  pixmap copy_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
+  pixmap paste_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
 
   edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
   edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));

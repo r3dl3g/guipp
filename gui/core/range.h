@@ -54,6 +54,12 @@ namespace gui {
       void sort ();
       bool empty () const;
       void clear ();
+
+      type begin ();
+      type end ();
+
+      const type begin () const;
+      const type end () const;
     };
 
     // --------------------------------------------------------------------------

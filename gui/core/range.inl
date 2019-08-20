@@ -67,6 +67,26 @@ namespace gui {
     }
 
     template<typename T>
+    auto range<T>::begin () -> type {
+      return first;
+    }
+
+    template<typename T>
+    auto range<T>::end () -> type {
+      return last;
+    }
+
+    template<typename T>
+    auto range<T>::begin () const -> const type {
+      return first;
+    }
+
+    template<typename T>
+    auto range<T>::end () const -> const type {
+      return last;
+    }
+
+    template<typename T>
     std::ostream& operator<< (std::ostream& out, const range<T>& r) {
       out << r.first << ":" << r.last;
       return out;

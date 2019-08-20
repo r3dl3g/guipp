@@ -96,12 +96,8 @@ namespace gui {
       void clear ();
 
     private:
-      struct data {
-        data (type x = 0, type y = 0);
-
-        type x;
-        type y;
-      } data;
+      type x_;
+      type y_;
     };
 
     // --------------------------------------------------------------------------

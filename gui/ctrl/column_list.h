@@ -164,10 +164,7 @@ namespace gui {
 
       protected:
         struct data {
-          data ()
-            : header(nullptr)
-            , list(nullptr)
-          {}
+          data ();
 
           win::window* header;
           list_type* list;

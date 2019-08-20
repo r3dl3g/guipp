@@ -33,67 +33,71 @@ namespace gui {
 
     template<typename T>
     inline basic_point<T>::basic_point ()
+      : x_(0)
+      , y_(0)
     {}
 
     template<typename T>
     inline basic_point<T>::basic_point (type i)
-      : data(i, i)
+      : x_(i)
+      , y_(i)
     {}
 
     template<typename T>
     inline basic_point<T>::basic_point (type x, type y)
-      : data(x, y)
+      : x_(x)
+      , y_(y)
     {}
 
     template<typename T>
-    inline auto basic_point<T>::x() const->type {
-      return data.x;
+    inline auto basic_point<T>::x () const->type {
+      return x_;
     }
 
     template<typename T>
     inline void basic_point<T>::x (type v) {
-      data.x = v;
+      x_ = v;
     }
 
     template<typename T>
-    inline auto basic_point<T>::y() const->type {
-      return data.y;
+    inline auto basic_point<T>::y () const->type {
+      return y_;
     }
 
     template<typename T>
     inline void basic_point<T>::y (type v) {
-      data.y = v;
+      y_ = v;
     }
 
     template<typename T>
     inline os::point_type basic_point<T>::os_x () const {
-      return os_dimension_cast<os::point_type>(data.x);
+      return os_dimension_cast<os::point_type>(x_);
     }
 
     template<typename T>
     inline os::point_type basic_point<T>::os_y () const {
-      return os_dimension_cast<os::point_type>(data.y);
+      return os_dimension_cast<os::point_type>(y_);
     }
 
     template<typename T>
     inline basic_point<T>::basic_point (const os::point& rhs)
-      : data(global::unscale<type>(static_cast<T>(rhs.x)),
-             global::unscale<type>(static_cast<T>(rhs.y)))
+      : x_(global::unscale<type>(static_cast<T>(rhs.x)))
+      , y_(global::unscale<type>(static_cast<T>(rhs.y)))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_point<T>::basic_point (const os::rectangle& rhs)
-      : data(global::unscale<type>(static_cast<T>(rhs.left)),
-             global::unscale<type>(static_cast<T>(rhs.top)))
+      : x_(global::unscale<type>(static_cast<T>(rhs.left)))
+      , y_(global::unscale<type>(static_cast<T>(rhs.top)))
     {}
 
 #endif // WIN32
 #ifdef X11
     template<typename T>
     inline basic_point<T>::basic_point (const os::rectangle& r)
-      : data(global::unscale<type>(r.x),
-             global::unscale<type>(r.y))
+      : x_(global::unscale<type>(r.x))
+      , y_(global::unscale<type>(r.y))
     {}
 
 #endif // X11
@@ -191,7 +195,8 @@ namespace gui {
 
     template<typename T>
     inline auto basic_point<T>::operator= (const self& rhs) -> self& {
-      data = rhs.data;
+      x_ = rhs.x_;
+      y_ = rhs.y_;
       return *this;
     }
 
@@ -244,12 +249,6 @@ namespace gui {
     inline void basic_point<T>::clear () {
       operator=(undefined);
     }
-
-    template<typename T>
-    inline basic_point<T>::data::data (type x, type y)
-      : x(x)
-      , y(y)
-    {}
 
     template<typename T>
     std::ostream& operator<< (std::ostream& out, const basic_point<T>& p) {

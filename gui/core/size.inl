@@ -57,95 +57,100 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T>
     inline basic_size<T>::basic_size ()
+      : w(0)
+      , h(0)
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (type i)
-      : data(i, i)
+      : w(i)
+      , h(i)
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (type width, type height)
-      : data(width, height)
+      : w(width)
+      , h(height)
     {}
 
     template<typename T>
     inline auto basic_size<T>::width() const -> type {
-      return data.w;
+      return w;
     }
 
     template<typename T>
     inline auto basic_size<T>::height() const -> type {
-      return data.h;
+      return h;
     }
 
     template<typename T>
     inline os::size_type basic_size<T>::os_width () const {
-      return os_dimension_cast<os::size_type>(data.w);
+      return os_dimension_cast<os::size_type>(w);
     }
 
     template<typename T>
     inline os::size_type basic_size<T>::os_height () const {
-      return os_dimension_cast<os::size_type>(data.h);
+      return os_dimension_cast<os::size_type>(h);
     }
 
     template<typename T>
-    inline void basic_size<T>::width (type w) {
-      data.w = w;
+    inline void basic_size<T>::width (type new_w) {
+      w = new_w;
     }
 
     template<typename T>
-    inline void basic_size<T>::height (type h) {
-      data.h = h;
+    inline void basic_size<T>::height (type new_h) {
+      h = new_h;
     }
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::size& s)
-      : data(global::unscale<type>(static_cast<T>(s.cx)),
-             global::unscale<type>(static_cast<T>(s.cy)))
+      : w(global::unscale<type>(static_cast<T>(s.cx)))
+      , h(global::unscale<type>(static_cast<T>(s.cy)))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::point& pt)
-      : data(global::unscale<type>(static_cast<T>(pt.x)),
-             global::unscale<type>(static_cast<T>(pt.y)))
+      : w(global::unscale<type>(static_cast<T>(pt.x)))
+      , h(global::unscale<type>(static_cast<T>(pt.y)))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : data(global::unscale<type>(static_cast<T>(r.right - r.left)),
-             global::unscale<type>(static_cast<T>(r.bottom - r.top)))
+      : w(global::unscale<type>(static_cast<T>(r.right - r.left)))
+      , h(global::unscale<type>(static_cast<T>(r.bottom - r.top)))
     {}
 
 #endif // WIN32
 #ifdef X11
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : data(global::unscale<type>(r.width),
-             global::unscale<type>(r.height))
+      : w(global::unscale<type>(r.width))
+      , h(global::unscale<type>(r.height))
     {}
 
 #endif // X11
 
     template<typename T>
     inline void basic_size<T>::clear (type v) {
-      data.w = data.h = v;
+      w = h = v;
     }
 
     template<typename T>
     inline bool basic_size<T>::empty () const {
-      return (data.w <= type(0)) || (data.h <= type(0));
+      return (w <= type(0)) || (h <= type(0));
     }
 
     template<typename T>
     inline bool basic_size<T>::operator== (const self& rhs) const {
-      return (data.w == rhs.data.w) && (data.h == rhs.data.h);
+      return (w == rhs.w) && (h == rhs.h);
     }
 
     template<typename T>
     inline auto basic_size<T>::operator= (const self& rhs) -> self& {
-      data = rhs.data;
+      w = rhs.w;
+      h = rhs.h;
       return *this;
     }
 
@@ -156,22 +161,22 @@ namespace gui {
 
     template<typename T>
     inline bool basic_size<T>::operator< (const self& rhs) const {
-      return (data.w < rhs.data.w) || (data.h < rhs.data.h);
+      return (w < rhs.w) || (h < rhs.h);
     }
 
     template<typename T>
     inline bool basic_size<T>::operator<= (const self& rhs) const {
-      return (data.w <= rhs.data.w) || (data.h <= rhs.data.h);
+      return (w <= rhs.w) || (h <= rhs.h);
     }
 
     template<typename T>
     inline bool basic_size<T>::operator> (const self& rhs) const {
-      return (data.w > rhs.data.w) && (data.h > rhs.data.h);
+      return (w > rhs.w) && (h > rhs.h);
     }
 
     template<typename T>
     inline bool basic_size<T>::operator>= (const self& rhs) const {
-      return (data.w >= rhs.data.w) && (data.h >= rhs.data.h);
+      return (w >= rhs.w) && (h >= rhs.h);
     }
 
     template<typename T>
@@ -196,29 +201,29 @@ namespace gui {
 
     template<typename T>
     inline auto basic_size<T>::operator+= (const self& s) -> self& {
-      data.w += s.data.w;
-      data.h += s.data.h;
+      w += s.w;
+      h += s.h;
       return *this;
     }
 
     template<typename T>
     inline auto basic_size<T>::operator-= (const self& s) -> self& {
-      data.w -= s.data.w;
-      data.h -= s.data.h;
+      w -= s.w;
+      h -= s.h;
       return *this;
     }
 
     template<typename T>
     inline auto basic_size<T>::operator*= (type f) -> self& {
-      data.w *= f;
-      data.h *= f;
+      w *= f;
+      h *= f;
       return *this;
     }
 
     template<typename T>
     inline auto basic_size<T>::operator/= (type f) -> self& {
-      data.w /= f;
-      data.h /= f;
+      w /= f;
+      h /= f;
       return *this;
     }
 
@@ -241,12 +246,6 @@ namespace gui {
     inline basic_size<T>::operator os::point() const {
       return {static_cast<os::point_type>(os_width()), static_cast<os::point_type>(os_height())};
     }
-
-    template<typename T>
-    inline basic_size<T>::data::data (type w, type h)
-      : w(w)
-      , h(h)
-    {}
 
     template<typename T>
     std::ostream& operator<< (std::ostream& out, const basic_size<T>& sz) {

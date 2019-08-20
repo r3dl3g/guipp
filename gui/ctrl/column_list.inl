@@ -105,6 +105,12 @@ namespace gui {
         super::init(basepp::bind_method(this, &base_column_list_layout::layout));
       }
 
+      inline base_column_list_layout::data::data ()
+        : header(nullptr)
+        , list(nullptr)
+      {}
+
+
       // --------------------------------------------------------------------------
     } // detail
 

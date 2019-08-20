@@ -94,12 +94,8 @@ namespace gui {
       void height (type h);
 
     private:
-      struct data {
-        data (type w = 0, type h = 0);
-
-        type w;
-        type h;
-      } data;
+      type w;
+      type h;
     };
 
     // --------------------------------------------------------------------------

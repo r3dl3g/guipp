@@ -112,6 +112,8 @@ namespace gui {
       bool operator>= (const file_info& rhs) const;
     };
 
+    std::vector<sys_fs::path> get_all_root_paths ();
+
   } // namespace fs
 
   namespace ctrl {

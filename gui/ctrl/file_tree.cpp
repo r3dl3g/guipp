@@ -105,6 +105,25 @@ namespace gui {
       : size(0)
     {}
 
+    std::vector<sys_fs::path> get_all_root_paths () {
+#ifdef X11
+      return {sys_fs::path("/")};
+#endif // X11
+#ifdef WIN32
+      DWORD available = GetLogicalDrives();
+      std::vector<sys_fs::path> roots;
+      char drive[] = "a:/";
+      for (int bit = 0; bit < 26; ++bit) {
+        const DWORD mask = 0x0001U << bit;
+        if ((available & mask) == mask) {
+          drive[0] = 'a' + bit;
+          roots.emplace_back(sys_fs::path(drive));
+        }
+      }
+      return roots;
+#endif // WIN32
+    }
+
   } // namespace fs
 
   namespace ctrl {

@@ -41,16 +41,14 @@ namespace gui {
     struct range {
       typedef T type;
 
-      type first;
-      type last;
-
       range (type v = type());
-      range (type f, type l);
+      range (const type& f, const type& l);
+      range (type&& f, type&& l);
 
       bool operator== (const range&);
       bool operator!= (const range&);
 
-      bool is_inside (type i) const;
+      bool is_inside (const type& i) const;
       void sort ();
       bool empty () const;
       void clear ();
@@ -60,6 +58,11 @@ namespace gui {
 
       const type begin () const;
       const type end () const;
+
+    private:
+      type first;
+      type last;
+
     };
 
     // --------------------------------------------------------------------------

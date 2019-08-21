@@ -334,29 +334,6 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename I>
-      inline range<I>::range (const iterator& b, const iterator& e)
-        : start(b)
-        , finish(e)
-      {}
-
-      template<typename I>
-      inline range<I>::range (iterator&& b, iterator&& e) {
-        std::swap(start, b);
-        std::swap(finish, e);
-      }
-
-      template<typename I>
-      inline auto range<I>::begin() const->iterator {
-        return start;
-      }
-
-      template<typename I>
-      inline auto range<I>::end() const->iterator {
-        return finish;
-      }
-
-      // --------------------------------------------------------------------------
       inline bool default_node_info::has_sub_nodes (const node& n) {
         return !n.nodes().empty();
       }

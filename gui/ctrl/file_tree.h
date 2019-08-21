@@ -136,19 +136,19 @@ namespace gui {
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_path_info : public path_info {
-        typedef tree::range<iterator> range;
+        typedef core::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_dir_info : public path_info {
-        typedef tree::range<iterator> range;
+        typedef core::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };
 
       struct GUIPP_CTRL_EXPORT unsorted_file_info : public path_info {
-        typedef tree::range<iterator> range;
+        typedef core::range<iterator> range;
 
         static range sub_nodes (type const& n);
       };

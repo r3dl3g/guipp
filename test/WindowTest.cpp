@@ -747,26 +747,22 @@ my_main_window::my_main_window ()
   });
   sel_first_plus.on_clicked([&] () {
     auto r = edit1.get_selection();
-    (r.first)++;
-    edit1.set_selection(r, ctrl::event_source::mouse);
+    edit1.set_selection({r.begin() + 1, r.end()}, ctrl::event_source::mouse);
   });
   sel_first_minus.on_clicked([&] () {
     auto r = edit1.get_selection();
-    if (r.first > 0) {
-      (r.first)--;
-      edit1.set_selection(r, ctrl::event_source::mouse);
+    if (r.begin() > 0) {
+      edit1.set_selection({r.begin() - 1, r.end()}, ctrl::event_source::mouse);
     }
   });
   sel_last_plus.on_clicked([&] () {
     auto r = edit1.get_selection();
-    (r.last)++;
-    edit1.set_selection(r, ctrl::event_source::mouse);
+    edit1.set_selection({r.begin(), r.end() + 1}, ctrl::event_source::mouse);
   });
   sel_last_minus.on_clicked([&] () {
     auto r = edit1.get_selection();
-    if (r.last > 0) {
-      (r.last)--;
-      edit1.set_selection(r, ctrl::event_source::mouse);
+    if (r.end() > 0) {
+      edit1.set_selection({r.begin(), r.end() - 1}, ctrl::event_source::mouse);
     }
   });
 

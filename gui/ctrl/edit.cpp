@@ -65,13 +65,13 @@ namespace gui {
         core::point::type y1 = area.y();
         core::point::type y2 = area.y2();
 
-        if (has_focus && (selection.first < selection.last)) {
+        if (has_focus && (selection.begin() < selection.end())) {
           gui::core::rectangle a1 = area;
           auto begin = scroll_pos;
           core::point::type left = area.x();
-          if (selection.first > scroll_pos) {
-            std::string t1 = text.substr(scroll_pos, selection.first - scroll_pos);
-            begin = selection.first;
+          if (selection.begin() > scroll_pos) {
+            std::string t1 = text.substr(scroll_pos, selection.begin() - scroll_pos);
+            begin = selection.begin();
             graph.text(bounding_box(t1, a1, origin), fnt, foreground);
             left = a1.x2();
             graph.text(text_box(t1, core::rectangle(core::point(area.x(), y1), core::point(left, y2)), origin),
@@ -81,14 +81,14 @@ namespace gui {
           }
 
           gui::core::rectangle a2 = area.with_x(left);
-          if (selection.last > scroll_pos) {
-            std::string t2 = text.substr(begin, selection.last - begin);
+          if (selection.end() > scroll_pos) {
+            std::string t2 = text.substr(begin, selection.end() - begin);
             graph.text(bounding_box(t2, a2, origin), fnt, foreground);
             left = a2.x2();
             a2 = core::rectangle(core::point(a2.x(), y1), core::point(left, y2));
             graph.fill(rectangle(a2), color::highLightColor());
             graph.text(text_box(t2, core::rectangle(a2), origin), fnt, color::highLightTextColor());
-            begin = selection.last;
+            begin = selection.end();
           }
 
           if (begin < text.length()) {
@@ -194,10 +194,10 @@ namespace gui {
       void edit_base::set_cursor_pos (pos_t pos, bool shift) {
         pos_t new_pos = std::min(pos, get_text_length());
         if (shift) {
-          if (data.cursor_pos == data.selection.last) {
-            data.selection.last = new_pos;
-          } else if (data.cursor_pos == data.selection.first) {
-            data.selection.first = new_pos;
+          if (data.cursor_pos == data.selection.end()) {
+            data.selection = {data.selection.begin(), new_pos};
+          } else if (data.cursor_pos == data.selection.begin()) {
+            data.selection = {new_pos, data.selection.end()};
           } else {
             data.selection = range(new_pos);
           }
@@ -248,8 +248,8 @@ namespace gui {
 
       void edit_base::replace_selection (const std::string& new_text) {
         range sel = get_selection();
-        data.text.replace(sel.first, sel.last - sel.first, new_text);
-        set_cursor_pos(sel.first + new_text.size(), false);
+        data.text.replace(sel.begin(), sel.end() - sel.begin(), new_text);
+        set_cursor_pos(sel.begin() + new_text.size(), false);
         notify_content_changed();
         invalidate();
       }
@@ -258,7 +258,7 @@ namespace gui {
         if (r.empty()) {
           return std::string();
         }
-        return data.text.substr(r.first, r.last - r.first);
+        return data.text.substr(r.begin(), r.end() - r.begin());
       }
 
       std::string edit_base::get_selected_text () const {
@@ -331,7 +331,7 @@ namespace gui {
             notify_content_changed();
           } else {
             replace_selection(std::string());
-            set_cursor_pos(data.selection.first, false);
+            set_cursor_pos(data.selection.begin(), false);
           }
           break;
         case win::keys::back_space:
@@ -347,7 +347,7 @@ namespace gui {
             }
           } else {
             replace_selection(std::string());
-            set_cursor_pos(data.selection.first, false);
+            set_cursor_pos(data.selection.begin(), false);
           }
           break;
         case win::keys::escape:
@@ -390,7 +390,7 @@ namespace gui {
             }
           } else if (chars.size()) {
             replace_selection(chars);
-            set_cursor_pos(data.selection.last, false);
+            set_cursor_pos(data.selection.end(), false);
           }
         }
         }

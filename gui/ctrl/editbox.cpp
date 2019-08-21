@@ -138,7 +138,7 @@ namespace gui {
             }
           } else {
             replace_selection(std::string());
-            set_cursor_pos(data.selection.first, false);
+            set_cursor_pos(data.selection.begin(), false);
           }
           break;
         case win::keys::back_space:
@@ -165,7 +165,7 @@ namespace gui {
             }
           } else {
             replace_selection(std::string());
-            set_cursor_pos(data.selection.first, false);
+            set_cursor_pos(data.selection.begin(), false);
           }
           break;
         case win::keys::escape:
@@ -181,7 +181,7 @@ namespace gui {
         case win::keys::enter: {
           if (!data.selection.empty()) {
             replace_selection(std::string());
-            set_cursor_pos(data.selection.first, false);
+            set_cursor_pos(data.selection.begin(), false);
           }
           auto rest = current.substr(data.cursor_pos.x());
           current.erase(data.cursor_pos.x());
@@ -214,7 +214,7 @@ namespace gui {
             }
           } else if (chars.size()) {
             replace_selection(chars);
-            set_cursor_pos(data.selection.last, false);
+            set_cursor_pos(data.selection.end(), false);
           }
         }
         }

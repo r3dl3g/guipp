@@ -177,27 +177,11 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename I>
-      struct range {
-        typedef I iterator;
-
-        range (const iterator& b, const iterator& e);
-        range (iterator&& b, iterator&& e);
-
-        iterator begin () const;
-        iterator end () const;
-
-      private:
-        iterator start;
-        iterator finish;
-      };
-
-      // --------------------------------------------------------------------------
       struct default_node_info {
         typedef node type;
         typedef node::iterator iterator;
         typedef const node* reference;
-        typedef range<iterator> node_range;
+        typedef core::range<iterator> node_range;
 
         static bool has_sub_nodes (const node& n);
         static node_range sub_nodes (node const& n);

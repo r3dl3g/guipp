@@ -38,20 +38,21 @@ namespace gui {
       }
 
       edit_base::range get_line_selection (const core::range<core::basic_point<int> >& selection, size_t idx) {
-        edit_base::range r;
-        if (selection.first.y() < idx) {
-          r.first = 0;
-        } else if (selection.first.y() == idx) {
-          r.first = selection.first.x();
+        edit_base::range::type first = 0;
+        if (selection.begin().y() < idx) {
+          first = 0;
+        } else if (selection.begin().y() == idx) {
+          first = selection.begin().x();
         }
-        if (selection.first.y() <= idx) {
-          if (selection.last.y() > idx) {
-            r.last = std::numeric_limits<edit_base::range::type>::max();
-          } else if (selection.last.y() == idx) {
-            r.last = selection.last.x();
+        edit_base::range::type last = 0;
+        if (selection.begin().y() <= idx) {
+          if (selection.end().y() > idx) {
+            last = std::numeric_limits<edit_base::range::type>::max();
+          } else if (selection.end().y() == idx) {
+            last = selection.end().x();
           }
         }
-        return r;
+        return {first, last};
       }
 
     } // namespace detail
@@ -136,10 +137,10 @@ namespace gui {
 
       void textbox_base::set_selection (const textbox_base::range& s) {
         auto old_selection = data.selection;
-        auto row = std::min<int>(s.last.y(), static_cast<int>(row_count()) - 1);
+        auto row = std::min<int>(s.end().y(), static_cast<int>(row_count()) - 1);
         if (row > -1) {
-          auto column = std::min<int>(s.last.x(), static_cast<int>(data.lines[row].size()));
-          data.selection = {s.first, {column, row}};
+          auto column = std::min<int>(s.end().x(), static_cast<int>(data.lines[row].size()));
+          data.selection = {s.begin(), {column, row}};
         } else {
           data.selection = s;
         }
@@ -157,10 +158,10 @@ namespace gui {
             if (column > -1) {
               position new_pos(column, row);
               if (shift) {
-                if (data.cursor_pos == data.selection.last) {
-                  data.selection.last = new_pos;
-                } else if (data.cursor_pos == data.selection.first) {
-                  data.selection.first = new_pos;
+                if (data.cursor_pos == data.selection.end()) {
+                  data.selection = {data.selection.begin(), new_pos};
+                } else if (data.cursor_pos == data.selection.begin()) {
+                  data.selection = {new_pos, data.selection.end()};
                 } else {
                   data.selection = {new_pos};
                 }
@@ -221,24 +222,24 @@ namespace gui {
           set_cursor_pos(position::end);
         } else {
           auto sel = get_selection();
-          auto first_line = std::next(data.lines.begin(), sel.first.y());
-          if ((sel.first.y() == sel.last.y()) && (v.size() < 2)) {
-            first_line->replace(sel.first.x(), sel.last.x() - sel.first.x(), new_text);
-            set_cursor_pos({sel.first.x() + static_cast<decltype(sel.first.x())>(new_text.size()), sel.first.y()});
+          auto first_line = std::next(data.lines.begin(), sel.begin().y());
+          if ((sel.begin().y() == sel.end().y()) && (v.size() < 2)) {
+            first_line->replace(sel.begin().x(), sel.end().x() - sel.begin().x(), new_text);
+            set_cursor_pos({sel.begin().x() + static_cast<decltype(sel.begin().x())>(new_text.size()), sel.begin().y()});
           } else {
-            auto last_line = std::next(data.lines.begin(), sel.last.y());
-            std::string head = first_line->substr(0, sel.first.x());
-            std::string tail = last_line->substr(sel.last.x());
+            auto last_line = std::next(data.lines.begin(), sel.end().y());
+            std::string head = first_line->substr(0, sel.begin().x());
+            std::string tail = last_line->substr(sel.end().x());
             data.lines.erase(std::next(first_line), std::next(last_line));
             if (v.size() < 2) {
               *first_line = head + new_text + tail;
-              set_cursor_pos({sel.first.x() + static_cast<decltype(sel.first.x())>(new_text.size()), sel.first.y()});
+              set_cursor_pos({sel.begin().x() + static_cast<decltype(sel.begin().x())>(new_text.size()), sel.begin().y()});
             } else {
               *first_line = head + v.front();
               std::string last = v.back() + tail;
               data.lines.insert(std::next(first_line), last);
               data.lines.insert(std::next(first_line), std::next(v.begin()), std::prev(v.end()));
-              set_cursor_pos({static_cast<decltype(sel.first.x())>(v.back().size()), sel.first.y() + static_cast<decltype(sel.first.y())>(v.size()) - 1});
+              set_cursor_pos({static_cast<decltype(sel.begin().x())>(v.back().size()), sel.begin().y() + static_cast<decltype(sel.begin().y())>(v.size()) - 1});
             }
           }
         }
@@ -251,18 +252,18 @@ namespace gui {
       }
 
       std::string textbox_base::get_text_in_range (const textbox_base::range& r) const {
-        if (r.empty() || data.lines.empty() || (r.first.y() >= row_count())) {
+        if (r.empty() || data.lines.empty() || (r.begin().y() >= row_count())) {
           return std::string();
         }
-        if (r.first.y() == r.last.y()) {
-          return data.lines[r.first.y()].substr(r.first.x(), r.last.x() - r.first.x());
+        if (r.begin().y() == r.end().y()) {
+          return data.lines[r.begin().y()].substr(r.begin().x(), r.end().x() - r.begin().x());
         }
         std::ostringstream oss;
-        const std::string& first = data.lines[r.first.y()];
-        oss << first.substr(r.first.x(), first.size() - r.first.x()) << "\n";
-        std::copy(std::next(data.lines.begin(), r.first.y() + 1), std::next(data.lines.begin(), r.last.y()), std::ostream_iterator<std::string>(oss, "\n"));
-        const std::string& last = data.lines[r.last.y()];
-        oss << last.substr(0, r.last.x());
+        const std::string& first = data.lines[r.begin().y()];
+        oss << first.substr(r.begin().x(), first.size() - r.begin().x()) << "\n";
+        std::copy(std::next(data.lines.begin(), r.begin().y() + 1), std::next(data.lines.begin(), r.end().y()), std::ostream_iterator<std::string>(oss, "\n"));
+        const std::string& last = data.lines[r.end().y()];
+        oss << last.substr(0, r.end().x());
         return oss.str();
       }
 

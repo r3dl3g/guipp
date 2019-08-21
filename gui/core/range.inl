@@ -29,9 +29,15 @@ namespace gui {
     {}
 
     template<typename T>
-    range<T>::range (type f, type l)
+    range<T>::range (const type& f, const type& l)
       : first(f)
       , last(l)
+    {}
+
+    template<typename T>
+    range<T>::range (type&& f, type&& l)
+      : first(std::move(f))
+      , last(std::move(l))
     {}
 
     template<typename T>
@@ -45,7 +51,7 @@ namespace gui {
     }
 
     template<typename T>
-    bool range<T>::is_inside (type i) const {
+    bool range<T>::is_inside (const type& i) const {
       return (i > first) && (i < last);
     }
 

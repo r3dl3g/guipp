@@ -379,7 +379,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     }),
     tree::node("leaf 3")
   });
-  right_view.first.set_root(std::move(root));
+  right_view.first.set_root(root);
+  root.label = "root2";
+  right_view.first.add_root(std::move(root));
 //  right_view.first.open_all();
   right_view.first.update_node_list();
   right_view.second.set_root(sys_fs::path(IF_WIN32_ELSE("c:\\", "/")));

@@ -96,6 +96,11 @@ namespace gui {
 
         const type& get_root () const;
 
+        void add_root (const type& root);
+        void add_root (type&& root);
+
+        const std::vector<type>& get_roots () const;
+
         basic_tree (core::size::type item_size = 20,
                     os::color background = color::white,
                     bool grab_focus = true);
@@ -142,7 +147,7 @@ namespace gui {
                              bool hilited);
 
       private:
-        type root;
+        std::vector<type> roots;
 
         struct depth_info {
           depth_info (reference ref, std::size_t depth);

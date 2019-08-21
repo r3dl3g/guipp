@@ -64,22 +64,40 @@ namespace gui {
       }
 
       template<typename I>
-      void basic_tree<I>::set_root (type&& new_root) {
-        std::swap(root, new_root);
+      void basic_tree<I>::set_root (type&& root) {
+        roots.clear();
+        roots.emplace_back(root);
       }
 
       template<typename I>
-      void basic_tree<I>::set_root (const type& new_root) {
-        root = new_root;
+      void basic_tree<I>::set_root (const type& root) {
+        roots.clear();
+        roots.emplace_back(root);
       }
 
       template<typename I>
       auto basic_tree<I>::get_root () const -> const type& {
-        return root;
+        return roots[0];
+      }
+
+      template<typename I>
+      void basic_tree<I>::add_root (const type& root) {
+        roots.emplace_back(root);
+      }
+
+      template<typename I>
+      void basic_tree<I>::add_root (type&& root) {
+        roots.emplace_back(root);
+      }
+
+      template<typename I>
+      auto basic_tree<I>::get_roots () const -> const std::vector<type>& {
+        return roots;
       }
 
       template<typename I>
       void basic_tree<I>::init () {
+        set_root(type());
         super::set_drawer(basepp::bind_method(this, &basic_tree::draw_list_item));
         super::on_selection_commit([&]() {
           toggle_node(super::get_selection());
@@ -150,13 +168,17 @@ namespace gui {
       template<typename I>
       inline void basic_tree<I>::open_all () {
         open_nodes.clear();
-        open_sub(root);
+        for (const auto& root : roots) {
+          open_sub(root);
+        }
       }
 
       template<typename I>
       inline void basic_tree<I>::open_root () {
         open_nodes.clear();
-        open_nodes.insert(tree_info::make_reference(root));
+        for (const auto& root : roots) {
+          open_nodes.insert(tree_info::make_reference(root));
+        }
       }
 
       template<typename I>
@@ -241,7 +263,9 @@ namespace gui {
       template<typename I>
       void basic_tree<I>::update_node_list () {
         nodes.clear();
-        collect_children(root);
+        for (const auto& root : roots) {
+          collect_children(root);
+        }
         super::set_count(nodes.size());
         super::invalidate();
       }

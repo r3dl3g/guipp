@@ -100,6 +100,7 @@ namespace gui {
         void add_root (type&& root);
 
         const std::vector<type>& get_roots () const;
+        void set_roots (const std::vector<type>&);
 
         basic_tree (core::size::type item_size = 20,
                     os::color background = color::white,

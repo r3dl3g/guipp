@@ -41,14 +41,6 @@ namespace gui {
       return lhs.iterator != rhs.iterator;
     }
 
-    inline bool file_info::is_directory () const {
-      return sys_fs::is_directory(status);
-    }
-
-    inline std::string file_info::filename () const {
-      return path.filename().string();
-    }
-
     inline bool file_info::operator== (const file_info& rhs) const {
       return path == rhs.path;
     }

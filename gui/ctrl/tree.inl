@@ -96,6 +96,11 @@ namespace gui {
       }
 
       template<typename I>
+      void basic_tree<I>::set_roots (const std::vector<type>& new_roots) {
+        roots = new_roots;
+      }
+
+      template<typename I>
       void basic_tree<I>::init () {
         set_root(type());
         super::set_drawer(basepp::bind_method(this, &basic_tree::draw_list_item));

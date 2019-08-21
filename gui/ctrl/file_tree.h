@@ -113,6 +113,7 @@ namespace gui {
     };
 
     std::vector<sys_fs::path> get_all_root_paths ();
+    std::vector<file_info> get_all_root_file_infos ();
 
   } // namespace fs
 

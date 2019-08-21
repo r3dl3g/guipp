@@ -384,7 +384,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   right_view.first.add_root(std::move(root));
 //  right_view.first.open_all();
   right_view.first.update_node_list();
-  right_view.second.set_root(sys_fs::path(IF_WIN32_ELSE("c:\\", "/")));
+  right_view.second.set_roots(fs::get_all_root_file_infos());
 
   right_view.second.update_node_list();
   right_view.set_visible();

@@ -112,16 +112,37 @@ namespace gui {
 #ifdef WIN32
       DWORD available = GetLogicalDrives();
       std::vector<sys_fs::path> roots;
-      char drive[] = "a:/";
+      char drive[] = " :\\";
       for (int bit = 0; bit < 26; ++bit) {
         const DWORD mask = 0x0001U << bit;
         if ((available & mask) == mask) {
-          drive[0] = 'a' + bit;
+          drive[0] = 'A' + bit;
           roots.emplace_back(sys_fs::path(drive));
         }
       }
       return roots;
 #endif // WIN32
+    }
+
+    std::vector<file_info> get_all_root_file_infos () {
+      std::vector<file_info> infos;
+      auto paths = get_all_root_paths();
+      for (const auto& p : paths) {
+        infos.emplace_back(p);
+      }
+      return infos;
+    }
+
+
+    bool file_info::is_directory () const {
+      return sys_fs::is_directory(status);
+    }
+
+    std::string file_info::filename () const {
+      if (path == path.root_path()) {
+        return path.root_name().string();
+      }
+      return path.filename().string();
     }
 
   } // namespace fs

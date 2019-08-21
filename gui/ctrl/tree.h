@@ -92,6 +92,7 @@ namespace gui {
         typedef typename tree_info::reference reference;
 
         void set_root (const type& root);
+        void set_root (type&& root);
 
         const type& get_root () const;
 

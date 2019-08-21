@@ -64,10 +64,15 @@ namespace gui {
       }
 
       template<typename I>
+      void basic_tree<I>::set_root (type&& new_root) {
+        std::swap(root, new_root);
+      }
+
+      template<typename I>
       void basic_tree<I>::set_root (const type& new_root) {
         root = new_root;
       }
-      
+
       template<typename I>
       auto basic_tree<I>::get_root () const -> const type& {
         return root;

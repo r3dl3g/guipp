@@ -361,8 +361,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   }
 
   right_view.create(*this, core::rectangle(0, 0, 200, 400));
-  right_view.first.root.label = "root";
-  right_view.first.root.add_nodes({
+  simple_tree::type root;
+  root.label = "root";
+  root.add_nodes({
     tree::node("leaf 1"),
     tree::node("sub 2", {
       tree::node("sub 2.1", {
@@ -378,15 +379,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     }),
     tree::node("leaf 3")
   });
+  right_view.first.set_root(root);
 //  right_view.first.open_all();
   right_view.first.update_node_list();
-  right_view.second.root = 
-#ifdef WIN32
-    sys_fs::path("c:\\");
-#endif // WIN32
-#ifdef X11
-    sys_fs::path("/");
-#endif // X11
+  right_view.second.set_root(sys_fs::path(IF_WIN32_ELSE("c:\\", "/")));
 
   right_view.second.update_node_list();
   right_view.set_visible();

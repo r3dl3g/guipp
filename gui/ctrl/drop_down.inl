@@ -289,7 +289,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     drop_down_list<T, D>::~drop_down_list () {
-      auto* root = super::get_root();
+      auto* root = super::get_root_window();
       if (root) {
         root->unregister_event_handler<win::move_event>(me);
       }
@@ -326,7 +326,7 @@ namespace gui {
       });
       data.popup.create(*this, place);
 
-      auto* root = super::get_root();
+      auto* root = super::get_root_window();
       if (root) {
         root->on<win::move_event>(me);
       }

@@ -183,10 +183,10 @@ namespace gui {
 #endif // X11
     }
 
-    container* window::get_root () const {
+    container* window::get_root_window () const {
       container* parent = get_parent();
       if (parent) {
-        return parent->get_root();
+        return parent->get_root_window();
       }
       return (container*)this;
     }

@@ -122,7 +122,7 @@ namespace gui {
       super::content_view.set_split_pos(0.5);
 
       sys_fs::path current = sys_fs::current_path();
-      dir_tree.root = current.root_path();
+      dir_tree.set_root(current.root_path());
       for (auto next = current; next.has_root_path(); next = next.parent_path()) {
         dir_tree.add_open_node(next);
       }

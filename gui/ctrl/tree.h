@@ -91,7 +91,9 @@ namespace gui {
         typedef typename tree_info::type type;
         typedef typename tree_info::reference reference;
 
-        type root;
+        void set_root (const type& root);
+
+        const type& get_root () const;
 
         basic_tree (core::size::type item_size = 20,
                     os::color background = color::white,
@@ -139,6 +141,8 @@ namespace gui {
                              bool hilited);
 
       private:
+        type root;
+
         struct depth_info {
           depth_info (reference ref, std::size_t depth);
 

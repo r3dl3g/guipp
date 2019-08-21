@@ -64,6 +64,16 @@ namespace gui {
       }
 
       template<typename I>
+      void basic_tree<I>::set_root (const type& new_root) {
+        root = new_root;
+      }
+      
+      template<typename I>
+      auto basic_tree<I>::get_root () const -> const type& {
+        return root;
+      }
+
+      template<typename I>
       void basic_tree<I>::init () {
         super::set_drawer(basepp::bind_method(this, &basic_tree::draw_list_item));
         super::on_selection_commit([&]() {

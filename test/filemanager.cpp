@@ -63,7 +63,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.set_children_visible();
 
     sys_fs::path current = sys_fs::current_path();
-    client.first.root = current.root_path();
+    client.first.set_root(current.root_path());
     for (auto next = current; next.has_root_path(); next = next.parent_path()) {
       client.first.add_open_node(next);
     }

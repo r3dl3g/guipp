@@ -18,6 +18,12 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <iterator>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
 #include <base/time_util.h>
@@ -381,32 +387,32 @@ namespace gui {
 
     template<>
     void sort_by<sort_order::name_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_name_dirs_last());
+      std::stable_sort(v.rbegin(), v.rend(), path_tree::comp_by_name_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::name_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_name_dirs_first());
+      std::stable_sort(v.begin(), v.end(), path_tree::comp_by_name_dirs_first());
     }
 
     template<>
     void sort_by<sort_order::size_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_size_dirs_last());
+      std::stable_sort(v.rbegin(), v.rend(), path_tree::comp_by_size_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::size_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_size_dirs_first());
+      std::stable_sort(v.begin(), v.end(), path_tree::comp_by_size_dirs_first());
     }
 
     template<>
     void sort_by<sort_order::date_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_date_dirs_last());
+      std::stable_sort(v.rbegin(), v.rend(), path_tree::comp_by_date_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::date_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_date_dirs_first());
+      std::stable_sort(v.begin(), v.end(), path_tree::comp_by_date_dirs_first());
     }
 
     void sort_list_by (std::vector<fs::file_info>& list, sort_order order) {

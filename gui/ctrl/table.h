@@ -127,6 +127,37 @@ namespace gui {
 
         };
 
+        // --------------------------------------------------------------------------
+        struct spawn {
+          int16_t x;
+          int16_t y;
+
+          inline spawn (const int16_t x = 0, const int16_t y = 0)
+            : x(x)
+            , y(y)
+          {}
+
+          bool is_hidden () const;
+          bool is_empty () const;
+          bool is_spawn () const;
+
+          bool operator== (const spawn&) const;
+        };
+
+        // --------------------------------------------------------------------------
+        struct spawns {
+
+          static const spawn empty;
+
+          void set (const position&, const spawn&);
+          spawn get (const position&) const;
+          void clear (const position&);
+
+        private:
+          typedef std::vector<spawn> column;
+          std::vector<column> data;
+        };
+
       } // data
 
       // --------------------------------------------------------------------------
@@ -180,6 +211,7 @@ namespace gui {
         layout heights;
         position selection;
         position hilite;
+        data::spawns spawns;
       };
 
       // --------------------------------------------------------------------------

@@ -18,6 +18,12 @@
 
 // --------------------------------------------------------------------------
 //
+// Common includes
+//
+#include <set>
+
+// --------------------------------------------------------------------------
+//
 // Library includes
 //
 #include <gui/ctrl/table.h>
@@ -49,9 +55,69 @@ namespace gui {
         graph.text(text_box(t, place, align), font::system(), fore);
       }
 
-    }
+    } // namespace paint
 
     namespace table {
+
+      namespace data {
+
+        // --------------------------------------------------------------------------
+        const spawn spawns::empty;
+
+        void spawns::set (const position& cell, const spawn& sp) {
+          if (data.size() <= (cell.x() + sp.x)) {
+            data.resize(cell.x() + sp.x + 1);
+          }
+          for(int16_t x = 0; x < sp.x + 1; ++x) {
+            column& c = data[cell.x() + x];
+            if (c.size() <= (cell.y() + sp.y)) {
+              c.resize(cell.y() + sp.y + 1);
+            }
+            for(int16_t y = 0; y < sp.y + 1; ++y) {
+              c[cell.y() + y] = {int16_t(-x), int16_t(-y)};
+            }
+          }
+          data[cell.x()][cell.y()] = sp;
+        }
+
+        spawn spawns::get (const position& cell) const {
+          if (cell.x() < data.size()) {
+            const std::vector<spawn>& c = data[cell.x()];
+            if (cell.y() < c.size()) {
+              return c[cell.y()];
+            }
+          }
+          return empty;
+        }
+
+        void spawns::clear (const position& cell) {
+          spawn sp = get(cell);
+          if (!sp.is_empty()) {
+            for(int x = 0; x < sp.x + 1; ++x) {
+              column& c = data[cell.x() + x];
+              for(int y = 0; y < sp.y + 1; ++y) {
+                c[cell.y() + y] = empty;
+              }
+            }
+          }
+        }
+
+      } // namespace data
+
+      // --------------------------------------------------------------------------
+      core::size metric::get_size (const position& cell) const {
+        core::size sz(widths.get_size(cell.x()), heights.get_size(cell.y()));
+        const auto spwn = spawns.get(cell);
+        if (spwn.is_spawn()) {
+          for(int dx = 0; dx < spwn.x; ++dx) {
+            sz.width(sz.width() + widths.get_size(cell.x() + dx));
+          }
+          for(int dy = 0; dy < spwn.y; ++dy) {
+            sz.height(sz.height() + heights.get_size(cell.y() + dy));
+          }
+        }
+        return sz;
+      }
 
       // --------------------------------------------------------------------------
       void layout::set_size (std::size_t idx, core::size::type size) {
@@ -133,6 +199,8 @@ namespace gui {
             position cell(0, static_cast<position::type>(geometrie.heights.get_first_idx()));
             core::point::type y = geometrie.heights.get_first_offset();
 
+            std::set<position> painted_spawns;
+
             while (y < max_sz.height()) {
               const core::size::type height = geometrie.heights.get_size(cell.y());
 
@@ -141,19 +209,45 @@ namespace gui {
 
               while (x < max_sz.width()) {
                 const core::size::type width = geometrie.widths.get_size(cell.x());
-                drawer(cell, graph,
-                       core::rectangle(x, y, width, height),
-                       aligns.get_cell(cell),
-                       foregrounds.get_cell(cell),
-                       backgrounds.get_cell(cell),
-                       selection_filter(cell, geometrie),
-                       hilite_filter(cell, geometrie));
+                core::rectangle area(x, y, width, height);
+                const auto spwn = geometrie.spawns.get(cell);
+
+                position paint_cell = cell;
+                if (spwn.is_hidden()) {
+                  paint_cell = cell + offset(spwn.x, spwn.y);
+                  if (painted_spawns.find(paint_cell) == painted_spawns.end()) {
+                    core::point::type mx = x;
+                    core::point::type my = y;
+                    for (int i = 0; i > spwn.x; --i) {
+                      mx -= geometrie.widths.get_size(cell.x() + i);
+                    }
+                    for (int i = 0; i > spwn.y; --i) {
+                      my -= geometrie.heights.get_size(cell.y() + i);
+                    }
+                    area.set_position({mx, my});
+                    area.set_size(geometrie.get_size(paint_cell));
+                    painted_spawns.insert(paint_cell);
+                  } else {
+                    area.set_size(core::size::zero);
+                  }
+                } else if (spwn.is_spawn()) {
+                  painted_spawns.insert(paint_cell);
+                  area.set_size(geometrie.get_size(paint_cell));
+                }
+                if (!area.size().empty()) {
+                  drawer(paint_cell, graph, area,
+                         aligns.get_cell(paint_cell),
+                         foregrounds.get_cell(paint_cell),
+                         backgrounds.get_cell(paint_cell),
+                         selection_filter(paint_cell, geometrie),
+                         hilite_filter(paint_cell, geometrie));
+                }
 
                 x += width;
-                cell.x(1 + cell.x());
+                cell.move_x(1);
               }
               y += height;
-              cell.y(1 + cell.y());
+              cell.move_y(1);
             }
           }
         }
@@ -362,7 +456,7 @@ namespace gui {
         }));
       }
 
-    } // table
+    } // namespace table
 
     // --------------------------------------------------------------------------
     core::point default_scroll_maximum (const core::size& size,
@@ -604,7 +698,11 @@ namespace gui {
 
     void table_view::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!moved && (last_mouse_point != core::point::undefined)) {
-        const auto new_selection = data.get_index_at_point(pt);
+        auto new_selection = data.get_index_at_point(pt);
+        const auto spawn = geometrie.spawns.get(new_selection);
+        if (spawn.is_hidden()) {
+          new_selection.move({spawn.x, spawn.y});
+        }
         if (get_selection() != new_selection) {
           set_selection(new_selection, event_source::mouse);
         } else if (win::control_key_bit_mask::is_set(keys)) {
@@ -868,6 +966,10 @@ namespace gui {
     void table_edit::enter_edit () {
       if (enable_edit && data_source) {
         auto cell = get_selection();
+        auto spwn = geometrie.spawns.get(cell);
+        if (spwn.is_hidden()) {
+          cell.move({spwn.x, spwn.y});
+        }
         auto pt = geometrie.position_of(cell);
         auto sz = geometrie.get_size(cell);
         if (!editor.is_valid()) {

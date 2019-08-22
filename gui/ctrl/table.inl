@@ -54,7 +54,7 @@ namespace gui {
         {}
 
         template<typename T>
-        inline auto vector<T>::get(std::size_t idx) const->const T &{
+        inline auto vector<T>::get (std::size_t idx) const->const T &{
           if (idx < data.size()) {
             return data[idx];
           }
@@ -105,7 +105,7 @@ namespace gui {
         {}
 
         template<typename T>
-        auto matrix<T>::get_cell(const position &cell) const->const T &{
+        auto matrix<T>::get_cell (const position &cell) const->const T &{
           if (cell.x() < data.size()) {
             const std::vector<T>& c = data[cell.x()];
             if (cell.y() < c.size()) {
@@ -162,21 +162,38 @@ namespace gui {
         }
 
         template<typename T>
-        inline auto matrix<T>::size() const->position {
+        inline auto matrix<T>::size () const->position {
           return position {column_data.size(), row_data.size()};
         }
 
         template<typename T>
-        inline auto matrix<T>::get_default_data() const->const T &{
+        inline auto matrix<T>::get_default_data () const->const T &{
           return column_data.get_default_data();
         }
 
         template<typename T>
-        inline auto matrix<T>::get_column_row_cell(const position &cell) const->const T &{
+        inline auto matrix<T>::get_column_row_cell (const position &cell) const->const T &{
           if (cell.x() < column_data.size()) {
             return column_data[cell.x()];
           }
           return row_data[cell.y()];
+        }
+
+        // --------------------------------------------------------------------------
+        inline bool spawn::operator== (const spawn& rhs) const {
+          return (x == rhs.x) && (y == rhs.y);
+        }
+
+        inline bool spawn::is_hidden () const {
+          return (x < 0) || (y < 0);
+        }
+
+        inline bool spawn::is_empty () const {
+          return *this == spawns::empty;
+        }
+
+        inline bool spawn::is_spawn () const {
+          return (x > 0) || (y > 0);
         }
 
       } // data
@@ -222,10 +239,6 @@ namespace gui {
 
       inline position metric::index_at (const core::point& pt) const {
         return position(widths.index_at(pt.x()), heights.index_at(pt.y()));
-      }
-
-      inline core::size metric::get_size (const position& cell) const {
-        return core::size(widths.get_size(cell.x()), heights.get_size(cell.y()));
       }
 
       inline core::size metric::get_default_size () const {

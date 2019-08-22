@@ -323,7 +323,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 //  }));
 //#endif
 
-  const core::rectangle r = core::rectangle(50, 50, 1000, 800);
+  const core::rectangle r = core::rectangle(50, 50, 1500, 800);
   LogDebug << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
@@ -356,6 +356,7 @@ my_main_window::my_main_window ()
   });
 
   on_show([&] () {
+    layout();
     btn_group.layout();
     group_group.layout();
   });
@@ -969,6 +970,8 @@ void my_main_window::created_children () {
     return ctrl::table::build_std_column_name(cell.x());
   }));
   table_view.geometrie.widths.set_size(2, 40);
+  table_view.geometrie.spawns.set({4, 5}, {1, 2});
+  table_data.set_cell({4, 5}, "spawn!");
 
   table_view.rows.set_drawer(ctrl::table::default_header_drawer([](const ctrl::table::position& cell) -> std::string {
     return ostreamfmt((1 + cell.y()));

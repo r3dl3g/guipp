@@ -62,8 +62,6 @@ namespace gui {
       namespace data {
 
         // --------------------------------------------------------------------------
-        const spawn spawns::empty;
-
         void spawns::set (const position& cell, const spawn& sp) {
           if (data.size() <= (cell.x() + sp.x)) {
             data.resize(cell.x() + sp.x + 1);
@@ -87,7 +85,7 @@ namespace gui {
               return c[cell.y()];
             }
           }
-          return empty;
+          return {};
         }
 
         void spawns::clear (const position& cell) {
@@ -96,7 +94,7 @@ namespace gui {
             for(int x = 0; x < sp.x + 1; ++x) {
               column& c = data[cell.x() + x];
               for(int y = 0; y < sp.y + 1; ++y) {
-                c[cell.y() + y] = empty;
+                c[cell.y() + y] = {};
               }
             }
           }

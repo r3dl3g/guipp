@@ -128,7 +128,7 @@ namespace gui {
         };
 
         // --------------------------------------------------------------------------
-        struct spawn {
+        struct GUIPP_CTRL_EXPORT spawn {
           int16_t x;
           int16_t y;
 
@@ -145,9 +145,7 @@ namespace gui {
         };
 
         // --------------------------------------------------------------------------
-        struct spawns {
-
-          static const spawn empty;
+        struct GUIPP_CTRL_EXPORT spawns {
 
           void set (const position&, const spawn&);
           spawn get (const position&) const;
@@ -190,7 +188,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      class metric {
+      class GUIPP_CTRL_EXPORT metric {
       public:
         metric (core::size::type default_width,
                 core::size::type default_height);

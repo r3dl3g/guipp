@@ -189,7 +189,7 @@ namespace gui {
         }
 
         inline bool spawn::is_empty () const {
-          return *this == spawns::empty;
+          return (x == 0) && (y == 0);
         }
 
         inline bool spawn::is_spawn () const {

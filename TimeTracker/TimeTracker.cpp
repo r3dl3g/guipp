@@ -472,8 +472,8 @@ public:
     });
     menu.create(*this);
 
-    filter_tree.root.label = "Filter";
-    filter_tree.root.add_nodes({
+    tree_view::type root("Filter");
+    root.add_nodes({
       {"Years", {
         "This year", "Last year", "2 year ago", "3 year ago", "4 year ago"
       }},
@@ -491,6 +491,7 @@ public:
         "10 days ago", "11 days ago", "12 days ago", "13 days ago", "14 days ago"
       }},
     });
+    filter_tree.set_root(root);
     filter_tree.open_all();
     filter_tree.update_node_list();
     weekdays.set_data<std::string>({"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"});

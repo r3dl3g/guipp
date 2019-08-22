@@ -93,10 +93,10 @@ namespace gui {
       , status(sys_fs::status(path))
       , size(0)
     {
-      if (!is_directory()) {
-        size = sys_fs::file_size(path);
-      }
       try {
+        if (is_regular_file()) {
+          size = sys_fs::file_size(path);
+        }
         last_write_time = sys_fs::last_write_time(path);
       } catch (...) {}
     }
@@ -128,14 +128,22 @@ namespace gui {
       std::vector<file_info> infos;
       auto paths = get_all_root_paths();
       for (const auto& p : paths) {
-        infos.emplace_back(p);
+        try {
+          infos.emplace_back(p);
+        } catch (std::exception& ex) {
+          LogWarng << ex;
+        }
       }
       return infos;
     }
 
 
     bool file_info::is_directory () const {
-      return sys_fs::is_directory(status);
+      return sys_fs::exists(status) && sys_fs::is_directory(status);
+    }
+
+    bool file_info::is_regular_file () const {
+      return sys_fs::exists(status) && sys_fs::is_regular_file(status);
     }
 
     std::string file_info::filename () const {
@@ -163,35 +171,47 @@ namespace gui {
         Comp cmp;
       };
 
-      template<bool up>
+      template<typename Comp>
+      struct dirs_last {
+        bool operator() (const fs::file_info& lhs, const fs::file_info& rhs) {
+          bool l_is_dir = lhs.is_directory();
+          bool r_is_dir = rhs.is_directory();
+          return ((l_is_dir == r_is_dir) && cmp(lhs, rhs)) || (l_is_dir < r_is_dir);
+        }
+
+      private:
+        Comp cmp;
+      };
+
       struct comp_by_name {
         bool operator() (const fs::file_info& lhs, const fs::file_info& rhs) {
-          return up == (lhs.filename() < rhs.filename());
+          return lhs.filename() < rhs.filename();
         }
       };
 
-      template<bool up>
       struct comp_by_date {
         bool operator() (const fs::file_info& lhs, const fs::file_info& rhs) {
-          return up == (lhs.last_write_time < rhs.last_write_time);
+          return lhs.last_write_time < rhs.last_write_time;
         }
       };
 
-      template<bool up>
       struct comp_by_size {
         bool operator() (const fs::file_info& lhs, const fs::file_info& rhs) {
-          return up == (lhs.size < rhs.size);
+          return lhs.size < rhs.size;
         }
       };
 
-      template<bool up>
-      using comp_by_name_dirs_first = dirs_first<comp_by_name<up>>;
+      using comp_by_name_dirs_first = dirs_first<comp_by_name>;
 
-      template<bool up>
-      using comp_by_date_dirs_first = dirs_first<comp_by_date<up>>;
+      using comp_by_date_dirs_first = dirs_first<comp_by_date>;
 
-      template<bool up>
-      using comp_by_size_dirs_first = dirs_first<comp_by_size<up>>;
+      using comp_by_size_dirs_first = dirs_first<comp_by_size>;
+
+      using comp_by_name_dirs_last = dirs_last<comp_by_name>;
+
+      using comp_by_date_dirs_last = dirs_last<comp_by_date>;
+
+      using comp_by_size_dirs_last = dirs_last<comp_by_size>;
 
       auto unsorted_path_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
@@ -244,7 +264,7 @@ namespace gui {
             LogWarng << ex;
           } catch (...) {}
         }
-        std::sort(v.begin(), v.end(), comp_by_name_dirs_first<true>());
+        std::sort(v.begin(), v.end(), comp_by_name_dirs_first());
         return v;
       }
 
@@ -260,7 +280,7 @@ namespace gui {
             LogWarng << ex;
           } catch (...) {}
         }
-        std::sort(v.begin(), v.end(), comp_by_name<true>());
+        std::sort(v.begin(), v.end(), comp_by_name());
         return v;
       }
 
@@ -276,7 +296,7 @@ namespace gui {
             LogWarng << ex;
           } catch (...) {}
         }
-        std::sort(v.begin(), v.end(), comp_by_name<true>());
+        std::sort(v.begin(), v.end(), comp_by_name());
         return v;
       }
 
@@ -361,32 +381,32 @@ namespace gui {
 
     template<>
     void sort_by<sort_order::name_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_name_dirs_first<false>());
+      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_name_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::name_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_name_dirs_first<true>());
+      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_name_dirs_first());
     }
 
     template<>
     void sort_by<sort_order::size_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_size_dirs_first<false>());
+      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_size_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::size_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_size_dirs_first<true>());
+      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_size_dirs_first());
     }
 
     template<>
     void sort_by<sort_order::date_down> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_date_dirs_first<false>());
+      std::stable_sort(std::rbegin(v), std::rend(v), path_tree::comp_by_date_dirs_last());
     }
 
     template<>
     void sort_by<sort_order::date_up> (std::vector<fs::file_info>& v) {
-      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_date_dirs_first<true>());
+      std::stable_sort(std::begin(v), std::end(v), path_tree::comp_by_date_dirs_first());
     }
 
     void sort_list_by (std::vector<fs::file_info>& list, sort_order order) {

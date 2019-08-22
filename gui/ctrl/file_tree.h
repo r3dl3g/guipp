@@ -102,6 +102,7 @@ namespace gui {
       uintmax_t size;
 
       bool is_directory () const;
+      bool is_regular_file () const;
       std::string filename () const;
 
       bool operator== (const file_info& rhs) const;

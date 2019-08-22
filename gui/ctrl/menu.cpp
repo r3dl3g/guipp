@@ -766,7 +766,7 @@ namespace gui {
           data.set_selection(idx, event_source::mouse);
         }
       } else {
-        if ((idx > -1) && data[idx].is_sub_menu()) {
+        if ((idx > -1) && (idx < data.size()) && data[idx].is_sub_menu()) {
           data.set_selection(idx, event_source::mouse);
         } else {
           data.set_hilite(idx);

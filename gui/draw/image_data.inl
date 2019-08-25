@@ -389,25 +389,20 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<PixelFormat T>
     inline const_image_data<T>::const_image_data (raw_type data, const bitmap_info& info)
-      : data(data)
-      , info(info)
+      : super(info)
+      , data(data)
     {}
 
     template<PixelFormat T>
     inline auto const_image_data<T>::row (uint32_t y) const -> const row_type {
-      const byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+      const byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
       using raw_type = const typename row_type::type;
-      return row_type(reinterpret_cast<raw_type*>(row), info.width);
+      return row_type(reinterpret_cast<raw_type*>(row), width());
     }
 
     template<PixelFormat T>
     inline auto const_image_data<T>::pixel (uint32_t x, uint32_t y) const -> pixel_type {
       return row(y)[x];
-    }
-
-    template<PixelFormat T>
-    inline const bitmap_info& const_image_data<T>::get_info () const {
-      return info;
     }
 
     template<PixelFormat T>
@@ -418,25 +413,20 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<PixelFormat T>
     inline image_data<T>::image_data (raw_type data, const bitmap_info& info)
-      : data(data)
-      , info(info)
+      : super(info)
+      , data(data)
     {}
 
     template<PixelFormat T>
     inline auto image_data<T>::row (uint32_t y) -> row_type {
-      byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+      byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
       using raw_type = typename row_type::type;
-      return row_type(reinterpret_cast<raw_type*>(row), info.width);
+      return row_type(reinterpret_cast<raw_type*>(row), width());
     }
 
     template<PixelFormat T>
     inline auto image_data<T>::pixel (uint32_t x, uint32_t y) -> pixel_type& {
       return row(y)[x];
-    }
-
-    template<PixelFormat T>
-    inline const bitmap_info& image_data<T>::get_info () const {
-      return info;
     }
 
     template<PixelFormat T>
@@ -448,13 +438,13 @@ namespace gui {
 
     template<PixelFormat T>
     image_data<T>& image_data<T>::operator= (const image_data<T>& rhs) {
-      if (info == rhs.get_info()) {
+      if (get_info() == rhs.get_info()) {
         // copy 1:1
-        data.copy_from(rhs.raw_data(), info.mem_size());
+        data.copy_from(rhs.raw_data(), get_info().mem_size());
       } else {
         // copy row:row
-        auto rows = std::min(info.height, rhs.get_info().height);
-        auto length = std::min(info.bytes_per_line, rhs.get_info().bytes_per_line);
+        auto rows = std::min(height(), rhs.height());
+        auto length = std::min(get_info().bytes_per_line, rhs.get_info().bytes_per_line);
         for (int y = 0; y < rows; ++y) {
           raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
         }
@@ -464,13 +454,13 @@ namespace gui {
 
     template<PixelFormat T>
     image_data<T>& image_data<T>::operator= (const const_image_data<T>& rhs) {
-      if (info == rhs.get_info()) {
+      if (get_info() == rhs.get_info()) {
         // copy 1:1
-        data.copy_from(rhs.raw_data(), info.mem_size());
+        data.copy_from(rhs.raw_data(), get_info().mem_size());
       } else {
         // copy row:row
-        auto rows = std::min(info.height, rhs.get_info().height);
-        auto length = std::min(info.bytes_per_line, rhs.get_info().bytes_per_line);
+        auto rows = std::min(height(), rhs.height());
+        auto length = std::min(get_info().bytes_per_line, rhs.get_info().bytes_per_line);
         for (decltype(rows) y = 0; y < rows; ++y) {
           raw_data().sub(y, length).copy_from(rhs.raw_data().sub(y, length), length);
         }

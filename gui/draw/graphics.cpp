@@ -470,20 +470,30 @@ namespace gui {
                                          const core::rectangle& r,
                                          const core::point& pt,
                                          const copy_mode mode) const {
+      return copy_from(w,
+                       core::uint32_rect(r.os_x(), r.os_y(), r.os_width(), r.os_height()),
+                       core::uint32_point(pt.os_x(), pt.os_y()),
+                       mode);
+    }
+
+    const graphics& graphics::copy_from (os::drawable w,
+                                         const core::uint32_rect& r,
+                                         const core::uint32_point& pt,
+                                         const copy_mode mode) const {
       const int dd = get_drawable_depth(w);
       const int md = depth();
       if (dd == md) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
-        int res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
+        int res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
       } else if (1 == dd) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
-        int res = XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y(), 1);
+        int res = XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
       } else {
@@ -493,13 +503,15 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
+      return copy_from(bmp, core::uint32_point(pt.os_x(), pt.os_y()));
+    }
+
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::uint32_point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
       XGCValues org_values = {0};
       res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
-
 //      LogDebug << "XGCValues:" << org_values;
-
       if (bmp.mask) {
         auto screen = core::global::x11::get_screen();
         XGCValues values = {
@@ -516,7 +528,7 @@ namespace gui {
         };
         res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &values);
         auto sz = bmp.mask.size();
-        res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.os_x(), pt.os_y(), 1);
+        res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y(), 1);
       }
       if (bmp.image) {
         XGCValues values = {
@@ -524,7 +536,7 @@ namespace gui {
         };
         res = XChangeGC(display, gc, GCFunction, &values);
         auto sz = bmp.image.size();
-        res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.os_x(), pt.os_y());
+        res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
       }
       res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
       return *this;
@@ -617,8 +629,32 @@ namespace gui {
       return *this;
     }
 
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::uint32_rect& src, const core::uint32_point& pt) const {
+      if (bmp) {
+        if (bmp.depth() == depth()) {
+          return copy_from(bmp.get_id(), src, pt);
+        } else {
+          switch (depth()) {
+            case 24: {
+              return copy_from(pixmap(bmp.get<PixelFormat::RGB>()).get_id(), src, pt);
+              break;
+            }
+            case 32: {
+              return copy_from(pixmap(bmp.get<PixelFormat::RGBA>()).get_id(), src, pt);
+              break;
+            }
+          }
+        }
+      }
+      return *this;
+    }
+
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::uint32_point& pt) const {
+      return copy_from(bmp, core::uint32_rect(bmp.size()), pt);
+    }
+
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::rectangle(bmp.size()), pt);
+      return copy_from(bmp, core::rectangle(bmp.size<float>()), pt);
     }
 
     const graphics& graphics::frame (const std::function<frameable>& drawer,

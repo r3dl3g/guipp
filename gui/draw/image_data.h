@@ -45,6 +45,7 @@ namespace gui {
     };
 
     GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bw_pixel&);
+    GUIPP_DRAW_EXPORT bw_pixel operator+ (const bw_pixel&, const bw_pixel&);
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -279,10 +280,32 @@ namespace gui {
     template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = pixel::argb_pixel; };
     template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = pixel::abgr_pixel; };
 
+    // --------------------------------------------------------------------------
+    struct image_data_base {
+      inline image_data_base (const bitmap_info& info)
+        : info(info)
+      {}
+
+      inline const bitmap_info& get_info () const {
+        return info;
+      }
+
+      inline uint32_t width () const {
+        return info.width;
+      }
+
+      inline uint32_t height () const {
+        return info.height;
+      }
+
+    private:
+      bitmap_info info;
+    };
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    struct const_image_data {
+    struct const_image_data : public image_data_base {
+      using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<const byte>;
       using row_type = basepp::array_wrapper<const pixel_type>;
@@ -294,18 +317,17 @@ namespace gui {
 
       pixel_type pixel (uint32_t x, uint32_t y) const;
 
-      const bitmap_info& get_info () const;
-
       const raw_type& raw_data () const;
 
     private:
       raw_type data;
-      bitmap_info info;
+
     };
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    struct image_data {
+    struct image_data : public image_data_base {
+      using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
       using raw_type = basepp::array_wrapper<byte>;
       using row_type = basepp::array_wrapper<pixel_type>;
@@ -317,8 +339,6 @@ namespace gui {
 
       pixel_type& pixel (uint32_t x, uint32_t y);
 
-      const bitmap_info& get_info () const;
-
       raw_type& raw_data ();
 
       image_data& operator= (const image_data&);
@@ -326,34 +346,31 @@ namespace gui {
 
     private:
       raw_type data;
-      bitmap_info info;
+
     };
 
     // --------------------------------------------------------------------------
     template<>
-    struct image_data<PixelFormat::BW> {
+    struct image_data<PixelFormat::BW> : public image_data_base {
+      using super = image_data_base;
       using pixel_type = pixel::bw_pixel;
       using raw_type = basepp::array_wrapper<byte>;
       using row_type = basepp::bit_array_wrapper<pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       image_data (raw_type data, const bitmap_info& info)
-        : data(data)
-        , info(info)
+        : super(info)
+        , data(data)
       {}
 
       row_type row (uint32_t y) {
-        byte* row = data.data(y * info.bytes_per_line, info.bytes_per_line);
+        byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
         using raw_type = typename row_type::type;
-        return std::move(row_type(reinterpret_cast<raw_type*>(row), info.width));
+        return std::move(row_type(reinterpret_cast<raw_type*>(row), width()));
       }
 
       basepp::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {
         return row(y)[x];
-      }
-
-      const bitmap_info& get_info () const {
-        return info;
       }
 
       raw_type& raw_data () {
@@ -365,7 +382,7 @@ namespace gui {
 
     private:
       raw_type data;
-      bitmap_info info;
+
     };
 
   } // namespace draw

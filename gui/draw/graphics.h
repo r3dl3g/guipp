@@ -93,12 +93,20 @@ namespace gui {
       const graphics& copy_from (const graphics&, const core::point& dest = core::point::zero) const;
       const graphics& copy_from (const graphics&, const core::rectangle& src, const core::point& dest = core::point::zero) const;
 
-      const graphics& copy_from (const draw::pixmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const draw::pixmap&, const core::point& dest) const;
       const graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest) const;
-      const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest) const;
+
+      const graphics& copy_from (const draw::pixmap&, const core::uint32_point& dest = core::uint32_point::zero) const;
+      const graphics& copy_from (const draw::pixmap&, const core::uint32_rect& src, const core::uint32_point& dest) const;
+      const graphics& copy_from (const draw::masked_bitmap&, const core::uint32_point& dest = core::uint32_point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero,
+                                 const copy_mode = copy_mode::bit_copy) const;
+
+      const graphics& copy_from (os::drawable, const core::uint32_rect& src,
+                                 const core::uint32_point& dest = core::uint32_point::zero,
                                  const copy_mode = copy_mode::bit_copy) const;
 
       void invert (const core::rectangle&) const;

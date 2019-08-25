@@ -952,37 +952,37 @@ namespace gui {
 
         // top center
         if (top && target_inner_width) {
-          stretch::sub<px_fmt>(src_img, dest_img,
-                            {left, 0, source_inner_width, top},
-                            {left, 0, target_inner_width, top});
+          stretch<px_fmt>::sub(src_img, dest_img,
+                               {left, 0, source_inner_width, top},
+                               {left, 0, target_inner_width, top});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
-          stretch::sub<px_fmt>(src_img, dest_img,
-                            {left, source_bottom, source_inner_width, bottom},
-                            {left, target_bottom, target_inner_width, bottom});
+          stretch<px_fmt>::sub(src_img, dest_img,
+                               {left, source_bottom, source_inner_width, bottom},
+                               {left, target_bottom, target_inner_width, bottom});
         }
 
         // left center
         if (left && target_inner_height) {
-          stretch::sub<px_fmt>(src_img, dest_img,
-                            {0, top, left, source_inner_height},
-                            {0, top, left, target_inner_height});
+          stretch<px_fmt>::sub(src_img, dest_img,
+                               {0, top, left, source_inner_height},
+                               {0, top, left, target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
-          stretch::sub<px_fmt>(src_img, dest_img,
-                            {source_right, top, right, source_inner_height},
-                            {target_right, top, right, target_inner_height});
+          stretch<px_fmt>::sub(src_img, dest_img,
+                               {source_right, top, right, source_inner_height},
+                               {target_right, top, right, target_inner_height});
         }
 
         // center
         if (target_inner_width && target_inner_height) {
-          stretch::sub<px_fmt>(src_img, dest_img,
-                            {left, top, source_inner_width, source_inner_height},
-                            {left, top, target_inner_width, target_inner_height});
+          stretch<px_fmt>::sub(src_img, dest_img,
+                               {left, top, source_inner_width, source_inner_height},
+                               {left, top, target_inner_width, target_inner_height});
         }
       }
     }

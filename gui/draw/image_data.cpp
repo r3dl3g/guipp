@@ -39,6 +39,10 @@ namespace gui {
       return out;
     }
 
+    bw_pixel operator+ (const bw_pixel& lhs, const bw_pixel& rhs) {
+      return bw_pixel(static_cast<bool>(lhs) | static_cast<bool>(rhs));
+    }
+
     // --------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& out, const gray_pixel& px) {
       out << static_cast<int>(px.value);

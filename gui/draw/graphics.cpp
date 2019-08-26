@@ -167,35 +167,31 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
-      return copy_from(src, src.area(), pt);
-    }
-
-    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
-      if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
-                  src, r.os_x(), r.os_y(), SRCCOPY)) {
+    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
+      if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+                  src, r.x(), r.y(), SRCCOPY)) {
         throw std::runtime_error("graphics::copy_from failed");
       }
       return *this;
     }
 
     const graphics& graphics::copy_from (os::drawable w,
-                                         const core::rectangle& r,
-                                         const core::point& pt,
+                                         const core::native_rect& r,
+                                         const core::native_point& pt,
                                          const copy_mode mode) const {
       HDC source_gc = GetDC((HWND)w);
       if (!source_gc) {
         source_gc = CreateCompatibleDC(gc);
         HGDIOBJ old = SelectObject(source_gc, w);
-        if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
-                    source_gc, r.os_x(), r.os_y(), static_cast<uint32_t>(mode))) {
+        if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+                    source_gc, r.x(), r.y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         SelectObject(source_gc, old);
         DeleteDC(source_gc);
       } else {
-        if (!BitBlt(gc, pt.os_x(), pt.os_y(), r.os_width(), r.os_height(),
-                    source_gc, r.os_x(), r.os_y(), static_cast<uint32_t>(mode))) {
+        if (!BitBlt(gc, pt.x(), pt.y(), r.width(), r.height(),
+                    source_gc, r.x(), r.y(), static_cast<uint32_t>(mode))) {
           throw std::runtime_error("graphics::copy_from failed");
         }
         ReleaseDC((HWND)w, source_gc);
@@ -228,24 +224,24 @@ namespace gui {
     }
     */
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       if (bmp.mask) {
-        core::size sz = bmp.mask.size();
+        core::native_size sz = bmp.mask.native_size();
         HDC mask_dc = CreateCompatibleDC(gc);
         SelectObject(mask_dc, bmp.mask.get_id());
-        BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), mask_dc, 0, 0, bmp.image ? (DWORD)(0x00220326) : SRCAND); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
+        BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), mask_dc, 0, 0, bmp.image ? (DWORD)(0x00220326) : SRCAND); //DSna, https://docs.microsoft.com/en-us/windows/win32/gdi/ternary-raster-operations
         DeleteDC(mask_dc);
         if (bmp.image) {
-          core::size sz = bmp.image.size();
+          core::native_size sz = bmp.image.native_size();
           HDC img_dc = CreateCompatibleDC(gc);
           SelectObject(img_dc, bmp.image.get_id());
-          BitBlt(gc, pt.os_x(), pt.os_y(), sz.os_width(), sz.os_height(), img_dc, 0, 0, SRCPAINT);  // DSo
+          BitBlt(gc, pt.x(), pt.y(), sz.width(), sz.height(), img_dc, 0, 0, SRCPAINT);  // DSo
           DeleteDC(img_dc);
         }
 
       } else {
-        core::size sz = bmp.image.size();
-        copy_from(bmp.image, core::rectangle(sz), pt);
+        core::native_size sz = bmp.image.native_size();
+        copy_from(bmp.image, core::native_rect(sz), pt);
       }
       return *this;
     }
@@ -263,7 +259,7 @@ namespace gui {
       return GetDeviceCaps(gc, BITSPIXEL);
     }
 
-    core::rectangle graphics::area () const {
+    core::native_rect graphics::native_area () const {
       RECT r = {0, 0, 0, 0};
       os::window id = WindowFromDC(gc);
       if (id) {
@@ -281,7 +277,7 @@ namespace gui {
           r.bottom = GetDeviceCaps(gc, VERTRES);
         }
       }
-      return core::rectangle(r);
+      return core::native_rect(r);
     }
 
     void graphics::push_clipping (const core::rectangle& r) const {
@@ -454,18 +450,6 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
-      return copy_from(src, src.native_area(), core::global::scale(pt));
-    }
-
-    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
-      return copy_from(src, core::global::scale(r), core::global::scale(pt));
-    }
-
-    const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {
-      return copy_from(src, src.native_area(), pt);
-    }
-
     const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
       int res = XCopyArea(get_instance(), src, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       if (!res) {
@@ -474,13 +458,6 @@ namespace gui {
       return *this;
     }
 
-
-    const graphics& graphics::copy_from (os::drawable w,
-                                         const core::rectangle& r,
-                                         const core::point& pt,
-                                         const copy_mode mode) const {
-      return copy_from(w, core::global::scale(r), core::global::scale(pt), mode);
-    }
 
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::native_rect& r,
@@ -506,10 +483,6 @@ namespace gui {
         throw std::runtime_error(ostreamfmt("incompatible drawable (" << dd << ") in graphics::copy_from (" << md << " expected)"));
       }
       return *this;
-    }
-
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::global::scale(pt));
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
@@ -571,10 +544,6 @@ namespace gui {
       return get_drawable_depth(target);
     }
 
-    core::rectangle graphics::area () const {
-      return core::global::scale(native_area());
-    }
-
     core::native_rect graphics::native_area () const {
       return get_drawable_area(target);
     }
@@ -617,6 +586,33 @@ namespace gui {
 
     const graphics& graphics::clear (os::color color) const {
       return draw(rectangle(area()), color, color);
+    }
+
+    core::rectangle graphics::area () const {
+      return core::global::scale(native_area());
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
+      return copy_from(src, src.native_area(), core::global::scale(pt));
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
+      return copy_from(src, core::global::scale(r), core::global::scale(pt));
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {
+      return copy_from(src, src.native_area(), pt);
+    }
+
+    const graphics& graphics::copy_from (os::drawable w,
+                                         const core::rectangle& r,
+                                         const core::point& pt,
+                                         const copy_mode mode) const {
+      return copy_from(w, core::global::scale(r), core::global::scale(pt), mode);
+    }
+
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
+      return copy_from(bmp, core::global::scale(pt));
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {

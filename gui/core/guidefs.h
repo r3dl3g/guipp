@@ -231,22 +231,22 @@ namespace gui {
       namespace detail {
         template<typename R, typename T>
         inline R scale_int_to_float (const T& v) {
-          return static_cast<R>(round(v / get_scale_factor()));
+          return static_cast<R>(round(static_cast<T>(v / get_scale_factor())));
         }
 
         template<typename R, typename T>
         inline R scale_float_to_sint (const T& v) {
-          return static_cast<R>(round(v * get_scale_factor()));
+          return static_cast<R>(round(static_cast<T>(v * get_scale_factor())));
         }
 
         template<typename R, typename T>
         inline R scale_float_to_uint (const T& v) {
-          return static_cast<R>(std::max<T>(0, round(v * get_scale_factor())));
+          return static_cast<R>(std::max<T>(T(0), round(static_cast<T>(v * get_scale_factor()))));
         }
 
         template<typename R, typename T>
         inline R scale_int_to_uint (const T& v) {
-          return static_cast<R>(std::max<T>(0, v));
+          return static_cast<R>(std::max<T>(T(0), v));
         }
 
         template<typename R, typename T>
@@ -279,7 +279,7 @@ namespace gui {
       }
 
       template<typename R, typename T>
-      inline typename std::enable_if<std::is_integral<R>::value && std::is_integral<T>::value, R>::type scale (const T& v) {
+      inline typename std::enable_if<std::is_integral<R>::value && std::is_signed<R>::value && std::is_integral<T>::value, R>::type scale (const T& v) {
         return detail::scale_forward<R>(v);
       }
 

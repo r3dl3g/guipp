@@ -80,16 +80,16 @@ namespace gui {
     }
 
     core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area) {
-      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, area.x()));
-      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, area.y()));
+      const int32_t x = std::max<int32_t>(0, std::min<int32_t>(bmi.width, area.x()));
+      const int32_t y = std::max<int32_t>(0, std::min<int32_t>(bmi.height, area.y()));
       const uint32_t w = std::min<uint32_t>(bmi.width - x, area.width());
       const uint32_t h = std::min<uint32_t>(bmi.height - y, area.height());
       return {x, y, w, h};
     }
 
     core::native_rect checked_area (const bitmap_info& bmi, const core::native_point& pt, const core::native_size& sz) {
-      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, pt.x()));
-      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, pt.y()));
+      const int32_t x = std::max<int32_t>(0, std::min<int32_t>(bmi.width, pt.x()));
+      const int32_t y = std::max<int32_t>(0, std::min<int32_t>(bmi.height, pt.y()));
       const uint32_t w = std::min<uint32_t>(bmi.width - x, sz.width());
       const uint32_t h = std::min<uint32_t>(bmi.height - y, sz.height());
       return {x, y, w, h};

@@ -194,7 +194,7 @@ namespace gui {
     void arc::operator() (const graphics& g,
                           const brush& b,
                           const pen& p) const {
-      const unsigned int sz = static_cast<unsigned int>(core::global::scale(radius * 2));
+      const uint32_t sz = static_cast<unsigned int>(core::global::scale<uint32_t>(radius * 2));
 
       auto end_a = end_angle;
       while (end_a < start_angle) {
@@ -215,7 +215,7 @@ namespace gui {
       } else {
         const auto x = pos.os_x();
         const auto y = pos.os_y();
-        const auto r = static_cast<DWORD>(core::global::scale(radius));
+        const auto r = core::global::scale<DWORD>(radius);
         BeginPath(g);
         MoveToEx(g, x, x, nullptr);
         AngleArc(g, x, x, r, start_angle, end_a - start_angle);
@@ -227,7 +227,7 @@ namespace gui {
 
     void arc::operator() (const graphics& g,
                           const pen& p) const {
-      const unsigned int sz = static_cast<unsigned int>(core::global::scale(radius * 2));
+      const uint32_t sz = core::global::scale<uint32_t>(radius * 2);
 
       auto end_a = end_angle;
       while (end_a < start_angle) {
@@ -247,7 +247,7 @@ namespace gui {
       } else {
         const auto x = pos.os_x();
         const auto y = pos.os_y();
-        const auto r = static_cast<DWORD>(core::global::scale(radius));
+        const auto r = core::global::scale<DWORD>(radius);
         BeginPath(g);
         MoveToEx(g, x, y, nullptr);
         AngleArc(g, x, y, r, start_angle, end_a - start_angle);

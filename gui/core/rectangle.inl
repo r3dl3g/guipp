@@ -176,12 +176,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline os::point_type basic_rectangle<T, S>::os_x2 () const {
-      return global::scale(x2());
+      return global::scale<os::point_type>(x2());
     }
 
     template<typename T, typename S>
     inline os::point_type basic_rectangle<T, S>::os_y2 () const {
-      return global::scale(y2());
+      return global::scale<os::point_type>(y2());
     }
 
     template<typename T, typename S>
@@ -206,8 +206,8 @@ namespace gui {
     template<typename T, typename S>
     basic_rectangle<T, S>::basic_rectangle (const os::rectangle& r)
 #ifdef WIN32
-      : pos(global::scale(r.left), global::scale(r.top))
-      , sz(global::scale(r.right - r.left), global::scale(r.bottom - r.top))
+      : pos(global::scale<T>(r.left), global::scale<T>(r.top))
+      , sz(global::scale<S>(r.right - r.left), global::scale<S>(r.bottom - r.top))
 #endif // Win32
 #ifdef X11
       : pos(global::scale<T>(r.x), global::scale<T>(r.y))

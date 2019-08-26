@@ -198,7 +198,7 @@ namespace gui {
           }
         }
 
-        const auto row = static_cast<int>(pt.y() + data.offset.y() - y) / row_sz;
+        const int row = static_cast<int>((pt.y() + data.offset.y() - y) / row_sz);
         if ((row > -1) && (row < last)) {
           const std::string& text = data.lines[row];
           const int max_chars = static_cast<int>(text.size());

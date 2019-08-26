@@ -65,6 +65,8 @@ public:
   void start_thread ();
   void stop_thread ();
 
+  void set_scale (float);
+
   void settings ();
 
 private:
@@ -78,6 +80,7 @@ private:
   main_menu menu;
   popup_menu file_sub_menu;
   popup_menu edit_sub_menu;
+  popup_menu scale_sub_menu;
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
@@ -145,6 +148,13 @@ void my_main_window::stop_thread () {
   if (background_action2.joinable()) {
     background_action2.join();
   }
+}
+
+void my_main_window::set_scale (float f) {
+  auto current_size = size();
+  core::global::set_scale_factor(f);
+  resize(current_size, true);
+  layout();
 }
 
 // --------------------------------------------------------------------------
@@ -235,6 +245,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       labels[0].set_text("Edit...");
       edit_sub_menu.popup(menu);
     }),
+    main_menu_entry("View", 'V', [&]() {
+      labels[0].set_text("View...");
+      scale_sub_menu.popup(menu);
+    }),
     main_menu_entry("Window", 'W', [&]() {
       labels[0].set_text("Window...");
     }, menu_state::disabled),
@@ -311,6 +325,18 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', basepp::bind_method(this, &my_main_window::settings), hot_key(), true));
   edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.register_hot_keys(this);
+
+  scale_sub_menu.data.add_entries({
+    menu_entry{"Scale 0.5", '5', [&]() {set_scale(0.5); }},
+    menu_entry{"Scale 0.666", '6', [&] () {set_scale(0.6666); }},
+    menu_entry{"Scale 0.75", '7', [&] () {set_scale(0.75); }},
+    menu_entry{"Scale 1", '1', [&] () {set_scale(1.0); }},
+    menu_entry{"Scale 1.25", '8', [&] () {set_scale(1.25); }},
+    menu_entry{"Scale 1.5", '5', [&] () {set_scale(1.5); }},
+    menu_entry{"Scale 1.75", '4', [&] () {set_scale(1.75); }},
+    menu_entry{"Scale 2", '2', [&] () {set_scale(2.0); }},
+    menu_entry{"Scale 3", '3', [&] () {set_scale(3.0); }},
+  });
 
   tool_bar.create(top_view);
 

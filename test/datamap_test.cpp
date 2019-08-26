@@ -39,7 +39,7 @@ DEFINE_TEST(test_bw)
 
   bwmap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
@@ -64,7 +64,7 @@ DEFINE_TEST(test_gray)
 
   graymap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 8);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
@@ -84,7 +84,7 @@ DEFINE_TEST(test_rgb)
 
   rgbmap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::RGB));
@@ -104,7 +104,7 @@ DEFINE_TEST(test_bgr)
 
   bgrmap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGR);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::BGR));
@@ -124,7 +124,7 @@ DEFINE_TEST(test_rgba)
 
   rgbamap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -144,7 +144,7 @@ DEFINE_TEST(test_bgra)
 
   bgramap img(2, 2);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BGRA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::BGRA));
@@ -167,7 +167,7 @@ DEFINE_TEST(test_gray2rgb)
   auto rgb = gray.convert<PixelFormat::RGB>();
 
   EXPECT_TRUE(rgb.is_valid());
-  EXPECT_EQUAL(rgb.size(), core::size(2, 2));
+  EXPECT_EQUAL(rgb.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(rgb.depth(), 24);
   EXPECT_EQUAL(rgb.pixel_format(), PixelFormat::RGB);
   EXPECT_EQUAL(rgb.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::RGB));
@@ -188,7 +188,7 @@ DEFINE_TEST(test_rgb2gray)
   auto gray = rgb.convert<PixelFormat::GRAY>();
 
   EXPECT_TRUE(gray.is_valid());
-  EXPECT_EQUAL(gray.size(), core::size(2, 2));
+  EXPECT_EQUAL(gray.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(gray.depth(), 8);
   EXPECT_EQUAL(gray.pixel_format(), PixelFormat::GRAY);
   EXPECT_EQUAL(gray.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
@@ -209,7 +209,7 @@ DEFINE_TEST(test_rgb2bgr)
   auto bgr = rgb.convert<PixelFormat::BGR>();
 
   EXPECT_TRUE(bgr.is_valid());
-  EXPECT_EQUAL(bgr.size(), core::size(2, 2));
+  EXPECT_EQUAL(bgr.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(bgr.depth(), 24);
   EXPECT_EQUAL(bgr.pixel_format(), PixelFormat::BGR);
   EXPECT_EQUAL(bgr.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(6, 8), PixelFormat::BGR));

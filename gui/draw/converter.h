@@ -65,28 +65,36 @@ namespace gui {
       template<PixelFormat px_fmt>
       void sub (const typename draw::const_image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
-                const core::uint32_point& src,
-                const core::uint32_rect& dest);
+                const core::native_point& src,
+                const core::native_rect& dest);
 
 
     } // namespace copy
 
     // --------------------------------------------------------------------------
-    namespace stretch {
+    enum class interpolation : unsigned char {
+      nearest,
+      bilinear,
+      bicubic,
+    };
 
-      template<PixelFormat px_fmt>
-      void row (const typename draw::const_image_data<px_fmt>::row_type src,
-                typename draw::image_data<px_fmt>::row_type dst,
-                uint32_t src_x0, uint32_t dest_x0,
-                uint32_t src_w, uint32_t dest_w);
+    template<PixelFormat F, interpolation I = interpolation::nearest>
+    struct stretch {
 
-      template<PixelFormat px_fmt>
-      void sub (const typename draw::const_image_data<px_fmt> src_data,
-                draw::image_data<px_fmt> dest_data,
-                const core::uint32_rect& src,
-                const core::uint32_rect& dest);
+//      static void row (const typename draw::const_image_data<F>::row_type src,
+//                       typename draw::image_data<F>::row_type dst,
+//                       uint32_t src_x0, uint32_t dest_x0,
+//                       uint32_t src_w, uint32_t dest_w);
 
-    } // namespace stretch
+      static void sub (const typename draw::const_image_data<F> src_data,
+                       draw::image_data<F> dest_data,
+                       const core::native_rect& src,
+                       const core::native_rect& dest);
+
+      static void sub (const typename draw::const_image_data<F> src_data,
+                       draw::image_data<F> dest_data);
+
+    }; // namespace stretch
 
     // --------------------------------------------------------------------------
     namespace brightness {

@@ -1252,8 +1252,8 @@ ctrl::paint_function my_main_window::create_paint2 () {
 
     graph.fill(rectangle(window2.client_area()), color::light_gray);
 
-    graph.draw_pixel(core::uint32_point(3, 3), color::gray);
-    graph.draw_pixel(core::uint32_point(6, 6), color::gray);
+    graph.draw_pixel(core::native_point(3, 3), color::gray);
+    graph.draw_pixel(core::native_point(6, 6), color::gray);
 
     core::size sz(30, 50);
     core::size offs1(0, 60);

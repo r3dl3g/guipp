@@ -297,7 +297,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   });
   file_sub_menu.data.register_hot_keys(this);
 
-  const float icn_sz = core::global::scale(16.0F);
+  const float icn_sz = core::global::scale<float>(16);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
   pixmap cut_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2660", u8"♠"), icon_rect, color::dark_red);

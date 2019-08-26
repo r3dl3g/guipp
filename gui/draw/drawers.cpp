@@ -643,7 +643,7 @@ namespace gui {
       os::instance display = get_instance();
 
       const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale(radius * 2);
+      const unsigned int sz = scale<unsigned int>(radius * 2);
 
       while (end_angle < start_angle) {
         end_angle += 360;
@@ -658,12 +658,12 @@ namespace gui {
         double start = M_PI * start_angle / 180.0;
         double end = M_PI * end_angle / 180.0;
         os::point pt[3];
-        pt[0].x = short(scale(pos.x() + radius * cos(start)));
-        pt[0].y = short(scale(pos.y() - radius * sin(start)));
-        pt[1].x = short(scale(pos.x()));
-        pt[1].y = short(scale(pos.y()));
-        pt[2].x = short(scale(pos.x() + radius * cos(end)));
-        pt[2].y = short(scale(pos.y() - radius * sin(end)));
+        pt[0].x = short(scale<os::point_type>(pos.x() + radius * cos(start)));
+        pt[0].y = short(scale<os::point_type>(pos.y() - radius * sin(start)));
+        pt[1].x = short(scale<os::point_type>(pos.x()));
+        pt[1].y = short(scale<os::point_type>(pos.y()));
+        pt[2].x = short(scale<os::point_type>(pos.x() + radius * cos(end)));
+        pt[2].y = short(scale<os::point_type>(pos.y() - radius * sin(end)));
         XDrawLines(display, g, g, pt, 3, CoordModeOrigin);
         XDrawPoint(display, g, g, pt[0].x, pt[0].y);
         XDrawPoint(display, g, g, pt[2].x, pt[2].y);
@@ -679,7 +679,7 @@ namespace gui {
       Use<brush> br(g, b);
 
       const auto tl = pos - core::size(radius, radius);
-      const unsigned int sz = scale(radius * 2);
+      const unsigned int sz = scale<unsigned int>(radius * 2);
 
       int x = tl.os_x();
       int y = tl.os_y();
@@ -850,8 +850,8 @@ namespace gui {
         py += rect.os_height() - height;
       }
 
-      rect.top_left({core::global::unscale<core::point::type>(px + dx), core::global::unscale<core::point::type>(py)});
-      rect.set_size({core::global::unscale<core::size::type>(width), core::global::unscale<core::size::type>(height)});
+      rect.top_left({core::global::scale<core::point::type>(px + dx), core::global::scale<core::point::type>(py)});
+      rect.set_size({core::global::scale<core::size::type>(width), core::global::scale<core::size::type>(height)});
     }
 
     // --------------------------------------------------------------------------
@@ -906,76 +906,76 @@ namespace gui {
     void copy_frame_image (draw::const_image_data<px_fmt> src_img,
                            draw::image_data<px_fmt> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
-                           const core::uint32_rect& frame) {
+                           const core::native_rect& frame) {
 
-      const uint32_t width = dest_bmi.width;
-      const uint32_t height = dest_bmi.height;
+      const int32_t width = dest_bmi.width;
+      const int32_t height = dest_bmi.height;
 
-      const uint32_t left = std::min(frame.x(), width);
-      const uint32_t right = std::min(frame.width(), width - left);
-      const uint32_t top = std::min(frame.y(), height);
-      const uint32_t bottom = std::min(frame.height(), height - top);
+      const int32_t left = std::min(frame.x(), width);
+      const int32_t right = std::min<int32_t>(frame.width(), width - left);
+      const int32_t top = std::min(frame.y(), height);
+      const int32_t bottom = std::min<int32_t>(frame.height(), height - top);
 
-      const uint32_t target_right = dest_bmi.width - right;
-      const uint32_t target_bottom = dest_bmi.height - bottom;
-      const uint32_t source_right = src_bmi.width - right;
-      const uint32_t source_bottom = src_bmi.height - bottom;
+      const int32_t target_right = dest_bmi.width - right;
+      const int32_t target_bottom = dest_bmi.height - bottom;
+      const int32_t source_right = src_bmi.width - right;
+      const int32_t source_bottom = src_bmi.height - bottom;
 
       using namespace convert;
 
       // top left
       if (top && left) {
-        copy::sub<px_fmt>(src_img, dest_img, {0, 0}, {0, 0, left, top});
+        copy::sub<px_fmt>(src_img, dest_img, {0, 0}, {0, 0, static_cast<uint32_t>(left), static_cast<uint32_t>(top)});
       }
 
       // top right
       if (top && right) {
-        copy::sub<px_fmt>(src_img, dest_img, {source_right, 0}, {target_right, 0, right, top});
+        copy::sub<px_fmt>(src_img, dest_img, {source_right, 0}, {target_right, 0, static_cast<uint32_t>(right), static_cast<uint32_t>(top)});
       }
 
       // bottom left
       if (bottom && left) {
-        copy::sub<px_fmt>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, left, bottom});
+        copy::sub<px_fmt>(src_img, dest_img, {0, source_bottom}, {0, target_bottom, static_cast<uint32_t>(left), static_cast<uint32_t>(bottom)});
       }
 
       if (bottom && right) {
         // bottom right
         copy::sub<px_fmt>(src_img, dest_img,
-                       {source_right, source_bottom}, {target_right, target_bottom, right, bottom});
+                       {source_right, source_bottom}, {target_right, target_bottom, static_cast<uint32_t>(right), static_cast<uint32_t>(bottom)});
       }
 
       if ((target_right >= left) && (target_bottom >= top) && (source_right >= left) && (source_bottom >= top)) {
-        const uint32_t target_inner_width = target_right - left;
-        const uint32_t target_inner_height = target_bottom - top;
-        const uint32_t source_inner_width = source_right - left;
-        const uint32_t source_inner_height = source_bottom - top;
+        const uint32_t target_inner_width = static_cast<uint32_t>(std::max(0, target_right - left));
+        const uint32_t target_inner_height = static_cast<uint32_t>(std::max(0, target_bottom - top));
+        const uint32_t source_inner_width = static_cast<uint32_t>(std::max(0, source_right - left));
+        const uint32_t source_inner_height = static_cast<uint32_t>(std::max(0, source_bottom - top));
 
         // top center
         if (top && target_inner_width) {
           stretch<px_fmt>::sub(src_img, dest_img,
-                               {left, 0, source_inner_width, top},
-                               {left, 0, target_inner_width, top});
+                               {left, 0, source_inner_width, static_cast<uint32_t>(top)},
+                               {left, 0, target_inner_width, static_cast<uint32_t>(top)});
         }
 
         // bottom center
         if (bottom && target_inner_width) {
           stretch<px_fmt>::sub(src_img, dest_img,
-                               {left, source_bottom, source_inner_width, bottom},
-                               {left, target_bottom, target_inner_width, bottom});
+                               {left, source_bottom, source_inner_width, static_cast<uint32_t>(bottom)},
+                               {left, target_bottom, target_inner_width, static_cast<uint32_t>(bottom)});
         }
 
         // left center
         if (left && target_inner_height) {
           stretch<px_fmt>::sub(src_img, dest_img,
-                               {0, top, left, source_inner_height},
-                               {0, top, left, target_inner_height});
+                               {0, top, static_cast<uint32_t>(left), source_inner_height},
+                               {0, top, static_cast<uint32_t>(left), target_inner_height});
         }
 
         // right center
         if (right && target_inner_height) {
           stretch<px_fmt>::sub(src_img, dest_img,
-                               {source_right, top, right, source_inner_height},
-                               {target_right, top, right, target_inner_height});
+                               {source_right, top, static_cast<uint32_t>(right), source_inner_height},
+                               {target_right, top, static_cast<uint32_t>(right), target_inner_height});
         }
 
         // center
@@ -992,7 +992,7 @@ namespace gui {
                            const core::point& pt,
                            const core::rectangle rect,
                            const datamap<T>& img,
-                           const core::uint32_rect& frame) {
+                           const core::native_rect& frame) {
       if (rect.size() <= core::size::two) {
         return;
       }

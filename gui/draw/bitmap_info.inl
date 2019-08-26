@@ -23,13 +23,12 @@ namespace gui {
 
   namespace draw {
 
-    inline core::uint32_size bitmap_info::size () const {
+    inline core::native_size bitmap_info::size () const {
       return {width, height};
     }
 
-    template<typename T>
-    core::basic_size<T> bitmap_info::size () const {
-        return {static_cast<T>(width), static_cast<T>(height)};
+    inline core::size bitmap_info::scaled_size () const {
+        return core::global::scale(size());
       }
 
     inline byte bitmap_info::depth () const {

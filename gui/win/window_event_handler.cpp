@@ -453,7 +453,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     core::point get_root_mouse_pos (const core::event& e) {
       auto me = (event_type_cast<XMotionEvent>(e));
-      return core::point(core::global::unscale(me.x_root), core::global::unscale(me.y_root));
+      return core::global::scale(core::native_point{me.x_root, me.y_root});
     }
 
     // --------------------------------------------------------------------------

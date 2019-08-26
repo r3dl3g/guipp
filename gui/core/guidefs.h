@@ -229,102 +229,64 @@ namespace gui {
       GUIPP_CORE_EXPORT void set_scale_factor (double);
 
       namespace detail {
-
-        template<bool, bool, typename _Tp = void>
-        struct enable_if_both
-        {};
-
-          // Partial specialization for true, true.
-        template<typename _Tp>
-        struct enable_if_both<true, true, _Tp> {
-          typedef _Tp type;
-        };
-
-      }
-
-      /*
-       * Scale matrix:
-       * Output (R) | Input (T t) | Method
-       * ------------------------------------------------------------
-       * R = T      | T          | (R)t
-       * X          | float      | (R)t
-       * intX_t     | uintX_t    | (R)t
-       * float      | uintX_t    | (R)max(0, t * get_scale_factor())
-       * float      | intX_t     | (R)(t * get_scale_factor())
-       * uintX_t    | intX_t     | (R)max(0, t)
-       * ------------------------------------------------------------
-       *
-       * uncale matrix:
-       * Input (T t) | Output (R) | Method
-       * ------------------------------------------------------------
-       * T           | R = T      | (R)t
-       * X           | float      | (R)t
-       * intX_t      | uintX_t    | (R)t
-       * float       | uintX_t    | (R)max(0, t * get_scale_factor())
-       * float       | intX_t     | (R)(t * get_scale_factor())
-       * uintX_t     | intX_t     | (R)max(0, t)
-       * ------------------------------------------------------------
-       */
-
-      template<typename R, typename T>
-      struct scale {
-        static R to (T v);
-      };
-
-      template<typename T>
-      struct scale<T, T> {
-        inline static T to (T v) {
-          return v;
-        }
-      };
-
-      template<typename R, typename T>
-      struct scale<std::enable_if<std::is_floating_point<R>::value, R>::type,
-                   std::enable_if<std::is_integral<T>::value, T>::type> {
-        inline static R to (T v) {
+        template<typename R, typename T>
+        inline R scale_int_to_float (const T& v) {
           return static_cast<R>(round(v / get_scale_factor()));
         }
-      };
 
-      template<typename R, typename T>
-      struct scale<std::enable_if<std::is_unsigned<R>::value, R>::type,
-                   std::enable_if<std::is_floating_point<T>::value, T>::type> {
-        inline static R to (T v) {
-          return static_cast<R>(std::max<T>(0, round(v * get_scale_factor())));
-        }
-      };
-
-      template<typename R, typename T>
-      struct scale<std::enable_if<std::is_integral<R>::value, R>::type,
-                   std::enable_if<std::is_floating_point<T>::value, T>::type> {
-        inline static R to (T v) {
+        template<typename R, typename T>
+        inline R scale_float_to_sint (const T& v) {
           return static_cast<R>(round(v * get_scale_factor()));
         }
-      };
 
-      template<typename R, typename T>
-      struct scale<std::enable_if<std::is_unsigned<R>::value, R>::type,
-                   std::enable_if<std::is_integral<T>::value, T>::type> {
-        inline static R to (T v) {
+        template<typename R, typename T>
+        inline R scale_float_to_uint (const T& v) {
+          return static_cast<R>(std::max<T>(0, round(v * get_scale_factor())));
+        }
+
+        template<typename R, typename T>
+        inline R scale_int_to_uint (const T& v) {
           return static_cast<R>(std::max<T>(0, v));
         }
-      };
 
-      template<typename R, typename T>
-      struct scale<std::enable_if<std::is_integral<R>::value, R>::type,
-                   std::enable_if<std::is_integral<T>::value, T>::type> {
-        inline static R to (T v) {
+        template<typename R, typename T>
+        inline R scale_forward (const T& v) {
           return static_cast<R>(v);
         }
-      };
+      }
+
+//      template<typename R, typename T>
+//      R scale (const T& v);
 
       template<typename R, typename T>
-      struct scale<std::enable_if<std::is_floating_point<R>::value, R>::type,
-                   std::enable_if<std::is_floating_point<T>::value, T>::type> {
-        inline static R to (T v) {
-          return static_cast<R>(v);
-        }
-      };
+      inline typename std::enable_if<std::is_floating_point<R>::value && std::is_integral<T>::value, R>::type scale (const T& v) {
+        return detail::scale_int_to_float<R>(v);
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_unsigned<R>::value && std::is_floating_point<T>::value, R>::type scale (const T& v) {
+        return detail::scale_float_to_uint<R>(v);
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_integral<R>::value && std::is_signed<R>::value && std::is_floating_point<T>::value, R>::type scale (const T& v) {
+        return detail::scale_float_to_sint<R>(v);
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_unsigned<R>::value && std::is_integral<T>::value && std::is_signed<T>::value, R>::type scale (const T& v) {
+        return detail::scale_int_to_uint<R>(v);
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_integral<R>::value && std::is_integral<T>::value, R>::type scale (const T& v) {
+        return detail::scale_forward<R>(v);
+      }
+
+      template<typename R, typename T>
+      inline typename std::enable_if<std::is_floating_point<R>::value && std::is_floating_point<T>::value, R>::type scale (const T& v) {
+        return detail::scale_forward<R>(v);
+      }
 
     } // namespace global
 

@@ -23,6 +23,7 @@
 // Library includes
 //
 #include <gui/draw/image_data.h>
+#include <gui/draw/converter.h>
 
 
 namespace gui {
@@ -46,7 +47,10 @@ namespace gui {
       template<PixelFormat T>
       const datamap<T> convert () const;
 
-      core::size size () const;
+      core::native_size native_size () const;
+
+      core::size scaled_size () const;
+
       byte depth () const;
       PixelFormat pixel_format () const;
 
@@ -76,7 +80,7 @@ namespace gui {
       datamap () = default;
 
       datamap (uint32_t w, uint32_t h);
-      datamap (const core::uint32_size& sz);
+      datamap (const core::native_size& sz);
       datamap (const const_image_data<T>& data);
       datamap (const core::size& sz);
 
@@ -91,12 +95,12 @@ namespace gui {
 
       void create (uint32_t w, uint32_t h);
       void create (const core::size& sz);
-      void create (const core::uint32_size& sz);
+      void create (const core::native_size& sz);
       void create (const const_image_data<T>& data);
 
       void copy_from (const datamap& src_img,
-                      const core::rectangle& src_rect,
-                      const core::point& dest_pt);
+                      const core::native_rect& src_rect,
+                      const core::native_point& dest_pt);
 
       const const_image_data<T> get_data () const {
         return super::get_data<T>();
@@ -108,10 +112,13 @@ namespace gui {
 
       void crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 
+      template<convert::interpolation I = convert::interpolation::nearest>
       void stretch_from (const datamap& src);
+
+      template<convert::interpolation I = convert::interpolation::nearest>
       void stretch_from (const datamap& src_img,
-                         const core::rectangle& src_rect,
-                         const core::rectangle& dest_rect);
+                         const core::native_rect& src_rect,
+                         const core::native_rect& dest_rect);
 
       void adjust_brightness (float f);
       void invert ();
@@ -134,8 +141,8 @@ namespace gui {
     typedef datamap<PixelFormat::ARGB> argbmap;
     typedef datamap<PixelFormat::ABGR> abgrmap;
 
-    GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area);
-    GUIPP_DRAW_EXPORT core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz);
+    GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area);
+    GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_point& pt, const core::native_size& sz);
 
   } //namespace draw
 

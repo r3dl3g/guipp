@@ -52,6 +52,7 @@ else()
         BorderTest
         hello_world
         filemanager
+        list_app
     )
 endif()
 
@@ -60,6 +61,7 @@ set(tests
     pixmap_test
     drawer_test
     icon_test
+    stretch_test
 )
 
 message(STATUS "gui_libraries: ${gui_libraries}")

@@ -88,7 +88,8 @@ namespace gui {
       bool underline () const;
       bool strikeout () const;
 
-      size_type line_height () const;
+      core::size::type line_height () const;
+      size_type native_line_height () const;
 
       font with_size(size_type) const;
       font with_thickness(Thickness) const;

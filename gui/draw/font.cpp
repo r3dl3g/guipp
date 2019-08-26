@@ -60,7 +60,7 @@ namespace gui {
 
   namespace draw {
 
-#if defined(BUILD_FOR_ARM) || defined(WIN32) || defined(X11x)
+#if defined(BUILD_FOR_ARM) || defined(WIN32) || defined(X11not)
     template<typename T>
     inline T font_scale (T v) {
       return static_cast<T>((double)v * core::global::get_scale_factor());
@@ -189,7 +189,11 @@ namespace gui {
       return info.lfStrikeOut != 0;
     }
 
-    font::size_type font::line_height () const {
+    core::size::type font::line_height () const {
+      return core::global::scale<core::size::type>(native_line_height());
+    }
+
+    font::size_type font::native_line_height () const {
       return info.lfHeight;
     }
 
@@ -254,7 +258,7 @@ namespace gui {
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);
-      return core::size(font_unscale(static_cast<float>(sz.cx)), font_unscale(static_cast<float>(sz.cy)));
+      return core::size(core::global::scale<core::size::type>(sz.cx), core::global::scale<core::size::type>(sz.cy));
     }
 
 #endif // WIN32
@@ -406,7 +410,11 @@ namespace gui {
       return false;
     }
 
-    font::size_type font::line_height () const {
+    core::size::type font::line_height () const {
+      return core::global::scale<core::size::type>(native_line_height());
+    }
+
+    font::size_type font::native_line_height () const {
       if (info) {
         return info->height;
       }
@@ -450,7 +458,7 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        return core::size(font_unscale(extents.xOff - extents.x), font_unscale(extents.height));
+        return core::size(core::global::scale<core::size::type>(extents.xOff - extents.x), core::global::scale<core::size::type>(extents.height));
       }
       return core::size::zero;
     }

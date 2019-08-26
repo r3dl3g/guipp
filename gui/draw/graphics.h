@@ -76,10 +76,10 @@ namespace gui {
       void operator= (const graphics&);
 
       const graphics& clear (os::color color) const;
-      const graphics& draw_pixel (const core::uint32_point& pt,
+      const graphics& draw_pixel (const core::native_point& pt,
                                   os::color color) const;
 
-      os::color get_pixel (const core::uint32_point&) const;
+      os::color get_pixel (const core::native_point&) const;
 
       const graphics& draw_lines (std::initializer_list<core::point> points,
                                   const pen& pen) const;
@@ -90,23 +90,26 @@ namespace gui {
       const graphics& text (const std::function<textable>&, const font& font, os::color color) const;
       const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
-      const graphics& copy_from (const graphics&, const core::point& dest = core::point::zero) const;
+      const graphics& copy_from (const graphics&, const core::point& dest) const;
       const graphics& copy_from (const graphics&, const core::rectangle& src, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (const draw::pixmap&, const core::point& dest) const;
       const graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest) const;
       const graphics& copy_from (const draw::masked_bitmap&, const core::point& dest) const;
 
-      const graphics& copy_from (const draw::pixmap&, const core::uint32_point& dest = core::uint32_point::zero) const;
-      const graphics& copy_from (const draw::pixmap&, const core::uint32_rect& src, const core::uint32_point& dest) const;
-      const graphics& copy_from (const draw::masked_bitmap&, const core::uint32_point& dest = core::uint32_point::zero) const;
+      const graphics& copy_from (const graphics&, const core::native_point& dest = core::native_point::zero) const;
+      const graphics& copy_from (const graphics&, const core::native_rect& src, const core::native_point& dest = core::native_point::zero) const;
+
+      const graphics& copy_from (const draw::pixmap&, const core::native_point& dest = core::native_point::zero) const;
+      const graphics& copy_from (const draw::pixmap&, const core::native_rect& src, const core::native_point& dest) const;
+      const graphics& copy_from (const draw::masked_bitmap&, const core::native_point& dest = core::native_point::zero) const;
 
       const graphics& copy_from (os::drawable, const core::rectangle& src,
                                  const core::point& dest = core::point::zero,
                                  const copy_mode = copy_mode::bit_copy) const;
 
-      const graphics& copy_from (os::drawable, const core::uint32_rect& src,
-                                 const core::uint32_point& dest = core::uint32_point::zero,
+      const graphics& copy_from (os::drawable, const core::native_rect& src,
+                                 const core::native_point& dest = core::native_point::zero,
                                  const copy_mode = copy_mode::bit_copy) const;
 
       void invert (const core::rectangle&) const;
@@ -114,6 +117,7 @@ namespace gui {
 
       int depth () const;
       core::rectangle area () const;
+      core::native_rect native_area () const;
 
       os::graphics os () const;
       operator os::graphics () const;

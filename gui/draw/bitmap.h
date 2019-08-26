@@ -45,7 +45,11 @@ namespace gui {
 
       os::bitmap get_id () const;
       bitmap_info get_info () const;
-      core::size size () const;
+
+      core::native_size native_size () const;
+
+      core::size scaled_size () const;
+
       byte depth () const;
       PixelFormat pixel_format () const;
 
@@ -76,16 +80,16 @@ namespace gui {
 
       bitmap (const bwmap& sz);
       bitmap (uint32_t w, uint32_t h);
-      bitmap (const core::uint32_size& sz);
+      bitmap (const core::native_size& sz);
       bitmap (const core::size& sz);
 
       void create (uint32_t w, uint32_t h);
-      void create (const core::uint32_size& sz);
+      void create (const core::native_size& sz);
       void create (const core::size& sz);
 
       void copy_from (const bitmap& src_img,
-                      const core::rectangle& src_rect,
-                      const core::point& dest_pt);
+                      const core::native_rect& src_rect,
+                      const core::native_point& dest_pt);
 
       void invert ();
 
@@ -110,16 +114,16 @@ namespace gui {
       pixmap (const const_image_data<T>& rhs);
 
       pixmap (uint32_t w, uint32_t h);
-      pixmap (const core::uint32_size& sz);
+      pixmap (const core::native_size& sz);
       pixmap (const core::size& sz);
 
       void create (uint32_t w, uint32_t h);
-      void create (const core::uint32_size& sz);
+      void create (const core::native_size& sz);
       void create (const core::size& sz);
 
       void copy_from (const pixmap& src_img,
-                      const core::rectangle& src_rect,
-                      const core::point& dest_pt);
+                      const core::native_rect& src_rect,
+                      const core::native_point& dest_pt);
 
       void invert ();
 
@@ -185,7 +189,9 @@ namespace gui {
       void operator= (const bitmap& bmp);
       void operator= (bitmap&& bmp);
 
-      core::size size () const;
+      core::native_size native_size () const;
+
+      core::size scaled_size () const;
 
       bool is_valid () const;
 

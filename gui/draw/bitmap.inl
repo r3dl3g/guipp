@@ -65,6 +65,10 @@ namespace gui {
       return get_id();
     }
 
+    inline core::size basic_map::scaled_size () const {
+      return get_info().scaled_size();
+    }
+
     // --------------------------------------------------------------------------
     inline bitmap::bitmap ()
     {}
@@ -77,7 +81,7 @@ namespace gui {
       create(w, h);
     }
 
-    inline bitmap::bitmap (const core::uint32_size& sz) {
+    inline bitmap::bitmap (const core::native_size& sz) {
       create(sz);
     }
 
@@ -85,7 +89,7 @@ namespace gui {
       create(sz);
     }
 
-    inline void bitmap::create (const core::uint32_size& sz) {
+    inline void bitmap::create (const core::native_size& sz) {
       create(sz.width(), sz.height());
     }
 
@@ -126,7 +130,7 @@ namespace gui {
       create(w, h);
     }
 
-    inline pixmap::pixmap (const core::uint32_size& sz) {
+    inline pixmap::pixmap (const core::native_size& sz) {
       create(sz);
     }
 
@@ -134,7 +138,7 @@ namespace gui {
       create(sz);
     }
 
-    inline void pixmap::create (const core::uint32_size& sz) {
+    inline void pixmap::create (const core::native_size& sz) {
       create(sz.width(), sz.height());
     }
 
@@ -237,8 +241,12 @@ namespace gui {
       operator= (std::move(rhs));
     }
 
-    inline core::size masked_bitmap::size () const {
-      return mask.size();
+    inline core::native_size masked_bitmap::native_size () const {
+      return mask.native_size();
+    }
+
+    inline core::size masked_bitmap::scaled_size () const {
+      return mask.scaled_size();
     }
 
     inline bool masked_bitmap::is_valid () const {

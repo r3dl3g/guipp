@@ -130,9 +130,9 @@ namespace gui {
                         : color::black;
 
         if (icon) {
-          core::size sz = icon.image.size();
-          core::point::type x = (text_pos - core::global::unscale(sz.width())) / 2;
-          core::point::type y = r.y() + (r.height() - core::global::unscale(sz.height())) / 2;
+          auto sz = icon.image.scaled_size();
+          core::point::type x = (text_pos - sz.width()) / 2;
+          core::point::type y = r.y() + (r.height() - sz.height()) / 2;
           g.copy_from(icon, core::point(x, y));
         }
 

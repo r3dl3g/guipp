@@ -411,8 +411,8 @@ namespace gui {
       return bitmap_get_info(get_id());
     }
 
-    core::size basic_map::size () const {
-      return get_info().size<core::size::type>();
+    core::native_size basic_map::native_size () const {
+      return get_info().size();
     }
 
     byte basic_map::depth () const {
@@ -448,8 +448,8 @@ namespace gui {
     }
 
     void bitmap::copy_from (const bitmap& src_img,
-                            const core::rectangle& src_rect,
-                            const core::point& dest_pt) {
+                            const core::native_rect& src_rect,
+                            const core::native_point& dest_pt) {
       bwmap dest;
       dest.copy_from(src_img.get(), src_rect, dest_pt);
       operator=(dest);
@@ -502,8 +502,8 @@ namespace gui {
     }
 
     void pixmap::copy_from (const pixmap& src_img,
-                            const core::rectangle& src_rect,
-                            const core::point& dest_pt) {
+                            const core::native_rect& src_rect,
+                            const core::native_point& dest_pt) {
       graphics g(*this);
       g.copy_from(src_img, src_rect, dest_pt);
     }
@@ -541,7 +541,7 @@ namespace gui {
     {
       graphics g(this->image);
       Use<pen> use(g, color::white);
-      g.copy_from(this->mask, core::rectangle(this->image.size()), core::point::zero, copy_mode::bit_and);
+      g.copy_from(this->mask, core::native_rect(this->image.native_size()), core::native_point::zero, copy_mode::bit_and);
     }
 
     masked_bitmap::masked_bitmap (pixmap&& img, bitmap&& msk)
@@ -550,7 +550,7 @@ namespace gui {
     {
       graphics g(this->image);
       Use<pen> use(g, color::white);
-      g.copy_from(this->mask, core::rectangle(this->image.size()), core::point::zero, copy_mode::bit_and);
+      g.copy_from(this->mask, core::native_rect(this->image.native_size()), core::native_point::zero, copy_mode::bit_and);
     }
 
     void masked_bitmap::operator= (const masked_bitmap& rhs) {

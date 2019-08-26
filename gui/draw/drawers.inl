@@ -108,7 +108,7 @@ namespace gui {
     inline void image<I>::operator() (const graphics& g, const brush& b) const {
       g.fill(draw::rectangle(rect), b);
 
-      auto sz = img.size();
+      auto sz = img.scaled_size();
       core::point::type px = rect.x();
       core::point::type py = rect.y();
 
@@ -127,7 +127,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    image_frame<T>::image_frame (const core::rectangle& rect, const datamap<T>& img, const core::uint32_rect& frame)
+    image_frame<T>::image_frame (const core::rectangle& rect, const datamap<T>& img, const core::native_rect& frame)
       : rect(rect)
       , img(img)
       , frame(frame)
@@ -147,22 +147,22 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame) {
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame) {
       return image_frame<T>(r, img, frame);
     }
 
     template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge) {
-      return image_frame<T>(r, img, {edge, edge, edge, edge});
+      return image_frame<T>(r, img, {static_cast<int32_t>(edge), static_cast<int32_t>(edge), edge, edge});
     }
 
     template<PixelFormat T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical) {
-      return image_frame<T>(r, img, {horizontal, vertical, horizontal, vertical});
+      return image_frame<T>(r, img, {static_cast<int32_t>(horizontal), static_cast<int32_t>(vertical), horizontal, vertical});
     }
 
     template<PixelFormat T>
-    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) {
+    inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, int32_t left, int32_t top, uint32_t right, uint32_t bottom) {
       return image_frame<T>(r, img, {left, top, right, bottom});
     }
 

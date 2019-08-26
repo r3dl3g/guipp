@@ -87,15 +87,15 @@ namespace gui {
         r += core::point(16, 0);
 
         if (icon) {
-          core::size sz = icon.size();
-          core::point::type y = r.y() + (r.height() - core::global::unscale(sz.height())) / 2;
-          graph.copy_from(icon, core::point(r.x(), y));
-          r += core::point(core::global::unscale(sz.width()) + 5, 0);
+          auto sz = icon.native_size();
+          core::native_point::type y = r.os_y() + (r.os_height() - sz.height()) / 2;
+          graph.copy_from(icon, core::native_point(r.os_x(), y));
+          r += core::point(core::global::scale<core::size::type>(sz.width()) + 5, 0);
         }
 
         r.x2(area.x2());
         os::color col = selected ? color::highLightTextColor()
-                        : color::black;
+                                 : color::black;
         graph.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
       }
 
@@ -130,7 +130,7 @@ namespace gui {
 
         if (core::global::get_scale_factor() != 1.0) {
           draw::bwmap rhs = mask;
-          mask.create(rhs.size());  // size() will be scaled by reading
+          mask.create(rhs.native_size() * core::global::get_scale_factor());
           mask.stretch_from(rhs);
         }
         mask.invert();

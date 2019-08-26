@@ -101,7 +101,7 @@ namespace gui {
       , pixel_format(PixelFormat::Undefined)
     {}
 
-    bitmap_info::bitmap_info (const core::uint32_size& sz, PixelFormat px_fmt)
+    bitmap_info::bitmap_info (const core::native_size& sz, PixelFormat px_fmt)
       : width(sz.width())
       , height(sz.height())
       , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), px_fmt))

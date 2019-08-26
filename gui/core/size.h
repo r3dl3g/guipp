@@ -104,15 +104,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     typedef basic_size<float> size;
-    typedef basic_size<uint32_t> uint32_size;
-
-    // --------------------------------------------------------------------------
-    namespace global {
-
-      template<>
-      core::size unscale (const core::size& v);
-
-    } // namespace global
+    typedef basic_size<uint32_t> native_size;
 
     // --------------------------------------------------------------------------
   } // namespace core

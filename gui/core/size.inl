@@ -36,16 +36,6 @@ namespace gui {
   namespace core {
 
     template<typename T>
-    typename std::enable_if<std::is_unsigned<T>::value, T>::type os_dimension_cast (size::type v) {
-      return global::scale(static_cast<T>(std::max<size::type>(v, 0)));
-    }
-
-    template<typename T>
-    typename std::enable_if<std::is_signed<T>::value, T>::type os_dimension_cast (size::type v) {
-      return global::scale(static_cast<T>(v));
-    }
-
-    template<typename T>
     const basic_size<T> basic_size<T>::zero;
 
     template<typename T>
@@ -85,12 +75,12 @@ namespace gui {
 
     template<typename T>
     inline os::size_type basic_size<T>::os_width () const {
-      return os_dimension_cast<os::size_type>(w);
+      return global::scale<os::size_type, T>(w);
     }
 
     template<typename T>
     inline os::size_type basic_size<T>::os_height () const {
-      return os_dimension_cast<os::size_type>(h);
+      return global::scale<os::size_type, T>(h);
     }
 
     template<typename T>
@@ -105,29 +95,29 @@ namespace gui {
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::size& s)
-      : w(global::unscale<type>(static_cast<T>(s.cx)))
-      , h(global::unscale<type>(static_cast<T>(s.cy)))
+      : w(global::scale<T>(s.cx))
+      , h(global::scale<T>(s.cy))
     {}
 
     template<typename T>
     inline basic_size<T>::basic_size (const os::point& pt)
-      : w(global::unscale<type>(static_cast<T>(pt.x)))
-      , h(global::unscale<type>(static_cast<T>(pt.y)))
+      : w(global::scale<T>(pt.x))
+      , h(global::scale<T>(pt.y))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : w(global::unscale<type>(static_cast<T>(r.right - r.left)))
-      , h(global::unscale<type>(static_cast<T>(r.bottom - r.top)))
+      : w(global::scale<T>(r.right - r.left))
+      , h(global::scale<T>(r.bottom - r.top))
     {}
 
 #endif // WIN32
 #ifdef X11
     template<typename T>
     inline basic_size<T>::basic_size (const os::rectangle& r)
-      : w(global::unscale<type>(r.width))
-      , h(global::unscale<type>(r.height))
+      : w(global::scale<T>(r.width))
+      , h(global::scale<T>(r.height))
     {}
 
 #endif // X11
@@ -253,11 +243,15 @@ namespace gui {
       return out;
     }
 
+    // --------------------------------------------------------------------------
     namespace global {
 
-      template<>
-      inline core::size unscale (const core::size& v) {
-        return core::size(unscale(v.width()), unscale(v.height()));
+      inline size scale (const native_size& v) {
+        return size(scale<size::type>(v.width()), scale<size::type>(v.height()));
+      }
+
+      inline native_size scale (const size& v) {
+        return native_size(scale<native_size::type, size::type>(v.width()), scale<native_size::type, size::type>(v.height()));
       }
 
     } // namespace global

@@ -70,7 +70,7 @@ DEFINE_TEST(test_bitmap_black) {
   bitmap img(2, 2);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
@@ -90,7 +90,7 @@ DEFINE_TEST(test_bitmap_white) {
   bitmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
@@ -110,7 +110,7 @@ DEFINE_TEST(test_bitmap_checked) {
   bitmap img(2, 2);
   graphics(img).clear(color::white).draw_pixel({0,1}, color::black).draw_pixel({1, 0}, color::black);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
@@ -130,7 +130,7 @@ DEFINE_TEST(test_pixmap_black) {
   pixmap img(2, 2);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -150,7 +150,7 @@ DEFINE_TEST(test_pixmap_red) {
   pixmap img(2, 2);
   graphics(img).clear(color::red);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -170,7 +170,7 @@ DEFINE_TEST(test_pixmap_green) {
   pixmap img(2, 2);
   graphics(img).clear(color::green);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -190,7 +190,7 @@ DEFINE_TEST(test_pixmap_blue) {
   pixmap img(2, 2);
   graphics(img).clear(color::blue);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -210,7 +210,7 @@ DEFINE_TEST(test_pixmap_white) {
   pixmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -239,7 +239,7 @@ DEFINE_TEST(test_pixmap) {
     EXPECT_EQUAL(p2, color::black);
   }
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
@@ -283,7 +283,7 @@ DEFINE_TEST(test_pixmap_draw) {
   }
 
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(6, 6));
+  EXPECT_EQUAL(img.native_size(), core::native_size(6, 6));
   EXPECT_EQUAL(img.depth(), 24);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
   EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, 24, PixelFormat::RGBA));
@@ -396,7 +396,7 @@ DEFINE_TEST(test_pixmap2bitmap) {
   bitmap img = bw1;
 
   EXPECT_TRUE(img.is_valid());
-  EXPECT_EQUAL(img.size(), core::size(2, 2));
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));

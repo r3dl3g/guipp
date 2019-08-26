@@ -63,6 +63,12 @@ DECLARE_TEST(test_draw_rect_2x2);
 DECLARE_TEST(test_draw_rect_1x1);
 DECLARE_TEST(test_draw_rect_0x0);
 
+DECLARE_TEST(test_frame_rect_4x4_scaled);
+DECLARE_TEST(test_frame_rect_3x3_scaled);
+DECLARE_TEST(test_frame_rect_2x2_scaled);
+DECLARE_TEST(test_frame_rect_1x1_scaled);
+DECLARE_TEST(test_frame_rect_0x0_scaled);
+
 DECLARE_TEST(test_frame_ellipse_4x4);
 DECLARE_TEST(test_frame_ellipse_3x3);
 DECLARE_TEST(test_frame_ellipse_2x2);
@@ -148,6 +154,11 @@ TEST_MAIN(drawer_test) {
   RUN_TEST(test_frame_rect_2x2);
   RUN_TEST(test_frame_rect_1x1);
   RUN_TEST(test_frame_rect_0x0);
+  RUN_TEST(test_frame_rect_4x4_scaled);
+  RUN_TEST(test_frame_rect_3x3_scaled);
+  RUN_TEST(test_frame_rect_2x2_scaled);
+  RUN_TEST(test_frame_rect_1x1_scaled);
+  RUN_TEST(test_frame_rect_0x0_scaled);
   RUN_TEST(test_fill_rect_4x4);
   RUN_TEST(test_fill_rect_3x3);
   RUN_TEST(test_fill_rect_2x2);
@@ -245,103 +256,178 @@ END_TEST(test_data2colormap)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_4x4) {
-
   core::global::set_scale_factor(1.0);
-
   pixmap img(5, 5);
-
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
-
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
                            {_, X, X, X, X},
                            {_, X, _, _, X},
                            {_, X, _, _, X},
                            {_, X, X, X, X}}));
-
 }
 END_TEST(test_frame_rect_4x4)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_3x3) {
-
   core::global::set_scale_factor(1.0);
-
   pixmap img(5, 5);
-
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
-
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
                            {_, X, X, X, _},
                            {_, X, _, X, _},
                            {_, X, X, X, _},
                            {_, _, _, _, _}}));
-
 }
 END_TEST(test_frame_rect_3x3)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_2x2) {
-
   core::global::set_scale_factor(1.0);
-
   pixmap img(5, 5);
-
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
-
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
                            {_, X, X, _, _},
                            {_, X, X, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _}}));
-
 }
 END_TEST(test_frame_rect_2x2)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_1x1) {
-
   core::global::set_scale_factor(1.0);
-
   pixmap img(5, 5);
-
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
-
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
                            {_, X, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _}}));
-
 }
 END_TEST(test_frame_rect_1x1)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_0x0) {
-
   core::global::set_scale_factor(1.0);
-
   pixmap img(5, 5);
-
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
-
   auto buffer = pixmap2colormap(img);
-
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _}}));
-
 }
 END_TEST(test_frame_rect_0x0)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_frame_rect_4x4_scaled) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, MM({
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, X, X, X, X, X, X, X, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, _, _, _, _, _, _, X},
+                            {_, _, X, X, X, X, X, X, X, X},
+                          }));
+}
+END_TEST(test_frame_rect_4x4_scaled)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_frame_rect_3x3_scaled) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, MM({
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, X, X, X, X, X, X, _, _},
+                            {_, _, X, _, _, _, _, X, _, _},
+                            {_, _, X, _, _, _, _, X, _, _},
+                            {_, _, X, _, _, _, _, X, _, _},
+                            {_, _, X, _, _, _, _, X, _, _},
+                            {_, _, X, X, X, X, X, X, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                          }));
+}
+END_TEST(test_frame_rect_3x3_scaled)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_frame_rect_2x2_scaled) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, MM({
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, X, X, X, X, _, _, _, _},
+                            {_, _, X, _, _, X, _, _, _, _},
+                            {_, _, X, _, _, X, _, _, _, _},
+                            {_, _, X, X, X, X, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                          }));
+}
+END_TEST(test_frame_rect_2x2_scaled)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_frame_rect_1x1_scaled) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, MM({
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, X, X, _, _, _, _, _, _},
+                            {_, _, X, X, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                          }));
+}
+END_TEST(test_frame_rect_1x1_scaled)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_frame_rect_0x0_scaled) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+  graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, MM({
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                            {_, _, _, _, _, _, _, _, _, _},
+                          }));
+}
+END_TEST(test_frame_rect_0x0_scaled)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_fill_rect_4x4) {
@@ -1126,11 +1212,13 @@ DEFINE_TEST(test_frame_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, X, X, _, _},
-                           {X, _, _, X, _},
-                           {X, _, _, X, _},
-                           {_, X, X, _, _},
-                           {_, _, _, _, _}}));
+  EXPECT_EQUAL(buffer, MM({
+                           {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, X, _, _, X},
+                           {_, X, _, _, X},
+                           {_, _, X, X, _},
+                          }));
 
 } END_TEST(test_frame_arc_3x3)
 // --------------------------------------------------------------------------
@@ -1161,9 +1249,9 @@ DEFINE_TEST(test_frame_arc_1x1) {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
-                           {_, X, X, _, _},
-                           {_, X, X, _, _},
                            {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, _, X, X, _},
                            {_, _, _, _, _}}));
 
 } END_TEST(test_frame_arc_1x1)
@@ -1211,11 +1299,13 @@ DEFINE_TEST(test_fill_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, X, X, _, _},
-                           {X, X, X, X, _},
-                           {X, X, X, X, _},
-                           {_, X, X, _, _},
-                           {_, _, _, _, _}}));
+  EXPECT_EQUAL(buffer, MM({
+                           {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, X, X, X, X},
+                           {_, X, X, X, X},
+                           {_, _, X, X, _},
+                          }));
 
 } END_TEST(test_fill_arc_3x3)
 // --------------------------------------------------------------------------
@@ -1246,9 +1336,9 @@ DEFINE_TEST(test_fill_arc_1x1) {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
-                           {_, X, X, _, _},
-                           {_, X, X, _, _},
                            {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, _, X, X, _},
                            {_, _, _, _, _}}));
 } END_TEST(test_fill_arc_1x1)
 // --------------------------------------------------------------------------
@@ -1293,11 +1383,13 @@ DEFINE_TEST(test_draw_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, X, X, _, _},
-                           {X, O, O, X, _},
-                           {X, O, O, X, _},
-                           {_, X, X, _, _},
-                           {_, _, _, _, _}}));
+  EXPECT_EQUAL(buffer, MM({
+                           {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, X, O, O, X},
+                           {_, X, O, O, X},
+                           {_, _, X, X, _},
+                          }));
 } END_TEST(test_draw_arc_3x3)
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_draw_arc_2x2) {
@@ -1326,9 +1418,9 @@ DEFINE_TEST(test_draw_arc_1x1) {
   auto buffer = pixmap2colormap(img);
 
   EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
-                           {_, X, X, _, _},
-                           {_, X, X, _, _},
                            {_, _, _, _, _},
+                           {_, _, X, X, _},
+                           {_, _, X, X, _},
                            {_, _, _, _, _}}));
 } END_TEST(test_draw_arc_1x1)
 // --------------------------------------------------------------------------
@@ -1634,7 +1726,7 @@ pixmap_str data2string (const char* data, const int bytes_per_pixel, const int b
 
 pixmap_str pixmap2string (const pixmap& img) {
 #ifdef X11
-  core::size sz = img.size();
+  core::native_size sz = img.native_size();
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
   auto str = data2string(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
   XDestroyImage(xim);
@@ -1677,7 +1769,7 @@ colormap data2colormap (const char* data, const int bytes_per_pixel, const int b
 
 colormap pixmap2colormap (const pixmap& img) {
 #ifdef X11
-  core::size sz = img.size();
+  core::native_size sz = img.native_size();
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, sz.width(), sz.height(), AllPlanes, ZPixmap);
   auto result = data2colormap(xim->data, xim->bits_per_pixel / 8, xim->bytes_per_line, xim->height);
   XDestroyImage(xim);

@@ -142,13 +142,13 @@ namespace gui {
       }
     }
 
-    const graphics& graphics::draw_pixel (const core::uint32_point& pt,
+    const graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) const {
       SetPixel(gc, pt.x(), pt.y(), c);
       return *this;
     }
 
-    os::color graphics::get_pixel (const core::uint32_point& pt) const {
+    os::color graphics::get_pixel (const core::native_point& pt) const {
       return GetPixel(gc, pt.x(), pt.y());
     }
 
@@ -321,16 +321,16 @@ namespace gui {
       return d;
     }
 
-    core::rectangle get_drawable_area (os::drawable t) {
+    core::native_rect get_drawable_area (os::drawable t) {
       Window root;
       int x, y;
       unsigned int w, h, b, d;
       XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
       return {
-          (core::point::type)x,
-          (core::point::type)y,
-          (core::size::type)w,
-          (core::size::type)h
+          (core::native_point::type)x,
+          (core::native_point::type)y,
+          (core::native_size::type)w,
+          (core::native_size::type)h
       };
     }
 
@@ -418,14 +418,14 @@ namespace gui {
       }
     }
 
-    const graphics& graphics::draw_pixel (const core::uint32_point& pt,
+    const graphics& graphics::draw_pixel (const core::native_point& pt,
                                           os::color c) const {
       Use<pen> pn(gc, pen(c));
       XDrawPoint(get_instance(), target, gc, pt.x(), pt.y());
       return *this;
     }
 
-    os::color graphics::get_pixel (const core::uint32_point& pt) const {
+    os::color graphics::get_pixel (const core::native_point& pt) const {
       XImage* im = XGetImage(get_instance(), target, pt.x(), pt.y(), 1, 1, AllPlanes, ZPixmap);
       os::color c = color::black;
       if (im) {
@@ -455,30 +455,36 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
-      return copy_from(src, src.area(), pt);
+      return copy_from(src, src.native_area(), core::global::scale(pt));
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
-      int res = XCopyArea(get_instance(), src, target, gc, r.x(), r.y(), r.width(), r.height(), pt.os_x(), pt.os_y());
+      return copy_from(src, core::global::scale(r), core::global::scale(pt));
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {
+      return copy_from(src, src.native_area(), pt);
+    }
+
+    const graphics& graphics::copy_from (const graphics& src, const core::native_rect& r, const core::native_point& pt) const {
+      int res = XCopyArea(get_instance(), src, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
       if (!res) {
         throw std::runtime_error("graphics::copy_from failed");
       }
       return *this;
     }
 
+
     const graphics& graphics::copy_from (os::drawable w,
                                          const core::rectangle& r,
                                          const core::point& pt,
                                          const copy_mode mode) const {
-      return copy_from(w,
-                       core::uint32_rect(r.os_x(), r.os_y(), r.os_width(), r.os_height()),
-                       core::uint32_point(pt.os_x(), pt.os_y()),
-                       mode);
+      return copy_from(w, core::global::scale(r), core::global::scale(pt), mode);
     }
 
     const graphics& graphics::copy_from (os::drawable w,
-                                         const core::uint32_rect& r,
-                                         const core::uint32_point& pt,
+                                         const core::native_rect& r,
+                                         const core::native_point& pt,
                                          const copy_mode mode) const {
       const int dd = get_drawable_depth(w);
       const int md = depth();
@@ -503,10 +509,10 @@ namespace gui {
     }
 
     const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::uint32_point(pt.os_x(), pt.os_y()));
+      return copy_from(bmp, core::global::scale(pt));
     }
 
-    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::uint32_point& pt) const {
+    const graphics& graphics::copy_from (const draw::masked_bitmap& bmp, const core::native_point& pt) const {
       auto display = core::global::get_instance();
       int res = 0;
       XGCValues org_values = {0};
@@ -527,7 +533,7 @@ namespace gui {
                       : XBlackPixel(display, screen)
         };
         res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &values);
-        auto sz = bmp.mask.size();
+        auto sz = bmp.mask.native_size();
         res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y(), 1);
       }
       if (bmp.image) {
@@ -535,7 +541,7 @@ namespace gui {
           static_cast<int>(copy_mode::bit_or) //function
         };
         res = XChangeGC(display, gc, GCFunction, &values);
-        auto sz = bmp.image.size();
+        auto sz = bmp.image.native_size();
         res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
       }
       res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
@@ -566,6 +572,10 @@ namespace gui {
     }
 
     core::rectangle graphics::area () const {
+      return core::global::scale(native_area());
+    }
+
+    core::native_rect graphics::native_area () const {
       return get_drawable_area(target);
     }
 
@@ -606,7 +616,7 @@ namespace gui {
     // --------------------------------------------------------------------------
 
     const graphics& graphics::clear (os::color color) const {
-      return draw(rectangle(core::global::unscale(area())), color, color);
+      return draw(rectangle(area()), color, color);
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::rectangle& src, const core::point& pt) const {
@@ -629,7 +639,7 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::uint32_rect& src, const core::uint32_point& pt) const {
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_rect& src, const core::native_point& pt) const {
       if (bmp) {
         if (bmp.depth() == depth()) {
           return copy_from(bmp.get_id(), src, pt);
@@ -649,12 +659,12 @@ namespace gui {
       return *this;
     }
 
-    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::uint32_point& pt) const {
-      return copy_from(bmp, core::uint32_rect(bmp.size()), pt);
+    const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::native_point& pt) const {
+      return copy_from(bmp, core::native_rect(bmp.native_size()), pt);
     }
 
     const graphics& graphics::copy_from (const draw::pixmap& bmp, const core::point& pt) const {
-      return copy_from(bmp, core::rectangle(bmp.size<float>()), pt);
+      return copy_from(bmp, core::rectangle(bmp.scaled_size()), pt);
     }
 
     const graphics& graphics::frame (const std::function<frameable>& drawer,

@@ -219,11 +219,16 @@ namespace gui {
 
       using comp_by_size_dirs_last = dirs_last<comp_by_size>;
 
+      bool is_hidden (const sys_fs::path& p) {
+        std::string name = p.filename().string();
+        return basepp::string::starts_with(name, ".") && (name != "..");
+      }
+
       auto unsorted_path_info::sub_nodes(type const & n)->range {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
           try {
-            return basepp::string::starts_with(i.path().filename().string(), ".");
+            return is_hidden(i.path());
           } catch (std::exception& ex) {
             LogWarng << ex;
           } catch (...) {}
@@ -236,7 +241,7 @@ namespace gui {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
           try {
-            return !sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+            return !sys_fs::is_directory(i.path()) || is_hidden(i.path());
           } catch (std::exception& ex) {
             LogWarng << ex;
           } catch (...) {}
@@ -249,7 +254,7 @@ namespace gui {
         return range(fs::filtered_iterator(sys_fs::begin(path_iterator(n)),
                                            [] (const sys_fs::directory_entry & i) {
           try {
-            return sys_fs::is_directory(i.path()) || basepp::string::starts_with(i.path().filename().string(), ".");
+            return sys_fs::is_directory(i.path()) || is_hidden(i.path());
           } catch (std::exception& ex) {
             LogWarng << ex;
           } catch (...) {}
@@ -262,8 +267,7 @@ namespace gui {
         range v;
         for (auto i = sys_fs::begin(path_iterator(n)), e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           try {
-            const bool is_hidden = basepp::string::starts_with(i->path().filename().string(), ".");
-            if (!is_hidden) {
+            if (!is_hidden(i->path())) {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
@@ -279,7 +283,7 @@ namespace gui {
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           try {
-            if (sys_fs::is_directory(i->path()) && !basepp::string::starts_with(i->path().filename().string(), ".")) {
+            if (sys_fs::is_directory(i->path()) && !is_hidden(i->path())) {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
@@ -295,7 +299,7 @@ namespace gui {
         for (auto i = sys_fs::begin(path_iterator(n)),
              e = sys_fs::end(path_iterator(n)); i != e; ++i) {
           try {
-            if (!(sys_fs::is_directory(i->path()) || basepp::string::starts_with(i->path().filename().string(), "."))) {
+            if (!(sys_fs::is_directory(i->path()) || is_hidden(i->path()))) {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {

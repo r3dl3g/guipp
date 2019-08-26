@@ -59,8 +59,12 @@ namespace gui {
       return info;
     }
 
-    core::size basic_datamap::size () const {
-      return info.size<core::size::type>();
+    core::native_size basic_datamap::native_size () const {
+      return info.size();
+    }
+
+    core::size basic_datamap::scaled_size () const {
+      return info.scaled_size();
     }
 
     byte basic_datamap::depth () const {
@@ -75,17 +79,17 @@ namespace gui {
       data.clear();
     }
 
-    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::rectangle& area) {
-      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, basepp::roundup<uint32_t>(area.x())));
-      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, basepp::roundup<uint32_t>(area.y())));
-      const uint32_t w = std::min<uint32_t>(bmi.width - x, basepp::roundup<uint32_t>(area.width()));
-      const uint32_t h = std::min<uint32_t>(bmi.height - y, basepp::roundup<uint32_t>(area.height()));
+    core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area) {
+      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, area.x()));
+      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, area.y()));
+      const uint32_t w = std::min<uint32_t>(bmi.width - x, area.width());
+      const uint32_t h = std::min<uint32_t>(bmi.height - y, area.height());
       return {x, y, w, h};
     }
 
-    core::basic_rectangle<uint32_t> checked_area (const bitmap_info& bmi, const core::point& pt, const core::uint32_size& sz) {
-      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, basepp::roundup<uint32_t>(pt.x())));
-      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, basepp::roundup<uint32_t>(pt.y())));
+    core::native_rect checked_area (const bitmap_info& bmi, const core::native_point& pt, const core::native_size& sz) {
+      const uint32_t x = std::max<uint32_t>(0, std::min<uint32_t>(bmi.width, pt.x()));
+      const uint32_t y = std::max<uint32_t>(0, std::min<uint32_t>(bmi.height, pt.y()));
       const uint32_t w = std::min<uint32_t>(bmi.width - x, sz.width());
       const uint32_t h = std::min<uint32_t>(bmi.height - y, sz.height());
       return {x, y, w, h};

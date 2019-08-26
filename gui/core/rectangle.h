@@ -35,12 +35,13 @@ namespace gui {
   namespace core {
 
     // --------------------------------------------------------------------------
-    template<typename T>
+    template<typename T, typename S>
     struct basic_rectangle {
-      typedef T type;
+      typedef T point_type;
+      typedef S size_type;
       typedef basic_rectangle self;
       typedef basic_point<T> point_t;
-      typedef basic_size<T> size_t;
+      typedef basic_size<S> size_t;
 
       static const self zero;
       static const self def;
@@ -52,7 +53,7 @@ namespace gui {
       basic_rectangle (const point_t& topleft,
                        const point_t& bottomright);
 
-      basic_rectangle (type x, type y, type width, type height);
+      basic_rectangle (point_type x, point_type y, size_type width, size_type height);
 
       explicit basic_rectangle (const size_t& sz);
       explicit basic_rectangle (const os::rectangle& r);
@@ -69,19 +70,19 @@ namespace gui {
       point_t bottom_right () const;
       point_t bottom_left () const;
 
-      type x () const;
-      type y () const;
-      type width () const;
-      type height () const;
-      type x2 () const;
-      type y2 () const;
+      point_type x () const;
+      point_type y () const;
+      size_type width () const;
+      size_type height () const;
+      point_type x2 () const;
+      point_type y2 () const;
 
-      void x (type x);
-      void y (type y);
-      void x2 (type x);
-      void y2 (type y);
-      void height (type height);
-      void width (type width);
+      void x (point_type x);
+      void y (point_type y);
+      void x2 (point_type x);
+      void y2 (point_type y);
+      void height (size_type height);
+      void width (size_type width);
 
       bool empty () const;
       bool is_inside (const point_t& p) const;
@@ -89,19 +90,19 @@ namespace gui {
       void top_left (const point_t& pt);
       void bottom_right (const point_t& pt);
 
-      type center_x () const;
-      type center_y () const;
+      point_type center_x () const;
+      point_type center_y () const;
       point_t center () const;
 
       self with_pos (const point_t& pt) const;
       self with_size (const size_t& sz) const;
-      self with_x (const type x) const;
-      self with_y (const type y) const;
-      self with_width (const type w) const;
-      self with_height (const type h) const;
+      self with_x (const point_type x) const;
+      self with_y (const point_type y) const;
+      self with_width (const size_type w) const;
+      self with_height (const size_type h) const;
 
-      self right_width (const type w) const;
-      self bottom_height (const type h) const;
+      self right_width (const size_type w) const;
+      self bottom_height (const size_type h) const;
 
       self grown (const size_t& s) const;
       self shrinked (const size_t& s) const;
@@ -130,11 +131,11 @@ namespace gui {
       void move (const point_t& pt);
       void move (const size_t& sz);
 
-      void move_x (type dx);
-      void move_y (type dy);
+      void move_x (point_type dx);
+      void move_y (point_type dy);
 
-      void move_to_x (type x);
-      void move_to_y (type y);
+      void move_to_x (point_type x);
+      void move_to_y (point_type y);
 
       void set_size (const size_t& sz);
       void set_position (const point_t& pt);
@@ -163,20 +164,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    std::ostream& operator<< (std::ostream& out, const basic_rectangle<T>&);
+    template<typename T, typename S>
+    std::ostream& operator<< (std::ostream& out, const basic_rectangle<T, S>&);
 
     // --------------------------------------------------------------------------
-    typedef basic_rectangle<float> rectangle;
-    typedef basic_rectangle<uint32_t> uint32_rect;
-
-    // --------------------------------------------------------------------------
-    namespace global {
-
-      template<>
-      core::rectangle unscale (const core::rectangle& v);
-
-    } // namespace global
+    typedef basic_rectangle<float, float> rectangle;
+    typedef basic_rectangle<int32_t, uint32_t> native_rect;
 
     // --------------------------------------------------------------------------
   } // namespace core

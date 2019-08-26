@@ -71,33 +71,33 @@ namespace gui {
 
     template<typename T>
     inline os::point_type basic_point<T>::os_x () const {
-      return os_dimension_cast<os::point_type>(x_);
+      return global::scale<os::point_type>(x_);
     }
 
     template<typename T>
     inline os::point_type basic_point<T>::os_y () const {
-      return os_dimension_cast<os::point_type>(y_);
+      return global::scale<os::point_type>(y_);
     }
 
     template<typename T>
     inline basic_point<T>::basic_point (const os::point& rhs)
-      : x_(global::unscale<type>(static_cast<T>(rhs.x)))
-      , y_(global::unscale<type>(static_cast<T>(rhs.y)))
+      : x_(global::scale<T>(rhs.x))
+      , y_(global::scale<T>(rhs.y))
     {}
 
 #ifdef WIN32
     template<typename T>
     inline basic_point<T>::basic_point (const os::rectangle& rhs)
-      : x_(global::unscale<type>(static_cast<T>(rhs.left)))
-      , y_(global::unscale<type>(static_cast<T>(rhs.top)))
+      : x_(global::scale<T>(rhs.left))
+      , y_(global::scale<T>(rhs.top))
     {}
 
 #endif // WIN32
 #ifdef X11
     template<typename T>
     inline basic_point<T>::basic_point (const os::rectangle& r)
-      : x_(global::unscale<type>(r.x))
-      , y_(global::unscale<type>(r.y))
+      : x_(global::scale<T>(r.x))
+      , y_(global::scale<T>(r.y))
     {}
 
 #endif // X11
@@ -256,11 +256,15 @@ namespace gui {
       return out;
     }
 
+    // --------------------------------------------------------------------------
     namespace global {
 
-      template<>
-      inline core::point unscale (const core::point& v) {
-        return core::point(unscale(v.x()), unscale(v.y()));
+      inline point scale (const native_point& v) {
+        return point(scale<point::type>(v.x()), scale<point::type>(v.y()));
+      }
+
+      inline native_point scale (const point& v) {
+        return native_point(scale<native_point::type>(v.x()), scale<native_point::type>(v.y()));
       }
 
     } // namespace global

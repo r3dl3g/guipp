@@ -442,8 +442,8 @@ DEFINE_TEST(test_masked_bitmap) {
     {color::gray, color::gray, color::gray, color::gray, color::gray}
   };
 
-  for (uint32_t y = 0; y < 5; ++y) {
-    for (uint32_t x = 0; x < 5; ++x) {
+  for (int32_t y = 0; y < 5; ++y) {
+    for (int32_t x = 0; x < 5; ++x) {
       const os::color expected = expected_color[x][y];
       const os::color test = g.get_pixel({x, y});
       EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
@@ -462,7 +462,7 @@ DEFINE_TEST(test_file_icon) {
   io::load_pnm(in, mask);
 
   EXPECT_TRUE(mask.is_valid());
-  EXPECT_EQUAL(mask.size(), core::size(20, 20));
+  EXPECT_EQUAL(mask.native_size(), core::native_size(20, 20));
   EXPECT_EQUAL(mask.depth(), 1);
   EXPECT_EQUAL(mask.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(mask.get_info(), draw::bitmap_info(20, 20, 4, PixelFormat::BW));
@@ -481,9 +481,9 @@ DEFINE_TEST(test_file_icon) {
 #endif // WIN32
     }
 
-    for (uint32_t y = 0; y < 20; ++y) {
+    for (int32_t y = 0; y < 20; ++y) {
       auto row = data.row(y);
-      for (uint32_t x = 0; x < 20; ++x) {
+      for (int32_t x = 0; x < 20; ++x) {
         const bool expected = expected_bit_at_inv(x, y);
         const pixel::bw_pixel test = row[x];
         EXPECT_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
@@ -496,8 +496,8 @@ DEFINE_TEST(test_file_icon) {
 
   {
     draw::graphics g(img);
-    for (uint32_t y = 0; y < 20; ++y) {
-      for (uint32_t x = 0; x < 20; ++x) {
+    for (int32_t y = 0; y < 20; ++y) {
+      for (int32_t x = 0; x < 20; ++x) {
         const os::color  expected = expected_bit_at_inv(x, y) ? color::white : color::black;
         const os::color test = g.get_pixel({x, y});
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
@@ -513,8 +513,8 @@ DEFINE_TEST(test_file_icon) {
     g.clear(color::gray);
     g.copy_from(icon);
 
-    for (uint32_t y = 0; y < 20; ++y) {
-      for (uint32_t x = 0; x < 20; ++x) {
+    for (int32_t y = 0; y < 20; ++y) {
+      for (int32_t x = 0; x < 20; ++x) {
         os::color expected = expected_bit_at_inv(x, y) ? color::white : color::gray;
         os::color test = g.get_pixel({x, y});
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);

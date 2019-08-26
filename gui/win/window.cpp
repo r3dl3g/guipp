@@ -899,8 +899,7 @@ namespace gui {
       if (wid && x11::check_status(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::size{core::global::unscale<core::size::type>(width),
-                          core::global::unscale<core::size::type>(height)};
+        return core::global::scale(core::native_size{width, height});
       }
       return core::size::zero;
     }
@@ -915,8 +914,7 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::point{core::global::unscale<core::point::type>(x),
-                           core::global::unscale<core::point::type>(y)};
+        return core::global::scale(core::native_point{x, y});
       }
       return core::point::undefined;
     }
@@ -931,8 +929,7 @@ namespace gui {
       if (wid && x11::check_return(XGetGeometry(core::global::get_instance(), wid,
                                                 &root, &x, &y, &width, &height,
                                                 &border_width, &depth))) {
-        return core::rectangle(core::global::unscale(x), core::global::unscale(y),
-                               core::global::unscale(width), core::global::unscale(height));
+        return core::global::scale(core::native_rect{x, y, width, height});
       }
       return core::rectangle::def;
     }
@@ -1021,7 +1018,7 @@ namespace gui {
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
+      return {core::global::scale<core::point::type>(x), core::global::scale<core::point::type>(y)};
     }
 
     core::point window::screen_to_client (const core::point& pt) const {
@@ -1036,7 +1033,7 @@ namespace gui {
                                               &x,
                                               &y,
                                               &child_return));
-      return {core::global::unscale<core::point::type>(x), core::global::unscale<core::point::type>(y)};
+      return {core::global::scale<core::point::type>(x), core::global::scale<core::point::type>(y)};
     }
 
     void window::set_cursor (os::cursor c) {

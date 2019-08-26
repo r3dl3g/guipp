@@ -190,21 +190,21 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<PixelFormat T>
     struct image_frame {
-      image_frame (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame);
+      image_frame (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame);
 
       void operator() (const graphics&, const core::point&) const;
 
     private:
       const core::rectangle rect;
       const datamap<T>& img;
-      const core::uint32_rect frame;
+      const core::native_rect frame;
 
       void operator= (image_frame&) = delete;
     };
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>
-    image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::uint32_rect& frame);
+    image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame);
 
     template<PixelFormat T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge);
@@ -213,7 +213,7 @@ namespace gui {
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical);
 
     template<PixelFormat T>
-    image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom);
+    image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, int32_t left, int32_t top, uint32_t right, uint32_t bottom);
 
   } // draw
 

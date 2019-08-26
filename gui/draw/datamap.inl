@@ -22,7 +22,6 @@
 //
 // Library includes
 //
-#include <gui/draw/converter.h>
 
 
 namespace gui {
@@ -36,7 +35,7 @@ namespace gui {
     }
 
     template<PixelFormat T>
-    inline datamap<T>::datamap (const core::uint32_size& sz) {
+    inline datamap<T>::datamap (const core::native_size& sz) {
       create(sz);
     }
 
@@ -117,7 +116,7 @@ namespace gui {
     }
 
     template<PixelFormat T>
-    inline void datamap<T>::create (const core::uint32_size& sz) {
+    inline void datamap<T>::create (const core::native_size& sz) {
       create(sz.width(), sz.height());
     }
 
@@ -133,8 +132,8 @@ namespace gui {
 
     template<PixelFormat T>
     inline void datamap<T>::copy_from (const datamap& src_img,
-                                       const core::rectangle& src_rect,
-                                       const core::point& dest_pt) {
+                                       const core::native_rect& src_rect,
+                                       const core::native_point& dest_pt) {
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
@@ -157,14 +156,16 @@ namespace gui {
     }
 
     template<PixelFormat T>
+    template<convert::interpolation I>
     inline void datamap<T>::stretch_from (const datamap& src) {
-      stretch_from(src, core::rectangle(src.size()), core::rectangle(size()));
+      stretch_from<I>(src, core::native_rect(src.native_size()), core::native_rect(native_size()));
     }
 
     template<PixelFormat T>
+    template<convert::interpolation I>
     inline void datamap<T>::stretch_from (const datamap& src_img,
-                                          const core::rectangle& src_rect,
-                                          const core::rectangle& dest_rect) {
+                                          const core::native_rect& src_rect,
+                                          const core::native_rect& dest_rect) {
       bitmap_info src_bmi = src_img.get_info();
 
       auto src = checked_area(src_bmi, src_rect);
@@ -174,7 +175,7 @@ namespace gui {
         return;
       }
 
-      convert::stretch::sub<T>(src_img.get_data(), get_data(), src, dest);
+      convert::stretch<T, I>::sub(src_img.get_data(), get_data(), src, dest);
     }
 
     template<PixelFormat T>
@@ -186,8 +187,8 @@ namespace gui {
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
       bmp.copy_from(*this, 
-                    core::rectangle(core::point::type(x), core::point::type(y), core::size::type(w), core::size::type(h)),
-                    core::point::zero);
+                    core::native_rect(x, y, w, h),
+                    core::native_point::zero);
       return bmp;
     }
 

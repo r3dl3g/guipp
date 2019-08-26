@@ -71,14 +71,34 @@ namespace gui {
       return static_cast<T>((double)v / core::global::get_scale_factor());
     }
 #else
+    namespace {
+      double s_font_scale = 0.0;
+
+      void init_font_scale () {
+        if (s_font_scale == 0.0) {
+          os::font_type info = XftFontOpen(core::global::get_instance(),
+                                           core::global::x11::get_screen(),
+                                           XFT_FAMILY, XftTypeString, "Courier",
+                                           XFT_SIZE, XftTypeDouble, 10.0,
+                                           XFT_WEIGHT, XftTypeInteger, FC_WEIGHT_REGULAR,
+                                           XFT_SLANT, XftTypeInteger, FC_SLANT_ROMAN,
+                                           NULL);
+          double dpi;
+          XftPatternGetDouble(info->pattern, XFT_DPI, 0, &dpi);
+          s_font_scale = 96 / dpi * core::global::get_scale_factor();
+          XftFontClose(core::global::get_instance(), info);
+        }
+      }
+    }
+
     template<typename T>
     inline T font_scale (T v) {
-      return v;
+      return static_cast<T>(v * s_font_scale);
     }
 
     template<typename T>
     inline T font_unscale (T v) {
-      return v;
+      return static_cast<T>(v / s_font_scale);
     }
 #endif
 
@@ -312,6 +332,7 @@ namespace gui {
                 bool strikeout)
       : info(nullptr)
     {
+      init_font_scale();
       info = XftFontOpen(core::global::get_instance(),
                          core::global::x11::get_screen(),
                          XFT_FAMILY, XftTypeString, name.c_str(),
@@ -372,7 +393,7 @@ namespace gui {
       if (info) {
         double sz;
         if (XftResultMatch == XftPatternGetDouble(info->pattern, XFT_SIZE, 0, &sz)) {
-          return font_unscale<font::size_type>(sz);
+          return static_cast<font::size_type>(sz);
         }
       }
       return STD_FONT_SIZE;
@@ -382,7 +403,7 @@ namespace gui {
       if (info) {
         int sz;
         if (XftResultMatch == XftPatternGetInteger(info->pattern, XFT_WEIGHT, 0, &sz)) {
-          return (font::Thickness)sz;
+          return font::Thickness(sz);
         }
       }
       return font::Thickness::regular;

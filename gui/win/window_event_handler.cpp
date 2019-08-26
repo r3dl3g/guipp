@@ -86,15 +86,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     core::point get_param<1, core::point>(const core::event& e) {
-      return core::point(static_cast<core::point::type>(GET_X_LPARAM(e.lParam)),
-                         static_cast<core::point::type>(GET_Y_LPARAM(e.lParam)));
+      return core::global::scale(core::native_point(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
     template<>
     core::size get_param<1, core::size>(const core::event& e) {
-      return core::size(static_cast<core::size::type>(GET_X_LPARAM(e.lParam)),
-                        static_cast<core::size::type>(GET_Y_LPARAM(e.lParam)));
+      return core::global::scale(core::native_size(GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -107,7 +105,7 @@ namespace gui {
     core::point get_root_mouse_pos (const core::event& e) {
       POINT pt = {GET_X_LPARAM(e.lParam), GET_Y_LPARAM(e.lParam)};
       ClientToScreen(e.id, &pt);
-      return core::point(pt);
+      return core::global::scale(core::native_point(pt));
     }
 
     // --------------------------------------------------------------------------

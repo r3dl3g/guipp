@@ -68,10 +68,7 @@ namespace gui {
     template<typename T>
     core::rectangle get_rect (const core::event& e) {
       T& p = *reinterpret_cast<T*>(e.lParam);
-      return core::rectangle(static_cast<core::point::type>(p.x),
-                             static_cast<core::point::type>(p.y),
-                             static_cast<core::size::type>(p.cx),
-                             static_cast<core::size::type>(p.cy));
+      return core::global::scale(core::native_rect(p.x, p.y, p.cx, p.cy));
     }
 
     // --------------------------------------------------------------------------

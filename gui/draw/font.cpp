@@ -458,7 +458,7 @@ namespace gui {
                            (XftChar8*)str.c_str(),
                            int(str.size()),
                            &extents);
-        return core::size(core::global::scale<core::size::type>(extents.xOff - extents.x), core::global::scale<core::size::type>(extents.height));
+        return core::size(core::global::scale<core::size::type>(extents.width), core::global::scale<core::size::type>(extents.height));
       }
       return core::size::zero;
     }

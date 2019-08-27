@@ -81,11 +81,6 @@ namespace gui {
     template<PixelFormat F, interpolation I = interpolation::nearest>
     struct stretch {
 
-//      static void row (const typename draw::const_image_data<F>::row_type src,
-//                       typename draw::image_data<F>::row_type dst,
-//                       uint32_t src_x0, uint32_t dest_x0,
-//                       uint32_t src_w, uint32_t dest_w);
-
       static void sub (const typename draw::const_image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,

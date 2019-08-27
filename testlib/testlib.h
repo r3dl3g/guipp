@@ -144,10 +144,11 @@ namespace testing {
                              const Arguments... args) {
     os << fileName << ":" << lineNumber << ": "
        << "Expected " << testName << " "
-       << "to be " << equality << " ";
+       << "to be " << equality << " '";
     detail::print_value(os, expectedValue);
-    os << " (" << expectedName << ") " << "but it was ";
+    os << "' (" << expectedName << ") but it was '";
     detail::print_value(os, testValue);
+    os << "'";
     detail::print_to_stream(os, args...);
   }
 

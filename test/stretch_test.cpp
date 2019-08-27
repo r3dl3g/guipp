@@ -15,7 +15,7 @@ DECLARE_TEST(test_bwX1);
 //DECLARE_TEST(test_bwX3);
 //DECLARE_TEST(test_bwX0_75);
 
-//DECLARE_TEST(test_grayX1);
+DECLARE_TEST(test_grayX1);
 //DECLARE_TEST(test_grayX2);
 //DECLARE_TEST(test_grayX05);
 
@@ -32,7 +32,7 @@ TEST_MAIN(stretch)
   RUN_TEST(test_bwX1);
 //  RUN_TEST(test_bwX2);
 //  RUN_TEST(test_bwX05);
-//  RUN_TEST(test_grayX1);
+  RUN_TEST(test_grayX1);
 //  RUN_TEST(test_grayX2);
 //  RUN_TEST(test_grayX05);
 //  RUN_TEST(test_rgbX1);
@@ -59,19 +59,18 @@ inline std::string make_string (T(&t)[N]) {
   return std::string((const char*)t, N);
 }
 
-static const unsigned char test_bw_bits[] = {
-  'P', '1', '\n',
-  '#', ' ', 'p', 'n', 'm', ' ', 'c', 'r', 'e', 'a', 't', 'e', 'd', ' ', 'b', 'y', ' ', 'g', 'u', 'i', '+', '+', '\n',
-  '8', ' ', '8', '\n',
-  '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '\n',
-  '0', ' ', '1', ' ', '1', ' ', '1', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '\n',
-  '0', ' ', '1', ' ', '0', ' ', '0', ' ', '1', ' ', '0', ' ', '0', ' ', '0', ' ', '\n',
-  '0', ' ', '1', ' ', '0', ' ', '0', ' ', '0', ' ', '1', ' ', '0', ' ', '0', ' ', '\n',
-  '0', ' ', '1', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '1', ' ', '0', ' ', '\n',
-  '0', ' ', '0', ' ', '1', ' ', '0', ' ', '0', ' ', '0', ' ', '1', ' ', '0', ' ', '\n',
-  '0', ' ', '0', ' ', '0', ' ', '1', ' ', '1', ' ', '1', ' ', '1', ' ', '0', ' ', '\n',
-  '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '0', ' ', '\n'
-};
+static const char test_bw_bits[] =
+  "P1\n"
+  "# pnm created by gui++\n"
+  "8 8\n"
+  "0 0 0 0 0 0 0 0 \n"
+  "0 1 1 1 0 0 0 0 \n"
+  "0 1 0 0 1 0 0 0 \n"
+  "0 1 0 0 0 1 0 0 \n"
+  "0 1 0 0 0 0 1 0 \n"
+  "0 0 1 0 0 0 1 0 \n"
+  "0 0 0 1 1 1 1 0 \n"
+  "0 0 0 0 0 0 0 0 \n";
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bwX1)
@@ -101,8 +100,53 @@ DEFINE_TEST(test_bwX1)
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
 
   std::string out = ostreamfmt((opnm<false, PixelFormat::BW>(stretched)));
-  EXPECT_EQUAL(out, in);
+  TEST_EQUAL(out, in);
 END_TEST(test_bwX1)
+
+static const char test_gray_bits[] =
+  "P2\n"
+  "# pnm created by gui++\n"
+  "8 8 255\n"
+  "0 0 0 0 0 0 0 0 \n"
+  "0 255 255 255 0 0 0 0 \n"
+  "0 255 0 0 255 0 0 0 \n"
+  "0 255 0 0 0 255 0 0 \n"
+  "0 255 0 0 0 0 255 0 \n"
+  "0 0 255 0 0 0 255 0 \n"
+  "0 0 0 255 255 255 255 0 \n"
+  "0 0 0 0 0 0 0 0 \n";
+
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_grayX1)
+  using namespace gui;
+  using namespace gui::draw;
+  using namespace gui::io;
+
+  const stretch stretch_f = stretch::stretch_1;
+
+  std::string in = make_string(test_gray_bits);
+
+  graymap img;
+  std::istringstream(in) >> ipnm<PixelFormat::GRAY>(img);
+
+  EXPECT_TRUE(img.is_valid());
+  EXPECT_EQUAL(img.native_size(), core::native_size(8, 8));
+  EXPECT_EQUAL(img.depth(), 8);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+
+  auto expected_size = img.native_size() * stretcht_factor(stretch_f);
+  graymap stretched(expected_size);
+  stretched.stretch_from(img);
+
+  EXPECT_TRUE(stretched.is_valid());
+  EXPECT_EQUAL(img.native_size(), expected_size);
+  EXPECT_EQUAL(img.depth(), 8);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+
+  std::string out = ostreamfmt((opnm<false, PixelFormat::GRAY>(stretched)));
+  TEST_EQUAL(out, in);
+END_TEST(test_grayX1)
 
 // --------------------------------------------------------------------------
 

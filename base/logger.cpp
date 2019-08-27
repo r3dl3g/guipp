@@ -239,6 +239,7 @@ namespace basepp {
     void escape_filter (std::ostream& out,
                         char ch) {
       switch (ch) {
+        case '\0': out << "\\0"; break;
         case '\a': out << "\\a"; break;
         case '\b': out << "\\b"; break;
         case '\f': out << "\\f"; break;

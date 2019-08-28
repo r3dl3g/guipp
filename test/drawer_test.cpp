@@ -227,7 +227,7 @@ DEFINE_TEST(test_data2colormap) {
                                      0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F};
   colormap result = data2colormap ((const char*)testdata.data(), 4, 16, 3);
 
-  EXPECT_EQUAL(result, MM({ {0x00000000, 0x00000001, 0x00000002, 0x00000003},
+  EXPECT_EQUAL(result, CM({ {0x00000000, 0x00000001, 0x00000002, 0x00000003},
                             {0x40000000, 0x30000000, 0x20000000, 0x10000000},
                             {0x01010101, 0x10101010, 0xF0F0F0F0, 0x0F0F0F0F}}));
 
@@ -240,7 +240,7 @@ DEFINE_TEST(test_frame_rect_4x4) {
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, R},
                            {_, R, _, _, R},
                            {_, R, _, _, R},
@@ -254,7 +254,7 @@ DEFINE_TEST(test_frame_rect_3x3) {
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, _, R, _},
                            {_, R, R, R, _},
@@ -268,7 +268,7 @@ DEFINE_TEST(test_frame_rect_2x2) {
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, _, _},
                            {_, R, R, _, _},
                            {_, _, _, _, _},
@@ -282,7 +282,7 @@ DEFINE_TEST(test_frame_rect_1x1) {
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -296,7 +296,7 @@ DEFINE_TEST(test_frame_rect_0x0) {
   pixmap img(5, 5);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -310,7 +310,7 @@ DEFINE_TEST(test_frame_rect_4x4_scaled) {
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(4, 4)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, R, R, R, R, R, R, R, R},
@@ -331,7 +331,7 @@ DEFINE_TEST(test_frame_rect_3x3_scaled) {
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(3, 3)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, R, R, R, R, R, R, _, _},
@@ -352,7 +352,7 @@ DEFINE_TEST(test_frame_rect_2x2_scaled) {
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(2, 2)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, R, R, R, R, _, _, _, _},
@@ -373,7 +373,7 @@ DEFINE_TEST(test_frame_rect_1x1_scaled) {
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(1, 1)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, R, R, _, _, _, _, _, _},
@@ -394,7 +394,7 @@ DEFINE_TEST(test_frame_rect_0x0_scaled) {
   pixmap img(10, 10);
   graphics(img).clear(color::black).frame(draw::rectangle(core::point(1, 1), core::size(0, 0)), color::blue);
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
                             {_, _, _, _, _, _, _, _, _, _},
@@ -420,7 +420,7 @@ DEFINE_TEST(test_fill_rect_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, R},
                            {_, R, R, R, R},
                            {_, R, R, R, R},
@@ -440,7 +440,7 @@ DEFINE_TEST(test_fill_rect_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, R, R, _},
                            {_, R, R, R, _},
@@ -460,7 +460,7 @@ DEFINE_TEST(test_fill_rect_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, _, _},
                            {_, R, R, _, _},
                            {_, _, _, _, _},
@@ -480,7 +480,7 @@ DEFINE_TEST(test_fill_rect_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -500,7 +500,7 @@ DEFINE_TEST(test_fill_rect_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -520,7 +520,7 @@ DEFINE_TEST(test_draw_rect_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, R},
                            {_, R, B, B, R},
                            {_, R, B, B, R},
@@ -540,7 +540,7 @@ DEFINE_TEST(test_draw_rect_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, B, R, _},
                            {_, R, R, R, _},
@@ -560,7 +560,7 @@ DEFINE_TEST(test_draw_rect_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, _, _},
                            {_, R, R, _, _},
                            {_, _, _, _, _},
@@ -580,7 +580,7 @@ DEFINE_TEST(test_draw_rect_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -600,7 +600,7 @@ DEFINE_TEST(test_draw_rect_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -620,7 +620,7 @@ DEFINE_TEST(test_draw_line_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, R, _},
@@ -640,7 +640,7 @@ DEFINE_TEST(test_draw_line_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, R, _},
@@ -660,7 +660,7 @@ DEFINE_TEST(test_draw_line_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -680,7 +680,7 @@ DEFINE_TEST(test_draw_line_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -700,7 +700,7 @@ DEFINE_TEST(test_draw_line_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{R, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{R, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -720,7 +720,7 @@ DEFINE_TEST(test_draw_line_top_left) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -740,7 +740,7 @@ DEFINE_TEST(test_draw_line_top_left_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{R, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{R, _, _, _, _},
                            {_, R, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -760,7 +760,7 @@ DEFINE_TEST(test_draw_line_top_right) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, R, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -780,7 +780,7 @@ DEFINE_TEST(test_draw_line_top_right_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, R},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, R},
                            {_, _, _, R, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -800,7 +800,7 @@ DEFINE_TEST(test_draw_line_bottom_left) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, R, _, _, _},
@@ -820,7 +820,7 @@ DEFINE_TEST(test_draw_line_bottom_left_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, R, _, _, _},
@@ -840,7 +840,7 @@ DEFINE_TEST(test_draw_line_bottom_right) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, R, _},
@@ -860,7 +860,7 @@ DEFINE_TEST(test_draw_line_bottom_right_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, _, _, R, _},
@@ -879,7 +879,7 @@ DEFINE_TEST(test_frame_ellipse_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
@@ -896,7 +896,7 @@ DEFINE_TEST(test_frame_ellipse_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, _, _},
                            {R, _, _, R, _},
                            {R, _, _, R, _},
                            {_, R, R, _, _},
@@ -912,7 +912,7 @@ DEFINE_TEST(test_frame_ellipse_2x2) {
   graphics(img).clear(color::black).frame(draw::ellipse(core::point(0, 0), core::point(2, 2)), color::blue);
 
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, MM({{R, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({{R, R, R, _, _},
                            {R, _, R, _, _},
                            {R, R, R, _, _},
                            {_, _, _, _, _},
@@ -930,7 +930,7 @@ DEFINE_TEST(test_frame_ellipse_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{R, R, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{R, R, _, _, _},
                            {R, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -947,7 +947,7 @@ DEFINE_TEST(test_frame_ellipse_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -964,7 +964,7 @@ DEFINE_TEST(test_fill_ellipse) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
@@ -981,7 +981,7 @@ DEFINE_TEST(test_draw_ellipse_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
@@ -998,7 +998,7 @@ DEFINE_TEST(test_draw_ellipse_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({ {R, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({ {R, R, R, _, _},
                             {R, B, R, _, _},
                             {R, R, R, _, _},
                             {_, _, _, _, _},
@@ -1015,7 +1015,7 @@ DEFINE_TEST(test_draw_ellipse_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{R, R, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{R, R, _, _, _},
                            {R, R, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -1032,7 +1032,7 @@ DEFINE_TEST(test_draw_ellipse_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -1050,7 +1050,7 @@ DEFINE_TEST(test_frame_round_rectangle) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
@@ -1070,7 +1070,7 @@ DEFINE_TEST(test_fill_round_rectangle) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
@@ -1090,7 +1090,7 @@ DEFINE_TEST(test_draw_round_rectangle) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
@@ -1110,7 +1110,7 @@ DEFINE_TEST(test_frame_round_rectangle_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, R, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, R, R, R, _, _},
                            {_, R, _, _, _, R, _},
                            {R, _, _, _, _, _, R},
                            {R, _, _, _, _, _, R},
@@ -1132,7 +1132,7 @@ DEFINE_TEST(test_fill_round_rectangle_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, R, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, R, R, R, _, _},
                            {_, R, R, R, R, R, _},
                            {R, R, R, R, R, R, R},
                            {R, R, R, R, R, R, R},
@@ -1154,7 +1154,7 @@ DEFINE_TEST(test_draw_round_rectangle_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, R, R, R, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, R, R, R, _, _},
                            {_, R, B, B, B, R, _},
                            {R, B, B, B, B, B, R},
                            {R, B, B, B, B, B, R},
@@ -1175,7 +1175,7 @@ DEFINE_TEST(test_frame_arc_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
                            {R, _, _, _, R},
@@ -1192,7 +1192,7 @@ DEFINE_TEST(test_frame_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, R, _, _, R},
@@ -1211,7 +1211,7 @@ DEFINE_TEST(test_frame_arc_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, _, R, _},
                            {_, R, R, R, _},
@@ -1228,7 +1228,7 @@ DEFINE_TEST(test_frame_arc_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, _, R, R, _},
@@ -1245,7 +1245,7 @@ DEFINE_TEST(test_frame_arc_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -1262,7 +1262,7 @@ DEFINE_TEST(test_fill_arc_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
                            {R, R, R, R, R},
@@ -1279,7 +1279,7 @@ DEFINE_TEST(test_fill_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, R, R, R, R},
@@ -1298,7 +1298,7 @@ DEFINE_TEST(test_fill_arc_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, R, R, _},
                            {_, R, R, R, _},
@@ -1315,7 +1315,7 @@ DEFINE_TEST(test_fill_arc_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, _, R, R, _},
@@ -1331,7 +1331,7 @@ DEFINE_TEST(test_fill_arc_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -1347,7 +1347,7 @@ DEFINE_TEST(test_draw_arc_4x4) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
                            {R, B, B, B, R},
@@ -1363,7 +1363,7 @@ DEFINE_TEST(test_draw_arc_3x3) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({
+  EXPECT_EQUAL(buffer, CM({
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, R, B, B, R},
@@ -1381,7 +1381,7 @@ DEFINE_TEST(test_draw_arc_2x2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, R, R, R, _},
                            {_, R, B, R, _},
                            {_, R, R, R, _},
@@ -1397,7 +1397,7 @@ DEFINE_TEST(test_draw_arc_1x1) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, R, _},
                            {_, _, R, R, _},
@@ -1413,7 +1413,7 @@ DEFINE_TEST(test_draw_arc_0x0) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, _, _, _},
@@ -1430,7 +1430,7 @@ DEFINE_TEST(test_frame_arc_45_135) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {_, R, _, R, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -1446,7 +1446,7 @@ DEFINE_TEST(test_frame_arc_135_225) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {R, R, _, _, _},
                            {R, _, R, _, _},
                            {R, R, _, _, _},
@@ -1462,7 +1462,7 @@ DEFINE_TEST(test_frame_arc_225_315) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, R, _, R, _},
@@ -1478,7 +1478,7 @@ DEFINE_TEST(test_frame_arc_315_405) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, R, R},
                            {_, _, R, _, R},
                            {_, _, _, R, R},
@@ -1495,7 +1495,7 @@ DEFINE_TEST(test_draw_arc_45_135) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {_, R, B, R, _},
                            {_, _, R, _, _},
                            {_, _, _, _, _},
@@ -1512,7 +1512,7 @@ DEFINE_TEST(test_draw_arc_135_225) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {R, R, _, _, _},
                            {R, B, R, _, _},
                            {R, R, _, _, _},
@@ -1529,7 +1529,7 @@ DEFINE_TEST(test_draw_arc_225_315) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, R, B, R, _},
@@ -1546,7 +1546,7 @@ DEFINE_TEST(test_draw_arc_315_405) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, _, R, R},
                            {_, _, R, B, R},
                            {_, _, _, R, R},
@@ -1563,7 +1563,7 @@ DEFINE_TEST(test_frame_arc_45_135_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, R, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, R, R, _},
                            {R, _, _, _, R},
                            {_, R, _, R, _},
                            {_, _, R, _, _},
@@ -1580,7 +1580,7 @@ DEFINE_TEST(test_frame_arc_135_225_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, R, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, R, _, _, _},
                            {R, _, R, _, _},
                            {R, _, _, R, _},
                            {R, _, R, _, _},
@@ -1597,7 +1597,7 @@ DEFINE_TEST(test_frame_arc_225_315_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _},
                            {_, _, R, _, _},
                            {_, R, _, R, _},
                            {R, _, _, _, R},
@@ -1614,7 +1614,7 @@ DEFINE_TEST(test_frame_arc_315_405_2) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, R, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, R, _},
                            {_, _, R, _, R},
                            {_, R, _, _, R},
                            {_, _, R, _, R},
@@ -1631,7 +1631,7 @@ DEFINE_TEST(test_frame_polygon) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _, _, _},
                            {_, R, R, R, R, R, _},
                            {_, R, _, _, _, R, _},
                            {_, R, _, R, _, R, _},
@@ -1652,7 +1652,7 @@ DEFINE_TEST(test_fill_polygon) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _, _, _},
                            {_, R, R, R, R, R, _},
                            {_, R, R, R, R, R, _},
                            {_, R, R, R, R, R, _},
@@ -1673,7 +1673,7 @@ DEFINE_TEST(test_draw_polygon) {
 
   auto buffer = pixmap2colormap(img);
 
-  EXPECT_EQUAL(buffer, MM({{_, _, _, _, _, _, _},
+  EXPECT_EQUAL(buffer, CM({{_, _, _, _, _, _, _},
                            {_, R, R, R, R, R, _},
                            {_, R, B, B, B, R, _},
                            {_, R, B, R, B, R, _},

@@ -135,12 +135,12 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto basic_point<T>::operator* (type f) const -> self {
+    inline auto basic_point<T>::operator* (double f) const -> self {
       return {type(x() * f), type(y() * f)};
     }
 
     template<typename T>
-    inline auto basic_point<T>::operator/ (type f) const -> self {
+    inline auto basic_point<T>::operator/ (double f) const -> self {
       return {type(x() / f), type(y() / f)};
     }
 
@@ -159,14 +159,14 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto basic_point<T>::operator*= (type f) -> self& {
+    inline auto basic_point<T>::operator*= (double f) -> self& {
       x(x() * f);
       y(y() * f);
       return *this;
     }
 
     template<typename T>
-    inline auto basic_point<T>::operator/= (type f) -> self& {
+    inline auto basic_point<T>::operator/= (double f) -> self& {
       x(x() / f);
       y(y() / f);
       return *this;

@@ -76,16 +76,16 @@ namespace gui {
       self& operator-= (const size_t& s);
       self& operator+= (const self& pt);
       self& operator-= (const self& pt);
-      self& operator*= (type f);
-      self& operator/= (type f);
+      self& operator*= (double f);
+      self& operator/= (double f);
 
       self operator+ (const size_t& s) const;
       self operator- (const size_t& s) const;
 
       size_t operator- (const self& pt) const;
       self operator+ (const self& pt) const;
-      self operator* (type f) const;
-      self operator/ (type f) const;
+      self operator* (double f) const;
+      self operator/ (double f) const;
       self operator- () const;
 
       void move (const self& pt);

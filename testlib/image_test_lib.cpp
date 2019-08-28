@@ -96,56 +96,39 @@ namespace testing {
     return result;
   }
 
-  namespace detail {
-
-    template<gui::PixelFormat T>
-    colormap datamap2colormap (const gui::draw::datamap<T>& img) {
-      auto data = img.get_data();
-      colormap result;
-      for (int y = 0; y < data.height(); ++y) {
-        const auto row = data.row(y);
-        colorline line;
-        line.reserve(data.width());
-        for (int x = 0; x < data.width(); ++x) {
-          auto v = row[x];
-          using namespace gui::pixel;
-          line.emplace_back(gui::color::calc_rgb(get_red(v), get_green(v), get_blue(v)));
-        }
-        result.emplace_back(line);
+  // --------------------------------------------------------------------------
+  graysmap datamap2graysmap (const gui::draw::graymap& img) {
+    auto data = img.get_data();
+    graysmap result;
+    for (int y = 0; y < data.height(); ++y) {
+      const auto row = data.row(y);
+      grayline line;
+      line.reserve(data.width());
+      for (int x = 0; x < data.width(); ++x) {
+        line.emplace_back(row[x].value);
       }
-      return result;
+      result.emplace_back(line);
     }
+    return result;
 
   }
 
-  template<> colormap datamap2colormap<gui::PixelFormat::GRAY> (const gui::draw::datamap<gui::PixelFormat::GRAY>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
+  gui::draw::graymap graysmap2datamap (const graysmap& colors) {
+    const auto width = colors[0].size();
+    const auto height = colors.size();
+    gui::draw::graymap img(width, height);
+    auto data = img.get_data();
+    for (int y = 0; y < height; ++y) {
+      auto row = data.row(y);
+      const grayline& line = colors[y];
+      for (int x = 0; x < width; ++x) {
+        row[x] = line[x];
+      }
+    }
+    return img;
   }
 
-  template<> colormap datamap2colormap<gui::PixelFormat::RGB> (const gui::draw::datamap<gui::PixelFormat::RGB>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
-  template<> colormap datamap2colormap<gui::PixelFormat::RGBA> (const gui::draw::datamap<gui::PixelFormat::RGBA>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
-  template<> colormap datamap2colormap<gui::PixelFormat::BGR> (const gui::draw::datamap<gui::PixelFormat::BGR>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
-  template<> colormap datamap2colormap<gui::PixelFormat::BGRA> (const gui::draw::datamap<gui::PixelFormat::BGRA>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
-  template<> colormap datamap2colormap<gui::PixelFormat::ARGB> (const gui::draw::datamap<gui::PixelFormat::ARGB>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
-  template<> colormap datamap2colormap<gui::PixelFormat::ABGR> (const gui::draw::datamap<gui::PixelFormat::ABGR>& img) {
-    return detail::datamap2colormap<gui::PixelFormat::GRAY>(img);
-  }
-
+  // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const colormap& m) {
     out << '[';
     bool first_line = true;
@@ -163,13 +146,13 @@ namespace testing {
         } else {
           out << ",";
         }
-        switch (v) {
-          case _: out << "_"; break;
-          case R: out << "R"; break;
-          case G: out << "G"; break;
-          case B: out << "O"; break;
-          case W: out << "W"; break;
-          case Y: out << "Y"; break;
+        switch (v & 0xffffff) {
+          case _ & 0xffffff: out << "_"; break;
+          case R & 0xffffff: out << "R"; break;
+          case G & 0xffffff: out << "G"; break;
+          case B & 0xffffff: out << "B"; break;
+          case W & 0xffffff: out << "W"; break;
+          case Y & 0xffffff: out << "Y"; break;
           default:
             out << std::setw(8) << std::setfill('0') << std::hex << v;
             break;
@@ -181,4 +164,59 @@ namespace testing {
     return out;
   }
 
+  // --------------------------------------------------------------------------
+  std::ostream& operator<< (std::ostream& out, const graysmap& m) {
+    out << '[';
+    bool first_line = true;
+    for(const grayline& line: m) {
+      if (first_line) {
+        first_line = false;
+      } else {
+        out << ",";
+      }
+      out << '[';
+      bool first = true;
+      for(const uint8_t v: line) {
+        if (first) {
+          first = false;
+        } else {
+          out << ",";
+        }
+        out << (int)v;
+      }
+      out << ']';
+    }
+    out << ']';
+    return out;
+  }
+
+  // --------------------------------------------------------------------------
+  bool operator== (const colorline& lhs, const colorline& rhs) {
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    for (int i = 0; i < lhs.size(); ++i) {
+      if (gui::color::remove_transparency(lhs[i]) != gui::color::remove_transparency(rhs[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  // --------------------------------------------------------------------------
+  bool operator== (const colormap& lhs, const colormap& rhs) {
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    for (int i = 0; i < lhs.size(); ++i) {
+      if (!(lhs[i] == rhs[i])) {
+        return false;
+      }
+    }
+    return true;
+
+  }
+  // --------------------------------------------------------------------------
+
 }
+// --------------------------------------------------------------------------
+

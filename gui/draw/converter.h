@@ -95,10 +95,10 @@ namespace gui {
     namespace brightness {
 
       template<PixelFormat px_fmt>
-      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, float f);
+      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, double f);
 
       template<PixelFormat px_fmt>
-      void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, float f);
+      void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, double f);
 
     }
 

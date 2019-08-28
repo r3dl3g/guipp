@@ -56,135 +56,132 @@ namespace gui {
   namespace pixel {
     // --------------------------------------------------------------------------
     template<typename T>
-    inline byte get_gray (T p) {
+    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_gray (T p) {
       return static_cast<byte>((static_cast<uint16_t>(p.red) +
                                 static_cast<uint16_t>(p.green) +
                                 static_cast<uint16_t>(p.blue)) / 3);
     }
 
-    template<>
-    inline byte get_gray<gray_pixel> (gray_pixel p) {
+    inline byte get_gray (bw_pixel p) {
+      return basepp::system_bw_bits::value[static_cast<byte>(p)];
+    }
+
+    inline byte get_gray (gray_pixel p) {
       return p.value;
     }
 
-    template<>
-    inline byte get_gray<byte> (byte p) {
-      return p;
-    }
-
-    template<typename T>
-    inline bw_pixel get_bw (T p) {
-      return get_gray(p) == 0 ? bw_pixel::black : bw_pixel::white;
-    }
-
-    template<typename T>
-    inline byte get_red (T p) {
-      return p.red;
-    }
-
-    template<typename T>
-    inline byte get_green (T p) {
-      return p.green;
-    }
-
-    template<typename T>
-    inline byte get_blue (T p) {
-      return p.blue;
-    }
-
-    template<typename T>
-    inline byte get_alpha (T p) {
-      return p.alpha;
-    }
-
-    template<>
-    inline bw_pixel get_bw<os::color> (os::color c) {
-      return bw_pixel(c != gui::color::black);
-    }
-
-    template<>
-    inline byte get_gray<os::color> (os::color c) {
+    inline byte get_gray (os::color c) {
       return gui::color::calc_medium_gray(c);
     }
 
-    template<>
-    inline byte get_red<os::color> (os::color c) {
-      return gui::color::get_red(c);
+    inline byte get_gray (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(static_cast<bw_pixel>(p));
     }
 
-    template<>
-    inline byte get_green<os::color> (os::color c) {
-      return gui::color::get_green(c);
+        // --------------------------------------------------------------------------
+    template<typename T>
+    inline typename std::enable_if<is_rgb_type<T>::value, bw_pixel>::type get_bw (T p) {
+      return get_gray(p) == 0 ? bw_pixel::black : bw_pixel::white;
     }
 
-    template<>
-    inline byte get_blue<os::color> (os::color c) {
-      return gui::color::get_blue(c);
-    }
-
-    template<>
-    inline byte get_alpha<os::color> (os::color c) {
-      return gui::color::get_alpha(c);
-    }
-
-    // --------------------------------------------------------------------------
     inline bw_pixel get_bw (bw_pixel p) {
       return p;
     }
 
-    inline byte get_gray (bw_pixel p) {
-#ifdef WIN32
-      return basepp::system_bw_bits::value[static_cast<byte>(p)];
-#else
-      return basepp::system_bw_bits::value[static_cast<bool>(p)];
-#endif
+    inline bw_pixel get_bw (gray_pixel p) {
+      return p.value == 0 ? bw_pixel::black : bw_pixel::white;
     }
 
-    template<>
-    inline byte get_gray<bw_pixel> (bw_pixel p) {
-      return get_gray(p);
+    inline bw_pixel get_bw (os::color c) {
+      return bw_pixel(gui::color::remove_transparency(c) != gui::color::black);
+    }
+
+    inline bw_pixel get_bw (basepp::bit_wrapper<const bw_pixel> p) {
+      return static_cast<bw_pixel>(p);
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_red (T p) {
+      return p.red;
     }
 
     inline byte get_red (bw_pixel p) {
       return get_gray(p);
     }
 
+    inline byte get_red (gray_pixel p) {
+      return p.value;
+    }
+
+    inline byte get_red (os::color c) {
+      return gui::color::get_red(c);
+    }
+
+    inline byte get_red (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_green (T p) {
+      return p.green;
+    }
+
     inline byte get_green (bw_pixel p) {
       return get_gray(p);
+    }
+
+    inline byte get_green (gray_pixel p) {
+      return p.value;
+    }
+
+    inline byte get_green (os::color c) {
+      return gui::color::get_green(c);
+    }
+
+    inline byte get_green (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    inline typename std::enable_if<is_rgb_type<T>::value, byte>::type get_blue (T p) {
+      return p.blue;
     }
 
     inline byte get_blue (bw_pixel p) {
       return get_gray(p);
     }
 
+    inline byte get_blue (gray_pixel p) {
+      return p.value;
+    }
+
+    inline byte get_blue (os::color c) {
+      return gui::color::get_blue(c);
+    }
+
+    inline byte get_blue (basepp::bit_wrapper<const bw_pixel> p) {
+      return get_gray(p);
+    }
+
     // --------------------------------------------------------------------------
-    template<>
-    inline bw_pixel get_bw<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return static_cast<bw_pixel>(p);
+    template<typename T>
+    inline typename std::enable_if<is_alpha_type<T>::value, byte>::type get_alpha (T p) {
+      return p.alpha;
     }
 
-    template<>
-    inline byte get_gray<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return get_gray(static_cast<bw_pixel>(p));
+    template<typename T>
+    inline typename std::enable_if<!is_alpha_type<T>::value, byte>::type get_alpha (T) {
+      return 0;//IF_WIN32_ELSE(0, 255);
     }
 
-    template<>
-    inline byte get_red<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return get_gray(p);
+    inline byte get_alpha (os::color c) {
+      return gui::color::get_alpha(c);
     }
 
-    template<>
-    inline byte get_green<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return get_gray(p);
-    }
-
-    template<>
-    inline byte get_blue<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
-      return get_gray(p);
-    }
-
-    template<>
-    inline byte get_alpha<basepp::bit_wrapper<const bw_pixel>> (basepp::bit_wrapper<const bw_pixel> p) {
+    inline byte get_alpha (basepp::bit_wrapper<const bw_pixel> p) {
       return 0;//IF_WIN32_ELSE(0, 255);
     }
 
@@ -205,25 +202,6 @@ namespace gui {
       return l.value == r.value;
     }
 
-    inline bw_pixel get_bw (gray_pixel p) {
-      return p.value == 0 ? bw_pixel::black : bw_pixel::white;
-    }
-
-    inline byte get_gray (gray_pixel p) {
-      return p.value;
-    }
-
-    inline byte get_red (gray_pixel p) {
-      return p.value;
-    }
-
-    inline byte get_green (gray_pixel p) {
-      return p.value;
-    }
-
-    inline byte get_blue (gray_pixel p) {
-      return p.value;
-    }
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -385,6 +363,30 @@ namespace gui {
   } // namespace pixel
 
   namespace draw {
+
+    // --------------------------------------------------------------------------
+    template<typename S>
+    struct to_pixel<PixelFormat::BW, S> {
+      static pixel::bw_pixel to (S s) {
+        return pixel::get_bw(s);
+      }
+    };
+
+    template<typename S>
+    struct to_pixel<PixelFormat::GRAY, S> {
+      static pixel::gray_pixel to (S s) {
+        return pixel::gray_pixel{pixel::get_gray(s)};
+      }
+    };
+
+    template<typename S>
+    struct to_pixel<PixelFormat::RGB, S> {
+      static pixel::rgb_pixel to (S s) {
+        pixel::rgb_pixel p;
+        p = pixel::get_color(s);
+        return p;
+      }
+    };
 
     // --------------------------------------------------------------------------
     template<PixelFormat T>

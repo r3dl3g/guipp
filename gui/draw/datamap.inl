@@ -143,8 +143,7 @@ namespace gui {
         return;
       }
 
-      convert::copy::sub<T>(src_img.get_data(), get_data(),
-                            src.position(), dest);
+      convert::copy::sub<T>(src_img.get_data(), get_data(), src.position(), dest);
     }
 
     template<PixelFormat T>

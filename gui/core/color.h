@@ -224,7 +224,7 @@ namespace gui {
     }
 
     constexpr os::color remove_transparency (os::color c) {
-      return (c | ~mask<part::alpha>::value);
+      return (c & ~mask<part::alpha>::value);
     }
 
     constexpr os::color add_transparency (os::color c, float faktor) {

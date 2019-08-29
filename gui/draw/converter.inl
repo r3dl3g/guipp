@@ -1,5 +1,5 @@
 /**
- * @copyright (c) 2016-2017 Ing. Buero Rothfuss
+ * @copyright (c) 2016-2019 Ing. Buero Rothfuss
  *                          Riedlinger Str. 8
  *                          70327 Stuttgart
  *                          Germany
@@ -178,28 +178,7 @@ namespace gui {
     template<PixelFormat F>
     struct stretch<F, interpolation::bilinear> {
 
-      static void row (const typename draw::const_image_data<F>::row_type src0,
-                       const typename draw::const_image_data<F>::row_type src1,
-                       typename draw::image_data<F>::row_type dst,
-                       const bilinear::constants& c,
-                       const bilinear::param& py) {
-
-        using type = typename draw::const_image_data<F>::pixel_type;
-
-        for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
-
-          const bilinear::param px = c.calc_x(x);
-
-          const type p00 = src0[c.src_x0 + px.v0];
-          const type p01 = src0[c.src_x0 + px.v1];
-          const type p10 = src1[c.src_x0 + px.v0];
-          const type p11 = src1[c.src_x0 + px.v1];
-
-          const auto r = bilinear::interpolation(p00, p01, p10, p11, px.w, py.w);
-
-          dst[c.dest_x0 + x] = r;
-        }
-      }
+      using type = typename draw::const_image_data<F>::pixel_type;
 
       static void sub (const typename draw::const_image_data<F> src_data,
                        draw::image_data<F> dest_data,
@@ -214,9 +193,159 @@ namespace gui {
 
           const auto src0 = src_data.row(c.src_y0 + py.v0);
           const auto src1 = src_data.row(c.src_y0 + py.v1);
-          const auto dst = dest_data.row(c.dest_y0 + y);
 
-          row(src0, src1, dst, c, py);
+          auto dst = dest_data.row(c.dest_y0 + y);
+
+          for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
+            const bilinear::param px = c.calc_x(x);
+            const auto r = bilinear::interpolation<type>(src0[c.src_x0 + px.v0],
+                                                         src0[c.src_x0 + px.v1],
+                                                         src1[c.src_x0 + px.v0],
+                                                         src1[c.src_x0 + px.v1],
+                                                         px.w, py.w);
+            dst[c.dest_x0 + x] = r;
+          }
+
+        }
+      }
+
+    }; // struct stretch
+
+    // --------------------------------------------------------------------------
+    namespace bicubic {
+
+      struct weights {
+        const double w0;
+        const double w1;
+        const double w2;
+        const double w3;
+
+        weights (double v);
+
+      private:
+        static weights create (double v);
+
+        weights (double, double, double, double);
+
+      };
+
+      struct param {
+        const uint32_t v0;
+        const uint32_t v1;
+        const uint32_t v2;
+        const uint32_t v3;
+        const weights w;
+
+        param (uint32_t v, double scale, uint32_t max);
+
+      private:
+        static param create (uint32_t v, double scale, uint32_t max);
+
+        param (uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, weights&& w);
+
+      };
+
+      struct constants {
+        const uint32_t src_w;
+        const uint32_t src_h;
+        const uint32_t dest_w;
+        const uint32_t dest_h;
+        const uint32_t src_x0;
+        const uint32_t src_y0;
+        const uint32_t dest_x0;
+        const uint32_t dest_y0;
+        const double scale_y;
+        const double scale_x;
+
+        constants (const core::native_rect& src, const core::native_rect& dest);
+
+        param calc_y (uint32_t y) const;
+
+        param calc_x (uint32_t x) const;
+
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      const T summation (const basepp::array_wrapper<const T> src,
+                         const bicubic::param px,
+                         const double f) {
+        return src[px.v0] * px.w.w0 * f +
+            src[px.v1] * px.w.w1 * f +
+            src[px.v2] * px.w.w2 * f +
+            src[px.v3] * px.w.w3 * f;
+      }
+      // --------------------------------------------------------------------------
+      template<typename T>
+      const T interpolation (const basepp::array_wrapper<const T> src0,
+                             const basepp::array_wrapper<const T> src1,
+                             const basepp::array_wrapper<const T> src2,
+                             const basepp::array_wrapper<const T> src3,
+                             const bicubic::param px,
+                             const bicubic::param py) {
+        return {summation(src0, px, py.w.w0)
+              + summation(src1, px, py.w.w1)
+              + summation(src2, px, py.w.w2)
+              + summation(src3, px, py.w.w3)};
+      }
+
+      // --------------------------------------------------------------------------
+      template<>
+      const pixel::gray_pixel interpolation<const pixel::gray_pixel> (const basepp::array_wrapper<const pixel::gray_pixel> src0,
+                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src1,
+                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src2,
+                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src3,
+                                                                      const bicubic::param px,
+                                                                      const bicubic::param py);
+
+      // --------------------------------------------------------------------------
+      template<>
+      const pixel::rgb_pixel interpolation<const pixel::rgb_pixel> (const basepp::array_wrapper<const pixel::rgb_pixel> src0,
+                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src1,
+                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src2,
+                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src3,
+                                                                    const bicubic::param px,
+                                                                    const bicubic::param py);
+
+      // --------------------------------------------------------------------------
+      template<>
+      const pixel::rgba_pixel interpolation<const pixel::rgba_pixel> (const basepp::array_wrapper<const pixel::rgba_pixel> src0,
+                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src1,
+                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src2,
+                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src3,
+                                                                      const bicubic::param px,
+                                                                      const bicubic::param py);
+
+    } // namespace bicubic
+
+    // --------------------------------------------------------------------------
+    template<PixelFormat F>
+    struct stretch<F, interpolation::bicubic> {
+
+      static void sub (const typename draw::const_image_data<F> src_data,
+                       draw::image_data<F> dest_data,
+                       const core::native_rect& src,
+                       const core::native_rect& dest) {
+
+        using type = typename draw::const_image_data<F>::pixel_type;
+        const bicubic::constants c(src, dest);
+
+        for (uint_fast32_t y = 0; y < c.dest_h; ++y) {
+
+          const bicubic::param py = c.calc_y(y);
+
+          const auto src0 = src_data.row(c.src_y0 + py.v0).sub(c.src_x0, c.src_w);
+          const auto src1 = src_data.row(c.src_y0 + py.v1).sub(c.src_x0, c.src_w);
+          const auto src2 = src_data.row(c.src_y0 + py.v2).sub(c.src_x0, c.src_w);
+          const auto src3 = src_data.row(c.src_y0 + py.v3).sub(c.src_x0, c.src_w);
+
+          auto dst = dest_data.row(c.dest_y0 + y);
+
+          for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
+            const bicubic::param px = c.calc_x(x);
+            const auto r = bicubic::interpolation<const type>(src0, src1, src2, src3, px, py);
+            dst[c.dest_x0 + x] = r;
+          }
 
         }
       }

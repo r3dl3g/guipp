@@ -33,6 +33,10 @@ namespace basepp {
     inline array_wrapper (std::vector<type>& data)
       : super(data)
     {}
+
+    inline array_wrapper<gui::pixel::bw_pixel> sub (size_t offset, size_t n) {
+      return array_wrapper<gui::pixel::bw_pixel>(data_ + offset / 8, n);
+    }
   };
 
   template<>
@@ -47,6 +51,10 @@ namespace basepp {
     inline array_wrapper (const std::vector<type>& data)
       : super(data)
     {}
+
+    inline array_wrapper<const gui::pixel::bw_pixel> sub (size_t offset, size_t n) const {
+      return array_wrapper<gui::pixel::bw_pixel const>(data_ + offset / 8, n);
+    }
   };
 
 } // namespace basepp
@@ -357,6 +365,27 @@ namespace gui {
     }
 
     inline rgba_pixel operator* (rgba_pixel p, float f) {
+      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
+    }
+
+    // --------------------------------------------------------------------------
+    inline bw_pixel operator* (float f, bw_pixel p) {
+      return f == 0 ? bw_pixel::black : p;
+    }
+
+    inline byte pixel_mul (float f, byte p) {
+      return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
+    }
+
+    inline gray_pixel operator* (float f, gray_pixel p) {
+      return {pixel_mul(p.value, f)};
+    }
+
+    inline rgb_pixel operator* (float f, rgb_pixel p) {
+      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f)};
+    }
+
+    inline rgba_pixel operator* (float f, rgba_pixel p) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
 

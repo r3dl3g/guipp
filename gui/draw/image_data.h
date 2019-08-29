@@ -358,6 +358,22 @@ namespace gui {
       return px;
     }
 
+    // --------------------------------------------------------------------------
+    bw_pixel operator* (bw_pixel p, float f);
+    byte pixel_mul (byte p, float f);
+    gray_pixel operator* (gray_pixel p, float f);
+    rgb_pixel operator* (rgb_pixel p, float f);
+    rgba_pixel operator* (rgba_pixel p, float f);
+
+    // --------------------------------------------------------------------------
+    bw_pixel operator* (float f, bw_pixel p);
+    byte pixel_mul (float f, byte p);
+    gray_pixel operator* (float f, gray_pixel p);
+    rgb_pixel operator* (float f, rgb_pixel p);
+    rgba_pixel operator* (float f, rgba_pixel p);
+
+    // --------------------------------------------------------------------------
+
   } // namespace pixel
 
   namespace draw {

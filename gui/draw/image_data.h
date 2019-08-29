@@ -72,8 +72,9 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     struct gray_pixel {
+      typedef byte type;
 
-      byte value;
+      type value;
 
       template<typename T>
       static gray_pixel build(T t);
@@ -113,7 +114,6 @@ namespace gui {
     bool operator== (const rgb_pixel&, const rgb_pixel&);
 
     GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
-    GUIPP_DRAW_EXPORT rgb_pixel operator+ (const rgb_pixel&, const rgb_pixel&);
 
     template<> struct is_rgb_type<rgb_pixel> : public std::true_type {};
 
@@ -142,7 +142,6 @@ namespace gui {
     bool operator== (const rgba_pixel&, const rgba_pixel&);
 
     GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
-    GUIPP_DRAW_EXPORT rgba_pixel operator+ (const rgba_pixel&, const rgba_pixel&);
 
     template<> struct is_rgb_type<rgba_pixel> : public std::true_type {};
     template<> struct is_alpha_type<rgba_pixel> : public std::true_type {};
@@ -275,6 +274,59 @@ namespace gui {
       static constexpr abgr_pixel black = {0, 0, 0, 0};
       static constexpr abgr_pixel white = {0, 0xff, 0xff, 0xff};
     };
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
+    inline T make_pixel_from_rgb (byte r, byte g, byte b) {
+      return T{r, g, b};
+    }
+
+    template<typename T, typename std::enable_if<is_alpha_type<T>::value>::type* = nullptr>
+    inline T make_pixel_from_rgba (byte r, byte g, byte b, byte a) {
+      return T{r, g, b, a};
+    }
+
+    // --------------------------------------------------------------------------
+    template<>
+    inline rgb_pixel make_pixel_from_rgb<rgb_pixel> (byte r, byte g, byte b) {
+      return rgb_pixel{b, g, r};
+    }
+
+    template<>
+    inline bgr_pixel make_pixel_from_rgb<bgr_pixel> (byte r, byte g, byte b) {
+      return bgr_pixel{r, g, b};
+    }
+
+    template<>
+    inline bgra_pixel make_pixel_from_rgba<bgra_pixel> (byte r, byte g, byte b, byte a) {
+      return bgra_pixel{r, g, b, a};
+    }
+
+    template<>
+    inline rgba_pixel make_pixel_from_rgba<rgba_pixel> (byte r, byte g, byte b, byte a) {
+      return rgba_pixel{b, g, r, a};
+    }
+
+    template<>
+    inline argb_pixel make_pixel_from_rgba<argb_pixel> (byte r, byte g, byte b, byte a) {
+      return argb_pixel{a, b, g, r};
+    }
+
+    template<>
+    inline abgr_pixel make_pixel_from_rgba<abgr_pixel> (byte r, byte g, byte b, byte a) {
+      return abgr_pixel{a, r, g, b};
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
+    inline T operator+ (const T& lhs, const T& rhs) {
+      return make_pixel_from_rgb<T>(lhs.red + rhs.red, lhs.green + rhs.green, lhs.blue + rhs.blue);
+    }
+
+    template<typename T, typename std::enable_if<is_alpha_type<T>::value>::type* = nullptr>
+    inline T operator+ (const T& lhs, const T& rhs) {
+      return make_pixel_from_rgba<T>(lhs.red + rhs.red, lhs.green + rhs.green, lhs.blue + rhs.blue, lhs.alpha + rhs.alpha);
+    }
 
 #pragma pack(pop)
     // --------------------------------------------------------------------------

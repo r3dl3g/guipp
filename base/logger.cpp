@@ -275,6 +275,11 @@ namespace basepp {
       return *this;
     }
 
+    recorder& recorder::endl () {
+      m_buffer << std::endl;
+      return *this;
+    }
+
     // ---------------------------------------------------------------------------
     void rename_file_with_max_count (const std::string& name,
                                      int num,

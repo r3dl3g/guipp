@@ -158,7 +158,7 @@ namespace testing {
             break;
         }
       }
-      out << ']';
+      out << ']' << std::endl;
     }
     out << ']';
     return out;
@@ -184,7 +184,7 @@ namespace testing {
         }
         out << (int)v;
       }
-      out << ']';
+      out << ']' << std::endl;
     }
     out << ']';
     return out;

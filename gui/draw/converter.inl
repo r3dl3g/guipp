@@ -94,8 +94,10 @@ namespace gui {
                        typename draw::image_data<F>::row_type dst,
                        uint32_t src_x0, uint32_t dest_x0,
                        uint32_t src_w, uint32_t dest_w) {
+        const double scale_x = static_cast<double>(src_w) / static_cast<double>(dest_w);
         for (uint_fast32_t x = 0; x < dest_w; ++x) {
-          const uint32_t src_x = (x * src_w / dest_w);
+          const double fx = (x + 0.5) * scale_x;
+          const uint32_t src_x = std::min(src_w - 1, static_cast<uint32_t>(fx));
           dst[dest_x0 + x] = src[src_x0 + src_x];
         }
       }
@@ -104,11 +106,118 @@ namespace gui {
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
                        const core::native_rect& dest) {
-        for (uint_fast32_t y = 0; y < dest.height(); ++y) {
-          const uint32_t src_y = y * src.height() / dest.height();
+        const uint32_t src_h = src.height();
+        const uint32_t dest_h = dest.height();
+        const double scale_y = static_cast<double>(src_h) / static_cast<double>(dest_h);
+        for (uint_fast32_t y = 0; y < dest_h; ++y) {
+          const double fy = (y + 0.5) * scale_y;
+          const uint32_t src_y = std::min(src_h - 1, static_cast<uint32_t>(fy));
           row(src_data.row(src.y() + src_y),
               dest_data.row(dest.y() + y),
               src.x(), dest.x(), src.width(), dest.width());
+        }
+      }
+
+    }; // struct stretch
+
+    // --------------------------------------------------------------------------
+    namespace bilinear {
+
+      struct weights {
+        const double w0;
+        const double w1;
+
+        weights (double v, uint32_t v0);
+
+      };
+
+      struct param {
+        const uint32_t v0;
+        const uint32_t v1;
+        const weights w;
+
+        param (uint32_t v, double scale, uint32_t max);
+
+      private:
+        static param create (uint32_t v, double scale, uint32_t max);
+
+        param (uint32_t v0, uint32_t v1, weights&& w);
+
+      };
+
+      struct constants {
+        const uint32_t src_w;
+        const uint32_t src_h;
+        const uint32_t dest_w;
+        const uint32_t dest_h;
+        const uint32_t src_x0;
+        const uint32_t src_y0;
+        const uint32_t dest_x0;
+        const uint32_t dest_y0;
+        const double scale_y;
+        const double scale_x;
+
+        constants (const core::native_rect& src, const core::native_rect& dest);
+
+        param calc_y (uint32_t y) const;
+
+        param calc_x (uint32_t x) const;
+
+      };
+
+      // --------------------------------------------------------------------------
+      template<typename T>
+      T interpolation(const T p00, const T p01, const T p10, const T p11,
+                      const bilinear::weights& wx, const bilinear::weights& wy) {
+        return {(p00 * wx.w0 + p01 * wx.w1) * wy.w0 + (p10 * wx.w0 + p11 * wx.w1) * wy.w1};
+      }
+
+    } // namespace bilinear
+
+    // --------------------------------------------------------------------------
+    template<PixelFormat F>
+    struct stretch<F, interpolation::bilinear> {
+
+      static void row (const typename draw::const_image_data<F>::row_type src0,
+                       const typename draw::const_image_data<F>::row_type src1,
+                       typename draw::image_data<F>::row_type dst,
+                       const bilinear::constants& c,
+                       const bilinear::param& py) {
+
+        using type = typename draw::const_image_data<F>::pixel_type;
+
+        for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
+
+          const bilinear::param px = c.calc_x(x);
+
+          const type p00 = src0[c.src_x0 + px.v0];
+          const type p01 = src0[c.src_x0 + px.v1];
+          const type p10 = src1[c.src_x0 + px.v0];
+          const type p11 = src1[c.src_x0 + px.v1];
+
+          const auto r = bilinear::interpolation(p00, p01, p10, p11, px.w, py.w);
+
+          dst[c.dest_x0 + x] = r;
+        }
+      }
+
+      static void sub (const typename draw::const_image_data<F> src_data,
+                       draw::image_data<F> dest_data,
+                       const core::native_rect& src,
+                       const core::native_rect& dest) {
+
+        const bilinear::constants c(src, dest);
+
+        for (uint_fast32_t y = 0; y < c.dest_h; ++y) {
+
+          const bilinear::param py = c.calc_y(y);
+
+          const auto src0 = src_data.row(c.src_y0 + py.v0);
+          const auto src1 = src_data.row(c.src_y0 + py.v1);
+          const auto dst = dest_data.row(c.dest_y0 + y);
+
+          row(src0, src1, dst, c, py);
+
         }
       }
 
@@ -120,69 +229,6 @@ namespace gui {
                                     draw::image_data<F> dest) {
       sub(src, dest, {0, 0, src.width(), src.hright()}, {0, 0, dest.width(), dest.hright()});
     }
-
-    // --------------------------------------------------------------------------
-    template<PixelFormat F>
-    struct stretch<F, interpolation::bilinear> {
-
-      static void row (const typename draw::const_image_data<F>::row_type src0,
-                       const typename draw::const_image_data<F>::row_type src1,
-                       typename draw::image_data<F>::row_type dst,
-                       const uint32_t src_x0, const uint32_t src_w,
-                       const uint32_t dest_x0, const uint32_t dest_w,
-                       const double scale_x,
-                       const double weight_y_0, const double weight_y_1) {
-        for (uint_fast32_t dest_x = 0; dest_x < dest_w; ++dest_x) {
-          const double x = static_cast<double>(dest_x) * scale_x;
-          const uint32_t x0 = static_cast<uint32_t>(std::floor(x));
-          const uint32_t x1 = std::min(x0 + 1, src_w - 1);
-          const double weight_x_1 = fabs(x - x0);
-          const double weight_x_0 = 1.0 - weight_x_1;
-          const auto p00 = src0[src_x0 + x0];
-          const auto p01 = src0[src_x0 + x1];
-          const auto p10 = src1[src_x0 + x0];
-          const auto p11 = src1[src_x0 + x1];
-
-          const auto p0 = p00 * weight_x_0 + p01 * weight_x_1;
-          const auto p1 = p10 * weight_x_0 + p11 * weight_x_1;
-
-          const auto p = p0 * weight_y_0 + p1 * weight_y_1;
-
-          dst[dest_x0 + dest_x] = p;
-        }
-      }
-
-      static void sub (const typename draw::const_image_data<F> src_data,
-                       draw::image_data<F> dest_data,
-                       const core::native_rect& src,
-                       const core::native_rect& dest) {
-        const uint32_t src_w = src.width();
-        const uint32_t src_h = src.height();
-        const uint32_t dest_w = dest.width();
-        const uint32_t dest_h = dest.height();
-        const uint32_t src_x0 = src.x();
-        const uint32_t src_y0 = src.y();
-        const uint32_t dest_x0 = dest.x();
-        const uint32_t dest_y0 = dest.y();
-        const double scale_x = static_cast<double>(src_w) / static_cast<double>(dest_w);
-        const double scale_y = static_cast<double>(src_h) / static_cast<double>(dest_h);
-        for (uint_fast32_t dest_y = 0; dest_y < dest_h; ++dest_y) {
-          const double y = static_cast<double>(dest_y) * scale_y;
-          const uint32_t y0 = static_cast<uint32_t>(std::floor(y));
-          const uint32_t y1 = std::min(y0 + 1, src_h - 1);
-          const double weight_y_1 = abs(y - y0);
-          const double weight_y_0 = 1.0 - weight_y_1;
-
-          const auto src0 = src_data.row(src_y0 + y0);
-          const auto src1 = src_data.row(src_y0 + y1);
-          const auto dst = dest_data.row(dest_y0 + dest_y);
-
-          row (src0, src1, dst, src_x0, src_w, dest_x0, dest_w, scale_x, weight_y_0, weight_y_1);
-
-        }
-      }
-
-    }; // struct stretch
 
     namespace brightness {
 

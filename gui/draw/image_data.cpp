@@ -53,7 +53,7 @@ namespace gui {
     }
 
     gray_pixel operator+ (const gray_pixel& lhs, const gray_pixel& rhs) {
-      return gray_pixel{lhs.value/2 + rhs.value/2};
+      return gray_pixel{static_cast<gray_pixel::type>(lhs.value + rhs.value)};
     }
 
     constexpr gray_pixel color<gray_pixel>::black;
@@ -67,10 +67,6 @@ namespace gui {
       return out;
     }
 
-    rgb_pixel operator+ (const rgb_pixel& lhs, const rgb_pixel& rhs) {
-      return rgb_pixel{lhs.blue/2+ rhs.blue/2, lhs.green/2 + rhs.green/2, lhs.red/2 + rhs.red/2};
-    }
-
     constexpr rgb_pixel color<rgb_pixel>::black;
     constexpr rgb_pixel color<rgb_pixel>::white;
 
@@ -81,10 +77,6 @@ namespace gui {
         << ", b:" << static_cast<int>(px.blue)
         << ", a:" << static_cast<int>(px.alpha);
       return out;
-    }
-
-    rgba_pixel operator+ (const rgba_pixel& lhs, const rgba_pixel& rhs) {
-      return rgba_pixel{lhs.blue/2+ rhs.blue/2, lhs.green/2 + rhs.green/2, lhs.red/2 + rhs.red/2, lhs.alpha/2 + rhs.alpha/2};
     }
 
     constexpr rgba_pixel color<rgba_pixel>::black;

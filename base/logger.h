@@ -209,6 +209,8 @@ namespace basepp {
       recorder& operator<< (const char* value);
       recorder& operator<< (const std::string& value);
 
+      recorder& endl ();
+
       operator std::ostream& ();
 
     private:

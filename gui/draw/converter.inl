@@ -271,28 +271,28 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      const pixel::gray_pixel interpolation<const pixel::gray_pixel> (const basepp::array_wrapper<const pixel::gray_pixel> src0,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src1,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src2,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src3,
+      const pixel::gray interpolation<const pixel::gray> (const basepp::array_wrapper<const pixel::gray> src0,
+                                                                      const basepp::array_wrapper<const pixel::gray> src1,
+                                                                      const basepp::array_wrapper<const pixel::gray> src2,
+                                                                      const basepp::array_wrapper<const pixel::gray> src3,
                                                                       const bicubic::param px,
                                                                       const bicubic::param py);
 
       // --------------------------------------------------------------------------
       template<>
-      const pixel::rgb_pixel interpolation<const pixel::rgb_pixel> (const basepp::array_wrapper<const pixel::rgb_pixel> src0,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src1,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src2,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src3,
+      const pixel::rgb interpolation<const pixel::rgb> (const basepp::array_wrapper<const pixel::rgb> src0,
+                                                                    const basepp::array_wrapper<const pixel::rgb> src1,
+                                                                    const basepp::array_wrapper<const pixel::rgb> src2,
+                                                                    const basepp::array_wrapper<const pixel::rgb> src3,
                                                                     const bicubic::param px,
                                                                     const bicubic::param py);
 
       // --------------------------------------------------------------------------
       template<>
-      const pixel::rgba_pixel interpolation<const pixel::rgba_pixel> (const basepp::array_wrapper<const pixel::rgba_pixel> src0,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src1,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src2,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src3,
+      const pixel::rgba interpolation<const pixel::rgba> (const basepp::array_wrapper<const pixel::rgba> src0,
+                                                                      const basepp::array_wrapper<const pixel::rgba> src1,
+                                                                      const basepp::array_wrapper<const pixel::rgba> src2,
+                                                                      const basepp::array_wrapper<const pixel::rgba> src3,
                                                                       const bicubic::param px,
                                                                       const bicubic::param py);
 

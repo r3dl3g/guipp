@@ -129,7 +129,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T = float>
-      T summation (const basepp::array_wrapper<const pixel::gray_pixel> src,
+      T summation (const basepp::array_wrapper<const pixel::gray> src,
                         const bicubic::param px) {
         return static_cast<T>(src[px.v0].value) * px.w.w0 +
                static_cast<T>(src[px.v1].value) * px.w.w1 +
@@ -138,10 +138,10 @@ namespace gui {
       }
 
       template<>
-      const pixel::gray_pixel interpolation<const pixel::gray_pixel> (const basepp::array_wrapper<const pixel::gray_pixel> src0,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src1,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src2,
-                                                                      const basepp::array_wrapper<const pixel::gray_pixel> src3,
+      const pixel::gray interpolation<const pixel::gray> (const basepp::array_wrapper<const pixel::gray> src0,
+                                                                      const basepp::array_wrapper<const pixel::gray> src1,
+                                                                      const basepp::array_wrapper<const pixel::gray> src2,
+                                                                      const basepp::array_wrapper<const pixel::gray> src3,
                                                                       const bicubic::param px,
                                                                       const bicubic::param py) {
         const auto sum = summation(src0, px) * py.w.w0 +
@@ -152,72 +152,25 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      template<typename T = float>
-      struct rgb_t {
-        T blue;
-        T green;
-        T red;
-
-        template<typename V>
-        inline rgb_t (const V& rhs)
-          : blue(rhs.blue)
-          , green(rhs.green)
-          , red(rhs.red)
-        {}
-
-        inline rgb_t (T b, T g, T r)
-          : blue(b)
-          , green(g)
-          , red(r)
-        {}
-
-        inline rgb_t operator* (T f) const {
-          return {blue * f, green * f, red * f};
-        }
-
-        inline rgb_t operator+ (const rgb_t& rhs) const {
-          return {blue + rhs.blue, green + rhs.green, red + rhs.red};
-        }
-
-        template<typename U,
-                 typename std::enable_if<pixel::is_rgb_type<U>::value &&
-                                         !pixel::is_alpha_type<U>::value>::type* = nullptr>
-        operator U () const {
-          return pixel::make_pixel_from_rgb<U>(static_cast<byte>(std::min(red, T(255))),
-                                               static_cast<byte>(std::min(green, T(255))),
-                                               static_cast<byte>(std::min(blue, T(255))));
-        }
-
-        template<typename U,
-                 typename std::enable_if<pixel::is_alpha_type<U>::value>::type* = nullptr>
-        operator U () const {
-          return pixel::make_pixel_from_rgba<U>(static_cast<byte>(std::min(red, T(255))),
-                                                static_cast<byte>(std::min(green, T(255))),
-                                                static_cast<byte>(std::min(blue, T(255))),
-                                                0);
-        }
-
-      };
-
-      // --------------------------------------------------------------------------
       template<typename T>
-      rgb_t<float> summation (const basepp::array_wrapper<const T> src,
+      pixel::rgb_t<float> summation (const basepp::array_wrapper<const T> src,
                        const bicubic::param px) {
+        using namespace pixel;
         rgb_t<float> r = rgb_t<float>(src[px.v0]) * px.w.w0 +
-                       rgb_t<float>(src[px.v1]) * px.w.w1 +
-                       rgb_t<float>(src[px.v2]) * px.w.w2 +
-                       rgb_t<float>(src[px.v3]) * px.w.w3;
+                         rgb_t<float>(src[px.v1]) * px.w.w1 +
+                         rgb_t<float>(src[px.v2]) * px.w.w2 +
+                         rgb_t<float>(src[px.v3]) * px.w.w3;
         return r;
       }
 
       // --------------------------------------------------------------------------
       template<>
-      const pixel::rgb_pixel interpolation<const pixel::rgb_pixel> (const basepp::array_wrapper<const pixel::rgb_pixel> src0,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src1,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src2,
-                                                                    const basepp::array_wrapper<const pixel::rgb_pixel> src3,
-                                                                    const bicubic::param px,
-                                                                    const bicubic::param py) {
+      const pixel::rgb interpolation<const pixel::rgb> (const basepp::array_wrapper<const pixel::rgb> src0,
+                                                        const basepp::array_wrapper<const pixel::rgb> src1,
+                                                        const basepp::array_wrapper<const pixel::rgb> src2,
+                                                        const basepp::array_wrapper<const pixel::rgb> src3,
+                                                        const bicubic::param px,
+                                                        const bicubic::param py) {
         const auto sum = summation(src0, px) * py.w.w0 +
                          summation(src1, px) * py.w.w1 +
                          summation(src2, px) * py.w.w2 +
@@ -227,12 +180,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      const pixel::rgba_pixel interpolation<const pixel::rgba_pixel> (const basepp::array_wrapper<const pixel::rgba_pixel> src0,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src1,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src2,
-                                                                      const basepp::array_wrapper<const pixel::rgba_pixel> src3,
-                                                                      const bicubic::param px,
-                                                                      const bicubic::param py) {
+      const pixel::rgba interpolation<const pixel::rgba> (const basepp::array_wrapper<const pixel::rgba> src0,
+                                                          const basepp::array_wrapper<const pixel::rgba> src1,
+                                                          const basepp::array_wrapper<const pixel::rgba> src2,
+                                                          const basepp::array_wrapper<const pixel::rgba> src3,
+                                                          const bicubic::param px,
+                                                          const bicubic::param py) {
         const auto sum = summation(src0, px) * py.w.w0 +
                          summation(src1, px) * py.w.w1 +
                          summation(src2, px) * py.w.w2 +

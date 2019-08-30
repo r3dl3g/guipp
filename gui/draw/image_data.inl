@@ -22,8 +22,8 @@
 namespace basepp {
 
   template<>
-  struct array_wrapper<gui::pixel::bw_pixel> : public bit_array_wrapper<gui::pixel::bw_pixel> {
-    typedef bit_array_wrapper<gui::pixel::bw_pixel> super;
+  struct array_wrapper<gui::pixel::mono> : public bit_array_wrapper<gui::pixel::mono> {
+    typedef bit_array_wrapper<gui::pixel::mono> super;
     typedef super::type type;
 
     inline array_wrapper (type* data, size_t size)
@@ -34,14 +34,14 @@ namespace basepp {
       : super(data)
     {}
 
-    inline array_wrapper<gui::pixel::bw_pixel> sub (size_t offset, size_t n) {
-      return array_wrapper<gui::pixel::bw_pixel>(data_ + offset / 8, n);
+    inline array_wrapper<gui::pixel::mono> sub (size_t offset, size_t n) {
+      return array_wrapper<gui::pixel::mono>(data_ + offset / 8, n);
     }
   };
 
   template<>
-  struct array_wrapper<gui::pixel::bw_pixel const> : public bit_array_wrapper<gui::pixel::bw_pixel const> {
-    typedef bit_array_wrapper<gui::pixel::bw_pixel const> super;
+  struct array_wrapper<gui::pixel::mono const> : public bit_array_wrapper<gui::pixel::mono const> {
+    typedef bit_array_wrapper<gui::pixel::mono const> super;
     typedef super::type type;
 
     inline array_wrapper (const type* data, size_t size)
@@ -52,8 +52,8 @@ namespace basepp {
       : super(data)
     {}
 
-    inline array_wrapper<const gui::pixel::bw_pixel> sub (size_t offset, size_t n) const {
-      return array_wrapper<gui::pixel::bw_pixel const>(data_ + offset / 8, n);
+    inline array_wrapper<const gui::pixel::mono> sub (size_t offset, size_t n) const {
+      return array_wrapper<gui::pixel::mono const>(data_ + offset / 8, n);
     }
   };
 
@@ -70,11 +70,11 @@ namespace gui {
                                 static_cast<uint16_t>(p.blue)) / 3);
     }
 
-    inline byte get_gray (bw_pixel p) {
+    inline byte get_gray (mono p) {
       return basepp::system_bw_bits::value[static_cast<byte>(p)];
     }
 
-    inline byte get_gray (gray_pixel p) {
+    inline byte get_gray (gray p) {
       return p.value;
     }
 
@@ -82,30 +82,30 @@ namespace gui {
       return gui::color::calc_medium_gray(c);
     }
 
-    inline byte get_gray (basepp::bit_wrapper<const bw_pixel> p) {
-      return get_gray(static_cast<bw_pixel>(p));
+    inline byte get_gray (basepp::bit_wrapper<const mono> p) {
+      return get_gray(static_cast<mono>(p));
     }
 
         // --------------------------------------------------------------------------
     template<typename T>
-    inline typename std::enable_if<is_rgb_type<T>::value, bw_pixel>::type get_bw (T p) {
-      return get_gray(p) == 0 ? bw_pixel::black : bw_pixel::white;
+    inline typename std::enable_if<is_rgb_type<T>::value, mono>::type get_bw (T p) {
+      return get_gray(p) == 0 ? mono::black : mono::white;
     }
 
-    inline bw_pixel get_bw (bw_pixel p) {
+    inline mono get_bw (mono p) {
       return p;
     }
 
-    inline bw_pixel get_bw (gray_pixel p) {
-      return p.value == 0 ? bw_pixel::black : bw_pixel::white;
+    inline mono get_bw (gray p) {
+      return p.value == 0 ? mono::black : mono::white;
     }
 
-    inline bw_pixel get_bw (os::color c) {
-      return bw_pixel(gui::color::remove_transparency(c) != gui::color::black);
+    inline mono get_bw (os::color c) {
+      return mono(gui::color::remove_transparency(c) != gui::color::black);
     }
 
-    inline bw_pixel get_bw (basepp::bit_wrapper<const bw_pixel> p) {
-      return static_cast<bw_pixel>(p);
+    inline mono get_bw (basepp::bit_wrapper<const mono> p) {
+      return static_cast<mono>(p);
     }
 
     // --------------------------------------------------------------------------
@@ -114,11 +114,11 @@ namespace gui {
       return p.red;
     }
 
-    inline byte get_red (bw_pixel p) {
+    inline byte get_red (mono p) {
       return get_gray(p);
     }
 
-    inline byte get_red (gray_pixel p) {
+    inline byte get_red (gray p) {
       return p.value;
     }
 
@@ -126,7 +126,7 @@ namespace gui {
       return gui::color::get_red(c);
     }
 
-    inline byte get_red (basepp::bit_wrapper<const bw_pixel> p) {
+    inline byte get_red (basepp::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -136,11 +136,11 @@ namespace gui {
       return p.green;
     }
 
-    inline byte get_green (bw_pixel p) {
+    inline byte get_green (mono p) {
       return get_gray(p);
     }
 
-    inline byte get_green (gray_pixel p) {
+    inline byte get_green (gray p) {
       return p.value;
     }
 
@@ -148,7 +148,7 @@ namespace gui {
       return gui::color::get_green(c);
     }
 
-    inline byte get_green (basepp::bit_wrapper<const bw_pixel> p) {
+    inline byte get_green (basepp::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -158,11 +158,11 @@ namespace gui {
       return p.blue;
     }
 
-    inline byte get_blue (bw_pixel p) {
+    inline byte get_blue (mono p) {
       return get_gray(p);
     }
 
-    inline byte get_blue (gray_pixel p) {
+    inline byte get_blue (gray p) {
       return p.value;
     }
 
@@ -170,7 +170,7 @@ namespace gui {
       return gui::color::get_blue(c);
     }
 
-    inline byte get_blue (basepp::bit_wrapper<const bw_pixel> p) {
+    inline byte get_blue (basepp::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -189,38 +189,38 @@ namespace gui {
       return gui::color::get_alpha(c);
     }
 
-    inline byte get_alpha (basepp::bit_wrapper<const bw_pixel> p) {
+    inline byte get_alpha (basepp::bit_wrapper<const mono> p) {
       return 0;//IF_WIN32_ELSE(0, 255);
     }
 
     // --------------------------------------------------------------------------
-    inline bool operator== (const gray_pixel& l, const gray_pixel& r) {
+    inline bool operator== (const gray& l, const gray& r) {
       return l.value == r.value;
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
-    gray_pixel gray_pixel::build(T t) {
-      gray_pixel p;
+    gray gray::build(T t) {
+      gray p;
        p = t;
        return p;
     }
 
     template<typename T>
-    inline void gray_pixel::operator= (T rhs) {
+    inline void gray::operator= (T rhs) {
       value = get_gray(rhs);
     }
 
     // --------------------------------------------------------------------------
     template<typename T>
-    rgb_pixel rgb_pixel::build(T t) {
-      rgb_pixel p;
+    rgb rgb::build(T t) {
+      rgb p;
        p = t;
        return p;
     }
 
     template<typename T>
-    inline void rgb_pixel::operator= (T rhs) {
+    inline void rgb::operator= (T rhs) {
       red = get_red(rhs);
       green = get_green(rhs);
       blue = get_blue(rhs);
@@ -228,45 +228,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    rgba_pixel rgba_pixel::build(T t) {
-      rgba_pixel p;
+    rgba rgba::build(T t) {
+      rgba p;
        p = t;
        return p;
     }
 
     template<typename T>
-    inline void rgba_pixel::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-      alpha = get_alpha(rhs);
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    bgr_pixel bgr_pixel::build(T t) {
-      bgr_pixel p;
-       p = t;
-       return p;
-    }
-
-    template<typename T>
-    inline void bgr_pixel::operator= (T rhs) {
-      red = get_red(rhs);
-      green = get_green(rhs);
-      blue = get_blue(rhs);
-    }
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    bgra_pixel bgra_pixel::build(T t) {
-      bgra_pixel p;
-       p = t;
-       return p;
-    }
-
-    template<typename T>
-    inline void bgra_pixel::operator= (T rhs) {
+    inline void rgba::operator= (T rhs) {
       red = get_red(rhs);
       green = get_green(rhs);
       blue = get_blue(rhs);
@@ -275,14 +244,29 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    argb_pixel argb_pixel::build(T t) {
-      argb_pixel p;
+    bgr bgr::build(T t) {
+      bgr p;
        p = t;
        return p;
     }
 
     template<typename T>
-    inline void argb_pixel::operator= (T rhs) {
+    inline void bgr::operator= (T rhs) {
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+    }
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    bgra bgra::build(T t) {
+      bgra p;
+       p = t;
+       return p;
+    }
+
+    template<typename T>
+    inline void bgra::operator= (T rhs) {
       red = get_red(rhs);
       green = get_green(rhs);
       blue = get_blue(rhs);
@@ -291,14 +275,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename T>
-    abgr_pixel abgr_pixel::build(T t) {
-      abgr_pixel p;
+    argb argb::build(T t) {
+      argb p;
        p = t;
        return p;
     }
 
     template<typename T>
-    inline void abgr_pixel::operator= (T rhs) {
+    inline void argb::operator= (T rhs) {
       red = get_red(rhs);
       green = get_green(rhs);
       blue = get_blue(rhs);
@@ -306,36 +290,52 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline bw_pixel operator* (bw_pixel p, float f) {
-      return f == 0 ? bw_pixel::black : p;
+    template<typename T>
+    abgr abgr::build(T t) {
+      abgr p;
+       p = t;
+       return p;
+    }
+
+    template<typename T>
+    inline void abgr::operator= (T rhs) {
+      red = get_red(rhs);
+      green = get_green(rhs);
+      blue = get_blue(rhs);
+      alpha = get_alpha(rhs);
+    }
+
+    // --------------------------------------------------------------------------
+    inline mono operator* (mono p, float f) {
+      return f == 0 ? mono::black : p;
     }
 
     inline byte pixel_mul (byte p, float f) {
       return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
     }
 
-    inline gray_pixel operator* (gray_pixel p, float f) {
+    inline gray operator* (gray p, float f) {
       return {pixel_mul(p.value, f)};
     }
 
-    inline rgb_pixel operator* (rgb_pixel p, float f) {
+    inline rgb operator* (rgb p, float f) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f)};
     }
 
-    inline rgba_pixel operator* (rgba_pixel p, float f) {
+    inline rgba operator* (rgba p, float f) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
 
     // --------------------------------------------------------------------------
-    inline bw_pixel operator* (float f, bw_pixel p) {
-      return f == 0 ? bw_pixel::black : p;
+    inline mono operator* (float f, mono p) {
+      return f == 0 ? mono::black : p;
     }
 
     inline byte pixel_mul (float f, byte p) {
       return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
     }
 
-    inline gray_pixel operator* (float f, gray_pixel p) {
+    inline gray operator* (float f, gray p) {
       return {pixel_mul(p.value, f)};
     }
 
@@ -346,22 +346,22 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename S>
     struct to_pixel<PixelFormat::BW, S> {
-      static pixel::bw_pixel to (S s) {
+      static pixel::mono to (S s) {
         return pixel::get_bw(s);
       }
     };
 
     template<typename S>
     struct to_pixel<PixelFormat::GRAY, S> {
-      static pixel::gray_pixel to (S s) {
-        return pixel::gray_pixel{pixel::get_gray(s)};
+      static pixel::gray to (S s) {
+        return pixel::gray{pixel::get_gray(s)};
       }
     };
 
     template<typename S>
     struct to_pixel<PixelFormat::RGB, S> {
-      static pixel::rgb_pixel to (S s) {
-        pixel::rgb_pixel p;
+      static pixel::rgb to (S s) {
+        pixel::rgb p;
         p = pixel::get_color(s);
         return p;
       }

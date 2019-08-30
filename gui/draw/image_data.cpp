@@ -34,24 +34,24 @@ namespace gui {
   namespace pixel {
 
     // --------------------------------------------------------------------------
-    std::ostream& operator<< (std::ostream& out, const bw_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const mono& px) {
       out << static_cast<bool>(px);
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const gray_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const gray& px) {
       out << static_cast<int>(px.value);
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const rgb_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const rgb& px) {
       out << "r:" << static_cast<int>(px.red)
           << ", g:" << static_cast<int>(px.green)
           << ", b:" << static_cast<int>(px.blue);
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const rgba_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const rgba& px) {
       out << "r:" << static_cast<int>(px.red)
         << ", g:" << static_cast<int>(px.green)
         << ", b:" << static_cast<int>(px.blue)
@@ -59,14 +59,14 @@ namespace gui {
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const bgr_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const bgr& px) {
       out << "b:" << static_cast<int>(px.blue)
           << ", g:" << static_cast<int>(px.green)
           << ", r:" << static_cast<int>(px.red);
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const bgra_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const bgra& px) {
       out << "b:" << static_cast<int>(px.blue)
           << ", g:" << static_cast<int>(px.green)
           << ", r:" << static_cast<int>(px.red)
@@ -74,7 +74,7 @@ namespace gui {
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const argb_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const argb& px) {
       out << "a:" << static_cast<int>(px.alpha)
           << ", r:" << static_cast<int>(px.red)
           << ", g:" << static_cast<int>(px.green)
@@ -82,7 +82,7 @@ namespace gui {
       return out;
     }
 
-    std::ostream& operator<< (std::ostream& out, const abgr_pixel& px) {
+    std::ostream& operator<< (std::ostream& out, const abgr& px) {
       out << "a:" << static_cast<int>(px.alpha)
           << ", b:" << static_cast<int>(px.blue)
           << ", g:" << static_cast<int>(px.green)
@@ -91,38 +91,38 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    bw_pixel operator+ (const bw_pixel& lhs, const bw_pixel& rhs) {
-      return bw_pixel(static_cast<bool>(lhs) | static_cast<bool>(rhs));
+    mono operator+ (const mono& lhs, const mono& rhs) {
+      return mono(static_cast<bool>(lhs) | static_cast<bool>(rhs));
     }
 
-    gray_pixel operator+ (const gray_pixel& lhs, const gray_pixel& rhs) {
-      return gray_pixel{static_cast<gray_pixel::type>(lhs.value + rhs.value)};
+    gray operator+ (const gray& lhs, const gray& rhs) {
+      return gray{static_cast<gray::type>(lhs.value + rhs.value)};
     }
 
     // --------------------------------------------------------------------------
-    constexpr bw_pixel color<bw_pixel>::black;
-    constexpr bw_pixel color<bw_pixel>::white;
+    constexpr mono color<mono>::black;
+    constexpr mono color<mono>::white;
 
-    constexpr gray_pixel color<gray_pixel>::black;
-    constexpr gray_pixel color<gray_pixel>::white;
+    constexpr gray color<gray>::black;
+    constexpr gray color<gray>::white;
 
-    constexpr rgb_pixel color<rgb_pixel>::black;
-    constexpr rgb_pixel color<rgb_pixel>::white;
+    constexpr rgb color<rgb>::black;
+    constexpr rgb color<rgb>::white;
 
-    constexpr rgba_pixel color<rgba_pixel>::black;
-    constexpr rgba_pixel color<rgba_pixel>::white;
+    constexpr rgba color<rgba>::black;
+    constexpr rgba color<rgba>::white;
 
-    constexpr bgr_pixel color<bgr_pixel>::black;
-    constexpr bgr_pixel color<bgr_pixel>::white;
+    constexpr bgr color<bgr>::black;
+    constexpr bgr color<bgr>::white;
 
-    constexpr bgra_pixel color<bgra_pixel>::black;
-    constexpr bgra_pixel color<bgra_pixel>::white;
+    constexpr bgra color<bgra>::black;
+    constexpr bgra color<bgra>::white;
 
-    constexpr argb_pixel color<argb_pixel>::black;
-    constexpr argb_pixel color<argb_pixel>::white;
+    constexpr argb color<argb>::black;
+    constexpr argb color<argb>::white;
 
-    constexpr abgr_pixel color<abgr_pixel>::black;
-    constexpr abgr_pixel color<abgr_pixel>::white;
+    constexpr abgr color<abgr>::black;
+    constexpr abgr color<abgr>::white;
 
     // --------------------------------------------------------------------------
   } // namespace pixel

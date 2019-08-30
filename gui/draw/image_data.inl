@@ -194,6 +194,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    inline bool operator== (const gray_pixel& l, const gray_pixel& r) {
+      return l.value == r.value;
+    }
+
+    // --------------------------------------------------------------------------
     template<typename T>
     gray_pixel gray_pixel::build(T t) {
       gray_pixel p;
@@ -206,21 +211,12 @@ namespace gui {
       value = get_gray(rhs);
     }
 
-    inline bool operator== (const gray_pixel& l, const gray_pixel& r) {
-      return l.value == r.value;
-    }
-
-
     // --------------------------------------------------------------------------
     template<typename T>
     rgb_pixel rgb_pixel::build(T t) {
       rgb_pixel p;
        p = t;
        return p;
-    }
-
-    inline bool operator== (const rgb_pixel& lhs, const rgb_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
     }
 
     template<typename T>
@@ -238,10 +234,6 @@ namespace gui {
        return p;
     }
 
-    inline bool operator== (const rgba_pixel& lhs, const rgba_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
-    }
-
     template<typename T>
     inline void rgba_pixel::operator= (T rhs) {
       red = get_red(rhs);
@@ -251,19 +243,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline bool operator== (const rgb_pixel& lhs, const rgba_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
-    }
-
-    inline bool operator== (const rgba_pixel& lhs, const rgb_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
-    }
-
-    // --------------------------------------------------------------------------
-    inline bool operator== (const bgr_pixel& lhs, const bgr_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
-    }
-    
     template<typename T>
     bgr_pixel bgr_pixel::build(T t) {
       bgr_pixel p;
@@ -286,10 +265,6 @@ namespace gui {
        return p;
     }
 
-    inline bool operator== (const bgra_pixel& lhs, const bgra_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
-    }
-
     template<typename T>
     inline void bgra_pixel::operator= (T rhs) {
       red = get_red(rhs);
@@ -299,24 +274,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline bool operator== (const bgr_pixel& lhs, const bgra_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
-    }
-
-    inline bool operator== (const bgra_pixel& lhs, const bgr_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
-    }
-
-    // --------------------------------------------------------------------------
     template<typename T>
     argb_pixel argb_pixel::build(T t) {
       argb_pixel p;
        p = t;
        return p;
-    }
-
-    inline bool operator== (const argb_pixel& lhs, const argb_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
     }
 
     template<typename T>
@@ -328,10 +290,6 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline bool operator== (const abgr_pixel& lhs, const abgr_pixel& rhs) {
-      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue) && (lhs.alpha == rhs.alpha);
-    }
-
     template<typename T>
     abgr_pixel abgr_pixel::build(T t) {
       abgr_pixel p;
@@ -379,14 +337,6 @@ namespace gui {
 
     inline gray_pixel operator* (float f, gray_pixel p) {
       return {pixel_mul(p.value, f)};
-    }
-
-    inline rgb_pixel operator* (float f, rgb_pixel p) {
-      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f)};
-    }
-
-    inline rgba_pixel operator* (float f, rgba_pixel p) {
-      return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
 
   } // namespace pixel

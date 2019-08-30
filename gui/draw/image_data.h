@@ -39,33 +39,9 @@ namespace gui {
   namespace pixel {
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    struct color {
-    };
-
-    // --------------------------------------------------------------------------
-    template<typename T>
-    struct is_rgb_type {};
-
-    template<typename T>
-    struct is_alpha_type : public std::false_type {};
-
-    // --------------------------------------------------------------------------
     enum class bw_pixel : bool {
       black = false,
       white = true
-    };
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bw_pixel&);
-    GUIPP_DRAW_EXPORT bw_pixel operator+ (const bw_pixel&, const bw_pixel&);
-
-    template<> struct is_rgb_type<bw_pixel> : public std::false_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<bw_pixel> {
-      static constexpr bw_pixel black = { bw_pixel::black };
-      static constexpr bw_pixel white = { bw_pixel::white };
     };
 
 #pragma pack(push, 1)
@@ -83,20 +59,6 @@ namespace gui {
       void operator= (T);
     };
 
-    bool operator== (const gray_pixel&, const gray_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const gray_pixel&);
-    GUIPP_DRAW_EXPORT gray_pixel operator+ (const gray_pixel&, const gray_pixel&);
-
-    template<> struct is_rgb_type<gray_pixel> : public std::false_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<gray_pixel> {
-      static constexpr gray_pixel black = { 0 };
-      static constexpr gray_pixel white = { 0xff };
-    };
-
     // --------------------------------------------------------------------------
     struct rgb_pixel {
 
@@ -109,19 +71,6 @@ namespace gui {
 
       template<typename T>
       void operator= (T);
-    };
-
-    bool operator== (const rgb_pixel&, const rgb_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
-
-    template<> struct is_rgb_type<rgb_pixel> : public std::true_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<rgb_pixel> {
-      static constexpr rgb_pixel black = {0, 0, 0};
-      static constexpr rgb_pixel white = {0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
@@ -139,24 +88,6 @@ namespace gui {
       void operator= (T);
     };
 
-    bool operator== (const rgba_pixel&, const rgba_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
-
-    template<> struct is_rgb_type<rgba_pixel> : public std::true_type {};
-    template<> struct is_alpha_type<rgba_pixel> : public std::true_type {};
-
-    // --------------------------------------------------------------------------
-    bool operator== (const rgb_pixel&, const rgba_pixel&);
-    bool operator== (const rgba_pixel&, const rgb_pixel&);
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<rgba_pixel> {
-      static constexpr rgba_pixel black = {0, 0, 0, 0};
-      static constexpr rgba_pixel white = {0xff, 0xff, 0xff, 0};
-    };
-
     // --------------------------------------------------------------------------
     struct bgr_pixel {
 
@@ -169,19 +100,6 @@ namespace gui {
 
       template<typename T>
       void operator= (T);
-    };
-
-    bool operator== (const bgr_pixel&, const bgr_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgr_pixel&);
-
-    template<> struct is_rgb_type<bgr_pixel> : public std::true_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<bgr_pixel> {
-      static constexpr bgr_pixel black = {0, 0, 0};
-      static constexpr bgr_pixel white = {0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
@@ -199,24 +117,6 @@ namespace gui {
       void operator= (T);
     };
 
-    bool operator== (const bgra_pixel&, const bgra_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgra_pixel&);
-
-    template<> struct is_rgb_type<bgra_pixel> : public std::true_type {};
-    template<> struct is_alpha_type<bgra_pixel> : public std::true_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<bgra_pixel> {
-      static constexpr bgra_pixel black = {0, 0, 0, 0};
-      static constexpr bgra_pixel white = {0xff, 0xff, 0xff, 0};
-    };
-
-    // --------------------------------------------------------------------------
-    bool operator== (const bgr_pixel&, const bgra_pixel&);
-    bool operator== (const bgra_pixel&, const bgr_pixel&);
-
     // --------------------------------------------------------------------------
     struct argb_pixel {
 
@@ -230,20 +130,6 @@ namespace gui {
 
       template<typename T>
       void operator= (T);
-    };
-
-    bool operator== (const argb_pixel&, const argb_pixel&);
-
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const argb_pixel&);
-
-    template<> struct is_rgb_type<argb_pixel> : public std::true_type {};
-    template<> struct is_alpha_type<argb_pixel> : public std::true_type {};
-
-    // --------------------------------------------------------------------------
-    template<>
-    struct color<argb_pixel> {
-      static constexpr argb_pixel black = {0, 0, 0, 0};
-      static constexpr argb_pixel white = {0, 0xff, 0xff, 0xff};
     };
 
     // --------------------------------------------------------------------------
@@ -261,12 +147,78 @@ namespace gui {
       void operator= (T);
     };
 
-    bool operator== (const abgr_pixel&, const abgr_pixel&);
+#pragma pack(pop)
 
-    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const abgr_pixel&);
+    // --------------------------------------------------------------------------
+    template<typename T> struct is_rgb_type : public std::false_type  {};
+    template<typename T> struct is_alpha_type : public std::false_type {};
 
+    template<> struct is_rgb_type<bw_pixel> : public std::false_type {};
+    template<> struct is_rgb_type<gray_pixel> : public std::false_type {};
+    template<> struct is_rgb_type<rgb_pixel> : public std::true_type {};
+    template<> struct is_rgb_type<rgba_pixel> : public std::true_type {};
+    template<> struct is_alpha_type<rgba_pixel> : public std::true_type {};
+    template<> struct is_rgb_type<bgr_pixel> : public std::true_type {};
+    template<> struct is_rgb_type<bgra_pixel> : public std::true_type {};
+    template<> struct is_alpha_type<bgra_pixel> : public std::true_type {};
+    template<> struct is_rgb_type<argb_pixel> : public std::true_type {};
+    template<> struct is_alpha_type<argb_pixel> : public std::true_type {};
     template<> struct is_rgb_type<abgr_pixel> : public std::true_type {};
     template<> struct is_alpha_type<abgr_pixel> : public std::true_type {};
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct color {
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<bw_pixel> {
+      static constexpr bw_pixel black = { bw_pixel::black };
+      static constexpr bw_pixel white = { bw_pixel::white };
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<gray_pixel> {
+      static constexpr gray_pixel black = { 0 };
+      static constexpr gray_pixel white = { 0xff };
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<rgb_pixel> {
+      static constexpr rgb_pixel black = {0, 0, 0};
+      static constexpr rgb_pixel white = {0xff, 0xff, 0xff};
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<rgba_pixel> {
+      static constexpr rgba_pixel black = {0, 0, 0, 0};
+      static constexpr rgba_pixel white = {0xff, 0xff, 0xff, 0};
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<bgr_pixel> {
+      static constexpr bgr_pixel black = {0, 0, 0};
+      static constexpr bgr_pixel white = {0xff, 0xff, 0xff};
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<bgra_pixel> {
+      static constexpr bgra_pixel black = {0, 0, 0, 0};
+      static constexpr bgra_pixel white = {0xff, 0xff, 0xff, 0};
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct color<argb_pixel> {
+      static constexpr argb_pixel black = {0, 0, 0, 0};
+      static constexpr argb_pixel white = {0, 0xff, 0xff, 0xff};
+    };
 
     // --------------------------------------------------------------------------
     template<>
@@ -274,6 +226,37 @@ namespace gui {
       static constexpr abgr_pixel black = {0, 0, 0, 0};
       static constexpr abgr_pixel white = {0, 0xff, 0xff, 0xff};
     };
+
+    // --------------------------------------------------------------------------
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bw_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const gray_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgb_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const rgba_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgr_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const bgra_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const argb_pixel&);
+    GUIPP_DRAW_EXPORT std::ostream& operator<< (std::ostream& out, const abgr_pixel&);
+
+    // --------------------------------------------------------------------------
+    bool operator== (const gray_pixel&, const gray_pixel&);
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename U,
+             typename std::enable_if<is_alpha_type<T>::value &&
+                                     is_alpha_type<U>::value>::type* = nullptr>
+    inline bool operator== (const T& lhs, const U& rhs) {
+      return (lhs.red == rhs.red) &&
+             (lhs.green == rhs.green) &&
+             (lhs.blue == rhs.blue) &&
+             (lhs.alpha == rhs.alpha);
+    }
+
+    template<typename T, typename U,
+             typename std::enable_if<is_rgb_type<T>::value &&  is_rgb_type<U>::value &&
+                                     (!is_alpha_type<T>::value || !is_alpha_type<U>::value)>::type* = nullptr>
+    inline bool operator== (const T& lhs, const U& rhs) {
+      return (lhs.red == rhs.red) && (lhs.green == rhs.green) && (lhs.blue == rhs.blue);
+    }
 
     // --------------------------------------------------------------------------
     template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
@@ -318,6 +301,10 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    GUIPP_DRAW_EXPORT bw_pixel operator+ (const bw_pixel&, const bw_pixel&);
+    GUIPP_DRAW_EXPORT gray_pixel operator+ (const gray_pixel&, const gray_pixel&);
+
+    // --------------------------------------------------------------------------
     template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
     inline T operator+ (const T& lhs, const T& rhs) {
       return make_pixel_from_rgb<T>(lhs.red + rhs.red, lhs.green + rhs.green, lhs.blue + rhs.blue);
@@ -328,7 +315,25 @@ namespace gui {
       return make_pixel_from_rgba<T>(lhs.red + rhs.red, lhs.green + rhs.green, lhs.blue + rhs.blue, lhs.alpha + rhs.alpha);
     }
 
-#pragma pack(pop)
+    // --------------------------------------------------------------------------
+    bw_pixel operator* (bw_pixel p, float f);
+    byte pixel_mul (byte p, float f);
+    gray_pixel operator* (gray_pixel p, float f);
+    bw_pixel operator* (float f, bw_pixel p);
+    byte pixel_mul (float f, byte p);
+    gray_pixel operator* (float f, gray_pixel p);
+
+    // --------------------------------------------------------------------------
+    template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
+    inline T operator* (const T& p, float f) {
+      return make_pixel_from_rgb<T>(pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f));
+    }
+
+    template<typename T, typename std::enable_if<is_alpha_type<T>::value>::type* = nullptr>
+    inline T operator+ (const T& p, float f) {
+      return make_pixel_from_rgba<T>(pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha);
+    }
+
     // --------------------------------------------------------------------------
 //    template<typename T> bw_pixel get_bw (T);
 //    template<typename T> byte get_gray (T);
@@ -357,20 +362,6 @@ namespace gui {
     inline os::color get_color<os::color> (os::color px) {
       return px;
     }
-
-    // --------------------------------------------------------------------------
-    bw_pixel operator* (bw_pixel p, float f);
-    byte pixel_mul (byte p, float f);
-    gray_pixel operator* (gray_pixel p, float f);
-    rgb_pixel operator* (rgb_pixel p, float f);
-    rgba_pixel operator* (rgba_pixel p, float f);
-
-    // --------------------------------------------------------------------------
-    bw_pixel operator* (float f, bw_pixel p);
-    byte pixel_mul (float f, byte p);
-    gray_pixel operator* (float f, gray_pixel p);
-    rgb_pixel operator* (float f, rgb_pixel p);
-    rgba_pixel operator* (float f, rgba_pixel p);
 
     // --------------------------------------------------------------------------
 

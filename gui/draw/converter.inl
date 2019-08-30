@@ -121,6 +121,26 @@ namespace gui {
     }; // struct stretch
 
     // --------------------------------------------------------------------------
+    namespace scaling {
+
+      struct constants {
+        const uint32_t src_w;
+        const uint32_t src_h;
+        const uint32_t dest_w;
+        const uint32_t dest_h;
+        const uint32_t src_x0;
+        const uint32_t src_y0;
+        const uint32_t dest_x0;
+        const uint32_t dest_y0;
+        const double scale_y;
+        const double scale_x;
+
+        constants (const core::native_rect& src, const core::native_rect& dest);
+      };
+
+    } // namespace scaling
+
+    // --------------------------------------------------------------------------
     namespace bilinear {
 
       struct weights {
@@ -145,30 +165,10 @@ namespace gui {
 
       };
 
-      struct constants {
-        const uint32_t src_w;
-        const uint32_t src_h;
-        const uint32_t dest_w;
-        const uint32_t dest_h;
-        const uint32_t src_x0;
-        const uint32_t src_y0;
-        const uint32_t dest_x0;
-        const uint32_t dest_y0;
-        const double scale_y;
-        const double scale_x;
-
-        constants (const core::native_rect& src, const core::native_rect& dest);
-
-        param calc_y (uint32_t y) const;
-
-        param calc_x (uint32_t x) const;
-
-      };
-
       // --------------------------------------------------------------------------
       template<typename T>
       T interpolation(const T p00, const T p01, const T p10, const T p11,
-                      const bilinear::weights& wx, const bilinear::weights& wy) {
+                      const weights& wx, const weights& wy) {
         return {(p00 * wx.w0 + p01 * wx.w1) * wy.w0 + (p10 * wx.w0 + p11 * wx.w1) * wy.w1};
       }
 
@@ -185,11 +185,11 @@ namespace gui {
                        const core::native_rect& src,
                        const core::native_rect& dest) {
 
-        const bilinear::constants c(src, dest);
+        const scaling::constants c(src, dest);
 
         for (uint_fast32_t y = 0; y < c.dest_h; ++y) {
 
-          const bilinear::param py = c.calc_y(y);
+          const bilinear::param py(y, c.scale_y, c.src_h);
 
           const auto src0 = src_data.row(c.src_y0 + py.v0);
           const auto src1 = src_data.row(c.src_y0 + py.v1);
@@ -197,7 +197,7 @@ namespace gui {
           auto dst = dest_data.row(c.dest_y0 + y);
 
           for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
-            const bilinear::param px = c.calc_x(x);
+            const bilinear::param px(x, c.scale_x, c.src_w);
             const auto r = bilinear::interpolation<type>(src0[c.src_x0 + px.v0],
                                                          src0[c.src_x0 + px.v1],
                                                          src1[c.src_x0 + px.v0],
@@ -245,35 +245,15 @@ namespace gui {
 
       };
 
-      struct constants {
-        const uint32_t src_w;
-        const uint32_t src_h;
-        const uint32_t dest_w;
-        const uint32_t dest_h;
-        const uint32_t src_x0;
-        const uint32_t src_y0;
-        const uint32_t dest_x0;
-        const uint32_t dest_y0;
-        const double scale_y;
-        const double scale_x;
-
-        constants (const core::native_rect& src, const core::native_rect& dest);
-
-        param calc_y (uint32_t y) const;
-
-        param calc_x (uint32_t x) const;
-
-      };
-
       // --------------------------------------------------------------------------
       template<typename T>
       const T summation (const basepp::array_wrapper<const T> src,
                          const bicubic::param px,
                          const double f) {
         return src[px.v0] * px.w.w0 * f +
-            src[px.v1] * px.w.w1 * f +
-            src[px.v2] * px.w.w2 * f +
-            src[px.v3] * px.w.w3 * f;
+               src[px.v1] * px.w.w1 * f +
+               src[px.v2] * px.w.w2 * f +
+               src[px.v3] * px.w.w3 * f;
       }
       // --------------------------------------------------------------------------
       template<typename T>
@@ -328,11 +308,11 @@ namespace gui {
                        const core::native_rect& dest) {
 
         using type = typename draw::const_image_data<F>::pixel_type;
-        const bicubic::constants c(src, dest);
+        const scaling::constants c(src, dest);
 
         for (uint_fast32_t y = 0; y < c.dest_h; ++y) {
 
-          const bicubic::param py = c.calc_y(y);
+          const bicubic::param py(y, c.scale_y, c.src_h);
 
           const auto src0 = src_data.row(c.src_y0 + py.v0).sub(c.src_x0, c.src_w);
           const auto src1 = src_data.row(c.src_y0 + py.v1).sub(c.src_x0, c.src_w);
@@ -342,7 +322,7 @@ namespace gui {
           auto dst = dest_data.row(c.dest_y0 + y);
 
           for (uint_fast32_t x = 0; x < c.dest_w; ++x) {
-            const bicubic::param px = c.calc_x(x);
+            const bicubic::param px(x, c.scale_x, c.src_w);
             const auto r = bicubic::interpolation<const type>(src0, src1, src2, src3, px, py);
             dst[c.dest_x0 + x] = r;
           }

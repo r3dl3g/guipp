@@ -59,6 +59,11 @@ namespace gui {
         , w(std::move(w))
       {}
 
+    } // namespace bilinear
+
+
+    namespace scaling {
+
       // --------------------------------------------------------------------------
       constants::constants (const core::native_rect& src, const core::native_rect& dest)
         : src_w(src.width())
@@ -73,15 +78,7 @@ namespace gui {
         , scale_x(static_cast<double>(src_w - 1) / static_cast<double>(dest_w - 1))
       {}
 
-      param constants::calc_y (uint32_t y) const {
-        return {y, scale_y, src_h};
-      }
-
-      param constants::calc_x (uint32_t x) const {
-        return {x, scale_x, src_w};
-      }
-
-    } // namespace bilinear
+    } // namespace scaling
 
     // --------------------------------------------------------------------------
     namespace bicubic {
@@ -131,34 +128,13 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      constants::constants (const core::native_rect& src, const core::native_rect& dest)
-        : src_w(src.width())
-        , src_h(src.height())
-        , dest_w(dest.width())
-        , dest_h(dest.height())
-        , src_x0(src.x())
-        , src_y0(src.y())
-        , dest_x0(dest.x())
-        , dest_y0(dest.y())
-        , scale_y(static_cast<double>(src_h - 1) / static_cast<double>(dest_h - 1))
-        , scale_x(static_cast<double>(src_w - 1) / static_cast<double>(dest_w - 1))
-      {}
-
-      param constants::calc_y (uint32_t y) const {
-        return {y, scale_y, src_h};
-      }
-
-      param constants::calc_x (uint32_t x) const {
-        return {x, scale_x, src_w};
-      }
-
-      // --------------------------------------------------------------------------
-      float summation (const basepp::array_wrapper<const pixel::gray_pixel> src,
+      template<typename T = float>
+      T summation (const basepp::array_wrapper<const pixel::gray_pixel> src,
                         const bicubic::param px) {
-        return static_cast<float>(src[px.v0].value) * px.w.w0 +
-               static_cast<float>(src[px.v1].value) * px.w.w1 +
-               static_cast<float>(src[px.v2].value) * px.w.w2 +
-               static_cast<float>(src[px.v3].value) * px.w.w3;
+        return static_cast<T>(src[px.v0].value) * px.w.w0 +
+               static_cast<T>(src[px.v1].value) * px.w.w1 +
+               static_cast<T>(src[px.v2].value) * px.w.w2 +
+               static_cast<T>(src[px.v3].value) * px.w.w3;
       }
 
       template<>
@@ -168,68 +144,69 @@ namespace gui {
                                                                       const basepp::array_wrapper<const pixel::gray_pixel> src3,
                                                                       const bicubic::param px,
                                                                       const bicubic::param py) {
-        const float sum = summation(src0, px) * py.w.w0 +
-                           summation(src1, px) * py.w.w1 +
-                           summation(src2, px) * py.w.w2 +
-                           summation(src3, px) * py.w.w3;
-        return {static_cast<byte>(std::min(sum, 255.0F))};
+        const auto sum = summation(src0, px) * py.w.w0 +
+                         summation(src1, px) * py.w.w1 +
+                         summation(src2, px) * py.w.w2 +
+                         summation(src3, px) * py.w.w3;
+        return {static_cast<byte>(std::min(sum, decltype(sum)(255)))};
       }
 
       // --------------------------------------------------------------------------
-      struct float_rgb {
-        float b;
-        float g;
-        float r;
+      template<typename T = float>
+      struct rgb_t {
+        T blue;
+        T green;
+        T red;
 
-        inline float_rgb (const pixel::rgb_pixel& rhs)
-          : b(rhs.blue)
-          , g(rhs.green)
-          , r(rhs.red)
+        template<typename V>
+        inline rgb_t (const V& rhs)
+          : blue(rhs.blue)
+          , green(rhs.green)
+          , red(rhs.red)
         {}
 
-        inline float_rgb (const pixel::rgba_pixel& rhs)
-          : b(rhs.blue)
-          , g(rhs.green)
-          , r(rhs.red)
+        inline rgb_t (T b, T g, T r)
+          : blue(b)
+          , green(g)
+          , red(r)
         {}
 
-        inline float_rgb (float b, float g, float r)
-          : b(b)
-          , g(g)
-          , r(r)
-        {}
-
-        inline float_rgb operator* (float f) const {
-          return {b * f, g * f, r * f};
+        inline rgb_t operator* (T f) const {
+          return {blue * f, green * f, red * f};
         }
 
-        inline float_rgb operator+ (const float_rgb& rhs) const {
-          return {b + rhs.b, g + rhs.g, r + rhs.r};
+        inline rgb_t operator+ (const rgb_t& rhs) const {
+          return {blue + rhs.blue, green + rhs.green, red + rhs.red};
         }
 
-        operator pixel::rgb_pixel () const {
-          return {static_cast<byte>(std::min(b, 255.0F)),
-                  static_cast<byte>(std::min(g, 255.0F)),
-                  static_cast<byte>(std::min(r, 255.0F))};
+        template<typename U,
+                 typename std::enable_if<pixel::is_rgb_type<U>::value &&
+                                         !pixel::is_alpha_type<U>::value>::type* = nullptr>
+        operator U () const {
+          return pixel::make_pixel_from_rgb<U>(static_cast<byte>(std::min(red, T(255))),
+                                               static_cast<byte>(std::min(green, T(255))),
+                                               static_cast<byte>(std::min(blue, T(255))));
         }
 
-        operator pixel::rgba_pixel () const {
-          return {static_cast<byte>(std::min(b, 255.0F)),
-                  static_cast<byte>(std::min(g, 255.0F)),
-                  static_cast<byte>(std::min(r, 255.0F)),
-                  0};
+        template<typename U,
+                 typename std::enable_if<pixel::is_alpha_type<U>::value>::type* = nullptr>
+        operator U () const {
+          return pixel::make_pixel_from_rgba<U>(static_cast<byte>(std::min(red, T(255))),
+                                                static_cast<byte>(std::min(green, T(255))),
+                                                static_cast<byte>(std::min(blue, T(255))),
+                                                0);
         }
 
       };
 
       // --------------------------------------------------------------------------
       template<typename T>
-      float_rgb summation (const basepp::array_wrapper<const T> src,
+      rgb_t<float> summation (const basepp::array_wrapper<const T> src,
                        const bicubic::param px) {
-        float_rgb r = float_rgb(src[px.v0]) * px.w.w0 +
-                      float_rgb(src[px.v1]) * px.w.w1 +
-                      float_rgb(src[px.v2]) * px.w.w2 +
-                      float_rgb(src[px.v3]) * px.w.w3;
+        rgb_t<float> r = rgb_t<float>(src[px.v0]) * px.w.w0 +
+                       rgb_t<float>(src[px.v1]) * px.w.w1 +
+                       rgb_t<float>(src[px.v2]) * px.w.w2 +
+                       rgb_t<float>(src[px.v3]) * px.w.w3;
         return r;
       }
 

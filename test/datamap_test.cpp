@@ -162,9 +162,9 @@ DEFINE_TEST(test_gray2rgb)
   using namespace gui;
   using namespace gui::draw;
 
-  graymap gray(2, 2);
-  gray.fill({byte(0x7F)});
-  auto rgb = gray.convert<PixelFormat::RGB>();
+  graymap img(2, 2);
+  img.fill({byte(0x7F)});
+  auto rgb = img.convert<PixelFormat::RGB>();
 
   EXPECT_TRUE(rgb.is_valid());
   EXPECT_EQUAL(rgb.native_size(), core::native_size(2, 2));
@@ -185,15 +185,15 @@ DEFINE_TEST(test_rgb2gray)
 
   rgbmap rgb(2, 2);
   rgb.fill({0x20, 0x40, 0x60});
-  auto gray = rgb.convert<PixelFormat::GRAY>();
+  auto img = rgb.convert<PixelFormat::GRAY>();
 
-  EXPECT_TRUE(gray.is_valid());
-  EXPECT_EQUAL(gray.native_size(), core::native_size(2, 2));
-  EXPECT_EQUAL(gray.depth(), 8);
-  EXPECT_EQUAL(gray.pixel_format(), PixelFormat::GRAY);
-  EXPECT_EQUAL(gray.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
+  EXPECT_TRUE(img.is_valid());
+  EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
+  EXPECT_EQUAL(img.depth(), 8);
+  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::GRAY));
 
-  auto raw = gray.get_data();
+  auto raw = img.get_data();
   pixel::gray_pixel expected = {byte(0x40)};
   EXPECT_EQUAL(raw.pixel(0, 0), expected);
 

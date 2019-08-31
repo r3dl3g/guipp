@@ -89,7 +89,7 @@ namespace gui {
         // --------------------------------------------------------------------------
     template<typename T>
     inline typename std::enable_if<is_rgb_type<T>::value, mono>::type get_bw (T p) {
-      return get_gray(p) == 0 ? mono::black : mono::white;
+      return get_gray(p) < 128 ? mono::black : mono::white;
     }
 
     inline mono get_bw (mono p) {
@@ -97,11 +97,11 @@ namespace gui {
     }
 
     inline mono get_bw (gray p) {
-      return p.value == 0 ? mono::black : mono::white;
+      return p.value < 128 ? mono::black : mono::white;
     }
 
     inline mono get_bw (os::color c) {
-      return mono(gui::color::remove_transparency(c) != gui::color::black);
+      return gui::color::calc_medium_gray(c) < 128 ? mono::black : mono::white;
     }
 
     inline mono get_bw (basepp::bit_wrapper<const mono> p) {
@@ -307,7 +307,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     inline mono operator* (mono p, float f) {
-      return f == 0 ? mono::black : p;
+      return f < 0.5F ? mono::black : p;
     }
 
     inline byte pixel_mul (byte p, float f) {

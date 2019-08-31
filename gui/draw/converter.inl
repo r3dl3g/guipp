@@ -140,6 +140,14 @@ namespace gui {
 
     } // namespace scaling
 
+    inline double mono2double (pixel::mono m) {
+      return m == pixel::mono::white ? 255.0 : 0.0;
+    }
+
+    inline pixel::mono double2mono (double  m) {
+      return m > 127.5 ? pixel::mono::white : pixel::mono::black;
+    }
+
     // --------------------------------------------------------------------------
     namespace bilinear {
 
@@ -167,10 +175,18 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<typename T>
-      T interpolation(const T p00, const T p01, const T p10, const T p11,
+      T interpolation (const T p00, const T p01, const T p10, const T p11,
                       const weights& wx, const weights& wy) {
         return {(p00 * wx.w0 + p01 * wx.w1) * wy.w0 + (p10 * wx.w0 + p11 * wx.w1) * wy.w1};
       }
+
+      template<>
+      pixel::mono interpolation (const pixel::mono p00,
+                                 const pixel::mono p01,
+                                 const pixel::mono p10,
+                                 const pixel::mono p11,
+                                 const weights& wx,
+                                 const weights& wy);
 
     } // namespace bilinear
 
@@ -246,55 +262,58 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<typename T>
-      const T summation (const basepp::array_wrapper<const T> src,
-                         const bicubic::param px,
-                         const double f) {
-        return src[px.v0] * px.w.w0 * f +
-               src[px.v1] * px.w.w1 * f +
-               src[px.v2] * px.w.w2 * f +
-               src[px.v3] * px.w.w3 * f;
+      double summation (const basepp::array_wrapper<const pixel::mono> src,
+                        const bicubic::param& px);
+
+      // --------------------------------------------------------------------------
+      double summation (const basepp::array_wrapper<const pixel::gray> src,
+                        const bicubic::param& px);
+
+      // --------------------------------------------------------------------------
+      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
+      pixel::rgb_t<double> summation (const basepp::array_wrapper<const T> src,
+                                      const bicubic::param& px) {
+        using namespace pixel;
+        rgb_t<double> r = rgb_t<double>(src[px.v0]) * px.w.w0 +
+                          rgb_t<double>(src[px.v1]) * px.w.w1 +
+                          rgb_t<double>(src[px.v2]) * px.w.w2 +
+                          rgb_t<double>(src[px.v3]) * px.w.w3;
+        return r;
       }
+
+      namespace detail {
+
+        template<typename T, typename R>
+        R cast_pixel_type (const T& t) {
+          return static_cast<R>(t);
+        }
+
+        template<>
+        inline const pixel::mono cast_pixel_type<const double, const pixel::mono> (const double& f) {
+          return f > 127.5 ? pixel::mono::white : pixel::mono::black;
+        }
+
+        template<>
+        inline const pixel::gray cast_pixel_type<const double, const pixel::gray> (const double& f) {
+          return {static_cast<byte>(std::min(f, 255.0))};
+        }
+
+      } // namespace detail
+
       // --------------------------------------------------------------------------
       template<typename T>
       const T interpolation (const basepp::array_wrapper<const T> src0,
                              const basepp::array_wrapper<const T> src1,
                              const basepp::array_wrapper<const T> src2,
                              const basepp::array_wrapper<const T> src3,
-                             const bicubic::param px,
-                             const bicubic::param py) {
-        return {summation(src0, px, py.w.w0)
-              + summation(src1, px, py.w.w1)
-              + summation(src2, px, py.w.w2)
-              + summation(src3, px, py.w.w3)};
+                             const bicubic::param& px,
+                             const bicubic::param& py) {
+        const auto sum = summation(src0, px) * py.w.w0 +
+                         summation(src1, px) * py.w.w1 +
+                         summation(src2, px) * py.w.w2 +
+                         summation(src3, px) * py.w.w3;
+        return detail::cast_pixel_type<decltype(sum), T>(sum);
       }
-
-      // --------------------------------------------------------------------------
-      template<>
-      const pixel::gray interpolation<const pixel::gray> (const basepp::array_wrapper<const pixel::gray> src0,
-                                                                      const basepp::array_wrapper<const pixel::gray> src1,
-                                                                      const basepp::array_wrapper<const pixel::gray> src2,
-                                                                      const basepp::array_wrapper<const pixel::gray> src3,
-                                                                      const bicubic::param px,
-                                                                      const bicubic::param py);
-
-      // --------------------------------------------------------------------------
-      template<>
-      const pixel::rgb interpolation<const pixel::rgb> (const basepp::array_wrapper<const pixel::rgb> src0,
-                                                                    const basepp::array_wrapper<const pixel::rgb> src1,
-                                                                    const basepp::array_wrapper<const pixel::rgb> src2,
-                                                                    const basepp::array_wrapper<const pixel::rgb> src3,
-                                                                    const bicubic::param px,
-                                                                    const bicubic::param py);
-
-      // --------------------------------------------------------------------------
-      template<>
-      const pixel::rgba interpolation<const pixel::rgba> (const basepp::array_wrapper<const pixel::rgba> src0,
-                                                                      const basepp::array_wrapper<const pixel::rgba> src1,
-                                                                      const basepp::array_wrapper<const pixel::rgba> src2,
-                                                                      const basepp::array_wrapper<const pixel::rgba> src3,
-                                                                      const bicubic::param px,
-                                                                      const bicubic::param py);
 
     } // namespace bicubic
 

@@ -32,6 +32,24 @@ namespace gui {
 
   namespace convert {
 
+    namespace scaling {
+
+      // --------------------------------------------------------------------------
+      constants::constants (const core::native_rect& src, const core::native_rect& dest)
+        : src_w(src.width())
+        , src_h(src.height())
+        , dest_w(dest.width())
+        , dest_h(dest.height())
+        , src_x0(src.x())
+        , src_y0(src.y())
+        , dest_x0(dest.x())
+        , dest_y0(dest.y())
+        , scale_y(static_cast<double>(src_h - 1) / static_cast<double>(dest_h - 1))
+        , scale_x(static_cast<double>(src_w - 1) / static_cast<double>(dest_w - 1))
+      {}
+
+    } // namespace scaling
+
     // --------------------------------------------------------------------------
     namespace bilinear {
 
@@ -59,26 +77,19 @@ namespace gui {
         , w(std::move(w))
       {}
 
+      template<>
+      pixel::mono interpolation (const pixel::mono p00,
+                                 const pixel::mono p01,
+                                 const pixel::mono p10,
+                                 const pixel::mono p11,
+                                 const weights& wx,
+                                 const weights& wy) {
+        return double2mono((mono2double(p00) * wx.w0 + mono2double(p01) * wx.w1) * wy.w0 +
+                           (mono2double(p10) * wx.w0 + mono2double(p11) * wx.w1) * wy.w1);
+      }
+
     } // namespace bilinear
 
-
-    namespace scaling {
-
-      // --------------------------------------------------------------------------
-      constants::constants (const core::native_rect& src, const core::native_rect& dest)
-        : src_w(src.width())
-        , src_h(src.height())
-        , dest_w(dest.width())
-        , dest_h(dest.height())
-        , src_x0(src.x())
-        , src_y0(src.y())
-        , dest_x0(dest.x())
-        , dest_y0(dest.y())
-        , scale_y(static_cast<double>(src_h - 1) / static_cast<double>(dest_h - 1))
-        , scale_x(static_cast<double>(src_w - 1) / static_cast<double>(dest_w - 1))
-      {}
-
-    } // namespace scaling
 
     // --------------------------------------------------------------------------
     namespace bicubic {
@@ -128,70 +139,21 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      template<typename T = float>
-      T summation (const basepp::array_wrapper<const pixel::gray> src,
-                        const bicubic::param px) {
-        return static_cast<T>(src[px.v0].value) * px.w.w0 +
-               static_cast<T>(src[px.v1].value) * px.w.w1 +
-               static_cast<T>(src[px.v2].value) * px.w.w2 +
-               static_cast<T>(src[px.v3].value) * px.w.w3;
-      }
-
-      template<>
-      const pixel::gray interpolation<const pixel::gray> (const basepp::array_wrapper<const pixel::gray> src0,
-                                                                      const basepp::array_wrapper<const pixel::gray> src1,
-                                                                      const basepp::array_wrapper<const pixel::gray> src2,
-                                                                      const basepp::array_wrapper<const pixel::gray> src3,
-                                                                      const bicubic::param px,
-                                                                      const bicubic::param py) {
-        const auto sum = summation(src0, px) * py.w.w0 +
-                         summation(src1, px) * py.w.w1 +
-                         summation(src2, px) * py.w.w2 +
-                         summation(src3, px) * py.w.w3;
-        return {static_cast<byte>(std::min(sum, decltype(sum)(255)))};
+      double summation (const basepp::array_wrapper<const pixel::mono> src,
+                        const bicubic::param& px) {
+        return mono2double(src[px.v0]) * px.w.w0 + mono2double(src[px.v1]) * px.w.w1 +
+               mono2double(src[px.v2]) * px.w.w2 + mono2double(src[px.v3]) * px.w.w3;
       }
 
       // --------------------------------------------------------------------------
-      template<typename T>
-      pixel::rgb_t<float> summation (const basepp::array_wrapper<const T> src,
-                       const bicubic::param px) {
-        using namespace pixel;
-        rgb_t<float> r = rgb_t<float>(src[px.v0]) * px.w.w0 +
-                         rgb_t<float>(src[px.v1]) * px.w.w1 +
-                         rgb_t<float>(src[px.v2]) * px.w.w2 +
-                         rgb_t<float>(src[px.v3]) * px.w.w3;
-        return r;
+      double summation (const basepp::array_wrapper<const pixel::gray> src,
+                        const bicubic::param& px) {
+        return static_cast<double>(src[px.v0].value) * px.w.w0 +
+               static_cast<double>(src[px.v1].value) * px.w.w1 +
+               static_cast<double>(src[px.v2].value) * px.w.w2 +
+               static_cast<double>(src[px.v3].value) * px.w.w3;
       }
 
-      // --------------------------------------------------------------------------
-      template<>
-      const pixel::rgb interpolation<const pixel::rgb> (const basepp::array_wrapper<const pixel::rgb> src0,
-                                                        const basepp::array_wrapper<const pixel::rgb> src1,
-                                                        const basepp::array_wrapper<const pixel::rgb> src2,
-                                                        const basepp::array_wrapper<const pixel::rgb> src3,
-                                                        const bicubic::param px,
-                                                        const bicubic::param py) {
-        const auto sum = summation(src0, px) * py.w.w0 +
-                         summation(src1, px) * py.w.w1 +
-                         summation(src2, px) * py.w.w2 +
-                         summation(src3, px) * py.w.w3;
-        return sum;
-      }
-
-      // --------------------------------------------------------------------------
-      template<>
-      const pixel::rgba interpolation<const pixel::rgba> (const basepp::array_wrapper<const pixel::rgba> src0,
-                                                          const basepp::array_wrapper<const pixel::rgba> src1,
-                                                          const basepp::array_wrapper<const pixel::rgba> src2,
-                                                          const basepp::array_wrapper<const pixel::rgba> src3,
-                                                          const bicubic::param px,
-                                                          const bicubic::param py) {
-        const auto sum = summation(src0, px) * py.w.w0 +
-                         summation(src1, px) * py.w.w1 +
-                         summation(src2, px) * py.w.w2 +
-                         summation(src3, px) * py.w.w3;
-        return sum;
-      }
       // --------------------------------------------------------------------------
     } // namespace bicubic
 

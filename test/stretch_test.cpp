@@ -328,9 +328,7 @@ graysmap expected_bilinear[] = {
 graysmap graysmap2bwsmap (graysmap m) {
   for (grayline& y : m) {
     for (uint8_t& x : y) {
-      if (x != 0) {
-        x = 255;
-      }
+      x = (x < 128) ? 0 : 255;
     }
   }
   return m;

@@ -306,36 +306,36 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    inline mono operator* (mono p, float f) {
+    inline mono operator* (mono p, double f) {
       return f < 0.5F ? mono::black : p;
     }
 
-    inline byte pixel_mul (byte p, float f) {
+    inline byte pixel_mul (byte p, double f) {
       return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
     }
 
-    inline gray operator* (gray p, float f) {
+    inline gray operator* (gray p, double f) {
       return {pixel_mul(p.value, f)};
     }
 
-    inline rgb operator* (rgb p, float f) {
+    inline rgb operator* (rgb p, double f) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f)};
     }
 
-    inline rgba operator* (rgba p, float f) {
+    inline rgba operator* (rgba p, double f) {
       return {pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha};
     }
 
     // --------------------------------------------------------------------------
-    inline mono operator* (float f, mono p) {
+    inline mono operator* (double f, mono p) {
       return f == 0 ? mono::black : p;
     }
 
-    inline byte pixel_mul (float f, byte p) {
+    inline byte pixel_mul (double f, byte p) {
       return static_cast<byte>(std::min<int>(0xff, static_cast<int>(p * f)));
     }
 
-    inline gray operator* (float f, gray p) {
+    inline gray operator* (double f, gray p) {
       return {pixel_mul(p.value, f)};
     }
 

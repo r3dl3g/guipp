@@ -42,7 +42,7 @@ namespace testing {
   #ifdef WIN32
     BITMAP bmi;
     GetObject(img.get_id(), sizeof (BITMAP), &bmi);
-    blob data;
+    gui::blob data;
     data.resize(bmi.bmHeight * bmi.bmWidthBytes);
     GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
     auto str = data2string((const char*)data.data(), bmi.bmBitsPixel / 8, bmi.bmWidthBytes, bmi.bmHeight);
@@ -85,7 +85,7 @@ namespace testing {
   #ifdef WIN32
     BITMAP bmp;
     GetObject(img.get_id(), sizeof (BITMAP), &bmp);
-    blob data;
+    gui::blob data;
     data.resize(bmp.bmWidthBytes * bmp.bmHeight);
     int res = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
     if (res != data.size()) {
@@ -100,11 +100,11 @@ namespace testing {
   graysmap datamap2graysmap (const gui::draw::graymap& img) {
     auto data = img.get_data();
     graysmap result;
-    for (int y = 0; y < data.height(); ++y) {
+    for (uint32_t y = 0; y < data.height(); ++y) {
       const auto row = data.row(y);
       grayline line;
       line.reserve(data.width());
-      for (int x = 0; x < data.width(); ++x) {
+      for (uint32_t x = 0; x < data.width(); ++x) {
         line.emplace_back(row[x].value);
       }
       result.emplace_back(line);
@@ -116,7 +116,7 @@ namespace testing {
   gui::draw::graymap graysmap2datamap (const graysmap& colors) {
     const auto width = colors[0].size();
     const auto height = colors.size();
-    gui::draw::graymap img(width, height);
+    gui::draw::graymap img(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
     auto data = img.get_data();
     for (int y = 0; y < height; ++y) {
       auto row = data.row(y);

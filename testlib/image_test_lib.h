@@ -22,11 +22,11 @@ namespace testing {
   colormap datamap2colormap (const gui::draw::datamap<T>& img) {
     auto data = img.get_data();
     colormap result;
-    for (int y = 0; y < data.height(); ++y) {
+    for (uint32_t y = 0; y < data.height(); ++y) {
       const auto row = data.row(y);
       colorline line;
       line.reserve(data.width());
-      for (int x = 0; x < data.width(); ++x) {
+      for (uint32_t x = 0; x < data.width(); ++x) {
         auto v = row[x];
         using namespace gui::pixel;
         line.emplace_back(gui::pixel::get_color(v));
@@ -40,7 +40,7 @@ namespace testing {
   gui::draw::datamap<T> colormap2datamap (const colormap& colors) {
     const auto width = colors[0].size();
     const auto height = colors.size();
-    gui::draw::datamap<T> img(width, height);
+    gui::draw::datamap<T> img(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
     auto data = img.get_data();
     for (int y = 0; y < height; ++y) {
       auto row = data.row(y);

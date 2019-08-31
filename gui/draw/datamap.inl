@@ -192,7 +192,7 @@ namespace gui {
     }
 
     template<PixelFormat T>
-    inline auto datamap<T>::brightness (float f) const -> datamap {
+    inline auto datamap<T>::brightness (double f) const -> datamap {
       datamap bmp = *this;
       bitmap_info& bmi = bmp.info;
       convert::brightness::adjust<T>(bmp.get_data(), bmi.width, bmi.height, f);

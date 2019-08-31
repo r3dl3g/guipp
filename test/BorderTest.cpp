@@ -65,7 +65,7 @@ public:
   void start_thread ();
   void stop_thread ();
 
-  void set_scale (float);
+  void set_scale (double);
 
   void settings ();
 
@@ -150,7 +150,7 @@ void my_main_window::stop_thread () {
   }
 }
 
-void my_main_window::set_scale (float f) {
+void my_main_window::set_scale (double f) {
   auto current_size = size();
   core::global::set_scale_factor(f);
   resize(current_size, true);

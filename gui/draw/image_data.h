@@ -316,21 +316,21 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    mono operator* (mono p, float f);
-    byte pixel_mul (byte p, float f);
-    gray operator* (gray p, float f);
-    mono operator* (float f, mono p);
-    byte pixel_mul (float f, byte p);
-    gray operator* (float f, gray p);
+    mono operator* (mono p, double f);
+    byte pixel_mul (byte p, double f);
+    gray operator* (gray p, double f);
+    mono operator* (double f, mono p);
+    byte pixel_mul (double f, byte p);
+    gray operator* (double f, gray p);
 
     // --------------------------------------------------------------------------
     template<typename T, typename std::enable_if<is_rgb_type<T>::value && !is_alpha_type<T>::value>::type* = nullptr>
-    inline T operator* (const T& p, float f) {
+    inline T operator* (const T& p, double f) {
       return make_pixel_from_rgb<T>(pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f));
     }
 
     template<typename T, typename std::enable_if<is_alpha_type<T>::value>::type* = nullptr>
-    inline T operator+ (const T& p, float f) {
+    inline T operator+ (const T& p, double f) {
       return make_pixel_from_rgba<T>(pixel_mul(p.red, f), pixel_mul(p.green, f), pixel_mul(p.blue, f), p.alpha);
     }
 

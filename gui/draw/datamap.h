@@ -129,6 +129,7 @@ namespace gui {
 
       datamap brightness (float f) const;
 
+      datamap<PixelFormat::BW> get_mask (pixel::gray limit = {0x7F}) const;
     };
 
     // --------------------------------------------------------------------------

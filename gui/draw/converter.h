@@ -45,12 +45,21 @@ namespace gui {
         static void convert (const typename draw::const_image_data<From>::row_type in,
                              typename draw::image_data<To>::row_type out,
                              uint32_t w);
+
+        static void mask (const typename draw::const_image_data<From>::row_type in,
+                          typename draw::image_data<To>::row_type out,
+                          uint32_t w, pixel::gray limit);
       };
 
       template<PixelFormat From, PixelFormat To>
       void convert (const typename draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h);
+
+      template<PixelFormat From, PixelFormat To>
+      void mask (const typename draw::const_image_data<From> in,
+                 draw::image_data<To> out,
+                 uint32_t w, uint32_t h, pixel::gray limit);
 
     } // namespace format
 

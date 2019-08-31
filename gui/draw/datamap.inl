@@ -211,6 +211,13 @@ namespace gui {
       convert::fill::fill<T>(get_data(), info.width, info.height, c);
     }
 
+    template<PixelFormat T>
+    inline datamap<PixelFormat::BW> datamap<T>::get_mask (pixel::gray limit) const {
+      datamap<PixelFormat::BW> img(info.size());
+      convert::format::mask<T, PixelFormat::BW>(get_data(), img.get_data(), info.width, info.height, limit);
+      return img;
+    }
+
   }
 
 }

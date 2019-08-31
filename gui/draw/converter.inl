@@ -31,6 +31,7 @@ namespace gui {
 
       template<PixelFormat From>
       struct line<From, PixelFormat::BW> {
+
         static inline void convert (const typename draw::const_image_data<From>::row_type in,
                                     typename draw::image_data<PixelFormat::BW>::row_type out,
                                     uint32_t w) {
@@ -38,14 +39,47 @@ namespace gui {
             out[x] = get_bw(in[x]);
           }
         }
+
+        static inline void mask (const typename draw::const_image_data<From>::row_type in,
+                                 typename draw::image_data<PixelFormat::BW>::row_type out,
+                                 uint32_t w, pixel::gray limit) {
+          for (uint_fast32_t x = 0; x < w; ++x) {
+            out[x] = (limit.value < pixel::get_gray(in[x].value)) ? pixel::mono::white : pixel::mono::black;
+          }
+        }
+
       };
 
       template<PixelFormat From, PixelFormat To>
       void line<From, To>::convert (const typename draw::const_image_data<From>::row_type in,
                                     typename draw::image_data<To>::row_type out,
                                     uint32_t w) {
+        using type = typename draw::image_data<To>::pixel_type;
         for (uint_fast32_t x = 0; x < w; ++x) {
           out[x] = in[x];
+        }
+      }
+
+      template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>
+      bool check_limit (const T t, pixel::gray limit) {
+        return (limit.value < pixel::get_red(t)) || (limit.value < pixel::get_green(t)) || (limit.value < pixel::get_blue(t));
+      }
+
+      inline bool check_limit (const pixel::mono t, pixel::gray) {
+        return static_cast<bool>(t);
+      }
+
+      inline bool check_limit (const pixel::gray t, pixel::gray limit) {
+        return limit.value < t.value;
+      }
+
+      template<PixelFormat From, PixelFormat To>
+      void line<From, To>::mask (const typename draw::const_image_data<From>::row_type in,
+                                 typename draw::image_data<To>::row_type out,
+                                 uint32_t w, pixel::gray limit) {
+        using type = typename draw::image_data<To>::pixel_type;
+        for (uint_fast32_t x = 0; x < w; ++x) {
+          out[x] = check_limit(in[x], limit) ? pixel::color<type>::white : pixel::color<type>::black;
         }
       }
 
@@ -58,6 +92,14 @@ namespace gui {
         }
       }
 
+      template<PixelFormat From, PixelFormat To>
+      void mask (const typename draw::const_image_data<From> in,
+                 draw::image_data<To> out,
+                 uint32_t w, uint32_t h, pixel::gray limit) {
+        for (uint_fast32_t y = 0; y < h; ++y) {
+          line<From, To>::mask(in.row(y), out.row(y), w, limit);
+        }
+      }
 
     } // namespace format
 

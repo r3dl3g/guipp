@@ -373,13 +373,13 @@ DEFINE_TEST(test_masked_from_pixmap) {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
-  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::cyan);
 
   os::color expected_color[5][5] = {
     {color::black, color::black, color::black, color::black, color::black},
-    {color::black, color::blue,  color::blue,  color::blue,  color::black},
-    {color::black, color::blue,  color::red,   color::blue,  color::black},
-    {color::black, color::blue,  color::blue,  color::blue,  color::black},
+    {color::black, color::cyan,  color::cyan,  color::cyan,  color::black},
+    {color::black, color::cyan,  color::red,   color::cyan,  color::black},
+    {color::black, color::cyan,  color::cyan,  color::cyan,  color::black},
     {color::black, color::black, color::black, color::black, color::black}
   };
 
@@ -426,7 +426,7 @@ DEFINE_TEST(test_masked_bitmap) {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
-  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::cyan);
 
   draw::masked_bitmap icon(pix);
 
@@ -436,9 +436,9 @@ DEFINE_TEST(test_masked_bitmap) {
 
   os::color expected_color[5][5] = {
     {color::gray, color::gray, color::gray, color::gray, color::gray},
-    {color::gray, color::blue, color::blue, color::blue, color::gray},
-    {color::gray, color::blue, color::red,  color::blue, color::gray},
-    {color::gray, color::blue, color::blue, color::blue, color::gray},
+    {color::gray, color::cyan, color::cyan, color::cyan, color::gray},
+    {color::gray, color::cyan, color::red,  color::cyan, color::gray},
+    {color::gray, color::cyan, color::cyan, color::cyan, color::gray},
     {color::gray, color::gray, color::gray, color::gray, color::gray}
   };
 

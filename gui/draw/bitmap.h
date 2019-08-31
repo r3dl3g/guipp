@@ -136,6 +136,8 @@ namespace gui {
       template<PixelFormat T>
       operator datamap<T> () const;
 
+      bwmap get_mask (pixel::gray limit = {0x7F}) const;
+
     private:
       template<PixelFormat T>
       void invert ();

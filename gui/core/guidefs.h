@@ -31,7 +31,7 @@
 // Library includes
 //
 #include <base/bits.h>
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <gui++-core-export.h>
 
 
@@ -54,7 +54,7 @@
 #endif
 
 
-#if defined(BASEPP_BUILT_AS_STATIC)
+#if defined(LOGGING_BUILT_AS_STATIC)
 DECLARE_LOGGING_CORE(GUIPP_CORE_EXPORT)
 #endif
 

@@ -30,7 +30,7 @@
 // Library includes
 //
 #include <gui/core/event.h>
-#include <base/logger.h>
+#include <logging/logger.h>
 
 #ifdef X11
 namespace gui {

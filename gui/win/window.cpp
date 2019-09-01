@@ -32,8 +32,8 @@
 //
 // Library includes
 //
-#include <base/ostreamfmt.h>
-#include <base/logger.h>
+#include <logging/ostreamfmt.h>
+#include <logging/logger.h>
 #include <gui/win/container.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/window_event_handler.h>

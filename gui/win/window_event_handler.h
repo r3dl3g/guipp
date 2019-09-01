@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <gui/core/event_handler.h>
 #include <gui/core/gui_types.h>
 #include <gui/win/window_event_proc.h>

@@ -10,7 +10,7 @@
 //
 // Library includes
 //
-#include <base/time_util.h>
+#include <logging/time_util.h>
 #include <gui/win/window.h>
 #include <gui/win/attach_layout.h>
 #include <gui/win/lineup_layout.h>

@@ -32,7 +32,7 @@
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/use.h>
-#include <base/logger.h>
+#include <logging/logger.h>
 
 
 #ifdef X11

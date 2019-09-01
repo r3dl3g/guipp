@@ -22,8 +22,8 @@
 //
 // Library includes
 //
-#include <base/dbgstream.h>
-#include <base/logger.h>
+#include <logging/dbgstream.h>
+#include <logging/logger.h>
 #include <base/string_util.h>
 #include <gui/app/app.h>
 #include <gui/core/guidefs.h>
@@ -41,11 +41,11 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(nCmdShow);
 
   basepp::odebugstream dbgStrm;
-  basepp::log::core::instance().add_sink(&dbgStrm, basepp::log::level::debug, basepp::log::core::get_console_formatter());
+  logging::core::instance().add_sink(&dbgStrm, logging::level::debug, logging::core::get_console_formatter());
 
 #ifndef NDEBUG
   std::ofstream log_file("gui++.log");
-  basepp::log::core::instance().add_sink(&log_file, basepp::log::level::trace, basepp::log::core::get_standard_formatter());
+  logging::core::instance().add_sink(&log_file, logging::level::trace, logging::core::get_standard_formatter());
 #endif // NDEBUG
 
   std::vector<std::string> args = basepp::string::split<' '>(lpCmdLine);
@@ -73,11 +73,11 @@ int main (int argc, char* argv[]) {
 
 #ifndef NDEBUG
 #ifdef WIN32
-  basepp::log::core::instance().remove_sink(&log_file);
+  logging::core::instance().remove_sink(&log_file);
 #endif // WIN32
 #endif // NDEBUG
 
-  basepp::log::core::instance().finish();
+  logging::core::instance().finish();
 
   return ret;
 }

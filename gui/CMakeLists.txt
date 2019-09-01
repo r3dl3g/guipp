@@ -26,9 +26,9 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     message(STATUS "gui basepp_sys_libraries: ${basepp_sys_libraries}")
 
     if (WIN32)
-      set (gui_defines ${basepp_defines} -DWIN32_LEAN_AND_MEAN)
+      set (gui_defines ${basepp_defines} ${logging_defines} -DWIN32_LEAN_AND_MEAN)
     else ()
-      set (gui_defines ${basepp_defines})
+      set (gui_defines ${basepp_defines} ${logging_defines})
     endif ()
 
     set (gui_include

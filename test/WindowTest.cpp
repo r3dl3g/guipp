@@ -10,7 +10,7 @@
 // Library includes
 //
 #include <base/string_util.h>
-#include <base/logger.h>
+#include <logging/logger.h>
 
 #include <gui/win/dbg_win_message.h>
 #include <gui/win/attach_layout.h>

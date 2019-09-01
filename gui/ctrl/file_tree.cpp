@@ -26,7 +26,7 @@
 //
 // Library includes
 //
-#include <base/time_util.h>
+#include <logging/time_util.h>
 #include <gui/draw/bitmap.h>
 #include <gui/ctrl/file_tree.h>
 
@@ -363,7 +363,7 @@ namespace gui {
             draw::frame::lines(g, r);
           },
           [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-            paint::text_item(g, r, b, basepp::time::format_time(tp), s, align);
+            paint::text_item(g, r, b, logging::time::format_time(tp), s, align);
             draw::frame::lines(g, r);
           }
         };

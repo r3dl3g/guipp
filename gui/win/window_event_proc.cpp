@@ -35,7 +35,7 @@
 //
 // Library includes
 //
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <base/robbery.h>
 #include <base/blocking_queue.h>
 #include <gui/win/window.h>

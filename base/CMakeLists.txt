@@ -12,6 +12,7 @@ set(BASEPP_BUILD_STATIC_MODULE_LIBS ON CACHE BOOL "On to build a static library 
 if(NOT TARGET base++-obj)
 
     set (basepp_include
+        ${logging_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
         ${CMAKE_CURRENT_BINARY_DIR}
         ${PROJECT_BINARY_DIR}
@@ -28,11 +29,13 @@ if(NOT TARGET base++-obj)
     endif()
 
     if (BASEPP_BUILD_STATIC_MODULE_LIBS)
-        set (basepp_libraries base++-static)
+        set (basepp_libraries ${logging_libraries} base++-static)
         set (basepp_defines "-DBASEPP_BUILT_AS_STATIC")
     else()
-        set (basepp_libraries base++)
+        set (basepp_libraries ${logging_libraries} base++)
     endif()
+
+    #set (basepp_defines ${basepp_defines} ${logging_defines})
 
     set (basepp_sys_libraries ${basepp_sys_libraries} PARENT_SCOPE)
     set (basepp_include ${basepp_include} PARENT_SCOPE)

@@ -151,8 +151,7 @@ namespace basepp {
     void core::finish () {
       if (m_is_active) {
         m_is_active = false;
-        record r;
-        m_messages.enqueue(r);
+        m_messages.enqueue(record());
         m_sink_thread.join();
       }
     }
@@ -180,7 +179,7 @@ namespace basepp {
       unsigned int id = ++m_line_id;
       record r(time_point, lvl, t_thread_name, id, message);
       if (m_is_active) {
-        m_messages.enqueue(r);
+        m_messages.enqueue(std::move(r));
         if (lvl >= level::error) {
           // wait up to 3 seconds until all messages are written!
           m_messages.wait_until_empty(std::chrono::milliseconds(3000));
@@ -193,7 +192,7 @@ namespace basepp {
     void core::log_to_sinks (const record& entry) {
       if (entry.level() != level::undefined) {
         std::lock_guard<std::mutex> lock(m_mutex);
-        for (Sinks::iterator i = m_sinks.begin(), e = m_sinks.end(); i != e; ++i) {
+        for (sink_list::iterator i = m_sinks.begin(), e = m_sinks.end(); i != e; ++i) {
           sink& s = *i;
           if (entry.level() >= s.m_level) {
             try {
@@ -216,7 +215,7 @@ namespace basepp {
 
     void core::remove_sink (std::ostream* stream) {
       std::lock_guard<std::mutex> lock(m_mutex);
-      Sinks::iterator i = m_sinks.begin(), e = m_sinks.end();
+      sink_list::iterator i = m_sinks.begin(), e = m_sinks.end();
       i = std::find_if(i, e, [=](sink& s) { return s.m_stream == stream; });
       if (i != e) {
         m_sinks.erase(i);

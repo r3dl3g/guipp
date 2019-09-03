@@ -40,7 +40,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
   UNREFERENCED_PARAMETER(nCmdShow);
 
-  basepp::odebugstream dbgStrm;
+  logging::odebugstream dbgStrm;
   logging::core::instance().add_sink(&dbgStrm, logging::level::debug, logging::core::get_console_formatter());
 
 #ifndef NDEBUG

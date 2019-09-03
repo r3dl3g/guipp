@@ -54,10 +54,6 @@
 #endif
 
 
-#if defined(LOGGING_BUILT_AS_STATIC_LIB)
-DECLARE_LOGGING_CORE(GUIPP_CORE_EXPORT)
-#endif
-
 namespace gui {
 
   namespace os {

@@ -48,7 +48,7 @@ namespace basepp {
         }
         m_queue.push(t);
       }
-      m_condition.notify_one();
+      m_condition.notify_all();
     }
 
     /// Enqueue an item and send signal to a waiting dequeuer.
@@ -60,12 +60,20 @@ namespace basepp {
         }
         m_queue.push(std::move(t));
       }
-      m_condition.notify_one();
+      m_condition.notify_all();
+    }
+
+    void wait_until_empty (const std::chrono::milliseconds& timeout) {
+      std::unique_lock<std::mutex> lock(m_mutex);
+
+      m_condition.wait_for(lock, timeout, [this] () {
+        return m_queue.empty();
+      });
     }
 
     void wait_until_not_empty (std::unique_lock<std::mutex> &lock,
                                const std::chrono::milliseconds maxWait) {
-      m_condition.wait_for(lock, maxWait, [this]() -> bool {
+      m_condition.wait_for(lock, maxWait, [this] () -> bool {
         return !m_queue.empty();
       });
     }
@@ -98,6 +106,7 @@ namespace basepp {
       T item = m_queue.back();
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
+      m_condition.notify_all();
       return item;
     }
 
@@ -113,6 +122,7 @@ namespace basepp {
 
       T item = m_queue.front();
       m_queue.pop();
+      m_condition.notify_all();
       return item;
     }
 
@@ -129,6 +139,7 @@ namespace basepp {
       T item = m_queue.back();
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
+      m_condition.notify_all();
       return item;
     }
 
@@ -144,6 +155,7 @@ namespace basepp {
 
       T item = m_queue.front();
       m_queue.pop();
+      m_condition.notify_all();
       return item;
     }
 
@@ -157,6 +169,7 @@ namespace basepp {
 
       t = m_queue.front();
       m_queue.pop();
+      m_condition.notify_all();
       return true;
     }
 
@@ -171,14 +184,7 @@ namespace basepp {
       std::unique_lock<std::mutex> lock(m_mutex);
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
-    }
-
-    void wait_until_empty (const std::chrono::milliseconds& timeout) {
-      std::unique_lock<std::mutex> lock(m_mutex);
-
-      m_condition.wait_for(lock, timeout, [this]() {
-        return m_queue.empty();
-      });
+      m_condition.notify_all();
     }
 
   private:

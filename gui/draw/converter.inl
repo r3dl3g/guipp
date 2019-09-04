@@ -165,7 +165,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace scaling {
 
-      struct constants {
+      struct GUIPP_DRAW_EXPORT constants {
         const uint32_t src_w;
         const uint32_t src_h;
         const uint32_t dest_w;
@@ -193,7 +193,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace bilinear {
 
-      struct weights {
+      struct GUIPP_DRAW_EXPORT weights {
         const double w0;
         const double w1;
 
@@ -201,7 +201,7 @@ namespace gui {
 
       };
 
-      struct param {
+      struct GUIPP_DRAW_EXPORT param {
         const uint32_t v0;
         const uint32_t v1;
         const weights w;
@@ -223,12 +223,12 @@ namespace gui {
       }
 
       template<>
-      pixel::mono interpolation (const pixel::mono p00,
-                                 const pixel::mono p01,
-                                 const pixel::mono p10,
-                                 const pixel::mono p11,
-                                 const weights& wx,
-                                 const weights& wy);
+      pixel::mono GUIPP_DRAW_EXPORT interpolation (const pixel::mono p00,
+                                                   const pixel::mono p01,
+                                                   const pixel::mono p10,
+                                                   const pixel::mono p11,
+                                                   const weights& wx,
+                                                   const weights& wy);
 
     } // namespace bilinear
 
@@ -272,7 +272,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace bicubic {
 
-      struct weights {
+      struct GUIPP_DRAW_EXPORT weights {
         const double w0;
         const double w1;
         const double w2;
@@ -287,7 +287,7 @@ namespace gui {
 
       };
 
-      struct param {
+      struct GUIPP_DRAW_EXPORT param {
         const uint32_t v0;
         const uint32_t v1;
         const uint32_t v2;
@@ -304,12 +304,12 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      double summation (const basepp::array_wrapper<const pixel::mono> src,
-                        const bicubic::param& px);
+      double GUIPP_DRAW_EXPORT summation (const basepp::array_wrapper<const pixel::mono> src,
+                                          const bicubic::param& px);
 
       // --------------------------------------------------------------------------
-      double summation (const basepp::array_wrapper<const pixel::gray> src,
-                        const bicubic::param& px);
+      double GUIPP_DRAW_EXPORT summation (const basepp::array_wrapper<const pixel::gray> src,
+                                          const bicubic::param& px);
 
       // --------------------------------------------------------------------------
       template<typename T, typename std::enable_if<pixel::is_rgb_type<T>::value>::type* = nullptr>

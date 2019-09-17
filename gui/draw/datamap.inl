@@ -143,8 +143,7 @@ namespace gui {
         return;
       }
 
-      convert::copy::sub<T>(src_img.get_data(), get_data(),
-                            src.position(), dest);
+      convert::copy::sub<T>(src_img.get_data(), get_data(), src.position(), dest);
     }
 
     template<PixelFormat T>
@@ -193,7 +192,7 @@ namespace gui {
     }
 
     template<PixelFormat T>
-    inline auto datamap<T>::brightness (float f) const -> datamap {
+    inline auto datamap<T>::brightness (double f) const -> datamap {
       datamap bmp = *this;
       bitmap_info& bmi = bmp.info;
       convert::brightness::adjust<T>(bmp.get_data(), bmi.width, bmi.height, f);
@@ -210,6 +209,13 @@ namespace gui {
     template<PixelFormat T>
     inline void datamap<T>::fill (const pixel_type& c) {
       convert::fill::fill<T>(get_data(), info.width, info.height, c);
+    }
+
+    template<PixelFormat T>
+    inline datamap<PixelFormat::BW> datamap<T>::get_mask (pixel::gray limit) const {
+      datamap<PixelFormat::BW> img(info.size());
+      convert::format::mask<T, PixelFormat::BW>(get_data(), img.get_data(), info.width, info.height, limit);
+      return img;
     }
 
   }

@@ -127,8 +127,9 @@ namespace gui {
 
       datamap sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const;
 
-      datamap brightness (float f) const;
+      datamap brightness (double f) const;
 
+      datamap<PixelFormat::BW> get_mask (pixel::gray limit = {0x7F}) const;
     };
 
     // --------------------------------------------------------------------------

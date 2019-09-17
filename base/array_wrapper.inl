@@ -199,7 +199,7 @@ namespace basepp {
   }
 
   template<typename T>
-  inline auto bit_array_wrapper<T const>::sub (size_t offset, size_t n) -> bit_array_wrapper {
+  inline auto bit_array_wrapper<T const>::sub (size_t offset, size_t n) const -> bit_array_wrapper {
     check_boundary(offset + n - 1);
     return bit_array_wrapper(data_ + offset / 8, n);
   }

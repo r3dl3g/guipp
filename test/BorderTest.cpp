@@ -10,7 +10,7 @@
 //
 // Library includes
 //
-#include <base/time_util.h>
+#include <logging/time_util.h>
 #include <gui/win/window.h>
 #include <gui/win/attach_layout.h>
 #include <gui/win/lineup_layout.h>
@@ -65,7 +65,7 @@ public:
   void start_thread ();
   void stop_thread ();
 
-  void set_scale (float);
+  void set_scale (double);
 
   void settings ();
 
@@ -104,10 +104,10 @@ private:
   right_tab_group<color::black, color::very_light_gray, 50, 80> vsegmented2;
 
   client_control<color::rgb_gray<0xda>::value> window1;
-  rgbamap rgba[2];
-  rgbmap bmp[2];
-  graymap gray[2];
-  bwmap bw[2];
+  rgbamap rgbas[2];
+  rgbmap rgbs[2];
+  graymap grays[2];
+  bwmap bws[2];
 
   rgbmap wave_color;
 };
@@ -150,7 +150,7 @@ void my_main_window::stop_thread () {
   }
 }
 
-void my_main_window::set_scale (float f) {
+void my_main_window::set_scale (double f) {
   auto current_size = size();
   core::global::set_scale_factor(f);
   resize(current_size, true);
@@ -180,32 +180,32 @@ my_main_window::my_main_window ()
     core::point::type x = 1;
     for (int i = 0; i < 2; ++i) {
       try {
-        if (bw[i]) {
-          graph.copy_from(bw[i], core::point(x, 1));
+        if (bws[i]) {
+          graph.copy_from(bws[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
       }
       x += 110;
       try {
-        if (gray[i]) {
-          graph.copy_from(gray[i], core::point(x, 1));
+        if (grays[i]) {
+          graph.copy_from(grays[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
       }
       x += 110;
       try {
-        if (bmp[i]) {
-          graph.copy_from(bmp[i], core::point(x, 1));
+        if (rgbs[i]) {
+          graph.copy_from(rgbs[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
       }
       x += 110;
       try {
-        if (rgba[i]) {
-          graph.copy_from(rgba[i], core::point(x, 1));
+        if (rgbas[i]) {
+          graph.copy_from(rgbas[i], core::point(x, 1));
         }
       } catch (std::exception& ex) {
         LogFatal << ex;
@@ -539,10 +539,10 @@ void my_main_window::open () {
     if (sys_fs::exists(file)) {
       gui::draw::basic_datamap img;
       gui::io::load_pnm(file.string(), img);
-      rgba[0] = img.convert<PixelFormat::RGBA>();
-      bmp[0] = img.convert<PixelFormat::RGB>();
-      gray[0] = img.convert<PixelFormat::GRAY>();
-      bw[0] = img.convert<PixelFormat::BW>();
+      rgbas[0] = img.convert<PixelFormat::RGBA>();
+      rgbs[0] = img.convert<PixelFormat::RGB>();
+      grays[0] = img.convert<PixelFormat::GRAY>();
+      bws[0] = img.convert<PixelFormat::BW>();
       window1.invalidate();
     }
   });
@@ -557,12 +557,12 @@ void my_main_window::save_as () {
                          ostreamfmt("File '" << file << "' already exists!\nDo you want to overwrite the exiting file?"),
                          "Yes", "No", [&] (bool yes) {
         if (yes) {
-          gui::io::src::save_pnm_src(file.string(), gray[0], "src");
+          gui::io::src::save_pnm_src(file.string(), grays[0], "src");
         }
         take_focus();
       });
     } else {
-      gui::io::src::save_pnm_src(file.string(), gray[0], "src");
+      gui::io::src::save_pnm_src(file.string(), grays[0], "src");
       take_focus();
     }
   });
@@ -589,17 +589,17 @@ void my_main_window::copy () {
   core::rectangle r = left_list.client_area();
   core::size sz = r.size();
 
-  rgba[0].create(sz);
-  bmp[0].create(sz);
-  gray[0].create(sz);
-  bw[0].create(sz);
+  rgbas[0].create(sz);
+  rgbs[0].create(sz);
+  grays[0].create(sz);
+  bws[0].create(sz);
 
   pixmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
-  rgba[0] = img;
-  bmp[0] = img;
-  gray[0] = img;
-  bw[0] = img;
+  rgbas[0] = img;
+  rgbs[0] = img;
+  grays[0] = img;
+  bws[0] = img;
 
   window1.invalidate();
 }
@@ -622,10 +622,10 @@ void my_main_window::settings () {
   void my_main_window::del () {
   labels[0].set_text("del");
   for (int i = 0; i < 2; ++i) {
-    rgba[i].clear();
-    bmp[i].clear();
-    gray[i].clear();
-    bw[i].clear();
+    rgbas[i].clear();
+    rgbs[i].clear();
+    grays[i].clear();
+    bws[i].clear();
   }
   window1.invalidate();
 }
@@ -647,47 +647,47 @@ void my_main_window::cut () {
 
   pixmap img(sz);
   draw::graphics(img).copy_from(left_list, r);
-  rgba[0] = img;
-  bmp[0] = img;
-  gray[0] = img;
-  bw[0] = img;
+  rgbas[0] = img;
+  rgbs[0] = img;
+  grays[0] = img;
+  bws[0] = img;
 
-  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[0]);
-  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[0]);
+  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[0]);
+  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[0]);
 
-  io::ofpnm<io::PNM::P6>("left_list.p6") << bmp[0];
-  io::ofpnm<io::PNM::P3>("left_list.p3") << bmp[0];
+  io::ofpnm<io::PNM::P6>("left_list.p6") << rgbs[0];
+  io::ofpnm<io::PNM::P3>("left_list.p3") << rgbs[0];
 
-  io::ofpnm<io::PNM::P5>("left_list.p5") << gray[0];
-  io::ofpnm<io::PNM::P2>("left_list.p2") << gray[0];
+  io::ofpnm<io::PNM::P5>("left_list.p5") << grays[0];
+  io::ofpnm<io::PNM::P2>("left_list.p2") << grays[0];
 
-  io::ofpnm<io::PNM::P4>("left_list.p4") << bw[0];
-  io::ofpnm<io::PNM::P1>("left_list.p1") << bw[0];
+  io::ofpnm<io::PNM::P4>("left_list.p4") << bws[0];
+  io::ofpnm<io::PNM::P1>("left_list.p1") << bws[0];
 
-  rgba[1].create(sz);
-  bmp[1].create(sz);
-  gray[1].create(sz);
-  bw[1].create(sz);
+  rgbas[1].create(sz);
+  rgbs[1].create(sz);
+  grays[1].create(sz);
+  bws[1].create(sz);
 
-  rgba[1] = drawer(sz);
+  rgbas[1] = drawer(sz);
 
-  std::ofstream("p6-rgba.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[1]);
-  std::ofstream("p3-rgba.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[1]);
+  std::ofstream("p6-rgba.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[1]);
+  std::ofstream("p3-rgba.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[1]);
 
-  bmp[1] = drawer(sz);
+  rgbs[1] = drawer(sz);
 
-  io::ofpnm<io::PNM::P6>("p6") << bmp[1];
-  io::ofpnm<io::PNM::P3>("p3") << bmp[1];
+  io::ofpnm<io::PNM::P6>("p6") << rgbs[1];
+  io::ofpnm<io::PNM::P3>("p3") << rgbs[1];
 
-  gray[1] = drawer(sz);
+  grays[1] = drawer(sz);
 
-  io::ofpnm<io::PNM::P5>("p5") << gray[1];
-  io::ofpnm<io::PNM::P2>("p2") << gray[1];
+  io::ofpnm<io::PNM::P5>("p5") << grays[1];
+  io::ofpnm<io::PNM::P2>("p2") << grays[1];
 
-  bw[1] = drawer(sz);
+  bws[1] = drawer(sz);
 
-  io::ofpnm<io::PNM::P4>("p4") << bw[1];
-  io::ofpnm<io::PNM::P1>("p1") << bw[1];
+  io::ofpnm<io::PNM::P4>("p4") << bws[1];
+  io::ofpnm<io::PNM::P1>("p1") << bws[1];
 
   window1.invalidate();
 }
@@ -724,15 +724,15 @@ void read_write_rgba (datamap<PixelFormat::RGBA>& bm) {
 void my_main_window::paste () {
   labels[0].set_text("paste");
 
-  read_write<io::PNM::P1>(bw[0]);
-  read_write<io::PNM::P2>(gray[0]);
-  read_write<io::PNM::P3>(bmp[0]);
-  read_write<io::PNM::P4>(bw[1]);
-  read_write<io::PNM::P5>(gray[1]);
-  read_write<io::PNM::P6>(bmp[1]);
+  read_write<io::PNM::P1>(bws[0]);
+  read_write<io::PNM::P2>(grays[0]);
+  read_write<io::PNM::P3>(rgbs[0]);
+  read_write<io::PNM::P4>(bws[1]);
+  read_write<io::PNM::P5>(grays[1]);
+  read_write<io::PNM::P6>(rgbs[1]);
 
-  read_write_rgba<io::PNM::P3>(rgba[0]);
-  read_write_rgba<io::PNM::P6>(rgba[1]);
+  read_write_rgba<io::PNM::P3>(rgbas[0]);
+  read_write_rgba<io::PNM::P6>(rgbas[1]);
 
   window1.invalidate();
 }
@@ -761,23 +761,23 @@ void my_main_window::test_rgb () {
   io::ifpnm<io::PNM::P3>("red32") >> red;
   io::ifpnm<io::PNM::P3>("red24") >> red24;
 
-  bw[0] = red;
-  bw[1] = red24;
+  bws[0] = red;
+  bws[1] = red24;
 
   io::ifpnm<io::PNM::P3>("green32") >> green;
   io::ifpnm<io::PNM::P3>("green24") >> green24;
 
-  gray[0] = green;
-  gray[1] = green24;
+  grays[0] = green;
+  grays[1] = green24;
 
   io::ifpnm<io::PNM::P3>("blue32") >> blue;
   io::ifpnm<io::PNM::P3>("blue24") >> blue24;
 
-  bmp[0] = blue;
-  bmp[1] = blue24;
+  rgbs[0] = blue;
+  rgbs[1] = blue24;
 
-  rgba[0] = blue;
-  rgba[1] = blue24;
+  rgbas[0] = blue;
+  rgbas[1] = blue24;
 
   window1.invalidate();
 }
@@ -785,35 +785,35 @@ void my_main_window::test_rgb () {
 void my_main_window::save_all_bin () {
   ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (const sys_fs::path& file) {
     sys_fs::current_path(file);
-    std::ofstream("rgba0.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[0]);
-    std::ofstream("rgba1.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgba[1]);
-    io::ofpnm<io::PNM::P6>("bmp0.b")  << bmp[0];
-    io::ofpnm<io::PNM::P6>("bmp1.b")  << bmp[1];
-    io::ofpnm<io::PNM::P5>("gray0.b") << gray[0];
-    io::ofpnm<io::PNM::P5>("gray1.b") << gray[1];
-    io::ofpnm<io::PNM::P4>("bw0.b")   << bw[0];
-    io::ofpnm<io::PNM::P4>("bw1.b")   << bw[1];
+    std::ofstream("rgba0.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[0]);
+    std::ofstream("rgba1.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[1]);
+    io::ofpnm<io::PNM::P6>("bmp0.b")  << rgbs[0];
+    io::ofpnm<io::PNM::P6>("bmp1.b")  << rgbs[1];
+    io::ofpnm<io::PNM::P5>("gray0.b") << grays[0];
+    io::ofpnm<io::PNM::P5>("gray1.b") << grays[1];
+    io::ofpnm<io::PNM::P4>("bw0.b")   << bws[0];
+    io::ofpnm<io::PNM::P4>("bw1.b")   << bws[1];
   });
 }
 
 void my_main_window::save_all_ascii() {
-  std::ofstream("rgba0.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[0]);
-  std::ofstream("rgba1.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgba[1]);
-  io::ofpnm<io::PNM::P3>("bmp0.a") << bmp[0];
-  io::ofpnm<io::PNM::P3>("bmp1.a") << bmp[1];
-  io::ofpnm<io::PNM::P2>("gray0.a") << gray[0];
-  io::ofpnm<io::PNM::P2>("gray1.a") << gray[1];
-  io::ofpnm<io::PNM::P1>("bw0.a") << bw[0];
-  io::ofpnm<io::PNM::P1>("bw1.a") << bw[1];
+  std::ofstream("rgba0.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[0]);
+  std::ofstream("rgba1.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[1]);
+  io::ofpnm<io::PNM::P3>("bmp0.a") << rgbs[0];
+  io::ofpnm<io::PNM::P3>("bmp1.a") << rgbs[1];
+  io::ofpnm<io::PNM::P2>("gray0.a") << grays[0];
+  io::ofpnm<io::PNM::P2>("gray1.a") << grays[1];
+  io::ofpnm<io::PNM::P1>("bw0.a") << bws[0];
+  io::ofpnm<io::PNM::P1>("bw1.a") << bws[1];
 }
 
 void my_main_window::save_all_src () {
-  io::src::save_pnm_src("bmp0.h", bmp[0], "bmp0");
-  io::src::save_pnm_src("bmp1.h", bmp[1], "bmp1");
-  io::src::save_pnm_src("gray0.h", gray[0], "gray0");
-  io::src::save_pnm_src("gray1.h", gray[1], "gray1");
-  io::src::save_pnm_src("bw0.h", bw[0], "bw0");
-  io::src::save_pnm_src("bw1.h", bw[1], "bw1");
+  io::src::save_pnm_src("bmp0.h", rgbs[0], "bmp0");
+  io::src::save_pnm_src("bmp1.h", rgbs[1], "bmp1");
+  io::src::save_pnm_src("gray0.h", grays[0], "gray0");
+  io::src::save_pnm_src("gray1.h", grays[1], "gray1");
+  io::src::save_pnm_src("bw0.h", bws[0], "bw0");
+  io::src::save_pnm_src("bw1.h", bws[1], "bw1");
 }
 
 // --------------------------------------------------------------------------

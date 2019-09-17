@@ -43,6 +43,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-std=c++14 -fexceptions -Wall -Wno-switch -Wno-unused-command-line-argument -Wno-sign-compare )
 endif ()
 
+add_subdirectory(logging)
 add_subdirectory(base)
 add_subdirectory(gui)
 add_subdirectory(test)

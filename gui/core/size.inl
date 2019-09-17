@@ -180,12 +180,12 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto basic_size<T>::operator* (type f) const -> self {
+    inline auto basic_size<T>::operator* (double f) const -> self {
       return {type(width() * f), type(height() * f)};
     }
 
     template<typename T>
-    inline auto basic_size<T>::operator/ (type f) const -> self {
+    inline auto basic_size<T>::operator/ (double f) const -> self {
       return {type(width() / f), type(height() / f)};
     }
 
@@ -204,16 +204,16 @@ namespace gui {
     }
 
     template<typename T>
-    inline auto basic_size<T>::operator*= (type f) -> self& {
-      w *= f;
-      h *= f;
+    inline auto basic_size<T>::operator*= (double f) -> self& {
+      w = type(w * f);
+      h = type(h * f);
       return *this;
     }
 
     template<typename T>
-    inline auto basic_size<T>::operator/= (type f) -> self& {
-      w /= f;
-      h /= f;
+    inline auto basic_size<T>::operator/= (double f) -> self& {
+      w = type(w / f);
+      h = type(h / f);
       return *this;
     }
 

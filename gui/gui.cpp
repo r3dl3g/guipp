@@ -25,11 +25,11 @@
 //
 // Library includes
 //
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <gui_version.h>
 #include <gui++-export.h>
 
-#if defined(BASEPP_BUILT_AS_STATIC)
+#if defined(LOGGING_BUILT_AS_STATIC_LIB)
 DEFINE_LOGGING_CORE(GUIPP_EXPORT)
 #endif
 

@@ -353,7 +353,7 @@ namespace gui {
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           int r, g, b;
           in >> b >> g >> r;
-          row[x] = pixel::rgb_pixel{
+          row[x] = pixel::rgb{
             static_cast<byte>(b),
             static_cast<byte>(g),
             static_cast<byte>(r)
@@ -402,7 +402,7 @@ namespace gui {
         auto row = img.row(y);
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           auto pixel = row[x];
-          out << (static_cast<bool>(pixel == pixel::bw_pixel::black) ? '1' : '0') << ' ';
+          out << (static_cast<bool>(pixel == pixel::mono::black) ? '1' : '0') << ' ';
         }
         out << std::endl;
       }
@@ -419,7 +419,7 @@ namespace gui {
         for (uint_fast32_t x = 0; x < bmi.width; ++x) {
           char v;
           in >> v;
-          row[x] = (v == '1') ? pixel::bw_pixel::black : pixel::bw_pixel::white;
+          row[x] = (v == '1') ? pixel::mono::black : pixel::mono::white;
         }
       }
       return img;

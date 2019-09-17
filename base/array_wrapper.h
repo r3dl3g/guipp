@@ -105,7 +105,7 @@ namespace basepp {
     bit_array_wrapper& copy_from (const bit_array_wrapper<T>& rhs, size_t n);
     bit_array_wrapper& copy_from (const bit_array_wrapper<const T>& rhs, size_t n);
 
-  private:
+  protected:
     type* data_;
     detail::boundary_check check_boundary;
   };
@@ -119,9 +119,9 @@ namespace basepp {
     bit_array_wrapper (const std::vector<type>& data);
 
     bit_wrapper<T const> operator[] (size_t i) const;
-    bit_array_wrapper sub (size_t offset, size_t n);
+    bit_array_wrapper sub (size_t offset, size_t n) const;
 
-  private:
+  protected:
     friend struct bit_array_wrapper<T>;
     const type* data_;
     detail::boundary_check check_boundary;

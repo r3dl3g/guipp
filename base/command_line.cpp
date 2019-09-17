@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "base/ostreamfmt.h"
+#include "logging/ostreamfmt.h"
 #include "base/command_line.h"
 
 

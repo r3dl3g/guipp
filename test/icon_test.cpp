@@ -194,8 +194,8 @@ DEFINE_TEST(test_bitmap_get_data) {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::bw_pixel expected = expected_bit_at_inv(x, y) ? pixel::bw_pixel::white : pixel::bw_pixel::black;
-      const pixel::bw_pixel test = row[x];
+      const pixel::mono expected = expected_bit_at_inv(x, y) ? pixel::mono::white : pixel::mono::black;
+      const pixel::mono test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
@@ -217,9 +217,9 @@ DEFINE_TEST(test_bitmap_get_image) {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::white
-                                                                  : pixel::color<pixel::rgb_pixel>::black;
-      const pixel::rgb_pixel test = row[x];
+      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::white
+                                                                  : pixel::color<pixel::rgb>::black;
+      const pixel::rgb test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
@@ -242,9 +242,9 @@ DEFINE_TEST(test_bitmap_get_image_inv) {
   for (int y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (int x = 0; x < 20; ++x) {
-      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
-                                                                  : pixel::color<pixel::rgb_pixel>::white;
-      const pixel::rgb_pixel test = row[x];
+      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
+                                                                  : pixel::color<pixel::rgb>::white;
+      const pixel::rgb test = row[x];
       EXPECT_EQUAL(test, expected, " at x:", x, ", y:", y);
     }
   }
@@ -296,14 +296,14 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
   draw::rgbmap img = mem.get<PixelFormat::RGB>();
   auto data = img.get_data();
 
-  auto gray = pixel::rgb_pixel::build(color::gray);
+  auto gray = pixel::rgb::build(color::gray);
 
   for (uint32_t y = 0; y < 20; ++y) {
     auto row = data.row(y);
     for (uint32_t x = 0; x < 20; ++x) {
-      const pixel::rgb_pixel expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb_pixel>::black
+      const pixel::rgb expected = expected_bit_at_inv(x, y) ? pixel::color<pixel::rgb>::black
                                                                   : gray;
-      const pixel::rgb_pixel test = row[x];
+      const pixel::rgb test = row[x];
       EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
     }
   }
@@ -373,13 +373,13 @@ DEFINE_TEST(test_masked_from_pixmap) {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
-  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::cyan);
 
   os::color expected_color[5][5] = {
     {color::black, color::black, color::black, color::black, color::black},
-    {color::black, color::blue,  color::blue,  color::blue,  color::black},
-    {color::black, color::blue,  color::red,   color::blue,  color::black},
-    {color::black, color::blue,  color::blue,  color::blue,  color::black},
+    {color::black, color::cyan,  color::cyan,  color::cyan,  color::black},
+    {color::black, color::cyan,  color::red,   color::cyan,  color::black},
+    {color::black, color::cyan,  color::cyan,  color::cyan,  color::black},
     {color::black, color::black, color::black, color::black, color::black}
   };
 
@@ -389,19 +389,19 @@ DEFINE_TEST(test_masked_from_pixmap) {
     for (uint32_t y = 0; y < 5; ++y) {
       auto row = data.row(y);
       for (uint32_t x = 0; x < 5; ++x) {
-        const pixel::rgb_pixel expected = pixel::rgb_pixel::build(expected_color[x][y]);
-        const pixel::rgb_pixel test = row[x];
+        const pixel::rgb expected = pixel::rgb::build(expected_color[x][y]);
+        const pixel::rgb test = row[x];
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
   }
 
-  pixel::bw_pixel expected_bw[5][5] = {
-    {pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black},
-    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
-    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
-    {pixel::bw_pixel::black, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::white, pixel::bw_pixel::black},
-    {pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black, pixel::bw_pixel::black}
+  pixel::mono expected_bw[5][5] = {
+    {pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black},
+    {pixel::mono::black, pixel::mono::white, pixel::mono::white, pixel::mono::white, pixel::mono::black},
+    {pixel::mono::black, pixel::mono::white, pixel::mono::white, pixel::mono::white, pixel::mono::black},
+    {pixel::mono::black, pixel::mono::white, pixel::mono::white, pixel::mono::white, pixel::mono::black},
+    {pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black, pixel::mono::black}
   };
 
   draw::masked_bitmap icon(pix);
@@ -412,8 +412,8 @@ DEFINE_TEST(test_masked_from_pixmap) {
     for (uint32_t y = 0; y < 5; ++y) {
       auto row = data.row(y);
       for (uint32_t x = 0; x < 5; ++x) {
-        const pixel::bw_pixel expected = expected_bw[x][y];// == pixel::bw_pixel::black ? pixel::bw_pixel::white : pixel::bw_pixel::black;
-        const pixel::bw_pixel test = row[x];
+        const pixel::mono expected = expected_bw[x][y];// == pixel::mono::black ? pixel::mono::white : pixel::mono::black;
+        const pixel::mono test = row[x];
         EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
       }
     }
@@ -426,7 +426,7 @@ DEFINE_TEST(test_masked_bitmap) {
   core::global::set_scale_factor(1.0);
 
   draw::pixmap pix(5, 5);
-  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::blue);
+  draw::graphics(pix).clear(color::black).draw(draw::rectangle(core::rectangle(1, 1, 3, 3)), color::red, color::cyan);
 
   draw::masked_bitmap icon(pix);
 
@@ -436,9 +436,9 @@ DEFINE_TEST(test_masked_bitmap) {
 
   os::color expected_color[5][5] = {
     {color::gray, color::gray, color::gray, color::gray, color::gray},
-    {color::gray, color::blue, color::blue, color::blue, color::gray},
-    {color::gray, color::blue, color::red,  color::blue, color::gray},
-    {color::gray, color::blue, color::blue, color::blue, color::gray},
+    {color::gray, color::cyan, color::cyan, color::cyan, color::gray},
+    {color::gray, color::cyan, color::red,  color::cyan, color::gray},
+    {color::gray, color::cyan, color::cyan, color::cyan, color::gray},
     {color::gray, color::gray, color::gray, color::gray, color::gray}
   };
 
@@ -485,7 +485,7 @@ DEFINE_TEST(test_file_icon) {
       auto row = data.row(y);
       for (int32_t x = 0; x < 20; ++x) {
         const bool expected = expected_bit_at_inv(x, y);
-        const pixel::bw_pixel test = row[x];
+        const pixel::mono test = row[x];
         EXPECT_EQUAL((bool)test, expected, " at x = ", x, ", y = ", y);
       }
     }

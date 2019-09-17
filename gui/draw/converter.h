@@ -45,12 +45,21 @@ namespace gui {
         static void convert (const typename draw::const_image_data<From>::row_type in,
                              typename draw::image_data<To>::row_type out,
                              uint32_t w);
+
+        static void mask (const typename draw::const_image_data<From>::row_type in,
+                          typename draw::image_data<To>::row_type out,
+                          uint32_t w, pixel::gray limit);
       };
 
       template<PixelFormat From, PixelFormat To>
       void convert (const typename draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h);
+
+      template<PixelFormat From, PixelFormat To>
+      void mask (const typename draw::const_image_data<From> in,
+                 draw::image_data<To> out,
+                 uint32_t w, uint32_t h, pixel::gray limit);
 
     } // namespace format
 
@@ -81,11 +90,6 @@ namespace gui {
     template<PixelFormat F, interpolation I = interpolation::nearest>
     struct stretch {
 
-//      static void row (const typename draw::const_image_data<F>::row_type src,
-//                       typename draw::image_data<F>::row_type dst,
-//                       uint32_t src_x0, uint32_t dest_x0,
-//                       uint32_t src_w, uint32_t dest_w);
-
       static void sub (const typename draw::const_image_data<F> src_data,
                        draw::image_data<F> dest_data,
                        const core::native_rect& src,
@@ -100,10 +104,10 @@ namespace gui {
     namespace brightness {
 
       template<PixelFormat px_fmt>
-      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, float f);
+      void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, double f);
 
       template<PixelFormat px_fmt>
-      void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, float f);
+      void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, double f);
 
     }
 

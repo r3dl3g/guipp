@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <gui/core/event_container.h>
 
 namespace gui {

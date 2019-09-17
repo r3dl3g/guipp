@@ -32,8 +32,8 @@
 //
 // Library includes
 //
-#include <base/logger.h>
-#include <base/ostreamfmt.h>
+#include <logging/logger.h>
+#include <logging/ostreamfmt.h>
 #ifdef WIN32
 # include <base/string_util.h>
 #endif // WIN32

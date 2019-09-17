@@ -73,14 +73,14 @@ namespace gui {
 
       self operator+ (const self& rhs) const;
       self operator- (const self& rhs) const;
-      self operator* (type f) const;
-      self operator/ (type f) const;
+      self operator* (double f) const;
+      self operator/ (double f) const;
 
       self& operator= (const self& rhs);
       self& operator+= (const self& s);
       self& operator-= (const self& s);
-      self& operator*= (type f);
-      self& operator/= (type f);
+      self& operator*= (double f);
+      self& operator/= (double f);
 
       self operator- () const;
 

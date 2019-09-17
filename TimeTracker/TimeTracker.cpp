@@ -22,7 +22,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include <base/bind_method.h>
-#include <base/time_util.h>
+#include <logging/time_util.h>
 #include <gui/win/border_layout.h>
 #include <gui/win/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
@@ -39,15 +39,15 @@ using duration_type = std::chrono::system_clock::duration;
 namespace std {
 
   std::ostream& operator<< (std::ostream& o, time_point const& tp) {
-    return basepp::time::format_time(o, tp);
+    return logging::time::format_time(o, tp);
   }
 
   std::istream& operator>> (std::istream& i, time_point& tp) {
-    return basepp::time::operator>>(i, tp);
+    return logging::time::operator>>(i, tp);
   }
 
   std::ostream& operator<< (std::ostream& o, duration_type const& d) {
-    return basepp::time::format_duration_only_h(o, d);
+    return logging::time::format_duration_only_h(o, d);
   }
 
 }
@@ -76,13 +76,13 @@ struct date {
   }
 
   static date from_time_point (const time_point & tp) {
-    std::tm t = basepp::time::local_time(tp);
+    std::tm t = logging::time::local_time(tp);
     return {(uint32_t)(t.tm_year + 1900), (uint32_t)(t.tm_mon + 1), (uint32_t)t.tm_mday};
   }
 };
 
 std::ostream& operator<< (std::ostream& out, const date& dt) {
-  basepp::ostream_resetter r(out);
+  logging::ostream_resetter r(out);
   out << std::setfill('0') << dt.year
       << '-' << std::setw(2) << dt.month
       << '-' << std::setw(2) << dt.day;

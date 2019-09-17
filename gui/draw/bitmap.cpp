@@ -32,7 +32,7 @@
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/use.h>
-#include <base/logger.h>
+#include <logging/logger.h>
 
 
 #ifdef X11
@@ -534,6 +534,10 @@ namespace gui {
       }
     }
 
+    bwmap pixmap::get_mask (pixel::gray limit) const {
+      return get<PixelFormat::GRAY>().get_mask(limit);
+    }
+
     // --------------------------------------------------------------------------
     masked_bitmap::masked_bitmap (const pixmap& image, const bitmap& mask)
       : image(image)
@@ -570,14 +574,14 @@ namespace gui {
     void masked_bitmap::operator= (const pixmap& rhs) {
       image = rhs;
       if (image.is_valid()) {
-        mask = image.get<PixelFormat::BW>();
+        mask = image.get_mask({0x0f});
       }
     }
 
     void masked_bitmap::operator= (pixmap&& rhs) {
       image = std::move(rhs);
       if (image.is_valid()) {
-        mask = image.get<PixelFormat::BW>();
+        mask = image.get_mask({0x0f});
       }
     }
 

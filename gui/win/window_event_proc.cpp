@@ -35,8 +35,9 @@
 //
 // Library includes
 //
-#include <base/logger.h>
+#include <logging/logger.h>
 #include <base/robbery.h>
+#include <base/blocking_queue.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/dbg_win_message.h>

@@ -1,5 +1,5 @@
 /**
-* @copyright (c) 2015-2016 Ing. Buero Rothfuss
+* @copyright (c) 2015-2019 Ing. Buero Rothfuss
 *                          Riedlinger Str. 8
 *                          70327 Stuttgart
 *                          Germany
@@ -48,16 +48,56 @@ namespace basepp {
         }
         m_queue.push(t);
       }
-      m_condition.notify_one();
+      m_condition.notify_all();
     }
 
-    /// Dequeue the last item, if available, else waits until a new image is enqueued, clear queue after pop.
-    T dequeue_back () {
+    /// Enqueue an item and send signal to a waiting dequeuer.
+    void enqueue (T&& t) {
+      {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (m_queue.size() == S) {
+          m_queue.pop();
+        }
+        m_queue.push(std::move(t));
+      }
+      m_condition.notify_all();
+    }
+
+    void wait_until_empty (const std::chrono::milliseconds& timeout) {
       std::unique_lock<std::mutex> lock(m_mutex);
 
-      m_condition.wait(lock, [this]() {
+      m_condition.wait_for(lock, timeout, [this] () {
+        return m_queue.empty();
+      });
+    }
+
+    void wait_until_not_empty (std::unique_lock<std::mutex> &lock,
+                               const std::chrono::milliseconds maxWait) {
+      m_condition.wait_for(lock, maxWait, [this] () -> bool {
         return !m_queue.empty();
       });
+    }
+
+    void wait_until_not_empty (const std::chrono::milliseconds maxWait) {
+      std::unique_lock<std::mutex> lock(m_mutex);
+      wait_until_not_empty(lock, maxWait);
+    }
+
+    void wait_until_not_empty (std::unique_lock<std::mutex> &lock) {
+      m_condition.wait(lock, [this] () -> bool {
+        return !m_queue.empty();
+      });
+    }
+
+    void wait_until_not_empty () {
+      std::unique_lock<std::mutex> lock(m_mutex);
+      wait_until_not_empty(lock);
+    }
+
+    /// Dequeue the last item, if available, else waits until a new item is enqueued, clear queue after pop.
+    T dequeue_back (const std::chrono::milliseconds maxWait) {
+      std::unique_lock<std::mutex> lock(m_mutex);
+      wait_until_not_empty(lock, maxWait);
 
       if (m_queue.empty()) {
         return T();
@@ -66,16 +106,15 @@ namespace basepp {
       T item = m_queue.back();
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
+      m_condition.notify_all();
       return item;
     }
 
-    /// Dequeue an item if available, else waits until a new image is enqueued.
-    T dequeue () {
+    /// Dequeue an item if available, else waits until a new imitemage is enqueued.
+    T dequeue (const std::chrono::milliseconds maxWait) {
       std::unique_lock<std::mutex> lock(m_mutex);
 
-      m_condition.wait(lock, [this]() {
-        return !m_queue.empty();
-      });
+      wait_until_not_empty(lock, maxWait);
 
       if (m_queue.empty()) {
         return T();
@@ -83,6 +122,40 @@ namespace basepp {
 
       T item = m_queue.front();
       m_queue.pop();
+      m_condition.notify_all();
+      return item;
+    }
+
+    /// Dequeue the last item, if available, else waits until a new item is enqueued, clear queue after pop.
+    T dequeue_back () {
+      std::unique_lock<std::mutex> lock(m_mutex);
+
+      wait_until_not_empty(lock);
+
+      if (m_queue.empty()) {
+        return T();
+      }
+
+      T item = m_queue.back();
+      std::queue<T> tmp;
+      m_queue.swap(tmp); // clear
+      m_condition.notify_all();
+      return item;
+    }
+
+    /// Dequeue an item if available, else waits until a new item is enqueued.
+    T dequeue () {
+      std::unique_lock<std::mutex> lock(m_mutex);
+
+      wait_until_not_empty(lock);
+
+      if (m_queue.empty()) {
+        return T();
+      }
+
+      T item = m_queue.front();
+      m_queue.pop();
+      m_condition.notify_all();
       return item;
     }
 
@@ -96,6 +169,7 @@ namespace basepp {
 
       t = m_queue.front();
       m_queue.pop();
+      m_condition.notify_all();
       return true;
     }
 
@@ -110,14 +184,7 @@ namespace basepp {
       std::unique_lock<std::mutex> lock(m_mutex);
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
-    }
-
-    void wait_until_empty (const std::chrono::milliseconds& timeout) {
-      std::unique_lock<std::mutex> lock(m_mutex);
-
-      m_condition.wait_for(lock, timeout, [this]() {
-        return !m_queue.empty();
-      });
+      m_condition.notify_all();
     }
 
   private:

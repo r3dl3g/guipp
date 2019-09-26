@@ -5,6 +5,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/io/pnm.h>
+#include <gui/ctrl/tree.h>
 #include <testlib/testlib.h>
 
 namespace image_data {
@@ -46,7 +47,7 @@ TEST_MAIN(icon_test)
   RUN_TEST(test_masked_from_pixmap);
   RUN_TEST(test_masked_bitmap);
   RUN_TEST(test_file_icon);
-//  RUN_TEST(test_file_icon_selected);
+  RUN_TEST(test_file_icon_selected);
 //  RUN_TEST(test_close_folder_icon);
 //  RUN_TEST(test_close_folder_icon_selected);
 //  RUN_TEST(test_open_folder_icon);
@@ -525,7 +526,27 @@ DEFINE_TEST(test_file_icon) {
 END_TEST(test_file_icon)
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_file_icon_selected) {} END_TEST(test_file_icon_selected)
+DEFINE_TEST(test_file_icon_selected) {
+  core::global::set_scale_factor(1.0);
+
+  draw::masked_bitmap icon = gui::ctrl::tree::file_icon(false);
+
+  draw::pixmap mem(20, 20);
+  {
+    draw::graphics g(mem);
+    g.clear(color::gray);
+    g.copy_from(icon);
+
+    for (int32_t y = 0; y < 20; ++y) {
+      for (int32_t x = 0; x < 20; ++x) {
+        os::color expected = expected_bit_at_inv(x, y) ? color::black : color::gray;
+        os::color test = g.get_pixel({x, y});
+        EXPECT_EQUAL(test, expected, " at x = ", x, ", y = ", y);
+      }
+    }
+  }
+
+} END_TEST(test_file_icon_selected)
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_close_folder_icon) {} END_TEST(test_close_folder_icon)
 // --------------------------------------------------------------------------

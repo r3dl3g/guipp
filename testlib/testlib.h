@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <logging/logger.h>
+#include <logging/dbgstream.h>
 
 
 using namespace std;
@@ -141,6 +142,8 @@ namespace {\
 }\
 \
 int gui_main(const std::vector<std::string>& /*args*/) {\
+  logging::odebugstream dbgStrm;\
+  logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter());\
   LogWarng << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
@@ -149,6 +152,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
   } else {\
     LogError << #a << ": all " << guipp_test_count << " tests passed";\
   }\
+  logging::core::instance().remove_sink(&dbgStrm);\
   return guipp_failed_test_count;\
 }
 

@@ -71,11 +71,12 @@ int main (int argc, char* argv[]) {
     ret = 1;
   }
 
-#ifndef NDEBUG
 #ifdef WIN32
+#ifndef NDEBUG
   logging::core::instance().remove_sink(&log_file);
-#endif // WIN32
 #endif // NDEBUG
+  logging::core::instance().remove_sink(&dbgStrm);
+#endif // WIN32
 
   logging::core::instance().finish();
 

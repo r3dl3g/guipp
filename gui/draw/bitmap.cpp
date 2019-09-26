@@ -389,11 +389,6 @@ namespace gui {
           bitmap_info bmi = rhs.get_info();
           create(bmi);
           graphics(*this).copy_from((os::drawable)rhs, core::rectangle(0, 0, static_cast<float>(bmi.width), static_cast<float>(bmi.height)));
-//          blob bin;
-//          bitmap_info bmi;
-//          bitmap_get_data(rhs.get_id(), bin, bmi);
-//          create(bmi);
-//          bitmap_put_data(get_id(), bin.data(), bmi);
         } else {
           clear();
         }

@@ -112,7 +112,7 @@ private:
   popup_menu help_sub_menu;
 
   ImageView image_view;
-  cv::Mat image;
+  cv::Mat raw_image;
 };
 
 // --------------------------------------------------------------------------
@@ -175,27 +175,27 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
 //-----------------------------------------------------------------------------
 void RedImage::show_all () {
-  image_view.source = image;
+  image_view.source = raw_image;
   image_view.resized(image_view.client_size());
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_red () {
   cv::Mat channel;
-  cv::extractChannel(image, channel, 0);
+  cv::extractChannel(raw_image, channel, 0);
   image_view.source = channel;
   image_view.resized(image_view.client_size());
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_green () {
   cv::Mat channel;
-  cv::extractChannel(image, channel, 1);
+  cv::extractChannel(raw_image, channel, 1);
   image_view.source = channel;
   image_view.resized(image_view.client_size());
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_blue () {
   cv::Mat channel;
-  cv::extractChannel(image, channel, 2);
+  cv::extractChannel(raw_image, channel, 2);
   image_view.source = channel;
   image_view.resized(image_view.client_size());
 }
@@ -215,7 +215,7 @@ void RedImage::quit () {
 void RedImage::open () {
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
-      image = cv::imread(file.string(), cv::IMREAD_COLOR);
+      raw_image = cv::imread(file.string(), cv::IMREAD_COLOR);
       show_all();
     }
   });

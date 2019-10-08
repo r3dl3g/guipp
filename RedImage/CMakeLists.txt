@@ -12,7 +12,8 @@ endif()
 
 # OpenCV Version
 if(WIN32)
-    get_filename_component(CV_BASE "${CMAKE_CURRENT_LIST_DIR}/opencv" ABSOLUTE)
+	set(OpenCV_DIR "${CMAKE_CURRENT_LIST_DIR}/../opencv")
+    get_filename_component(CV_BASE "${OpenCV_DIR}" ABSOLUTE)
     set(CV_PATH "${CV_BASE}/include")
     set(CV_LIB_PATH "${CV_BASE}/x64/${COMPILER_VER}/lib")
     set(CV_BIN_PATH "${CV_BASE}/x64/${COMPILER_VER}/bin")

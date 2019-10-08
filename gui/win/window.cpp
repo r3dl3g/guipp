@@ -203,16 +203,6 @@ namespace gui {
 //      LogTrace << "handle_event: " << e;
       auto r = events.handle_event(e, result);
 
-//#ifdef X11
-//      auto state = get_state();
-//      if (e.type == Expose) {
-//        state.set_needs_redraw(false);
-//      }
-//      if (state.needs_redraw()) {
-//        redraw();
-//      }
-//#endif // X11
-
       return r;
     }
 

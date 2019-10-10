@@ -323,8 +323,8 @@ namespace gui {
       unsigned int w, h, b, d;
       XGetGeometry(get_instance(), t, &root, &x, &y, &w, &h, &b, &d);
       return {
-          (core::native_point::type)x,
-          (core::native_point::type)y,
+          (core::native_point::type)0,
+          (core::native_point::type)0,
           (core::native_size::type)w,
           (core::native_size::type)h
       };

@@ -124,10 +124,20 @@ namespace gui {
     inline void datamap<T>::create (const const_image_data<T>& rhs) {
       const bitmap_info& bmi = rhs.get_info();
       info = bitmap_info(bmi.width, bmi.height, T);
-      auto sz = info.mem_size();
+      const auto sz = info.mem_size();
       data.resize(sz);
-      memcpy(data.data(), rhs.raw_data().data(0, sz), sz);
-//      data.assign(raw, raw + sz);
+      if (sz == bmi.mem_size()) {
+        memcpy(data.data(), rhs.raw_data().data(0, sz), sz);
+      } else {
+        byte* in = data.data();
+        const byte* out = rhs.raw_data().data(0, bmi.mem_size());
+        const auto bytes_per_line = std::min(info.bytes_per_line, bmi.bytes_per_line);
+        for(uint32_t i = 0; i < bmi.height; ++i) {
+          memcpy(in, out, bytes_per_line);
+          in += info.bytes_per_line;
+          out += bmi.bytes_per_line;
+        }
+      }
     }
 
     template<PixelFormat T>

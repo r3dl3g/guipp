@@ -33,6 +33,7 @@ set(Boost_USE_MULTITHREADED ON)
 set (IncludeDirs
         ${PROJECT_BINARY_DIR}
         ${gui_include}
+        ${persistent_include}
         "${CMAKE_CURRENT_SOURCE_DIR}/sources"
         "${CV_PATH}"
 )

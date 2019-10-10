@@ -1,3 +1,6 @@
 [submodule "logging"]
 	path = logging
 	url = git@red-space.de:/srv/git/logging.git
+[submodule "persistent"]
+	path = persistent
+	url = git@red-space.de:/srv/git/persistent.git

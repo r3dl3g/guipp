@@ -5,9 +5,13 @@
 #include <gui/win/grid_layout.h>
 #include <gui/win/lineup_layout.h>
 #include <base/string_util.h>
+#include <persistent/ptree_persistent.h>
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/optional.hpp>
 
 #define NOTHING
 
@@ -18,6 +22,9 @@ using namespace gui::draw;
 using namespace gui::layout;
 using namespace gui::win;
 using namespace gui::ctrl;
+
+namespace xml = boost::property_tree::xml_parser;
+
 
 pixmap cvMat2pixmap (const cv::Mat& source) {
   auto sz = source.size();
@@ -51,6 +58,115 @@ pixmap cvMat2pixmap (const cv::Mat& source) {
 
   return pixmap();
 }
+// --------------------------------------------------------------------------
+namespace data {
+
+  // --------------------------------------------------------------------------
+  struct range : public persistent::ptree_struct<persistent::byte, persistent::byte> {
+    typedef persistent::ptree_struct<persistent::byte, persistent::byte> super;
+
+    static const char s_min[];
+    static const char s_max[];
+
+    range (byte min = 0, byte max = 255);
+    range (const range&);
+
+    persistent::byte min;
+    persistent::byte max;
+  };
+
+  const char range::s_min[] = "min";
+  const char range::s_max[] = "max";
+
+  range::range (byte min_, byte max_)
+    : super(min, max)
+    , min(s_min, min_)
+    , max(s_max, max_)
+  {}
+
+  range::range (const range& rhs)
+    : range()
+  {
+    super::operator=(rhs);
+  }
+
+  // --------------------------------------------------------------------------
+  struct rgb_range : public persistent::ptree_struct<persistent::type<range>,
+                                                     persistent::type<range>,
+                                                     persistent::type<range>> {
+    typedef persistent::ptree_struct<persistent::type<range>,
+                                     persistent::type<range>,
+                                     persistent::type<range>> super;
+
+    static const char s_red[];
+    static const char s_green[];
+    static const char s_blue[];
+
+    rgb_range (const range& r = range(), const range& g = range(), const range& b = range());
+    rgb_range (const rgb_range&);
+
+    persistent::type<range> red;
+    persistent::type<range> green;
+    persistent::type<range> blue;
+  };
+
+  const char rgb_range::s_red[] = "red";
+  const char rgb_range::s_green[] = "green";
+  const char rgb_range::s_blue[] = "blue";
+
+  rgb_range::rgb_range (const range& r, const range& g, const range& b)
+    : super(red, green, blue)
+    , red(s_red, r)
+    , green(s_green, g)
+    , blue(s_blue, b)
+  {}
+
+  rgb_range::rgb_range (const rgb_range& rhs)
+    : rgb_range()
+  {
+    super::operator=(rhs);
+  }
+
+  // --------------------------------------------------------------------------
+  struct color_sets : public persistent::ptree_struct<persistent::type<rgb_range>,
+                                                      persistent::type<rgb_range>,
+                                                      persistent::type<rgb_range>> {
+    typedef persistent::ptree_struct<persistent::type<rgb_range>,
+                                     persistent::type<rgb_range>,
+                                     persistent::type<rgb_range>> super;
+
+    static const char s_first[];
+    static const char s_second[];
+    static const char s_third[];
+
+    color_sets (const rgb_range& f = rgb_range(),
+                const rgb_range& s = rgb_range(),
+                const rgb_range& t = rgb_range());
+    color_sets (const color_sets&);
+
+    persistent::type<rgb_range> first;
+    persistent::type<rgb_range> second;
+    persistent::type<rgb_range> third;
+  };
+
+  const char color_sets::s_first[] = "first";
+  const char color_sets::s_second[] = "second";
+  const char color_sets::s_third[] = "third";
+
+  color_sets::color_sets (const rgb_range& f, const rgb_range& s, const rgb_range& t)
+    : super(first, second, third)
+    , first(s_first, f)
+    , second(s_second, s)
+    , third(s_third, t)
+  {}
+
+  color_sets::color_sets (const color_sets& rhs)
+    : color_sets()
+  {
+    super::operator=(rhs);
+  }
+
+} // namespace data
 
 // --------------------------------------------------------------------------
 class image_view : public control {
@@ -127,12 +243,14 @@ public:
 
   void onCreated (window*, const core::rectangle&);
 
-  void set (const std::string& name, byte min_value, byte max_value);
+  void set (const std::string& name, const data::range& value);
   void set_min (byte value);
   void set_max (byte value);
 
+  data::range get () const;
   byte get_min () const;
   byte get_max () const;
+
 
 private:
   label name_label;
@@ -173,10 +291,14 @@ void color_key::onCreated (window*, const core::rectangle&) {
 }
 
 // --------------------------------------------------------------------------
-void color_key::set (const std::string& name, byte min_value, byte max_value) {
+void color_key::set (const std::string& name, const data::range& value) {
   name_label.set_text(name);
-  set_min(min_value);
-  set_max(max_value);
+  set_min(value.min());
+  set_max(value.max());
+}
+// --------------------------------------------------------------------------
+data::range color_key::get () const {
+  return data::range(get_min(), get_max());
 }
 // --------------------------------------------------------------------------
 void color_key::set_min (byte value) {
@@ -205,6 +327,8 @@ public:
   color_key_group ();
 
   void onCreated (window*, const core::rectangle&);
+  void set (const data::rgb_range&);
+  data::rgb_range get () const;
 
   color_key red;
   color_key green;
@@ -219,12 +343,17 @@ void color_key_group::onCreated (window*, const core::rectangle&) {
   red.create(*this);
   green.create(*this);
   blue.create(*this);
-
-  red.set("Rot", 0, 255);
-  green.set("Grün", 0, 255);
-  blue.set("Blau", 0, 255);
 }
-
+// --------------------------------------------------------------------------
+void color_key_group::set (const data::rgb_range& value) {
+  red.set("Rot", value.red());
+  green.set("Grün", value.green());
+  blue.set("Blau", value.blue());
+}
+// --------------------------------------------------------------------------
+data::rgb_range color_key_group::get () const {
+  return data::rgb_range(red.get(), green.get(), blue.get());
+}
 // --------------------------------------------------------------------------
 class side_bar : public win::group_window<layout::vertical_lineup<244, 0, 15>> {
 public:
@@ -233,6 +362,8 @@ public:
   side_bar ();
 
   void onCreated (window*, const core::rectangle&);
+  void set (const data::color_sets&);
+  data::color_sets get () const;
 
   color_key_group first;
   color_key_group second;
@@ -249,6 +380,16 @@ void side_bar::onCreated (window*, const core::rectangle&) {
   third.create(*this);
 }
 // --------------------------------------------------------------------------
+void side_bar::set (const data::color_sets& s) {
+  first.set(s.first());
+  second.set(s.second());
+  third.set(s.third());
+}
+// --------------------------------------------------------------------------
+data::color_sets side_bar::get () const {
+  return data::color_sets(first.get(), second.get(), third.get());
+}
+// --------------------------------------------------------------------------
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
   typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
@@ -263,6 +404,9 @@ public:
   void show_blue ();
   void show_inverted ();
 
+  void load ();
+  void save ();
+
 private:
   main_menu menu;
   popup_menu file_sub_menu;
@@ -275,6 +419,9 @@ private:
   side_bar colors;
 
   cv::Mat raw_image;
+  cv::Mat red_image;
+  cv::Mat green_image;
+  cv::Mat blue_image;
   cv::Mat inverted_image;
 
   sys_fs::path last_dir;
@@ -375,21 +522,18 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_red () {
-  cv::Mat mixed;
-  isolateChannel(raw_image, mixed, 2);
-  image_views[1].set_image(cvMat2pixmap(mixed));
+  isolateChannel(raw_image, red_image, 2);
+  image_views[1].set_image(cvMat2pixmap(red_image));
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_green () {
-  cv::Mat mixed;
-  isolateChannel(raw_image, mixed, 1);
-  image_views[2].set_image(cvMat2pixmap(mixed));
+  isolateChannel(raw_image, green_image, 1);
+  image_views[2].set_image(cvMat2pixmap(green_image));
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_blue () {
-  cv::Mat mixed;
-  isolateChannel(raw_image, mixed, 0);
-  image_views[3].set_image(cvMat2pixmap(mixed));
+  isolateChannel(raw_image, blue_image, 0);
+  image_views[3].set_image(cvMat2pixmap(blue_image));
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_inverted () {
@@ -399,6 +543,7 @@ void RedImage::show_inverted () {
 void RedImage::quit () {
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
+      save();
       win::quit_main_loop();
     } else {
       take_focus();
@@ -428,11 +573,46 @@ void RedImage::open () {
   });
 }
 // --------------------------------------------------------------------------
+void RedImage::load () {
+  using boost::property_tree::ptree;
+
+  ptree xml_main;
+
+  try {
+    xml::read_xml("redimage.xml", xml_main, xml::no_comments);
+    const ptree& main = xml_main.get_child("redimage");
+    auto opt = main.get_child_optional("color_sets");
+    if (opt) {
+      data::color_sets sets;
+      sets.read(opt.get());
+      colors.set(sets);
+    }
+  } catch (std::exception& ex) {
+    LogWarng << "Exception while reading redimage.xml:" << ex.what();
+  }
+}
+// --------------------------------------------------------------------------
+void RedImage::save () {
+  using boost::property_tree::ptree;
+
+  ptree sets;
+  colors.get().write(sets);
+  ptree redimage;
+  redimage.put_child("color_sets", sets);
+  ptree xml_main;
+  xml_main.put_child("redimage", redimage);
+
+  boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
+  xml::write_xml("redimage.xml", xml_main, std::locale(), xml_settings);
+
+}
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   RedImage main;
 
   main.create({50, 50, 800, 600});
   main.set_title("RedImage");
+  main.load();
   main.set_visible();
   main.maximize();
 

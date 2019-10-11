@@ -128,32 +128,69 @@ namespace data {
   }
 
   // --------------------------------------------------------------------------
-  struct color_sets : public persistent::ptree_struct<persistent::type<rgb_range>,
-                                                      persistent::type<rgb_range>,
-                                                      persistent::type<rgb_range>> {
-    typedef persistent::ptree_struct<persistent::type<rgb_range>,
-                                     persistent::type<rgb_range>,
-                                     persistent::type<rgb_range>> super;
+  struct hsv_range : public persistent::ptree_struct<persistent::type<range>,
+                                                     persistent::type<range>,
+                                                     persistent::type<range>> {
+    typedef persistent::ptree_struct<persistent::type<range>,
+                                     persistent::type<range>,
+                                     persistent::type<range>> super;
+
+    static const char s_hue[];
+    static const char s_saturation[];
+    static const char s_value[];
+
+    hsv_range (const range& h = range(0, 180), const range& s = range(), const range& v = range());
+    hsv_range (const hsv_range&);
+
+    persistent::type<range> hue;
+    persistent::type<range> saturation;
+    persistent::type<range> value;
+  };
+
+  const char hsv_range::s_hue[] = "hue";
+  const char hsv_range::s_saturation[] = "saturation";
+  const char hsv_range::s_value[] = "value";
+
+  hsv_range::hsv_range (const range& h, const range& s, const range& v)
+    : super(hue, saturation, value)
+    , hue(s_hue, h)
+    , saturation(s_saturation, s)
+    , value(s_value, v)
+  {}
+
+  hsv_range::hsv_range (const hsv_range& rhs)
+    : hsv_range()
+  {
+    super::operator=(rhs);
+  }
+
+  // --------------------------------------------------------------------------
+  struct color_sets : public persistent::ptree_struct<persistent::type<hsv_range>,
+                                                      persistent::type<hsv_range>,
+                                                      persistent::type<hsv_range>> {
+    typedef persistent::ptree_struct<persistent::type<hsv_range>,
+                                     persistent::type<hsv_range>,
+                                     persistent::type<hsv_range>> super;
 
     static const char s_first[];
     static const char s_second[];
     static const char s_third[];
 
-    color_sets (const rgb_range& f = rgb_range(),
-                const rgb_range& s = rgb_range(),
-                const rgb_range& t = rgb_range());
+    color_sets (const hsv_range& f = hsv_range(),
+                const hsv_range& s = hsv_range(),
+                const hsv_range& t = hsv_range());
     color_sets (const color_sets&);
 
-    persistent::type<rgb_range> first;
-    persistent::type<rgb_range> second;
-    persistent::type<rgb_range> third;
+    persistent::type<hsv_range> first;
+    persistent::type<hsv_range> second;
+    persistent::type<hsv_range> third;
   };
 
   const char color_sets::s_first[] = "first";
   const char color_sets::s_second[] = "second";
   const char color_sets::s_third[] = "third";
 
-  color_sets::color_sets (const rgb_range& f, const rgb_range& s, const rgb_range& t)
+  color_sets::color_sets (const hsv_range& f, const hsv_range& s, const hsv_range& t)
     : super(first, second, third)
     , first(s_first, f)
     , second(s_second, s)
@@ -162,6 +199,37 @@ namespace data {
 
   color_sets::color_sets (const color_sets& rhs)
     : color_sets()
+  {
+    super::operator=(rhs);
+  }
+
+  // --------------------------------------------------------------------------
+  struct redimage_settings : public persistent::ptree_struct<persistent::type<color_sets>,
+                                                             persistent::string> {
+    typedef persistent::ptree_struct<persistent::type<color_sets>,
+                                     persistent::string> super;
+
+    static const char s_color_sets[];
+    static const char s_last_path[];
+
+    redimage_settings ();
+    redimage_settings (const redimage_settings&);
+
+    persistent::type<color_sets> colors;
+    persistent::string last_path;
+  };
+
+  const char redimage_settings::s_color_sets[] = "color_sets";
+  const char redimage_settings::s_last_path[] = "last_path";
+
+  redimage_settings::redimage_settings ()
+    : super(colors, last_path)
+    , colors(s_color_sets)
+    , last_path(s_last_path)
+  {}
+
+  redimage_settings::redimage_settings (const redimage_settings& rhs)
+    : redimage_settings()
   {
     super::operator=(rhs);
   }
@@ -216,21 +284,21 @@ class min_max_group : public win::group_window<layout::horizontal_lineup<65>> {
 public:
   typedef win::group_window<layout::horizontal_lineup<65>> super;
 
-  min_max_group ();
+  min_max_group (byte min = 0, byte max = 255);
 
-  label min_label;
-  label max_label;
-  edit_right min_edit;
-  edit_right max_edit;
+  label_right min_label;
+  label_right max_label;
+  edit_left min_edit;
+  edit_left max_edit;
 };
 
 // --------------------------------------------------------------------------
-min_max_group::min_max_group () {
+min_max_group::min_max_group (byte min, byte max) {
   on_create([&] (window*, const core::rectangle&) {
     min_label.create(*this, "Min:");
-    min_edit.create(*this, "0");
+    min_edit.create(*this, ostreamfmt((int)min));
     max_label.create(*this, "Max:");
-    max_edit.create(*this, "255");
+    max_edit.create(*this, ostreamfmt((int)max));
   });
 }
 
@@ -239,20 +307,17 @@ class color_key : public win::group_window<layout::vertical_lineup<20>> {
 public:
   typedef win::group_window<layout::vertical_lineup<20>> super;
 
-  color_key ();
-
-  void onCreated (window*, const core::rectangle&);
+  color_key (byte min = 0, byte max = 255);
 
   void set (const std::string& name, const data::range& value);
   void set_min (byte value);
   void set_max (byte value);
+  void set_range (byte min, byte max);
 
   data::range get () const;
   byte get_min () const;
   byte get_max () const;
 
-
-private:
   label name_label;
   min_max_group min_max;
   horizontal_scroll_bar min_scroll;
@@ -260,8 +325,17 @@ private:
 };
 
 // --------------------------------------------------------------------------
-color_key::color_key () {
-  on_create(basepp::bind_method(this, &color_key::onCreated));
+color_key::color_key (byte min, byte max)
+  : min_max(min, max)
+{
+  on_create([&, min, max] (window*, const core::rectangle&) {
+    name_label.create(*this);
+    min_max.create(*this);
+    min_scroll.create(*this);
+    min_scroll.set_min_max(min, max);
+    max_scroll.create(*this);
+    max_scroll.set_min_max(min, max);
+  });
   min_scroll.on_scroll([&] (const core::point::type) {
     min_max.min_edit.set_text(ostreamfmt((int)min_scroll.get_value()));
   });
@@ -278,16 +352,6 @@ color_key::color_key () {
     std::istringstream(min_max.max_edit.get_text()) >> value;
     max_scroll.set_value(value, false);
   });
-}
-
-// --------------------------------------------------------------------------
-void color_key::onCreated (window*, const core::rectangle&) {
-  name_label.create(*this);
-  min_max.create(*this);
-  min_scroll.create(*this);
-  min_scroll.set_min_max(0, 255);
-  max_scroll.create(*this);
-  max_scroll.set_min_max(0, 255);
 }
 
 // --------------------------------------------------------------------------
@@ -311,6 +375,11 @@ void color_key::set_max (byte value) {
   max_scroll.set_value(value, false);
 }
 // --------------------------------------------------------------------------
+void color_key::set_range (byte min, byte max) {
+  set_min(min);
+  set_max(max);
+}
+// --------------------------------------------------------------------------
 byte color_key::get_min () const {
   return (byte)min_scroll.get_value();
 }
@@ -326,33 +395,34 @@ public:
 
   color_key_group ();
 
-  void onCreated (window*, const core::rectangle&);
-  void set (const data::rgb_range&);
-  data::rgb_range get () const;
+  void set (const data::hsv_range&);
+  data::hsv_range get () const;
 
-  color_key red;
-  color_key green;
-  color_key blue;
+  color_key hue;
+  color_key saturation;
+  color_key value;
 };
 // --------------------------------------------------------------------------
-color_key_group::color_key_group () {
-  on_create(basepp::bind_method(this, &color_key_group::onCreated));
+color_key_group::color_key_group ()
+  : hue(0, 180)
+  , saturation()
+  , value()
+{
+  on_create([&] (window*, const core::rectangle&) {
+    hue.create(*this);
+    saturation.create(*this);
+    value.create(*this);
+  });
 }
 // --------------------------------------------------------------------------
-void color_key_group::onCreated (window*, const core::rectangle&) {
-  red.create(*this);
-  green.create(*this);
-  blue.create(*this);
+void color_key_group::set (const data::hsv_range& hsv) {
+  hue.set("Hue", hsv.hue());
+  saturation.set("Saturation", hsv.saturation());
+  value.set("Value", hsv.value());
 }
 // --------------------------------------------------------------------------
-void color_key_group::set (const data::rgb_range& value) {
-  red.set("Rot", value.red());
-  green.set("Grün", value.green());
-  blue.set("Blau", value.blue());
-}
-// --------------------------------------------------------------------------
-data::rgb_range color_key_group::get () const {
-  return data::rgb_range(red.get(), green.get(), blue.get());
+data::hsv_range color_key_group::get () const {
+  return data::hsv_range(hue.get(), saturation.get(), value.get());
 }
 // --------------------------------------------------------------------------
 class side_bar : public win::group_window<layout::vertical_lineup<244, 0, 15>> {
@@ -361,7 +431,6 @@ public:
 
   side_bar ();
 
-  void onCreated (window*, const core::rectangle&);
   void set (const data::color_sets&);
   data::color_sets get () const;
 
@@ -371,13 +440,11 @@ public:
 };
 // --------------------------------------------------------------------------
 side_bar::side_bar () {
-  on_create(basepp::bind_method(this, &side_bar::onCreated));
-}
-// --------------------------------------------------------------------------
-void side_bar::onCreated (window*, const core::rectangle&) {
-  first.create(*this);
-  second.create(*this);
-  third.create(*this);
+  on_create([&] (window*, const core::rectangle&) {
+    first.create(*this);
+    second.create(*this);
+    third.create(*this);
+  });
 }
 // --------------------------------------------------------------------------
 void side_bar::set (const data::color_sets& s) {
@@ -398,11 +465,17 @@ public:
   void onCreated (window*, const core::rectangle&);
   void open ();
   void quit ();
-  void show_all ();
-  void show_red ();
-  void show_green ();
-  void show_blue ();
+
+  void show_raw ();
   void show_inverted ();
+
+  void show_first ();
+  void show_second ();
+  void show_third ();
+
+  void calc_first ();
+  void calc_second ();
+  void calc_third ();
 
   void load ();
   void save ();
@@ -419,17 +492,21 @@ private:
   side_bar colors;
 
   cv::Mat raw_image;
-  cv::Mat red_image;
-  cv::Mat green_image;
-  cv::Mat blue_image;
+  cv::Mat hsv_image;
   cv::Mat inverted_image;
 
-  sys_fs::path last_dir;
+  cv::Mat first_image;
+  cv::Mat second_image;
+  cv::Mat third_image;
+
+  data::redimage_settings settings;
+  sys_fs::path settings_path;
 };
 
 // --------------------------------------------------------------------------
 RedImage::RedImage ()
   : super(20, 0, 260, 0)
+  , settings_path(sys_fs::absolute("redimage.xml"))
 {
   on_create(basepp::bind_method(this, &RedImage::onCreated));
 
@@ -462,10 +539,10 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   });
 
   edit_sub_menu.data.add_entries({
-    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::show_all), hot_key(keys::a, state::control), false),
-    menu_entry("Red", 'r', basepp::bind_method(this, &RedImage::show_red), hot_key(keys::r, state::control), false),
-    menu_entry("Green", 'g', basepp::bind_method(this, &RedImage::show_green), hot_key(keys::g, state::control), false),
-    menu_entry("Blue", 'b', basepp::bind_method(this, &RedImage::show_blue), hot_key(keys::b, state::control), false),
+    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::a, state::control), false),
+    menu_entry("Red", 'r', basepp::bind_method(this, &RedImage::calc_first), hot_key(keys::r, state::control), false),
+    menu_entry("Green", 'g', basepp::bind_method(this, &RedImage::calc_second), hot_key(keys::g, state::control), false),
+    menu_entry("Blue", 'b', basepp::bind_method(this, &RedImage::calc_third), hot_key(keys::b, state::control), false),
     menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), true),
   });
 
@@ -484,18 +561,57 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   for(int i = 0; i < 4; ++i) {
     image_views[i].create(main_view);
   }
-
   colors.create(*this);
 
   get_layout().set_top(&menu);
   get_layout().set_center(&main_view);
   get_layout().set_left(&colors);
 
+  image_views[1].on_left_btn_down([&] (os::key_state, const core::point& pt) {
+    const auto p = core::global::scale(pt);
+    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
+
+    colors.first.hue.set_range(hsv[0] - 1, hsv[0] + 1);
+    colors.first.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
+    colors.first.value.set_range(hsv[2] - 1, hsv[2] + 1);
+    calc_first();
+  });
+
+  image_views[2].on_left_btn_down([&] (os::key_state, const core::point& pt) {
+    const auto p = core::global::scale(pt);
+    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
+
+    colors.second.hue.set_range(hsv[0] - 1, hsv[0] + 1);
+    colors.second.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
+    colors.second.value.set_range(hsv[2] - 1, hsv[2] + 1);
+    calc_second();
+  });
+
+  image_views[3].on_left_btn_down([&] (os::key_state, const core::point& pt) {
+    const auto p = core::global::scale(pt);
+    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
+
+    colors.third.hue.set_range(hsv[0] - 1, hsv[0] + 1);
+    colors.third.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
+    colors.third.value.set_range(hsv[2] - 1, hsv[2] + 1);
+    calc_third();
+  });
+  colors.first.hue.min_scroll.on_scroll([&](core::point::type){
+    calc_first();
+  });
+  colors.first.hue.max_scroll.on_scroll([&](core::point::type){
+    calc_first();
+  });
+
   set_children_visible();
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_all () {
+void RedImage::show_raw () {
   image_views[0].set_image(cvMat2pixmap(raw_image));
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_inverted () {
+  image_views[0].set_image(cvMat2pixmap(inverted_image));
 }
 //-----------------------------------------------------------------------------
 void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
@@ -521,23 +637,67 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
   cv::merge(channels, 3, out);
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_red () {
-  isolateChannel(raw_image, red_image, 2);
-  image_views[1].set_image(cvMat2pixmap(red_image));
+void RedImage::show_first () {
+  image_views[1].set_image(cvMat2pixmap(first_image));
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_green () {
-  isolateChannel(raw_image, green_image, 1);
-  image_views[2].set_image(cvMat2pixmap(green_image));
+void RedImage::show_second () {
+  image_views[2].set_image(cvMat2pixmap(second_image));
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_blue () {
-  isolateChannel(raw_image, blue_image, 0);
-  image_views[3].set_image(cvMat2pixmap(blue_image));
+void RedImage::show_third () {
+  image_views[3].set_image(cvMat2pixmap(third_image));
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_inverted () {
-  image_views[0].set_image(cvMat2pixmap(inverted_image));
+void RedImage::calc_first () {
+  auto h = colors.first.hue.get();
+  auto s = colors.first.saturation.get();
+  auto v = colors.first.value.get();
+
+  cv::Mat mask;
+  cv::inRange(hsv_image,
+              cv::Scalar(h.min(), s.min(), v.min()),
+              cv::Scalar(h.max(), s.max(), v.max()),
+              mask);
+
+  first_image.setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(first_image, mask);
+
+  show_first();
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_second () {
+  auto h = colors.second.hue.get();
+  auto s = colors.second.saturation.get();
+  auto v = colors.second.value.get();
+
+  cv::Mat mask;
+  cv::inRange(hsv_image,
+              cv::Scalar(h.min(), s.min(), v.min()),
+              cv::Scalar(h.max(), s.max(), v.max()),
+              mask);
+
+  second_image.setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(second_image, mask);
+
+  show_second();
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_third () {
+  auto h = colors.third.hue.get();
+  auto s = colors.third.saturation.get();
+  auto v = colors.third.value.get();
+
+  cv::Mat mask;
+  cv::inRange(hsv_image,
+              cv::Scalar(h.min(), s.min(), v.min()),
+              cv::Scalar(h.max(), s.max(), v.max()),
+              mask);
+
+  third_image.setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(third_image, mask);
+
+  show_third();
 }
 //-----------------------------------------------------------------------------
 void RedImage::quit () {
@@ -552,23 +712,29 @@ void RedImage::quit () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::open () {
-  if (!last_dir.empty()) {
-    sys_fs::current_path(last_dir);
+  if (!settings.last_path().empty()) {
+    sys_fs::current_path(settings.last_path());
   }
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
-      last_dir = file.parent_path();
+      settings.last_path(file.parent_path());
       cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
       auto size = core::global::scale(image_views[0].size());
       cv::Size sz(size.width(), size.height());
       raw_image = cv::Mat(sz, srcImage.type());
       cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_LINEAR);
 
+      cv::cvtColor(raw_image, hsv_image, cv::COLOR_BGR2HSV);
+
+      raw_image.copyTo(first_image);
+      raw_image.copyTo(second_image);
+      raw_image.copyTo(third_image);
+
       inverted_image = ~raw_image;
-      show_all();
-      show_red();
-      show_green();
-      show_blue();
+      show_raw();
+      calc_first();
+      calc_second();
+      calc_third();
     }
   });
 }
@@ -577,15 +743,12 @@ void RedImage::load () {
   using boost::property_tree::ptree;
 
   ptree xml_main;
-
   try {
-    xml::read_xml("redimage.xml", xml_main, xml::no_comments);
-    const ptree& main = xml_main.get_child("redimage");
-    auto opt = main.get_child_optional("color_sets");
+    xml::read_xml(settings_path, xml_main, xml::no_comments);
+    auto opt = xml_main.get_child_optional("redimage");
     if (opt) {
-      data::color_sets sets;
-      sets.read(opt.get());
-      colors.set(sets);
+      settings.read(opt.get());
+      colors.set(settings.colors());
     }
   } catch (std::exception& ex) {
     LogWarng << "Exception while reading redimage.xml:" << ex.what();
@@ -595,15 +758,14 @@ void RedImage::load () {
 void RedImage::save () {
   using boost::property_tree::ptree;
 
-  ptree sets;
-  colors.get().write(sets);
-  ptree redimage;
-  redimage.put_child("color_sets", sets);
+  settings.colors(colors.get());
+  ptree main;
+  settings.write(main);
   ptree xml_main;
-  xml_main.put_child("redimage", redimage);
+  xml_main.put_child("redimage", main);
 
   boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
-  xml::write_xml("redimage.xml", xml_main, std::locale(), xml_settings);
+  xml::write_xml(settings_path, xml_main, std::locale(), xml_settings);
 
 }
 // --------------------------------------------------------------------------

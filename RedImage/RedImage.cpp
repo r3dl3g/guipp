@@ -165,37 +165,25 @@ namespace data {
   }
 
   // --------------------------------------------------------------------------
-  struct color_sets : public persistent::ptree_struct<persistent::type<hsv_range>,
-                                                      persistent::type<hsv_range>,
-                                                      persistent::type<hsv_range>> {
-    typedef persistent::ptree_struct<persistent::type<hsv_range>,
-                                     persistent::type<hsv_range>,
-                                     persistent::type<hsv_range>> super;
+  struct color_sets : public persistent::ptree_struct<persistent::vector<hsv_range>> {
+    typedef persistent::ptree_struct<persistent::vector<hsv_range>> super;
 
-    static const char s_first[];
-    static const char s_second[];
-    static const char s_third[];
+    static const char s_ranges[];
 
-    color_sets (const hsv_range& f = hsv_range(),
-                const hsv_range& s = hsv_range(),
-                const hsv_range& t = hsv_range());
+    color_sets ();
     color_sets (const color_sets&);
 
-    persistent::type<hsv_range> first;
-    persistent::type<hsv_range> second;
-    persistent::type<hsv_range> third;
+    persistent::vector<hsv_range> ranges;
   };
 
-  const char color_sets::s_first[] = "first";
-  const char color_sets::s_second[] = "second";
-  const char color_sets::s_third[] = "third";
+  const char color_sets::s_ranges[] = "ranges";
 
-  color_sets::color_sets (const hsv_range& f, const hsv_range& s, const hsv_range& t)
-    : super(first, second, third)
-    , first(s_first, f)
-    , second(s_second, s)
-    , third(s_third, t)
-  {}
+  color_sets::color_sets ()
+    : super(ranges)
+    , ranges(s_ranges)
+  {
+    ranges().resize(5);
+  }
 
   color_sets::color_sets (const color_sets& rhs)
     : color_sets()
@@ -256,7 +244,7 @@ private:
 
 // --------------------------------------------------------------------------
 void image_view::create (const win::container& parent,
-                        const core::rectangle& place) {
+                         const core::rectangle& place) {
   super::create(clazz::get(), parent, place);
 }
 
@@ -280,12 +268,13 @@ image_view::image_view () {
 }
 
 // --------------------------------------------------------------------------
-class min_max_group : public win::group_window<layout::horizontal_lineup<65>> {
+class min_max_group : public win::group_window<layout::horizontal_lineup<52>> {
 public:
-  typedef win::group_window<layout::horizontal_lineup<65>> super;
+  typedef win::group_window<layout::horizontal_lineup<52>> super;
 
   min_max_group (byte min = 0, byte max = 255);
 
+  label main_label;
   label_right min_label;
   label_right max_label;
   edit_left min_edit;
@@ -294,7 +283,8 @@ public:
 
 // --------------------------------------------------------------------------
 min_max_group::min_max_group (byte min, byte max) {
-  on_create([&] (window*, const core::rectangle&) {
+  on_create([&, min, max] (window*, const core::rectangle&) {
+    main_label.create(*this);
     min_label.create(*this, "Min:");
     min_edit.create(*this, ostreamfmt((int)min));
     max_label.create(*this, "Max:");
@@ -318,7 +308,6 @@ public:
   byte get_min () const;
   byte get_max () const;
 
-  label name_label;
   min_max_group min_max;
   horizontal_scroll_bar min_scroll;
   horizontal_scroll_bar max_scroll;
@@ -329,7 +318,6 @@ color_key::color_key (byte min, byte max)
   : min_max(min, max)
 {
   on_create([&, min, max] (window*, const core::rectangle&) {
-    name_label.create(*this);
     min_max.create(*this);
     min_scroll.create(*this);
     min_scroll.set_min_max(min, max);
@@ -356,7 +344,7 @@ color_key::color_key (byte min, byte max)
 
 // --------------------------------------------------------------------------
 void color_key::set (const std::string& name, const data::range& value) {
-  name_label.set_text(name);
+  min_max.main_label.set_text(name);
   set_min(value.min());
   set_max(value.max());
 }
@@ -389,7 +377,7 @@ byte color_key::get_max () const {
 }
 
 // --------------------------------------------------------------------------
-class color_key_group : public win::group_window<layout::vertical_lineup<80, 0, 2>> {
+class color_key_group : public win::group_window<layout::vertical_lineup<60, 0, 1>> {
 public:
   typedef win::group_window<layout::vertical_lineup<80, 0, 2>> super;
 
@@ -425,36 +413,43 @@ data::hsv_range color_key_group::get () const {
   return data::hsv_range(hue.get(), saturation.get(), value.get());
 }
 // --------------------------------------------------------------------------
-class side_bar : public win::group_window<layout::vertical_lineup<244, 0, 15>> {
+class side_bar : public win::group_window<layout::vertical_lineup<184, 0, 2>> {
 public:
-  typedef win::group_window<layout::vertical_lineup<244, 0, 15>> super;
+  typedef win::group_window<layout::vertical_lineup<184, 0, 10>> super;
+
+  enum {
+    COLOR_COUNT = 5
+  };
 
   side_bar ();
 
   void set (const data::color_sets&);
   data::color_sets get () const;
 
-  color_key_group first;
-  color_key_group second;
-  color_key_group third;
+  std::vector<color_key_group> colors;
 };
 // --------------------------------------------------------------------------
 side_bar::side_bar () {
+  colors.resize(COLOR_COUNT);
   on_create([&] (window*, const core::rectangle&) {
-    first.create(*this);
-    second.create(*this);
-    third.create(*this);
+    for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
+      i->create(*this);
+    }
   });
 }
 // --------------------------------------------------------------------------
 void side_bar::set (const data::color_sets& s) {
-  first.set(s.first());
-  second.set(s.second());
-  third.set(s.third());
+  for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
+    i->set(s.ranges()[std::distance(colors.begin(), i)]);
+  }
 }
 // --------------------------------------------------------------------------
 data::color_sets side_bar::get () const {
-  return data::color_sets(first.get(), second.get(), third.get());
+  data::color_sets sets;
+  for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
+    sets.ranges()[std::distance(colors.begin(), i)] = i->get();
+  }
+  return sets;
 }
 // --------------------------------------------------------------------------
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
@@ -469,13 +464,10 @@ public:
   void show_raw ();
   void show_inverted ();
 
-  void show_first ();
-  void show_second ();
-  void show_third ();
+  void show_image (int i);
+  void calc_image (int i);
 
-  void calc_first ();
-  void calc_second ();
-  void calc_third ();
+  void calc_all ();
 
   void load ();
   void save ();
@@ -486,8 +478,8 @@ private:
   popup_menu edit_sub_menu;
   popup_menu help_sub_menu;
 
-  win::group_window<layout::grid_adaption<2, 2, 0, 1>> main_view;
-  image_view image_views[4];
+  win::group_window<layout::grid_adaption<3, 2, 0, 1>> main_view;
+  image_view image_views[6];
 
   side_bar colors;
 
@@ -495,9 +487,7 @@ private:
   cv::Mat hsv_image;
   cv::Mat inverted_image;
 
-  cv::Mat first_image;
-  cv::Mat second_image;
-  cv::Mat third_image;
+  cv::Mat image[5];
 
   data::redimage_settings settings;
   sys_fs::path settings_path;
@@ -535,14 +525,13 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   file_sub_menu.data.add_entries({
     menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::open), hot_key(keys::o, state::control), false),
+    menu_entry("Save", 's', basepp::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
     menu_entry("Exit", 'x', basepp::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
 
   edit_sub_menu.data.add_entries({
-    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::a, state::control), false),
-    menu_entry("Red", 'r', basepp::bind_method(this, &RedImage::calc_first), hot_key(keys::r, state::control), false),
-    menu_entry("Green", 'g', basepp::bind_method(this, &RedImage::calc_second), hot_key(keys::g, state::control), false),
-    menu_entry("Blue", 'b', basepp::bind_method(this, &RedImage::calc_third), hot_key(keys::b, state::control), false),
+    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), false),
+    menu_entry("Raw", 'r', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::r, state::control), false),
     menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), true),
   });
 
@@ -558,7 +547,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.register_hot_keys(this);
 
   main_view.create(*this);
-  for(int i = 0; i < 4; ++i) {
+  for(int i = 0; i < 6; ++i) {
     image_views[i].create(main_view);
   }
   colors.create(*this);
@@ -567,41 +556,36 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   get_layout().set_center(&main_view);
   get_layout().set_left(&colors);
 
-  image_views[1].on_left_btn_down([&] (os::key_state, const core::point& pt) {
-    const auto p = core::global::scale(pt);
-    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
+  for (int i = 0; i < 5; ++i) {
+    image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
+      const auto p = core::global::scale(pt);
+      cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
 
-    colors.first.hue.set_range(hsv[0] - 1, hsv[0] + 1);
-    colors.first.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
-    colors.first.value.set_range(hsv[2] - 1, hsv[2] + 1);
-    calc_first();
-  });
+      colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
+      colors.colors[i].saturation.set_range(hsv[1] - 1, hsv[1] + 1);
+      colors.colors[i].value.set_range(hsv[2] - 1, hsv[2] + 1);
+      calc_image(i);
+    });
+    colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+    colors.colors[i].hue.max_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+    colors.colors[i].saturation.min_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+    colors.colors[i].saturation.max_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+    colors.colors[i].value.min_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+    colors.colors[i].value.max_scroll.on_scroll([&, i](core::point::type){
+      calc_image(i);
+    });
+  }
 
-  image_views[2].on_left_btn_down([&] (os::key_state, const core::point& pt) {
-    const auto p = core::global::scale(pt);
-    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
-
-    colors.second.hue.set_range(hsv[0] - 1, hsv[0] + 1);
-    colors.second.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
-    colors.second.value.set_range(hsv[2] - 1, hsv[2] + 1);
-    calc_second();
-  });
-
-  image_views[3].on_left_btn_down([&] (os::key_state, const core::point& pt) {
-    const auto p = core::global::scale(pt);
-    cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
-
-    colors.third.hue.set_range(hsv[0] - 1, hsv[0] + 1);
-    colors.third.saturation.set_range(hsv[1] - 1, hsv[1] + 1);
-    colors.third.value.set_range(hsv[2] - 1, hsv[2] + 1);
-    calc_third();
-  });
-  colors.first.hue.min_scroll.on_scroll([&](core::point::type){
-    calc_first();
-  });
-  colors.first.hue.max_scroll.on_scroll([&](core::point::type){
-    calc_first();
-  });
 
   set_children_visible();
 }
@@ -637,22 +621,14 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
   cv::merge(channels, 3, out);
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_first () {
-  image_views[1].set_image(cvMat2pixmap(first_image));
+void RedImage::show_image (int i) {
+  image_views[i + 1].set_image(cvMat2pixmap(image[i]));
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_second () {
-  image_views[2].set_image(cvMat2pixmap(second_image));
-}
-//-----------------------------------------------------------------------------
-void RedImage::show_third () {
-  image_views[3].set_image(cvMat2pixmap(third_image));
-}
-//-----------------------------------------------------------------------------
-void RedImage::calc_first () {
-  auto h = colors.first.hue.get();
-  auto s = colors.first.saturation.get();
-  auto v = colors.first.value.get();
+void RedImage::calc_image (int i) {
+  auto h = colors.colors[i].hue.get();
+  auto s = colors.colors[i].saturation.get();
+  auto v = colors.colors[i].value.get();
 
   cv::Mat mask;
   cv::inRange(hsv_image,
@@ -660,44 +636,16 @@ void RedImage::calc_first () {
               cv::Scalar(h.max(), s.max(), v.max()),
               mask);
 
-  first_image.setTo(cv::Scalar(0, 0, 0));
-  raw_image.copyTo(first_image, mask);
+  image[i].setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(image[i], mask);
 
-  show_first();
+  show_image(i);
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_second () {
-  auto h = colors.second.hue.get();
-  auto s = colors.second.saturation.get();
-  auto v = colors.second.value.get();
-
-  cv::Mat mask;
-  cv::inRange(hsv_image,
-              cv::Scalar(h.min(), s.min(), v.min()),
-              cv::Scalar(h.max(), s.max(), v.max()),
-              mask);
-
-  second_image.setTo(cv::Scalar(0, 0, 0));
-  raw_image.copyTo(second_image, mask);
-
-  show_second();
-}
-//-----------------------------------------------------------------------------
-void RedImage::calc_third () {
-  auto h = colors.third.hue.get();
-  auto s = colors.third.saturation.get();
-  auto v = colors.third.value.get();
-
-  cv::Mat mask;
-  cv::inRange(hsv_image,
-              cv::Scalar(h.min(), s.min(), v.min()),
-              cv::Scalar(h.max(), s.max(), v.max()),
-              mask);
-
-  third_image.setTo(cv::Scalar(0, 0, 0));
-  raw_image.copyTo(third_image, mask);
-
-  show_third();
+void RedImage::calc_all () {
+  for (int i = 0; i < 5; ++i) {
+    calc_image(i);
+  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::quit () {
@@ -726,15 +674,13 @@ void RedImage::open () {
 
       cv::cvtColor(raw_image, hsv_image, cv::COLOR_BGR2HSV);
 
-      raw_image.copyTo(first_image);
-      raw_image.copyTo(second_image);
-      raw_image.copyTo(third_image);
+      raw_image.copyTo(image[0]);
+      raw_image.copyTo(image[1]);
+      raw_image.copyTo(image[2]);
 
       inverted_image = ~raw_image;
       show_raw();
-      calc_first();
-      calc_second();
-      calc_third();
+      calc_all();
     }
   });
 }

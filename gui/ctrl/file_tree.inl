@@ -142,8 +142,8 @@ namespace gui {
     }
 
     template<typename T>
-    inline void file_list<T>::set_path (const sys_fs::path& dir) {
-      current_dir = T::sub_nodes(dir);
+    inline void file_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
+      current_dir = T::sub_nodes(dir, filter);
       super::set_count(current_dir.size());
       super::clear_selection(event_source::logic);
       super::set_scroll_pos(0);
@@ -220,8 +220,8 @@ namespace gui {
     }
 
     template<typename T>
-    inline void file_column_list<T>::set_path (const sys_fs::path& dir) {
-      current_dir = T::sub_nodes(dir);
+    inline void file_column_list<T>::set_path (const sys_fs::path& dir, std::function<fs::filter_fn> filter) {
+      current_dir = T::sub_nodes(dir, filter);
       super::list.set_count(current_dir.size());
       super::list.clear_selection(event_source::logic);
       super::list.set_scroll_pos(0);

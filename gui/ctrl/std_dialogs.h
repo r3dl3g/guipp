@@ -164,7 +164,8 @@ namespace gui {
       typedef file_column_list<T> file_list_type;
       typedef vertical_split_view<dir_tree_type, file_list_type> super;
 
-      void init (std::function<file_selected> action);
+      void init (std::function<file_selected> action,
+                 std::function<fs::filter_fn> filter = nullptr);
 
     };
 
@@ -182,13 +183,15 @@ namespace gui {
                    const std::string& title,
                    const std::string& ok_label,
                    const std::string& cancel_label,
-                   std::function<file_selected> action);
+                   std::function<file_selected> action,
+                   std::function<fs::filter_fn> filter = nullptr);
 
       static void show (win::container& parent,
                         const std::string& title,
                         const std::string& ok_label,
                         const std::string& cancel_label,
-                        std::function<file_selected> action);
+                        std::function<file_selected> action,
+                        std::function<fs::filter_fn> filter = nullptr);
     };
 
     //-----------------------------------------------------------------------------

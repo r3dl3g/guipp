@@ -54,19 +54,20 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
-    void dir_file_view<T>::init (std::function<file_selected> action) {
-      super::first.on_selection_changed([&](event_source) {
+    void dir_file_view<T>::init (std::function<file_selected> action,
+                                 std::function<fs::filter_fn> filter) {
+      super::first.on_selection_changed([&,filter](event_source) {
         int idx = super::first.get_selection();
         if (idx > -1) {
-          super::second.set_path(super::first.get_item(idx).path);
+          super::second.set_path(super::first.get_item(idx).path, filter);
         }
       });
-      super::second.list.on_selection_commit([&, action] () {
+      super::second.list.on_selection_commit([&, action, filter] () {
         auto path = super::second.get_selected_path();
         if (sys_fs::is_directory(path)) {
           super::first.open_node(path.parent_path());
           super::first.select_node(path);
-          super::second.set_path(path);
+          super::second.set_path(path, filter);
         } else {
           action(path);
         }
@@ -94,7 +95,8 @@ namespace gui {
                                            const std::string& title,
                                            const std::string& ok_label,
                                            const std::string& cancel_label,
-                                           std::function<file_selected> action) {
+                                           std::function<file_selected> action,
+                                           std::function<fs::filter_fn> filter) {
       auto& dir_tree = super::content_view.first;
       auto& file_list = super::content_view.second;
 
@@ -102,7 +104,7 @@ namespace gui {
         super::set_visible(false);
         super::end_modal();
         action(path);
-      });
+      }, filter);
 
       super::create(parent, title,
                     core::rectangle(300, 200, 600, 400),
@@ -128,7 +130,7 @@ namespace gui {
       }
       dir_tree.update_node_list();
       dir_tree.select_node(current);
-      file_list.set_path(current);
+      file_list.set_path(current, filter);
     }
 
     template<typename T>
@@ -136,9 +138,10 @@ namespace gui {
                                          const std::string& title,
                                          const std::string& ok_label,
                                          const std::string& cancel_label,
-                                         std::function<file_selected> action) {
+                                         std::function<file_selected> action,
+                                         std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
-      dialog.create(parent, title, ok_label, cancel_label, action);
+      dialog.create(parent, title, ok_label, cancel_label, action, filter);
       dialog.super::show(parent);
     }
 

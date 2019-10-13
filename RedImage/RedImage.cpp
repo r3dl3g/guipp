@@ -59,6 +59,17 @@ pixmap cvMat2pixmap (const cv::Mat& source) {
   return pixmap();
 }
 // --------------------------------------------------------------------------
+pixmap create_text_pixmap (const std::string& str,
+                           const core::rectangle& rect,
+                           const os::color color) {
+  pixmap img(rect.size());
+  graphics g(img);
+  text_box box(str, rect, text_origin::center);
+  g.clear(color::black);
+  g.text(box, font::menu(), color);
+  return img;
+}
+// --------------------------------------------------------------------------
 namespace data {
 
   // --------------------------------------------------------------------------
@@ -458,7 +469,7 @@ public:
   RedImage ();
 
   void onCreated (window*, const core::rectangle&);
-  void open ();
+  void loadImage ();
   void quit ();
 
   void show_raw ();
@@ -471,6 +482,10 @@ public:
 
   void load ();
   void save ();
+  void saveAs ();
+
+  void toggle_learning ();
+  void calc_title ();
 
 private:
   main_menu menu;
@@ -478,10 +493,15 @@ private:
   popup_menu edit_sub_menu;
   popup_menu help_sub_menu;
 
+  pixmap hook_icon;
+  pixmap cross_icon;
+
   win::group_window<layout::grid_adaption<3, 2, 0, 1>> main_view;
   image_view image_views[6];
 
   side_bar colors;
+
+  bool learning_mode;
 
   cv::Mat raw_image;
   cv::Mat hsv_image;
@@ -491,12 +511,14 @@ private:
 
   data::redimage_settings settings;
   sys_fs::path settings_path;
+  sys_fs::path image_path;
 };
 
 // --------------------------------------------------------------------------
 RedImage::RedImage ()
   : super(20, 0, 260, 0)
-  , settings_path(sys_fs::absolute("redimage.xml"))
+//  , settings_path(sys_fs::absolute("redimage.xml"))
+  , learning_mode(false)
 {
   on_create(basepp::bind_method(this, &RedImage::onCreated));
 
@@ -524,13 +546,22 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   });
 
   file_sub_menu.data.add_entries({
-    menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::open), hot_key(keys::o, state::control), false),
+    menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::load), hot_key(keys::o, state::control), false),
     menu_entry("Save", 's', basepp::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
+    menu_entry("SaveAs", 'a', basepp::bind_method(this, &RedImage::saveAs), hot_key(keys::s, state::control|state::shift), false),
+    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::loadImage), hot_key(keys::l, state::control), true),
     menu_entry("Exit", 'x', basepp::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
 
+  const float icn_sz = core::global::scale<float>(20);
+  core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
+
+  hook_icon = create_text_pixmap("X", icon_rect, color::dark_red);
+  cross_icon = create_text_pixmap(" ", icon_rect, color::dark_green);
+
   edit_sub_menu.data.add_entries({
-    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), false),
+    menu_entry("Leaning mode", 'l', basepp::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
+    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), true),
     menu_entry("Raw", 'r', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::r, state::control), false),
     menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), true),
   });
@@ -558,13 +589,15 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   for (int i = 0; i < 5; ++i) {
     image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
-      const auto p = core::global::scale(pt);
-      cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
+      if (learning_mode) {
+        const auto p = core::global::scale(pt);
+        cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
 
-      colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
-      colors.colors[i].saturation.set_range(hsv[1] - 1, hsv[1] + 1);
-      colors.colors[i].value.set_range(hsv[2] - 1, hsv[2] + 1);
-      calc_image(i);
+        colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
+        colors.colors[i].saturation.set_range(hsv[1] - 1, hsv[1] + 1);
+        colors.colors[i].value.set_range(hsv[2] - 1, hsv[2] + 1);
+        calc_image(i);
+      }
     });
     colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
       calc_image(i);
@@ -586,8 +619,13 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     });
   }
 
-
   set_children_visible();
+}
+//-----------------------------------------------------------------------------
+void RedImage::toggle_learning () {
+  learning_mode = !learning_mode;
+  edit_sub_menu.data[0].set_icon(learning_mode ? hook_icon : cross_icon);
+  calc_title();
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {
@@ -630,20 +668,36 @@ void RedImage::calc_image (int i) {
   auto s = colors.colors[i].saturation.get();
   auto v = colors.colors[i].value.get();
 
-  cv::Mat mask;
-  cv::inRange(hsv_image,
-              cv::Scalar(h.min(), s.min(), v.min()),
-              cv::Scalar(h.max(), s.max(), v.max()),
-              mask);
-
   image[i].setTo(cv::Scalar(0, 0, 0));
+
+  cv::Mat mask;
+  if (h.min() > h.max()) {
+    cv::Mat mask2;
+    cv::inRange(hsv_image,
+                cv::Scalar(h.min(), s.min(), v.min()),
+                cv::Scalar(180, s.max(), v.max()),
+                mask2);
+    cv::inRange(hsv_image,
+                cv::Scalar(0, s.min(), v.min()),
+                cv::Scalar(h.max(), s.max(), v.max()),
+                mask);
+    mask = mask + mask2;
+  } else {
+    cv::inRange(hsv_image,
+                cv::Scalar(h.min(), s.min(), v.min()),
+                cv::Scalar(h.max(), s.max(), v.max()),
+                mask);
+  }
+
   raw_image.copyTo(image[i], mask);
+  mask.copyTo(image[i + 3]);
 
   show_image(i);
+  show_image(i + 3);
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_all () {
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 2; ++i) {
     calc_image(i);
   }
 }
@@ -651,7 +705,9 @@ void RedImage::calc_all () {
 void RedImage::quit () {
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
-      save();
+      if (!settings_path.empty()) {
+        save();
+      }
       win::quit_main_loop();
     } else {
       take_focus();
@@ -659,12 +715,25 @@ void RedImage::quit () {
   });
 }
 //-----------------------------------------------------------------------------
-void RedImage::open () {
-  if (!settings.last_path().empty()) {
+bool is_jpeg (const sys_fs::directory_entry& i) {
+  auto ext = i.path().extension();
+  return !(ext == ".jpg") && !(ext == ".jpeg") && !(ext == ".JPG") && !(ext == ".JPEG");
+}
+//-----------------------------------------------------------------------------
+bool is_xml (const sys_fs::directory_entry& i) {
+  auto ext = i.path().extension();
+  return !(ext == ".xml") && !(ext == ".XML");
+}
+//-----------------------------------------------------------------------------
+void RedImage::loadImage () {
+  auto old_path = sys_fs::current_path();
+  if (!settings.last_path().empty() && sys_fs::exists(settings.last_path())) {
     sys_fs::current_path(settings.last_path());
   }
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
+      image_path = file;
+      calc_title();
       settings.last_path(file.parent_path());
       cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
       auto size = core::global::scale(image_views[0].size());
@@ -682,45 +751,76 @@ void RedImage::open () {
       show_raw();
       calc_all();
     }
-  });
+  }, is_jpeg);
+  sys_fs::current_path(old_path);
 }
 // --------------------------------------------------------------------------
 void RedImage::load () {
-  using boost::property_tree::ptree;
+  file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
+    settings_path = file;
+    calc_title();
 
-  ptree xml_main;
-  try {
-    xml::read_xml(settings_path, xml_main, xml::no_comments);
-    auto opt = xml_main.get_child_optional("redimage");
-    if (opt) {
-      settings.read(opt.get());
-      colors.set(settings.colors());
+    using boost::property_tree::ptree;
+
+    ptree xml_main;
+    try {
+      xml::read_xml(settings_path, xml_main, xml::no_comments);
+      auto opt = xml_main.get_child_optional("redimage");
+      if (opt) {
+        settings.read(opt.get());
+        colors.set(settings.colors());
+      }
+    } catch (std::exception& ex) {
+      LogWarng << "Exception while reading redimage.xml:" << ex.what();
     }
-  } catch (std::exception& ex) {
-    LogWarng << "Exception while reading redimage.xml:" << ex.what();
-  }
+  }, is_xml);
 }
 // --------------------------------------------------------------------------
 void RedImage::save () {
-  using boost::property_tree::ptree;
+  if (settings_path.empty()) {
+    saveAs();
+  } else {
+    using boost::property_tree::ptree;
 
-  settings.colors(colors.get());
-  ptree main;
-  settings.write(main);
-  ptree xml_main;
-  xml_main.put_child("redimage", main);
+    settings.colors(colors.get());
+    ptree main;
+    settings.write(main);
+    ptree xml_main;
+    xml_main.put_child("redimage", main);
 
-  boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
-  xml::write_xml(settings_path, xml_main, std::locale(), xml_settings);
+    boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
+    xml::write_xml(settings_path, xml_main, std::locale(), xml_settings);
+  }
+}
+// --------------------------------------------------------------------------
+void RedImage::saveAs () {
+  file_save_dialog::show(*this, "Save File As", "Sorte", "Filename", "Save", "Cancel", [&] (const sys_fs::path& file) {
+     settings_path = file;
+     calc_title();
+     save();
+  });
+}
+void RedImage::calc_title () {
+  std::ostringstream buffer;
+  buffer << "RedImage";
+  if (!settings_path.empty()) {
+    buffer << " - " << settings_path.filename();
+  }
+  if (!image_path.empty()) {
+    buffer << " - " << image_path.filename();
+  }
+  if (learning_mode) {
+    buffer << " - Learning Mode";
+  }
 
+  set_title(buffer.str());
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   RedImage main;
 
   main.create({50, 50, 800, 600});
-  main.set_title("RedImage");
-  main.load();
+  main.calc_title();
   main.set_visible();
   main.maximize();
 

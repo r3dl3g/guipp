@@ -429,7 +429,7 @@ public:
   typedef win::group_window<layout::vertical_lineup<184, 0, 10>> super;
 
   enum {
-    COLOR_COUNT = 5
+    COLOR_COUNT = 2
   };
 
   side_bar ();
@@ -476,9 +476,10 @@ public:
   void show_inverted ();
 
   void show_image (int i);
-  void calc_image (int i);
+  void calc_image (int i, bool calc_rest_img = true);
 
   void calc_all ();
+  void calc_rest ();
 
   void load ();
   void save ();
@@ -507,6 +508,8 @@ private:
   cv::Mat hsv_image;
   cv::Mat inverted_image;
 
+  float portions[side_bar::COLOR_COUNT];
+
   cv::Mat image[5];
 
   data::redimage_settings settings;
@@ -520,6 +523,7 @@ RedImage::RedImage ()
 //  , settings_path(sys_fs::absolute("redimage.xml"))
   , learning_mode(false)
 {
+  portions[0] = portions[1] = 0.0F;
   on_create(basepp::bind_method(this, &RedImage::onCreated));
 
   on_destroy([&]() {
@@ -587,15 +591,15 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   get_layout().set_center(&main_view);
   get_layout().set_left(&colors);
 
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < side_bar::COLOR_COUNT; ++i) {
     image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
       if (learning_mode) {
         const auto p = core::global::scale(pt);
         cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
 
-        colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
-        colors.colors[i].saturation.set_range(hsv[1] - 1, hsv[1] + 1);
-        colors.colors[i].value.set_range(hsv[2] - 1, hsv[2] + 1);
+        colors.colors[i].hue.set_range(hsv[0] - 10, hsv[0] + 10);
+        colors.colors[i].saturation.set_range(hsv[1] - 10, hsv[1] + 10);
+        colors.colors[i].value.set_range(hsv[2] - 10, hsv[2] + 10);
         calc_image(i);
       }
     });
@@ -663,7 +667,7 @@ void RedImage::show_image (int i) {
   image_views[i + 1].set_image(cvMat2pixmap(image[i]));
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_image (int i) {
+void RedImage::calc_image (int i, bool calc_rest_img) {
   auto h = colors.colors[i].hue.get();
   auto s = colors.colors[i].saturation.get();
   auto v = colors.colors[i].value.get();
@@ -689,17 +693,34 @@ void RedImage::calc_image (int i) {
                 mask);
   }
 
+  int mask_count = cv::countNonZero(mask);
+  int full_count = mask.cols * mask.rows;
+  portions[i] = (float)((double)mask_count / (double)full_count);
+
   raw_image.copyTo(image[i], mask);
   mask.copyTo(image[i + 3]);
 
   show_image(i);
   show_image(i + 3);
+  if (calc_rest_img) {
+    calc_rest();
+  }
+  calc_title();
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_rest () {
+  cv::Mat mask = image[3] + image[4];
+  image[2].setTo(cv::Scalar(255, 255, 255));
+  raw_image.copyTo(image[2], ~mask);
+
+  show_image(2);
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_all () {
   for (int i = 0; i < 2; ++i) {
-    calc_image(i);
+    calc_image(i, false);
   }
+  calc_rest();
 }
 //-----------------------------------------------------------------------------
 void RedImage::quit () {
@@ -733,6 +754,7 @@ void RedImage::loadImage () {
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     if (sys_fs::exists(file)) {
       image_path = file;
+      portions[0] = portions[1] = 0.0F;
       calc_title();
       settings.last_path(file.parent_path());
       cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
@@ -758,6 +780,7 @@ void RedImage::loadImage () {
 void RedImage::load () {
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     settings_path = file;
+    portions[0] = portions[1] = 0.0F;
     calc_title();
 
     using boost::property_tree::ptree;
@@ -811,6 +834,16 @@ void RedImage::calc_title () {
   }
   if (learning_mode) {
     buffer << " - Learning Mode";
+  }
+  if (portions[0] != 0.0F) {
+    buffer << " - Bad: " << (portions[0] * 100.0F) << "%";
+  }
+  if (portions[1] != 0.0F) {
+    buffer << " - Off: " << (portions[1] * 100.0F) << "%";
+  }
+  if ((portions[0] != 0.0F) && (portions[1] != 0.0F)) {
+    float good = 1.0F - (portions[0] + portions[1]);
+    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[0] / good) * 100.0F << "%";
   }
 
   set_title(buffer.str());

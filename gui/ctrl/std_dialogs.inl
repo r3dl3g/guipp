@@ -107,7 +107,7 @@ namespace gui {
       }, filter);
 
       super::create(parent, title,
-                    core::rectangle(300, 200, 600, 400),
+                    core::rectangle(300, 200, 1200, 800),
                     [&, action] (int btn) {
         if (1 == btn) {
           if (super::content_view.second.list.get_selection() > -1) {

@@ -279,6 +279,52 @@ image_view::image_view () {
 }
 
 // --------------------------------------------------------------------------
+class color_view : public control {
+public:
+  typedef control super;
+  typedef no_erase_window_class<color_view> clazz;
+
+  color_view ();
+
+  void create (const win::container& parent,
+               const core::rectangle& place = core::rectangle::def);
+
+  void paint (const graphics& graph);
+  void set_rgb_color (byte r, byte g, byte b);
+  void set_hsv_color (byte h, byte s, byte v);
+
+  os::color value;
+};
+// --------------------------------------------------------------------------
+color_view::color_view ()
+  : value(color::black) {
+  on_paint(draw::paint(this, &color_view::paint));
+}
+// --------------------------------------------------------------------------
+void color_view::create (const win::container& parent,
+                         const core::rectangle& place) {
+  super::create(clazz::get(), parent, place);
+}
+
+// --------------------------------------------------------------------------
+void color_view::paint (const graphics& graph) {
+  graph.clear(value);
+}
+// --------------------------------------------------------------------------
+void color_view::set_rgb_color (byte r, byte g, byte b) {
+  value = color::calc_rgb(r, g, b);
+  invalidate();
+}
+// --------------------------------------------------------------------------
+void color_view::set_hsv_color (byte h, byte s, byte v) {
+  cv::Mat hsv(1, 1, CV_8UC3);
+  hsv.setTo(cv::Scalar(h, s, v));
+  cv::Mat rgb(1, 1, CV_8UC3);
+  cv::cvtColor(hsv, rgb, cv::COLOR_HSV2RGB);
+  cv::Vec3b v3 = rgb.at<cv::Vec3b>(0, 0);
+  set_rgb_color(v3[0], v3[1], v3[2]);
+}
+// --------------------------------------------------------------------------
 class min_max_group : public win::group_window<layout::horizontal_lineup<52>> {
 public:
   typedef win::group_window<layout::horizontal_lineup<52>> super;
@@ -287,11 +333,10 @@ public:
 
   label main_label;
   label_right min_label;
-  label_right max_label;
   edit_left min_edit;
+  label_right max_label;
   edit_left max_edit;
 };
-
 // --------------------------------------------------------------------------
 min_max_group::min_max_group (byte min, byte max) {
   on_create([&, min, max] (window*, const core::rectangle&) {
@@ -302,7 +347,6 @@ min_max_group::min_max_group (byte min, byte max) {
     max_edit.create(*this, ostreamfmt((int)max));
   });
 }
-
 // --------------------------------------------------------------------------
 class color_key : public win::group_window<layout::vertical_lineup<20>> {
 public:
@@ -352,7 +396,6 @@ color_key::color_key (byte min, byte max)
     max_scroll.set_value(value, false);
   });
 }
-
 // --------------------------------------------------------------------------
 void color_key::set (const std::string& name, const data::range& value) {
   min_max.main_label.set_text(name);
@@ -386,7 +429,21 @@ byte color_key::get_min () const {
 byte color_key::get_max () const {
   return (byte)max_scroll.get_value();
 }
+// --------------------------------------------------------------------------
+class color_group : public win::group_window<layout::horizontal_lineup<128, 1, 1>> {
+public:
+  typedef win::group_window<layout::horizontal_lineup<128, 1, 1>> super;
 
+  color_group () {
+    on_create([&] (window*, const core::rectangle&) {
+      min_color.create(*this);
+      max_color.create(*this);
+    });
+  }
+
+  color_view min_color;
+  color_view max_color;
+};
 // --------------------------------------------------------------------------
 class color_key_group : public win::group_window<layout::vertical_lineup<60, 0, 1>> {
 public:
@@ -400,6 +457,7 @@ public:
   color_key hue;
   color_key saturation;
   color_key value;
+  color_group colors;
 };
 // --------------------------------------------------------------------------
 color_key_group::color_key_group ()
@@ -411,22 +469,25 @@ color_key_group::color_key_group ()
     hue.create(*this);
     saturation.create(*this);
     value.create(*this);
+    colors.create(*this);
   });
 }
 // --------------------------------------------------------------------------
 void color_key_group::set (const data::hsv_range& hsv) {
-  hue.set("Hue", hsv.hue());
-  saturation.set("Saturation", hsv.saturation());
-  value.set("Value", hsv.value());
+  hue.set("H", hsv.hue());
+  saturation.set("S", hsv.saturation());
+  value.set("V", hsv.value());
+  colors.min_color.set_hsv_color(hsv.hue().min(), hsv.saturation().min(), hsv.value().min());
+  colors.max_color.set_hsv_color(hsv.hue().max(), hsv.saturation().max(), hsv.value().max());
 }
 // --------------------------------------------------------------------------
 data::hsv_range color_key_group::get () const {
   return data::hsv_range(hue.get(), saturation.get(), value.get());
 }
 // --------------------------------------------------------------------------
-class side_bar : public win::group_window<layout::vertical_lineup<184, 0, 2>> {
+class side_bar : public win::group_window<layout::vertical_lineup<244, 0, 2>> {
 public:
-  typedef win::group_window<layout::vertical_lineup<184, 0, 10>> super;
+  typedef win::group_window<layout::vertical_lineup<244, 0, 10>> super;
 
   enum {
     COLOR_COUNT = 2
@@ -438,6 +499,7 @@ public:
   data::color_sets get () const;
 
   std::vector<color_key_group> colors;
+
 };
 // --------------------------------------------------------------------------
 side_bar::side_bar () {
@@ -480,6 +542,8 @@ public:
 
   void calc_all ();
   void calc_rest ();
+
+  void calc_color (int i);
 
   void load ();
   void save ();
@@ -597,28 +661,46 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
         const auto p = core::global::scale(pt);
         cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
 
-        colors.colors[i].hue.set_range(hsv[0] - 10, hsv[0] + 10);
-        colors.colors[i].saturation.set_range(hsv[1] - 10, hsv[1] + 10);
-        colors.colors[i].value.set_range(hsv[2] - 10, hsv[2] + 10);
+        colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
+        colors.colors[i].saturation.set_range(70, 255);
+        colors.colors[i].value.set_range(70, 255);
         calc_image(i);
       }
     });
     colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
-      calc_image(i);
+      calc_color(i);
     });
     colors.colors[i].hue.max_scroll.on_scroll([&, i](core::point::type){
-      calc_image(i);
+      calc_color(i);
     });
     colors.colors[i].saturation.min_scroll.on_scroll([&, i](core::point::type){
-      calc_image(i);
+      calc_color(i);
     });
     colors.colors[i].saturation.max_scroll.on_scroll([&, i](core::point::type){
-      calc_image(i);
+      calc_color(i);
     });
     colors.colors[i].value.min_scroll.on_scroll([&, i](core::point::type){
-      calc_image(i);
+      calc_color(i);
     });
     colors.colors[i].value.max_scroll.on_scroll([&, i](core::point::type){
+      calc_color(i);
+    });
+    colors.colors[i].hue.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image(i);
+    });
+    colors.colors[i].hue.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image(i);
+    });
+    colors.colors[i].saturation.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image(i);
+    });
+    colors.colors[i].saturation.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image(i);
+    });
+    colors.colors[i].value.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image(i);
+    });
+    colors.colors[i].value.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
       calc_image(i);
     });
   }
@@ -665,6 +747,14 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
 //-----------------------------------------------------------------------------
 void RedImage::show_image (int i) {
   image_views[i + 1].set_image(cvMat2pixmap(image[i]));
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_color (int i) {
+  auto h = colors.colors[i].hue.get();
+  auto s = colors.colors[i].saturation.get();
+  auto v = colors.colors[i].value.get();
+  colors.colors[i].colors.min_color.set_hsv_color(h.min(), std::max((byte)128, s.min()), std::max((byte)128, v.min()));
+  colors.colors[i].colors.max_color.set_hsv_color(h.max(), s.max(), v.max());
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_image (int i, bool calc_rest_img) {

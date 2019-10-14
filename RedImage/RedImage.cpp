@@ -758,6 +758,9 @@ void RedImage::calc_color (int i) {
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_image (int i, bool calc_rest_img) {
+  if (hsv_image.empty()) {
+    return;
+  }
   auto h = colors.colors[i].hue.get();
   auto s = colors.colors[i].saturation.get();
   auto v = colors.colors[i].value.get();
@@ -846,7 +849,7 @@ void RedImage::loadImage () {
       image_path = file;
       portions[0] = portions[1] = 0.0F;
       calc_title();
-      settings.last_path(file.parent_path());
+      settings.last_path(file.parent_path().string());
       cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
       auto size = core::global::scale(image_views[0].size());
       cv::Size sz(size.width(), size.height());
@@ -877,7 +880,7 @@ void RedImage::load () {
 
     ptree xml_main;
     try {
-      xml::read_xml(settings_path, xml_main, xml::no_comments);
+      xml::read_xml(settings_path.string(), xml_main, xml::no_comments);
       auto opt = xml_main.get_child_optional("redimage");
       if (opt) {
         settings.read(opt.get());
@@ -902,7 +905,7 @@ void RedImage::save () {
     xml_main.put_child("redimage", main);
 
     boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
-    xml::write_xml(settings_path, xml_main, std::locale(), xml_settings);
+    xml::write_xml(settings_path.string(), xml_main, std::locale(), xml_settings);
   }
 }
 // --------------------------------------------------------------------------

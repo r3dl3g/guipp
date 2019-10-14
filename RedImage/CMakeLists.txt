@@ -17,6 +17,10 @@ if(WIN32)
     set(CV_PATH "${CV_BASE}/include")
     set(CV_LIB_PATH "${CV_BASE}/x64/${COMPILER_VER}/lib")
     set(CV_BIN_PATH "${CV_BASE}/x64/${COMPILER_VER}/bin")
+
+	set(Boost_DIR "${CMAKE_CURRENT_LIST_DIR}/../boost")
+    get_filename_component(Boost_PATH "${Boost_DIR}" ABSOLUTE)
+    set(Boost_LIB_PATH "${Boost_PATH}/stage/lib")
 endif()
 
 if (UNIX)
@@ -36,6 +40,7 @@ set (IncludeDirs
         ${persistent_include}
         "${CMAKE_CURRENT_SOURCE_DIR}/sources"
         "${CV_PATH}"
+		"${Boost_PATH}"
 )
 
 find_package(OpenCV REQUIRED)
@@ -46,6 +51,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${IncludeDirs})
 link_directories(
         "${CV_LIB_PATH}"
+		"${Boost_LIB_PATH}"
 )
 
 add_definitions(${gui_defines})

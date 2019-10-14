@@ -264,6 +264,8 @@ namespace gui {
       os::window id = WindowFromDC(gc);
       if (id) {
         GetWindowRect(id, &r);
+        r.left = 0;
+        r.top = 0;
       } else {
         HGDIOBJ hBmp = GetCurrentObject(gc, OBJ_BITMAP);
         if (hBmp) {

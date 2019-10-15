@@ -545,6 +545,9 @@ public:
 
   void calc_color (int i);
 
+  void show_full_image (int i);
+  void show_filter_view ();
+
   void load ();
   void save ();
   void saveAs ();
@@ -556,13 +559,17 @@ private:
   main_menu menu;
   popup_menu file_sub_menu;
   popup_menu edit_sub_menu;
+  popup_menu view_sub_menu;
   popup_menu help_sub_menu;
 
   pixmap hook_icon;
   pixmap cross_icon;
 
-  win::group_window<layout::grid_adaption<3, 2, 0, 1>> main_view;
+  win::group_window<layout::grid_adaption<3, 2, 0, 1>> filter_view;
   image_view image_views[6];
+  image_view full_image_view;
+
+  int curent_full_image_view;
 
   side_bar colors;
 
@@ -586,6 +593,7 @@ RedImage::RedImage ()
   : super(20, 0, 260, 0)
 //  , settings_path(sys_fs::absolute("redimage.xml"))
   , learning_mode(false)
+  , curent_full_image_view(-1)
 {
   portions[0] = portions[1] = 0.0F;
   on_create(basepp::bind_method(this, &RedImage::onCreated));
@@ -606,8 +614,9 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     main_menu_entry("Edit", 'E', [&]() {
       edit_sub_menu.popup(menu);
     }),
-    main_menu_entry("Window", 'W', [&]() {
-    }, menu_state::disabled),
+    main_menu_entry("View", 'V', [&]() {
+      view_sub_menu.popup(menu);
+    }),
     main_menu_entry("Help", 'H', [&]() {
       help_sub_menu.popup(menu);
     })
@@ -629,9 +638,19 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   edit_sub_menu.data.add_entries({
     menu_entry("Leaning mode", 'l', basepp::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
-    menu_entry("All", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), true),
-    menu_entry("Raw", 'r', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::r, state::control), false),
-    menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), true),
+    menu_entry("Calc all", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), false),
+    menu_entry("Raw", 'r', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::r, state::control), true),
+    menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), false),
+  });
+
+  view_sub_menu.data.add_entries({
+    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
+    menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), false),
+    menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
+    menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),
+    menu_entry("Full View Image 4", '4', [&] () { RedImage::show_full_image(3); }, hot_key('4', state::control), false),
+    menu_entry("Full View Image 5", '5', [&] () { RedImage::show_full_image(4); }, hot_key('5', state::control), false),
+    menu_entry("Full View Image 6", '6', [&] () { RedImage::show_full_image(5); }, hot_key('6', state::control), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -644,15 +663,23 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   file_sub_menu.data.register_hot_keys(this);
   edit_sub_menu.data.register_hot_keys(this);
+  view_sub_menu.data.register_hot_keys(this);
 
-  main_view.create(*this);
+  filter_view.create(*this);
   for(int i = 0; i < 6; ++i) {
-    image_views[i].create(main_view);
+    image_views[i].create(filter_view);
+    image_views[i].on_left_btn_dblclk([&, i] (os::key_state, const core::point) {
+      show_full_image(i);
+    });
   }
   colors.create(*this);
+  full_image_view.create(*this);
+  full_image_view.on_left_btn_dblclk([&] (os::key_state, const core::point) {
+    show_filter_view();
+  });
 
   get_layout().set_top(&menu);
-  get_layout().set_center(&main_view);
+  get_layout().set_center(&filter_view);
   get_layout().set_left(&colors);
 
   for (int i = 0; i < side_bar::COLOR_COUNT; ++i) {
@@ -706,6 +733,33 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   }
 
   set_children_visible();
+  full_image_view.to_back();
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_full_image (int i) {
+  filter_view.to_back();
+  full_image_view.to_front();
+  get_layout().set_center(&full_image_view);
+  super::layout();
+
+  cv::Mat src = (i == 0 ? raw_image : image[i - 1]);
+
+  auto size = core::global::scale(filter_view.size());
+  cv::Size sz(size.width(), size.height());
+  cv::Mat target = cv::Mat(sz, src.type());
+  cv::resize(src, target, sz, 0, 0, cv::INTER_LINEAR);
+
+  full_image_view.set_image(cvMat2pixmap(target));
+  curent_full_image_view = i;
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_filter_view () {
+  full_image_view.to_back();
+  filter_view.to_front();
+  get_layout().set_center(&filter_view);
+  super::layout();
+  filter_view.layout();
+  curent_full_image_view = -1;
 }
 //-----------------------------------------------------------------------------
 void RedImage::toggle_learning () {
@@ -799,6 +853,9 @@ void RedImage::calc_image (int i, bool calc_rest_img) {
     calc_rest();
   }
   calc_title();
+  if (curent_full_image_view > -1) {
+    show_full_image(curent_full_image_view);
+  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_rest () {
@@ -854,7 +911,7 @@ void RedImage::loadImage () {
       auto size = core::global::scale(image_views[0].size());
       cv::Size sz(size.width(), size.height());
       raw_image = cv::Mat(sz, srcImage.type());
-      cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_LINEAR);
+      cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_CUBIC);
 
       cv::cvtColor(raw_image, hsv_image, cv::COLOR_BGR2HSV);
 

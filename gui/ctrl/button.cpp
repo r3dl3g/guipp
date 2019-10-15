@@ -402,8 +402,8 @@ namespace gui {
 
         if (enabled && state.has_focus() && !pushed) {
           core::rectangle area = r;
-          area.shrink({6, 6});
-          graph.frame(draw::rectangle(area), draw::pen(color::light_gray, dot_line_width, dot_line_style));
+          area.shrink({2, 2});
+          graph.frame(draw::rectangle(area), draw::pen(color::very_light_blue, 2, draw::pen::Style::solid));
         }
       }
 

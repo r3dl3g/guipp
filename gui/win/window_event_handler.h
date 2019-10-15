@@ -673,20 +673,20 @@ namespace gui {
                                        getter<get_state<XButtonEvent>,
                                               get<core::point, XButtonEvent>::param>>;
 
-    using left_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+    using left_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                 core::params<os::key_state, core::point>::
                                                 getter<get_state<XButtonEvent>,
                                                        get<core::point, XButtonEvent>::param>,
                                                 0,
                                                 double_click_matcher<Button1>>;
 
-    using right_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+    using right_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                  core::params<os::key_state, core::point>::
                                                  getter<get_state<XButtonEvent>,
                                                         get<core::point, XButtonEvent>::param>,
                                                  0,
                                                  double_click_matcher<Button3>>;
-    using middle_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonReleaseMask,
+    using middle_btn_dblclk_event = core::event_handler<ButtonRelease, ButtonPressMask | ButtonReleaseMask,
                                                   core::params<os::key_state, core::point>::
                                                   getter<get_state<XButtonEvent>,
                                                          get<core::point, XButtonEvent>::param>,

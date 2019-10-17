@@ -338,8 +338,8 @@ namespace gui {
     using get_minmax_event = core::event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
 
     using layout_event = core::event_handler<WM_LAYOUT_WINDOW, 0,
-                                       core::params<core::size>::
-                                       getter<get_param<1, core::size>>>;
+                                       core::params<core::rectangle>::
+                                       getter<get_param<1, core::rectangle>>>;
 
     using paint_event = core::event_handler<WM_PAINT, 0, os_paint_getter>;
 
@@ -378,6 +378,7 @@ namespace gui {
     } // namespace x11
 
     GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message, const core::rectangle& wr);
 
     // --------------------------------------------------------------------------
     template<os::event_id id, os::event_id btn>

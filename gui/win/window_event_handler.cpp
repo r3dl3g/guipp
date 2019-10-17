@@ -411,6 +411,14 @@ namespace gui {
       x11::send_client_message(win, message, l0);
     }
 
+    void send_client_message (const window* win, Atom message, const core::rectangle& wr) {
+      os::size s = wr.size().os();
+      os::point p = wr.position().os();
+      long l0 = (long)p.x << 16 | (long)p.y;
+      long l1 = (long)s.cx << 16 | (long)s.cy;
+      x11::send_client_message(win, message, l1, l0, l1);
+    }
+
     void post_client_message (const window* win, Atom message, long l1, long l2) {
       x11::post_client_message(win, message, l1, l2);
     }

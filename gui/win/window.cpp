@@ -554,7 +554,7 @@ namespace gui {
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-        send_client_message(this, WM_LAYOUT_WINDOW, sz);
+        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
         if (repaint) {
           invalidate();
         }
@@ -564,7 +564,7 @@ namespace gui {
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
         MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
-        send_client_message(this, WM_LAYOUT_WINDOW, r.size());
+        send_client_message(this, WM_LAYOUT_WINDOW, r);
       }
     }
 
@@ -963,7 +963,7 @@ namespace gui {
           }
           x11::check_return(XResizeWindow(core::global::get_instance(),
                                           get_id(), sz.os_width(), sz.os_height()));
-          send_client_message(this, WM_LAYOUT_WINDOW, sz);
+          send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
           if (repaint) {
             invalidate();
           }
@@ -977,17 +977,17 @@ namespace gui {
           set_visible(false);
         }
       } else {
+        if (!is_visible()) {
+          set_visible();
+        }
         const auto current = place();
         if (current != r) {
-          if (!is_visible()) {
-            set_visible();
-          }
 
           x11::check_return(XMoveResizeWindow(core::global::get_instance(),
                                               get_id(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
-            send_client_message(this, WM_LAYOUT_WINDOW, r.size());
+            send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(r.size()));
             if (repaint) {
               invalidate();
             }

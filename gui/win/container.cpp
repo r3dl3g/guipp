@@ -251,11 +251,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
       on_set_focus([&] (win::window* prev) {
-        send_client_message(this, WM_LAYOUT_WINDOW, client_size());
+        send_client_message(this, WM_LAYOUT_WINDOW, client_area());
       });
 #ifndef BUILD_FOR_ARM
       on_size([&] (const core::size& sz) {
-        send_client_message(this, WM_LAYOUT_WINDOW, sz);
+        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
       });
 #endif
     }

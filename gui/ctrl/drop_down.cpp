@@ -41,10 +41,10 @@ namespace gui {
       return core::rectangle(core::point(sz.width() - h - 2, 2), core::size(h, h));
     }
 
-    void drop_down::layout (const core::size& sz) {
+    void drop_down::layout (const core::rectangle& sz) {
       LogTrace << "drop_down::layout()";
       if (data.button) {
-        data.button->place(button_place(sz));
+        data.button->place(button_place(sz.size()));
       }
     }
 

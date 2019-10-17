@@ -42,7 +42,7 @@ namespace gui {
     }
 
     template<orientation height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin rows>
-    void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::size& sz) {
+    void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::rectangle& sz) {
       LogTrace << "lineup_layout::layout(" << sz << ")";
       std::vector<win::window*> children = super::get_children();
       const std::size_t count = children.size();
@@ -56,7 +56,7 @@ namespace gui {
           const type offset = dim1 + gap;
           const type sep_offset = gap + sep;
 
-          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz,
+          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz.size(),
                                                   gap, count, sep, sep_count);
           for (win::window* win : children) {
             if (super::is_separator(win)) {
@@ -76,7 +76,7 @@ namespace gui {
     template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
     inline void lineup_layout<H, D, B, G, S, R>::init () {
       super::init(basepp::bind_method(this, &lineup_layout::layout), [&] () {
-        layout(super::get_main_size());
+        layout(super::get_layout_area());
       });
     }
 

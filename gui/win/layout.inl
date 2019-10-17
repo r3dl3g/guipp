@@ -75,13 +75,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      inline auto orientation_layout<orientation::horizontal>::get_dimension1 (const core::size& sz) -> type {
-        return sz.width();
+      inline auto orientation_layout<orientation::horizontal>::get_dimension1 (const core::rectangle& sz) -> type {
+        return sz.x2();
       }
 
       template<>
-      inline auto orientation_layout<orientation::horizontal>::get_dimension2 (const core::size& sz) -> type {
-        return sz.height();
+      inline auto orientation_layout<orientation::horizontal>::get_dimension2 (const core::rectangle& sz) -> type {
+        return sz.y2();
       }
 
       template<>
@@ -101,13 +101,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      inline auto orientation_layout<orientation::vertical>::get_dimension1 (const core::size& sz) -> type {
-        return sz.height();
+      inline auto orientation_layout<orientation::vertical>::get_dimension1 (const core::rectangle& sz) -> type {
+        return sz.y2();
       }
 
       template<>
-      inline auto orientation_layout<orientation::vertical>::get_dimension2 (const core::size& sz) -> type {
-        return sz.width();
+      inline auto orientation_layout<orientation::vertical>::get_dimension2 (const core::rectangle& sz) -> type {
+        return sz.x2();
       }
 
       template<>
@@ -210,8 +210,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       inline core::rectangle origin_layout<orientation::vertical, origin::end>::init_area (
-        type border, const core::size& is, const core::size& sz,
-        int, std::size_t, int, std::size_t) {
+          type border, const core::size& is, const core::size& sz, int, std::size_t, int, std::size_t) {
         return core::rectangle(core::point(border, sz.height() - is.height() - border), is);
       }
 
@@ -228,8 +227,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       inline core::rectangle origin_layout<orientation::horizontal, origin::center>::init_area (
-        type border, const core::size& is, const core::size& sz,
-        int gap, std::size_t count, int sep, std::size_t sep_count) {
+        type border, const core::size& is, const core::size& sz, int gap, std::size_t count, int sep, std::size_t sep_count) {
         const type space = (is.width() * (count - sep_count) + (count - 1) * gap + sep_count * sep);
         return core::rectangle(core::point((sz.width() - space) / 2, border), is);
       }
@@ -247,8 +245,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<>
       inline core::rectangle origin_layout<orientation::vertical, origin::center>::init_area (
-        type border, const core::size& is, const core::size& sz,
-        int gap, std::size_t count, int sep, std::size_t sep_count) {
+        type border, const core::size& is, const core::size& sz, int gap, std::size_t count, int sep, std::size_t sep_count) {
         const type space = (is.height() * (count - sep_count) + (count - 1) * gap + sep_count * sep);
         return core::rectangle(core::point(border, (sz.height() - space) / 2), is);
       }

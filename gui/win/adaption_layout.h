@@ -52,7 +52,7 @@ namespace gui {
       adaption_layout (win::container* m, const adaption_layout& rhs);
       adaption_layout (win::container* m, adaption_layout&& rhs);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();

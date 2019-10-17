@@ -53,13 +53,13 @@ namespace gui {
       });
     }
 
-    core::size layout_base::get_main_size () const {
-      return main->client_size();
+    core::rectangle layout_base::get_layout_area () const {
+      return main->client_area();
     }
 
     void layout_base::init (std::function<size_callback> f1) {
       main->on_show([&, f1]() {
-        f1(main->client_size());
+        f1(main->client_area());
       });
       main->on_layout(std::move(f1));
     }

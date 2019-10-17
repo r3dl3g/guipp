@@ -44,7 +44,7 @@ namespace gui {
       void operator= (const drop_down&) = delete;
       void operator= (drop_down&&) = delete;
 
-      void layout (const core::size& s);
+      void layout (const core::rectangle& s);
       void init (win::window* button);
 
       core::rectangle label_place (const core::size& s);

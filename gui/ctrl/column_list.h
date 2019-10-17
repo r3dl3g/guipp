@@ -48,7 +48,7 @@ namespace gui {
         column_list_layout (win::window* main, column_list_layout&& rhs);
 
         void init_auto_layout ();
-        void layout (const core::size& new_size);
+        void layout (const core::rectangle& new_size);
 
         std::size_t get_column_count () const;
         void set_column_count (std::size_t i);
@@ -131,7 +131,7 @@ namespace gui {
       weight_column_list_layout (win::window* main, const weight_column_list_layout& rhs);
       weight_column_list_layout (win::window* main, weight_column_list_layout&& rhs);
 
-      void layout (const core::size& new_size);
+      void layout (const core::rectangle& new_size);
 
       void init_auto_layout ();
 
@@ -159,7 +159,7 @@ namespace gui {
         base_column_list_layout (win::container* m, const base_column_list_layout& rhs);
         base_column_list_layout (win::container* m, base_column_list_layout&& rhs);
 
-        void layout (const core::size& sz);
+        void layout (const core::rectangle& sz);
         void set_header_and_list (win::window* header, list_type* list);
 
       protected:
@@ -216,7 +216,7 @@ namespace gui {
       layout_type& get_column_layout ();
       const layout_type& get_column_layout () const;
 
-      void layout (const core::size&);
+      void layout (const core::rectangle&);
 
     private:
       std::function<cell_draw> cell_drawer;

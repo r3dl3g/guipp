@@ -61,15 +61,15 @@ namespace gui {
                 win::window* second,
                 ctrl::detail::slider_base* slider);
 
-      static core::rectangle get_first_place (const core::size&, double pos);
-      static core::rectangle get_second_place (const core::size&, double pos);
-      static core::rectangle get_slider_place (const core::size&, double pos);
+      static core::rectangle get_first_place (const core::rectangle&, double pos);
+      static core::rectangle get_second_place (const core::rectangle&, double pos);
+      static core::rectangle get_slider_place (const core::rectangle&, double pos);
 
       static core::size::type get_slider_width ();
 
-      double get_split_pos (const core::size&) const;
+      double get_split_pos (const core::rectangle&) const;
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();

@@ -118,10 +118,10 @@ namespace gui {
       template<border_layout_type T>
       struct border_layout_geometrie {
         typedef std::pair<core::point::type, core::point::type> points;
-        static points get_top_position (const core::rectangle&, const core::size&);
-        static points get_bottom_position (const core::rectangle&, const core::size&);
-        static points get_left_position (const core::rectangle&, const core::size&);
-        static points get_right_position (const core::rectangle&, const core::size&);
+        static points get_top_position (const core::rectangle&, const core::rectangle&);
+        static points get_bottom_position (const core::rectangle&, const core::rectangle&);
+        static points get_left_position (const core::rectangle&, const core::rectangle&);
+        static points get_right_position (const core::rectangle&, const core::rectangle&);
       };
 
       // --------------------------------------------------------------------------
@@ -142,7 +142,7 @@ namespace gui {
       border_layout (win::container* m, const border_layout& rhs);
       border_layout (win::container* m, border_layout&& rhs);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();

@@ -127,7 +127,7 @@ namespace gui {
         }
       }
 
-      void column_list_layout::layout (const core::size&) {
+      void column_list_layout::layout (const core::rectangle&) {
       }
 
     } // detail
@@ -211,7 +211,7 @@ namespace gui {
       }
     }
 
-    void weight_column_list_layout::layout (const core::size& sz) {
+    void weight_column_list_layout::layout (const core::rectangle& sz) {
       LogTrace << "weight_column_list_layout::layout(" << sz << ")";
       auto count = get_column_count();
 

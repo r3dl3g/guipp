@@ -43,7 +43,7 @@ namespace gui {
     }
 
     template<unsigned width, unsigned height, unsigned border, unsigned gap>
-    void grid_lineup<width, height, border, gap>::layout (const core::size& sz) {
+    void grid_lineup<width, height, border, gap>::layout (const core::rectangle& sz) {
       LogTrace << "grid_lineup::layout(" << sz << ")";
       std::vector<win::window*> children = get_children();
       const type xmax = sz.width() - border;
@@ -71,7 +71,7 @@ namespace gui {
     template<unsigned W, unsigned H, unsigned B, unsigned G>
     inline void grid_lineup<W, H, B, G>::init () {
       super::init(basepp::bind_method(this, &grid_lineup::layout), [&] () {
-        layout(get_main_size());
+        layout(get_layout_area());
       });
     }
 
@@ -95,7 +95,7 @@ namespace gui {
     }
 
     template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
-    void grid_adaption<columns, rows, border, gap>::layout (const core::size& sz) {
+    void grid_adaption<columns, rows, border, gap>::layout (const core::rectangle& sz) {
       LogTrace << "grid_adaption::layout(" << sz << ")";
       std::vector<win::window*> children = get_children();
       const type border2 = (border * 2);
@@ -131,7 +131,7 @@ namespace gui {
     template<unsigned C, unsigned R, unsigned B, unsigned G>
     inline void grid_adaption<C, R, B, G>::init () {
       super::init(basepp::bind_method(this, &grid_adaption::layout), [&] () {
-        layout(get_main_size());
+        layout(get_layout_area());
       });
     }
 

@@ -46,7 +46,7 @@ namespace gui {
       grid_lineup (win::container* m, const grid_lineup& rhs);
       grid_lineup (win::container* m, grid_lineup&& rhs);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();
@@ -63,7 +63,7 @@ namespace gui {
       grid_adaption (win::container* m, const grid_adaption& rhs);
       grid_adaption (win::container* m, grid_adaption&& rhs);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();

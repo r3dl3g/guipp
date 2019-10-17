@@ -781,8 +781,8 @@ namespace gui {
                                                           XConfigureRequestEvent>>;
 
     using layout_event = core::event_handler<ClientMessage, 0,
-                                       core::params<core::size>::
-                                       getter<get_client_data_size>,
+                                       core::params<core::rectangle>::
+                                       getter<get_client_data_rect>,
                                        0,
                                        client_message_matcher<WM_LAYOUT_WINDOW>>;
 

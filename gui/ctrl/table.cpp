@@ -519,7 +519,7 @@ namespace gui {
       enable_v_size = v_size;
     }
 
-    void table_view::handle_size (const core::size&) {
+    void table_view::handle_layout (const core::rectangle&) {
       set_scroll_maximum(scroll_maximum(data.client_size(), geometrie.get_offset(), core::point(hscroll.get_max(), vscroll.get_max())));
     }
 
@@ -535,7 +535,7 @@ namespace gui {
       set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
       on_create(basepp::bind_method(this, &table_view::handle_created));
-      on_layout(basepp::bind_method(this, &table_view::handle_size));
+      on_layout(basepp::bind_method(this, &table_view::handle_layout));
       vscroll.on_scroll([&] (core::point::type pos) {
         handle_scroll(core::point(geometrie.widths.get_offset(), pos));
       });

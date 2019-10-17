@@ -54,7 +54,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     class GUIPP_WIN_EXPORT layout_base {
     public:
-      typedef void (size_callback) (const core::size& sz);
+      typedef void (size_callback) (const core::rectangle& sz);
       typedef void (show_callback) ();
 
       layout_base (win::container* m);
@@ -72,7 +72,7 @@ namespace gui {
       static bool is_child_visible (win::window*);
       static void hide_children (std::vector<win::window*>&);
 
-      core::size get_main_size () const;
+      core::rectangle get_layout_area () const;
 
     protected:
       win::container* main;
@@ -92,8 +92,8 @@ namespace gui {
         orientation_layout (win::container* m, const orientation_layout& rhs);
         orientation_layout (win::container* m, orientation_layout&& rhs);
 
-        type get_dimension1 (const core::size& sz);
-        type get_dimension2 (const core::size& sz);
+        type get_dimension1 (const core::rectangle& sz);
+        type get_dimension2 (const core::rectangle& sz);
         core::size make_size (type dim1, type dim2);
         core::rectangle get_sep_area (const core::rectangle& area, type s);
         void move_area (core::rectangle& area, type offs);

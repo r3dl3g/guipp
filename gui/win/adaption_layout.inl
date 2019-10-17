@@ -50,12 +50,12 @@ namespace gui {
     template<orientation H, unsigned B, unsigned G, unsigned S, unsigned I, unsigned A, origin O>
     inline void adaption_layout<H, B, G, S, I, A, O>::init () {
       super::init(basepp::bind_method(this, &adaption_layout::layout), [&] () {
-        layout(super::get_main_size());
+        layout(super::get_layout_area());
       });
     }
 
     template<orientation height, unsigned border, unsigned gap, unsigned sep, unsigned min, unsigned max, origin o>
-    void adaption_layout<height, border, gap, sep, min, max, o>::layout (const core::size& sz) {
+    void adaption_layout<height, border, gap, sep, min, max, o>::layout (const core::rectangle& sz) {
       LogTrace << "adaption_layout::layout(" << sz << ")";
       std::vector<win::window*> children = super::get_children();
       const std::size_t count = children.size();
@@ -70,7 +70,7 @@ namespace gui {
           const type offset = dim1 + gap;
           const type sep_offset = gap + sep;
 
-          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz,
+          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz.size(),
                                                   gap, count, sep, sep_count);
           for (win::window* win : children) {
             if (super::is_separator(win)) {

@@ -452,8 +452,8 @@ namespace gui {
       super::on_left_btn_up(basepp::bind_method(this, &basic_list::handle_left_btn_up));
       super::on_wheel<V>(basepp::bind_method(this, &basic_list::handle_wheel));
       super::on_mouse_move(basepp::bind_method(this, &basic_list::handle_mouse_move));
-      super::on_layout([&](const core::size& sz) {
-        adjust_scroll_bar(sz);
+      super::on_layout([&](const core::rectangle& sz) {
+        adjust_scroll_bar(sz.size());
       });
     }
 

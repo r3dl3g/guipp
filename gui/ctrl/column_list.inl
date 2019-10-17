@@ -90,10 +90,10 @@ namespace gui {
         init();
       }
 
-      inline void base_column_list_layout::layout (const core::size& sz) {
+      inline void base_column_list_layout::layout (const core::rectangle& sz) {
         LogTrace << "base_column_list_layout::layout(" << sz << ")";
         data.header->resize(core::size(sz.width(), 20), false);
-        data.list->resize(sz - core::size(0, 20), false);
+        data.list->resize(sz.size() - core::size(0, 20), false);
       }
 
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
@@ -167,7 +167,7 @@ namespace gui {
     inline void weight_column_list_layout::init_auto_layout () {
       main->on_layout(basepp::bind_method(this, &weight_column_list_layout::layout));
       main->on_show([&] () {
-        layout(list->content_size());
+        layout(list->content_area());
       });
     }
 
@@ -329,7 +329,7 @@ namespace gui {
     }
 
     template<typename Layout, os::color background>
-    inline void column_list_header<Layout, background>::layout (const core::size& sz) {
+    inline void column_list_header<Layout, background>::layout (const core::rectangle& sz) {
       LogTrace << "column_list_header::layout(" << sz << ")";
       layouter.layout(sz);
     }
@@ -389,7 +389,7 @@ namespace gui {
       void base_column_list<Layout>::init () {
         super::get_layout().set_header_and_list(&header, &list);
         get_column_layout().set_list(&list);
-        super::on_layout([&] (const core::size& sz) {
+        super::on_layout([&] (const core::rectangle& sz) {
           header.layout(sz);
         });
       }

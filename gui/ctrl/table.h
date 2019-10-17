@@ -429,7 +429,7 @@ namespace gui {
       void make_selection_visible ();
 
       void handle_created (win::window* win, const core::rectangle& place);
-      void handle_size (const core::size& sz);
+      void handle_layout (const core::rectangle& sz);
 
       void handle_left_btn_down (os::key_state, const core::point& pt);
       void handle_left_btn_up (os::key_state keys, const core::point& pt);

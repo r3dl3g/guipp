@@ -51,7 +51,7 @@ namespace gui {
       lineup_layout (win::container* m, const lineup_layout& rhs);
       lineup_layout (win::container* m, lineup_layout&& rhs);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init ();

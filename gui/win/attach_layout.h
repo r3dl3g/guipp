@@ -194,7 +194,7 @@ namespace gui {
       template<What what, int relativ, int offset = 0>
       void attach_relative (win::window* target, win::window* source);
 
-      void layout (const core::size& sz);
+      void layout (const core::rectangle& sz);
 
     private:
       void init (win::container*);

@@ -40,7 +40,7 @@ namespace gui {
     }
 
     template<typename T>
-    inline void virtual_layout<T>::layout (const core::size& new_size) {
+    inline void virtual_layout<T>::layout (const core::rectangle& new_size) {
       LogTrace << "virtual_layout::layout()";
       if (client) {
         auto available = super::layout(new_size, client->get_virtual_place());
@@ -91,10 +91,9 @@ namespace gui {
 
     template<typename T, os::color B>
     void virtual_view<T, B>::handle_create (win::window*, const core::rectangle& r) {
-      core::size sz = r.size();
-      vscroll.create(*this, layout::scroll_view::get_vscroll_area(sz, true));
-      hscroll.create(*this, layout::scroll_view::get_hscroll_area(sz, true));
-      edge.create(*this, layout::scroll_view::get_edge_area(sz));
+      vscroll.create(*this, layout::scroll_view::get_vscroll_area(r, true));
+      hscroll.create(*this, layout::scroll_view::get_hscroll_area(r, true));
+      edge.create(*this, layout::scroll_view::get_edge_area(r));
       view.create(*this, r);
       view.set_visible();
     }

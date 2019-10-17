@@ -43,12 +43,12 @@ namespace gui {
                  ctrl::horizontal_scroll_bar* hscroll,
                  win::window* edge);
 
-      core::rectangle layout (const core::size& new_size, const core::rectangle& required);
+      core::rectangle layout (const core::rectangle& new_size, const core::rectangle& required);
 
-      static core::rectangle get_vscroll_area (const core::size&, bool hscroll_bar_enabled);
-      static core::rectangle get_hscroll_area (const core::size&, bool vscroll_bar_enabled);
-      static core::rectangle get_edge_area (const core::size&);
-      static core::rectangle get_client_area (const core::size&);
+      static core::rectangle get_vscroll_area (const core::rectangle&, bool hscroll_bar_enabled);
+      static core::rectangle get_hscroll_area (const core::rectangle&, bool vscroll_bar_enabled);
+      static core::rectangle get_edge_area (const core::rectangle&);
+      static core::rectangle get_client_area (const core::rectangle&);
 
     protected:
       void init (std::function<size_callback> f1) {
@@ -69,7 +69,7 @@ namespace gui {
       scroll_view (win::container* m, const scroll_view&);
       scroll_view (win::container* m, scroll_view&&);
 
-      void layout (const core::size& new_size);
+      void layout (const core::rectangle& new_size);
 
       void set_in_scroll_event (bool);
       bool is_in_scroll_event () const;

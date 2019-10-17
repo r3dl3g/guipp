@@ -193,7 +193,7 @@ namespace gui {
       void on_sizing (std::function<size_fn>&& f);
       void on_placing (std::function<place_fn>&& f);
 
-      void on_layout (std::function<size_fn>&& f);
+      void on_layout (std::function<place_fn>&& f);
 
       void on_paint (std::function<void(os::window, os::graphics)>&& f);
 

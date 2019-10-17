@@ -99,7 +99,7 @@ namespace gui {
     }
 
     template<orientation O>
-    void split_view<O>::layout (const core::size& sz) {
+    void split_view<O>::layout (const core::rectangle& sz) {
       double pos = get_split_pos(sz);
       LogTrace << "split_view::layout(" << sz << ") split_pos: " << pos;
       if (data.first) {
@@ -120,33 +120,33 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT double split_view<orientation::vertical>::get_split_pos (const core::size&) const;
+    GUIPP_CTRL_EXPORT double split_view<orientation::vertical>::get_split_pos (const core::rectangle&) const;
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_first_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_first_place (const core::rectangle&,
                                                                         double);
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_second_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_second_place (const core::rectangle&,
                                                                          double);
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_slider_place (const core::size&, double);
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::vertical>::get_slider_place (const core::rectangle&, double);
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT double split_view<orientation::horizontal>::get_split_pos (const core::size&) const;
+    GUIPP_CTRL_EXPORT double split_view<orientation::horizontal>::get_split_pos (const core::rectangle&) const;
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_first_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_first_place (const core::rectangle&,
                                                                           double);
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_second_place (const core::size&,
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_second_place (const core::rectangle&,
                                                                            double);
 
     template<>
-    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::size&, double);
+    GUIPP_CTRL_EXPORT core::rectangle split_view<orientation::horizontal>::get_slider_place (const core::rectangle&, double);
     // --------------------------------------------------------------------------
 
   } // namespace layout
@@ -181,18 +181,18 @@ namespace gui {
                                   const core::rectangle& place,
                                   double split_pos) {
         super::create(clazz::get(), parent, place);
-        slider.create(*this, layout_type::get_slider_place(place.size(), split_pos));
+        slider.create(*this, layout_type::get_slider_place(place, split_pos));
         slider.set_visible();
       }
 
       template<orientation O>
       inline double split_view<O>::get_split_pos () const {
-        return super::get_layout().get_split_pos(super::size());
+        return super::get_layout().get_split_pos(super::client_area());
       }
 
       template<orientation O>
       inline void split_view<O>::set_split_pos (double pos) {
-        slider.place(layout_type::get_slider_place(super::size(), pos));
+        slider.place(layout_type::get_slider_place(super::client_area(), pos));
         super::layout();
       }
 
@@ -200,7 +200,7 @@ namespace gui {
       template<orientation O>
       void split_view<O>::init () {
         slider.on_slide([&] (int) {
-          super::get_layout().layout(super::size());
+          super::get_layout().layout(super::client_area());
         });
       }
 
@@ -243,7 +243,7 @@ namespace gui {
                                             const core::rectangle& place,
                                             double split_pos) {
       super::create(parent, place, split_pos);
-      core::size sz = place.size();
+      core::rectangle sz(place.size());
       first.create(*this, layout_type::get_first_place(sz, split_pos));
       first.set_visible();
       second.create(*this, layout_type::get_second_place(sz, split_pos));

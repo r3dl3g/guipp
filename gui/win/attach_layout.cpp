@@ -39,14 +39,14 @@ namespace gui {
 #ifdef NDEBUG
       main->on_layout(basepp::bind_method(this, &attach::layout));
 #else
-      main->on_layout([&, main] (const core::size & sz) {
+      main->on_layout([&, main] (const core::rectangle & sz) {
 //        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
         layout(sz);
       });
 #endif
     }
 
-    void attach::layout (const core::size&) {
+    void attach::layout (const core::rectangle&) {
       typedef std::pair<core::rectangle, core::size> place_and_size;
       typedef std::map<win::window*, place_and_size> window_places;
       typedef window_places::iterator iterator;

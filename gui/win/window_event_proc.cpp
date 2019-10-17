@@ -265,7 +265,7 @@ namespace gui {
 #ifdef X11
         auto dpy = core::global::get_instance();
         os::window root = win ? win->get_id() : DefaultRootWindow(dpy);
-        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root, False, GrabModeAsync, GrabModeAsync);
+        XGrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root, False, GrabModeAsync, GrabModeAsync);
         if (win && win->is_valid()) {
           x11::prepare_win_for_event(win, KeyPressMask);
         }
@@ -287,7 +287,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         auto dpy = core::global::get_instance();
-        XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), AnyModifier, root);
+        XUngrabKey(dpy, XKeysymToKeycode(dpy, hk.get_key()), hk.get_modifiers(), root);
 #endif // X11
 
         detail::hot_keys.erase(i);

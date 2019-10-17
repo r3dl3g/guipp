@@ -1,9 +1,10 @@
 
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
-#include <gui/ctrl/virtual_view.h>
+#include <gui/ctrl/tile_view.h>
 #include <gui/win/grid_layout.h>
 #include <gui/win/lineup_layout.h>
+#include <gui/win/attach_layout.h>
 #include <base/string_util.h>
 #include <persistent/ptree_persistent.h>
 #include "opencv2/core/core.hpp"
@@ -248,6 +249,7 @@ public:
 
   void paint (const graphics& graph);
   void set_image (const pixmap& source);
+  void set_image_and_scale (const cv::Mat& source);
 
 private:
   pixmap image;
@@ -271,6 +273,15 @@ void image_view::paint (const graphics& graph) {
 void image_view::set_image (const pixmap& source) {
   image = source;
   invalidate();
+}
+
+// --------------------------------------------------------------------------
+void image_view::set_image_and_scale (const cv::Mat& src) {
+  auto native_size = core::global::scale(size());
+  cv::Size sz(native_size.width(), native_size.height());
+  cv::Mat target = cv::Mat(sz, src.type());
+  cv::resize(src, target, sz, 0, 0, cv::INTER_NEAREST);
+  set_image(cvMat2pixmap(target));
 }
 
 // --------------------------------------------------------------------------
@@ -525,6 +536,75 @@ data::color_sets side_bar::get () const {
   return sets;
 }
 // --------------------------------------------------------------------------
+struct image_info {
+  image_info ();
+
+  void set_info (float good, float bad, float off, float quality);
+
+  pixmap image;
+  float good;
+  float bad;
+  float off;
+  float quality;
+
+  sys_fs::path filename;
+
+};
+// --------------------------------------------------------------------------
+image_info::image_info ()
+  : good(0)
+  , bad(0)
+  , off(0)
+  , quality(0)
+{}
+// --------------------------------------------------------------------------
+void image_info::set_info (float good, float bad, float off, float quality) {
+  this->good = good;
+  this->bad = bad;
+  this->off = off;
+  this->quality = quality;
+}
+// --------------------------------------------------------------------------
+template<draw::frame::drawer F = draw::frame::sunken_relief>
+void image_info_drawer (const image_info& info,
+                        const draw::graphics& g,
+                        const core::rectangle& place,
+                        const draw::brush& background,
+                        bool selected,
+                        bool hilited) {
+  using namespace draw;
+  g.fill(draw::rectangle(place), background);
+  g.copy_from(info.image, core::point(2, 2));
+  g.text(draw::text_box(info.filename.filename().string(), core::rectangle(160, 0, 100, 20)), font::system(), color::black);
+  g.text(draw::text_box(ostreamfmt("Good: " << info.good), core::rectangle(160, 20, 100, 20)), font::system(), color::black);
+  g.text(draw::text_box(ostreamfmt("Bad: " << info.bad), core::rectangle(160, 40, 100, 20)), font::system(), color::black);
+  g.text(draw::text_box(ostreamfmt("Off: " << info.off), core::rectangle(160, 60, 100, 20)), font::system(), color::black);
+  g.text(draw::text_box(ostreamfmt("Quality: " << info.quality), core::rectangle(160, 80, 100, 20)), font::system(), color::black);
+  frame::raised_relief(g, place);
+}
+
+// --------------------------------------------------------------------------
+class thumb_view : public ctrl::vertical_tile_view {
+public:
+  typedef ctrl::vertical_tile_view super;
+  typedef simple_list_data<image_info, image_info_drawer> image_info_list;
+
+  thumb_view ();
+
+  image_info_list list;
+};
+thumb_view::thumb_view () {
+  set_drawer(list);
+}
+// --------------------------------------------------------------------------
+class over_view : public win::group_window<layout::grid_adaption<3, 2, 0, 1>> {
+public:
+  typedef win::group_window<layout::grid_adaption<3, 2, 0, 1>> super;
+
+  image_view image_views[6];
+
+};
+// --------------------------------------------------------------------------
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
   typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
@@ -539,6 +619,9 @@ public:
 
   void show_image (int i);
   void calc_image (int i, bool calc_rest_img = true);
+
+  cv::Vec3b get_hsv_at (const core::size& win_size, const core::point& pt);
+  void set_hsv_for (const cv::Vec3b& hsv, int i);
 
   void calc_all ();
   void calc_rest ();
@@ -565,8 +648,7 @@ private:
   pixmap hook_icon;
   pixmap cross_icon;
 
-  win::group_window<layout::grid_adaption<3, 2, 0, 1>> filter_view;
-  image_view image_views[6];
+  over_view filter_view;
   image_view full_image_view;
 
   int curent_full_image_view;
@@ -667,8 +749,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   filter_view.create(*this);
   for(int i = 0; i < 6; ++i) {
-    image_views[i].create(filter_view);
-    image_views[i].on_left_btn_dblclk([&, i] (os::key_state, const core::point) {
+    filter_view.image_views[i].create(filter_view);
+    filter_view.image_views[i].on_left_btn_dblclk([&, i] (os::key_state, const core::point) {
       show_full_image(i);
     });
   }
@@ -677,21 +759,20 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   full_image_view.on_left_btn_dblclk([&] (os::key_state, const core::point) {
     show_filter_view();
   });
+  full_image_view.on_left_btn_down([&] (os::key_state, const core::point& pt) {
+    if (learning_mode) {
+      set_hsv_for(get_hsv_at(full_image_view.size(), pt), curent_full_image_view - 1);
+    }
+  });
 
   get_layout().set_top(&menu);
   get_layout().set_center(&filter_view);
   get_layout().set_left(&colors);
 
   for (int i = 0; i < side_bar::COLOR_COUNT; ++i) {
-    image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
+    filter_view.image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
       if (learning_mode) {
-        const auto p = core::global::scale(pt);
-        cv::Vec3b hsv = hsv_image.at<cv::Vec3b>(cv::Point(p.x(), p.y()));
-
-        colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
-        colors.colors[i].saturation.set_range(70, 255);
-        colors.colors[i].value.set_range(70, 255);
-        calc_image(i);
+        set_hsv_for(get_hsv_at(filter_view.image_views[i + 1].size(), pt), i);
       }
     });
     colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
@@ -736,21 +817,31 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   full_image_view.to_back();
 }
 //-----------------------------------------------------------------------------
+cv::Vec3b RedImage::get_hsv_at (const core::size& win_size, const core::point& pt) {
+  const auto img_size = hsv_image.size();
+  const int x = (int)(pt.x() / win_size.width() * (float)img_size.width);
+  const int y = (int)(pt.y() / win_size.height() * (float)img_size.height);
+  return hsv_image.at<cv::Vec3b>(cv::Point(x, y));
+}
+//-----------------------------------------------------------------------------
+void RedImage::set_hsv_for (const cv::Vec3b& hsv, int i) {
+  colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
+  colors.colors[i].saturation.set_range(70, 255);
+  colors.colors[i].value.set_range(70, 255);
+  calc_image(i);
+}
+//-----------------------------------------------------------------------------
 void RedImage::show_full_image (int i) {
-  filter_view.to_back();
-  full_image_view.to_front();
-  get_layout().set_center(&full_image_view);
-  super::layout();
-
   cv::Mat src = (i == 0 ? raw_image : image[i - 1]);
+  if (!src.empty()) {
+    filter_view.to_back();
+    full_image_view.to_front();
+    get_layout().set_center(&full_image_view);
+    super::layout();
 
-  auto size = core::global::scale(filter_view.size());
-  cv::Size sz(size.width(), size.height());
-  cv::Mat target = cv::Mat(sz, src.type());
-  cv::resize(src, target, sz, 0, 0, cv::INTER_LINEAR);
-
-  full_image_view.set_image(cvMat2pixmap(target));
-  curent_full_image_view = i;
+    full_image_view.set_image_and_scale(src);
+    curent_full_image_view = i;
+  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_filter_view () {
@@ -769,11 +860,11 @@ void RedImage::toggle_learning () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {
-  image_views[0].set_image(cvMat2pixmap(raw_image));
+  filter_view.image_views[0].set_image_and_scale(raw_image);
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_inverted () {
-  image_views[0].set_image(cvMat2pixmap(inverted_image));
+  filter_view.image_views[0].set_image_and_scale(inverted_image);
 }
 //-----------------------------------------------------------------------------
 void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
@@ -800,7 +891,7 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_image (int i) {
-  image_views[i + 1].set_image(cvMat2pixmap(image[i]));
+  filter_view.image_views[i + 1].set_image_and_scale(image[i]);
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_color (int i) {
@@ -908,10 +999,10 @@ void RedImage::loadImage () {
       calc_title();
       settings.last_path(file.parent_path().string());
       cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
-      auto size = core::global::scale(image_views[0].size());
+      auto size = core::global::scale(filter_view.image_views[0].size());
       cv::Size sz(size.width(), size.height());
       raw_image = cv::Mat(sz, srcImage.type());
-      cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_CUBIC);
+      cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_LINEAR);
 
       cv::cvtColor(raw_image, hsv_image, cv::COLOR_BGR2HSV);
 

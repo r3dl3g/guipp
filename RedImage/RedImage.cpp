@@ -6,13 +6,23 @@
 #include <gui/win/lineup_layout.h>
 #include <gui/win/attach_layout.h>
 #include <base/string_util.h>
-#include <persistent/ptree_persistent.h>
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgcodecs.hpp"
+#include <base/blocking_queue.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/optional.hpp>
+
+#include "redimage_settings.h"
+#include "image_view.h"
+#include "side_bar.h"
+#include "color_filter.h"
+#include "thumb_view.h"
+#include "status_bar.h"
+#include "over_view.h"
+#include "background_worker.h"
+#include "cvmat2pixmap.h"
 
 #define NOTHING
 
@@ -27,38 +37,6 @@ using namespace gui::ctrl;
 namespace xml = boost::property_tree::xml_parser;
 
 
-pixmap cvMat2pixmap (const cv::Mat& source) {
-  auto sz = source.size();
-  core::native_size nsize = {(uint32_t)sz.width, (uint32_t)sz.height};
-
-  if (CV_8UC3 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), source.cols * source.elemSize(), PixelFormat::RGB);
-
-    typedef const_image_data<PixelFormat::RGB> img_data;
-    img_data::raw_type data(source.data, info.mem_size());
-
-    pixmap image = datamap<PixelFormat::RGB>(img_data(data, info));
-    return image;
-  } else if (CV_8UC4 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), source.cols * source.elemSize(), PixelFormat::RGBA);
-
-    typedef const_image_data<PixelFormat::RGBA> img_data;
-    img_data::raw_type data(source.data, info.mem_size());
-
-    pixmap image = datamap<PixelFormat::RGBA>(img_data(data, info));
-    return image;
-  } else if (CV_8UC1 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), source.cols * source.elemSize(), PixelFormat::GRAY);
-
-    typedef const_image_data<PixelFormat::GRAY> img_data;
-    img_data::raw_type data(source.data, info.mem_size());
-
-    pixmap image = datamap<PixelFormat::GRAY>(img_data(data, info));
-    return image;
-  }
-
-  return pixmap();
-}
 // --------------------------------------------------------------------------
 pixmap create_text_pixmap (const std::string& str,
                            const core::rectangle& rect,
@@ -71,539 +49,6 @@ pixmap create_text_pixmap (const std::string& str,
   return img;
 }
 // --------------------------------------------------------------------------
-namespace data {
-
-  // --------------------------------------------------------------------------
-  struct range : public persistent::ptree_struct<persistent::byte, persistent::byte> {
-    typedef persistent::ptree_struct<persistent::byte, persistent::byte> super;
-
-    static const char s_min[];
-    static const char s_max[];
-
-    range (byte min = 0, byte max = 255);
-    range (const range&);
-
-    persistent::byte min;
-    persistent::byte max;
-  };
-
-  const char range::s_min[] = "min";
-  const char range::s_max[] = "max";
-
-  range::range (byte min_, byte max_)
-    : super(min, max)
-    , min(s_min, min_)
-    , max(s_max, max_)
-  {}
-
-  range::range (const range& rhs)
-    : range()
-  {
-    super::operator=(rhs);
-  }
-
-  // --------------------------------------------------------------------------
-  struct rgb_range : public persistent::ptree_struct<persistent::type<range>,
-                                                     persistent::type<range>,
-                                                     persistent::type<range>> {
-    typedef persistent::ptree_struct<persistent::type<range>,
-                                     persistent::type<range>,
-                                     persistent::type<range>> super;
-
-    static const char s_red[];
-    static const char s_green[];
-    static const char s_blue[];
-
-    rgb_range (const range& r = range(), const range& g = range(), const range& b = range());
-    rgb_range (const rgb_range&);
-
-    persistent::type<range> red;
-    persistent::type<range> green;
-    persistent::type<range> blue;
-  };
-
-  const char rgb_range::s_red[] = "red";
-  const char rgb_range::s_green[] = "green";
-  const char rgb_range::s_blue[] = "blue";
-
-  rgb_range::rgb_range (const range& r, const range& g, const range& b)
-    : super(red, green, blue)
-    , red(s_red, r)
-    , green(s_green, g)
-    , blue(s_blue, b)
-  {}
-
-  rgb_range::rgb_range (const rgb_range& rhs)
-    : rgb_range()
-  {
-    super::operator=(rhs);
-  }
-
-  // --------------------------------------------------------------------------
-  struct hsv_range : public persistent::ptree_struct<persistent::type<range>,
-                                                     persistent::type<range>,
-                                                     persistent::type<range>> {
-    typedef persistent::ptree_struct<persistent::type<range>,
-                                     persistent::type<range>,
-                                     persistent::type<range>> super;
-
-    static const char s_hue[];
-    static const char s_saturation[];
-    static const char s_value[];
-
-    hsv_range (const range& h = range(0, 180), const range& s = range(), const range& v = range());
-    hsv_range (const hsv_range&);
-
-    persistent::type<range> hue;
-    persistent::type<range> saturation;
-    persistent::type<range> value;
-  };
-
-  const char hsv_range::s_hue[] = "hue";
-  const char hsv_range::s_saturation[] = "saturation";
-  const char hsv_range::s_value[] = "value";
-
-  hsv_range::hsv_range (const range& h, const range& s, const range& v)
-    : super(hue, saturation, value)
-    , hue(s_hue, h)
-    , saturation(s_saturation, s)
-    , value(s_value, v)
-  {}
-
-  hsv_range::hsv_range (const hsv_range& rhs)
-    : hsv_range()
-  {
-    super::operator=(rhs);
-  }
-
-  // --------------------------------------------------------------------------
-  struct color_sets : public persistent::ptree_struct<persistent::vector<hsv_range>> {
-    typedef persistent::ptree_struct<persistent::vector<hsv_range>> super;
-
-    static const char s_ranges[];
-
-    color_sets ();
-    color_sets (const color_sets&);
-
-    persistent::vector<hsv_range> ranges;
-  };
-
-  const char color_sets::s_ranges[] = "ranges";
-
-  color_sets::color_sets ()
-    : super(ranges)
-    , ranges(s_ranges)
-  {
-    ranges().resize(5);
-  }
-
-  color_sets::color_sets (const color_sets& rhs)
-    : color_sets()
-  {
-    super::operator=(rhs);
-  }
-
-  // --------------------------------------------------------------------------
-  struct redimage_settings : public persistent::ptree_struct<persistent::type<color_sets>,
-                                                             persistent::string> {
-    typedef persistent::ptree_struct<persistent::type<color_sets>,
-                                     persistent::string> super;
-
-    static const char s_color_sets[];
-    static const char s_last_path[];
-
-    redimage_settings ();
-    redimage_settings (const redimage_settings&);
-
-    persistent::type<color_sets> colors;
-    persistent::string last_path;
-  };
-
-  const char redimage_settings::s_color_sets[] = "color_sets";
-  const char redimage_settings::s_last_path[] = "last_path";
-
-  redimage_settings::redimage_settings ()
-    : super(colors, last_path)
-    , colors(s_color_sets)
-    , last_path(s_last_path)
-  {}
-
-  redimage_settings::redimage_settings (const redimage_settings& rhs)
-    : redimage_settings()
-  {
-    super::operator=(rhs);
-  }
-
-} // namespace data
-
-// --------------------------------------------------------------------------
-class image_view : public control {
-public:
-  typedef control super;
-  typedef no_erase_window_class<image_view> clazz;
-
-  image_view ();
-
-  void create (const win::container& parent,
-               const core::rectangle& place = core::rectangle::def);
-
-  void paint (const graphics& graph);
-  void set_image (const pixmap& source);
-  void set_image_and_scale (const cv::Mat& source);
-
-private:
-  pixmap image;
-};
-
-// --------------------------------------------------------------------------
-void image_view::create (const win::container& parent,
-                         const core::rectangle& place) {
-  super::create(clazz::get(), parent, place);
-}
-
-// --------------------------------------------------------------------------
-void image_view::paint (const graphics& graph) {
-  graph.clear(color::dark_gray);
-  if (image.is_valid()) {
-    graph.copy_from(image);
-  }
-}
-
-// --------------------------------------------------------------------------
-void image_view::set_image (const pixmap& source) {
-  image = source;
-  invalidate();
-}
-
-// --------------------------------------------------------------------------
-void image_view::set_image_and_scale (const cv::Mat& src) {
-  auto native_size = core::global::scale(size());
-  cv::Size sz(native_size.width(), native_size.height());
-  cv::Mat target = cv::Mat(sz, src.type());
-  cv::resize(src, target, sz, 0, 0, cv::INTER_NEAREST);
-  set_image(cvMat2pixmap(target));
-}
-
-// --------------------------------------------------------------------------
-image_view::image_view () {
-  on_paint(draw::paint(this, &image_view::paint));
-}
-
-// --------------------------------------------------------------------------
-class color_view : public control {
-public:
-  typedef control super;
-  typedef no_erase_window_class<color_view> clazz;
-
-  color_view ();
-
-  void create (const win::container& parent,
-               const core::rectangle& place = core::rectangle::def);
-
-  void paint (const graphics& graph);
-  void set_rgb_color (byte r, byte g, byte b);
-  void set_hsv_color (byte h, byte s, byte v);
-
-  os::color value;
-};
-// --------------------------------------------------------------------------
-color_view::color_view ()
-  : value(color::black) {
-  on_paint(draw::paint(this, &color_view::paint));
-}
-// --------------------------------------------------------------------------
-void color_view::create (const win::container& parent,
-                         const core::rectangle& place) {
-  super::create(clazz::get(), parent, place);
-}
-
-// --------------------------------------------------------------------------
-void color_view::paint (const graphics& graph) {
-  graph.clear(value);
-}
-// --------------------------------------------------------------------------
-void color_view::set_rgb_color (byte r, byte g, byte b) {
-  value = color::calc_rgb(r, g, b);
-  invalidate();
-}
-// --------------------------------------------------------------------------
-void color_view::set_hsv_color (byte h, byte s, byte v) {
-  cv::Mat hsv(1, 1, CV_8UC3);
-  hsv.setTo(cv::Scalar(h, s, v));
-  cv::Mat rgb(1, 1, CV_8UC3);
-  cv::cvtColor(hsv, rgb, cv::COLOR_HSV2RGB);
-  cv::Vec3b v3 = rgb.at<cv::Vec3b>(0, 0);
-  set_rgb_color(v3[0], v3[1], v3[2]);
-}
-// --------------------------------------------------------------------------
-class min_max_group : public win::group_window<layout::horizontal_lineup<52>> {
-public:
-  typedef win::group_window<layout::horizontal_lineup<52>> super;
-
-  min_max_group (byte min = 0, byte max = 255);
-
-  label main_label;
-  label_right min_label;
-  edit_left min_edit;
-  label_right max_label;
-  edit_left max_edit;
-};
-// --------------------------------------------------------------------------
-min_max_group::min_max_group (byte min, byte max) {
-  on_create([&, min, max] (window*, const core::rectangle&) {
-    main_label.create(*this);
-    min_label.create(*this, "Min:");
-    min_edit.create(*this, ostreamfmt((int)min));
-    max_label.create(*this, "Max:");
-    max_edit.create(*this, ostreamfmt((int)max));
-  });
-}
-// --------------------------------------------------------------------------
-class color_key : public win::group_window<layout::vertical_lineup<20>> {
-public:
-  typedef win::group_window<layout::vertical_lineup<20>> super;
-
-  color_key (byte min = 0, byte max = 255);
-
-  void set (const std::string& name, const data::range& value);
-  void set_min (byte value);
-  void set_max (byte value);
-  void set_range (byte min, byte max);
-
-  data::range get () const;
-  byte get_min () const;
-  byte get_max () const;
-
-  min_max_group min_max;
-  horizontal_scroll_bar min_scroll;
-  horizontal_scroll_bar max_scroll;
-};
-
-// --------------------------------------------------------------------------
-color_key::color_key (byte min, byte max)
-  : min_max(min, max)
-{
-  on_create([&, min, max] (window*, const core::rectangle&) {
-    min_max.create(*this);
-    min_scroll.create(*this);
-    min_scroll.set_min_max(min, max);
-    max_scroll.create(*this);
-    max_scroll.set_min_max(min, max);
-  });
-  min_scroll.on_scroll([&] (const core::point::type) {
-    min_max.min_edit.set_text(ostreamfmt((int)min_scroll.get_value()));
-  });
-  max_scroll.on_scroll([&] (const core::point::type) {
-    min_max.max_edit.set_text(ostreamfmt((int)max_scroll.get_value()));
-  });
-  min_max.min_edit.on_content_changed([&] () {
-    int value = 0;
-    std::istringstream(min_max.min_edit.get_text()) >> value;
-    min_scroll.set_value(value, false);
-  });
-  min_max.max_edit.on_content_changed([&] () {
-    int value = 0;
-    std::istringstream(min_max.max_edit.get_text()) >> value;
-    max_scroll.set_value(value, false);
-  });
-}
-// --------------------------------------------------------------------------
-void color_key::set (const std::string& name, const data::range& value) {
-  min_max.main_label.set_text(name);
-  set_min(value.min());
-  set_max(value.max());
-}
-// --------------------------------------------------------------------------
-data::range color_key::get () const {
-  return data::range(get_min(), get_max());
-}
-// --------------------------------------------------------------------------
-void color_key::set_min (byte value) {
-  min_max.min_edit.set_text(ostreamfmt((int)value));
-  min_scroll.set_value(value, false);
-}
-// --------------------------------------------------------------------------
-void color_key::set_max (byte value) {
-  min_max.max_edit.set_text(ostreamfmt((int)value));
-  max_scroll.set_value(value, false);
-}
-// --------------------------------------------------------------------------
-void color_key::set_range (byte min, byte max) {
-  set_min(min);
-  set_max(max);
-}
-// --------------------------------------------------------------------------
-byte color_key::get_min () const {
-  return (byte)min_scroll.get_value();
-}
-// --------------------------------------------------------------------------
-byte color_key::get_max () const {
-  return (byte)max_scroll.get_value();
-}
-// --------------------------------------------------------------------------
-class color_group : public win::group_window<layout::horizontal_lineup<128, 1, 1>> {
-public:
-  typedef win::group_window<layout::horizontal_lineup<128, 1, 1>> super;
-
-  color_group () {
-    on_create([&] (window*, const core::rectangle&) {
-      min_color.create(*this);
-      max_color.create(*this);
-    });
-  }
-
-  color_view min_color;
-  color_view max_color;
-};
-// --------------------------------------------------------------------------
-class color_key_group : public win::group_window<layout::vertical_lineup<60, 0, 1>> {
-public:
-  typedef win::group_window<layout::vertical_lineup<80, 0, 2>> super;
-
-  color_key_group ();
-
-  void set (const data::hsv_range&);
-  data::hsv_range get () const;
-
-  color_key hue;
-  color_key saturation;
-  color_key value;
-  color_group colors;
-};
-// --------------------------------------------------------------------------
-color_key_group::color_key_group ()
-  : hue(0, 180)
-  , saturation()
-  , value()
-{
-  on_create([&] (window*, const core::rectangle&) {
-    hue.create(*this);
-    saturation.create(*this);
-    value.create(*this);
-    colors.create(*this);
-  });
-}
-// --------------------------------------------------------------------------
-void color_key_group::set (const data::hsv_range& hsv) {
-  hue.set("H", hsv.hue());
-  saturation.set("S", hsv.saturation());
-  value.set("V", hsv.value());
-  colors.min_color.set_hsv_color(hsv.hue().min(), hsv.saturation().min(), hsv.value().min());
-  colors.max_color.set_hsv_color(hsv.hue().max(), hsv.saturation().max(), hsv.value().max());
-}
-// --------------------------------------------------------------------------
-data::hsv_range color_key_group::get () const {
-  return data::hsv_range(hue.get(), saturation.get(), value.get());
-}
-// --------------------------------------------------------------------------
-class side_bar : public win::group_window<layout::vertical_lineup<244, 0, 2>> {
-public:
-  typedef win::group_window<layout::vertical_lineup<244, 0, 10>> super;
-
-  enum {
-    COLOR_COUNT = 2
-  };
-
-  side_bar ();
-
-  void set (const data::color_sets&);
-  data::color_sets get () const;
-
-  std::vector<color_key_group> colors;
-
-};
-// --------------------------------------------------------------------------
-side_bar::side_bar () {
-  colors.resize(COLOR_COUNT);
-  on_create([&] (window*, const core::rectangle&) {
-    for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
-      i->create(*this);
-    }
-  });
-}
-// --------------------------------------------------------------------------
-void side_bar::set (const data::color_sets& s) {
-  for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
-    i->set(s.ranges()[std::distance(colors.begin(), i)]);
-  }
-}
-// --------------------------------------------------------------------------
-data::color_sets side_bar::get () const {
-  data::color_sets sets;
-  for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
-    sets.ranges()[std::distance(colors.begin(), i)] = i->get();
-  }
-  return sets;
-}
-// --------------------------------------------------------------------------
-struct image_info {
-  image_info ();
-
-  void set_info (float good, float bad, float off, float quality);
-
-  pixmap image;
-  float good;
-  float bad;
-  float off;
-  float quality;
-
-  sys_fs::path filename;
-
-};
-// --------------------------------------------------------------------------
-image_info::image_info ()
-  : good(0)
-  , bad(0)
-  , off(0)
-  , quality(0)
-{}
-// --------------------------------------------------------------------------
-void image_info::set_info (float good, float bad, float off, float quality) {
-  this->good = good;
-  this->bad = bad;
-  this->off = off;
-  this->quality = quality;
-}
-// --------------------------------------------------------------------------
-template<draw::frame::drawer F = draw::frame::sunken_relief>
-void image_info_drawer (const image_info& info,
-                        const draw::graphics& g,
-                        const core::rectangle& place,
-                        const draw::brush& background,
-                        bool selected,
-                        bool hilited) {
-  using namespace draw;
-  g.fill(draw::rectangle(place), background);
-  g.copy_from(info.image, core::point(2, 2));
-  g.text(draw::text_box(info.filename.filename().string(), core::rectangle(160, 0, 100, 20)), font::system(), color::black);
-  g.text(draw::text_box(ostreamfmt("Good: " << info.good), core::rectangle(160, 20, 100, 20)), font::system(), color::black);
-  g.text(draw::text_box(ostreamfmt("Bad: " << info.bad), core::rectangle(160, 40, 100, 20)), font::system(), color::black);
-  g.text(draw::text_box(ostreamfmt("Off: " << info.off), core::rectangle(160, 60, 100, 20)), font::system(), color::black);
-  g.text(draw::text_box(ostreamfmt("Quality: " << info.quality), core::rectangle(160, 80, 100, 20)), font::system(), color::black);
-  frame::raised_relief(g, place);
-}
-
-// --------------------------------------------------------------------------
-class thumb_view : public ctrl::vertical_tile_view {
-public:
-  typedef ctrl::vertical_tile_view super;
-  typedef simple_list_data<image_info, image_info_drawer> image_info_list;
-
-  thumb_view ();
-
-  image_info_list list;
-};
-thumb_view::thumb_view () {
-  set_drawer(list);
-}
-// --------------------------------------------------------------------------
-class over_view : public win::group_window<layout::grid_adaption<3, 2, 0, 1>> {
-public:
-  typedef win::group_window<layout::grid_adaption<3, 2, 0, 1>> super;
-
-  image_view image_views[6];
-
-};
 // --------------------------------------------------------------------------
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
@@ -611,32 +56,52 @@ public:
   RedImage ();
 
   void onCreated (window*, const core::rectangle&);
-  void loadImage ();
+  void open_image ();
+  void load_image (const sys_fs::path&);
   void quit ();
 
   void show_raw ();
   void show_inverted ();
 
   void show_image (int i);
-  void calc_image (int i, bool calc_rest_img = true);
+  void calc_image (int i);
+  void reset_color_range (int i);
+  void calc_image_and_show (int i, bool calc_rest_img = true);
 
   cv::Vec3b get_hsv_at (const core::size& win_size, const core::point& pt);
   void set_hsv_for (const cv::Vec3b& hsv, int i);
 
-  void calc_all ();
+  data::hsv_range get_hsv_range_at (const core::size& win_size, const core::point& pt, const core::size& sz);
+  void set_hsv_range_for (const data::hsv_range& hsv, int i);
+
+  void calc_all_and_show ();
   void calc_rest ();
 
   void calc_color (int i);
 
   void show_full_image (int i);
   void show_filter_view ();
+  void show_folder_view ();
+  void show_mask_view ();
+
+  void reset_current_color_range ();
 
   void load ();
   void save ();
   void saveAs ();
 
   void toggle_learning ();
+
   void calc_title ();
+  void calc_status ();
+  void show_hsv_value (const cv::Vec3b& hsv);
+
+  void open_folder ();
+
+  void show_next ();
+  void show_prev ();
+
+  void calc_folder ();
 
 private:
   main_menu menu;
@@ -645,17 +110,24 @@ private:
   popup_menu view_sub_menu;
   popup_menu help_sub_menu;
 
+  status_bar status;
+
   pixmap hook_icon;
   pixmap cross_icon;
 
-  over_view filter_view;
+  over_view<6> filter_view;
   image_view full_image_view;
+  thumb_view folder_view;
+  over_view<8> mask_view;
 
   int curent_full_image_view;
 
   side_bar colors;
 
   bool learning_mode;
+
+  std::thread background_thread;
+  volatile bool is_active;
 
   cv::Mat raw_image;
   cv::Mat hsv_image;
@@ -672,10 +144,11 @@ private:
 
 // --------------------------------------------------------------------------
 RedImage::RedImage ()
-  : super(20, 0, 260, 0)
+  : super(20, 24, 260, 0)
 //  , settings_path(sys_fs::absolute("redimage.xml"))
   , learning_mode(false)
   , curent_full_image_view(-1)
+  , is_active(true)
 {
   portions[0] = portions[1] = 0.0F;
   on_create(basepp::bind_method(this, &RedImage::onCreated));
@@ -708,7 +181,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::load), hot_key(keys::o, state::control), false),
     menu_entry("Save", 's', basepp::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
     menu_entry("SaveAs", 'a', basepp::bind_method(this, &RedImage::saveAs), hot_key(keys::s, state::control|state::shift), false),
-    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::loadImage), hot_key(keys::l, state::control), true),
+    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::open_image), hot_key(keys::l, state::control), true),
+    menu_entry("Open directory", 'd', basepp::bind_method(this, &RedImage::open_folder), hot_key(keys::d, state::control), false),
     menu_entry("Exit", 'x', basepp::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
 
@@ -720,19 +194,24 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   edit_sub_menu.data.add_entries({
     menu_entry("Leaning mode", 'l', basepp::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
-    menu_entry("Calc all", 'a', basepp::bind_method(this, &RedImage::calc_all), hot_key(keys::a, state::control), false),
-    menu_entry("Raw", 'r', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::r, state::control), true),
+    menu_entry("Calc all", 'a', basepp::bind_method(this, &RedImage::calc_all_and_show), hot_key(keys::a, state::control), false),
+    menu_entry("Original", 'o', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control), true),
     menu_entry("Invert", 'i', basepp::bind_method(this, &RedImage::show_inverted), hot_key(keys::i, state::control), false),
+    menu_entry("Reset range", 'r', basepp::bind_method(this, &RedImage::reset_current_color_range), hot_key(keys::r, state::control), true),
   });
 
   view_sub_menu.data.add_entries({
-    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
-    menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), false),
+    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::v, state::control), false),
+    menu_entry("Directory View", 'd', basepp::bind_method(this, &RedImage::show_folder_view), hot_key(keys::f, state::control), false),
+    menu_entry("Masks View", 'm', basepp::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
+    menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), true),
     menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
     menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),
     menu_entry("Full View Image 4", '4', [&] () { RedImage::show_full_image(3); }, hot_key('4', state::control), false),
     menu_entry("Full View Image 5", '5', [&] () { RedImage::show_full_image(4); }, hot_key('5', state::control), false),
     menu_entry("Full View Image 6", '6', [&] () { RedImage::show_full_image(5); }, hot_key('6', state::control), false),
+    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::none), true),
+    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::none), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -747,32 +226,49 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.register_hot_keys(this);
   view_sub_menu.data.register_hot_keys(this);
 
+  colors.create(*this);
+  status.create(*this);
+  mask_view.create(*this);
+  full_image_view.create(*this);
+  folder_view.create(*this);
   filter_view.create(*this);
+
   for(int i = 0; i < 6; ++i) {
-    filter_view.image_views[i].create(filter_view);
     filter_view.image_views[i].on_left_btn_dblclk([&, i] (os::key_state, const core::point) {
       show_full_image(i);
     });
+    filter_view.image_views[i].on_mouse_move([&, i] (os::key_state, const core::point& pt) {
+      show_hsv_value(get_hsv_at(filter_view.image_views[i].size(), pt));
+    });
   }
-  colors.create(*this);
-  full_image_view.create(*this);
+
   full_image_view.on_left_btn_dblclk([&] (os::key_state, const core::point) {
     show_filter_view();
   });
   full_image_view.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     if (learning_mode) {
-      set_hsv_for(get_hsv_at(full_image_view.size(), pt), curent_full_image_view - 1);
+      set_hsv_range_for(get_hsv_range_at(full_image_view.size(), pt, core::size(5, 5)), curent_full_image_view - 1);
+    }
+  });
+  full_image_view.on_mouse_move([&] (os::key_state, const core::point& pt) {
+    show_hsv_value(get_hsv_at(full_image_view.size(), pt));
+  });
+
+  folder_view.on_selection_commit([&] () {
+    auto idx = folder_view.get_selection();
+    if (idx < folder_view.list.size()) {
+      const auto& info = folder_view.list[idx];
+      show_filter_view();
+      load_image(info.filename);
     }
   });
 
-  get_layout().set_top(&menu);
-  get_layout().set_center(&filter_view);
-  get_layout().set_left(&colors);
+  get_layout().set_center_top_bottom_left_right(&filter_view, &menu, &status, &colors, nullptr);
 
   for (int i = 0; i < side_bar::COLOR_COUNT; ++i) {
     filter_view.image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
       if (learning_mode) {
-        set_hsv_for(get_hsv_at(filter_view.image_views[i + 1].size(), pt), i);
+        set_hsv_range_for(get_hsv_range_at(filter_view.image_views[i + 1].size(), pt, core::size(5, 5)), i);
       }
     });
     colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
@@ -794,69 +290,131 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
       calc_color(i);
     });
     colors.colors[i].hue.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
     colors.colors[i].hue.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
     colors.colors[i].saturation.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
     colors.colors[i].saturation.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
     colors.colors[i].value.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
     colors.colors[i].value.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image(i);
+      calc_image_and_show(i);
     });
   }
 
   set_children_visible();
   full_image_view.to_back();
+  folder_view.to_back();
 }
 //-----------------------------------------------------------------------------
-cv::Vec3b RedImage::get_hsv_at (const core::size& win_size, const core::point& pt) {
+data::hsv_range RedImage::get_hsv_range_at (const core::size& win_size, const core::point& pt, const core::size& sz) {
+  if (hsv_image.empty()) {
+    return data::hsv_range();
+  }
   const auto img_size = hsv_image.size();
   const int x = (int)(pt.x() / win_size.width() * (float)img_size.width);
   const int y = (int)(pt.y() / win_size.height() * (float)img_size.height);
-  return hsv_image.at<cv::Vec3b>(cv::Point(x, y));
+  const int width = sz.width() / 2;
+  const int height = sz.height() / 2;
+  const int min_x = std::max(0, x - width);
+  const int min_y = std::max(0, y - height);
+  const int max_x = std::max(min_x + width, x + width);
+  const int max_y = std::max(min_y + height, y + height);
+
+  cv::Mat sub(hsv_image, cv::Rect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1));
+  cv::Vec3b init = sub.at<cv::Vec3b>(cv::Point(0, 0));
+  data::range h(init[0], init[0]), s(init[1], init[1]), v(init[2], init[2]);
+
+  for (cv::MatConstIterator_<cv::Vec3b> i = sub.begin<cv::Vec3b>(), e = sub.end<cv::Vec3b>(); i != e; ++i) {
+    const cv::Vec3b& hsv = *i;
+    h.extend(hsv[0]);
+    s.extend(hsv[1]);
+    v.extend(hsv[2]);
+  }
+  return data::hsv_range(h, s, v);
+}
+//-----------------------------------------------------------------------------
+void RedImage::set_hsv_range_for (const data::hsv_range& hsv, int i) {
+  colors.colors[i].set(hsv);
+  calc_image_and_show(i);
+}
+//-----------------------------------------------------------------------------
+cv::Vec3b RedImage::get_hsv_at (const core::size& win_size, const core::point& pt) {
+  if (hsv_image.empty()) {
+    return cv::Vec3b();
+  }
+  const auto img_size = hsv_image.size();
+  const int x = (int)(pt.x() / win_size.width() * (float)img_size.width);
+  const int y = (int)(pt.y() / win_size.height() * (float)img_size.height);
+  if ((x < img_size.width) && (y < img_size.height)) {
+    return hsv_image.at<cv::Vec3b>(cv::Point(x, y));
+  }
+  return cv::Vec3b();
 }
 //-----------------------------------------------------------------------------
 void RedImage::set_hsv_for (const cv::Vec3b& hsv, int i) {
   colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
   colors.colors[i].saturation.set_range(70, 255);
   colors.colors[i].value.set_range(70, 255);
-  calc_image(i);
+  calc_image_and_show(i);
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_full_image (int i) {
   cv::Mat src = (i == 0 ? raw_image : image[i - 1]);
   if (!src.empty()) {
     filter_view.to_back();
+    folder_view.to_back();
+    mask_view.to_back();
     full_image_view.to_front();
     get_layout().set_center(&full_image_view);
     super::layout();
 
-    full_image_view.set_image_and_scale(src);
     curent_full_image_view = i;
+    full_image_view.set_image_and_scale(src);
   }
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_filter_view () {
   full_image_view.to_back();
+  folder_view.to_back();
+  mask_view.to_back();
   filter_view.to_front();
   get_layout().set_center(&filter_view);
   super::layout();
-  filter_view.layout();
+//  filter_view.layout();
   curent_full_image_view = -1;
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_folder_view () {
+  full_image_view.to_back();
+  filter_view.to_back();
+  mask_view.to_back();
+  folder_view.to_front();
+  get_layout().set_center(&folder_view);
+  super::layout();
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_mask_view () {
+  full_image_view.to_back();
+  folder_view.to_back();
+  filter_view.to_back();
+  mask_view.to_front();
+  get_layout().set_center(&mask_view);
+  super::layout();
+//  mask_view.layout();
 }
 //-----------------------------------------------------------------------------
 void RedImage::toggle_learning () {
   learning_mode = !learning_mode;
   edit_sub_menu.data[0].set_icon(learning_mode ? hook_icon : cross_icon);
-  calc_title();
+  calc_status();
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {
@@ -902,48 +460,38 @@ void RedImage::calc_color (int i) {
   colors.colors[i].colors.max_color.set_hsv_color(h.max(), s.max(), v.max());
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_image (int i, bool calc_rest_img) {
+void RedImage::calc_image (int i) {
   if (hsv_image.empty()) {
     return;
   }
-  auto h = colors.colors[i].hue.get();
-  auto s = colors.colors[i].saturation.get();
-  auto v = colors.colors[i].value.get();
+
+  color_filter proc(colors.colors[i].get());
+
+  cv::Mat mask[8];
+  portions[i] = proc.calc(hsv_image, mask, true);
 
   image[i].setTo(cv::Scalar(0, 0, 0));
-
-  cv::Mat mask;
-  if (h.min() > h.max()) {
-    cv::Mat mask2;
-    cv::inRange(hsv_image,
-                cv::Scalar(h.min(), s.min(), v.min()),
-                cv::Scalar(180, s.max(), v.max()),
-                mask2);
-    cv::inRange(hsv_image,
-                cv::Scalar(0, s.min(), v.min()),
-                cv::Scalar(h.max(), s.max(), v.max()),
-                mask);
-    mask = mask + mask2;
-  } else {
-    cv::inRange(hsv_image,
-                cv::Scalar(h.min(), s.min(), v.min()),
-                cv::Scalar(h.max(), s.max(), v.max()),
-                mask);
+  raw_image.copyTo(image[i], mask[0]);
+  mask[0].copyTo(image[i + 3]);
+  if (i == 0) {
+    for (int m = 0; m < 8; ++m) {
+      mask_view.image_views[m].set_image_and_scale(mask[m]);
+    }
   }
-
-  int mask_count = cv::countNonZero(mask);
-  int full_count = mask.cols * mask.rows;
-  portions[i] = (float)((double)mask_count / (double)full_count);
-
-  raw_image.copyTo(image[i], mask);
-  mask.copyTo(image[i + 3]);
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_image_and_show (int i, bool calc_rest_img) {
+  if (hsv_image.empty()) {
+    return;
+  }
+  calc_image(i);
 
   show_image(i);
   show_image(i + 3);
   if (calc_rest_img) {
     calc_rest();
   }
-  calc_title();
+  calc_status();
   if (curent_full_image_view > -1) {
     show_full_image(curent_full_image_view);
   }
@@ -957,18 +505,37 @@ void RedImage::calc_rest () {
   show_image(2);
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_all () {
-  for (int i = 0; i < 2; ++i) {
-    calc_image(i, false);
+void RedImage::calc_all_and_show () {
+  if (get_layout().get_center() == &folder_view) {
+    calc_folder();
+  } else {
+    for (int i = 0; i < 2; ++i) {
+      calc_image_and_show(i, false);
+    }
+    calc_rest();
   }
-  calc_rest();
+}
+//-----------------------------------------------------------------------------
+void RedImage::reset_current_color_range () {
+  if ((curent_full_image_view > 0) && (curent_full_image_view < 3)) {
+    reset_color_range(curent_full_image_view - 1);
+  }
+}
+//-----------------------------------------------------------------------------
+void RedImage::reset_color_range (int i) {
+  colors.colors[i].reset();
+  calc_image(i);
 }
 //-----------------------------------------------------------------------------
 void RedImage::quit () {
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
-      if (!settings_path.empty()) {
-        save();
+//      if (!settings_path.empty()) {
+//        save();
+//      }
+      is_active = false;
+      if (background_thread.joinable()) {
+        background_thread.join();
       }
       win::quit_main_loop();
     } else {
@@ -987,35 +554,40 @@ bool is_xml (const sys_fs::directory_entry& i) {
   return !(ext == ".xml") && !(ext == ".XML");
 }
 //-----------------------------------------------------------------------------
-void RedImage::loadImage () {
+void RedImage::open_image () {
   auto old_path = sys_fs::current_path();
   if (!settings.last_path().empty() && sys_fs::exists(settings.last_path())) {
     sys_fs::current_path(settings.last_path());
   }
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
-    if (sys_fs::exists(file)) {
-      image_path = file;
-      portions[0] = portions[1] = 0.0F;
-      calc_title();
-      settings.last_path(file.parent_path().string());
-      cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
-      auto size = core::global::scale(filter_view.image_views[0].size());
-      cv::Size sz(size.width(), size.height());
-      raw_image = cv::Mat(sz, srcImage.type());
-      cv::resize(srcImage, raw_image, sz, 0, 0, cv::INTER_LINEAR);
-
-      cv::cvtColor(raw_image, hsv_image, cv::COLOR_BGR2HSV);
-
-      raw_image.copyTo(image[0]);
-      raw_image.copyTo(image[1]);
-      raw_image.copyTo(image[2]);
-
-      inverted_image = ~raw_image;
-      show_raw();
-      calc_all();
-    }
+    load_image(file);
   }, is_jpeg);
   sys_fs::current_path(old_path);
+}
+// --------------------------------------------------------------------------
+void load_image (const sys_fs::path& file, cv::Mat& raw, cv::Mat& hsv) {
+  cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
+  cv::resize(srcImage, raw, cv::Size(1500, 1000), 0, 0, cv::INTER_LINEAR);
+  cv::cvtColor(raw, hsv, cv::COLOR_BGR2HSV);
+}
+// --------------------------------------------------------------------------
+void RedImage::load_image (const sys_fs::path& file) {
+  if (sys_fs::exists(file)) {
+    image_path = file;
+    portions[0] = portions[1] = 0.0F;
+    calc_title();
+    settings.last_path(file.parent_path().string());
+
+    ::load_image(file, raw_image, hsv_image);
+
+    raw_image.copyTo(image[0]);
+    raw_image.copyTo(image[1]);
+    raw_image.copyTo(image[2]);
+
+    inverted_image = ~raw_image;
+    show_raw();
+    calc_all_and_show();
+  }
 }
 // --------------------------------------------------------------------------
 void RedImage::load () {
@@ -1023,6 +595,7 @@ void RedImage::load () {
     settings_path = file;
     portions[0] = portions[1] = 0.0F;
     calc_title();
+    calc_status();
 
     using boost::property_tree::ptree;
 
@@ -1064,6 +637,7 @@ void RedImage::saveAs () {
      save();
   });
 }
+// --------------------------------------------------------------------------
 void RedImage::calc_title () {
   std::ostringstream buffer;
   buffer << "RedImage";
@@ -1073,21 +647,126 @@ void RedImage::calc_title () {
   if (!image_path.empty()) {
     buffer << " - " << image_path.filename();
   }
-  if (learning_mode) {
-    buffer << " - Learning Mode";
-  }
+  set_title(buffer.str());
+}
+// --------------------------------------------------------------------------
+void RedImage::calc_status () {
+  status.labels[0].set_text(learning_mode ? "Learning Mode" : "");
+
+  std::ostringstream buffer;
   if (portions[0] != 0.0F) {
-    buffer << " - Bad: " << (portions[0] * 100.0F) << "%";
+    buffer << "Bad: " << (portions[0] * 100.0F) << "%";
   }
   if (portions[1] != 0.0F) {
-    buffer << " - Off: " << (portions[1] * 100.0F) << "%";
+    if (portions[0] != 0.0F) {
+      buffer << " - ";
+    }
+    buffer << "Off: " << (portions[1] * 100.0F) << "%";
   }
   if ((portions[0] != 0.0F) && (portions[1] != 0.0F)) {
     float good = 1.0F - (portions[0] + portions[1]);
-    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[0] / good) * 100.0F << "%";
+    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[0] /*/ good*/) * 100.0F << "%";
+  }
+  status.labels[1].set_text(buffer.str());
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
+  std::ostringstream buffer;
+  buffer << "H: " << (int)hsv[0] << " S: " << (int)hsv[1] << " V: " << (int)hsv[2];
+  status.labels[2].set_text(buffer.str());
+  status.color.set_hsv_color(hsv[0], hsv[1], hsv[2]);
+}
+// --------------------------------------------------------------------------
+void RedImage::calc_folder () {
+  typedef background_worker<image_info*> worker;
+  worker calculation_threads;
+
+  for (auto& info : folder_view.list) {
+    calculation_threads.add(&info);
   }
 
-  set_title(buffer.str());
+  calculation_threads.start([&] (worker::queue& queue) {
+    color_filter bad_filter(colors.colors[0].get());
+    color_filter off_filter(colors.colors[1].get());
+
+    image_info* info = nullptr;
+    while (queue.try_dequeue(info)) {
+
+      if (!is_active) {
+        return;
+      }
+
+      cv::Mat raw, hsv;
+      ::load_image(info->filename, raw, hsv);
+
+      const float bad_portion = bad_filter.calc(hsv);
+      const float off_portion = off_filter.calc(hsv);
+
+      info->bad = bad_portion * 100.0F;
+      info->off = off_portion * 100.0F;
+      info->good = (1.0F - (bad_portion + off_portion)) * 100.0F;
+      info->quality = info->bad;// / info.good * 100.0F;
+
+      // thumbnail
+      auto native_view_size = core::global::scale(folder_view.get_item_size() - core::size(4, 4));
+      cv::Size thumb_size(native_view_size.width() / 2, native_view_size.height());
+      cv::Mat thumb(thumb_size, raw.type());
+      cv::resize(raw, thumb, thumb_size, 0, 0, cv::INTER_LINEAR);
+      info->image = cvMat2pixmap(thumb);
+
+      win::run_on_main([&] () {
+        folder_view.update_list();
+      });
+    }
+  });
+
+  calculation_threads.join();
+}
+// --------------------------------------------------------------------------
+void RedImage::open_folder () {
+  auto old_path = sys_fs::current_path();
+  if (!settings.last_path().empty() && sys_fs::exists(settings.last_path())) {
+    sys_fs::current_path(settings.last_path());
+  }
+  dir_open_dialog::show(*this, "Choose folder", "Open", "Cancel", [&] (const sys_fs::path& folder) {
+    if (sys_fs::exists(folder) && sys_fs::is_directory(folder)) {
+      show_folder_view();
+      folder_view.list.clear();
+      for (const auto& i : sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {
+        if (!is_jpeg(i)) {
+          folder_view.list.emplace_back(image_info(i.path()));
+        }
+      }
+      folder_view.update_list();
+      if (background_thread.joinable()) {
+        is_active = false;
+        background_thread.join();
+      }
+      is_active = true;
+      background_thread = std::thread([&] () {
+        calc_folder();
+      });
+    }
+  });
+  sys_fs::current_path(old_path);
+}
+// --------------------------------------------------------------------------
+void RedImage::show_next () {
+  if (!folder_view.list.empty()) {
+    auto idx = (folder_view.get_selection() + 1) % folder_view.list.size();
+    folder_view.set_selection(idx, event_source::logic);
+    const auto& info = folder_view.list[idx];
+    load_image(info.filename);
+  }
+}
+// --------------------------------------------------------------------------
+void RedImage::show_prev () {
+  if (!folder_view.list.empty()) {
+    auto idx = (folder_view.get_selection() > 0 ? folder_view.get_selection() : folder_view.list.size()) - 1;
+    folder_view.set_selection(idx, event_source::logic);
+    const auto& info = folder_view.list[idx];
+    load_image(info.filename);
+  }
 }
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {

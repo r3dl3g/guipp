@@ -346,7 +346,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 
-    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::size& sz);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::size&);
+    GUIPP_WIN_EXPORT void send_client_message (const window* win, os::event_id message, const core::rectangle&);
 
     GUIPP_WIN_EXPORT void post_client_message (const window* win, os::event_id message, long l1 = 0, long l2 = 0);
 

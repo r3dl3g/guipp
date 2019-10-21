@@ -148,7 +148,9 @@ namespace gui {
           : instance(0)
 #endif // COCOA
         {
+#ifdef X11
           XInitThreads();
+#endif // X11
         }
 
         void init (os::instance i) {

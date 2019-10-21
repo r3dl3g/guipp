@@ -17,12 +17,12 @@ color_key::color_key (byte min, byte max)
     min_max.max_edit.set_text(ostreamfmt((int)max_scroll.get_value()));
   });
   min_max.min_edit.on_content_changed([&] () {
-    int value = 0;
+    gui::ctrl::scroll_bar::type value = 0;
     std::istringstream(min_max.min_edit.get_text()) >> value;
     min_scroll.set_value(value, false);
   });
   min_max.max_edit.on_content_changed([&] () {
-    int value = 0;
+    gui::ctrl::scroll_bar::type value = 0;
     std::istringstream(min_max.max_edit.get_text()) >> value;
     max_scroll.set_value(value, false);
   });

@@ -321,8 +321,8 @@ data::hsv_range RedImage::get_hsv_range_at (const core::size& win_size, const co
   const auto img_size = hsv_image.size();
   const int x = (int)(pt.x() / win_size.width() * (float)img_size.width);
   const int y = (int)(pt.y() / win_size.height() * (float)img_size.height);
-  const int width = sz.width() / 2;
-  const int height = sz.height() / 2;
+  const int width = (int)(sz.width() / 2);
+  const int height = (int)(sz.height() / 2);
   const int min_x = std::max(0, x - width);
   const int min_y = std::max(0, y - height);
   const int max_x = std::max(min_x + width, x + width);
@@ -732,7 +732,14 @@ void RedImage::open_folder () {
     if (sys_fs::exists(folder) && sys_fs::is_directory(folder)) {
       show_folder_view();
       folder_view.list.clear();
-      for (const auto& i : sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {
+      for (const auto& i : 
+#ifdef WIN32
+           sys_fs::directory_iterator(folder)) {
+
+#endif // WIN32
+#ifdef X11
+           sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {
+#endif // X11
         if (!is_jpeg(i)) {
           folder_view.list.emplace_back(image_info(i.path()));
         }
@@ -753,7 +760,7 @@ void RedImage::open_folder () {
 // --------------------------------------------------------------------------
 void RedImage::show_next () {
   if (!folder_view.list.empty()) {
-    auto idx = (folder_view.get_selection() + 1) % folder_view.list.size();
+    const int idx = (folder_view.get_selection() + 1) % folder_view.list.size();
     folder_view.set_selection(idx, event_source::logic);
     const auto& info = folder_view.list[idx];
     load_image(info.filename);
@@ -762,7 +769,7 @@ void RedImage::show_next () {
 // --------------------------------------------------------------------------
 void RedImage::show_prev () {
   if (!folder_view.list.empty()) {
-    auto idx = (folder_view.get_selection() > 0 ? folder_view.get_selection() : folder_view.list.size()) - 1;
+    const int idx = (folder_view.get_selection() > 0 ? folder_view.get_selection() : (int)folder_view.list.size()) - 1;
     folder_view.set_selection(idx, event_source::logic);
     const auto& info = folder_view.list[idx];
     load_image(info.filename);

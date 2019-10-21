@@ -261,6 +261,16 @@ namespace gui {
       }
     }
 
+    void send_client_message (const window* win, os::event_id message, const core::rectangle& wr) {
+      if (win && win->is_valid()) {
+        os::event_result result;
+        core::native_rect r = core::global::scale(wr);
+        WINDOWPOS wp{win->get_id(), NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
+        core::event e { win->get_id(), message, 0, reinterpret_cast<LPARAM>(&wp)};
+        win->handle_event(e, result);
+      }
+    }
+
     void post_client_message (const window* win, os::event_id message, long l1, long l2) {
       send_client_message(win, message, l1, l2);
 //      if (win && win->is_valid()) {

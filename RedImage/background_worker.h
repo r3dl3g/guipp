@@ -21,7 +21,7 @@ public:
   }
 
   void start (worker w, unsigned count = std::thread::hardware_concurrency()) {
-    for (int i = 0; i < count; ++i) {
+    for (unsigned i = 0; i < count; ++i) {
       threads.emplace_back([&] () { w(data_queue); });
     }
   }

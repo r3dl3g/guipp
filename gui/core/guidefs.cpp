@@ -147,7 +147,9 @@ namespace gui {
 #ifdef COCOA
           : instance(0)
 #endif // COCOA
-        {}
+        {
+          XInitThreads();
+        }
 
         void init (os::instance i) {
           instance = i;

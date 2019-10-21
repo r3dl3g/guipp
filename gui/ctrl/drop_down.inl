@@ -201,7 +201,7 @@ namespace gui {
     inline core::rectangle drop_down_list<T, D>::get_popup_place () const {
       core::rectangle place = super::absolute_place();
       place.move_y(place.height());
-      place.height(core::size::type(data.visible_items * data.items.get_item_size()));
+      place.height(core::size::type(data.visible_items * data.items.get_item_dimension()));
       return place;
     }
 

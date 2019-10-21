@@ -1018,8 +1018,8 @@ void my_main_window::created_children () {
   progress.create(main, core::rectangle(550, 325, 130, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width())));
 
   vscroll.create(main, core::rectangle(700, 50, static_cast<core::size::type>(ctrl::scroll_bar::get_scroll_bar_width()), 250));
-  vscroll.set_max((int)list1.get_count() * list1.get_item_size() - list1.size().height());
-  vscroll.set_step(static_cast<ctrl::scroll_bar::type>(list1.get_item_size()));
+  vscroll.set_max((int)list1.get_count() * list1.get_item_dimension() - list1.size().height());
+  vscroll.set_step(static_cast<ctrl::scroll_bar::type>(list1.get_item_dimension()));
 
   up_button.create(main, "Up", core::rectangle(330, 305, 47, 25));
 

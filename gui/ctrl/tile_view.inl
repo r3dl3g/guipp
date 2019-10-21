@@ -40,7 +40,7 @@ namespace gui {
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_item_size () const {
+    inline core::size::type tile_list_traits<orientation::horizontal>::get_item_dimension () const {
       return item_size.height();
     }
 
@@ -71,7 +71,7 @@ namespace gui {
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_item_size () const {
+    inline core::size::type tile_list_traits<orientation::vertical>::get_item_dimension () const {
       return item_size.width();
     }
 
@@ -116,7 +116,7 @@ namespace gui {
                                                  size_t count) const {
       const auto per_line = static_cast<int>(get_items_per_line(list_size));
       const auto line = static_cast<int>((super::get(pt) + scroll_pos - get_line_border()) / get_line_size());
-      const auto offs = static_cast<int>((super::get_other(pt) - get_item_border()) / (get_item_size() + get_item_spacing()));
+      const auto offs = static_cast<int>((super::get_other(pt) - get_item_border()) / (get_item_dimension() + get_item_spacing()));
       const auto idx = (line * per_line) + offs;
       return (idx < count) && get_place_of_index(list_size, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
@@ -130,7 +130,7 @@ namespace gui {
       const auto offs = idx - (line * per_line);
 
       const auto lsz = get_line_size();
-      const auto isz = get_item_size();
+      const auto isz = get_item_dimension();
 
       core::rectangle place;
       super::set(place, lsz * line - scroll_pos + get_line_border(), lsz - get_line_spacing());
@@ -148,7 +148,7 @@ namespace gui {
     inline std::size_t tile_list_traits<V>::get_items_per_line (const core::size& list_size) const {
       const auto isp = get_item_spacing();
       const auto avail = (super::get_other(list_size) - get_line_spacing() - get_item_border() * 2 + isp);
-      const auto need = (get_item_size() + isp);
+      const auto need = (get_item_dimension() + isp);
       return static_cast<std::size_t>(std::max(avail / need, 1.0f));
     }
 
@@ -194,7 +194,7 @@ namespace gui {
       const auto offs = idx - (line * per_line);
 
       const auto lsz = super::traits.get_line_size();
-      const auto isz = super::traits.get_item_size() + super::traits.get_item_spacing();
+      const auto isz = super::traits.get_item_dimension() + super::traits.get_item_spacing();
 
       core::rectangle place;
       super::traits.set(place, lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz);
@@ -246,7 +246,7 @@ namespace gui {
         }
 
         const auto ib = super::traits.get_item_border();
-        const auto isz = super::traits.get_item_size();
+        const auto isz = super::traits.get_item_dimension();
         if (lsp > 0) {
           const auto lw = (isz + isp) * per_line;
           for (int line = first_line; line < last_line; ++line) {

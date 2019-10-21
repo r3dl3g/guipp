@@ -210,7 +210,8 @@ namespace gui {
                    const core::rectangle& place,
                    const simple_list_data<U, F>& data);
 
-      core::size::type get_item_size () const;
+      size_type get_item_size () const;
+      core::size::type get_item_dimension () const;
       void set_item_size (size_type item_size);
       void set_item_size_and_background (size_type item_size, os::color background);
 
@@ -286,6 +287,7 @@ namespace gui {
                                           size_type scroll_pos) const;
 
       size_type get_line_size () const;
+      size_type get_item_dimension () const;
 
       size_type item_size;
     };

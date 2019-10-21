@@ -327,6 +327,11 @@ namespace gui {
       return item_size;
     }
 
+    template<orientation V>
+    inline auto linear_list_traits<V>::get_item_dimension () const -> size_type {
+      return item_size;
+    }
+
     // --------------------------------------------------------------------------
     template<orientation V, typename T>
     inline basic_list<V, T>::basic_list (size_type item_size,
@@ -365,8 +370,13 @@ namespace gui {
     }
 
     template<orientation V, typename T>
-    inline core::size::type basic_list<V, T>::get_item_size () const {
+    inline auto basic_list<V, T>::get_item_size () const -> size_type {
       return traits.item_size;
+    }
+
+    template<orientation V, typename T>
+    inline core::size::type basic_list<V, T>::get_item_dimension () const {
+      return traits.get_item_dimension();
     }
 
     template<orientation V, typename T>
@@ -693,13 +703,13 @@ namespace gui {
 
       const auto list_sz = super::get_list_size();
       const auto last = super::get_count();
-      const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / super::get_item_size());
+      const auto first = static_cast<decltype(last)>(super::get_scroll_pos() / super::get_item_dimension());
 
-      super::traits.set(place, super::get_item_size() * first - super::get_scroll_pos(), super::get_item_size());
+      super::traits.set(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
 
       for (auto idx = first; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
         super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
-        super::traits.set(place, super::traits.get(place.top_left()) + super::get_item_size(), super::get_item_size());
+        super::traits.set(place, super::traits.get(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
       }
 
       if (place.y() < area.y2()) {
@@ -721,13 +731,13 @@ namespace gui {
       case win::keys::page_up:
       case win::keys::numpad::page_up:
         super::set_selection(super::get_selection() -
-                      static_cast<int>(super::get_list_size() / super::get_item_size()),
+                      static_cast<int>(super::get_list_size() / super::get_item_dimension()),
                       event_source::keyboard);
         break;
       case win::keys::page_down:
       case win::keys::numpad::page_down:
         super::set_selection(super::get_selection() +
-                      static_cast<int>(super::get_list_size() / super::get_item_size()),
+                      static_cast<int>(super::get_list_size() / super::get_item_dimension()),
                       event_source::keyboard);
         break;
       case win::keys::home:

@@ -63,6 +63,20 @@ namespace basepp {
       m_condition.notify_all();
     }
 
+    template<typename I>
+    void enqueue (I i, I end) {
+      {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        for (; i != end; ++i) {
+          if (m_queue.size() == S) {
+            m_queue.pop();
+          }
+          m_queue.push(*i);
+        }
+      }
+      m_condition.notify_all();
+    }
+
     void wait_until_empty (const std::chrono::milliseconds& timeout) {
       std::unique_lock<std::mutex> lock(m_mutex);
 
@@ -184,6 +198,11 @@ namespace basepp {
       std::unique_lock<std::mutex> lock(m_mutex);
       std::queue<T> tmp;
       m_queue.swap(tmp); // clear
+      m_condition.notify_all();
+    }
+
+    void stop_waiters () {
+      std::unique_lock<std::mutex> lock(m_mutex);
       m_condition.notify_all();
     }
 

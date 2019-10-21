@@ -69,7 +69,7 @@ namespace gui {
       dim_type get_line_border () const;
       dim_type get_line_spacing () const;
 
-      dim_type get_item_size () const;
+      dim_type get_item_dimension () const;
       dim_type get_item_border () const;
       dim_type get_item_spacing () const;
 

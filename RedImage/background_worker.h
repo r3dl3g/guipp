@@ -22,7 +22,7 @@ public:
 
   void start (worker w, unsigned count = std::thread::hardware_concurrency()) {
     for (unsigned i = 0; i < count; ++i) {
-      threads.emplace_back([&] () { w(data_queue); });
+      threads.emplace_back(std::thread([=] () { w(data_queue); }));
     }
   }
 

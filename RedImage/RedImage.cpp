@@ -678,43 +678,50 @@ void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
 }
 // --------------------------------------------------------------------------
 void RedImage::calc_folder () {
-  typedef background_worker<image_info*> worker;
+  typedef background_worker<int> worker;
   worker calculation_threads;
 
-  for (auto& info : folder_view.list) {
-    calculation_threads.add(&info);
+  for (int i = 0; i < folder_view.list.size(); ++i) {
+    calculation_threads.add(i);
   }
 
-  calculation_threads.start([&] (worker::queue& queue) {
-    color_filter bad_filter(colors.colors[0].get());
-    color_filter off_filter(colors.colors[1].get());
+  data::hsv_range bad_range = colors.colors[0].get();
+  data::hsv_range off_range = colors.colors[1].get();
 
-    image_info* info = nullptr;
-    while (queue.try_dequeue(info)) {
+  calculation_threads.start([=] (worker::queue& queue) {
+
+    color_filter bad_filter(bad_range);
+    color_filter off_filter(off_range);
+
+    int idx = -1;
+    while (queue.try_dequeue(idx)) {
 
       if (!is_active) {
         return;
       }
 
+      image_info info = folder_view.list[idx];
+
       cv::Mat raw, hsv;
-      ::load_image(info->filename, raw, hsv);
+      ::load_image(info.filename, raw, hsv);
 
       const float bad_portion = bad_filter.calc(hsv);
       const float off_portion = off_filter.calc(hsv);
 
-      info->bad = bad_portion * 100.0F;
-      info->off = off_portion * 100.0F;
-      info->good = (1.0F - (bad_portion + off_portion)) * 100.0F;
-      info->quality = info->bad;// / info.good * 100.0F;
+      info.bad = bad_portion * 100.0F;
+      info.off = off_portion * 100.0F;
+      info.good = (1.0F - (bad_portion + off_portion)) * 100.0F;
+      info.quality = info.bad;// / info.good * 100.0F;
 
       // thumbnail
       auto native_view_size = core::global::scale(folder_view.get_item_size() - core::size(4, 4));
       cv::Size thumb_size(native_view_size.width() / 2, native_view_size.height());
       cv::Mat thumb(thumb_size, raw.type());
       cv::resize(raw, thumb, thumb_size, 0, 0, cv::INTER_LINEAR);
-      info->image = cvMat2pixmap(thumb);
+      info.image = cvMat2pixmap(thumb);
 
-      win::run_on_main([&] () {
+      win::run_on_main([&, info, idx] () {
+        folder_view.list[idx] = info;
         folder_view.update_list();
       });
     }
@@ -735,7 +742,6 @@ void RedImage::open_folder () {
       for (const auto& i : 
 #ifdef WIN32
            sys_fs::directory_iterator(folder)) {
-
 #endif // WIN32
 #ifdef X11
            sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {

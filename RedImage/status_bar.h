@@ -18,6 +18,6 @@ public:
 
   status_bar ();
 
-  status_label labels[3];
+  status_label labels[4];
   color_view color;
 };

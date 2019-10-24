@@ -118,7 +118,15 @@ namespace gui {
   };
 
   constexpr orientation operator! (orientation o) {
-    return (o == orientation::vertical) ? orientation::horizontal : orientation::vertical;
+    return orientation(!static_cast<bool>(o));
+  }
+
+  constexpr orientation operator~ (orientation o) {
+    return orientation(~static_cast<bool>(o));
+  }
+
+  constexpr orientation operator- (orientation lhs, orientation rhs) {
+    return orientation(static_cast<byte>(lhs) - static_cast<byte>(rhs));
   }
 
   // --------------------------------------------------------------------------

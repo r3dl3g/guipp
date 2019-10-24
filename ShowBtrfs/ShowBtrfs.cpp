@@ -17,6 +17,8 @@
 
 DEFINE_LOGGING_CORE(NOTHING)
 
+#ifdef X11
+
 std::string run (std::string cmd) {
   std::ostringstream result;
   std::vector<char> buffer(256);
@@ -34,6 +36,8 @@ std::string run (std::string cmd) {
   }
   return result.str();
 }
+
+#endif // 0
 
 // --------------------------------------------------------------------------
 struct percent {
@@ -81,7 +85,7 @@ sort_order operator- (sort_order lhs, sort_order rhs) {
 }
 
 sort_order operator~ (sort_order lhs) {
-  return sort_order(~static_cast<bool>(lhs));
+  return sort_order(!static_cast<bool>(lhs));
 }
 
 sort_order operator! (sort_order lhs) {
@@ -169,7 +173,8 @@ void load_qgroup (const sys_fs::path& qgroup_file,
   std::getline(qgroup, path);
   qgroup >> std::skipws;
 
-  size_t full = 0, excl = 0, sum = 0, id = 0, top = 0;
+  size_t full = 0, excl = 0, sum = 0;
+  int id = 0, top = 0;
   char slash;
   while (!qgroup.eof()) {
     qgroup >> top >> slash >> id >> full >> excl;

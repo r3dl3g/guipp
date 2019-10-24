@@ -31,7 +31,7 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    class image : public control {
+    class GUIPP_CTRL_EXPORT image : public control {
     public:
       typedef control super;
       typedef no_erase_window_class<image> clazz;

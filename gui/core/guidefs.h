@@ -122,7 +122,7 @@ namespace gui {
   }
 
   constexpr orientation operator~ (orientation o) {
-    return orientation(~static_cast<bool>(o));
+    return orientation(!static_cast<bool>(o));
   }
 
   constexpr orientation operator- (orientation lhs, orientation rhs) {

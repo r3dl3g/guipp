@@ -1,26 +1,33 @@
+/**
+ * @copyright (c) 2016-2019 Ing. Buero Rothfuss
+ *                          Riedlinger Str. 8
+ *                          70327 Stuttgart
+ *                          Germany
+ *                          http://www.rothfuss-web.de
+ *
+ * @author    <a href="mailto:armin@rothfuss-web.de">Armin Rothfuss</a>
+ *
+ * Project    redimage
+ *
+ * Customer   -
+ *
+ * @brief     C++ API: red image view
+ *
+ * @file
+ */
 
 #pragma once
 
+// --------------------------------------------------------------------------
+//
+// Library includes
+//
+#include <gui/ctrl/image.h>
 #include <opencv2/core/core.hpp>
 
-#include <gui/ctrl/control.h>
-#include <gui/win/container.h>
-#include "gui/draw/bitmap.h"
-
-class image_view : public gui::ctrl::control {
+class image_view : public gui::ctrl::image {
 public:
-  typedef gui::ctrl::control super;
-  typedef gui::ctrl::no_erase_window_class<image_view> clazz;
+  typedef gui::ctrl::image super;
 
-  image_view ();
-
-  void create (const gui::win::container& parent,
-               const gui::core::rectangle& place = gui::core::rectangle::def);
-
-  void paint (const gui::draw::graphics& graph);
-  void set_image (const gui::draw::pixmap& source);
   void set_image_and_scale (const cv::Mat& source);
-
-private:
-  gui::draw::pixmap image;
 };

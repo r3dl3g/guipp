@@ -49,7 +49,6 @@ pixmap create_text_pixmap (const std::string& str,
   return img;
 }
 // --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
   typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;

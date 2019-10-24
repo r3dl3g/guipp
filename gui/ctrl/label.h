@@ -86,6 +86,7 @@ namespace gui {
 
     }
 
+    // --------------------------------------------------------------------------
     template<text_origin alignment,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,

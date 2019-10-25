@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <gui/io/pnm_to_src.h>
 
 

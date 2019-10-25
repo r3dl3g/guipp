@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include "string_util.h"
+#include <util/string_util.h>
 
 
 namespace basepp {

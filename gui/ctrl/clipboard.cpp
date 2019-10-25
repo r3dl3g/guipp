@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <gui/ctrl/clipboard.h>
 
 namespace gui {
@@ -57,7 +57,7 @@ namespace gui {
         HANDLE hmem = GetClipboardData(CF_UNICODETEXT);
         if (hmem) {
           const wchar_t* data = static_cast<wchar_t*>(GlobalLock(hmem));
-          cb(basepp::string::utf16_to_utf8(std::wstring(data)));
+          cb(util::string::utf16_to_utf8(std::wstring(data)));
           GlobalUnlock(hmem);
         } else {
           hmem = GetClipboardData(CF_TEXT);

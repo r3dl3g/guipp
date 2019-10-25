@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <logging/ostreamfmt.h>
+#include <util/ostreamfmt.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_handler.h>
 #include <gui/draw/graphics.h>

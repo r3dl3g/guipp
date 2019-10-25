@@ -38,7 +38,7 @@
 #include <gui/draw/font.h>
 
 #ifdef WIN32
-# include <base/string_util.h>
+# include <util/string_util.h>
 #endif // WIN32
 
 
@@ -274,7 +274,7 @@ namespace gui {
       HDC hdc = GetDC(NULL);
       HGDIOBJ old = SelectObject(hdc, id);
       SIZE sz = {0, 0};
-      std::wstring wstr = basepp::string::utf8_to_utf16(str);
+      std::wstring wstr = util::string::utf8_to_utf16(str);
       GetTextExtentPoint32W(hdc, wstr.c_str(), static_cast<int>(str.length()), &sz);
       SelectObject(hdc, old);
       ReleaseDC(NULL, hdc);

@@ -20,7 +20,7 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/button.h>
 

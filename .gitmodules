@@ -4,3 +4,6 @@
 [submodule "persistent"]
 	path = persistent
 	url = git@red-space.de:/srv/git/persistent.git
+[submodule "util"]
+	path = util
+	url = git@red-space.de:/srv/git/util.git

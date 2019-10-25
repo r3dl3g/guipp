@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include <logging/ostreamfmt.h>
+#include <util/ostreamfmt.h>
 #include <gui/draw/bitmap.h>
 #include <gui++-io-export.h>
 

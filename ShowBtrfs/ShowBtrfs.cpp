@@ -8,7 +8,7 @@
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
-#include <base/string_util.h>
+#include <util/string_util.h>
 
 #include <fstream>
 #include <iomanip>

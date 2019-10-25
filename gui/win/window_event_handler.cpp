@@ -32,7 +32,7 @@
 #include <gui/win/window.h>
 
 #ifdef WIN32
-# include <base/string_util.h>
+# include <util/string_util.h>
 #endif // WIN32
 
 
@@ -163,7 +163,7 @@ namespace gui {
       //UINT sc2 = MapVirtualKey(e.wParam, MAPVK_VK_TO_VSC);
       //UINT vk2 = MapVirtualKey(sc, MAPVK_VSC_TO_VK);
       //wchar_t ch = MapVirtualKey(e.wParam, MAPVK_VK_TO_CHAR);
-      return basepp::string::utf16_to_utf8(std::wstring(wbuffer, len));
+      return util::string::utf16_to_utf8(std::wstring(wbuffer, len));
     }
 
     // --------------------------------------------------------------------------

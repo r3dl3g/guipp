@@ -32,7 +32,7 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/clipboard.h>
 
@@ -292,23 +292,23 @@ namespace gui {
           if (ctrl) {
             // next word begin
             if (data.cursor_pos > 1) {
-              std::string::size_type pos = basepp::string::find_left_space(data.text, data.cursor_pos);
+              std::string::size_type pos = util::string::find_left_space(data.text, data.cursor_pos);
               if (pos != std::string::npos) {
                 set_cursor_pos(pos, shift);
                 return;
               }
             }
           } else if (data.cursor_pos > 0) {
-            set_cursor_pos(basepp::utf8::get_left_char(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::utf8::get_left_char(data.text, data.cursor_pos), shift);
             return;
           }
           break;
         case win::keys::right:
         case win::keys::numpad::right:
           if (ctrl) {
-            set_cursor_pos(basepp::string::find_right_space(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::string::find_right_space(data.text, data.cursor_pos), shift);
           } else if (data.cursor_pos < get_text_length()) {
-            set_cursor_pos(basepp::utf8::get_right_char(data.text, data.cursor_pos), shift);
+            set_cursor_pos(util::utf8::get_right_char(data.text, data.cursor_pos), shift);
           }
           break;
         case win::keys::home:
@@ -323,7 +323,7 @@ namespace gui {
         case win::keys::numpad::del:
           if (data.selection.empty()) {
             std::size_t cp = data.cursor_pos + 1;
-            while ((cp < get_text_length()) && basepp::utf8::is_continuation_char(data.text.at(cp))) {
+            while ((cp < get_text_length()) && util::utf8::is_continuation_char(data.text.at(cp))) {
               ++cp;
             }
             data.text.replace(data.cursor_pos, cp - data.cursor_pos, std::string());
@@ -338,7 +338,7 @@ namespace gui {
           if (data.selection.empty()) {
             if (data.cursor_pos > 0) {
               std::size_t cp = data.cursor_pos - 1;
-              while ((cp > 0) && basepp::utf8::is_continuation_char(data.text.at(cp))) {
+              while ((cp > 0) && util::utf8::is_continuation_char(data.text.at(cp))) {
                 --cp;
               }
               data.text.replace(cp, data.cursor_pos - cp, std::string());
@@ -411,8 +411,8 @@ namespace gui {
           data.last_mouse_point = pt;
           pos_t p = get_position_at_point(pt);
           set_cursor_pos(p);
-          pos_t l = basepp::string::find_left_space(data.text, p);
-          pos_t r = basepp::string::find_right_space(data.text, p);
+          pos_t l = util::string::find_left_space(data.text, p);
+          pos_t r = util::string::find_right_space(data.text, p);
           set_selection(range(l, r), event_source::mouse);
         });
         on_mouse_move([&](os::key_state keys, const core::point& pt) {

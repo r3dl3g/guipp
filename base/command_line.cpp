@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include "logging/ostreamfmt.h"
+#include "util/ostreamfmt.h"
 #include "base/command_line.h"
 
 
@@ -67,11 +67,11 @@ namespace basepp {
       for (iterator i = args.begin(), e = args.end(); i != e; ++i) {
         bool found = false;
         for (const arg& cmd : commands) {
-          if (basepp::string::starts_with(*i, cmd.short_cmd)) {
+          if (util::string::starts_with(*i, cmd.short_cmd)) {
             execute(cmd, cmd.short_cmd, i, e);
             found = true;
             break;
-          } else if (basepp::string::starts_with(*i, cmd.long_cmd)) {
+          } else if (util::string::starts_with(*i, cmd.long_cmd)) {
             execute(cmd, cmd.long_cmd, i, e);
             found = true;
             break;

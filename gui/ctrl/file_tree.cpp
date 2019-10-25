@@ -26,7 +26,7 @@
 //
 // Library includes
 //
-#include <logging/time_util.h>
+#include <util/time_util.h>
 #include <gui/draw/bitmap.h>
 #include <gui/ctrl/file_tree.h>
 
@@ -221,7 +221,7 @@ namespace gui {
 
       bool is_hidden (const sys_fs::path& p) {
         std::string name = p.filename().string();
-        return basepp::string::starts_with(name, ".") && (name != "..");
+        return util::string::starts_with(name, ".") && (name != "..");
       }
 
       auto unsorted_path_info::sub_nodes(type const & n, std::function<fs::filter_fn> filter) -> range {
@@ -363,7 +363,7 @@ namespace gui {
             draw::frame::lines(g, r);
           },
           [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
-            paint::text_item(g, r, b, logging::time::format_time(tp), s, align);
+            paint::text_item(g, r, b, util::time::format_time(tp), s, align);
             draw::frame::lines(g, r);
           }
         };

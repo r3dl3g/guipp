@@ -5,7 +5,7 @@
 #include <gui/win/grid_layout.h>
 #include <gui/win/lineup_layout.h>
 #include <gui/win/attach_layout.h>
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <base/blocking_queue.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs.hpp>

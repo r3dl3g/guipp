@@ -1,7 +1,7 @@
 
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
-#include <base/string_util.h>
+#include <util/string_util.h>
 
 #define NOTHING
 
@@ -73,7 +73,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     client.init([] (const sys_fs::path& path) {
       if (sys_fs::is_regular_file(path)) {
 #ifdef WIN32
-        std::string path_str = basepp::string::utf16_to_utf8(path.c_str());
+        std::string path_str = util::string::utf16_to_utf8(path.c_str());
 #endif // WIN32
 #ifdef X11
         std::string path_str = path.c_str();

@@ -9,7 +9,7 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <logging/logger.h>
 
 #include <gui/win/dbg_win_message.h>
@@ -95,7 +95,7 @@ void vtile_drawer (std::size_t idx,
                   bool hilited) {
   using namespace draw;
 
-  std::string s = basepp::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
+  std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
   ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
                                         g, place, text_origin::vcenter_left, color::black, background.color(),
                                         selected, hilited);

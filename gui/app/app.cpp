@@ -24,7 +24,7 @@
 //
 #include <logging/dbgstream.h>
 #include <logging/logger.h>
-#include <base/string_util.h>
+#include <util/string_util.h>
 #include <gui/app/app.h>
 #include <gui/core/guidefs.h>
 #include <gui_version.h>
@@ -48,7 +48,7 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
   logging::core::instance().add_sink(&log_file, logging::level::trace, logging::core::get_standard_formatter());
 #endif // NDEBUG
 
-  std::vector<std::string> args = basepp::string::split<' '>(lpCmdLine);
+  std::vector<std::string> args = util::string::split<' '>(lpCmdLine);
   gui::core::global::init(hInstance);
 #endif // WIN32
 

@@ -19,7 +19,7 @@
 #include "image_view.h"
 #include "cvmat2pixmap.h"
 
-void image_view::set_image_and_scale (const cv::Mat& src) {
+void view::image_view::set_image_and_scale (const cv::Mat& src) {
   if (src.empty()) {
     super::set_image(gui::draw::pixmap());
   } else {

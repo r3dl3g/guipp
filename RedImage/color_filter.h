@@ -5,12 +5,18 @@
 
 #include "opencv2/core/core.hpp"
 
-struct color_filter {
-  data::hsv_range range;
+namespace proc {
 
-  color_filter ();
-  color_filter (const data::hsv_range& range);
+  struct color_filter {
+    data::hsv_range range;
 
-  float calc (const cv::Mat& hsv_image, bool erode = false);
-  float calc (const cv::Mat& hsv_image, cv::Mat mask[8], bool erode = false);
-};
+    color_filter ();
+    color_filter (const data::hsv_range& range);
+
+    cv::Mat calc (const cv::Mat& hsv_image, bool erode = false) const;
+    cv::Mat calc (const cv::Mat& hsv_image, cv::Mat mask[8], bool erode = false) const;
+
+    static float calc_portion (const cv::Mat& mask);
+  };
+
+}

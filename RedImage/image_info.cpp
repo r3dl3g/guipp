@@ -35,16 +35,21 @@ void image_info::drawer (const image_info& info,
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
-                         bool selected,
-                         bool hilited) {
+                         ctrl::item_state state) {
   using namespace draw;
-  if (selected) {
-    g.fill(draw::rectangle(place), color::very_light_blue);
-  } else if (hilited) {
-    g.fill(draw::rectangle(place), color::very_light_cyan);
-  } else {
-    g.fill(draw::rectangle(place), background);
+  using namespace ctrl;
+  switch (state) {
+    case item_state::selected:
+      g.fill(draw::rectangle(place), color::very_light_blue);
+      break;
+    case item_state::hilited:
+      g.fill(draw::rectangle(place), color::very_light_cyan);
+      break;
+    default:
+      g.fill(draw::rectangle(place), background);
+      break;
   }
+
   g.copy_from(info.image, place.top_left() + core::point(2, 2));
   core::size sz(150, 20);
   const auto p = place.top_left() + core::point(160, 5);

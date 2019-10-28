@@ -6,22 +6,37 @@
 #include <gui/win/layout_container.h>
 #include <gui/win/grid_layout.h>
 
-template<int N, int M>
-class over_view : public gui::win::group_window<gui::layout::grid_adaption<N, M, 0, 1>, gui::color::very_very_light_gray> {
-public:
-  typedef gui::win::group_window<gui::layout::grid_adaption<N, M, 0, 1>, gui::color::very_very_light_gray> super;
+namespace view {
 
-  over_view ();
+  template<int N, int M>
+  class over_view : public gui::win::group_window<gui::layout::grid_adaption<N, M, 0, 1>, gui::color::very_very_light_gray> {
+  public:
+    typedef gui::win::group_window<gui::layout::grid_adaption<N, M, 0, 1>, gui::color::very_very_light_gray> super;
 
-  image_view image_views[N * M];
+    static const int count = N * M;
 
-};
+    over_view ();
 
-template<int N, int M>
-over_view<N, M>::over_view () {
-  super::on_create([&] (gui::win::window*, const gui::core::rectangle&) {
-    for(int i = 0; i < N * M; ++i) {
-      image_views[i].create(*this);
+    void set_images (const cv::Mat source[count]);
+
+    image_view image_views[count];
+
+  };
+
+  template<int N, int M>
+  over_view<N, M>::over_view () {
+    super::on_create([&] (gui::win::window*, const gui::core::rectangle&) {
+      for(int i = 0; i < count; ++i) {
+        image_views[i].create(*this);
+      }
+    });
+  }
+
+  template<int N, int M>
+  void over_view<N, M>::set_images (const cv::Mat img[count]) {
+    for(int i = 0; i < count; ++i) {
+      image_views[i].set_image_and_scale(img[i]);
     }
-  });
-}
+  }
+
+} // namespace view

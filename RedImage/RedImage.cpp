@@ -52,6 +52,8 @@ pixmap create_text_pixmap (const std::string& str,
 class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
   typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
+  typedef view::over_view<4, 2> mask_view_type;
+
   RedImage ();
 
   void onCreated (window*, const core::rectangle&);
@@ -64,9 +66,9 @@ public:
   void show_lab ();
 
   void show_image (int i);
-  void calc_image (int i);
+  void calc_image ();
   void reset_color_range (int i);
-  void calc_image_and_show (int i, bool calc_rest_img = true);
+  void calc_image_and_show ();
 
   cv::Vec3b get_hsv_at (const core::size& win_size, const core::point& pt);
   void set_hsv_for (const cv::Vec3b& hsv, int i);
@@ -77,7 +79,6 @@ public:
   void set_hsv_range_for (const data::hsv_range& hsv, int i);
 
   void calc_all_and_show ();
-  void calc_rest ();
 
   void calc_color (int i);
 
@@ -85,6 +86,7 @@ public:
   void show_filter_view ();
   void show_folder_view ();
   void show_mask_view ();
+  void show_hsv_view ();
 
   void reset_current_color_range ();
 
@@ -113,19 +115,20 @@ private:
   popup_menu view_sub_menu;
   popup_menu help_sub_menu;
 
-  status_bar status;
-
   pixmap hook_icon;
   pixmap cross_icon;
 
-  over_view<3, 3> filter_view;
-  image_view full_image_view;
-  thumb_view folder_view;
-  over_view<4, 2> mask_view;
+  view::status_bar status;
+
+  view::over_view<3, 3> filter_view;
+  view::image_view full_image_view;
+  view::thumb_view folder_view;
+  mask_view_type mask_view;
+  view::over_view<3, 2> hsv_view;
 
   int curent_full_image_view;
 
-  side_bar colors;
+  view::side_bar colors;
 
   bool learning_mode;
 
@@ -136,7 +139,7 @@ private:
   cv::Mat hsv_image;
   cv::Mat lab_image;
 
-  float portions[side_bar::COLOR_COUNT];
+  float portions[3];
 
   cv::Mat image[8];
 
@@ -153,7 +156,9 @@ RedImage::RedImage ()
   , curent_full_image_view(-1)
   , is_active(true)
 {
-  portions[0] = portions[1] = 0.0F;
+  for (auto& p : portions) {
+    p = 0.0F;
+  }
   on_create(basepp::bind_method(this, &RedImage::onCreated));
 
   on_destroy([&]() {
@@ -184,7 +189,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::load), hot_key(keys::o, state::control), false),
     menu_entry("Save", 's', basepp::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
     menu_entry("SaveAs", 'a', basepp::bind_method(this, &RedImage::saveAs), hot_key(keys::s, state::control|state::shift), false),
-    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::open_image), hot_key(keys::l, state::control), true),
+    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::open_image), hot_key(keys::i, state::control), true),
     menu_entry("Open directory", 'd', basepp::bind_method(this, &RedImage::open_folder), hot_key(keys::d, state::control), false),
     menu_entry("Exit", 'x', basepp::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
@@ -198,16 +203,17 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.add_entries({
     menu_entry("Leaning mode", 'l', basepp::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
     menu_entry("Calc all", 'a', basepp::bind_method(this, &RedImage::calc_all_and_show), hot_key(keys::a, state::control), false),
-    menu_entry("Original", 'o', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control), true),
-    menu_entry("HSV Image", 'h', basepp::bind_method(this, &RedImage::show_hsv), hot_key(keys::h, state::control), false),
-    menu_entry("Lab Image", 'l', basepp::bind_method(this, &RedImage::show_lab), hot_key(keys::b, state::control), false),
+    menu_entry("Original", 'o', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control|state::alt), true),
+    menu_entry("HSV Image", 'h', basepp::bind_method(this, &RedImage::show_hsv), hot_key(keys::h, state::control|state::alt), false),
+    menu_entry("Lab Image", 'l', basepp::bind_method(this, &RedImage::show_lab), hot_key(keys::b, state::control|state::alt), false),
     menu_entry("Reset range", 'r', basepp::bind_method(this, &RedImage::reset_current_color_range), hot_key(keys::r, state::control), true),
   });
 
   view_sub_menu.data.add_entries({
-    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::v, state::control), false),
-    menu_entry("Directory View", 'd', basepp::bind_method(this, &RedImage::show_folder_view), hot_key(keys::f, state::control), false),
+    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
+    menu_entry("Directory View", 'd', basepp::bind_method(this, &RedImage::show_folder_view), hot_key(keys::g, state::control), false),
     menu_entry("Masks View", 'm', basepp::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
+    menu_entry("HSV View", 'm', basepp::bind_method(this, &RedImage::show_hsv_view), hot_key(keys::h, state::control), false),
     menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), true),
     menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
     menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),
@@ -217,8 +223,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Full View Image 7", '7', [&] () { RedImage::show_full_image(6); }, hot_key('7', state::control), false),
     menu_entry("Full View Image 8", '8', [&] () { RedImage::show_full_image(7); }, hot_key('8', state::control), false),
     menu_entry("Full View Image 9", '9', [&] () { RedImage::show_full_image(8); }, hot_key('9', state::control), false),
-    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::none), true),
-    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::none), false),
+    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::alt), true),
+    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::alt), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -238,9 +244,10 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   mask_view.create(*this);
   full_image_view.create(*this);
   folder_view.create(*this);
+  hsv_view.create(*this);
   filter_view.create(*this);
 
-  for(int i = 0; i < 9; ++i) {
+  for(int i = 0; i < filter_view.count; ++i) {
     filter_view.image_views[i].on_left_btn_dblclk([&, i] (os::key_state, const core::point) {
       show_full_image(i);
     });
@@ -262,6 +269,12 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     show_hsv_value(get_hsv_at(full_image_view.size(), pt));
     show_lab_value(get_lab_at(full_image_view.size(), pt));
   });
+  for(view::image_view& v : hsv_view.image_views) {
+    v.on_mouse_move([&] (os::key_state, const core::point& pt) {
+      show_hsv_value(get_hsv_at(v.size(), pt));
+      show_lab_value(get_lab_at(v.size(), pt));
+    });
+  }
 
   folder_view.on_selection_commit([&] () {
     auto idx = folder_view.get_selection();
@@ -274,53 +287,52 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   get_layout().set_center_top_bottom_left_right(&filter_view, &menu, &status, &colors, nullptr);
 
-  for (int i = 0; i < side_bar::COLOR_COUNT; ++i) {
+  for (int i = 0; i < view::side_bar::COLOR_COUNT; ++i) {
     filter_view.image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
       if (learning_mode) {
         set_hsv_range_for(get_hsv_range_at(filter_view.image_views[i + 1].size(), pt, core::size(5, 5)), i);
       }
     });
-    colors.colors[i].hue.min_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].hue.scrolls.min_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].hue.max_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].hue.scrolls.max_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].saturation.min_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].saturation.scrolls.min_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].saturation.max_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].saturation.scrolls.max_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].value.min_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].value.scrolls.min_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].value.max_scroll.on_scroll([&, i](core::point::type){
+    colors.colors[i].value.scrolls.max_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].hue.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].hue.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
-    colors.colors[i].hue.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].hue.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
-    colors.colors[i].saturation.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].saturation.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
-    colors.colors[i].saturation.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].saturation.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
-    colors.colors[i].value.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].value.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
-    colors.colors[i].value.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
-      calc_image_and_show(i);
+    colors.colors[i].value.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+      calc_image_and_show();
     });
   }
 
   set_children_visible();
-  full_image_view.to_back();
-  folder_view.to_back();
+  filter_view.to_front();
 }
 //-----------------------------------------------------------------------------
 data::hsv_range RedImage::get_hsv_range_at (const core::size& win_size, const core::point& pt, const core::size& sz) {
@@ -352,7 +364,7 @@ data::hsv_range RedImage::get_hsv_range_at (const core::size& win_size, const co
 //-----------------------------------------------------------------------------
 void RedImage::set_hsv_range_for (const data::hsv_range& hsv, int i) {
   colors.colors[i].set(hsv);
-  calc_image_and_show(i);
+  calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
 cv::Vec3b RedImage::get_hsv_at (const core::size& win_size, const core::point& pt) {
@@ -385,15 +397,12 @@ void RedImage::set_hsv_for (const cv::Vec3b& hsv, int i) {
   colors.colors[i].hue.set_range(hsv[0] - 1, hsv[0] + 1);
   colors.colors[i].saturation.set_range(70, 255);
   colors.colors[i].value.set_range(70, 255);
-  calc_image_and_show(i);
+  calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_full_image (int i) {
   cv::Mat src = (i == 0 ? raw_image : image[i - 1]);
   if (!src.empty()) {
-    filter_view.to_back();
-    folder_view.to_back();
-    mask_view.to_back();
     full_image_view.to_front();
     get_layout().set_center(&full_image_view);
     super::layout();
@@ -404,9 +413,6 @@ void RedImage::show_full_image (int i) {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_filter_view () {
-  full_image_view.to_back();
-  folder_view.to_back();
-  mask_view.to_back();
   filter_view.to_front();
   get_layout().set_center(&filter_view);
   super::layout();
@@ -414,20 +420,20 @@ void RedImage::show_filter_view () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_folder_view () {
-  full_image_view.to_back();
-  filter_view.to_back();
-  mask_view.to_back();
   folder_view.to_front();
   get_layout().set_center(&folder_view);
   super::layout();
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_mask_view () {
-  full_image_view.to_back();
-  folder_view.to_back();
-  filter_view.to_back();
   mask_view.to_front();
   get_layout().set_center(&mask_view);
+  super::layout();
+}
+//-----------------------------------------------------------------------------
+void RedImage::show_hsv_view () {
+  hsv_view.to_front();
+  get_layout().set_center(&hsv_view);
   super::layout();
 }
 //-----------------------------------------------------------------------------
@@ -439,9 +445,6 @@ void RedImage::toggle_learning () {
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {
   filter_view.image_views[0].set_image_and_scale(raw_image);
-  for (int i = 2; i < 8; ++i) {
-    filter_view.image_views[i + 1].set_image_and_scale(image[i]);
-  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_hsv () {
@@ -487,59 +490,72 @@ void RedImage::calc_color (int i) {
   colors.colors[i].colors.max_color.set_hsv_color(h.max(), s.max(), v.max());
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_image (int i) {
-  if (hsv_image.empty()) {
-    return;
+void calc_image (const cv::Mat& hsv_image,
+                 const proc::color_filter& bad_filter,
+                 const proc::color_filter& off_filter,
+                 float portions[3],
+                 cv::Mat mask[3],
+                 RedImage::mask_view_type* mask_view = nullptr) {
+
+  cv::Mat proc_mask[8];
+  mask[0] = bad_filter.calc(hsv_image, proc_mask, true);
+  if (mask_view) {
+    mask_view->set_images(proc_mask);
   }
+  mask[1] = off_filter.calc(hsv_image, proc_mask, true);
+  cv::bitwise_and(mask[0], ~mask[1], mask[2]);
 
-  color_filter proc(colors.colors[i].get());
-
-  cv::Mat mask[8];
-  portions[i] = proc.calc(hsv_image, mask, true);
-
-  image[i].setTo(cv::Scalar(0, 0, 0));
-  raw_image.copyTo(image[i], mask[0]);
-//  mask[0].copyTo(image[i + 3]);
-  if (i == 0) {
-    for (int m = 0; m < 8; ++m) {
-      mask_view.image_views[m].set_image_and_scale(mask[m]);
-    }
-  }
+  portions[0] = proc::color_filter::calc_portion(mask[0]);
+  portions[1] = proc::color_filter::calc_portion(mask[1]);
+  portions[2] = proc::color_filter::calc_portion(mask[2]);
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_image_and_show (int i, bool calc_rest_img) {
+void RedImage::calc_image () {
   if (hsv_image.empty()) {
     return;
   }
-  calc_image(i);
 
-  show_image(i);
-//  show_image(i + 3);
-  if (calc_rest_img) {
-    calc_rest();
+  ::calc_image(hsv_image,
+               proc::color_filter(colors.colors[0].get()),
+               proc::color_filter(colors.colors[1].get()),
+               portions, image + 2, &mask_view);
+
+  image[5].setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(image[5], image[2]);
+
+  image[6].setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(image[6], image[3]);
+
+  image[0].setTo(cv::Scalar(255, 255, 255));
+  raw_image.copyTo(image[0], ~image[4]);
+
+  image[1] = cv::Mat(raw_image.rows, raw_image.cols, raw_image.type());
+  image[1].setTo(cv::Scalar(0, 0, 0));
+  raw_image.copyTo(image[1], image[4]);
+
+}
+//-----------------------------------------------------------------------------
+void RedImage::calc_image_and_show () {
+  if (hsv_image.empty()) {
+    return;
   }
+  calc_image();
+
+  for (int i = 0; i < 7; ++i) {
+    show_image(i);
+  }
+
   calc_status();
   if (curent_full_image_view > -1) {
     show_full_image(curent_full_image_view);
   }
 }
 //-----------------------------------------------------------------------------
-void RedImage::calc_rest () {
-//  cv::Mat mask = image[3] + image[4];
-//  image[2].setTo(cv::Scalar(255, 255, 255));
-//  raw_image.copyTo(image[2], ~mask);
-
-//  show_image(2);
-}
-//-----------------------------------------------------------------------------
 void RedImage::calc_all_and_show () {
   if (get_layout().get_center() == &folder_view) {
     calc_folder();
   } else {
-    for (int i = 0; i < 2; ++i) {
-      calc_image_and_show(i, false);
-    }
-    calc_rest();
+    calc_image_and_show();
   }
 }
 //-----------------------------------------------------------------------------
@@ -551,7 +567,7 @@ void RedImage::reset_current_color_range () {
 //-----------------------------------------------------------------------------
 void RedImage::reset_color_range (int i) {
   colors.colors[i].reset();
-  calc_image(i);
+  calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
 void RedImage::quit () {
@@ -573,12 +589,12 @@ void RedImage::quit () {
 //-----------------------------------------------------------------------------
 bool is_jpeg (const sys_fs::directory_entry& i) {
   auto ext = i.path().extension();
-  return !(ext == ".jpg") && !(ext == ".jpeg") && !(ext == ".JPG") && !(ext == ".JPEG");
+  return !(ext == ".jpg") && !(ext == ".jpeg") && !(ext == ".JPG") && !(ext == ".JPEG") && !(i.status().type() == sys_fs::file_type::directory);
 }
 //-----------------------------------------------------------------------------
 bool is_xml (const sys_fs::directory_entry& i) {
   auto ext = i.path().extension();
-  return !(ext == ".xml") && !(ext == ".XML");
+  return !(ext == ".xml") && !(ext == ".XML") && !(i.status().type() == sys_fs::file_type::directory);
 }
 //-----------------------------------------------------------------------------
 void RedImage::open_image () {
@@ -601,7 +617,9 @@ void load_image (const sys_fs::path& file, cv::Mat& raw, cv::Mat& hsv) {
 void RedImage::load_image (const sys_fs::path& file) {
   if (sys_fs::exists(file)) {
     image_path = file;
-    portions[0] = portions[1] = 0.0F;
+    for (auto& p : portions) {
+      p = 0.0F;
+    }
     calc_title();
     settings.last_path(file.parent_path().string());
 
@@ -609,16 +627,20 @@ void RedImage::load_image (const sys_fs::path& file) {
     cv::Mat channels[3];
     cv::split(hsv_image, channels);
 
-    cv::applyColorMap(channels[0], image[2], cv::COLORMAP_HSV);
-    cv::applyColorMap(channels[1], image[3], cv::COLORMAP_HSV);
-    cv::applyColorMap(channels[2], image[4], cv::COLORMAP_HSV);
+    for (int i = 0; i < 3; ++i) {
+      cv::Mat colored_channel;
+      cv::applyColorMap(channels[i], colored_channel, cv::COLORMAP_HSV);
+      hsv_view.image_views[i].set_image_and_scale(colored_channel);
+    }
 
     cv::cvtColor(raw_image, lab_image, cv::COLOR_BGR2Lab);
     cv::split(lab_image, channels);
 
-    cv::applyColorMap(channels[0], image[5], cv::COLORMAP_HSV);
-    cv::applyColorMap(channels[1], image[6], cv::COLORMAP_HSV);
-    cv::applyColorMap(channels[2], image[7], cv::COLORMAP_HSV);
+    for (int i = 0; i < 3; ++i) {
+      cv::Mat colored_channel;
+      cv::applyColorMap(channels[i], colored_channel, cv::COLORMAP_HSV);
+      hsv_view.image_views[i + 3].set_image_and_scale(colored_channel);
+    }
 
     raw_image.copyTo(image[0]);
     raw_image.copyTo(image[1]);
@@ -631,7 +653,9 @@ void RedImage::load_image (const sys_fs::path& file) {
 void RedImage::load () {
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     settings_path = file;
-    portions[0] = portions[1] = 0.0F;
+    for (auto& p : portions) {
+      p = 0.0F;
+    }
     calc_title();
     calc_status();
 
@@ -701,9 +725,9 @@ void RedImage::calc_status () {
     }
     buffer << "Off: " << (portions[1] * 100.0F) << "%";
   }
-  if ((portions[0] != 0.0F) && (portions[1] != 0.0F)) {
-    float good = 1.0F - (portions[0] + portions[1]);
-    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[0] /*/ good*/) * 100.0F << "%";
+  if (portions[2] != 0.0F) {
+    float good = 1.0F - (portions[2]);
+    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[2] /*/ good*/) * 100.0F << "%";
   }
   status.labels[1].set_text(buffer.str());
 }
@@ -734,8 +758,8 @@ void RedImage::calc_folder () {
 
   calculation_threads.start([=] (worker::queue& queue) {
 
-    color_filter bad_filter(bad_range);
-    color_filter off_filter(off_range);
+    proc::color_filter bad_filter(bad_range);
+    proc::color_filter off_filter(off_range);
 
     int idx = -1;
     while (queue.try_dequeue(idx)) {
@@ -749,12 +773,13 @@ void RedImage::calc_folder () {
       cv::Mat raw, hsv;
       ::load_image(info.filename, raw, hsv);
 
-      const float bad_portion = bad_filter.calc(hsv);
-      const float off_portion = off_filter.calc(hsv);
+      float portions[3];
+      cv::Mat mask[3];
+      ::calc_image(hsv, bad_filter, off_filter, portions, mask);
 
-      info.bad = bad_portion * 100.0F;
-      info.off = off_portion * 100.0F;
-      info.good = (1.0F - (bad_portion + off_portion)) * 100.0F;
+      info.bad = portions[0] * 100.0F;
+      info.off = portions[1] * 100.0F;
+      info.good = (1.0F - portions[2]) * 100.0F;
       info.quality = info.bad;// / info.good * 100.0F;
 
       // thumbnail

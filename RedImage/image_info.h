@@ -26,7 +26,6 @@ struct image_info {
                       const gui::draw::graphics& g,
                       const gui::core::rectangle& place,
                       const gui::draw::brush& background,
-                      bool selected,
-                      bool hilited);
+                      gui::ctrl::item_state state);
 
 };

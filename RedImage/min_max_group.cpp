@@ -1,7 +1,7 @@
 
 #include "min_max_group.h"
 
-min_max_group::min_max_group (byte min, byte max) {
+view::min_max_group::min_max_group (byte min, byte max) {
   on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
     main_label.create(*this);
     min_label.create(*this, "Min:");

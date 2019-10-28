@@ -25,9 +25,13 @@
 #include <gui/ctrl/image.h>
 #include <opencv2/core/core.hpp>
 
-class image_view : public gui::ctrl::image {
-public:
-  typedef gui::ctrl::image super;
+namespace view {
 
-  void set_image_and_scale (const cv::Mat& source);
-};
+  class image_view : public gui::ctrl::image {
+  public:
+    typedef gui::ctrl::image super;
+
+    void set_image_and_scale (const cv::Mat& source);
+  };
+
+} // namespace view

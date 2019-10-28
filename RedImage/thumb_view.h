@@ -5,14 +5,18 @@
 
 #include <gui/ctrl/tile_view.h>
 
-class thumb_view : public gui::ctrl::vertical_tile_view {
-public:
-  typedef gui::ctrl::vertical_tile_view super;
-  typedef gui::ctrl::simple_list_data<image_info, image_info::drawer> image_info_list;
+namespace view {
 
-  thumb_view ();
+  class thumb_view : public gui::ctrl::vertical_tile_view {
+  public:
+    typedef gui::ctrl::vertical_tile_view super;
+    typedef gui::ctrl::simple_list_data<image_info, image_info::drawer> image_info_list;
 
-  void update_list ();
+    thumb_view ();
 
-  image_info_list list;
-};
+    void update_list ();
+
+    image_info_list list;
+  };
+
+} // namespace view

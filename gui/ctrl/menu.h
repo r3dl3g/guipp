@@ -161,9 +161,7 @@ namespace gui {
                       const win::hot_key& hotkey,
                       bool is_sub_menu,
                       bool separator,
-                      bool selected,
-                      bool hilited,
-                      bool disabled);
+                      item_state state);
 
       // --------------------------------------------------------------------------
       GUIPP_CTRL_EXPORT void main_menu_item (const draw::graphics& g,
@@ -171,9 +169,7 @@ namespace gui {
                            const draw::brush& background,
                            const std::string& label,
                            char menu_key,
-                           bool selected,
-                           bool hilited,
-                           bool disabled);
+                           item_state state);
 
       // --------------------------------------------------------------------------
     } // namespace paint
@@ -222,6 +218,8 @@ namespace gui {
       void set_hilite (int sel);
       void clear_hilite ();
       void rotate_hilite (int delta = 1);
+
+      item_state get_item_state (int idx) const;
 
       void set_close_function(close_call);
       void clear_close_function ();

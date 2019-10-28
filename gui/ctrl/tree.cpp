@@ -67,14 +67,17 @@ namespace gui {
                       const draw::masked_bitmap& icon,
                       bool has_children,
                       bool is_open,
-                      bool selected,
-                      bool hilited) {
-        if (selected) {
-          graph.fill(draw::rectangle(area), color::highLightColor());
-        } else if (hilited) {
-          graph.fill(draw::rectangle(area), color::buttonHighLightColor());
-        } else {
-          graph.fill(draw::rectangle(area), background);
+                      item_state state) {
+        switch (state) {
+          case item_state::selected:
+            graph.fill(draw::rectangle(area), color::highLightColor());
+            break;
+          case item_state::hilited:
+            graph.fill(draw::rectangle(area), color::buttonHighLightColor());
+            break;
+          default:
+            graph.fill(draw::rectangle(area), background);
+            break;
         }
 
         core::rectangle r = area + core::point(core::point::type(depth * 16), 0);
@@ -94,8 +97,8 @@ namespace gui {
         }
 
         r.x2(area.x2());
-        os::color col = selected ? color::highLightTextColor()
-                                 : color::black;
+        os::color col = item_state::selected == state ? color::highLightTextColor()
+                                                      : color::black;
         graph.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
       }
 

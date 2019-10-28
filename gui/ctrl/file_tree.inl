@@ -134,10 +134,9 @@ namespace gui {
         const draw::graphics& g,
         const core::rectangle& r,
         const draw::brush& b,
-        bool selected,
-        bool) {
+        item_state state) {
         const fs::file_info& path = current_dir[idx];
-        paint::text_item(g, r, b, path.filename(), selected, text_origin::vcenter_left);
+        paint::text_item(g, r, b, path.filename(), state, text_origin::vcenter_left);
       });
     }
 

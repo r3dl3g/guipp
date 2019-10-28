@@ -51,6 +51,7 @@ namespace gui {
         std::size_t get_count () const;
         int get_selection () const;
         int get_hilite () const;
+        item_state get_item_state (int idx) const;
 
         os::color get_background () const;
         core::point get_last_mouse_point () const;
@@ -65,8 +66,7 @@ namespace gui {
                                       const draw::graphics&,
                                       const core::rectangle& place,
                                       const draw::brush& background,
-                                      bool selected,
-                                      bool hilited);
+                                      item_state state);
 
         void set_drawer (const std::function<draw_list_item>& drawer);
         void set_drawer (std::function<draw_list_item>&& drawer);
@@ -76,8 +76,7 @@ namespace gui {
                         const draw::graphics&,
                         const core::rectangle& place,
                         const draw::brush& background,
-                        bool selected,
-                        bool hilited) const;
+                        item_state state) const;
 
         struct data {
           data (os::color background = color::white);
@@ -104,9 +103,8 @@ namespace gui {
                                    const draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
-                                   bool selected,
-                                   bool) {
-      paint::text_item(g, place, background, convert_to_string<T>(t), selected, text_origin::vcenter_left);
+                                   item_state state) {
+      paint::text_item(g, place, background, convert_to_string<T>(t), state, text_origin::vcenter_left);
     }
 
     template<typename T>
@@ -114,8 +112,7 @@ namespace gui {
                                       const draw::graphics&,
                                       const core::rectangle&,
                                       const draw::brush&,
-                                      bool,
-                                      bool);
+                                      item_state);
 
     // static data for list.
     // --------------------------------------------------------------------------
@@ -140,8 +137,7 @@ namespace gui {
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected,
-                       bool hilited);
+                       item_state state);
 
     };
 

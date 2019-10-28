@@ -32,10 +32,9 @@ namespace gui {
                              const text_origin align,
                              const os::color& foreground,
                              const os::color& background,
-                             bool selected,
-                             bool hilited) {
+                             item_state state) {
         text_cell<std::string, draw::frame::no_frame>(convert_to_string(t), graph, place, align,
-                                                      foreground, background, selected, hilited);
+                                                      foreground, background, state);
         F(graph, place);
       }
 

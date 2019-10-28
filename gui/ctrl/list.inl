@@ -46,6 +46,16 @@ namespace gui {
         return data.hilite;
       }
 
+      inline item_state list_base::get_item_state (int idx) const {
+        if (get_selection() == idx) {
+          return item_state::selected;
+        } else if (get_hilite() == idx) {
+          return item_state::hilited;
+        } else {
+          return item_state::normal;
+        }
+      }
+
       inline os::color list_base::get_background () const {
         return data.background;
       }
@@ -104,9 +114,8 @@ namespace gui {
                                                     const draw::graphics& g,
                                                     const core::rectangle& place,
                                                     const draw::brush& background,
-                                                    bool selected,
-                                                    bool hilited) {
-      F(super::at(idx), g, place, background, selected, hilited);
+                                                    item_state state) {
+      F(super::at(idx), g, place, background, state);
     }
 
     // --------------------------------------------------------------------------
@@ -708,7 +717,7 @@ namespace gui {
       super::traits.set(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
 
       for (auto idx = first; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
-        super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
+        super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
         super::traits.set(place, super::traits.get(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
       }
 

@@ -421,13 +421,14 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
                           const graphics& g,
                           const core::rectangle& place,
                           const brush& /*background*/,
-                          bool selected,
-                          bool hilited) {
-    g.fill(rectangle(place), selected ? color::dark_red : (hilited ? color::very_light_gray : color::light_gray));
-    if (!selected) {
+                          item_state state) {
+    g.fill(rectangle(place), item_state::selected == state ? color::dark_red
+                                                           : (item_state::selected == state ? color::very_light_gray
+                                                                                            : color::light_gray));
+    if (item_state::selected != state) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), selected ? color::light_yellow : color::black);
+    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
   left_list.on_hilite_changed([&](bool){

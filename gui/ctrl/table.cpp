@@ -35,6 +35,22 @@ namespace gui {
 
     namespace paint {
 
+      os::color get_back_color (item_state state, const os::color& background) {
+        switch (state) {
+          case item_state::selected:  return color::highLightColor();
+          case item_state::hilited:   return color::darker(background, 0.05F);
+          default: return background;
+        }
+      }
+
+      os::color get_fore_color (item_state state, const os::color& foreground) {
+        switch (state) {
+          case item_state::selected:  return color::highLightTextColor();
+          case item_state::hilited:   return color::darker(foreground, 0.25F);
+          default: return foreground;
+        }
+      }
+
       template<>
       void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
                                                          const draw::graphics& graph,
@@ -42,17 +58,10 @@ namespace gui {
                                                          const text_origin align,
                                                          const os::color& foreground,
                                                          const os::color& background,
-                                                         bool selected,
-                                                         bool hilited) {
+                                                         item_state state) {
         using namespace draw;
-        const os::color back = (selected ? color::highLightColor()
-                                         : (hilited ? color::darker(background, 0.05F)
-                                                    : background));
-        const os::color fore = (selected ? color::highLightTextColor()
-                                         : (hilited ? color::darker(foreground, 0.25F)
-                                                    : foreground));
-        graph.fill(rectangle(place), back);
-        graph.text(text_box(t, place, align), font::system(), fore);
+        graph.fill(rectangle(place), get_back_color(state, background));
+        graph.text(text_box(t, place, align), font::system(), get_fore_color(state, foreground));
       }
 
     } // namespace paint
@@ -183,6 +192,18 @@ namespace gui {
       // --------------------------------------------------------------------------
       namespace paint {
 
+        item_state get_cell_item_state (const std::function<filter::selection_and_hilite>& selection_filter,
+                                        const std::function<filter::selection_and_hilite>& hilite_filter,
+                                        const position& cell, const metric& geometrie) {
+          if (selection_filter(cell, geometrie)) {
+            return item_state::selected;
+          } else if (hilite_filter(cell, geometrie)) {
+            return item_state::hilited;
+          } else {
+            return item_state::normal;
+          }
+        }
+
         void draw_table_data (const draw::graphics& graph,
                               const core::rectangle& place,
                               const metric& geometrie,
@@ -237,8 +258,7 @@ namespace gui {
                          aligns.get_cell(paint_cell),
                          foregrounds.get_cell(paint_cell),
                          backgrounds.get_cell(paint_cell),
-                         selection_filter(paint_cell, geometrie),
-                         hilite_filter(paint_cell, geometrie));
+                         get_cell_item_state(selection_filter, hilite_filter, cell, geometrie));
                 }
 
                 x += width;
@@ -271,8 +291,7 @@ namespace gui {
                      aligns.get(cell.x()),
                      foregrounds.get(cell.x()),
                      backgrounds.get(cell.x()),
-                     selection_filter(cell, geometrie),
-                     hilite_filter(cell, geometrie));
+                     get_cell_item_state(selection_filter, hilite_filter, cell, geometrie));
 
               x += width;
               cell.x(1 + cell.x());
@@ -302,8 +321,7 @@ namespace gui {
                      aligns.get(cell.y()),
                      foregrounds.get(cell.y()),
                      backgrounds.get(cell.y()),
-                     selection_filter(cell, geometrie),
-                     hilite_filter(cell, geometrie));
+                     get_cell_item_state(selection_filter, hilite_filter, cell, geometrie));
 
               y += height;
               cell.y(1 + cell.y());
@@ -321,11 +339,10 @@ namespace gui {
                       const text_origin align,
                       const os::color & foreground,
                       const os::color & background,
-                      bool selected,
-                      bool hilited) {
+                      item_state state) {
                  ctrl::paint::text_cell<std::string, draw::frame::lines>(src(cell), graph, place,
                                                                         align, foreground, background,
-                                                                        selected, hilited);
+                                                                        state);
         };
       }
 
@@ -337,11 +354,10 @@ namespace gui {
                       const text_origin align,
                       const os::color & foreground,
                       const os::color & background,
-                      bool selected,
-                      bool hilited) {
+                      item_state state) {
                  ctrl::paint::text_cell<std::string, draw::frame::raised_relief>(src(cell), graph, place,
                                                                                 align, foreground, background,
-                                                                                selected, hilited);
+                                                                                state);
         };
       }
 

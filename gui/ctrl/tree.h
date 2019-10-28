@@ -50,8 +50,7 @@ namespace gui {
                       const draw::masked_bitmap& icon,
                       bool has_children,
                       bool is_open,
-                      bool selected,
-                      bool hilited);
+                      item_state state);
 
     } // paint
 
@@ -73,12 +72,11 @@ namespace gui {
                              std::size_t depth,
                              bool has_children,
                              bool is_open,
-                             bool selected,
-                             bool hilited) {
+                             item_state state) {
         paint::tree_node(g, r, b, depth,
                          I::label(t),
-                         I::icon(t, has_children, is_open, selected),
-                         has_children, is_open, selected, hilited);
+                         I::icon(t, has_children, is_open, item_state::selected == state),
+                         has_children, is_open, state);
       }
 
       // --------------------------------------------------------------------------
@@ -145,8 +143,7 @@ namespace gui {
                              const draw::graphics& g,
                              const core::rectangle& r,
                              const draw::brush& b,
-                             bool selected,
-                             bool hilited);
+                             item_state state);
 
       private:
         roots_list roots;

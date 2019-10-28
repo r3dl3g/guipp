@@ -34,8 +34,7 @@ namespace gui {
                                    const draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
-                                   bool selected,
-                                   bool);
+                                   item_state state);
 
     // static data for list.
     // --------------------------------------------------------------------------

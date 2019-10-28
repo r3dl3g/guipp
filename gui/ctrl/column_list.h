@@ -289,8 +289,7 @@ namespace gui {
                        const draw::graphics& graph,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected,
-                       bool,
+                       item_state state,
                        text_origin align);
 
     };
@@ -307,8 +306,7 @@ namespace gui {
                                const draw::graphics&,  // g
                                const core::rectangle&, // place
                                const draw::brush&,     // background
-                               bool,                   // selected
-                               bool,                   // hilited
+                               item_state,             // state
                                text_origin);           // align
 
       simple_column_list (core::size::type item_size = 20,
@@ -328,8 +326,7 @@ namespace gui {
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected,
-                       bool hilited);
+                       item_state state);
 
       std::function<cell_draw> drawer;
     };
@@ -367,8 +364,7 @@ namespace gui {
                       const draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
-                      bool selected,
-                      bool,
+                      item_state state,
                       text_origin align);
 
     // --------------------------------------------------------------------------
@@ -377,8 +373,7 @@ namespace gui {
                                    const draw::graphics& g,
                                    const core::rectangle& place,
                                    const draw::brush& background,
-                                   bool selected,
-                                   bool hilited,
+                                   item_state state,
                                    text_origin align);
 
     // --------------------------------------------------------------------------
@@ -420,8 +415,7 @@ namespace gui {
                       const core::rectangle& place,
                       core::point::type x,
                       const draw::brush& background,
-                      bool selected,
-                      bool hilited);
+                      item_state state);
 
       template<std::size_t I, typename T, typename ... Args>
       void draw_cell (const row& data,
@@ -430,16 +424,14 @@ namespace gui {
                       const core::rectangle& r,
                       core::point::type x,
                       const draw::brush& background,
-                      bool selected,
-                      bool hilited);
+                      item_state state);
 
       void operator() (const row& data,
                        const layout_type& l,
                        const draw::graphics& g,
                        const core::rectangle& place,
                        const draw::brush& background,
-                       bool selected,
-                       bool hilited);
+                       item_state state);
     };
 
     // --------------------------------------------------------------------------
@@ -459,8 +451,7 @@ namespace gui {
                                      const draw::graphics&,  // g
                                      const core::rectangle&, // place
                                      const draw::brush&,     // background
-                                     bool,                   // selected
-                                     bool);                  // hilited
+                                     item_state);            // state
 
       typedef std::function<get_row_data_t> data_provider;
       typedef std::function<draw_row_data_t> data_drawer;
@@ -479,8 +470,7 @@ namespace gui {
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& back,
-                         bool selected,
-                         bool hilited);
+                         item_state state);
 
       data_drawer drawer;
       data_provider data;

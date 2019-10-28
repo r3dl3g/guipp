@@ -28,9 +28,8 @@ namespace gui {
                                           const draw::graphics& g,
                                           const core::rectangle& place,
                                           const draw::brush& background,
-                                          bool selected,
-                                          bool) {
-      paint::text_item(g, place, background, convert_to_string<T>(t), selected, text_origin::center);
+                                          item_state state) {
+      paint::text_item(g, place, background, convert_to_string<T>(t), state, text_origin::center);
     }
 
     // --------------------------------------------------------------------------
@@ -229,7 +228,7 @@ namespace gui {
         const auto start = super::traits.get(place.top_left());
 
         for (; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
-          super::draw_item(idx, graph, place, back_brush, super::get_selection() == idx, super::get_hilite() == idx);
+          super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
           if (isp > 0) {
             super::traits.set_other(place, super::traits.get_other(place.bottom_right()), isp);
             graph.fill(draw::rectangle(place), back_brush);

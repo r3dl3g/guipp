@@ -73,8 +73,7 @@ namespace gui {
                            const core::rectangle& r,
                            const draw::brush& background,
                            const std::string& label,
-                           bool selected,
-                           bool hilited);
+                           item_state state);
 
       GUIPP_CTRL_EXPORT void drop_down_button (const draw::graphics& graph,
                              const core::rectangle& r,
@@ -89,10 +88,8 @@ namespace gui {
                                    const draw::graphics& g,
                                    const core::rectangle& r,
                                    const draw::brush& b,
-                                   bool selected,
-                                   bool hilited) {
-      paint::drop_down_item(g, r, b, convert_to_string(t),
-                            selected, hilited);
+                                   item_state state) {
+      paint::drop_down_item(g, r, b, convert_to_string(t), state);
     }
 
     template<typename T>
@@ -100,8 +97,7 @@ namespace gui {
                                       const draw::graphics&,
                                       const core::rectangle&,
                                       const draw::brush&,
-                                      bool,
-                                      bool);
+                                      item_state);
 
     // --------------------------------------------------------------------------
     template<typename T,

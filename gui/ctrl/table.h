@@ -44,8 +44,7 @@ namespace gui {
                       const text_origin align,
                       const os::color& foreground,
                       const os::color& background,
-                      bool selected,
-                      bool hilited);
+                      item_state state);
 
       template<>
       GUIPP_CTRL_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
@@ -54,8 +53,7 @@ namespace gui {
                                                          const text_origin align,
                                                          const os::color& foreground,
                                                          const os::color& background,
-                                                         bool selected,
-                                                         bool hilited);
+                                                         item_state state);
 
     } // namespace paint
 
@@ -72,8 +70,7 @@ namespace gui {
                                  const text_origin,      // align
                                  const os::color&,       // foreground
                                  const os::color&,       // background
-                                 bool,                   // selected
-                                 bool);                  // hilited
+                                 item_state);            // state
 
       // --------------------------------------------------------------------------
       namespace data {

@@ -99,10 +99,9 @@ namespace gui {
                                  const draw::graphics& g,
                                  const core::rectangle& place,
                                  const draw::brush& background,
-                                 bool selected,
-                                 bool hilited) const {
+                                 item_state state) const {
         if (drawer) {
-          drawer(idx, g, place, background, selected, hilited);
+          drawer(idx, g, place, background, state);
         }
       }
 

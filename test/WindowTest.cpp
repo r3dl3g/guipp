@@ -77,13 +77,10 @@ void htile_drawer (std::size_t idx,
                   const draw::graphics& g,
                   const core::rectangle& place,
                   const draw::brush& background,
-                  bool selected,
-                  bool hilited) {
+                  ctrl::item_state state) {
   using namespace draw;
 
-  ctrl::paint::text_cell<std::size_t, F>(idx,
-                                        g, place, text_origin::center, color::black, background.color(),
-                                        selected, hilited);
+  ctrl::paint::text_cell<std::size_t, F>(idx, g, place, text_origin::center, color::black, background.color(), state);
 }
 
 template<draw::frame::drawer F = draw::frame::sunken_relief>
@@ -91,14 +88,13 @@ void vtile_drawer (std::size_t idx,
                   const draw::graphics& g,
                   const core::rectangle& place,
                   const draw::brush& background,
-                  bool selected,
-                  bool hilited) {
+                  ctrl::item_state state) {
   using namespace draw;
 
   std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
   ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
                                         g, place, text_origin::vcenter_left, color::black, background.color(),
-                                        selected, hilited);
+                                        state);
 }
 
 namespace gui {
@@ -117,15 +113,17 @@ namespace gui {
                                               const draw::graphics& graph,
                                               const core::rectangle& place,
                                               const draw::brush&,
-                                              bool selected,
-                                              bool hilited) {
+                                              item_state state) {
       graph.fill(draw::rectangle(place), c);
       graph.text(draw::text_box(win::color_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
 
-      if (hilited) {
-        graph.frame(draw::rectangle(place), color::highLightColor());
-      } else if (selected) {
-        graph.frame(draw::rectangle(place), color::black);
+      switch (state) {
+        case item_state::selected:
+          graph.frame(draw::rectangle(place), color::black);
+          break;
+        case item_state::hilited:
+          graph.frame(draw::rectangle(place), color::highLightColor());
+          break;
       }
     }
 
@@ -606,14 +604,13 @@ my_main_window::my_main_window ()
                          const draw::graphics& g,
                          const core::rectangle& place,
                          const draw::brush& background,
-                         bool selected,
-                         bool /*hilited*/) {
+                         ctrl::item_state state) {
     using namespace draw;
 
     std::ostringstream strm;
     strm << "Item " << idx;
 
-    ctrl::paint::text_item(g, place, background, strm.str(), selected);
+    ctrl::paint::text_item(g, place, background, strm.str(), state);
   };
 
   list1.set_drawer(list_drawer);
@@ -640,9 +637,8 @@ my_main_window::my_main_window ()
                         const draw::graphics& g,
                         const core::rectangle& place,
                         const draw::brush& background,
-                        bool selected,
-                        bool hilited) {
-    data(idx, g, place, background, selected, hilited);
+                        ctrl::item_state state) {
+    data(idx, g, place, background, state);
   });
   list2.set_data_source_and_target([&](int idx) {
     return data[idx];
@@ -921,8 +917,8 @@ void my_main_window::created_children () {
 
   column_list_drawer = {
     [] (const int& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush&, bool, bool, text_origin) {
-      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), false, text_origin::center);
+        const draw::brush&, ctrl::item_state state, text_origin) {
+      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -931,9 +927,9 @@ void my_main_window::created_children () {
     ctrl::cell_drawer<int, draw::frame::sunken_relief>,
 
     [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush& b, bool s, bool, text_origin align) {
+        const draw::brush& b, ctrl::item_state state, text_origin align) {
       std::string text = v ? u8"♣" : u8"♥";
-      ctrl::paint::text_item(g, r, b, text, s, align);
+      ctrl::paint::text_item(g, r, b, text, state, align);
       draw::frame::sunken_relief(g, r);
     }
   };

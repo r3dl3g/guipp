@@ -105,12 +105,16 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       const std::string& text,
-                      bool selected,
+                      item_state state,
                       text_origin origin) {
         using namespace draw;
-        g.fill(rectangle(place), selected ? color::highLightColor() : background);
-        g.text(text_box(text, place, origin), font::system(),
-               selected ? color::highLightTextColor() : color::windowTextColor());
+        g.fill(rectangle(place), item_state::selected == state ? color::highLightColor() : background);
+        os::color col = color::windowTextColor();
+        switch (state) {
+          case item_state::selected: col = color::highLightTextColor(); break;
+          case item_state::disabled: col = color::disabledTextColor(); break;
+        }
+        g.text(text_box(text, place, origin), font::system(), col);
       }
 
     } // namespace paint

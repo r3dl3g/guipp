@@ -342,19 +342,19 @@ namespace gui {
 
       file_list_row_drawer create_file_list_row_drawer () {
         return file_list_row_drawer {
-          [] (const draw::masked_bitmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin) {
+          [] (const draw::masked_bitmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin) {
             if (img) {
-              g.fill(draw::image<draw::masked_bitmap>(*img, r), s ? color::highLightColor() : b);
+              g.fill(draw::image<draw::masked_bitmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
             } else {
-              g.fill(draw::rectangle(r), s ? color::highLightColor() : b);
+              g.fill(draw::rectangle(r), item_state::selected == s ? color::highLightColor() : b);
             }
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
             paint::text_item(g, r, b, path.filename(), s, align);
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
             if (path.is_directory()) {
               paint::text_item(g, r, b, std::string(), s, align);
             } else {
@@ -362,7 +362,7 @@ namespace gui {
             }
             draw::frame::lines(g, r);
           },
-          [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+          [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
             paint::text_item(g, r, b, util::time::format_time(tp), s, align);
             draw::frame::lines(g, r);
           }

@@ -317,13 +317,12 @@ namespace gui {
                                                  const draw::graphics& g,
                                                  const core::rectangle& r,
                                                  const draw::brush& b,
-                                                 bool selected,
-                                                 bool hilited) {
+                                                 item_state state) {
         const depth_info& i = nodes[idx];
         const type& n = tree_info::dereference(i.ref);
         tree_node_drawer<I>(g, r, b, n, i.depth,
                             tree_info::has_sub_nodes(n), is_open(i.ref),
-                            selected, hilited);
+                            state);
       }
 
       template<typename I>

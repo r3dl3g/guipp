@@ -56,7 +56,14 @@ namespace gui {
             g.draw_lines({core::point(x1, y), core::point(x2, y)}, c);
           }
         }
+      }
 
+      os::color get_menu_color (item_state state) {
+        switch (state) {
+          case item_state::selected:  return color::highLightTextColor();
+          case item_state::disabled:  return color::disabledTextColor();
+          default:                    return color::menuTextColor();
+        }
       }
 
       // --------------------------------------------------------------------------
@@ -65,23 +72,21 @@ namespace gui {
                            const draw::brush& background,
                            const std::string& label,
                            char menu_key,
-                           bool selected,
-                           bool hilited,
-                           bool disabled) {
-        if (selected) {
-          g.fill(draw::rectangle(r), color::highLightColor());
-        } else if (hilited) {
-          g.fill(draw::rectangle(r), color::menuColorHighlight());
-        } else {
-          g.fill(draw::rectangle(r), background);
+                           item_state state) {
+        switch (state) {
+          case item_state::selected:
+            g.fill(draw::rectangle(r), color::highLightColor());
+            break;
+          case item_state::hilited:
+            g.fill(draw::rectangle(r), color::menuColorHighlight());
+            break;
+          default:
+            g.fill(draw::rectangle(r), background);
+            break;
         }
 
-        os::color col = disabled ? color::disabledTextColor()
-                        : selected ? color::highLightTextColor()
-                        : color::black;
-
         core::rectangle r2 = r + core::point(10, 0);
-        draw_menu_label(g, r2, label, menu_key, col);
+        draw_menu_label(g, r2, label, menu_key, get_menu_color(state));
       }
 
       // --------------------------------------------------------------------------
@@ -96,17 +101,15 @@ namespace gui {
                       const hot_key& hotkey,
                       bool is_sub_menu,
                       bool separator,
-                      bool selected,
-                      bool hilited,
-                      bool disabled) {
-        if (selected) {
+                      item_state state) {
+        if (item_state::selected == state) {
           if (separator) {
             g.fill(draw::rectangle(r.with_height(2)), background);
             g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::highLightColor());
           } else {
             g.fill(draw::rectangle(r), color::highLightColor());
           }
-        } else if (hilited) {
+        } else if (item_state::hilited == state) {
           if (separator) {
             g.fill(draw::rectangle(r.with_height(2)), background);
             g.fill(draw::rectangle(r.with_y(r.y() + 2)), color::menuColorHighlight());
@@ -125,9 +128,7 @@ namespace gui {
           r2 += core::point(0, 2);
         }
 
-        os::color col = disabled ? color::disabledTextColor()
-                        : selected ? color::highLightTextColor()
-                        : color::black;
+        os::color col = get_menu_color(state);
 
         if (icon) {
           auto sz = icon.image.scaled_size();
@@ -461,6 +462,18 @@ namespace gui {
       return idx;
     }
 
+    item_state menu_data::get_item_state (int idx) const {
+      if (data.items[idx].is_disabled()) {
+        return item_state::disabled;
+      } else if (get_selection() == idx) {
+        return item_state::selected;
+      } else if (get_hilite() == idx) {
+        return item_state::hilited;
+      } else {
+        return item_state::normal;
+      }
+    }
+
     // --------------------------------------------------------------------------
     main_menu::main_menu ()
       : data(this)
@@ -629,8 +642,7 @@ namespace gui {
         auto w = i.get_width() + 20;
         r.width(w);
         paint::main_menu_item(g, r, back_brush, i.get_label(), i.get_menu_key(),
-                              (idx == data.get_selection()),
-                              (idx == data.get_hilite()), i.is_disabled());
+                              data.get_item_state(idx));
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
@@ -843,8 +855,7 @@ namespace gui {
         paint::menu_item(g, r, back_brush, pos.text, pos.hotkey,
                          i.get_label(), i.get_menu_key(), i.get_icon(),
                          i.get_hot_key(), i.is_sub_menu(), i.has_separator(),
-                         (idx == data.get_selection()), (idx == data.get_hilite()),
-                         i.is_disabled());
+                         data.get_item_state(idx));
         r.move_y(static_cast<core::size::type>(item_height));
       }
     }

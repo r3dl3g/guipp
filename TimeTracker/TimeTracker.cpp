@@ -389,22 +389,22 @@ using namespace gui::layout;
 using namespace gui::win;
 using namespace gui::ctrl;
 
-void name_drawer (const std::string& txt, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+void name_drawer (const std::string& txt, const draw::graphics& g, const core::rectangle& r, const draw::brush& b,  item_state s, text_origin align) {
   ctrl::paint::text_item(g, r, b, txt, s, align);
   draw::frame::lines(g, r);
 }
 
-void duration_drawer (const duration_type& d, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+void duration_drawer (const duration_type& d, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
   ctrl::paint::text_item(g, r, b, ostreamfmt(d), s, align);
   draw::frame::lines(g, r);
 }
 
-void money_drawer (const double& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+void money_drawer (const double& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
   ctrl::paint::text_item(g, r, b, ostreamfmt(std::setprecision(2) << std::fixed << v << " €"), s, align);
   draw::frame::lines(g, r);
 }
 
-void time_drawer (const time_point& t, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, bool s, bool, text_origin align) {
+void time_drawer (const time_point& t, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
   ctrl::paint::text_item(g, r, b, ostreamfmt(t), s, align);
   draw::frame::lines(g, r);
 }

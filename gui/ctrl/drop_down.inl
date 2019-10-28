@@ -112,9 +112,8 @@ namespace gui {
                                 const draw::graphics & g,
                                 const core::rectangle & r,
                                 const draw::brush & b,
-                                bool selected,
-                                bool hilited) {
-        D(data.source(idx), g, r, b, selected, hilited);
+                                item_state state) {
+        D(data.source(idx), g, r, b, state);
       });
     }
 
@@ -128,8 +127,7 @@ namespace gui {
           graph,
           super::get_layout().label_place(super::client_size()),
           data.items.get_background(),
-          false,
-          has_f);
+          has_f ? item_state::hilited : item_state::normal);
       } else if (has_f) {
         draw::frame::dots(graph, area);
       }

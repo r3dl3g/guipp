@@ -62,17 +62,16 @@ namespace gui {
                            const core::rectangle& r,
                            const draw::brush& background,
                            const std::string& label,
-                           bool selected,
-                           bool hilited) {
-        if (selected) {
+                           item_state state) {
+        if (item_state::selected == state) {
           g.fill(draw::rectangle(r), color::highLightColor());
-        } else if (hilited) {
+        } else if (item_state::hilited == state) {
           g.fill(draw::rectangle(r), color::menuColorHighlight());
         } else {
           g.fill(draw::rectangle(r), background);
         }
 
-        os::color col = selected ? color::highLightTextColor()
+        os::color col = item_state::selected == state ? color::highLightTextColor()
                         : color::black;
 
         g.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);

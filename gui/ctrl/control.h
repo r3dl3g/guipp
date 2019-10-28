@@ -115,6 +115,14 @@ namespace gui {
       logic
     };
 
+    // --------------------------------------------------------------------------
+    enum class item_state {
+      normal,
+      disabled,
+      hilited,
+      selected
+    };
+
 #ifdef WIN32
   } // namespace ctrl
 
@@ -211,7 +219,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       const std::string& text,
-                      bool selected,
+                      item_state state,
                       text_origin origin = text_origin::vcenter_left);
 
     }

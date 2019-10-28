@@ -430,11 +430,10 @@ namespace gui {
                                                     const draw::graphics& graph,
                                                     const core::rectangle& place,
                                                     const draw::brush& background,
-                                                    bool selected,
-                                                    bool,
+                                                    item_state state,
                                                     text_origin align) {
-      paint::text_item(graph, place, background, convert_to_string(super::at(row_id).at(col_id)), selected, align);
-      if (!selected) {
+      paint::text_item(graph, place, background, convert_to_string(super::at(row_id).at(col_id)), state, align);
+      if (item_state::selected != state) {
         F(graph, place);
       }
     }
@@ -470,15 +469,14 @@ namespace gui {
                                             const draw::graphics& g,
                                             const core::rectangle& place,
                                             const draw::brush& background,
-                                            bool selected,
-                                            bool hilited) {
+                                            item_state state) {
       if (drawer) {
         core::rectangle r = place;
         auto count = this->get_column_layout().get_column_count();
         for (decltype(count) i = 0; i < count; ++i) {
           core::size::type w = this->get_column_layout().get_column_width(i);
           r.width(w);
-          drawer(idx, i, g, r, background, selected, hilited, this->get_column_layout().get_column_align(i));
+          drawer(idx, i, g, r, background, state, this->get_column_layout().get_column_align(i));
           r.move_x(w);
         }
         if (r.x() < place.x2()) {
@@ -525,11 +523,10 @@ namespace gui {
                       const draw::graphics& graph,
                       const core::rectangle& place,
                       const draw::brush& background,
-                      bool selected,
-                      bool,
+                      item_state state,
                       text_origin align) {
-      paint::text_item(graph, place, background, convert_to_string(t), selected, align);
-      if (!selected) {
+      paint::text_item(graph, place, background, convert_to_string(t), state, align);
+      if (item_state::selected != state) {
         F(graph, place);
       }
     }
@@ -557,8 +554,7 @@ namespace gui {
                                                         const core::rectangle& place,
                                                         core::point::type x,
                                                         const draw::brush& background,
-                                                        bool selected,
-                                                        bool hilited) {
+                                                        item_state state) {
       if (x < place.x2()) {
         g.fill(draw::rectangle(core::point(x, place.y()), place.bottom_right()), background);
       }
@@ -572,16 +568,15 @@ namespace gui {
                                                         const core::rectangle& r,
                                                         core::point::type x,
                                                         const draw::brush& background,
-                                                        bool selected,
-                                                        bool hilited) {
+                                                        item_state state) {
       core::size::type width = l.get_column_width(I);
       text_origin align = l.get_column_align(I);
 
       core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
       auto dat = std::get<I>(data);
       auto drw = std::get<I>(static_cast<std::tuple<cell_drawer_t<A>...>&>(*this));
-      drw(dat, g, place, background, selected, hilited, align);
-      draw_cell<I + 1, Args ...>(data, l, g, r, x + width, background, selected, hilited);
+      drw(dat, g, place, background, state, align);
+      draw_cell<I + 1, Args ...>(data, l, g, r, x + width, background, state);
     }
 
     template<typename L, typename ... A>
@@ -590,9 +585,8 @@ namespace gui {
                                                          const draw::graphics& g,
                                                          const core::rectangle& place,
                                                          const draw::brush& background,
-                                                         bool selected,
-                                                         bool hilited) {
-      draw_cell<0, A ...>(data, l, g, place, place.x(), background, selected, hilited);
+                                                         item_state state) {
+      draw_cell<0, A ...>(data, l, g, place, place.x(), background, state);
     }
 
     // --------------------------------------------------------------------------
@@ -640,9 +634,8 @@ namespace gui {
                                                 const draw::graphics& g,
                                                 const core::rectangle& place,
                                                 const draw::brush& back,
-                                                bool selected,
-                                                bool hilited) {
-      drawer(data(row_id), this->get_column_layout(), g, place, back, selected, hilited);
+                                                item_state state) {
+      drawer(data(row_id), this->get_column_layout(), g, place, back, state);
     }
 
     // --------------------------------------------------------------------------

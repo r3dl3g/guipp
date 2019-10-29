@@ -26,7 +26,7 @@ void view::image_view::set_image_and_scale (const cv::Mat& src) {
     auto native_size = gui::core::global::scale(super::size());
     cv::Size sz(native_size.width(), native_size.height());
     cv::Mat target = cv::Mat(sz, src.type());
-    cv::resize(src, target, sz, 0, 0, cv::INTER_NEAREST);
+    cv::resize(src, target, sz, 0, 0, cv::INTER_LINEAR);
     super::set_image(cvMat2pixmap(target));
   }
 }

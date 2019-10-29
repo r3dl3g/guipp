@@ -167,6 +167,12 @@ RedImage::RedImage ()
   });
 
   on_close(basepp::bind_method(this, &RedImage::quit));
+  on_size([&] (const core::size& sz) {
+    auto r = get_layout().get_center()->place();
+    filter_view.place(r);
+    hsv_view.place(r);
+    mask_view.place(r);
+  });
 }
 // --------------------------------------------------------------------------
 void RedImage::onCreated (win::window*, const core::rectangle&) {
@@ -262,7 +268,10 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   });
   full_image_view.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     if (learning_mode) {
-      set_hsv_range_for(get_hsv_range_at(full_image_view.size(), pt, core::size(5, 5)), curent_full_image_view - 1);
+      int idx = curent_full_image_view % 3;
+      if (idx < 2) {
+        set_hsv_range_for(get_hsv_range_at(full_image_view.size(), pt, core::size(5, 5)), idx);
+      }
     }
   });
   full_image_view.on_mouse_move([&] (os::key_state, const core::point& pt) {
@@ -502,8 +511,8 @@ void calc_image (const cv::Mat& hsv_image,
   if (mask_view) {
     mask_view->set_images(proc_mask);
   }
-  mask[1] = off_filter.calc(hsv_image, proc_mask, true);
-  cv::bitwise_and(mask[0], ~mask[1], mask[2]);
+  mask[1] = off_filter.calc(hsv_image, true);
+  mask[2] = mask[0] & ~mask[1];
 
   portions[0] = proc::color_filter::calc_portion(mask[0]);
   portions[1] = proc::color_filter::calc_portion(mask[1]);
@@ -529,7 +538,6 @@ void RedImage::calc_image () {
   image[0].setTo(cv::Scalar(255, 255, 255));
   raw_image.copyTo(image[0], ~image[4]);
 
-  image[1] = cv::Mat(raw_image.rows, raw_image.cols, raw_image.type());
   image[1].setTo(cv::Scalar(0, 0, 0));
   raw_image.copyTo(image[1], image[4]);
 
@@ -560,8 +568,11 @@ void RedImage::calc_all_and_show () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::reset_current_color_range () {
-  if ((curent_full_image_view > 0) && (curent_full_image_view < 3)) {
-    reset_color_range(curent_full_image_view - 1);
+  if (curent_full_image_view > 2) {
+    int idx = curent_full_image_view % 3;
+    if (idx < 2) {
+      reset_color_range(idx);
+    }
   }
 }
 //-----------------------------------------------------------------------------
@@ -716,8 +727,8 @@ void RedImage::calc_status () {
   status.labels[0].set_text(learning_mode ? "Learning Mode" : "");
 
   std::ostringstream buffer;
-  if (portions[0] != 0.0F) {
-    buffer << "Bad: " << (portions[0] * 100.0F) << "%";
+  if (portions[2] != 0.0F) {
+    buffer << "Bad: " << (portions[2] * 100.0F) << "%";
   }
   if (portions[1] != 0.0F) {
     if (portions[0] != 0.0F) {
@@ -777,7 +788,7 @@ void RedImage::calc_folder () {
       cv::Mat mask[3];
       ::calc_image(hsv, bad_filter, off_filter, portions, mask);
 
-      info.bad = portions[0] * 100.0F;
+      info.bad = portions[2] * 100.0F;
       info.off = portions[1] * 100.0F;
       info.good = (1.0F - portions[2]) * 100.0F;
       info.quality = info.bad;// / info.good * 100.0F;

@@ -308,23 +308,25 @@ namespace gui {
     template<border_layout_type type>
     void border_layout<type>::layout (const core::rectangle& sz) {
       LogTrace << "border_layout::layout(" << sz << ")";
-      core::rectangle r = core::rectangle(core::point(super::get_left_width(), super::get_top_height()),
-                                          core::point(sz.width() - super::get_right_width(), sz.height() - super::get_bottom_height()));
+      core::size top_left(super::get_left_width(), super::get_top_height());
+      core::size bottom_right(super::get_right_width(), super::get_bottom_height());
+      core::size size = sz.size() - top_left - bottom_right;
+      core::rectangle r = core::rectangle(sz.top_left() + top_left, size);
       if (super::get_top() && is_child_visible(super::get_top())) {
         const typename geometrie::points pt = geometrie::get_top_position(r, sz);
-        place_child(super::get_top(), core::rectangle(pt.first, 0, pt.second, super::get_top_height()));
+        place_child(super::get_top(), core::rectangle(pt.first, 0, pt.second, top_left.height()));
       }
       if (super::get_bottom() && is_child_visible(super::get_bottom())) {
         const typename geometrie::points pt = geometrie::get_bottom_position(r, sz);
-        place_child(super::get_bottom(), core::rectangle(pt.first, r.y2(), pt.second, super::get_bottom_height()));
+        place_child(super::get_bottom(), core::rectangle(pt.first, r.y2(), pt.second, bottom_right.height()));
       }
       if (super::get_left() && is_child_visible(super::get_left())) {
         const typename geometrie::points pt = geometrie::get_left_position(r, sz);
-        place_child(super::get_left(), core::rectangle(0, pt.first, super::get_left_width(), pt.second));
+        place_child(super::get_left(), core::rectangle(0, pt.first, top_left.width(), pt.second));
       }
       if (super::get_right() && is_child_visible(super::get_right())) {
         const typename geometrie::points pt = geometrie::get_right_position(r, sz);
-        place_child(super::get_right(), core::rectangle(r.x2(), pt.first, super::get_right_width(), pt.second));
+        place_child(super::get_right(), core::rectangle(r.x2(), pt.first, bottom_right.width(), pt.second));
       }
       if (super::get_center() && is_child_visible(super::get_center())) {
         place_child(super::get_center(), r);

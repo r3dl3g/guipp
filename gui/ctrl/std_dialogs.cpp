@@ -51,7 +51,7 @@ namespace gui {
         ++i;
       }
       on_set_focus([&] (window*) {
-        buttons[0].take_focus();
+        buttons.back().take_focus();
       });
     }
 

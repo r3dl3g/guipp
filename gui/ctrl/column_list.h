@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/ctrl/list.h>
-#include <gui/win/layout_container.h>
+#include <gui/layout/layout_container.h>
 
 
 namespace gui {

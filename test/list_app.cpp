@@ -1,7 +1,7 @@
 
 
-#include <gui/win/layout_container.h>
-#include <gui/win/border_layout.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/border_layout.h>
 #include <gui/ctrl/file_tree.h>
 
 #define NOTHING

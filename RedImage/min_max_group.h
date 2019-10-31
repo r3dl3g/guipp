@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <gui/win/layout_container.h>
-#include <gui/win/lineup_layout.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/lineup_layout.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>
 

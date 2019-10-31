@@ -12,8 +12,8 @@
 //
 #include <util/time_util.h>
 #include <gui/win/window.h>
-#include <gui/win/attach_layout.h>
-#include <gui/win/lineup_layout.h>
+#include <gui/layout/attach_layout.h>
+#include <gui/layout/lineup_layout.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/io/pnm.h>

@@ -13,10 +13,10 @@
 #include <logging/logger.h>
 
 #include <gui/win/dbg_win_message.h>
-#include <gui/win/attach_layout.h>
-#include <gui/win/adaption_layout.h>
-#include <gui/win/lineup_layout.h>
-#include <gui/win/grid_layout.h>
+#include <gui/layout/attach_layout.h>
+#include <gui/layout/adaption_layout.h>
+#include <gui/layout/lineup_layout.h>
+#include <gui/layout/grid_layout.h>
 
 #include <gui/ctrl/progress_bar.h>
 #include <gui/ctrl/button.h>

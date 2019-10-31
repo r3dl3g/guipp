@@ -22,13 +22,13 @@
 //
 // Common includes
 //
-#include <algorithm>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
-#include <gui/win/layout.h>
+#include <gui/layout/layout.h>
+
 
 namespace gui {
 
@@ -37,20 +37,19 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H,
+             unsigned dim1,
              unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,
-             unsigned min = 0,
-             unsigned max = std::numeric_limits<unsigned>::max(),
              origin R = origin::start>
-    class adaption_layout : public detail::origin_layout<H, R> {
+    class lineup_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      adaption_layout (win::container* m);
-      adaption_layout (win::container* m, const adaption_layout& rhs);
-      adaption_layout (win::container* m, adaption_layout&& rhs);
+      lineup_layout (win::container* m);
+      lineup_layout (win::container* m, const lineup_layout& rhs);
+      lineup_layout (win::container* m, lineup_layout&& rhs);
 
       void layout (const core::rectangle& sz);
 
@@ -59,26 +58,32 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<unsigned border = 0,
+    template<unsigned dim1,
+             unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,
-             unsigned min = 0,
-             unsigned max = std::numeric_limits<unsigned>::max(),
-             origin o = origin::start>
-    using horizontal_adaption = adaption_layout<orientation::horizontal, border, gap, sep, min, max, o>;
+             origin R = origin::start>
+    using horizontal_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, R>;
 
     // --------------------------------------------------------------------------
-    template<unsigned border = 0,
+    template<unsigned dim1,
+             unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,
-             unsigned min = 0,
-             unsigned max = std::numeric_limits<unsigned>::max(),
-             origin o = origin::start>
-    using vertical_adaption = adaption_layout<orientation::vertical, border, gap, sep, min, max, o>;
+             origin R = origin::start>
+    using vertical_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, R>;
+
+    // --------------------------------------------------------------------------
+    template<alignment a,
+             unsigned dim1,
+             unsigned border = 0,
+             unsigned gap = 0,
+             unsigned sep = 2>
+    using lineup = lineup_layout<alignment_orientation<a>::value, dim1, border, gap, sep, alignment_origin<a>::value>;
 
     // --------------------------------------------------------------------------
   } // namespace layout
 
 } // namespace gui
 
-#include <gui/win/adaption_layout.inl>
+#include <gui/layout/lineup_layout.inl>

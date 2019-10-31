@@ -23,8 +23,8 @@
 // Library includes
 //
 #include <gui/win/container.h>
-#include <gui/win/border_layout.h>
-#include <gui/win/adaption_layout.h>
+#include <gui/layout/border_layout.h>
+#include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/file_tree.h>
 #include <gui/ctrl/button.h>

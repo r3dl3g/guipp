@@ -60,6 +60,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                            gui++-ctrl-static
                            gui++-io-static
                            gui++-draw-static
+                           gui++-layout-static
                            gui++-win-static
                            gui++-core-static
                            gui++-app
@@ -70,6 +71,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         set (gui_libraries gui++-ctrl
                            gui++-io
                            gui++-draw
+                           gui++-layout
                            gui++-win
                            gui++-core
                            gui++-app
@@ -81,11 +83,18 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     endif()
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_defines ${gui_defines} -Dgui___core_obj_EXPORTS -Dgui___win_obj_EXPORTS -Dgui___draw_obj_EXPORTS -Dgui___io_obj_EXPORTS -Dgui___ctrl_obj_EXPORTS)
+        set (gui_defines ${gui_defines}
+                          -Dgui___core_obj_EXPORTS
+                          -Dgui___win_obj_EXPORTS
+                          -Dgui___layout_obj_EXPORTS
+                          -Dgui___draw_obj_EXPORTS
+                          -Dgui___io_obj_EXPORTS
+                          -Dgui___ctrl_obj_EXPORTS)
     endif()
 
     add_subdirectory(core gui_core)
     add_subdirectory(win gui_win)
+    add_subdirectory(layout gui_layout)
     add_subdirectory(draw gui_draw)
     add_subdirectory(io gui_io)
     add_subdirectory(ctrl gui_ctrl)
@@ -116,6 +125,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
         add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
                                  $<TARGET_OBJECTS:gui++-win-obj>
+                                 $<TARGET_OBJECTS:gui++-layout-obj>
                                  $<TARGET_OBJECTS:gui++-draw-obj>
                                  $<TARGET_OBJECTS:gui++-io-obj>
                                  $<TARGET_OBJECTS:gui++-ctrl-obj>

@@ -26,8 +26,8 @@
 //
 // Library includes
 //
-#include <gui/win/attach_layout.h>
 #include <gui/win/container.h>
+#include <gui/layout/attach_layout.h>
 
 
 namespace gui {

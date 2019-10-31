@@ -1,8 +1,8 @@
 
 
 #include <gui/win/container.h>
-#include <gui/win/layout_container.h>
-#include <gui/win/adaption_layout.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/column_list.h>
 #include <gui/ctrl/label.h>

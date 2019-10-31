@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+
+project("gui++-layout" CXX)
+
+# see: http://stackoverflow.com/questions/23684789/cmake-build-multiple-executables-in-one-project-with-static-library
+
+if(NOT TARGET gui++-layout-obj)
+
+  add_subdirectory(../win gui_win)
+
+    set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
+    set(gui_include ${gui_include} PARENT_SCOPE)
+    include_directories(${gui_include})
+
+    if (WIN32)
+      add_definitions(-DWIN32_LEAN_AND_MEAN)
+    endif (WIN32)
+
+    add_definitions(${gui_defines})
+
+    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+
+    add_library(gui++-layout-obj OBJECT ${SOURCE_FILES})
+
+    set_target_properties(gui++-layout-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+    if(GUIPP_BUILD_STATIC_MODULE_LIBS)
+        add_definitions(-DGUIPP_BUILT_AS_STATIC)
+        add_library(gui++-layout-static STATIC $<TARGET_OBJECTS:gui++-layout-obj>)
+    endif()
+
+    if(GUIPP_BUILD_SHARED_MODULE_LIBS)
+        add_definitions(-Dgui___layout_obj_EXPORTS)
+        add_library(gui++-layout SHARED $<TARGET_OBJECTS:gui++-layout-obj>)
+        target_link_libraries(gui++-layout PRIVATE gui++-core gui++-win ${gui_sys_libraries})
+        set_target_properties(gui++-layout PROPERTIES
+                                        POSITION_INDEPENDENT_CODE ON
+                                        VERSION ${gui_VERSION}
+                                        SOVERSION ${gui_VERSION_MAJOR})
+    endif()
+
+    GENERATE_EXPORT_HEADER(gui++-layout-obj
+        BASE_NAME GUIPP_LAYOUT
+        EXPORT_MACRO_NAME GUIPP_LAYOUT_EXPORT
+        EXPORT_FILE_NAME gui++-layout-export.h
+        STATIC_DEFINE GUIPP_BUILT_AS_STATIC
+    )
+
+endif()

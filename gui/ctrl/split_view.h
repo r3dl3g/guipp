@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <gui/win/layout_container.h>
+#include <gui/layout/layout_container.h>
 #include <gui/ctrl/slider.h>
 
 

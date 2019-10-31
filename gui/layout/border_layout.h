@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <gui/win/layout.h>
+#include <gui/layout/layout.h>
 #include <base/bind_method.h>
 
 
@@ -153,4 +153,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/border_layout.inl>
+#include <gui/layout/border_layout.inl>

@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/win/container.h>
-#include <gui/win/layout.h>
+#include <gui/layout/layout.h>
 
 
 namespace gui {
@@ -94,4 +94,4 @@ namespace gui {
 
 } // namespace gui
 
-#include <gui/win/layout_container.inl>
+#include <gui/layout/layout_container.inl>

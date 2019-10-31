@@ -24,8 +24,8 @@
 #include <base/bind_method.h>
 #include <util/time_util.h>
 #include <util/ostream_resetter.h>
-#include <gui/win/border_layout.h>
-#include <gui/win/adaption_layout.h>
+#include <gui/layout/border_layout.h>
+#include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/tree.h>
 #include <gui/ctrl/column_list.h>

@@ -2,9 +2,9 @@
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/tile_view.h>
-#include <gui/win/grid_layout.h>
-#include <gui/win/lineup_layout.h>
-#include <gui/win/attach_layout.h>
+#include <gui/layout/grid_layout.h>
+#include <gui/layout/lineup_layout.h>
+#include <gui/layout/attach_layout.h>
 #include <util/string_util.h>
 #include <base/blocking_queue.h>
 #include <opencv2/core/core.hpp>

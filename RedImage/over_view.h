@@ -3,8 +3,8 @@
 
 #include "image_view.h"
 
-#include <gui/win/layout_container.h>
-#include <gui/win/grid_layout.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/grid_layout.h>
 
 namespace view {
 

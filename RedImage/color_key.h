@@ -4,8 +4,8 @@
 #include "range.h"
 #include "min_max_group.h"
 
-#include <gui/win/layout_container.h>
-#include <gui/win/lineup_layout.h>
+#include <gui/layout/layout_container.h>
+#include <gui/layout/lineup_layout.h>
 #include <gui/ctrl/scroll_bar.h>
 
 namespace view {

@@ -42,21 +42,21 @@ namespace gui {
     }
 
     template<orientation height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin rows>
-    void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::rectangle& sz) {
-      LogTrace << "lineup_layout::layout(" << sz << ")";
+    void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::rectangle& r) {
+      LogTrace << "lineup_layout::layout(" << r << ")";
       std::vector<win::window*> children = super::get_children();
       const std::size_t count = children.size();
       const std::size_t sep_count = super::separator_count();
       const type border2 = (border * 2);
-      const type space = super::get_dimension1(sz) - border2;
+      const type space = super::get_dimension1(r) - border2;
 
       if (count) {
         if (space > 0) {
-          const type dim2 = super::get_dimension2(sz) - border2;
+          const type dim2 = super::get_dimension2(r) - border2;
           const type offset = dim1 + gap;
           const type sep_offset = gap + sep;
 
-          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), sz.size(),
+          core::rectangle area = super::init_area(border, super::make_size(dim1, dim2), r.size(),
                                                   gap, count, sep, sep_count);
           for (win::window* win : children) {
             if (super::is_separator(win)) {

@@ -58,15 +58,15 @@ namespace gui {
     }
 
     void layout_base::init (std::function<size_callback> f1) {
-      main->on_show([&, f1]() {
-        f1(main->client_area());
-      });
-      main->on_layout(std::move(f1));
+//      main->on_show([&, f1]() {
+//        f1(main->client_area());
+//      });
+//      main->on_layout(std::move(f1));
     }
 
     void layout_base::init (std::function<size_callback> f1, std::function<show_callback> f2) {
-      main->on_layout(std::move(f1));
-      main->on_show(std::move(f2));
+//      main->on_layout(std::move(f1));
+//      main->on_show(std::move(f2));
     }
 
   } // layout

@@ -81,6 +81,9 @@ namespace gui {
         super::on_show([&] () {
           layout();
         });
+        super::on_layout([&] (const core::rectangle& r) {
+          layouter.layout(r);
+        });
       }
 
     } // namespace detail

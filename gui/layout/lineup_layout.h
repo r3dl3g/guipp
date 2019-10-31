@@ -47,14 +47,13 @@ namespace gui {
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      lineup_layout (win::container* m);
-      lineup_layout (win::container* m, const lineup_layout& rhs);
-      lineup_layout (win::container* m, lineup_layout&& rhs);
+      lineup_layout () = default;
+      lineup_layout (const lineup_layout&) = default;
+      lineup_layout (lineup_layout&&) = default;
 
-      void layout (const core::rectangle& sz);
+      lineup_layout (std::initializer_list<layout_function> list);
 
-    private:
-      void init ();
+      void layout (const core::rectangle& sz) const;
     };
 
     // --------------------------------------------------------------------------

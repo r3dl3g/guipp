@@ -41,14 +41,8 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation O>
-    class split_view : protected layout_base {
+    class split_view {
     public:
-      typedef layout_base super;
-
-      split_view (win::container* m);
-      split_view (win::container* m, const split_view& rhs);
-      split_view (win::container* m, split_view&& rhs);
-
       win::window* get_first () const;
       win::window* get_second () const;
       ctrl::detail::slider_base* get_slider () const;
@@ -69,11 +63,9 @@ namespace gui {
 
       double get_split_pos (const core::rectangle&) const;
 
-      void layout (const core::rectangle& sz);
+      void layout (const core::rectangle& sz) const;
 
     private:
-      void init ();
-
       split_view_data data;
     };
 

@@ -35,26 +35,15 @@ namespace gui {
 
     class GUIPP_CTRL_EXPORT drop_down {
     public:
-      drop_down (win::container* m);
-      drop_down (win::container* m, const drop_down&);
-      drop_down (win::container* m, drop_down&&);
-      drop_down (const drop_down&) = delete;
-      drop_down (drop_down&&) = delete;
+      void layout (const core::rectangle&) const;
+      void init (win::container*, win::window*);
 
-      void operator= (const drop_down&) = delete;
-      void operator= (drop_down&&) = delete;
-
-      void layout (const core::rectangle& s);
-      void init (win::window* button);
-
-      core::rectangle label_place (const core::size& s);
-      core::rectangle button_place (const core::size& s);
+      core::rectangle label_place (const core::rectangle&) const;
+      core::rectangle button_place (const core::rectangle&) const;
 
     private:
-      void init ();
-
       struct data {
-        data (win::container* m);
+        data ();
 
         win::container* main;
         win::window* button;

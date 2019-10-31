@@ -47,7 +47,7 @@ namespace gui {
                                      const core::rectangle& rect,
                                      std::function<dialog_action> action,
                                      const std::initializer_list<std::string>& labels) {
-      get_layout().set_center(&content_view);
+      get_layout().set_center(layout::win(content_view));
       super::create(parent, title, rect, action, labels);
       content_view.create(*this, rect);
     }

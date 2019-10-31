@@ -175,7 +175,8 @@ private:
   win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin::end>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
-  win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group;
+  typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
+  group_group_t group_group;
 
   win::group_window<layout::horizontal_lineup<30, 5, 5>> h_lineup_group;
   ctrl::label h_lineup_labels[4];
@@ -841,16 +842,18 @@ void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
   LogDebug << "Children created: this:" << std::hex << get_id() << ", count:" << get_children().size();
 }
 
-template<int T>
-void create_buttons (win::container& m, ctrl::label labels[T]) {
+template<int T, typename C>
+void create_buttons (C& m, ctrl::label labels[T]) {
   for (int i = 0; i < T; ++i) {
     labels[i].create(m, ctrl::const_text(ostreamfmt("No. " << (i + 1))));
+    m.get_layout().add(layout::win(labels[i]));
   }
 }
 
 template<int T, typename C>
-void create_group (win::container& m, C& c, ctrl::label labels[T]) {
+void create_group (my_main_window::group_group_t& m, C& c, ctrl::label labels[T]) {
   c.create(m);
+  m.get_layout().add(layout::win(c));
   create_buttons<T>(c, labels);
 }
 
@@ -1046,6 +1049,7 @@ void my_main_window::created_children () {
   radio_button2.create(chck_group, "Radio2", core::rectangle(0, 20, 100, 20));
   switch_button.create(chck_group, "Switch", core::rectangle(0, 40, 100, 20));
   check_box.create(chck_group, "Check", core::rectangle(0, 60, 100, 20));
+  chck_group.get_layout().add({&radio_button, &radio_button2, &switch_button, &check_box});
 
   edit1.create(main, "Text zwei drei vier fuenf sechs sieben acht", core::rectangle(290, 350, 100, 25));
 
@@ -1057,6 +1061,7 @@ void my_main_window::created_children () {
   sel_first_plus.create(edit_btn_group, "f+");
   sel_last_minus.create(edit_btn_group, "l-");
   sel_last_plus.create(edit_btn_group, "l+");
+  edit_btn_group.get_layout().add({&cur_minus, &cur_plus, &sel_first_minus, &sel_first_plus, &sel_last_minus, &sel_last_plus});
 
   custom_button.set_drawer([] (const draw::graphics& g,
                                const core::rectangle& r,
@@ -1093,20 +1098,23 @@ void my_main_window::created_children () {
   ok_button.create(btn_group, "Ok");
   del_button.create(btn_group, "Del");
   clear_button.create(btn_group, "Clear");
+  btn_group.get_layout().add({layout::win(ok_button), layout::win(del_button), layout::win(clear_button)});
 
   btn_sep1.create(btn_group);
-  btn_group.get_layout().add_separator(&btn_sep1);
+  btn_group.get_layout().add(layout::win(btn_sep1), true);
 
   min_button.create(btn_group, "Min");
   max_button.create(btn_group, "Max");
   norm_button.create(btn_group, "Norm");
+  btn_group.get_layout().add({layout::win(min_button), layout::win(max_button), layout::win(norm_button)});
 
   btn_sep2.create(btn_group);
-  btn_group.get_layout().add_separator(&btn_sep2);
+  btn_group.get_layout().add(layout::win(btn_sep2), true);
 
   info_button.create(btn_group, "Info");
   null_button.create(btn_group, "0");
   full_button.create(btn_group, "Full");
+  btn_group.get_layout().add({layout::win(info_button), layout::win(null_button), layout::win(full_button)});
 
   group_group.create(main, core::rectangle(400, 345, 10, 10));
   create_group<4>(group_group, h_lineup_group, h_lineup_labels);

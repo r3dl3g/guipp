@@ -36,9 +36,7 @@
 
 namespace gui {
 
-  // --------------------------------------------------------------------------
   namespace win {
-    class container;
     class window;
   }
 
@@ -48,34 +46,78 @@ namespace gui {
     // --------------------------------------------------------------------------
     class standard_layout {
     public:
-      standard_layout (win::container*);
+      void layout (const core::rectangle&);
+    };
+
+    using layout_callback = void(const core::rectangle&);
+    using layout_function = std::function<layout_callback>;
+
+    layout_function win (win::window& w);
+    layout_function win (win::window* w);
+
+    template<typename T>
+    layout_function lay (T& l) {
+      return [&l] (const core::rectangle& r) {
+        l.layout(r);
+      };
+    }
+
+    template<typename T>
+    layout_function lay (T&& l) {
+      return [l] (const core::rectangle& r) {
+        l.layout(r);
+      };
+    }
+
+    // --------------------------------------------------------------------------
+    struct layout_element {
+      layout_element (const layout_function& fkt, bool is_separator = false)
+        : fkt(fkt)
+        , separator(is_separator)
+      {}
+
+      layout_element (layout_function&& fkt, bool is_separator = false)
+        : fkt(std::move(fkt))
+        , separator(is_separator)
+      {}
+
+      void operator() (const core::rectangle& r) const {
+        fkt(r);
+      }
+
+      operator bool () const {
+        return (bool)fkt;
+      }
+
+      bool is_separator () const {
+        return separator;
+      }
+
+    private:
+      layout_function fkt;
+      bool separator;
     };
 
     // --------------------------------------------------------------------------
-    class GUIPP_LAYOUT_EXPORT layout_base {
+    class layout_base {
     public:
-      typedef void (size_callback) (const core::rectangle& sz);
-      typedef void (show_callback) ();
+      typedef std::vector<layout_element> element_list;
 
-      layout_base (win::container* m);
-      layout_base (win::container* m, const layout_base&);
-      layout_base (win::container* m, layout_base&&);
+      layout_base () = default;
+      layout_base (const layout_base&) = default;
+      layout_base (layout_base&&) = default;
 
-      layout_base (const layout_base&) = delete;
-      layout_base (layout_base&&) = delete;
+      layout_base (std::initializer_list<layout_function> list);
 
-      void init (std::function<size_callback> f1);
-      void init (std::function<size_callback> f1, std::function<show_callback> f2);
+      const element_list& get_elements () const;
 
-      std::vector<win::window*> get_children ();
-      static void place_child (win::window*, const core::rectangle&);
-      static bool is_child_visible (win::window*);
-      static void hide_children (std::vector<win::window*>&);
-
-      core::rectangle get_layout_area () const;
+      void add (const layout_function& e, bool is_separator = false);
+      void add (layout_function&& e, bool is_separator = false);
+      void add (std::initializer_list<layout_function> list);
+      void add (std::initializer_list<win::window*> list);
 
     protected:
-      win::container* main;
+      element_list elements;
 
     };
 
@@ -83,30 +125,24 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<orientation>
-      class orientation_layout : protected layout_base {
+      class orientation_layout : public layout_base {
       public:
         typedef layout_base super;
         typedef core::size::type type;
 
-        orientation_layout (win::container* m);
-        orientation_layout (win::container* m, const orientation_layout& rhs);
-        orientation_layout (win::container* m, orientation_layout&& rhs);
+        orientation_layout () = default;
+        orientation_layout (const orientation_layout&) = default;
+        orientation_layout (orientation_layout&&) = default;
 
-        type get_dimension1 (const core::rectangle& sz);
-        type get_dimension2 (const core::rectangle& sz);
-        core::size make_size (type dim1, type dim2);
-        core::rectangle get_sep_area (const core::rectangle& area, type s);
-        void move_area (core::rectangle& area, type offs);
+        orientation_layout (std::initializer_list<layout_function> list);
 
-        void add_separator (const win::window* w);
-
-        bool is_separator (const win::window* w) const;
+        type get_dimension1 (const core::point&) const;
+        type get_dimension2 (const core::point&) const;
+        core::size make_size (type dim1, type dim2) const;
+        core::rectangle get_sep_area (const core::rectangle& area, type s) const;
+        void move_area (core::rectangle& area, type offs) const;
 
         std::size_t separator_count () const;
-
-      protected:
-        typedef std::vector<const win::window*> separator_list;
-        separator_list separators;
 
       };
 
@@ -117,14 +153,18 @@ namespace gui {
         typedef orientation_layout<H> super;
         typedef core::size::type type;
 
-        origin_layout (win::container* m);
-        origin_layout (win::container* m, const origin_layout& rhs);
-        origin_layout (win::container* m, origin_layout&& rhs);
+        origin_layout () = default;
+        origin_layout (const origin_layout&) = default;
+        origin_layout (origin_layout&&) = default;
 
-        core::rectangle init_area (type border, const core::size&, const core::size&,
-                                   int gap, std::size_t count, int sep, std::size_t sep_count);
-        void move_area (core::rectangle& area, type offs);
-        core::rectangle get_sep_area (const core::rectangle& area, type s);
+        origin_layout (std::initializer_list<layout_function> list);
+
+        core::rectangle init_area (type border, type dim1, type dim2,
+                                   const core::size&, const core::size&,
+                                   int gap, std::size_t count,
+                                   int sep, std::size_t sep_count) const;
+        void move_area (core::rectangle& area, type offs) const;
+        core::rectangle get_sep_area (const core::rectangle& area, type s) const;
       };
 
     } // namespace detail

@@ -1,6 +1,7 @@
 
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
+#include <gui/layout/layout.h>
 #include <util/string_util.h>
 
 #define NOTHING
@@ -58,8 +59,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
     client.create(main, rect);
     client.set_split_pos(0.5);
-    main.get_layout().set_top(&menu);
-    main.get_layout().set_center(&client);
+    main.get_layout().set_top(win(menu));
+    main.get_layout().set_center(win(client));
     main.set_children_visible();
 
     sys_fs::path current = sys_fs::current_path();

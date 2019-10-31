@@ -182,23 +182,17 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class GUIPP_WIN_EXPORT attach {
+    class GUIPP_LAYOUT_EXPORT attach {
     public:
-      attach (win::container* m);
-      attach (win::container* m, const attach&);
-      attach (win::container* m, attach&&);
-
       template<What what, Where where, int offset = 0>
       void attach_fix (win::window* target, win::window* source);
 
       template<What what, int relativ, int offset = 0>
       void attach_relative (win::window* target, win::window* source);
 
-      void layout (const core::rectangle& sz);
+      void layout (const core::rectangle& sz) const;
 
     private:
-      void init (win::container*);
-
       std::vector<detail::attachment> attachments;
     };
 

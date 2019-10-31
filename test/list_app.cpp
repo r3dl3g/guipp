@@ -22,7 +22,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] (window* parent, const rectangle& rect) {
     client.create(main, rect);
     client.set_path(sys_fs::current_path().parent_path());
-    main.get_layout().set_center(&client);
+    main.get_layout().set_center(layout::win(client));
     main.set_children_visible();
 
     client.on_selection_commit([&] () {

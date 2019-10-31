@@ -28,10 +28,13 @@
 // Library includes
 //
 #include <gui/layout/layout.h>
-#include <base/bind_method.h>
 
 
 namespace gui {
+
+  namespace win {
+    class container;
+  }
 
   // --------------------------------------------------------------------------
   namespace layout {
@@ -48,35 +51,32 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace detail {
 
-      class border_layout_base : protected layout_base {
+      class border_layout_base {
       public:
-        typedef layout_base super;
-
-        border_layout_base (win::container* m,
-                            float top_height = 0,
+        border_layout_base (float top_height = 0,
                             float bottom_height = 0,
                             float left_width = 0,
                             float right_width = 0);
-        border_layout_base (win::container* m, const border_layout_base& rhs);
-        border_layout_base (win::container* m, border_layout_base&& rhs);
+        border_layout_base (const border_layout_base& rhs) = default;
+        border_layout_base (border_layout_base&& rhs) = default;
 
-        win::window* get_center () const;
-        win::window* get_top () const;
-        win::window* get_bottom () const;
-        win::window* get_left () const;
-        win::window* get_right () const;
+        const layout_function& get_center () const;
+        const layout_function& get_top () const;
+        const layout_function& get_bottom () const;
+        const layout_function& get_left () const;
+        const layout_function& get_right () const;
 
-        void set_center (win::window* center);
-        void set_top (win::window* top);
-        void set_bottom (win::window* bottom);
-        void set_left (win::window* left);
-        void set_right (win::window* right);
+        void set_center (layout_function center);
+        void set_top (layout_function top);
+        void set_bottom (layout_function bottom);
+        void set_left (layout_function left);
+        void set_right (layout_function right);
 
-        void set_center_top_bottom_left_right (win::window* center,
-                                               win::window* top,
-                                               win::window* bottom,
-                                               win::window* left,
-                                               win::window* right);
+        void set_center_top_bottom_left_right (layout_function center,
+                                               layout_function top,
+                                               layout_function bottom,
+                                               layout_function left,
+                                               layout_function right);
 
         float get_top_height () const;
         float get_bottom_height () const;
@@ -95,11 +95,11 @@ namespace gui {
                               float left_width = 0,
                               float right_width = 0);
 
-          win::window* center;
-          win::window* top;
-          win::window* bottom;
-          win::window* left;
-          win::window* right;
+          layout_function center;
+          layout_function top;
+          layout_function bottom;
+          layout_function left;
+          layout_function right;
 
           float top_height;
           float bottom_height;
@@ -134,18 +134,20 @@ namespace gui {
       typedef detail::border_layout_base super;
       typedef detail::border_layout_geometrie<type> geometrie;
 
-      border_layout (win::container* m,
+      border_layout (win::container*,
                      float top_height,
                      float bottom_height,
                      float left_width,
                      float right_width);
-      border_layout (win::container* m, const border_layout& rhs);
-      border_layout (win::container* m, border_layout&& rhs);
+
+      border_layout (float top_height,
+                     float bottom_height,
+                     float left_width,
+                     float right_width);
+      border_layout (const border_layout& rhs) = default;
+      border_layout (border_layout&& rhs) = default;
 
       void layout (const core::rectangle& sz);
-
-    private:
-      void init ();
     };
 
     // --------------------------------------------------------------------------

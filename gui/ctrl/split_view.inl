@@ -39,27 +39,6 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation O>
-    inline split_view<O>::split_view (win::container* m)
-      : super(m)
-    {
-      init();
-    }
-
-    template<orientation O>
-    inline split_view<O>::split_view (win::container* m, const split_view& rhs)
-      : super(m, rhs)
-    {
-      init();
-    }
-
-    template<orientation O>
-    inline split_view<O>::split_view (win::container* m, split_view&& rhs)
-      : super(m, std::move(rhs))
-    {
-      init();
-    }
-
-    template<orientation O>
     inline win::window* split_view<O>::get_first () const {
       return data.first;
     }
@@ -99,7 +78,7 @@ namespace gui {
     }
 
     template<orientation O>
-    void split_view<O>::layout (const core::rectangle& sz) {
+    void split_view<O>::layout (const core::rectangle& sz) const {
       double pos = get_split_pos(sz);
       LogTrace << "split_view::layout(" << sz << ") split_pos: " << pos;
       if (data.first) {
@@ -111,11 +90,6 @@ namespace gui {
       if (data.slider) {
         data.slider->place(get_slider_place(sz, pos), IF_WIN32_ELSE(true, false));
       }
-    }
-
-    template<orientation O>
-    inline void split_view<O>::init () {
-      super::init(basepp::bind_method(this, &split_view::layout));
     }
 
     // --------------------------------------------------------------------------

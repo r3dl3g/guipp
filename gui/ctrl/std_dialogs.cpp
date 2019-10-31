@@ -32,7 +32,7 @@ namespace gui {
                               const core::rectangle& rect,
                               std::function<dialog_action> action,
                               const std::initializer_list<std::string>& labels) {
-      get_layout().set_bottom(&button_views);
+      get_layout().set_bottom(layout::win(button_views));
       super::create(parent, rect);
       set_title(title);
       button_views.create(*this);
@@ -48,6 +48,7 @@ namespace gui {
           }
         });
         btn.create(button_views, l);
+        button_views.get_layout().add(layout::win(btn));
         ++i;
       }
       on_set_focus([&] (window*) {
@@ -76,7 +77,7 @@ namespace gui {
     yes_no_dialog::yes_no_dialog ()
       : super(content_view_type(20, 15, 15, 15))
     {
-      content_view.get_layout().set_center(&message_view);
+      content_view.get_layout().set_center(layout::win(message_view));
     }
 
     void yes_no_dialog::create (win::container& parent,
@@ -107,7 +108,7 @@ namespace gui {
     message_dialog::message_dialog ()
       : super(content_view_type(20, 15, 15, 15))
     {
-      content_view.get_layout().set_center(&message_view);
+      content_view.get_layout().set_center(layout::win(message_view));
     }
 
     void message_dialog::create (win::container& parent,
@@ -157,9 +158,9 @@ namespace gui {
         input_line.set_text(files.get_selected_path().filename().string());
       });
 
-      top_view.get_layout().set_center(&input_line);
-      top_view.get_layout().set_left(&input_label);
-      get_layout().set_top(&top_view);
+      top_view.get_layout().set_center(layout::win(input_line));
+      top_view.get_layout().set_left(layout::win(input_label));
+      get_layout().set_top(layout::win(top_view));
 
       super::create(parent, title,
                     core::rectangle(300, 200, 600, 400),

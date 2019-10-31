@@ -8,6 +8,7 @@ namespace view {
     on_create([&] (gui::win::window*, const gui::core::rectangle&) {
       for (auto i = colors.begin(), e = colors.end(); i != e; ++i) {
         i->create(*this);
+        get_layout().add(gui::layout::win(*i));
       }
     });
   }

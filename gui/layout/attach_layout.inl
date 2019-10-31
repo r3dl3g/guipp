@@ -110,18 +110,6 @@ namespace gui {
 
     } //namespace detail
 
-    inline attach::attach (win::container* m) {
-      init(m);
-    }
-
-    inline attach::attach (win::container* m, const attach&) {
-      init(m);
-    }
-
-    inline attach::attach (win::container* m, attach&&) {
-      init(m);
-    }
-
     template<What what, Where where, int offset>
     inline void attach::attach_fix (win::window* target, win::window* source) {
       attachments.push_back({target, source, detail::target<what, where, offset, 10000>()});

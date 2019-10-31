@@ -27,28 +27,25 @@ namespace gui {
 
   namespace layout {
 
-    void drop_down::init () {
-      data.main->on_layout(basepp::bind_method(this, &drop_down::layout));
+    core::rectangle drop_down::label_place (const core::rectangle& r) const {
+      core::size::type h = r.height() - 4;
+      return core::rectangle(r.top_left() + core::point(2, 2), core::size(r.width() - h - 4, h));
     }
 
-    core::rectangle drop_down::label_place (const core::size& sz) {
-      core::size::type h = sz.height() - 4;
-      return core::rectangle(core::point(2, 2), core::size(sz.width() - h - 4, h));
+    core::rectangle drop_down::button_place (const core::rectangle& r) const {
+      core::size::type h = r.height() - 4;
+      return core::rectangle(r.top_left() + core::point(r.width() - h - 2, 2), core::size(h, h));
     }
 
-    core::rectangle drop_down::button_place (const core::size& sz) {
-      core::size::type h = sz.height() - 4;
-      return core::rectangle(core::point(sz.width() - h - 2, 2), core::size(h, h));
-    }
-
-    void drop_down::layout (const core::rectangle& sz) {
+    void drop_down::layout (const core::rectangle& r) const {
       LogTrace << "drop_down::layout()";
       if (data.button) {
-        data.button->place(button_place(sz.size()));
+        data.button->place(button_place(r));
       }
     }
 
-    void drop_down::init (win::window* b) {
+    void drop_down::init (win::container* c, win::window* b) {
+      data.main = c;
       data.button = b;
     }
 

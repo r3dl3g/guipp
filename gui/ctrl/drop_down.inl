@@ -25,23 +25,8 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    inline drop_down::drop_down (win::container* m)
-      : data(m) {
-      init();
-    }
-
-    inline drop_down::drop_down (win::container* m, const drop_down&)
-      : data(m) {
-      init();
-    }
-
-    inline drop_down::drop_down (win::container* m, drop_down&&)
-      : data(m) {
-      init();
-    }
-
-    inline drop_down::data::data (win::container* m)
-      : main(m)
+    inline drop_down::data::data ()
+      : main(nullptr)
       , button(nullptr)
     {}
 
@@ -80,7 +65,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     void drop_down_list<T, D>::init () {
-      super::get_layout().init(&(data.button));
+      super::get_layout().init(this, &(data.button));
 
       super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
       super::on_lost_focus([&] (window*) {
@@ -125,7 +110,7 @@ namespace gui {
       if (data.selection > -1) {
         D(data.source(data.selection),
           graph,
-          super::get_layout().label_place(super::client_size()),
+          super::get_layout().label_place(super::client_area()),
           data.items.get_background(),
           has_f ? item_state::hilited : item_state::normal);
       } else if (has_f) {
@@ -295,7 +280,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     void drop_down_list<T, D>::create_children (window*, const core::rectangle& r) {
-      data.button.create(*this, get_layout().button_place(r.size()));
+      data.button.create(*this, get_layout().button_place(r));
       data.button.set_visible();
     }
 

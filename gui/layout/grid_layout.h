@@ -37,36 +37,34 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<unsigned width, unsigned height, unsigned border = 0, unsigned gap = 0>
-    class grid_lineup : protected layout_base {
+    class grid_lineup : public layout_base {
     public:
       typedef core::size::type type;
       typedef layout_base super;
 
-      grid_lineup (win::container* m);
-      grid_lineup (win::container* m, const grid_lineup& rhs);
-      grid_lineup (win::container* m, grid_lineup&& rhs);
+      grid_lineup () = default;
+      grid_lineup (const grid_lineup&) = default;
+      grid_lineup (grid_lineup&&) = default;
 
-      void layout (const core::rectangle& sz);
+      grid_lineup (std::initializer_list<layout_function> list);
 
-    private:
-      void init ();
+      void layout (const core::rectangle&) const;
     };
 
     // --------------------------------------------------------------------------
     template<unsigned columns, unsigned rows, unsigned border = 0, unsigned gap = 0>
-    class grid_adaption : protected layout_base {
+    class grid_adaption : public layout_base {
     public:
       typedef core::size::type type;
       typedef layout_base super;
 
-      grid_adaption (win::container* m);
-      grid_adaption (win::container* m, const grid_adaption& rhs);
-      grid_adaption (win::container* m, grid_adaption&& rhs);
+      grid_adaption () = default;
+      grid_adaption (const grid_adaption&) = default;
+      grid_adaption (grid_adaption&&) = default;
 
-      void layout (const core::rectangle& sz);
+      grid_adaption (std::initializer_list<layout_function> list);
 
-    private:
-      void init ();
+      void layout (const core::rectangle&) const;
     };
 
     // --------------------------------------------------------------------------

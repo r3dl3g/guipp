@@ -27,7 +27,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline layout_container_base<B, L, A...>::layout_container_base (const A& ... args)
-        : layouter(this, args ...)
+        : layouter(args ...)
       {
         init();
       }
@@ -35,7 +35,7 @@ namespace gui {
       template<typename B, typename L, typename ... A>
       inline layout_container_base<B, L, A...>::layout_container_base (const layout_container_base& rhs)
         : super(rhs)
-        , layouter(this, rhs.layouter)
+        , layouter(rhs.layouter)
       {
         init();
       }
@@ -43,7 +43,7 @@ namespace gui {
       template<typename B, typename L, typename ... A>
       inline layout_container_base<B, L, A...>::layout_container_base (layout_container_base&& rhs)
         : super(std::move(rhs))
-        , layouter(this, std::move(rhs.layouter))
+        , layouter(std::move(rhs.layouter))
       {
         init();
       }
@@ -62,7 +62,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::place (const core::rectangle& r, bool repaint) {
-        layouter.layout(r);
+        layouter.layout(core::rectangle(r.size()));
         super::place(r, repaint);
       }
 

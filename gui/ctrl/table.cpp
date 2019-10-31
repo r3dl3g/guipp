@@ -549,7 +549,7 @@ namespace gui {
 
     void table_view::init () {
       set_scroll_maximum_calcer(default_scroll_maximum);
-      get_layout().set_center_top_bottom_left_right(&data, &columns, &hscroll, &rows, &vscroll);
+      get_layout().set_center_top_bottom_left_right(layout::win(data), layout::win(columns), layout::win(hscroll), layout::win(rows), layout::win(vscroll));
       on_create(basepp::bind_method(this, &table_view::handle_created));
       on_layout(basepp::bind_method(this, &table_view::handle_layout));
       vscroll.on_scroll([&] (core::point::type pos) {

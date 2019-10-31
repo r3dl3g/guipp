@@ -126,6 +126,8 @@ private:
   mask_view_type mask_view;
   view::over_view<3, 2> hsv_view;
 
+  window* current_view;
+
   int curent_full_image_view;
 
   view::side_bar colors;
@@ -155,6 +157,7 @@ RedImage::RedImage ()
   , learning_mode(false)
   , curent_full_image_view(-1)
   , is_active(true)
+  , current_view(nullptr)
 {
   for (auto& p : portions) {
     p = 0.0F;
@@ -167,12 +170,6 @@ RedImage::RedImage ()
   });
 
   on_close(basepp::bind_method(this, &RedImage::quit));
-  on_size([&] (const core::size& sz) {
-    auto r = get_layout().get_center()->place();
-    filter_view.place(r);
-    hsv_view.place(r);
-    mask_view.place(r);
-  });
 }
 // --------------------------------------------------------------------------
 void RedImage::onCreated (win::window*, const core::rectangle&) {
@@ -294,7 +291,13 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     }
   });
 
-  get_layout().set_center_top_bottom_left_right(&filter_view, &menu, &status, &colors, nullptr);
+  get_layout().set_center_top_bottom_left_right([&] (const core::rectangle& r) {
+    filter_view.place(r);
+    folder_view.place(r);
+    hsv_view.place(r);
+    mask_view.place(r);
+    full_image_view.place(r);
+  }, layout::win(menu), layout::win(status), layout::win(colors), nullptr);
 
   for (int i = 0; i < view::side_bar::COLOR_COUNT; ++i) {
     filter_view.image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
@@ -413,8 +416,7 @@ void RedImage::show_full_image (int i) {
   cv::Mat src = (i == 0 ? raw_image : image[i - 1]);
   if (!src.empty()) {
     full_image_view.to_front();
-    get_layout().set_center(&full_image_view);
-    super::layout();
+    current_view = &full_image_view;
 
     curent_full_image_view = i;
     full_image_view.set_image_and_scale(src);
@@ -423,27 +425,23 @@ void RedImage::show_full_image (int i) {
 //-----------------------------------------------------------------------------
 void RedImage::show_filter_view () {
   filter_view.to_front();
-  get_layout().set_center(&filter_view);
-  super::layout();
+  current_view = &filter_view;
   curent_full_image_view = -1;
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_folder_view () {
   folder_view.to_front();
-  get_layout().set_center(&folder_view);
-  super::layout();
+  current_view = &folder_view;
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_mask_view () {
   mask_view.to_front();
-  get_layout().set_center(&mask_view);
-  super::layout();
+  current_view = &mask_view;
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_hsv_view () {
   hsv_view.to_front();
-  get_layout().set_center(&hsv_view);
-  super::layout();
+  current_view = &hsv_view;
 }
 //-----------------------------------------------------------------------------
 void RedImage::toggle_learning () {
@@ -560,7 +558,7 @@ void RedImage::calc_image_and_show () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::calc_all_and_show () {
-  if (get_layout().get_center() == &folder_view) {
+  if (current_view == &folder_view) {
     calc_folder();
   } else {
     calc_image_and_show();

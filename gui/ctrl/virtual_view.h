@@ -36,14 +36,14 @@ namespace gui {
       typedef scroll_view_base super;
       typedef T view_type;
 
-      virtual_layout (win::container* main);
+      virtual_layout ();
 
       void init (ctrl::vertical_scroll_bar* vscroll,
                  ctrl::horizontal_scroll_bar* hscroll,
                  win::window* edge,
                  view_type* client);
 
-      void layout (const core::rectangle& new_size);
+      void layout (const core::rectangle& new_size) const;
 
     private:
       view_type* client;

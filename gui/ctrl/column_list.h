@@ -150,16 +150,11 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      class base_column_list_layout : protected layout_base {
+      class base_column_list_layout {
       public:
-        typedef layout_base super;
         typedef ctrl::vertical_list list_type;
 
-        base_column_list_layout (win::container* m);
-        base_column_list_layout (win::container* m, const base_column_list_layout& rhs);
-        base_column_list_layout (win::container* m, base_column_list_layout&& rhs);
-
-        void layout (const core::rectangle& sz);
+        void layout (const core::rectangle& sz) const;
         void set_header_and_list (win::window* header, list_type* list);
 
       protected:
@@ -170,8 +165,6 @@ namespace gui {
           list_type* list;
         } data;
 
-      private:
-        void init ();
       };
 
     } // detail

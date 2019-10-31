@@ -31,19 +31,19 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT scroll_view_base : protected layout_base {
+    class GUIPP_CTRL_EXPORT scroll_view_base {
     public:
       typedef layout_base super;
 
-      scroll_view_base (win::container* main);
-      scroll_view_base (win::container* m, const scroll_view_base&);
-      scroll_view_base (win::container* m, scroll_view_base&&);
+      scroll_view_base ();
+      scroll_view_base (const scroll_view_base&) = default;
+      scroll_view_base (scroll_view_base&&) = default;
 
       void init (ctrl::vertical_scroll_bar* vscroll,
                  ctrl::horizontal_scroll_bar* hscroll,
                  win::window* edge);
 
-      core::rectangle layout (const core::rectangle& new_size, const core::rectangle& required);
+      core::rectangle layout (const core::rectangle& new_size, const core::rectangle& required) const;
 
       static core::rectangle get_vscroll_area (const core::rectangle&, bool hscroll_bar_enabled);
       static core::rectangle get_hscroll_area (const core::rectangle&, bool vscroll_bar_enabled);
@@ -51,10 +51,6 @@ namespace gui {
       static core::rectangle get_client_area (const core::rectangle&);
 
     protected:
-      void init (std::function<size_callback> f1) {
-        super::init(f1);
-      }
-
       ctrl::vertical_scroll_bar*   vscroll;
       ctrl::horizontal_scroll_bar* hscroll;
       win::window*                 edge;
@@ -65,23 +61,26 @@ namespace gui {
     public:
       typedef scroll_view_base super;
 
-      scroll_view (win::container* main);
-      scroll_view (win::container* m, const scroll_view&);
-      scroll_view (win::container* m, scroll_view&&);
+      scroll_view ();
+      scroll_view (const scroll_view&);
+      scroll_view (scroll_view&&);
 
-      void layout (const core::rectangle& new_size);
+      void layout (const core::rectangle& new_size) const;
 
       void set_in_scroll_event (bool);
       bool is_in_scroll_event () const;
+
+      void set_main (win::container* main);
 
     private:
       const win::move_event::function me;
       const win::size_event::function se;
 
+      win::container* main;
       bool in_scroll_event;
 
-      void handle_child_move (const core::point&);
-      void handle_child_size (const core::size&);
+      void handle_child_move (const core::point&) const;
+      void handle_child_size (const core::size&) const;
     };
 
     // --------------------------------------------------------------------------

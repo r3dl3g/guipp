@@ -53,6 +53,7 @@ else()
         hello_world
         filemanager
         list_app
+        new_border_layout
     )
 endif()
 

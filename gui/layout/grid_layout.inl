@@ -25,94 +25,64 @@ namespace gui {
   namespace layout {
 
     template<unsigned W, unsigned H, unsigned B, unsigned G>
-    inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m)
-      : super(m) {
-      init();
-    }
-
-    template<unsigned W, unsigned H, unsigned B, unsigned G>
-    inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m, const grid_lineup& rhs)
-      : super(m, rhs) {
-      init();
-    }
-
-    template<unsigned W, unsigned H, unsigned B, unsigned G>
-    inline grid_lineup<W, H, B, G>::grid_lineup (win::container* m, grid_lineup&& rhs)
-      : super(m, std::move(rhs)) {
-      init();
-    }
+    inline grid_lineup<W, H, B, G>::grid_lineup (std::initializer_list<layout_function> list)
+      : super(list)
+    {}
 
     template<unsigned width, unsigned height, unsigned border, unsigned gap>
-    void grid_lineup<width, height, border, gap>::layout (const core::rectangle& sz) {
-      LogTrace << "grid_lineup::layout(" << sz << ")";
-      std::vector<win::window*> children = get_children();
-      const type xmax = sz.width() - border;
-      const type ymax = sz.height() - border;
+    void grid_lineup<width, height, border, gap>::layout (const core::rectangle& r) const {
+      LogTrace << "grid_lineup::layout(" << r << ")";
+      const auto& elements = super::get_elements();
+      const type border2 = (border * 2);
+      const type xmax = r.width() - border2;
+      const type ymax = r.height() - border2;
 
-      if (children.size()) {
+      if (elements.size()) {
         if ((xmax > border) && (ymax > border)) {
           const type xoffset = width + gap;
           const type yoffset = height + gap;
-          core::rectangle area(border, border, width, height);
-          for (win::window* win : children) {
-            place_child(win, area);
+          core::rectangle area(border + r.x(), border + r.y(), width, height);
+          for (auto const& e : elements) {
+            e(area);
             area.move_x(xoffset);
             if (area.x2() > xmax) {
-              area.move_to_x(border);
+              area.move_to_x(border + r.x());
               area.move_y(yoffset);
             }
           }
         } else {
-          hide_children(children);
+          for (auto const& e : elements) {
+            e(core::rectangle::zero);
+          }
         }
       }
     }
 
-    template<unsigned W, unsigned H, unsigned B, unsigned G>
-    inline void grid_lineup<W, H, B, G>::init () {
-      super::init(basepp::bind_method(this, &grid_lineup::layout), [&] () {
-        layout(get_layout_area());
-      });
-    }
-
     // --------------------------------------------------------------------------
     template<unsigned C, unsigned R, unsigned B, unsigned G>
-    inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m)
-      : super(m) {
-      init();
-    }
-
-    template<unsigned C, unsigned R, unsigned B, unsigned G>
-    inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m, const grid_adaption& rhs)
-      : super(m, rhs) {
-      init();
-    }
-
-    template<unsigned C, unsigned R, unsigned B, unsigned G>
-    inline grid_adaption<C, R, B, G>::grid_adaption (win::container* m, grid_adaption&& rhs)
-      : super(m, std::move(rhs)) {
-      init();
-    }
+    inline grid_adaption<C, R, B, G>::grid_adaption (std::initializer_list<layout_function> list)
+      : super(list)
+    {}
 
     template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
-    void grid_adaption<columns, rows, border, gap>::layout (const core::rectangle& sz) {
-      LogTrace << "grid_adaption::layout(" << sz << ")";
-      std::vector<win::window*> children = get_children();
+    void grid_adaption<columns, rows, border, gap>::layout (const core::rectangle& r) const {
+      LogTrace << "grid_adaption::layout(" << r << ")";
+      const auto& elements = super::get_elements();
       const type border2 = (border * 2);
-      const type xspace = sz.width() - border2;
-      const type yspace = sz.height() - border2;
+      const type xspace = r.width() - border2;
+      const type yspace = r.height() - border2;
 
-      if (children.size()) {
+      if (elements.size()) {
         if ((xspace > 0) && (yspace > 0)) {
           const type width = (xspace - (gap * (columns - 1))) / columns;
           const type height = (yspace - (gap * (rows - 1))) / rows;
           const type xoffset = width + gap;
           const type yoffset = height + gap;
 
-          core::rectangle area(border, border, width, height);
+          core::rectangle area(border + r.x(), border + r.y(), width, height);
           int column = 0;
-          for (win::window* win : children) {
-            place_child(win, area);
+          for (auto const& e : elements) {
+            e(area);
             column++;
             if (column < columns) {
               area.move_x(xoffset);
@@ -123,16 +93,11 @@ namespace gui {
             }
           }
         } else {
-          hide_children(children);
+          for (auto const& e : elements) {
+            e(core::rectangle::zero);
+          }
         }
       }
-    }
-
-    template<unsigned C, unsigned R, unsigned B, unsigned G>
-    inline void grid_adaption<C, R, B, G>::init () {
-      super::init(basepp::bind_method(this, &grid_adaption::layout), [&] () {
-        layout(get_layout_area());
-      });
     }
 
   } // namespace layout

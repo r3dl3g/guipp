@@ -48,11 +48,13 @@ namespace gui {
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      adaption_layout (win::container* m);
-      adaption_layout (win::container* m, const adaption_layout& rhs);
-      adaption_layout (win::container* m, adaption_layout&& rhs);
+      adaption_layout () = default;
+      adaption_layout (const adaption_layout&) = default;
+      adaption_layout (adaption_layout&&) = default;
 
-      void layout (const core::rectangle& sz);
+      adaption_layout (std::initializer_list<layout_function> list);
+
+      void layout (const core::rectangle&) const;
 
     private:
       void init ();

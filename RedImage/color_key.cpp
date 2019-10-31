@@ -8,6 +8,7 @@ namespace view {
       min_scroll.set_min_max(min, max);
       max_scroll.create(*this);
       max_scroll.set_min_max(min, max);
+      get_layout().add({&min_scroll, &max_scroll});
     });
   }
 
@@ -18,6 +19,7 @@ namespace view {
     on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
       min_max.create(*this);
       scrolls.create(*this);
+      get_layout().add({&min_max, &scrolls});
     });
     scrolls.min_scroll.on_scroll([&] (const gui::core::point::type) {
       min_max.min_edit.set_text(ostreamfmt((int)scrolls.min_scroll.get_value()));

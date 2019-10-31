@@ -565,7 +565,7 @@ public:
       return entry_view_type::row{};
     }, 0);
 
-    get_layout().set_center_top_bottom_left_right(&content_view, &menu, &status_bar, nullptr, nullptr);
+    get_layout().set_center_top_bottom_left_right(layout::win(content_view), layout::win(menu), layout::win(status_bar), nullptr, nullptr);
     set_children_visible();
   }
 

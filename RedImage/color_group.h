@@ -16,6 +16,7 @@ namespace view {
       on_create([&] (gui::win::window*, const gui::core::rectangle&) {
         min_color.create(*this);
         max_color.create(*this);
+        get_layout().add({&min_color, &max_color});
       });
     }
 

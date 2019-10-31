@@ -35,18 +35,7 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    void attach::init (win::container* main) {
-#ifdef NDEBUG
-      main->on_layout(basepp::bind_method(this, &attach::layout));
-#else
-      main->on_layout([&, main] (const core::rectangle & sz) {
-//        LogDebug << "attach size_event " << main->get_class_name() << " " << sz;
-        layout(sz);
-      });
-#endif
-    }
-
-    void attach::layout (const core::rectangle&) {
+    void attach::layout (const core::rectangle&) const {
       typedef std::pair<core::rectangle, core::size> place_and_size;
       typedef std::map<win::window*, place_and_size> window_places;
       typedef window_places::iterator iterator;
@@ -75,7 +64,7 @@ namespace gui {
           r.second = r.first.size() - diff;
         }
       }
-      for (auto i : places) {
+      for (auto& i : places) {
         i.first->place(i.second.first);
       }
     }

@@ -13,6 +13,8 @@ namespace view {
       saturation.create(*this);
       value.create(*this);
       colors.create(*this);
+      get_layout().add({&hue, &saturation, &value, &colors});
+
     });
   }
   // --------------------------------------------------------------------------

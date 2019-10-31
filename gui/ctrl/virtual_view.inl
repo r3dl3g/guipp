@@ -24,11 +24,9 @@ namespace gui {
   namespace layout {
 
     template<typename T>
-    inline virtual_layout<T>::virtual_layout (win::container* main)
-      : super(main)
-    {
-      super::init(basepp::bind_method(this, &virtual_layout::layout));
-    }
+    inline virtual_layout<T>::virtual_layout ()
+      : client(nullptr)
+    {}
 
     template<typename T>
     inline void virtual_layout<T>::init (ctrl::vertical_scroll_bar* vscroll,
@@ -40,13 +38,13 @@ namespace gui {
     }
 
     template<typename T>
-    inline void virtual_layout<T>::layout (const core::rectangle& new_size) {
+    inline void virtual_layout<T>::layout (const core::rectangle& r) const {
       LogTrace << "virtual_layout::layout()";
       if (client) {
-        auto available = super::layout(new_size, client->get_virtual_place());
+        auto available = super::layout(r, client->get_virtual_place());
         client->place(available);
       } else {
-        super::layout(new_size, core::rectangle());
+        super::layout(r, core::rectangle());
       }
     }
 

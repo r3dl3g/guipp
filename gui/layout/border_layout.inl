@@ -26,72 +26,58 @@ namespace gui {
 
     namespace detail {
 
-      inline border_layout_base::border_layout_base (win::container* m,
-                                                     float top_height,
+      inline border_layout_base::border_layout_base (float top_height,
                                                      float bottom_height,
                                                      float left_width,
                                                      float right_width)
-        : super(m)
-        , data(top_height, bottom_height, left_width, right_width)
+        : data(top_height, bottom_height, left_width, right_width)
       {}
 
-      inline border_layout_base::border_layout_base (win::container* m,
-                                                     const border_layout_base& rhs)
-        : super(m)
-        , data(rhs.data)
-      {}
-
-      inline border_layout_base::border_layout_base (win::container* m,
-                                                     border_layout_base&& rhs)
-        : super(m)
-        , data(std::move(rhs.data))
-      {}
-
-      inline win::window* border_layout_base::get_center () const {
+      inline const layout_function& border_layout_base::get_center () const {
         return data.center;
       }
 
-      inline win::window* border_layout_base::get_top () const {
+      inline const layout_function& border_layout_base::get_top () const {
         return data.top;
       }
 
-      inline win::window* border_layout_base::get_bottom () const {
+      inline const layout_function& border_layout_base::get_bottom () const {
         return data.bottom;
       }
 
-      inline win::window* border_layout_base::get_left () const {
+      inline const layout_function& border_layout_base::get_left () const {
         return data.left;
       }
 
-      inline win::window* border_layout_base::get_right () const {
+      inline const layout_function& border_layout_base::get_right () const {
         return data.right;
       }
 
-      inline void border_layout_base::set_center (win::window* center) {
+      inline void border_layout_base::set_center (layout_function center) {
         data.center = center;
       }
 
-      inline void border_layout_base::set_top (win::window* top) {
+      inline void border_layout_base::set_top (layout_function top) {
         data.top = top;
       }
 
-      inline void border_layout_base::set_bottom (win::window* bottom) {
+      inline void border_layout_base::set_bottom (layout_function bottom) {
         data.bottom = bottom;
       }
 
-      inline void border_layout_base::set_left (win::window* left) {
+      inline void border_layout_base::set_left (layout_function left) {
         data.left = left;
       }
 
-      inline void border_layout_base::set_right (win::window* right) {
+      inline void border_layout_base::set_right (layout_function right) {
         data.right = right;
       }
 
-      inline void border_layout_base::set_center_top_bottom_left_right (win::window* center,
-                                                                        win::window* top,
-                                                                        win::window* bottom,
-                                                                        win::window* left,
-                                                                        win::window* right) {
+      inline void border_layout_base::set_center_top_bottom_left_right (layout_function center,
+                                                                        layout_function top,
+                                                                        layout_function bottom,
+                                                                        layout_function left,
+                                                                        layout_function right) {
         data.center = center;
         data.top = top;
         data.bottom = bottom;
@@ -135,12 +121,7 @@ namespace gui {
                                                                          float bottom_height,
                                                                          float left_width,
                                                                          float right_width)
-        : center(nullptr)
-        , top(nullptr)
-        , bottom(nullptr)
-        , left(nullptr)
-        , right(nullptr)
-        , top_height(top_height)
+        : top_height(top_height)
         , bottom_height(bottom_height)
         , left_width(left_width)
         , right_width(right_width)
@@ -281,29 +262,21 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<border_layout_type type>
-    border_layout<type>::border_layout (win::container* m,
+    border_layout<type>::border_layout (win::container*,
                                         float top_height,
                                         float bottom_height,
                                         float left_width,
                                         float right_width)
-      : super(m, top_height, bottom_height, left_width, right_width)
-    {
-      init();
-    }
+      : super(top_height, bottom_height, left_width, right_width)
+    {}
 
     template<border_layout_type type>
-    border_layout<type>::border_layout (win::container* m, const border_layout& rhs)
-      : super(m, rhs)
-    {
-      init();
-    }
-
-    template<border_layout_type type>
-    border_layout<type>::border_layout (win::container* m, border_layout&& rhs)
-      : super(m, std::move(rhs))
-    {
-      init();
-    }
+    border_layout<type>::border_layout (float top_height,
+                                        float bottom_height,
+                                        float left_width,
+                                        float right_width)
+      : super(top_height, bottom_height, left_width, right_width)
+    {}
 
     template<border_layout_type type>
     void border_layout<type>::layout (const core::rectangle& sz) {
@@ -312,32 +285,25 @@ namespace gui {
       core::size bottom_right(super::get_right_width(), super::get_bottom_height());
       core::size size = sz.size() - top_left - bottom_right;
       core::rectangle r = core::rectangle(sz.top_left() + top_left, size);
-      if (super::get_top() && is_child_visible(super::get_top())) {
+      if (super::get_top()) {
         const typename geometrie::points pt = geometrie::get_top_position(r, sz);
-        place_child(super::get_top(), core::rectangle(pt.first, 0, pt.second, top_left.height()));
+        super::get_top()(core::rectangle(pt.first, 0, pt.second, top_left.height()));
       }
-      if (super::get_bottom() && is_child_visible(super::get_bottom())) {
+      if (super::get_bottom()) {
         const typename geometrie::points pt = geometrie::get_bottom_position(r, sz);
-        place_child(super::get_bottom(), core::rectangle(pt.first, r.y2(), pt.second, bottom_right.height()));
+        super::get_bottom()(core::rectangle(pt.first, r.y2(), pt.second, bottom_right.height()));
       }
-      if (super::get_left() && is_child_visible(super::get_left())) {
+      if (super::get_left()) {
         const typename geometrie::points pt = geometrie::get_left_position(r, sz);
-        place_child(super::get_left(), core::rectangle(0, pt.first, top_left.width(), pt.second));
+        super::get_left()(core::rectangle(0, pt.first, top_left.width(), pt.second));
       }
-      if (super::get_right() && is_child_visible(super::get_right())) {
+      if (super::get_right()) {
         const typename geometrie::points pt = geometrie::get_right_position(r, sz);
-        place_child(super::get_right(), core::rectangle(r.x2(), pt.first, bottom_right.width(), pt.second));
+        super::get_right()(core::rectangle(r.x2(), pt.first, bottom_right.width(), pt.second));
       }
-      if (super::get_center() && is_child_visible(super::get_center())) {
-        place_child(super::get_center(), r);
+      if (super::get_center()) {
+        super::get_center()(r);
       }
-    }
-
-    template<border_layout_type type>
-    void border_layout<type>::init () {
-      super::init(basepp::bind_method(this, &border_layout::layout), [&](){
-        layout(get_layout_area());
-      });
     }
 
   } // namespace layout

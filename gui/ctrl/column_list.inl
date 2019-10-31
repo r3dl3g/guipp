@@ -70,27 +70,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      inline base_column_list_layout::base_column_list_layout (win::container* m)
-        : super(m)
-      {
-        init();
-      }
-
-      inline base_column_list_layout::base_column_list_layout (win::container* m, const base_column_list_layout& rhs)
-        : super(m, rhs)
-        , data(rhs.data)
-      {
-        init();
-      }
-
-      inline base_column_list_layout::base_column_list_layout (win::container* m, base_column_list_layout&& rhs)
-        : super(m, std::move(rhs))
-        , data(std::move(rhs.data))
-      {
-        init();
-      }
-
-      inline void base_column_list_layout::layout (const core::rectangle& sz) {
+      inline void base_column_list_layout::layout (const core::rectangle& sz) const {
         LogTrace << "base_column_list_layout::layout(" << sz << ")";
         data.header->resize(core::size(sz.width(), 20), false);
         data.list->resize(sz.size() - core::size(0, 20), false);
@@ -99,10 +79,6 @@ namespace gui {
       inline void base_column_list_layout::set_header_and_list (win::window* header, list_type* list) {
         data.list = list;
         data.header = header;
-      }
-
-      inline void base_column_list_layout::init () {
-        super::init(basepp::bind_method(this, &base_column_list_layout::layout));
       }
 
       inline base_column_list_layout::data::data ()

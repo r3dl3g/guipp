@@ -497,22 +497,22 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     });
   }
 
-  client_view.get_layout().attach_fix<What::right, Where::width, -110>(&hsegmented1, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -110>(hsegmented1, client_view);
 
-  client_view.get_layout().attach_fix<What::right, Where::width, -110>(&hsegmented2, &client_view);
-  client_view.get_layout().attach_fix<What::top, Where::height, -35>(&hsegmented2, &client_view);
-  client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(&hsegmented2, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -110>(hsegmented2, client_view);
+  client_view.get_layout().attach_fix<What::top, Where::height, -35>(hsegmented2, client_view);
+  client_view.get_layout().attach_fix<What::bottom, Where::height, -10>(hsegmented2, client_view);
 
-  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(&vsegmented1, &client_view);
-  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented1, &client_view);
+  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(vsegmented1, client_view);
+  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(vsegmented1, client_view);
 
-  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(&vsegmented2, &client_view);
-  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(&vsegmented2, &client_view);
-  client_view.get_layout().attach_fix<What::left, Where::width, -80>(&vsegmented2, &client_view);
-  client_view.get_layout().attach_fix<What::right, Where::width, -10>(&vsegmented2, &client_view);
+  client_view.get_layout().attach_relative<What::top, make_relative(0.1), 40>(vsegmented2, client_view);
+  client_view.get_layout().attach_relative<What::bottom, make_relative(0.9)>(vsegmented2, client_view);
+  client_view.get_layout().attach_fix<What::left, Where::width, -80>(vsegmented2, client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -10>(vsegmented2, client_view);
 
-  client_view.get_layout().attach_fix<What::right, Where::width, -79>(&window1, &client_view);
-  client_view.get_layout().attach_fix<What::bottom, Where::height, -34>(&window1, &client_view);
+  client_view.get_layout().attach_fix<What::right, Where::width, -79>(window1, client_view);
+  client_view.get_layout().attach_fix<What::bottom, Where::height, -34>(window1, client_view);
 
   top_view.get_layout().add({layout::win(menu), layout::win(tool_bar)});
   get_layout().set_center_top_bottom_left_right(layout::win(client_view),

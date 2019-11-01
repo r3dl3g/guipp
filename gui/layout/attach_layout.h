@@ -22,12 +22,15 @@
 //
 // Common includes
 //
+#include <type_traits>
+#include <map>
 
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
 #include <gui/layout/layout.h>
+#include <gui/win/window.h>
 
 
 namespace gui {
@@ -55,6 +58,7 @@ namespace gui {
 
     namespace detail {
 
+      // --------------------------------------------------------------------------
       template<int O, int R>
       struct scale {
         static core::point::type calc (core::point::type a);
@@ -70,6 +74,7 @@ namespace gui {
         static core::point::type calc (core::point::type a);
       };
 
+      // --------------------------------------------------------------------------
       template<Where W, int O, int R = 10000>
       struct source {
         static core::point::type calc (const core::size& sz, const core::rectangle& outer);
@@ -105,49 +110,40 @@ namespace gui {
         static core::point::type calc (const core::size& sz, const core::rectangle& outer);
       };
 
+      // --------------------------------------------------------------------------
       template<What T, Where W, int O, int R = 10000>
       struct target {
-        void operator() (core::rectangle&,
-                         const core::size&,
-                         const core::rectangle&);
+        static void adjust (core::rectangle&,
+                            const core::size&,
+                            const core::rectangle&);
       };
 
       template<Where W, int O, int R>
       struct target<What::left, W, O, R> {
-        void operator() (core::rectangle& rect,
-                         const core::size& sz,
-                         const core::rectangle& outer);
+        static void adjust (core::rectangle& rect,
+                            const core::size& sz,
+                            const core::rectangle& outer);
       };
 
       template<Where W, int O, int R>
       struct target<What::right, W, O, R> {
-        void operator() (core::rectangle& rect,
-                         const core::size& sz,
-                         const core::rectangle& outer);
+        static void adjust (core::rectangle& rect,
+                            const core::size& sz,
+                            const core::rectangle& outer);
       };
 
       template<Where W, int O, int R>
       struct target<What::top, W, O, R> {
-        void operator() (core::rectangle& rect,
-                         const core::size& sz,
-                         const core::rectangle& outer);
+        static void adjust (core::rectangle& rect,
+                            const core::size& sz,
+                            const core::rectangle& outer);
       };
 
       template<Where W, int O, int R>
       struct target<What::bottom, W, O, R> {
-        void operator() (core::rectangle& rect,
-                         const core::size& sz,
-                         const core::rectangle& outer);
-      };
-
-      struct attachment {
-        typedef void (adjust_function)(core::rectangle&,
-                                       const core::size&,
-                                       const core::rectangle&);
-
-        win::window* target;
-        win::window* source;
-        std::function<adjust_function> adjust;
+        static void adjust (core::rectangle& rect,
+                            const core::size& sz,
+                            const core::rectangle& outer);
       };
 
       // --------------------------------------------------------------------------
@@ -182,19 +178,64 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    class GUIPP_LAYOUT_EXPORT attach {
+    template<typename S, typename T>
+    class attach_t {
     public:
+      struct attachment {
+        using adjust_function = void(*)(core::rectangle&,
+                                        const core::size&,
+                                        const core::rectangle&);
+        T target;
+        S source;
+        adjust_function adjust;
+      };
+
       template<What what, Where where, int offset = 0>
-      void attach_fix (win::window* target, win::window* source);
+      void attach_fix (T target, S source);
 
       template<What what, int relativ, int offset = 0>
-      void attach_relative (win::window* target, win::window* source);
+      void attach_relative (T target, S source);
 
       void layout (const core::rectangle& sz) const;
 
     private:
-      std::vector<detail::attachment> attachments;
+      std::vector<attachment> attachments;
     };
+
+    // --------------------------------------------------------------------------
+    template<typename T>
+    struct attach_traits {
+      using key_type = T*;
+      static core::rectangle place (const T&);
+      static core::size size (const T&);
+      static key_type key (T&);
+      static void place (key_type, const core::rectangle&);
+    };
+
+    // --------------------------------------------------------------------------
+    template<>
+    struct attach_traits<win::window&> {
+      using key_type = win::window*;
+
+      static core::rectangle place (const win::window& t) {
+        return t.place();
+      }
+
+      static core::size size (const win::window& t) {
+        return t.client_size();
+      }
+
+      static key_type key (win::window& t) {
+        return &t;
+      }
+
+      static void place (win::window* t, const core::rectangle& r) {
+        t->place(r);
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    using attach = attach_t<win::window&, win::window&>;
 
     // --------------------------------------------------------------------------
   } // namespace layout

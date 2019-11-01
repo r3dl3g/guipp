@@ -48,9 +48,6 @@ namespace gui {
       typedef detail::origin_layout<H, R> super;
 
       lineup_layout () = default;
-      lineup_layout (const lineup_layout&) = default;
-      lineup_layout (lineup_layout&&) = default;
-
       lineup_layout (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle& sz) const;

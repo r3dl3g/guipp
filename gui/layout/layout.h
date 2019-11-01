@@ -104,9 +104,6 @@ namespace gui {
       typedef std::vector<layout_element> element_list;
 
       layout_base () = default;
-      layout_base (const layout_base&) = default;
-      layout_base (layout_base&&) = default;
-
       layout_base (std::initializer_list<layout_function> list);
 
       const element_list& get_elements () const;
@@ -131,9 +128,6 @@ namespace gui {
         typedef core::size::type type;
 
         orientation_layout () = default;
-        orientation_layout (const orientation_layout&) = default;
-        orientation_layout (orientation_layout&&) = default;
-
         orientation_layout (std::initializer_list<layout_function> list);
 
         type get_dimension1 (const core::point&) const;
@@ -154,9 +148,6 @@ namespace gui {
         typedef core::size::type type;
 
         origin_layout () = default;
-        origin_layout (const origin_layout&) = default;
-        origin_layout (origin_layout&&) = default;
-
         origin_layout (std::initializer_list<layout_function> list);
 
         core::rectangle init_area (type border, type dim1, type dim2,

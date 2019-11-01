@@ -57,8 +57,6 @@ namespace gui {
                             float bottom_height = 0,
                             float left_width = 0,
                             float right_width = 0);
-        border_layout_base (const border_layout_base& rhs) = default;
-        border_layout_base (border_layout_base&& rhs) = default;
 
         const layout_function& get_center () const;
         const layout_function& get_top () const;
@@ -144,8 +142,6 @@ namespace gui {
                      float bottom_height,
                      float left_width,
                      float right_width);
-      border_layout (const border_layout& rhs) = default;
-      border_layout (border_layout&& rhs) = default;
 
       void layout (const core::rectangle& sz);
     };

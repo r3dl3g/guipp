@@ -43,9 +43,6 @@ namespace gui {
       typedef layout_base super;
 
       grid_lineup () = default;
-      grid_lineup (const grid_lineup&) = default;
-      grid_lineup (grid_lineup&&) = default;
-
       grid_lineup (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle&) const;
@@ -59,9 +56,6 @@ namespace gui {
       typedef layout_base super;
 
       grid_adaption () = default;
-      grid_adaption (const grid_adaption&) = default;
-      grid_adaption (grid_adaption&&) = default;
-
       grid_adaption (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle&) const;

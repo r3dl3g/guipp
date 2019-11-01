@@ -49,9 +49,6 @@ namespace gui {
       typedef detail::origin_layout<H, R> super;
 
       adaption_layout () = default;
-      adaption_layout (const adaption_layout&) = default;
-      adaption_layout (adaption_layout&&) = default;
-
       adaption_layout (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle&) const;

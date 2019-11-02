@@ -132,9 +132,9 @@ namespace gui {
 } // namespace gui
 
 // --------------------------------------------------------------------------
-class my_main_window : public win::layout_main_window<layout::attach> {
+class my_main_window : public win::layout_main_window<layout::win_attach> {
 public:
-  typedef win::layout_main_window<layout::attach> super;
+  typedef win::layout_main_window<layout::win_attach> super;
   my_main_window ();
 
   void onCreated (win::window*, const core::rectangle&);

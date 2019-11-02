@@ -26,56 +26,62 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<int O, int R>
-      inline core::point::type scale<O, R>::calc (core::point::type a) {
-        return core::point::type(a * core::point::type(R) / 10000.0 + O);
+      template<int R>
+      inline core::point::type scale<R>::calc (core::point::type a, int o) {
+        return core::point::type(a * core::point::type(R) / 10000.0 + o);
       }
 
-      template<int O>
-      inline core::point::type scale<O, 10000>::calc (core::point::type a) {
-        return core::point::type(a + O);
+      template<>
+      inline core::point::type scale<10000>::calc (core::point::type a, int o) {
+        return core::point::type(a + o);
       }
 
-      template<int O>
-      inline core::point::type scale<O, 0>::calc (core::point::type a) {
-        return core::point::type(O);
+      template<>
+      inline core::point::type scale<0>::calc (core::point::type, int o) {
+        return core::point::type(o);
       }
 
       // --------------------------------------------------------------------------
-      template<int O, int R>
-      inline core::point::type source<Where::x, O, R>::calc (const core::size& sz,
-                                                            const core::rectangle& outer) {
-        return scale<O, R>::calc(outer.x());
+      template<int R>
+      inline core::point::type source<Where::x, R>::calc (const core::size& sz,
+                                                          const core::rectangle& outer,
+                                                          int o) {
+        return scale<R>::calc(outer.x(), o);
       }
 
-      template<int O, int R>
-      inline core::point::type source<Where::x2, O, R>::calc (const core::size&,
-                                                             const core::rectangle& outer) {
-        return scale<O, R>::calc(outer.x2());
+      template<int R>
+      inline core::point::type source<Where::x2, R>::calc (const core::size&,
+                                                           const core::rectangle& outer,
+                                                           int o) {
+        return scale<R>::calc(outer.x2(), o);
       }
 
-      template<int O, int R>
-      inline core::point::type source<Where::y, O, R>::calc (const core::size& sz,
-                                                            const core::rectangle& outer) {
-        return scale<O, R>::calc(outer.y());
+      template<int R>
+      inline core::point::type source<Where::y, R>::calc (const core::size& sz,
+                                                          const core::rectangle& outer,
+                                                          int o) {
+        return scale<R>::calc(outer.y(), o);
       }
 
-      template<int O, int R>
-      inline core::point::type source<Where::y2, O, R>::calc (const core::size& sz,
-                                                             const core::rectangle& outer) {
-        return scale<O, R>::calc(outer.y2());
+      template<int R>
+      inline core::point::type source<Where::y2, R>::calc (const core::size& sz,
+                                                           const core::rectangle& outer,
+                                                           int o) {
+        return scale<R>::calc(outer.y2(), o);
       }
 
-      template<int O, int R>
-      inline core::point::type source<Where::width, O, R>::calc (const core::size& sz,
-                                                                const core::rectangle& outer) {
-        return scale<O, R>::calc(sz.width());
+      template<int R>
+      inline core::point::type source<Where::width, R>::calc (const core::size& sz,
+                                                              const core::rectangle& outer,
+                                                              int o) {
+        return scale<R>::calc(sz.width(), o);
       }
 
-      template<int O, int R>
-      inline core::point::type source<Where::height, O, R>::calc (const core::size& sz,
-                                                                 const core::rectangle& outer) {
-        return scale<O, R>::calc(sz.height());
+      template<int R>
+      inline core::point::type source<Where::height, R>::calc (const core::size& sz,
+                                                               const core::rectangle& outer,
+                                                               int o) {
+        return scale<R>::calc(sz.height(), o);
       }
 
       // --------------------------------------------------------------------------
@@ -83,7 +89,7 @@ namespace gui {
       void target<What::left, W, O, R>::adjust (core::rectangle& rect,
                                                        const core::size& sz,
                                                        const core::rectangle& outer) {
-        rect.x(source<W, O, R>::calc(sz, outer));
+        rect.x(source<W, R>::calc(sz, outer, O));
       }
 
 
@@ -91,21 +97,21 @@ namespace gui {
       void target<What::right, W, O, R>::adjust (core::rectangle& rect,
                                                         const core::size& sz,
                                                         const core::rectangle& outer) {
-        rect.x2(source<W, O, R>::calc(sz, outer));
+        rect.x2(source<W, R>::calc(sz, outer, O));
       }
 
       template<Where W, int O, int R>
       void target<What::top, W, O, R>::adjust (core::rectangle& rect,
                                                       const core::size& sz,
                                                       const core::rectangle& outer) {
-        rect.y(source<W, O, R>::calc(sz, outer));
+        rect.y(source<W, R>::calc(sz, outer, O));
       }
 
       template<Where W, int O, int R>
       void target<What::bottom, W, O, R>::adjust (core::rectangle& rect,
                                                          const core::size& sz,
                                                          const core::rectangle& outer) {
-        rect.y2(source<W, O, R>::calc(sz, outer));
+        rect.y2(source<W, R>::calc(sz, outer, O));
       }
 
     } //namespace detail
@@ -113,16 +119,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename S, typename T>
     template<What what, Where where, int offset>
-    inline void attach_t<S, T>::attach_fix (T target, S source) {
+    inline void attach_t<S, T>::attach_fix (target_type target, source_type source) {
       auto fkt = detail::target<what, where, offset, 10000>::adjust;
-      attachments.push_back({target, source, fkt});
+      attachments.push_back(factory<S, T>()(target, source, fkt));
     }
 
     template<typename S, typename T>
     template<What what, int relativ, int offset>
-    inline void attach_t<S, T>::attach_relative (T target, S source) {
+    inline void attach_t<S, T>::attach_relative (target_type target, source_type source) {
       auto fkt = detail::target<what, detail::convert_from<what>::where, offset, relativ>::adjust;
-      attachments.push_back({target, source, fkt});
+      attachments.push_back(factory<S, T>()(target, source, fkt));
     }
 
     // --------------------------------------------------------------------------
@@ -134,18 +140,15 @@ namespace gui {
         core::size size;
       };
 
-      using st = attach_traits<S>;
-      using tt = attach_traits<T>;
-
-      using source_places_t = std::map<typename st::key_type, place_and_size>;
-      using target_places_t = std::map<typename tt::key_type, place_and_size>;
+      using source_places_t = std::map<source_key, place_and_size, source_comperator>;
+      using target_places_t = std::map<target_key, place_and_size, target_comperator>;
 
       source_places_t splaces;
       target_places_t tplaces;
 
       for (const attachment& a : attachments) {
-        auto t_key = tt::key(a.target);
-        auto s_key = st::key(a.source);
+        auto t_key = target_traits::key(a.target);
+        auto s_key = source_traits::key(a.source);
         auto t_it = tplaces.find(t_key);
         auto s_it = splaces.find(s_key);
 
@@ -153,8 +156,8 @@ namespace gui {
         if (s_it != splaces.end()) {
           source = s_it->second;
         } else {
-          source.place = st::place(a.source);
-          source.size = st::size(a.source);
+          source.place = source_traits::place(a.source);
+          source.size = source_traits::size(a.source);
           splaces[s_key] = source;
         }
 
@@ -162,15 +165,15 @@ namespace gui {
           a.adjust(t_it->second.place, source.size, source.place);
         } else {
           place_and_size& r = tplaces[t_key];
-          r.place = tt::place(a.target);
-          r.size = tt::size(a.target);
+          r.place = target_traits::place(a.target);
+          r.size = target_traits::size(a.target);
           core::size diff = r.place.size() - r.size;
           a.adjust(r.place, source.size, source.place);
           r.size = r.place.size() - diff;
         }
       }
       for (auto& i : tplaces) {
-        tt::place(i.first, i.second.place);
+        target_traits::place(i.first, i.second.place);
       }
     }
 

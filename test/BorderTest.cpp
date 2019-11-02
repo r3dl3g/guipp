@@ -96,7 +96,7 @@ private:
   typedef ctrl::sorted_file_tree file_tree;
   ctrl::horizontal_split_view<simple_tree, file_tree> right_view;
 
-  group_window<attach, color::rgb_gray<224>::value> client_view;
+  group_window<win_attach, color::rgb_gray<224>::value> client_view;
 
   top_tab_group<color::black, color::very_light_gray, 50, 80> hsegmented1;
   bottom_tab_group<color::black, color::very_light_gray, 40, 70> hsegmented2;

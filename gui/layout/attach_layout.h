@@ -59,55 +59,59 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<int O, int R>
+      template<int R>
       struct scale {
-        static core::point::type calc (core::point::type a);
-      };
-
-      template<int O>
-      struct scale<O, 10000> {
-        static core::point::type calc (core::point::type a);
-      };
-
-      template<int O>
-      struct scale<O, 0> {
-        static core::point::type calc (core::point::type a);
+        static core::point::type calc (core::point::type a, int o);
       };
 
       // --------------------------------------------------------------------------
-      template<Where W, int O, int R = 10000>
+      template<Where W, int R = 10000>
       struct source {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::x, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::x, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::x2, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::x2, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::y, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::y, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::y2, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::y2, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::width, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::width, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
-      template<int O, int R>
-      struct source<Where::height, O, R> {
-        static core::point::type calc (const core::size& sz, const core::rectangle& outer);
+      template<int R>
+      struct source<Where::height, R> {
+        static core::point::type calc (const core::size& sz,
+                                       const core::rectangle& outer,
+                                       int o);
       };
 
       // --------------------------------------------------------------------------
@@ -181,20 +185,31 @@ namespace gui {
     template<typename S, typename T>
     class attach_t {
     public:
+      using source_traits = S;
+      using target_traits = T;
+      using source_key = typename source_traits::key_type;
+      using target_key = typename target_traits::key_type;
+      using source_comperator = typename source_traits::comperator;
+      using target_comperator = typename target_traits::comperator;
+      using source_type = typename source_traits::type;
+      using target_type = typename target_traits::type;
+      using source_store_type = typename source_traits::store_type;
+      using target_store_type = typename target_traits::store_type;
+
       struct attachment {
         using adjust_function = void(*)(core::rectangle&,
                                         const core::size&,
                                         const core::rectangle&);
-        T target;
-        S source;
+        target_store_type target;
+        source_store_type source;
         adjust_function adjust;
       };
 
       template<What what, Where where, int offset = 0>
-      void attach_fix (T target, S source);
+      void attach_fix (target_type target, source_type source);
 
       template<What what, int relativ, int offset = 0>
-      void attach_relative (T target, S source);
+      void attach_relative (target_type target, source_type source);
 
       void layout (const core::rectangle& sz) const;
 
@@ -202,41 +217,217 @@ namespace gui {
       std::vector<attachment> attachments;
     };
 
-    // --------------------------------------------------------------------------
-    template<typename T>
-    struct attach_traits {
-      using key_type = T*;
-      static core::rectangle place (const T&);
-      static core::size size (const T&);
-      static key_type key (T&);
-      static void place (key_type, const core::rectangle&);
+    template<typename S, typename T>
+    struct factory {
+      using attach = attach_t<S, T>;
+      using source_type = typename attach::source_type;
+      using target_type = typename attach::target_type;
+      using source_store_type = typename attach::source_store_type;
+      using target_store_type = typename attach::target_store_type;
+      using attachment = typename attach::attachment;
+      using adjust_function = typename attachment::adjust_function;
+
+      attachment operator() (target_type target, source_type source, adjust_function fkt) {
+        return {target_store_type(target), source_store_type(source), fkt};
+      }
     };
 
     // --------------------------------------------------------------------------
-    template<>
-    struct attach_traits<win::window&> {
+    struct win_attach_traits {
       using key_type = win::window*;
+      using comperator = std::less<key_type>;
+      using type = win::window&;
+      using store_type = win::window&;
 
-      static core::rectangle place (const win::window& t) {
+      static inline core::rectangle place (const win::window& t) {
         return t.place();
       }
 
-      static core::size size (const win::window& t) {
+      static inline core::size size (const win::window& t) {
         return t.client_size();
       }
 
-      static key_type key (win::window& t) {
+      static inline key_type key (win::window& t) {
         return &t;
       }
 
-      static void place (win::window* t, const core::rectangle& r) {
+      static inline void place (key_type t, const core::rectangle& r) {
         t->place(r);
       }
     };
 
     // --------------------------------------------------------------------------
-    using attach = attach_t<win::window&, win::window&>;
+    using win_attach = attach_t<win_attach_traits, win_attach_traits>;
 
+    template<>
+    struct factory<win_attach_traits, win_attach_traits> {
+      using attach = attach_t<win_attach_traits, win_attach_traits>;
+      using attachment = typename attach::attachment;
+      using adjust_function = typename attachment::adjust_function;
+
+      attachment operator() (win::window& target, win::window& source, adjust_function fkt) {
+        return {target, source, fkt};
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename L>
+    struct attachable_layout {
+      attachable_layout ()
+      {}
+
+      attachable_layout (const L& lay)
+        : lay(lay)
+      {}
+
+      attachable_layout (L&& lay)
+        : lay(std::move(lay))
+      {}
+
+      operator L& () {
+        return lay;
+      }
+
+      void layout (const core::rectangle& r) const {
+        place = r;
+        lay.layout(r);
+      }
+
+      L lay;
+      mutable core::rectangle place;
+    };
+
+    // --------------------------------------------------------------------------
+    /*abstract*/ struct attach_base {
+      virtual core::rectangle place () const = 0;
+      virtual core::size size () const = 0;
+      virtual void place (const core::rectangle&) = 0;
+      virtual const void* key () const = 0;
+      virtual attach_base* clone () const = 0;
+
+      bool operator== (const attach_base& rhs) const {
+        return key() == rhs.key();
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    struct all_attach_traits {
+      using key_type = attach_base*;
+
+      struct key_compare {
+        bool operator() (const key_type lhs, const key_type rhs) const {
+          return lhs->key() < rhs->key();
+        }
+      };
+
+      using comperator = key_compare;
+      using type = const attach_base&;
+      using store_type = std::unique_ptr<attach_base>;
+
+      static inline core::rectangle place (const store_type& t) {
+        return t.get()->place();
+      }
+
+      static inline core::size size (const store_type& t) {
+        return t.get()->size();
+      }
+
+      static inline const key_type key (const store_type& t) {
+        return t.get();
+      }
+
+      static inline void place (key_type k, const core::rectangle& r) {
+        k->place(r);
+      }
+    };
+
+    template<>
+    struct factory<all_attach_traits, all_attach_traits> {
+      using attach = attach_t<all_attach_traits, all_attach_traits>;
+      using attachment = typename attach::attachment;
+      using adjust_function = typename attachment::adjust_function;
+
+      static std::unique_ptr<attach_base> make_unique (const attach_base& a) {
+          return std::unique_ptr<attach_base>(a.clone());
+      }
+      attachment operator() (const attach_base& target, const attach_base& source, adjust_function fkt) {
+        return {make_unique(target), make_unique(source), fkt};
+      }
+    };
+
+    // --------------------------------------------------------------------------
+    struct attach_win : public attach_base {
+      attach_win (win::window& win)
+        : win(win)
+      {}
+
+      core::rectangle place () const override {
+        return win.place();
+      }
+
+      core::size size () const override {
+        return win.client_size();
+      }
+
+      void place (const core::rectangle& r) override {
+        win.place(r);
+      }
+
+      const void* key () const override {
+        return &win;
+      }
+
+      virtual attach_base* clone () const {
+        return new attach_win(win);
+      }
+
+    private:
+      win::window& win;
+    };
+
+    // --------------------------------------------------------------------------
+    template<typename L>
+    struct attach_layout : public attach_base {
+      using layout = attachable_layout<L>;
+
+      attach_layout (layout& lay)
+        : lay(lay)
+      {}
+
+      core::rectangle place () const override {
+        return lay.place;
+      }
+
+      core::size size () const override {
+        return lay.place.size();
+      }
+
+      void place (const core::rectangle& r) override {
+        lay.layout(r);
+      }
+
+      const void* key () const override {
+        return &lay;
+      }
+
+      virtual attach_layout* clone () const {
+        return new attach_layout(lay);
+      }
+
+    private:
+      attachable_layout<L>& lay;
+    };
+
+    // --------------------------------------------------------------------------
+    using attach_all = attach_t<all_attach_traits, all_attach_traits>;
+
+    namespace attach {
+      using win = attach_win;
+
+      template<typename L>
+      using lay = attach_layout<L>;
+
+    }
     // --------------------------------------------------------------------------
   } // namespace layout
 

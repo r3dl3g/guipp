@@ -717,7 +717,7 @@ namespace gui {
       super::traits.set(place, super::get_item_dimension() * first - super::get_scroll_pos(), super::get_item_dimension());
 
       for (auto idx = first; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
-        super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
+        super::draw_item(idx, graph, place, back_brush, super::get_item_state(static_cast<int>(idx)));
         super::traits.set(place, super::traits.get(place.top_left()) + super::get_item_dimension(), super::get_item_dimension());
       }
 

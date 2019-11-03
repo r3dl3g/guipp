@@ -52,8 +52,8 @@ namespace gui {
     using layout_callback = void(const core::rectangle&);
     using layout_function = std::function<layout_callback>;
 
-    layout_function win (win::window& w);
-    layout_function win (win::window* w);
+    GUIPP_LAYOUT_EXPORT layout_function win (win::window& w);
+    GUIPP_LAYOUT_EXPORT layout_function win (win::window* w);
 
     template<typename T>
     layout_function lay (T& l) {

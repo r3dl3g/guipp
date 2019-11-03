@@ -564,7 +564,7 @@ namespace gui {
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
         MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
-        send_client_message(this, WM_LAYOUT_WINDOW, r);
+        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(r.size()));
       }
     }
 

@@ -47,8 +47,7 @@ namespace gui {
     public:
       typedef win::layout_dialog_window<layout::border_layout<>,
                                         float, float, float, float> super;
-      typedef win::group_window<layout::horizontal_adaption<>,
-                                color::very_light_gray> button_view_type;
+      using button_layout_type = layout::horizontal_adaption<>;
 
       standard_dialog_base (float top = 0);
 
@@ -60,7 +59,7 @@ namespace gui {
 
       void show (win::container& parent);
 
-      button_view_type button_views;
+      button_layout_type button_layout;
       std::vector<text_button> buttons;
     };
 

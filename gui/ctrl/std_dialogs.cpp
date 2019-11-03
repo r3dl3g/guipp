@@ -32,10 +32,9 @@ namespace gui {
                               const core::rectangle& rect,
                               std::function<dialog_action> action,
                               const std::initializer_list<std::string>& labels) {
-      get_layout().set_bottom(layout::win(button_views));
+      get_layout().set_bottom(layout::lay(button_layout));
       super::create(parent, rect);
       set_title(title);
-      button_views.create(*this);
       buttons.resize(labels.size());
 
       auto i = 0;
@@ -47,12 +46,14 @@ namespace gui {
             action(i);
           }
         });
-        btn.create(button_views, l);
-        button_views.get_layout().add(layout::win(btn));
+        btn.create(*this, l);
+        button_layout.add(layout::win(btn));
         ++i;
       }
       on_set_focus([&] (window*) {
-        buttons.back().take_focus();
+        if (!buttons.empty()) {
+          buttons.back().take_focus();
+        }
       });
     }
 

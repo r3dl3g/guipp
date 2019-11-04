@@ -57,6 +57,13 @@ namespace gui {
       void init ();
     };
 
+    template<orientation A, unsigned B, unsigned C, unsigned D, unsigned E, unsigned F, origin G>
+    struct is_layout<adaption_layout<A, B, C, D, E, F, G>> {
+      enum {
+        value = true
+      };
+    };
+
     // --------------------------------------------------------------------------
     template<unsigned border = 0,
              unsigned gap = 0,

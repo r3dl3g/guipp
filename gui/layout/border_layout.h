@@ -146,6 +146,13 @@ namespace gui {
       void layout (const core::rectangle& sz);
     };
 
+    template<border_layout_type T>
+    struct is_layout<border_layout<T>> {
+      enum {
+        value = true
+      };
+    };
+
     // --------------------------------------------------------------------------
   } // namespace layout
 

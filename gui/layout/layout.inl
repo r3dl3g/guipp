@@ -51,7 +51,7 @@ namespace gui {
 
     inline void layout_base::add (std::initializer_list<win::window*> list) {
       for (win::window* w : list) {
-        add(win(w));
+        add(lay(w));
       }
     }
 

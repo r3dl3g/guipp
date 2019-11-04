@@ -345,10 +345,10 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   int i = 0;
   for (tool_bar_button& b : buttons) {
     b.create(tool_bar);
-    tool_bar.get_layout().add(layout::win(b));
+    tool_bar.get_layout().add(layout::lay(b));
     if (i % 4 == 3) {
       separators[i / 4].create(tool_bar);
-      tool_bar.get_layout().add(layout::win(separators[i / 4]), true);
+      tool_bar.get_layout().add(layout::lay(separators[i / 4]), true);
     }
     b.on_hilite_changed([&, i](bool b) {
       labels[3].set_text(ostreamfmt("button " << i << (b ? " " : " un") << "hilited"));
@@ -384,7 +384,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   i = 1;
   for (StatusLabel& l : labels) {
     l.create(status_bar);
-    status_bar.get_layout().add(layout::win(l));
+    status_bar.get_layout().add(layout::lay(l));
     l.set_text(ostreamfmt("Status " << i++));
   }
 
@@ -514,12 +514,12 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   client_view.get_layout().attach_fix<What::right, Where::width, -79>(window1, client_view);
   client_view.get_layout().attach_fix<What::bottom, Where::height, -34>(window1, client_view);
 
-  top_view.get_layout().add({layout::win(menu), layout::win(tool_bar)});
-  get_layout().set_center_top_bottom_left_right(layout::win(client_view),
-                                                layout::win(top_view),
-                                                layout::win(status_bar),
-                                                layout::win(left_list),
-                                                layout::win(right_view));
+  top_view.get_layout().add({layout::lay(menu), layout::lay(tool_bar)});
+  get_layout().set_center_top_bottom_left_right(layout::lay(client_view),
+                                                layout::lay(top_view),
+                                                layout::lay(status_bar),
+                                                layout::lay(left_list),
+                                                layout::lay(right_view));
   set_children_visible();
 }
 

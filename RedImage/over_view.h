@@ -28,7 +28,7 @@ namespace view {
     super::on_create([&] (gui::win::window*, const gui::core::rectangle&) {
       for(int i = 0; i < count; ++i) {
         image_views[i].create(*this);
-        super::get_layout().add(gui::layout::win(image_views[i]));
+        super::get_layout().add(gui::layout::lay(image_views[i]));
       }
     });
   }

@@ -297,7 +297,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     hsv_view.place(r);
     mask_view.place(r);
     full_image_view.place(r);
-  }, layout::win(menu), layout::win(status), layout::win(colors), nullptr);
+  }, layout::lay(menu), layout::lay(status), layout::lay(colors), nullptr);
 
   for (int i = 0; i < view::side_bar::COLOR_COUNT; ++i) {
     filter_view.image_views[i + 1].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {

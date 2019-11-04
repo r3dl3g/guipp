@@ -49,6 +49,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<unsigned W, unsigned H, unsigned B, unsigned G>
+    struct is_layout<grid_lineup<W, H, B, G>> {
+      enum {
+        value = true
+      };
+    };
+
+    // --------------------------------------------------------------------------
     template<unsigned columns, unsigned rows, unsigned border = 0, unsigned gap = 0>
     class grid_adaption : public layout_base {
     public:
@@ -59,6 +67,14 @@ namespace gui {
       grid_adaption (std::initializer_list<layout_function> list);
 
       void layout (const core::rectangle&) const;
+    };
+
+    // --------------------------------------------------------------------------
+    template<unsigned C, unsigned R, unsigned B, unsigned G>
+    struct is_layout<grid_adaption<C, R, B, G>> {
+      enum {
+        value = true
+      };
     };
 
     // --------------------------------------------------------------------------

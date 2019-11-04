@@ -263,8 +263,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   main.on_create([&] (window*, const rectangle& rect) {
     client.create(main, rect);
     menu.create(main);
-    main.get_layout().set_top(layout::win(menu));
-    main.get_layout().set_center(layout::win(client));
+    main.get_layout().set_top(layout::lay(menu));
+    main.get_layout().set_center(layout::lay(client));
   });
   client.header.set_cell_drawer([&] (std::size_t i, const draw::graphics& g,
                                            const core::rectangle& r, const draw::brush& background) {

@@ -218,6 +218,13 @@ namespace gui {
     };
 
     template<typename S, typename T>
+    struct is_layout<attach_t<S, T>> {
+      enum {
+        value = true
+      };
+    };
+
+    template<typename S, typename T>
     struct factory {
       using attach = attach_t<S, T>;
       using source_type = typename attach::source_type;
@@ -295,6 +302,13 @@ namespace gui {
 
       L lay;
       mutable core::rectangle place;
+    };
+
+    template<typename L>
+    struct is_layout<attachable_layout<L>> {
+      enum {
+        value = true
+      };
     };
 
     // --------------------------------------------------------------------------

@@ -846,14 +846,14 @@ template<int T, typename C>
 void create_buttons (C& m, ctrl::label labels[T]) {
   for (int i = 0; i < T; ++i) {
     labels[i].create(m, ctrl::const_text(ostreamfmt("No. " << (i + 1))));
-    m.get_layout().add(layout::win(labels[i]));
+    m.get_layout().add(layout::lay(labels[i]));
   }
 }
 
 template<int T, typename C>
 void create_group (my_main_window::group_group_t& m, C& c, ctrl::label labels[T]) {
   c.create(m);
-  m.get_layout().add(layout::win(c));
+  m.get_layout().add(layout::lay(c));
   create_buttons<T>(c, labels);
 }
 
@@ -1098,23 +1098,23 @@ void my_main_window::created_children () {
   ok_button.create(btn_group, "Ok");
   del_button.create(btn_group, "Del");
   clear_button.create(btn_group, "Clear");
-  btn_group.get_layout().add({layout::win(ok_button), layout::win(del_button), layout::win(clear_button)});
+  btn_group.get_layout().add({layout::lay(ok_button), layout::lay(del_button), layout::lay(clear_button)});
 
   btn_sep1.create(btn_group);
-  btn_group.get_layout().add(layout::win(btn_sep1), true);
+  btn_group.get_layout().add(layout::lay(btn_sep1), true);
 
   min_button.create(btn_group, "Min");
   max_button.create(btn_group, "Max");
   norm_button.create(btn_group, "Norm");
-  btn_group.get_layout().add({layout::win(min_button), layout::win(max_button), layout::win(norm_button)});
+  btn_group.get_layout().add({layout::lay(min_button), layout::lay(max_button), layout::lay(norm_button)});
 
   btn_sep2.create(btn_group);
-  btn_group.get_layout().add(layout::win(btn_sep2), true);
+  btn_group.get_layout().add(layout::lay(btn_sep2), true);
 
   info_button.create(btn_group, "Info");
   null_button.create(btn_group, "0");
   full_button.create(btn_group, "Full");
-  btn_group.get_layout().add({layout::win(info_button), layout::win(null_button), layout::win(full_button)});
+  btn_group.get_layout().add({layout::lay(info_button), layout::lay(null_button), layout::lay(full_button)});
 
   group_group.create(main, core::rectangle(400, 345, 10, 10));
   create_group<4>(group_group, h_lineup_group, h_lineup_labels);

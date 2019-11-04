@@ -54,6 +54,14 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
+    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
+    struct is_layout<lineup_layout<H, D, B, G, S, R>> {
+      enum {
+        value = true
+      };
+    };
+
+    // --------------------------------------------------------------------------
     template<unsigned dim1,
              unsigned border = 0,
              unsigned gap = 0,

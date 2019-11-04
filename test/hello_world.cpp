@@ -26,7 +26,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef horizontal_split_view<label_center, label_center> labels;
   vertical_split_view<label_center, labels> client;
 
-  main.get_layout().add(win(client));
+  main.get_layout().add(lay(client));
   main.on_create([&] (window* parent, const rectangle& rect) {
     client.create(main, rect);
     client.set_split_pos(0.5);

@@ -13,6 +13,43 @@
 
 DEFINE_LOGGING_CORE(NOTHING)
 
+struct drawing {
+
+  void create (gui::win::window& w, const gui::core::rectangle& r = gui::core::rectangle::def) {
+    area = r;
+    w.on_paint(gui::draw::paint(this, &drawing::paint));
+  }
+
+  void paint (const gui::draw::graphics& g) {
+    g.fill(gui::draw::rectangle(area), gui::color::light_gray);
+    g.text(gui::draw::text_box(text(), area, gui::text_origin::center),
+               gui::draw::font::system(),
+               gui::color::dark_blue);
+  }
+
+  void set_text (const gui::ctrl::text_source& t) {
+    text = t;
+  }
+
+  void place (const gui::core::rectangle& r) {
+    area = r;
+  }
+
+  const gui::core::rectangle& place () const {
+    return area;
+  }
+
+  gui::ctrl::text_source text;
+  gui::core::rectangle area;
+};
+
+template<typename T>
+gui::layout::layout_function any (T& t) {
+  return [&t] (const gui::core::rectangle& r) {
+    t.place(r);
+  };
+}
+
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
@@ -22,12 +59,13 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::core;
 
   layout_main_window<attachable_layout<attach_all>> main;
-  label_center first, second, third, fourth, fifth;
+  label_center first, second, third;//, fourth, fifth;
+  drawing fourth, fifth;
   using right_layout = vertical_adaption<0, 2>;
   using middle_layout = horizontal_adaption<0, 2>;
 
-  attachable_layout<right_layout> right(right_layout{win(second), win(third)});
-  attachable_layout<middle_layout> middle(middle_layout{win(fourth), win(fifth)});
+  attachable_layout<right_layout> right(right_layout{lay(second), lay(third)});
+  attachable_layout<middle_layout> middle(middle_layout{any(fourth), any(fifth)});
 
   attach_all& layout = main.get_layout();
 
@@ -35,7 +73,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using rlay = att::lay<right_layout>;
   using mlay = att::lay<middle_layout>;
 
-  layout.attach_relative<What::top, 0, 10>(attach_win(first), attach_win(main));
+  layout.attach_relative<What::top, 0, 10>(att::win(first), att::win(main));
   layout.attach_fix<What::bottom, Where::height, -10>(att::win(first), att::win(main));
   layout.attach_relative<What::left, 0, 10>(att::win(first), att::win(main));
   layout.attach_relative<What::right, make_relative(0.33), -10>(att::win(first), att::win(main));

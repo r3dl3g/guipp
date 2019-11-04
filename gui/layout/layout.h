@@ -52,20 +52,34 @@ namespace gui {
     using layout_callback = void(const core::rectangle&);
     using layout_function = std::function<layout_callback>;
 
-    GUIPP_LAYOUT_EXPORT layout_function win (win::window& w);
-    GUIPP_LAYOUT_EXPORT layout_function win (win::window* w);
+    GUIPP_LAYOUT_EXPORT layout_function lay (win::window&);
+    GUIPP_LAYOUT_EXPORT layout_function lay (win::window*);
 
-    template<typename T>
+    template <typename T>
+    struct is_layout {
+      enum {
+        value = false
+      };
+    };
+
+    template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
     layout_function lay (T& l) {
       return [&l] (const core::rectangle& r) {
         l.layout(r);
       };
     }
 
-    template<typename T>
+    template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
     layout_function lay (T&& l) {
       return [l] (const core::rectangle& r) {
         l.layout(r);
+      };
+    }
+
+    template<typename T, typename std::enable_if<is_layout<T>::value>::type* = nullptr>
+    layout_function lay (T* l) {
+      return [l] (const core::rectangle& r) {
+        l->layout(r);
       };
     }
 
@@ -110,12 +124,20 @@ namespace gui {
 
       void add (const layout_function& e, bool is_separator = false);
       void add (layout_function&& e, bool is_separator = false);
+
       void add (std::initializer_list<layout_function> list);
       void add (std::initializer_list<win::window*> list);
 
     protected:
       element_list elements;
 
+    };
+
+    template<>
+    struct is_layout<layout_base> {
+      enum {
+        value = true
+      };
     };
 
     namespace detail {

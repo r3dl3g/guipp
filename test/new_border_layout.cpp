@@ -22,16 +22,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   layout_main_window<border_layout<>, float, float, float, float> main(100, 100, 100, 20);
   label_center first, second, third;
-  horizontal_adaption<0, 2> client({win(first), lay(vertical_adaption<0, 2>({win(second), win(third)}))});
+  horizontal_adaption<0, 2> client({lay(first), lay(vertical_adaption<0, 2>({lay(second), lay(third)}))});
 
   label_center top_labels[5];
-  horizontal_lineup<200, 5, 10, 0, gui::origin::center> top({win(top_labels[0]), win(top_labels[1]), win(top_labels[2]), win(top_labels[3]), win(top_labels[4])});
+  horizontal_lineup<200, 5, 10, 0, gui::origin::center> top({lay(top_labels[0]), lay(top_labels[1]), lay(top_labels[2]), lay(top_labels[3]), lay(top_labels[4])});
 
   label_center bottom_labels[5];
-  grid_lineup<100, 50, 5, 10> bottom({win(bottom_labels[0]), win(bottom_labels[1]), win(bottom_labels[2]), win(bottom_labels[3]), win(bottom_labels[4])});
+  grid_lineup<100, 50, 5, 10> bottom({lay(bottom_labels[0]), lay(bottom_labels[1]), lay(bottom_labels[2]), lay(bottom_labels[3]), lay(bottom_labels[4])});
 
   label_center left_labels[5];
-  grid_adaption<2, 4, 5, 10> left({win(left_labels[0]), win(left_labels[1]), win(left_labels[2]), win(left_labels[3]), win(left_labels[4])});
+  grid_adaption<2, 4, 5, 10> left({lay(left_labels[0]), lay(left_labels[1]), lay(left_labels[2]), lay(left_labels[3]), lay(left_labels[4])});
 
   main.get_layout().set_center(lay(client));
   main.get_layout().set_top(lay(top));

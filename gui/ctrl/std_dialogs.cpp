@@ -47,7 +47,7 @@ namespace gui {
           }
         });
         btn.create(*this, l);
-        button_layout.add(layout::win(btn));
+        button_layout.add(layout::lay(btn));
         ++i;
       }
       on_set_focus([&] (window*) {
@@ -78,7 +78,7 @@ namespace gui {
     yes_no_dialog::yes_no_dialog ()
       : super(content_view_type(20, 15, 15, 15))
     {
-      content_view.get_layout().set_center(layout::win(message_view));
+      content_view.get_layout().set_center(layout::lay(message_view));
     }
 
     void yes_no_dialog::create (win::container& parent,
@@ -109,7 +109,7 @@ namespace gui {
     message_dialog::message_dialog ()
       : super(content_view_type(20, 15, 15, 15))
     {
-      content_view.get_layout().set_center(layout::win(message_view));
+      content_view.get_layout().set_center(layout::lay(message_view));
     }
 
     void message_dialog::create (win::container& parent,
@@ -159,9 +159,9 @@ namespace gui {
         input_line.set_text(files.get_selected_path().filename().string());
       });
 
-      top_view.get_layout().set_center(layout::win(input_line));
-      top_view.get_layout().set_left(layout::win(input_label));
-      get_layout().set_top(layout::win(top_view));
+      top_view.get_layout().set_center(layout::lay(input_line));
+      top_view.get_layout().set_left(layout::lay(input_label));
+      get_layout().set_top(layout::lay(top_view));
 
       super::create(parent, title,
                     core::rectangle(300, 200, 600, 400),

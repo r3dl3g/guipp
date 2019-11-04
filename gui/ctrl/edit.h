@@ -143,6 +143,32 @@ namespace gui {
     using edit_right = basic_edit<text_origin::vcenter_right>;
     using edit_center = basic_edit<text_origin::center>;
 
+    // --------------------------------------------------------------------------
+    template<text_origin alignment,
+             char C = '#',
+             draw::frame::drawer frame = draw::frame::sunken_relief,
+             os::color foreground = color::black,
+             os::color background = color::white>
+    class basic_pass : public detail::edit_base {
+    public:
+      typedef detail::edit_base super;
+
+      basic_pass ();
+      basic_pass (const basic_pass& rhs);
+      basic_pass (basic_pass&& rhs);
+
+      void paint (const draw::graphics& graph);
+
+    private:
+      void init ();
+    };
+
+    // --------------------------------------------------------------------------
+    using pass_left = basic_pass<text_origin::vcenter_left>;
+    typedef pass_left pass;
+    using pass_right = basic_pass<text_origin::vcenter_right>;
+    using pass_center = basic_pass<text_origin::center>;
+
   } // ctrl
 
 } // gui

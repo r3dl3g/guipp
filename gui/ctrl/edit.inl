@@ -11,7 +11,7 @@
  *
  * Customer   -
  *
- * @brief     C++ API: edit controls
+ * @brief     C++ API: pass controls
  *
  * @file
  */
@@ -53,6 +53,40 @@ namespace gui {
     inline void basic_edit<A, D, F, B>::init () {
       super::register_handler();
       super::on_paint(draw::paint(this, &basic_edit::paint));
+    }
+
+    // --------------------------------------------------------------------------
+    template<text_origin A, char C, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_pass<A, C, D, F, B>::basic_pass () {
+      init();
+    }
+
+    template<text_origin A, char C, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_pass<A, C, D, F, B>::basic_pass (const basic_pass& rhs)
+      : super(rhs)
+    {
+      init();
+    }
+
+    template<text_origin A, char C, draw::frame::drawer D, os::color F, os::color B>
+    inline basic_pass<A, C, D, F, B>::basic_pass (basic_pass&& rhs)
+      : super(std::move(rhs))
+    {
+      init();
+    }
+
+    template<text_origin alignment, char character, draw::frame::drawer frame, os::color foreground, os::color background>
+    inline void basic_pass<alignment, character, frame, foreground, background>::paint (const draw::graphics& graph) {
+      auto area = frame(graph, client_area());
+      area.shrink(core::size::one);
+      std::string t(data.text.length(), character);
+      paint::edit_line(graph, area, t, draw::font::system(), foreground, background, alignment, data.selection, data.cursor_pos, data.scroll_pos, has_focus());
+    }
+
+    template<text_origin A, char C, draw::frame::drawer D, os::color F, os::color B>
+    inline void basic_pass<A, C, D, F, B>::init () {
+      super::register_handler();
+      super::on_paint(draw::paint(this, &basic_pass::paint));
     }
 
   } // ctrl

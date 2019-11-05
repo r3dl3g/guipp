@@ -154,25 +154,25 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     scroll_view::scroll_view ()
-      : main(nullptr)
-      , me(basepp::bind_method(this, &scroll_view::handle_child_move))
+      : me(basepp::bind_method(this, &scroll_view::handle_child_move))
       , se(basepp::bind_method(this, &scroll_view::handle_child_size))
+      , main(nullptr)
       , in_scroll_event(false)
     {}
 
     scroll_view::scroll_view (const scroll_view& rhs)
       : super(rhs)
-      , main(nullptr)
       , me(basepp::bind_method(this, &scroll_view::handle_child_move))
       , se(basepp::bind_method(this, &scroll_view::handle_child_size))
+      , main(nullptr)
       , in_scroll_event(false)
     {}
 
     scroll_view::scroll_view (scroll_view&& rhs)
       : super(std::move(rhs))
-      , main(nullptr)
       , me(basepp::bind_method(this, &scroll_view::handle_child_move))
       , se(basepp::bind_method(this, &scroll_view::handle_child_size))
+      , main(nullptr)
       , in_scroll_event(false)
     {}
 

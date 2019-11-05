@@ -34,13 +34,13 @@ namespace gui {
   namespace draw {
 
     basic_datamap::basic_datamap (const blob& data, const bitmap_info& info)
-      : data(data)
-      , info(info)
+      : info(info)
+      , data(data)
     {}
 
     basic_datamap::basic_datamap (blob&& data, bitmap_info&& info)
-      : data(std::move(data))
-      , info(std::move(info))
+      : info(std::move(info))
+      , data(std::move(data))
     {}
 
     bool basic_datamap::is_valid () const {

@@ -468,7 +468,7 @@ DEFINE_TEST(test_file_icon) {
   EXPECT_EQUAL(mask.pixel_format(), PixelFormat::BW);
   EXPECT_EQUAL(mask.get_info(), draw::bitmap_info(20, 20, 4, PixelFormat::BW));
 
-  auto bw_data = mask.get_data();
+//  auto bw_data = mask.get_data();
 
   {
     auto data = mask.get_data();

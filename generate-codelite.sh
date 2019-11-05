@@ -4,7 +4,7 @@ prjdir=$PWD
 
 mkdir -p $builddir/debug
 pushd $builddir/debug
-cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_MAKE_PROGRAM="gmake"
+cmake "$prjdir" -G"CodeLite - Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_MAKE_PROGRAM="gmake"
 popd
 
 #mkdir -p $builddir/release

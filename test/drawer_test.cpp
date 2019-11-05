@@ -4,8 +4,8 @@
 #include <gui/draw/bitmap.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
-#include <testlib/testlib.h>
 #include <testlib/image_test_lib.h>
+#include <testlib/testlib.h>
 
 #define NOTHING
 

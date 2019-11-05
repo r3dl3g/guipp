@@ -336,8 +336,8 @@ DEFINE_TEST(test_pixmap_draw) {
   int green_pix = 0;
   int blue_pix = 0;
 
-  const uint32_t rows = raw.get_info().height;
-  const uint32_t columns = raw.get_info().width;
+//  const uint32_t rows = raw.get_info().height;
+//  const uint32_t columns = raw.get_info().width;
   for (uint32_t r = 0; r < 6; ++r) {
     auto row = raw.row(r);
     for (uint32_t c = 0; c < 6; ++c) {
@@ -448,8 +448,8 @@ END_TEST(test_pixmap2bitmap)
 DEFINE_TEST(test_bitmap2pixmap) {
   bwmap bw(2,2);
   using raw_type = image_data<PixelFormat::BW>;
-  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
-  using row_type = image_data<PixelFormat::BW>::row_type;
+//  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
+//  using row_type = image_data<PixelFormat::BW>::row_type;
   raw_type bw_raw = bw.get_data();
   bw_raw.pixel(0, 0) = pixel::mono::black;
   bw_raw.pixel(0, 1) = pixel::mono::white;
@@ -471,8 +471,8 @@ END_TEST(test_bitmap2pixmap)
 DEFINE_TEST(test_bitmap_scale2pixmap) {
   bwmap bw(2,2);
   using raw_type = image_data<PixelFormat::BW>;
-  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
-  using row_type = image_data<PixelFormat::BW>::row_type;
+//  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
+//  using row_type = image_data<PixelFormat::BW>::row_type;
   raw_type bw_raw = bw.get_data();
   bw_raw.pixel(0, 0) = pixel::mono::black;
   bw_raw.pixel(0, 1) = pixel::mono::white;

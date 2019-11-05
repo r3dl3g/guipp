@@ -417,11 +417,11 @@ public:
   TimeTracker ()
     : super(20, 30, 0, 0)
     , left_view(content_view.first)
-    , right_view(content_view.second)
     , filter_tree(left_view.first)
     , weekdays(left_view.second)
+    , right_view(content_view.second)
     , main_view(right_view.first)
-    , bottom_view(right_view.second)
+//    , bottom_view(right_view.second)
     , top_view(main_view.first)
     , entry_view(main_view.second)
     , category_view(top_view.first)
@@ -648,7 +648,7 @@ private:
 
   right_view_type& right_view;
   main_view_type& main_view;
-  bottom_view_type& bottom_view;
+//  bottom_view_type& bottom_view;
 
   top_view_type& top_view;
   entry_view_type& entry_view;

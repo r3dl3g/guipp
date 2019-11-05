@@ -1,7 +1,7 @@
 
 #include <gui/draw/datamap.h>
-#include <testlib/testlib.h>
 #include <testlib/image_test_lib.h>
+#include <testlib/testlib.h>
 #include <gui/io/pnm.h>
 
 #define NOTHING

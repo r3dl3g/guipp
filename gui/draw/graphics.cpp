@@ -471,14 +471,14 @@ namespace gui {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
-        int res = XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
+        /*int res =*/ XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
       } else if (1 == dd) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
-        int res = XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
+        /*int res =*/ XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
       } else {
@@ -527,7 +527,7 @@ namespace gui {
       auto display = core::global::get_instance();
       XGCValues values = { GXinvert };  // .function =
       XChangeGC(display, gc, GCFunction, &values);
-      int res = XCopyArea(get_instance(), 0, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), r.os_x(), r.os_y());
+      /*int res =*/ XCopyArea(get_instance(), 0, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), r.os_x(), r.os_y());
       values = { GXcopy }; // .function =
       XChangeGC(display, gc, GCFunction, &values);
 

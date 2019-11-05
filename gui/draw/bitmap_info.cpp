@@ -97,29 +97,29 @@ namespace gui {
     bitmap_info::bitmap_info ()
       : width(0)
       , height(0)
-      , bytes_per_line(0)
       , pixel_format(PixelFormat::Undefined)
+      , bytes_per_line(0)
     {}
 
     bitmap_info::bitmap_info (const core::native_size& sz, PixelFormat px_fmt)
       : width(sz.width())
       , height(sz.height())
-      , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), px_fmt))
       , pixel_format(px_fmt)
+      , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), px_fmt))
     {}
 
     bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, PixelFormat px_fmt)
       : width(w)
       , height(h)
-      , bytes_per_line(bpl)
       , pixel_format(px_fmt)
+      , bytes_per_line(bpl)
     {}
 
     bitmap_info::bitmap_info (uint32_t w, uint32_t h, PixelFormat px_fmt)
       : width(w)
       , height(h)
-      , bytes_per_line(bitmap_calc_bytes_per_line(w, px_fmt))
       , pixel_format(px_fmt)
+      , bytes_per_line(bitmap_calc_bytes_per_line(w, px_fmt))
     {}
 
     bool bitmap_info::operator== (const bitmap_info& rhs) const {

@@ -534,9 +534,9 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    masked_bitmap::masked_bitmap (const pixmap& image, const bitmap& mask)
-      : image(image)
-      , mask(mask)
+    masked_bitmap::masked_bitmap (const pixmap& img, const bitmap& msk)
+      : image(img)
+      , mask(msk)
     {
       graphics g(this->image);
       Use<pen> use(g, color::white);
@@ -544,8 +544,8 @@ namespace gui {
     }
 
     masked_bitmap::masked_bitmap (pixmap&& img, bitmap&& msk)
-      : image(std::move(image))
-      , mask(std::move(mask))
+      : image(std::move(img))
+      , mask(std::move(msk))
     {
       graphics g(this->image);
       Use<pen> use(g, color::white);

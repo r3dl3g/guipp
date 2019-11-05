@@ -150,9 +150,8 @@ namespace gui {
       }
 
       template<typename T>
-      static std::string build_filename (T t, PNM i) {
-        std::string fname = ostreamfmt(t << "." << get_suffix(i));
-        return fname;
+      static inline std::string build_filename (T t, PNM i) {
+        return ostreamfmt(t << "." << get_suffix(i));
       }
 
       static constexpr bool is_bin (PNM i) {
@@ -170,12 +169,14 @@ namespace gui {
       static const bool bin = is_bin(i);
 
       template<typename T>
-      static std::string build_filename (T t) {
-        std::string fname = ostreamfmt(t << "." << suffix);
-        return fname;
+      static inline std::string build_filename (T t) {
+        return ostreamfmt(t << "." << suffix);
       }
 
     };
+
+    template<PNM i>
+    const char*const pnm<i>::suffix;
 
     template<PixelFormat T>
     void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary = true);

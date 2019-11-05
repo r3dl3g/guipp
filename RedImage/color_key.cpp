@@ -16,7 +16,7 @@ namespace view {
     : min_max(min, max)
     , scrolls(min, max)
   {
-    on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
+    on_create([&] (gui::win::window*, const gui::core::rectangle&) {
       min_max.create(*this);
       scrolls.create(*this);
       get_layout().add({&min_max, &scrolls});

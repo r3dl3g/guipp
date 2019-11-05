@@ -154,10 +154,10 @@ private:
 RedImage::RedImage ()
   : super(20, 24, 260, 0)
 //  , settings_path(sys_fs::absolute("redimage.xml"))
-  , learning_mode(false)
-  , curent_full_image_view(-1)
-  , is_active(true)
   , current_view(nullptr)
+  , curent_full_image_view(-1)
+  , learning_mode(false)
+  , is_active(true)
 {
   for (auto& p : portions) {
     p = 0.0F;
@@ -323,22 +323,22 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     colors.colors[i].value.scrolls.max_scroll.on_scroll([&, i](core::point::type){
       calc_color(i);
     });
-    colors.colors[i].hue.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].hue.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
-    colors.colors[i].hue.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].hue.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
-    colors.colors[i].saturation.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].saturation.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
-    colors.colors[i].saturation.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].saturation.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
-    colors.colors[i].value.scrolls.min_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].value.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
-    colors.colors[i].value.scrolls.max_scroll.on_left_btn_up([&, i](os::key_state, core::point){
+    colors.colors[i].value.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
       calc_image_and_show();
     });
   }

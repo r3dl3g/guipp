@@ -15,13 +15,13 @@ image_info::image_info (const sys_fs::path& filename)
   : image_info(filename, gui::draw::pixmap())
 {}
 // --------------------------------------------------------------------------
-image_info::image_info (const sys_fs::path& filename, draw::pixmap&& image)
-  : good(0)
+image_info::image_info (const sys_fs::path& filenm, draw::pixmap&& img)
+  : image(std::move(img))
+  , good(0)
   , bad(0)
   , off(0)
   , quality(0)
-  , filename(filename)
-  , image(std::move(image))
+  , filename(filenm)
 {}
 // --------------------------------------------------------------------------
 void image_info::set_info (float good, float bad, float off, float quality) {

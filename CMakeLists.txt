@@ -12,6 +12,8 @@ print_var(CMAKE_CXX_PLATFORM_ID)
 print_var(CMAKE_CXX_COMPILER_ID)
 print_var(CMAKE_SYSTEM_PROCESSOR)
 
+set (CMAKE_USE_RELATIVE_PATHS FALSE)
+
 if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Building with Clang!")
     set(CMAKE_CXX_FLAGS "${_PLATFORM_DEFINES}${_PLATFORM_DEFINES_CXX} -fms-extensions -fms-compatibility -Fp -EHsc -D_WINDOWS")
@@ -19,6 +21,10 @@ if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL 
     set(CMAKE_CXX_FLAGS_RELEASE  "/MD -O2 -DNDEBUG")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     add_compile_options(/Y-)
+elseif (CMAKE_CXX_PLATFORM_ID  STREQUAL "FreeBSD")
+    set(CMAKE_CXX_FLAGS "-I/usr/local/include -I/usr/local/include/freetype2")
+    link_directories(/usr/local/lib /usr/local/lib/gcc9)
+    add_definitions(-DBSD)
 endif ()
 
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/obj)

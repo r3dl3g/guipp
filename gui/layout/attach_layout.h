@@ -318,6 +318,8 @@ namespace gui {
       virtual void place (const core::rectangle&) = 0;
       virtual const void* key () const = 0;
       virtual attach_base* clone () const = 0;
+      virtual ~attach_base ()
+      {}
 
       bool operator== (const attach_base& rhs) const {
         return key() == rhs.key();
@@ -391,7 +393,7 @@ namespace gui {
         return &win;
       }
 
-      virtual attach_base* clone () const {
+      attach_base* clone () const override {
         return new attach_win(win);
       }
 
@@ -424,7 +426,7 @@ namespace gui {
         return &lay;
       }
 
-      virtual attach_layout* clone () const {
+      attach_layout* clone () const override {
         return new attach_layout(lay);
       }
 

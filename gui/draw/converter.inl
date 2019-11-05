@@ -54,7 +54,6 @@ namespace gui {
       void line<From, To>::convert (const typename draw::const_image_data<From>::row_type in,
                                     typename draw::image_data<To>::row_type out,
                                     uint32_t w) {
-        using type = typename draw::image_data<To>::pixel_type;
         for (uint_fast32_t x = 0; x < w; ++x) {
           out[x] = in[x];
         }

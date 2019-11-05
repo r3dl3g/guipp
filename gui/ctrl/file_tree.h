@@ -24,32 +24,11 @@
 //
 #include <functional>
 
-#if (__cplusplus >= 201700L)
-
-# include <filesystem>
-namespace sys_fs = std::filesystem;
-
-#elif defined(USE_BOOST)
-
-# include <boost/filesystem.hpp>
-namespace sys_fs = boost::filesystem;
-
-#elif (_MSC_VER >= 1900) || (__GNUC__ > 5) || ((__GNUC__ == 5) && (__GNUC_MINOR__ > 3)) || defined(__clang__)
-
-# include <experimental/filesystem>
-
-namespace sys_fs = std::experimental::filesystem;
-
-#else
-
-# pragma error "No C++ filesystem available"
-
-#endif
-
 // --------------------------------------------------------------------------
 //
 // Library includes
 //
+#include <util/sys_fs.h>
 #include <util/string_util.h>
 #include <gui/ctrl/tree.h>
 #include <gui/ctrl/column_list.h>

@@ -40,7 +40,7 @@ set (IncludeDirs
         ${persistent_include}
         "${CMAKE_CURRENT_SOURCE_DIR}/sources"
         "${CV_PATH}"
-		"${Boost_PATH}"
+        "${Boost_PATH}"
 )
 
 find_package(OpenCV REQUIRED)
@@ -51,7 +51,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${IncludeDirs})
 link_directories(
         "${CV_LIB_PATH}"
-		"${Boost_LIB_PATH}"
+        "${Boost_LIB_PATH}"
 )
 
 add_definitions(${gui_defines})

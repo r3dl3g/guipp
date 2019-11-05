@@ -274,7 +274,7 @@ namespace gui {
     drop_down_list<T, D>::~drop_down_list () {
       auto* root = super::get_root_window();
       if (root) {
-        root->unregister_event_handler<win::move_event>(me);
+        root->template unregister_event_handler<win::move_event>(me);
       }
     }
 
@@ -311,7 +311,7 @@ namespace gui {
 
       auto* root = super::get_root_window();
       if (root) {
-        root->on<win::move_event>(me);
+        root->template on<win::move_event>(me);
       }
     }
 

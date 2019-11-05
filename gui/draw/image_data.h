@@ -525,7 +525,7 @@ namespace gui {
       row_type row (uint32_t y) {
         byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
         using raw_type = typename row_type::type;
-        return std::move(row_type(reinterpret_cast<raw_type*>(row), width()));
+        return row_type(reinterpret_cast<raw_type*>(row), width());
       }
 
       basepp::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {

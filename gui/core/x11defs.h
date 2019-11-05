@@ -22,7 +22,9 @@
 //
 // Common includes
 //
-#include <X11/Xlib-xcb.h>
+#ifdef XCB
+# include <X11/Xlib-xcb.h>
+#endif // XCB
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/Xft/Xft.h>

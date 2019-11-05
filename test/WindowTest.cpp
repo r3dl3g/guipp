@@ -135,6 +135,9 @@ namespace gui {
 class my_main_window : public win::layout_main_window<layout::win_attach> {
 public:
   typedef win::layout_main_window<layout::win_attach> super;
+  typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
+  typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
+
   my_main_window ();
 
   void onCreated (win::window*, const core::rectangle&);
@@ -144,8 +147,6 @@ public:
 
   ctrl::paint_function create_paint1 ();
   ctrl::paint_function create_paint2 ();
-
-  typedef win::cls::main_window_class<my_main_window, color::very_very_light_gray> myclazz;
 
   void create (const core::rectangle& r = core::rectangle::def) {
     super::create(myclazz::get(), r);
@@ -175,7 +176,6 @@ private:
   win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin::end>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
-  typedef win::group_window<layout::horizontal_adaption<5, 5>, color::dark_gray> group_group_t;
   group_group_t group_group;
 
   win::group_window<layout::horizontal_lineup<30, 5, 5>> h_lineup_group;

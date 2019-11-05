@@ -86,7 +86,11 @@ namespace basepp {
 
     // --------------------------------------------------------------------------
     constexpr byte_order get_byte_order () {
+#ifdef BSD
+      return byte_order::little_endian;
+#else
       return byte_order(detail::endianess_check.c[0] == 1);
+#endif
     }
 
     // --------------------------------------------------------------------------

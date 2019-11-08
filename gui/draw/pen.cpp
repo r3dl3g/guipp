@@ -76,6 +76,10 @@ namespace gui {
     }
 
     pen::size_type pen::size () const {
+      return core::global::unscale<float, size_type>(info.lopnWidth.x);
+    }
+
+    pen::size_type pen::os_size () const {
       return info.lopnWidth.x;
     }
 
@@ -108,12 +112,6 @@ namespace gui {
 
     pen::pen (const os::color& color, size_type size, Style style)
       : m_color(color)
-      , m_size(core::global::scale<size_type, float>(size))
-      , m_style(style)
-    {}
-
-    pen::pen (bool, const os::color& color, size_type size, Style style)
-      : m_color(color)
       , m_size(size)
       , m_style(style)
     {}
@@ -134,16 +132,16 @@ namespace gui {
       return m_size;
     }
 
+    pen::size_type pen::os_size () const {
+      return core::global::scale<size_type, float>(m_size);
+    }
+
     pen::Style pen::style () const {
       return m_style;
     }
 
     pen pen::with_size (size_type sz) const {
       return pen(m_color, sz, m_style);
-    }
-
-    pen pen::with_native_size(size_type sz) const {
-      return pen(true, m_color, sz, m_style);
     }
 
     pen pen::with_style (Style s) const {

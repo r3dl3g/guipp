@@ -68,6 +68,14 @@ DECLARE_TEST(test_sunken_relief);
 DECLARE_TEST(test_sunken_relief_x2);
 DECLARE_TEST(test_sunken_relief_x3);
 
+DECLARE_TEST(test_raised_deep_relief);
+DECLARE_TEST(test_raised_deep_relief_x2);
+DECLARE_TEST(test_raised_deep_relief_x3);
+
+DECLARE_TEST(test_sunken_deep_relief);
+DECLARE_TEST(test_sunken_deep_relief_x2);
+DECLARE_TEST(test_sunken_deep_relief_x3);
+
 // --------------------------------------------------------------------------
 TEST_MAIN(frames_test) {
   RUN_TEST(test_no_frame);
@@ -120,6 +128,14 @@ TEST_MAIN(frames_test) {
   RUN_TEST(test_sunken_relief);
   RUN_TEST(test_sunken_relief_x2);
   RUN_TEST(test_sunken_relief_x3);
+
+  RUN_TEST(test_raised_deep_relief);
+  RUN_TEST(test_raised_deep_relief_x2);
+  RUN_TEST(test_raised_deep_relief_x3);
+
+  RUN_TEST(test_sunken_deep_relief);
+  RUN_TEST(test_sunken_deep_relief_x2);
+  RUN_TEST(test_sunken_deep_relief_x3);
 
 } TEST_MAIN_END(frames_test)
 
@@ -959,6 +975,137 @@ DEFINE_TEST(test_sunken_relief_x3) {
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
                            {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_raised_deep_relief) {
+  core::global::set_scale_factor(1.0);
+  pixmap img(5, 5);
+
+  graphics(img).clear(color::black).copy(framer<frame::raised_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{W,W,W,W,Y},
+                           {W,M,M,D,Y},
+                           {W,M,_,D,Y},
+                           {W,D,D,D,Y},
+                           {Y,Y,Y,Y,Y}}));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_raised_deep_relief_x2) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+
+  graphics(img).clear(color::black).copy(framer<frame::raised_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,Y,Y},
+                           {W,W,W,W,W,W,W,W,Y,Y},
+                           {W,W,M,M,M,M,D,D,Y,Y},
+                           {W,W,M,M,M,M,D,D,Y,Y},
+                           {W,W,M,M,_,_,D,D,Y,Y},
+                           {W,W,M,M,_,_,D,D,Y,Y},
+                           {W,W,D,D,D,D,D,D,Y,Y},
+                           {W,W,D,D,D,D,D,D,Y,Y},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y}
+                          }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_raised_deep_relief_x3) {
+  core::global::set_scale_factor(3.0);
+  pixmap img(15, 15);
+
+  graphics(img).clear(color::black).copy(framer<frame::raised_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,W,W,W,W,Y,Y,Y},
+                           {W,W,W,W,W,W,W,W,W,W,W,W,Y,Y,Y},
+                           {W,W,W,W,W,W,W,W,W,W,W,W,Y,Y,Y},
+                           {W,W,W,M,M,M,M,M,M,D,D,D,Y,Y,Y},
+                           {W,W,W,M,M,M,M,M,M,D,D,D,Y,Y,Y},
+                           {W,W,W,M,M,M,M,M,M,D,D,D,Y,Y,Y},
+                           {W,W,W,M,M,M,_,_,_,D,D,D,Y,Y,Y},
+                           {W,W,W,M,M,M,_,_,_,D,D,D,Y,Y,Y},
+                           {W,W,W,M,M,M,_,_,_,D,D,D,Y,Y,Y},
+                           {W,W,W,D,D,D,D,D,D,D,D,D,Y,Y,Y},
+                           {W,W,W,D,D,D,D,D,D,D,D,D,Y,Y,Y},
+                           {W,W,W,D,D,D,D,D,D,D,D,D,Y,Y,Y},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y}
+                          }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_sunken_deep_relief) {
+  core::global::set_scale_factor(1.0);
+  pixmap img(5, 5);
+
+  graphics(img).clear(color::black).copy(framer<frame::sunken_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{Y,Y,Y,Y,W},
+                           {Y,D,D,M,W},
+                           {Y,D,_,M,W},
+                           {Y,M,M,M,W},
+                           {W,W,W,W,W}
+                          }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_sunken_deep_relief_x2) {
+  core::global::set_scale_factor(2.0);
+  pixmap img(10, 10);
+
+  graphics(img).clear(color::black).copy(framer<frame::sunken_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{Y,Y,Y,Y,Y,Y,Y,Y,W,W},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,W,W},
+                           {Y,Y,D,D,D,D,M,M,W,W},
+                           {Y,Y,D,D,D,D,M,M,W,W},
+                           {Y,Y,D,D,_,_,M,M,W,W},
+                           {Y,Y,D,D,_,_,M,M,W,W},
+                           {Y,Y,M,M,M,M,M,M,W,W},
+                           {Y,Y,M,M,M,M,M,M,W,W},
+                           {W,W,W,W,W,W,W,W,W,W},
+                           {W,W,W,W,W,W,W,W,W,W}
+                          }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_sunken_deep_relief_x3) {
+  core::global::set_scale_factor(3.0);
+  pixmap img(15, 15);
+
+  graphics(img).clear(color::black).copy(framer<frame::sunken_deep_relief>({5, 5}), {0, 0});
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,W,W,W},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,W,W,W},
+                           {Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,W,W,W},
+                           {Y,Y,Y,D,D,D,D,D,D,M,M,M,W,W,W},
+                           {Y,Y,Y,D,D,D,D,D,D,M,M,M,W,W,W},
+                           {Y,Y,Y,D,D,D,D,D,D,M,M,M,W,W,W},
+                           {Y,Y,Y,D,D,D,_,_,_,M,M,M,W,W,W},
+                           {Y,Y,Y,D,D,D,_,_,_,M,M,M,W,W,W},
+                           {Y,Y,Y,D,D,D,_,_,_,M,M,M,W,W,W},
+                           {Y,Y,Y,M,M,M,M,M,M,M,M,M,W,W,W},
+                           {Y,Y,Y,M,M,M,M,M,M,M,M,M,W,W,W},
+                           {Y,Y,Y,M,M,M,M,M,M,M,M,M,W,W,W},
+                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
+                          }));
 }
 END_TEST()
 

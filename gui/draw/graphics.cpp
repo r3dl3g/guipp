@@ -445,7 +445,7 @@ namespace gui {
                                           const pen& p) const {
 
       Use<pen> pn(gc, p);
-      const short off = p.size() / 2;
+      const short off = p.os_size() / 2;
 
       std::vector<os::point> points;
       points.reserve(pts.size());

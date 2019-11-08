@@ -435,7 +435,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       os::instance display = get_instance();
-      const short off = p.size() / 2;
+      const short off = p.os_size() / 2;
       Use<pen> pn(g, p);
 
       const auto x0 = from.os_x() + off;
@@ -444,7 +444,6 @@ namespace gui {
       const auto y1 = to.os_y() + off;
 
       XDrawLine(display, g, g, x0, y0, x1, y1);
-
     }
 
     // --------------------------------------------------------------------------
@@ -453,7 +452,7 @@ namespace gui {
                                 const pen& p) const {
       os::instance display = get_instance();
 
-      const auto pw = p.size();
+      const auto pw = p.os_size();
       const auto off = pw / 2;
 
       const os::rectangle r = rect.os();
@@ -473,7 +472,7 @@ namespace gui {
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
-      const auto pw = p.size();
+      const auto pw = p.os_size();
       const auto off = pw / 2;
       const os::rectangle r = rect.os();
       if ((r.width > pw) && (r.height > pw)) {

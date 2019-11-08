@@ -154,6 +154,8 @@ namespace testing {
           case W & 0xffffff: out << "W"; break;
           case Y & 0xffffff: out << "Y"; break;
           case V & 0xffffff: out << "V"; break;
+          case M & 0xffffff: out << "M"; break;
+          case D & 0xffffff: out << "D"; break;
           default:
             out << std::setw(8) << std::setfill('0') << std::hex << v;
             break;

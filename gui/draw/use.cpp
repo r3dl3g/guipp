@@ -37,8 +37,9 @@ namespace gui {
     void Use<pen>::set (const pen& p) {
       os::instance display = get_instance();
       XSetForeground(display, g, p.color());
-      XSetLineAttributes(display, g, p.size(), static_cast<int>(p.style()) & 0x0F,
-                         p.style() == pen::Style::solid ? CapProjecting : CapButt,
+      const auto sz = p.os_size();
+      XSetLineAttributes(display, g, sz, static_cast<int>(p.style()) & 0x0F,
+                         p.style() == pen::Style::solid ? ((sz % 2) == 0 ? CapProjecting : CapRound) : CapButt,
                          p.style() == pen::Style::solid ? JoinMiter : JoinBevel);
       if (static_cast<int>(p.style()) & 0x0F0) {
         const char s = core::global::scale<int, float>(1);

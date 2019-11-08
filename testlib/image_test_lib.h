@@ -82,6 +82,8 @@ namespace testing {
   constexpr gui::os::color W = IF_WIN32_ELSE(gui::color::white, (gui::color::rgba<255, 255, 255, 255>::value));
   constexpr gui::os::color Y = IF_WIN32_ELSE(gui::color::gray,  (gui::color::rgba<0x80, 0x80, 0x80, 255>::value));
   constexpr gui::os::color V = IF_WIN32_ELSE(gui::color::very_light_gray,  (gui::color::rgba<0xE0, 0xE0, 0xE0, 255>::value));
+  constexpr gui::os::color M = IF_WIN32_ELSE(gui::color::medium_gray,  (gui::color::rgba<0xA0, 0xA0, 0xA0, 255>::value));
+  constexpr gui::os::color D = IF_WIN32_ELSE(gui::color::dark_gray,  (gui::color::rgba<0x40, 0x40, 0x40, 255>::value));
 
   // --------------------------------------------------------------------------
 }

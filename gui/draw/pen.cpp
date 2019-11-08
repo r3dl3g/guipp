@@ -47,7 +47,8 @@ namespace gui {
     {
       info.lopnColor = color;
       info.lopnStyle = static_cast<int>(style);
-      info.lopnWidth = {width, width};
+      auto w = core::global::scale<size_type, float>(width);
+      info.lopnWidth = {w, w};
       if (style == gui::draw::pen::Style::dot) {
         LOGBRUSH LogBrush;
         LogBrush.lbColor = color;
@@ -107,6 +108,12 @@ namespace gui {
 
     pen::pen (const os::color& color, size_type size, Style style)
       : m_color(color)
+      , m_size(core::global::scale<size_type, float>(size))
+      , m_style(style)
+    {}
+
+    pen::pen (bool, const os::color& color, size_type size, Style style)
+      : m_color(color)
       , m_size(size)
       , m_style(style)
     {}
@@ -133,6 +140,10 @@ namespace gui {
 
     pen pen::with_size (size_type sz) const {
       return pen(m_color, sz, m_style);
+    }
+
+    pen pen::with_native_size(size_type sz) const {
+      return pen(true, m_color, sz, m_style);
     }
 
     pen pen::with_style (Style s) const {

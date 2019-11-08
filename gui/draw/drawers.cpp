@@ -434,15 +434,17 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
-      Use<pen> pn(g, p);
-      const auto x0 = from.os_x();
-      const auto y0 = from.os_y();
-      const auto x1 = to.os_x();
-      const auto y1 = to.os_y();
       os::instance display = get_instance();
+      const short off = p.size() / 2;
+      Use<pen> pn(g, p);
+
+      const auto x0 = from.os_x() + off;
+      const auto y0 = from.os_y() + off;
+      const auto x1 = to.os_x() + off;
+      const auto y1 = to.os_y() + off;
+
       XDrawLine(display, g, g, x0, y0, x1, y1);
-      XDrawPoint(display, g, g, x0, y0);
-      XDrawPoint(display, g, g, x1, y1);
+
     }
 
     // --------------------------------------------------------------------------
@@ -451,28 +453,38 @@ namespace gui {
                                 const pen& p) const {
       os::instance display = get_instance();
 
+      const auto pw = p.size();
+      const auto off = pw / 2;
+
       const os::rectangle r = rect.os();
-      if ((1 == r.width) && (1 == r.height)) {
+      if ((r.width > pw) && (r.height > pw)) {
+        Use<brush> br(g, b);
+        XFillRectangle(display, g, g, r.x + pw, r.y + pw, r.width - pw * 2, r.height - pw * 2);
         Use<pen> pn(g, p);
-        XDrawPoint(display, g, g, r.x, r.y);
+        XDrawRectangle(display, g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
       } else if ((r.width > 1) && (r.height > 1)) {
-        if ((r.width > 2) && (r.height > 2)) {
-          Use<brush> br(g, b);
-          XFillRectangle(display, g, g, r.x + 1, r.y + 1, r.width - 2, r.height - 2);
-        }
+        Use<brush> br(g, brush(p.color()));
+        XFillRectangle(display, g, g, r.x, r.y, pw, pw);
+      } else if ((1 == r.width) && (1 == r.height)) {
         Use<pen> pn(g, p);
-        XDrawRectangle(display, g, g, r.x, r.y, r.width - 1, r.height - 1);
+        XDrawPoint(display, g, g, r.x + off, r.y + off);
       }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
-      Use<pen> pn(g, p);
+      const auto pw = p.size();
+      const auto off = pw / 2;
       const os::rectangle r = rect.os();
-      if ((1 == r.width) && (1 == r.height)) {
-        XDrawPoint(get_instance(), g, g, r.x, r.y);
+      if ((r.width > pw) && (r.height > pw)) {
+        Use<pen> pn(g, p);
+        XDrawRectangle(get_instance(), g, g, r.x + off, r.y + off, r.width - pw, r.height - pw);
       } else if ((r.width > 1) && (r.height > 1)) {
-        XDrawRectangle(get_instance(), g, g, r.x, r.y, r.width - 1, r.height - 1);
+        Use<brush> br(g, brush(p.color()));
+        XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
+      } else if ((1 == r.width) && (1 == r.height)) {
+        Use<pen> pn(g, p);
+        XDrawPoint(get_instance(), g, g, r.x + off, r.y + off);
       }
     }
 

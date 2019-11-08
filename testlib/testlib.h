@@ -165,15 +165,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
     a();\
   } catch (std::exception& ex) {\
     ++guipp_failed_test_count;\
-    LogFatal << #a << " failed with " << ex.what();\
+    LogFatal.raw() << #a << " failed with " << ex.what();\
   }
 
 #define DEFINE_TEST(a)\
 void a () {\
-  LogWarng << #a << " started";\
+  const std::string __test_name = #a;\
+  LogWarng << #a << " started";
 
-#define END_TEST(a)\
-  LogWarng << #a << " passed";\
+#define END_TEST(...)\
+  LogWarng << __test_name << " passed";\
 }
 
 #define EXPECT_EQUAL(test, expect, ...)\

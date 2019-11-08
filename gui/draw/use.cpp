@@ -37,19 +37,23 @@ namespace gui {
     void Use<pen>::set (const pen& p) {
       os::instance display = get_instance();
       XSetForeground(display, g, p.color());
-      XSetLineAttributes(display, g, p.size(), static_cast<int>(p.style()) & 0x0F, CapButt, JoinMiter);
+      XSetLineAttributes(display, g, p.size(), static_cast<int>(p.style()) & 0x0F,
+                         p.style() == pen::Style::solid ? CapProjecting : CapButt,
+                         p.style() == pen::Style::solid ? JoinMiter : JoinBevel);
       if (static_cast<int>(p.style()) & 0x0F0) {
+        const char s = core::global::scale<int, float>(1);
+        const char l = s * 4;
         switch (p.style()) {
         case pen::Style::dot:
-          static const char dots[] = {1, 1};
+          static const char dots[] = {s, s};
           XSetDashes(display, g, 0, dots, 2);
           break;
         case pen::Style::dashDot:
-          static const char dash_dots[] = {4, 4, 1, 4};
+          static const char dash_dots[] = {l, l, s, l};
           XSetDashes(display, g, 0, dash_dots, 4);
           break;
         case pen::Style::dashDotDot:
-          static const char dash_dot_dots[] = {4, 4, 1, 2, 1, 4};
+          static const char dash_dot_dots[] = {l, l, s, char(s * 2), s, l};
           XSetDashes(display, g, 0, dash_dot_dots, 6);
           break;
         }

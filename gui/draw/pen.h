@@ -68,12 +68,14 @@ namespace gui {
       Style style () const;
 
       pen with_size(size_type) const;
+      pen with_native_size(size_type) const;
       pen with_style(Style) const;
       pen with_color (const os::color&) const;
 
       bool operator== (const pen&) const;
 
     private:
+      pen (bool, const os::color&, size_type, Style);
 
 #ifdef WIN32
       os::pen id;

@@ -437,14 +437,20 @@ namespace gui {
       return c;
     }
 
+    os::point operator+ (const os::point& pt, short i) {
+      return { (short)(pt.x + i), (short)(pt.y + i) };
+    }
+
     const graphics& graphics::draw_lines (std::initializer_list<core::point> pts,
                                           const pen& p) const {
 
       Use<pen> pn(gc, p);
+      const short off = p.size() / 2;
+
       std::vector<os::point> points;
       points.reserve(pts.size());
       for (const core::point& pt : pts) {
-        points.push_back(pt.os());
+        points.push_back(pt.os() + off);
       }
       XDrawLines(get_instance(), target, gc,
                  points.data(), (int)points.size(),

@@ -363,7 +363,7 @@ namespace gui {
             draw::frame::lines(g, r);
           },
           [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
-            paint::text_item(g, r, b, util::time::format_time(tp), s, align);
+            paint::text_item(g, r, b, util::time::format_datetime(tp), s, align);
             draw::frame::lines(g, r);
           }
         };

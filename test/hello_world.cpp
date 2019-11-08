@@ -18,13 +18,19 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::win;
 
 #ifdef WITH_CTRL
+  using namespace gui;
   using namespace gui::layout;
   using namespace gui::ctrl;
   using namespace gui::core;
 
+  using label_t = basic_label<text_origin::center,
+                              draw::frame::raised_deep_relief,
+                              color::black,
+                              color::very_light_gray>;
+
   layout_main_window<vertical_adaption<>> main;
-  typedef horizontal_split_view<label_center, label_center> labels;
-  vertical_split_view<label_center, labels> client;
+  typedef horizontal_split_view<label_t, label_t> labels;
+  vertical_split_view<label_t, labels> client;
 
   main.get_layout().add(lay(client));
   main.on_create([&] (window* parent, const rectangle& rect) {

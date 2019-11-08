@@ -130,7 +130,7 @@ namespace testing {
 
   // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const colormap& m) {
-    out << '[';
+    out << std::endl << '[';
     bool first_line = true;
     for(const colorline& line: m) {
       if (first_line) {
@@ -153,6 +153,7 @@ namespace testing {
           case B & 0xffffff: out << "B"; break;
           case W & 0xffffff: out << "W"; break;
           case Y & 0xffffff: out << "Y"; break;
+          case V & 0xffffff: out << "V"; break;
           default:
             out << std::setw(8) << std::setfill('0') << std::hex << v;
             break;

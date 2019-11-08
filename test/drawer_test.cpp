@@ -157,12 +157,12 @@ DECLARE_TEST(test_frame_polygon);
 DECLARE_TEST(test_fill_polygon);
 DECLARE_TEST(test_draw_polygon);
 
-#define TEST_RECTx
+#define TEST_RECT
 #define TEST_LINE
-#define TEST_ELLIPSEx
-#define TEST_ROUND_RECTx
-#define TEST_ARCx
-#define TEST_POLYGONx
+#define TEST_ELLIPSE
+#define TEST_ROUND_RECT
+#define TEST_ARC
+#define TEST_POLYGON
 
 // --------------------------------------------------------------------------
 TEST_MAIN(drawer_test) {

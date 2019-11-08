@@ -89,20 +89,18 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout.attach_fix<What::left, Where::x2, 10>(mlay(middle), att::win(first));
   layout.attach_fix<What::right, Where::x, -10>(mlay(middle), rlay(right));
 
+  first.set_text([&] () { return ostreamfmt("1.:(" << first.place() << ")"); });
+  second.set_text([&] () { return ostreamfmt("2.:(" << second.place() << ")"); });
+  third.set_text([&] () { return ostreamfmt("3.:(" << third.place() << ")"); });
+  fourth.set_text([&] () { return ostreamfmt("4.:(" << fourth.place() << ")"); });
+  fifth.set_text([&] () { return ostreamfmt("5.:(" << fifth.place() << ")"); });
+
   main.on_create([&] (window* parent, const rectangle& rect) {
     first.create(main);
     second.create(main);
     third.create(main);
     fourth.create(main);
     fifth.create(main);
-
-    first.set_text([&] () { return ostreamfmt("1.:(" << first.place() << ")"); });
-    second.set_text([&] () { return ostreamfmt("2.:(" << second.place() << ")"); });
-    third.set_text([&] () { return ostreamfmt("3.:(" << third.place() << ")"); });
-    fourth.set_text([&] () { return ostreamfmt("4.:(" << fourth.place() << ")"); });
-    fifth.set_text([&] () { return ostreamfmt("5.:(" << fifth.place() << ")"); });
-
-    main.layout();
   });
 
   main.create({50, 50, 800, 600});

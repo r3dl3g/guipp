@@ -76,7 +76,7 @@ namespace gui {
     }
 
     pen::size_type pen::size () const {
-      return core::global::unscale<float, size_type>(info.lopnWidth.x);
+      return (pen::size_type)core::global::scale<float, size_type>(info.lopnWidth.x);
     }
 
     pen::size_type pen::os_size () const {

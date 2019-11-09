@@ -68,31 +68,29 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      const auto x = rect.os_x();
-      const auto y = rect.os_y();
-      const auto x2 = rect.os_x2();
-      const auto y2 = rect.os_y2();
-      if ((x + 1 == x2) && (y + 1 == y2)) {
-        SetPixel(g, x, y, p.color());
-      } else {
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left == r.right) && (r.top == r.bottom) && (pw < 2)) {
+        SetPixel(g, r.left, r.top, p.color());
+      } else if ((r.right > r.left) && (r.bottom > r.top)) {
         Use<brush> br(g, b);
         Use<pen> pn(g, p);
-        Rectangle(g, x, y, x2, y2);
+        const auto off = pw / 2;
+        Rectangle(g, r.left + off, r.top + off, r.right + off, r.bottom + off);
       }
     }
 
     void rectangle::operator() (const graphics& g,
                                 const pen& p) const {
-      const auto x = rect.os_x();
-      const auto y = rect.os_y();
-      const auto x2 = rect.os_x2();
-      const auto y2 = rect.os_y2();
-      if ((x + 1 == x2) && (y + 1 == y2)) {
-        SetPixel(g, x, y, p.color());
-      } else {
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left == r.right) && (r.top == r.bottom) && (pw < 2)) {
+        SetPixel(g, r.left, r.top, p.color());
+      } else if ((r.right > r.left) && (r.bottom > r.top)) {
         Use<pen> pn(g, p);
         Use<brush> br(g, null_brush);
-        Rectangle(g, x, y, x2, y2);
+        const auto off = pw / 2;
+        Rectangle(g, r.left + off, r.top + off, r.right + off, r.bottom + off);
       }
     }
 

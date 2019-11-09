@@ -17,6 +17,7 @@ using namespace testing;
 
 // --------------------------------------------------------------------------
 DECLARE_TEST(test_data2colormap);
+DECLARE_TEST(test_raw_rect);
 
 DECLARE_TEST(test_draw_line_4x4);
 DECLARE_TEST(test_draw_line_3x3);
@@ -157,16 +158,21 @@ DECLARE_TEST(test_frame_polygon);
 DECLARE_TEST(test_fill_polygon);
 DECLARE_TEST(test_draw_polygon);
 
-#define TEST_RECT
-#define TEST_LINE
-#define TEST_ELLIPSE
-#define TEST_ROUND_RECT
-#define TEST_ARC
-#define TEST_POLYGON
+#define TEST_RAW
+#define TEST_RECTx
+#define TEST_LINEx
+#define TEST_ELLIPSEx
+#define TEST_ROUND_RECTx
+#define TEST_ARCx
+#define TEST_POLYGONx
 
 // --------------------------------------------------------------------------
 TEST_MAIN(drawer_test) {
+#ifdef TEST_RAW
   RUN_TEST(test_data2colormap);
+  RUN_TEST(test_raw_rect);
+#endif // TEST_RAW
+
 #ifdef TEST_RECT
   RUN_TEST(test_frame_rect_4x4);
   RUN_TEST(test_frame_rect_3x3);
@@ -331,6 +337,30 @@ DEFINE_TEST(test_data2colormap) {
 
 }
 END_TEST(test_data2colormap)
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_raw_rect) {
+  core::global::set_scale_factor(1.0);
+  pixmap img(5, 5);
+  graphics g(img);
+  g.clear(color::black);
+
+  core::rectangle r(core::point(1, 1), core::size(3, 3));
+#ifdef X11
+  XSetForeground(core::global::get_instance(), g, color::blue);
+  XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+#endif
+#ifdef WIN32
+
+#endif
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
+                           {_,R,R,R,_},
+                           {_,R,_,R,_},
+                           {_,R,R,R,_},
+                           {_,_,_,_,_}}));
+} END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_rect_4x4) {

@@ -65,18 +65,36 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    constexpr int pen_offsets_tl (int i) {
+      return i/2;
+    }
+
+    constexpr int pen_offsets_br (int i) {
+      return -pen_offsets_tl(i - 1);
+    }
+
+    // --------------------------------------------------------------------------
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
       const os::rectangle r = rect.os();
       const auto pw = p.os_size();
-      if ((r.left == r.right) && (r.top == r.bottom) && (pw < 2)) {
-        SetPixel(g, r.left, r.top, p.color());
+      if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
+        if (pw < 2) {
+          SetPixel(g, r.left, r.top, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          Rectangle(g, r.left, r.top, r.right, r.bottom);
+        }
       } else if ((r.right > r.left) && (r.bottom > r.top)) {
-        Use<brush> br(g, b);
-        Use<pen> pn(g, p);
-        const auto off = pw / 2;
-        Rectangle(g, r.left + off, r.top + off, r.right + off, r.bottom + off);
+        Use<brush> ubr(g, b);
+        Use<pen> upn(g, p);
+        const auto tl = pen_offsets_tl(pw);
+        const auto br = pen_offsets_br(pw);
+        Rectangle(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
       }
     }
 
@@ -84,13 +102,22 @@ namespace gui {
                                 const pen& p) const {
       const os::rectangle r = rect.os();
       const auto pw = p.os_size();
-      if ((r.left == r.right) && (r.top == r.bottom) && (pw < 2)) {
-        SetPixel(g, r.left, r.top, p.color());
+      if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
+        if (pw < 2) {
+          SetPixel(g, r.left, r.top, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          Rectangle(g, r.left, r.top, r.right, r.bottom);
+        }
       } else if ((r.right > r.left) && (r.bottom > r.top)) {
-        Use<pen> pn(g, p);
-        Use<brush> br(g, null_brush);
-        const auto off = pw / 2;
-        Rectangle(g, r.left + off, r.top + off, r.right + off, r.bottom + off);
+        Use<pen> upn(g, p);
+        Use<brush> ubr(g, null_brush);
+        const auto tl = pen_offsets_tl(pw);
+        const auto br = pen_offsets_br(pw);
+        Rectangle(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
       }
     }
 
@@ -103,32 +130,52 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
-      const auto x = rect.os_x();
-      const auto y = rect.os_y();
-      const auto x2 = rect.os_x2();
-      const auto y2 = rect.os_y2();
-      Use<brush> br(g, b);
-      Use<pen> pn(g, p);
-      if ((x2 - x < 3) || (y2 - y < 3)) {
-        Rectangle(g, x, y, x2 + 1, y2 + 1);
-      } else {
-        Ellipse(g, x, y, x2 + 1, y2 + 1);
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
+        if (pw < 2) {
+          SetPixel(g, r.left, r.top, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          Ellipse(g, r.left, r.top, r.right, r.bottom);
+        }
+      } else if ((r.right > r.left) && (r.bottom > r.top)) {
+        Use<brush> ubr(g, b);
+        Use<pen> upn(g, p);
+        const auto tl = pen_offsets_tl(pw);
+        const auto br = pen_offsets_br(pw);
+        Ellipse(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
       }
     }
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
-      const auto x = rect.os_x();
-      const auto y = rect.os_y();
-      const auto x2 = rect.os_x2();
-      const auto y2 = rect.os_y2();
-      Use<pen> pn(g, p);
-      Use<brush> br(g, null_brush);
-      if ((x2 - x < 3) || (y2 - y < 3)) {
-        Rectangle(g, x, y, x2 + 1, y2 + 1);
-      } else {
-        Ellipse(g, x, y, x2 + 1, y2 + 1);
+      const os::rectangle r = rect.os();
+      const auto pw = p.os_size();
+      if ((r.left == r.right) && (r.top == r.bottom)) {
+        if (pw < 2) {
+          SetPixel(g, r.left, r.top, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          Rectangle(g, r.left, r.top, r.right + pw, r.bottom + pw);
+        }
+      } else if ((r.right > r.left) && (r.bottom > r.top)) {
+        Use<pen> upn(g, p);
+        Use<brush> ubr(g, null_brush);
+        if ((r.right - r.left < 2) || (r.bottom - r.top < 2)) {
+          const auto br = pen_offsets_br(pw + 2);
+          Rectangle(g, r.left, r.top, r.right + br + 2, r.bottom + br + 2);
+        } else {
+          Ellipse(g, r.left, r.top, r.right + pw, r.bottom + pw);
+        }
       }
+
     }
 
     void ellipse::operator() (const graphics& g,

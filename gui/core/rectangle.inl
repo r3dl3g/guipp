@@ -105,12 +105,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::x2 () const -> point_type {
-      return x() + width() - 1;
+      return x() + width();
     }
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::y2 () const -> point_type {
-      return y() + height() - 1;
+      return y() + height();
     }
 
     template<typename T, typename S>
@@ -135,12 +135,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline void basic_rectangle<T, S>::x2 (point_type new_x) {
-      sz.width(new_x - x() + 1);
+      sz.width(new_x - x());
     }
 
     template<typename T, typename S>
     inline void basic_rectangle<T, S>::y2 (point_type new_y) {
-      sz.height(new_y - y() + 1);
+      sz.height(new_y - y());
     }
 
     template<typename T, typename S>
@@ -160,8 +160,8 @@ namespace gui {
 
     template<typename T, typename S>
     inline void basic_rectangle<T, S>::bottom_right (const point_t& pt) {
-      sz.width(pt.x() - pos.x() + 1);
-      sz.height(pt.y() - pos.y() + 1);
+      sz.width(pt.x() - pos.x());
+      sz.height(pt.y() - pos.y());
     }
 
     template<typename T, typename S>

@@ -34,10 +34,10 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT /*immutable*/ pen {
 
 #ifdef WIN32
-      typedef int size_type;
+      typedef float size_type;
 #endif // WIN32
 #ifdef X11
-      typedef unsigned int size_type;
+      typedef float size_type;
 #endif // X11
 
       enum struct Style : int {
@@ -65,10 +65,11 @@ namespace gui {
 
       os::color color () const;
       size_type size () const;
-      size_type os_size () const;
+      os::size_type os_size () const;
       Style style () const;
 
       pen with_size(size_type) const;
+      pen with_os_size(os::size_type) const;
       pen with_style(Style) const;
       pen with_color (const os::color&) const;
 

@@ -130,15 +130,15 @@ namespace testing {
 
   // --------------------------------------------------------------------------
   std::ostream& operator<< (std::ostream& out, const colormap& m) {
-    out << std::endl << '[';
-    bool first_line = true;
+    out << std::endl << '{' << std::endl;
+    //bool first_line = true;
     for(const colorline& line: m) {
-      if (first_line) {
-        first_line = false;
-      } else {
-        out << ",";
-      }
-      out << '[';
+      //if (first_line) {
+      //  first_line = false;
+      //} else {
+      //  out << ",";
+      //}
+      out << '{';
       bool first = true;
       for(const uint32_t v: line) {
         if (first) {
@@ -161,9 +161,9 @@ namespace testing {
             break;
         }
       }
-      out << ']' << std::endl;
+      out << "}," << std::endl;
     }
-    out << ']';
+    out << '}';
     return out;
   }
 

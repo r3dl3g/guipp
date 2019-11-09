@@ -64,9 +64,10 @@ namespace gui {
     }
 
     brush::brush (const brush& rhs)
-      : id(reinterpret_cast<size_t>(rhs.id) > 31 ? 0 : rhs.id)
+      : id(0)
       , info(rhs.info)
-    {}
+    {
+    }
 
     brush::~brush () {
       destroy();

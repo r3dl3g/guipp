@@ -47,7 +47,7 @@ namespace gui {
     {
       info.lopnColor = color;
       info.lopnStyle = static_cast<int>(style);
-      auto w = core::global::scale<size_type, float>(width);
+      auto w = core::global::scale<os::size_type, size_type>(width);
       info.lopnWidth = {w, w};
       if (style == gui::draw::pen::Style::dot) {
         LOGBRUSH LogBrush;
@@ -76,27 +76,15 @@ namespace gui {
     }
 
     pen::size_type pen::size () const {
-      return (pen::size_type)core::global::scale<float, size_type>(info.lopnWidth.x);
+      return core::global::scale<size_type, os::size_type>(info.lopnWidth.x);
     }
 
-    pen::size_type pen::os_size () const {
+    os::size_type pen::os_size () const {
       return info.lopnWidth.x;
     }
 
     pen::Style pen::style () const {
       return (pen::Style)info.lopnStyle;
-    }
-
-    pen pen::with_size (size_type sz) const {
-      return pen(info.lopnColor, sz, Style(info.lopnStyle));
-    }
-
-    pen pen::with_style (Style s) const {
-      return pen(info.lopnColor, info.lopnWidth.x, s);
-    }
-
-    pen pen::with_color (const os::color& c) const {
-      return pen(c, info.lopnWidth.x, Style(info.lopnStyle));
     }
 
     bool pen::operator== (const pen& rhs) const {
@@ -107,6 +95,22 @@ namespace gui {
     }
 
 #endif // WIN32
+    pen pen::with_size (size_type sz) const {
+      return pen(color(), sz, style());
+    }
+
+    pen pen::with_os_size(os::size_type sz) const {
+      return pen(color(), core::global::scale<size_type, os::size_type>(sz), style());
+    }
+
+    pen pen::with_style (Style s) const {
+      return pen(color(), size(), s);
+    }
+
+    pen pen::with_color (const os::color& c) const {
+      return pen(c, size(), style());
+    }
+
 #ifdef X11
     const pen default_pen;
 
@@ -132,24 +136,12 @@ namespace gui {
       return m_size;
     }
 
-    pen::size_type pen::os_size () const {
-      return core::global::scale<size_type, float>(m_size);
+    os::size_type pen::os_size () const {
+      return core::global::scale<os::size_type, size_type>(m_size);
     }
 
     pen::Style pen::style () const {
       return m_style;
-    }
-
-    pen pen::with_size (size_type sz) const {
-      return pen(m_color, sz, m_style);
-    }
-
-    pen pen::with_style (Style s) const {
-      return pen(m_color, m_size, s);
-    }
-
-    pen pen::with_color (const os::color& c) const {
-      return pen(c, m_size, m_style);
     }
 
     bool pen::operator== (const pen& rhs) const {

@@ -135,6 +135,8 @@ namespace testing {
 } // namespace testing
 
 
+#ifdef X11
+
 #define TEST_MAIN(a)\
 namespace {\
   int guipp_failed_test_count = 0;\
@@ -142,8 +144,8 @@ namespace {\
 }\
 \
 int gui_main(const std::vector<std::string>& /*args*/) {\
-  logging::odebugstream dbgStrm;\
-  logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter());\
+  logging::odebugstream dbgStrm; \
+  logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter()); \
   LogWarng << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
@@ -155,6 +157,31 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
   logging::core::instance().remove_sink(&dbgStrm);\
   return guipp_failed_test_count;\
 }
+
+#endif // X11
+
+#ifdef WIN32
+
+#define TEST_MAIN(a)\
+namespace {\
+  int guipp_failed_test_count = 0;\
+  int guipp_test_count = 0;\
+}\
+\
+int gui_main(const std::vector<std::string>& /*args*/) {\
+  LogWarng << "Running " #a " tests";
+
+#define TEST_MAIN_END(a)\
+  if (guipp_failed_test_count) {\
+    LogError << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+  } else {\
+    LogError << #a << ": all " << guipp_test_count << " tests passed";\
+  }\
+  return guipp_failed_test_count;\
+}
+
+#endif // WIN32
+
 
 #define DECLARE_TEST(a)\
   void a ()

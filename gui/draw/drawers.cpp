@@ -54,14 +54,27 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
-      Use<pen> pn(g, p);
-      const auto x = from.os_x();
-      const auto y = from.os_y();
-      const auto x2 = to.os_x();
-      const auto y2 = to.os_y();
-      MoveToEx(g, x, y, nullptr);
-      LineTo(g, x2, y2);
-      SetPixel(g, x2, y2, p.color());
+      const auto pw = p.os_size();
+      const short off = p.os_size() / 2;
+      const auto x = from.os_x() + off;
+      const auto y = from.os_y() + off;
+      const auto x2 = to.os_x() + off;
+      const auto y2 = to.os_y() + off;
+      if ((x == x2) && (y == y2)) {
+        if (pw < 2) {
+          SetPixel(g, x, y, p.color());
+        } else {
+          pen p1 = p.with_os_size(1);
+          brush b1(p.color());
+          Use<pen> upn(g, p1);
+          Use<brush> ubr(g, b1);
+          Rectangle(g, x - off, y - off, x + pw - 1, y + pw - 1);
+        }
+      } else {
+        Use<pen> pn(g, p);
+        MoveToEx(g, x, y, nullptr);
+        LineTo(g, x2, y2);
+      }
     }
 
     // --------------------------------------------------------------------------

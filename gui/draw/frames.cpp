@@ -38,29 +38,17 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       core::rectangle black (const draw::graphics& g, const core::rectangle& place) {
-#ifdef WIN32
-        g.frame(draw::rectangle(place - core::size::one), color::black);
-#else
         g.frame(draw::rectangle(place), color::black);
-#endif
         return place.shrinked(core::size::one);
       }
 
       core::rectangle white (const draw::graphics& g, const core::rectangle& place) {
-#ifdef WIN32
-        g.frame(draw::rectangle(place - core::size::one), color::white);
-#else
         g.frame(draw::rectangle(place), color::white);
-#endif
         return place.shrinked(core::size::one);
       }
 
       core::rectangle dots (const draw::graphics& g, const core::rectangle& place) {
-#ifdef WIN32
-        g.frame(draw::rectangle(place - core::size::one), pen(color::black, 1, pen::Style::dot));
-#else
         g.frame(draw::rectangle(place), pen(color::black, 1, pen::Style::dot));
-#endif
         return place.shrinked(core::size::one);
       }
 

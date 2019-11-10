@@ -155,13 +155,14 @@ namespace gui {
     const graphics& graphics::draw_lines (std::initializer_list<core::point> points,
                                           const pen& p) const {
       Use<pen> pn(gc, p);
+      const short off = p.os_size() / 2;
       bool first = true;
       for (const core::point& pt : points) {
         if (first) {
           first = false;
-          MoveToEx(gc, pt.os_x(), pt.os_y(), nullptr);
+          MoveToEx(gc, pt.os_x() + off, pt.os_y() + off, nullptr);
         } else {
-          LineTo(gc, pt.os_x(), pt.os_y());
+          LineTo(gc, pt.os_x() + off, pt.os_y() + off);
         }
       }
       return *this;

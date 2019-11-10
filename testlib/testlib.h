@@ -91,7 +91,7 @@ namespace testing {
                   const char* fileName,
                   const int   lineNumber,
                   const Arguments... args) {
-    create_error_message(LogDebug, testValue, expectedValue,
+    create_error_message(LogWarng, testValue, expectedValue,
                          testName, expectedName, equality,
                          fileName, lineNumber, args...);
   }

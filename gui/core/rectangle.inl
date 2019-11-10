@@ -70,17 +70,17 @@ namespace gui {
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::top_right () const -> point_t {
-      return {x2(), y()};
+      return {right(), y()};
     }
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::bottom_right () const -> point_t {
-      return {x2(), y2()};
+      return {right(), bottom()};
     }
 
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::bottom_left () const -> point_t {
-      return {x(), y2()};
+      return {x(), bottom()};
     }
 
     template<typename T, typename S>
@@ -111,6 +111,16 @@ namespace gui {
     template<typename T, typename S>
     inline auto basic_rectangle<T, S>::y2 () const -> point_type {
       return y() + height();
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::right () const -> point_type {
+      return x() + width() - 1;
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::bottom () const -> point_type {
+      return y() + height() - 1;
     }
 
     template<typename T, typename S>
@@ -154,6 +164,16 @@ namespace gui {
     }
 
     template<typename T, typename S>
+    inline void basic_rectangle<T, S>::right (point_type new_x) {
+      sz.width(new_x - x() + 1);
+    }
+
+    template<typename T, typename S>
+    inline void basic_rectangle<T, S>::bottom (point_type new_y) {
+      sz.height(new_y - y() + 1);
+    }
+
+    template<typename T, typename S>
     inline void basic_rectangle<T, S>::top_left (const point_t& pt) {
       pos = pt;
     }
@@ -192,6 +212,16 @@ namespace gui {
     template<typename T, typename S>
     inline os::size_type basic_rectangle<T, S>::os_height () const {
       return size().os_height();
+    }
+
+    template<typename T, typename S>
+    inline os::point_type basic_rectangle<T, S>::os_right () const {
+      return global::scale<os::point_type>(right());
+    }
+
+    template<typename T, typename S>
+    inline os::point_type basic_rectangle<T, S>::os_bottom () const {
+      return global::scale<os::point_type>(bottom());
     }
 
 #ifdef WIN32

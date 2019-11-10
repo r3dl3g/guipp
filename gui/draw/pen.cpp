@@ -49,19 +49,19 @@ namespace gui {
       info.lopnStyle = static_cast<int>(style);
       auto w = core::global::scale<os::size_type, size_type>(width);
       info.lopnWidth = {w, w};
-      if (style == gui::draw::pen::Style::dot) {
+      //if (style == gui::draw::pen::Style::dot) {
         LOGBRUSH LogBrush;
         LogBrush.lbColor = color;
         LogBrush.lbStyle = PS_SOLID;
-        id = ExtCreatePen(PS_COSMETIC | PS_ALTERNATE, 1, &LogBrush, 0, NULL);
-      } else {
-        id = CreatePenIndirect(&info);
-      }
+        LogBrush.lbHatch = 0;
+        id = ExtCreatePen(info.lopnStyle | PS_GEOMETRIC | PS_ENDCAP_SQUARE | PS_JOIN_MITER, w, &LogBrush, 0, NULL);
+      //} else {
+      //  id = CreatePenIndirect(&info);
+      //}
     }
 
     pen::pen (const pen& rhs)
-      : id(CreatePenIndirect(&rhs.info))
-      , info(rhs.info)
+      : pen(rhs.info.lopnColor, (size_type)rhs.info.lopnWidth.x, (Style)rhs.info.lopnStyle)
     {}
 
     pen::~pen () {

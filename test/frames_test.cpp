@@ -155,574 +155,525 @@ private:
 };
 
 // --------------------------------------------------------------------------
-DEFINE_TEST(test_no_frame) {
-
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::no_frame>({3, 3}), {1, 1});
-
+template<draw::frame::drawer F, os::color C = color::white>
+void tester (float scale, int pix, const core::point& pt, const core::size& sz,
+             colormap&& expected) {
+  core::global::set_scale_factor(scale);
+  pixmap img(pix, pix);
+  graphics g(img);
+  g.clear(C);
+  F(g, core::rectangle(pt, sz));
   auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_}}));
+  EXPECT_EQUAL(buffer, expected);
+}
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_no_frame) {
+  tester<frame::no_frame>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {W,W,W,W,W},
+    {W,W,W,W,W},
+    {W,W,W,W,W},
+    {W,W,W,W,W},
+    {W,W,W,W,W}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_black_frame) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::white).copy(framer<frame::black>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W},
-                           {W,_,_,_,W},
-                           {W,_,W,_,W},
-                           {W,_,_,_,W},
-                           {W,W,W,W,W}}));
+  tester<frame::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {W,W,W,W,W},
+    {W,_,_,_,W},
+    {W,_,W,_,W},
+    {W,_,_,_,W},
+    {W,W,W,W,W}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_black_frame_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::white).copy(framer<frame::black>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W},
-                           {W,W,_,_,_,_,_,_,W,W},
-                           {W,W,_,_,_,_,_,_,W,W},
-                           {W,W,_,_,W,W,_,_,W,W},
-                           {W,W,_,_,W,W,_,_,W,W},
-                           {W,W,_,_,_,_,_,_,W,W},
-                           {W,W,_,_,_,_,_,_,W,W},
-                           {W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W}}));
+  tester<frame::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W},
+    {W,W,_,_,_,_,_,_,W,W},
+    {W,W,_,_,_,_,_,_,W,W},
+    {W,W,_,_,W,W,_,_,W,W},
+    {W,W,_,_,W,W,_,_,W,W},
+    {W,W,_,_,_,_,_,_,W,W},
+    {W,W,_,_,_,_,_,_,W,W},
+    {W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_black_frame_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::white).copy(framer<frame::black>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}}));
+  tester<frame::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,_,_,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_white_frame) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::white>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,W,W,W,_},
-                           {_,W,_,W,_},
-                           {_,W,W,W,_},
-                           {_,_,_,_,_}}));
+  tester<frame::white, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,W,W,W,_},
+    {_,W,_,W,_},
+    {_,W,W,W,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_white_frame_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<draw::frame::white>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,W,W,_,_,W,W,_,_},
-                           {_,_,W,W,_,_,W,W,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::white, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,W,W,_,_,W,W,_,_},
+    {_,_,W,W,_,_,W,W,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_white_frame_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::white>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::white, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
+    {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
+    {_,_,_,W,W,W,_,_,_,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_dots_frame) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(7, 7);
-
-  graphics(img).clear(color::white).copy(framer<frame::dots>({5, 5}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W},
-                           {W,_,W,_,W,_,W},
-                           {W,_,W,W,W,W,W},
-                           {W,W,W,W,W,_,W},
-                           {W,_,W,W,W,W,W},
-                           {W,W,_,W,_,W,W},
-                           {W,W,W,W,W,W,W}
-                          }));
+  tester<frame::dots>(1.0F, 7, {1, 1}, {5, 5}, CM({
+#ifdef WIN32
+    {W,W,W,W,W,W,W},
+    {W,_,W,_,W,_,W},
+    {W,W,W,W,W,W,W},
+    {W,_,W,W,W,_,W},
+    {W,W,W,W,W,W,W},
+    {W,_,W,_,W,_,W},
+    {W,W,W,W,W,W,W},
+#else
+    {W,W,W,W,W,W,W},
+    {W,_,W,_,W,_,W},
+    {W,_,W,W,W,W,W},
+    {W,W,W,W,W,_,W},
+    {W,_,W,W,W,W,W},
+    {W,W,_,W,_,W,W},
+    {W,W,W,W,W,W,W}
+#endif // WIN32
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_dots_frame_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(14, 14);
-
-  graphics(img).clear(color::white).copy(framer<frame::dots>({5, 5}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,_,W,_,W,_,W,_,W,W,W,W},
-                           {W,W,W,_,W,_,W,_,W,_,_,_,W,W},
-                           {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
-                           {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
-                           {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
-                           {W,W,_,_,_,W,_,W,_,W,_,W,W,W},
-                           {W,W,W,W,_,W,_,W,_,W,_,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W}
-                          }));
+  tester<frame::dots>(2.0F, 14, {1, 1}, {5, 5}, CM({
+#ifdef WIN32
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
+    {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,_,_,W,W,W,W,W,W,_,_,W,W},
+    {W,W,_,_,W,W,W,W,W,W,_,_,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
+    {W,W,_,_,W,W,_,_,W,W,_,_,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+#else
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,W,_,W,_,W,_,W,W,W,W},
+    {W,W,W,_,W,_,W,_,W,_,_,_,W,W},
+    {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
+    {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
+    {W,W,_,_,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,_,_,W,W},
+    {W,W,_,_,_,W,_,W,_,W,_,W,W,W},
+    {W,W,W,W,_,W,_,W,_,W,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W}
+#endif // WIN32
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_dots_frame_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(21, 21);
-
-  graphics(img).clear(color::white).copy(framer<frame::dots>({5, 5}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W,W},
-                           {W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,_,W,_,W,_,W,_,W,_,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
-                           {W,W,W,_,_,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
-                           {W,W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
-                           {W,W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
-                           }));
+  tester<frame::dots>(3.0F, 21, {1, 1}, {5, 5}, CM({
+#ifdef WIN32
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,_,_,_,W,W,W,_,_,_,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+#else
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W,W},
+    {W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,_,_,_,W,W,W},
+    {W,W,W,_,_,_,_,W,_,W,_,W,_,W,_,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,W,W,W},
+    {W,W,W,_,_,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
+    {W,W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
+    {W,W,W,W,W,_,W,_,W,_,W,_,W,_,W,_,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+    {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
+#endif // WIN32
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_lines_frame) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::lines>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,_,V,_},
-                           {_,_,_,V,_},
-                           {_,V,V,V,_},
-                           {_,_,_,_,_}}));
+  tester<frame::lines, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,_,_,V,_},
+    {_,_,_,V,_},
+    {_,V,V,V,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_lines_frame_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<frame::lines>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,V,V,V,V,V,V,_,_},
-                           {_,_,V,V,V,V,V,V,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::lines, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,V,V,V,V,V,V,_,_},
+    {_,_,V,V,V,V,V,V,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_lines_frame_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::lines>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::lines, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_lines_frame_x4) {
-  core::global::set_scale_factor(4.0);
-  pixmap img(20, 20);
-
-  graphics(img).clear(color::black).copy(framer<frame::lines>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
-
-                           {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
-                           {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
-
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
-                          }));
+  tester<frame::lines, color::black>(4.0F, 20, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,V,V,V,V,_,_,_,_},
+    {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
+    {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
+    {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
+    {_,_,_,_,V,V,V,V,V,V,V,V,V,V,V,V,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vline) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::vline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,_,V,_},
-                           {_,_,_,V,_},
-                           {_,_,_,V,_},
-                           {_,_,_,_,_}}));
+  tester<frame::vline, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,_,_,V,_},
+    {_,_,_,V,_},
+    {_,_,_,V,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vline_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<frame::vline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,V,V,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::vline, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,V,V,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vline_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::vline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::vline, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hline) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::hline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,V,V,V,_},
-                           {_,_,_,_,_}}));
+  tester<frame::hline, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_},
+    {_,V,V,V,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hline_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<frame::hline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,V,V,V,V,V,V,_,_},
-                           {_,_,V,V,V,V,V,V,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::hline, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,V,V,V,V,V,V,_,_},
+    {_,_,V,V,V,V,V,V,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hline_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::hline>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::hline, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,V,V,V,V,V,V,V,V,V,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vraise) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::vraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,W,_,Y,_},
-                           {_,W,_,Y,_},
-                           {_,W,_,Y,_},
-                           {_,_,_,_,_}}));
+  tester<frame::vraise, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,W,_,Y,_},
+    {_,W,_,Y,_},
+    {_,W,_,Y,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vraise_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<frame::vraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,W,W,_,_,Y,Y,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::vraise, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,W,W,_,_,Y,Y,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vraise_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::vraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::vraise, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,W,W,W,_,_,_,Y,Y,Y,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hraise) {
-  core::global::set_scale_factor(1.0);
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).copy(framer<frame::hraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,W,W,W,_},
-                           {_,_,_,_,_},
-                           {_,Y,Y,Y,_},
-                           {_,_,_,_,_}}));
+  tester<frame::hraise, color::black>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,W,W,W,_},
+    {_,_,_,_,_},
+    {_,Y,Y,Y,_},
+    {_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hraise_x2) {
-  core::global::set_scale_factor(2.0);
-  pixmap img(10, 10);
-
-  graphics(img).clear(color::black).copy(framer<frame::hraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,W,W,W,W,W,W,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,Y,Y,Y,Y,Y,Y,_,_},
-                           {_,_,Y,Y,Y,Y,Y,Y,_,_},
-                           {_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::hraise, color::black>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,W,W,W,W,W,W,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,Y,Y,Y,Y,Y,Y,_,_},
+    {_,_,Y,Y,Y,Y,Y,Y,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hraise_x3) {
-  core::global::set_scale_factor(3.0);
-  pixmap img(15, 15);
-
-  graphics(img).clear(color::black).copy(framer<frame::hraise>({3, 3}), {1, 1});
-
-  auto buffer = pixmap2colormap(img);
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
-                           {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
-                           {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-                           {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}}));
+  tester<frame::hraise, color::black>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,W,W,W,W,W,W,W,W,W,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
+    {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
+    {_,_,_,Y,Y,Y,Y,Y,Y,Y,Y,Y,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_}
+  }));
 }
 END_TEST()
 

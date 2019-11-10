@@ -62,20 +62,22 @@ namespace gui {
 
       os::rectangle os () const;
 
-      const point_t& position () const;
-      const size_t& size () const;
+      const point_t& position () const; /// top left pixel position
+      const size_t& size () const;      /// count of x and y pixels
 
-      const point_t& top_left () const;
-      point_t top_right () const;
-      point_t bottom_right () const;
-      point_t bottom_left () const;
+      const point_t& top_left () const; /// top left pixel position
+      point_t top_right () const;       /// top inner-right pixel position
+      point_t bottom_right () const;    /// inner-bottom inner-right pixel position
+      point_t bottom_left () const;     /// inner-bottom left pixel position
 
-      point_type x () const;
-      point_type y () const;
-      size_type width () const;
-      size_type height () const;
-      point_type x2 () const;
-      point_type y2 () const;
+      point_type x () const;            /// left
+      point_type y () const;            /// top
+      size_type width () const;         /// count of pixels in width
+      size_type height () const;        /// count of pixels in heigh
+      point_type x2 () const;           /// x + width
+      point_type y2 () const;           /// y + height
+      point_type right () const;        /// position of most right pixel
+      point_type bottom () const;       /// position of most bottom pixel
 
       void x (point_type x);
       void y (point_type y);
@@ -83,6 +85,8 @@ namespace gui {
       void y2 (point_type y);
       void height (size_type height);
       void width (size_type width);
+      void right (point_type x);
+      void bottom (point_type y);
 
       bool empty () const;
       bool is_inside (const point_t& p) const;
@@ -147,6 +151,8 @@ namespace gui {
       inline os::point_type os_y2 () const;
       inline os::size_type os_width () const;
       inline os::size_type os_height () const;
+      inline os::point_type os_right () const;
+      inline os::point_type os_bottom () const;
 
       // intersection
       self& operator&= (const self& rhs);

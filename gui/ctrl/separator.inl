@@ -88,7 +88,7 @@ namespace gui {
 
     template<orientation O, bool S, os::color B>
     inline void basic_separator<O, S, B>::paint (const draw::graphics& graph) {
-      core::rectangle r = lt::area(client_area());
+      core::rectangle r = /*lt::area(*/client_area()/*)*/;
       graph.frame(lt::first(r), ct::first(B));
       graph.frame(lt::second(r), ct::second(B));
     }

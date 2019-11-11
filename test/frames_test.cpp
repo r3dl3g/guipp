@@ -5,6 +5,7 @@
 #include <gui/draw/graphics.h>
 #include <gui/draw/drawers.h>
 #include <gui/draw/frames.h>
+#include <gui/ctrl/separator.h>
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
 
@@ -76,6 +77,12 @@ DECLARE_TEST(test_sunken_deep_relief);
 DECLARE_TEST(test_sunken_deep_relief_x2);
 DECLARE_TEST(test_sunken_deep_relief_x3);
 
+DECLARE_TEST(test_vseparator_sunken);
+DECLARE_TEST(test_vseparator_raised);
+
+DECLARE_TEST(test_hseparator_sunken);
+DECLARE_TEST(test_hseparator_raised);
+
 // --------------------------------------------------------------------------
 TEST_MAIN(frames_test) {
   RUN_TEST(test_no_frame);
@@ -136,6 +143,12 @@ TEST_MAIN(frames_test) {
   RUN_TEST(test_sunken_deep_relief);
   RUN_TEST(test_sunken_deep_relief_x2);
   RUN_TEST(test_sunken_deep_relief_x3);
+
+  RUN_TEST(test_vseparator_sunken);
+  RUN_TEST(test_vseparator_raised);
+
+  RUN_TEST(test_hseparator_sunken);
+  RUN_TEST(test_hseparator_raised);
 
 } TEST_MAIN_END(frames_test)
 
@@ -1057,6 +1070,77 @@ DEFINE_TEST(test_sunken_deep_relief_x3) {
                            {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W},
                            {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W}
                           }));
+}
+END_TEST()
+
+constexpr gui::os::color B7 = gui::color::rgba<0xb7, 0xb7, 0xb7, 0xFF>::value;
+constexpr gui::os::color S8 = gui::color::rgba<0x78, 0x78, 0x78, 0xFF>::value;
+
+// --------------------------------------------------------------------------
+template<orientation O, bool sunken, os::color C = color::medium_gray>
+void sep_tester (float scale, int pix, const core::point& pt, const core::size& sz,
+                 colormap&& expected) {
+  core::global::set_scale_factor(scale);
+  pixmap img(pix, pix);
+  graphics g(img);
+  g.clear(color::black);
+
+  typedef gui::ctrl::detail::line_traits<O> lt;
+  typedef gui::ctrl::detail::color_traits<sunken> ct;
+
+  gui::core::rectangle r(pt, sz);
+  g.frame(lt::first(r), ct::first(C));
+  g.frame(lt::second(r), ct::second(C));
+
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, expected);
+}
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_vseparator_sunken) {
+  sep_tester<orientation::vertical, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_ ,_,_ ,_},
+    {_,S8,_,B7,_},
+    {_,S8,_,B7,_},
+    {_,S8,_,B7,_},
+    {_,_ ,_,_ ,_}
+  }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_vseparator_raised) {
+  sep_tester<orientation::vertical, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_ ,_,_ ,_},
+    {_,B7,_,S8,_},
+    {_,B7,_,S8,_},
+    {_,B7,_,S8,_},
+    {_,_ ,_,_ ,_}
+  }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_hseparator_sunken) {
+  sep_tester<orientation::horizontal, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_ ,_ ,_ ,_},
+    {_,S8,S8,S8,_},
+    {_,_ ,_ ,_ ,_},
+    {_,B7,B7,B7,_},
+    {_,_ ,_ ,_ ,_}
+  }));
+}
+END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_hseparator_raised) {
+  sep_tester<orientation::horizontal, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_ ,_ ,_ ,_},
+    {_,B7,B7,B7,_},
+    {_,_ ,_ ,_ ,_},
+    {_,S8,S8,S8,_},
+    {_,_ ,_ ,_ ,_}
+  }));
 }
 END_TEST()
 

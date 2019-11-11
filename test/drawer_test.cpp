@@ -139,9 +139,22 @@ DECLARE_TEST(test_frame_ellipse_0x0_x3);
 DECLARE_TEST(test_fill_ellipse);
 
 DECLARE_TEST(test_draw_ellipse_4x4);
+DECLARE_TEST(test_draw_ellipse_3x3);
 DECLARE_TEST(test_draw_ellipse_2x2);
 DECLARE_TEST(test_draw_ellipse_1x1);
 DECLARE_TEST(test_draw_ellipse_0x0);
+
+DECLARE_TEST(test_draw_ellipse_4x4_2);
+DECLARE_TEST(test_draw_ellipse_3x3_2);
+DECLARE_TEST(test_draw_ellipse_2x2_2);
+DECLARE_TEST(test_draw_ellipse_1x1_2);
+DECLARE_TEST(test_draw_ellipse_0x0_2);
+
+DECLARE_TEST(test_draw_ellipse_4x4_3);
+DECLARE_TEST(test_draw_ellipse_3x3_3);
+DECLARE_TEST(test_draw_ellipse_2x2_3);
+DECLARE_TEST(test_draw_ellipse_1x1_3);
+DECLARE_TEST(test_draw_ellipse_0x0_3);
 
 DECLARE_TEST(test_frame_round_rectangle);
 DECLARE_TEST(test_fill_round_rectangle);
@@ -306,12 +319,25 @@ TEST_MAIN(drawer_test) {
   RUN_TEST(test_frame_ellipse_1x1_x3);
   RUN_TEST(test_frame_ellipse_0x0_x3);
 
-  //RUN_TEST(test_fill_ellipse);
+  RUN_TEST(test_fill_ellipse);
 
-  //RUN_TEST(test_draw_ellipse_4x4);
-  //RUN_TEST(test_draw_ellipse_2x2);
-  //RUN_TEST(test_draw_ellipse_1x1);
-  //RUN_TEST(test_draw_ellipse_0x0);
+  RUN_TEST(test_draw_ellipse_4x4);
+  RUN_TEST(test_draw_ellipse_3x3);
+  RUN_TEST(test_draw_ellipse_2x2);
+  RUN_TEST(test_draw_ellipse_1x1);
+  RUN_TEST(test_draw_ellipse_0x0);
+
+  RUN_TEST(test_draw_ellipse_4x4_2);
+  RUN_TEST(test_draw_ellipse_3x3_2);
+  RUN_TEST(test_draw_ellipse_2x2_2);
+  RUN_TEST(test_draw_ellipse_1x1_2);
+  RUN_TEST(test_draw_ellipse_0x0_2);
+
+  RUN_TEST(test_draw_ellipse_4x4_3);
+  RUN_TEST(test_draw_ellipse_3x3_3);
+  RUN_TEST(test_draw_ellipse_2x2_3);
+  RUN_TEST(test_draw_ellipse_1x1_3);
+  RUN_TEST(test_draw_ellipse_0x0_3);
 #endif // TEST_ELLIPSE
 
 #ifdef TEST_ROUND_RECT
@@ -394,6 +420,19 @@ void tester (float scale, int sz, const core::point& p1, const core::point& p2,
 }
 
 // --------------------------------------------------------------------------
+template<typename T, os::color B, os::color P>
+void tester2 (float scale, int sz, const core::point& p1, const core::point& p2,
+             colormap&& expected) {
+  core::global::set_scale_factor(scale);
+  pixmap img(sz, sz);
+  graphics g(img);
+  g.clear(color::black);
+  T(p1, p2)(g, brush(B), pen(P));
+  auto buffer = pixmap2colormap(img);
+  EXPECT_EQUAL(buffer, expected);
+}
+
+// --------------------------------------------------------------------------
 DEFINE_TEST(test_raw_rect) {
   core::global::set_scale_factor(1.0);
   pixmap img(5, 5);
@@ -419,6 +458,8 @@ DEFINE_TEST(test_raw_rect) {
                            {_,_,_,_,_}}));
 } END_TEST()
 
+static const int degree_360 = 360 * 64;
+
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_raw_ellipse) {
   [] () {
@@ -431,7 +472,8 @@ DEFINE_TEST(test_raw_ellipse) {
 
     core::rectangle r(core::point(1, 1), core::size(3, 3));
   #ifdef X11
-    XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+    XSetArcMode(core::global::get_instance(), g, ArcChord);
+    XDrawArc(core::global::get_instance(), img, g, 1, 1, 2, 2, 0, degree_360);
   #endif
   #ifdef WIN32
     SelectObject(g, GetStockObject(NULL_BRUSH));
@@ -455,7 +497,8 @@ DEFINE_TEST(test_raw_ellipse) {
 
     core::rectangle r(core::point(1, 1), core::size(5, 5));
 #ifdef X11
-    XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+    XSetArcMode(core::global::get_instance(), g, ArcChord);
+    XDrawArc(core::global::get_instance(), img, g, 1, 1, 4, 4, 0, degree_360);
 #endif
 #ifdef WIN32
     SelectObject(g, GetStockObject(NULL_BRUSH));
@@ -481,8 +524,8 @@ DEFINE_TEST(test_raw_ellipse) {
     draw::Use<pen> up(g, p);
 
 #ifdef X11
-    core::rectangle r(core::point(1, 1), core::size(5, 5));
-    XDrawRectangle(core::global::get_instance(), img, g, r.os_x(), r.os_y(), r.os_width() - 1, r.os_height() - 1);
+    XSetArcMode(core::global::get_instance(), g, ArcChord);
+    XDrawArc(core::global::get_instance(), img, g, 4, 4, 6, 6, 0, degree_360);
 #endif
 #ifdef WIN32
     SelectObject(g, GetStockObject(NULL_BRUSH));
@@ -2082,11 +2125,20 @@ DEFINE_TEST(test_frame_ellipse_3x3) {
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_ellipse_2x2) {
   tester<draw::ellipse>(1.0F, 5, {0, 0}, {2, 2}, CM({
+#ifdef WIN32
     {_,R,_,_,_},
     {R,_,R,_,_},
     {_,R,_,_,_},
     {_,_,_,_,_},
-    {_,_,_,_,_}}));
+    {_,_,_,_,_}
+#else
+    {R,R,R,_,_},
+    {R,_,R,_,_},
+    {R,R,R,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_},
+#endif
+  }));
 } END_TEST()
 
 // --------------------------------------------------------------------------
@@ -2165,14 +2217,14 @@ DEFINE_TEST(test_frame_ellipse_3x3_x2) {
 #else
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,R,R,R,R,_,_,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
-    {_,_,R,R,R,_,_,R,R,R,_,_},
+    {_,_,R,R,R,R,R,R,R,R,_,_},
     {_,_,R,R,_,_,_,_,R,R,_,_},
     {_,_,R,R,_,_,_,_,R,R,_,_},
-    {_,_,R,R,R,_,_,R,R,R,_,_},
+    {_,_,R,R,_,_,_,_,R,R,_,_},
+    {_,_,R,R,_,_,_,_,R,R,_,_},
+    {_,_,R,R,R,R,R,R,R,R,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
-    {_,_,_,_,R,R,R,R,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
 #endif // WIN32
@@ -2197,30 +2249,15 @@ DEFINE_TEST(test_frame_ellipse_2x2_x2) {
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_ellipse_1x1_x2) {
-  tester<draw::ellipse>(2.0F, 10, {1, 1}, {2, 2}, CM({
-#ifdef WIN32
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-#else
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,R,R,_,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,R,R,R,R,_,_,_,_},
-    {_,_,_,R,R,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,_,_,_}
-#endif // WIN32
+  tester<draw::ellipse>(2.0F, 8, {1, 1}, {2, 2}, CM({
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
   }));
 } END_TEST()
 
@@ -2265,21 +2302,21 @@ DEFINE_TEST(test_frame_ellipse_4x4_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,R,R,R,R,R,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,R,R,R,_,_,_,_,_,_},
     {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
-    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
     {_,_,_,_,R,R,R,R,_,_,_,_,_,R,R,R,R,_,_,_,_},
-    {_,_,_,R,R,R,R,_,_,_,_,_,_,_,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,_,_,_,_,_,_,_,R,R,R,_,_,_,_},
     {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,_,_,_,_,_,_,R,R,R,_,_,_},
-    {_,_,_,R,R,R,R,_,_,_,_,_,_,_,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,_,_,_,_,_,_,_,R,R,R,_,_,_,_},
     {_,_,_,_,R,R,R,R,_,_,_,_,_,R,R,R,R,_,_,_,_},
-    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
     {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
-    {_,_,_,_,_,_,_,R,R,R,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,R,R,R,R,R,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2355,15 +2392,15 @@ DEFINE_TEST(test_frame_ellipse_2x2_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
     {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
     {_,_,_,R,R,R,_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
-    {_,_,_,_,_,_,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2391,12 +2428,12 @@ DEFINE_TEST(test_frame_ellipse_1x1_x3) {
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
-    {_,_,_,_,_,R,R,_,_,_,_,_},
     {_,_,_,_,R,R,R,R,_,_,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
     {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
     {_,_,_,_,R,R,R,R,_,_,_,_},
-    {_,_,_,_,_,R,R,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_,_,_,_},
@@ -2407,9 +2444,6 @@ DEFINE_TEST(test_frame_ellipse_1x1_x3) {
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_ellipse_0x0_x3) {
   tester<draw::ellipse>(3.0F, 9, {1, 1}, {1, 1}, CM({
-#ifdef WIN32
-#else
-#endif // WIN32
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_},
     {_,_,_,_,_,_,_,_,_},
@@ -2434,71 +2468,243 @@ DEFINE_TEST(test_fill_ellipse) {
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_draw_ellipse_4x4) {
-  core::global::set_scale_factor(1.0);
+  tester2<draw::ellipse, color::red, color::blue>(1.0F, 5, {0, 0}, {4, 4}, CM({
+    {_,R,R,R,_},
+    {R,B,B,B,R},
+    {R,B,B,B,R},
+    {R,B,B,B,R},
+    {_,R,R,R,_}
+  }));
+} END_TEST()
 
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(4, 4)), color::red, color::blue);
-
-  auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({{_,R,R,R,_},
-                           {R,B,B,B,R},
-                           {R,B,B,B,R},
-                           {R,B,B,B,R},
-                           {_,R,R,R,_}}));
-} END_TEST(test_draw_ellipse_4x4)
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_3x3) {
+  tester2<draw::ellipse, color::red, color::blue>(1.0F, 5, {0, 0}, {3, 3}, CM({
+    {_,R,R,_,_},
+    {R,B,B,R,_},
+    {R,B,B,R,_},
+    {_,R,R,_,_},
+    {_,_,_,_,_}
+  }));
+} END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_draw_ellipse_2x2) {
-  core::global::set_scale_factor(1.0);
-
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(2, 2)), color::red, color::blue);
-
-  auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({{R,R,R,_,_},
-                           {R,B,R,_,_},
-                           {R,R,R,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_}}));
-} END_TEST(test_draw_ellipse_2x2)
+  tester2<draw::ellipse, color::red, color::blue>(1.0F, 5, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_},
+    {_,R,R,R,_},
+    {_,R,B,R,_},
+    {_,R,R,R,_},
+    {_,_,_,_,_}
+  }));
+} END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_draw_ellipse_1x1) {
-  core::global::set_scale_factor(1.0);
-
-  pixmap img(5, 5);
-
-  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(1, 1)), color::red, color::blue);
-
-  auto buffer = pixmap2colormap(img);
-
-  EXPECT_EQUAL(buffer, CM({{R,R,_,_,_},
-                           {R,R,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_}}));
-} END_TEST(test_draw_ellipse_1x1)
+  tester2<draw::ellipse, color::red, color::blue>(1.0F, 5, {1, 1}, {2, 2}, CM({
+    {_,_,_,_,_},
+    {_,R,R,_,_},
+    {_,R,R,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_}
+  }));
+} END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_draw_ellipse_0x0) {
-  core::global::set_scale_factor(1.0);
+  tester2<draw::ellipse, color::red, color::blue>(1.0F, 5, {1, 1}, {0, 0}, CM({
+    {_,_,_,_,_},
+    {_,R,_,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_},
+    {_,_,_,_,_}
+  }));
+} END_TEST()
 
-  pixmap img(5, 5);
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_4x4_2) {
+  tester2<draw::ellipse, color::red, color::blue>(2.0F, 14, {1, 1}, {5, 5}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,R,R,R,B,B,B,B,R,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,B,B,R,R,_,_},
+    {_,_,R,R,R,B,B,B,B,R,R,R,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
 
-  graphics(img).clear(color::black).draw(draw::ellipse(core::point(0, 0), core::point(0, 0)), color::red, color::blue);
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_3x3_2) {
+  tester2<draw::ellipse, color::red, color::blue>(2.0F, 12, {1, 1}, {4, 4}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,R,R,R,R,R,R,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,B,B,B,B,R,R,_,_},
+    {_,_,R,R,R,R,R,R,R,R,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
 
-  auto buffer = pixmap2colormap(img);
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_2x2_2) {
+  tester2<draw::ellipse, color::red, color::blue>(2.0F, 10, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,R,R,R,R,R,R,_,_},
+    {_,_,R,R,B,B,R,R,_,_},
+    {_,_,R,R,B,B,R,R,_,_},
+    {_,_,R,R,R,R,R,R,_,_},
+    {_,_,_,R,R,R,R,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_}
+  }));
+} END_TEST()
 
-  EXPECT_EQUAL(buffer, CM({{_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_},
-                           {_,_,_,_,_}}));
-} END_TEST(test_draw_ellipse_0x0)
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_1x1_2) {
+  tester2<draw::ellipse, color::red, color::blue>(2.0F, 8, {1, 1}, {2, 2}, CM({
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,R,R,R,R,_,_},
+    {_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_0x0_2) {
+  tester2<draw::ellipse, color::red, color::blue>(2.0F, 6, {1, 1}, {1, 1}, CM({
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,R,R,_,_},
+    {_,_,R,R,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_4x4_3) {
+  tester2<draw::ellipse, color::red, color::blue>(3.0F, 21, {1, 1}, {5, 5}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,R,R,R,R,R,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,B,B,B,B,B,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,B,B,B,B,B,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,R,R,R,R,R,R,R,R,R,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,R,R,R,R,R,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_3x3_3) {
+  tester2<draw::ellipse, color::red, color::blue>(3.0F, 18, {1, 1}, {4, 4}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,B,B,B,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,B,B,B,B,R,R,R,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,R,R,R,R,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_2x2_3) {
+  tester2<draw::ellipse, color::red, color::blue>(3.0F, 15, {1, 1}, {3, 3}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,B,B,B,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,R,R,R,R,R,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_1x1_3) {
+  tester2<draw::ellipse, color::red, color::blue>(3.0F, 12, {1, 1}, {2, 2}, CM({
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,R,R,R,R,R,R,_,_,_},
+    {_,_,_,_,R,R,R,R,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_,_,_,_},
+  }));
+} END_TEST()
+
+// --------------------------------------------------------------------------
+DEFINE_TEST(test_draw_ellipse_0x0_3) {
+  tester2<draw::ellipse, color::red, color::blue>(3.0F, 9, {1, 1}, {1, 1}, CM({
+    {_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_},
+    {_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_},
+    {_,_,_,R,R,R,_,_,_},
+    {_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_},
+    {_,_,_,_,_,_,_,_,_}
+  }));
+} END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_frame_round_rectangle) {

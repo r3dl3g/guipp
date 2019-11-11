@@ -561,25 +561,50 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
-      Use<brush> br(g, b);
       os::instance display = get_instance();
+      const auto pw = p.os_size();
+      const auto off = (pw - 1) / 2;
       const os::rectangle r = rect.os();
 
-      XSetArcMode(display, g, ArcPieSlice);
-      XFillArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
-      Use<pen> pn(g, p);
-      XSetArcMode(display, g, ArcChord);
-      XDrawArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
+      if ((r.width == 0) && (r.height == 0)) {
+        if (pw < 2) {
+          Use<pen> pn(g, p);
+          XDrawPoint(display, g, g, r.x + off, r.y + off);
+        } else {
+          Use<brush> br(g, brush(p.color()));
+          XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
+        }
+      } else {
+        const auto soff = -(pw + 1) % 2;
+        Use<brush> br(g, b);
+        XSetArcMode(display, g, ArcPieSlice);
+        XFillArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
+        Use<pen> pn(g, p);
+        XSetArcMode(display, g, ArcChord);
+        XDrawArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
+      }
     }
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
-      Use<pen> pn(g, p);
       os::instance display = get_instance();
+      const auto pw = p.os_size();
+      const auto off = (pw - 1) / 2;
       const os::rectangle r = rect.os();
-
-      XSetArcMode(display, g, ArcChord);
-      XDrawArc(display, g, g, r.x, r.y, r.width, r.height, 0, degree_360);
+      if ((r.width == 0) && (r.height == 0)) {
+        if (pw < 2) {
+          Use<pen> pn(g, p);
+          XDrawPoint(display, g, g, r.x + off, r.y + off);
+        } else {
+          Use<brush> br(g, brush(p.color()));
+          XFillRectangle(get_instance(), g, g, r.x, r.y, pw, pw);
+        }
+      } else {
+        Use<pen> pn(g, p);
+        XSetArcMode(display, g, ArcChord);
+        const auto soff = -(pw + 1) % 2;
+        XDrawArc(display, g, g, r.x + off, r.y + off, r.width - soff, r.height - soff, 0, degree_360);
+      }
     }
 
     void ellipse::operator() (const graphics& g,

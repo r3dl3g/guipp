@@ -246,9 +246,9 @@ namespace gui {
                                      const core::rectangle& r,
                                      const draw::brush& background) {
       using namespace draw;
-      g.fill(rectangle(r), background);
-      frame::raised_relief(g, r);
-      g.text(text_box(ostreamfmt((i + 1) << '.'), r, text_origin::center), font::system(), color::windowTextColor());
+      const core::rectangle r2 = frame::raised_relief(g, r);
+      g.fill(rectangle(r2), background);
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r2, text_origin::center), font::system(), color::windowTextColor());
     }
 
 

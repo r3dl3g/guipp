@@ -709,6 +709,7 @@ namespace gui {
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());
+      graph.fill(draw::rectangle(area), back_brush);
 
       const auto list_sz = super::get_list_size();
       const auto last = super::get_count();

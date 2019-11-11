@@ -646,7 +646,7 @@ namespace gui {
         r.move_x(w);
       }
       if (r.x() < area.x2()) {
-        g.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), back_brush);
+        g.fill(draw::rectangle(core::rectangle(r.top_left(), core::size(area.x2(), area.y2()))), back_brush);
       }
     }
 

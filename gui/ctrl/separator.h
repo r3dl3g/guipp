@@ -62,7 +62,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation O, bool Sunken = true, os::color background = color::light_gray>
+    template<orientation O, bool Sunken = true, os::color background = color::very_very_light_gray>
     class basic_separator : public detail::separator_base {
     public:
       typedef detail::line_traits<O> lt;

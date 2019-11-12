@@ -64,9 +64,16 @@ namespace gui {
       run_modal(
         {
           win::hot_key_action{
-            win::hot_key(win::keys::escape, win::state::none), [&] () {
-              end_modal();
-            }
+            win::hot_key(win::keys::escape, win::state::none),
+            [&] () { end_modal(); }
+          },
+          win::hot_key_action{
+            win::hot_key(win::keys::right, win::state::none),
+            [&] () { forward_focus(false); }
+          },
+          win::hot_key_action{
+            win::hot_key(win::keys::left, win::state::none),
+            [&] () { forward_focus(true); }
           }
         }
       );

@@ -117,6 +117,77 @@ namespace gui {
 
     } // paint
 
+    namespace filter {
+
+      using namespace std::placeholders;
+
+      typedef bool (is_fnkt)(std::string::value_type, const std::locale&);
+
+      namespace {
+
+        template<is_fnkt T>
+        struct is_not {
+          bool operator() (std::string::value_type i) const {
+            return !T(i, std::locale::classic());
+          }
+        };
+
+        bool isfloat (std::string::value_type i, const std::locale& l) {
+          return std::isdigit(i, l) || (i == '.') || (i == ',') || (i == '-');
+        }
+
+        bool isinteger (std::string::value_type i, const std::locale& l) {
+          return std::isdigit(i, l) || (i == '-');
+        }
+
+      }
+
+      std::string alpha_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isalpha>()), t.end());
+        return t;
+      }
+
+      std::string alpha_numeric_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isalnum>()), t.end());
+        return t;
+      }
+
+      std::string digits_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isdigit>()), t.end());
+        return t;
+      }
+
+      std::string xdigits_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isxdigit>()), t.end());
+        return t;
+      }
+
+      std::string lower_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::islower>()), t.end());
+        return t;
+      }
+
+      std::string upper_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isupper>()), t.end());
+        return t;
+      }
+
+      std::string float_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<isfloat>()), t.end());
+        return t;
+      }
+
+      std::string integer_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<isinteger>()), t.end());
+        return t;
+      }
+
+      std::string unsigned_filter (std::string t) {
+        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isdigit>()), t.end());
+        return t;
+      }
+    }
+
     namespace detail {
 
       edit_base::data::data ()
@@ -172,6 +243,18 @@ namespace gui {
         data.selection.clear();
         notify_content_changed();
         invalidate();
+      }
+
+      void edit_base::set_text_filter (text_filter f) {
+        data.filter = f;
+      }
+
+      std::string edit_base::filter_text (const std::string& t) const {
+        if (data.filter) {
+          return data.filter(t);
+        } else {
+          return t;
+        }
       }
 
       const std::string& edit_base::get_text () const {
@@ -246,8 +329,9 @@ namespace gui {
         return (pos_t)data.text.size();
       }
 
-      void edit_base::replace_selection (const std::string& new_text) {
+      void edit_base::replace_selection (const std::string& text) {
         range sel = get_selection();
+        std::string new_text = filter_text(text);
         data.text.replace(sel.begin(), sel.end() - sel.begin(), new_text);
         set_cursor_pos(sel.begin() + new_text.size(), false);
         notify_content_changed();

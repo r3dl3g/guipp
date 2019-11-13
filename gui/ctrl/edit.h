@@ -46,6 +46,22 @@ namespace gui {
 
     } // paint
 
+    namespace filter {
+
+      typedef std::string (text_filter_f) (std::string);
+
+      std::string GUIPP_CTRL_EXPORT alpha_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT alpha_numeric_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT digits_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT xdigits_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT lower_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT upper_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT float_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT integer_filter (std::string);
+      std::string GUIPP_CTRL_EXPORT unsigned_filter (std::string);
+
+    }
+
     namespace detail {
 
       // --------------------------------------------------------------------------
@@ -57,6 +73,7 @@ namespace gui {
         template<typename T = edit_base, os::color C = color::white>
         using clazz = win::window_class<T, C, win::cursor_type::ibeam>;
 
+        typedef std::function<filter::text_filter_f> text_filter;
         typedef core::range<pos_t> range;
 
         edit_base ();
@@ -92,6 +109,9 @@ namespace gui {
         std::string get_text_in_range (const range&) const;
         std::string get_selected_text () const;
 
+        void set_text_filter (text_filter);
+        std::string filter_text (const std::string&) const;
+
       protected:
         void register_handler ();
 
@@ -110,6 +130,7 @@ namespace gui {
           pos_t text_limit;
           pos_t scroll_pos;
           core::point last_mouse_point;
+          text_filter filter;
         } data;
 
       private:

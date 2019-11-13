@@ -190,7 +190,7 @@ namespace gui {
 
       sys_fs::path current = sys_fs::current_path();
       dir_tree.set_roots(fs::get_all_root_file_infos());
-      for (auto next = current; next.has_root_path(); next = next.parent_path()) {
+      for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
         dir_tree.add_open_node(next);
       }
       dir_tree.update_node_list();

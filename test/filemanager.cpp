@@ -68,6 +68,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
       client.first.add_open_node(next);
     }
+    client.first.add_open_node(current.root_path());
     client.first.update_node_list();
     client.first.select_node(current);
     client.second.set_path(current);

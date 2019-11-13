@@ -193,6 +193,7 @@ namespace gui {
       for (auto next = current; next.has_root_path() && (next != next.root_path()); next = next.parent_path()) {
         dir_tree.add_open_node(next);
       }
+      dir_tree.add_open_node(current.root_path());
       dir_tree.update_node_list();
       dir_tree.select_node(current);
       files.set_path(current);

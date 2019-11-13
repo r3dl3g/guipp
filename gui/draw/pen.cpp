@@ -45,23 +45,23 @@ namespace gui {
     pen::pen (const os::color& color, size_type width, Style style)
       : id(nullptr)
     {
-      info.lopnColor = color;
-      info.lopnStyle = static_cast<int>(style);
+      info.elpColor = color;
+      info.elpPenStyle = static_cast<DWORD>(style);
       auto w = core::global::scale<os::size_type, size_type>(width);
-      info.lopnWidth = {w, w};
-      //if (style == gui::draw::pen::Style::dot) {
-        LOGBRUSH LogBrush;
-        LogBrush.lbColor = color;
-        LogBrush.lbStyle = PS_SOLID;
-        LogBrush.lbHatch = 0;
-        id = ExtCreatePen(info.lopnStyle | PS_GEOMETRIC | PS_ENDCAP_SQUARE | PS_JOIN_MITER, w, &LogBrush, 0, NULL);
-      //} else {
-      //  id = CreatePenIndirect(&info);
-      //}
+      info.elpWidth = w;
+      info.elpBrushStyle = BS_SOLID;
+      info.elpHatch = 0;
+      info.elpNumEntries = 0;
+      info.elpStyleEntry[0] = 0;
+      LOGBRUSH LogBrush;
+      LogBrush.lbColor = color;
+      LogBrush.lbStyle = BS_SOLID;
+      LogBrush.lbHatch = 0;
+      id = ExtCreatePen(info.elpPenStyle | PS_GEOMETRIC | PS_ENDCAP_SQUARE | PS_JOIN_MITER, w, &LogBrush, 0, NULL);
     }
 
     pen::pen (const pen& rhs)
-      : pen(rhs.info.lopnColor, (size_type)rhs.info.lopnWidth.x, (Style)rhs.info.lopnStyle)
+      : pen(rhs.info.elpColor, (size_type)rhs.info.elpWidth, (Style)rhs.info.elpPenStyle)
     {}
 
     pen::~pen () {
@@ -72,26 +72,25 @@ namespace gui {
     }
 
     os::color pen::color () const {
-      return info.lopnColor;
+      return info.elpColor;
     }
 
     pen::size_type pen::size () const {
-      return core::global::scale<size_type, os::size_type>(info.lopnWidth.x);
+      return core::global::scale<size_type, os::size_type>(info.elpWidth);
     }
 
     os::size_type pen::os_size () const {
-      return info.lopnWidth.x;
+      return info.elpWidth;
     }
 
     pen::Style pen::style () const {
-      return (pen::Style)info.lopnStyle;
+      return (pen::Style)info.elpPenStyle;
     }
 
     bool pen::operator== (const pen& rhs) const {
-      return ((info.lopnColor == rhs.info.lopnColor) &&
-              (info.lopnStyle == rhs.info.lopnStyle) &&
-              (info.lopnWidth.x == rhs.info.lopnWidth.x) &&
-              (info.lopnWidth.y == rhs.info.lopnWidth.y));
+      return ((info.elpColor == rhs.info.elpColor) &&
+              (info.elpPenStyle == rhs.info.elpPenStyle) &&
+              (info.elpWidth == rhs.info.elpWidth));
     }
 
 #endif // WIN32

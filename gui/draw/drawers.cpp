@@ -145,7 +145,7 @@ namespace gui {
                               const pen& p) const {
       const os::rectangle r = rect.os();
       const auto pw = p.os_size();
-      if ((r.left + pw == r.right) && (r.top + pw == r.bottom)) {
+      if ((r.left == r.right) && (r.top == r.bottom)) {
         if (pw < 2) {
           SetPixel(g, r.left, r.top, p.color());
         } else {
@@ -153,14 +153,20 @@ namespace gui {
           brush b1(p.color());
           Use<pen> upn(g, p1);
           Use<brush> ubr(g, b1);
-          Ellipse(g, r.left, r.top, r.right, r.bottom);
+          Rectangle(g, r.left, r.top, r.right + pw, r.bottom + pw);
         }
       } else if ((r.right > r.left) && (r.bottom > r.top)) {
-        Use<brush> ubr(g, b);
-        Use<pen> upn(g, p);
         const auto tl = pen_offsets_tl(pw);
-        const auto br = pen_offsets_br(pw);
-        Ellipse(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
+        if ((r.right - r.left < 3) || (r.bottom - r.top < 3)) {
+          Use<brush> ubr(g, b);
+          Use<pen> upn(g, p);
+          Rectangle(g, r.left + tl, r.top + tl, r.right + pw, r.bottom + pw);
+        } else {
+          const auto br = pen_offsets_tl(pw + 1);
+          Use<brush> ubr(g, b);
+          Use<pen> upn(g, p);
+          Ellipse(g, r.left + tl, r.top + tl, r.right + br, r.bottom + br);
+        }
       }
     }
 

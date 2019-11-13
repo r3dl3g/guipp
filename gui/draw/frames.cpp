@@ -69,24 +69,24 @@ namespace gui {
 
       core::rectangle vraise (const draw::graphics& g, const core::rectangle& r) {
         g.frame(line(r.top_left(), r.bottom_left()), color::white);
-        g.frame(line(r.top_right(), r.bottom_right()), color::gray);
+        g.frame(line(r.top_right(), r.bottom_right()), color::medium_gray);
         return r.shrinked(x1y0);
       }
 
       core::rectangle hraise (const draw::graphics& g, const core::rectangle& r) {
         g.frame(line(r.top_left(), r.top_right()), color::white);
-        g.frame(line(r.bottom_right(), r.bottom_left()), color::gray);
+        g.frame(line(r.bottom_right(), r.bottom_left()), color::medium_gray);
         return r.shrinked(x0y1);
       }
 
       core::rectangle vgroove (const draw::graphics& g, const core::rectangle& r) {
-        g.frame(line(r.top_left(), r.bottom_left()), color::gray);
+        g.frame(line(r.top_left(), r.bottom_left()), color::medium_gray);
         g.frame(line(r.top_right(), r.bottom_right()), color::white);
         return r.shrinked(x1y0);
       }
 
       core::rectangle hgroove (const draw::graphics& g, const core::rectangle& r) {
-        g.frame(line(r.top_left(), r.top_right()), color::gray);
+        g.frame(line(r.top_left(), r.top_right()), color::medium_gray);
         g.frame(line(r.bottom_right(), r.bottom_left()), color::white);
         return r.shrinked(x0y1);
       }
@@ -104,21 +104,21 @@ namespace gui {
       }
 
       core::rectangle raised_relief (const draw::graphics& g, const core::rectangle& place) {
-        return raised_relief(g, place, color::white, color::gray);
+        return raised_relief(g, place, color::white, color::medium_gray);
       }
 
       core::rectangle sunken_relief (const draw::graphics& g, const core::rectangle& place) {
-        return sunken_relief(g, place, color::white, color::gray);
+        return sunken_relief(g, place, color::white, color::medium_gray);
       }
 
       core::rectangle raised_deep_relief (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = raised_relief(g, place, color::white, color::gray);
-        return raised_relief(g, r, color::medium_gray, color::dark_gray);
+        core::rectangle r = raised_relief(g, place, color::white, color::medium_gray);
+        return raised_relief(g, r, color::very_very_light_gray, color::light_gray);
       }
 
       core::rectangle sunken_deep_relief (const draw::graphics& g, const core::rectangle& place) {
-        core::rectangle r = sunken_relief(g, place, color::white, color::gray);
-        return sunken_relief(g, r, color::medium_gray, color::dark_gray);
+        core::rectangle r = sunken_relief(g, place, color::white, color::medium_gray);
+        return sunken_relief(g, r, color::very_very_light_gray, color::light_gray);
       }
 
     } // frame

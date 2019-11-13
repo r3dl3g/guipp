@@ -23,6 +23,7 @@
 //
 #ifdef WIN32
 # include <windowsx.h>
+# include <locale>
 #endif // WIN32
 #ifdef X11
 # include <X11/cursorfont.h>
@@ -125,65 +126,98 @@ namespace gui {
 
       namespace {
 
-        template<is_fnkt T>
-        struct is_not {
-          bool operator() (std::string::value_type i) const {
-            return !T(i, std::locale::classic());
+        struct is_not_alpha {
+          inline bool operator() (std::string::value_type i) {
+            return !std::isalpha(i, std::locale::classic());
           }
         };
 
-        bool isfloat (std::string::value_type i, const std::locale& l) {
-          return std::isdigit(i, l) || (i == '.') || (i == ',') || (i == '-');
-        }
+        struct is_not_alnum {
+          inline bool operator() (std::string::value_type i) {
+            return !std::isalnum(i, std::locale::classic());
+          }
+        };
 
-        bool isinteger (std::string::value_type i, const std::locale& l) {
-          return std::isdigit(i, l) || (i == '-');
-        }
+        struct is_not_digit {
+          inline bool operator() (std::string::value_type i) {
+            return !std::isdigit(i, std::locale::classic());
+          }
+        };
+
+        struct is_not_xdigit {
+          inline bool operator() (std::string::value_type i) {
+            return !std::isxdigit(i, std::locale::classic());
+          }
+        };
+
+        struct is_not_lower {
+          inline bool operator() (std::string::value_type i) {
+            return !std::islower(i, std::locale::classic());
+          }
+        };
+
+        struct is_not_upper {
+          inline bool operator() (std::string::value_type i) {
+            return !std::isupper(i, std::locale::classic());
+          }
+        };
+
+        struct is_not_float {
+          inline bool operator() (std::string::value_type i) {
+            return !(std::isdigit(i, std::locale::classic()) || (i == '.') || (i == ',') || (i == '-'));
+          }
+        };
+
+        struct is_not_integer {
+          inline bool operator() (std::string::value_type i) {
+            return std::isdigit(i, std::locale::classic()) || (i == '-');
+          }
+        };
 
       }
 
       std::string alpha_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isalpha>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_alpha()), t.end());
         return t;
       }
 
       std::string alpha_numeric_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isalnum>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_alnum()), t.end());
         return t;
       }
 
       std::string digits_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isdigit>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_digit()), t.end());
         return t;
       }
 
       std::string xdigits_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isxdigit>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_xdigit()), t.end());
         return t;
       }
 
       std::string lower_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::islower>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_lower()), t.end());
         return t;
       }
 
       std::string upper_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isupper>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_upper()), t.end());
         return t;
       }
 
       std::string float_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<isfloat>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_float()), t.end());
         return t;
       }
 
       std::string integer_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<isinteger>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_integer()), t.end());
         return t;
       }
 
       std::string unsigned_filter (std::string t) {
-        t.erase(std::remove_if(t.begin(), t.end(), is_not<std::isdigit>()), t.end());
+        t.erase(std::remove_if(t.begin(), t.end(), is_not_digit()), t.end());
         return t;
       }
     }

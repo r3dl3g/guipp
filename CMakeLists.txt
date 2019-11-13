@@ -19,7 +19,7 @@ if (CMAKE_CXX_PLATFORM_ID STREQUAL "Windows" AND CMAKE_CXX_COMPILER_ID STREQUAL 
     set(CMAKE_CXX_FLAGS "${_PLATFORM_DEFINES}${_PLATFORM_DEFINES_CXX} -fms-extensions -fms-compatibility -Fp -EHsc -D_WINDOWS")
     set(CMAKE_CXX_FLAGS_DEBUG  "/MDd -O0 -Zi")
     set(CMAKE_CXX_FLAGS_RELEASE  "/MD -O2 -DNDEBUG")
-    add_definitions(-std=c++11)
+    add_definitions(-std=c++17)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     add_compile_options(/Y-)
     add_definitions(-std=c++11)

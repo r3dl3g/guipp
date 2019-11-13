@@ -88,7 +88,7 @@ namespace gui {
       typedef LPARAM lParam;
 
       typedef LOGBRUSH brush_type;
-      typedef LOGPEN pen_type;
+      typedef EXTLOGPEN pen_type;
     }
 
   } // os

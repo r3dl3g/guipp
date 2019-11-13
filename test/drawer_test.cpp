@@ -552,7 +552,7 @@ DEFINE_TEST(test_raw_ellipse) {
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
       {_,_,_,_,_,_,_,_,_,_,_,_,_,_,_},
     }));
-  };
+  } ();
   [] () {
     core::global::set_scale_factor(3.0);
     pixmap img(15, 15);

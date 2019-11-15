@@ -27,6 +27,7 @@
 #include <gui/ctrl/textbox.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/tab_group.h>
+#include <gui/ctrl/progress_bar.h>
 #include <gui/io/wavelength_to_rgb.h>
 
 
@@ -576,20 +577,83 @@ void my_main_window::save_as () {
   });
 }
 
-void my_main_window::wipe_space () {
-//  sys_fs::current_path("C:\\");
-//  dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [](const sys_fs::path& dir) {
-  sys_fs::path file = "C:\\";// dir;
-    file /= "empty.tmp";
-    std::ofstream f(file);
-    const auto buffer_size = 1024 * 1024;
-    char buffer[buffer_size];
-    memset(buffer, 0, buffer_size);
-    while (!f.write(buffer, buffer_size).fail()) {
-    }
-    f.close();
+struct finally {
+  const sys_fs::path& file;
+  std::ofstream& stream;
+  
+  finally (const sys_fs::path& file, std::ofstream& stream)
+    : file(file)
+    , stream(stream)
+  {}
+
+  ~finally () {
+    stream.close();
     sys_fs::remove(file);
-//  });
+  }
+};
+
+//-----------------------------------------------------------------------------
+class progress_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
+  color::very_light_gray,
+  float, float, float, float>> {
+public:
+  typedef ctrl::progress_bar progress_view_type;
+  typedef win::group_window<layout::border_layout<>, color::very_light_gray,
+                            float, float, float, float> content_view_type;
+  typedef standard_dialog<content_view_type> super;
+
+  progress_dialog ()
+    : super(content_view_type(20, 15, 15, 15)) {
+    content_view.get_layout().set_center(layout::lay(progress_view));
+  }
+
+  void create (win::container& parent,
+               const std::string& title,
+               const std::string& message,
+               const std::string& ok_label,
+               const core::rectangle& rect) {
+      super::create(parent, title, rect, [&] (int) {
+      end_modal();
+    }, {ok_label});
+    progress_view.create(content_view, message, rect);
+  }
+
+  progress_view_type progress_view;
+
+};
+
+
+void wipe_disk (const sys_fs::path& file, progress_dialog& dlg) {
+  try {
+    std::ofstream out(file);
+    finally on_exit(file, out);
+    std::vector<char> buffer(10 * 1024 * 1024, 0);
+    while (!out.write(buffer.data(), buffer.size()).fail()) {
+      win::run_on_main([&] () {
+        ++dlg.progress_view;
+      });
+    }
+  } catch (std::exception& ex) {
+    message_dialog::show(*(win::container*)win::global::get_application_main_window(), "BorderTest - Error", ex.what(), "Okay");
+  }
+  dlg.end_modal();
+}
+
+void my_main_window::wipe_space () {
+  sys_fs::current_path("C:\\");
+  dir_open_dialog::show(*this, "Choose target directory", "Wipe", "Cancel", [&] (const sys_fs::path& dir) {
+    sys_fs::path file = /*"C:\\";*/ dir;
+    file /= "empty.tmp";
+    win::run_on_main([&, file] () {
+      progress_dialog dlg;
+      auto space = sys_fs::space(file).available / (10 * 1024 * 1024);
+      dlg.progress_view.set_min_max_value(0, space, 0);
+      dlg.create(*this, "Wipe disk", "", "Okay", core::rectangle(300, 200, 400, 170));
+      std::thread t([&] () { wipe_disk(file, dlg); });
+      dlg.show(*this);
+      t.join();
+    });
+  });
 }
 
 void my_main_window::copy () {

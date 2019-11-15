@@ -33,7 +33,7 @@ namespace gui {
 
       progress_bar_base::data::data ()
         : min(0)
-        , max(100)
+        , max(1)
         , value(0)
       {}
 
@@ -68,7 +68,11 @@ namespace gui {
 
       void progress_bar_base::set_value (type v) {
         data.value = v;
-        set_text(ostreamfmt(v));
+        if (data.max == 1) {
+          set_text(ostreamfmt(std::fixed << (v * 100) << "%"));
+        } else {
+          set_text(ostreamfmt(v));
+        }
         invalidate();
       }
 

@@ -623,15 +623,15 @@ public:
 };
 
 
-void wipe_disk (const sys_fs::path& file, progress_dialog& dlg) {
+void wipe_disk (const sys_fs::path& file, progress_dialog& dlg, uintmax_t space, volatile bool& active) {
   try {
     std::ofstream out(file);
     finally on_exit(file, out);
     std::vector<char> buffer(10 * 1024 * 1024, 0);
-    while (!out.write(buffer.data(), buffer.size()).fail()) {
-      win::run_on_main([&] () {
-        ++dlg.progress_view;
-      });
+    uintmax_t written = 0;
+    while (active && !out.write(buffer.data(), buffer.size()).fail()) {
+      written += buffer.size();
+      dlg.progress_view.set_value((float)((double)written / (double)space));
     }
   } catch (std::exception& ex) {
     message_dialog::show(*(win::container*)win::global::get_application_main_window(), "BorderTest - Error", ex.what(), "Okay");
@@ -646,11 +646,13 @@ void my_main_window::wipe_space () {
     file /= "empty.tmp";
     win::run_on_main([&, file] () {
       progress_dialog dlg;
-      auto space = sys_fs::space(file).available / (10 * 1024 * 1024);
-      dlg.progress_view.set_min_max_value(0, space, 0);
-      dlg.create(*this, "Wipe disk", "", "Okay", core::rectangle(300, 200, 400, 170));
-      std::thread t([&] () { wipe_disk(file, dlg); });
+      const uintmax_t space = sys_fs::space(file).free;
+      dlg.progress_view.set_min_max_value(0, 1, 0);
+      dlg.create(*this, "Wipe disk", "", "Abort", core::rectangle(300, 200, 400, 170));
+      volatile bool active = true;
+      std::thread t([&] () { wipe_disk(file, dlg, space, active); });
       dlg.show(*this);
+      active = false;
       t.join();
     });
   });

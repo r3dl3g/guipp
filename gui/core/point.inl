@@ -70,24 +70,24 @@ namespace gui {
     }
 
     template<typename T>
-    inline os::point_type basic_point<T>::os_x () const {
-      return global::scale<os::point_type>(x_);
+    inline gui::os::point_type basic_point<T>::os_x () const {
+      return global::scale<gui::os::point_type>(x_);
     }
 
     template<typename T>
-    inline os::point_type basic_point<T>::os_y () const {
-      return global::scale<os::point_type>(y_);
+    inline gui::os::point_type basic_point<T>::os_y () const {
+      return global::scale<gui::os::point_type>(y_);
     }
 
     template<typename T>
-    inline basic_point<T>::basic_point (const os::point& rhs)
+    inline basic_point<T>::basic_point (const gui::os::point& rhs)
       : x_(global::scale<T>(rhs.x))
       , y_(global::scale<T>(rhs.y))
     {}
 
 #ifdef WIN32
     template<typename T>
-    inline basic_point<T>::basic_point (const os::rectangle& rhs)
+    inline basic_point<T>::basic_point (const gui::os::rectangle& rhs)
       : x_(global::scale<T>(rhs.left))
       , y_(global::scale<T>(rhs.top))
     {}
@@ -95,7 +95,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
     template<typename T>
-    inline basic_point<T>::basic_point (const os::rectangle& r)
+    inline basic_point<T>::basic_point (const gui::os::rectangle& r)
       : x_(global::scale<T>(r.x))
       , y_(global::scale<T>(r.y))
     {}
@@ -231,12 +231,12 @@ namespace gui {
     }
 
     template<typename T>
-    inline basic_point<T>::operator os::point() const {
+    inline basic_point<T>::operator gui::os::point() const {
       return {os_x(), os_y()};
     }
 
     template<typename T>
-    inline os::point basic_point<T>::os () const {
+    inline gui::os::point basic_point<T>::os () const {
       return {os_x(), os_y()};
     }
 

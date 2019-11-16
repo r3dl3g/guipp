@@ -60,7 +60,7 @@ namespace gui {
 
     template<typename T, os::color B>
     virtual_view<T, B>::virtual_view () {
-      super::on_create(basepp::bind_method(this, &virtual_view::handle_create));
+      super::on_create(util::bind_method(this, &virtual_view::handle_create));
       super::get_layout().init(&vscroll, &hscroll, &edge, &view);
 
       vscroll.on_scroll([&] (core::point::type y) {

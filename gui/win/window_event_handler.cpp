@@ -122,7 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::point::type get_wheel_delta (const core::event& e) {
-      return static_cast<core::point::type>(basepp::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
+      return static_cast<core::point::type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
     // --------------------------------------------------------------------------
@@ -245,7 +245,7 @@ namespace gui {
 
     void send_client_message (const window* win, os::event_id message, long l1, long l2) {
       if (win && win->is_valid()) {
-        os::event_result result;
+        gui::os::event_result result;
         core::event e{ win->get_id(), message, static_cast<WPARAM>(l1), static_cast<LPARAM>(l2) };
         win->handle_event(e, result);
       }
@@ -253,7 +253,7 @@ namespace gui {
 
     void send_client_message (const window* win, os::event_id message, const core::size& sz) {
       if (win && win->is_valid()) {
-        os::event_result result;
+        gui::os::event_result result;
         os::size s = sz;
         long l2 = (long)s.cy << 16 | (long)s.cx;
         core::event e{ win->get_id(), message, 0, static_cast<WPARAM>(l2)};
@@ -263,7 +263,7 @@ namespace gui {
 
     void send_client_message (const window* win, os::event_id message, const core::rectangle& wr) {
       if (win && win->is_valid()) {
-        os::event_result result;
+        gui::os::event_result result;
         core::native_rect r = core::global::scale(wr);
         WINDOWPOS wp{win->get_id(), NULL, r.x(), r.y(), static_cast<int>(r.width()), static_cast<int>(r.height()), 0};
         core::event e { win->get_id(), message, 0, reinterpret_cast<LPARAM>(&wp)};
@@ -323,7 +323,7 @@ namespace gui {
           client.data.l[3] = l4;
           client.data.l[4] = l5;
 
-          os::event_result result = 0;
+          gui::os::event_result result = 0;
           win->handle_event(event, result);
           /* Send the data off to the other process */
           //XSendEvent(client.display, client.window, True, 0, &event);

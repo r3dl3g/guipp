@@ -33,7 +33,7 @@
 //
 // Library includes
 //
-#include <base/bits.h>
+#include <gui/core/bits.h>
 
 
 namespace gui {
@@ -85,9 +85,9 @@ namespace gui {
     namespace global {
 
       namespace x11 {
-        os::x11::screen get_screen ();
-        void set_screen(os::x11::screen);
-        os::x11::visual get_visual ();
+        gui::os::x11::screen get_screen ();
+        void set_screen(gui::os::x11::screen);
+        gui::os::x11::visual get_visual ();
       }
 
     } // global

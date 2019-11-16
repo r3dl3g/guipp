@@ -85,6 +85,7 @@ endforeach(test)
 foreach(test ${apps})
     add_executable(${test} WIN32 ${test}.cpp)
     target_link_libraries(${test} ${gui_libraries} ${gui_sys_libraries})
+    install(TARGETS ${test} DESTINATION bin)
 endforeach(test)
 
 if (BUILD_FOR_ARM)

@@ -165,14 +165,14 @@ my_main_window::my_main_window ()
   , left_list(50, color::rgb_gray<224>::value)
   , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
-  on_create(basepp::bind_method(this, &my_main_window::onCreated));
+  on_create(util::bind_method(this, &my_main_window::onCreated));
 
   on_destroy([&]() {
     LogDebug << *this << " Destroyed!";
     win::quit_main_loop();
   });
 
-  on_close(basepp::bind_method(this, &my_main_window::quit));
+  on_close(util::bind_method(this, &my_main_window::quit));
 
   window1.on_paint(draw::paint([&](const graphics& graph){
     core::rectangle place = window1.client_area();
@@ -266,9 +266,9 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   menu.set_visible();
 
   file_sub_menu.data.add_entries({
-    menu_entry("Open", 'O', basepp::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
-    menu_entry("Save As", 'S', basepp::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
-    menu_entry("Wipe empty space", 'W', basepp::bind_method(this, &my_main_window::wipe_space), hot_key('W', state::control)),
+    menu_entry("Open", 'O', util::bind_method(this, &my_main_window::open), hot_key('O', state::control)),
+    menu_entry("Save As", 'S', util::bind_method(this, &my_main_window::save_as), hot_key('S', state::control)),
+    menu_entry("Wipe empty space", 'W', util::bind_method(this, &my_main_window::wipe_space), hot_key('W', state::control)),
     menu_entry("Close", 'C', [&]() { labels[0].set_text("close"); }, hot_key('I', state::shift)),
     sub_menu_entry("Select", 'S', [&]() {
       labels[0].set_text("select...");
@@ -308,7 +308,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
       select_sub_menu.popup(file_sub_menu);
     }, true),
     menu_entry("Info", 'I', [&]() { labels[0].set_text("info"); }, hot_key('I', state::system)),
-    menu_entry("Exit", 'x', basepp::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
+    menu_entry("Exit", 'x', util::bind_method(this, &my_main_window::quit), hot_key(keys::f4, state::alt), true)
   });
   file_sub_menu.data.register_hot_keys(this);
 
@@ -319,11 +319,11 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   pixmap copy_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2663", u8"♣"), icon_rect, color::dark_blue);
   pixmap paste_icon = create_text_pixmap(IF_WIN32_ELSE(u8"\x2665", u8"♥"), icon_rect, color::dark_green);
 
-  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', basepp::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', basepp::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', basepp::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
-  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', basepp::bind_method(this, &my_main_window::del), hot_key(keys::del)));
-  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', basepp::bind_method(this, &my_main_window::settings), hot_key(), true));
+  edit_sub_menu.data.add_entry(menu_entry("Cut", 't', util::bind_method(this, &my_main_window::cut), hot_key('X', state::control), false, cut_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Copy", 'C', util::bind_method(this, &my_main_window::copy), hot_key('C', state::control), false, copy_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Paste", 'P', util::bind_method(this, &my_main_window::paste), hot_key('V', state::control), false, paste_icon));
+  edit_sub_menu.data.add_entry(menu_entry("Del", 'D', util::bind_method(this, &my_main_window::del), hot_key(keys::del)));
+  edit_sub_menu.data.add_entry(menu_entry("Settings", 'S', util::bind_method(this, &my_main_window::settings), hot_key(), true));
   edit_sub_menu.data.add_entry(menu_entry("Options", 'O', [&]() { labels[0].set_text("options"); }, hot_key(), false, pixmap(), menu_state::disabled));
   edit_sub_menu.data.register_hot_keys(this);
 
@@ -341,7 +341,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
 
   tool_bar.create(top_view);
 
-  global::register_hot_key(hot_key(keys::f7), basepp::bind_method(this, &my_main_window::test_rgb), this);
+  global::register_hot_key(hot_key(keys::f7), util::bind_method(this, &my_main_window::test_rgb), this);
 
   int i = 0;
   for (tool_bar_button& b : buttons) {
@@ -358,23 +358,23 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   }
 
   buttons[0].set_text("cut");
-  buttons[0].on_clicked(basepp::bind_method(this, &my_main_window::cut));
+  buttons[0].on_clicked(util::bind_method(this, &my_main_window::cut));
   buttons[1].set_text("copy");
-  buttons[1].on_clicked(basepp::bind_method(this, &my_main_window::copy));
+  buttons[1].on_clicked(util::bind_method(this, &my_main_window::copy));
   buttons[2].set_text("paste");
-  buttons[2].on_clicked(basepp::bind_method(this, &my_main_window::paste));
+  buttons[2].on_clicked(util::bind_method(this, &my_main_window::paste));
   buttons[3].set_text("rgb");
-  buttons[3].on_clicked(basepp::bind_method(this, &my_main_window::test_rgb));
+  buttons[3].on_clicked(util::bind_method(this, &my_main_window::test_rgb));
   buttons[4].set_text("bin");
-  buttons[4].on_clicked(basepp::bind_method(this, &my_main_window::save_all_bin));
+  buttons[4].on_clicked(util::bind_method(this, &my_main_window::save_all_bin));
   buttons[5].set_text("ascii");
-  buttons[5].on_clicked(basepp::bind_method(this, &my_main_window::save_all_ascii));
+  buttons[5].on_clicked(util::bind_method(this, &my_main_window::save_all_ascii));
   buttons[6].set_text("src");
-  buttons[6].on_clicked(basepp::bind_method(this, &my_main_window::save_all_src));
+  buttons[6].on_clicked(util::bind_method(this, &my_main_window::save_all_src));
   buttons[7].set_text("start");
-  buttons[7].on_clicked(basepp::bind_method(this, &my_main_window::start_thread));
+  buttons[7].on_clicked(util::bind_method(this, &my_main_window::start_thread));
   buttons[8].set_text("stop");
-  buttons[8].on_clicked(basepp::bind_method(this, &my_main_window::stop_thread));
+  buttons[8].on_clicked(util::bind_method(this, &my_main_window::stop_thread));
 
   for (i = 9; i < 10; ++i) {
     buttons[i].set_text(ostreamfmt(i));

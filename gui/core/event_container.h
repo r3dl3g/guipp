@@ -34,7 +34,7 @@
 // Library includes
 //
 #include <gui/core/event.h>
-#include <base/bind_method.h>
+#include <util/bind_method.h>
 
 
 #ifndef REGISTER_FUNCTION
@@ -60,11 +60,11 @@ namespace gui {
 
       template<typename T>
       void register_event_handler (T* t,
-                                   bool (T::*method)(const core::event &, os::event_result &));
+                                   bool (T::*method)(const core::event &, gui::os::event_result &));
 
       void unregister_event_handler (const event_handler_function&);
 
-      bool handle_event (const event& e, os::event_result& result) const;
+      bool handle_event (const event& e, gui::os::event_result& result) const;
 
     private:
 

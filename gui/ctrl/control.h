@@ -149,7 +149,7 @@ namespace gui {
 
       template<class T>
       paint_caller (T* t, void(T::*callback_)(const draw::graphics &))
-        : super(gui::basepp::bind_method(t, callback_))
+        : super(util::bind_method(t, callback_))
       {}
 
       void operator() (const core::event& e);

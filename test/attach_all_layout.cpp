@@ -15,9 +15,13 @@ DEFINE_LOGGING_CORE(NOTHING)
 
 struct drawing {
 
+  drawing ()
+    : win(nullptr)
+  {}
+
   void create (gui::win::window& w, const gui::core::rectangle& r = gui::core::rectangle::def) {
     area = r;
-    w.on_paint(gui::draw::paint(this, &drawing::paint));
+    win = &w;
   }
 
   void paint (const gui::draw::graphics& g) {
@@ -29,10 +33,12 @@ struct drawing {
 
   void set_text (const gui::ctrl::text_source& t) {
     text = t;
+    if (win) win->invalidate();
   }
 
   void place (const gui::core::rectangle& r) {
     area = r;
+    if (win) win->invalidate();
   }
 
   const gui::core::rectangle& place () const {
@@ -41,6 +47,7 @@ struct drawing {
 
   gui::ctrl::text_source text;
   gui::core::rectangle area;
+  gui::win::window* win;
 };
 
 template<typename T>
@@ -102,6 +109,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     fourth.create(main);
     fifth.create(main);
   });
+  main.on_paint(gui::draw::paint([&] (const gui::draw::graphics& g) {
+    fourth.paint(g);
+    fifth.paint(g);
+  }));
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

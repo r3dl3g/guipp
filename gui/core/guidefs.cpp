@@ -59,37 +59,37 @@ namespace gui {
     return out;
   }
 
-  PixelFormat get_pixel_format (int pixel_format, basepp::byte_order byte_order) {
+  PixelFormat get_pixel_format (int pixel_format, core::byte_order byte_order) {
     switch (pixel_format) {
       case 1: return PixelFormat::BW;
       case 8: return PixelFormat::GRAY;
       case 24:
         switch (byte_order) {
-          case basepp::byte_order::little_endian: return PixelFormat::RGB;
-          case basepp::byte_order::big_endian: return PixelFormat::BGR;
+          case core::byte_order::little_endian: return PixelFormat::RGB;
+          case core::byte_order::big_endian: return PixelFormat::BGR;
         }
       case 32:
         switch (byte_order) {
-          case basepp::byte_order::little_endian: return PixelFormat::RGBA;
-          case basepp::byte_order::big_endian: return PixelFormat::BGRA;
+          case core::byte_order::little_endian: return PixelFormat::RGBA;
+          case core::byte_order::big_endian: return PixelFormat::BGRA;
         }
     }
     return PixelFormat::Undefined;
   }
 
-  basepp::byte_order get_pixel_format_byte_order (PixelFormat px_fmt) {
+  core::byte_order get_pixel_format_byte_order (PixelFormat px_fmt) {
     switch (px_fmt) {
       case PixelFormat::BW:
       case PixelFormat::RGB:
       case PixelFormat::RGBA:
       case PixelFormat::ARGB:
       default:
-        return basepp::byte_order::little_endian;
+        return core::byte_order::little_endian;
       case PixelFormat::GRAY:
       case PixelFormat::BGR:
       case PixelFormat::BGRA:
       case PixelFormat::ABGR:
-      return basepp::byte_order::big_endian;
+      return core::byte_order::big_endian;
     }
   }
 
@@ -153,7 +153,7 @@ namespace gui {
 #endif // X11
         }
 
-        void init (os::instance i) {
+        void init (gui::os::instance i) {
           instance = i;
 #ifdef X11
           screen = DefaultScreen(instance);
@@ -188,9 +188,9 @@ namespace gui {
 #endif // X11
         }
 
-        os::instance instance;
+        gui::os::instance instance;
 #ifdef X11
-        os::x11::screen screen;
+        gui::os::x11::screen screen;
 # ifdef XCB
         xcb_connection_t *xcb_connection;
 # endif // XCB
@@ -201,7 +201,7 @@ namespace gui {
       gui_init gui_static;
 
 
-      void init (os::instance instance) {
+      void init (gui::os::instance instance) {
         gui_static.init(instance);
       }
 
@@ -212,7 +212,7 @@ namespace gui {
 
       }
 
-      os::instance get_instance () {
+      gui::os::instance get_instance () {
         if (!gui_static.is_initialized()) {
           throw std::runtime_error("gui::core::global::init must be called before first use!");
         }
@@ -251,7 +251,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
-        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), basepp::byte_order(ImageByteOrder(inst)));
+        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), byte_order(ImageByteOrder(inst)));
 #endif // X11
 #ifdef COCOA
         return PixelFormat::RGB;
@@ -290,22 +290,22 @@ namespace gui {
 
 
 #ifdef X11
-      os::key_state get_key_state () {
+      gui::os::key_state get_key_state () {
         XkbStateRec state;
         XkbGetState(get_instance(), XkbUseCoreKbd, &state);
         return state.base_mods;
       }
 
       namespace x11 {
-        os::x11::screen get_screen () {
+        gui::os::x11::screen get_screen () {
           return gui_static.screen;
         }
 
-        void set_screen (os::x11::screen screen) {
+        void set_screen (gui::os::x11::screen screen) {
           gui_static.screen = screen;
         }
 
-        os::x11::visual get_visual () {
+        gui::os::x11::visual get_visual () {
           return DefaultVisual(get_instance(), get_screen());
         }
       }

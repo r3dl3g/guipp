@@ -191,7 +191,7 @@ namespace gui {
       return (container*)this;
     }
 
-    bool window::handle_event (const core::event& e, os::event_result& result) const {
+    bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
       if (any_key_up_event::match(e)) {
         os::key_symbol key = get_key_symbol(e);
         if (key == keys::tab) {
@@ -863,7 +863,7 @@ namespace gui {
       e.width = s.width();
       e.height = s.height();
       e.count = 0;
-      os::event_result result;
+      gui::os::event_result result;
 
       LogTrace << "redraw: " << event;
       events.handle_event(event, result);

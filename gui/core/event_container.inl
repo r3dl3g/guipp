@@ -25,8 +25,8 @@ namespace gui {
 
     template<typename T>
     inline void event_container::register_event_handler (T* t,
-                                                         bool (T::*method)(const core::event &, os::event_result &)) {
-      register_event_handler(bind_method(t, method));
+                                                         bool (T::*method)(const core::event &, gui::os::event_result &)) {
+      register_event_handler(util::bind_method(t, method));
     }
 
   } // core

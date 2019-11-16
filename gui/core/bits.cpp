@@ -28,15 +28,19 @@
 //
 // Library includes
 //
-#include "bits.h"
+#include <gui/core/bits.h>
 
 
-namespace basepp {
+namespace gui {
 
-  constexpr byte bw_bits<bit_order::lsb_first>::value[];
-  constexpr byte bw_bits<bit_order::msb_first>::value[];
+  namespace core {
 
-  constexpr byte system_bw_bits::mask[];
-  constexpr byte system_bw_bits::shift[];
+    constexpr byte bw_bits<bit_order::lsb_first>::value[];
+    constexpr byte bw_bits<bit_order::msb_first>::value[];
 
-} // gui
+    constexpr byte system_bw_bits::mask[];
+    constexpr byte system_bw_bits::shift[];
+
+  } // namespace core
+
+} // namespace gui

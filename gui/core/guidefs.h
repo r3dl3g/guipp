@@ -30,7 +30,7 @@
 //
 // Library includes
 //
-#include <base/bits.h>
+#include <gui/core/bits.h>
 #include <logging/logger.h>
 #include <gui++-core-export.h>
 
@@ -55,10 +55,6 @@
 
 
 namespace gui {
-
-  namespace os {
-    using namespace basepp::os;
-  }
 
   typedef uint8_t byte;
   typedef byte* byteptr;
@@ -98,8 +94,8 @@ namespace gui {
     return bits_per_pixels[static_cast<byte>(px_fmt)];
   }
 
-  PixelFormat get_pixel_format (int pixel_format, basepp::byte_order byte_order);
-  basepp::byte_order get_pixel_format_byte_order (PixelFormat px_fmt);
+  PixelFormat get_pixel_format (int pixel_format, core::byte_order byte_order);
+  core::byte_order get_pixel_format_byte_order (PixelFormat px_fmt);
 
   template<PixelFormat px_fmt>
   struct color_depth {
@@ -220,15 +216,15 @@ namespace gui {
 
     namespace global {
 
-      GUIPP_CORE_EXPORT void init (os::instance instance);
+      GUIPP_CORE_EXPORT void init (gui::os::instance instance);
       GUIPP_CORE_EXPORT void fini ();
 
       GUIPP_CORE_EXPORT void sync ();
 
-      GUIPP_CORE_EXPORT os::instance get_instance ();
+      GUIPP_CORE_EXPORT gui::os::instance get_instance ();
       GUIPP_CORE_EXPORT PixelFormat get_device_pixel_format ();
       GUIPP_CORE_EXPORT int get_device_depth ();
-      GUIPP_CORE_EXPORT os::key_state get_key_state ();
+      GUIPP_CORE_EXPORT gui::os::key_state get_key_state ();
       GUIPP_CORE_EXPORT double get_scale_factor ();
       GUIPP_CORE_EXPORT void set_scale_factor (double);
 

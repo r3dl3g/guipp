@@ -215,23 +215,23 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<basepp::bit_order O>
+    template<core::bit_order O>
     void write_pnm4_line (std::ostream&, const draw::const_image_data<PixelFormat::BW>::raw_type, int);
 
     template<>
-    inline void write_pnm4_line<basepp::bit_order::msb_first> (std::ostream& out,
+    inline void write_pnm4_line<core::bit_order::msb_first> (std::ostream& out,
                                                          const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       out.write(reinterpret_cast<const char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void write_pnm4_line<basepp::bit_order::lsb_first> (std::ostream& out,
+    inline void write_pnm4_line<core::bit_order::lsb_first> (std::ostream& out,
                                                          const draw::const_image_data<PixelFormat::BW>::raw_type data,
                                                          int bytes) {
       std::vector<byte> line(bytes);
       for (int x = 0; x < bytes; ++x) {
-          line[x] = basepp::reverse_bit_order(data[x]) ^ 0xff;
+          line[x] = core::reverse_bit_order(data[x]) ^ 0xff;
         }
       out.write(reinterpret_cast<char*>(line.data()), bytes);
     }
@@ -243,25 +243,25 @@ namespace gui {
       int bytes = (bmi.width + 7) / 8;
       const auto& raw = img.raw_data();
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        write_pnm4_line<os::bitmap_bit_order>(out, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
+        write_pnm4_line<core::os::bitmap_bit_order>(out, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
       }
     }
 
     // --------------------------------------------------------------------------
-    template<basepp::bit_order O>
+    template<core::bit_order O>
     void read_pnm4_line (std::istream& in, draw::image_data<PixelFormat::BW>::raw_type, int bytes);
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::msb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<core::bit_order::msb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       in.read(reinterpret_cast<char*>(data.data(0, bytes)), bytes);
     }
 
     template<>
-    inline void read_pnm4_line<basepp::bit_order::lsb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
+    inline void read_pnm4_line<core::bit_order::lsb_first>(std::istream& in, draw::image_data<PixelFormat::BW>::raw_type data, int bytes) {
       std::vector<byte> line(bytes);
       in.read(reinterpret_cast<char*>(line.data()), bytes);
       for (int x = 0; x < bytes; ++x) {
-        data[x] = basepp::reverse_bit_order(line[x])/* ^ 0xff*/;
+        data[x] = core::reverse_bit_order(line[x])/* ^ 0xff*/;
       }
     }
 
@@ -273,7 +273,7 @@ namespace gui {
       auto& raw = img.get_data().raw_data();
       std::noskipws(in);
       for (uint_fast32_t y = 0; y < bmi.height; ++y) {
-        read_pnm4_line<os::bitmap_bit_order>(in, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
+        read_pnm4_line<core::os::bitmap_bit_order>(in, raw.sub(y * bmi.bytes_per_line, bmi.bytes_per_line), bytes);
       }
       return img;
     }

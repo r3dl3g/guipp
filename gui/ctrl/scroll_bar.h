@@ -185,21 +185,21 @@ namespace gui {
                                       const core::rectangle&,
                                       const core::rectangle&);
     // --------------------------------------------------------------------------
-    template<orientation H, os::platform P = os::system_platform>
+    template<orientation H, core::os::platform P = core::os::system_platform>
     struct scroll_bar_traits {};
 
     template<orientation H>
-    struct scroll_bar_traits<H, os::platform::win32> {
+    struct scroll_bar_traits<H, core::os::platform::win32> {
       static constexpr os::style style = win::window_class_defaults<>::style;
     };
 
     template<>
-    struct scroll_bar_traits<orientation::horizontal, os::platform::x11> {
+    struct scroll_bar_traits<orientation::horizontal, core::os::platform::x11> {
       static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, 0);
     };
 
     template<>
-    struct scroll_bar_traits<orientation::vertical, os::platform::x11> {
+    struct scroll_bar_traits<orientation::vertical, core::os::platform::x11> {
       static constexpr os::style style = IF_X11_ELSE(NorthEastGravity, 0);
     };
 

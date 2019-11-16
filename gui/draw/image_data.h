@@ -28,7 +28,7 @@
 //
 // Library includes
 //
-#include <base/array_wrapper.h>
+#include <gui/core/array_wrapper.h>
 #include <gui/draw/bitmap_info.h>
 #include <gui/core/color.h>
 
@@ -466,8 +466,8 @@ namespace gui {
     struct const_image_data : public image_data_base {
       using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = basepp::array_wrapper<const byte>;
-      using row_type = basepp::array_wrapper<const pixel_type>;
+      using raw_type = core::array_wrapper<const byte>;
+      using row_type = core::array_wrapper<const pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       const_image_data (raw_type data, const bitmap_info& info);
@@ -488,8 +488,8 @@ namespace gui {
     struct image_data : public image_data_base {
       using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
-      using raw_type = basepp::array_wrapper<byte>;
-      using row_type = basepp::array_wrapper<pixel_type>;
+      using raw_type = core::array_wrapper<byte>;
+      using row_type = core::array_wrapper<pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       image_data (raw_type data, const bitmap_info& info);
@@ -513,8 +513,8 @@ namespace gui {
     struct image_data<PixelFormat::BW> : public image_data_base {
       using super = image_data_base;
       using pixel_type = pixel::mono;
-      using raw_type = basepp::array_wrapper<byte>;
-      using row_type = basepp::bit_array_wrapper<pixel_type>;
+      using raw_type = core::array_wrapper<byte>;
+      using row_type = core::bit_array_wrapper<pixel_type>;
       static constexpr size_t pixel_size = sizeof(pixel_type);
 
       image_data (raw_type data, const bitmap_info& info)
@@ -528,7 +528,7 @@ namespace gui {
         return row_type(reinterpret_cast<raw_type*>(row), width());
       }
 
-      basepp::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {
+      core::bit_wrapper<pixel_type> pixel (uint32_t x, uint32_t y) {
         return row(y)[x];
       }
 

@@ -40,7 +40,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (core::size::type item_size,
                                                  os::color background)
       : data(item_size, background)
-      , me(basepp::bind_method(this, &drop_down_list::handle_move))
+      , me(util::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -49,7 +49,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (const drop_down_list& rhs)
       : super(rhs)
       , data(rhs.data)
-      , me(basepp::bind_method(this, &drop_down_list::handle_move))
+      , me(util::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -58,7 +58,7 @@ namespace gui {
     inline drop_down_list<T, D>::drop_down_list (drop_down_list&& rhs)
       : super(std::move(rhs))
       , data(std::move(rhs.data))
-      , me(basepp::bind_method(this, &drop_down_list::handle_move))
+      , me(util::bind_method(this, &drop_down_list::handle_move))
     {
       init();
     }
@@ -67,7 +67,7 @@ namespace gui {
     void drop_down_list<T, D>::init () {
       super::get_layout().init(this, &(data.button));
 
-      super::on_paint(draw::paint(basepp::bind_method(this, &drop_down_list::paint)));
+      super::on_paint(draw::paint(util::bind_method(this, &drop_down_list::paint)));
       super::on_lost_focus([&] (window*) {
         super::invalidate();
       });
@@ -76,8 +76,8 @@ namespace gui {
         super::take_focus();
       });
 
-      super::on_wheel<orientation::vertical>(basepp::bind_method(this, &drop_down_list::handle_wheel));
-      super::on_create(basepp::bind_method(this, &drop_down_list::create_children));
+      super::on_wheel<orientation::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
+      super::on_create(util::bind_method(this, &drop_down_list::create_children));
 
       data.button.on_paint(draw::paint([&](const draw::graphics & graph) {
         paint::drop_down_button(graph,
@@ -85,14 +85,14 @@ namespace gui {
                                 data.button.get_state(),
                                 is_popup_visible());
       }));
-      data.button.on_clicked(basepp::bind_method(this, &drop_down_list::toggle_popup));
+      data.button.on_clicked(util::bind_method(this, &drop_down_list::toggle_popup));
 
       data.button.on_lost_focus([&] (window*) {
         super::invalidate();
       });
-      data.button.on_any_key_down(basepp::bind_method(this, &drop_down_list::handle_key));
+      data.button.on_any_key_down(util::bind_method(this, &drop_down_list::handle_key));
 
-      data.items.on_selection_changed(basepp::bind_method(this, &drop_down_list::handle_selection_changed));
+      data.items.on_selection_changed(util::bind_method(this, &drop_down_list::handle_selection_changed));
       data.items.set_drawer([&](std::size_t idx,
                                 const draw::graphics & g,
                                 const core::rectangle & r,

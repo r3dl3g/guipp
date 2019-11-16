@@ -56,11 +56,11 @@ namespace gui {
       basic_rectangle (point_type x, point_type y, size_type width, size_type height);
 
       explicit basic_rectangle (const size_t& sz);
-      explicit basic_rectangle (const os::rectangle& r);
+      explicit basic_rectangle (const gui::os::rectangle& r);
 
-      operator os::rectangle () const;
+      operator gui::os::rectangle () const;
 
-      os::rectangle os () const;
+      gui::os::rectangle os () const;
 
       const point_t& position () const; /// top left pixel position
       const size_t& size () const;      /// count of x and y pixels
@@ -145,14 +145,14 @@ namespace gui {
       void set_position (const point_t& pt);
       void set_center (const point_t& pt);
 
-      inline os::point_type os_x () const;
-      inline os::point_type os_y () const;
-      inline os::point_type os_x2 () const;
-      inline os::point_type os_y2 () const;
-      inline os::size_type os_width () const;
-      inline os::size_type os_height () const;
-      inline os::point_type os_right () const;
-      inline os::point_type os_bottom () const;
+      inline gui::os::point_type os_x () const;
+      inline gui::os::point_type os_y () const;
+      inline gui::os::point_type os_x2 () const;
+      inline gui::os::point_type os_y2 () const;
+      inline gui::os::size_type os_width () const;
+      inline gui::os::size_type os_height () const;
+      inline gui::os::point_type os_right () const;
+      inline gui::os::point_type os_bottom () const;
 
       // intersection
       self& operator&= (const self& rhs);

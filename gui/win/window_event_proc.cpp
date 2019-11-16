@@ -36,13 +36,13 @@
 // Library includes
 //
 #include <logging/logger.h>
-#include <base/robbery.h>
-#include <base/blocking_queue.h>
+#include <util/robbery.h>
+#include <util/blocking_queue.h>
 #include <gui/win/window.h>
 #include <gui/win/window_event_proc.h>
 #include <gui/win/dbg_win_message.h>
 
-namespace basepp {
+namespace util {
 
   namespace robbery {
 
@@ -99,7 +99,7 @@ namespace gui {
         return false;
       }
 
-      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, os::event_result& resultValue) {
+      bool handle_by_window (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, gui::os::event_result& resultValue) {
         window* w = get_window(hwnd);
         if (w && w->is_valid()) {
           return w->handle_event(core::event(hwnd, msg, wParam, lParam), resultValue);
@@ -141,7 +141,7 @@ namespace gui {
 # endif // KEY_DEBUG
         }
 
-        os::event_result result = 0;
+        gui::os::event_result result = 0;
         window* w = detail::get_window(hwnd);
         if (w && w->is_valid()) {
           w->handle_event(core::event(hwnd, msg, wParam, lParam), result);
@@ -173,7 +173,7 @@ namespace gui {
       XIM s_im = nullptr;
       XIMStyle s_best_style = 0x0F1F;
 
-      typedef basepp::blocking_queue<std::function<simple_action>> simple_action_queue;
+      typedef util::blocking_queue<std::function<simple_action>> simple_action_queue;
       simple_action_queue queued_actions;
 
       typedef std::map<os::window, core::rectangle> window_rectangle_map;
@@ -319,7 +319,7 @@ namespace gui {
         GUITHREADINFO info;
         memset(&info, 0, sizeof(info));
         info.cbSize = sizeof(GUITHREADINFO);
-        if (GetGUIThreadInfo(basepp::robbery::get_native_thread_id(detail::main_thread_id), &info)) {
+        if (GetGUIThreadInfo(robbery::get_native_thread_id(detail::main_thread_id), &info)) {
           HWND win = info.hwndActive;
           if (win) {
             HWND parent = GetParent(win);
@@ -507,7 +507,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    void process_event (const core::event& e, os::event_result& resultValue) {
+    void process_event (const core::event& e, gui::os::event_result& resultValue) {
       win::window* win = win::detail::get_event_window(e);
 
       if (win && win->is_valid()) {
@@ -561,8 +561,8 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-      os::instance display = core::global::get_instance();
-      os::event_result resultValue = 0;
+      gui::os::instance display = core::global::get_instance();
+      gui::os::event_result resultValue = 0;
 
       core::event e;
       std::function<simple_action> action;
@@ -648,7 +648,7 @@ namespace gui {
       x11::queued_actions.enqueue(action);
 #endif // X11
 #ifdef WIN32
-      PostThreadMessage(basepp::robbery::get_native_thread_id(detail::main_thread_id),
+      PostThreadMessage(robbery::get_native_thread_id(detail::main_thread_id),
                         detail::ACTION_MESSAGE,
                         0,
                         (ULONG_PTR)new std::function<void()>(action));

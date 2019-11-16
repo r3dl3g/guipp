@@ -12,13 +12,13 @@ endif()
 
 # OpenCV Version
 if(WIN32)
-	set(OpenCV_DIR "${CMAKE_CURRENT_LIST_DIR}/../opencv")
+    set(OpenCV_DIR "${CMAKE_CURRENT_LIST_DIR}/../opencv")
     get_filename_component(CV_BASE "${OpenCV_DIR}" ABSOLUTE)
     set(CV_PATH "${CV_BASE}/include")
     set(CV_LIB_PATH "${CV_BASE}/x64/${COMPILER_VER}/lib")
     set(CV_BIN_PATH "${CV_BASE}/x64/${COMPILER_VER}/bin")
 
-	set(Boost_DIR "${CMAKE_CURRENT_LIST_DIR}/../boost")
+    set(Boost_DIR "${CMAKE_CURRENT_LIST_DIR}/../boost")
     get_filename_component(Boost_PATH "${Boost_DIR}" ABSOLUTE)
     set(Boost_LIB_PATH "${Boost_PATH}/stage/lib")
 endif()
@@ -65,3 +65,5 @@ endif()
 add_executable(RedImage WIN32 ${SOURCE_FILES})
 target_link_libraries(RedImage ${gui_libraries} ${gui_sys_libraries})
 target_link_libraries(RedImage ${OpenCV_LIBS})
+
+install(TARGETS RedImage DESTINATION bin)

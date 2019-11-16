@@ -51,14 +51,14 @@ namespace gui {
       basic_size (type width, type height);
 
       explicit basic_size (type i);
-      explicit basic_size (const os::size& sz);
-      explicit basic_size (const os::point& pt);
-      explicit basic_size (const os::rectangle& r);
+      explicit basic_size (const gui::os::size& sz);
+      explicit basic_size (const gui::os::point& pt);
+      explicit basic_size (const gui::os::rectangle& r);
 
-      operator os::size () const;
-      operator os::point() const;
+      operator gui::os::size () const;
+      operator gui::os::point() const;
 
-      os::size os () const;
+      gui::os::size os () const;
 
       bool empty () const;
       void clear (type v = 0);
@@ -87,8 +87,8 @@ namespace gui {
       type width () const;
       type height () const;
 
-      os::size_type os_width () const;
-      os::size_type os_height () const;
+      gui::os::size_type os_width () const;
+      gui::os::size_type os_height () const;
 
       void width (type w);
       void height (type h);

@@ -468,9 +468,9 @@ namespace gui {
       super::on_mouse_leave([&] () {
         clear_hilite();
       });
-      super::on_left_btn_up(basepp::bind_method(this, &basic_list::handle_left_btn_up));
-      super::on_wheel<V>(basepp::bind_method(this, &basic_list::handle_wheel));
-      super::on_mouse_move(basepp::bind_method(this, &basic_list::handle_mouse_move));
+      super::on_left_btn_up(util::bind_method(this, &basic_list::handle_left_btn_up));
+      super::on_wheel<V>(util::bind_method(this, &basic_list::handle_wheel));
+      super::on_mouse_move(util::bind_method(this, &basic_list::handle_mouse_move));
       super::on_layout([&](const core::rectangle& sz) {
         adjust_scroll_bar(sz.size());
       });
@@ -768,7 +768,7 @@ namespace gui {
     template<orientation V>
     void linear_list<V>::init () {
       super::on_paint(draw::buffered_paint(this, &linear_list::paint));
-      super::on_any_key_down(basepp::bind_method(this, &linear_list::handle_key));
+      super::on_any_key_down(util::bind_method(this, &linear_list::handle_key));
     }
 
     // --------------------------------------------------------------------------

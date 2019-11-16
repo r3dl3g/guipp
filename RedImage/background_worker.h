@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "base/blocking_queue.h"
+#include "util/blocking_queue.h"
 #include <functional>
 #include <thread>
 
@@ -9,7 +9,7 @@
 template<typename T>
 class background_worker {
 public:
-  typedef basepp::blocking_queue<T> queue;
+  typedef util::blocking_queue<T> queue;
   typedef std::function<void(queue&)> worker;
 
   background_worker () = default;

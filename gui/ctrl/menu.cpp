@@ -497,7 +497,7 @@ namespace gui {
 
     void main_menu::init () {
       set_accept_focus(true);
-      data.set_mouse_function(basepp::bind_method(this, &main_menu::handle_mouse));
+      data.set_mouse_function(util::bind_method(this, &main_menu::handle_mouse));
 
       on_paint(draw::buffered_paint(this, &main_menu::paint));
 
@@ -505,7 +505,7 @@ namespace gui {
         data.handle_mouse(false, pt);
       });
 
-      on_mouse_leave(basepp::bind_method(&data, &menu_data::clear_hilite));
+      on_mouse_leave(util::bind_method(&data, &menu_data::clear_hilite));
 
       on_set_focus([&] (window*) {
         if (data.get_hilite() == -1) {
@@ -678,7 +678,7 @@ namespace gui {
         data.handle_mouse(false, pt);
       });
 
-      on_mouse_leave(basepp::bind_method(&data, &menu_data::clear_hilite));
+      on_mouse_leave(util::bind_method(&data, &menu_data::clear_hilite));
 
       on<selection_changed_event>([&](event_source) {
         int idx = data.get_selection();
@@ -808,7 +808,7 @@ namespace gui {
         close();
         parent_data.clear_close_function();
       });
-      parent_data.set_key_function(basepp::bind_method(this, &popup_menu::handle_key));
+      parent_data.set_key_function(util::bind_method(this, &popup_menu::handle_key));
 
       data.set_mouse_function([&] (bool btn, const core::point & gpt) {
         if (absolute_place().is_inside(gpt)) {

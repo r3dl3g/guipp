@@ -28,3 +28,5 @@ endif()
 
 add_executable(TimeTracker WIN32 TimeTracker.cpp)
 target_link_libraries(TimeTracker ${gui_libraries} ${gui_sys_libraries})
+
+install(TARGETS TimeTracker DESTINATION bin)

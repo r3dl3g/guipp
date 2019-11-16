@@ -74,13 +74,13 @@ namespace gui {
     }
 
     template<typename T>
-    inline os::size_type basic_size<T>::os_width () const {
-      return global::scale<os::size_type, T>(w);
+    inline gui::os::size_type basic_size<T>::os_width () const {
+      return global::scale<gui::os::size_type, T>(w);
     }
 
     template<typename T>
-    inline os::size_type basic_size<T>::os_height () const {
-      return global::scale<os::size_type, T>(h);
+    inline gui::os::size_type basic_size<T>::os_height () const {
+      return global::scale<gui::os::size_type, T>(h);
     }
 
     template<typename T>
@@ -94,20 +94,20 @@ namespace gui {
     }
 
     template<typename T>
-    inline basic_size<T>::basic_size (const os::size& s)
+    inline basic_size<T>::basic_size (const gui::os::size& s)
       : w(global::scale<T>(s.cx))
       , h(global::scale<T>(s.cy))
     {}
 
     template<typename T>
-    inline basic_size<T>::basic_size (const os::point& pt)
+    inline basic_size<T>::basic_size (const gui::os::point& pt)
       : w(global::scale<T>(pt.x))
       , h(global::scale<T>(pt.y))
     {}
 
 #ifdef WIN32
     template<typename T>
-    inline basic_size<T>::basic_size (const os::rectangle& r)
+    inline basic_size<T>::basic_size (const gui::os::rectangle& r)
       : w(global::scale<T>(r.right - r.left))
       , h(global::scale<T>(r.bottom - r.top))
     {}
@@ -115,7 +115,7 @@ namespace gui {
 #endif // WIN32
 #ifdef X11
     template<typename T>
-    inline basic_size<T>::basic_size (const os::rectangle& r)
+    inline basic_size<T>::basic_size (const gui::os::rectangle& r)
       : w(global::scale<T>(r.width))
       , h(global::scale<T>(r.height))
     {}
@@ -223,18 +223,18 @@ namespace gui {
     }
 
     template<typename T>
-    inline basic_size<T>::operator os::size() const {
+    inline basic_size<T>::operator gui::os::size() const {
       return os();
     }
 
     template<typename T>
-    inline os::size basic_size<T>::os () const {
+    inline gui::os::size basic_size<T>::os () const {
       return {os_width(), os_height()};
     }
 
     template<typename T>
-    inline basic_size<T>::operator os::point() const {
-      return {static_cast<os::point_type>(os_width()), static_cast<os::point_type>(os_height())};
+    inline basic_size<T>::operator gui::os::point() const {
+      return {static_cast<gui::os::point_type>(os_width()), static_cast<gui::os::point_type>(os_height())};
     }
 
     template<typename T>

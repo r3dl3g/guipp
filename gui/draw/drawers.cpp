@@ -376,7 +376,7 @@ namespace gui {
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
-      if (basepp::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
+      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();
@@ -498,7 +498,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       const short off = p.os_size() / 2;
       Use<pen> pn(g, p);
 
@@ -514,7 +514,7 @@ namespace gui {
     void rectangle::operator() (const graphics& g,
                                 const brush& b,
                                 const pen& p) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
 
       const auto pw = p.os_size();
       const auto off = pw / 2;
@@ -567,7 +567,7 @@ namespace gui {
     void ellipse::operator() (const graphics& g,
                               const brush& b,
                               const pen& p) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = (pw - 1) / 2;
       const os::rectangle r = rect.os();
@@ -593,7 +593,7 @@ namespace gui {
 
     void ellipse::operator() (const graphics& g,
                               const pen& p) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       const auto pw = p.os_size();
       const auto off = (pw - 1) / 2;
       const os::rectangle r = rect.os();
@@ -673,7 +673,7 @@ namespace gui {
     void round_rectangle::operator() (const graphics& g,
                                       const pen& p) const {
       Use<pen> pn(g, p);
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcChord);
 
       std::array<XArc, 4> arcs;
@@ -688,7 +688,7 @@ namespace gui {
     void round_rectangle::operator() (const graphics& g,
                                       const brush& b) const {
       Use<brush> br(g, b);
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
       std::array<XArc, 4> arcs;
@@ -708,7 +708,7 @@ namespace gui {
                                       const brush& b,
                                       const pen& p) const {
       Use<brush> br(g, b);
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
 
       std::array<XArc, 4> arcs;
@@ -740,7 +740,7 @@ namespace gui {
                     float start_angle,
                     float end_angle) {
 
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
 
       const auto tl = pos - core::size(radius, radius);
       const unsigned int sz = scale<unsigned int>(radius * 2);
@@ -788,7 +788,7 @@ namespace gui {
         end_angle += 360;
       }
 
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetArcMode(display, g, ArcPieSlice);
       XFillArc(display, g, g, x, y, sz, sz, int(start_angle * 64), int((end_angle - start_angle) * 64));
 
@@ -870,7 +870,7 @@ namespace gui {
     void text_box::operator() (const graphics& g,
                                const font& f,
                                os::color c) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -916,7 +916,7 @@ namespace gui {
     void bounding_box::operator() (const graphics& g,
                                    const font& f,
                                    os::color c) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -958,7 +958,7 @@ namespace gui {
     void text::operator() (const graphics& g,
                            const font& f,
                            os::color c) const {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
 
       int height = 0, width = 0;
       int dx = 0, dy = 0;
@@ -1097,8 +1097,8 @@ namespace gui {
         return;
       }
 
-      const uint32_t width = basepp::roundup<uint32_t>(rect.os_width());
-      const uint32_t height = basepp::roundup<uint32_t>(rect.os_height());
+      const uint32_t width = core::roundup<uint32_t>(rect.os_width());
+      const uint32_t height = core::roundup<uint32_t>(rect.os_height());
 
       datamap<T> dest(width, height);
       copy_frame_image<T>(img.get_data(), dest.get_data(),

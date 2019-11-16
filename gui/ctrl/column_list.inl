@@ -141,7 +141,7 @@ namespace gui {
     {}
 
     inline void weight_column_list_layout::init_auto_layout () {
-      main->on_layout(basepp::bind_method(this, &weight_column_list_layout::layout));
+      main->on_layout(util::bind_method(this, &weight_column_list_layout::layout));
       main->on_show([&] () {
         layout(list->content_area());
       });
@@ -202,7 +202,7 @@ namespace gui {
     template<typename Layout, os::color background>
     void column_list_header<Layout, background>::init () {
       using namespace win;
-      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
         if (!mouse_move_event::if_match_call(e, this, &column_list_header::handle_mouse_move)) {
           if (!left_btn_down_event::if_match_call(e, this, &column_list_header::handle_left_btn_down)) {
             left_btn_up_event::if_match_call(e, this, &column_list_header::handle_left_btn_up);
@@ -424,7 +424,7 @@ namespace gui {
     template<typename L>
     void simple_column_list<L>::set_drawer (std::function<cell_draw> drawer) {
       this->drawer = drawer;
-      this->list.set_drawer(basepp::bind_method(this, &simple_column_list::draw_cells));
+      this->list.set_drawer(util::bind_method(this, &simple_column_list::draw_cells));
     }
 
     template<typename L>
@@ -596,7 +596,7 @@ namespace gui {
     template<typename L, typename ... A>
     void column_list_t<L, A ...>::set_drawer (data_drawer drawer) {
       this->drawer = drawer;
-      this->list.set_drawer(basepp::bind_method(this, &column_list_t::draw_cells_t));
+      this->list.set_drawer(util::bind_method(this, &column_list_t::draw_cells_t));
     }
 
     template<typename L, typename ... A>

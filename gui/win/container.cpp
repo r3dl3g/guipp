@@ -324,7 +324,7 @@ namespace gui {
     void overlapped_window::create (const class_info& cls,
                                     const window& parent,
                                     const core::rectangle& r) {
-      os::instance display = core::global::get_instance();
+      gui::os::instance display = core::global::get_instance();
       super::create(cls, DefaultRootWindow(display), r);
       XSetTransientForHint(display, get_id(), parent.get_id());
     }
@@ -540,22 +540,22 @@ namespace gui {
 #ifdef X11
     // --------------------------------------------------------------------------
     template<typename T>
-    void change_property (os::instance display, os::window id, const char* type, T value);
+    void change_property (gui::os::instance display, os::window id, const char* type, T value);
 
     template<>
-    void change_property<const char*>(os::instance display, os::window id, const char* type, const char* value) {
+    void change_property<const char*>(gui::os::instance display, os::window id, const char* type, const char* value) {
       Atom t = XInternAtom(display, type, False);
       Atom v = XInternAtom(display, value, False);
       XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
     }
 
     template<>
-    void change_property<os::window>(os::instance display, os::window id, const char* type, os::window value) {
+    void change_property<os::window>(gui::os::instance display, os::window id, const char* type, os::window value) {
       Atom t = XInternAtom(display, type, False);
       XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
     }
 
-    void set_wm_protocols (os::instance display, os::window id) {
+    void set_wm_protocols (gui::os::instance display, os::window id) {
       Atom protocols[] = {
         x11::WM_TAKE_FOCUS,
         x11::WM_DELETE_WINDOW,
@@ -569,7 +569,7 @@ namespace gui {
     void main_window::create (const class_info& cls, const core::rectangle& r) {
       super::create(cls, r);
 #ifdef X11
-      os::instance display = core::global::get_instance();
+      gui::os::instance display = core::global::get_instance();
 
       change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_NORMAL");
       set_wm_protocols(display, get_id());
@@ -588,7 +588,7 @@ namespace gui {
     void popup_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
 #ifdef X11
-      os::instance display = core::global::get_instance();
+      gui::os::instance display = core::global::get_instance();
 
       change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU");
 
@@ -602,7 +602,7 @@ namespace gui {
     void dialog_window::create (const class_info& cls, const window& parent, const core::rectangle& r) {
       super::create(cls, parent, r);
 #ifdef X11
-      os::instance display = core::global::get_instance();
+      gui::os::instance display = core::global::get_instance();
       change_property(display, get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_DIALOG");
       change_property(display, get_id(), "_NET_WM_STATE", "_NET_WM_STATE_MODAL");
       change_property(display, get_id(), "WM_CLIENT_LEADER", parent.get_id());

@@ -138,7 +138,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     void edit_list::init () {
-      super::on_selection_commit(basepp::bind_method(this, &edit_list::enter_edit));
+      super::on_selection_commit(util::bind_method(this, &edit_list::enter_edit));
 
       data.editor.on_btn_down([&](os::key_state, const core::point & pt) {
         if (!data.editor.client_area().is_inside(pt)) {
@@ -146,8 +146,8 @@ namespace gui {
         }
       });
 
-      data.editor.on_selection_cancel(basepp::bind_method(this, &edit_list::cancel_edit));
-      data.editor.on_selection_commit(basepp::bind_method(this, &edit_list::commit_edit));
+      data.editor.on_selection_cancel(util::bind_method(this, &edit_list::cancel_edit));
+      data.editor.on_selection_commit(util::bind_method(this, &edit_list::commit_edit));
 
       super::scrollbar.on_scroll([&] (core::point::type) {
         if (data.editor.is_visible()) {

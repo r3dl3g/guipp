@@ -515,7 +515,7 @@ namespace gui {
       }
 
       void edit_base::register_handler () {
-        on_any_key_down(basepp::bind_method(this, &edit_base::handle_key));
+        on_any_key_down(util::bind_method(this, &edit_base::handle_key));
         on_left_btn_down([&](os::key_state state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;

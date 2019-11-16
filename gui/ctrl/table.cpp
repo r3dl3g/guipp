@@ -550,8 +550,8 @@ namespace gui {
     void table_view::init () {
       set_scroll_maximum_calcer(default_scroll_maximum);
       get_layout().set_center_top_bottom_left_right(layout::lay(data), layout::lay(columns), layout::lay(hscroll), layout::lay(rows), layout::lay(vscroll));
-      on_create(basepp::bind_method(this, &table_view::handle_created));
-      on_layout(basepp::bind_method(this, &table_view::handle_layout));
+      on_create(util::bind_method(this, &table_view::handle_created));
+      on_layout(util::bind_method(this, &table_view::handle_layout));
       vscroll.on_scroll([&] (core::point::type pos) {
         handle_scroll(core::point(geometrie.widths.get_offset(), pos));
       });
@@ -559,7 +559,7 @@ namespace gui {
         handle_scroll(core::point(pos, geometrie.heights.get_offset()));
       });
 
-      data.on_any_key_down(basepp::bind_method(this, &table_view::handle_key));
+      data.on_any_key_down(util::bind_method(this, &table_view::handle_key));
       data.on_left_btn_dblclk([&](os::key_state, const core::point &) {
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
       });
@@ -570,23 +570,23 @@ namespace gui {
       data.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
-      data.on_mouse_move(basepp::bind_method(this, &table_view::handle_mouse_move));
-      data.on_left_btn_down(basepp::bind_method(this, &table_view::handle_left_btn_down));
-      data.on_left_btn_up(basepp::bind_method(this, &table_view::handle_left_btn_up));
+      data.on_mouse_move(util::bind_method(this, &table_view::handle_mouse_move));
+      data.on_left_btn_down(util::bind_method(this, &table_view::handle_left_btn_down));
+      data.on_left_btn_up(util::bind_method(this, &table_view::handle_left_btn_up));
 
       columns.on_wheel<orientation::horizontal>([&](const core::point::type delta, const core::point & pt){
         hscroll.handle_wheel(delta, pt);
       });
-      columns.on_mouse_move(basepp::bind_method(this, &table_view::handle_column_mouse_move));
-      columns.on_left_btn_down(basepp::bind_method(this, &table_view::handle_column_left_btn_down));
-      columns.on_left_btn_up(basepp::bind_method(this, &table_view::handle_column_left_btn_up));
+      columns.on_mouse_move(util::bind_method(this, &table_view::handle_column_mouse_move));
+      columns.on_left_btn_down(util::bind_method(this, &table_view::handle_column_left_btn_down));
+      columns.on_left_btn_up(util::bind_method(this, &table_view::handle_column_left_btn_up));
 
       rows.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
-      rows.on_mouse_move(basepp::bind_method(this, &table_view::handle_row_mouse_move));
-      rows.on_left_btn_down(basepp::bind_method(this, &table_view::handle_row_left_btn_down));
-      rows.on_left_btn_up(basepp::bind_method(this, &table_view::handle_row_left_btn_up));
+      rows.on_mouse_move(util::bind_method(this, &table_view::handle_row_mouse_move));
+      rows.on_left_btn_down(util::bind_method(this, &table_view::handle_row_left_btn_down));
+      rows.on_left_btn_up(util::bind_method(this, &table_view::handle_row_left_btn_up));
 
     }
 
@@ -949,7 +949,7 @@ namespace gui {
                    align, foreground, background, header_background)
       , enable_edit(true)
     {
-      on_selection_commit(basepp::bind_method(this, &table_edit::enter_edit));
+      on_selection_commit(util::bind_method(this, &table_edit::enter_edit));
 
       editor.on_btn_down([&](os::key_state, const core::point & pt) {
         if (!editor.client_area().is_inside(pt)) {
@@ -957,8 +957,8 @@ namespace gui {
         }
       });
 
-      editor.on_selection_cancel(basepp::bind_method(this, &table_edit::cancel_edit));
-      editor.on_selection_commit(basepp::bind_method(this, &table_edit::commit_edit));
+      editor.on_selection_cancel(util::bind_method(this, &table_edit::cancel_edit));
+      editor.on_selection_commit(util::bind_method(this, &table_edit::commit_edit));
 
       vscroll.on_scroll([&] (core::point::type) {
         if (editor.is_visible()) {

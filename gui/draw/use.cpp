@@ -35,7 +35,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     void Use<pen>::set (const pen& p) {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetForeground(display, g, p.color());
       const auto sz = p.os_size();
       XSetLineAttributes(display, g, sz, static_cast<int>(p.style()) & 0x0F,
@@ -63,7 +63,7 @@ namespace gui {
 
     template<>
     void Use<brush>::set (const brush& b) {
-      os::instance display = get_instance();
+      gui::os::instance display = get_instance();
       XSetForeground(display, g, b.color());
       XSetFillStyle(display, g, b.style());
     }

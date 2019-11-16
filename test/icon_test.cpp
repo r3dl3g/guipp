@@ -106,7 +106,7 @@ bool expected_bit_at_inv (int x, int y) {
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_native_impl) {
 #ifdef X11
-  os::instance display = core::global::get_instance();
+  gui::os::instance display = core::global::get_instance();
   os::x11::screen screen = core::global::x11::get_screen();
   os::drawable drawable = DefaultRootWindow(display);
   int depth = core::global::get_device_depth();
@@ -265,7 +265,7 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
 
   draw::pixmap mem(20, 20);
   {
-    os::instance display = core::global::get_instance();
+    gui::os::instance display = core::global::get_instance();
 
     draw::graphics gc(mem);
     gc.clear(color::gray);
@@ -478,7 +478,7 @@ DEFINE_TEST(test_file_icon) {
 #ifdef WIN32
       EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
 #else
-      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)basepp::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
+      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
 #endif // WIN32
     }
 

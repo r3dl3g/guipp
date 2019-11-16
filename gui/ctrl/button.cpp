@@ -140,7 +140,7 @@ namespace gui {
       set_accept_focus(true);
 
       using namespace win;
-      super::register_event_handler(event_handler_function([&] (const core::event& e, os::event_result& r) {
+      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
         if (set_focus_event::match(e) || lost_focus_event::match(e)) {
           window::invalidate();
         } else if (mouse_enter_event::match(e)) {

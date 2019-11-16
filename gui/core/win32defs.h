@@ -29,7 +29,7 @@
 //
 // Library includes
 //
-#include <base/bits.h>
+#include <gui/core/bits.h>
 
 
 #ifndef MK_MENU

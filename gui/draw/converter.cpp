@@ -139,14 +139,14 @@ namespace gui {
       {}
 
       // --------------------------------------------------------------------------
-      double summation (const basepp::array_wrapper<const pixel::mono> src,
+      double summation (const core::array_wrapper<const pixel::mono> src,
                         const bicubic::param& px) {
         return mono2double(src[px.v0]) * px.w.w0 + mono2double(src[px.v1]) * px.w.w1 +
                mono2double(src[px.v2]) * px.w.w2 + mono2double(src[px.v3]) * px.w.w3;
       }
 
       // --------------------------------------------------------------------------
-      double summation (const basepp::array_wrapper<const pixel::gray> src,
+      double summation (const core::array_wrapper<const pixel::gray> src,
                         const bicubic::param& px) {
         return static_cast<double>(src[px.v0].value) * px.w.w0 +
                static_cast<double>(src[px.v1].value) * px.w.w1 +

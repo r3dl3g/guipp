@@ -19,47 +19,47 @@
 #pragma once
 
 
-namespace basepp {
-
-  template<>
-  struct array_wrapper<gui::pixel::mono> : public bit_array_wrapper<gui::pixel::mono> {
-    typedef bit_array_wrapper<gui::pixel::mono> super;
-    typedef super::type type;
-
-    inline array_wrapper (type* data, size_t size)
-      : super(data, size)
-    {}
-
-    inline array_wrapper (std::vector<type>& data)
-      : super(data)
-    {}
-
-    inline array_wrapper<gui::pixel::mono> sub (size_t offset, size_t n) {
-      return array_wrapper<gui::pixel::mono>(data_ + offset / 8, n);
-    }
-  };
-
-  template<>
-  struct array_wrapper<gui::pixel::mono const> : public bit_array_wrapper<gui::pixel::mono const> {
-    typedef bit_array_wrapper<gui::pixel::mono const> super;
-    typedef super::type type;
-
-    inline array_wrapper (const type* data, size_t size)
-      : super(data, size)
-    {}
-
-    inline array_wrapper (const std::vector<type>& data)
-      : super(data)
-    {}
-
-    inline array_wrapper<const gui::pixel::mono> sub (size_t offset, size_t n) const {
-      return array_wrapper<gui::pixel::mono const>(data_ + offset / 8, n);
-    }
-  };
-
-} // namespace basepp
-
 namespace gui {
+
+  namespace core {
+
+    template<>
+    struct array_wrapper<gui::pixel::mono> : public bit_array_wrapper<gui::pixel::mono> {
+      typedef bit_array_wrapper<gui::pixel::mono> super;
+      typedef super::type type;
+
+      inline array_wrapper (type* data, size_t size)
+        : super(data, size)
+      {}
+
+      inline array_wrapper (std::vector<type>& data)
+        : super(data)
+      {}
+
+      inline array_wrapper<gui::pixel::mono> sub (size_t offset, size_t n) {
+        return array_wrapper<gui::pixel::mono>(data_ + offset / 8, n);
+      }
+    };
+
+    template<>
+    struct array_wrapper<gui::pixel::mono const> : public bit_array_wrapper<gui::pixel::mono const> {
+      typedef bit_array_wrapper<gui::pixel::mono const> super;
+      typedef super::type type;
+
+      inline array_wrapper (const type* data, size_t size)
+        : super(data, size)
+      {}
+
+      inline array_wrapper (const std::vector<type>& data)
+        : super(data)
+      {}
+
+      inline array_wrapper<const gui::pixel::mono> sub (size_t offset, size_t n) const {
+        return array_wrapper<gui::pixel::mono const>(data_ + offset / 8, n);
+      }
+    };
+
+  } // namespace core
 
   namespace pixel {
     // --------------------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace gui {
     }
 
     inline byte get_gray (mono p) {
-      return basepp::system_bw_bits::value[static_cast<byte>(p)];
+      return core::system_bw_bits::value[static_cast<byte>(p)];
     }
 
     inline byte get_gray (gray p) {
@@ -82,11 +82,11 @@ namespace gui {
       return gui::color::calc_medium_gray(c);
     }
 
-    inline byte get_gray (basepp::bit_wrapper<const mono> p) {
+    inline byte get_gray (core::bit_wrapper<const mono> p) {
       return get_gray(static_cast<mono>(p));
     }
 
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
     template<typename T>
     inline typename std::enable_if<is_rgb_type<T>::value, mono>::type get_bw (T p) {
       return get_gray(p) < 128 ? mono::black : mono::white;
@@ -104,7 +104,7 @@ namespace gui {
       return gui::color::calc_medium_gray(c) < 128 ? mono::black : mono::white;
     }
 
-    inline mono get_bw (basepp::bit_wrapper<const mono> p) {
+    inline mono get_bw (core::bit_wrapper<const mono> p) {
       return static_cast<mono>(p);
     }
 
@@ -126,7 +126,7 @@ namespace gui {
       return gui::color::get_red(c);
     }
 
-    inline byte get_red (basepp::bit_wrapper<const mono> p) {
+    inline byte get_red (core::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -148,7 +148,7 @@ namespace gui {
       return gui::color::get_green(c);
     }
 
-    inline byte get_green (basepp::bit_wrapper<const mono> p) {
+    inline byte get_green (core::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -170,7 +170,7 @@ namespace gui {
       return gui::color::get_blue(c);
     }
 
-    inline byte get_blue (basepp::bit_wrapper<const mono> p) {
+    inline byte get_blue (core::bit_wrapper<const mono> p) {
       return get_gray(p);
     }
 
@@ -189,7 +189,7 @@ namespace gui {
       return gui::color::get_alpha(c);
     }
 
-    inline byte get_alpha (basepp::bit_wrapper<const mono> p) {
+    inline byte get_alpha (core::bit_wrapper<const mono> p) {
       return 0;//IF_WIN32_ELSE(0, 255);
     }
 
@@ -202,8 +202,8 @@ namespace gui {
     template<typename T>
     gray gray::build(T t) {
       gray p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -215,8 +215,8 @@ namespace gui {
     template<typename T>
     rgb rgb::build(T t) {
       rgb p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -230,8 +230,8 @@ namespace gui {
     template<typename T>
     rgba rgba::build(T t) {
       rgba p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -246,8 +246,8 @@ namespace gui {
     template<typename T>
     bgr bgr::build(T t) {
       bgr p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -261,8 +261,8 @@ namespace gui {
     template<typename T>
     bgra bgra::build(T t) {
       bgra p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -277,8 +277,8 @@ namespace gui {
     template<typename T>
     argb argb::build(T t) {
       argb p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>
@@ -293,8 +293,8 @@ namespace gui {
     template<typename T>
     abgr abgr::build(T t) {
       abgr p;
-       p = t;
-       return p;
+      p = t;
+      return p;
     }
 
     template<typename T>

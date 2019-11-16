@@ -38,13 +38,13 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline paint::paint (T* t, F f)
-      : p(basepp::bind_method(t, f))
+      : p(util::bind_method(t, f))
     {}
 
     // --------------------------------------------------------------------------
     template<typename T, typename F>
     inline buffered_paint::buffered_paint (T* t, F f)
-      : p(basepp::bind_method(t, f))
+      : p(util::bind_method(t, f))
     {}
 
     // --------------------------------------------------------------------------

@@ -27,7 +27,7 @@
 //
 // Library includes
 //
-#include <base/bind_method.h>
+#include <util/bind_method.h>
 #include <gui/core/event.h>
 
 
@@ -39,7 +39,7 @@ namespace gui {
     typedef bool (event_matcher) (const event& e);
 
     // --------------------------------------------------------------------------
-    template<os::event_id id>
+    template<gui::os::event_id id>
     inline bool event_id_matcher (const event& e) {
       return (e.type == id);
     }
@@ -66,7 +66,7 @@ namespace gui {
 
         template<class C>
         getter (C* t, void(C::*method)(Types...))
-          : f(basepp::bind_method(t, method))
+          : f(util::bind_method(t, method))
         {}
 
         operator bool () const {
@@ -92,17 +92,17 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<os::event_id E,
-             os::event_id Mask = 0,
+    template<gui::os::event_id E,
+             gui::os::event_id Mask = 0,
              typename C = params<>::getter<>,
-             os::event_result R = 0,
+             gui::os::event_result R = 0,
              event_matcher Matcher = event_id_matcher<E>>
     struct event_handler {
 
       typedef C Caller;
       typedef typename Caller::function function;
 
-      static constexpr os::event_id mask = Mask;
+      static constexpr gui::os::event_id mask = Mask;
 
       event_handler (const function& cb)
         : caller(cb)
@@ -114,7 +114,7 @@ namespace gui {
 
       template<typename T, typename F>
       event_handler (T* t, F f)
-        : caller(basepp::bind_method(t, f))
+        : caller(util::bind_method(t, f))
       {}
 
       event_handler (const event_handler& rhs)
@@ -146,7 +146,7 @@ namespace gui {
         return false;
       }
 
-      bool operator() (const event& e, os::event_result& result) {
+      bool operator() (const event& e, gui::os::event_result& result) {
         if (match(e) && caller) {
           if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
             LogTrace << "Call " << e;
@@ -158,7 +158,7 @@ namespace gui {
         return false;
       }
 
-      os::event_id get_event_id () const {
+      gui::os::event_id get_event_id () const {
         return E;
       }
 

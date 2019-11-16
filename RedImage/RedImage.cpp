@@ -6,7 +6,7 @@
 #include <gui/layout/lineup_layout.h>
 #include <gui/layout/attach_layout.h>
 #include <util/string_util.h>
-#include <base/blocking_queue.h>
+#include <util/blocking_queue.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -162,14 +162,14 @@ RedImage::RedImage ()
   for (auto& p : portions) {
     p = 0.0F;
   }
-  on_create(basepp::bind_method(this, &RedImage::onCreated));
+  on_create(util::bind_method(this, &RedImage::onCreated));
 
   on_destroy([&]() {
     LogDebug << *this << " Destroyed!";
     win::quit_main_loop();
   });
 
-  on_close(basepp::bind_method(this, &RedImage::quit));
+  on_close(util::bind_method(this, &RedImage::quit));
 }
 // --------------------------------------------------------------------------
 void RedImage::onCreated (win::window*, const core::rectangle&) {
@@ -189,12 +189,12 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   });
 
   file_sub_menu.data.add_entries({
-    menu_entry("Open", 'o', basepp::bind_method(this, &RedImage::load), hot_key(keys::o, state::control), false),
-    menu_entry("Save", 's', basepp::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
-    menu_entry("SaveAs", 'a', basepp::bind_method(this, &RedImage::saveAs), hot_key(keys::s, state::control|state::shift), false),
-    menu_entry("Open image", 'i', basepp::bind_method(this, &RedImage::open_image), hot_key(keys::i, state::control), true),
-    menu_entry("Open directory", 'd', basepp::bind_method(this, &RedImage::open_folder), hot_key(keys::d, state::control), false),
-    menu_entry("Exit", 'x', basepp::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
+    menu_entry("Open", 'o', util::bind_method(this, &RedImage::load), hot_key(keys::o, state::control), false),
+    menu_entry("Save", 's', util::bind_method(this, &RedImage::save), hot_key(keys::s, state::control), false),
+    menu_entry("SaveAs", 'a', util::bind_method(this, &RedImage::saveAs), hot_key(keys::s, state::control|state::shift), false),
+    menu_entry("Open image", 'i', util::bind_method(this, &RedImage::open_image), hot_key(keys::i, state::control), true),
+    menu_entry("Open directory", 'd', util::bind_method(this, &RedImage::open_folder), hot_key(keys::d, state::control), false),
+    menu_entry("Exit", 'x', util::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
 
   const float icn_sz = core::global::scale<float>(20);
@@ -204,19 +204,19 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   cross_icon = create_text_pixmap(" ", icon_rect, color::dark_green);
 
   edit_sub_menu.data.add_entries({
-    menu_entry("Leaning mode", 'l', basepp::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
-    menu_entry("Calc all", 'a', basepp::bind_method(this, &RedImage::calc_all_and_show), hot_key(keys::a, state::control), false),
-    menu_entry("Original", 'o', basepp::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control|state::alt), true),
-    menu_entry("HSV Image", 'h', basepp::bind_method(this, &RedImage::show_hsv), hot_key(keys::h, state::control|state::alt), false),
-    menu_entry("Lab Image", 'l', basepp::bind_method(this, &RedImage::show_lab), hot_key(keys::b, state::control|state::alt), false),
-    menu_entry("Reset range", 'r', basepp::bind_method(this, &RedImage::reset_current_color_range), hot_key(keys::r, state::control), true),
+    menu_entry("Leaning mode", 'l', util::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
+    menu_entry("Calc all", 'a', util::bind_method(this, &RedImage::calc_all_and_show), hot_key(keys::a, state::control), false),
+    menu_entry("Original", 'o', util::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control|state::alt), true),
+    menu_entry("HSV Image", 'h', util::bind_method(this, &RedImage::show_hsv), hot_key(keys::h, state::control|state::alt), false),
+    menu_entry("Lab Image", 'l', util::bind_method(this, &RedImage::show_lab), hot_key(keys::b, state::control|state::alt), false),
+    menu_entry("Reset range", 'r', util::bind_method(this, &RedImage::reset_current_color_range), hot_key(keys::r, state::control), true),
   });
 
   view_sub_menu.data.add_entries({
-    menu_entry("Filter View", 'r', basepp::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
-    menu_entry("Directory View", 'd', basepp::bind_method(this, &RedImage::show_folder_view), hot_key(keys::g, state::control), false),
-    menu_entry("Masks View", 'm', basepp::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
-    menu_entry("HSV View", 'm', basepp::bind_method(this, &RedImage::show_hsv_view), hot_key(keys::h, state::control), false),
+    menu_entry("Filter View", 'r', util::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
+    menu_entry("Directory View", 'd', util::bind_method(this, &RedImage::show_folder_view), hot_key(keys::g, state::control), false),
+    menu_entry("Masks View", 'm', util::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
+    menu_entry("HSV View", 'm', util::bind_method(this, &RedImage::show_hsv_view), hot_key(keys::h, state::control), false),
     menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), true),
     menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
     menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),

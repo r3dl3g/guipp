@@ -20,19 +20,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     set (gui_VERSION_PATCH 0)
     set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
-    add_subdirectory(../base base)
-
-    message(STATUS "gui basepp_libraries: ${basepp_libraries}")
-    message(STATUS "gui basepp_sys_libraries: ${basepp_sys_libraries}")
-
     if (WIN32)
-      set (gui_defines ${basepp_defines} ${logging_defines} -DWIN32_LEAN_AND_MEAN)
+      set (gui_defines ${logging_defines} -DWIN32_LEAN_AND_MEAN)
     else ()
-      set (gui_defines ${basepp_defines} ${logging_defines})
+      set (gui_defines ${logging_defines})
     endif ()
 
     set (gui_include
-        ${basepp_include}
+        ${logging_include}
         ${CMAKE_CURRENT_SOURCE_DIR}/..
         ${CMAKE_CURRENT_BINARY_DIR}
         ${PROJECT_BINARY_DIR}
@@ -56,8 +51,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     if (GUIPP_BUILD_STATIC_MODULE_LIBS)
         set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
-        set (gui_libraries ${basepp_libraries}
-                           gui++-ctrl-static
+        set (gui_libraries gui++-ctrl-static
                            gui++-io-static
                            gui++-draw-static
                            gui++-layout-static
@@ -66,7 +60,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                            gui++-app
                            gui++-static
         )
-        set (gui_sys_libraries ${gui_sys_libraries} ${basepp_sys_libraries})
+        set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
     elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
         set (gui_libraries gui++-ctrl
                            gui++-io
@@ -76,10 +70,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
                            gui++-core
                            gui++-app
         )
-        set (gui_sys_libraries ${basepp_libraries} gui++ ${gui_sys_libraries} ${basepp_sys_libraries})
+        set (gui_sys_libraries ${logging_sys_libraries} gui++ ${gui_sys_libraries} ${logging_sys_libraries})
     else()
         set (gui_libraries gui++-app gui++)
-        set (gui_sys_libraries ${basepp_libraries} ${gui_sys_libraries} ${basepp_sys_libraries})
+        set (gui_sys_libraries ${logging_sys_libraries} ${gui_sys_libraries} ${logging_sys_libraries})
     endif()
 
     if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -154,7 +148,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
         
         add_library(gui++ SHARED gui.cpp)
 
-        target_link_libraries(gui++ PRIVATE ${basepp_libraries} ${gui_sys_libraries} ${basepp_sys_libraries})
+        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
         set_target_properties(gui++ PROPERTIES
             POSITION_INDEPENDENT_CODE ON

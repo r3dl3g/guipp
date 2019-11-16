@@ -47,7 +47,7 @@ public:
   log_all_events() {
   }
 
-  bool operator()(const core::event& e, os::event_result& result) {
+  bool operator()(const core::event& e, gui::os::event_result& result) {
     if (!win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
       LogDebug << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
@@ -823,7 +823,7 @@ my_main_window::my_main_window ()
   htileview.set_drawer(htile_drawer<draw::frame::sunken_relief>);
   vtileview.set_drawer(vtile_drawer<draw::frame::raised_relief>);
 
-  on_create(basepp::bind_method(this, &my_main_window::onCreated));
+  on_create(util::bind_method(this, &my_main_window::onCreated));
 }
 
 void my_main_window::query_state () {

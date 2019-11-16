@@ -22,7 +22,7 @@
 //
 // Library includes
 //
-#include <base/bind_method.h>
+#include <util/bind_method.h>
 
 
 namespace gui {

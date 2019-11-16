@@ -44,8 +44,8 @@ namespace gui {
       void editbox_base::init () {
         data.lines.emplace_back(std::string());
         set_accept_focus(true);
-        on_create(basepp::bind_method(this, &editbox_base::handle_create));
-        on_any_key_down(basepp::bind_method(this, &editbox_base::handle_key));
+        on_create(util::bind_method(this, &editbox_base::handle_create));
+        on_any_key_down(util::bind_method(this, &editbox_base::handle_key));
       }
 
       void editbox_base::create (const win::container& parent,

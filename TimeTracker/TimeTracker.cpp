@@ -21,7 +21,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <base/bind_method.h>
+#include <util/util::bind_method.h>
 #include <util/time_util.h>
 #include <util/ostream_resetter.h>
 #include <gui/layout/border_layout.h>
@@ -455,7 +455,7 @@ public:
     , category_view(top_view.first)
     , project_view(top_view.second)
   {
-    on_create(basepp::bind_method(this, &TimeTracker::onCreated));
+    on_create(util::bind_method(this, &TimeTracker::onCreated));
 
     category_view.set_drawer(category_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money});
     project_view.set_drawer(project_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money, drawer::money});
@@ -470,34 +470,34 @@ public:
 
     menu.data.add_entries(
     {
-      main_menu_entry("Open", 'O', basepp::bind_method(this, &TimeTracker::open)),
-      main_menu_entry("Start", 'S', basepp::bind_method(this, &TimeTracker::start)),
-      main_menu_entry("Stop", 't', basepp::bind_method(this, &TimeTracker::stop)),
+      main_menu_entry("Open", 'O', util::bind_method(this, &TimeTracker::open)),
+      main_menu_entry("Start", 'S', util::bind_method(this, &TimeTracker::start)),
+      main_menu_entry("Stop", 't', util::bind_method(this, &TimeTracker::stop)),
       main_menu_entry("Category", 'C', [&] () {
         popup_menu({
-          {"Add", 'A', basepp::bind_method(this, &TimeTracker::category_add)},
-          {"Remove", 'R', basepp::bind_method(this, &TimeTracker::category_remove)},
-          {"Edit", 'E', basepp::bind_method(this, &TimeTracker::category_edit)},
-          {"Budgets", 'B', basepp::bind_method(this, &TimeTracker::category_budgets)},
-          {"Add Budget", 'g', basepp::bind_method(this, &TimeTracker::category_add_budget)}
+          {"Add", 'A', util::bind_method(this, &TimeTracker::category_add)},
+          {"Remove", 'R', util::bind_method(this, &TimeTracker::category_remove)},
+          {"Edit", 'E', util::bind_method(this, &TimeTracker::category_edit)},
+          {"Budgets", 'B', util::bind_method(this, &TimeTracker::category_budgets)},
+          {"Add Budget", 'g', util::bind_method(this, &TimeTracker::category_add_budget)}
         }).popup(menu);
       }),
       main_menu_entry("Project", 'P', [&] () {
         popup_menu({
-          {"Add", 'A', basepp::bind_method(this, &TimeTracker::project_add)},
-          {"Remove", 'R', basepp::bind_method(this, &TimeTracker::project_remove)},
-          {"Edit", 'E', basepp::bind_method(this, &TimeTracker::project_edit)},
-          {"Price per Hour", 'P', basepp::bind_method(this, &TimeTracker::project_proce)}
+          {"Add", 'A', util::bind_method(this, &TimeTracker::project_add)},
+          {"Remove", 'R', util::bind_method(this, &TimeTracker::project_remove)},
+          {"Edit", 'E', util::bind_method(this, &TimeTracker::project_edit)},
+          {"Price per Hour", 'P', util::bind_method(this, &TimeTracker::project_proce)}
         }).popup(menu);
       }),
       main_menu_entry("Event", 'E', [&] () {
         popup_menu({
-          {"Add", 'A', basepp::bind_method(this, &TimeTracker::event_add)},
-          {"Remove", 'R', basepp::bind_method(this, &TimeTracker::event_remove)},
-          {"Edit", 'E', basepp::bind_method(this, &TimeTracker::event_edit)}
+          {"Add", 'A', util::bind_method(this, &TimeTracker::event_add)},
+          {"Remove", 'R', util::bind_method(this, &TimeTracker::event_remove)},
+          {"Edit", 'E', util::bind_method(this, &TimeTracker::event_edit)}
         }).popup(menu);
       }),
-      main_menu_entry("About", 'A', basepp::bind_method(this, &TimeTracker::about))
+      main_menu_entry("About", 'A', util::bind_method(this, &TimeTracker::about))
     });
     menu.create(*this);
 

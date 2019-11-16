@@ -40,7 +40,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     using event = IF_WIN32_ELSE(win32::event, IF_X11_ELSE(XEvent, CGEventRef));
 
-    typedef bool (event_handler_callback)(const event&, os::event_result&);
+    typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 
   } // core
 

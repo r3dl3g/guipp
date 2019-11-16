@@ -54,7 +54,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void write_pixel (std::ostream& out, const basepp::bit_wrapper<const pixel::mono>& pixel) {
+      void write_pixel (std::ostream& out, const core::bit_wrapper<const pixel::mono>& pixel) {
         write_pixel(out, static_cast<const pixel::mono>(pixel));
       }
 

@@ -195,8 +195,8 @@ namespace gui {
       super::set_data([&](std::size_t i) {
         return detail::build_file_list_row(current_dir[i], (i == super::list.get_selection()));
       }, 0);
-      super::header.on_left_btn_down(basepp::bind_method(this, &file_column_list::handle_header_mouse_down));
-      super::header.on_left_btn_up(basepp::bind_method(this, &file_column_list::handle_header_mouse_up));
+      super::header.on_left_btn_down(util::bind_method(this, &file_column_list::handle_header_mouse_down));
+      super::header.on_left_btn_up(util::bind_method(this, &file_column_list::handle_header_mouse_up));
     }
 
     template<typename T>

@@ -55,7 +55,7 @@ else()
         list_app
         new_border_layout
         attach_all_layout
-		dialogs
+        dialogs
     )
 endif()
 

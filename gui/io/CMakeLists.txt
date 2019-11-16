@@ -18,14 +18,19 @@ if(NOT TARGET gui++-io-obj)
 
     add_definitions(${gui_defines})
 
-    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+    set (INCLUDE_INSTALL_DIR include/guipp/gui/io)
+    set (LIBRARY_INSTALL_DIR lib/guipp)
 
-    add_library(gui++-io-obj OBJECT ${SOURCE_FILES})
+    file(GLOB SOURCE_FILES "*.cpp")
+    file(GLOB INCLUDE_FILES "*.h" "*.inl")
+
+    add_library(gui++-io-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
     set_target_properties(gui++-io-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-io-static STATIC $<TARGET_OBJECTS:gui++-io-obj>)
+        install(TARGETS gui++-io-static DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -36,6 +41,7 @@ if(NOT TARGET gui++-io-obj)
                                        POSITION_INDEPENDENT_CODE ON
                                        VERSION ${gui_VERSION}
                                        SOVERSION ${gui_VERSION_MAJOR})
+        install(TARGETS gui++-io DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 
     GENERATE_EXPORT_HEADER(gui++-io-obj
@@ -44,5 +50,10 @@ if(NOT TARGET gui++-io-obj)
         EXPORT_FILE_NAME gui++-io-export.h
         STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
+
+    install(FILES ${INCLUDE_FILES}
+                  ${PROJECT_BINARY_DIR}/gui++-io-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR})
+
 
 endif()

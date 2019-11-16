@@ -478,7 +478,7 @@ DEFINE_TEST(test_file_icon) {
 #ifdef WIN32
       EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)expected_file_icon_bits[i], " at i = ", i);
 #else
-      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
+      EXPECT_EQUAL((uint8_t)raw[i], (uint8_t)core::reverse_bit_order(expected_file_icon_bits[i]), " at i = ", i);
 #endif // WIN32
     }
 

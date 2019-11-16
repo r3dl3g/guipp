@@ -4,7 +4,8 @@ prjdir=$PWD
 
 mkdir -p $builddir/debug
 pushd $builddir/debug
-cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_MAKE_PROGRAM="gmake" -DCMAKE_INSTALL_PREFIX=./dist
+cmake "$prjdir" -G"Unix Makefiles" -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_INSTALL_PREFIX=./dist
+#-DCMAKE_MAKE_PROGRAM="gmake" 
 popd
 
 #mkdir -p $builddir/release

@@ -15,174 +15,192 @@ set(GUIPP_USE_XCB OFF CACHE BOOL "On to make use uf the xcb library. Default Off
 
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
-    set (gui_VERSION_MAJOR 0)
-    set (gui_VERSION_MINOR 1)
-    set (gui_VERSION_PATCH 0)
-    set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
+  add_subdirectory(../logging logging)
 
-    if (WIN32)
-      set (gui_defines ${logging_defines} -DWIN32_LEAN_AND_MEAN)
-    else ()
-      set (gui_defines ${logging_defines})
-    endif ()
+  set (gui_VERSION_MAJOR 0)
+  set (gui_VERSION_MINOR 1)
+  set (gui_VERSION_PATCH 0)
+  set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
-    set (gui_include
-        ${logging_include}
-        ${CMAKE_CURRENT_SOURCE_DIR}/..
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_BINARY_DIR}
+  if (WIN32)
+    set (gui_defines ${logging_defines} -DWIN32_LEAN_AND_MEAN)
+  else ()
+    set (gui_defines ${logging_defines})
+  endif ()
+
+  set (gui_include
+    ${logging_include}
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROJECT_BINARY_DIR}
     )
 
-    if (APPLE)
-        set (gui_defines ${gui_defines} -std=c++11)
-    elseif (UNIX)
-        set (gui_include ${gui_include} /usr/include/freetype2)
-#        set (gui_sys_libraries X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
-        set (gui_sys_libraries X11 Xft fontconfig Xdmcp freetype Xrender)
-        set (gui_defines ${gui_defines} -DX11 -std=c++11)
-    elseif (WIN32)
-        set (gui_sys_libraries Shcore)
-    endif ()
+  set (INCLUDE_INSTALL_DIR include/guipp/gui)
+  set (LIBRARY_INSTALL_DIR lib/guipp)
 
-    if (GUIPP_USE_XCB)
-        set (gui_sys_libraries ${gui_sys_libraries} X11-xcb xcb xcb-xrm)
-        set (gui_defines ${gui_defines} -DXCB)
-    endif ()
+  if (APPLE)
+    set (gui_defines ${gui_defines} -std=c++11)
+  elseif (UNIX)
+    set (gui_include ${gui_include} /usr/include/freetype2)
+    #        set (gui_sys_libraries X11 Xft fontconfig xcb Xdmcp bsd dl freetype Xrender expat Xau z png16)
+    set (gui_sys_libraries X11 Xft fontconfig Xdmcp freetype Xrender)
+    set (gui_defines ${gui_defines} -DX11 -std=c++11)
+  elseif (WIN32)
+    set (gui_sys_libraries Shcore)
+  endif ()
 
-    if (GUIPP_BUILD_STATIC_MODULE_LIBS)
-        set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
-        set (gui_libraries gui++-ctrl-static
-                           gui++-io-static
-                           gui++-draw-static
-                           gui++-layout-static
-                           gui++-win-static
-                           gui++-core-static
-                           gui++-app
-                           gui++-static
-        )
-        set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
-    elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_libraries gui++-ctrl
-                           gui++-io
-                           gui++-draw
-                           gui++-layout
-                           gui++-win
-                           gui++-core
-                           gui++-app
-        )
-        set (gui_sys_libraries ${logging_sys_libraries} gui++ ${gui_sys_libraries} ${logging_sys_libraries})
-    else()
-        set (gui_libraries gui++-app gui++)
-        set (gui_sys_libraries ${logging_sys_libraries} ${gui_sys_libraries} ${logging_sys_libraries})
-    endif()
+  if (GUIPP_USE_XCB)
+    set (gui_sys_libraries ${gui_sys_libraries} X11-xcb xcb xcb-xrm)
+    set (gui_defines ${gui_defines} -DXCB)
+  endif ()
 
-    if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-        set (gui_defines ${gui_defines}
-                          -Dgui___core_obj_EXPORTS
-                          -Dgui___win_obj_EXPORTS
-                          -Dgui___layout_obj_EXPORTS
-                          -Dgui___draw_obj_EXPORTS
-                          -Dgui___io_obj_EXPORTS
-                          -Dgui___ctrl_obj_EXPORTS)
-    endif()
+  if (GUIPP_BUILD_STATIC_MODULE_LIBS)
+    set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
+    set (gui_libraries ${logging_libraries}
+      gui++-ctrl-static
+      gui++-io-static
+      gui++-draw-static
+      gui++-layout-static
+      gui++-win-static
+      gui++-core-static
+      gui++-app
+      gui++-static
+      )
+    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
+  elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
+    set (gui_libraries ${logging_libraries}
+      gui++-ctrl
+      gui++-io
+      gui++-draw
+      gui++-layout
+      gui++-win
+      gui++-core
+      gui++-app
+      )
+    set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries})
+  else()
+    set (gui_libraries ${logging_libraries} gui++-app gui++)
+    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
+  endif()
 
-    add_subdirectory(core gui_core)
-    add_subdirectory(win gui_win)
-    add_subdirectory(layout gui_layout)
-    add_subdirectory(draw gui_draw)
-    add_subdirectory(io gui_io)
-    add_subdirectory(ctrl gui_ctrl)
-    add_subdirectory(app gui_app)
+  if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
+    set (gui_defines ${gui_defines}
+      -Dgui___core_obj_EXPORTS
+      -Dgui___win_obj_EXPORTS
+      -Dgui___layout_obj_EXPORTS
+      -Dgui___draw_obj_EXPORTS
+      -Dgui___io_obj_EXPORTS
+      -Dgui___ctrl_obj_EXPORTS)
+  endif()
 
-    set (gui_defines ${gui_defines} PARENT_SCOPE)
-    set (gui_include ${gui_include} PARENT_SCOPE)
-    set (gui_libraries ${gui_libraries} PARENT_SCOPE)
-    set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
+  add_subdirectory(core gui_core)
+  add_subdirectory(win gui_win)
+  add_subdirectory(layout gui_layout)
+  add_subdirectory(draw gui_draw)
+  add_subdirectory(io gui_io)
+  add_subdirectory(ctrl gui_ctrl)
+  add_subdirectory(app gui_app)
 
-    message(STATUS "gui gui_defines: ${gui_defines}")
-    message(STATUS "gui gui_include: ${gui_include}")
-    message(STATUS "gui gui_libraries: ${gui_libraries}")
-    message(STATUS "gui gui_sys_libraries: ${gui_sys_libraries}")
+  set (gui_defines ${gui_defines} PARENT_SCOPE)
+  set (gui_include ${gui_include} PARENT_SCOPE)
+  set (gui_libraries ${gui_libraries} PARENT_SCOPE)
+  set (gui_sys_libraries ${gui_sys_libraries} PARENT_SCOPE)
 
-    # header file to pass version settings to the source code
-    configure_file (
-        "${PROJECT_SOURCE_DIR}/Version.h.in"
-        "${PROJECT_BINARY_DIR}/gui_version.h"
+  message(STATUS "gui gui_defines: ${gui_defines}")
+  message(STATUS "gui gui_include: ${gui_include}")
+  message(STATUS "gui gui_libraries: ${gui_libraries}")
+  message(STATUS "gui gui_sys_libraries: ${gui_sys_libraries}")
+
+  # header file to pass version settings to the source code
+  configure_file (
+    "${PROJECT_SOURCE_DIR}/Version.h.in"
+    "${PROJECT_BINARY_DIR}/gui_version.h"
     )
 
-    include_directories(${gui_include})
+  include_directories(${gui_include})
 
-    if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
-        message(STATUS "gui build global shared gui library")
+  if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
+    message(STATUS "gui build global shared gui library")
 
-        add_definitions(-Dgui___EXPORTS ${gui_defines})
+    add_definitions(-Dgui___EXPORTS ${gui_defines})
 
-        add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
-                                 $<TARGET_OBJECTS:gui++-win-obj>
-                                 $<TARGET_OBJECTS:gui++-layout-obj>
-                                 $<TARGET_OBJECTS:gui++-draw-obj>
-                                 $<TARGET_OBJECTS:gui++-io-obj>
-                                 $<TARGET_OBJECTS:gui++-ctrl-obj>
-                                 gui.cpp
-        )
+    add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
+      $<TARGET_OBJECTS:gui++-win-obj>
+      $<TARGET_OBJECTS:gui++-layout-obj>
+      $<TARGET_OBJECTS:gui++-draw-obj>
+      $<TARGET_OBJECTS:gui++-io-obj>
+      $<TARGET_OBJECTS:gui++-ctrl-obj>
+      gui.cpp
+      )
 
-        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
+    target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
-        set_target_properties(gui++ PROPERTIES
-            POSITION_INDEPENDENT_CODE ON
-            VERSION ${gui_VERSION}
-            SOVERSION ${gui_VERSION_MAJOR}
-        )
+    set_target_properties(gui++ PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      VERSION ${gui_VERSION}
+      SOVERSION ${gui_VERSION_MAJOR}
+      )
 
-        GENERATE_EXPORT_HEADER(gui++
-            BASE_NAME GUIPP
-            EXPORT_MACRO_NAME GUIPP_EXPORT
-            EXPORT_FILE_NAME gui++-export.h
-            STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-        )
+    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
 
-    elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
-        message(STATUS "gui build multiple shared gui libraries")
+    GENERATE_EXPORT_HEADER(gui++
+      BASE_NAME GUIPP
+      EXPORT_MACRO_NAME GUIPP_EXPORT
+      EXPORT_FILE_NAME gui++-export.h
+      STATIC_DEFINE GUIPP_BUILT_AS_STATIC
+      )
 
-        add_definitions(-Dgui___EXPORTS ${gui_defines})
-        
-        add_library(gui++ SHARED gui.cpp)
+  elseif(GUIPP_BUILD_SHARED_MODULE_LIBS)
+    message(STATUS "gui build multiple shared gui libraries")
 
-        target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
+    add_definitions(-Dgui___EXPORTS ${gui_defines})
 
-        set_target_properties(gui++ PROPERTIES
-            POSITION_INDEPENDENT_CODE ON
-            VERSION ${gui_VERSION}
-            SOVERSION ${gui_VERSION_MAJOR}
-        )
+    add_library(gui++ SHARED gui.cpp)
 
-        GENERATE_EXPORT_HEADER(gui++
-            BASE_NAME GUIPP
-            EXPORT_MACRO_NAME GUIPP_EXPORT
-            EXPORT_FILE_NAME gui++-export.h
-            STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-        )
+    target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
-    else()
-        message(STATUS "gui build multiple static gui libraries")
+    set_target_properties(gui++ PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      VERSION ${gui_VERSION}
+      SOVERSION ${gui_VERSION_MAJOR}
+      )
 
-        add_definitions(${gui_defines})
-        
-        add_library(gui++-static STATIC gui.cpp)
+    install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
 
-        set_target_properties(gui++-static PROPERTIES
-            POSITION_INDEPENDENT_CODE ON
-            VERSION ${gui_VERSION}
-            SOVERSION ${gui_VERSION_MAJOR}
-        )
+    GENERATE_EXPORT_HEADER(gui++
+      BASE_NAME GUIPP
+      EXPORT_MACRO_NAME GUIPP_EXPORT
+      EXPORT_FILE_NAME gui++-export.h
+      STATIC_DEFINE GUIPP_BUILT_AS_STATIC
+      )
 
-        GENERATE_EXPORT_HEADER(gui++-static
-            BASE_NAME GUIPP
-            EXPORT_MACRO_NAME GUIPP_EXPORT
-            EXPORT_FILE_NAME gui++-export.h
-            STATIC_DEFINE GUIPP_BUILT_AS_STATIC
-        )
+  else()
+    message(STATUS "gui build multiple static gui libraries")
 
-    endif()
-    
+    add_definitions(${gui_defines})
+
+    add_library(gui++-static STATIC gui.cpp)
+
+    set_target_properties(gui++-static PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      VERSION ${gui_VERSION}
+      SOVERSION ${gui_VERSION_MAJOR}
+      )
+
+    install(TARGETS gui++-static DESTINATION ${LIBRARY_INSTALL_DIR})
+
+    GENERATE_EXPORT_HEADER(gui++-static
+      BASE_NAME GUIPP
+      EXPORT_MACRO_NAME GUIPP_EXPORT
+      EXPORT_FILE_NAME gui++-export.h
+      STATIC_DEFINE GUIPP_BUILT_AS_STATIC
+      )
+
+  endif()
+
+  install(FILES ${INCLUDE_FILES}
+    ${PROJECT_BINARY_DIR}/gui++-export.h
+    ${PROJECT_BINARY_DIR}/gui_version.h
+    DESTINATION ${INCLUDE_INSTALL_DIR})
+
 endif()

@@ -10,7 +10,11 @@ if(NOT TARGET gui++-core-obj)
     set(gui_include ${gui_include} PARENT_SCOPE)
     include_directories(${gui_include})
 
-    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+    set (INCLUDE_INSTALL_DIR include/guipp/gui/core)
+    set (LIBRARY_INSTALL_DIR lib/guipp)
+
+    file(GLOB SOURCE_FILES "*.cpp")
+    file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
     message(STATUS "gui_defines: ${gui_defines}")
 
@@ -20,7 +24,7 @@ if(NOT TARGET gui++-core-obj)
 
     add_definitions(-DEXPERIMENTAL ${gui_defines})
 
-    add_library(gui++-core-obj OBJECT ${SOURCE_FILES})
+    add_library(gui++-core-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
     set_target_properties(gui++-core-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -28,6 +32,8 @@ if(NOT TARGET gui++-core-obj)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-core-static STATIC $<TARGET_OBJECTS:gui++-core-obj>)
         target_link_libraries(gui++-core-static PRIVATE ${logging_libraries})
+
+        install(TARGETS gui++-core-static DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -38,6 +44,7 @@ if(NOT TARGET gui++-core-obj)
                                          POSITION_INDEPENDENT_CODE ON
                                          VERSION ${gui_VERSION}
                                          SOVERSION ${gui_VERSION_MAJOR})
+        install(TARGETS gui++-core DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 
     GENERATE_EXPORT_HEADER(gui++-core-obj
@@ -46,5 +53,9 @@ if(NOT TARGET gui++-core-obj)
         EXPORT_FILE_NAME gui++-core-export.h
         STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
+
+  install(FILES ${INCLUDE_FILES}
+                ${PROJECT_BINARY_DIR}/gui++-core-export.h
+          DESTINATION ${INCLUDE_INSTALL_DIR})
 
 endif()

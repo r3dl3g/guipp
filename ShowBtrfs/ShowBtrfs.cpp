@@ -283,10 +283,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   client.set_drawer(column_list_drawer);
   client.get_column_layout().set_columns(weight_columns);
 
-  client.header.on_left_btn_down([&] (os::key_state, const core::point& pt) {
+  client.header.on_left_btn_down([&] (gui::os::key_state, const core::point& pt) {
     mouse_down_point = pt;
   });
-  client.header.on_left_btn_up([&] (os::key_state, const core::point& pt) {
+  client.header.on_left_btn_up([&] (gui::os::key_state, const core::point& pt) {
     if (mouse_down_point == pt) {
       int i = client.get_column_layout().index_at(pt.x());
       if (i < 5) {

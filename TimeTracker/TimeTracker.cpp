@@ -21,7 +21,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include <util/util::bind_method.h>
+#include <util/bind_method.h>
 #include <util/time_util.h>
 #include <util/ostream_resetter.h>
 #include <gui/layout/border_layout.h>

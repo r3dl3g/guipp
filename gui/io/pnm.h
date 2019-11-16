@@ -176,7 +176,7 @@ namespace gui {
     };
 
     template<PNM i>
-    const char*const pnm<i>::suffix;
+    constexpr const char*const pnm<i>::suffix;
 
     template<PixelFormat T>
     void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary = true);

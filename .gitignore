@@ -2,3 +2,4 @@
 boost
 build
 CMakeLists.txt.user*
+dist

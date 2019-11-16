@@ -6,17 +6,26 @@ project("gui++-app" CXX)
 
 if(NOT TARGET gui++-app-obj)
 
-    add_subdirectory(./../core gui_core)
+  add_subdirectory(./../core gui_core)
 
-    include_directories(${gui_include})
+  include_directories(${gui_include})
 
-    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+  set (INCLUDE_INSTALL_DIR include/guipp/gui/app)
+  set (LIBRARY_INSTALL_DIR lib/guipp)
 
-	  add_definitions(${gui_defines})
+  file(GLOB SOURCE_FILES "*.cpp")
+  file(GLOB INCLUDE_FILES "*.h" "*.inl")
 
-    add_library(gui++-app-obj OBJECT ${SOURCE_FILES})
-    set_target_properties(gui++-app-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  add_definitions(${gui_defines})
 
-    add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
+  add_library(gui++-app-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
+
+  set_target_properties(gui++-app-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+  add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
+  install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})
+
+  install(FILES ${INCLUDE_FILES}
+    DESTINATION ${INCLUDE_INSTALL_DIR})
 
 endif()

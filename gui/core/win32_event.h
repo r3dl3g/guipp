@@ -28,27 +28,27 @@ namespace gui {
     namespace win32 {
 
       struct event {
-        event (os::window id,
-               os::event_id e,
-               os::win32::wParam p1,
-               os::win32::lParam p2);
+        event (gui::os::window id,
+               gui::os::event_id e,
+               gui::os::win32::wParam p1,
+               gui::os::win32::lParam p2);
 
         event (const MSG& msg);
 
-        os::window id;
-        os::event_id type;
-        os::win32::wParam wParam;
-        os::win32::lParam lParam;
+        gui::os::window id;
+        gui::os::event_id type;
+        gui::os::win32::wParam wParam;
+        gui::os::win32::lParam lParam;
       };
 
       // --------------------------------------------------------------------------
       //
       // inlines
       //
-      inline event::event (os::window id,
-                           os::event_id e,
-                           os::win32::wParam p1,
-                           os::win32::lParam p2)
+      inline event::event (gui::os::window id,
+                           gui::os::event_id e,
+                           gui::os::win32::wParam p1,
+                           gui::os::win32::lParam p2)
         : id(id)
         , type(e)
         , wParam(p1)

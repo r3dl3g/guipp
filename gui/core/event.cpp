@@ -36,10 +36,6 @@ namespace gui {
 
   namespace core {
 
-#ifdef WIN32
-    const os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
-#endif //WIN32
-
 #ifdef X11
     Atom WM_LAYOUT_WINDOW = 0;
 

@@ -55,7 +55,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     void line::operator() (const graphics& g, const pen& p) const {
       const auto pw = p.os_size();
-      const short off = p.os_size() / 2;
+      const auto off = p.os_size() / 2;
       const auto x = from.os_x() + off;
       const auto y = from.os_y() + off;
       const auto x2 = to.os_x() + off;
@@ -376,7 +376,7 @@ namespace gui {
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
       unsigned int o = static_cast<unsigned int>(origin);
-      if (bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
+      if (core::bit_mask<unsigned int, DT_WORDBREAK | DT_VCENTER>::is_set(o)) {
         int h = DrawTextW(g, wstr.c_str(), (int)wstr.size(), &Rect, o | DT_CALCRECT);
         Rect.left = rect.os_x();
         Rect.right = rect.os_x2();

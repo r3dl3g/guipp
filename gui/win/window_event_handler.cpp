@@ -122,7 +122,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     core::point::type get_wheel_delta (const core::event& e) {
-      return static_cast<core::point::type>(signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
+      return static_cast<core::point::type>(core::signum(GET_WHEEL_DELTA_WPARAM(e.wParam)));
     }
 
     // --------------------------------------------------------------------------

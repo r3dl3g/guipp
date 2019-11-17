@@ -91,7 +91,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<os::event_id id, os::key_symbol sym, os::key_state state>
     bool key_symbol_matcher (const core::event& e) {
-      return match_key(e, id, sym) && bit_mask<os::key_state, state>::is_set(get_key_state(e));
+      return match_key(e, id, sym) && core::bit_mask<gui::os::key_state, state>::is_set(get_key_state(e));
     }
 
     template<os::key_symbol sym, os::key_state state>
@@ -335,7 +335,7 @@ namespace gui {
 
     using get_minmax_event = core::event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
 
-    using layout_event = core::event_handler<core::WM_LAYOUT_WINDOW, 0,
+    using layout_event = core::event_handler<gui::core::WM_LAYOUT_WINDOW, 0,
                                        core::params<core::rectangle>::
                                        getter<get_param<1, core::rectangle>>>;
 

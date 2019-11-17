@@ -42,6 +42,10 @@ namespace gui {
 
     typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 
+#ifdef WIN32
+    const gui::os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
+#endif //WIN32
+
 #ifdef X11
     // --------------------------------------------------------------------------
     extern Atom WM_LAYOUT_WINDOW;

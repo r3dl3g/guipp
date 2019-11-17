@@ -57,6 +57,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif ()
 
 add_subdirectory(gui)
+add_subdirectory(persistent)
 add_subdirectory(test)
 add_subdirectory(RedImage)
 add_subdirectory(ShowBtrfs)

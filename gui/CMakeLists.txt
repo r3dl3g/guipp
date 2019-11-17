@@ -62,10 +62,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-draw-static
       gui++-layout-static
       gui++-win-static
-      gui++-app
       gui++-core-static
-      gui++-static
+      gui++-app
       ${logging_libraries}
+      gui++-static
       )
     set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)

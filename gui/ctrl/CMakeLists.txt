@@ -27,8 +27,9 @@ if(NOT TARGET gui++-ctrl-obj)
 
   file(GLOB SOURCE_FILES "*.cpp")
   file(GLOB INCLUDE_FILES "*.h" "*.inl")
+  file(GLOB RESOURCE_FILES "res/*.h")
 
-  add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
+  add_library(gui++-ctrl-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES} ${RESOURCE_FILES})
 
   set_target_properties(gui++-ctrl-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -59,5 +60,8 @@ if(NOT TARGET gui++-ctrl-obj)
   install(FILES ${INCLUDE_FILES}
     ${PROJECT_BINARY_DIR}/gui++-ctrl-export.h
     DESTINATION ${INCLUDE_INSTALL_DIR})
+
+  install(FILES ${RESOURCE_FILES}
+    DESTINATION ${INCLUDE_INSTALL_DIR}/res)
 
 endif()

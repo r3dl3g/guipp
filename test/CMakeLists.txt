@@ -30,10 +30,7 @@ message(STATUS "app gui_sys_libraries: ${gui_sys_libraries}")
 # add the binary tree to the search path for include files
 # so that we will find Version.h
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
-include_directories(${PROJECT_BINARY_DIR}
-                    ${gui_include}
-                    /opt/raspberrypi/sysroot/opt/vc/include
-)
+include_directories(${PROJECT_BINARY_DIR} ${gui_include})
 
 enable_testing()
 add_subdirectory(./../testlib testlib)
@@ -41,6 +38,8 @@ add_subdirectory(./../testlib testlib)
 if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
     set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
+    include_directories(/opt/raspberrypi/sysroot/opt/vc/include)
+
 # bcm_host
     set(apps
         raspicam_test
@@ -74,7 +73,9 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_definitions(/Y- /bigobj)
 endif()
 
-LINK_DIRECTORIES(/opt/raspberrypi/sysroot/opt/vc/lib)
+if (BUILD_FOR_ARM)
+    LINK_DIRECTORIES(/opt/raspberrypi/sysroot/opt/vc/lib)
+endif()
 
 foreach(test ${tests})
     add_executable(${test} WIN32 ${test}.cpp)

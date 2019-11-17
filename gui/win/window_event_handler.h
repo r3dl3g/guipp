@@ -47,8 +47,6 @@ namespace gui {
     GUIPP_WIN_EXPORT core::point get_root_mouse_pos (const core::event& e);
 
 #ifdef WIN32
-    const os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
-
     // --------------------------------------------------------------------------
     template<int I, typename T>
     T get_param (const core::event& e);
@@ -337,7 +335,7 @@ namespace gui {
 
     using get_minmax_event = core::event_handler<WM_GETMINMAXINFO, 0, minmax_getter>;
 
-    using layout_event = core::event_handler<WM_LAYOUT_WINDOW, 0,
+    using layout_event = core::event_handler<core::WM_LAYOUT_WINDOW, 0,
                                        core::params<core::rectangle>::
                                        getter<get_param<1, core::rectangle>>>;
 
@@ -355,18 +353,7 @@ namespace gui {
 
 #ifdef X11
     // --------------------------------------------------------------------------
-    extern Atom WM_LAYOUT_WINDOW;
-
     namespace x11 {
-
-      extern Atom WM_CREATE_WINDOW;
-      extern Atom WM_DELETE_WINDOW;
-      extern Atom WM_PROTOCOLS;
-      extern Atom WM_TAKE_FOCUS;
-
-      GUIPP_WIN_EXPORT int init_messages ();
-
-      GUIPP_WIN_EXPORT void init_atom (Atom& message, const char* name);
 
       GUIPP_WIN_EXPORT void send_client_message (const window* win, Atom message,
                                 long l1 = 0, long l2 = 0, long l3 = 0, long l4 = 0, long l5 = 0);
@@ -541,7 +528,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<Atom& M>
     inline bool protocol_message_matcher (const core::event& e) {
-      return (e.type == ClientMessage) && (e.xclient.message_type == x11::WM_PROTOCOLS) && (e.xclient.data.l[0] == M);
+      return (e.type == ClientMessage) && (e.xclient.message_type == core::x11::WM_PROTOCOLS) && (e.xclient.data.l[0] == M);
     }
 
     // --------------------------------------------------------------------------
@@ -588,11 +575,11 @@ namespace gui {
                                        core::params<window*, core::rectangle>::
                                        getter<get_client_data<0, window*>, get_client_data_rect>,
                                        0,
-                                       client_message_matcher<x11::WM_CREATE_WINDOW>>;
+                                       client_message_matcher<core::x11::WM_CREATE_WINDOW>>;
 
     using close_event = core::event_handler<ClientMessage, 0,
                                       core::params<>::getter<>, 1,
-                                      protocol_message_matcher<x11::WM_DELETE_WINDOW>>;
+                                      protocol_message_matcher<core::x11::WM_DELETE_WINDOW>>;
 
     using destroy_event = core::event_handler<DestroyNotify, SubstructureNotifyMask>;
 
@@ -786,7 +773,7 @@ namespace gui {
                                        core::params<core::rectangle>::
                                        getter<get_client_data_rect>,
                                        0,
-                                       client_message_matcher<WM_LAYOUT_WINDOW>>;
+                                       client_message_matcher<core::WM_LAYOUT_WINDOW>>;
 
     // --------------------------------------------------------------------------
     using paint_event = core::event_handler<Expose, ExposureMask,

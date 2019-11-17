@@ -42,6 +42,25 @@ namespace gui {
 
     typedef bool (event_handler_callback)(const event&, gui::os::event_result&);
 
+#ifdef X11
+    // --------------------------------------------------------------------------
+    extern Atom WM_LAYOUT_WINDOW;
+
+    namespace x11 {
+
+      extern Atom WM_CREATE_WINDOW;
+      extern Atom WM_DELETE_WINDOW;
+      extern Atom WM_PROTOCOLS;
+      extern Atom WM_TAKE_FOCUS;
+
+      GUIPP_CORE_EXPORT int init_messages ();
+
+      GUIPP_CORE_EXPORT void init_atom (Atom& message, const char* name);
+
+    } // namespace x11
+#endif // X11
+
+
   } // core
 
 } // gui

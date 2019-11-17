@@ -48,17 +48,17 @@ namespace gui {
 
       int init_control_messages () {
 #ifdef X11
-        win::x11::init_atom(SCROLLBAR_MESSAGE, "SCROLLBAR_MESSAGE");
-        win::x11::init_atom(SELECTION_CHANGE_MESSAGE, "SELECTION_CHANGE_MESSAGE");
-        win::x11::init_atom(SELECTION_COMMIT_MESSAGE, "SELECTION_COMMIT_MESSAGE");
-        win::x11::init_atom(HILITE_CHANGE_MESSAGE, "HILITE_CHANGE_MESSAGE");
-        win::x11::init_atom(SLIDER_MESSAGE, "SLIDER_MESSAGE");
-        win::x11::init_atom(BN_CLICKED_MESSAGE, "BN_CLICKED_MESSAGE");
-        win::x11::init_atom(BN_PUSHED_MESSAGE, "BN_PUSHED_MESSAGE");
-        win::x11::init_atom(BN_UNPUSHED_MESSAGE, "BN_UNPUSHED_MESSAGE");
-        win::x11::init_atom(BN_STATE_MESSAGE, "BN_STATE_MESSAGE");
-        win::x11::init_atom(SELECTION_CANCEL_MESSAGE, "SELECTION_CANCEL_MESSAGE");
-        win::x11::init_atom(CONTENT_CHANGED_MESSAGE, "CONTENT_CHANGED_MESSAGE");
+        core::x11::init_atom(SCROLLBAR_MESSAGE, "SCROLLBAR_MESSAGE");
+        core::x11::init_atom(SELECTION_CHANGE_MESSAGE, "SELECTION_CHANGE_MESSAGE");
+        core::x11::init_atom(SELECTION_COMMIT_MESSAGE, "SELECTION_COMMIT_MESSAGE");
+        core::x11::init_atom(HILITE_CHANGE_MESSAGE, "HILITE_CHANGE_MESSAGE");
+        core::x11::init_atom(SLIDER_MESSAGE, "SLIDER_MESSAGE");
+        core::x11::init_atom(BN_CLICKED_MESSAGE, "BN_CLICKED_MESSAGE");
+        core::x11::init_atom(BN_PUSHED_MESSAGE, "BN_PUSHED_MESSAGE");
+        core::x11::init_atom(BN_UNPUSHED_MESSAGE, "BN_UNPUSHED_MESSAGE");
+        core::x11::init_atom(BN_STATE_MESSAGE, "BN_STATE_MESSAGE");
+        core::x11::init_atom(SELECTION_CANCEL_MESSAGE, "SELECTION_CANCEL_MESSAGE");
+        core::x11::init_atom(CONTENT_CHANGED_MESSAGE, "CONTENT_CHANGED_MESSAGE");
 #endif // X11
         return 1;
       }

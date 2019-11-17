@@ -162,7 +162,7 @@ namespace gui {
 
       id = create_window(type, r, parent_id, this);
 #ifdef X11
-      x11::send_client_message(this, x11::WM_CREATE_WINDOW, this, r);
+      x11::send_client_message(this, core::x11::WM_CREATE_WINDOW, this, r);
 #endif // X11
     }
 
@@ -554,7 +554,7 @@ namespace gui {
     void window::resize (const core::size& sz, bool repaint) {
       if (is_valid()) {
         SetWindowPos(get_id(), nullptr, 0, 0, sz.os_width(), sz.os_height(), SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
-        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
+        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
         if (repaint) {
           invalidate();
         }
@@ -564,7 +564,7 @@ namespace gui {
     void window::place (const core::rectangle& r, bool repaint) {
       if (is_valid()) {
         MoveWindow(get_id(), r.os_x(), r.os_y(), r.os_width(), r.os_height(), repaint);
-        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(r.size()));
+        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
       }
     }
 
@@ -702,7 +702,7 @@ namespace gui {
     }
 
     void window::init () {
-      static int initialized = x11::init_messages();
+      static int initialized = core::x11::init_messages();
       (void)initialized;
       x11::prepare_win_for_event(this, KeyPressMask);
     }
@@ -718,7 +718,7 @@ namespace gui {
     }
 
     void window::close () {
-      send_client_message(this, x11::WM_PROTOCOLS, x11::WM_DELETE_WINDOW);
+      send_client_message(this, core::x11::WM_PROTOCOLS, core::x11::WM_DELETE_WINDOW);
     }
 
     bool window::is_valid () const {
@@ -963,7 +963,7 @@ namespace gui {
           }
           x11::check_return(XResizeWindow(core::global::get_instance(),
                                           get_id(), sz.os_width(), sz.os_height()));
-          send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
+          send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
           if (repaint) {
             invalidate();
           }
@@ -987,7 +987,7 @@ namespace gui {
                                               get_id(), r.os_x(), r.os_y(),
                                               r.os_width(), r.os_height()));
           if (current.size() != r.size()) {
-            send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(r.size()));
+            send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(r.size()));
             if (repaint) {
               invalidate();
             }

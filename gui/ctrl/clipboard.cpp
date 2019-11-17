@@ -84,11 +84,11 @@ namespace gui {
       Atom TEXT = 0;
 
       void init_clipboard_atoms () {
-        x11::init_atom(CLIPBOARD, "CLIPBOARD");
-        x11::init_atom(UTF8_STRING, "UTF8_STRING");
-        x11::init_atom(XSEL_DATA, "XSEL_DATA");
-        x11::init_atom(TARGETS, "TARGETS");
-        x11::init_atom(TEXT, "TEXT");
+        core::x11::init_atom(CLIPBOARD, "CLIPBOARD");
+        core::x11::init_atom(UTF8_STRING, "UTF8_STRING");
+        core::x11::init_atom(XSEL_DATA, "XSEL_DATA");
+        core::x11::init_atom(TARGETS, "TARGETS");
+        core::x11::init_atom(TEXT, "TEXT");
       }
 
     } // namespace detail

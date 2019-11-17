@@ -93,12 +93,12 @@ namespace gui {
       Atom NET_WM_STATE_HIDDEN = 0;
 
       int init_for_net_wm_state () {
-        init_atom(NET_WM_STATE, "_NET_WM_STATE");
-        init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
-        init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
-        init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
-        init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
-        init_atom(ATOM_ATOM, "ATOM");
+        core::x11::init_atom(NET_WM_STATE, "_NET_WM_STATE");
+        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ");
+        core::x11::init_atom(NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT");
+        core::x11::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
+        core::x11::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
+        core::x11::init_atom(ATOM_ATOM, "ATOM");
         return 1;
       }
 
@@ -251,11 +251,11 @@ namespace gui {
     // --------------------------------------------------------------------------
     overlapped_window::overlapped_window () {
       on_set_focus([&] (win::window* prev) {
-        send_client_message(this, WM_LAYOUT_WINDOW, client_area());
+        send_client_message(this, core::WM_LAYOUT_WINDOW, client_area());
       });
 #ifndef BUILD_FOR_ARM
       on_size([&] (const core::size& sz) {
-        send_client_message(this, WM_LAYOUT_WINDOW, core::rectangle(sz));
+        send_client_message(this, core::WM_LAYOUT_WINDOW, core::rectangle(sz));
       });
 #endif
     }
@@ -557,8 +557,8 @@ namespace gui {
 
     void set_wm_protocols (gui::os::instance display, os::window id) {
       Atom protocols[] = {
-        x11::WM_TAKE_FOCUS,
-        x11::WM_DELETE_WINDOW,
+        core::x11::WM_TAKE_FOCUS,
+        core::x11::WM_DELETE_WINDOW,
       };
       XSetWMProtocols(display, id, protocols, 2);
     }

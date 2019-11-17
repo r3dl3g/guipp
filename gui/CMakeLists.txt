@@ -56,26 +56,28 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   if (GUIPP_BUILD_STATIC_MODULE_LIBS)
     set (gui_defines ${gui_defines} -DGUIPP_BUILT_AS_STATIC)
-    set (gui_libraries ${logging_libraries}
+    set (gui_libraries
       gui++-ctrl-static
       gui++-io-static
       gui++-draw-static
       gui++-layout-static
       gui++-win-static
-      gui++-core-static
       gui++-app
+      gui++-core-static
       gui++-static
+      ${logging_libraries}
       )
     set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
-    set (gui_libraries ${logging_libraries}
+    set (gui_libraries
       gui++-ctrl
       gui++-io
       gui++-draw
       gui++-layout
       gui++-win
-      gui++-core
       gui++-app
+      gui++-core
+      ${logging_libraries}
       )
     set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries})
   else()
@@ -124,7 +126,8 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
     add_definitions(-Dgui___EXPORTS ${gui_defines})
 
-    add_library(gui++ SHARED $<TARGET_OBJECTS:gui++-core-obj>
+    add_library(gui++ SHARED
+      $<TARGET_OBJECTS:gui++-core-obj>
       $<TARGET_OBJECTS:gui++-win-obj>
       $<TARGET_OBJECTS:gui++-layout-obj>
       $<TARGET_OBJECTS:gui++-draw-obj>
@@ -133,7 +136,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui.cpp
       )
 
-    target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
+    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${gui_sys_libraries})
 
     set_target_properties(gui++ PROPERTIES
       POSITION_INDEPENDENT_CODE ON

@@ -280,30 +280,7 @@ namespace gui {
 
 #endif // Win32
 #ifdef X11
-    Atom WM_LAYOUT_WINDOW = 0;
-
     namespace x11 {
-
-      Atom WM_CREATE_WINDOW = 0;
-      Atom WM_DELETE_WINDOW = 0;
-      Atom WM_PROTOCOLS = 0;
-      Atom WM_TAKE_FOCUS = 0;
-
-      int init_messages () {
-        init_atom(WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
-        init_atom(WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
-        init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
-        init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
-        init_atom(WM_LAYOUT_WINDOW, "WM_LAYOUT_WINDOW");
-        return 1;
-      }
-
-      void init_atom (Atom& message, const char* name) {
-        if (!message) {
-          message = XInternAtom(core::global::get_instance(), name, False);
-        }
-      }
-
       // --------------------------------------------------------------------------
       void send_client_message (const window* win, Atom message, long l1, long l2, long l3, long l4, long l5) {
         if (win && win->is_valid()) {
@@ -366,7 +343,6 @@ namespace gui {
       void unprepare_win (const window* win) {
         window_event_mask.erase(win);
       }
-
 
     } // namespace x11
 

@@ -32,22 +32,45 @@
 #include <gui/core/event.h>
 #include <logging/logger.h>
 
-#ifdef X11
 namespace gui {
-  namespace win {
-    extern Atom WM_LAYOUT_WINDOW;
+
+  namespace core {
+
+#ifdef WIN32
+    const os::event_id WM_LAYOUT_WINDOW = WM_USER + 0x100;
+#endif //WIN32
+
+#ifdef X11
+    Atom WM_LAYOUT_WINDOW = 0;
 
     namespace x11 {
 
-      extern Atom WM_CREATE_WINDOW;
-      extern Atom WM_DELETE_WINDOW;
-      extern Atom WM_PROTOCOLS;
-      extern Atom WM_TAKE_FOCUS;
+      Atom WM_CREATE_WINDOW = 0;
+      Atom WM_DELETE_WINDOW = 0;
+      Atom WM_PROTOCOLS = 0;
+      Atom WM_TAKE_FOCUS = 0;
 
+      int init_messages () {
+        init_atom(WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
+        init_atom(WM_DELETE_WINDOW, "WM_DELETE_WINDOW");
+        init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
+        init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
+        init_atom(WM_LAYOUT_WINDOW, "WM_LAYOUT_WINDOW");
+        return 1;
+      }
+
+      void init_atom (Atom& message, const char* name) {
+        if (!message) {
+          message = XInternAtom(core::global::get_instance(), name, False);
+        }
+      }
     } // namespace x11
-  } // namespace win
-} // namespace gui
+
 #endif // X11
+
+  } // namespace core
+
+} // namespace gui
 
 namespace std {
 
@@ -646,7 +669,7 @@ namespace std {
         out << window(e.xcolormap);
       break;
       case ClientMessage: {
-        using namespace gui::win;;
+        using namespace gui::core;;
         if (e.xclient.message_type == x11::WM_CREATE_WINDOW) {
           out << " WM_CREATE_WINDOW ";
         } else if (e.xclient.message_type == x11::WM_DELETE_WINDOW) {

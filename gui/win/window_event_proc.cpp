@@ -602,7 +602,7 @@ namespace gui {
           } else {
             process_event(e, resultValue);
           }
-          if (protocol_message_matcher<x11::WM_DELETE_WINDOW>(e) && !resultValue) {
+          if (protocol_message_matcher<core::x11::WM_DELETE_WINDOW>(e) && !resultValue) {
             running = false;
           }
 

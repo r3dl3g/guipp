@@ -161,6 +161,7 @@ namespace gui {
                                   const core::rectangle& place,
                                   double split_pos) {
         super::create(clazz::get(), parent, place);
+        super::get_layout().set_split_pos(split_pos);
         slider.create(*this, layout_type::get_slider_place(place, split_pos));
         slider.set_visible();
       }
@@ -173,7 +174,6 @@ namespace gui {
       template<orientation O>
       inline void split_view<O>::set_split_pos (double pos) {
         super::get_layout().set_split_pos(pos);
-//        slider.place(layout_type::get_slider_place(super::client_area(), pos));
         super::layout();
       }
 

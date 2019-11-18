@@ -37,6 +37,7 @@ namespace gui {
       win::window* first;
       win::window* second;
       ctrl::detail::slider_base* slider;
+      double split_pos;
     };
 
     // --------------------------------------------------------------------------
@@ -62,6 +63,7 @@ namespace gui {
       static core::size::type get_slider_width ();
 
       double get_split_pos (const core::rectangle&) const;
+      void set_split_pos (double);
 
       void layout (const core::rectangle& sz) const;
 

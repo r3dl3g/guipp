@@ -140,7 +140,7 @@ namespace gui {
       if ((data.min != mi) || (data.max != ma)) {
         data.min = mi;
         data.max = ma;
-        data.value = std::max(data.value, data.min);
+        data.value = std::max(std::min(data.value, data.max), data.min);
         invalidate();
       }
     }

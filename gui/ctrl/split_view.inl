@@ -35,6 +35,7 @@ namespace gui {
       : first(nullptr)
       , second(nullptr)
       , slider(nullptr)
+      , split_pos(0.5)
     {}
 
     // --------------------------------------------------------------------------
@@ -69,6 +70,11 @@ namespace gui {
     }
 
     template<orientation O>
+    inline void split_view<O>::set_split_pos (double pos) {
+      data.split_pos = pos;
+    }
+
+    template<orientation O>
     inline void split_view<O>::set (win::window* first,
                                     win::window* second,
                                     ctrl::detail::slider_base* slider) {
@@ -79,7 +85,7 @@ namespace gui {
 
     template<orientation O>
     void split_view<O>::layout (const core::rectangle& sz) const {
-      double pos = get_split_pos(sz);
+      double pos = data.split_pos;//get_split_pos(sz);
       LogTrace << "split_view::layout(" << sz << ") split_pos: " << pos;
       if (data.first) {
         data.first->place(get_first_place(sz, pos), IF_WIN32_ELSE(true, false));
@@ -166,7 +172,8 @@ namespace gui {
 
       template<orientation O>
       inline void split_view<O>::set_split_pos (double pos) {
-        slider.place(layout_type::get_slider_place(super::client_area(), pos));
+        super::get_layout().set_split_pos(pos);
+//        slider.place(layout_type::get_slider_place(super::client_area(), pos));
         super::layout();
       }
 
@@ -174,6 +181,7 @@ namespace gui {
       template<orientation O>
       void split_view<O>::init () {
         slider.on_slide([&] (int) {
+          super::get_layout().set_split_pos(get_split_pos());
           super::get_layout().layout(super::client_area());
         });
       }

@@ -16,521 +16,29 @@
  * @file
  */
 
-#include <iomanip>
-#include <functional>
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include "data.h"
 
 #include <util/bind_method.h>
-#include <util/time_util.h>
 #include <util/ostream_resetter.h>
 #include <gui/layout/border_layout.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
-#include <gui/ctrl/tree.h>
 #include <gui/ctrl/column_list.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/std_dialogs.h>
 
+
 /* --------------------------------------------------------------------------
  * ToDo:
- * - Write a filter for time ranges.
- * - Write custom tree node info for this filter.
- * - Add dir watcher (see: extern/dir_monitor)
+ * V Write a filter for time ranges.
+ * V Write custom tree node info for this filter.
  * - Add dialogs to add/edit/remove categories, projects, events
  * - Read/Write settings.
+ * - Add dir watcher (see: extern/dir_monitor)
 -------------------------------------------------------------------------- */
 
 using time_point = util::time::time_point;
 using duration_type = std::chrono::system_clock::duration;
-using ptree = boost::property_tree::ptree;
-
-// --------------------------------------------------------------------------
-namespace std {
-
-  std::ostream& operator<< (std::ostream& o, time_point const& tp) {
-    return util::time::operator<<(o, tp);
-  }
-
-  std::istream& operator>> (std::istream& i, time_point& tp) {
-    return util::time::operator>>(i, tp);
-  }
-
-  std::ostream& operator<< (std::ostream& o, duration_type const& d) {
-    return util::time::format_duration_only_h(o, d);
-  }
-
-}
-
-// --------------------------------------------------------------------------
-namespace data {
-
-  struct tt_category;
-  struct tt_project;
-  struct tt_event;
-  struct tt_price_per_hour;
-  struct tt_budget;
-
-  struct date {
-    date ()
-    {}
-
-    date (uint32_t year, uint32_t month = 0, uint32_t day = 0)
-      : value(util::time::mktime_point(year, month, day))
-    {}
-
-    date (const time_point& dt)
-      : value(dt)
-    {}
-
-    operator const time_point&() const {
-      return value;
-    }
-
-    time_point value;
-  };
-
-  std::ostream& operator<< (std::ostream& out, const date& dt) {
-    return util::time::format_date(out, dt.value);
-  }
-
-  std::istream& operator>> (std::istream& in, date& dt) {
-    dt = util::time::parse_date(in);
-    return in;
-  }
-
-  // --------------------------------------------------------------------------
-  struct tt_price_per_hour {
-    static const std::string PRICE_PER_HOUR;
-    static const std::string BEGIN;
-    static const std::string PRICE;
-
-    date begin;
-    double price;
-
-    tt_price_per_hour (const date& begin, double price = 0.0)
-      : begin(begin)
-      , price(price)
-    {}
-
-    tt_price_per_hour (const ptree& pt, int num)
-      : begin(pt.get(ptree::path_type(ostreamfmt(PRICE_PER_HOUR << num << BEGIN), '/'), date()))
-      , price(pt.get(ptree::path_type(ostreamfmt(PRICE_PER_HOUR << num << PRICE), '/'), 0.0))
-    {}
-
-    void write (ptree& pt, int num) {
-      pt.put(ptree::path_type(ostreamfmt(PRICE_PER_HOUR << num << BEGIN), '/'), begin);
-      pt.put(ptree::path_type(ostreamfmt(PRICE_PER_HOUR << num << PRICE), '/'), price);
-    }
-  };
-
-  const std::string tt_price_per_hour::PRICE_PER_HOUR = "PricePerHour.";
-  const std::string tt_price_per_hour::BEGIN = ".key";
-  const std::string tt_price_per_hour::PRICE = ".value";
-
-  // --------------------------------------------------------------------------
-  struct tt_budget {
-    static const std::string DATE;
-    static const std::string BUDGET;
-
-    date begin;
-    double budget;
-
-    tt_budget (const date& begin, double budget = 0.0)
-      : begin(begin)
-      , budget(budget)
-    {}
-
-    tt_budget (const ptree& pt, int num)
-      : begin(pt.get(ostreamfmt(DATE << num), date()))
-      , budget(pt.get(ostreamfmt(BUDGET << num), 0.0))
-    {}
-
-    void write (ptree& pt, int num) {
-      pt.put(ostreamfmt(DATE << num), begin);
-      pt.get(ostreamfmt(BUDGET << num), budget);
-    }
-  };
-
-  const std::string tt_budget::DATE = "Date";
-  const std::string tt_budget::BUDGET = "Budget";
-
-  // --------------------------------------------------------------------------
-  struct tt_event : std::enable_shared_from_this<tt_event> {
-    static const std::string BEGIN;
-    static const std::string END;
-    static const std::string COMMENT;
-
-    std::string id;
-    time_point begin;
-    time_point end;
-    std::string comment;
-    std::shared_ptr<tt_project> project;
-
-    duration_type duration () const {
-      return end > begin ? end - begin : duration_type::zero();
-    }
-
-    double costs () const;
-    double price_per_hour () const;
-
-//    tt_event ()
-//    {}
-
-    tt_event (std::shared_ptr<tt_project> project, const std::string& id, const ptree& pt)
-      : id(id)
-      , begin(pt.get(BEGIN, time_point()))
-      , end(pt.get(END, time_point()))
-      , comment(pt.get(COMMENT, std::string()))
-      , project(project)
-    {}
-
-    static std::string create_id () {
-      return ostreamfmt(std::hex << std::chrono::system_clock::now().time_since_epoch().count());
-    }
-
-    void start () {
-      begin = std::chrono::system_clock::now();
-    }
-
-    void stop () {
-      end = std::chrono::system_clock::now();
-    }
-
-    void write (ptree& pt) {
-      pt.put(BEGIN, begin);
-      pt.put(END, end);
-      pt.put(COMMENT, comment);
-    }
-
-    operator const time_point& () const {
-      return begin;
-    }
-
-  };
-
-  const std::string tt_event::BEGIN = "begin";
-  const std::string tt_event::END = "end";
-  const std::string tt_event::COMMENT = "comment";
-  const std::string PROPS = ".props";
-  const std::string SETTINGS = "settings.props";
-
-  // --------------------------------------------------------------------------
-  struct tt_project : std::enable_shared_from_this<tt_project> {
-    static const std::string PRICE_PER_HOUR;
-    static const std::string PRICE_PER_HOUR_COUNT;
-
-    std::string name;
-    double pph;
-    std::vector<std::shared_ptr<tt_event>> events;
-    std::vector<tt_price_per_hour> prices_per_hour;
-    std::shared_ptr<tt_category> category;
-
-    tt_project (std::shared_ptr<tt_category> category, const std::string& name, double price_per_hour = 0.0)
-      : name(name)
-      , pph(price_per_hour)
-      , category(category)
-    {}
-
-    tt_project (std::shared_ptr<tt_category> category, const std::string& name, const ptree& pt)
-      : name(name)
-      , pph(pt.get(PRICE_PER_HOUR, 0.0F))
-      , category(category)
-    {
-      int count = pt.get(ptree::path_type(PRICE_PER_HOUR_COUNT, '/'), 0);
-      for (int i = 0; i < count; ++i) {
-        prices_per_hour.emplace_back(tt_price_per_hour(pt, i));
-      }
-      std::sort(prices_per_hour.begin(), prices_per_hour.end(), [](const tt_price_per_hour&l, const tt_price_per_hour&r) {
-        return l.begin.value > r.begin.value;
-      });
-    }
-
-    double price_per_hour (const time_point& begin) const {
-      for (const tt_price_per_hour& pPH : prices_per_hour) {
-        if (pPH.begin.value <= begin) {
-          return pPH.price;
-        }
-      }
-      return pph;
-    }
-
-    double price_per_second (const time_point& begin) const {
-      for (const tt_price_per_hour& pPH : prices_per_hour) {
-        if (pPH.begin.value <= begin) {
-          return pPH.price / 3600.0;
-        }
-      }
-      return pph / 3600.0;
-    }
-
-    duration_type duration () const {
-      duration_type d = duration_type::zero();
-      for (auto& i : events) {
-        d += i->duration();
-      }
-      return d;
-    }
-
-    double costs () const {
-      double d = 0;
-      for (auto& i : events) {
-        d += i->costs();
-      }
-      return d;
-    }
-
-    void read_events (const sys_fs::path& dir) {
-      for (const sys_fs::directory_entry& f : sys_fs::directory_iterator(dir)) {
-        if ((f.path().extension().string() == PROPS) && (f.path().filename().string() != SETTINGS)) {
-          try {
-            ptree pt;
-            boost::property_tree::ini_parser::read_ini(f.path().string(), pt);
-            events.emplace_back(std::make_shared<tt_event>(shared_from_this(), f.path().stem().string(), pt));
-          } catch (std::exception& ex) {
-            LogFatal << ex;
-          }
-        }
-      }
-    }
-
-    void write (ptree& pt) {
-      pt.put(PRICE_PER_HOUR, pph);
-      auto count = prices_per_hour.size();
-      pt.put(ptree::path_type(PRICE_PER_HOUR_COUNT, '/'), count);
-      for (auto i = 0; i < count; ++i) {
-        prices_per_hour[i].write(pt, i);
-      }
-    }
-  };
-
-  const std::string tt_project::PRICE_PER_HOUR = "PricePerHour";
-  const std::string tt_project::PRICE_PER_HOUR_COUNT = "PricePerHour.count";
-
-  // --------------------------------------------------------------------------
-  struct tt_category : std::enable_shared_from_this<tt_category> {
-    static const std::string BUDGET_COUNT;
-
-    std::string name;
-    std::vector<std::shared_ptr<tt_project>> projects;
-    std::vector<tt_budget> budgets;
-
-    tt_category (const std::string& name)
-      : name (name)
-    {}
-
-    tt_category (const std::string& name, const ptree& pt)
-      : name (name)
-    {
-      int count = pt.get(BUDGET_COUNT, 0);
-      for (int i = 0; i < count; ++i) {
-        budgets.emplace_back(tt_budget(pt, i));
-      }
-    }
-
-    duration_type duration () const {
-      duration_type d = duration_type::zero();
-      for (auto& i : projects) {
-        d += i->duration();
-      }
-      return d;
-    }
-
-    double costs () const {
-      double d = 0;
-      for (auto& i : projects) {
-        d += i->costs();
-      }
-      return d;
-    }
-
-    double budget () const {
-      double d = 0;
-      for (auto& i : budgets) {
-        d += i.budget;
-      }
-      return d;
-    }
-
-    void read_projects (const sys_fs::path& dir) {
-      for (const sys_fs::directory_entry& f : sys_fs::directory_iterator(dir)) {
-        if (f.status().type() == sys_fs::file_type::directory) {
-          try {
-            ptree pt;
-            sys_fs::path sub(f.path());
-            sub /= SETTINGS;
-            if (sys_fs::exists(sub)) {
-              boost::property_tree::ini_parser::read_ini(sub.string(), pt);
-            }
-            std::shared_ptr<tt_project> prj = std::make_shared<tt_project>(shared_from_this(), f.path().stem().string(), pt);
-            prj->read_events(f.path());
-            projects.emplace_back(std::move(prj));
-          } catch (std::exception& ex) {
-            LogFatal << ex;
-          }
-        }
-      }
-    }
-
-    void write (ptree& pt) {
-      auto count = budgets.size();
-      pt.put(BUDGET_COUNT, count);
-      for (auto i = 0; i < count; ++i) {
-        budgets[i].write(pt, i);
-      }
-    }
-
-  };
-
-  const std::string tt_category::BUDGET_COUNT = "BudgetCount";
-
-  // --------------------------------------------------------------------------
-  double tt_event::costs () const {
-    return project->price_per_second(begin) * std::chrono::duration_cast<std::chrono::seconds>(duration()).count();
-  }
-
-  double tt_event::price_per_hour () const {
-    return project->price_per_hour(begin);
-  }
-
-} // namespace data
-
-namespace tt_filter {
-
-  typedef bool (filter_fnct) (const std::shared_ptr<data::tt_event>& t);
-
-  struct any {
-    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
-      return true;
-    }
-  };
-
-  struct none {
-    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
-      return false;
-    }
-  };
-
-  struct min_max {
-    min_max (const time_point& min, const time_point& max)
-      : min(min)
-      , max(max)
-    {}
-
-    min_max (time_point&& min, time_point&& max)
-      : min(std::move(min))
-      , max(std::move(max))
-    {}
-
-    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
-      return (min <= t->begin) && (t->begin < max);
-    }
-
-    const time_point min;
-    const time_point max;
-  };
-
-  struct weekday {
-    weekday (int day)
-      : day(day)
-    {}
-
-    bool operator () (const time_point& t) const {
-      return day == util::time::local_time(t).tm_wday;
-    }
-
-    const int day;
-  };
-
-  inline min_max mk_year (int y) {
-    return {util::time::mktime_point(y, 1, 1), util::time::mktime_point(y + 1, 1, 1)};
-  }
-
-  inline min_max mk_quarter (int y, int q) {
-    return {util::time::mktime_point(y, q * 3 - 2, 1), util::time::mktime_point(y, q * 3 + 1, 1)};
-  }
-
-  inline min_max mk_month (int y, int m) {
-    return {util::time::mktime_point(y, m, 1), util::time::mktime_point(y, m + 1, 1)};
-  }
-
-  inline min_max mk_week (int y, int w) {
-    return {util::time::mktime_point(y, 1, w * 7 - 6), util::time::mktime_point(y, 1, w * 7 + 1)};
-  }
-
-  inline min_max mk_day (int y, int m, int d) {
-    return {util::time::mktime_point(y, m, d), util::time::mktime_point(y, m, d + 1)};
-  }
-
-  inline min_max mk_hour_offset (const time_point& now, const std::chrono::hours& h) {
-    return {now - h, now + h};
-  }
-
-  struct node {
-    typedef std::vector<node> node_list;
-    typedef node_list::const_iterator iterator;
-
-    node ()
-    {}
-
-    node (const std::string& label, std::initializer_list<node> nodes)
-      : label(label)
-      , sub_nodes(nodes)
-      , filter(none())
-    {}
-
-    node (const std::string& label, std::function<filter_fnct> filter)
-      : label(label)
-      , filter(filter)
-    {}
-
-    void add_nodes (std::initializer_list<node> nodes) {
-      sub_nodes.insert(sub_nodes.end(), nodes.begin(), nodes.end());
-    }
-
-    std::string label;
-    std::function<filter_fnct> filter;
-    node_list sub_nodes;
-  };
-
-  struct node_info {
-    typedef node type;
-    typedef node::iterator iterator;
-    typedef const node* reference;
-    typedef gui::core::range<iterator> node_range;
-
-    static bool has_sub_nodes (const type& n) {
-      return !n.sub_nodes.empty();
-    }
-
-    static node_range sub_nodes (type const& n) {
-      return node_range(n.sub_nodes.begin(), n.sub_nodes.end());
-    }
-
-    static reference make_reference (type const& n) {
-      return &n;
-    }
-
-    static type const& dereference (reference const& r) {
-      return *r;
-    }
-
-    static std::string label (type const& n) {
-      return n.label;
-    }
-
-    static const gui::draw::masked_bitmap& icon (type const&,
-                                            bool has_children,
-                                            bool is_open,
-                                            bool selected) {
-      return gui::ctrl::tree::standard_icon(has_children, is_open, selected);
-    }
-
-
-  };
-
-} // namespace filter
 
 // --------------------------------------------------------------------------
 using namespace gui;
@@ -604,12 +112,24 @@ public:
     , entry_view(main_view.second)
     , category_view(top_view.first)
     , project_view(top_view.second)
+    , weekday_filters({
+      {"Sunday", 0},
+      {"Monday", 1},
+      {"Tuesday", 2},
+      {"Wednesday", 3},
+      {"Thursday", 4},
+      {"Friday", 5},
+      {"Saturday", 6},
+    })
   {
     on_create(util::bind_method(this, &TimeTracker::onCreated));
 
     category_view.set_drawer(category_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money});
     project_view.set_drawer(project_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money, drawer::money});
     entry_view.set_drawer(entry_view_type::row_drawer{drawer::name, drawer::time, drawer::time, drawer::duration, drawer::money, drawer::money, drawer::name, drawer::money});
+  }
+
+  ~TimeTracker () {
   }
 
   void onCreated (window* w, const core::rectangle& r) {
@@ -651,12 +171,13 @@ public:
     });
     menu.create(*this);
 
-    const auto now = util::time::local_time_now();
-    const int year = now.tm_year + 1900;
-    const int month = now.tm_mon + 1;
-    const int quarter = now.tm_mon / 4 + 1;
-    const int week = now.tm_yday / 7;
-    const int day = now.tm_mday;
+    const auto now = std::chrono::system_clock::now();
+    const auto dt = util::time::local_time(now);
+    const int year = dt.tm_year + 1900;
+    const int month = dt.tm_mon + 1;
+    const int quarter = dt.tm_mon / 3 + 1;
+    const int week = dt.tm_yday / 7 + 1;
+    const int day = dt.tm_mday;
 
     tt_filter::node root({"Filter", {
       {"Years", {
@@ -710,14 +231,28 @@ public:
         {"12 days ago", tt_filter::mk_day(year, month, day - 12)},
         {"13 days ago", tt_filter::mk_day(year, month, day - 13)},
         {"14 days ago", tt_filter::mk_day(year, month, day - 14)},
+       }},
+       {"Hours", {
+         {"Last Hour",  tt_filter::mk_hour_offset(now, std::chrono::hours(1))},
+         {"Last 2 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(2))},
+         {"Last 4 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(4))},
+         {"Last 8 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(8))},
+         {"Last 12 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(12))},
+         {"Last 24 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(24))},
+         {"Last 36 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(36))},
+         {"Last 48 Hours",  tt_filter::mk_hour_offset(now, std::chrono::hours(48))},
       }},
     }});
     filter_tree.set_root(root);
     filter_tree.open_all();
     filter_tree.update_node_list();
-    weekdays.set_data<std::string>({"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"});
 
     filter_tree.on_selection_changed([&] (event_source) {
+      update_events();
+    });
+
+    weekdays.set_data(weekday_filters);
+    weekdays.on_selection_changed([&] (event_source) {
       update_events();
     });
 
@@ -749,7 +284,7 @@ public:
 
     category_view.set_data([&](std::size_t i) {
       auto& c = categories[i];
-      return category_view_type::row{c->name, c->duration(), c->costs(), c->budget()};
+      return category_view_type::row{c->name, c->duration(current_time_filter), c->costs(current_time_filter), c->budget(current_time_filter)};
     }, 0);
     project_view.set_data([&](std::size_t i) {
       auto csel = category_view.list.get_selection();
@@ -757,29 +292,34 @@ public:
         auto& c = categories[csel];
         if (i < c->projects.size()) {
           auto& p = c->projects[i];
-          return project_view_type::row{p->name, p->duration(), p->costs(), c->budget(), p->pph};
+          return project_view_type::row{p->name, p->duration(current_time_filter), p->costs(current_time_filter), c->budget(current_time_filter), p->pph};
         }
       }
       return project_view_type::row{};
     }, 0);
     entry_view.set_data([&] (std::size_t i) {
       auto& e = events[i];
-      const auto& p = e->project;
-      const auto& c = p->category;
-      return entry_view_type::row{p->name, e->begin, e->end, e->duration(), e->costs(), c->budget(), e->comment, e->price_per_hour()};
+      const auto& p = e->project.lock();
+      const auto& c = p->category.lock();
+      return entry_view_type::row{p->name, e->begin, e->end, e->duration(), e->costs(), c->budget(current_time_filter), e->comment, e->price_per_hour()};
     }, 0);
 
     get_layout().set_center_top_bottom_left_right(layout::lay(content_view), layout::lay(menu), layout::lay(status_bar), nullptr, nullptr);
     set_children_visible();
   }
 
-  void update_events () {
-    std::function<tt_filter::filter_fnct> time_filter;
+  void update_filter () {
+    current_time_filter = {};
     if (filter_tree.get_selection() > -1) {
-      time_filter = filter_tree.get_item(filter_tree.get_selection())->filter;
-    } else {
-      time_filter = tt_filter::any();
+      current_time_filter.first = filter_tree.get_item(filter_tree.get_selection())->filter;
     }
+    if (weekdays.get_selection() > -1) {
+      current_time_filter.second = weekday_filters[weekdays.get_selection()];
+    }
+  }
+
+  void update_events () {
+    update_filter();
 
     events.clear();
     auto csel = category_view.list.get_selection();
@@ -788,14 +328,16 @@ public:
       auto psel = project_view.list.get_selection();
       if ((psel > -1) && (psel < c->projects.size())) {
         auto& p = c->projects[psel];
-        std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), time_filter);
+        std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), current_time_filter);
       } else {
         for (const auto& p : c->projects) {
-          std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), time_filter);
+          std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), current_time_filter);
         }
       }
     }
     entry_view.list.set_count(events.size());
+    category_view.list.invalidate();
+    project_view.list.invalidate();
   }
 
   void start () {}
@@ -808,7 +350,7 @@ public:
         for (const sys_fs::directory_entry& f : sys_fs::directory_iterator(dir)) {
           if (f.status().type() == sys_fs::file_type::directory) {
             try {
-              ptree pt;
+              boost::property_tree::ptree pt;
               sys_fs::path sub(f.path());
               sub /= data::SETTINGS;
               if (sys_fs::exists(sub)) {
@@ -865,6 +407,7 @@ private:
   typedef client_control<> bottom_view_type;
   typedef horizontal_split_view<main_view_type, bottom_view_type> right_view_type;
   typedef vertical_split_view<left_view_type, right_view_type> content_view_type;
+  typedef gui::ctrl::simple_list_data<tt_filter::weekday> weekday_filters_type;
 
   main_menu menu;
   content_view_type content_view;
@@ -872,6 +415,9 @@ private:
 
   std::vector<std::shared_ptr<data::tt_category>> categories;
   std::vector<std::shared_ptr<data::tt_event>> events;
+
+  weekday_filters_type weekday_filters;
+  data::time_filter current_time_filter;
 
   left_view_type& left_view;
   filter_tree_view& filter_tree;

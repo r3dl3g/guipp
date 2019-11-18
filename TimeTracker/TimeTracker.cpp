@@ -17,6 +17,7 @@
  */
 
 #include <iomanip>
+#include <functional>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -41,7 +42,7 @@
  * - Read/Write settings.
 -------------------------------------------------------------------------- */
 
-using time_point = std::chrono::system_clock::time_point;
+using time_point = util::time::time_point;
 using duration_type = std::chrono::system_clock::duration;
 using ptree = boost::property_tree::ptree;
 
@@ -156,7 +157,7 @@ namespace data {
   const std::string tt_budget::BUDGET = "Budget";
 
   // --------------------------------------------------------------------------
-  struct tt_event {
+  struct tt_event : std::enable_shared_from_this<tt_event> {
     static const std::string BEGIN;
     static const std::string END;
     static const std::string COMMENT;
@@ -165,22 +166,24 @@ namespace data {
     time_point begin;
     time_point end;
     std::string comment;
+    std::shared_ptr<tt_project> project;
 
     duration_type duration () const {
       return end > begin ? end - begin : duration_type::zero();
     }
 
-    double costs (const tt_project& project) const;
+    double costs () const;
+    double price_per_hour () const;
 
-    tt_event (const std::string& id = create_id())
-      : id(id)
-    {}
+//    tt_event ()
+//    {}
 
-    tt_event (const std::string& id, const ptree& pt)
+    tt_event (std::shared_ptr<tt_project> project, const std::string& id, const ptree& pt)
       : id(id)
       , begin(pt.get(BEGIN, time_point()))
       , end(pt.get(END, time_point()))
       , comment(pt.get(COMMENT, std::string()))
+      , project(project)
     {}
 
     static std::string create_id () {
@@ -201,6 +204,10 @@ namespace data {
       pt.put(COMMENT, comment);
     }
 
+    operator const time_point& () const {
+      return begin;
+    }
+
   };
 
   const std::string tt_event::BEGIN = "begin";
@@ -210,23 +217,26 @@ namespace data {
   const std::string SETTINGS = "settings.props";
 
   // --------------------------------------------------------------------------
-  struct tt_project {
+  struct tt_project : std::enable_shared_from_this<tt_project> {
     static const std::string PRICE_PER_HOUR;
     static const std::string PRICE_PER_HOUR_COUNT;
 
     std::string name;
     double pph;
-    std::vector<tt_event> events;
+    std::vector<std::shared_ptr<tt_event>> events;
     std::vector<tt_price_per_hour> prices_per_hour;
+    std::shared_ptr<tt_category> category;
 
-    tt_project (const std::string& name, double price_per_hour = 0.0)
+    tt_project (std::shared_ptr<tt_category> category, const std::string& name, double price_per_hour = 0.0)
       : name(name)
       , pph(price_per_hour)
+      , category(category)
     {}
 
-    tt_project (const std::string& name, const ptree& pt)
+    tt_project (std::shared_ptr<tt_category> category, const std::string& name, const ptree& pt)
       : name(name)
       , pph(pt.get(PRICE_PER_HOUR, 0.0F))
+      , category(category)
     {
       int count = pt.get(ptree::path_type(PRICE_PER_HOUR_COUNT, '/'), 0);
       for (int i = 0; i < count; ++i) {
@@ -258,7 +268,7 @@ namespace data {
     duration_type duration () const {
       duration_type d = duration_type::zero();
       for (auto& i : events) {
-        d += i.duration();
+        d += i->duration();
       }
       return d;
     }
@@ -266,7 +276,7 @@ namespace data {
     double costs () const {
       double d = 0;
       for (auto& i : events) {
-        d += i.costs(*this);
+        d += i->costs();
       }
       return d;
     }
@@ -277,7 +287,7 @@ namespace data {
           try {
             ptree pt;
             boost::property_tree::ini_parser::read_ini(f.path().string(), pt);
-            events.emplace_back(tt_event(f.path().stem().string(), pt));
+            events.emplace_back(std::make_shared<tt_event>(shared_from_this(), f.path().stem().string(), pt));
           } catch (std::exception& ex) {
             LogFatal << ex;
           }
@@ -299,11 +309,11 @@ namespace data {
   const std::string tt_project::PRICE_PER_HOUR_COUNT = "PricePerHour.count";
 
   // --------------------------------------------------------------------------
-  struct tt_category {
+  struct tt_category : std::enable_shared_from_this<tt_category> {
     static const std::string BUDGET_COUNT;
 
     std::string name;
-    std::vector<tt_project> projects;
+    std::vector<std::shared_ptr<tt_project>> projects;
     std::vector<tt_budget> budgets;
 
     tt_category (const std::string& name)
@@ -322,7 +332,7 @@ namespace data {
     duration_type duration () const {
       duration_type d = duration_type::zero();
       for (auto& i : projects) {
-        d += i.duration();
+        d += i->duration();
       }
       return d;
     }
@@ -330,7 +340,7 @@ namespace data {
     double costs () const {
       double d = 0;
       for (auto& i : projects) {
-        d += i.costs();
+        d += i->costs();
       }
       return d;
     }
@@ -353,8 +363,8 @@ namespace data {
             if (sys_fs::exists(sub)) {
               boost::property_tree::ini_parser::read_ini(sub.string(), pt);
             }
-            tt_project prj(f.path().stem().string(), pt);
-            prj.read_events(f.path());
+            std::shared_ptr<tt_project> prj = std::make_shared<tt_project>(shared_from_this(), f.path().stem().string(), pt);
+            prj->read_events(f.path());
             projects.emplace_back(std::move(prj));
           } catch (std::exception& ex) {
             LogFatal << ex;
@@ -376,11 +386,151 @@ namespace data {
   const std::string tt_category::BUDGET_COUNT = "BudgetCount";
 
   // --------------------------------------------------------------------------
-  double tt_event::costs (const tt_project& project) const {
-    return project.price_per_second(begin) * std::chrono::duration_cast<std::chrono::seconds>(duration()).count();
+  double tt_event::costs () const {
+    return project->price_per_second(begin) * std::chrono::duration_cast<std::chrono::seconds>(duration()).count();
+  }
+
+  double tt_event::price_per_hour () const {
+    return project->price_per_hour(begin);
   }
 
 } // namespace data
+
+namespace tt_filter {
+
+  typedef bool (filter_fnct) (const std::shared_ptr<data::tt_event>& t);
+
+  struct any {
+    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
+      return true;
+    }
+  };
+
+  struct none {
+    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
+      return false;
+    }
+  };
+
+  struct min_max {
+    min_max (const time_point& min, const time_point& max)
+      : min(min)
+      , max(max)
+    {}
+
+    min_max (time_point&& min, time_point&& max)
+      : min(std::move(min))
+      , max(std::move(max))
+    {}
+
+    bool operator () (const std::shared_ptr<data::tt_event>& t) const {
+      return (min <= t->begin) && (t->begin < max);
+    }
+
+    const time_point min;
+    const time_point max;
+  };
+
+  struct weekday {
+    weekday (int day)
+      : day(day)
+    {}
+
+    bool operator () (const time_point& t) const {
+      return day == util::time::local_time(t).tm_wday;
+    }
+
+    const int day;
+  };
+
+  inline min_max mk_year (int y) {
+    return {util::time::mktime_point(y, 1, 1), util::time::mktime_point(y + 1, 1, 1)};
+  }
+
+  inline min_max mk_quarter (int y, int q) {
+    return {util::time::mktime_point(y, q * 3 - 2, 1), util::time::mktime_point(y, q * 3 + 1, 1)};
+  }
+
+  inline min_max mk_month (int y, int m) {
+    return {util::time::mktime_point(y, m, 1), util::time::mktime_point(y, m + 1, 1)};
+  }
+
+  inline min_max mk_week (int y, int w) {
+    return {util::time::mktime_point(y, 1, w * 7 - 6), util::time::mktime_point(y, 1, w * 7 + 1)};
+  }
+
+  inline min_max mk_day (int y, int m, int d) {
+    return {util::time::mktime_point(y, m, d), util::time::mktime_point(y, m, d + 1)};
+  }
+
+  inline min_max mk_hour_offset (const time_point& now, const std::chrono::hours& h) {
+    return {now - h, now + h};
+  }
+
+  struct node {
+    typedef std::vector<node> node_list;
+    typedef node_list::const_iterator iterator;
+
+    node ()
+    {}
+
+    node (const std::string& label, std::initializer_list<node> nodes)
+      : label(label)
+      , sub_nodes(nodes)
+      , filter(none())
+    {}
+
+    node (const std::string& label, std::function<filter_fnct> filter)
+      : label(label)
+      , filter(filter)
+    {}
+
+    void add_nodes (std::initializer_list<node> nodes) {
+      sub_nodes.insert(sub_nodes.end(), nodes.begin(), nodes.end());
+    }
+
+    std::string label;
+    std::function<filter_fnct> filter;
+    node_list sub_nodes;
+  };
+
+  struct node_info {
+    typedef node type;
+    typedef node::iterator iterator;
+    typedef const node* reference;
+    typedef gui::core::range<iterator> node_range;
+
+    static bool has_sub_nodes (const type& n) {
+      return !n.sub_nodes.empty();
+    }
+
+    static node_range sub_nodes (type const& n) {
+      return node_range(n.sub_nodes.begin(), n.sub_nodes.end());
+    }
+
+    static reference make_reference (type const& n) {
+      return &n;
+    }
+
+    static type const& dereference (reference const& r) {
+      return *r;
+    }
+
+    static std::string label (type const& n) {
+      return n.label;
+    }
+
+    static const gui::draw::masked_bitmap& icon (type const&,
+                                            bool has_children,
+                                            bool is_open,
+                                            bool selected) {
+      return gui::ctrl::tree::standard_icon(has_children, is_open, selected);
+    }
+
+
+  };
+
+} // namespace filter
 
 // --------------------------------------------------------------------------
 using namespace gui;
@@ -501,29 +651,75 @@ public:
     });
     menu.create(*this);
 
-    tree_view::type root("Filter");
-    root.add_nodes({
+    const auto now = util::time::local_time_now();
+    const int year = now.tm_year + 1900;
+    const int month = now.tm_mon + 1;
+    const int quarter = now.tm_mon / 4 + 1;
+    const int week = now.tm_yday / 7;
+    const int day = now.tm_mday;
+
+    tt_filter::node root({"Filter", {
       {"Years", {
-        "This year", "Last year", "2 year ago", "3 year ago", "4 year ago"
+        {"This year", tt_filter::mk_year(year)},
+        {"Last year", tt_filter::mk_year(year - 1)},
+        {"2 year ago", tt_filter::mk_year(year - 2)},
+        {"3 year ago", tt_filter::mk_year(year - 3)},
+        {"4 year ago", tt_filter::mk_year(year - 4)}
+      }},
+      {"Quarters", {
+        {"This quarter", tt_filter::mk_quarter(year, quarter)},
+        {"Last quarter", tt_filter::mk_quarter(year, quarter - 1)},
+        {"2 quarters ago", tt_filter::mk_quarter(year, quarter - 2)},
+        {"3 quarters ago", tt_filter::mk_quarter(year, quarter - 3)},
+        {"4 quarters ago", tt_filter::mk_quarter(year, quarter - 4)},
       }},
       {"Months", {
-        "This month", "Last month", "2 months ago", "3 months ago",
-         "4 months ago", "5 months ago", "6 months ago"
+        {"This month", tt_filter::mk_month(year, month)},
+        {"Last month", tt_filter::mk_month(year, month - 1)},
+        {"2 months ago", tt_filter::mk_month(year, month - 2)},
+        {"3 months ago", tt_filter::mk_month(year, month - 3)},
+        {"4 months ago", tt_filter::mk_month(year, month - 4)},
+        {"5 months ago", tt_filter::mk_month(year, month - 5)},
+        {"6 months ago", tt_filter::mk_month(year, month - 6)}
       }},
       {"Weeks", {
-        "This week", "Last week", "2 week ago", "3 week ago", "4 week ago",
-        "5 week ago", "6 week ago", "7 week ago", "8 week ago", "9 week ago"
+        {"This week", tt_filter::mk_week(year, week)},
+        {"Last week", tt_filter::mk_week(year, week - 1)},
+        {"2 week ago", tt_filter::mk_week(year, week - 2)},
+        {"3 week ago", tt_filter::mk_week(year, week - 3)},
+        {"4 week ago", tt_filter::mk_week(year, week - 4)},
+        {"5 week ago", tt_filter::mk_week(year, week - 5)},
+        {"6 week ago", tt_filter::mk_week(year, week - 6)},
+        {"7 week ago", tt_filter::mk_week(year, week - 7)},
+        {"8 week ago", tt_filter::mk_week(year, week - 8)},
+        {"9 week ago", tt_filter::mk_week(year, week - 9)},
       }},
       {"Days", {
-        "Today", "Yesterday", "2 days ago", "3 days ago", "4 days ago",
-        "5 days ago", "6 days ago", "7 days ago", "8 days ago", "9 days ago",
-        "10 days ago", "11 days ago", "12 days ago", "13 days ago", "14 days ago"
+        {"Today",  tt_filter::mk_day(year, month, day)},
+        {"Yesterday", tt_filter::mk_day(year, month, day - 1)},
+        {"2 days ago", tt_filter::mk_day(year, month, day - 2)},
+        {"3 days ago", tt_filter::mk_day(year, month, day - 3)},
+        {"4 days ago", tt_filter::mk_day(year, month, day - 4)},
+        {"5 days ago", tt_filter::mk_day(year, month, day - 5)},
+        {"6 days ago", tt_filter::mk_day(year, month, day - 6)},
+        {"7 days ago", tt_filter::mk_day(year, month, day - 7)},
+        {"8 days ago", tt_filter::mk_day(year, month, day - 8)},
+        {"9 days ago", tt_filter::mk_day(year, month, day - 9)},
+        {"10 days ago", tt_filter::mk_day(year, month, day - 10)},
+        {"11 days ago", tt_filter::mk_day(year, month, day - 11)},
+        {"12 days ago", tt_filter::mk_day(year, month, day - 12)},
+        {"13 days ago", tt_filter::mk_day(year, month, day - 13)},
+        {"14 days ago", tt_filter::mk_day(year, month, day - 14)},
       }},
-    });
+    }});
     filter_tree.set_root(root);
     filter_tree.open_all();
     filter_tree.update_node_list();
     weekdays.set_data<std::string>({"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"});
+
+    filter_tree.on_selection_changed([&] (event_source) {
+      update_events();
+    });
 
     category_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     category_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
@@ -531,30 +727,19 @@ public:
     category_view.list.on_selection_changed([&] (event_source) {
       auto csel = category_view.list.get_selection();
       if (csel < categories.size()) {
-        data::tt_category& category = categories[csel];
-        project_view.list.set_count(category.projects.size());
+        auto& category = categories[csel];
+        project_view.list.set_count(category->projects.size());
       } else {
         project_view.list.set_count(0);
       }
-      entry_view.list.set_count(0);
+      update_events();
     });
 
     project_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     project_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
     project_view.header.set_labels({"Project", "Duration", "Costs", "Budget", "Costs/h"});
-
     project_view.list.on_selection_changed([&] (event_source) {
-      auto csel = category_view.list.get_selection();
-      if (csel < categories.size()) {
-        data::tt_category& category = categories[csel];
-        auto psel = project_view.list.get_selection();
-        if (psel < category.projects.size()) {
-          data::tt_project& project = category.projects[psel];
-          entry_view.list.set_count(project.events.size());
-          return;
-        }
-      }
-      entry_view.list.set_count(0);
+      update_events();
     });
 
     entry_view.get_column_layout().set_default_align(text_origin::vcenter_right);
@@ -564,37 +749,53 @@ public:
 
     category_view.set_data([&](std::size_t i) {
       auto& c = categories[i];
-      return category_view_type::row{c.name, c.duration(), c.costs(), c.budget()};
+      return category_view_type::row{c->name, c->duration(), c->costs(), c->budget()};
     }, 0);
     project_view.set_data([&](std::size_t i) {
       auto csel = category_view.list.get_selection();
       if ((csel > -1) && (csel < categories.size())) {
-        data::tt_category& c = categories[csel];
-        if (i < c.projects.size()) {
-          data::tt_project& p = c.projects[i];
-          return project_view_type::row{p.name, p.duration(), p.costs(), c.budget(), p.pph};
+        auto& c = categories[csel];
+        if (i < c->projects.size()) {
+          auto& p = c->projects[i];
+          return project_view_type::row{p->name, p->duration(), p->costs(), c->budget(), p->pph};
         }
       }
       return project_view_type::row{};
     }, 0);
     entry_view.set_data([&] (std::size_t i) {
-      auto csel = category_view.list.get_selection();
-      auto psel = project_view.list.get_selection();
-      if ((csel > -1) && (csel < categories.size()) && (psel > -1)) {
-        data::tt_category& c = categories[csel];
-        if (psel < c.projects.size()) {
-          data::tt_project& p = c.projects[psel];
-          if (i < p.events.size()) {
-            data::tt_event& e = p.events[i];
-            return entry_view_type::row{p.name, e.begin, e.end, e.duration(), e.costs(p), c.budget(), e.comment, p.price_per_hour(e.begin)};
-          }
-        }
-      }
-      return entry_view_type::row{};
+      auto& e = events[i];
+      const auto& p = e->project;
+      const auto& c = p->category;
+      return entry_view_type::row{p->name, e->begin, e->end, e->duration(), e->costs(), c->budget(), e->comment, e->price_per_hour()};
     }, 0);
 
     get_layout().set_center_top_bottom_left_right(layout::lay(content_view), layout::lay(menu), layout::lay(status_bar), nullptr, nullptr);
     set_children_visible();
+  }
+
+  void update_events () {
+    std::function<tt_filter::filter_fnct> time_filter;
+    if (filter_tree.get_selection() > -1) {
+      time_filter = filter_tree.get_item(filter_tree.get_selection())->filter;
+    } else {
+      time_filter = tt_filter::any();
+    }
+
+    events.clear();
+    auto csel = category_view.list.get_selection();
+    if ((csel > -1) && (csel < categories.size())) {
+      auto& c = categories[csel];
+      auto psel = project_view.list.get_selection();
+      if ((psel > -1) && (psel < c->projects.size())) {
+        auto& p = c->projects[psel];
+        std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), time_filter);
+      } else {
+        for (const auto& p : c->projects) {
+          std::copy_if(p->events.begin(), p->events.end(), std::back_inserter(events), time_filter);
+        }
+      }
+    }
+    entry_view.list.set_count(events.size());
   }
 
   void start () {}
@@ -613,8 +814,8 @@ public:
               if (sys_fs::exists(sub)) {
                 boost::property_tree::ini_parser::read_ini(sub.string(), pt);
               }
-              data::tt_category cat(f.path().stem().string(), pt);
-              cat.read_projects(f.path());
+              auto cat = std::make_shared<data::tt_category>(f.path().stem().string(), pt);
+              cat->read_projects(f.path());
               categories.emplace_back(cat);
             } catch (std::exception& ex) {
               LogFatal << ex;
@@ -647,7 +848,8 @@ public:
   void event_edit () {}
 
 private:
-  typedef horizontal_split_view<tree_view, vertical_list> left_view_type;
+  typedef tree::basic_tree<tt_filter::node_info> filter_tree_view;
+  typedef horizontal_split_view<filter_tree_view, vertical_list> left_view_type;
   typedef column_list_t<weight_column_list_layout,
                         std::string, duration_type, double, double>
           category_view_type;
@@ -668,10 +870,11 @@ private:
   content_view_type content_view;
   status_bar_t status_bar;
 
-  std::vector<data::tt_category> categories;
+  std::vector<std::shared_ptr<data::tt_category>> categories;
+  std::vector<std::shared_ptr<data::tt_event>> events;
 
   left_view_type& left_view;
-  tree_view& filter_tree;
+  filter_tree_view& filter_tree;
   vertical_list& weekdays;
 
   right_view_type& right_view;

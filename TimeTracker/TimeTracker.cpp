@@ -23,7 +23,7 @@
 #include <gui/layout/border_layout.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
-#include <gui/ctrl/column_list.h>
+#include <gui/ctrl/sorted_column_list.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/std_dialogs.h>
 
@@ -96,6 +96,89 @@ namespace drawer {
 
 }
 
+namespace compare {
+
+  template<typename T>
+  struct name {
+    bool operator () (const T& lhs, const T& rhs) const {
+      const auto& l = lhs->name;
+      const auto& r = rhs->name;
+      return l < r;
+    }
+  };
+
+  template<typename T>
+  struct begin {
+    bool operator () (const T& lhs, const T& rhs) const {
+      const auto& l = lhs->begin;
+      const auto& r = rhs->begin;
+      return l < r;
+    }
+  };
+
+  template<typename T>
+  struct end {
+    bool operator () (const T& lhs, const T& rhs) const {
+      const auto& l = lhs->end;
+      const auto& r = rhs->end;
+      return l < r;
+    }
+  };
+
+  template<typename T>
+  struct project {
+    bool operator () (const T& lhs, const T& rhs) const {
+      const auto& l = lhs->project.lock()->name;
+      const auto& r = rhs->project.lock()->name;
+      return l < r;
+    }
+  };
+
+  template<typename T>
+  struct duration {
+    data::time_filter filter;
+    bool operator () (const T& lhs, const T& rhs) const {
+      return lhs->duration(filter) < rhs->duration(filter);
+    }
+  };
+
+  template<>
+  struct duration<std::shared_ptr<data::tt_event>> {
+    bool operator () (const std::shared_ptr<data::tt_event>& lhs, const std::shared_ptr<data::tt_event>& rhs) const {
+      return lhs->duration() < rhs->duration();
+    }
+  };
+
+  template<typename T>
+  struct costs {
+    data::time_filter filter;
+    bool operator () (const T& lhs, const T& rhs) const {
+      return lhs->costs(filter) < rhs->costs(filter);
+    }
+  };
+
+  template<typename T>
+  struct budget {
+    data::time_filter filter;
+    bool operator () (const T& lhs, const T& rhs) const {
+      return lhs->budget(filter) < rhs->budget(filter);
+    }
+  };
+
+} // namespace compare
+
+namespace sort {
+  template<typename T, typename C>
+  void up (std::vector<T>& v, C c) {
+    std::stable_sort(v.begin(), v.end(), c);
+  }
+
+  template<typename T, typename C>
+  void down (std::vector<T>& v, C c) {
+    std::stable_sort(v.rbegin(), v.rend(), c);
+  }
+} // namespace sort
+
 // --------------------------------------------------------------------------
 class TimeTracker : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
@@ -109,7 +192,7 @@ public:
     , right_view(content_view.second)
     , main_view(right_view.first)
     , top_view(main_view.first)
-    , entry_view(main_view.second)
+    , event_view(main_view.second)
     , category_view(top_view.first)
     , project_view(top_view.second)
     , weekday_filters({
@@ -126,7 +209,7 @@ public:
 
     category_view.set_drawer(category_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money});
     project_view.set_drawer(project_view_type::row_drawer{drawer::name, drawer::duration, drawer::money, drawer::money, drawer::money});
-    entry_view.set_drawer(entry_view_type::row_drawer{drawer::name, drawer::time, drawer::time, drawer::duration, drawer::money, drawer::money, drawer::name, drawer::money});
+    event_view.set_drawer(event_view_type::row_drawer{drawer::name, drawer::time, drawer::time, drawer::duration, drawer::money, drawer::money, drawer::name, drawer::money});
   }
 
   ~TimeTracker () {
@@ -258,7 +341,7 @@ public:
 
     category_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     category_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
-    category_view.header.set_labels({"Category", "Duration", "Costs", "Budget"});
+    category_view.header_label = {"Category", "Duration", "Costs", "Budget"};
     category_view.list.on_selection_changed([&] (event_source) {
       auto csel = category_view.list.get_selection();
       if (csel < categories.size()) {
@@ -272,20 +355,43 @@ public:
 
     project_view.get_column_layout().set_default_align(text_origin::vcenter_right);
     project_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
-    project_view.header.set_labels({"Project", "Duration", "Costs", "Budget", "Costs/h"});
+    project_view.header_label = {"Project", "Duration", "Costs", "Budget", "Costs/h"};
     project_view.list.on_selection_changed([&] (event_source) {
       update_events();
     });
 
-    entry_view.get_column_layout().set_default_align(text_origin::vcenter_right);
-    entry_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
-    entry_view.get_column_layout().set_column_align(7, text_origin::vcenter_left);
-    entry_view.header.set_labels({"Project", "Begin", "End", "Duration", "Price", "Budget", "Comment", "Costs/h"});
+    event_view.get_column_layout().set_default_align(text_origin::vcenter_right);
+    event_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
+    event_view.get_column_layout().set_column_align(7, text_origin::vcenter_left);
+    event_view.header_label = {"Project", "Begin", "End", "Duration", "Price", "Budget", "Comment", "Costs/h"};
 
+    
     category_view.set_data([&](std::size_t i) {
       auto& c = categories[i];
       return category_view_type::row{c->name, c->duration(current_time_filter), c->costs(current_time_filter), c->budget(current_time_filter)};
     }, 0);
+    category_view.on_sort([&] (util::sort::order dir, int column) {
+      switch (dir) {
+        case util::sort::order::up:
+          switch (column) {
+            case 0: sort::up(categories, compare::name<category_t>()); return true;
+            case 1: sort::up(categories, compare::duration<category_t>{current_time_filter}); return true;
+            case 2: sort::up(categories, compare::costs<category_t>{current_time_filter}); return true;
+            case 3: sort::up(categories, compare::budget<category_t>{current_time_filter}); return true;
+          }
+          break;
+        case util::sort::order::down:
+          switch (column) {
+            case 0: sort::down(categories, compare::name<category_t>()); return true;
+            case 1: sort::down(categories, compare::duration<category_t>{current_time_filter}); return true;
+            case 2: sort::down(categories, compare::costs<category_t>{current_time_filter}); return true;
+            case 3: sort::down(categories, compare::budget<category_t>{current_time_filter}); return true;
+          }
+          break;
+      }
+      return false;
+    });
+
     project_view.set_data([&](std::size_t i) {
       auto csel = category_view.list.get_selection();
       if ((csel > -1) && (csel < categories.size())) {
@@ -297,12 +403,60 @@ public:
       }
       return project_view_type::row{};
     }, 0);
-    entry_view.set_data([&] (std::size_t i) {
+    project_view.on_sort([&] (util::sort::order dir, int column) {
+      auto csel = category_view.list.get_selection();
+      if ((csel < 0) || (csel >= categories.size())) {
+        return false;
+      }
+      auto& c = categories[csel];
+      auto& projects = c->projects;
+
+      switch (dir) {
+        case util::sort::order::up:
+          switch (column) {
+            case 0: sort::up(projects, compare::name<project_t>()); return true;
+            case 1: sort::up(projects, compare::duration<project_t>{current_time_filter}); return true;
+            case 2: sort::up(projects, compare::costs<project_t>{current_time_filter}); return true;
+          }
+          break;
+        case util::sort::order::down:
+          switch (column) {
+            case 0: sort::down(projects, compare::name<project_t>()); return true;
+            case 1: sort::down(projects, compare::duration<project_t>{current_time_filter}); return true;
+            case 2: sort::down(projects, compare::costs<project_t>{current_time_filter}); return true;
+          }
+          break;
+      }
+      return false;
+    });
+
+    event_view.set_data([&] (std::size_t i) {
       auto& e = events[i];
       const auto& p = e->project.lock();
       const auto& c = p->category.lock();
-      return entry_view_type::row{p->name, e->begin, e->end, e->duration(), e->costs(), c->budget(current_time_filter), e->comment, e->price_per_hour()};
+      return event_view_type::row{p->name, e->begin, e->end, e->duration(), e->costs(), c->budget(current_time_filter), e->comment, e->price_per_hour()};
     }, 0);
+    event_view.on_sort([&] (util::sort::order dir, int column) {
+      switch (dir) {
+        case util::sort::order::up:
+          switch (column) {
+            case 0: sort::up(events, compare::project<event_t>()); return true;
+            case 1: sort::up(events, compare::begin<event_t>{}); return true;
+            case 2: sort::up(events, compare::end<event_t>{}); return true;
+            case 3: sort::up(events, compare::duration<event_t>{}); return true;
+          }
+          break;
+        case util::sort::order::down:
+          switch (column) {
+            case 0: sort::down(events, compare::project<event_t>()); return true;
+            case 1: sort::down(events, compare::begin<event_t>{}); return true;
+            case 2: sort::down(events, compare::end<event_t>{}); return true;
+            case 3: sort::down(events, compare::duration<event_t>{}); return true;
+          }
+          break;
+      }
+      return false;
+    });
 
     get_layout().set_center_top_bottom_left_right(layout::lay(content_view), layout::lay(menu), layout::lay(status_bar), nullptr, nullptr);
     set_children_visible();
@@ -335,7 +489,8 @@ public:
         }
       }
     }
-    entry_view.list.set_count(events.size());
+    event_view.sort();
+    event_view.list.set_count(events.size());
     category_view.list.invalidate();
     project_view.list.invalidate();
   }
@@ -392,29 +547,32 @@ public:
 private:
   typedef tree::basic_tree<tt_filter::node_info> filter_tree_view;
   typedef horizontal_split_view<filter_tree_view, vertical_list> left_view_type;
-  typedef column_list_t<weight_column_list_layout,
-                        std::string, duration_type, double, double>
+  typedef sorted_column_list_t<weight_column_list_layout,
+                               std::string, duration_type, double, double>
           category_view_type;
-  typedef column_list_t<weight_column_list_layout,
-                        std::string, duration_type, double, double, double>
+  typedef sorted_column_list_t<weight_column_list_layout,
+                               std::string, duration_type, double, double, double>
           project_view_type;
-  typedef column_list_t<weight_column_list_layout,
-                        std::string, time_point, time_point,
-                        duration_type, double, double, std::string, double>
-          entry_view_type;
+  typedef sorted_column_list_t<weight_column_list_layout,
+                               std::string, time_point, time_point,
+                               duration_type, double, double, std::string, double>
+          event_view_type;
   typedef vertical_split_view<category_view_type, project_view_type> top_view_type;
-  typedef horizontal_split_view<top_view_type, entry_view_type> main_view_type;
+  typedef horizontal_split_view<top_view_type, event_view_type> main_view_type;
   typedef client_control<> bottom_view_type;
   typedef horizontal_split_view<main_view_type, bottom_view_type> right_view_type;
   typedef vertical_split_view<left_view_type, right_view_type> content_view_type;
   typedef gui::ctrl::simple_list_data<tt_filter::weekday> weekday_filters_type;
+  typedef std::shared_ptr<data::tt_category> category_t;
+  typedef std::shared_ptr<data::tt_project> project_t;
+  typedef std::shared_ptr<data::tt_event> event_t;
 
   main_menu menu;
   content_view_type content_view;
   status_bar_t status_bar;
 
-  std::vector<std::shared_ptr<data::tt_category>> categories;
-  std::vector<std::shared_ptr<data::tt_event>> events;
+  std::vector<category_t> categories;
+  std::vector<event_t> events;
 
   weekday_filters_type weekday_filters;
   data::time_filter current_time_filter;
@@ -427,10 +585,10 @@ private:
   main_view_type& main_view;
 
   top_view_type& top_view;
-  entry_view_type& entry_view;
 
   category_view_type& category_view;
   project_view_type& project_view;
+  event_view_type& event_view;
 };
 
 

@@ -154,6 +154,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   std::map<int, subvolume> subs_map;
 
   typedef sorted_column_list_t<weight_column_list_layout, int, int, std::string, file_size, file_size, percent> my_column_list_t;
+  typedef std::vector<data_entry> vector_t;
 
   auto weight_columns = {
     weight_column_info{ 80, text_origin::vcenter_left, 50, 0.0F },
@@ -176,6 +177,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   layout_main_window<gui::layout::border_layout<>, float, float, float, float> main(20, 0, 0, 0);
   ctrl::main_menu menu;
   my_column_list_t client;
+  vector_t data;
 
   client.header_label = {"Top", "Id", "Path", "Full", "Excl", "%"};
 
@@ -184,8 +186,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       ctrl::file_open_dialog::show(main, "Open btrfs subvolume list", "Ok", "Cancel", [&] (const sys_fs::path& file) {
         load_subs(file, subs_map, main);
         if (!subs_map.empty() && !qgroup_file.empty()) {
-          load_qgroup(qgroup_file, subs_map, client.data, main);
-          client.data_changed();
+          load_qgroup(qgroup_file, subs_map, data, main);
+          client.list.set_count(data.size());
         }
       });
     }, hot_key(keys::o, state::control), false),
@@ -193,8 +195,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       ctrl::file_open_dialog::show(main, "Open qgroup list", "Ok", "Cancel", [&] (const sys_fs::path& file) {
         qgroup_file = file;
         if (!subs_map.empty() && !qgroup_file.empty()) {
-          load_qgroup(qgroup_file, subs_map, client.data, main);
-          client.data_changed();
+          load_qgroup(qgroup_file, subs_map, data, main);
+          client.list.set_count(data.size());
         }
       });
     }, hot_key(keys::q, state::control), false),
@@ -207,6 +209,11 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.get_layout().set_center(layout::lay(client));
   });
 
+  client.set_data([&] (std::size_t i) { return data[i]; }, data.size());
+  client.on_sort([&] (util::sort::order sort_dir, int sort_column) {
+    util::sort::by(sort_dir, sort_column, data);
+    return true;
+  });
   client.set_drawer(column_list_drawer);
   client.get_column_layout().set_columns(weight_columns);
 

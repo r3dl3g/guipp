@@ -268,7 +268,7 @@ namespace gui {
     class GUIPP_CTRL_EXPORT main_menu : public control {
     public:
       typedef control super;
-      typedef win::window_class<main_menu, color::very_light_gray> clazz;
+      typedef no_erase_window_class<main_menu> clazz;
 
       main_menu ();
       main_menu (const main_menu&);

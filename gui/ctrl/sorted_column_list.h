@@ -36,7 +36,7 @@ namespace gui {
     public:
       typedef gui::ctrl::column_list_t<Layout, Arguments ...> super;
       typedef std::tuple<Arguments ...> data_t;
-      typedef std::vector<data_t> vector_t;
+      typedef bool (sort_callback) (util::sort::order o, int column);
 
       sorted_column_list_t (gui::core::size::type item_size = 20,
                             gui::os::color background = gui::color::white,
@@ -44,10 +44,11 @@ namespace gui {
       sorted_column_list_t (const sorted_column_list_t& rhs);
       sorted_column_list_t (sorted_column_list_t&& rhs);
 
-      void data_changed ();
+      void on_sort (std::function<sort_callback> sorter);
+      void sort ();
 
-      vector_t data;
       std::vector<std::string> header_label;
+      std::function<sort_callback> sorter;
 
     private:
       gui::core::point mouse_down_point;

@@ -46,8 +46,19 @@ namespace gui {
     }
 
     template<typename L, typename ... A>
-    void sorted_column_list_t<L, A...>::data_changed () {
-      super::list.set_count(data.size());
+    void sorted_column_list_t<L, A...>::on_sort (std::function<sort_callback> s) {
+      sorter = s;
+    }
+
+    template<typename L, typename ... A>
+    void sorted_column_list_t<L, A...>::sort () {
+      if (sorter) {
+        if (!sorter(sort_dir, sort_column)) {
+          sort_column = -1;
+        }
+      }
+      super::list.invalidate();
+      super::header.invalidate();
     }
 
     template<typename L, typename ... A>
@@ -59,7 +70,6 @@ namespace gui {
       sort_column = -1;
       sort_dir = util::sort::order::up;
 
-      super::set_data([&] (int i) { return data[i]; }, 0);
       super::header.set_cell_drawer([&] (std::size_t i,
                                          const gui::draw::graphics& g,
                                          const gui::core::rectangle& r,
@@ -90,9 +100,7 @@ namespace gui {
               sort_column = new_sort_column;
               sort_dir = util::sort::order::up;
             }
-            util::sort::by(sort_dir, sort_column, data);
-            super::list.invalidate();
-            super::header.invalidate();
+            sort();
           }
         }
         mouse_down_point = core::point::undefined;

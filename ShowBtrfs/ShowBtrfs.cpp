@@ -4,7 +4,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/split_view.h>
-#include <gui/ctrl/column_list.h>
+#include <gui/ctrl/sorted_column_list.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
@@ -17,28 +17,6 @@
 
 DEFINE_LOGGING_CORE(NOTHING)
 
-#ifdef X11
-
-std::string run (std::string cmd) {
-  std::ostringstream result;
-  std::vector<char> buffer(256);
-
-  cmd.append(" 2>&1");
-
-  FILE* in = popen(cmd.c_str(), "r");
-  if (in) {
-    while (!feof(in)) {
-      if (fgets(buffer.data(), buffer.size(), in) != NULL) {
-        result << buffer.data();
-      }
-    }
-    pclose(in);
-  }
-  return result.str();
-}
-
-#endif // 0
-
 // --------------------------------------------------------------------------
 struct percent {
   float value;
@@ -46,6 +24,10 @@ struct percent {
   percent (float value = 0.0F)
     : value(value)
   {}
+
+  bool operator< (const percent& rhs) const {
+    return value < rhs.value;
+  }
 
 };
 // --------------------------------------------------------------------------
@@ -60,6 +42,11 @@ struct file_size {
   file_size (size_t value = 0)
     : value(value)
   {}
+
+  bool operator< (const file_size& rhs) const {
+    return value < rhs.value;
+  }
+
 };
 // --------------------------------------------------------------------------
 std::ostream& operator<< (std::ostream& out, file_size p) {
@@ -71,65 +58,6 @@ std::ostream& operator<< (std::ostream& out, file_size p) {
   }
   out << p.value << exponents[exp];
   return out;
-}
-// --------------------------------------------------------------------------
-typedef std::tuple<int, int, std::string, size_t, size_t, float> data_entry;
-// --------------------------------------------------------------------------
-enum class sort_order : bool {
-  up = false,
-  down = true
-};
-
-sort_order operator- (sort_order lhs, sort_order rhs) {
-  return sort_order(static_cast<unsigned char>(lhs) - static_cast<unsigned char>(rhs));
-}
-
-sort_order operator~ (sort_order lhs) {
-  return sort_order(!static_cast<bool>(lhs));
-}
-
-sort_order operator! (sort_order lhs) {
-  return sort_order(!static_cast<bool>(lhs));
-}
-// --------------------------------------------------------------------------
-template<int I, typename T>
-struct compare {
-  bool operator() (const T& lhs, const T& rhs) {
-    return std::get<I>(lhs) < std::get<I>(rhs);
-  }
-};
-// --------------------------------------------------------------------------
-template<int I>
-void sort_up (std::vector<data_entry>& v) {
-  std::stable_sort(v.begin(), v.end(), compare<I, data_entry>());
-}
-// --------------------------------------------------------------------------
-template<int I>
-void sort_down (std::vector<data_entry>& v) {
-  std::stable_sort(v.rbegin(), v.rend(), compare<I, data_entry>());
-}
-// --------------------------------------------------------------------------
-void sort_by (::sort_order o, int t, std::vector<data_entry>& data) {
-  switch (o) {
-    case ::sort_order::up:
-      switch (t) {
-        case 0: sort_up<0>(data); break;
-        case 1: sort_up<1>(data); break;
-        case 2: sort_up<2>(data); break;
-        case 3: sort_up<3>(data); break;
-        case 4: sort_up<4>(data); break;
-      }
-      break;
-    case ::sort_order::down:
-      switch (t) {
-        case 0: sort_down<0>(data); break;
-        case 1: sort_down<1>(data); break;
-        case 2: sort_down<2>(data); break;
-        case 3: sort_down<3>(data); break;
-        case 4: sort_down<4>(data); break;
-      }
-      break;
-  }
 }
 // --------------------------------------------------------------------------
 struct subvolume {
@@ -157,6 +85,8 @@ void load_subs (const sys_fs::path& subs_file,
     subs_map[id] = {path, top};
   }
 }
+// --------------------------------------------------------------------------
+typedef std::tuple<int, int, std::string, file_size, file_size, percent> data_entry;
 // --------------------------------------------------------------------------
 void load_qgroup (const sys_fs::path& qgroup_file,
                   std::map<int, subvolume>& subs_map,
@@ -187,10 +117,30 @@ void load_qgroup (const sys_fs::path& qgroup_file,
     sum += full;
   }
   for (data_entry& i : data) {
-    const float perc = (float)((double)std::get<3>(i) / (double)sum);
+    const float perc = (float)((double)std::get<3>(i).value / (double)sum);
     i = std::make_tuple(std::get<0>(i), std::get<1>(i), std::get<2>(i), std::get<3>(i), std::get<4>(i), perc);
   }
 }
+// --------------------------------------------------------------------------
+#ifdef X11
+std::string run (std::string cmd) {
+  std::ostringstream result;
+  std::vector<char> buffer(256);
+
+  cmd.append(" 2>&1");
+
+  FILE* in = popen(cmd.c_str(), "r");
+  if (in) {
+    while (!feof(in)) {
+      if (fgets(buffer.data(), buffer.size(), in) != NULL) {
+        result << buffer.data();
+      }
+    }
+    pclose(in);
+  }
+  return result.str();
+}
+#endif // X11
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
@@ -200,16 +150,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  std::vector<data_entry> data;
-  sys_fs::path subs_file;
   sys_fs::path qgroup_file;
   std::map<int, subvolume> subs_map;
 
-  typedef column_list_t<weight_column_list_layout, int, int, std::string, file_size, file_size, percent> my_column_list_t;
-
-  int sort_column = -1;
-  ::sort_order sort_dir = ::sort_order::up;
-  core::point mouse_down_point = core::point::undefined;
+  typedef sorted_column_list_t<weight_column_list_layout, int, int, std::string, file_size, file_size, percent> my_column_list_t;
 
   auto weight_columns = {
     weight_column_info{ 80, text_origin::vcenter_left, 50, 0.0F },
@@ -219,8 +163,6 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     weight_column_info{ 100, text_origin::vcenter_right, 80, 0.0F },
     weight_column_info{ 80, text_origin::center, 50, 0.0F }
   };
-
-  std::string header[] = {"Top", "Id", "Path", "Full", "Excl", "%"};
 
   my_column_list_t::row_drawer column_list_drawer = {
     ctrl::cell_drawer<int, draw::frame::sunken_relief>,
@@ -235,15 +177,15 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   ctrl::main_menu menu;
   my_column_list_t client;
 
+  client.header_label = {"Top", "Id", "Path", "Full", "Excl", "%"};
+
   menu.data.add_entries({
     menu_entry("Open sub", 's', [&] () {
       ctrl::file_open_dialog::show(main, "Open btrfs subvolume list", "Ok", "Cancel", [&] (const sys_fs::path& file) {
         load_subs(file, subs_map, main);
         if (!subs_map.empty() && !qgroup_file.empty()) {
-          load_qgroup(qgroup_file, subs_map, data, main);
-          client.set_data([&](std::size_t i){
-            return data[i];
-          }, data.size());
+          load_qgroup(qgroup_file, subs_map, client.data, main);
+          client.data_changed();
         }
       });
     }, hot_key(keys::o, state::control), false),
@@ -251,10 +193,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
       ctrl::file_open_dialog::show(main, "Open qgroup list", "Ok", "Cancel", [&] (const sys_fs::path& file) {
         qgroup_file = file;
         if (!subs_map.empty() && !qgroup_file.empty()) {
-          load_qgroup(qgroup_file, subs_map, data, main);
-          client.set_data([&](std::size_t i){
-            return data[i];
-          }, data.size());
+          load_qgroup(qgroup_file, subs_map, client.data, main);
+          client.data_changed();
         }
       });
     }, hot_key(keys::q, state::control), false),
@@ -266,44 +206,9 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.get_layout().set_top(layout::lay(menu));
     main.get_layout().set_center(layout::lay(client));
   });
-  client.header.set_cell_drawer([&] (std::size_t i, const draw::graphics& g,
-                                           const core::rectangle& r, const draw::brush& background) {
-    g.fill(draw::rectangle(r), background);
-    draw::frame::raised_deep_relief(g, r);
-    g.text(draw::text_box(header[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
-    if (sort_column == i) {
-      core::rectangle s = r.right_width(r.height()).shrinked({7, 8});
-      if (sort_dir == ::sort_order::up) {
-        draw_arrow_up(g, s, color::black);
-      } else {
-        draw_arrow_down(g, s, color::black);
-      }
-    }
-  });
+
   client.set_drawer(column_list_drawer);
   client.get_column_layout().set_columns(weight_columns);
-
-  client.header.on_left_btn_down([&] (gui::os::key_state, const core::point& pt) {
-    mouse_down_point = pt;
-  });
-  client.header.on_left_btn_up([&] (gui::os::key_state, const core::point& pt) {
-    if (mouse_down_point == pt) {
-      int i = client.get_column_layout().index_at(pt.x());
-      if (i < 5) {
-        int new_sort_column = i;
-        if (sort_column == new_sort_column) {
-          sort_dir = ~sort_dir;
-        } else {
-          sort_column = new_sort_column;
-          sort_dir = ::sort_order::up;
-        }
-        ::sort_by(sort_dir, sort_column, data);
-        client.list.invalidate();
-        client.header.invalidate();
-      }
-    }
-    mouse_down_point = core::point::undefined;
-  });
 
   main.create({50, 50, 800, 600});
   main.on_destroy(&quit_main_loop);

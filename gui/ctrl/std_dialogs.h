@@ -25,6 +25,7 @@
 #include <gui/win/container.h>
 #include <gui/layout/border_layout.h>
 #include <gui/layout/adaption_layout.h>
+#include <gui/layout/lineup_layout.h>
 #include <gui/ctrl/control.h>
 #include <gui/ctrl/file_tree.h>
 #include <gui/ctrl/button.h>
@@ -70,6 +71,7 @@ namespace gui {
       typedef standard_dialog_base super;
       typedef T content_view_type;
 
+      standard_dialog (float top = 0);
       standard_dialog (const content_view_type& view, float top = 0);
       standard_dialog (content_view_type&& view, float top = 0);
 
@@ -149,6 +151,38 @@ namespace gui {
 
       message_view_type message_view;
 
+    };
+
+    //-----------------------------------------------------------------------------
+    typedef void (input_action) (const std::string&);
+
+    //-----------------------------------------------------------------------------
+    class input_dialog : public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray>> {
+    public:
+      typedef win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+
+      input_dialog ();
+
+      void create (win::container& parent,
+                   const std::string& title,
+                   const std::string& message,
+                   const std::string& initial,
+                   const std::string& ok_label,
+                   const std::string& cancel_label,
+                   const core::rectangle& rect,
+                   std::function<input_action> action);
+
+      static void ask (win::container& parent,
+                       const std::string& title,
+                       const std::string& message,
+                       const std::string& initial,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       std::function<input_action> action);
+
+      label_left label;
+      edit_left edit;
     };
 
     //-----------------------------------------------------------------------------

@@ -278,40 +278,6 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<typename L>
-    struct attachable_layout {
-      attachable_layout ()
-      {}
-
-      attachable_layout (const L& lay)
-        : lay(lay)
-      {}
-
-      attachable_layout (L&& lay)
-        : lay(std::move(lay))
-      {}
-
-      operator L& () {
-        return lay;
-      }
-
-      void layout (const core::rectangle& r) const {
-        place = r;
-        lay.layout(r);
-      }
-
-      L lay;
-      mutable core::rectangle place;
-    };
-
-    template<typename L>
-    struct is_layout<attachable_layout<L>> {
-      enum {
-        value = true
-      };
-    };
-
-    // --------------------------------------------------------------------------
     /*abstract*/ struct attach_base {
       virtual core::rectangle place () const = 0;
       virtual core::size size () const = 0;

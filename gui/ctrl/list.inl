@@ -42,6 +42,10 @@ namespace gui {
         return data.selection;
       }
 
+      inline bool list_base::has_selection () const {
+        return (data.selection > -1) && (data.selection < data.item_count);
+      }
+
       inline int list_base::get_hilite () const {
         return data.hilite;
       }

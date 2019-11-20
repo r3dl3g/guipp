@@ -30,6 +30,11 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename T>
+    inline standard_dialog<T>::standard_dialog (float top)
+      : super(top)
+    {}
+
+    template<typename T>
     inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
       : super(top)
       , content_view(view)

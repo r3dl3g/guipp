@@ -258,6 +258,31 @@ namespace gui {
         return detail::make_points(0, r.height() + r.y());
       }
 
+      // --------------------------------------------------------------------------
+      template<>
+      inline auto border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_top_position (const core::rectangle& r, const core::rectangle&) -> points {
+        return detail::make_points(r.x(), r.width());
+      }
+
+      template<>
+      inline auto border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_bottom_position (const core::rectangle& r, const core::rectangle& sz) -> points {
+        return detail::make_points(0, sz.width());
+      }
+
+      template<>
+      inline auto border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_left_position (const core::rectangle& r, const core::rectangle&) -> points {
+        return detail::make_points(0, r.height() + r.y());
+      }
+
+      template<>
+      inline auto border_layout_geometrie<border_layout_type::bottom_max_top_min>::
+      get_right_position (const core::rectangle& r, const core::rectangle&) -> points {
+        return detail::make_points(0, r.height() + r.y());
+      }
+
     } // namespace detail
 
     // --------------------------------------------------------------------------

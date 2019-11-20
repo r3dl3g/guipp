@@ -67,14 +67,14 @@ namespace gui {
             win::hot_key(win::keys::escape, win::state::none),
             [&] () { end_modal(); }
           },
-          win::hot_key_action{
-            win::hot_key(win::keys::right, win::state::none),
-            [&] () { forward_focus(false); }
-          },
-          win::hot_key_action{
-            win::hot_key(win::keys::left, win::state::none),
-            [&] () { forward_focus(true); }
-          }
+//          win::hot_key_action{
+//            win::hot_key(win::keys::right, win::state::none),
+//            [&] () { forward_focus(false); }
+//          },
+//          win::hot_key_action{
+//            win::hot_key(win::keys::left, win::state::none),
+//            [&] () { forward_focus(true); }
+//          }
         }
       );
       parent.enable();
@@ -137,6 +137,41 @@ namespace gui {
       message_dialog dialog;
       dialog.create(parent, title, message, ok_label, core::rectangle(300, 200, 400, 170));
       dialog.super::show(parent);
+    }
+
+    //-----------------------------------------------------------------------------
+    input_dialog::input_dialog () {
+      super::content_view.get_layout().add(layout::lay(label));
+      super::content_view.get_layout().add(layout::lay(edit));
+    }
+
+    void input_dialog::create (win::container& parent,
+                               const std::string& title,
+                               const std::string& message,
+                               const std::string& initial,
+                               const std::string& ok_label,
+                               const std::string& cancel_label,
+                               const core::rectangle& rect,
+                               std::function<input_action> action) {
+      super::create(parent, title, rect, [&, action] (int i) {
+        if (i == 1) {
+          action(edit.get_text());
+        }
+      }, {cancel_label, ok_label});
+      label.create(super::content_view, message);
+      edit.create(super::content_view, initial);
+    }
+
+    void input_dialog::ask (win::container& parent,
+                            const std::string& title,
+                            const std::string& message,
+                            const std::string& initial,
+                            const std::string& ok_label,
+                            const std::string& cancel_label,
+                            std::function<input_action> action) {
+      input_dialog dialog;
+      dialog.create(parent, title, message, initial, ok_label, cancel_label, core::rectangle(300, 200, 400, 125), action);
+      dialog.show(parent);
     }
 
     //-----------------------------------------------------------------------------

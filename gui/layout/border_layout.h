@@ -45,7 +45,8 @@ namespace gui {
       top_bottom_maximize,
       left_right_maximize,
       top_left_maximize,
-      bottom_right_maximize
+      bottom_right_maximize,
+      bottom_max_top_min
     };
 
     // --------------------------------------------------------------------------

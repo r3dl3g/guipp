@@ -50,6 +50,7 @@ namespace gui {
 
         std::size_t get_count () const;
         int get_selection () const;
+        bool has_selection () const;
         int get_hilite () const;
         item_state get_item_state (int idx) const;
 

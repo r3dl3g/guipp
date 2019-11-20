@@ -21,6 +21,7 @@ set(Boost_USE_MULTITHREADED ON)
 # "${PROJECT_BINARY_DIR}/../IT3DCameraLib"
 include_directories(${PROJECT_BINARY_DIR} ${gui_include} ../boost)
 add_definitions(${gui_defines})
+add_definitions(-std=c++14)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     add_definitions(/Y- /bigobj)

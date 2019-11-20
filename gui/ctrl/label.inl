@@ -46,7 +46,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<typename T>
       inline void label_base::operator<< (const T& t) {
-        set_text(convert_to_string(t));
+        set_text(util::string::convert::from(t));
       }
 
       template<typename T>

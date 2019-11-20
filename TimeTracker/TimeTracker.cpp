@@ -18,8 +18,6 @@
 
 #include "data.h"
 
-#include <util/bind_method.h>
-#include <util/ostream_resetter.h>
 #include <gui/layout/border_layout.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/layout/lineup_layout.h>
@@ -27,6 +25,10 @@
 #include <gui/ctrl/sorted_column_list.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/std_dialogs.h>
+
+#include <util/bind_method.h>
+#include <util/ostream_resetter.h>
+#include <util/tuple_util.h>
 
 #include <utility>
 
@@ -181,119 +183,6 @@ namespace sort {
   }
 } // namespace sort
 
-//-----------------------------------------------------------------------------
-template<int N, typename ... Arguments>
-struct as_string {
-  static std::string get (int index, const std::tuple<Arguments...>& t) {
-    if (N == index) {
-      return convert_to_string(std::get<N>(t));
-    }
-    return as_string<N - 1, Arguments...>::get(index, t);
-  }
-};
-
-template<typename ... Arguments>
-struct as_string<-1, Arguments...> {
-  static std::string get (int, const std::tuple<Arguments...>& t) {
-    return {};
-  }
-};
-
-template<typename ... Arguments>
-std::string get_as_string (int index, const std::tuple<Arguments...>& t) {
-  return as_string<sizeof...(Arguments) - 1, Arguments...>::get(index, t);
-}
-
-//-----------------------------------------------------------------------------
-template<typename T>
-T convert_from_string (const std::string& s) {
-  T t = T();
-  std::istringstream(s) >> t;
-  return t;
-}
-
-template<>
-std::string convert_from_string<std::string> (const std::string& s) {
-  return s;
-}
-
-//-----------------------------------------------------------------------------
-template<std::size_t N, std::size_t I, typename T, typename ... Arguments>
-struct convert_from {
-  static std::tuple<T, Arguments...> strings (const std::vector<std::string>& v) {
-    return std::tuple_cat(std::make_tuple(convert_from_string<T>(v[I])), convert_from<N - 1, I + 1, Arguments...>::strings(v));
-  }
-};
-
-template<std::size_t I, typename T>
-struct convert_from<1, I, T> {
-  static std::tuple<T> strings (const std::vector<std::string>& v) {
-    return std::make_tuple(convert_from_string<T>(v[I]));
-  }
-};
-
-template<typename ... Arguments>
-std::tuple<Arguments...> get_from_strings (const std::vector<std::string>& v) {
-  return convert_from<sizeof...(Arguments), 0, Arguments...>::strings(v);
-}
-
-//-----------------------------------------------------------------------------
-template<typename ... Arguments>
-class multi_input_dialog : public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray>> {
-public:
-  typedef win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray> content_view_type;
-  typedef standard_dialog<content_view_type> super;
-  static constexpr size_t N = sizeof...(Arguments);
-
-  typedef void (action) (const std::tuple<Arguments...>&);
-
-  multi_input_dialog () {
-    for (int n = 0; n < N; ++n) {
-      content_view.get_layout().add(layout::lay(labels[n]));
-      content_view.get_layout().add(layout::lay(edits[n]));
-    }
-  }
-
-  void create (win::container& parent,
-               const std::string& title,
-               const std::vector<std::string>& message,
-               const std::tuple<Arguments...>& initial,
-               const std::string& ok_label,
-               const std::string& cancel_label,
-               const core::rectangle& rect,
-               std::function<action> action) {
-    super::create(parent, title, rect, [&, action] (int i) {
-      if (i == 1) {
-        std::vector<std::string> strings;
-        for (int n = 0; n < N; ++n) {
-          strings.emplace_back(edits[n].get_text());
-        }
-        action(get_from_strings<Arguments...>(strings));
-      }
-    }, {cancel_label, ok_label});
-    for (int n = 0; n < N; ++n) {
-      labels[n].create(content_view, message[n]);
-      edits[n].create(content_view, get_as_string(n, initial));
-    }
-  }
-
-  static void ask (win::container& parent,
-                   const std::string& title,
-                   const std::vector<std::string>& message,
-                   const std::tuple<Arguments...>& initial,
-                   const std::string& ok_label,
-                   const std::string& cancel_label,
-                   std::function<action> action) {
-    multi_input_dialog dialog;
-    dialog.create(parent, title, message, initial, ok_label, cancel_label, core::rectangle(300, 200, 400, 85 + N * 40), action);
-    dialog.show(parent);
-  }
-
-  label_left labels[N];
-  edit_left edits[N];
-
-};
-
 // --------------------------------------------------------------------------
 class TimeTracker : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
 public:
@@ -355,7 +244,7 @@ public:
           {"Add", 'A', util::bind_method(this, &TimeTracker::project_add)},
           {"Remove", 'R', util::bind_method(this, &TimeTracker::project_remove)},
           {"Edit", 'E', util::bind_method(this, &TimeTracker::project_edit)},
-          {"Price per Hour", 'P', util::bind_method(this, &TimeTracker::project_proce)}
+          {"Price per Hour", 'P', util::bind_method(this, &TimeTracker::project_pph)}
         }).popup(menu);
       }),
       main_menu_entry("Event", 'E', [&] () {
@@ -649,8 +538,15 @@ public:
 
   void category_remove () {
     if (category_view.list.has_selection()) {
-      categories.erase(categories.cbegin() + category_view.list.get_selection());
-      category_view.list.set_count(categories.size());
+      auto& c = categories[category_view.list.get_selection()];
+      yes_no_dialog::ask(*this, "Remove category", ostreamfmt("Are you sure you wan't remove category '" << c->name << "' ?"),
+                         "Yes", "Abort",
+                         [&] (bool yes) {
+        if (yes) {
+          categories.erase(categories.cbegin() + category_view.list.get_selection());
+          category_view.list.set_count(categories.size());
+        }
+      });
     }
   }
 
@@ -673,8 +569,9 @@ public:
       auto& c = categories[category_view.list.get_selection()];
       multi_input_dialog<std::string, double>::ask(*this, "Create Project",
                                                    std::vector<std::string>({"Project name:", "Costs per Hour:"}),
-                                                   std::make_tuple(std::string("new"), 60.0), "Okay", "Cancel",
-                            [&] (const std::tuple<std::string, double>& t) {
+                                                   std::make_tuple(std::string("new"), 60.0),
+                                                   "Okay", "Cancel",
+                                                   [&] (const std::tuple<std::string, double>& t) {
         auto name = std::get<0>(t);
         auto costs = std::get<1>(t);
 
@@ -684,9 +581,39 @@ public:
       });
     }
   }
-  void project_remove () {}
-  void project_edit () {}
-  void project_proce () {}
+  void project_remove () {
+    if (category_view.list.has_selection() && project_view.list.has_selection()) {
+      auto& c = categories[category_view.list.get_selection()];
+      auto& p = c->projects[project_view.list.get_selection()];
+      yes_no_dialog::ask(*this, "Remove project",
+                         ostreamfmt("Are you sure you wan't remove project '" << p->name << "' from category '" << c->name << "'?"),
+                         "Yes", "Abort",
+                         [&] (bool yes) {
+        if (yes) {
+          c->projects.erase(c->projects.cbegin() + project_view.list.get_selection());
+          project_view.list.set_count(c->projects.size());
+        }
+      });
+    }
+  }
+
+  void project_edit () {
+    if (category_view.list.has_selection() && project_view.list.has_selection()) {
+      auto& c = categories[category_view.list.get_selection()];
+      auto& p = c->projects[project_view.list.get_selection()];
+      multi_input_dialog<std::string, double>::ask(*this, "Edit project",
+                                                   std::vector<std::string>({"New project name:", "Costs per Hour:"}),
+                                                   std::make_tuple(p->name, p->pph),
+                                                   "Okay", "Cancel",
+                                                   [&] (const std::tuple<std::string, double>& t) {
+        p->name = std::get<0>(t);
+        p->pph = std::get<1>(t);
+        project_view.list.invalidate();
+      });
+    }
+  }
+
+  void project_pph () {}
 
   void event_add () {}
 

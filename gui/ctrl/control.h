@@ -77,17 +77,6 @@ namespace gui {
       using no_erase_window_class = win::window_class<T, color::transparent, C, S, ES, CS>;
 
     // --------------------------------------------------------------------------
-    template<typename T>
-    inline std::string convert_to_string (const T& t) {
-      return ostreamfmt(t);
-    }
-
-    template<>
-    inline std::string convert_to_string<std::string>(const std::string& t) {
-      return t;
-    }
-
-    // --------------------------------------------------------------------------
     typedef std::string (text_source_fn)();
     typedef std::function<text_source_fn> text_source;
 

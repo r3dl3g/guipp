@@ -78,7 +78,7 @@ namespace gui {
                                    const core::rectangle& r,
                                    const draw::brush& b,
                                    item_state state) {
-      paint::drop_down_item(g, r, b, convert_to_string(t), state);
+      paint::drop_down_item(g, r, b, util::string::convert::from(t), state);
     }
 
     template<typename T>

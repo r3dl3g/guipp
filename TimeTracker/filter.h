@@ -177,13 +177,17 @@ namespace tt_filter {
 
 } // namespace filter
 
-namespace gui {
-  namespace ctrl {
+namespace util {
 
-    template<>
-    inline std::string convert_to_string<tt_filter::weekday> (const tt_filter::weekday& wd) {
-      return wd.label;
+  namespace string {
+
+    namespace convert {
+
+      template<>
+      inline std::string from<tt_filter::weekday> (const tt_filter::weekday& wd) {
+        return wd.label;
+      }
+
     }
-
   }
 }

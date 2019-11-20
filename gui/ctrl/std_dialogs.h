@@ -33,6 +33,8 @@
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/textbox.h>
 
+#include <util/tuple_util.h>
+
 
 namespace gui {
 
@@ -85,9 +87,10 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT message_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
-                                                                    color::very_light_gray,
-                                                                    float, float, float, float>> {
+    class GUIPP_CTRL_EXPORT message_dialog :
+        public standard_dialog<win::group_window<layout::border_layout<>,
+                                                 color::very_light_gray,
+                                                 float, float, float, float>> {
     public:
       typedef basic_textbox<text_origin::center,
                             draw::frame::sunken_relief,
@@ -119,9 +122,10 @@ namespace gui {
     typedef void (yes_no_action) (bool);
 
     //-----------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT yes_no_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
-                                                                   color::very_light_gray,
-                                                                   float, float, float, float>> {
+    class GUIPP_CTRL_EXPORT yes_no_dialog :
+        public standard_dialog<win::group_window<layout::border_layout<>,
+                                                 color::very_light_gray,
+                                                 float, float, float, float>> {
     public:
       typedef basic_textbox<text_origin::center,
                             draw::frame::sunken_relief,
@@ -157,9 +161,12 @@ namespace gui {
     typedef void (input_action) (const std::string&);
 
     //-----------------------------------------------------------------------------
-    class input_dialog : public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray>> {
+    class GUIPP_CTRL_EXPORT input_dialog :
+        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
+                                                 color::very_light_gray>> {
     public:
-      typedef win::group_window<layout::vertical_lineup<20, 15, 2>, color::very_light_gray> content_view_type;
+      typedef win::group_window<layout::vertical_lineup<20, 15, 2>,
+                                color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       input_dialog ();
@@ -183,6 +190,42 @@ namespace gui {
 
       label_left label;
       edit_left edit;
+    };
+
+    //-----------------------------------------------------------------------------
+    template<typename ... Arguments>
+    class GUIPP_CTRL_EXPORT multi_input_dialog :
+        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
+                                                 color::very_light_gray>> {
+    public:
+      typedef win::group_window<layout::vertical_lineup<20, 15, 2>,
+                                color::very_light_gray> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+      static constexpr size_t N = sizeof...(Arguments);
+
+      typedef void (action) (const std::tuple<Arguments...>&);
+
+      multi_input_dialog ();
+
+      void create (win::container& parent,
+                   const std::string& title,
+                   const std::vector<std::string>& message,
+                   const std::tuple<Arguments...>& initial,
+                   const std::string& ok_label,
+                   const std::string& cancel_label,
+                   const core::rectangle& rect,
+                   std::function<action> action);
+
+      static void ask (win::container& parent,
+                       const std::string& title,
+                       const std::vector<std::string>& message,
+                       const std::tuple<Arguments...>& initial,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       std::function<action> action);
+
+      label_left labels[N];
+      edit_left edits[N];
     };
 
     //-----------------------------------------------------------------------------

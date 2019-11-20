@@ -24,6 +24,8 @@
 //
 #include <gui/ctrl/control.h>
 
+#include <util/string_util.h>
+
 
 namespace gui {
 

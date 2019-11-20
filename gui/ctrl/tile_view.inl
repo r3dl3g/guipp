@@ -29,7 +29,7 @@ namespace gui {
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           item_state state) {
-      paint::text_item(g, place, background, convert_to_string<T>(t), state, text_origin::center);
+      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin::center);
     }
 
     // --------------------------------------------------------------------------

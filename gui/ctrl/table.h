@@ -28,6 +28,8 @@
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>
 
+#include <util/string_util.h>
+
 
 namespace gui {
 

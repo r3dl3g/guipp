@@ -58,6 +58,53 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
+    template<typename ... Arguments>
+    multi_input_dialog<Arguments...>::multi_input_dialog () {
+      for (int n = 0; n < N; ++n) {
+        content_view.get_layout().add(layout::lay(labels[n]));
+        content_view.get_layout().add(layout::lay(edits[n]));
+      }
+    }
+
+    template<typename ... Arguments>
+    void multi_input_dialog<Arguments...>::create (win::container& parent,
+                                                   const std::string& title,
+                                                   const std::vector<std::string>& message,
+                                                   const std::tuple<Arguments...>& initial,
+                                                   const std::string& ok_label,
+                                                   const std::string& cancel_label,
+                                                   const core::rectangle& rect,
+                                                   std::function<action> action) {
+      super::create(parent, title, rect, [&, action] (int i) {
+        if (i == 1) {
+          std::vector<std::string> strings;
+          for (int n = 0; n < N; ++n) {
+            strings.emplace_back(edits[n].get_text());
+          }
+          action(util::tuple::convert::from_vector<Arguments...>(strings));
+        }
+      }, {cancel_label, ok_label});
+      for (int n = 0; n < N; ++n) {
+        labels[n].create(content_view, message[n]);
+        edits[n].create(content_view, util::tuple::convert::as_string(n, initial));
+      }
+    }
+
+    template<typename ... Arguments>
+    void multi_input_dialog<Arguments...>::ask (win::container& parent,
+                                                const std::string& title,
+                                                const std::vector<std::string>& message,
+                                                const std::tuple<Arguments...>& initial,
+                                                const std::string& ok_label,
+                                                const std::string& cancel_label,
+                                                std::function<action> action) {
+      multi_input_dialog dialog;
+      dialog.create(parent, title, message, initial, ok_label, cancel_label,
+                    core::rectangle(300, 200, 400, 85 + N * 40), action);
+      dialog.show(parent);
+    }
+
+    //-----------------------------------------------------------------------------
     template<typename T>
     void dir_file_view<T>::init (std::function<file_selected> action,
                                  std::function<fs::filter_fn> filter) {

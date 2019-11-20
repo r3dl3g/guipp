@@ -27,6 +27,7 @@
 #include <gui/ctrl/edit.h>
 #include <gui/ctrl/list_state.h>
 
+#include <util/string_util.h>
 
 namespace gui {
 
@@ -105,7 +106,7 @@ namespace gui {
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state) {
-      paint::text_item(g, place, background, convert_to_string<T>(t), state, text_origin::vcenter_left);
+      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin::vcenter_left);
     }
 
     template<typename T>

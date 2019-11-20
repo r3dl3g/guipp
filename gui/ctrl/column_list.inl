@@ -408,7 +408,7 @@ namespace gui {
                                                     const draw::brush& background,
                                                     item_state state,
                                                     text_origin align) {
-      paint::text_item(graph, place, background, convert_to_string(super::at(row_id).at(col_id)), state, align);
+      paint::text_item(graph, place, background, util::string::convert::from(super::at(row_id).at(col_id)), state, align);
       if (item_state::selected != state) {
         F(graph, place);
       }
@@ -501,7 +501,7 @@ namespace gui {
                       const draw::brush& background,
                       item_state state,
                       text_origin align) {
-      paint::text_item(graph, place, background, convert_to_string(t), state, align);
+      paint::text_item(graph, place, background, util::string::convert::from(t), state, align);
       if (item_state::selected != state) {
         F(graph, place);
       }

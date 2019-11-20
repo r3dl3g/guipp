@@ -24,7 +24,9 @@
 //
 #include <gui/ctrl/column_list.h>
 #include <gui/ctrl/file_tree.h>
-#include <util/tuple_sort.h>
+
+#include <util/sort_order.h>
+
 
 namespace gui {
 

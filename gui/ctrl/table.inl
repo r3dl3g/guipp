@@ -33,7 +33,7 @@ namespace gui {
                              const os::color& foreground,
                              const os::color& background,
                              item_state state) {
-        text_cell<std::string, draw::frame::no_frame>(convert_to_string(t), graph, place, align,
+        text_cell<std::string, draw::frame::no_frame>(util::string::convert::from(t), graph, place, align,
                                                       foreground, background, state);
         F(graph, place);
       }

@@ -9,6 +9,7 @@
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
 #include <util/string_util.h>
+#include <util/tuple_util.h>
 
 #include <fstream>
 #include <iomanip>
@@ -211,7 +212,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   client.set_data([&] (std::size_t i) { return data[i]; }, data.size());
   client.on_sort([&] (util::sort::order sort_dir, int sort_column) {
-    util::sort::by(sort_dir, sort_column, data);
+    util::tuple::sort::by(sort_dir, sort_column, data);
     return true;
   });
   client.set_drawer(column_list_drawer);

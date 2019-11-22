@@ -55,16 +55,16 @@ namespace gui {
     // --------------------------------------------------------------------------
     using button_clicked_event = core::event_handler<ClientMessage, 0,
                                                      core::params<>::getter<>, 0,
-                                                     win::client_message_matcher<detail::BN_CLICKED_MESSAGE> >;
+                                                     win::event::functor<win::client_message_matcher<detail::BN_CLICKED_MESSAGE>>>;
     using button_pushed_event = core::event_handler<ClientMessage, 0,
                                                     core::params<>::getter<>, 0,
-                                                    win::client_message_matcher<detail::BN_PUSHED_MESSAGE> >;
+                                                    win::event::functor<win::client_message_matcher<detail::BN_PUSHED_MESSAGE>>>;
     using button_released_event = core::event_handler<ClientMessage, 0,
                                                       core::params<>::getter<>, 0,
-                                                      win::client_message_matcher<detail::BN_UNPUSHED_MESSAGE> >;
+                                                      win::event::functor<win::client_message_matcher<detail::BN_UNPUSHED_MESSAGE>>>;
     using button_state_event = core::event_handler<ClientMessage, 0,
                                                    core::params<bool>::getter<win::get_client_data<0, bool> >, 0,
-                                                   win::client_message_matcher<detail::BN_STATE_MESSAGE> >;
+                                                   win::event::functor<win::client_message_matcher<detail::BN_STATE_MESSAGE>>>;
 #endif // X11
     // --------------------------------------------------------------------------
     namespace paint {

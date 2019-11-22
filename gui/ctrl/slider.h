@@ -37,7 +37,7 @@ namespace gui {
 #ifdef X11
     using slider_event = core::event_handler<ClientMessage, 0,
                                        core::params<int>::getter<win::get_client_data<0, int> >,
-                                       0, win::client_message_matcher<detail::SLIDER_MESSAGE> >;
+                                       0, win::event::functor<win::client_message_matcher<detail::SLIDER_MESSAGE>>>;
 #endif // X11
        // --------------------------------------------------------------------------
 

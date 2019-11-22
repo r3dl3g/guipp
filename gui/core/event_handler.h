@@ -40,9 +40,11 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<gui::os::event_id id>
-    inline bool event_id_matcher (const event& e) {
-      return (e.type == id);
-    }
+    struct event_id_matcher {
+      inline bool operator() (const event& e) {
+        return (e.type == id);
+      }
+    };
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -96,10 +98,11 @@ namespace gui {
              gui::os::event_id Mask = 0,
              typename C = params<>::getter<>,
              gui::os::event_result R = 0,
-             event_matcher Matcher = event_id_matcher<E>>
+             typename M = event_id_matcher<E>>
     struct event_handler {
 
       typedef C Caller;
+      typedef M Matcher;
       typedef typename Caller::function function;
 
       static constexpr gui::os::event_id mask = Mask;
@@ -126,7 +129,8 @@ namespace gui {
       {}
 
       static bool match (const event& e) {
-        return Matcher(e);
+        Matcher m;
+        return m(e);
       }
 
       template<typename T, typename F>
@@ -147,7 +151,7 @@ namespace gui {
       }
 
       bool operator() (const event& e, gui::os::event_result& result) {
-        if (match(e) && caller) {
+        if (matcher(e) && caller) {
           if (e.type != IF_WIN32_ELSE(WM_MOUSEMOVE, MotionNotify)) {
             LogTrace << "Call " << e;
           }
@@ -164,6 +168,7 @@ namespace gui {
 
     protected:
       Caller caller;
+      Matcher matcher;
     };
 
   } // namespace core

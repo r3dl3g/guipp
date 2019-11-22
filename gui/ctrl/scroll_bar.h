@@ -49,7 +49,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     using scroll_event = core::event_handler<ClientMessage, 0,
                                        core::params<core::point::type>::getter<win::get_client_data<0, core::point::type> >,
-                                       0, win::client_message_matcher<detail::SCROLLBAR_MESSAGE> >;
+                                       0, win::event::functor<win::client_message_matcher<detail::SCROLLBAR_MESSAGE>>>;
     // --------------------------------------------------------------------------
 #endif // X11
 

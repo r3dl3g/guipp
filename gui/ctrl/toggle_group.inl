@@ -25,9 +25,6 @@ namespace gui {
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     toggle_group<O, FG, BG, B, L>::~toggle_group () {
-      for (auto* b : buttons) {
-        delete b;
-      }
       buttons.clear();
     }
 
@@ -45,7 +42,7 @@ namespace gui {
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     inline void toggle_group<O, FG, BG, B, L>::add_button (const text_source& label) {
-      button_type* b = new button_type(label);
+      button_type b = std::make_shared<B>(label);
       buttons.push_back(b);
       b->on_clicked([&, b] () {
         uncheck_buttons(b);
@@ -54,17 +51,17 @@ namespace gui {
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     inline auto toggle_group<O, FG, BG, B, L>::get_button (int idx) -> button_type& {
-      return *(buttons[idx]);
+      return buttons[idx];
     }
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     inline auto toggle_group<O, FG, BG, B, L>::get_button (int idx) const -> const button_type& {
-      return *(buttons[idx]);
+      return buttons[idx];
     }
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
     void toggle_group<O, FG, BG, B, L>::enable (bool on) {
-      for (auto* b : buttons) {
+      for (auto& b : buttons) {
         b->enable(on);
       }
       super::enable(on);
@@ -79,7 +76,7 @@ namespace gui {
     void toggle_group<O, FG, BG, B, L>::create (const win::container& parent,
                                                 const core::rectangle& place) {
       super::create(parent, place);
-      for (auto* b : buttons) {
+      for (auto& b : buttons) {
         b->create(*this);
         super::get_layout().add([b] (const core::rectangle& r) { b->place(r); });
       }
@@ -87,8 +84,8 @@ namespace gui {
     }
 
     template<orientation O, os::color FG, os::color BG, typename B, typename L>
-    void toggle_group<O, FG, BG, B, L>::uncheck_buttons (button_type* except) {
-      for (auto* b : buttons) {
+    void toggle_group<O, FG, BG, B, L>::uncheck_buttons (button_type except) {
+      for (auto b : buttons) {
         if (b != except) {
           b->set_checked(false);
         }

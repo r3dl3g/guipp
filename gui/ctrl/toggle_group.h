@@ -41,7 +41,8 @@ namespace gui {
     public:
       typedef win::group_window<L, background> super;
       typedef L layout;
-      typedef B button_type;
+      typedef B button_t;
+      typedef std::shared_ptr<B> button_type;
 
       ~toggle_group ();
 
@@ -59,9 +60,9 @@ namespace gui {
                    const core::rectangle& place = core::rectangle::def);
 
     private:
-      void uncheck_buttons (button_type* except);
+      void uncheck_buttons (button_type except);
 
-      std::vector<button_type*> buttons;
+      std::vector<button_type> buttons;
     };
 
     // --------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include <gui/ctrl/sorted_column_list.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/std_dialogs.h>
+#include <gui/ctrl/drop_down.h>
 
 #include <util/bind_method.h>
 #include <util/ostream_resetter.h>
@@ -182,6 +183,112 @@ namespace sort {
     std::stable_sort(v.rbegin(), v.rend(), c);
   }
 } // namespace sort
+
+  namespace controls {
+
+    //-----------------------------------------------------------------------------
+    template<typename L, typename E, int N, int I, typename T>
+    struct add {
+      static void to (L& layout, E labels[N], T& controls) {
+        layout.add(layout::lay(labels[I]));
+        layout.add(layout::lay(std::get<I>(controls)));
+        add<L, E, N, I + 1, T>::to(layout, labels, controls);
+      }
+    };
+
+    template<typename L, typename E, int N, typename T>
+    struct add<L, E, N, N, T> {
+      static void to (L&, E[N], T&) {
+      }
+    };
+
+    template<typename E>
+    using init_function = std::function<void(E&e)>;
+
+    //-----------------------------------------------------------------------------
+    template<typename E, int N, int I, typename T, typename Initials>
+    struct create {
+      static void in (container& main, E labels[N], const std::vector<std::string>& message, T& ctrls, const Initials& initials) {
+        labels[I].create(main, message[I]);
+        std::get<I>(ctrls).create(main);
+        std::get<I>(initials)(std::get<I>(ctrls));
+        create<E, N, I + 1, T, Initials>::in(main, labels, message, ctrls, initials);
+      }
+    };
+
+    template<typename E, int N, typename T, typename Initials>
+    struct create<E, N, N, T, Initials> {
+      static void in (container&, E[N], const std::vector<std::string>&, T&, const Initials&) {
+      }
+    };
+  }
+
+    //-----------------------------------------------------------------------------
+    struct input_traits {
+      typedef std::tuple<edit_left> Controls;
+      typedef std::tuple<controls::init_function<edit_left>> Initials;
+      typedef std::tuple<std::string> Types;
+    };
+
+    //-----------------------------------------------------------------------------
+    template<typename T>
+    class /*GUIPP_CTRL_EXPORT*/ multi_control_dialog :
+        public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
+                                                 color::very_light_gray>> {
+    public:
+      typedef layout::vertical_lineup<20, 15, 2> Layout;
+      typedef win::group_window<Layout, color::very_light_gray> content_view_type;
+      typedef standard_dialog<content_view_type> super;
+      using label_t = basic_label<text_origin::bottom_left,
+                                  draw::frame::no_frame,
+                                  color::black,
+                                  color::very_light_gray>;
+
+      using Controls = typename T::Controls;
+      using Types = typename T::Types;
+      using Initials = typename T::Initials;
+
+      static constexpr size_t N = std::tuple_size<Types>();
+
+      typedef void (action) (const Controls&);
+
+      multi_control_dialog () {
+        controls::add<Layout, label_t, N, 0, Controls>::to(content_view.get_layout(), labels, controls);
+      }
+
+      void create (win::container& parent,
+                   const std::string& title,
+                   const std::vector<std::string>& message,
+                   const Initials& initial,
+                   const std::string& ok_label,
+                   const std::string& cancel_label,
+                   const core::rectangle& rect,
+                   std::function<action> action) {
+        super::create(parent, title, rect, [&, action] (int i) {
+          if (i == 1) {
+            action(controls);
+          }
+        }, {cancel_label, ok_label});
+        controls::create<label_t, N, 0, Controls, Initials>::in(content_view, labels, message, controls, initial);
+      }
+
+      static void ask (win::container& parent,
+                       const std::string& title,
+                       const std::vector<std::string>& message,
+                       const Initials& initial,
+                       const std::string& ok_label,
+                       const std::string& cancel_label,
+                       std::function<action> action) {
+        multi_control_dialog dialog;
+        dialog.create(parent, title, message, initial, ok_label, cancel_label,
+                      core::rectangle(300, 200, 400, 85 + N * 44), action);
+        dialog.show(parent);
+      }
+
+      label_t labels[N];
+      Controls controls;
+    };
+
 
 // --------------------------------------------------------------------------
 class TimeTracker : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
@@ -394,6 +501,9 @@ public:
       }
       return false;
     });
+    category_view.list.on_left_btn_dblclk([&] (os::key_state, core::point) {
+      category_edit();
+    });
 
     project_view.set_data([&](std::size_t i) {
       if (category_view.list.has_selection()) {
@@ -429,6 +539,9 @@ public:
           break;
       }
       return false;
+    });
+    project_view.list.on_left_btn_dblclk([&] (os::key_state, core::point) {
+      project_edit();
     });
 
     event_view.set_data([&] (std::size_t i) {
@@ -602,7 +715,7 @@ public:
       auto& c = categories[category_view.list.get_selection()];
       auto& p = c->projects[project_view.list.get_selection()];
       multi_input_dialog<std::string, double>::ask(*this, "Edit project",
-                                                   std::vector<std::string>({"New project name:", "Costs per Hour:"}),
+                                                   /*std::vector<std::string>(*/{"New project name:", "Costs per Hour:"}/*)*/,
                                                    std::make_tuple(p->name, p->pph),
                                                    "Okay", "Cancel",
                                                    [&] (const std::tuple<std::string, double>& t) {
@@ -618,7 +731,57 @@ public:
   void event_add () {}
 
   void event_remove () {}
-  void event_edit () {}
+
+  void event_edit () {
+    if (event_view.list.has_selection()) {
+      auto& e = events[event_view.list.get_selection()];
+
+      typedef drop_down_list<std::string> drop_down;
+      typedef controls::init_function<edit_left> edit_init;
+      typedef controls::init_function<drop_down> drop_init;
+
+      struct event_traits {
+        typedef std::tuple<edit_left, edit_left, edit_left, drop_down> Controls;
+        typedef std::tuple<edit_init, edit_init, edit_init, drop_init> Initials;
+        typedef std::tuple<std::string, time_point, time_point, std::string> Types;
+      };
+
+      std::vector<std::string> data({e->comment, "Eins", "Zwei", "Drei"});
+
+      event_traits::Initials inits = event_traits::Initials(
+                                       [e] (edit_left& ctrl) {
+                                         ctrl.set_text(e->id);
+                                       },
+                                       [e] (edit_left& ctrl) {
+                                         ctrl.set_text(ostreamfmt(e->begin));
+                                       },
+                                       [e] (edit_left& ctrl) {
+                                         ctrl.set_text(ostreamfmt(e->end));
+                                       },
+                                       [&] (drop_down& ctrl) {
+                                         ctrl.set_data([&] (size_t idx) {
+                                           return data[idx];
+                                         }, data.size());
+                                         ctrl.set_selected_item(data[0]);
+                                       }
+                                     );
+
+      multi_control_dialog<event_traits>::ask(*this, "Edit event",
+                                              std::vector<std::string>({"Id:", "Begin:", "End:", "Comment:"}),
+                                              inits,
+                                              "Okay", "Cancel",
+                                              [&] (const event_traits::Controls& ctrls) {
+        auto id = std::get<0>(ctrls).get_text();
+        auto begin = std::get<1>(ctrls).get_text();
+        auto end = std::get<2>(ctrls).get_text();
+        auto comment = std::get<3>(ctrls).get_selected_item();
+
+        message_dialog::show(*this, "Info", ostreamfmt("Id:" << id << ", begin:" << begin << ", end:" << end << ", comment:" << comment), "Ok");
+      });
+
+    }
+
+  }
 
 private:
   typedef tree::basic_tree<tt_filter::node_info> filter_tree_view;

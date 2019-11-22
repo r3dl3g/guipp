@@ -461,17 +461,17 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   hsegmented2.create(client_view, core::rectangle(75, 439, 300, 25));
   hsegmented2.set_visible();
 
-  hsegmented2.get_button(0).on_clicked([&]() {
-    hsegmented1.get_button(0).disable();
-    hsegmented2.get_button(3).disable();
-    vsegmented1.get_button(1).disable();
+  hsegmented2.get_button(0)->on_clicked([&]() {
+    hsegmented1.get_button(0)->disable();
+    hsegmented2.get_button(3)->disable();
+    vsegmented1.get_button(1)->disable();
     vsegmented2.disable();
   });
 
-  hsegmented2.get_button(1).on_clicked([&]() {
-    hsegmented1.get_button(0).enable();
-    hsegmented2.get_button(3).enable();
-    vsegmented1.get_button(1).enable();
+  hsegmented2.get_button(1)->on_clicked([&]() {
+    hsegmented1.get_button(0)->enable();
+    hsegmented2.get_button(3)->enable();
+    vsegmented1.get_button(1)->enable();
     vsegmented2.enable();
   });
 
@@ -484,16 +484,16 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
   vsegmented2.set_visible();
 
   for (int i = 0; i < 4; ++i) {
-    vsegmented1.get_button(i).on_clicked([&, i]() {
+    vsegmented1.get_button(i)->on_clicked([&, i]() {
       labels[1].set_text(ostreamfmt("vsegment " << i << " selected"));
     });
-    vsegmented1.get_button(i).on_hilite_changed([&, i](bool b) {
+    vsegmented1.get_button(i)->on_hilite_changed([&, i](bool b) {
       labels[1].set_text(ostreamfmt("vsegment " << i << (b ? " " : " un") << "hilited"));
     });
-    hsegmented1.get_button(i).on_clicked([&, i]() {
+    hsegmented1.get_button(i)->on_clicked([&, i]() {
       labels[2].set_text(ostreamfmt("hsegment " << i << " selected"));
     });
-    hsegmented1.get_button(i).on_hilite_changed([&, i](bool b) {
+    hsegmented1.get_button(i)->on_hilite_changed([&, i](bool b) {
       labels[2].set_text(ostreamfmt("hsegment " << i << (b ? " " : " un") << "hilited"));
     });
   }

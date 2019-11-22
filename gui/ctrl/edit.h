@@ -83,7 +83,7 @@ namespace gui {
         ~edit_base ();
 
         void create (const win::container& parent,
-                     const std::string& txt = std::string(),
+                     const std::string& txt,
                      const core::rectangle& place = core::rectangle::def);
 
         void create (const win::container& parent,

@@ -291,13 +291,12 @@ namespace sort {
 
 
 // --------------------------------------------------------------------------
-class TimeTracker : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
+class TimeTracker : public layout_main_window<gui::layout::border::layouter<20, 30>> {
 public:
-  typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
+  typedef layout_main_window<gui::layout::border::layouter<20, 30>> super;
 
   TimeTracker ()
-    : super(20, 30, 0, 0)
-    , left_view(content_view.first)
+    : left_view(content_view.first)
     , filter_tree(left_view.first)
     , weekdays(left_view.second)
     , right_view(content_view.second)
@@ -571,6 +570,9 @@ public:
       }
       return false;
     });
+    event_view.list.on_left_btn_dblclk([&] (os::key_state, core::point) {
+      event_edit();
+    });
 
     get_layout().set_center_top_bottom_left_right(layout::lay(content_view), layout::lay(menu), layout::lay(status_bar), nullptr, nullptr);
     set_children_visible();
@@ -694,6 +696,7 @@ public:
       });
     }
   }
+
   void project_remove () {
     if (category_view.list.has_selection() && project_view.list.has_selection()) {
       auto& c = categories[category_view.list.get_selection()];
@@ -715,7 +718,7 @@ public:
       auto& c = categories[category_view.list.get_selection()];
       auto& p = c->projects[project_view.list.get_selection()];
       multi_input_dialog<std::string, double>::ask(*this, "Edit project",
-                                                   /*std::vector<std::string>(*/{"New project name:", "Costs per Hour:"}/*)*/,
+                                                   {"New project name:", "Costs per Hour:"},
                                                    std::make_tuple(p->name, p->pph),
                                                    "Okay", "Cancel",
                                                    [&] (const std::tuple<std::string, double>& t) {
@@ -736,51 +739,62 @@ public:
     if (event_view.list.has_selection()) {
       auto& e = events[event_view.list.get_selection()];
 
-      typedef drop_down_list<std::string> drop_down;
-      typedef controls::init_function<edit_left> edit_init;
-      typedef controls::init_function<drop_down> drop_init;
-
-      struct event_traits {
-        typedef std::tuple<edit_left, edit_left, edit_left, drop_down> Controls;
-        typedef std::tuple<edit_init, edit_init, edit_init, drop_init> Initials;
-        typedef std::tuple<std::string, time_point, time_point, std::string> Types;
-      };
-
-      std::vector<std::string> data({e->comment, "Eins", "Zwei", "Drei"});
-
-      event_traits::Initials inits = event_traits::Initials(
-                                       [e] (edit_left& ctrl) {
-                                         ctrl.set_text(e->id);
-                                       },
-                                       [e] (edit_left& ctrl) {
-                                         ctrl.set_text(ostreamfmt(e->begin));
-                                       },
-                                       [e] (edit_left& ctrl) {
-                                         ctrl.set_text(ostreamfmt(e->end));
-                                       },
-                                       [&] (drop_down& ctrl) {
-                                         ctrl.set_data([&] (size_t idx) {
-                                           return data[idx];
-                                         }, data.size());
-                                         ctrl.set_selected_item(data[0]);
-                                       }
-                                     );
-
-      multi_control_dialog<event_traits>::ask(*this, "Edit event",
-                                              std::vector<std::string>({"Id:", "Begin:", "End:", "Comment:"}),
-                                              inits,
-                                              "Okay", "Cancel",
-                                              [&] (const event_traits::Controls& ctrls) {
-        auto id = std::get<0>(ctrls).get_text();
-        auto begin = std::get<1>(ctrls).get_text();
-        auto end = std::get<2>(ctrls).get_text();
-        auto comment = std::get<3>(ctrls).get_selected_item();
-
+      multi_input_dialog<std::string, time_point, time_point, std::string>::ask(*this, "Edit event",
+                                                   {"Id:", "Begin:", "End:", "Comment:"},
+                                                   std::make_tuple(e->id, e->begin, e->end, e->comment),
+                                                   "Okay", "Cancel",
+                                                   [&] (const std::tuple<std::string, time_point, time_point, std::string>& t) {
+        auto id = std::get<0>(t);
+        auto begin = std::get<1>(t);
+        auto end = std::get<2>(t);
+        auto comment = std::get<3>(t);
         message_dialog::show(*this, "Info", ostreamfmt("Id:" << id << ", begin:" << begin << ", end:" << end << ", comment:" << comment), "Ok");
       });
 
-    }
+//      typedef drop_down_list<std::string> drop_down;
+//      typedef controls::init_function<edit_left> edit_init;
+//      typedef controls::init_function<drop_down> drop_init;
 
+//      struct event_traits {
+//        typedef std::tuple<edit_left, edit_left, edit_left, drop_down> Controls;
+//        typedef std::tuple<edit_init, edit_init, edit_init, drop_init> Initials;
+//        typedef std::tuple<std::string, time_point, time_point, std::string> Types;
+//      };
+
+//      std::vector<std::string> data({e->comment, "Eins", "Zwei", "Drei"});
+
+//      event_traits::Initials inits = event_traits::Initials(
+//                                       [e] (edit_left& ctrl) {
+//                                         ctrl.set_text(e->id);
+//                                       },
+//                                       [e] (edit_left& ctrl) {
+//                                         ctrl.set_text(ostreamfmt(e->begin));
+//                                       },
+//                                       [e] (edit_left& ctrl) {
+//                                         ctrl.set_text(ostreamfmt(e->end));
+//                                       },
+//                                       [&] (drop_down& ctrl) {
+//                                         ctrl.set_data([&] (size_t idx) {
+//                                           return data[idx];
+//                                         }, data.size());
+//                                         ctrl.set_selected_item(data[0]);
+//                                       }
+//                                     );
+
+//      multi_control_dialog<event_traits>::ask(*this, "Edit event",
+//                                              std::vector<std::string>({"Id:", "Begin:", "End:", "Comment:"}),
+//                                              inits,
+//                                              "Okay", "Cancel",
+//                                              [&] (const event_traits::Controls& ctrls) {
+//        auto id = std::get<0>(ctrls).get_text();
+//        auto begin = std::get<1>(ctrls).get_text();
+//        auto end = std::get<2>(ctrls).get_text();
+//        auto comment = std::get<3>(ctrls).get_selected_item();
+
+//        message_dialog::show(*this, "Info", ostreamfmt("Id:" << id << ", begin:" << begin << ", end:" << end << ", comment:" << comment), "Ok");
+//      });
+
+    }
   }
 
 private:

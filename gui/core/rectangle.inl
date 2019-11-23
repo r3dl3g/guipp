@@ -316,8 +316,18 @@ namespace gui {
     }
 
     template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::grown (const size_type top, const size_type bottom, const size_type left, const size_type right) const -> self {
+      return self{position() - size_t{left,  top}, size() + size_t{(left + right), (top + bottom)}};
+    }
+
+    template<typename T, typename S>
     inline auto basic_rectangle<T, S>::shrinked (const size_t& s) const -> self {
       return {position() + s, size() - (s + s)};
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::shrinked (const size_type top, const size_type bottom, const size_type left, const size_type right) const -> self {
+      return self{position() + size_t{left,  top}, size() - size_t{(left + right), (top + bottom)}};
     }
 
     template<typename T, typename S>
@@ -331,6 +341,20 @@ namespace gui {
     inline auto basic_rectangle<T, S>::shrink (const size_t& s) -> self& {
       pos += s;
       sz -= (s + s);
+      return *this;
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::shrink (const size_type top, const size_type bottom, const size_type left, const size_type right) -> self& {
+      pos += {left,  top};
+      sz -= {(left + right), (top + bottom)};
+      return *this;
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::grow (const size_type top, const size_type bottom, const size_type left, const size_type right) -> self& {
+      pos -= {left,  top};
+      sz += {(left + right), (top + bottom)};
       return *this;
     }
 

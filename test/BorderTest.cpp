@@ -44,9 +44,9 @@ const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
 
 // --------------------------------------------------------------------------
-class my_main_window : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
+class my_main_window : public layout_main_window<gui::layout::border::layouter<40, 30, 100, 250>> {
 public:
-  typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
+  typedef layout_main_window<gui::layout::border::layouter<40, 30, 100, 250>> super;
   my_main_window ();
 
   void onCreated (window*, const core::rectangle&);
@@ -160,8 +160,7 @@ void my_main_window::set_scale (double f) {
 
 // --------------------------------------------------------------------------
 my_main_window::my_main_window ()
-  : super(40, 30, 100, 250)
-  , thread_is_active(false)
+  : thread_is_active(false)
   , left_list(50, color::rgb_gray<224>::value)
   , right_view(simple_tree(20, color::very_light_gray), file_tree(20, color::very_light_gray))
 {
@@ -593,17 +592,13 @@ struct finally {
 };
 
 //-----------------------------------------------------------------------------
-class progress_dialog : public standard_dialog<win::group_window<layout::border_layout<>,
-  color::very_light_gray,
-  float, float, float, float>> {
+class progress_dialog : public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>, color::very_light_gray>> {
 public:
   typedef ctrl::progress_bar progress_view_type;
-  typedef win::group_window<layout::border_layout<>, color::very_light_gray,
-                            float, float, float, float> content_view_type;
+  typedef win::group_window<layout::border::layouter<20, 15, 15, 15>, color::very_light_gray> content_view_type;
   typedef standard_dialog<content_view_type> super;
 
-  progress_dialog ()
-    : super(content_view_type(20, 15, 15, 15)) {
+  progress_dialog () {
     content_view.get_layout().set_center(layout::lay(progress_view));
   }
 

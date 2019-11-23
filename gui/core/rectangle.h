@@ -109,10 +109,16 @@ namespace gui {
       self bottom_height (const size_type h) const;
 
       self grown (const size_t& s) const;
+      self grown (const size_type top, const size_type bottom, const size_type left, const size_type right) const;
+
       self shrinked (const size_t& s) const;
+      self shrinked (const size_type top, const size_type bottom, const size_type left, const size_type right) const;
 
       self& grow (const size_t& s);
+      self& grow (const size_type top, const size_type bottom, const size_type left, const size_type right);
+
       self& shrink (const size_t& s);
+      self& shrink (const size_type top, const size_type bottom, const size_type left, const size_type right);
 
       bool operator== (const self& rhs) const;
       bool operator!= (const self& rhs) const;

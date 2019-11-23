@@ -794,6 +794,9 @@ namespace gui {
                                    &parent_return,
                                    &children_return,
                                    &nchildren_return));
+//      if (children_return) {
+//        x11::check_return(XFree(children_return));
+//      }
       return (container*)detail::get_window(parent_return);
     }
 
@@ -802,11 +805,14 @@ namespace gui {
     }
 
     bool window::is_visible () const {
-      if (is_valid()) {
-        XWindowAttributes a = {0};
-        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
-        return (x11::check_status(result) && (a.map_state == IsViewable));
+      if (get_id()) {
+        return get_state().is_visible();
       }
+//      if (is_valid()) {
+//        XWindowAttributes a = {0};
+//        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
+//        return (x11::check_status(result) && (a.map_state == IsViewable));
+//      }
       return false;
     }
 

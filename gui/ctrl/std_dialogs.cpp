@@ -82,9 +82,7 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    yes_no_dialog::yes_no_dialog ()
-      : super(content_view_type(20, 15, 15, 15))
-    {
+    yes_no_dialog::yes_no_dialog () {
       content_view.get_layout().set_center(layout::lay(message_view));
     }
 
@@ -113,9 +111,7 @@ namespace gui {
     }
 
     //-----------------------------------------------------------------------------
-    message_dialog::message_dialog ()
-      : super(content_view_type(20, 15, 15, 15))
-    {
+    message_dialog::message_dialog () {
       content_view.get_layout().set_center(layout::lay(message_view));
     }
 
@@ -176,8 +172,6 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     file_save_dialog::file_save_dialog ()
-      : super(dir_file_view<>(), 38)
-      , top_view(8, 8, 60, 8)
     {}
 
     void file_save_dialog::create (win::container& parent,

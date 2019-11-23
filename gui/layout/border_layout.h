@@ -39,25 +39,46 @@ namespace gui {
   // --------------------------------------------------------------------------
   namespace layout {
 
-    // --------------------------------------------------------------------------
-    enum class border_layout_type {
-      all_symmetric,
-      top_bottom_maximize,
-      left_right_maximize,
-      top_left_maximize,
-      bottom_right_maximize,
-      bottom_max_top_min
-    };
+    namespace border {
 
-    // --------------------------------------------------------------------------
-    namespace detail {
+      // --------------------------------------------------------------------------
+      enum class type {
+        all_symmetric,
+        top_bottom_maximize,
+        left_right_maximize,
+        bottom_max_top_min,
+        top_max_bottom_min,
+        left_max_right_min,
+        right_max_left_min
+      };
 
-      class border_layout_base {
+      // --------------------------------------------------------------------------
+      struct left_width {
+        core::point::type left;
+        core::size::type width;
+      };
+
+      struct top_height {
+        core::point::type top;
+        core::size::type height;
+      };
+
+      // --------------------------------------------------------------------------
+      template<int TO, int BO, int LE, int RI, type T>
+      struct border_geometrie {
+        static left_width get_top (const core::rectangle&);
+        static left_width get_bottom (const core::rectangle&);
+        static top_height get_left (const core::rectangle&);
+        static top_height get_right (const core::rectangle&);
+      };
+
+      // --------------------------------------------------------------------------
+      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0, type T = type::top_bottom_maximize>
+      class layouter {
       public:
-        border_layout_base (float top_height = 0,
-                            float bottom_height = 0,
-                            float left_width = 0,
-                            float right_width = 0);
+        typedef border_geometrie<TO, BO, LE, RI, T> geometrie;
+
+        layouter (win::container* = nullptr);
 
         const layout_function& get_center () const;
         const layout_function& get_top () const;
@@ -77,84 +98,33 @@ namespace gui {
                                                layout_function left,
                                                layout_function right);
 
-        float get_top_height () const;
-        float get_bottom_height () const;
-        float get_left_width () const;
-        float get_right_width () const;
+        int get_top_height () const;
+        int get_bottom_height () const;
+        int get_left_width () const;
+        int get_right_width () const;
 
-        void set_top_height (float v);
-        void set_bottom_height (float v);
-        void set_left_width (float v);
-        void set_right_width (float v);
+        void layout (const core::rectangle& sz);
 
       protected:
-        struct border_layout_data {
-          border_layout_data (float top_height = 0,
-                              float bottom_height = 0,
-                              float left_width = 0,
-                              float right_width = 0);
-
+        struct {
           layout_function center;
           layout_function top;
           layout_function bottom;
           layout_function left;
           layout_function right;
-
-          float top_height;
-          float bottom_height;
-          float left_width;
-          float right_width;
-
         } data;
 
       };
 
-      // --------------------------------------------------------------------------
-      template<typename T1, typename T2>
-      std::pair<core::point::type, core::point::type> make_points (const T1& t1, const T2& t2);
+    } // namespace border
 
-      // --------------------------------------------------------------------------
-      template<border_layout_type T>
-      struct border_layout_geometrie {
-        typedef std::pair<core::point::type, core::point::type> points;
-        static points get_top_position (const core::rectangle&, const core::rectangle&);
-        static points get_bottom_position (const core::rectangle&, const core::rectangle&);
-        static points get_left_position (const core::rectangle&, const core::rectangle&);
-        static points get_right_position (const core::rectangle&, const core::rectangle&);
-      };
-
-      // --------------------------------------------------------------------------
-    } // namespace detail
-
-    // --------------------------------------------------------------------------
-    template<border_layout_type type = border_layout_type::top_bottom_maximize>
-    class border_layout : public detail::border_layout_base {
-    public:
-      typedef detail::border_layout_base super;
-      typedef detail::border_layout_geometrie<type> geometrie;
-
-      border_layout (win::container*,
-                     float top_height,
-                     float bottom_height,
-                     float left_width,
-                     float right_width);
-
-      border_layout (float top_height,
-                     float bottom_height,
-                     float left_width,
-                     float right_width);
-
-      void layout (const core::rectangle& sz);
-    };
-
-    template<border_layout_type T>
-    struct is_layout<border_layout<T>> {
+    template<int TO, int BO, int LE, int RI, border::type T>
+    struct is_layout<border::layouter<TO, BO, LE, RI, T>> {
       enum {
         value = true
       };
     };
 
-    // --------------------------------------------------------------------------
   } // namespace layout
 
 } // namespace gui

@@ -20,7 +20,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<border_layout<>, float, float, float, float> main(100, 100, 100, 20);
+  layout_main_window<border::layouter<100, 100, 100, 100>> main;
   label_center first, second, third;
   horizontal_adaption<0, 2> client({lay(first), lay(vertical_adaption<0, 2>({lay(second), lay(third)}))});
 

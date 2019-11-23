@@ -49,9 +49,9 @@ pixmap create_text_pixmap (const std::string& str,
   return img;
 }
 // --------------------------------------------------------------------------
-class RedImage : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
+class RedImage : public layout_main_window<gui::layout::border::layouter<20, 24, 260, 0>> {
 public:
-  typedef layout_main_window<gui::layout::border_layout<>, float, float, float, float> super;
+  typedef layout_main_window<gui::layout::border::layouter<20, 24, 260, 0>> super;
   typedef view::over_view<4, 2> mask_view_type;
 
   RedImage ();
@@ -152,9 +152,7 @@ private:
 
 // --------------------------------------------------------------------------
 RedImage::RedImage ()
-  : super(20, 24, 260, 0)
-//  , settings_path(sys_fs::absolute("redimage.xml"))
-  , current_view(nullptr)
+  : current_view(nullptr)
   , curent_full_image_view(-1)
   , learning_mode(false)
   , is_active(true)

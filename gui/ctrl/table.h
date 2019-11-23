@@ -23,7 +23,7 @@
 // Library includes
 //
 #include <gui/layout/layout_container.h>
-#include <gui/layout/border_layout.h>
+#include <gui/layout/dynamic_border_layout.h>
 #include <gui/ctrl/scroll_bar.h>
 #include <gui/ctrl/label.h>
 #include <gui/ctrl/edit.h>
@@ -393,10 +393,10 @@ namespace gui {
                                         const core::point& current_max);
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
+    class GUIPP_CTRL_EXPORT table_view : public win::group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
                                            color::very_very_light_gray, float, float, float, float> {
     public:
-      typedef group_window<gui::layout::border_layout<layout::border_layout_type::bottom_right_maximize>,
+      typedef group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
                            color::very_very_light_gray, float, float, float, float> super;
 
       typedef basic_label<text_origin::center,

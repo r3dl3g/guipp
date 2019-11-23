@@ -567,26 +567,27 @@ namespace gui {
       core::event e;
       std::function<simple_action> action;
 
-      auto x11_fd = ConnectionNumber(display);
+//      auto x11_fd = ConnectionNumber(display);
 
       // Create a File Description Set containing x11_fd
-      fd_set in_fds;
-      FD_ZERO(&in_fds);
-      FD_SET(x11_fd, &in_fds);
+//      fd_set in_fds;
+//      FD_ZERO(&in_fds);
+//      FD_SET(x11_fd, &in_fds);
+
+      // Define our timeout. Ten milliseconds sounds good.
+//      timeval timeout {0, 10000};
 
       while (running) {
-
-        // Set our timeout.  Ten milliseconds sounds good.
-        timeval timeout {0, 10000};
-
-        // Wait for X Event or a Timer
-        select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
         }
 
         while (XPending(display) && running) {
+
+//          // Wait for X Event or a Timer
+//          select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
           XNextEvent(display, &e);
 
           if (!win::is_frequent_event(e)) {

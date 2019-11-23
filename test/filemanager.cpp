@@ -16,7 +16,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<gui::layout::border_layout<>, float, float, float, float> main(20,0,0,0);
+  layout_main_window<gui::layout::border::layouter<20>> main;
   dir_file_view<> client;
   main_menu menu;
   popup_menu file_sub_menu;

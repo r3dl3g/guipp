@@ -175,7 +175,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     ctrl::cell_drawer<percent, draw::frame::sunken_relief>
   };
 
-  layout_main_window<gui::layout::border_layout<>, float, float, float, float> main(20, 0, 0, 0);
+  layout_main_window<gui::layout::border::layouter<20>> main;
   ctrl::main_menu menu;
   my_column_list_t client;
   vector_t data;

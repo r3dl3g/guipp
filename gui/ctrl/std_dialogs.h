@@ -45,14 +45,12 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT standard_dialog_base :
-        public win::layout_dialog_window<layout::border_layout<>,
-                                         float, float, float, float> {
+        public win::layout_dialog_window<layout::border::layouter<0, 45>> {
     public:
-      typedef win::layout_dialog_window<layout::border_layout<>,
-                                        float, float, float, float> super;
+      typedef win::layout_dialog_window<layout::border::layouter<0, 45>> super;
       using button_layout_type = layout::horizontal_adaption<>;
 
-      standard_dialog_base (float top = 0);
+      standard_dialog_base ();
 
       void create (win::container& parent,
                    const std::string& title,
@@ -73,9 +71,7 @@ namespace gui {
       typedef standard_dialog_base super;
       typedef T content_view_type;
 
-      standard_dialog (float top = 0);
-      standard_dialog (const content_view_type& view, float top = 0);
-      standard_dialog (content_view_type&& view, float top = 0);
+      standard_dialog ();
 
       void create (win::container& parent,
                    const std::string& title,
@@ -88,17 +84,15 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT message_dialog :
-        public standard_dialog<win::group_window<layout::border_layout<>,
-                                                 color::very_light_gray,
-                                                 float, float, float, float>> {
+        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
+                                                 color::very_light_gray>> {
     public:
       typedef basic_textbox<text_origin::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border_layout<>,
-                                color::very_light_gray,
-                                float, float, float, float> content_view_type;
+      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>,
+                                color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       message_dialog ();
@@ -123,17 +117,15 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT yes_no_dialog :
-        public standard_dialog<win::group_window<layout::border_layout<>,
-                                                 color::very_light_gray,
-                                                 float, float, float, float>> {
+        public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
+                                                 color::very_light_gray>> {
     public:
       typedef basic_textbox<text_origin::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
-      typedef win::group_window<layout::border_layout<>,
-                                color::very_light_gray,
-                                float, float, float, float> content_view_type;
+      typedef win::group_window<layout::border::layouter<20, 15, 15, 15>,
+                                color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
 
       yes_no_dialog ();
@@ -194,7 +186,7 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     template<typename ... Arguments>
-    class GUIPP_CTRL_EXPORT multi_input_dialog :
+    class multi_input_dialog :
         public standard_dialog<win::group_window<layout::vertical_lineup<20, 15, 2>,
                                                  color::very_light_gray>> {
     public:
@@ -202,6 +194,10 @@ namespace gui {
                                 color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
       static constexpr size_t N = sizeof...(Arguments);
+      using label_t = basic_label<text_origin::bottom_left,
+                                  draw::frame::no_frame,
+                                  color::black,
+                                  color::very_light_gray>;
 
       typedef void (action) (const std::tuple<Arguments...>&);
 
@@ -224,7 +220,7 @@ namespace gui {
                        const std::string& cancel_label,
                        std::function<action> action);
 
-      label_left labels[N];
+      label_t labels[N];
       edit_left edits[N];
     };
 
@@ -275,10 +271,11 @@ namespace gui {
     typedef path_open_dialog_base<path_tree::sorted_dir_info> dir_open_dialog;
 
     //-----------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT file_save_dialog : public standard_dialog<dir_file_view<>> {
+    class GUIPP_CTRL_EXPORT file_save_dialog :
+        public standard_dialog<dir_file_view<>> {
     public:
       typedef standard_dialog<dir_file_view<>> super;
-      typedef win::group_window<layout::border_layout<>, color::very_very_light_gray, float, float, float, float> top_view_type;
+      typedef win::group_window<layout::border::layouter<>, color::very_very_light_gray> top_view_type;
 
       file_save_dialog ();
 

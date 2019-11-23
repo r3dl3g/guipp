@@ -24,27 +24,27 @@ namespace gui {
   namespace ctrl {
 
     //-----------------------------------------------------------------------------
-    inline standard_dialog_base::standard_dialog_base (float top)
-      : super(top, 45, 0, 0)
+    inline standard_dialog_base::standard_dialog_base ()
+      : super()
     {}
 
     //-----------------------------------------------------------------------------
     template<typename T>
-    inline standard_dialog<T>::standard_dialog (float top)
-      : super(top)
+    inline standard_dialog<T>::standard_dialog ()
+      : super()
     {}
 
-    template<typename T>
-    inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
-      : super(top)
-      , content_view(view)
-    {}
+//    template<typename T>
+//    inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
+//      : super(top)
+//      , content_view(view)
+//    {}
 
-    template<typename T>
-    inline standard_dialog<T>::standard_dialog (content_view_type&& view, float top)
-      : super(top)
-      , content_view(std::move(view))
-    {}
+//    template<typename T>
+//    inline standard_dialog<T>::standard_dialog (content_view_type&& view, float top)
+//      : super(top)
+//      , content_view(std::move(view))
+//    {}
 
     template<typename T>
     void standard_dialog<T>::create (win::container& parent,
@@ -129,7 +129,7 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T>
     path_open_dialog_base<T>::path_open_dialog_base ()
-      : super(dir_file_view<T>())
+//      : super(dir_file_view<T>())
     {}
 
     template<typename T>

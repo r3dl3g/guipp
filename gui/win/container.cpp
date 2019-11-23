@@ -117,15 +117,21 @@ namespace gui {
     void container::set_children_visible (bool show) {
       if (show) {
         x11::check_return(XMapSubwindows(core::global::get_instance(), get_id()));
+        for(window* win : get_children()) {
+          win->get_state().set_visible(true);
+        }
       } else {
         x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
+        for(window* win : get_children()) {
+          win->get_state().set_visible(false);
+        }
       }
     }
 
     std::vector<window*> container::get_children () const {
       std::vector<window*> list;
 
-      if (is_visible()) {
+      if (is_valid()) {
         Window root = 0;
         Window parent = 0;
         Window *children = 0;

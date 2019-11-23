@@ -88,7 +88,7 @@ namespace gui {
               area.move_x(xoffset);
             } else {
               column = 0;
-              area.move_to_x(border);
+              area.move_to_x(border + r.x());
               area.move_y(yoffset);
             }
           }

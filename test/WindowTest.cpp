@@ -242,6 +242,7 @@ private:
 
   ctrl::horizontal_slider hslider;
   ctrl::vertical_slider vslider;
+
   const ctrl::paint_function paint1;
   const ctrl::paint_function paint2;
 
@@ -333,17 +334,17 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 }
 
 my_main_window::my_main_window ()
-  : list2(main_split_view.first.first)
+  : at_paint1(true)
+  , at_drag(false)
+  , calc_pressed(false)
+  , draw_invert(false)
+  , list2(main_split_view.first.first)
   , list3(main_split_view.first.second)
   , paint1(create_paint1())
   , paint2(create_paint2())
   , column_list(my_column_list_t(20, color::very_very_light_gray))
   , table_view(50, 20)
   , table_data(std::string())
-  , at_paint1(true)
-  , at_drag(false)
-  , calc_pressed(false)
-  , draw_invert(false)
 {
   main_split_view.second.second.list.set_item_size_and_background(16, color::very_light_gray);
   list1.set_item_size(25);
@@ -379,37 +380,37 @@ my_main_window::my_main_window ()
 
 //#endif
 
-  //on_moving([] (const core::point& r) {
-  //  LogDebug << "Main moving: " << r;
-  //});
-  //on_sizing([] (const core::size& r) {
-  //  LogDebug << "Main sizing: " << r;
-  //});
-  //on_placing([] (const core::rectangle& r) {
-  //  LogDebug << "Main placing: " << r;
-  //});
+  on_moving([] (const core::point& r) {
+    LogDebug << "Main moving: " << r;
+  });
+  on_sizing([] (const core::size& r) {
+    LogDebug << "Main sizing: " << r;
+  });
+  on_placing([] (const core::rectangle& r) {
+    LogDebug << "Main placing: " << r;
+  });
 
-  //on_move([] (const core::point& p) {
-  //  LogDebug << "Main move: " << p;
-  //});
-  //on_size([] (const core::size& s) {
-  //  LogDebug << "Main size: " << s;
-  //});
-  //on_place([] (const core::rectangle& r) {
-  //  LogDebug << "Main place: " << r;
-  //});
+  on_move([] (const core::point& p) {
+    LogDebug << "Main move: " << p;
+  });
+  on_size([] (const core::size& s) {
+    LogDebug << "Main size: " << s;
+  });
+  on_place([] (const core::rectangle& r) {
+    LogDebug << "Main place: " << r;
+  });
 
 //#ifdef WIN32
 //  ok_button.on_activate([](bool on, win::window* win) {
 //    LogDebug << "Button " << (on ? "" : "de") << "activate";
 //  });
 //#endif
-  ok_button.on_set_focus([] (win::window*) {
-    LogDebug << "Button Set Focus";
-  });
-  ok_button.on_lost_focus([&] (win::window*) {
-    LogDebug << "Button Lost Focus";
-  });
+//  ok_button.on_set_focus([] (win::window*) {
+//    LogDebug << "Button Set Focus";
+//  });
+//  ok_button.on_lost_focus([&] (win::window*) {
+//    LogDebug << "Button Lost Focus";
+//  });
 
   on_left_btn_down([&] (os::key_state, const core::point& p) {
     LogDebug << "Left Button Down at " << p;
@@ -447,7 +448,7 @@ my_main_window::my_main_window ()
   window1.on_left_btn_up([&](os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
-    LogDebug << "Window Mouse up at " << p;
+    LogDebug << "Window1 Mouse up at " << p;
   });
 
   window2.on_left_btn_down([&](os::key_state, const core::point& p) {
@@ -459,11 +460,11 @@ my_main_window::my_main_window ()
   window2.on_left_btn_up([&](os::key_state, const core::point& p) {
     window2.uncapture_pointer();
     at_drag = false;
-    LogDebug << "Window Mouse up at " << p;
+    LogDebug << "Window2 Mouse up at " << p;
   });
 
   window1.on_mouse_move([&] (os::key_state, const core::point& p) {
-    //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //LogDebug << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
@@ -471,7 +472,7 @@ my_main_window::my_main_window ()
     }
   });
   window2.on_mouse_move([&] (os::key_state, const core::point& p) {
-    //LogDebug << "Window Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //LogDebug << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
@@ -536,6 +537,7 @@ my_main_window::my_main_window ()
 //    LogDebug << "Button " << (state ? "hilited" : "unhilited");
 //  });
 //#endif // WIN32
+
   ok_button.on_pushed([&] () {
     LogDebug << "Button pushed";
     label.set_text("Pushed!");
@@ -777,8 +779,8 @@ my_main_window::my_main_window ()
   end_angle.on_scroll([&](core::point::type) {
     window2.invalidate();
   });
-  /*
-    window2.on_mouse_enter([]() {
+
+  window2.on_mouse_enter([]() {
     LogDebug << "Window2 mouse enter";
   });
   window2.on_mouse_leave([]() {
@@ -789,8 +791,7 @@ my_main_window::my_main_window ()
   });
   window1.on_size([](const core::size& s) {
     LogDebug << "Window1 size: " << s;
-  }));
-  */
+  });
 
 //  table_view.columns.set_selection_filter([] (const ctrl::table::position& cell,
 //                                              const ctrl::table::metric& geo) {
@@ -1031,7 +1032,6 @@ void my_main_window::created_children () {
   start_angle.create(main, core::rectangle(5, 340, 160, 12));
   end_angle.set_min_max_step_value(0, 360, 1, 260);
   end_angle.create(main, core::rectangle(5, 352, 160, 12));
-
 
   label.create(main, "Text", core::rectangle(50, 370, 120, 20));
   labelC.create(main, core::rectangle(50, 391, 120, 20));

@@ -54,7 +54,7 @@ namespace gui {
 
       bool check_return (int r) {
 # ifndef NDEBUG
-        core::global::sync();
+//        core::global::sync();
 # endif
         switch (r) {
           case Success:
@@ -189,6 +189,18 @@ namespace gui {
         return parent->get_root_window();
       }
       return (container*)this;
+    }
+
+    overlapped_window* window::get_overlapped_window () const {
+      if (get_state().is_overlapped()) {
+        return (overlapped_window*)this;
+      }
+      container* parent = get_parent();
+      if (parent) {
+        return parent->get_overlapped_window();
+      } else {
+        return nullptr;
+      }
     }
 
     bool window::handle_event (const core::event& e, gui::os::event_result& result) const {
@@ -1120,7 +1132,7 @@ namespace gui {
       detail::set_window(id, data);
       data->id = id;
 
-      x11::prepare_win_for_event(data, 0);
+      x11::prepare_win_for_event(data, KeyReleaseMask);
 
       if (0 == hidden::window_class_info_map.count(type.get_class_name())) {
         hidden::window_class_info_map[type.get_class_name()] = type;

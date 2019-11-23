@@ -114,15 +114,45 @@ namespace gui {
       return child.get_parent() == this;
     }
 
+    void collect_children_deep (std::vector<window*>& list, const window& win) {
+      if (win.is_valid()) {
+        Window root = 0;
+        Window parent = 0;
+        Window *children = 0;
+        unsigned int nchildren = 0;
+
+        if (x11::check_status(XQueryTree(core::global::get_instance(),
+                                         win.get_id(),
+                                         &root,
+                                         &parent,
+                                         &children,
+                                         &nchildren))) {
+          for (unsigned int n = 0; n < nchildren; ++n) {
+            window* sub = detail::get_window(children[n]);
+            if (sub) {
+              list.push_back(sub);
+              collect_children_deep(list, *sub);
+            }
+          }
+        }
+      }
+    }
+
+    std::vector<window*> get_deep_children (const window& win) {
+      std::vector<window*> list;
+      collect_children_deep(list, win);
+      return list;
+    }
+
     void container::set_children_visible (bool show) {
       if (show) {
         x11::check_return(XMapSubwindows(core::global::get_instance(), get_id()));
-        for(window* win : get_children()) {
+        for(window* win : get_deep_children(*this)) {
           win->get_state().set_visible(true);
         }
       } else {
         x11::check_return(XUnmapSubwindows(core::global::get_instance(), get_id()));
-        for(window* win : get_children()) {
+        for(window* win : get_deep_children(*this)) {
           win->get_state().set_visible(false);
         }
       }
@@ -144,7 +174,10 @@ namespace gui {
                                          &children,
                                          &nchildren))) {
           for (unsigned int n = 0; n < nchildren; ++n) {
-            list.push_back(detail::get_window(children[n]));
+            window* sub = detail::get_window(children[n]);
+            if (sub) {
+              list.push_back(sub);
+            }
           }
         }
       }
@@ -325,6 +358,7 @@ namespace gui {
     void overlapped_window::create (const class_info& cls,
                                     const core::rectangle& r) {
       super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
+      get_state().set_overlapped(true);
     }
 
     void overlapped_window::create (const class_info& cls,
@@ -332,6 +366,7 @@ namespace gui {
                                     const core::rectangle& r) {
       gui::os::instance display = core::global::get_instance();
       super::create(cls, DefaultRootWindow(display), r);
+      get_state().set_overlapped(true);
       XSetTransientForHint(display, get_id(), parent.get_id());
     }
 

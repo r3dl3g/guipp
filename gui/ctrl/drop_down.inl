@@ -272,7 +272,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     drop_down_list<T, D>::~drop_down_list () {
-      auto* root = super::get_root_window();
+      auto* root = super::get_parent()->get_overlapped_window();
       if (root) {
         root->template unregister_event_handler<win::move_event>(me);
       }
@@ -280,7 +280,7 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     void drop_down_list<T, D>::create_children (window*, const core::rectangle& r) {
-      data.button.create(*this, get_layout().button_place(r));
+      data.button.create(*this);//, get_layout().button_place(r));
       data.button.set_visible();
     }
 
@@ -309,7 +309,7 @@ namespace gui {
       });
       data.popup.create(*this, place);
 
-      auto* root = super::get_root_window();
+      auto* root = super::get_parent()->get_overlapped_window();
       if (root) {
         root->template on<win::move_event>(me);
       }

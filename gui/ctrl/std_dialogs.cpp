@@ -58,7 +58,7 @@ namespace gui {
     }
 
     void standard_dialog_base::show (win::container& parent) {
-      set_children_visible();
+//      set_children_visible();
       set_visible();
       parent.disable();
       run_modal(

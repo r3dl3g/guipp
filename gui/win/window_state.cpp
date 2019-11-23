@@ -58,6 +58,10 @@ namespace gui {
 #endif // X11
     }
 
+    bool window_state::is_overlapped () const {
+      return get_flag(flags::is_overlapped);
+    }
+
     bool window_state::set_visible (bool a) {
       return set_flag(flags::is_visible, a);
     }
@@ -92,6 +96,10 @@ namespace gui {
 
     bool window_state::set_needs_redraw (bool on) const {
       return set_flag(flags::needs_redraw, on);
+    }
+
+    bool window_state::set_overlapped (bool on) {
+      return set_flag(flags::is_overlapped, on);
     }
 
     bool window_state::needs_redraw () const {

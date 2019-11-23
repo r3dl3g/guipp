@@ -44,11 +44,13 @@ namespace gui {
       bool is_enabled () const;
       bool is_focus_accepting () const;
       bool is_redraw_disabled () const;
+      bool is_overlapped () const;
 
       bool set_enable (bool on);
       bool set_visible (bool on);
       bool set_accept_focus (bool a);
       bool disable_redraw (bool on = true);
+      bool set_overlapped (bool on);
 
       bool set_in_event_handle (bool on);
       bool is_in_event_handle () const;
@@ -65,6 +67,7 @@ namespace gui {
           in_event_handle,
           needs_redraw,
           is_visible,
+          is_overlapped,
           last_window_state_enum
         };
       };

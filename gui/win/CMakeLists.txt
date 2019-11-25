@@ -26,7 +26,9 @@ if(NOT TARGET gui++-win-obj)
 
   add_library(gui++-win-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-win-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(gui++-win-obj PROPERTIES
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries)
 
   if(GUIPP_BUILD_STATIC_MODULE_LIBS)
     add_definitions(-DGUIPP_BUILT_AS_STATIC)
@@ -39,9 +41,10 @@ if(NOT TARGET gui++-win-obj)
     add_library(gui++-win SHARED $<TARGET_OBJECTS:gui++-win-obj>)
     target_link_libraries(gui++-win PRIVATE gui++-core ${gui_sys_libraries})
     set_target_properties(gui++-win PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      VERSION ${gui_VERSION}
-      SOVERSION ${gui_VERSION_MAJOR})
+                          POSITION_INDEPENDENT_CODE ON
+                          FOLDER libraries
+                          VERSION ${gui_VERSION}
+                          SOVERSION ${gui_VERSION_MAJOR})
 
     install(TARGETS gui++-win DESTINATION ${LIBRARY_INSTALL_DIR})
   endif()

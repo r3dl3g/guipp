@@ -139,10 +139,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     target_link_libraries(gui++ PRIVATE ${logging_libraries} ${gui_sys_libraries})
 
     set_target_properties(gui++ PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      VERSION ${gui_VERSION}
-      SOVERSION ${gui_VERSION_MAJOR}
-      )
+                          POSITION_INDEPENDENT_CODE ON
+                          FOLDER libraries
+                          VERSION ${gui_VERSION}
+                          SOVERSION ${gui_VERSION_MAJOR}
+    )
 
     install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
 
@@ -163,10 +164,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     target_link_libraries(gui++ PRIVATE ${gui_sys_libraries})
 
     set_target_properties(gui++ PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      VERSION ${gui_VERSION}
-      SOVERSION ${gui_VERSION_MAJOR}
-      )
+                          POSITION_INDEPENDENT_CODE ON
+                          FOLDER libraries
+                          VERSION ${gui_VERSION}
+                          SOVERSION ${gui_VERSION_MAJOR}
+    )
 
     install(TARGETS gui++ DESTINATION ${LIBRARY_INSTALL_DIR})
 
@@ -185,10 +187,11 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
     add_library(gui++-static STATIC gui.cpp)
 
     set_target_properties(gui++-static PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-      VERSION ${gui_VERSION}
-      SOVERSION ${gui_VERSION_MAJOR}
-      )
+                          POSITION_INDEPENDENT_CODE ON
+	                      FOLDER libraries
+                          VERSION ${gui_VERSION}
+                          SOVERSION ${gui_VERSION_MAJOR}
+    )
 
     install(TARGETS gui++-static DESTINATION ${LIBRARY_INSTALL_DIR})
 

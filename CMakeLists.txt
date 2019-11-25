@@ -4,6 +4,8 @@ project("gui-lib" CXX)
 
 set(BUILD_FOR_ARM OFF CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 function(print_var VAR)
     message(STATUS "${VAR}: '" ${${VAR}} "'")
 endfunction(print_var)

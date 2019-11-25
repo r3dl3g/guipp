@@ -26,7 +26,9 @@ if(NOT TARGET gui++-core-obj)
 
     add_library(gui++-core-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
-    set_target_properties(gui++-core-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    set_target_properties(gui++-core-obj PROPERTIES 
+                          POSITION_INDEPENDENT_CODE ON
+                          FOLDER libraries)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
@@ -42,6 +44,7 @@ if(NOT TARGET gui++-core-obj)
         target_link_libraries(gui++-core PRIVATE ${logging_libraries} ${gui_sys_libraries} ${logging_sys_libraries})
         set_target_properties(gui++-core PROPERTIES
                                          POSITION_INDEPENDENT_CODE ON
+                                         FOLDER libraries
                                          VERSION ${gui_VERSION}
                                          SOVERSION ${gui_VERSION_MAJOR})
         install(TARGETS gui++-core DESTINATION ${LIBRARY_INSTALL_DIR})

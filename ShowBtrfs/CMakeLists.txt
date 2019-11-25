@@ -32,6 +32,7 @@ add_definitions(${gui_defines})
 
 add_executable(ShowBtrfs WIN32 ShowBtrfs.cpp)
 target_link_libraries(ShowBtrfs ${gui_libraries} ${gui_sys_libraries})
+set_target_properties(ShowBtrfs PROPERTIES FOLDER apps)
 
 install(TARGETS ShowBtrfs DESTINATION bin)
 

@@ -20,7 +20,9 @@ if(NOT TARGET gui++-app-obj)
 
   add_library(gui++-app-obj OBJECT ${SOURCE_FILES} ${INCLUDE_FILES})
 
-  set_target_properties(gui++-app-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(gui++-app-obj PROPERTIES 
+                        POSITION_INDEPENDENT_CODE ON
+                        FOLDER libraries)
 
   add_library(gui++-app STATIC $<TARGET_OBJECTS:gui++-app-obj>)
   install(TARGETS gui++-app DESTINATION ${LIBRARY_INSTALL_DIR})

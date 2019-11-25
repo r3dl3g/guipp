@@ -66,4 +66,6 @@ add_executable(RedImage WIN32 ${SOURCE_FILES})
 target_link_libraries(RedImage ${gui_libraries} ${gui_sys_libraries})
 target_link_libraries(RedImage ${OpenCV_LIBS})
 
+set_target_properties(RedImage PROPERTIES FOLDER apps)
+
 install(TARGETS RedImage DESTINATION bin)

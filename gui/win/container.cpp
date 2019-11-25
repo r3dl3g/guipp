@@ -580,12 +580,16 @@ namespace gui {
 #endif // X11
     }
 
-    void modal_window::run_modal (const window& parent) {
+    void modal_window::run_modal (window& parent) {
       run_modal(parent, {});
     }
 
-    void modal_window::run_modal (const window& parent, const std::vector<hot_key_action>& hot_keys) {
+    void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
       LogTrace << *this << " Enter modal loop";
+
+      set_visible();
+      to_front();
+      parent.disable();
 
       invalidate();
 
@@ -619,6 +623,9 @@ namespace gui {
 #ifdef X11
       input_eater.set_visible(false);
 #endif // X11
+
+      parent.enable();
+      parent.take_focus();
 
       LogTrace << *this << " Exit modal loop";
     }

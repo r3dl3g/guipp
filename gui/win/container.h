@@ -105,8 +105,8 @@ namespace gui {
       modal_window (modal_window&&);
 
       void end_modal ();
-      void run_modal (const window&);
-      void run_modal (const window&, const std::vector<hot_key_action>& hot_keys);
+      void run_modal (window&);
+      void run_modal (window&, const std::vector<hot_key_action>& hot_keys);
 
     private:
       void init ();

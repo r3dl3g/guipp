@@ -797,7 +797,6 @@ namespace gui {
         }
       });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
-      set_visible();
       run_modal(parent);
     }
 
@@ -818,7 +817,6 @@ namespace gui {
         }
       });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
-      set_visible();
       run_modal(parent);
     }
 

@@ -58,17 +58,12 @@ namespace gui {
     }
 
     void standard_dialog_base::show (win::container& parent) {
-      set_visible();
-      to_front();
-      parent.disable();
       run_modal(parent, {
         win::hot_key_action{
           win::hot_key(win::keys::escape, win::state::none),
           [&] () { end_modal(); }
         }
       });
-      parent.enable();
-      parent.take_focus();
     }
 
     //-----------------------------------------------------------------------------
@@ -102,9 +97,6 @@ namespace gui {
 
     void yes_no_dialog::show (win::container& parent,
                               std::function<yes_no_action> action) {
-      set_visible();
-      to_front();
-      parent.disable();
       run_modal(parent, {
         win::hot_key_action{
           win::hot_key(win::keys::escape, win::state::none),
@@ -119,8 +111,6 @@ namespace gui {
           [&] () { forward_focus(true); }
         }
       });
-      parent.enable();
-      parent.take_focus();
     }
 
     //-----------------------------------------------------------------------------

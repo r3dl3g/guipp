@@ -540,7 +540,7 @@ namespace gui {
     template<orientation V, typename T>
     void basic_list<V, T>::adjust_scroll_bar (const core::size& sz) {
       if (super::is_scroll_bar_enabled()) {
-        scroll_bar::type invisible = traits.get_invisible_size(content_size(sz), super::get_count());
+        scroll_bar::type invisible = traits.get_invisible_size(content_size(sz, true), super::get_count());
         const bool show_scroll = (invisible > zero);
         if (show_scroll) {
           create_scroll_bar(sz);
@@ -715,7 +715,7 @@ namespace gui {
 
     template<orientation V>
     void linear_list<V>::paint (const draw::graphics& graph) {
-      const core::rectangle area(super::content_size(super::client_size()));
+      const core::rectangle area(super::content_size(super::client_size(), false));
       core::rectangle place = area;
 
       draw::brush back_brush(super::get_background());

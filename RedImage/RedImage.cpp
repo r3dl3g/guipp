@@ -721,17 +721,18 @@ void RedImage::calc_status () {
 
   std::ostringstream buffer;
   if (portions[2] != 0.0F) {
-    buffer << "Bad: " << (portions[2] * 100.0F) << "%";
+    buffer << "Bad: " << std::fixed << std::setprecision(2) << (portions[2] * 100.0F) << "%";
   }
   if (portions[1] != 0.0F) {
     if (portions[0] != 0.0F) {
       buffer << " - ";
     }
-    buffer << "Off: " << (portions[1] * 100.0F) << "%";
+    buffer << "Off: " << std::fixed << std::setprecision(2) << (portions[1] * 100.0F) << "%";
   }
   if (portions[2] != 0.0F) {
     float good = 1.0F - (portions[2]);
-    buffer << " - Good: " << (good * 100.0F) << "% - Quality: " << (portions[2] /*/ good*/) * 100.0F << "%";
+    buffer << " - Good: " << std::fixed << std::setprecision(2) << (good * 100.0F)
+           << "% - Quality: " << std::fixed << std::setprecision(2) << (portions[2] /*/ good*/) * 100.0F << "%";
   }
   status.labels[1].set_text(buffer.str());
 }
@@ -855,8 +856,26 @@ void RedImage::show_prev () {
   }
 }
 // --------------------------------------------------------------------------
+  struct file_logger {
+    std::ofstream sink;
+
+    file_logger (const std::string& name, logging::level lvl, const logging::record_formatter& fmt)
+      : sink(name, std::ios_base::out|std::ios_base::ate)
+    {
+      logging::core::instance().add_sink(&sink, lvl, fmt);
+    }
+
+    ~file_logger () {
+      logging::core::instance().remove_sink(&sink);
+      sink.close();
+    }
+
+  };
+// --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
   RedImage main;
+
+  file_logger l("RedImage.log", logging::level::debug, logging::core::get_standard_formatter());
 
   main.create({50, 50, 800, 600});
   main.calc_title();

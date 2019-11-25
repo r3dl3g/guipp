@@ -305,7 +305,13 @@ namespace gui {
     void overlapped_window::create (const class_info& type,
                                     const window& parent,
                                     const core::rectangle& r) {
+#ifdef WIN32
+      auto rect = r.os();
+      AdjustWindowRectEx(&rect, type.get_style(), FALSE, type.get_ex_style());
+      window::create(type, parent.get_id(), core::rectangle(rect));
+#else
       window::create(type, parent.get_id(), r);
+#endif // WIN32
     }
 
     void overlapped_window::create (const class_info& type,

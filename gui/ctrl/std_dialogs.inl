@@ -34,18 +34,6 @@ namespace gui {
       : super()
     {}
 
-//    template<typename T>
-//    inline standard_dialog<T>::standard_dialog (const content_view_type& view, float top)
-//      : super(top)
-//      , content_view(view)
-//    {}
-
-//    template<typename T>
-//    inline standard_dialog<T>::standard_dialog (content_view_type&& view, float top)
-//      : super(top)
-//      , content_view(std::move(view))
-//    {}
-
     template<typename T>
     void standard_dialog<T>::create (win::container& parent,
                                      const std::string& title,
@@ -129,7 +117,6 @@ namespace gui {
     //-----------------------------------------------------------------------------
     template<typename T>
     path_open_dialog_base<T>::path_open_dialog_base ()
-//      : super(dir_file_view<T>())
     {}
 
     template<typename T>
@@ -159,7 +146,7 @@ namespace gui {
       }, filter);
 
       super::create(parent, title,
-                    core::rectangle(300, 200, 1200, 800),
+                    core::rectangle(200, 100, 800, 600),
                     [&, action] (int btn) {
         if (1 == btn) {
           if (super::content_view.second.list.get_selection() > -1) {

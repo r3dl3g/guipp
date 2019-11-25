@@ -320,7 +320,7 @@ namespace gui {
           layout::weight_column_info {24, text_origin::center, 24, 0.0F},
           layout::weight_column_info {120, text_origin::vcenter_left, 20, 1.0F},
           layout::weight_column_info {80, text_origin::vcenter_right, 20, 0.0F},
-          layout::weight_column_info {120, text_origin::vcenter_right, 20, 0.001F}
+          layout::weight_column_info {160, text_origin::vcenter_right, 20, 0.001F}
         }, false);
       }
 

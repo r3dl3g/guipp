@@ -91,6 +91,7 @@ namespace gui {
       Atom NET_WM_STATE_MAXIMIZED_VERT = 0;
       Atom NET_WM_STATE_ABOVE = 0;
       Atom NET_WM_STATE_HIDDEN = 0;
+      Atom WM_SIZE_HINTS = 0;
 
       int init_for_net_wm_state () {
         core::x11::init_atom(NET_WM_STATE, "_NET_WM_STATE");
@@ -99,6 +100,7 @@ namespace gui {
         core::x11::init_atom(NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE");
         core::x11::init_atom(NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN");
         core::x11::init_atom(ATOM_ATOM, "ATOM");
+        core::x11::init_atom(WM_SIZE_HINTS, "WM_SIZE_HINTS");
         return 1;
       }
 
@@ -355,29 +357,48 @@ namespace gui {
 #endif // WIN32
 
 #ifdef X11
-    void overlapped_window::create (const class_info& cls,
-                                    const core::rectangle& r) {
-      super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
-      get_state().set_overlapped(true);
+    // --------------------------------------------------------------------------
+    template<typename T>
+    void change_property (gui::os::instance display, os::window id, const char* type, T value);
+
+    template<>
+    void change_property<const char*>(gui::os::instance display, os::window id, const char* type, const char* value) {
+      Atom t = XInternAtom(display, type, False);
+      Atom v = XInternAtom(display, value, False);
+      XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
     }
 
-    void overlapped_window::create (const class_info& cls,
-                                    const window& parent,
-                                    const core::rectangle& r) {
-      gui::os::instance display = core::global::get_instance();
-      super::create(cls, DefaultRootWindow(display), r);
-      get_state().set_overlapped(true);
-      XSetTransientForHint(display, get_id(), parent.get_id());
+    template<>
+    void change_property<os::window>(gui::os::instance display, os::window id, const char* type, os::window value) {
+      Atom t = XInternAtom(display, type, False);
+      XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
     }
 
-    void overlapped_window::set_title (const std::string& title) {
-      x11::check_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
+    std::string get_property (gui::os::instance display, os::window id, const char* name) {
+      Atom prop_name = XInternAtom(display, name, False);
+      Atom actual_type;
+      int actual_format;
+      unsigned long nitems, bytes_after;
+      unsigned char *data = 0;
+      std::string str;
+      if ((Success == XGetWindowProperty(display, id, prop_name, 0, 1024, false,
+                                         XA_ATOM, &actual_type, &actual_format,
+                                         &nitems, &bytes_after, &data))
+          && (nitems > 0)) {
+        if (actual_type == XA_ATOM) {
+          str = XGetAtomName(display, *(Atom*)data);
+        }
+        XFree(data);
+      }
+      return str;
     }
 
-    std::string overlapped_window::get_title () const {
-      char *window_name;
-      x11::check_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
-      return std::string(window_name);
+    void set_wm_protocols (gui::os::instance display, os::window id) {
+      Atom protocols[] = {
+        core::x11::WM_TAKE_FOCUS,
+        core::x11::WM_DELETE_WINDOW,
+      };
+      XSetWMProtocols(display, id, protocols, 2);
     }
 
     bool query_net_wm_state (os::window id,
@@ -414,22 +435,6 @@ namespace gui {
       return ret_a1 && ret_a2 && ret_a3;
     }
 
-    bool overlapped_window::is_maximized () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
-    }
-
-    bool overlapped_window::is_top_most () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
-    }
-
-    bool overlapped_window::is_minimized () const {
-      return query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
-    }
-
-    void overlapped_window::minimize () {
-      XIconifyWindow(core::global::get_instance(), get_id(), core::global::x11::get_screen());
-    }
-
     void send_net_wm_state (os::window id,
                             long action,
                             Atom a1,
@@ -451,6 +456,47 @@ namespace gui {
       XSendEvent(dpy, DefaultRootWindow(dpy), False, SubstructureNotifyMask, &xev);
     }
 
+    void overlapped_window::create (const class_info& cls,
+                                    const core::rectangle& r) {
+      super::create(cls, DefaultRootWindow(core::global::get_instance()), r);
+      get_state().set_overlapped(true);
+    }
+
+    void overlapped_window::create (const class_info& cls,
+                                    const window& parent,
+                                    const core::rectangle& r) {
+      gui::os::instance display = core::global::get_instance();
+      super::create(cls, DefaultRootWindow(display), r);
+      get_state().set_overlapped(true);
+      XSetTransientForHint(display, get_id(), parent.get_id());
+    }
+
+    void overlapped_window::set_title (const std::string& title) {
+      x11::check_status(XStoreName(core::global::get_instance(), get_id(), title.c_str()));
+    }
+
+    std::string overlapped_window::get_title () const {
+      char *window_name;
+      x11::check_status(XFetchName(core::global::get_instance(), get_id(), &window_name));
+      return std::string(window_name);
+    }
+
+    bool overlapped_window::is_maximized () const {
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_MAXIMIZED_HORZ, x11::NET_WM_STATE_MAXIMIZED_VERT);
+    }
+
+    bool overlapped_window::is_top_most () const {
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_ABOVE);
+    }
+
+    bool overlapped_window::is_minimized () const {
+      return query_net_wm_state(get_id(), x11::NET_WM_STATE_HIDDEN);
+    }
+
+    void overlapped_window::minimize () {
+      XIconifyWindow(core::global::get_instance(), get_id(), core::global::x11::get_screen());
+    }
+
     void overlapped_window::maximize () {
       send_net_wm_state(get_id(), _NET_WM_STATE_ADD,
                         x11::NET_WM_STATE_MAXIMIZED_HORZ,
@@ -469,6 +515,35 @@ namespace gui {
                         toplevel ? _NET_WM_STATE_ADD : _NET_WM_STATE_REMOVE,
                         x11::NET_WM_STATE_ABOVE);
     }
+
+    // --------------------------------------------------------------------------
+    class input_only_window : public window {
+      using clazz = window_class<input_only_window,
+                                 color::transparent,
+                                 win::cursor_type::wait,
+                                 win::window_class_defaults<>::style,
+                                 win::window_class_defaults<>::ex_style,
+                                 InputOutput>;
+      using super = window;
+      container& parent;
+//      std::string old_value;
+
+    public:
+      input_only_window (container& parent)
+        : parent(parent)
+      {
+        super::create(clazz::get(), parent, parent.client_area());
+        to_front();
+//        auto dpy = core::global::get_instance();
+//        old_value = get_property(dpy, parent.get_id(), "_NET_WM_WINDOW_TYPE");
+//        change_property(dpy, parent.get_id(), "_NET_WM_WINDOW_TYPE", "_NET_WM_WINDOW_TYPE_UTILITY");
+      }
+
+//      ~input_only_window () {
+//        change_property(core::global::get_instance(), parent.get_id(), "_NET_WM_WINDOW_TYPE", old_value.c_str());
+//      }
+    };
+
 
 #endif //X11
     // --------------------------------------------------------------------------
@@ -505,33 +580,11 @@ namespace gui {
 #endif // X11
     }
 
-#ifdef X11
-    bool is_deeper_window (const window* main, const window* sub) {
-      if (sub) {
-        if (sub == main) {
-          return false;
-        }
-
-        const container* parent = sub->get_parent();
-        if (parent) {
-          return is_deeper_window(main, parent);
-        }
-      }
-
-      return true;
+    void modal_window::run_modal (const window& parent) {
+      run_modal(parent, {});
     }
 
-    bool is_deeper_window (os::window main, os::window sub) {
-      return is_deeper_window(detail::get_window(main), detail::get_window(sub));
-    }
-
-#endif // X11
-
-    void modal_window::run_modal () {
-      run_modal({});
-    }
-
-    void modal_window::run_modal (const std::vector<hot_key_action>& hot_keys) {
+    void modal_window::run_modal (const window& parent, const std::vector<hot_key_action>& hot_keys) {
       LogTrace << *this << " Enter modal loop";
 
       invalidate();
@@ -539,22 +592,10 @@ namespace gui {
       is_modal = true;
 
 #ifdef X11
-      os::window win = get_id();
+      input_only_window input_eater(*parent.get_overlapped_window());
+      input_eater.set_visible();
 
-      run_loop(is_modal, [&, win](const core::event & e)->bool {
-        switch (e.type) {
-        case MotionNotify:
-        case ButtonPress:
-        case ButtonRelease:
-        case FocusIn:
-        case FocusOut:
-        case EnterNotify:
-        case LeaveNotify:
-          return is_deeper_window(win, e.xany.window);
-        case ClientMessage:
-//          LogDebug << *this << " ClientMessage:" << e.xclient.message_type;
-          break;
-        }
+      run_loop(is_modal, [&](const core::event & e)->bool {
 #endif // X11
 
 #ifdef WIN32
@@ -562,7 +603,7 @@ namespace gui {
           if (e.type == WM_KEYDOWN) {
 #endif // WIN32
 #ifdef X11
-        if ((e.type == KeyPress) && !is_deeper_window(win, e.xany.window)) {
+        if (e.type == KeyPress) {
 #endif // X11011
           hot_key hk(get_key_symbol(e), get_key_state(e));
           for (hot_key_action k : hot_keys) {
@@ -575,36 +616,10 @@ namespace gui {
         return detail::check_expose(e);
       });
 
+      input_eater.set_visible(false);
+
       LogTrace << *this << " Exit modal loop";
     }
-
-#ifdef X11
-    // --------------------------------------------------------------------------
-    template<typename T>
-    void change_property (gui::os::instance display, os::window id, const char* type, T value);
-
-    template<>
-    void change_property<const char*>(gui::os::instance display, os::window id, const char* type, const char* value) {
-      Atom t = XInternAtom(display, type, False);
-      Atom v = XInternAtom(display, value, False);
-      XChangeProperty(display, id, t, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&v), 1);
-    }
-
-    template<>
-    void change_property<os::window>(gui::os::instance display, os::window id, const char* type, os::window value) {
-      Atom t = XInternAtom(display, type, False);
-      XChangeProperty(display, id, t, XA_WINDOW, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&value), 1);
-    }
-
-    void set_wm_protocols (gui::os::instance display, os::window id) {
-      Atom protocols[] = {
-        core::x11::WM_TAKE_FOCUS,
-        core::x11::WM_DELETE_WINDOW,
-      };
-      XSetWMProtocols(display, id, protocols, 2);
-    }
-
-#endif // X11
 
     // --------------------------------------------------------------------------
     void main_window::create (const class_info& cls, const core::rectangle& r) {

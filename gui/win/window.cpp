@@ -213,9 +213,11 @@ namespace gui {
       }
 
 //      LogTrace << "handle_event: " << e;
-      auto r = events.handle_event(e, result);
-
-      return r;
+      bool res = false;
+      if (is_enabled()) {
+        res = events.handle_event(e, result);
+      }
+      return res;
     }
 
     void window::shift_focus (bool backward) const {
@@ -1087,44 +1089,50 @@ namespace gui {
       auto display = core::global::get_instance();
       auto screen = core::global::x11::get_screen();
 
-      XVisualInfo vinfo;
-      XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
-      auto visual = vinfo.visual;
-      auto depth = vinfo.depth;
-
       unsigned long mask = 0;
       XSetWindowAttributes wa;
 
-      if (type.get_background() != color::transparent) {
-        mask |= CWBackPixel;
-        wa.background_pixel = type.get_background();
-      } else {
+      XVisualInfo vinfo;
+      XMatchVisualInfo(display, screen, 24, TrueColor, &vinfo);
+
+      if (type.get_background() == color::transparent) {
         mask |= CWBackPixmap;
         wa.background_pixmap = None;
+//      } else if (color::get_alpha(type.get_background()) != 0) {
+//        int a = color::get_alpha(type.get_background());
+//        int r = color::get_red(type.get_background()) * a / 256;
+//        int g = color::get_green(type.get_background()) * a / 256;
+//        int b = color::get_blue(type.get_background()) * a / 256;
+//        wa.background_pixel = color::calc_rgba(r, g, b, a);
+//        wa.border_pixel = wa.background_pixel;
+//        mask |= (CWBackPixel | CWBorderPixel);
+      } else {
+        wa.background_pixel = type.get_background();
+        wa.border_pixel = 0;
+        mask |= (CWBackPixel | CWBorderPixel);
       }
+
+      auto visual = vinfo.visual;
+      auto depth = vinfo.depth;
+
       if (type.get_cursor()) {
         mask |= CWCursor;
         wa.cursor = type.get_cursor();
       }
-//      if (type.get_style ()) {
-//        mask |= CWWinGravity;
-//        wa.win_gravity = type.get_style();
-//      }
-      mask |= CWBitGravity;
+
+      mask |= (CWBitGravity | CWBackingStore | CWColormap);
       wa.bit_gravity = ForgetGravity;
-      mask |= CWBackingStore;
       wa.backing_store = NotUseful;
 
       mask |= CWColormap;
       wa.colormap = XCreateColormap(display, DefaultRootWindow(display), visual, AllocNone);
 
-//      mask |= CWBorderPixel;
-//      wa.border_pixel = color::black;
-
       os::window id = XCreateWindow(display,
                                     parent_id,
                                     r.os_x(), r.os_y(), r.os_width(), r.os_height(),
-                                    0, depth, InputOutput,
+                                    0,
+                                    depth,
+                                    type.get_class_style(),
                                     visual,
                                     mask,
                                     &wa);

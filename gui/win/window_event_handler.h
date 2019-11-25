@@ -84,6 +84,8 @@ namespace gui {
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT window* get_window_from_cs (const core::event& e);
     // --------------------------------------------------------------------------
+    GUIPP_WIN_EXPORT window* get_window_from_id (const core::event& e);
+    // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT unsigned int get_flags_from_wp (const core::event& e);
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT core::point::type get_wheel_delta (const core::event& e);
@@ -188,7 +190,8 @@ namespace gui {
 
     using close_event = core::event_handler<WM_CLOSE, 0, core::params<>::getter<>, 1>;
 
-    using destroy_event = core::event_handler<WM_DESTROY>;
+    using destroy_event = core::event_handler<WM_DESTROY, 0, core::params<window*>::
+                                              getter<get_window_from_id>>;
 
     using any_key_down_event = core::event_handler<WM_KEYDOWN, 0,
                                                    core::params<os::key_state, os::key_symbol, std::string>::
@@ -431,6 +434,11 @@ namespace gui {
       return e.xcrossing;
     }
 
+    template<>
+    inline const XDestroyWindowEvent& event_type_cast<XDestroyWindowEvent>(const core::event& e) {
+      return e.xdestroywindow;
+    }
+
     // --------------------------------------------------------------------------
     template<typename T, typename C>
     struct get {
@@ -595,7 +603,9 @@ namespace gui {
                                             core::params<>::getter<>, 1,
                                             event::functor<protocol_message_matcher<core::x11::WM_DELETE_WINDOW>>>;
 
-    using destroy_event = core::event_handler<DestroyNotify, SubstructureNotifyMask>;
+    using destroy_event = core::event_handler<DestroyNotify, StructureNotifyMask,
+                                              core::params<window*>::
+                                              getter<get_window<XDestroyWindowEvent>>>;
 
     using any_key_down_event = core::event_handler<KeyPress, KeyPressMask,
                                                    core::params<os::key_state, os::key_symbol, std::string>::

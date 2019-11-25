@@ -58,25 +58,15 @@ namespace gui {
     }
 
     void standard_dialog_base::show (win::container& parent) {
-//      set_children_visible();
       set_visible();
+      to_front();
       parent.disable();
-      run_modal(
-        {
-          win::hot_key_action{
-            win::hot_key(win::keys::escape, win::state::none),
-            [&] () { end_modal(); }
-          },
-//          win::hot_key_action{
-//            win::hot_key(win::keys::right, win::state::none),
-//            [&] () { forward_focus(false); }
-//          },
-//          win::hot_key_action{
-//            win::hot_key(win::keys::left, win::state::none),
-//            [&] () { forward_focus(true); }
-//          }
+      run_modal(parent, {
+        win::hot_key_action{
+          win::hot_key(win::keys::escape, win::state::none),
+          [&] () { end_modal(); }
         }
-      );
+      });
       parent.enable();
       parent.take_focus();
     }
@@ -107,7 +97,30 @@ namespace gui {
                              std::function<yes_no_action> action) {
       yes_no_dialog dialog;
       dialog.create(parent, title, message, yes_label, no_label, core::rectangle(300, 200, 400, 170), action);
-      dialog.show(parent);
+      dialog.show(parent, action);
+    }
+
+    void yes_no_dialog::show (win::container& parent,
+                              std::function<yes_no_action> action) {
+      set_visible();
+      to_front();
+      parent.disable();
+      run_modal(parent, {
+        win::hot_key_action{
+          win::hot_key(win::keys::escape, win::state::none),
+          [&] () { action(false); }
+        },
+        win::hot_key_action{
+          win::hot_key(win::keys::right, win::state::none),
+          [&] () { forward_focus(false); }
+        },
+        win::hot_key_action{
+          win::hot_key(win::keys::left, win::state::none),
+          [&] () { forward_focus(true); }
+        }
+      });
+      parent.enable();
+      parent.take_focus();
     }
 
     //-----------------------------------------------------------------------------

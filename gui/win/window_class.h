@@ -55,7 +55,7 @@ namespace gui {
       static constexpr win::cursor_type cursor = win::cursor_type::none;
       static constexpr os::style style = 0;
       static constexpr os::style ex_style = 0;
-      static constexpr os::style class_style = 0;
+      static constexpr os::style class_style = InputOutput;
     };
 
     class GUIPP_WIN_EXPORT class_info {

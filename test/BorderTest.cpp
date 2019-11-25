@@ -166,10 +166,7 @@ my_main_window::my_main_window ()
 {
   on_create(util::bind_method(this, &my_main_window::onCreated));
 
-  on_destroy([&]() {
-    LogDebug << *this << " Destroyed!";
-    win::quit_main_loop();
-  });
+  on_destroy(&win::quit_main_loop);
 
   on_close(util::bind_method(this, &my_main_window::quit));
 
@@ -532,7 +529,7 @@ void my_main_window::quit () {
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
       stop_thread();
-      win::quit_main_loop();
+      win::quit_main_loop(this);
     } else {
       take_focus();
     }

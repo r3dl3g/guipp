@@ -115,6 +115,11 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    window* get_window_from_id (const core::event& e) {
+      return detail::get_window(e.id);
+    }
+
+    // --------------------------------------------------------------------------
     unsigned int get_flags_from_wp (const core::event& e) {
       WINDOWPOS* p = reinterpret_cast<WINDOWPOS*>(e.lParam);
       return p->flags;

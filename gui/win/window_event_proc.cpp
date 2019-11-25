@@ -639,9 +639,17 @@ namespace gui {
       });
     }
 
-    void quit_main_loop () {
-      main_loop_is_running = false;
-      core::global::fini();
+    namespace detail {
+
+      void quit_main_loop () {
+        main_loop_is_running = false;
+        core::global::fini();
+      }
+
+    }
+
+    void quit_main_loop (const window*) {
+      detail::quit_main_loop();
     }
 
     void run_on_main (std::function<void()> action) {

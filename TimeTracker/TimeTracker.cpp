@@ -749,7 +749,11 @@ public:
         typedef std::tuple<std::string, time_point, time_point, std::string> Types;
       };
 
-      std::vector<std::string> data({e->comment, "Eins", "Zwei", "Drei"});
+      std::set<std::string> comments;
+      for (const auto& ev : events) {
+        comments.insert(ev->comment);
+      }
+      std::vector<std::string> data(comments.begin(), comments.end());
 
       event_traits::Initials inits = event_traits::Initials(
                                        [e] (edit_left& ctrl) {
@@ -765,7 +769,7 @@ public:
                                          ctrl.set_data([&] (size_t idx) {
                                            return data[idx];
                                          }, data.size());
-                                         ctrl.set_selected_item(data[0]);
+                                         ctrl.set_selected_item(e->comment);
                                        }
                                      );
 
@@ -838,7 +842,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   TimeTracker main;
 
   main.create({50, 50, 800, 600});
-  main.on_destroy(&quit_main_loop);
+  main.on_destroy(quit_main_loop);
   main.set_title("TimeTracker");
   main.set_visible();
 

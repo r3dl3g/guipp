@@ -350,9 +350,9 @@ my_main_window::my_main_window ()
   list1.set_item_size(25);
   list3.set_item_size_and_background(20, color::light_gray);
 
-  on_destroy([] () {
+  on_destroy([] (const window* w) {
     LogDebug << "Destroyed!";
-    win::quit_main_loop();
+    win::quit_main_loop(w);
   });
 
   on_show([&] () {

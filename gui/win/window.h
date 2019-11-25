@@ -144,7 +144,7 @@ namespace gui {
       void on_create (std::function<create_fn>&& f);
 
       void on_close (std::function<notification_fn>&& f);
-      void on_destroy (std::function<notification_fn>&& f);
+      void on_destroy (std::function<window_fn>&& f);
 
       void on_any_key_down (std::function<void(os::key_state, os::key_symbol, std::string)>&& f);
       void on_any_key_up (std::function<void(os::key_state, os::key_symbol)>&& f);

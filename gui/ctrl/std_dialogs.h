@@ -145,6 +145,9 @@ namespace gui {
                        const std::string& no_label,
                        std::function<yes_no_action> action);
 
+      void show (win::container& parent,
+                 std::function<yes_no_action> action);
+
       message_view_type message_view;
 
     };

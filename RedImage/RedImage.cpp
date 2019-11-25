@@ -162,10 +162,7 @@ RedImage::RedImage ()
   }
   on_create(util::bind_method(this, &RedImage::onCreated));
 
-  on_destroy([&]() {
-    LogDebug << *this << " Destroyed!";
-    win::quit_main_loop();
-  });
+  on_destroy(&win::quit_main_loop);
 
   on_close(util::bind_method(this, &RedImage::quit));
 }
@@ -587,7 +584,7 @@ void RedImage::quit () {
       if (background_thread.joinable()) {
         background_thread.join();
       }
-      win::quit_main_loop();
+      win::quit_main_loop(this);
     } else {
       take_focus();
     }

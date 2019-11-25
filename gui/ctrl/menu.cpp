@@ -798,7 +798,7 @@ namespace gui {
       });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       set_visible();
-      run_modal();
+      run_modal(parent);
     }
 
     void popup_menu::popup_at (window& parent, menu_data& parent_data, const core::point& pt) {
@@ -819,7 +819,7 @@ namespace gui {
       });
       create(parent, core::rectangle(pt, core::size(calc_width() + 2, static_cast<core::size::type>(data.size() * item_height + 2))));
       set_visible();
-      run_modal();
+      run_modal(parent);
     }
 
     core::point popup_menu::sub_menu_position (int idx) const {

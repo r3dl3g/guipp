@@ -196,7 +196,7 @@ namespace gui {
       const auto isz = super::traits.get_item_dimension() + super::traits.get_item_spacing();
 
       core::rectangle place;
-      super::traits.set(place, lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz);
+      super::traits.set(place, lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz + 1);
       super::traits.set_other(place, isz * offs + super::traits.get_item_border(), isz + 1);
       return place;
     }
@@ -231,7 +231,7 @@ namespace gui {
           super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
           if (isp > 0) {
             super::traits.set_other(place, super::traits.get_other(place.x2y2()), isp);
-            graph.fill(draw::rectangle(place), color::yellow);
+            graph.fill(draw::rectangle(place), back_brush);
           }
           place = super::traits.get_place_of_index(list_size, idx + 1, scp);
         }
@@ -240,7 +240,7 @@ namespace gui {
 
         place = get_full_place_of_index(idx);
         for (; (super::traits.get(place.top_left()) < list_sz); ++idx) {
-          graph.fill(draw::rectangle(place), color::cyan);
+          graph.fill(draw::rectangle(place), back_brush);
           place = get_full_place_of_index(idx + 1);
         }
 

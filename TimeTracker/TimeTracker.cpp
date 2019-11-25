@@ -32,6 +32,7 @@
 #include <util/tuple_util.h>
 
 #include <utility>
+#include <array>
 
 /* --------------------------------------------------------------------------
  * ToDo:

@@ -616,7 +616,9 @@ namespace gui {
         return detail::check_expose(e);
       });
 
+#ifdef X11
       input_eater.set_visible(false);
+#endif // X11
 
       LogTrace << *this << " Exit modal loop";
     }

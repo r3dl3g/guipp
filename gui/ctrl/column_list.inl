@@ -143,7 +143,7 @@ namespace gui {
     inline void weight_column_list_layout::init_auto_layout () {
       main->on_layout(util::bind_method(this, &weight_column_list_layout::layout));
       main->on_show([&] () {
-        layout(list->content_area());
+        layout(list->content_area(list->client_size()));
       });
     }
 
@@ -232,7 +232,7 @@ namespace gui {
       }
 
       if (r.x() < area.x2()) {
-        g.fill(rectangle(r.top_left(), area.bottom_right()), back_brush);
+        g.fill(rectangle(r.top_left(), area.x2y2()), back_brush);
       }
     }
 
@@ -456,7 +456,7 @@ namespace gui {
           r.move_x(w);
         }
         if (r.x() < place.x2()) {
-          g.fill(draw::rectangle(r.top_left(), place.bottom_right()), background);
+          g.fill(draw::rectangle(r.top_left(), place.x2y2()), background);
         }
       }
     }
@@ -532,7 +532,7 @@ namespace gui {
                                                         const draw::brush& background,
                                                         item_state state) {
       if (x < place.x2()) {
-        g.fill(draw::rectangle(core::point(x, place.y()), place.bottom_right()), background);
+        g.fill(draw::rectangle(core::point(x, place.y()), place.x2y2()), background);
       }
     }
 

@@ -37,11 +37,11 @@ namespace gui {
       const type border2 = (border * 2);
       const type offset_dim1 = super::get_dimension1(r.top_left());
       const type offset_dim2 = super::get_dimension2(r.top_left());
-      const type space = super::get_dimension1(r.bottom_right()) - offset_dim1 - border2;
+      const type space = super::get_dimension1(r.x2y2()) - offset_dim1 - border2;
 
       if (count) {
         if (space > 0) {
-          const type dim2 = super::get_dimension2(r.bottom_right()) - offset_dim2 - border2;
+          const type dim2 = super::get_dimension2(r.x2y2()) - offset_dim2 - border2;
           const type offset = dim1 + gap;
           const type sep_offset = gap + sep;
 

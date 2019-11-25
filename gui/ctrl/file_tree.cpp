@@ -435,7 +435,7 @@ namespace gui {
     }
 
     void draw_arrow_down (const draw::graphics& g, const core::rectangle& r, os::color col) {
-      g.fill(draw::polygon({r.top_left(), r.top_right(), {r.center_x(), r.y2()}}), col);
+      g.fill(draw::polygon({r.top_left(), r.top_right(), {r.center_x(), r.bottom()}}), col);
     }
 
 

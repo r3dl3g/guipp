@@ -70,6 +70,10 @@ namespace gui {
       point_t bottom_right () const;    /// inner-bottom inner-right pixel position
       point_t bottom_left () const;     /// inner-bottom left pixel position
 
+      point_t x2y1 () const;            /// top outer-right pixel position
+      point_t x2y2 () const;            /// outer-bottom outer-right pixel position
+      point_t x1y2 () const;            /// outer-bottom left pixel position
+
       point_type x () const;            /// left
       point_type y () const;            /// top
       size_type width () const;         /// count of pixels in width
@@ -93,6 +97,7 @@ namespace gui {
 
       void top_left (const point_t& pt);
       void bottom_right (const point_t& pt);
+      void x2y2 (const point_t& pt);
 
       point_type center_x () const;
       point_type center_y () const;

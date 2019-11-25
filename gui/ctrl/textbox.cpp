@@ -99,7 +99,7 @@ namespace gui {
         }
 
         if (r.y() < area.y2()) {
-          graph.fill(draw::rectangle(core::rectangle(r.top_left(), area.bottom_right())), background);
+          graph.fill(draw::rectangle(core::rectangle(r.top_left(), area.x2y2())), background);
         }
 
         if (has_focus) {

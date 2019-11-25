@@ -183,12 +183,12 @@ namespace gui {
 
     template<orientation V>
     inline std::size_t basic_tile_view<V>::get_line_count () const {
-      return super::traits.get_line_count(super::get_count(), super::content_size());
+      return super::traits.get_line_count(super::get_count(), super::content_size(super::client_size(), true));
     }
 
     template<orientation V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
-      const auto per_line = super::traits.get_items_per_line(super::content_size());
+      const auto per_line = super::traits.get_items_per_line(super::content_size(super::client_size()));
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
       const auto offs = idx - (line * per_line);
 
@@ -197,13 +197,13 @@ namespace gui {
 
       core::rectangle place;
       super::traits.set(place, lsz * line - super::get_scroll_pos() + super::traits.get_line_border(), lsz);
-      super::traits.set_other(place, isz * offs + super::traits.get_item_border(), isz);
+      super::traits.set_other(place, isz * offs + super::traits.get_item_border(), isz + 1);
       return place;
     }
 
     template<orientation V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
-      const auto list_size = super::content_size();
+      const auto list_size = super::content_size(super::client_size());
       const core::rectangle area(list_size);
 
       draw::brush back_brush(super::get_background());
@@ -230,8 +230,8 @@ namespace gui {
         for (; (idx < last) && (super::traits.get(place.top_left()) < list_sz); ++idx) {
           super::draw_item(idx, graph, place, back_brush, super::get_item_state(idx));
           if (isp > 0) {
-            super::traits.set_other(place, super::traits.get_other(place.bottom_right()), isp);
-            graph.fill(draw::rectangle(place), back_brush);
+            super::traits.set_other(place, super::traits.get_other(place.x2y2()), isp);
+            graph.fill(draw::rectangle(place), color::yellow);
           }
           place = super::traits.get_place_of_index(list_size, idx + 1, scp);
         }
@@ -240,7 +240,7 @@ namespace gui {
 
         place = get_full_place_of_index(idx);
         for (; (super::traits.get(place.top_left()) < list_sz); ++idx) {
-          graph.fill(draw::rectangle(place), back_brush);
+          graph.fill(draw::rectangle(place), color::cyan);
           place = get_full_place_of_index(idx + 1);
         }
 
@@ -256,7 +256,7 @@ namespace gui {
         }
 
         const auto width = (isz + isp) * per_line + ib;
-        const auto max_width = super::traits.get_other(area.bottom_right());
+        const auto max_width = super::traits.get_other(area.x2y2());
         if (max_width > width) {
           core::rectangle space = area;
           super::traits.set_other(space, width, max_width - width);

@@ -814,12 +814,12 @@ my_main_window::my_main_window ()
   htileview.set_item_size({ 50, 30 });
   htileview.set_background(color::very_light_gray);
   htileview.set_border({ 10, 20 });
-  htileview.set_spacing({ 2, 4 });
+  htileview.set_spacing({ 5, 5 });
   
   vtileview.set_item_size({ 70, 25 });
   vtileview.set_background(color::very_light_gray);
   vtileview.set_border({ 10, 10 });
-  vtileview.set_spacing({ 1, 1 });
+  vtileview.set_spacing({ 5, 5 });
 
   htileview.set_drawer(htile_drawer<draw::frame::sunken_relief>);
   vtileview.set_drawer(vtile_drawer<draw::frame::raised_relief>);

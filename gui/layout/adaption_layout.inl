@@ -43,12 +43,12 @@ namespace gui {
       const type border2 = (border * 2);
       const type offset_dim1 = super::get_dimension1(r.top_left());
       const type offset_dim2 = super::get_dimension2(r.top_left());
-      const type space = super::get_dimension1(r.bottom_right()) - offset_dim1 - border2 - sep_count * sep;
+      const type space = super::get_dimension1(r.x2y2()) - offset_dim1 - border2 - sep_count * sep;
 
       if (count) {
         const type dim1 = std::max<type>(type(min), std::min<type>(type(max), (space - (gap * (count - 1))) / (count - sep_count)));
         if (dim1 >= 1) {
-          const type dim2 = super::get_dimension2(r.bottom_right()) - offset_dim2 - border2;
+          const type dim2 = super::get_dimension2(r.x2y2()) - offset_dim2 - border2;
           const type offset = dim1 + gap;
           const type sep_offset = gap + sep;
 

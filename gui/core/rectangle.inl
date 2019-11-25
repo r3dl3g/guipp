@@ -84,6 +84,21 @@ namespace gui {
     }
 
     template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::x2y1 () const -> point_t {
+      return {x2(), y()};
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::x2y2 () const -> point_t {
+      return {x2(), y2()};
+    }
+
+    template<typename T, typename S>
+    inline auto basic_rectangle<T, S>::x1y2 () const -> point_t {
+      return {x(), y2()};
+    }
+
+    template<typename T, typename S>
     inline auto basic_rectangle<T, S>::x () const -> point_type {
       return pos.x();
     }
@@ -180,6 +195,12 @@ namespace gui {
 
     template<typename T, typename S>
     inline void basic_rectangle<T, S>::bottom_right (const point_t& pt) {
+      sz.width(pt.x() - pos.x() + 1);
+      sz.height(pt.y() - pos.y() + 1);
+    }
+
+    template<typename T, typename S>
+    inline void basic_rectangle<T, S>::x2y2 (const point_t& pt) {
       sz.width(pt.x() - pos.x());
       sz.height(pt.y() - pos.y());
     }
@@ -252,7 +273,7 @@ namespace gui {
 
     template<typename T, typename S>
     inline bool basic_rectangle<T, S>::is_inside (const point_t& p) const {
-      return (p >= pos) && (p <= bottom_right());
+      return (p >= pos) && (p <= x2y2());
     }
 
     template<typename T, typename S>

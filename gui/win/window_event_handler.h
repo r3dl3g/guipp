@@ -472,16 +472,16 @@ namespace gui {
     };
     // --------------------------------------------------------------------------
     template<typename T>
-    T& get_last_place (os::window);
+    const T& get_last_place (os::window);
 
     template<>
-    GUIPP_WIN_EXPORT core::size& get_last_place<core::size>(os::window);
+    GUIPP_WIN_EXPORT const core::size& get_last_place<core::size>(os::window);
 
     template<>
-    GUIPP_WIN_EXPORT core::point& get_last_place<core::point>(os::window);
+    GUIPP_WIN_EXPORT const core::point& get_last_place<core::point>(os::window);
 
     template<>
-    GUIPP_WIN_EXPORT core::rectangle& get_last_place<core::rectangle>(os::window);
+    GUIPP_WIN_EXPORT const core::rectangle& get_last_place<core::rectangle>(os::window);
 
     // --------------------------------------------------------------------------
     GUIPP_WIN_EXPORT void update_last_place (os::window, const core::rectangle&);

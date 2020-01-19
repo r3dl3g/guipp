@@ -454,34 +454,28 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    std::map<Window, core::size> s_last_size;
-    std::map<Window, core::point> s_last_pos;
     std::map<Window, core::rectangle> s_last_place;
 
     template<>
-    core::size& get_last_place<core::size>(os::window w) {
-      return s_last_size[w];
+    const core::size& get_last_place<core::size>(os::window w) {
+      return s_last_place[w].size();
     }
 
     template<>
-    core::point& get_last_place<core::point>(os::window w) {
-      return s_last_pos[w];
+    const core::point& get_last_place<core::point>(os::window w) {
+      return s_last_place[w].position();
     }
 
     template<>
-    core::rectangle& get_last_place<core::rectangle>(os::window w) {
+    const core::rectangle& get_last_place<core::rectangle>(os::window w) {
       return s_last_place[w];
     }
 
     void update_last_place (os::window w, const core::rectangle& r) {
-      get_last_place<core::size>(w) = r.size();
-      get_last_place<core::point>(w) = r.position();
-      get_last_place<core::rectangle>(w) = r;
+      s_last_place[w] = r;
     }
 
     void clear_last_place (os::window w) {
-      s_last_size.erase(w);
-      s_last_pos.erase(w);
       s_last_place.erase(w);
     }
 

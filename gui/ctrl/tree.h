@@ -39,29 +39,29 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       GUIPP_CTRL_EXPORT void tree_button (const draw::graphics& graph,
-                        const core::rectangle& area,
-                        bool is_open);
+                                          const core::rectangle& area,
+                                          bool is_open);
 
       GUIPP_CTRL_EXPORT void tree_node (const draw::graphics& graph,
-                      const core::rectangle& area,
-                      const draw::brush& background,
-                      std::size_t depth,
-                      const std::string& label,
-                      const draw::masked_bitmap& icon,
-                      bool has_children,
-                      bool is_open,
-                      item_state state);
+                                        const core::rectangle& area,
+                                        const draw::brush& background,
+                                        std::size_t depth,
+                                        const std::string& label,
+                                        const draw::pixmap& icon,
+                                        bool has_children,
+                                        bool is_open,
+                                        item_state state);
 
     } // paint
 
     namespace tree {
 
       // --------------------------------------------------------------------------
-      GUIPP_CTRL_EXPORT const draw::masked_bitmap& open_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const draw::masked_bitmap& closed_folder_icon (bool selected);
-      GUIPP_CTRL_EXPORT const draw::masked_bitmap& file_icon (bool selected);
+      GUIPP_CTRL_EXPORT const draw::pixmap& open_folder_icon (bool selected);
+      GUIPP_CTRL_EXPORT const draw::pixmap& closed_folder_icon (bool selected);
+      GUIPP_CTRL_EXPORT const draw::pixmap& file_icon (bool selected);
 
-      GUIPP_CTRL_EXPORT const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected);
+      GUIPP_CTRL_EXPORT const draw::pixmap& standard_icon (bool has_children, bool is_open, bool selected);
 
       // --------------------------------------------------------------------------
       template<typename I>
@@ -197,7 +197,7 @@ namespace gui {
         static reference make_reference (node const& n);
         static type const& dereference (reference const& r);
         static std::string label (node const& n);
-        static const draw::masked_bitmap& icon (type const&, bool has_children, bool is_open, bool selected);
+        static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 

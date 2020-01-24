@@ -113,7 +113,7 @@ namespace gui {
         static reference make_reference (type const& n);
         static type const& dereference (reference const& r);
         static std::string label (type const& n);
-        static const draw::masked_bitmap& icon (type const&, bool has_children, bool is_open, bool selected);
+        static const draw::pixmap& icon (type const&, bool has_children, bool is_open, bool selected);
 
       };
 
@@ -168,14 +168,14 @@ namespace gui {
       GUIPP_CTRL_EXPORT void init_file_list_layout (layout::weight_column_list_layout&);
 
       typedef column_list_row_drawer_t<layout::weight_column_list_layout,
-                                       const draw::masked_bitmap*,
+                                       const draw::pixmap*,
                                        fs::file_info,
                                        fs::file_info,
                                        sys_fs::file_time_type> file_list_row_drawer;
 
       GUIPP_CTRL_EXPORT file_list_row_drawer create_file_list_row_drawer ();
 
-      typedef column_list_row_t<const draw::masked_bitmap*,
+      typedef column_list_row_t<const draw::pixmap*,
                                 fs::file_info,
                                 fs::file_info,
                                 sys_fs::file_time_type> file_list_row;
@@ -222,10 +222,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename T = path_tree::sorted_file_info>
     class file_column_list : public column_list_t<layout::weight_column_list_layout,
-                                                  const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
+                                                  const draw::pixmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> {
     public:
       typedef column_list_t<layout::weight_column_list_layout,
-                            const draw::masked_bitmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
+                            const draw::pixmap*, fs::file_info, fs::file_info, sys_fs::file_time_type> super;
 
       file_column_list (core::size::type item_size = 20,
                         os::color background = color::white,

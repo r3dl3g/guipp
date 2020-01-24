@@ -342,9 +342,9 @@ namespace gui {
 
       file_list_row_drawer create_file_list_row_drawer () {
         return file_list_row_drawer {
-          [] (const draw::masked_bitmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin) {
+          [] (const draw::pixmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin) {
             if (img) {
-              g.fill(draw::image<draw::masked_bitmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
+              g.fill(draw::image<draw::pixmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
             } else {
               g.fill(draw::rectangle(r), item_state::selected == s ? color::highLightColor() : b);
             }
@@ -370,7 +370,7 @@ namespace gui {
       }
 
       file_list_row build_file_list_row (const fs::file_info& f, bool selected) {
-        const draw::masked_bitmap* img = nullptr;
+        const draw::pixmap* img = nullptr;
         if (f.is_directory()) {
           img = &(tree::closed_folder_icon(selected));
         } else {

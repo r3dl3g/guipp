@@ -64,7 +64,7 @@ namespace gui {
                       const draw::brush& background,
                       std::size_t depth,
                       const std::string& label,
-                      const draw::masked_bitmap& icon,
+                      const draw::pixmap& icon,
                       bool has_children,
                       bool is_open,
                       item_state state) {
@@ -126,18 +126,33 @@ namespace gui {
         return std::string();
       }
 
-      draw::masked_bitmap build_tree_icon (tree_icon type, bool selected) {
-        draw::bwmap mask;
+      draw::pixmap build_tree_icon (tree_icon type, bool selected) {
+        using namespace gui::draw;
+        bwmap mask;
         std::istringstream in(get_icon_chars(type));
         io::load_pnm(in, mask);
 
         if (core::global::get_scale_factor() != 1.0) {
-          draw::bwmap rhs = mask;
+          bwmap rhs = mask;
           mask.create(rhs.native_size() * core::global::get_scale_factor());
           mask.stretch_from(rhs);
         }
-        mask.invert();
-        return draw::masked_bitmap(draw::bitmap(mask));
+
+        pixmap image(mask.native_size());
+        graphics g(image);
+        if (selected) {
+//          mask.invert();
+          bitmap bmp(mask);
+          g.clear(color::highLightColor());
+          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_xor);
+        } else {
+          mask.invert();
+          bitmap bmp(mask);
+          g.clear(color::white);
+          g.copy_from(bmp, core::native_rect(mask.native_size()), core::native_point::zero, copy_mode::bit_and);
+        }
+
+        return image;
       }
 
     } // detail
@@ -145,25 +160,25 @@ namespace gui {
 
     namespace tree {
 
-      const draw::masked_bitmap& open_folder_icon (bool selected) {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::open_folder, false));
-        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::open_folder, true));
+      const draw::pixmap& open_folder_icon (bool selected) {
+        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::open_folder, false));
+        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::open_folder, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::masked_bitmap& closed_folder_icon (bool selected) {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::closed_folder, false));
-        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::closed_folder, true));
+      const draw::pixmap& closed_folder_icon (bool selected) {
+        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::closed_folder, false));
+        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::closed_folder, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::masked_bitmap& file_icon (bool selected) {
-        static draw::masked_bitmap icon(detail::build_tree_icon(detail::tree_icon::file, false));
-        static draw::masked_bitmap icon_selected(detail::build_tree_icon(detail::tree_icon::file, true));
+      const draw::pixmap& file_icon (bool selected) {
+        static draw::pixmap icon(detail::build_tree_icon(detail::tree_icon::file, false));
+        static draw::pixmap icon_selected(detail::build_tree_icon(detail::tree_icon::file, true));
         return selected ? icon_selected : icon;
       }
 
-      const draw::masked_bitmap& standard_icon (bool has_children, bool is_open, bool selected) {
+      const draw::pixmap& standard_icon (bool has_children, bool is_open, bool selected) {
         if (has_children) {
           return is_open ? open_folder_icon(selected) : closed_folder_icon(selected);
         }

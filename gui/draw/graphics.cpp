@@ -477,14 +477,16 @@ namespace gui {
       if (dd == md) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
-        XChangeGC(display, gc, GCFunction, &values);
+        values.graphics_exposures = False;
+        XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
         /*int res =*/ XCopyArea(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y());
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
       } else if (1 == dd) {
         auto display = core::global::get_instance();
         XGCValues values = { static_cast<int>(static_cast<uint32_t>(mode)) }; // .function =
-        XChangeGC(display, gc, GCFunction, &values);
+        values.graphics_exposures = False;
+        XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
         /*int res =*/ XCopyPlane(get_instance(), w, target, gc, r.x(), r.y(), r.width(), r.height(), pt.x(), pt.y(), 1);
         values = { GXcopy }; // .function =
         XChangeGC(display, gc, GCFunction, &values);
@@ -498,7 +500,7 @@ namespace gui {
       auto display = core::global::get_instance();
       int res = 0;
       XGCValues org_values = {0};
-      res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
+      res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &org_values);
 //      LogDebug << "XGCValues:" << org_values;
       if (bmp.mask) {
         auto screen = core::global::x11::get_screen();
@@ -514,7 +516,8 @@ namespace gui {
           , bmp.image ? XWhitePixel(display, screen)
                       : XBlackPixel(display, screen)
         };
-        res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &values);
+        values.graphics_exposures = False;
+        res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &values);
         auto sz = bmp.mask.native_size();
         res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y(), 1);
       }
@@ -522,18 +525,20 @@ namespace gui {
         XGCValues values = {
           static_cast<int>(copy_mode::bit_or) //function
         };
-        res = XChangeGC(display, gc, GCFunction, &values);
+        values.graphics_exposures = False;
+        res = XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
         auto sz = bmp.image.native_size();
         res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
       }
-      res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground, &org_values);
+      res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &org_values);
       return *this;
     }
 
     void graphics::invert (const core::rectangle& r) const {
       auto display = core::global::get_instance();
       XGCValues values = { GXinvert };  // .function =
-      XChangeGC(display, gc, GCFunction, &values);
+      values.graphics_exposures = False;
+      XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
       /*int res =*/ XCopyArea(get_instance(), 0, target, gc, r.os_x(), r.os_y(), r.os_width(), r.os_height(), r.os_x(), r.os_y());
       values = { GXcopy }; // .function =
       XChangeGC(display, gc, GCFunction, &values);

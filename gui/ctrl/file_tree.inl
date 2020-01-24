@@ -96,7 +96,7 @@ namespace gui {
         return n.filename();
       }
 
-      inline const draw::masked_bitmap& path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
+      inline const draw::pixmap& path_info::icon (type const&, bool has_children, bool is_open, bool selected) {
         return tree::standard_icon(has_children, is_open, selected);
       }
 

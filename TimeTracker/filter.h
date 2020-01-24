@@ -166,10 +166,10 @@ namespace tt_filter {
       return n.label;
     }
 
-    static const gui::draw::masked_bitmap& icon (type const&,
-                                            bool has_children,
-                                            bool is_open,
-                                            bool selected) {
+    static const gui::draw::pixmap& icon (type const&,
+                                          bool has_children,
+                                          bool is_open,
+                                          bool selected) {
       return gui::ctrl::tree::standard_icon(has_children, is_open, selected);
     }
 

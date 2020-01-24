@@ -162,7 +162,24 @@ namespace gui {
         auto display = core::global::get_instance();
         Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
         (void)st;
-        XImage* im = XGetImage(core::global::get_instance(), id, 0, 0, w, h, 0, ZPixmap);
+        bmi = {
+          static_cast<uint32_t>(w),
+          static_cast<uint32_t>(h),
+          get_pixel_format(d, core::byte_order(ImageByteOrder(display)))
+        };
+      }
+      return bmi;
+    }
+
+    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
+      if (id) {
+        Window root = 0;
+        int x, y;
+        unsigned int w, h, b, d;
+        auto display = core::global::get_instance();
+        Status st = XGetGeometry(display, id, &root, &x, &y, &w, &h, &b, &d);
+        (void)st;
+        XImage* im = XGetImage(display, id, 0, 0, w, h, AllPlanes, ZPixmap);
         if (im) {
           bmi = {
             static_cast<uint32_t>(im->width),
@@ -170,16 +187,14 @@ namespace gui {
             static_cast<uint32_t>(im->bytes_per_line),
             get_pixel_format(im->bits_per_pixel, core::byte_order(im->byte_order))
           };
+          const size_t n = bmi.mem_size();
+          data.resize(n);
+          memcpy(data.data(), im->data, n);
           XDestroyImage(im);
         } else {
-          bmi = {
-            static_cast<uint32_t>(w),
-            static_cast<uint32_t>(h),
-            get_pixel_format(d, core::byte_order(ImageByteOrder(display)))
-          };
+          throw std::runtime_error("get image failed");
         }
       }
-      return bmi;
     }
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -207,25 +222,6 @@ namespace gui {
       (void)st;
       int res = XPutImage(display, id, gc, &im, 0, 0, 0, 0, bmi.width, bmi.height);
       res = XFreeGC(display, gc);
-    }
-
-    void bitmap_get_data (os::bitmap id, blob& data, draw::bitmap_info& bmi) {
-      bmi = bitmap_get_info(id);
-      XImage* im = XGetImage(core::global::get_instance(), id, 0, 0, bmi.width, bmi.height, AllPlanes, ZPixmap);
-      if (im) {
-        bmi = {
-          static_cast<uint32_t>(im->width),
-          static_cast<uint32_t>(im->height),
-          static_cast<uint32_t>(im->bytes_per_line),
-          get_pixel_format(im->bits_per_pixel, core::byte_order(im->byte_order))
-        };
-        const size_t n = bmi.mem_size();
-        data.resize(n);
-        memcpy(data.data(), im->data, n);
-        XDestroyImage(im);
-      } else {
-        throw std::runtime_error("get image failed");
-      }
     }
 
 //    void pixmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -538,18 +534,22 @@ namespace gui {
       : image(img)
       , mask(msk)
     {
-      graphics g(this->image);
-      Use<pen> use(g, color::white);
-      g.copy_from(this->mask, core::native_rect(this->image.native_size()), core::native_point::zero, copy_mode::bit_and);
+      if (mask) {
+        graphics g(image);
+        Use<pen> use(g, color::white);
+        g.copy_from(mask, core::native_rect(image.native_size()), core::native_point::zero, copy_mode::bit_and);
+      }
     }
 
     masked_bitmap::masked_bitmap (pixmap&& img, bitmap&& msk)
       : image(std::move(img))
       , mask(std::move(msk))
     {
-      graphics g(this->image);
-      Use<pen> use(g, color::white);
-      g.copy_from(this->mask, core::native_rect(this->image.native_size()), core::native_point::zero, copy_mode::bit_and);
+      if (mask) {
+        graphics g(image);
+        Use<pen> use(g, color::white);
+        g.copy_from(mask, core::native_rect(image.native_size()), core::native_point::zero, copy_mode::bit_and);
+      }
     }
 
     void masked_bitmap::operator= (const masked_bitmap& rhs) {

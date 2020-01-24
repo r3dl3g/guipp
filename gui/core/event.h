@@ -56,6 +56,7 @@ namespace gui {
       extern Atom WM_DELETE_WINDOW;
       extern Atom WM_PROTOCOLS;
       extern Atom WM_TAKE_FOCUS;
+      extern Atom GUI_LIB_WIN_PTR;
 
       GUIPP_CORE_EXPORT int init_messages ();
 

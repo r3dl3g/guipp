@@ -192,7 +192,8 @@ namespace gui {
     } // namespace x11
 
     namespace detail {
-
+#define USE_WINDOW_MAPx
+#ifdef USE_WINDOW_MAP
       typedef std::map<os::window, win::window*> window_map;
       window_map global_window_map;
 
@@ -209,14 +210,61 @@ namespace gui {
         global_window_map.erase(id);
       }
 
+#else
+      window* get_window (os::window id) {
+        Atom     actual_type = 0;
+        int      actual_format = -1;
+        unsigned long nitems = 0;
+        unsigned long bytes = 0;
+        unsigned char* data = nullptr;
+
+        const int status = XGetWindowProperty(core::global::get_instance(), id,
+                                              core::x11::GUI_LIB_WIN_PTR,
+                                              0, 1024, False, AnyPropertyType,
+                                              &actual_type, &actual_format,
+                                              &nitems, &bytes, &data);
+        if ((Success == status) && (nitems == sizeof(window*))) {
+#ifdef LOG_GET_WINDOW_PROPERTY
+          LogDebug << "get window " << id << ": "
+                   << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
+                   << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
+#endif //LOG_GET_WINDOW_PROPERTY
+          return *(window**)data;
+        }
+        return nullptr;
+      }
+
+      void set_window (os::window id, window* win) {
+        const unsigned char* data = (const unsigned char*)&win;
+#ifdef LOG_GET_WINDOW_PROPERTY
+        LogDebug << "set window " << id << ": "
+                 << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
+                 << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
+#endif //LOG_GET_WINDOW_PROPERTY
+        int status = XChangeProperty(core::global::get_instance(), id,
+                        core::x11::GUI_LIB_WIN_PTR,
+                        XA_CARDINAL, 8, PropModeReplace,
+                        data, sizeof(win));
+      }
+
+      void unset_window (os::window id) {
+        clear_last_place(id);
+      }
+
+#endif // USE_WINDOW_MAP
+
       bool check_expose (const core::event& e) {
         return (e.type == Expose) && (e.xexpose.count > 0);
       }
 
       inline win::window* get_event_window (const core::event& e) {
         switch (e.type) {
-        case ConfigureNotify: return get_window(e.xconfigure.window);
-        default: return get_window(e.xany.window);
+          case ConfigureNotify:
+            return get_window(e.xconfigure.window);
+          case NoExpose:
+            return nullptr;
+          default:
+            return get_window(e.xany.window);
         }
       }
 
@@ -567,28 +615,33 @@ namespace gui {
       core::event e;
       std::function<simple_action> action;
 
-//      auto x11_fd = ConnectionNumber(display);
+      auto x11_fd = ConnectionNumber(display);
 
       // Create a File Description Set containing x11_fd
-//      fd_set in_fds;
-//      FD_ZERO(&in_fds);
-//      FD_SET(x11_fd, &in_fds);
+      fd_set in_fds;
+      FD_ZERO(&in_fds);
+      FD_SET(x11_fd, &in_fds);
 
       // Define our timeout. Ten milliseconds sounds good.
-//      timeval timeout {0, 10000};
+      timeval timeout {0, 10000};
 
       while (running) {
+
+        // Wait for X Event or a Timer
+        select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
+        XNextEvent(display, &e);
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
         }
 
-        while (XPending(display) && running) {
+//        if (XPending(display) && running) {
 
 //          // Wait for X Event or a Timer
 //          select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
 
-          XNextEvent(display, &e);
+//          XNextEvent(display, &e);
 
           if (!win::is_frequent_event(e)) {
             LogTrace << e;
@@ -610,9 +663,9 @@ namespace gui {
           if ((e.type == ConfigureNotify) && running) {
             update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
-        }
+//        }
 
-        if (running) {
+//        if (running) {
           for (auto& w : x11::s_invalidated_windows) {
             win::window* win = detail::get_window(w.first);
             if (win && win->is_visible()) {
@@ -620,7 +673,7 @@ namespace gui {
             }
           }
           x11::s_invalidated_windows.clear();
-        }
+//        }
 
       }
       return resultValue;
@@ -655,6 +708,16 @@ namespace gui {
     void run_on_main (std::function<void()> action) {
 #ifdef X11
       x11::queued_actions.enqueue(action);
+      auto* win = global::get_application_main_window();
+      XEvent event;
+      XClientMessageEvent& client = event.xclient;
+      client.window = win ? win->get_id() : 0;
+      client.serial = 0;
+      client.send_event = True;
+      client.display = core::global::get_instance();
+      client.message_type = 0;
+      client.format = 0;
+      XSendEvent(client.display, client.window, True, 0, &event);
 #endif // X11
 #ifdef WIN32
       PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),

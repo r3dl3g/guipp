@@ -435,7 +435,7 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return IsWindow(get_id()) != FALSE;
+      return (get_id() != 0) && (IsWindow(get_id()) != FALSE);
     }
 
     bool window::is_visible () const {
@@ -736,7 +736,7 @@ namespace gui {
     }
 
     bool window::is_valid () const {
-      return detail::get_window(get_id()) == this;
+      return (get_id() != 0) && (detail::get_window(get_id()) == this);
     }
 
     bool window::has_focus () const {

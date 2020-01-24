@@ -45,6 +45,7 @@ namespace gui {
       Atom WM_DELETE_WINDOW = 0;
       Atom WM_PROTOCOLS = 0;
       Atom WM_TAKE_FOCUS = 0;
+      Atom GUI_LIB_WIN_PTR = 0;
 
       int init_messages () {
         init_atom(WM_CREATE_WINDOW, "WM_CREATE_WINDOW");
@@ -52,6 +53,7 @@ namespace gui {
         init_atom(WM_PROTOCOLS, "WM_PROTOCOLS");
         init_atom(WM_TAKE_FOCUS, "WM_TAKE_FOCUS");
         init_atom(WM_LAYOUT_WINDOW, "WM_LAYOUT_WINDOW");
+        init_atom(GUI_LIB_WIN_PTR, "GUI_LIB_WIN_PTR");
         return 1;
       }
 

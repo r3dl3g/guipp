@@ -109,7 +109,11 @@ namespace gui {
 #ifdef WIN32
     bool window_state::set_enable (bool on) {
       if (win.is_valid() && (is_enabled() != on)) {
-        EnableWindow(win.get_id(), on);
+        gui::os::style ws = get_win().get_window_class().get_style();
+        if ((ws & WS_POPUP) != WS_POPUP) {
+          // For WS_POPUP EnableWindow(, false) causes an empty window.
+          EnableWindow(win.get_id(), on);
+        }
         get_win().invalidate();
         return true;
       }

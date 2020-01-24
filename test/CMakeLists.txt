@@ -52,6 +52,7 @@ else()
         hello_world
         filemanager
         list_app
+        tree_app
         new_border_layout
         attach_all_layout
         dialogs

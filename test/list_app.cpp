@@ -16,7 +16,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  layout_main_window<gui::layout::border::layouter<10, 10, 10, 10>> main;
+  layout_main_window<gui::layout::border::layouter<3, 3, 3, 3>> main;
   file_list<path_tree::sorted_path_info> client;
 
   main.on_create([&] (window* parent, const rectangle& rect) {

@@ -110,7 +110,9 @@ namespace gui {
       }
 
       int ErrorHandler (Display* dpy, XErrorEvent* errev) {
-        if (at_shutdown || ((errev->error_code == 143) && (errev->request_code == 139))) {
+        if (at_shutdown ||
+//            ((errev->error_code == 143) && (errev->request_code == 139)) ||
+            (errev->error_code == 3)) {  // BadWindow
           return 0;
         }
 

@@ -70,6 +70,8 @@ namespace gui {
     inline T font_unscale (T v) {
       return static_cast<T>((double)v / core::global::get_scale_factor());
     }
+
+    void init_font_scale () {}
 #else
     namespace {
       double s_font_scale = 0.0;

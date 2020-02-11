@@ -1,8 +1,8 @@
 
 #include "raspi/encoder.h"
-#include "base/ostreamfmt.h"
-#include "base/command_line.h"
-#include "base/logger.h"
+#include "util/ostreamfmt.h"
+#include "util/command_line.h"
+#include "logging/logger.h"
 
 
 #define NOTHING
@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
   bool raw = false;
   std::string outname = "raspicam_test";
 
-  basepp::command_line::parser("raspicam_test V 0.1.0",
+  util::command_line::parser("raspicam_test V 0.1.0",
   {
     {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG(default), PPM, JPEG, GIF, TGA)",
       [&](const std::string& arg) {
@@ -85,7 +85,7 @@ int main(int argc, const char* argv[]) {
       }},
     {"-o", "--out", "<filename>", "Set output file name",
       [&](const std::string& arg) {
-        outname = basepp::string::trimed(arg);
+        outname = util::string::trimed(arg);
         LogInfo << "Found output file name:'" << outname << "'";
       }}
   }).process(argc, argv);
@@ -123,7 +123,7 @@ int main(int argc, const char* argv[]) {
     file.write((const char*)data.c_str(), data.length());
   }
 
-  basepp::log::core::instance().finish();
+  logging::core::instance().finish();
 
   return 0;
 }

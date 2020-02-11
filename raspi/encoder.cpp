@@ -29,9 +29,9 @@
 //
 // Library includes
 //
-#include <base/string_util.h>
-#include <base/ostreamfmt.h>
-#include <base/logger.h>
+#include <util/string_util.h>
+#include <util/ostreamfmt.h>
+#include <logging/logger.h>
 
 // --------------------------------------------------------------------------
 //

@@ -113,7 +113,7 @@ namespace gui {
       if (pixel_format() == bmi.pixel_format) {
         put(rhs.raw_data().data(0, bmi.mem_size()), bmi);
       } else {
-        switch (bmi.pixel_format()) {
+        switch (pixel_format()) {
           case PixelFormat::BW:   put(bwmap(rhs)); break;
           case PixelFormat::GRAY: put(graymap(rhs)); break;
           case PixelFormat::RGB:  put(rgbmap(rhs));  break;

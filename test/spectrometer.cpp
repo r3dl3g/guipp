@@ -1,9 +1,9 @@
 
 
-#include <gui/win/attach_layout.h>
-#include <gui/win/border_layout.h>
-#include <gui/win/adaption_layout.h>
-#include <gui/win/layout_container.h>
+#include <gui/layout/attach_layout.h>
+#include <gui/layout/dynamic_border_layout.h>
+#include <gui/layout/adaption_layout.h>
+#include <gui/layout/layout_container.h>
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/drop_down.h>
 #include <gui/ctrl/std_dialogs.h>
@@ -167,7 +167,7 @@ public:
     : low_step(1)
     , high_step(20)
   {
-    on_create(basepp::bind_method(this, &value_block::onCreated));
+    on_create(util::bind_method(this, &value_block::onCreated));
   }
 
   value_block (const std::string& l, text_source&& src)
@@ -176,7 +176,7 @@ public:
     , low_step(1)
     , high_step(20)
   {
-    on_create(basepp::bind_method(this, &value_block::onCreated));
+    on_create(util::bind_method(this, &value_block::onCreated));
   }
 
   void set_label (const std::string& l) {
@@ -238,9 +238,9 @@ private:
 };
 
 // --------------------------------------------------------------------------
-class spectrometer : public layout_main_window<gui::layout::border_layout<>, float, float, float, float> {
+class spectrometer : public layout_main_window<gui::layout::dynamic_border_layout<>, float, float, float, float> {
 public:
-  using super = layout_main_window<gui::layout::border_layout<>, float, float, float, float>;
+  using super = layout_main_window<gui::layout::dynamic_border_layout<>, float, float, float, float>;
   spectrometer ();
 
   void onCreated (window*, const core::rectangle&);
@@ -409,7 +409,7 @@ void spectrometer::quit () {
     if (yes) {
       save_settings();
       set_children_visible(false);
-      win::quit_main_loop();
+      win::quit_main_loop(this);
     } else {
       take_focus();
     }
@@ -471,7 +471,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
 //    port.commit_format_change();
   });
 
-  get_layout().set_center_top_bottom_left_right(&capture_view, &spectrum_view, &values_view, nullptr, nullptr);
+  get_layout().set_center_top_bottom_left_right(layout::lay(&capture_view), layout::lay(&spectrum_view), layout::lay(&values_view), nullptr, nullptr);
   load_settings();
   update_encodings();
 //  set_children_visible();
@@ -481,9 +481,9 @@ void spectrometer::update_encodings () {
   camera_out_encoding_down.set_selected_item(camera.get_still_output_port().get_encoding());
   encoder_in_encoding_down.set_selected_item(encoder.get_input_port().get_encoding());
   encoder_out_encoding_down.set_selected_item(encoder.get_output_port().get_encoding());
-  camera_out_encoding_down.redraw_later();
-  encoder_in_encoding_down.redraw_later();
-  encoder_out_encoding_down.redraw_later();
+  camera_out_encoding_down.invalidate();
+  encoder_in_encoding_down.invalidate();
+  encoder_out_encoding_down.invalidate();
 }
 
 spectrometer::spectrometer ()
@@ -492,9 +492,9 @@ spectrometer::spectrometer ()
 //  , encoder(camera.get_still_output_port(), encoder_type::OutEncoding::PPM)
   , extra_bytes(0)
 {
-  on_create(basepp::bind_method(this, &spectrometer::onCreated));
+  on_create(util::bind_method(this, &spectrometer::onCreated));
   on_destroy(&gui::win::quit_main_loop);
-  on_close(basepp::bind_method(this, &spectrometer::quit));
+  on_close(util::bind_method(this, &spectrometer::quit));
 
   //  camera.set_crop({0.25,0.25,0.5,0.5});
     camera.set_iso(100);
@@ -516,8 +516,8 @@ spectrometer::spectrometer ()
 
   quarterview_button.set_text("1/4");
 
-  capture_button.on_clicked(basepp::bind_method(this, &spectrometer::capture));
-  save_button.on_clicked(basepp::bind_method(this, &spectrometer::save_image));
+  capture_button.on_clicked(util::bind_method(this, &spectrometer::capture));
+  save_button.on_clicked(util::bind_method(this, &spectrometer::save_image));
   clear_button.on_clicked([&] () {
     extra_bytes = 0;
     extra.refresh();
@@ -540,19 +540,19 @@ spectrometer::spectrometer ()
     camera.set_resolution(sz);
   });
 
-  x_pos.set_handler(16, 160, basepp::bind_method(this, &spectrometer::change_crop_x));
+  x_pos.set_handler(16, 160, util::bind_method(this, &spectrometer::change_crop_x));
   x_pos.set_label("X");
   x_pos.set_value([&] () { return ostreamfmt(get_crop().x); });
 
-  y_pos.set_handler(16, 80, basepp::bind_method(this, &spectrometer::change_crop_y));
+  y_pos.set_handler(16, 80, util::bind_method(this, &spectrometer::change_crop_y));
   y_pos.set_label("Y");
   y_pos.set_value([&] () { return ostreamfmt(get_crop().y); });
 
-  w_pos.set_handler(32, 160, basepp::bind_method(this, &spectrometer::change_crop_w));
+  w_pos.set_handler(32, 160, util::bind_method(this, &spectrometer::change_crop_w));
   w_pos.set_label("W");
   w_pos.set_value([&] () { return ostreamfmt(get_crop().width); });
 
-  h_pos.set_handler(16, 80, basepp::bind_method(this, &spectrometer::change_crop_h));
+  h_pos.set_handler(16, 80, util::bind_method(this, &spectrometer::change_crop_h));
   h_pos.set_label("H");
   h_pos.set_value([&] () { return ostreamfmt(get_crop().height); });
 
@@ -644,14 +644,14 @@ void spectrometer::display () {
         rgbmap image_data;
         std::istringstream strm(data);
         gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
-        LogDebug << "Display image with dimensions:" << image_data.size() << ", ppl:" << image_data.pixel_format();
+        LogDebug << "Display image with dimensions:" << image_data.native_size() << ", ppl:" << image_data.pixel_format();
         capture_view.image = image_data;
         break;
       }
       case MMAL_ENCODING_RGBA:
       case MMAL_ENCODING_RGBA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
-        const_image_data<PixelFormat::RGBA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -659,7 +659,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_RGB24:
       case MMAL_ENCODING_RGB24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
-        const_image_data<PixelFormat::RGB> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -667,7 +667,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGRA:
       case MMAL_ENCODING_BGRA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::BGRA);
-        const_image_data<PixelFormat::BGRA> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -675,7 +675,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGR24:
       case MMAL_ENCODING_BGR24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::BGR);
-        const_image_data<PixelFormat::BGR> image_data(basepp::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -694,7 +694,7 @@ void spectrometer::display () {
 
 void spectrometer::calc_spectrum () {
   auto sz = spectrum_view.size();
-  if (spectrum_view.image.size() != sz) {
+  if (spectrum_view.image.scaled_size() != sz) {
     spectrum_view.image.create(sz);
   }
   graphics g(spectrum_view.image);

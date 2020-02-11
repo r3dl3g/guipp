@@ -38,7 +38,7 @@ add_subdirectory(./../testlib testlib)
 if (BUILD_FOR_ARM)
     add_definitions(-DBUILD_FOR_ARM)
     set (MMAL_LIBS mmal_core mmal_util mmal_vc_client bcm_host rt vcsm vchiq_arm vcos)
-    include_directories(/opt/raspberrypi/sysroot/opt/vc/include)
+    include_directories(/opt/raspberrypi/rootfs/opt/vc/include)
 
 # bcm_host
     set(apps

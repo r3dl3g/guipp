@@ -199,7 +199,7 @@ namespace gui {
       if (parent) {
         return parent->get_overlapped_window();
       } else {
-        return nullptr;
+        return (overlapped_window*)this;
       }
     }
 

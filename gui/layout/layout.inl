@@ -27,36 +27,6 @@ namespace gui {
     {}
 
     // --------------------------------------------------------------------------
-    inline layout_base::layout_base (std::initializer_list<layout_function> list) {
-      add(list);
-    }
-
-    inline auto layout_base::get_elements () const -> const element_list& {
-      return elements;
-    }
-
-    inline void layout_base::add (const layout_function& e, bool is_separator) {
-      elements.emplace_back(layout_element(e, is_separator));
-    }
-
-    inline void layout_base::add (layout_function&& e, bool is_separator) {
-      elements.emplace_back(layout_element(std::move(e), is_separator));
-    }
-
-    inline void layout_base::add (std::initializer_list<layout_function> list) {
-      for (auto l : list) {
-        add(l);
-      }
-    }
-
-    inline void layout_base::add (std::initializer_list<win::window*> list) {
-      for (win::window* w : list) {
-        add(lay(w));
-      }
-    }
-
-
-    // --------------------------------------------------------------------------
     namespace detail {
 
       template<orientation O>

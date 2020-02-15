@@ -128,6 +128,8 @@ namespace gui {
       void add (std::initializer_list<layout_function> list);
       void add (std::initializer_list<win::window*> list);
 
+      void remove_all ();
+
     protected:
       element_list elements;
 

@@ -45,6 +45,39 @@ namespace gui {
       };
     }
 
+    // --------------------------------------------------------------------------
+    layout_base::layout_base (std::initializer_list<layout_function> list) {
+      add(list);
+    }
+
+    auto layout_base::get_elements () const -> const element_list& {
+      return elements;
+    }
+
+    void layout_base::add (const layout_function& e, bool is_separator) {
+      elements.emplace_back(layout_element(e, is_separator));
+    }
+
+    void layout_base::add (layout_function&& e, bool is_separator) {
+      elements.emplace_back(layout_element(std::move(e), is_separator));
+    }
+
+    void layout_base::add (std::initializer_list<layout_function> list) {
+      for (auto l : list) {
+        add(l);
+      }
+    }
+
+    void layout_base::add (std::initializer_list<win::window*> list) {
+      for (win::window* w : list) {
+        add(lay(w));
+      }
+    }
+
+    void layout_base::remove_all () {
+      elements.clear();
+    }
+
   } // layout
 
 } // gui

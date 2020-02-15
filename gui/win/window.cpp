@@ -818,22 +818,24 @@ namespace gui {
       return get_parent() == &parent;
     }
 
+    bool is_window_visible (os::window id) {
+      XWindowAttributes a = {0};
+      int result = XGetWindowAttributes(core::global::get_instance(), id, &a);
+      return (x11::check_status(result) && (a.map_state == IsViewable));
+    }
+
     bool window::is_visible () const {
-      if (get_id()) {
-        return get_state().is_visible();
+      if (is_valid()) {
+//        return get_state().is_visible();
+        return is_window_visible(get_id());
       }
-//      if (is_valid()) {
-//        XWindowAttributes a = {0};
-//        int result = XGetWindowAttributes(core::global::get_instance(), get_id(), &a);
-//        return (x11::check_status(result) && (a.map_state == IsViewable));
-//      }
       return false;
     }
 
     void window::set_visible (bool s) {
-      if (get_id()) {
+      if (is_valid()) {
         auto state = get_state();
-        bool current = state.is_visible();
+        bool current = is_visible();
         if (current != s) {
           if (s) {
             LogTrace << "Show window:" << *this;
@@ -842,7 +844,7 @@ namespace gui {
             LogTrace << "Hide window:" << *this;
             x11::check_return(XUnmapWindow(core::global::get_instance(), get_id()));
           }
-          state.set_visible(s);
+          state.set_visible(is_window_visible(get_id()));
         }
       }
     }
@@ -1129,7 +1131,10 @@ namespace gui {
 
       os::window id = XCreateWindow(display,
                                     parent_id,
-                                    r.os_x(), r.os_y(), r.os_width(), r.os_height(),
+                                    r.os_x(),
+                                    r.os_y(),
+                                    std::max<gui::os::size_type>(r.os_width(), 1),
+                                    std::max<gui::os::size_type>(r.os_height(), 1),
                                     0,
                                     depth,
                                     type.get_class_style(),

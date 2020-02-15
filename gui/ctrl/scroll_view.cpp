@@ -91,7 +91,7 @@ namespace gui {
 
         if (!show_h) {
           // re-check h
-          bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
+          show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
           if (show_h) {
             space.height(space.height() - ctrl::scroll_bar::get_scroll_bar_width());
           }

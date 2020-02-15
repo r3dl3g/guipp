@@ -37,15 +37,20 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<orientation H,
-             unsigned dim1,
-             unsigned border = 0,
-             unsigned gap = 0,
-             unsigned sep = 2,
+             unsigned D,
+             unsigned B = 0,
+             unsigned G = 0,
+             unsigned S = 2,
              origin R = origin::start>
     class lineup_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
+
+      static constexpr unsigned Dimension = D;
+      static constexpr unsigned Border = B;
+      static constexpr unsigned Gap = G;
+      static constexpr unsigned Separation = B;
 
       lineup_layout () = default;
       lineup_layout (std::initializer_list<layout_function> list);

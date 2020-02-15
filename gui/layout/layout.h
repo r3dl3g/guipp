@@ -183,11 +183,13 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<orientation>
+      template<orientation O>
       class orientation_layout : public layout_base {
       public:
         typedef layout_base super;
         typedef core::size::type type;
+
+        static constexpr orientation Orientation = O;
 
         orientation_layout () = default;
         orientation_layout (std::initializer_list<layout_function> list);
@@ -208,6 +210,8 @@ namespace gui {
       public:
         typedef orientation_layout<H> super;
         typedef core::size::type type;
+
+        static constexpr origin Origin = R;
 
         origin_layout () = default;
         origin_layout (std::initializer_list<layout_function> list);

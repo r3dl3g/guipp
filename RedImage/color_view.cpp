@@ -25,18 +25,18 @@ namespace view {
     graph.clear(value);
   }
   // --------------------------------------------------------------------------
-  void color_view::set_rgb_color (byte r, byte g, byte b) {
-    value = color::calc_rgb(r, g, b);
+  void color_view::set_rgb_color (const cv::Vec3b& rgb) {
+    value = color::calc_rgb(rgb[0], rgb[1], rgb[2]);
     invalidate();
   }
   // --------------------------------------------------------------------------
-  void color_view::set_hsv_color (byte h, byte s, byte v) {
-    cv::Mat hsv(1, 1, CV_8UC3);
-    hsv.setTo(cv::Scalar(h, s, v));
-    cv::Mat rgb(1, 1, CV_8UC3);
-    cv::cvtColor(hsv, rgb, cv::COLOR_HSV2RGB);
-    cv::Vec3b v3 = rgb.at<cv::Vec3b>(0, 0);
-    set_rgb_color(v3[0], v3[1], v3[2]);
+  void color_view::set_hsv_color (const cv::Vec3b& hsv) {
+    cv::Mat hsv_img(1, 1, CV_8UC3);
+    hsv_img.setTo(hsv);
+    cv::Mat rgb_img(1, 1, CV_8UC3);
+    cv::cvtColor(hsv_img, rgb_img, cv::COLOR_HSV2RGB);
+    cv::Vec3b rgb = rgb_img.at<cv::Vec3b>(0, 0);
+    set_rgb_color(rgb);
   }
 
 } // namespace view

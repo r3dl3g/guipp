@@ -3,6 +3,7 @@
 
 #include <gui/ctrl/control.h>
 #include <gui/win/container.h>
+#include "opencv2/core/types.hpp"
 
 namespace view {
 
@@ -18,8 +19,8 @@ namespace view {
                  const gui::core::rectangle& place = gui::core::rectangle::def);
 
     void paint (const gui::draw::graphics& graph);
-    void set_rgb_color (byte r, byte g, byte b);
-    void set_hsv_color (byte h, byte s, byte v);
+    void set_rgb_color (const cv::Vec3b& rgb);
+    void set_hsv_color (const cv::Vec3b& hsv);
 
     gui::os::color value;
   };

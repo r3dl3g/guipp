@@ -39,6 +39,11 @@ namespace view {
     });
   }
   // --------------------------------------------------------------------------
+  void color_key::create (const gui::win::container& parent, const std::string& name) {
+    super::create(parent);
+    min_max.main_label.set_text(name);
+  }
+  // --------------------------------------------------------------------------
   void color_key::set (const std::string& name, const data::range& value) {
     min_max.main_label.set_text(name);
     set(value);

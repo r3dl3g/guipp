@@ -2,6 +2,7 @@
 #include <gui/ctrl/std_dialogs.h>
 #include <gui/ctrl/menu.h>
 #include <gui/ctrl/tile_view.h>
+#include <gui/ctrl/scroll_view.h>
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/lineup_layout.h>
 #include <gui/layout/attach_layout.h>
@@ -23,6 +24,8 @@
 #include "over_view.h"
 #include "background_worker.h"
 #include "cvmat2pixmap.h"
+
+#include <iomanip>
 
 #define NOTHING
 
@@ -49,9 +52,9 @@ pixmap create_text_pixmap (const std::string& str,
   return img;
 }
 // --------------------------------------------------------------------------
-class RedImage : public layout_main_window<gui::layout::border::layouter<20, 24, 260, 0>> {
+class RedImage : public layout_main_window<gui::layout::border::layouter<20, 24, 277, 0>> {
 public:
-  typedef layout_main_window<gui::layout::border::layouter<20, 24, 260, 0>> super;
+  typedef layout_main_window<gui::layout::border::layouter<20, 24, 277, 0>> super;
 
   RedImage ();
 
@@ -73,6 +76,7 @@ public:
   void set_hsv_for (const cv::Vec3b& hsv, int i);
 
   cv::Vec3b get_lab_at (const core::size& win_size, const core::point& pt);
+  cv::Vec3b get_rgb_at (const core::size& win_size, const core::point& pt);
 
   data::hsv_range get_hsv_range_at (const core::size& win_size, const core::point& pt, const core::size& sz);
   void set_hsv_range_for (const data::hsv_range& hsv, int i);
@@ -94,11 +98,14 @@ public:
   void saveAs ();
 
   void toggle_learning ();
+  void toggle_adjust_brightness ();
 
   void calc_title ();
   void calc_status ();
   void show_hsv_value (const cv::Vec3b& hsv);
-  void show_lab_value (const cv::Vec3b& lab);
+//  void show_lab_value (const cv::Vec3b& lab);
+  void show_rgb_value (const cv::Vec3b& rgb);
+  void show_values_at (const core::size& sz, const core::point& pt);
 
   void open_folder ();
 
@@ -124,17 +131,19 @@ private:
 
   view::thumb_view folder_view;
   view::image_view full_image_view;
-  view::over_view<3, 3> filter_view;
-  view::over_view<3, 3> mask_view;
+  view::over_view<4, 3> filter_view;
+  view::over_view<4, 3> mask_view;
   view::over_view<3, 2> hsv_view;
 
   window* current_view;
 
   int curent_full_image_view;
 
+  ctrl::scroll_view side_scroll;
   view::side_bar filter_list;
 
   bool learning_mode;
+  bool adjust_brightness;
 
   std::thread background_thread;
   volatile bool is_active;
@@ -146,7 +155,9 @@ private:
   float portions[3];
 
   enum {
-    IMAGE_COUNT = 8
+    IMAGE_COUNT = 11,
+    FILTER_HIGH = view::side_bar::layout_type::Dimension + view::side_bar::layout_type::Gap + view::side_bar::layout_type::Separation,
+    FILTER_WIDTH = 275 - scroll_bar::scroll_bar_width
   };
   cv::Mat image[IMAGE_COUNT];
 
@@ -160,6 +171,7 @@ RedImage::RedImage ()
   : current_view(nullptr)
   , curent_full_image_view(-1)
   , learning_mode(false)
+  , adjust_brightness(true)
   , is_active(true)
 {
   for (auto& p : portions) {
@@ -200,11 +212,12 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   const float icn_sz = core::global::scale<float>(20);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
-  hook_icon = create_text_pixmap("X", icon_rect, color::dark_red);
-  cross_icon = create_text_pixmap(" ", icon_rect, color::dark_green);
+  hook_icon = create_text_pixmap("x", icon_rect, color::dark_red);
+  cross_icon = create_text_pixmap("-", icon_rect, color::dark_green);
 
   edit_sub_menu.data.add_entries({
     menu_entry("Leaning mode", 'l', util::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
+    menu_entry("Adjust Brightness", 'n', util::bind_method(this, &RedImage::toggle_adjust_brightness), hot_key(keys::n, state::control), false, hook_icon),
     menu_entry("Calc all", 'a', util::bind_method(this, &RedImage::calc_all_and_show), hot_key(keys::a, state::control), false),
     menu_entry("Original", 'o', util::bind_method(this, &RedImage::show_raw), hot_key(keys::g, state::control|state::alt), true),
     menu_entry("HSV Image", 'h', util::bind_method(this, &RedImage::show_hsv), hot_key(keys::h, state::control|state::alt), false),
@@ -227,8 +240,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Full View Image 7", '7', [&] () { RedImage::show_full_image(6); }, hot_key('7', state::control), false),
     menu_entry("Full View Image 8", '8', [&] () { RedImage::show_full_image(7); }, hot_key('8', state::control), false),
     menu_entry("Full View Image 9", '9', [&] () { RedImage::show_full_image(8); }, hot_key('9', state::control), false),
-    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::alt), true),
-    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::alt), false),
+    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::control), true),
+    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::control), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -243,7 +256,12 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   edit_sub_menu.data.register_hot_keys(this);
   view_sub_menu.data.register_hot_keys(this);
 
-  filter_list.create(*this);
+  side_scroll.create(*this);
+  filter_list.create(side_scroll, core::rectangle(core::size(FILTER_WIDTH, FILTER_HIGH * 2)));
+//  side_scroll.enable_vscroll_bar(true);
+//  side_scroll.enable_hscroll_bar(true);
+//  side_scroll.layout();
+
   status.create(*this);
   mask_view.create(*this);
   full_image_view.create(*this);
@@ -256,8 +274,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
       show_full_image(i);
     });
     filter_view.image_views[i].on_mouse_move([&, i] (os::key_state, const core::point& pt) {
-      show_hsv_value(get_hsv_at(filter_view.image_views[i].size(), pt));
-      show_lab_value(get_lab_at(filter_view.image_views[i].size(), pt));
+      show_values_at(filter_view.image_views[i].size(), pt);
     });
   }
 
@@ -273,13 +290,11 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     }
   });
   full_image_view.on_mouse_move([&] (os::key_state, const core::point& pt) {
-    show_hsv_value(get_hsv_at(full_image_view.size(), pt));
-    show_lab_value(get_lab_at(full_image_view.size(), pt));
+    show_values_at(full_image_view.size(), pt);
   });
   for(view::image_view& v : hsv_view.image_views) {
     v.on_mouse_move([&] (os::key_state, const core::point& pt) {
-      show_hsv_value(get_hsv_at(v.size(), pt));
-      show_lab_value(get_lab_at(v.size(), pt));
+      show_values_at(v.size(), pt);
     });
   }
 
@@ -298,7 +313,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     hsv_view.place(r);
     mask_view.place(r);
     full_image_view.place(r);
-  }, layout::lay(menu), layout::lay(status), layout::lay(filter_list), nullptr);
+  }, layout::lay(menu), layout::lay(status), layout::lay(side_scroll), nullptr);
 
   for (int i = 1; i < filter_view.count; ++i) {
     filter_view.image_views[i].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
@@ -314,9 +329,11 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar () {
+  filter_list.resize(core::size(FILTER_WIDTH, FILTER_HIGH * filter_list.color_keys.size()));
   for (int i = 0; i < filter_list.color_keys.size(); ++i) {
     init_sidebar_filter(i);
   }
+//  side_scroll.layout();
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar_filter (int i) {
@@ -364,6 +381,8 @@ void RedImage::add_filter () {
                                "Filter", "Ok", "Cancel", [&] (const std::string& name) {
     filter_list.add(name);
     init_sidebar_filter(filter_list.color_keys.size() - 1);
+    filter_list.resize(core::size(FILTER_WIDTH, FILTER_HIGH * filter_list.color_keys.size()));
+//    side_scroll.layout();
   });
 }
 //-----------------------------------------------------------------------------
@@ -427,6 +446,19 @@ cv::Vec3b RedImage::get_lab_at (const core::size& win_size, const core::point& p
   return cv::Vec3b();
 }
 //-----------------------------------------------------------------------------
+cv::Vec3b RedImage::get_rgb_at (const core::size& win_size, const core::point& pt) {
+  if (raw_image.empty()) {
+    return cv::Vec3b();
+  }
+  const auto img_size = raw_image.size();
+  const int x = (int)(pt.x() / win_size.width() * (float)img_size.width);
+  const int y = (int)(pt.y() / win_size.height() * (float)img_size.height);
+  if ((x < img_size.width) && (y < img_size.height)) {
+    return raw_image.at<cv::Vec3b>(cv::Point(x, y));
+  }
+  return cv::Vec3b();
+}
+//-----------------------------------------------------------------------------
 void RedImage::set_hsv_for (const cv::Vec3b& hsv, int i) {
   filter_list.color_keys[i]->hue.set_range(hsv[0] - 1, hsv[0] + 1);
   filter_list.color_keys[i]->saturation.set_range(70, 255);
@@ -470,6 +502,11 @@ void RedImage::toggle_learning () {
   learning_mode = !learning_mode;
   edit_sub_menu.data[0].set_icon(learning_mode ? hook_icon : cross_icon);
   calc_status();
+}
+//-----------------------------------------------------------------------------
+void RedImage::toggle_adjust_brightness () {
+  adjust_brightness = !adjust_brightness;
+  edit_sub_menu.data[1].set_icon(adjust_brightness ? hook_icon : cross_icon);
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {
@@ -653,10 +690,14 @@ void RedImage::quit () {
 //-----------------------------------------------------------------------------
 bool is_jpeg (const sys_fs::directory_entry& i) {
   auto ext = i.path().extension();
-  return !(ext == ".jpg") && !(ext == ".jpeg") && !(ext == ".JPG") && !(ext == ".JPEG") && !(i.status().type() == sys_fs::file_type::directory);
+  return (ext == ".jpg") || (ext == ".jpeg") || (ext == ".JPG") || (ext == ".JPEG");
 }
 //-----------------------------------------------------------------------------
-bool is_xml (const sys_fs::directory_entry& i) {
+bool is_not_jpeg_or_dir (const sys_fs::directory_entry& i) {
+  return !is_jpeg(i) && !(i.status().type() == sys_fs::file_type::directory);
+}
+//-----------------------------------------------------------------------------
+bool is_not_xml (const sys_fs::directory_entry& i) {
   auto ext = i.path().extension();
   return !(ext == ".xml") && !(ext == ".XML") && !(i.status().type() == sys_fs::file_type::directory);
 }
@@ -668,13 +709,23 @@ void RedImage::open_image () {
   }
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     load_image(file);
-  }, is_jpeg);
+  }, is_not_jpeg_or_dir);
   sys_fs::current_path(old_path);
 }
 // --------------------------------------------------------------------------
-void load_image (const sys_fs::path& file, cv::Mat& raw, cv::Mat& hsv) {
+void load_image (const sys_fs::path& file, cv::Mat& raw, cv::Mat& hsv, bool adjust_brightness) {
   cv::Mat srcImage = cv::imread(file.string(), cv::IMREAD_COLOR);
-  cv::resize(srcImage, raw, cv::Size(1500, 1000), 0, 0, cv::INTER_LINEAR);
+  cv::Mat scaledImage;
+  cv::resize(srcImage, scaledImage, cv::Size(1500, 1000), 0, 0, cv::INTER_LINEAR);
+  if (adjust_brightness) {
+    cv::Scalar mean = cv::mean(scaledImage);
+    const int mid = ((int)mean[0]+(int)mean[1]+(int)mean[2]) / 3;
+    const int diff = 128 - mid;
+    raw = scaledImage + cv::Scalar(diff, diff, diff);
+  } else {
+    raw = scaledImage;
+  }
+  //cv::normalize(scaledImage, raw, 0, 255, cv::NORM_L2, -1);
   cv::cvtColor(raw, hsv, cv::COLOR_BGR2HSV);
 }
 // --------------------------------------------------------------------------
@@ -687,7 +738,7 @@ void RedImage::load_image (const sys_fs::path& file) {
     calc_title();
     settings.last_path(file.parent_path().string());
 
-    ::load_image(file, raw_image, hsv_image);
+    ::load_image(file, raw_image, hsv_image, adjust_brightness);
     cv::Mat channels[3];
     cv::split(hsv_image, channels);
 
@@ -737,7 +788,7 @@ void RedImage::load () {
     } catch (std::exception& ex) {
       LogWarng << "Exception while reading redimage.xml:" << ex.what();
     }
-  }, is_xml);
+  }, is_not_xml);
 }
 // --------------------------------------------------------------------------
 void RedImage::save () {
@@ -785,29 +836,50 @@ void RedImage::calc_status () {
     buffer << "Bad: " << std::fixed << std::setprecision(2) << (portions[2] * 100.0F) << "%";
   }
   if (portions[1] != 0.0F) {
-//    if (portions[0] != 0.0F) {
-//      buffer << " - ";
-//    }
+    if (portions[2] != 0.0F) {
+      buffer << " - ";
+    }
     buffer << "Off: " << std::fixed << std::setprecision(2) << (portions[1] * 100.0F) << "%";
   }
   if (portions[0] != 0.0F) {
-    buffer << " - Good: " << std::fixed << std::setprecision(2) << (portions[0] * 100.0F)
-           << "% - Quality: " << std::fixed << std::setprecision(2) << (portions[2] * 100.0F) << "%";
+    if ((portions[1] != 0.0F) || (portions[2] != 0.0F)) {
+      buffer << " - ";
+    }
+    buffer << "Good: " << std::fixed << std::setprecision(2) << (portions[0] * 100.0F) << "%";
+//           << "% - Quality: " << std::fixed << std::setprecision(2) << (portions[2] * 100.0F) << "%";
   }
   status.labels[1].set_text(buffer.str());
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
-  std::ostringstream buffer;
-  buffer << "H: " << (int)hsv[0] << " S: " << (int)hsv[1] << " V: " << (int)hsv[2];
-  status.labels[2].set_text(buffer.str());
-  status.color.set_hsv_color(hsv);
+void RedImage::show_values_at (const core::size& sz, const core::point& pt) {
+  show_hsv_value(get_hsv_at(sz, pt));
+//  show_lab_value(get_lab_at(sz, pt));
+  show_rgb_value(get_rgb_at(sz, pt));
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_lab_value (const cv::Vec3b& lab) {
+void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
   std::ostringstream buffer;
-  buffer << "L: " << (int)lab[0] << " a: " << (int)lab[1] << " b: " << (int)lab[2];
+  buffer << "HSV: " << std::setw(3) << (int)hsv[0]
+         << ":" << std::setw(3) << (int)hsv[1]
+         << ":" << std::setw(3) << (int)hsv[2];
+  status.labels[2].set_text(buffer.str());
+}
+//-----------------------------------------------------------------------------
+//void RedImage::show_lab_value (const cv::Vec3b& lab) {
+//  std::ostringstream buffer;
+//  buffer << "L: " << std::setw(3) << (int)lab[0]
+//         << " a: " << std::setw(3) << (int)lab[1]
+//         << " b: " << std::setw(3) << (int)lab[2];
+//  status.labels[4].set_text(buffer.str());
+//}
+//-----------------------------------------------------------------------------
+void RedImage::show_rgb_value (const cv::Vec3b& rgb) {
+  std::ostringstream buffer;
+  buffer << "RGB: " << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[0]
+         << ":" << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[1]
+         << ":" << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[2];
   status.labels[3].set_text(buffer.str());
+  status.color.set_rgb_color(rgb);
 }
 // --------------------------------------------------------------------------
 void RedImage::calc_folder () {
@@ -818,13 +890,7 @@ void RedImage::calc_folder () {
     calculation_threads.add(i);
   }
 
-  data::hsv_range bad_range = filter_list.color_keys[0]->get();
-  data::hsv_range off_range = filter_list.color_keys[1]->get();
-
   calculation_threads.start([=] (worker::queue& queue) {
-
-    proc::color_filter bad_filter(bad_range);
-    proc::color_filter off_filter(off_range);
 
     int idx = -1;
     while (queue.try_dequeue(idx)) {
@@ -836,7 +902,7 @@ void RedImage::calc_folder () {
       image_info info = folder_view.list[idx];
 
       cv::Mat raw, hsv;
-      ::load_image(info.filename, raw, hsv);
+      ::load_image(info.filename, raw, hsv, adjust_brightness);
 
       float portions[3];
       ::calc_image(hsv, filter_list.color_keys, portions);
@@ -879,7 +945,7 @@ void RedImage::open_folder () {
 #ifdef X11
            sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {
 #endif // X11
-        if (!is_jpeg(i)) {
+        if (is_jpeg(i)) {
           folder_view.list.emplace_back(image_info(i.path()));
         }
       }

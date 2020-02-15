@@ -20,7 +20,11 @@ namespace view {
 
     status_bar ();
 
-    status_label labels[4];
+    enum {
+      LABEL_COUNT = 4
+    };
+
+    status_label labels[LABEL_COUNT];
     color_view color;
   };
 

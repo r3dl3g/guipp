@@ -38,6 +38,7 @@
 //
 #include <logging/logger.h>
 #include <gui/core/guidefs.h>
+#include <gui/core/color.h>
 
 
 namespace std {
@@ -59,6 +60,14 @@ namespace std {
       case gui::core::os::platform::cocoa: out << "cocoa"; break;
       default: out << "unknown:" << static_cast<gui::byte>(p); break;
     }
+    return out;
+  }
+
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::color::color_parts cp) {
+    out << "color_parts: RGBA=" << std::hex << cp.red
+                         << ":" << std::hex << cp.green
+                         << ":" << std::hex << cp.blue
+                         << ":" << std::hex << cp.alpha;
     return out;
   }
 
@@ -232,6 +241,10 @@ namespace gui {
         LogDebug << "os::bit_order: " << core::os::get_bit_order();
         LogDebug << "os::byte_order: " << core::os::get_byte_order();
         LogDebug << "os::platform: " << core::os::system_platform;
+        LogDebug << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
+                 << ":" << static_cast<unsigned int>(color::part::green)
+                 << ":" << static_cast<unsigned int>(color::part::blue)
+                 << ":" << static_cast<unsigned int>(color::part::alpha);
       }
 
       void fini () {

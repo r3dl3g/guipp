@@ -127,13 +127,14 @@ END_TEST(test_bitmap_checked)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_black) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -147,13 +148,14 @@ END_TEST(test_pixmap_black)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_red) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::red);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -167,13 +169,14 @@ END_TEST(test_pixmap_red)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_green) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::green);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -187,13 +190,14 @@ END_TEST(test_pixmap_green)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_blue) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::blue);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -207,13 +211,14 @@ END_TEST(test_pixmap_blue)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_white) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -228,6 +233,7 @@ END_TEST(test_pixmap_white)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap) {
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   {
     graphics g(img);
@@ -241,8 +247,8 @@ DEFINE_TEST(test_pixmap) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
   rgbamap rgb = img.get<PixelFormat::RGBA>();
 
@@ -265,6 +271,8 @@ DEFINE_TEST(test_pixmap_draw) {
 # define BLUE  "ff000000"
 #endif // WIN32
 
+  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+
   core::global::set_scale_factor(1.0);
 
   pixmap img(6, 6);
@@ -285,8 +293,8 @@ DEFINE_TEST(test_pixmap_draw) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(6, 6));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, 24, PixelFormat::RGBA));
+  EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(6, 6, expected_pixelformat));
 
 #ifdef X11
   XImage* xim = XGetImage(core::global::get_instance(), img.get_id(), 0, 0, 6, 6, AllPlanes, ZPixmap);

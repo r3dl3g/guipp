@@ -76,7 +76,7 @@ public:
   void set_hsv_for (const cv::Vec3b& hsv, int i);
 
   cv::Vec3b get_lab_at (const core::size& win_size, const core::point& pt);
-  cv::Vec3b get_rgb_at (const core::size& win_size, const core::point& pt);
+  cv::Vec3b get_bgr_at (const core::size& win_size, const core::point& pt);
 
   data::hsv_range get_hsv_range_at (const core::size& win_size, const core::point& pt, const core::size& sz);
   void set_hsv_range_for (const data::hsv_range& hsv, int i);
@@ -104,7 +104,7 @@ public:
   void calc_status ();
   void show_hsv_value (const cv::Vec3b& hsv);
 //  void show_lab_value (const cv::Vec3b& lab);
-  void show_rgb_value (const cv::Vec3b& rgb);
+  void show_bgr_value (const cv::Vec3b& rgb);
   void show_values_at (const core::size& sz, const core::point& pt);
 
   void open_folder ();
@@ -446,7 +446,7 @@ cv::Vec3b RedImage::get_lab_at (const core::size& win_size, const core::point& p
   return cv::Vec3b();
 }
 //-----------------------------------------------------------------------------
-cv::Vec3b RedImage::get_rgb_at (const core::size& win_size, const core::point& pt) {
+cv::Vec3b RedImage::get_bgr_at (const core::size& win_size, const core::point& pt) {
   if (raw_image.empty()) {
     return cv::Vec3b();
   }
@@ -688,13 +688,13 @@ void RedImage::quit () {
   });
 }
 //-----------------------------------------------------------------------------
-bool is_jpeg (const sys_fs::directory_entry& i) {
-  auto ext = i.path().extension();
+bool is_jpeg (const sys_fs::path& i) {
+  auto ext = i.extension();
   return (ext == ".jpg") || (ext == ".jpeg") || (ext == ".JPG") || (ext == ".JPEG");
 }
 //-----------------------------------------------------------------------------
 bool is_not_jpeg_or_dir (const sys_fs::directory_entry& i) {
-  return !is_jpeg(i) && !(i.status().type() == sys_fs::file_type::directory);
+  return !is_jpeg(i.path()) && !(i.status().type() == sys_fs::file_type::directory);
 }
 //-----------------------------------------------------------------------------
 bool is_not_xml (const sys_fs::directory_entry& i) {
@@ -854,7 +854,7 @@ void RedImage::calc_status () {
 void RedImage::show_values_at (const core::size& sz, const core::point& pt) {
   show_hsv_value(get_hsv_at(sz, pt));
 //  show_lab_value(get_lab_at(sz, pt));
-  show_rgb_value(get_rgb_at(sz, pt));
+  show_bgr_value(get_bgr_at(sz, pt));
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
@@ -873,13 +873,13 @@ void RedImage::show_hsv_value (const cv::Vec3b& hsv) {
 //  status.labels[4].set_text(buffer.str());
 //}
 //-----------------------------------------------------------------------------
-void RedImage::show_rgb_value (const cv::Vec3b& rgb) {
+void RedImage::show_bgr_value (const cv::Vec3b& rgb) {
   std::ostringstream buffer;
-  buffer << "RGB: " << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[0]
+  buffer << "RGB: " << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[2]
          << ":" << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[1]
-         << ":" << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[2];
+         << ":" << std::setw(2) << std::setfill('0') << std::uppercase << std::hex << (int)rgb[0];
   status.labels[3].set_text(buffer.str());
-  status.color.set_rgb_color(rgb);
+  status.color.set_bgr_color(rgb);
 }
 // --------------------------------------------------------------------------
 void RedImage::calc_folder () {
@@ -936,18 +936,17 @@ void RedImage::open_folder () {
   }
   dir_open_dialog::show(*this, "Choose folder", "Open", "Cancel", [&] (const sys_fs::path& folder) {
     if (sys_fs::exists(folder) && sys_fs::is_directory(folder)) {
-      show_folder_view();
       folder_view.list.clear();
-      for (const auto& i : 
-#ifdef WIN32
-           sys_fs::directory_iterator(folder)) {
-#endif // WIN32
+      show_folder_view();
+      std::vector<sys_fs::path> list;
+      std::copy_if(sys_fs::directory_iterator(folder
 #ifdef X11
-           sys_fs::directory_iterator(folder, sys_fs::directory_options::skip_permission_denied)) {
+          , sys_fs::directory_options::skip_permission_denied
 #endif // X11
-        if (is_jpeg(i)) {
-          folder_view.list.emplace_back(image_info(i.path()));
-        }
+                                           ), sys_fs::directory_iterator(), std::back_inserter(list), is_jpeg);
+      std::sort(list.begin(), list.end());
+      for (const auto& i : list) {
+        folder_view.list.emplace_back(i);
       }
       folder_view.update_list();
       if (background_thread.joinable()) {

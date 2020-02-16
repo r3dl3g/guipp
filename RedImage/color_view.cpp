@@ -30,6 +30,11 @@ namespace view {
     invalidate();
   }
   // --------------------------------------------------------------------------
+  void color_view::set_bgr_color (const cv::Vec3b& bgr) {
+    value = color::calc_rgb(bgr[2], bgr[1], bgr[0]);
+    invalidate();
+  }
+  // --------------------------------------------------------------------------
   void color_view::set_hsv_color (const cv::Vec3b& hsv) {
     cv::Mat hsv_img(1, 1, CV_8UC3);
     hsv_img.setTo(hsv);

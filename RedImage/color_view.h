@@ -20,6 +20,7 @@ namespace view {
 
     void paint (const gui::draw::graphics& graph);
     void set_rgb_color (const cv::Vec3b& rgb);
+    void set_bgr_color (const cv::Vec3b& bgr);
     void set_hsv_color (const cv::Vec3b& hsv);
 
     gui::os::color value;

@@ -711,6 +711,7 @@ namespace gui {
       auto* win = global::get_application_main_window();
       XEvent event;
       XClientMessageEvent& client = event.xclient;
+      client.type = ClientMessage;
       client.window = win ? win->get_id() : 0;
       client.serial = 0;
       client.send_event = True;

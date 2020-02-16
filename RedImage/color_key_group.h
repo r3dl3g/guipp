@@ -13,6 +13,7 @@ namespace view {
 
     color_key_group (const std::string& name = std::string());
 
+    void add (const data::hsv_range&);
     void set (const data::hsv_range&);
     data::hsv_range get () const;
 

@@ -36,6 +36,7 @@ namespace view {
 
     void set (const std::string& name, const data::range& value);
     void set (const data::range& value);
+    void add (const data::range& value);
     void set_min (byte value);
     void set_max (byte value);
     void set_range (byte min, byte max);

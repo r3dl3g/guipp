@@ -19,10 +19,29 @@ namespace view {
   }
   // --------------------------------------------------------------------------
   void color_key_group::set (const data::hsv_range& hsv) {
-    hue.set("Hue", hsv.hue());
-    saturation.set("Sat", hsv.saturation());
-    value.set("Val", hsv.value());
-    set_name(hsv.name());
+    hue.set(hsv.hue());
+    saturation.set(hsv.saturation());
+    value.set(hsv.value());
+//    set_name(hsv.name());
+    update_colors();
+  }
+  // --------------------------------------------------------------------------
+  void color_key_group::add (const data::hsv_range& hsv) {
+    if ((hue.get_min() == 0) && (hue.get_max() == 180)) {
+      hue.set(hsv.hue());
+    } else {
+      hue.add(hsv.hue());
+    }
+    if ((saturation.get_min() == 0) && (saturation.get_max() == 255)) {
+      saturation.set(hsv.saturation());
+    } else {
+      saturation.add(hsv.saturation());
+    }
+    if ((value.get_min() == 0) && (value.get_max() == 255)) {
+      value.set(hsv.value());
+    } else {
+      value.add(hsv.value());
+    }
     update_colors();
   }
   // --------------------------------------------------------------------------

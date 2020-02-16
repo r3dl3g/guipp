@@ -26,6 +26,7 @@ namespace view {
     for (auto& i : color_keys) {
       i->create(*this);
       get_layout().add(gui::layout::lay(*i));
+      i->set_name(s.ranges()[idx].name());
       i->set(s.ranges()[idx++]);
     }
     layout();

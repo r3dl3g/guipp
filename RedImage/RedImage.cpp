@@ -117,6 +117,8 @@ public:
   void init_sidebar_filter (int i);
   void init_sidebar ();
 
+  void undo ();
+
 private:
   main_menu menu;
   popup_menu file_sub_menu;
@@ -161,6 +163,9 @@ private:
   };
   cv::Mat image[IMAGE_COUNT];
 
+  data::hsv_range old_range;
+  int undo_index;
+
   data::redimage_settings settings;
   sys_fs::path settings_path;
   sys_fs::path image_path;
@@ -173,6 +178,7 @@ RedImage::RedImage ()
   , learning_mode(false)
   , adjust_brightness(true)
   , is_active(true)
+  , undo_index(-1)
 {
   for (auto& p : portions) {
     p = 0.0F;
@@ -224,6 +230,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Lab Image", 'l', util::bind_method(this, &RedImage::show_lab), hot_key(keys::b, state::control|state::alt), false),
     menu_entry("Reset range", 'r', util::bind_method(this, &RedImage::reset_current_color_range), hot_key(keys::r, state::control), true),
     menu_entry("Add filter", 'f', util::bind_method(this, &RedImage::add_filter), hot_key(keys::insert, state::control), true),
+    menu_entry("Unfo", 'u', util::bind_method(this, &RedImage::undo), hot_key(keys::z, state::control), true),
   });
 
   view_sub_menu.data.add_entries({
@@ -283,9 +290,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
   });
   full_image_view.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     if (learning_mode) {
-      int idx = curent_full_image_view % 3;
-      if (idx < 2) {
-        set_hsv_range_for(get_hsv_range_at(full_image_view.size(), pt, core::size(5, 5)), idx);
+      if (curent_full_image_view > 2) {
+        set_hsv_range_for(get_hsv_range_at(full_image_view.size(), pt, core::size(2, 2)), curent_full_image_view - 3);
       }
     }
   });
@@ -315,10 +321,10 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     full_image_view.place(r);
   }, layout::lay(menu), layout::lay(status), layout::lay(side_scroll), nullptr);
 
-  for (int i = 1; i < filter_view.count; ++i) {
+  for (int i = 3; i < filter_view.count; ++i) {
     filter_view.image_views[i].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
       if (learning_mode) {
-        set_hsv_range_for(get_hsv_range_at(filter_view.image_views[i].size(), pt, core::size(5, 5)), i - 1);
+        set_hsv_range_for(get_hsv_range_at(filter_view.image_views[i].size(), pt, core::size(2, 2)), i - 3);
       }
     });
   }
@@ -413,9 +419,19 @@ data::hsv_range RedImage::get_hsv_range_at (const core::size& win_size, const co
   return data::hsv_range(h, s, v);
 }
 //-----------------------------------------------------------------------------
+void RedImage::undo () {
+  if (undo_index > -1) {
+    filter_list.color_keys[undo_index]->set(old_range);
+    undo_index = -1;
+    calc_image_and_show();
+  }
+}
+//-----------------------------------------------------------------------------
 void RedImage::set_hsv_range_for (const data::hsv_range& hsv, int i) {
   if ((i > -1) && (i < filter_list.color_keys.size())) {
-    filter_list.color_keys[i]->set(hsv);
+    old_range = filter_list.color_keys[i]->get();
+    undo_index = i;
+    filter_list.color_keys[i]->add(hsv);
     calc_image_and_show();
   }
 }
@@ -603,7 +619,7 @@ void RedImage::calc_image () {
       grp->image.setTo(cv::Scalar(0, 0, 0));
       raw_image.copyTo(grp->image, grp->mask);
       image[idx + 2].setTo(cv::Scalar(0, 0, 0));
-      raw_image.copyTo(image[idx + 2], grp->mask);
+      raw_image.copyTo(image[idx + 2], learning_mode ? ~grp->mask : grp->mask);
       mask_view.image_views[idx + 2 + 1].set_image_and_scale(grp->mask);
     }
     ++idx;
@@ -659,15 +675,12 @@ void RedImage::calc_all_and_show () {
 //-----------------------------------------------------------------------------
 void RedImage::reset_current_color_range () {
   if (curent_full_image_view > 2) {
-    int idx = curent_full_image_view % 3;
-    if (idx < 2) {
-      reset_color_range(idx);
-    }
+    reset_color_range(curent_full_image_view - 3);
   }
 }
 //-----------------------------------------------------------------------------
 void RedImage::reset_color_range (int i) {
-  filter_list.color_keys[i].reset();
+  filter_list.color_keys[i]->reset();
   calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
@@ -770,6 +783,9 @@ void RedImage::load () {
     settings_path = file;
     for (auto& p : portions) {
       p = 0.0F;
+    }
+    for (auto& im :image) {
+      im = cv::Mat();
     }
     calc_title();
     calc_status();

@@ -4,10 +4,10 @@ namespace view {
 
   scroll_bar_group::scroll_bar_group (byte min, byte max) {
     on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
+      min_scroll.set_min_max_step_value(min, max, 1, min);
+      max_scroll.set_min_max_step_value(min, max, 1, max);
       min_scroll.create(*this);
-      min_scroll.set_min_max(min, max);
       max_scroll.create(*this);
-      max_scroll.set_min_max(min, max);
       get_layout().add({&min_scroll, &max_scroll});
     });
   }
@@ -52,6 +52,11 @@ namespace view {
   void color_key::set (const data::range& value) {
     set_min(value.min());
     set_max(value.max());
+  }
+  // --------------------------------------------------------------------------
+  void color_key::add (const data::range& value) {
+    set_min(std::min(value.min(), get_min()));
+    set_max(std::max(value.max(), get_max()));
   }
   // --------------------------------------------------------------------------
   data::range color_key::get () const {

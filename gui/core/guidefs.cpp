@@ -40,6 +40,30 @@
 #include <gui/core/guidefs.h>
 
 
+namespace std {
+
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::bit_order bo) {
+    out << (bo == gui::core::bit_order::lsb_first ? "lsb_first" : "msb_first");
+    return out;
+  }
+
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::byte_order bo) {
+    out << (bo == gui::core::byte_order::little_endian ? "little_endian" : "big_endian");
+    return out;
+  }
+
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::platform p) {
+    switch (p) {
+      case gui::core::os::platform::win32: out << "win32"; break;
+      case gui::core::os::platform::x11:   out << "x11"; break;
+      case gui::core::os::platform::cocoa: out << "cocoa"; break;
+      default: out << "unknown:" << static_cast<gui::byte>(p); break;
+    }
+    return out;
+  }
+
+} // namespace std
+
 namespace gui {
 
   const char* PixelFormatNames[] = {
@@ -205,6 +229,9 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
+        LogDebug << "os::bit_order: " << core::os::get_bit_order();
+        LogDebug << "os::byte_order: " << core::os::get_byte_order();
+        LogDebug << "os::platform: " << core::os::system_platform;
       }
 
       void fini () {

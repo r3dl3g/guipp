@@ -224,6 +224,8 @@ namespace gui {
       void on_hilite_changed (std::function<void(bool)>&& f);
       void on_content_changed (std::function<void()>&& f);
 
+      void notify_content_changed () const;
+
     };
 
     // --------------------------------------------------------------------------

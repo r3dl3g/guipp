@@ -10,9 +10,9 @@
 
 namespace view {
 
-  class color_group : public gui::win::group_window<gui::layout::grid_adaption<1, 2, 1, 0>, gui::color::very_very_light_gray> {
+  class color_group : public gui::win::group_window<gui::layout::grid_adaption<2, 1, 1, 0>, gui::color::very_very_light_gray> {
   public:
-    typedef gui::win::group_window<gui::layout::grid_adaption<1, 2, 1, 0>, gui::color::very_very_light_gray> super;
+    typedef gui::win::group_window<gui::layout::grid_adaption<2, 1, 1, 0>, gui::color::very_very_light_gray> super;
 
     color_group () {
       on_create([&] (gui::win::window*, const gui::core::rectangle&) {

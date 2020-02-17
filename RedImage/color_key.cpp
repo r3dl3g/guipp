@@ -2,50 +2,49 @@
 
 namespace view {
 
-  scroll_bar_group::scroll_bar_group (byte min, byte max) {
-    on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
-      min_scroll.set_min_max_step_value(min, max, 1, min);
-      max_scroll.set_min_max_step_value(min, max, 1, max);
-      min_scroll.create(*this);
-      max_scroll.create(*this);
-      get_layout().add({&min_scroll, &max_scroll});
-    });
-  }
-
   color_key::color_key (byte min, byte max)
-    : min_max(min, max)
-    , scrolls(min, max)
   {
-    on_create([&] (gui::win::window*, const gui::core::rectangle&) {
-      min_max.create(*this);
-      scrolls.create(*this);
-      get_layout().add({&min_max, &scrolls});
+    on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
+      main_label.create(*this);
+      min_label.create(*this, "Min:");
+      min_edit.create(*this, ostreamfmt((int)min));
+      min_edit.set_text_filter(gui::ctrl::filter::unsigned_filter);
+      min_scroll.set_min_max_step_value(min, max, 1, min);
+      min_scroll.create(*this);
+
+      max_label.create(*this, "Max:");
+      max_edit.create(*this, ostreamfmt((int)max));
+      max_edit.set_text_filter(gui::ctrl::filter::unsigned_filter);
+      max_scroll.set_min_max_step_value(min, max, 1, max);
+      max_scroll.create(*this);
+
+      get_layout().add({&main_label, &min_label, &min_edit, &min_scroll, &max_label, &max_edit, &max_scroll});
     });
-    scrolls.min_scroll.on_scroll([&] (const gui::core::point::type) {
-      min_max.min_edit.set_text(ostreamfmt((int)scrolls.min_scroll.get_value()));
+    min_scroll.on_scroll([&] (const gui::core::point::type) {
+      min_edit.set_text(ostreamfmt((int)min_scroll.get_value()));
     });
-    scrolls.max_scroll.on_scroll([&] (const gui::core::point::type) {
-      min_max.max_edit.set_text(ostreamfmt((int)scrolls.max_scroll.get_value()));
+    max_scroll.on_scroll([&] (const gui::core::point::type) {
+      max_edit.set_text(ostreamfmt((int)max_scroll.get_value()));
     });
-    min_max.min_edit.on_content_changed([&] () {
+    min_edit.on_content_changed([&] () {
       gui::ctrl::scroll_bar::type value = 0;
-      std::istringstream(min_max.min_edit.get_text()) >> value;
-      scrolls.min_scroll.set_value(value, false);
+      std::istringstream(min_edit.get_text()) >> value;
+      min_scroll.set_value(value, false);
     });
-    min_max.max_edit.on_content_changed([&] () {
+    max_edit.on_content_changed([&] () {
       gui::ctrl::scroll_bar::type value = 0;
-      std::istringstream(min_max.max_edit.get_text()) >> value;
-      scrolls.max_scroll.set_value(value, false);
+      std::istringstream(max_edit.get_text()) >> value;
+      max_scroll.set_value(value, false);
     });
   }
   // --------------------------------------------------------------------------
   void color_key::create (const gui::win::container& parent, const std::string& name) {
     super::create(parent);
-    min_max.main_label.set_text(name);
+    main_label.set_text(name);
   }
   // --------------------------------------------------------------------------
   void color_key::set (const std::string& name, const data::range& value) {
-    min_max.main_label.set_text(name);
+    main_label.set_text(name);
     set(value);
   }
   // --------------------------------------------------------------------------
@@ -64,13 +63,21 @@ namespace view {
   }
   // --------------------------------------------------------------------------
   void color_key::set_min (byte value) {
-    min_max.min_edit.set_text(ostreamfmt((int)value));
-    scrolls.min_scroll.set_value(value, false);
+    min_edit.set_text(ostreamfmt((int)value));
+    min_scroll.set_value(value, false);
   }
   // --------------------------------------------------------------------------
   void color_key::set_max (byte value) {
-    min_max.max_edit.set_text(ostreamfmt((int)value));
-    scrolls.max_scroll.set_value(value, false);
+    max_edit.set_text(ostreamfmt((int)value));
+    max_scroll.set_value(value, false);
+  }
+  // --------------------------------------------------------------------------
+  bool color_key::in_range (byte value) const {
+    if (get_max() < get_min()) {
+      return ((get_min() <= value) && (value <= (static_cast<int>(get_max()) + 180)));
+    } else {
+      return ((get_min() <= value) && (value <= get_max()));
+    }
   }
   // --------------------------------------------------------------------------
   void color_key::set_range (byte min, byte max) {
@@ -79,11 +86,11 @@ namespace view {
   }
   // --------------------------------------------------------------------------
   gui::byte color_key::get_min () const {
-    return (byte)scrolls.min_scroll.get_value();
+    return (byte)min_scroll.get_value();
   }
   // --------------------------------------------------------------------------
   gui::byte color_key::get_max () const {
-    return (byte)scrolls.max_scroll.get_value();
+    return (byte)max_scroll.get_value();
   }
 
 } // namespace view

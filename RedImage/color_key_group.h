@@ -7,9 +7,9 @@
 
 namespace view {
 
-  class color_key_group : public gui::win::group_window<gui::layout::vertical_lineup<40, 0, 1>, gui::color::very_very_light_gray> {
+  class color_key_group : public gui::win::group_window<gui::layout::vertical_lineup<20, 0, 1>, gui::color::very_very_light_gray> {
   public:
-    typedef gui::win::group_window<gui::layout::vertical_lineup<40, 0, 2>, gui::color::very_very_light_gray> super;
+    typedef gui::win::group_window<gui::layout::vertical_lineup<20, 0, 2>, gui::color::very_very_light_gray> super;
 
     color_key_group (const std::string& name = std::string());
 
@@ -21,17 +21,24 @@ namespace view {
     void update_colors ();
 
     void set_name (const std::string&);
+    void set_hsv (const cv::Vec3b& hsv);
+    void check_hsv (const cv::Vec3b& hsv);
 
     cv::Mat calc_mask (const cv::Mat& hsv_image) const;
+
+    void on_content_changed (std::function<void()>&& f);
+
+    void notify_content_changed () const;
 
     cv::Mat image;
     cv::Mat mask;
 
+  private:
     color_key hue;
     color_key saturation;
     color_key value;
-  private:
     color_group colors;
+    bool checked;
   };
 
 } // namespace view

@@ -325,7 +325,7 @@ namespace gui {
 
       void textbox_base::notify_content_changed () const {
         data.virtual_size.clear();
-        send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
+        super::notify_content_changed();
       }
 
       void textbox_base::notify_selection_changed () const {

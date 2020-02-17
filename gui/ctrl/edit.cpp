@@ -394,10 +394,6 @@ namespace gui {
         return max_chars;
       }
 
-      void edit_base::notify_content_changed () const {
-        send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
-      }
-
       void edit_base::handle_key (os::key_state keystate,
                                   os::key_symbol keycode,
                                   const std::string& chars) {

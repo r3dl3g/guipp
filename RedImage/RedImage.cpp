@@ -82,7 +82,6 @@ public:
   void set_hsv_range_for (const data::hsv_range& hsv, int i);
 
   void calc_all_and_show ();
-  void calc_color (int i);
   void add_filter ();
 
   void show_full_image (int i);
@@ -343,43 +342,10 @@ void RedImage::init_sidebar () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar_filter (int i) {
-  filter_list.color_keys[i]->hue.scrolls.min_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->hue.scrolls.max_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->saturation.scrolls.min_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->saturation.scrolls.max_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->value.scrolls.min_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->value.scrolls.max_scroll.on_scroll([&, i](core::point::type){
-    calc_color(i);
-  });
-  filter_list.color_keys[i]->hue.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
+  filter_list.color_keys[i]->on_content_changed([&] () {
     calc_image_and_show();
   });
-  filter_list.color_keys[i]->hue.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
-    calc_image_and_show();
-  });
-  filter_list.color_keys[i]->saturation.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
-    calc_image_and_show();
-  });
-  filter_list.color_keys[i]->saturation.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
-    calc_image_and_show();
-  });
-  filter_list.color_keys[i]->value.scrolls.min_scroll.on_left_btn_up([&](os::key_state, core::point){
-    calc_image_and_show();
-  });
-  filter_list.color_keys[i]->value.scrolls.max_scroll.on_left_btn_up([&](os::key_state, core::point){
-    calc_image_and_show();
-  });
-  calc_color(i);
+  filter_list.color_keys[i]->update_colors();
 }
 //-----------------------------------------------------------------------------
 void RedImage::add_filter () {
@@ -476,9 +442,7 @@ cv::Vec3b RedImage::get_bgr_at (const core::size& win_size, const core::point& p
 }
 //-----------------------------------------------------------------------------
 void RedImage::set_hsv_for (const cv::Vec3b& hsv, int i) {
-  filter_list.color_keys[i]->hue.set_range(hsv[0] - 1, hsv[0] + 1);
-  filter_list.color_keys[i]->saturation.set_range(70, 255);
-  filter_list.color_keys[i]->value.set_range(70, 255);
+  filter_list.color_keys[i]->set_hsv(hsv);
   calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
@@ -562,10 +526,6 @@ void isolateChannel (const cv::Mat& in, cv::Mat& out, int channel) {
 //-----------------------------------------------------------------------------
 void RedImage::show_image (int i) {
   filter_view.image_views[i + 1].set_image_and_scale(image[i]);
-}
-//-----------------------------------------------------------------------------
-void RedImage::calc_color (int i) {
-  filter_list.color_keys[i]->update_colors();
 }
 //-----------------------------------------------------------------------------
 void calc_image (const cv::Mat& hsv_image,
@@ -868,9 +828,13 @@ void RedImage::calc_status () {
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_values_at (const core::size& sz, const core::point& pt) {
-  show_hsv_value(get_hsv_at(sz, pt));
+  const auto hsv = get_hsv_at(sz, pt);
+  show_hsv_value(hsv);
 //  show_lab_value(get_lab_at(sz, pt));
   show_bgr_value(get_bgr_at(sz, pt));
+  for (auto& f : filter_list.color_keys) {
+    f.get()->check_hsv(hsv);
+  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_hsv_value (const cv::Vec3b& hsv) {

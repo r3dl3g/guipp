@@ -118,8 +118,6 @@ namespace gui {
         void prepare_input ();
         pos_t get_position_at_point (const core::point& pt);
 
-        void notify_content_changed () const;
-
         struct data {
           data ();
 

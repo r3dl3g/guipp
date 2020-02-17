@@ -80,11 +80,11 @@ namespace gui {
     namespace paint {
 
       GUIPP_CTRL_EXPORT void label (const draw::graphics& graph,
-                  const core::rectangle& area,
-                  const std::string& text,
-                  os::color foreground,
-                  os::color background,
-                  text_origin origin);
+                                    const core::rectangle& area,
+                                    const std::string& text,
+                                    os::color foreground,
+                                    os::color background,
+                                    text_origin origin);
 
     }
 

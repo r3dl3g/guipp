@@ -7,22 +7,73 @@ namespace view {
     : hue(0, 180)
     , saturation()
     , value()
+    , checked(false)
   {
+    using namespace gui;
     set_name(name);
-    on_create([&] (gui::win::window*, const gui::core::rectangle&) {
+    on_create([&] (win::window*, const core::rectangle&) {
       colors.create(*this);
       hue.create(*this, "Hue");
       saturation.create(*this, "Sat");
       value.create(*this, "Val");
       get_layout().add({&colors, &hue, &saturation, &value});
     });
+    on_paint(draw::paint([&] (const draw::graphics& graph) {
+      graph.clear(checked ? color::red : color::very_very_light_gray);
+    }));
+    hue.min_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    hue.max_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    saturation.min_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    saturation.max_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    value.min_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    value.max_scroll.on_scroll([&](core::point::type){
+      update_colors();
+    });
+    hue.min_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+    hue.max_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+    saturation.min_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+    saturation.max_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+    value.min_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+    value.max_scroll.on_left_btn_up([&](os::key_state, core::point){
+      notify_content_changed();
+    });
+  }
+  // --------------------------------------------------------------------------
+  void color_key_group::set_hsv (const cv::Vec3b& hsv) {
+    hue.set_range(hsv[0] - 1, hsv[0] + 1);
+    saturation.set_range(70, 255);
+    value.set_range(70, 255);
+  }
+  // --------------------------------------------------------------------------
+  void color_key_group::check_hsv (const cv::Vec3b& hsv) {
+    checked = hue.in_range(hsv[0]) && saturation.in_range(hsv[1]) && value.in_range(hsv[2]);
+    invalidate();
   }
   // --------------------------------------------------------------------------
   void color_key_group::set (const data::hsv_range& hsv) {
     hue.set(hsv.hue());
     saturation.set(hsv.saturation());
     value.set(hsv.value());
-//    set_name(hsv.name());
     update_colors();
   }
   // --------------------------------------------------------------------------
@@ -86,6 +137,14 @@ namespace view {
                   mask);
     }
     return mask;
+  }
+
+  void color_key_group::on_content_changed (std::function<void()>&& f) {
+    on<gui::ctrl::content_changed_event>(std::move(f));
+  }
+
+  void color_key_group::notify_content_changed () const {
+    send_client_message(this, gui::ctrl::detail::CONTENT_CHANGED_MESSAGE);
   }
 
 } // namespace view

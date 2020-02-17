@@ -140,6 +140,10 @@ namespace gui {
       on<content_changed_event>(std::move(f));
     }
 
+    void control::notify_content_changed () const {
+      send_client_message(this, detail::CONTENT_CHANGED_MESSAGE);
+    }
+
   } // ctrl
 
 } // gui

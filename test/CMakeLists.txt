@@ -19,6 +19,9 @@ elseif (UNIX)
 endif()
 
 add_subdirectory(./../gui gui)
+if (BUILD_FOR_ARM)
+  add_subdirectory(./../raspi raspi)
+endif()
 
 add_definitions(${gui_defines})
 message(STATUS "app gui_defines: ${gui_defines}")
@@ -94,6 +97,6 @@ foreach(test ${apps})
 endforeach(test)
 
 if (BUILD_FOR_ARM)
-    target_link_libraries(raspicam_test testlib gui++-raspi-static ${MMAL_LIBS})
-    target_link_libraries(spectrometer testlib gui++-raspi-static ${MMAL_LIBS})
+    target_link_libraries(raspicam_test testlib ${raspi_libraries} ${MMAL_LIBS})
+    target_link_libraries(spectrometer testlib ${raspi_libraries} ${MMAL_LIBS})
 endif()

@@ -20,6 +20,9 @@ if(NOT TARGET gui++-raspi-obj)
 
     add_definitions(${gui_defines})
 
+    set (INCLUDE_INSTALL_DIR include/guipp/raspi)
+    set (LIBRARY_INSTALL_DIR lib/guipp)
+
 if (BUILD_FOR_ARM)
     file(GLOB SOURCE_FILES "*.cpp")
     file(GLOB INCLUDE_FILES "*.h" "*.inl")
@@ -35,6 +38,7 @@ endif()
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-raspi-static STATIC $<TARGET_OBJECTS:gui++-raspi-obj>)
         install(TARGETS gui++-raspi-static DESTINATION ${LIBRARY_INSTALL_DIR})
+       set (raspi_libraries gui++-raspi-static)
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -46,7 +50,10 @@ endif()
                                        FOLDER libraries
                                        VERSION ${gui_VERSION}
                                        SOVERSION ${gui_VERSION_MAJOR})
+       set (raspi_libraries gui++-raspi)
     endif()
+
+    set (raspi_libraries ${raspi_libraries} PARENT_SCOPE)
 
     GENERATE_EXPORT_HEADER(gui++-raspi-obj
         BASE_NAME GUIPP_RASPI

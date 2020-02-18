@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("gui-lib" CXX)
 
-set(BUILD_FOR_ARM OFF CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
+set(BUILD_FOR_ARM ON CACHE BOOL "On to build for arm architecture, Off for host architecture. default Off")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

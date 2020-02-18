@@ -24,23 +24,68 @@ namespace gui {
   namespace ctrl {
 
     //-----------------------------------------------------------------------------
-    inline standard_dialog_base::standard_dialog_base ()
+    template<int T, int L, int R>
+    void standard_dialog_base<T, L, R>::create (win::container& parent,
+                                                const std::string& title,
+                                                const core::rectangle& rect,
+                                                std::function<dialog_action> action,
+                                                const std::initializer_list<std::string>& labels) {
+      super::get_layout().set_bottom(layout::lay(button_layout));
+      super::create(parent, rect);
+      super::set_title(title);
+      buttons.resize(labels.size());
+
+      auto i = 0;
+      for (auto l : labels) {
+        text_button& btn = buttons[i];
+        btn.on_clicked([&, action, i] () {
+          super::end_modal();
+          if (action) {
+            action(i);
+          }
+        });
+        btn.create(*this, l);
+        button_layout.add(layout::lay(btn));
+        ++i;
+      }
+      super::on_set_focus([&] (win::window*) {
+        if (!buttons.empty()) {
+          buttons.back().take_focus();
+        }
+      });
+    }
+
+    //-----------------------------------------------------------------------------
+    template<int T, int L, int R>
+    void standard_dialog_base<T, L, R>::show (win::container& parent) {
+      super::run_modal(parent, {
+        win::hot_key_action{
+          win::hot_key(win::keys::escape, win::state::none),
+          [&] () {
+            super::end_modal();
+          }
+        }
+      });
+    }
+
+    template<int T, int L, int R>
+    standard_dialog_base<T, L, R>::standard_dialog_base ()
       : super()
     {}
 
     //-----------------------------------------------------------------------------
-    template<typename T>
-    inline standard_dialog<T>::standard_dialog ()
+    template<typename C, int T, int L, int R>
+    inline standard_dialog<C, T, L, R>::standard_dialog ()
       : super()
     {}
 
-    template<typename T>
-    void standard_dialog<T>::create (win::container& parent,
-                                     const std::string& title,
-                                     const core::rectangle& rect,
-                                     std::function<dialog_action> action,
-                                     const std::initializer_list<std::string>& labels) {
-      get_layout().set_center(layout::lay(content_view));
+    template<typename C, int T, int L, int R>
+    void standard_dialog<C, T, L, R>::create (win::container& parent,
+                                              const std::string& title,
+                                              const core::rectangle& rect,
+                                              std::function<dialog_action> action,
+                                              const std::initializer_list<std::string>& labels) {
+      super::get_layout().set_center(layout::lay(content_view));
       super::create(parent, title, rect, action, labels);
       content_view.create(*this, rect);
     }
@@ -134,6 +179,7 @@ namespace gui {
                                            const std::string& title,
                                            const std::string& ok_label,
                                            const std::string& cancel_label,
+                                           const core::rectangle& rect,
                                            std::function<file_selected> action,
                                            std::function<fs::filter_fn> filter) {
       auto& dir_tree = super::content_view.first;
@@ -145,9 +191,7 @@ namespace gui {
         action(path);
       }, filter);
 
-      super::create(parent, title,
-                    core::rectangle(200, 100, 800, 600),
-                    [&, action] (int btn) {
+      super::create(parent, title, rect, [&, action] (int btn) {
         if (1 == btn) {
           if (super::content_view.second.list.get_selection() > -1) {
             action(super::content_view.second.get_selected_path());
@@ -181,7 +225,7 @@ namespace gui {
                                          std::function<file_selected> action,
                                          std::function<fs::filter_fn> filter) {
       path_open_dialog_base dialog;
-      dialog.create(parent, title, ok_label, cancel_label, action, filter);
+      dialog.create(parent, title, ok_label, cancel_label, core::rectangle(200, 100, 800, 600), action, filter);
       dialog.super::show(parent);
     }
 

@@ -27,46 +27,6 @@ namespace gui {
   namespace ctrl {
 
     //-----------------------------------------------------------------------------
-    void standard_dialog_base::create (win::container& parent,
-                              const std::string& title,
-                              const core::rectangle& rect,
-                              std::function<dialog_action> action,
-                              const std::initializer_list<std::string>& labels) {
-      get_layout().set_bottom(layout::lay(button_layout));
-      super::create(parent, rect);
-      set_title(title);
-      buttons.resize(labels.size());
-
-      auto i = 0;
-      for (auto l : labels) {
-        text_button& btn = buttons[i];
-        btn.on_clicked([&, action, i] () {
-          end_modal();
-          if (action) {
-            action(i);
-          }
-        });
-        btn.create(*this, l);
-        button_layout.add(layout::lay(btn));
-        ++i;
-      }
-      on_set_focus([&] (window*) {
-        if (!buttons.empty()) {
-          buttons.back().take_focus();
-        }
-      });
-    }
-
-    void standard_dialog_base::show (win::container& parent) {
-      run_modal(parent, {
-        win::hot_key_action{
-          win::hot_key(win::keys::escape, win::state::none),
-          [&] () { end_modal(); }
-        }
-      });
-    }
-
-    //-----------------------------------------------------------------------------
     yes_no_dialog::yes_no_dialog () {
       content_view.get_layout().set_center(layout::lay(message_view));
     }
@@ -183,6 +143,7 @@ namespace gui {
                                    const std::string& name_label,
                                    const std::string& ok_label,
                                    const std::string& cancel_label,
+                                   const core::rectangle& rect,
                                    std::function<file_selected> action) {
 
       auto& dir_tree = content_view.first;
@@ -202,9 +163,7 @@ namespace gui {
       top_view.get_layout().set_left(layout::lay(input_label));
       get_layout().set_top(layout::lay(top_view));
 
-      super::create(parent, title,
-                    core::rectangle(300, 200, 600, 400),
-                    [&, action] (int btn) {
+      super::create(parent, title, rect, [&, action] (int btn) {
         if (1 == btn) {
           int idx = dir_tree.get_selection();
           if (idx > -1) {
@@ -241,7 +200,7 @@ namespace gui {
                                  const std::string& cancel_label,
                                  std::function<file_selected> action) {
       file_save_dialog dialog;
-      dialog.create(parent, title, default_name, name_label, ok_label, cancel_label, action);
+      dialog.create(parent, title, default_name, name_label, ok_label, cancel_label, core::rectangle(200, 100, 800, 600), action);
       dialog.super::show(parent);
     }
 

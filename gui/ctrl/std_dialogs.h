@@ -44,10 +44,11 @@ namespace gui {
     typedef void (dialog_action) (int); // Button no. pressed
 
     //-----------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT standard_dialog_base :
-        public win::layout_dialog_window<layout::border::layouter<0, 45>> {
+    template<int TO = 0, int LE = 0, int RI = 0>
+    class standard_dialog_base :
+        public win::layout_dialog_window<layout::border::layouter<TO, 45, LE, RI>> {
     public:
-      typedef win::layout_dialog_window<layout::border::layouter<0, 45>> super;
+      typedef win::layout_dialog_window<layout::border::layouter<TO, 45, LE, RI>> super;
       using button_layout_type = layout::horizontal_adaption<>;
 
       standard_dialog_base ();
@@ -65,11 +66,11 @@ namespace gui {
     };
 
     //-----------------------------------------------------------------------------
-    template<typename T>
-    class standard_dialog : public standard_dialog_base {
+    template<typename C, int TO = 0, int LE = 0, int RI = 0>
+    class standard_dialog : public standard_dialog_base<TO, LE, RI> {
     public:
-      typedef standard_dialog_base super;
-      typedef T content_view_type;
+      typedef standard_dialog_base<TO, LE, RI> super;
+      typedef C content_view_type;
 
       standard_dialog ();
 
@@ -258,6 +259,7 @@ namespace gui {
                    const std::string& title,
                    const std::string& ok_label,
                    const std::string& cancel_label,
+                   const core::rectangle& rect,
                    std::function<file_selected> action,
                    std::function<fs::filter_fn> filter = nullptr);
 
@@ -275,10 +277,10 @@ namespace gui {
 
     //-----------------------------------------------------------------------------
     class GUIPP_CTRL_EXPORT file_save_dialog :
-        public standard_dialog<dir_file_view<>> {
+        public standard_dialog<dir_file_view<>, 30> {
     public:
-      typedef standard_dialog<dir_file_view<>> super;
-      typedef win::group_window<layout::border::layouter<>, color::very_very_light_gray> top_view_type;
+      typedef standard_dialog<dir_file_view<>, 30> super;
+      typedef win::group_window<layout::border::layouter<4, 4, 120, 4>, color::very_very_light_gray> top_view_type;
 
       file_save_dialog ();
 
@@ -288,6 +290,7 @@ namespace gui {
                    const std::string& name_label,
                    const std::string& ok_label,
                    const std::string& cancel_label,
+                   const core::rectangle& rect,
                    std::function<file_selected> action);
 
       static void show (win::container& parent,

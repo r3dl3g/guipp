@@ -34,13 +34,13 @@ namespace gui {
   namespace layout {
 
     layout_function lay (win::window& w) {
-      return [&w] (const core::rectangle& r) {
+      return [&] (const core::rectangle& r) {
         w.place(r);
       };
     }
 
     layout_function lay (win::window* w) {
-      return [w] (const core::rectangle& r) {
+      return [=] (const core::rectangle& r) {
         w->place(r);
       };
     }
@@ -55,11 +55,11 @@ namespace gui {
     }
 
     void layout_base::add (const layout_function& e, bool is_separator) {
-      elements.emplace_back(layout_element(e, is_separator));
+      elements.emplace_back(e, is_separator);
     }
 
     void layout_base::add (layout_function&& e, bool is_separator) {
-      elements.emplace_back(layout_element(std::move(e), is_separator));
+      elements.emplace_back(std::move(e), is_separator);
     }
 
     void layout_base::add (std::initializer_list<layout_function> list) {

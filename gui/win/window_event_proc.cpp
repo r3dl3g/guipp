@@ -615,33 +615,31 @@ namespace gui {
       core::event e;
       std::function<simple_action> action;
 
-      auto x11_fd = ConnectionNumber(display);
+//      auto x11_fd = ConnectionNumber(display);
 
       // Create a File Description Set containing x11_fd
-      fd_set in_fds;
-      FD_ZERO(&in_fds);
-      FD_SET(x11_fd, &in_fds);
 
       // Define our timeout. Ten milliseconds sounds good.
-      timeval timeout {0, 10000};
+//      timeval timeout {.tv_sec = 1, .tv_usec = 0 };
 
       while (running) {
 
-        // Wait for X Event or a Timer
-        select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+//        fd_set in_fds;
+//        FD_ZERO(&in_fds);
+//        FD_SET(x11_fd, &in_fds);
 
-        XNextEvent(display, &e);
+//        // Wait for next XEvent or a timer out
+//        int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
+
+//        LogDebug << "select returned: " << num_ready_fds;
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
         }
 
-//        if (XPending(display) && running) {
+        while (XPending(display) && running) {
 
-//          // Wait for X Event or a Timer
-//          select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
-
-//          XNextEvent(display, &e);
+          XNextEvent(display, &e);
 
           if (!win::is_frequent_event(e)) {
             LogTrace << e;
@@ -663,17 +661,18 @@ namespace gui {
           if ((e.type == ConfigureNotify) && running) {
             update_last_place(e.xconfigure.window, get<core::rectangle, XConfigureEvent>::param(e));
           }
-//        }
 
-//        if (running) {
-          for (auto& w : x11::s_invalidated_windows) {
-            win::window* win = detail::get_window(w.first);
-            if (win && win->is_visible()) {
-              win->redraw();
-            }
+        }
+
+        for (auto& w : x11::s_invalidated_windows) {
+          win::window* win = detail::get_window(w.first);
+          if (win && win->is_visible()) {
+            win->redraw();
           }
-          x11::s_invalidated_windows.clear();
-//        }
+        }
+        x11::s_invalidated_windows.clear();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
       }
       return resultValue;
@@ -708,17 +707,17 @@ namespace gui {
     void run_on_main (std::function<void()> action) {
 #ifdef X11
       x11::queued_actions.enqueue(action);
-      auto* win = global::get_application_main_window();
-      XEvent event;
-      XClientMessageEvent& client = event.xclient;
-      client.type = ClientMessage;
-      client.window = win ? win->get_id() : 0;
-      client.serial = 0;
-      client.send_event = True;
-      client.display = core::global::get_instance();
-      client.message_type = 0;
-      client.format = 0;
-      XSendEvent(client.display, client.window, True, 0, &event);
+//      auto* win = global::get_application_main_window();
+//      XEvent event;
+//      XClientMessageEvent& client = event.xclient;
+//      client.type = ClientMessage;
+//      client.window = win ? win->get_id() : 0;
+//      client.serial = 0;
+//      client.send_event = True;
+//      client.display = core::global::get_instance();
+//      client.message_type = 0;
+//      client.format = 0;
+//      XSendEvent(client.display, client.window, True, 0, &event);
 #endif // X11
 #ifdef WIN32
       PostThreadMessage(util::robbery::get_native_thread_id(detail::main_thread_id),

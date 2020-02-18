@@ -21,15 +21,20 @@ if(NOT TARGET gui++-raspi-obj)
     add_definitions(${gui_defines})
 
 if (BUILD_FOR_ARM)
-    file(GLOB SOURCE_FILES "*.h" "*.cpp" "*.inl")
+    file(GLOB SOURCE_FILES "*.cpp")
+    file(GLOB INCLUDE_FILES "*.h" "*.inl")
 endif()
 
     add_library(gui++-raspi-obj OBJECT ${SOURCE_FILES})
-    set_target_properties(gui++-raspi-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+    set_target_properties(gui++-raspi-obj PROPERTIES
+                          POSITION_INDEPENDENT_CODE ON
+                          FOLDER libraries)
 
     if(GUIPP_BUILD_STATIC_MODULE_LIBS)
         add_definitions(-DGUIPP_BUILT_AS_STATIC)
         add_library(gui++-raspi-static STATIC $<TARGET_OBJECTS:gui++-raspi-obj>)
+        install(TARGETS gui++-raspi-static DESTINATION ${LIBRARY_INSTALL_DIR})
     endif()
 
     if(GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -38,6 +43,7 @@ endif()
         target_link_libraries(gui++-raspi PRIVATE gui++-draw gui++-core ${gui_sys_libraries})
         set_target_properties(gui++-raspi PROPERTIES
                                        POSITION_INDEPENDENT_CODE ON
+                                       FOLDER libraries
                                        VERSION ${gui_VERSION}
                                        SOVERSION ${gui_VERSION_MAJOR})
     endif()
@@ -48,5 +54,9 @@ endif()
         EXPORT_FILE_NAME gui++-raspi-export.h
         STATIC_DEFINE GUIPP_BUILT_AS_STATIC
     )
+
+    install(FILES ${INCLUDE_FILES}
+                  ${PROJECT_BINARY_DIR}/gui++-raspi-export.h
+            DESTINATION ${INCLUDE_INSTALL_DIR})
 
 endif()

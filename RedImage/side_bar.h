@@ -13,6 +13,8 @@ namespace view {
 
     side_bar ();
 
+    void init_sets ();
+
     void set (const data::color_sets&);
     data::color_sets get () const;
     void add (const std::string&);

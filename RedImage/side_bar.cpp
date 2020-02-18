@@ -4,16 +4,44 @@
 
 namespace view {
 
+  // --------------------------------------------------------------------------
   side_bar::side_bar () {
     for (int i = 0; i< 2; ++i) {
       color_keys.emplace_back(std::unique_ptr<color_key_group>(new color_key_group()));
     }
     on_create([&] (gui::win::window*, const gui::core::rectangle&) {
-      for (auto& i : color_keys) {
-        i->create(*this);
-        get_layout().add(gui::layout::lay(*i));
-      }
+      init_sets ();
     });
+  }
+  // --------------------------------------------------------------------------
+  void side_bar::init_sets () {
+    get_layout().remove_all();
+    for (auto& i : color_keys) {
+      if (!i->is_valid()) {
+        i->create(*this);
+      }
+      get_layout().add(gui::layout::lay(*i));
+      i->colors.remove_button.on_clicked([&] () {
+        gui::ctrl::yes_no_dialog::ask(*this, "Remove Filter",
+                                      ostreamfmt("Do you really want to remove filter '" << i->get_name() << "'?"),
+                                      "Yes", "No", [&] (bool yes_answered) {
+          if (yes_answered) {
+            gui::win::run_on_main([&] () {
+              get_layout().remove_all();
+              auto it = std::find(color_keys.begin(), color_keys.end(), i);
+              if (it != color_keys.end()) {
+                color_keys.erase(it);
+              }
+              for (auto& c : color_keys) {
+                get_layout().add(gui::layout::lay(c.get()));
+              }
+              resize(gui::core::size(size().width(), (layout_type::Dimension + layout_type::Gap + layout_type::Separation) * color_keys.size()));
+//              layout();
+            });
+          }
+        });
+      });
+    }
   }
   // --------------------------------------------------------------------------
   void side_bar::set (const data::color_sets& s) {
@@ -22,10 +50,9 @@ namespace view {
     while (s.count() > color_keys.size()) {
       color_keys.emplace_back(std::unique_ptr<color_key_group>(new color_key_group()));
     }
+    init_sets();
     int idx = 0;
     for (auto& i : color_keys) {
-      i->create(*this);
-      get_layout().add(gui::layout::lay(*i));
       i->set_name(s.ranges()[idx].name());
       i->set(s.ranges()[idx++]);
     }
@@ -42,13 +69,13 @@ namespace view {
     }
     return sets;
   }
-
+  // --------------------------------------------------------------------------
   void side_bar::add (const std::string& name) {
     color_key_group* grp = new color_key_group(name);
     color_keys.emplace_back(std::unique_ptr<color_key_group>(grp));
-    grp->create(*this);
-    get_layout().add(gui::layout::lay(grp));
+    init_sets ();
     layout();
   }
+  // --------------------------------------------------------------------------
 
 } // namespace view

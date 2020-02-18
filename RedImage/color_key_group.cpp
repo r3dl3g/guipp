@@ -116,6 +116,10 @@ namespace view {
     colors.set_label(name);
   }
   // --------------------------------------------------------------------------
+  std::string color_key_group::get_name () const {
+    return colors.get_label();
+  }
+  // --------------------------------------------------------------------------
   cv::Mat color_key_group::calc_mask (const cv::Mat& hsv_image) const {
 
     cv::Mat mask;

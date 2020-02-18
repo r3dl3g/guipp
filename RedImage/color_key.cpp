@@ -74,7 +74,7 @@ namespace view {
   // --------------------------------------------------------------------------
   bool color_key::in_range (byte value) const {
     if (get_max() < get_min()) {
-      return ((get_min() <= value) && (value <= (static_cast<int>(get_max()) + 180)));
+      return ((get_min() <= value) || (value <= get_max()));
     } else {
       return ((get_min() <= value) && (value <= get_max()));
     }

@@ -21,6 +21,8 @@ namespace view {
     void update_colors ();
 
     void set_name (const std::string&);
+    std::string get_name () const;
+
     void set_hsv (const cv::Vec3b& hsv);
     void check_hsv (const cv::Vec3b& hsv);
 
@@ -33,11 +35,11 @@ namespace view {
     cv::Mat image;
     cv::Mat mask;
 
+    color_group colors;
   private:
     color_key hue;
     color_key saturation;
     color_key value;
-    color_group colors;
     bool checked;
   };
 

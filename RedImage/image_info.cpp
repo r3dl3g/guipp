@@ -38,6 +38,9 @@ void image_info::drawer (const image_info& info,
                          ctrl::item_state state) {
   using namespace draw;
   using namespace ctrl;
+
+  static const font big_font = font::system().with_size(21);
+
   switch (state) {
     case item_state::selected:
       g.fill(draw::rectangle(place), color::very_light_blue);
@@ -59,5 +62,6 @@ void image_info::drawer (const image_info& info,
   g.text(draw::text_box(ostreamfmt("Bad: " << std::fixed << std::setprecision(2) << info.bad), core::rectangle(p + core::point(0, 40), sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Off: " << std::fixed << std::setprecision(2) << info.off), core::rectangle(p + core::point(0, 60), sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Quality: " << std::fixed << std::setprecision(2) << info.quality), core::rectangle(p + core::point(0, 80), sz), o), font::system(), color::black);
+  g.text(draw::text_box(ostreamfmt(std::fixed << std::setprecision(1) << info.bad), core::rectangle(p + core::point(80, 30), core::size(70, 40)), text_origin::center), big_font, color::blue);
   frame::raised_deep_relief(g, place);
 }

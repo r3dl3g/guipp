@@ -587,7 +587,28 @@ namespace gui {
     }
 
     void modal_window::run_modal (window& parent) {
-      run_modal(parent, {});
+      LogTrace << *this << " Enter modal loop";
+
+      set_visible();
+      to_front();
+      parent.disable();
+
+      invalidate();
+
+      is_modal = true;
+
+#ifdef X11
+      run_loop(is_modal);
+#endif // X11
+
+#ifdef WIN32
+      run_loop(is_modal);
+#endif // WIN32
+
+      parent.enable();
+      parent.take_focus();
+
+      LogTrace << *this << " Exit modal loop";
     }
 
     void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {

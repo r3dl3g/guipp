@@ -4,18 +4,18 @@ namespace view {
 
   color_key::color_key (byte min, byte max)
   {
+    min_scroll.set_min_max_step_value(min, max, 1, min);
+    max_scroll.set_min_max_step_value(min, max, 1, max);
     on_create([&, min, max] (gui::win::window*, const gui::core::rectangle&) {
       main_label.create(*this);
       min_label.create(*this, "Min:");
-      min_edit.create(*this, ostreamfmt((int)min));
+      min_edit.create(*this);
       min_edit.set_text_filter(gui::ctrl::filter::unsigned_filter);
-      min_scroll.set_min_max_step_value(min, max, 1, min);
       min_scroll.create(*this);
 
       max_label.create(*this, "Max:");
-      max_edit.create(*this, ostreamfmt((int)max));
+      max_edit.create(*this);
       max_edit.set_text_filter(gui::ctrl::filter::unsigned_filter);
-      max_scroll.set_min_max_step_value(min, max, 1, max);
       max_scroll.create(*this);
 
       get_layout().add({&main_label, &min_label, &min_edit, &min_scroll, &max_label, &max_edit, &max_scroll});

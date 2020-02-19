@@ -89,7 +89,7 @@ public:
   void show_filter_view ();
   void show_folder_view ();
   void show_mask_view ();
-  void show_hsv_view ();
+  void show_quad_view ();
 
   void reset_current_color_range ();
 
@@ -237,7 +237,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Filter View", 'r', util::bind_method(this, &RedImage::show_filter_view), hot_key(keys::f, state::control), false),
     menu_entry("Directory View", 'd', util::bind_method(this, &RedImage::show_folder_view), hot_key(keys::g, state::control), false),
     menu_entry("Masks View", 'm', util::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
-    menu_entry("HSV View", 'm', util::bind_method(this, &RedImage::show_hsv_view), hot_key(keys::h, state::control), false),
+    menu_entry("Main View", 'a', util::bind_method(this, &RedImage::show_quad_view), hot_key(keys::h, state::control), false),
     menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), true),
     menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
     menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),
@@ -288,7 +288,6 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     if (restore_last_view) {
       restore_last_view();
     }
-//    show_filter_view();
   });
   full_image_view.on_left_btn_down([&] (os::key_state, const core::point& pt) {
     if (learning_mode) {
@@ -315,7 +314,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     auto idx = folder_view.get_selection();
     if (idx < folder_view.list.size()) {
       const auto& info = folder_view.list[idx];
-      show_filter_view();
+      show_quad_view();
       load_image(info.filename);
     }
   });
@@ -339,6 +338,12 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   set_children_visible();
   filter_view.to_front();
+
+  read_settings();
+  old_settings = settings;
+  if (old_settings != settings) {
+    LogDebug << "Old:" << old_settings << " New:" << settings;
+  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar () {
@@ -346,14 +351,12 @@ void RedImage::init_sidebar () {
   for (int i = 0; i < filter_list.color_keys.size(); ++i) {
     init_sidebar_filter(i);
   }
-//  side_scroll.layout();
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar_filter (int i) {
   filter_list.color_keys[i]->on_content_changed([&] () {
     calc_image_and_show();
   });
-  filter_list.color_keys[i]->update_colors();
 }
 //-----------------------------------------------------------------------------
 void RedImage::add_filter () {
@@ -362,7 +365,6 @@ void RedImage::add_filter () {
     filter_list.add(name);
     init_sidebar_filter(filter_list.color_keys.size() - 1);
     filter_list.resize(core::size(FILTER_WIDTH, FILTER_HIGH * filter_list.color_keys.size()));
-//    side_scroll.layout();
   });
 }
 //-----------------------------------------------------------------------------
@@ -477,11 +479,11 @@ void RedImage::show_mask_view () {
   restore_last_view = [&] () { show_mask_view(); };
 }
 //-----------------------------------------------------------------------------
-void RedImage::show_hsv_view () {
+void RedImage::show_quad_view () {
   quad_view.to_front();
   current_view = &quad_view;
   curent_full_image_view = -1;
-  restore_last_view = [&] () { show_hsv_view(); };
+  restore_last_view = [&] () { show_quad_view(); };
 }
 //-----------------------------------------------------------------------------
 void RedImage::toggle_learning () {
@@ -632,6 +634,7 @@ void RedImage::quit () {
     if (yes) {
       read_settings();
       if (old_settings != settings) {
+        LogDebug << "Old:" << old_settings << " New:" << settings;
         yes_no_dialog::ask(*this, "Question!", "Settings have changed! Do you realy want to save before exit?", "Yes", "No", [&] (bool yes) {
           if (yes) {
             save();
@@ -733,6 +736,7 @@ void RedImage::load () {
         old_settings = settings;
         filter_list.set(settings.colors());
         init_sidebar();
+        edit_sub_menu.data[1].set_icon(settings.normalize() ? hook_icon : cross_icon);
       }
     } catch (std::exception& ex) {
       LogWarng << "Exception while reading redimage.xml:" << ex.what();
@@ -759,6 +763,8 @@ void RedImage::save () {
 
     boost::property_tree::xml_writer_settings<ptree::key_type> xml_settings('\t', 1);
     xml::write_xml(settings_path.string(), xml_main, std::locale(), xml_settings);
+
+    old_settings = settings;
   }
 }
 // --------------------------------------------------------------------------

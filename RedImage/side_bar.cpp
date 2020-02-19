@@ -9,6 +9,9 @@ namespace view {
     for (int i = 0; i< 2; ++i) {
       color_keys.emplace_back(std::unique_ptr<color_key_group>(new color_key_group()));
     }
+    for (auto& i : color_keys) {
+      i->set(data::hsv_range());
+    }
     on_create([&] (gui::win::window*, const gui::core::rectangle&) {
       init_sets ();
     });
@@ -51,12 +54,12 @@ namespace view {
       color_keys.emplace_back(std::unique_ptr<color_key_group>(new color_key_group()));
     }
     init_sets();
+    layout();
     int idx = 0;
     for (auto& i : color_keys) {
       i->set_name(s.ranges()[idx].name());
       i->set(s.ranges()[idx++]);
     }
-    layout();
   }
   // --------------------------------------------------------------------------
   data::color_sets side_bar::get () const {

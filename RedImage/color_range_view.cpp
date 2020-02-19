@@ -19,7 +19,19 @@
 #include "color_range_view.h"
 #include "cvmat2pixmap.h"
 
-void view::color_range_view::set_hsv_color_range (const cv::Vec3b &min, const cv::Vec3b &max) {
+view::color_range_view::color_range_view () {
+  super::on_size([&](const gui::core::size& sz) {
+    update();
+  });
+}
+
+void view::color_range_view::set_hsv_color_range (const cv::Vec3b &mi, const cv::Vec3b &ma) {
+  min = mi;
+  max = ma;
+  update();
+}
+
+void view::color_range_view::update () {
   auto native_size = gui::core::global::scale(super::size());
   cv::Size sz(native_size.width(), native_size.height());
   cv::Mat hsv_img(sz, CV_8UC3);

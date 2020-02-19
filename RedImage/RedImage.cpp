@@ -716,7 +716,7 @@ void RedImage::load () {
     for (auto& p : portions) {
       p = 0.0F;
     }
-    for (auto& im :image) {
+    for (auto& im : this->image) {
       im = cv::Mat();
     }
     calc_title();

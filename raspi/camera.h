@@ -230,8 +230,8 @@ namespace gui {
         void fini ();
 
       private:
-        void set_rational (uint32_t id, float v, float min, float max);
-        void set_rational (uint32_t id, float v);
+        void set_rational (uint32_t id, float v, float min, float max, int den = 100);
+        void set_rational (uint32_t id, float v, int den = 100);
         float get_rational (uint32_t id) const;
 
         template<typename T>

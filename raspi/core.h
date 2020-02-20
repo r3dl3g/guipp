@@ -399,8 +399,12 @@ namespace gui {
           return get<MMAL_PARAMETER_UINT32_T>(id);
         }
 
+        MMAL_STATUS_T set_float (uint32_t id, float v, int den) {
+          return set<MMAL_PARAMETER_RATIONAL_T>(id, {static_cast<int32_t>(v * den), den});
+        }
+
         MMAL_STATUS_T set_float (uint32_t id, float v) {
-          return set<MMAL_PARAMETER_RATIONAL_T>(id, {static_cast<int32_t>(v * 65536.0F), 65536});
+          return set_float(id, v, 65536);
         }
 
         float get_float (uint32_t id) {

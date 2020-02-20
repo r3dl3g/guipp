@@ -169,7 +169,7 @@ namespace gui {
             throw std::runtime_error("Camera doesn't have output ports");
         }
 
-//        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
+        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
         set_camera_num(num);
         set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
 
@@ -181,40 +181,40 @@ namespace gui {
 
         MMAL_PARAMETER_CAMERA_INFO_CAMERA_T info = get_camera_info(num);
 
-//        m_camera_config = {
-//          .hdr = { MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T) },
-//          .max_stills_w = info.max_width,
-//          .max_stills_h = info.max_height,
-//          .stills_yuv422 = 0,
-//          .one_shot_stills = 1,
-//          .max_preview_video_w = 320,
-//          .max_preview_video_h = 240,
-//          .num_preview_video_frames = 1,
-//          .stills_capture_circular_buffer_height = 0,
-//          .fast_preview_resume = 0,
-//          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
-//        };
+        m_camera_config = {
+          .hdr = { MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T) },
+          .max_stills_w = info.max_width,
+          .max_stills_h = info.max_height,
+          .stills_yuv422 = 0,
+          .one_shot_stills = 1,
+          .max_preview_video_w = 320,
+          .max_preview_video_h = 240,
+          .num_preview_video_frames = 1,
+          .stills_capture_circular_buffer_height = 0,
+          .fast_preview_resume = 0,
+          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
+        };
 
-//        set_camera_config(m_camera_config);
+        set_camera_config(m_camera_config);
 
-//        set_defaults(10000);
-//        set_raw_mode(false);
+        set_defaults(10000);
+        set_raw_mode(false);
 
         core::port still_port = m_camera.still_port();
 
-//        MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
+        MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
 
-//        format.video.width = VCOS_ALIGN_UP(m_camera_config.max_stills_w, 32);
-//        format.video.height = VCOS_ALIGN_UP(m_camera_config.max_stills_h, 16);
-//        format.video.crop.x = 0;
-//        format.video.crop.y = 0;
-//        format.video.crop.width = m_camera_config.max_stills_w;
-//        format.video.crop.height = m_camera_config.max_stills_h;
-//        format.video.frame_rate.num = 0;
-//        format.video.frame_rate.den = 1;
+        format.video.width = VCOS_ALIGN_UP(m_camera_config.max_stills_w, 32);
+        format.video.height = VCOS_ALIGN_UP(m_camera_config.max_stills_h, 16);
+        format.video.crop.x = 0;
+        format.video.crop.y = 0;
+        format.video.crop.width = m_camera_config.max_stills_w;
+        format.video.crop.height = m_camera_config.max_stills_h;
+        format.video.frame_rate.num = 0;
+        format.video.frame_rate.den = 1;
 
-//        still_port.set_format(format);
-//        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
+        still_port.set_format(format);
+        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         check_mmal_status(still_port.commit_format_change());
         check_mmal_status(m_camera.enable());
         enable();
@@ -313,13 +313,13 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_camera::set_rational (uint32_t id, float v) {
-        m_camera.control_port().set_float(id, v);
+      void raspi_camera::set_rational (uint32_t id, float v, int den) {
+        m_camera.control_port().set_float(id, v, den);
       }
 
-      void raspi_camera::set_rational (uint32_t id, float v, float min, float max) {
+      void raspi_camera::set_rational (uint32_t id, float v, float min, float max, int den) {
         if ((min <= v) && (v <= max)) {
-           set_rational(id, v);
+           set_rational(id, v, den);
         } else {
            throw std::invalid_argument(ostreamfmt("Invalid rational value (" << min << " <= " << v << " <= " << max));
         }
@@ -415,7 +415,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_analog_gain (float gain) {
-        set_rational(MMAL_PARAMETER_ANALOG_GAIN, gain);
+        set_rational(MMAL_PARAMETER_ANALOG_GAIN, gain, 65536);
       }
 
       float raspi_camera::get_analog_gain () const {
@@ -424,7 +424,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_digital_gain (float gain) {
-        set_rational(MMAL_PARAMETER_DIGITAL_GAIN, gain);
+        set_rational(MMAL_PARAMETER_DIGITAL_GAIN, gain, 65536);
       }
 
       float raspi_camera::get_digital_gain () const {

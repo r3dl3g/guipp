@@ -64,6 +64,7 @@ public:
   void open_image ();
   void load_image (const sys_fs::path&);
   void quit ();
+  void check_for_modification ();
 
   void show_raw ();
   void show_hsv ();
@@ -341,9 +342,6 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   read_settings();
   old_settings = settings;
-  if (old_settings != settings) {
-    LogDebug << "Old:" << old_settings << " New:" << settings;
-  }
 }
 //-----------------------------------------------------------------------------
 void RedImage::init_sidebar () {
@@ -629,19 +627,22 @@ void RedImage::reset_color_range (int i) {
   calc_image_and_show();
 }
 //-----------------------------------------------------------------------------
+void RedImage::check_for_modification () {
+  read_settings();
+  if (old_settings != settings) {
+    LogDebug << "Old:" << old_settings << " New:" << settings;
+    yes_no_dialog::ask(*this, "Question!", "Settings have changed! Do you realy want to save before exit?", "Yes", "No", [&] (bool yes) {
+      if (yes) {
+        save();
+      }
+    });
+  }
+}
+//-----------------------------------------------------------------------------
 void RedImage::quit () {
+  check_for_modification();
   yes_no_dialog::ask(*this, "Question!", "Do you realy want to exit?", "Yes", "No", [&] (bool yes) {
     if (yes) {
-      read_settings();
-      if (old_settings != settings) {
-        LogDebug << "Old:" << old_settings << " New:" << settings;
-        yes_no_dialog::ask(*this, "Question!", "Settings have changed! Do you realy want to save before exit?", "Yes", "No", [&] (bool yes) {
-          if (yes) {
-            save();
-          }
-        });
-      }
-
       is_active = false;
       if (background_thread.joinable()) {
         background_thread.join();
@@ -714,6 +715,7 @@ void RedImage::load_image (const sys_fs::path& file) {
 }
 // --------------------------------------------------------------------------
 void RedImage::load () {
+  check_for_modification();
   file_open_dialog::show(*this, "Open File", "Open", "Cancel", [&] (const sys_fs::path& file) {
     settings_path = file;
     for (auto& p : portions) {

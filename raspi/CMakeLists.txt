@@ -18,7 +18,7 @@ if(NOT TARGET gui++-raspi-obj)
       add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif (WIN32)
 
-    add_definitions(${gui_defines})
+    add_definitions(${gui_defines} -DLOGGING_ENABLE_TRACE)
 
     set (INCLUDE_INSTALL_DIR include/guipp/raspi)
     set (LIBRARY_INSTALL_DIR lib/guipp)

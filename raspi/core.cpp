@@ -61,11 +61,13 @@ namespace gui {
         if (data->is_enabled) {
           return MMAL_ENOSPC;
         }
+        LogTrace << "enable port";
         return mmal_port_enable(data, cb);
       }
 
       MMAL_STATUS_T port::disable () {
         if (data->is_enabled) {
+          LogTrace << "disanble port";
           return mmal_port_disable(data);
         }
         return MMAL_SUCCESS;
@@ -99,6 +101,7 @@ namespace gui {
       }
 
       connection port::connect_in_port (port& in, uint32_t flags) {
+        LogTrace << "port::connect_in_port";
         // 1. find matching formats
         MMAL_STATUS_T status = MMAL_SUCCESS;
 
@@ -130,6 +133,7 @@ namespace gui {
       }
 
       MMAL_STATUS_T port::connect (port& rhs) {
+        LogTrace << "port::connect";
         return mmal_port_connect(data, rhs.data);
       }
 

@@ -28,6 +28,8 @@
 //
 // Library includes
 //
+#include <logging/logger.h>
+
 #include <interface/mmal/util/mmal_util.h>
 #include <interface/mmal/util/mmal_util_params.h>
 #include <interface/mmal/util/mmal_connection.h>
@@ -96,6 +98,7 @@ namespace gui {
 
         buffer (const buffer& rhs)
           : data(rhs.data) {
+          LogTrace << "Acquire buffer";
           mmal_buffer_header_acquire(data);
         }
 
@@ -117,12 +120,14 @@ namespace gui {
 
         void release () {
           if (data) {
+            LogTrace << "Release buffer";
             mmal_buffer_header_release(data);
             data = nullptr;
           }
         }
 
         void detach () {
+          LogTrace << "Detach buffer";
           data = nullptr;
         }
 
@@ -220,12 +225,14 @@ namespace gui {
 
         void destroy () {
           if (data && port) {
+           LogTrace << "Destroy pool";
             mmal_port_pool_destroy(port, data);
             detach();
           }
         }
 
         void detach () {
+          LogTrace << "Detach pool";
           data = nullptr;
           port = nullptr;
         }
@@ -288,6 +295,7 @@ namespace gui {
 
         MMAL_STATUS_T enable () {
           if (!data->is_enabled) {
+            LogTrace << "Enable connection";
             return mmal_connection_enable(data);
           }
           return MMAL_SUCCESS;
@@ -295,6 +303,7 @@ namespace gui {
 
         MMAL_STATUS_T disable () {
           if (data->is_enabled) {
+            LogTrace << "Disable connection";
             return mmal_connection_disable(data);
           }
           return MMAL_SUCCESS;
@@ -302,6 +311,7 @@ namespace gui {
 
         MMAL_STATUS_T destroy () {
           if (data) {
+            LogTrace << "Destroy connection";
             MMAL_STATUS_T r = mmal_connection_destroy(data);
             detach();
             return r;
@@ -310,6 +320,7 @@ namespace gui {
         }
 
         void detach () {
+          LogTrace << "Detach connection";
           data = nullptr;
         }
 
@@ -417,6 +428,7 @@ namespace gui {
         MMAL_STATUS_T connect (port& rhs);
 
         MMAL_STATUS_T disconnect () {
+          LogTrace << "Disconnect port";
           return mmal_port_disconnect(data);
         }
 
@@ -465,6 +477,7 @@ namespace gui {
         void set_encoding (four_cc f);
 
         MMAL_STATUS_T commit_format_change () {
+          LogTrace << "port format commit";
           return mmal_port_format_commit(data);
         }
 
@@ -505,11 +518,12 @@ namespace gui {
           create(name);
         }
 
-        component (const component& rhs)
-          : data (rhs.data)
-        {
-          mmal_component_acquire(data);
-        }
+//        component (const component& rhs)
+//          : data (rhs.data)
+//        {
+//          LogTrace << "Acquire component";
+//          mmal_component_acquire(data);
+//        }
 
         ~component () {
           destroy();
@@ -521,20 +535,23 @@ namespace gui {
 
         void destroy () {
           if (data) {
-            mmal_component_release(data);
+            LogTrace << "Destroy component";
+            mmal_component_destroy(data);
             data = nullptr;
           }
         }
 
         MMAL_STATUS_T create (const char *name) {
           if (data) {
-              destroy();
-            }
+            destroy();
+          }
+          LogTrace << "Create component";
           return mmal_component_create(name, &data);
         }
 
         MMAL_STATUS_T enable () {
 //          if (!data->is_enabled) {
+            LogTrace << "Enable component";
             return mmal_component_enable(data);
 //          }
 //          return MMAL_SUCCESS;
@@ -542,6 +559,7 @@ namespace gui {
 
         MMAL_STATUS_T disable () {
           if (data->is_enabled) {
+            LogTrace << "Disable component";
             return mmal_component_disable(data);
           }
           return MMAL_SUCCESS;
@@ -610,16 +628,20 @@ namespace gui {
         }
 
         void create (const char *name, VCOS_UNSIGNED initial_count = 0) {
+          LogTrace << "Create semaphore";
           VCOS_STATUS_T vcos_status = vcos_semaphore_create(&m_semaphore, name, initial_count);
           vcos_assert(vcos_status == VCOS_SUCCESS);
         }
 
         ~semaphore () {
+          LogTrace << "Delete semaphore";
           vcos_semaphore_delete(&m_semaphore);
         }
 
         void wait (VCOS_UNSIGNED timeout) {
+          LogTrace << "semaphore::wait(" << timeout << ")";
           vcos_semaphore_wait_timeout(&m_semaphore, timeout);
+          LogTrace << "semaphore::wait finish";
         }
 
         void wait () {
@@ -631,6 +653,7 @@ namespace gui {
         }
 
         void post () {
+          LogTrace << "semaphore::post";
           vcos_semaphore_post(&m_semaphore);
         }
 
@@ -642,11 +665,13 @@ namespace gui {
       class mutex {
       public:
         mutex (const char *name) {
+          LogTrace << "create mutex";
           VCOS_STATUS_T vcos_status = vcos_mutex_create(&m_mutex, name);
           vcos_assert(vcos_status == VCOS_SUCCESS);
         }
 
         ~mutex () {
+          LogTrace << "Delete mutex";
           vcos_mutex_delete(&m_mutex);
         }
 

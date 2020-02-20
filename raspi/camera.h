@@ -107,7 +107,7 @@ namespace gui {
         raspi_camera (int num = 0);
         ~raspi_camera ();
 
-        void set_defaults (int speed, int iso = 100);
+        void set_defaults (uint32_t speed, uint32_t iso = 100);
         void show_current (std::ostream& out) const;
 
         void set_sensor_mode (SensorModeV1 mode);
@@ -135,8 +135,8 @@ namespace gui {
 
         uint32_t get_min_iso () const;
 
-        void set_shutter_speed (int speed);
-        int get_shutter_speed () const;
+        void set_shutter_speed (uint32_t speed);
+        uint32_t get_shutter_speed () const;
 
         void set_analog_gain (float gain);
         float get_analog_gain () const;

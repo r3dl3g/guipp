@@ -24,7 +24,7 @@ int main(int argc, const char* argv[]) {
   using namespace gui::raspi::camera;
   raspi_camera camera;
 
-  camera.set_defaults(1000);
+  camera.set_defaults(0);
 
   gui::raspi::core::four_cc encoding = 0;
   bool raw = false;
@@ -32,7 +32,7 @@ int main(int argc, const char* argv[]) {
 
   util::command_line::parser("raspicam_test V 0.1.0",
   {
-    {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG(default), PPM, JPEG, GIF, TGA)",
+    {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG, PPM, JPEG(default), GIF, TGA)",
       [&](const std::string& arg) {
         encoding = parse_arg<gui::raspi::core::four_cc>(arg, "encoding");
       }},
@@ -110,12 +110,12 @@ int main(int argc, const char* argv[]) {
 
   } else {
     if (!encoding) {
-      encoding = MMAL_ENCODING_PNG;
+      encoding = MMAL_ENCODING_JPEG;
     }
     raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
     LogInfo << "encoded capture " << encoding;
     encoder.enable();
-    encoder.capture(5000);
+    encoder.capture(60000);
 
     auto data = encoder.get_data();
 

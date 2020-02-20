@@ -251,7 +251,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_camera::set_defaults (int speed, int iso) {
+      void raspi_camera::set_defaults (uint32_t speed, uint32_t iso) {
         set_saturation(0);
         set_sharpness(0);
         set_contrast(0);
@@ -405,11 +405,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_camera::set_shutter_speed (int speed) {
+      void raspi_camera::set_shutter_speed (uint32_t speed) {
         check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_SHUTTER_SPEED, speed));
       }
 
-      int raspi_camera::get_shutter_speed () const {
+      uint32_t raspi_camera::get_shutter_speed () const {
         return m_camera.control_port().get_uint32(MMAL_PARAMETER_SHUTTER_SPEED);
       }
 

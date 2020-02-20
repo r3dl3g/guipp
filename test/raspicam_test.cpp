@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
 //      }},
     {"-i", "--iso", "<ISO>", "Set sensor ISO",
       [&](const std::string& arg) {
-        camera.set_iso(parse_arg<int>(arg, "ISO"));
+        camera.set_iso(parse_arg<uint32_t>(arg, "ISO"));
       }},
     {"-sh", "--sharpness", "[-1..1]", "Set image sharpness",
       [&](const std::string& arg) {
@@ -98,14 +98,15 @@ int main(int argc, const char* argv[]) {
     }
     raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
     LogInfo << "raw capture " << encoding;
+    encoder.enable();
     encoder.capture(5000);
 
     raspi_encoder::image_data data = encoder.get_data();
 
-    LogInfo << "get_data size:" << data.length();
+    LogInfo << "get_data size:" << data.size();
 
     std::ofstream file(ostreamfmt(outname << "." << encoding));
-    file.write((const char*)data.c_str(), data.length());
+    file.write((const char*)data.data(), data.size());
 
   } else {
     if (!encoding) {
@@ -113,14 +114,15 @@ int main(int argc, const char* argv[]) {
     }
     raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
     LogInfo << "encoded capture " << encoding;
-    encoder.capture(10000);
+    encoder.enable();
+    encoder.capture(5000);
 
     auto data = encoder.get_data();
 
-    LogInfo << "get_data size:" << data.length();
+    LogInfo << "get_data size:" << data.size();
 
     std::ofstream file(ostreamfmt(outname << "." << encoding));
-    file.write((const char*)data.c_str(), data.length());
+    file.write((const char*)data.data(), data.size());
   }
 
   logging::core::instance().finish();

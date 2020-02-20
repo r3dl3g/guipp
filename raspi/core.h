@@ -87,6 +87,9 @@ namespace gui {
       // --------------------------------------------------------------------------
       class buffer {
       public:
+        typedef uint8_t* iterator;
+        typedef const uint8_t* const_iterator;
+
         buffer (MMAL_BUFFER_HEADER_T *d)
           : data(d)
         {}
@@ -143,12 +146,32 @@ namespace gui {
           return data->cmd;
         }
 
-        uint8_t* get_data () const {
+        const uint8_t* get_data () const {
+          return data->data + data->offset;
+        }
+
+        uint8_t* get_data () {
           return data->data + data->offset;
         }
 
         uint32_t get_length () const {
           return data->length;
+        }
+
+        iterator begin () {
+            return get_data();
+        }
+
+        iterator end () {
+            return get_data() + get_length();
+        }
+
+        const_iterator begin () const {
+            return get_data();
+        }
+
+        const_iterator end () const {
+            return get_data() + get_length();
         }
 
         uint32_t get_flags () const {

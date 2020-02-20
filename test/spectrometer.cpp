@@ -642,7 +642,7 @@ void spectrometer::display () {
     switch (encoding) {
       case MMAL_ENCODING_PPM: {
         rgbmap image_data;
-        std::istringstream strm(data);
+        std::istringstream strm(std::string((const char*)data.data(), data.size()));
         gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
         LogDebug << "Display image with dimensions:" << image_data.native_size() << ", ppl:" << image_data.pixel_format();
         capture_view.image = image_data;
@@ -651,7 +651,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_RGBA:
       case MMAL_ENCODING_RGBA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
-        const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -659,7 +659,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_RGB24:
       case MMAL_ENCODING_RGB24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
-        const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -667,7 +667,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGRA:
       case MMAL_ENCODING_BGRA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::BGRA);
-        const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -675,7 +675,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGR24:
       case MMAL_ENCODING_BGR24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::BGR);
-        const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>((const byte*)data.c_str(), data.size()), bmi);
+        const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
@@ -714,7 +714,7 @@ void spectrometer::save_image () {
       auto crop = camera.get_abs_crop();
       file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
     }
-    file.write(data.c_str(), data.size());
+    file.write((const char*)data.data(), data.size());
   });
 }
 

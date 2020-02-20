@@ -80,9 +80,9 @@ namespace gui {
       // --------------------------------------------------------------------------
       class raspi_encoder {
       public:
-        using image_data = std::string;
+        using image_data = std::vector<uint8_t>;
 
-        image_data get_data () const;
+        const image_data get_data () const;
 
         void clear_data ();
 
@@ -90,7 +90,7 @@ namespace gui {
         raspi_encoder (core::port source_output_port);
         ~raspi_encoder ();
 
-        using buffer_type = std::ostringstream;
+        using buffer_type = std::vector<uint8_t>;
 
         core::port get_source_output_port () const;
 

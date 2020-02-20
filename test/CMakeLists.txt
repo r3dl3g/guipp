@@ -47,6 +47,15 @@ if (BUILD_FOR_ARM)
     set(apps
         raspicam_test
         spectrometer
+        WindowTest
+        BorderTest
+        hello_world
+        filemanager
+        list_app
+        tree_app
+        new_border_layout
+        attach_all_layout
+        dialogs
     )
 else()
     set(apps

@@ -76,7 +76,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::init () {
-        LogDebug << "Create RaspiStill-sem";
+        LogTrace << "Create RaspiStill-sem";
         m_complete_semaphore.create("RaspiStill-sem", 0);
       }
 
@@ -87,7 +87,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::capture (uint32_t timeout) {
-        LogDebug << "raspi_encoder::capture(" << timeout << ")";
+        LogTrace << "raspi_encoder::capture(" << timeout << ")";
         clear_data();
         m_source_output_port.capture();
         m_complete_semaphore.wait(timeout);
@@ -111,7 +111,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_encoder::callback_dispatcher (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
-        LogDebug << "handle_callback cmd:" << buffer->cmd << ", length:" << buffer->length << ", port:" << port->name;
+        LogTrace << "handle_callback cmd:" << buffer->cmd << ", length:" << buffer->length << ", port:" << port->name;
         raspi_encoder* encoder = reinterpret_cast<raspi_encoder*>(port->userdata);
         if (encoder && (0 == buffer->cmd)) {
           core::port p(port);
@@ -187,7 +187,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::enable () {
-        LogDebug << "raspi_raw_encoder::enable()";
+        LogTrace << "raspi_raw_encoder::enable()";
         auto output_port = get_output_port();
 
         output_port.set_user_data(this);
@@ -204,7 +204,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::disable () {
-        LogDebug << "raspi_raw_encoder::disable()";
+        LogTrace << "raspi_raw_encoder::disable()";
         auto output_port = get_output_port();
         check_mmal_status(output_port.flush());
         check_mmal_status(output_port.disable());
@@ -212,7 +212,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::capture (uint32_t timeout) {
-        LogDebug << "raspi_raw_encoder::capture(" << timeout << ")";
+        LogTrace << "raspi_raw_encoder::capture(" << timeout << ")";
         super::capture(timeout);
       }
 
@@ -255,7 +255,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::init (MMAL_FOURCC_T encoding) {
-        LogDebug << "init raspi_image_encoder for " << encoding;
+        LogTrace << "init raspi_image_encoder for " << encoding;
         m_encoding = encoding;
 
         if ( !m_encoder.num_input_ports() || !m_encoder.num_output_ports()) {
@@ -269,7 +269,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::enable () {
-        LogDebug << "Enable raspi_image_encoder";
+        LogTrace << "Enable raspi_image_encoder";
         m_encoder_input_port.copy_format_from(m_source_output_port);
         check_mmal_status(m_encoder_input_port.commit_format_change());
         m_encoder_output_port.copy_format_from(m_encoder_input_port);
@@ -294,7 +294,7 @@ namespace gui {
           throw std::invalid_argument("Encoder connection port is no enabled!");
         }
 
-        LogDebug << "Register dispatcher";
+        LogTrace << "Register dispatcher";
         m_encoder_output_port.set_user_data(this);
         check_mmal_status(m_encoder_output_port.enable(raspi_encoder::callback_dispatcher));
 
@@ -302,7 +302,7 @@ namespace gui {
         for (auto i = 0; i < num; i++ ) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
           if (new_buffer.is_valid()) {
-            LogDebug << "Send buffer no " << i;
+            LogTrace << "Send buffer no " << i;
             check_mmal_status(m_encoder_output_port.send_buffer(new_buffer));
           }
         }
@@ -310,7 +310,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::disable () {
-        LogDebug << "raspi_image_encoder::disable()";
+        LogTrace << "raspi_image_encoder::disable()";
         check_mmal_status(m_encoder_output_port.flush());
         check_mmal_status(m_encoder_output_port.disable());
         check_mmal_status(m_encoder_connection.disable());
@@ -319,7 +319,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_image_encoder::capture (uint32_t timeout) {
-        LogDebug << "raspi_image_encoder::capture(" << timeout << ")";
+        LogTrace << "raspi_image_encoder::capture(" << timeout << ")";
         super::capture(timeout);
       }
 

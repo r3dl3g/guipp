@@ -229,13 +229,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::enable () {
-        LogDebug << "raspi_camera::enable()";
+        LogTrace << "raspi_camera::enable()";
         check_mmal_status(m_camera.control_port().enable(camera_control_callback));
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::disable () {
-        LogDebug << "raspi_camera::disable()";
+        LogTrace << "raspi_camera::disable()";
         check_mmal_status(m_camera.control_port().disable());
       }
 
@@ -246,7 +246,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::capture () {
-        LogDebug << "raspi_camera::capture()";
+        LogTrace << "raspi_camera::capture()";
         check_mmal_status(m_camera.still_port().capture());
       }
 

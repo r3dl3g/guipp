@@ -138,7 +138,7 @@ namespace gui {
       }
 
       MMAL_STATUS_T port::capture () {
-        LogDebug << "port::capture()";
+        LogTrace << "port::capture()";
         return set_bool(MMAL_PARAMETER_CAPTURE, true);
       }
 

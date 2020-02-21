@@ -13,18 +13,16 @@ template<typename T>
 T parse_arg (const std::string& str, const std::string& name) {
   T t = T();
   std::istringstream(str) >> t;
-  LogInfo << "Found " << name << ":'" << t << "'";
+  LogTrace << "Found " << name << ":'" << t << "'";
   return t;
 }
 
 // --------------------------------------------------------------------------
 int main(int argc, const char* argv[]) {
-  LogDebug << "Create raspi_camera";
+  LogTrace << "Create raspi_camera";
 
   using namespace gui::raspi::camera;
   raspi_camera camera;
-
-//  camera.set_defaults(0);
 
   gui::raspi::core::four_cc encoding = 0;
   bool raw = false;
@@ -90,18 +88,18 @@ int main(int argc, const char* argv[]) {
       }}
   }).process(argc, argv);
 
-  LogInfo << "Camera info: " << camera;
+  LogTrace << "Camera info: " << camera;
 
   if (raw) {
     if (!encoding) {
       encoding = MMAL_ENCODING_RGB24_SLICE;
     }
     raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
-    LogInfo << "raw capture " << encoding;
+    LogTrace << "raw capture " << encoding;
     encoder.enable();
     encoder.capture(5000);
 
-    raspi_encoder::image_data data = encoder.get_data();
+    const raspi_encoder::image_data& data = encoder.get_data();
 
     LogInfo << "get_data size:" << data.size();
 
@@ -113,8 +111,13 @@ int main(int argc, const char* argv[]) {
       encoding = MMAL_ENCODING_JPEG;
     }
     raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
-    LogInfo << "encoded capture " << encoding;
+    LogTrace << "encoded capture " << encoding;
+    encoder.get_output_port().set_uint32(MMAL_PARAMETER_JPEG_Q_FACTOR, 85);
+    encoder.get_output_port().set_uint32(MMAL_PARAMETER_JPEG_RESTART_INTERVAL, 0);
+    encoder.get_output_port().set_bool(MMAL_PARAMETER_EXIF_DISABLE, true);
+
     encoder.enable();
+
     encoder.capture(60000);
 
     auto data = encoder.get_data();
@@ -123,6 +126,7 @@ int main(int argc, const char* argv[]) {
 
     std::ofstream file(ostreamfmt(outname << "." << encoding));
     file.write((const char*)data.data(), data.size());
+
   }
 
   logging::core::instance().finish();

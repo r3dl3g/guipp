@@ -82,17 +82,21 @@ namespace gui {
       public:
         using image_data = std::vector<uint8_t>;
 
-        const image_data get_data () const;
+        const image_data& get_data () const;
 
         void clear_data ();
+
+        core::port& get_source_output_port ();
+        const core::port& get_source_output_port () const;
+
+        core::pool& get_buffer_pool ();
+        const core::pool& get_buffer_pool () const;
 
       protected:
         raspi_encoder (core::port source_output_port);
         ~raspi_encoder ();
 
         using buffer_type = std::vector<uint8_t>;
-
-        core::port get_source_output_port () const;
 
         void capture (uint32_t timeout);
 
@@ -173,6 +177,7 @@ namespace gui {
 
         core::port& get_output_port ();
         core::port& get_input_port ();
+        core::connection& get_encoder_connection ();
 
         OutEncoding get_encoding () const;
         void set_encoding (OutEncoding enc);

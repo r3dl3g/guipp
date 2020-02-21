@@ -158,7 +158,11 @@ namespace gui {
       }
 
       raspi_camera::~raspi_camera () {
-        fini();
+        try {
+          fini();
+        } catch (std::exception& ex) {
+          LogFatal << ex;
+        }
         bcm_host_deinit();
       }
 
@@ -174,7 +178,7 @@ namespace gui {
           .one_shot_stills = 1,
           .max_preview_video_w = 320,
           .max_preview_video_h = 240,
-          .num_preview_video_frames = 1,
+          .num_preview_video_frames = 3,
           .stills_capture_circular_buffer_height = 0,
           .fast_preview_resume = 0,
           .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
@@ -185,11 +189,11 @@ namespace gui {
             throw std::runtime_error("Camera doesn't have output ports");
         }
 
-        enable();
-
         set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
         set_camera_num(num);
         set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
+
+        check_mmal_status(m_camera.control_port().enable(camera_control_callback));
 
         MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
            {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
@@ -218,26 +222,26 @@ namespace gui {
         still_port.set_format(format);
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         check_mmal_status(still_port.commit_format_change());
-        check_mmal_status(m_camera.enable());
+        enable();
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::fini () {
-        disable();
-        m_camera.disable();
         m_camera.destroy();
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::enable () {
         LogTrace << "raspi_camera::enable()";
-        check_mmal_status(m_camera.control_port().enable(camera_control_callback));
+        check_mmal_status(m_camera.enable());
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::disable () {
         LogTrace << "raspi_camera::disable()";
+        check_mmal_status(m_camera.still_port().disable());
         check_mmal_status(m_camera.control_port().disable());
+        check_mmal_status(m_camera.disable());
       }
 
       // --------------------------------------------------------------------------

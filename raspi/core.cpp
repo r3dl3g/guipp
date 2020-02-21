@@ -56,6 +56,9 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      port::~port () {
+      }
+
       MMAL_STATUS_T port::enable (MMAL_PORT_BH_CB_T cb) {
         disable();
         if (data->is_enabled) {
@@ -185,7 +188,7 @@ namespace gui {
         : data(nullptr)
       {}
 
-      MMAL_STATUS_T connection::connect (port& in, port& out, uint32_t flags) {
+      MMAL_STATUS_T connection::connect (port& from, port& to, uint32_t flags) {
         LogTrace << "connection::connection";
         // 1. find matching formats
 //        MMAL_STATUS_T status = MMAL_SUCCESS;
@@ -212,7 +215,7 @@ namespace gui {
 //        status = commit_format_change();
 //        status = in.commit_format_change();
 
-        MMAL_STATUS_T status = mmal_connection_create(&data, out.data, in.data, flags);
+        MMAL_STATUS_T status = mmal_connection_create(&data, from.data, to.data, flags);
         if (MMAL_SUCCESS == status) {
           return enable();
         }

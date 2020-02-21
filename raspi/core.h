@@ -278,7 +278,7 @@ namespace gui {
         void operator= (const connection& rhs);
         void operator= (connection&& rhs);
 
-        MMAL_STATUS_T connect (port& in, port& out, uint32_t flags);
+        MMAL_STATUS_T connect (port& from, port& to, uint32_t flags);
 
         inline bool is_valid () const {
           return data != nullptr;
@@ -314,8 +314,7 @@ namespace gui {
           : data(d)
         {}
 
-        ~port ()
-        {}
+        ~port ();
 
         bool is_valid () const {
           return data != nullptr;

@@ -286,8 +286,8 @@ namespace gui {
         m_buffer_pool = m_encoder_output_port.create_buffer_pool();
 
 
-        m_encoder_connection = m_encoder_input_port.connect_in_port(m_source_output_port,
-                                                                    MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
+        m_encoder_connection.connect(m_encoder_input_port, m_source_output_port,
+                                     MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
         check_mmal_status(m_encoder_connection.enable());
 
         if (!m_encoder_connection.is_enabled()) {

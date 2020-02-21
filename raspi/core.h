@@ -263,67 +263,38 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
+      class port;
+
+      // --------------------------------------------------------------------------
       class connection {
       public:
-        connection (MMAL_CONNECTION_T* d = nullptr)
-          : data(d)
-        {}
+        connection ();
 
-        connection (connection&& rhs)
-          : data(std::move(rhs.data))
-        {
-          rhs.detach();
-        }
+        connection (const connection& rhs);
+        connection (connection&& rhs);
 
-        void operator= (connection&& rhs) {
-          destroy();
-          data = std::move(rhs.data);
-          rhs.detach();
-        }
+        ~connection ();
 
-        ~connection () {
-          destroy();
-        }
+        void operator= (const connection& rhs);
+        void operator= (connection&& rhs);
 
-        bool is_valid () const {
+        MMAL_STATUS_T connect (port& in, port& out, uint32_t flags);
+
+        inline bool is_valid () const {
           return data != nullptr;
         }
 
-        bool is_enabled () const {
+        inline bool is_enabled () const {
           return data->is_enabled;
         }
 
-        MMAL_STATUS_T enable () {
-          if (!data->is_enabled) {
-            LogTrace << "Enable connection";
-            return mmal_connection_enable(data);
-          }
-          return MMAL_SUCCESS;
-        }
+        MMAL_STATUS_T enable ();
+        MMAL_STATUS_T disable ();
+        MMAL_STATUS_T acquire ();
+        MMAL_STATUS_T release ();
+        MMAL_STATUS_T destroy ();
 
-        MMAL_STATUS_T disable () {
-          if (data->is_enabled) {
-            LogTrace << "Disable connection";
-            return mmal_connection_disable(data);
-          }
-          return MMAL_SUCCESS;
-        }
-
-        MMAL_STATUS_T destroy () {
-          if (data) {
-            LogTrace << "Destroy connection";
-            MMAL_STATUS_T r = mmal_connection_destroy(data);
-            detach();
-            return r;
-          }
-          return MMAL_SUCCESS;
-        }
-
-        void detach () {
-          LogTrace << "Detach connection";
-          data = nullptr;
-        }
-
+        void detach ();
 
       private:
         MMAL_CONNECTION_T* data;
@@ -493,8 +464,6 @@ namespace gui {
           data->userdata = (struct MMAL_PORT_USERDATA_T*)ptr;
         }
 
-        connection connect_in_port (port& in, uint32_t flags);
-
         MMAL_STATUS_T capture ();
 
         std::vector<four_cc> get_supported_encodings () const;
@@ -506,6 +475,7 @@ namespace gui {
         MMAL_RECT_T get_crop () const;
 
       private:
+        friend class connection;
         MMAL_PORT_T* data;
       };
 

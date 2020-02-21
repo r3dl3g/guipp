@@ -100,38 +100,6 @@ namespace gui {
         data->buffer_size = sz.size;
       }
 
-      connection port::connect_in_port (port& in, uint32_t flags) {
-        LogTrace << "port::connect_in_port";
-        // 1. find matching formats
-        MMAL_STATUS_T status = MMAL_SUCCESS;
-
-//        copy_format_from(in);
-
-//        four_cc in_enc = in.get_encoding();
-
-////        std::vector<four_cc> in_encodings = in.get_supported_encodings();
-//        std::vector<four_cc> out_encodings = get_supported_encodings();
-//        auto i = std::find(out_encodings.begin(), out_encodings.end(), in_enc);
-//        if (i != out_encodings.end()) {
-//          set_encoding(*i);
-//        } else {
-//          in.set_encoding(MMAL_ENCODING_OPAQUE);
-//          set_encoding(MMAL_ENCODING_OPAQUE);
-//        }
-
-//        auto buf_sz = get_buffer_size();
-//        buf_sz |= in.get_buffer_size();
-//        set_buffer_size(buf_sz);
-//        in.set_buffer_size(buf_sz);
-
-//        status = commit_format_change();
-//        status = in.commit_format_change();
-
-        MMAL_CONNECTION_T* con = nullptr;
-        status = mmal_connection_create(&con, data, in.data, flags);
-        return connection(con);
-      }
-
       MMAL_STATUS_T port::connect (port& rhs) {
         LogTrace << "port::connect";
         return mmal_port_connect(data, rhs.data);
@@ -213,6 +181,121 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      connection::connection ()
+        : data(nullptr)
+      {}
+
+      MMAL_STATUS_T connection::connect (port& in, port& out, uint32_t flags) {
+        LogTrace << "connection::connection";
+        // 1. find matching formats
+//        MMAL_STATUS_T status = MMAL_SUCCESS;
+
+//        copy_format_from(in);
+
+//        four_cc in_enc = in.get_encoding();
+
+////        std::vector<four_cc> in_encodings = in.get_supported_encodings();
+//        std::vector<four_cc> out_encodings = get_supported_encodings();
+//        auto i = std::find(out_encodings.begin(), out_encodings.end(), in_enc);
+//        if (i != out_encodings.end()) {
+//          set_encoding(*i);
+//        } else {
+//          in.set_encoding(MMAL_ENCODING_OPAQUE);
+//          set_encoding(MMAL_ENCODING_OPAQUE);
+//        }
+
+//        auto buf_sz = get_buffer_size();
+//        buf_sz |= in.get_buffer_size();
+//        set_buffer_size(buf_sz);
+//        in.set_buffer_size(buf_sz);
+
+//        status = commit_format_change();
+//        status = in.commit_format_change();
+
+        MMAL_STATUS_T status = mmal_connection_create(&data, out.data, in.data, flags);
+        if (MMAL_SUCCESS == status) {
+          return enable();
+        }
+        return status;
+      }
+
+      connection::connection (connection&& rhs)
+        : data(std::move(rhs.data))
+      {
+        rhs.detach();
+      }
+
+      connection::connection (const connection& rhs)
+        : data(rhs.data)
+      {
+        acquire();
+      }
+
+      void connection::operator= (connection&& rhs) {
+        destroy();
+        data = std::move(rhs.data);
+        rhs.detach();
+      }
+
+      void connection::operator= (const connection& rhs) {
+        release();
+        data = rhs.data;
+        acquire();
+      }
+
+      connection::~connection () {
+        destroy();
+      }
+
+      MMAL_STATUS_T connection::enable () {
+        if (data && !data->is_enabled) {
+          LogTrace << "Enable connection";
+          return mmal_connection_enable(data);
+        }
+        return MMAL_SUCCESS;
+      }
+
+      MMAL_STATUS_T connection::disable () {
+        if (data && data->is_enabled) {
+          LogTrace << "Disable connection";
+          return mmal_connection_disable(data);
+        }
+        return MMAL_SUCCESS;
+      }
+
+      MMAL_STATUS_T connection::acquire () {
+        if (data) {
+          LogTrace << "Acquire connection";
+          mmal_connection_acquire(data);
+        }
+        return MMAL_SUCCESS;
+      }
+
+      MMAL_STATUS_T connection::release () {
+        if (data) {
+          LogTrace << "Release connection";
+          MMAL_STATUS_T r = mmal_connection_release(data);
+          data = nullptr;
+          return r;
+        }
+        return MMAL_SUCCESS;
+      }
+
+      MMAL_STATUS_T connection::destroy () {
+        if (data) {
+          LogTrace << "Destroy connection";
+          MMAL_STATUS_T r = mmal_connection_destroy(data);
+          data = nullptr;
+          return r;
+        }
+        return MMAL_SUCCESS;
+      }
+
+      void connection::detach () {
+        LogTrace << "Detach connection";
+        data = nullptr;
+      }
+
       // --------------------------------------------------------------------------
 
     } // namespace core

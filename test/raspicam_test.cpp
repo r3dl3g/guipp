@@ -24,7 +24,7 @@ int main(int argc, const char* argv[]) {
   using namespace gui::raspi::camera;
   raspi_camera camera;
 
-  camera.set_defaults(0);
+//  camera.set_defaults(0);
 
   gui::raspi::core::four_cc encoding = 0;
   bool raw = false;

@@ -164,21 +164,6 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::init (int num) {
-        check_mmal_status(m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA));
-        if (!m_camera.num_output_ports()) {
-            throw std::runtime_error("Camera doesn't have output ports");
-        }
-
-        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
-        set_camera_num(num);
-        set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
-
-        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
-           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
-            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
-
-        check_mmal_status(m_camera.control_port().set(change_event_request.hdr));
-
         MMAL_PARAMETER_CAMERA_INFO_CAMERA_T info = get_camera_info(num);
 
         m_camera_config = {
@@ -194,6 +179,23 @@ namespace gui {
           .fast_preview_resume = 0,
           .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
         };
+
+        check_mmal_status(m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA));
+        if (!m_camera.num_output_ports()) {
+            throw std::runtime_error("Camera doesn't have output ports");
+        }
+
+        enable();
+
+        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
+        set_camera_num(num);
+        set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
+
+        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
+           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
+            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
+
+        check_mmal_status(m_camera.control_port().set(change_event_request.hdr));
 
         set_camera_config(m_camera_config);
 
@@ -217,7 +219,6 @@ namespace gui {
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         check_mmal_status(still_port.commit_format_change());
         check_mmal_status(m_camera.enable());
-        enable();
       }
 
       // --------------------------------------------------------------------------

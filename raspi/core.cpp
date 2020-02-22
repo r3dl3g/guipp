@@ -530,6 +530,7 @@ namespace gui {
 
       bool connection::connect (port& from, port& to, uint32_t flags) {
         LogTrace << "connection::connection";
+
         // 1. find matching formats
 //        MMAL_STATUS_T status = MMAL_SUCCESS;
 
@@ -795,17 +796,26 @@ namespace gui {
 
       port component::input_port (int num) const {
         check_null_ptr(data);
-        return port(data->input[num]);
+        if (num < data->input_num) {
+          return port(data->input[num]);
+        }
+        throw std::invalid_argument(ostreamfmt("Requested input port " << num << " is out of range [0, " << data->input_num << "]"));
       }
 
       port component::output_port (int num) const {
         check_null_ptr(data);
-        return port(data->output[num]);
+        if (num < data->output_num) {
+          return port(data->output[num]);
+        }
+        throw std::invalid_argument(ostreamfmt("Requested output port " << num << " is out of range [0, " << data->output_num << "]"));
       }
 
       port component::clock_port (int num) const {
         check_null_ptr(data);
-        return port(data->clock[num]);
+        if (num < data->clock_num) {
+          return port(data->clock[num]);
+        }
+        throw std::invalid_argument(ostreamfmt("Requested clock port " << num << " is out of range [0, " << data->clock_num << "]"));
       }
 
       port component::preview_port () const {

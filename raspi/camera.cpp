@@ -172,14 +172,13 @@ namespace gui {
         set_camera_config(m_camera_config);
 
         set_defaults(10000);
-
-        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
-           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
-            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
-
-        m_camera.control_port().set(change_event_request.hdr);
-
         set_raw_mode(false);
+
+//        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
+//           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
+//            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
+
+//        m_camera.control_port().set(change_event_request.hdr);
 
         core::port still_port = m_camera.still_port();
         core::port preview_port = m_camera.preview_port();
@@ -197,14 +196,14 @@ namespace gui {
         format.video.frame_rate.den = 1;
 
         still_port.set_format(format);
+        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
 
-        preview_port.copy_format_from(still_port);
+//        preview_port.copy_format_from(still_port);
         video_port.copy_format_from(still_port);
 
-        preview_port.commit_format_change();
+//        preview_port.commit_format_change();
         video_port.commit_format_change();
 
-        still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         still_port.commit_format_change();
 
         enable();

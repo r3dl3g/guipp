@@ -293,6 +293,10 @@ namespace gui {
 
         output_port.commit_format_change();
 
+        output_port.set_uint32(MMAL_PARAMETER_JPEG_Q_FACTOR, 85);
+        output_port.set_uint32(MMAL_PARAMETER_JPEG_RESTART_INTERVAL, 0);
+        output_port.set_bool(MMAL_PARAMETER_EXIF_DISABLE, true);
+
         MMAL_PARAMETER_THUMBNAIL_CONFIG_T param_thumb = {{MMAL_PARAMETER_THUMBNAIL_CONFIGURATION, sizeof(MMAL_PARAMETER_THUMBNAIL_CONFIG_T)}, 0, 0, 0, 0};
         m_encoder.control_port().set(param_thumb.hdr);
 

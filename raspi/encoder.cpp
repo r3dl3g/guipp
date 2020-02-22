@@ -153,7 +153,9 @@ namespace gui {
           buf.release();
         }
 
-        if (port.is_enabled() && m_buffer_pool.is_valid()) {
+        if (complete) {
+          m_complete_semaphore.post();
+        } else if (port.is_enabled() && m_buffer_pool.is_valid()) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
           if (new_buffer.is_valid()) {
             port.send_buffer(new_buffer);
@@ -162,9 +164,6 @@ namespace gui {
           }
         }
 
-        if (complete) {
-          m_complete_semaphore.post();
-        }
       }
 
       // --------------------------------------------------------------------------

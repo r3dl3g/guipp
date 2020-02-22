@@ -197,14 +197,16 @@ namespace gui {
 
         still_port.set_format(format);
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
+        still_port.commit_format_change();
 
+        video_port.disable();
+        preview_port.disable();
+//        still_port.disable();
 //        preview_port.copy_format_from(still_port);
-        video_port.copy_format_from(still_port);
+//        video_port.copy_format_from(still_port);
 
 //        preview_port.commit_format_change();
-        video_port.commit_format_change();
-
-        still_port.commit_format_change();
+//        video_port.commit_format_change();
 
         enable();
       }

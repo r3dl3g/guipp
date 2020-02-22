@@ -153,9 +153,7 @@ namespace gui {
           buf.release();
         }
 
-        if (complete) {
-          m_complete_semaphore.post();
-        } else if (port.is_enabled() && m_buffer_pool.is_valid()) {
+        if (port.is_enabled() && m_buffer_pool.is_valid()) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
           if (new_buffer.is_valid()) {
             port.send_buffer(new_buffer);
@@ -164,6 +162,9 @@ namespace gui {
           }
         }
 
+        if (complete) {
+          m_complete_semaphore.post();
+        }
       }
 
       // --------------------------------------------------------------------------
@@ -261,8 +262,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
-        disable();
-        m_encoder_connection.destroy();
+        LogTrace << "m_encoder.destroy()" << logging::flush();
         m_encoder.destroy();
       }
 
@@ -305,7 +305,6 @@ namespace gui {
 
         m_encoder_connection.connect(m_source_output_port, input_port,
                                      MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
-//        m_encoder_connection.enable();
 
         if (!m_encoder_connection.is_enabled()) {
           throw std::invalid_argument("Encoder connection port is no enabled!");
@@ -329,11 +328,18 @@ namespace gui {
       void raspi_image_encoder::disable () {
         LogTrace << "raspi_image_encoder::disable()";
 
-        get_input_port().disable();
+        LogTrace << "get_output_port().disable()" << logging::flush();
         get_output_port().disable();
-        get_encoder_connection().disable();
-        get_source_output_port().disable();
+        LogTrace << "m_encoder_connection.destroy()" << logging::flush();
+        m_encoder_connection.destroy();
+        LogTrace << "m_encoder.disable()" << logging::flush();
         m_encoder.disable();
+
+//        get_input_port().disable();
+//        get_output_port().disable();
+//        get_encoder_connection().disable();
+//        get_source_output_port().disable();
+//        m_encoder.disable();
       }
 
       // --------------------------------------------------------------------------

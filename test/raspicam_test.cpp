@@ -124,6 +124,8 @@ int main(int argc, const char* argv[]) {
     std::ofstream file(ostreamfmt(outname << "." << encoding));
     file.write((const char*)data.data(), data.size());
 
+    encoder.disable();
+    camera.disable();
   }
 
   logging::core::instance().finish();

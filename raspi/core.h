@@ -204,10 +204,11 @@ namespace gui {
         size_num get_buffer_size () const;
         void set_buffer_size (size_num sz);
 
-        MMAL_ES_SPECIFIC_FORMAT_T get_format () const;
+        MMAL_ES_SPECIFIC_FORMAT_T get_specific_format () const;
         four_cc get_encoding () const;
 
-        void set_format (const MMAL_ES_SPECIFIC_FORMAT_T& f);
+        void set_specific_format (const MMAL_ES_SPECIFIC_FORMAT_T& f);
+        void set_format (const MMAL_ES_FORMAT_T& f);
         void set_encoding (four_cc f);
 
         bool commit_format_change ();

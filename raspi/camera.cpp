@@ -184,7 +184,26 @@ namespace gui {
         core::port preview_port = m_camera.preview_port();
         core::port video_port = m_camera.video_port();
 
-        MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
+        MMAL_ES_SPECIFIC_FORMAT_T format = video_port.get_specific_format();
+
+        format.video.width = VCOS_ALIGN_UP(640, 32);
+        format.video.height = VCOS_ALIGN_UP(480, 16);
+        format.video.crop.x = 0;
+        format.video.crop.y = 0;
+        format.video.crop.width = 640;
+        format.video.crop.height = 480;
+        format.video.frame_rate.num = 0;
+        format.video.frame_rate.den = 1;
+
+        video_port.set_specific_format(format);
+        video_port.set_encoding(MMAL_ENCODING_OPAQUE);
+        video_port.commit_format_change();
+
+//        preview_port.copy_format_from(video_port);
+        preview_port.set_encoding(MMAL_ENCODING_OPAQUE);
+        preview_port.commit_format_change();
+
+        format = still_port.get_specific_format();
 
         format.video.width = VCOS_ALIGN_UP(m_camera_config.max_stills_w, 32);
         format.video.height = VCOS_ALIGN_UP(m_camera_config.max_stills_h, 16);
@@ -195,25 +214,23 @@ namespace gui {
         format.video.frame_rate.num = 0;
         format.video.frame_rate.den = 1;
 
-        still_port.set_format(format);
+        still_port.set_specific_format(format);
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         still_port.commit_format_change();
 
-        video_port.disable();
+//        video_port.disable();
         preview_port.disable();
 //        still_port.disable();
+
 //        preview_port.copy_format_from(still_port);
 //        video_port.copy_format_from(still_port);
-
-//        preview_port.commit_format_change();
-//        video_port.commit_format_change();
 
         enable();
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::fini () {
-        disable();
+        LogTrace << "m_camera.destroy()" << logging::flush();
         m_camera.destroy();
       }
 
@@ -227,10 +244,11 @@ namespace gui {
       void raspi_camera::disable () {
         LogTrace << "raspi_camera::disable()";
         m_camera.video_port().disable();
-        m_camera.preview_port().disable();
-        m_camera.still_port().disable();
-        m_camera.control_port().disable();
-        m_camera.disable();
+//        m_camera.preview_port().disable();
+        LogTrace << "m_camera.still_port().disable()" << logging::flush();
+//        m_camera.still_port().disable();
+//        m_camera.control_port().disable();
+//        m_camera.disable();
       }
 
       // --------------------------------------------------------------------------
@@ -537,14 +555,14 @@ namespace gui {
 #endif // USE_SET_SIZE
 #ifdef USE_ES_VIDEO
         auto still = m_camera.still_port();
-        auto fmt = still.get_format();
+        auto fmt = still.get_specific_format();
         fmt.video.crop.x = static_cast<uint32_t>(c.x * m_sensor_size.width);
         fmt.video.crop.y = static_cast<uint32_t>(c.y * m_sensor_size.height);
         fmt.video.crop.width = w;
         fmt.video.crop.height = h;
         fmt.video.width = w_up;
         fmt.video.height = h_up;
-        still.set_format(fmt);
+        still.set_specific_format(fmt);
         still.commit_format_change();
 #endif // USE_ES_VIDEO
       }
@@ -582,14 +600,14 @@ namespace gui {
 #endif // USE_SET_SIZE
 #ifdef USE_ES_VIDEO
         auto still = m_camera.still_port();
-        auto fmt = still.get_format();
+        auto fmt = still.get_specific_format();
         fmt.video.crop.x = c.x;
         fmt.video.crop.y = c.y;
         fmt.video.crop.width = c.width;
         fmt.video.crop.height = c.height;
         fmt.video.width = w_up;
         fmt.video.height = h_up;
-        still.set_format(fmt);
+        still.set_specific_format(fmt);
         still.commit_format_change();
 #endif // USE_ES_VIDEO
 

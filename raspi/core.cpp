@@ -346,9 +346,10 @@ namespace gui {
         data->buffer_size = sz.size;
       }
 
-      MMAL_ES_SPECIFIC_FORMAT_T port::get_format () const {
+      MMAL_ES_SPECIFIC_FORMAT_T port::get_specific_format () const {
         check_null_ptr(data);
-        return *data->format->es;
+        check_null_ptr(data->format);
+        return *(data->format->es);
       }
 
       four_cc port::get_encoding () const {
@@ -356,13 +357,14 @@ namespace gui {
         return data->format->encoding;
       }
 
-      void port::set_format (const MMAL_ES_SPECIFIC_FORMAT_T& f) {
+      void port::set_specific_format (const MMAL_ES_SPECIFIC_FORMAT_T& f) {
         check_null_ptr(data);
         *(data->format->es) = f;
       }
 
       void port::set_encoding (four_cc f) {
         check_null_ptr(data);
+        check_null_ptr(data->format);
         data->format->encoding = f.type.uint32;
         if (MMAL_ENCODING_OPAQUE == data->format->encoding) {
           data->format->encoding_variant = MMAL_ENCODING_I420;
@@ -427,14 +429,14 @@ namespace gui {
       bool port::set_crop (const MMAL_RECT_T& c) {
 //        uint32_t w_up = VCOS_ALIGN_UP(c.width, 32);
 //        uint32_t h_up = VCOS_ALIGN_UP(c.height, 16);
-//        auto fmt = get_format();
+//        auto fmt = get_specific_format();
 //        fmt.video.crop.x = c.x;
 //        fmt.video.crop.y = c.y;
 //        fmt.video.crop.width = c.width;
 //        fmt.video.crop.height = c.height;
 //        fmt.video.width = w_up;
 //        fmt.video.height = h_up;
-//        set_format(fmt);
+//        set_specific_format(fmt);
 //        return MMAL_SUCCESS;
 
         int32_t x = VCOS_ALIGN_DOWN(c.x, 32);
@@ -446,7 +448,7 @@ namespace gui {
       }
 
       MMAL_RECT_T port::get_crop () const {
-//        return get_format().video.crop;
+//        return get_specific_format().video.crop;
 
         MMAL_PARAMETER_CROP_T cr = {{MMAL_PARAMETER_CROP, sizeof(MMAL_PARAMETER_CROP_T)}};
         if (get(cr.hdr) == MMAL_SUCCESS) {

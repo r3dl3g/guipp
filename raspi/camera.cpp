@@ -57,31 +57,6 @@ namespace gui {
 #     define MMAL_CAMERA_VIDEO_PORT   1
 #     define MMAL_CAMERA_CAPTURE_PORT 2
 
-#     define check_mmal_status(A) check_mmal_status_(A, #A)
-
-      void check_mmal_status_ (MMAL_STATUS_T status, const char* info) {
-        if (status != MMAL_SUCCESS) {
-          switch (status) {
-            case MMAL_ENOMEM :   throw std::runtime_error(ostreamfmt("Out of memory when calling " << info)); break;
-            case MMAL_ENOSPC :   throw std::runtime_error(ostreamfmt("Out of resources (other than memory) when calling " << info)); break;
-            case MMAL_EINVAL:    throw std::invalid_argument(ostreamfmt("Argument is invalid when calling " << info)); break;
-            case MMAL_ENOSYS :   throw std::runtime_error(ostreamfmt("Function not implemented when calling " << info)); break;
-            case MMAL_ENOENT :   throw std::invalid_argument(ostreamfmt("No such file or directory when calling " << info)); break;
-            case MMAL_ENXIO :    throw std::invalid_argument(ostreamfmt("No such device or address when calling " << info)); break;
-            case MMAL_EIO :      throw std::runtime_error(ostreamfmt("I/O error when calling " << info)); break;
-            case MMAL_ESPIPE :   throw std::runtime_error(ostreamfmt("Illegal seek when calling " << info)); break;
-            case MMAL_ECORRUPT : throw std::runtime_error(ostreamfmt("Data is corrupt \attention FIXME: not POSIX when calling " << info)); break;
-            case MMAL_ENOTREADY :throw std::runtime_error(ostreamfmt("Component is not ready \attention FIXME: not POSIX when calling " << info)); break;
-            case MMAL_ECONFIG :  throw std::runtime_error(ostreamfmt("Component is not configured \attention FIXME: not POSIX when calling " << info)); break;
-            case MMAL_EISCONN :  throw std::runtime_error(ostreamfmt("Port is already connected when calling " << info)); break;
-            case MMAL_ENOTCONN : throw std::runtime_error(ostreamfmt("Port is disconnected when calling " << info)); break;
-            case MMAL_EAGAIN :   throw std::runtime_error(ostreamfmt("Resource temporarily unavailable. Try again later when calling " << info)); break;
-            case MMAL_EFAULT :   throw std::runtime_error(ostreamfmt("Bad address when calling " << info)); break;
-            default :            throw std::runtime_error(ostreamfmt("Unknown status error when calling " << info)); break;
-          }
-        }
-      }
-
       // --------------------------------------------------------------------------
       std::ostream& operator<< (std::ostream& out, const raspi_camera& cam) {
         cam.show_current(out);
@@ -183,7 +158,7 @@ namespace gui {
           .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
         };
 
-        check_mmal_status(m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA));
+        m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA);
         if (!m_camera.num_output_ports()) {
             throw std::runtime_error("Camera doesn't have output ports");
         }
@@ -192,20 +167,23 @@ namespace gui {
         set_camera_num(num);
         set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
 
-        check_mmal_status(m_camera.control_port().enable(camera_control_callback));
+        m_camera.control_port().enable(camera_control_callback);
+
+        set_camera_config(m_camera_config);
+
+        set_defaults(10000);
 
         MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
            {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
             MMAL_PARAMETER_CAMERA_SETTINGS, 1};
 
-        check_mmal_status(m_camera.control_port().set(change_event_request.hdr));
+        m_camera.control_port().set(change_event_request.hdr);
 
-        set_camera_config(m_camera_config);
-
-        set_defaults(10000);
         set_raw_mode(false);
 
         core::port still_port = m_camera.still_port();
+        core::port preview_port = m_camera.preview_port();
+        core::port video_port = m_camera.video_port();
 
         MMAL_ES_SPECIFIC_FORMAT_T format = still_port.get_format();
 
@@ -219,8 +197,16 @@ namespace gui {
         format.video.frame_rate.den = 1;
 
         still_port.set_format(format);
+
+        preview_port.copy_format_from(still_port);
+        video_port.copy_format_from(still_port);
+
+        preview_port.commit_format_change();
+        video_port.commit_format_change();
+
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
-        check_mmal_status(still_port.commit_format_change());
+        still_port.commit_format_change();
+
         enable();
       }
 
@@ -232,15 +218,15 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_camera::enable () {
         LogTrace << "raspi_camera::enable()";
-        check_mmal_status(m_camera.enable());
+        m_camera.enable();
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::disable () {
         LogTrace << "raspi_camera::disable()";
-        check_mmal_status(m_camera.still_port().disable());
-        check_mmal_status(m_camera.control_port().disable());
-        check_mmal_status(m_camera.disable());
+        m_camera.still_port().disable();
+        m_camera.control_port().disable();
+        m_camera.disable();
       }
 
       // --------------------------------------------------------------------------
@@ -251,7 +237,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_camera::capture () {
         LogTrace << "raspi_camera::capture()";
-        check_mmal_status(m_camera.still_port().capture());
+        m_camera.still_port().capture();
       }
 
       // --------------------------------------------------------------------------
@@ -263,10 +249,10 @@ namespace gui {
         set_iso(iso);
         set_video_stabilisation(0);
         set_exposure_compensation(0);
-        set_exposure_mode(MMAL_PARAM_EXPOSUREMODE_OFF);
+        set_exposure_mode(MMAL_PARAM_EXPOSUREMODE_AUTO);
         set_flicker_avoid_mode(MMAL_PARAM_FLICKERAVOID_OFF);
         set_metering_mode(MMAL_PARAM_EXPOSUREMETERINGMODE_AVERAGE);
-        set_awb_mode(MMAL_PARAM_AWBMODE_OFF);
+        set_awb_mode(MMAL_PARAM_AWBMODE_AUTO);
         set_awb_gains({1.0F, 1.0F});
         set_image_fx(MMAL_PARAM_IMAGEFX_NONE);
         set_color_fx({false, 128, 128});
@@ -379,7 +365,7 @@ namespace gui {
       }
 
       void raspi_camera::set_sensor_mode (SensorMode mode) {
-        check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_CAMERA_CUSTOM_SENSOR_CONFIG, mode));
+        m_camera.control_port().set_uint32(MMAL_PARAMETER_CAMERA_CUSTOM_SENSOR_CONFIG, mode);
       }
 
       auto raspi_camera::get_sensor_mode () const -> SensorMode {
@@ -397,7 +383,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_iso (uint32_t iso) {
-        check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_ISO, iso));
+        m_camera.control_port().set_uint32(MMAL_PARAMETER_ISO, iso);
       }
 
       uint32_t raspi_camera::get_iso () const {
@@ -410,7 +396,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_shutter_speed (uint32_t speed) {
-        check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_SHUTTER_SPEED, speed));
+        m_camera.control_port().set_uint32(MMAL_PARAMETER_SHUTTER_SPEED, speed);
       }
 
       uint32_t raspi_camera::get_shutter_speed () const {
@@ -437,7 +423,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_video_stabilisation (bool vstabilisation) {
-        check_mmal_status(m_camera.control_port().set_bool(MMAL_PARAMETER_VIDEO_STABILISATION, vstabilisation));
+        m_camera.control_port().set_bool(MMAL_PARAMETER_VIDEO_STABILISATION, vstabilisation);
       }
 
       bool raspi_camera::get_video_stabilisation () const {
@@ -446,7 +432,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_stats_pass (bool stats_pass) {
-        check_mmal_status(m_camera.control_port().set_bool(MMAL_PARAMETER_CAPTURE_STATS_PASS, stats_pass));
+        m_camera.control_port().set_bool(MMAL_PARAMETER_CAPTURE_STATS_PASS, stats_pass);
       }
 
       bool raspi_camera::get_stats_pass () const {
@@ -455,7 +441,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_exposure_compensation (int exp_comp) {
-        check_mmal_status(m_camera.control_port().set_uint32(MMAL_PARAMETER_EXPOSURE_COMP, exp_comp));
+        m_camera.control_port().set_uint32(MMAL_PARAMETER_EXPOSURE_COMP, exp_comp);
       }
 
       int raspi_camera::get_exposure_compensation () const {
@@ -464,7 +450,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_burst_mode (bool burst) {
-        check_mmal_status(m_camera.control_port().set_bool(MMAL_PARAMETER_CAMERA_BURST_CAPTURE, burst));
+        m_camera.control_port().set_bool(MMAL_PARAMETER_CAMERA_BURST_CAPTURE, burst);
       }
 
       bool raspi_camera::get_burst_mode () const {
@@ -473,7 +459,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_raw_mode (bool raw) {
-        check_mmal_status(m_camera.control_port().set_bool(MMAL_PARAMETER_ENABLE_RAW_CAPTURE, raw));
+        m_camera.control_port().set_bool(MMAL_PARAMETER_ENABLE_RAW_CAPTURE, raw);
       }
 
       bool raspi_camera::get_raw_mode () const {
@@ -487,12 +473,12 @@ namespace gui {
         param.r_gain.den = param.b_gain.den = 65536;
         param.r_gain.num = (unsigned int)(gains.r_gain * 65536);
         param.b_gain.num = (unsigned int)(gains.b_gain * 65536);
-        check_mmal_status(m_camera.control_port().set(param.hdr));
+        m_camera.control_port().set(param.hdr);
       }
 
       auto raspi_camera::get_awb_gains () const -> awb_gains {
         MMAL_PARAMETER_AWB_GAINS_T param = {{MMAL_PARAMETER_CUSTOM_AWB_GAINS,sizeof(param)}, {0,0}, {0,0}};
-        check_mmal_status(m_camera.control_port().get(param.hdr));
+        m_camera.control_port().get(param.hdr);
 
         return awb_gains{
           .r_gain = static_cast<float>(param.r_gain.num) / static_cast<float>(param.r_gain.den),
@@ -504,7 +490,7 @@ namespace gui {
       void raspi_camera::set_rotation (int rotation) {
         int my_rotation = ((rotation % 360 ) / 90) * 90;
         for (int i = 0; i < 2; ++i) {
-          check_mmal_status(m_camera.output_port(i).set_int32(MMAL_PARAMETER_ROTATION, my_rotation));
+          m_camera.output_port(i).set_int32(MMAL_PARAMETER_ROTATION, my_rotation);
         }
       }
 
@@ -516,7 +502,7 @@ namespace gui {
       void raspi_camera::set_flip (MMAL_PARAM_MIRROR_T mode) {
         MMAL_PARAMETER_MIRROR_T mirror = {{MMAL_PARAMETER_MIRROR, sizeof(MMAL_PARAMETER_MIRROR_T)}, mode};
         for (int i = 0; i < 2; ++i) {
-          check_mmal_status(m_camera.output_port(i).set(mirror.hdr));
+          m_camera.output_port(i).set(mirror.hdr);
         }
       }
 
@@ -534,7 +520,7 @@ namespace gui {
         MMAL_PARAMETER_INPUT_CROP_T crop = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)},
                                             {static_cast<int32_t>(c.x * 65535.0F), static_cast<int32_t>(c.y * 65535.0F),
                                              static_cast<int32_t>(c.width * 65535.0F), static_cast<int32_t>(c.height * 65535.0F)}};
-        check_mmal_status(m_camera.control_port().set(crop.hdr));
+        m_camera.control_port().set(crop.hdr);
 #endif // USE_CROP
 #ifdef USE_SET_SIZE
         uint32_t w = static_cast<uint32_t>(c.width * m_sensor_size.width);
@@ -562,7 +548,7 @@ namespace gui {
       core::crop raspi_camera::get_input_crop () const {
 #ifdef USE_CROP
         MMAL_PARAMETER_INPUT_CROP_T cr = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)}};
-        check_mmal_status(m_camera.control_port().get(cr.hdr));
+        m_camera.control_port().get(cr.hdr);
         auto& c = cr.rect;
         return {c.x / 65535.0F, c.y / 65535.0F, c.width / 65535.0F, c.height / 65535.0F};
 #endif // USE_CROP
@@ -575,14 +561,14 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_abs_crop (const MMAL_RECT_T& c) {
-//        check_mmal_status(m_camera.control_port().set_crop(c));
+//        m_camera.control_port().set_crop(c);
 #ifdef USE_CROP
         float fx = 65535.0F / (float)m_sensor_size.width;
         float fy = 65535.0F / (float)m_sensor_size.height;
         MMAL_PARAMETER_INPUT_CROP_T crop = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)},
                                             {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                                              static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)}};
-        check_mmal_status(m_camera.control_port().set(crop.hdr));
+        m_camera.control_port().set(crop.hdr);
 #endif // USE_CROP
 #ifdef USE_SET_SIZE
         uint32_t w_up = VCOS_ALIGN_UP(c.width, 32);
@@ -612,7 +598,7 @@ namespace gui {
         float fy = (float)m_sensor_size.height / 65535.0F;
 
         MMAL_PARAMETER_INPUT_CROP_T cr = {{MMAL_PARAMETER_INPUT_CROP, sizeof(MMAL_PARAMETER_INPUT_CROP_T)}};
-        check_mmal_status(m_camera.control_port().get(cr.hdr));
+        m_camera.control_port().get(cr.hdr);
         auto& c = cr.rect;
         return {static_cast<int32_t>(c.x * fx), static_cast<int32_t>(c.y * fy),
                 static_cast<int32_t>(c.width * fx), static_cast<int32_t>(c.height * fy)};
@@ -625,12 +611,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_camera::set_color_fx (const color_fx& c) {
         MMAL_PARAMETER_COLOURFX_T colfx = {{MMAL_PARAMETER_COLOUR_EFFECT, sizeof(MMAL_PARAMETER_COLOURFX_T)}, c.enable, c.u, c.v};
-        check_mmal_status(m_camera.control_port().set(colfx.hdr));
+        m_camera.control_port().set(colfx.hdr);
       }
 
       auto raspi_camera::get_color_fx () const -> color_fx {
         MMAL_PARAMETER_COLOURFX_T colfx = {{MMAL_PARAMETER_COLOUR_EFFECT, sizeof(MMAL_PARAMETER_COLOURFX_T)}, 0, 0, 0};
-        check_mmal_status(m_camera.control_port().get(colfx.hdr));
+        m_camera.control_port().get(colfx.hdr);
         return color_fx{
           .enable = colfx.enable != 0,
           .u = colfx.u,
@@ -643,7 +629,7 @@ namespace gui {
         MMAL_PARAMETER_STEREOSCOPIC_MODE_T stereo = { {MMAL_PARAMETER_STEREOSCOPIC_MODE, sizeof(MMAL_PARAMETER_STEREOSCOPIC_MODE_T)},
                                     sm.mode, sm.decimate, sm.swap_eyes};
         for (int i = 0; i < 2; ++i) {
-          check_mmal_status(m_camera.output_port(i).set(stereo.hdr));
+          m_camera.output_port(i).set(stereo.hdr);
         }
       }
 
@@ -651,7 +637,7 @@ namespace gui {
         // Seems to be not imlemented yet!
 //        MMAL_PARAMETER_STEREOSCOPIC_MODE_T stereo = { {MMAL_PARAMETER_STEREOSCOPIC_MODE, sizeof(MMAL_PARAMETER_STEREOSCOPIC_MODE_T)},
 //                                    MMAL_STEREOSCOPIC_MODE_NONE, MMAL_FALSE, MMAL_FALSE };
-//        check_mmal_status(mmal_port_parameter_get(m_camera->output[2], &stereo.hdr));
+//        mmal_port_parameter_get(m_camera->output[2], &stereo.hdr);
         return stereo_mode{
           .mode = MMAL_STEREOSCOPIC_MODE_NONE/*stereo.mode*/,
           .decimate = MMAL_FALSE/*stereo.decimate != 0*/,
@@ -662,12 +648,12 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_camera::set_drc (MMAL_PARAMETER_DRC_STRENGTH_T strength) {
         MMAL_PARAMETER_DRC_T drc = {{MMAL_PARAMETER_DYNAMIC_RANGE_COMPRESSION, sizeof(MMAL_PARAMETER_DRC_T)}, strength};
-        check_mmal_status(m_camera.control_port().set(drc.hdr));
+        m_camera.control_port().set(drc.hdr);
       }
 
       MMAL_PARAMETER_DRC_STRENGTH_T raspi_camera::get_drc () const {
         MMAL_PARAMETER_DRC_T drc = {{MMAL_PARAMETER_DYNAMIC_RANGE_COMPRESSION, sizeof(MMAL_PARAMETER_DRC_T)}};
-        check_mmal_status(m_camera.control_port().get(drc.hdr));
+        m_camera.control_port().get(drc.hdr);
         return drc.strength;
       }
 
@@ -693,20 +679,20 @@ namespace gui {
       // --------------------------------------------------------------------------
       MMAL_PARAMETER_CAMERA_CONFIG_T raspi_camera::get_camera_config () const {
 //        MMAL_PARAMETER_CAMERA_CONFIG_T camConfig = {{MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)}};
-//        check_mmal_status(m_camera.control_port().get(camConfig.hdr));
+//        m_camera.control_port().get(camConfig.hdr);
         return m_camera_config;
       }
 
       void raspi_camera::set_camera_config (const MMAL_PARAMETER_CAMERA_CONFIG_T& camConfig) {
-        bool was_enabled = m_camera.control_port().is_enabled();
-        m_camera.disable();
+//        bool was_enabled = m_camera.control_port().is_enabled();
+//        m_camera.disable();
         m_camera_config = camConfig;
         m_camera_config.hdr = {MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T)};
-        check_mmal_status(m_camera.control_port().set(m_camera_config.hdr));
+        m_camera.control_port().set(m_camera_config.hdr);
         m_current_size = m_sensor_size = {camConfig.max_stills_w, camConfig.max_stills_h};
-        if (was_enabled) {
-          m_camera.enable();
-        }
+//        if (was_enabled) {
+//          m_camera.enable();
+//        }
       }
 
       void raspi_camera::config_camera (const size& max_still, const size& max_preview) {
@@ -746,7 +732,7 @@ namespace gui {
             config.cameras[0].max_width = 2592;
             config.cameras[0].max_height = 1944;
           }
-          mmal_component_destroy(component);
+          check_mmal_status(mmal_component_destroy(component));
           return config;
         } catch (std::exception& ex) {
           mmal_component_destroy(component);
@@ -763,13 +749,13 @@ namespace gui {
 #ifdef CAMERA_RX_CONFIG_AVAILABLE
       MMAL_PARAMETER_CAMERA_RX_CONFIG_T raspi_camera::get_camera_rx_config () const {
         MMAL_PARAMETER_CAMERA_RX_CONFIG_T cam_rx_config = {{MMAL_PARAMETER_CAMERA_RX_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_RX_CONFIG_T)}};
-        check_mmal_status(m_camera.control_port().get(cam_rx_config.hdr));
+        m_camera.control_port().get(cam_rx_config.hdr);
         return cam_rx_config;
       }
 
       void raspi_camera::set_camera_rx_config (MMAL_PARAMETER_CAMERA_RX_CONFIG_T cam_rx_config) {
         cam_rx_config.hdr = {MMAL_PARAMETER_CAMERA_RX_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_RX_CONFIG_T)};
-        check_mmal_status(m_camera.control_port().set(cam_rx_config.hdr));
+        m_camera.control_port().set(cam_rx_config.hdr);
       }
 #endif // CAMERA_RX_CONFIG_AVAILABLE
 
@@ -777,13 +763,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       MMAL_PARAMETER_RESIZE_T raspi_camera::get_resize () const {
         MMAL_PARAMETER_RESIZE_T resize = {{MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)}/*, MMAL_RESIZE_DUMMY, 0*/};
-        check_mmal_status(m_camera.control_port().get(resize.hdr));
+        m_camera.control_port().get(resize.hdr);
         return resize;
       }
 
       void raspi_camera::set_resize (MMAL_PARAMETER_RESIZE_T resize) {
         resize.hdr = {MMAL_PARAMETER_RESIZE_PARAMS, sizeof(MMAL_PARAMETER_RESIZE_T)};
-        check_mmal_status(m_camera.control_port().set(resize.hdr));
+        m_camera.control_port().set(resize.hdr);
       }
 #endif // RESIZE_AVAILABLE
 
@@ -835,13 +821,13 @@ namespace gui {
       template<typename T>
       void raspi_camera::set_mode (T m) {
         typename mode<T>::type param = {{mode<T>::id, sizeof(param)}, m};
-        check_mmal_status(m_camera.control_port().set(param.hdr));
+        m_camera.control_port().set(param.hdr);
       }
 
       template<typename T>
       T raspi_camera::get_mode () const {
         typename mode<T>::type param = {{mode<T>::id, sizeof(param)}};
-        check_mmal_status(m_camera.control_port().get(param.hdr));
+        m_camera.control_port().get(param.hdr);
         return param.value;
       }
 

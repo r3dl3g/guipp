@@ -37,42 +37,42 @@ namespace gui {
 
   namespace raspi {
 
-    namespace encoder {
-      // --------------------------------------------------------------------------
+//    namespace encoder {
+//      // --------------------------------------------------------------------------
 
-      struct source {
-        core::port input_port;
-      };
+//      struct source {
+//        core::port input_port;
+//      };
 
-      struct target {
-        core::port output_port;
-      };
+//      struct target {
+//        core::port output_port;
+//      };
 
-      struct camera : public source {
-        camera () {}
-      };
+//      struct camera : public source {
+//        camera () {}
+//      };
 
-      struct file : public target {
-        file () {}
+//      struct file : public target {
+//        file () {}
 
-        void connect (source&);
-      };
+//        void connect (source&);
+//      };
 
-      struct buffer : public target {
-        buffer() {}
+//      struct buffer : public target {
+//        buffer() {}
 
-        void connect (source&);
-      };
+//        void connect (source&);
+//      };
 
-      struct encoder : public target, source {
-        encoder() {}
+//      struct encoder : public target, source {
+//        encoder() {}
 
-        void connect (source&);
-      };
+//        void connect (source&);
+//      };
 
-      // --------------------------------------------------------------------------
+//      // --------------------------------------------------------------------------
 
-    } // namespace encoder
+//    } // namespace encoder
 
     namespace camera {
 
@@ -128,8 +128,8 @@ namespace gui {
         void enable ();
         void disable ();
 
-        core::port get_output_port ();
-        core::port get_input_port ();
+        core::port get_output_port () const;
+        core::port get_input_port () const;
 
         core::four_cc get_encoding () const;
         void set_encoding (core::four_cc enc);
@@ -175,8 +175,10 @@ namespace gui {
         void enable ();
         void disable ();
 
-        core::port& get_output_port ();
-        core::port& get_input_port ();
+        core::port get_output_port () const;
+        core::port get_input_port () const;
+
+        const core::connection& get_encoder_connection () const;
         core::connection& get_encoder_connection ();
 
         OutEncoding get_encoding () const;
@@ -187,9 +189,6 @@ namespace gui {
 
         core::component m_encoder;
         core::connection m_encoder_connection;
-
-        core::port m_encoder_input_port;
-        core::port m_encoder_output_port;
 
         MMAL_FOURCC_T m_encoding;
 

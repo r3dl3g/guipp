@@ -112,6 +112,7 @@ int main(int argc, const char* argv[]) {
     }
     raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
     LogTrace << "encoded capture " << encoding;
+
     encoder.get_output_port().set_uint32(MMAL_PARAMETER_JPEG_Q_FACTOR, 85);
     encoder.get_output_port().set_uint32(MMAL_PARAMETER_JPEG_RESTART_INTERVAL, 0);
     encoder.get_output_port().set_bool(MMAL_PARAMETER_EXIF_DISABLE, true);

@@ -261,6 +261,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
+        disable();
         m_encoder_connection.destroy();
         m_encoder.destroy();
       }
@@ -328,10 +329,10 @@ namespace gui {
       void raspi_image_encoder::disable () {
         LogTrace << "raspi_image_encoder::disable()";
 
-//        get_input_port().disable();
-//        get_output_port().disable();
-//        get_encoder_connection().disable();
-//        get_source_output_port().disable();
+        get_input_port().disable();
+        get_output_port().disable();
+        get_encoder_connection().disable();
+        get_source_output_port().disable();
         m_encoder.disable();
       }
 

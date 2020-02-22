@@ -163,7 +163,6 @@ namespace gui {
         } catch (std::exception& ex) {
           LogFatal << ex;
         }
-        bcm_host_deinit();
       }
 
       // --------------------------------------------------------------------------

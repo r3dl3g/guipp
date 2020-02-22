@@ -72,6 +72,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_encoder::~raspi_encoder () {
+        m_buffer_pool.destroy();
       }
 
       // --------------------------------------------------------------------------
@@ -265,7 +266,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
-        disable();
+        m_encoder_connection.destroy();
         m_encoder.destroy();
       }
 
@@ -324,12 +325,10 @@ namespace gui {
       void raspi_image_encoder::disable () {
         LogTrace << "raspi_image_encoder::disable()";
 
-        check_mmal_status(get_input_port().disable());
-        check_mmal_status(get_output_port().disable());
-        check_mmal_status(get_encoder_connection().disable());
-        check_mmal_status(get_source_output_port().disable());
-        check_mmal_status(get_encoder_connection().destroy());
-        get_buffer_pool().destroy();
+//        check_mmal_status(get_input_port().disable());
+//        check_mmal_status(get_output_port().disable());
+//        check_mmal_status(get_encoder_connection().disable());
+//        check_mmal_status(get_source_output_port().disable());
         check_mmal_status(m_encoder.disable());
       }
 

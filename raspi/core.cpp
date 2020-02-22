@@ -60,7 +60,6 @@ namespace gui {
       }
 
       MMAL_STATUS_T port::enable (MMAL_PORT_BH_CB_T cb) {
-        disable();
         if (data->is_enabled) {
           return MMAL_ENOSPC;
         }
@@ -70,7 +69,7 @@ namespace gui {
 
       MMAL_STATUS_T port::disable () {
         if (data->is_enabled) {
-          LogTrace << "disanble port";
+          LogTrace << "disable port";
           return mmal_port_disable(data);
         }
         return MMAL_SUCCESS;

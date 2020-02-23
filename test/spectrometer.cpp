@@ -217,6 +217,7 @@ public:
     down_view.create(*this);
     down_button.create(down_view, "-");
     fast_down_button.create(down_view, "--");
+    get_layout().add({lay(label), lay(up_view), lay(up_button), lay(fast_up_button), lay(value), lay(down_view), lay(down_button), lay(fast_down_button)});
     set_children_visible();
   }
 

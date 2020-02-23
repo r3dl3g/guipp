@@ -142,6 +142,7 @@ namespace gui {
         bool complete = false;
         try {
           buf.lock();
+          LogTrace << "Receive " << buf.get_length() << " bytes";
           if (buf.get_length()) {
             add_data(buf);
           }

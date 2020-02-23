@@ -66,20 +66,20 @@ namespace gui {
 
         enum class OutEncoding : MMAL_FOURCC_T {
           OPAC =  MMAL_ENCODING_OPAQUE,
-          I420 =  MMAL_ENCODING_I420,
+          I420 =  MMAL_ENCODING_I420_SLICE,
           NV12 =  MMAL_ENCODING_NV12,
-          I422 =  MMAL_ENCODING_I422,
+          I422 =  MMAL_ENCODING_I422_SLICE,
           YUYV =  MMAL_ENCODING_YUYV,
           YVYU =  MMAL_ENCODING_YVYU,
           VYUY =  MMAL_ENCODING_VYUY,
           UYVY =  MMAL_ENCODING_UYVY,
-          BGR24 = MMAL_ENCODING_BGR24,
-          BGRA =  MMAL_ENCODING_BGRA,
-          RGB16 = MMAL_ENCODING_RGB16,
+          BGR24 = MMAL_ENCODING_BGR24_SLICE,
+          BGRA =  MMAL_ENCODING_BGRA_SLICE,
+          RGB16 = MMAL_ENCODING_RGB16_SLICE,
           YV12 =  MMAL_ENCODING_YV12,
           NV21 =  MMAL_ENCODING_NV21,
-          RGB24 = MMAL_ENCODING_RGB24,
-          RGBA =  MMAL_ENCODING_RGBA
+          RGB24 = MMAL_ENCODING_RGB24_SLICE,
+          RGBA =  MMAL_ENCODING_RGBA_SLICE
         };
 
         enum class AWBMode : uint8_t {

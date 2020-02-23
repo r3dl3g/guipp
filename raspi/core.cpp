@@ -367,6 +367,8 @@ namespace gui {
         data->format->encoding = f.type.uint32;
         if (MMAL_ENCODING_OPAQUE == data->format->encoding) {
           data->format->encoding_variant = MMAL_ENCODING_I420;
+        } else {
+          data->format->encoding_variant = 0;
         }
       }
 
@@ -401,13 +403,13 @@ namespace gui {
 
         std::vector<four_cc> encodings;
 
-        std::vector<char*> buffer;
-        buffer.resize(sizeof(MMAL_PARAMETER_ENCODING_T));
+        std::vector<char> buffer;
+        buffer.resize(sizeof(four_cc) * 16);
         MMAL_PARAMETER_ENCODING_T* t = (MMAL_PARAMETER_ENCODING_T*)buffer.data();
         t->hdr = {MMAL_PARAMETER_SUPPORTED_ENCODINGS, buffer.size()};
         MMAL_STATUS_T stat = mmal_port_parameter_get(data, &t->hdr);
         while (stat == MMAL_ENOSPC) {
-          auto sz = t->hdr.size + sizeof(MMAL_PARAMETER_HEADER_T);
+          auto sz = t->hdr.size + sizeof(four_cc) * 4;
           buffer.resize(sz);
           t = (MMAL_PARAMETER_ENCODING_T*)buffer.data();
           t->hdr = {MMAL_PARAMETER_SUPPORTED_ENCODINGS, buffer.size()};

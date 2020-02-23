@@ -153,6 +153,7 @@ namespace gui {
         ~port ();
 
         bool is_valid () const;
+        bool is_enabled () const;
 
         bool enable (MMAL_PORT_BH_CB_T cb);
         bool disable ();
@@ -197,7 +198,6 @@ namespace gui {
         const char* get_name () const;
         bool get_type () const;
         uint32_t get_bitrate () const;
-        bool is_enabled () const;
 
         size_num get_min_buffer_size () const;
         size_num get_recommended_buffer_size () const;
@@ -301,6 +301,7 @@ namespace gui {
         void operator= (component&& rhs);
 
         bool is_valid () const;
+        bool is_enabled () const;
 
         bool enable ();
         bool disable ();
@@ -312,7 +313,6 @@ namespace gui {
         bool create (const char *name);
 
         const char* get_name () const;
-        bool is_enabled () const;
 
         uint32_t num_output_ports () const;
         uint32_t num_input_ports () const;

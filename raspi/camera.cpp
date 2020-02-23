@@ -227,6 +227,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::fini () {
+        disable();
         LogTrace << "m_camera.destroy()" << logging::flush();
         m_preview_connection.destroy();
         m_null_preview.destroy();
@@ -242,12 +243,13 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_camera::disable () {
         LogTrace << "raspi_camera::disable()";
-        m_camera.video_port().disable();
-//        m_camera.preview_port().disable();
-//        LogTrace << "m_camera.still_port().disable()" << logging::flush();
-//        m_camera.still_port().disable();
-//        m_camera.control_port().disable();
-        m_camera.disable();
+        core::port video_port = m_camera.video_port();
+        if (video_port.is_enabled()) {
+          video_port.disable();
+        }
+        if (m_camera.is_enabled()) {
+          m_camera.disable();
+        }
       }
 
       // --------------------------------------------------------------------------

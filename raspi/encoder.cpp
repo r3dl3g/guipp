@@ -262,8 +262,13 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_image_encoder::~raspi_image_encoder () {
-        LogTrace << "m_encoder.destroy()" << logging::flush();
-        m_encoder.destroy();
+        try {
+          disable();
+          LogTrace << "m_encoder.destroy()" << logging::flush();
+          m_encoder.destroy();
+        } catch (std::exception& ex) {
+          LogFatal << ex;
+        }
       }
 
       // --------------------------------------------------------------------------
@@ -328,18 +333,16 @@ namespace gui {
       void raspi_image_encoder::disable () {
         LogTrace << "raspi_image_encoder::disable()";
 
-        LogTrace << "get_output_port().disable()" << logging::flush();
-        get_output_port().disable();
-        LogTrace << "m_encoder_connection.destroy()" << logging::flush();
-        m_encoder_connection.destroy();
-        LogTrace << "m_encoder.disable()" << logging::flush();
-        m_encoder.disable();
-
-//        get_input_port().disable();
-//        get_output_port().disable();
-//        get_encoder_connection().disable();
-//        get_source_output_port().disable();
-//        m_encoder.disable();
+        core::port output_port = get_output_port();
+        if (output_port.is_enabled()) {
+          output_port.disable();
+        }
+        if (m_encoder_connection.is_valid()) {
+          m_encoder_connection.destroy();
+        }
+        if (m_encoder.is_enabled()) {
+          m_encoder.disable();
+        }
       }
 
       // --------------------------------------------------------------------------

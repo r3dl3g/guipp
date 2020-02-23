@@ -92,7 +92,7 @@ int main(int argc, const char* argv[]) {
 
   if (raw) {
     if (!encoding) {
-      encoding = MMAL_ENCODING_RGB24_SLICE;
+      encoding = MMAL_ENCODING_BGR24;
     }
     raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
     LogTrace << "raw capture " << encoding;
@@ -104,7 +104,16 @@ int main(int argc, const char* argv[]) {
     LogInfo << "get_data size:" << data.size();
 
     std::ofstream file(ostreamfmt(outname << "." << encoding));
-    file.write((const char*)data.data(), data.size());
+    auto sz = camera.get_size();
+    file << "P6\n"
+         << "# pnm created by raspicam_test\n"
+         << sz.width << " " << sz.height << " 255\n";
+
+    auto ppl = data.size() / sz.height;
+    for (int y = 0; y < sz.height; ++y) {
+      auto ptr = data.data() + y * ppl;
+      file.write((const char*)ptr, sz.width * 3);
+    }
 
   } else {
     if (!encoding) {
@@ -115,7 +124,7 @@ int main(int argc, const char* argv[]) {
 
     encoder.enable();
 
-    encoder.capture(60000);
+    encoder.capture(5000);
 
     auto data = encoder.get_data();
 
@@ -123,9 +132,6 @@ int main(int argc, const char* argv[]) {
 
     std::ofstream file(ostreamfmt(outname << "." << encoding));
     file.write((const char*)data.data(), data.size());
-
-    encoder.disable();
-    camera.disable();
   }
 
   logging::core::instance().finish();

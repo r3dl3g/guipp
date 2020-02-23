@@ -204,6 +204,10 @@ namespace gui {
         return data != nullptr;
       }
 
+      bool port::is_enabled () const {
+        return is_valid() && data->is_enabled;
+      }
+
       bool port::enable (MMAL_PORT_BH_CB_T cb) {
         check_null_ptr(data);
         if (data->is_enabled) {
@@ -318,11 +322,6 @@ namespace gui {
       uint32_t port::get_bitrate () const {
         check_null_ptr(data);
         return data->format->bitrate;
-      }
-
-      bool port::is_enabled () const {
-        check_null_ptr(data);
-        return data->is_enabled;
       }
 
       port::size_num port::get_min_buffer_size () const {
@@ -706,6 +705,10 @@ namespace gui {
         return data != nullptr;
       }
 
+      bool component::is_enabled () const {
+        return is_valid() && data->is_enabled;
+      }
+
       bool component::enable () {
         if (is_valid()) {
           LogTrace << "Enable component";
@@ -769,11 +772,6 @@ namespace gui {
       const char* component::get_name () const {
         check_null_ptr(data);
         return data->name;
-      }
-
-      bool component::is_enabled () const {
-        check_null_ptr(data);
-        return data->is_enabled;
       }
 
       uint32_t component::num_output_ports () const {

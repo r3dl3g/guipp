@@ -793,12 +793,15 @@ namespace gui {
 
       port component::control_port () const {
         check_null_ptr(data);
+        check_null_ptr(data->control);
         return port(data->control);
       }
 
       port component::input_port (int num) const {
         check_null_ptr(data);
         if (num < data->input_num) {
+          check_null_ptr(data->input);
+          check_null_ptr(data->input[num]);
           return port(data->input[num]);
         }
         throw std::invalid_argument(ostreamfmt("Requested input port " << num << " is out of range [0, " << data->input_num << "]"));
@@ -807,6 +810,8 @@ namespace gui {
       port component::output_port (int num) const {
         check_null_ptr(data);
         if (num < data->output_num) {
+          check_null_ptr(data->output);
+          check_null_ptr(data->output[num]);
           return port(data->output[num]);
         }
         throw std::invalid_argument(ostreamfmt("Requested output port " << num << " is out of range [0, " << data->output_num << "]"));
@@ -815,6 +820,8 @@ namespace gui {
       port component::clock_port (int num) const {
         check_null_ptr(data);
         if (num < data->clock_num) {
+          check_null_ptr(data->clock);
+          check_null_ptr(data->clock[num]);
           return port(data->clock[num]);
         }
         throw std::invalid_argument(ostreamfmt("Requested clock port " << num << " is out of range [0, " << data->clock_num << "]"));

@@ -244,7 +244,8 @@ namespace gui {
         int32_t get_camera_num () const;
 
         core::component m_camera;
-//        port m_camera_still_port;
+        core::component m_null_preview;
+        core::connection m_preview_connection;
 
         size m_sensor_size;
         size m_current_size;

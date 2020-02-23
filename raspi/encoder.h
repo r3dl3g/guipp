@@ -37,46 +37,8 @@ namespace gui {
 
   namespace raspi {
 
-//    namespace encoder {
-//      // --------------------------------------------------------------------------
-
-//      struct source {
-//        core::port input_port;
-//      };
-
-//      struct target {
-//        core::port output_port;
-//      };
-
-//      struct camera : public source {
-//        camera () {}
-//      };
-
-//      struct file : public target {
-//        file () {}
-
-//        void connect (source&);
-//      };
-
-//      struct buffer : public target {
-//        buffer() {}
-
-//        void connect (source&);
-//      };
-
-//      struct encoder : public target, source {
-//        encoder() {}
-
-//        void connect (source&);
-//      };
-
-//      // --------------------------------------------------------------------------
-
-//    } // namespace encoder
-
     namespace camera {
 
-      // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
       class raspi_encoder {
       public:

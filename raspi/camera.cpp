@@ -150,12 +150,12 @@ namespace gui {
           .max_stills_h = info.max_height,
           .stills_yuv422 = 0,
           .one_shot_stills = 1,
-          .max_preview_video_w = 320,
-          .max_preview_video_h = 240,
+          .max_preview_video_w = 1024,
+          .max_preview_video_h = 768,
           .num_preview_video_frames = 3,
           .stills_capture_circular_buffer_height = 0,
           .fast_preview_resume = 0,
-          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RAW_STC
+          .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RESET_STC
         };
 
         m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA);
@@ -167,24 +167,19 @@ namespace gui {
         set_camera_num(num);
         set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
 
-        m_camera.control_port().enable(camera_control_callback);
+        core::port preview_port = m_camera.preview_port();
+        core::port video_port = m_camera.video_port();
+        core::port still_port = m_camera.still_port();
+        core::port control_port = m_camera.control_port();
+
+        control_port.enable(camera_control_callback);
 
         set_camera_config(m_camera_config);
 
         set_defaults(10000);
-        set_raw_mode(false);
+        //set_raw_mode(false);
 
-//        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
-//           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
-//            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
-
-//        m_camera.control_port().set(change_event_request.hdr);
-
-        core::port still_port = m_camera.still_port();
-        core::port preview_port = m_camera.preview_port();
-        core::port video_port = m_camera.video_port();
-
-        MMAL_ES_SPECIFIC_FORMAT_T format = video_port.get_specific_format();
+        MMAL_ES_SPECIFIC_FORMAT_T format = preview_port.get_specific_format();
 
         format.video.width = VCOS_ALIGN_UP(640, 32);
         format.video.height = VCOS_ALIGN_UP(480, 16);
@@ -195,13 +190,14 @@ namespace gui {
         format.video.frame_rate.num = 0;
         format.video.frame_rate.den = 1;
 
-        video_port.set_specific_format(format);
-        video_port.set_encoding(MMAL_ENCODING_OPAQUE);
-        video_port.commit_format_change();
-
-//        preview_port.copy_format_from(video_port);
+        preview_port.set_specific_format(format);
         preview_port.set_encoding(MMAL_ENCODING_OPAQUE);
         preview_port.commit_format_change();
+
+        video_port.copy_full_format_from(preview_port);
+        video_port.commit_format_change();
+
+        video_port.set_bool(MMAL_PARAMETER_ZERO_COPY, true);
 
         format = still_port.get_specific_format();
 
@@ -218,19 +214,22 @@ namespace gui {
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         still_port.commit_format_change();
 
-//        video_port.disable();
-        preview_port.disable();
-//        still_port.disable();
-
-//        preview_port.copy_format_from(still_port);
-//        video_port.copy_format_from(still_port);
-
         enable();
+
+        m_null_preview.create("vc.null_sink");
+        m_null_preview.enable();
+
+        core::port preview_input = m_null_preview.input_port(0);
+
+        m_preview_connection.connect(preview_port, preview_input,
+                                     MMAL_CONNECTION_FLAG_TUNNELLING | MMAL_CONNECTION_FLAG_ALLOCATION_ON_INPUT);
       }
 
       // --------------------------------------------------------------------------
       void raspi_camera::fini () {
         LogTrace << "m_camera.destroy()" << logging::flush();
+        m_preview_connection.destroy();
+        m_null_preview.destroy();
         m_camera.destroy();
       }
 
@@ -245,10 +244,10 @@ namespace gui {
         LogTrace << "raspi_camera::disable()";
         m_camera.video_port().disable();
 //        m_camera.preview_port().disable();
-        LogTrace << "m_camera.still_port().disable()" << logging::flush();
+//        LogTrace << "m_camera.still_port().disable()" << logging::flush();
 //        m_camera.still_port().disable();
 //        m_camera.control_port().disable();
-//        m_camera.disable();
+        m_camera.disable();
       }
 
       // --------------------------------------------------------------------------
@@ -286,6 +285,13 @@ namespace gui {
         set_stats_pass(MMAL_FALSE);
         set_analog_gain(1.0F);
         set_digital_gain(1.0F);
+
+//        MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T change_event_request =
+//           {{MMAL_PARAMETER_CHANGE_EVENT_REQUEST, sizeof(MMAL_PARAMETER_CHANGE_EVENT_REQUEST_T)},
+//            MMAL_PARAMETER_CAMERA_SETTINGS, 1};
+
+//        m_camera.control_port().set(change_event_request.hdr);
+
       }
 
       void raspi_camera::show_current (std::ostream& out) const {

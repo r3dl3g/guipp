@@ -122,6 +122,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
+      void raspi_encoder::register_handler (action a) {
+        m_actions.emplace_back(std::move(a));
+      }
+
+      // --------------------------------------------------------------------------
       void raspi_encoder::callback_dispatcher (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
         LogTrace << "handle_callback cmd:" << buffer->cmd << ", length:" << buffer->length << ", port:" << port->name;
         raspi_encoder* encoder = reinterpret_cast<raspi_encoder*>(port->userdata);
@@ -135,23 +140,21 @@ namespace gui {
       // --------------------------------------------------------------------------
       void raspi_encoder::handle_callback (core::port& port, core::buffer& buf) {
         bool complete = false;
-        {
-          try {
-            buf.lock();
-            if (buf.get_length()) {
-              add_data(buf);
-            }
-            if (buf.get_flags() & (MMAL_BUFFER_HEADER_FLAG_FRAME_END | MMAL_BUFFER_HEADER_FLAG_TRANSMISSION_FAILED)) {
-              complete = true;
-            }
-          } catch (std::exception& ex) {
-            LogError << ex;
-          } catch (...) {
-            LogError << "Unknown exception in raspi_encoder::handle_callback";
+        try {
+          buf.lock();
+          if (buf.get_length()) {
+            add_data(buf);
           }
-          buf.unlock();
-          buf.release();
+          if (buf.get_flags() & (MMAL_BUFFER_HEADER_FLAG_FRAME_END | MMAL_BUFFER_HEADER_FLAG_TRANSMISSION_FAILED)) {
+            complete = true;
+          }
+        } catch (std::exception& ex) {
+          LogError << ex;
+        } catch (...) {
+          LogError << "Unknown exception in raspi_encoder::handle_callback";
         }
+        buf.unlock();
+        buf.release();
 
         if (port.is_enabled() && m_buffer_pool.is_valid()) {
           core::buffer new_buffer = m_buffer_pool.get_buffer();
@@ -164,8 +167,11 @@ namespace gui {
 
         if (complete) {
           m_complete_semaphore.post();
+          for (action& a : m_actions) {
+            a(m_buffer);
+          }
         }
-      }
+     }
 
       // --------------------------------------------------------------------------
       // --------------------------------------------------------------------------
@@ -177,20 +183,17 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       raspi_raw_encoder::~raspi_raw_encoder () {
+        disable();
       }
 
       // --------------------------------------------------------------------------
       void raspi_raw_encoder::init (MMAL_FOURCC_T encoding) {
         auto output_port = get_output_port();
-        auto min = output_port.get_min_buffer_size();
-        auto sz = output_port.get_buffer_size();
-        if (sz.size < min.size) {
-          sz.size = min.size;
-        }
-        if (sz.num < min.num) {
-          sz.num = min.num;
-        }
+
+        auto sz = output_port.get_recommended_buffer_size();
+        sz |= output_port.get_min_buffer_size();
         output_port.set_buffer_size(sz);
+
         output_port.set_encoding(encoding);
         output_port.commit_format_change();
 
@@ -218,8 +221,9 @@ namespace gui {
       void raspi_raw_encoder::disable () {
         LogTrace << "raspi_raw_encoder::disable()";
         auto output_port = get_output_port();
-        output_port.flush();
-        output_port.disable();
+        if (output_port.is_enabled()) {
+          output_port.disable();
+        }
       }
 
       // --------------------------------------------------------------------------
@@ -279,7 +283,6 @@ namespace gui {
         if ( !m_encoder.num_input_ports() || !m_encoder.num_output_ports()) {
           throw std::invalid_argument(ostreamfmt("Encoder has no input/output ports (in:" << m_encoder.num_input_ports() << ", out:" << m_encoder.num_output_ports() << ")"));
         }
-
       }
 
       // --------------------------------------------------------------------------

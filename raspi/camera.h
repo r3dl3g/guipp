@@ -82,6 +82,20 @@ namespace gui {
           RGBA =  MMAL_ENCODING_RGBA
         };
 
+        enum class AWBMode : uint8_t {
+           Off          = MMAL_PARAM_AWBMODE_OFF,
+           Auto         = MMAL_PARAM_AWBMODE_AUTO,
+           Sunlight     = MMAL_PARAM_AWBMODE_SUNLIGHT,
+           Cloudy       = MMAL_PARAM_AWBMODE_CLOUDY,
+           Shade        = MMAL_PARAM_AWBMODE_SHADE,
+           Tungsten     = MMAL_PARAM_AWBMODE_TUNGSTEN,
+           Fluorescent  = MMAL_PARAM_AWBMODE_FLUORESCENT,
+           Incandescent = MMAL_PARAM_AWBMODE_INCANDESCENT,
+           Flash        = MMAL_PARAM_AWBMODE_FLASH,
+           Horizon      = MMAL_PARAM_AWBMODE_HORIZON,
+           Greyworld    = MMAL_PARAM_AWBMODE_GREYWORLD
+        };
+
         struct size {
           uint32_t width;
           uint32_t height;
@@ -153,8 +167,8 @@ namespace gui {
         void set_flicker_avoid_mode (MMAL_PARAM_FLICKERAVOID_T mode);
         MMAL_PARAM_FLICKERAVOID_T get_flicker_avoid_mode () const;
 
-        void set_awb_mode (MMAL_PARAM_AWBMODE_T awb_mode);
-        MMAL_PARAM_AWBMODE_T get_awb_mode () const;
+        void set_awb_mode (AWBMode awb_mode);
+        AWBMode get_awb_mode () const;
 
         void set_video_stabilisation (bool vstabilisation);
         bool get_video_stabilisation () const;
@@ -207,8 +221,10 @@ namespace gui {
         void set_camera_config (const MMAL_PARAMETER_CAMERA_CONFIG_T& config);
         void config_camera (const size& max_still, const size& max_preview);
 
-        MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info (int num = -1) const;
-        MMAL_PARAMETER_CAMERA_INFO_T get_config () const;
+        MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info () const;
+
+        static MMAL_PARAMETER_CAMERA_INFO_CAMERA_T get_camera_info (int num);
+        static MMAL_PARAMETER_CAMERA_INFO_T get_config ();
 
         size get_sensor_size () const;
 
@@ -223,6 +239,7 @@ namespace gui {
         void disable ();
 
         core::port get_still_output_port () const;
+        core::port get_control_port () const;
 
       protected:
 
@@ -250,6 +267,8 @@ namespace gui {
         size m_sensor_size;
         size m_current_size;
 
+        int32_t m_camera_num;
+
         MMAL_PARAMETER_CAMERA_CONFIG_T m_camera_config;
       };
 
@@ -259,11 +278,27 @@ namespace gui {
       std::ostream& operator<< (std::ostream&, const raspi_camera::color_fx&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::stereo_mode&);
       std::ostream& operator<< (std::ostream&, const raspi_camera::size&);
+      std::ostream& operator<< (std::ostream&, const raspi_camera::AWBMode&);
 
       std::istream& operator>> (std::istream&, raspi_camera::awb_gains&);
       std::istream& operator>> (std::istream&, raspi_camera::size&);
+      std::istream& operator>> (std::istream&, raspi_camera::AWBMode&);
 
       // --------------------------------------------------------------------------
+      static std::array<raspi_camera::AWBMode, 11> AWBModes = {
+        raspi_camera::AWBMode::Off,
+        raspi_camera::AWBMode::Auto,
+        raspi_camera::AWBMode::Sunlight,
+        raspi_camera::AWBMode::Cloudy,
+        raspi_camera::AWBMode::Shade,
+        raspi_camera::AWBMode::Tungsten,
+        raspi_camera::AWBMode::Fluorescent,
+        raspi_camera::AWBMode::Incandescent,
+        raspi_camera::AWBMode::Flash,
+        raspi_camera::AWBMode::Horizon,
+        raspi_camera::AWBMode::Greyworld
+      };
+
       // --------------------------------------------------------------------------
 
     } // namespace camera

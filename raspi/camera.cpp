@@ -95,6 +95,53 @@ namespace gui {
         return in;
       }
 
+      namespace {
+        struct AWBModeName {
+          raspi_camera::AWBMode mode;
+          std::string name;
+        };
+
+#       define mkAWBModeName(a) { raspi_camera::AWBMode::a, #a }
+
+        AWBModeName awbnames[] = {
+          mkAWBModeName(Off),
+          mkAWBModeName(Auto),
+          mkAWBModeName(Sunlight),
+          mkAWBModeName(Cloudy),
+          mkAWBModeName(Shade),
+          mkAWBModeName(Tungsten),
+          mkAWBModeName(Fluorescent),
+          mkAWBModeName(Incandescent),
+          mkAWBModeName(Flash),
+          mkAWBModeName(Horizon),
+          mkAWBModeName(Greyworld)
+        };
+      }
+
+      std::ostream& operator<< (std::ostream& out, const raspi_camera::AWBMode& m) {
+        if (m <= raspi_camera::AWBMode::Greyworld) {
+          out << awbnames[static_cast<int>(m)].name;
+        } else {
+          out << "Unknown:" << static_cast<int>(m);
+        }
+        return out;
+      }
+
+      std::istream& operator>> (std::istream& in, raspi_camera::AWBMode& m) {
+        std::string str;
+        in >> str;
+        if (str.size() > 0) {
+          str[0] = std::toupper(str[0]);
+          for (AWBModeName& an : awbnames) {
+            if (an.name == str) {
+              m = an.mode;
+              break;
+            }
+          }
+        }
+        return in;
+      }
+
       // --------------------------------------------------------------------------
       static void camera_control_callback (MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *b) {
         core::buffer buffer(b);
@@ -142,7 +189,16 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::init (int num) {
-        MMAL_PARAMETER_CAMERA_INFO_CAMERA_T info = get_camera_info(num);
+        m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA);
+        if (!m_camera.num_output_ports()) {
+            throw std::runtime_error("Camera doesn't have output ports");
+        }
+
+        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
+        set_camera_num(num);
+        set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
+
+        MMAL_PARAMETER_CAMERA_INFO_CAMERA_T info = get_camera_info();
 
         m_camera_config = {
           .hdr = { MMAL_PARAMETER_CAMERA_CONFIG, sizeof(MMAL_PARAMETER_CAMERA_CONFIG_T) },
@@ -158,14 +214,21 @@ namespace gui {
           .use_stc_timestamp = MMAL_PARAM_TIMESTAMP_MODE_RESET_STC
         };
 
-        m_camera.create(MMAL_COMPONENT_DEFAULT_CAMERA);
-        if (!m_camera.num_output_ports()) {
-            throw std::runtime_error("Camera doesn't have output ports");
-        }
+        set_defaults(10000);
+      }
 
-        set_stereo_mode(stereo_mode{.mode = MMAL_STEREOSCOPIC_MODE_NONE, .decimate = false, .swap_eyes = false});
-        set_camera_num(num);
-        set_sensor_mode(SensorModeV2::SM_3280x2464_4_3_video_still_low_fps);
+      // --------------------------------------------------------------------------
+      void raspi_camera::fini () {
+        disable();
+        LogTrace << "m_camera.destroy()" << logging::flush();
+        m_preview_connection.destroy();
+        m_null_preview.destroy();
+        m_camera.destroy();
+      }
+
+      // --------------------------------------------------------------------------
+      void raspi_camera::enable () {
+        LogTrace << "raspi_camera::enable()";
 
         core::port preview_port = m_camera.preview_port();
         core::port video_port = m_camera.video_port();
@@ -176,7 +239,6 @@ namespace gui {
 
         set_camera_config(m_camera_config);
 
-        set_defaults(10000);
         //set_raw_mode(false);
 
         MMAL_ES_SPECIFIC_FORMAT_T format = preview_port.get_specific_format();
@@ -214,7 +276,7 @@ namespace gui {
         still_port.set_encoding(MMAL_ENCODING_OPAQUE);
         still_port.commit_format_change();
 
-        enable();
+        m_camera.enable();
 
         m_null_preview.create("vc.null_sink");
         m_null_preview.enable();
@@ -226,23 +288,11 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_camera::fini () {
-        disable();
-        LogTrace << "m_camera.destroy()" << logging::flush();
-        m_preview_connection.destroy();
-        m_null_preview.destroy();
-        m_camera.destroy();
-      }
-
-      // --------------------------------------------------------------------------
-      void raspi_camera::enable () {
-        LogTrace << "raspi_camera::enable()";
-        m_camera.enable();
-      }
-
-      // --------------------------------------------------------------------------
       void raspi_camera::disable () {
         LogTrace << "raspi_camera::disable()";
+        if (m_null_preview.is_enabled()) {
+          m_null_preview.disable();
+        }
         core::port video_port = m_camera.video_port();
         if (video_port.is_enabled()) {
           video_port.disable();
@@ -255,6 +305,10 @@ namespace gui {
       // --------------------------------------------------------------------------
       core::port raspi_camera::get_still_output_port () const {
         return m_camera.still_port();
+      }
+
+      core::port raspi_camera::get_control_port () const {
+        return m_camera.control_port();
       }
 
       // --------------------------------------------------------------------------
@@ -275,7 +329,7 @@ namespace gui {
         set_exposure_mode(MMAL_PARAM_EXPOSUREMODE_AUTO);
         set_flicker_avoid_mode(MMAL_PARAM_FLICKERAVOID_OFF);
         set_metering_mode(MMAL_PARAM_EXPOSUREMETERINGMODE_AVERAGE);
-        set_awb_mode(MMAL_PARAM_AWBMODE_AUTO);
+        set_awb_mode(AWBMode::Auto);
         set_awb_gains({1.0F, 1.0F});
         set_image_fx(MMAL_PARAM_IMAGEFX_NONE);
         set_color_fx({false, 128, 128});
@@ -321,7 +375,7 @@ namespace gui {
         out << ", color_fx:" << get_color_fx();
         out << ", flip:" << get_flip();
         out << ", crop:" << get_input_crop();
-        out << ", abs_crop:" << get_abs_crop();
+        //out << ", abs_crop:" << get_abs_crop();
         out << ", rotation:" << get_rotation();
         out << ", drc:" << get_drc();
         out << ", stats_pass:" << get_stats_pass();
@@ -404,7 +458,9 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_resolution (const size& sz) {
-        config_camera(sz, sz);
+        m_camera_config.max_stills_w = sz.width;
+        m_camera_config.max_stills_h = sz.height;
+        set_camera_config(m_camera_config);
       }
 
       auto raspi_camera::get_resolution () const -> size {
@@ -734,9 +790,14 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      MMAL_PARAMETER_CAMERA_INFO_CAMERA_T raspi_camera::get_camera_info (int num) const {
+      MMAL_PARAMETER_CAMERA_INFO_CAMERA_T raspi_camera::get_camera_info () const {
+        return raspi_camera::get_camera_info(get_camera_num());
+      }
+
+      // --------------------------------------------------------------------------
+      MMAL_PARAMETER_CAMERA_INFO_CAMERA_T raspi_camera::get_camera_info (int num) {
         if (num < 0) {
-          num = get_camera_num();
+          num = 0;
         }
         MMAL_PARAMETER_CAMERA_INFO_T config = raspi_camera::get_config();
         if (num < config.num_cameras) {
@@ -746,7 +807,7 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      MMAL_PARAMETER_CAMERA_INFO_T raspi_camera::get_config () const {
+      MMAL_PARAMETER_CAMERA_INFO_T raspi_camera::get_config () {
         MMAL_COMPONENT_T* component = nullptr;
         try {
           check_mmal_status(mmal_component_create(MMAL_COMPONENT_DEFAULT_CAMERA_INFO, &component));
@@ -889,12 +950,12 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      void raspi_camera::set_awb_mode (MMAL_PARAM_AWBMODE_T awb_mode) {
-        set_mode<MMAL_PARAM_AWBMODE_T>(awb_mode);
+      void raspi_camera::set_awb_mode (AWBMode awb_mode) {
+        set_mode<MMAL_PARAM_AWBMODE_T>(static_cast<MMAL_PARAM_AWBMODE_T>(awb_mode));
       }
 
-      MMAL_PARAM_AWBMODE_T raspi_camera::get_awb_mode () const {
-        return get_mode<MMAL_PARAM_AWBMODE_T>();
+      auto raspi_camera::get_awb_mode () const -> AWBMode {
+        return static_cast<AWBMode>(get_mode<MMAL_PARAM_AWBMODE_T>());
       }
 
       // --------------------------------------------------------------------------
@@ -908,11 +969,12 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       void raspi_camera::set_camera_num (int32_t num) {
+        m_camera_num = num;
         set_mode<int32_t>(num);
       }
 
       int32_t raspi_camera::get_camera_num () const {
-        return get_mode<int32_t>();
+        return m_camera_num;//get_mode<int32_t>();
       }
 
       // --------------------------------------------------------------------------

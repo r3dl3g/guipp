@@ -43,6 +43,7 @@ namespace gui {
       class raspi_encoder {
       public:
         using image_data = std::vector<uint8_t>;
+        using action = std::function<void(const image_data&)>;
 
         const image_data& get_data () const;
 
@@ -53,6 +54,8 @@ namespace gui {
 
         core::pool& get_buffer_pool ();
         const core::pool& get_buffer_pool () const;
+
+        void register_handler (action a);
 
       protected:
         raspi_encoder (core::port source_output_port);
@@ -73,6 +76,8 @@ namespace gui {
         core::pool m_buffer_pool;
 
         core::port m_source_output_port;
+
+        std::vector<action> m_actions;
 
         void init ();
       };

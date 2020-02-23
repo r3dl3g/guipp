@@ -13,20 +13,44 @@ template<typename T>
 T parse_arg (const std::string& str, const std::string& name) {
   T t = T();
   std::istringstream(str) >> t;
-  LogTrace << "Found " << name << ":'" << t << "'";
+  LogDebug << "Found " << name << ":'" << t << "'";
   return t;
+}
+
+template<class T, size_t N>
+constexpr size_t size(T (&)[N]) { return N; }
+
+template<typename T, size_t N>
+std::ostream& operator<< (std::ostream& out, const std::array<T, N>& a) {
+  for (const T& t: a) {
+    if (t != a[0]) {
+      out << ", ";
+    }
+    out << t;
+  }
+  return out;
+}
+
+std::string generate_filename (const std::string& base, const std::string& ext, int count, int num) {
+  if (count > 1) {
+    return ostreamfmt(base << "." << num << "." << ext);
+  } else {
+    return ostreamfmt(base << "." << ext);
+  }
 }
 
 // --------------------------------------------------------------------------
 int main(int argc, const char* argv[]) {
-  LogTrace << "Create raspi_camera";
+  LogDebug << "raspi camera test";
 
   using namespace gui::raspi::camera;
   raspi_camera camera;
 
   gui::raspi::core::four_cc encoding = 0;
   bool raw = false;
+  bool needs_commit = false;
   std::string outname = "raspicam_test";
+  int count = 1;
 
   util::command_line::parser("raspicam_test V 0.1.0",
   {
@@ -43,18 +67,24 @@ int main(int argc, const char* argv[]) {
       [&](const std::string& arg) {
         camera.set_shutter_speed(parse_arg<int>(arg, "Shutter speed"));
       }},
-    {"-a", "--awb", "<R,B>", "Set AWB gains red (R) and blue (B)",
+    {"-ag", "--awb", "<R,B>", "Set AWB gains red (R) and blue (B)",
       [&](const std::string& arg) {
-        camera.set_awb_mode(MMAL_PARAM_AWBMODE_OFF);
+        camera.set_awb_mode(raspi_camera::AWBMode::Off);
         camera.set_awb_gains(parse_arg<raspi_camera::awb_gains>(arg, "AWB gains"));
       }},
-    {"-c", "--crop", "<X,Y,W,H>", "Crop image by <X,Y,W,H> in normalised coordinates [0.0-1.0]",
+    {"-am", "--awb-mode", "<Mode>", ostreamfmt("Set AWB-Mode (" << gui::raspi::camera::AWBModes << ")"),
+      [&](const std::string& arg) {
+        camera.set_awb_mode(parse_arg<raspi_camera::AWBMode>(arg, "AWB mode"));
+      }},
+    {"-cr", "--crop", "<X,Y,W,H>", "Crop image by <X,Y,W,H> in normalised coordinates [0.0-1.0]",
       [&](const std::string& arg) {
         camera.set_input_crop(parse_arg<gui::raspi::core::crop>(arg, "Crop"));
+        needs_commit = true;
       }},
     {"-sz", "--size", "<W,H>", "Use image size <W,H>",
       [&](const std::string& arg) {
-        camera.set_size(parse_arg<raspi_camera::size>(arg, "Size"));
+        camera.set_resolution(parse_arg<raspi_camera::size>(arg, "Size"));
+        needs_commit = true;
       }},
 //    {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
 //      [&](const std::string& arg) {
@@ -81,6 +111,15 @@ int main(int argc, const char* argv[]) {
       [&](const std::string& arg) {
         camera.set_saturation(parse_arg<float>(arg, "Saturation"));
       }},
+    {"-sm", "--mode", "[1..7]", "Set sensor mode (1: Full HD 16:9, 2: Full size 4:3 low, 3: Full size 4:3 high, 4: Half size 4:3, 5: Half size 16:9, 6: 640x480 or 1280x720, 7: 640x480 4:3",
+      [&](const std::string& arg) {
+        camera.set_sensor_mode(parse_arg<raspi_camera::SensorMode>(arg, "SensorMode"));
+        needs_commit = true;
+      }},
+    {"-cn", "--count", "[0..x]", "Take <count> pictures",
+      [&](const std::string& arg) {
+       count = parse_arg<int>(arg, "Count");
+      }},
     {"-o", "--out", "<filename>", "Set output file name",
       [&](const std::string& arg) {
         outname = util::string::trimed(arg);
@@ -88,31 +127,36 @@ int main(int argc, const char* argv[]) {
       }}
   }).process(argc, argv);
 
-  LogTrace << "Camera info: " << camera;
+  camera.enable();
+
+  LogDebug << "Camera info: " << camera;
 
   if (raw) {
     if (!encoding) {
       encoding = MMAL_ENCODING_BGR24;
     }
     raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
-    LogTrace << "raw capture " << encoding;
+    LogDebug << "raw capture " << encoding;
     encoder.enable();
-    encoder.capture(5000);
 
-    const raspi_encoder::image_data& data = encoder.get_data();
+    for (int i = 0; i < count; ++i) {
+      encoder.capture(5000);
 
-    LogInfo << "get_data size:" << data.size();
+      const raspi_encoder::image_data& data = encoder.get_data();
 
-    std::ofstream file(ostreamfmt(outname << "." << encoding));
-    auto sz = camera.get_size();
-    file << "P6\n"
-         << "# pnm created by raspicam_test\n"
-         << sz.width << " " << sz.height << " 255\n";
+      LogDebug << "get_data size:" << data.size();
 
-    auto ppl = data.size() / sz.height;
-    for (int y = 0; y < sz.height; ++y) {
-      auto ptr = data.data() + y * ppl;
-      file.write((const char*)ptr, sz.width * 3);
+      std::ofstream file(generate_filename(outname, ostreamfmt(encoding), count, i));
+      auto sz = camera.get_size();
+      file << "P6\n"
+           << "# pnm created by raspicam_test\n"
+           << sz.width << " " << sz.height << " 255\n";
+
+      auto ppl = data.size() / sz.height;
+      for (int y = 0; y < sz.height; ++y) {
+        auto ptr = data.data() + y * ppl;
+        file.write((const char*)ptr, sz.width * 3);
+      }
     }
 
   } else {
@@ -120,18 +164,20 @@ int main(int argc, const char* argv[]) {
       encoding = MMAL_ENCODING_JPEG;
     }
     raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
-    LogTrace << "encoded capture " << encoding;
+    LogDebug << "encoded capture " << encoding;
 
     encoder.enable();
 
-    encoder.capture(5000);
+    for (int i = 0; i < count; ++i) {
+      encoder.capture(5000);
 
-    auto data = encoder.get_data();
+      auto data = encoder.get_data();
 
-    LogInfo << "get_data size:" << data.size();
+      LogDebug << "get_data size:" << data.size();
 
-    std::ofstream file(ostreamfmt(outname << "." << encoding));
-    file.write((const char*)data.data(), data.size());
+      std::ofstream file(generate_filename(outname, ostreamfmt(encoding), count, i));
+      file.write((const char*)data.data(), data.size());
+    }
   }
 
   logging::core::instance().finish();

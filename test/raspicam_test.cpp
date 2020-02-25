@@ -43,11 +43,12 @@ std::string generate_filename (const std::string& base, const std::string& ext, 
 int main(int argc, const char* argv[]) {
   LogDebug << "raspi camera test";
 
-  using namespace gui::raspi::camera;
-  raspi_camera camera;
+  using namespace raspi::camera;
+  using namespace raspi::encoder;
+  still camera;
 
-  gui::raspi::core::four_cc encoding = 0;
-  bool raw = false;
+  raspi::core::four_cc encoding = 0;
+  bool use_raw = false;
   bool needs_commit = false;
   std::string outname = "raspicam_test";
   int count = 1;
@@ -56,11 +57,11 @@ int main(int argc, const char* argv[]) {
   {
     {"-e", "--encoding", "<FOURCC>", "Use <FOURCC> encoding (BMP, PNG, PPM, JPEG(default), GIF, TGA)",
       [&](const std::string& arg) {
-        encoding = parse_arg<gui::raspi::core::four_cc>(arg, "encoding");
+        encoding = parse_arg<raspi::core::four_cc>(arg, "encoding");
       }},
     {"-r", "--raw", {}, "Use raw capture (-f: BD10, bRA8, bGA8, BGGR, RGAA, I420, S420, I422, S422, RGBA, rgba, RGB3, rgb3)",
       [&](const std::string&) {
-        raw = true;
+        use_raw = true;
         LogInfo << "Enable raw";
       }},
     {"-ss", "--shutter", "<us>", "Set shutter speed in us",
@@ -69,26 +70,26 @@ int main(int argc, const char* argv[]) {
       }},
     {"-ag", "--awb", "<R,B>", "Set AWB gains red (R) and blue (B)",
       [&](const std::string& arg) {
-        camera.set_awb_mode(raspi_camera::AWBMode::Off);
-        camera.set_awb_gains(parse_arg<raspi_camera::awb_gains>(arg, "AWB gains"));
+        camera.set_awb_mode(still::AWBMode::Off);
+        camera.set_awb_gains(parse_arg<still::awb_gains>(arg, "AWB gains"));
       }},
-    {"-am", "--awb-mode", "<Mode>", ostreamfmt("Set AWB-Mode (" << gui::raspi::camera::AWBModes << ")"),
+    {"-am", "--awb-mode", "<Mode>", ostreamfmt("Set AWB-Mode (" << raspi::camera::AWBModes << ")"),
       [&](const std::string& arg) {
-        camera.set_awb_mode(parse_arg<raspi_camera::AWBMode>(arg, "AWB mode"));
+        camera.set_awb_mode(parse_arg<still::AWBMode>(arg, "AWB mode"));
       }},
     {"-cr", "--crop", "<X,Y,W,H>", "Crop image by <X,Y,W,H> in normalised coordinates [0.0-1.0]",
       [&](const std::string& arg) {
-        camera.set_input_crop(parse_arg<gui::raspi::core::crop>(arg, "Crop"));
+        camera.set_input_crop(parse_arg<raspi::core::crop>(arg, "Crop"));
         needs_commit = true;
       }},
     {"-sz", "--size", "<W,H>", "Use image size <W,H>",
       [&](const std::string& arg) {
-        camera.set_resolution(parse_arg<raspi_camera::size>(arg, "Size"));
+        camera.set_resolution(parse_arg<still::size>(arg, "Size"));
         needs_commit = true;
       }},
 //    {"-rz", "--resize", "<W,H>", "Use image resize <W,H>",
 //      [&](const std::string& arg) {
-//        auto sz = parse_arg<raspi_camera::size>(arg, "Resize");
+//        auto sz = parse_arg<still::size>(arg, "Resize");
 //        camera.set_resize({{}, MMAL_RESIZE_CROP, sz.width, sz.height, 0, false, false});
 //      }},
     {"-i", "--iso", "<ISO>", "Set sensor ISO",
@@ -113,7 +114,7 @@ int main(int argc, const char* argv[]) {
       }},
     {"-sm", "--mode", "[1..7]", "Set sensor mode (1: Full HD 16:9, 2: Full size 4:3 low, 3: Full size 4:3 high, 4: Half size 4:3, 5: Half size 16:9, 6: 640x480 or 1280x720, 7: 640x480 4:3",
       [&](const std::string& arg) {
-        camera.set_sensor_mode(parse_arg<raspi_camera::SensorMode>(arg, "SensorMode"));
+        camera.set_sensor_mode(parse_arg<still::SensorMode>(arg, "SensorMode"));
         needs_commit = true;
       }},
     {"-cn", "--count", "[0..x]", "Take <count> pictures",
@@ -131,18 +132,18 @@ int main(int argc, const char* argv[]) {
 
   LogDebug << "Camera info: " << camera;
 
-  if (raw) {
+  if (use_raw) {
     if (!encoding) {
       encoding = MMAL_ENCODING_BGR24;
     }
-    raspi_raw_encoder encoder(camera.get_still_output_port(), raspi_raw_encoder::OutEncoding(encoding.type.uint32));
+    raw encoder(camera.get_still_output_port(), raw::OutEncoding(encoding.type.uint32));
     LogDebug << "raw capture " << encoding;
     encoder.enable();
 
     for (int i = 0; i < count; ++i) {
       encoder.capture(5000);
 
-      const raspi_encoder::image_data& data = encoder.get_data();
+      const base::image_data& data = encoder.get_data();
 
       LogDebug << "get_data size:" << data.size();
 
@@ -163,7 +164,7 @@ int main(int argc, const char* argv[]) {
     if (!encoding) {
       encoding = MMAL_ENCODING_JPEG;
     }
-    raspi_image_encoder encoder(camera.get_still_output_port(), raspi_image_encoder::OutEncoding(encoding.type.uint32));
+    encoded encoder(camera.get_still_output_port(), encoded::OutEncoding(encoding.type.uint32));
     LogDebug << "encoded capture " << encoding;
 
     encoder.enable();

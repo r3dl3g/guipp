@@ -24,9 +24,8 @@
 #define MMAL_ENCODING_RGB24_SLICE 0
 #define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
 #define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
-namespace gui {
- namespace raspi {
 
+namespace raspi {
   namespace core {
     // --------------------------------------------------------------------------
     struct four_cc {
@@ -65,8 +64,8 @@ namespace gui {
   } // namespace core
 
   namespace camera {
-  struct raspi_camera {
-    raspi_camera ()
+  struct still {
+    still ()
       : cr{0, 0, 1, 1}
       , sz{3280, 2456}
       , g{1, 1}
@@ -110,11 +109,11 @@ namespace gui {
     int iso;
   };
 
-  struct raspi_raw_encoder {
+  struct raw {
     enum OutEncoding {
       PPM
     };
-    raspi_raw_encoder(core::port, int) {}
+    raw(core::port, int) {}
 
     void capture (int) {}
 
@@ -127,9 +126,8 @@ namespace gui {
     void clear_data () {}
   };
 
-  typedef raspi_raw_encoder raspi_image_encoder;
+  typedef raw encoded;
   }
- }
 }
 #endif // BUILD_FOR_ARM
 
@@ -142,7 +140,8 @@ using namespace gui::draw;
 using namespace gui::layout;
 using namespace gui::win;
 using namespace gui::ctrl;
-using namespace gui::raspi::camera;
+using namespace raspi::camera;
+using namespace raspi::encoder;
 
 const os::color nero = color::rgb<64,66,68>::value;
 const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
@@ -291,7 +290,7 @@ private:
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
-  ctrl::drop_down_list<gui::raspi::core::four_cc> camera_out_encoding_down;
+  ctrl::drop_down_list<raspi::core::four_cc> camera_out_encoding_down;
   ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
   ctrl::drop_down_list<raspi::core::four_cc> encoder_out_encoding_down;
 
@@ -314,12 +313,12 @@ private:
   image_view<color::black> capture_view;
   image_view<> spectrum_view;
 
-  raspi_camera camera;
+  still camera;
 
-//  typedef raspi_image_encoder encoder_type;
-//  typedef raspi_resizer encoder_type;
-//  typedef raspi_isp encoder_type;
-  typedef raspi_raw_encoder encoder_type;
+//  typedef encoded encoder_type;
+//  typedef resizer encoder_type;
+//  typedef isp encoder_type;
+  typedef raw encoder_type;
   std::unique_ptr<encoder_type> encoder;
 
   encoder_type::image_data data;
@@ -519,7 +518,7 @@ spectrometer::spectrometer ()
 {
     camera.set_iso(100);
     camera.set_shutter_speed(50000);
-    camera.set_sensor_mode(raspi::camera::raspi_camera::SensorModeV2::SM_1640x1232_4_3_video_2x2);
+    camera.set_sensor_mode(raspi::camera::still::SensorModeV2::SM_1640x1232_4_3_video_2x2);
     camera.set_resolution({1640, 1232});
 
     camera.enable();
@@ -567,14 +566,14 @@ spectrometer::spectrometer ()
     camera.set_resolution(sz);
   });
   halfview_button.on_clicked([&] () {
-    raspi_camera::size sz = camera.get_sensor_size();
-    sz = raspi_camera::size{(uint32_t)(sz.width / 2), (uint32_t)(sz.height / 2)};
+    still::size sz = camera.get_sensor_size();
+    sz = still::size{(uint32_t)(sz.width / 2), (uint32_t)(sz.height / 2)};
     set_crop({(int32_t)(sz.width / 4), (int32_t)(sz.height / 4), (int32_t)sz.width, (int32_t)sz.height});
     camera.set_resolution(sz);
   });
   quarterview_button.on_clicked([&] () {
-    raspi_camera::size sz = camera.get_sensor_size();
-    sz = raspi_camera::size{(uint32_t)(sz.width / 4), (uint32_t)(sz.height / 4)};
+    still::size sz = camera.get_sensor_size();
+    sz = still::size{(uint32_t)(sz.width / 4), (uint32_t)(sz.height / 4)};
     set_crop({(int32_t)((sz.width / 8) * 3), (int32_t)((sz.height / 8) * 3), (int32_t)sz.width, (int32_t)sz.height});
     camera.set_resolution(sz);
   });

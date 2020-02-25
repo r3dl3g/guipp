@@ -29,15 +29,14 @@
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <logging/logger.h>
+#include "ostreamfmt.h"
+#include "logging.h"
+#include "encoder.h"
 
 // --------------------------------------------------------------------------
 //
 // Project includes
 //
-#include "encoder.h"
-
 #include <interface/mmal/util/mmal_util.h>
 #include <interface/mmal/util/mmal_util_params.h>
 #include <interface/mmal/util/mmal_default_components.h>
@@ -257,7 +256,7 @@ namespace raspi {
     encoded::~encoded () {
       try {
         disable();
-        LogTrace << "m_encoder.destroy()" << logging::flush();
+        LogTrace << "m_encoder.destroy()";
         m_encoder.destroy();
       } catch (std::exception& ex) {
         LogFatal << ex;

@@ -28,15 +28,14 @@
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <logging/logger.h>
+#include "ostreamfmt.h"
+#include "logging.h"
+#include "camera.h"
 
 // --------------------------------------------------------------------------
 //
 // Project includes
 //
-#include "camera.h"
-
 #include <interface/mmal/util/mmal_util.h>
 #include <interface/mmal/util/mmal_util_params.h>
 #include <interface/mmal/util/mmal_default_components.h>
@@ -219,7 +218,7 @@ namespace raspi {
     // --------------------------------------------------------------------------
     void still::fini () {
       disable();
-      LogTrace << "m_camera.destroy()" << logging::flush();
+      LogTrace << "m_camera.destroy()";
       m_preview_connection.destroy();
       m_null_preview.destroy();
       m_camera.destroy();

@@ -29,19 +29,9 @@
 //
 // Library includes
 //
-#include <util/ostreamfmt.h>
-#include <logging/logger.h>
-
-// --------------------------------------------------------------------------
-//
-// Project includes
-//
 #include "core.h"
-
-// --------------------------------------------------------------------------
-//
-// Source:
-//
+#include "ostreamfmt.h"
+#include "logging.h"
 
 namespace raspi {
 
@@ -54,7 +44,7 @@ namespace raspi {
       }
     }
 
-#     define check_null_ptr(ptr) check_null_ptr_(ptr, __FILE__, __LINE__)
+#   define check_null_ptr(ptr) check_null_ptr_(ptr, __FILE__, __LINE__)
 
     // --------------------------------------------------------------------------
     four_cc::four_cc (MMAL_FOURCC_T t)

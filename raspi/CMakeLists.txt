@@ -8,17 +8,17 @@ include (GenerateExportHeader)
 
 if(NOT TARGET gui++-raspi-obj)
 
-    add_subdirectory(../gui/core gui_core)
+  add_subdirectory(../util util)
 
-    set(gui_include ${gui_include} ${CMAKE_CURRENT_BINARY_DIR})
-    set(gui_include ${gui_include} PARENT_SCOPE)
-    include_directories(${gui_include} /opt/raspberrypi/rootfs/opt/vc/include /opt/vc/include)
+    set(raspi_include ${util_include} ${CMAKE_CURRENT_BINARY_DIR})
+    set(raspi_include ${raspi_include} PARENT_SCOPE)
+    include_directories(${raspi_include} /opt/raspberrypi/rootfs/opt/vc/include /opt/vc/include)
 
     if (WIN32)
       add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif (WIN32)
 
-    add_definitions(${gui_defines})
+    add_definitions(${util_defines})
 
     set (INCLUDE_INSTALL_DIR include/guipp/raspi)
     set (LIBRARY_INSTALL_DIR lib/guipp)

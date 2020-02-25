@@ -47,7 +47,7 @@ namespace gui {
         int result = GetObject(os_id, expected, &info);
 # ifdef DEBUG_LOGGING
         if (result != expected) {
-          LogDebug << "GetObject result returned unexpected result:" << result << " (expected:" << expected << ")";
+          log_debug << "GetObject result returned unexpected result:" << result << " (expected:" << expected << ")";
         }
 # else
         (void)result;

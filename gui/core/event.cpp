@@ -23,7 +23,7 @@
 #include <map>
 #include <iomanip>
 #include <ostream>
-
+#include <functional>
 
 // --------------------------------------------------------------------------
 //

@@ -36,7 +36,7 @@ namespace gui {
 
     template<orientation height, unsigned border, unsigned gap, unsigned sep, unsigned min, unsigned max, origin o>
     void adaption_layout<height, border, gap, sep, min, max, o>::layout (const core::rectangle& r) const {
-      LogTrace << "adaption_layout::layout(" << r << ")";
+      log_trace << "adaption_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const std::size_t count = elements.size();
       const std::size_t sep_count = super::separator_count();

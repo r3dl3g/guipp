@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <logging/logger.h>
+#include <logging/core.h>
 #include <logging/dbgstream.h>
 
 
@@ -83,7 +84,7 @@ namespace testing {
   }
 
   template<typename T1, typename T2, typename ... Arguments>
-  void log_error (const T1& testValue,
+  void log_err (const T1& testValue,
                   const T2& expectedValue,
                   const char* testName,
                   const char* expectedName,
@@ -91,7 +92,7 @@ namespace testing {
                   const char* fileName,
                   const int   lineNumber,
                   const Arguments... args) {
-    create_error_message(LogWarng, testValue, expectedValue,
+    create_error_message(log_warn, testValue, expectedValue,
                          testName, expectedName, equality,
                          fileName, lineNumber, args...);
   }
@@ -146,13 +147,13 @@ namespace {\
 int gui_main(const std::vector<std::string>& /*args*/) {\
   logging::odebugstream dbgStrm; \
   logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter()); \
-  LogWarng << "Running " #a " tests";
+  log_warn << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
   if (guipp_failed_test_count) {\
-    LogError << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+    log_error << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
   } else {\
-    LogError << #a << ": all " << guipp_test_count << " tests passed";\
+    log_error << #a << ": all " << guipp_test_count << " tests passed";\
   }\
   logging::core::instance().remove_sink(&dbgStrm);\
   return guipp_failed_test_count;\
@@ -169,13 +170,13 @@ namespace {\
 }\
 \
 int gui_main(const std::vector<std::string>& /*args*/) {\
-  LogWarng << "Running " #a " tests";
+  log_warn << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
   if (guipp_failed_test_count) {\
-    LogError << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+    log_error << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
   } else {\
-    LogError << #a << ": all " << guipp_test_count << " tests passed";\
+    log_error << #a << ": all " << guipp_test_count << " tests passed";\
   }\
   return guipp_failed_test_count;\
 }
@@ -192,16 +193,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
     a();\
   } catch (std::exception& ex) {\
     ++guipp_failed_test_count;\
-    LogFatal.raw() << #a << " failed with " << ex.what();\
+    log_fatal.raw() << #a << " failed with " << ex.what();\
   }
 
 #define DEFINE_TEST(a)\
 void a () {\
   const std::string __test_name = #a;\
-  LogWarng << #a << " started";
+  log_warn << #a << " started";
 
 #define END_TEST(...)\
-  LogWarng << __test_name << " passed";\
+  log_warn << __test_name << " passed";\
 }
 
 #define EXPECT_EQUAL(test, expect, ...)\
@@ -229,25 +230,25 @@ void a () {\
   if (!testing::equal_test<bool, bool>(test, false)) testing::throw_error<bool, bool>(test, false, #test, "false", "equal", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_EQUAL(test, expect, ...)\
-  if (!(testing::equal_test(test, expect))) testing::log_error(test, expect, #test, #expect, "equal", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!(testing::equal_test(test, expect))) testing::log_err(test, expect, #test, #expect, "equal", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_NOT_EQUAL(test, expect, ...)\
-  if (testing::equal_test(test, expect)) testing::log_error(test, expect, #test, #expect, "not equal", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (testing::equal_test(test, expect)) testing::log_err(test, expect, #test, #expect, "not equal", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_LOWER(test, expect, ...)\
-  if (!testing::lower_test(test, expect)) testing::log_error(test, expect, #test, #expect, "lower than", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::lower_test(test, expect)) testing::log_err(test, expect, #test, #expect, "lower than", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_LOWER_OR_EQUAL(test, expect, ...)\
-  if (!testing::lower_equal_test(test, expect)) testing::log_error(test, expect, #test, #expect, "lower or equal than", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::lower_equal_test(test, expect)) testing::log_err(test, expect, #test, #expect, "lower or equal than", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_HIGHER(test, expect, ...)\
-  if (!testing::higher_test(test, expect)) testing::log_error(test, expect, #test, #expect, "higher than", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::higher_test(test, expect)) testing::log_err(test, expect, #test, #expect, "higher than", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_HIGHER_OR_EQUAL(test, expect, ...)\
-  if (!testing::higher_equal_test(test, expect)) testing::log_error(test, expect, #test, #expect, "higher or equal than", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::higher_equal_test(test, expect)) testing::log_err(test, expect, #test, #expect, "higher or equal than", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_TRUE(test, ...)\
-  if (!testing::equal_test<bool, bool>(test, true)) testing::log_error<bool, bool>(test, true, #test, "true", "equal", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::equal_test<bool, bool>(test, true)) testing::log_err<bool, bool>(test, true, #test, "true", "equal", __FILE__, __LINE__, ##__VA_ARGS__);
 
 #define TEST_FALSE(test, ...)\
-  if (!testing::equal_test<bool, bool>(test, false)) testing::log_error<bool, bool>(test, false, #test, "false", "equal", __FILE__, __LINE__, ##__VA_ARGS__);
+  if (!testing::equal_test<bool, bool>(test, false)) testing::log_err<bool, bool>(test, false, #test, "false", "equal", __FILE__, __LINE__, ##__VA_ARGS__);

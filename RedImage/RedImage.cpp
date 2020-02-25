@@ -630,7 +630,7 @@ void RedImage::reset_color_range (int i) {
 void RedImage::check_for_modification () {
   read_settings();
   if (old_settings != settings) {
-    LogDebug << "Old:" << old_settings << " New:" << settings;
+    log_debug << "Old:" << old_settings << " New:" << settings;
     yes_no_dialog::ask(*this, "Question!", "Settings have changed! Do you realy want to save before exit?", "Yes", "No", [&] (bool yes) {
       if (yes) {
         save();
@@ -741,7 +741,7 @@ void RedImage::load () {
         edit_sub_menu.data[1].set_icon(settings.normalize() ? hook_icon : cross_icon);
       }
     } catch (std::exception& ex) {
-      LogWarng << "Exception while reading redimage.xml:" << ex.what();
+      log_warn << "Exception while reading redimage.xml:" << ex.what();
     }
   }, is_not_xml);
 }

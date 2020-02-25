@@ -82,7 +82,7 @@ set(tests
 
 message(STATUS "gui_libraries: ${gui_libraries}")
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
     add_definitions(/Y- /bigobj)
 endif()
 

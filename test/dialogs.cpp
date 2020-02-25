@@ -1,6 +1,7 @@
 
 
 #include <gui/ctrl/std_dialogs.h>
+#include <logging/core.h>
 
 #define NOTHING
 

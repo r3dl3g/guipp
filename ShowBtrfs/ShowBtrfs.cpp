@@ -10,6 +10,7 @@
 #include <gui/ctrl/menu.h>
 #include <util/string_util.h>
 #include <util/tuple_util.h>
+#include <logging/core.h>
 
 #include <fstream>
 #include <iomanip>

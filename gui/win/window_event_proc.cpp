@@ -130,13 +130,13 @@ namespace gui {
         }
 # ifdef KEY_DEBUG
         case WM_KEYDOWN:
-          LogDebug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          log_debug << "Key down 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
         case WM_KEYUP:
-          LogDebug << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          log_debug << "Key up 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
         case WM_CHAR:
-          LogDebug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
+          log_debug << "Char 0x" << std::hex << wParam << " received (0x" << lParam << ")";
           break;
 # endif // KEY_DEBUG
         }
@@ -180,12 +180,12 @@ namespace gui {
       window_rectangle_map s_invalidated_windows;
 
       void invalidate_window (os::window id, const core::rectangle& r) {
-        LogTrace << "invalidate_window: " << id;
+        log_trace << "invalidate_window: " << id;
         s_invalidated_windows[id] |= r;
       }
 
       void validate_window (os::window id) {
-        LogTrace << "validate_window: " << id;
+        log_trace << "validate_window: " << id;
         s_invalidated_windows.erase(id);
       }
 
@@ -225,7 +225,7 @@ namespace gui {
                                               &nitems, &bytes, &data);
         if ((Success == status) && (nitems == sizeof(window*))) {
 #ifdef LOG_GET_WINDOW_PROPERTY
-          LogDebug << "get window " << id << ": "
+          log_debug << "get window " << id << ": "
                    << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                    << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
@@ -237,7 +237,7 @@ namespace gui {
       void set_window (os::window id, window* win) {
         const unsigned char* data = (const unsigned char*)&win;
 #ifdef LOG_GET_WINDOW_PROPERTY
-        LogDebug << "set window " << id << ": "
+        log_debug << "set window " << id << ": "
                  << (int)data[0] << ' ' << (int)data[1] << ' ' << (int)data[2] << ' ' << (int)data[3] << ' '
                  << (int)data[4] << ' ' << (int)data[5] << ' ' << (int)data[6] << ' ' << (int)data[7];
 #endif //LOG_GET_WINDOW_PROPERTY
@@ -566,9 +566,9 @@ namespace gui {
           in_event_handle_state guard(*win);
           win->handle_event(e, resultValue);
         } catch (std::exception& ex) {
-          LogFatal << "exception in run_main_loop: " << ex;
+          log_fatal << "exception in run_main_loop: " << ex;
         } catch (...) {
-          LogFatal << "Unknown exception in run_main_loop()";
+          log_fatal << "Unknown exception in run_main_loop()";
         }
       }
     }
@@ -631,7 +631,7 @@ namespace gui {
 //        // Wait for next XEvent or a timer out
 //        int num_ready_fds = select(x11_fd + 1, &in_fds, NULL, NULL, &timeout);
 
-//        LogDebug << "select returned: " << num_ready_fds;
+//        log_debug << "select returned: " << num_ready_fds;
 
         while (x11::queued_actions.try_dequeue(action)) {
           action();
@@ -642,7 +642,7 @@ namespace gui {
           XNextEvent(display, &e);
 
           if (!win::is_frequent_event(e)) {
-            LogTrace << e;
+            log_trace << e;
           }
 
           if (filter && filter(e)) {

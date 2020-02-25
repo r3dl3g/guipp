@@ -7,6 +7,7 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/ctrl/split_view.h>
 #include <gui/ctrl/label.h>
+#include <logging/core.h>
 
 #define NOTHING
 

@@ -16,6 +16,7 @@ set(GUIPP_USE_XCB OFF CACHE BOOL "On to make use uf the xcb library. Default Off
 if(NOT TARGET gui++ AND NOT TARGET gui++-static)
 
   add_subdirectory(../logging logging)
+  add_subdirectory(../util util)
 
   set (gui_VERSION_MAJOR 0)
   set (gui_VERSION_MINOR 1)
@@ -23,13 +24,14 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
   set (gui_VERSION "${gui_VERSION_MAJOR}.${gui_VERSION_MINOR}.${gui_VERSION_PATCH}")
 
   if (WIN32)
-    set (gui_defines ${logging_defines} -DWIN32_LEAN_AND_MEAN)
+    set (gui_defines ${logging_defines} ${util_defines} -DWIN32_LEAN_AND_MEAN)
   else ()
-    set (gui_defines ${logging_defines})
+    set (gui_defines ${logging_defines} ${util_defines})
   endif ()
 
   set (gui_include
     ${logging_include}
+    ${util_include}
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}
@@ -65,9 +67,10 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-core-static
       gui++-app
       ${logging_libraries}
+      ${util_libraries}
       gui++-static
       )
-    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
+    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   elseif (GUIPP_BUILD_SHARED_MODULE_LIBS)
     set (gui_libraries
       gui++-ctrl
@@ -78,11 +81,12 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui++-app
       gui++-core
       ${logging_libraries}
+      ${util_libraries}
       )
-    set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries})
+    set (gui_sys_libraries gui++ ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   else()
-    set (gui_libraries ${logging_libraries} gui++-app gui++)
-    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries})
+    set (gui_libraries ${logging_libraries} ${util_libraries} gui++-app gui++)
+    set (gui_sys_libraries ${gui_sys_libraries} ${logging_sys_libraries} ${util_sys_libraries})
   endif()
 
   if (NOT GUIPP_BUILD_STATIC_MODULE_LIBS AND NOT GUIPP_BUILD_SHARED_MODULE_LIBS)
@@ -136,7 +140,7 @@ if(NOT TARGET gui++ AND NOT TARGET gui++-static)
       gui.cpp
       )
 
-    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${gui_sys_libraries})
+    target_link_libraries(gui++ PRIVATE ${logging_libraries} ${util_libraries} ${gui_sys_libraries})
 
     set_target_properties(gui++ PROPERTIES
                           POSITION_INDEPENDENT_CODE ON

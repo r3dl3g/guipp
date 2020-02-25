@@ -8,6 +8,7 @@
 #include <gui/ctrl/separator.h>
 #include <testlib/image_test_lib.h>
 #include <testlib/testlib.h>
+#include <logging/core.h>
 
 #define NOTHING
 

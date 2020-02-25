@@ -399,7 +399,7 @@ namespace gui {
       rect = core::rectangle(r);
       //auto sz = f.get_text_size(str);
       //if (rect.size() != sz) {
-      //  LogDebug << "Text size differs: DT_CALCRECT:" << rect.size() << ", GetTextExtentPoint32:" << sz;
+      //  log_debug << "Text size differs: DT_CALCRECT:" << rect.size() << ", GetTextExtentPoint32:" << sz;
       //}
     }
 
@@ -887,7 +887,7 @@ namespace gui {
         dx = 0;
         dy = fi->ascent - fi->descent;
       } else {
-        LogError << "font_type is zero!";
+        log_error << "font_type is zero!";
       }
 
       int px = rect.os_x();
@@ -933,7 +933,7 @@ namespace gui {
         dx = 0;
         dy = fi->ascent - fi->descent;
       } else {
-        LogError << "font_type is zero!";
+        log_error << "font_type is zero!";
       }
 
       int px = rect.os_x();
@@ -975,7 +975,7 @@ namespace gui {
         dx = extents.x;
         dy = fi->ascent - fi->descent;
       } else {
-        LogError << "font_type is zero!";
+        log_error << "font_type is zero!";
       }
 
       int px = pos.os_x();

@@ -26,6 +26,7 @@
 // Library includes
 //
 #include <logging/logger.h>
+#include <logging/core.h>
 #include <gui_version.h>
 #include <gui++-export.h>
 

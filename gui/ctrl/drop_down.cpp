@@ -38,7 +38,7 @@ namespace gui {
     }
 
     void drop_down::layout (const core::rectangle& r) const {
-      LogTrace << "drop_down::layout()";
+      log_trace << "drop_down::layout()";
       if (data.button) {
         data.button->place(button_place(r));
       }

@@ -3,6 +3,7 @@
 #include <gui/ctrl/menu.h>
 #include <gui/layout/layout.h>
 #include <util/string_util.h>
+#include <logging/core.h>
 
 #define NOTHING
 
@@ -81,7 +82,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         std::string path_str = path.c_str();
 #endif // X11
 
-        LogDebug << "exec return:" << std::system(path_str.c_str());
+        log_debug << "exec return:" << std::system(path_str.c_str());
       }
     });
   });

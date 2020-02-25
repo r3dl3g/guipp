@@ -630,7 +630,7 @@ public:
               cat->read_projects(f.path());
               categories.emplace_back(cat);
             } catch (std::exception& ex) {
-              LogFatal << ex;
+              log_fatal << ex;
             }
           }
         }

@@ -89,7 +89,7 @@ namespace testing {
     data.resize(bmp.bmWidthBytes * bmp.bmHeight);
     int res = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
     if (res != data.size()) {
-      LogError << "GetBitmapBits returned " << res << " expected:" << data.size();
+      log_error << "GetBitmapBits returned " << res << " expected:" << data.size();
     }
     auto result = data2colormap((const char*)data.data(), bmp.bmBitsPixel / 8, bmp.bmWidthBytes, bmp.bmHeight);
   #endif // WIN32

@@ -209,7 +209,7 @@ namespace gui {
               break;
             }
             default:
-              LogDebug << "Key Ctrl + 0x" << std::hex << keycode;
+              log_debug << "Key Ctrl + 0x" << std::hex << keycode;
               break;
             }
           } else if (chars.size()) {

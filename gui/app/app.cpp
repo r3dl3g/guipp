@@ -24,6 +24,7 @@
 //
 #include <logging/dbgstream.h>
 #include <logging/logger.h>
+#include <logging/core.h>
 #include <util/string_util.h>
 #include <gui/app/app.h>
 #include <gui/core/guidefs.h>
@@ -67,7 +68,7 @@ int main (int argc, char* argv[]) {
   try {
     ret = gui_main(args);
   } catch (std::exception& e) {
-    LogFatal << e;
+    log_fatal << e;
     ret = 1;
   }
 

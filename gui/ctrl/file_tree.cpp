@@ -137,7 +137,7 @@ namespace gui {
         try {
           infos.emplace_back(p);
         } catch (std::exception& ex) {
-          LogWarng << ex;
+          log_warn << ex;
         }
       }
       return infos;
@@ -230,7 +230,7 @@ namespace gui {
           try {
             return is_hidden(i.path()) || (filter && filter(i));
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
           return true;
         }),
@@ -243,7 +243,7 @@ namespace gui {
           try {
             return !sys_fs::is_directory(i.path()) || is_hidden(i.path()) || (filter && filter(i));
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
           return true;
         }),
@@ -256,7 +256,7 @@ namespace gui {
           try {
             return sys_fs::is_directory(i.path()) || is_hidden(i.path()) || (filter && filter(i));
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
           return true;
         }),
@@ -271,7 +271,7 @@ namespace gui {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name_dirs_first());
@@ -287,7 +287,7 @@ namespace gui {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name());
@@ -303,7 +303,7 @@ namespace gui {
               v.emplace_back(*i);
             }
           } catch (std::exception& ex) {
-            LogWarng << ex;
+            log_warn << ex;
           } catch (...) {}
         }
         std::sort(v.begin(), v.end(), comp_by_name());

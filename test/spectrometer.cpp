@@ -330,12 +330,12 @@ void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
   //camera.set_abs_crop(crop);
 
 //  MMAL_STATUS_T status =
-//  LogDebug << "camera.set_abs_crop(" << crop << ") returned :"
+//  log_debug << "camera.set_abs_crop(" << crop << ") returned :"
 //           << mmal_status_to_string(status);
 
 #ifdef TRY_CAMERA_CONFIG
   auto cfg = camera.get_camera_config();
-  LogDebug << "Current camera config:" << cfg;
+  log_debug << "Current camera config:" << cfg;
 
   MMAL_RECT_T crop{0, 0, (int32_t)cfg.max_stills_w, (int32_t)cfg.max_stills_h};
   fnkt(crop);
@@ -359,19 +359,19 @@ void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
 
   MMAL_STATUS_T status = MMAL_SUCCESS;
 //  status = port.set_resize(resize);
-//  LogDebug << "encoder.set_resize(" << resize << ") returned :"
+//  log_debug << "encoder.set_resize(" << resize << ") returned :"
 //           << mmal_status_to_string(status);
 
   status = port.set_crop(crop);
-  LogDebug << "port.set_crop(" << crop << ") returned :"
+  log_debug << "port.set_crop(" << crop << ") returned :"
            << mmal_status_to_string(status);
 
   status = port.commit_format_change();
-  LogDebug << "= port.commit_format_change() returned :"
+  log_debug << "= port.commit_format_change() returned :"
            << mmal_status_to_string(status);
 
 //  camera.set_abs_crop(crop);
-//  LogDebug << "camera.set_abs_crop(" << crop << ") returned :"
+//  log_debug << "camera.set_abs_crop(" << crop << ") returned :"
 //           << mmal_status_to_string(status);
 #endif // TRY_ENCODER_CROP
 
@@ -650,7 +650,7 @@ spectrometer::spectrometer ()
 }
 
 void spectrometer::capture () {
-  LogDebug << "Capture image";
+  log_debug << "Capture image";
 
   try {
     encoder->clear_data();
@@ -658,21 +658,21 @@ void spectrometer::capture () {
     encoder->capture(0);
 
   } catch (std::exception& ex) {
-    LogFatal << ex;
+    log_fatal << ex;
   }
 }
 
 void spectrometer::display () {
   auto sz = camera.get_size();
   auto encoding = (MMAL_FOURCC_T)encoder->get_encoding();
-  LogDebug << "Display " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line() << " enc:" << raspi::core::four_cc(encoding);
+  log_debug << "Display " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line() << " enc:" << raspi::core::four_cc(encoding);
   if (data.size()) {
     switch (encoding) {
       case MMAL_ENCODING_PPM: {
         rgbmap image_data;
         std::istringstream strm(std::string((const char*)data.data(), data.size()));
         gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
-        LogDebug << "Display image with dimensions:" << image_data.native_size() << ", ppl:" << image_data.pixel_format();
+        log_debug << "Display image with dimensions:" << image_data.native_size() << ", ppl:" << image_data.pixel_format();
         capture_view.image = image_data;
         break;
       }
@@ -680,7 +680,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_RGBA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::RGBA);
         const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
-        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        log_debug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
       }
@@ -688,7 +688,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_RGB24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::RGB);
         const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
-        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        log_debug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
       }
@@ -696,7 +696,7 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGRA_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 4 + extra_bytes, PixelFormat::BGRA);
         const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
-        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        log_debug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
       }
@@ -704,13 +704,13 @@ void spectrometer::display () {
       case MMAL_ENCODING_BGR24_SLICE: {
         bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line() * 3 + extra_bytes, PixelFormat::BGR);
         const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
-        LogDebug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
+        log_debug << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
         break;
       }
 
       default:
-        LogDebug << "Can not display image with encoding: " << encoding;
+        log_debug << "Can not display image with encoding: " << encoding;
         break;
     }
 

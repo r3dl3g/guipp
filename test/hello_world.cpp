@@ -2,6 +2,7 @@
 #define WITH_CTRL
 
 #include <gui/win/container.h>
+#include <logging/core.h>
 #ifdef WITH_CTRL
 #include <gui/layout/layout_container.h>
 #include <gui/layout/adaption_layout.h>

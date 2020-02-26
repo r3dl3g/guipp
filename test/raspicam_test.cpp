@@ -3,7 +3,8 @@
 #include "util/ostreamfmt.h"
 #include "util/command_line.h"
 #include "logging/logger.h"
-
+#include "logging/core.h"
+#include <ostream>
 
 #define NOTHING
 

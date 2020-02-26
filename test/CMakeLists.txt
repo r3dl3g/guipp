@@ -106,6 +106,6 @@ foreach(test ${apps})
 endforeach(test)
 
 if (BUILD_FOR_ARM)
-    target_link_libraries(raspicam_test testlib ${raspi_libraries} ${MMAL_LIBS})
-    target_link_libraries(spectrometer testlib ${raspi_libraries} ${MMAL_LIBS})
+    target_link_libraries(raspicam_test testlib ${raspipp_libraries} ${MMAL_LIBS})
+    target_link_libraries(spectrometer testlib ${raspipp_libraries} ${MMAL_LIBS})
 endif()

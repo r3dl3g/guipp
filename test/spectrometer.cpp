@@ -11,6 +11,7 @@
 #include <gui/draw/bitmap.h>
 #include <gui/io/wavelength_to_rgb.h>
 #include <gui/io/pnm.h>
+#include "logging/core.h"
 
 #include <bcm_host.h>
 

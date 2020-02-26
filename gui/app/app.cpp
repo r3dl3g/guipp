@@ -68,7 +68,7 @@ int main (int argc, char* argv[]) {
   try {
     ret = gui_main(args);
   } catch (std::exception& e) {
-    log_fatal << e;
+    clog::fatal() << e;
     ret = 1;
   }
 

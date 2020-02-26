@@ -427,7 +427,7 @@ DEFINE_TEST(test_pixmap2bitmap) {
   data.resize(bmi.bmHeight * bmi.bmWidthBytes);
   int result = GetBitmapBits(img.get_id(), (LONG)data.size(), data.data());
   if (result != data.size()) {
-    log_error << "GetBitmapBits returned " << result << " expected:" << data.size();
+    clog::error() << "GetBitmapBits returned " << result << " expected:" << data.size();
   }
 #endif // WIN32
 

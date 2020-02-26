@@ -13,7 +13,7 @@ template<typename T>
 T parse_arg (const std::string& str, const std::string& name) {
   T t = T();
   std::istringstream(str) >> t;
-  log_debug << "Found " << name << ":'" << t << "'";
+  clog::debug() << "Found " << name << ":'" << t << "'";
   return t;
 }
 
@@ -41,7 +41,7 @@ std::string generate_filename (const std::string& base, const std::string& ext, 
 
 // --------------------------------------------------------------------------
 int main(int argc, const char* argv[]) {
-  log_debug << "raspi camera test";
+  clog::debug() << "raspi camera test";
 
   using namespace raspi::camera;
   using namespace raspi::encoder;
@@ -62,7 +62,7 @@ int main(int argc, const char* argv[]) {
     {"-r", "--raw", {}, "Use raw capture (-f: BD10, bRA8, bGA8, BGGR, RGAA, I420, S420, I422, S422, RGBA, rgba, RGB3, rgb3)",
       [&](const std::string&) {
         use_raw = true;
-        log_info << "Enable raw";
+        clog::info() << "Enable raw";
       }},
     {"-ss", "--shutter", "<us>", "Set shutter speed in us",
       [&](const std::string& arg) {
@@ -124,20 +124,20 @@ int main(int argc, const char* argv[]) {
     {"-o", "--out", "<filename>", "Set output file name",
       [&](const std::string& arg) {
         outname = util::string::trimed(arg);
-        log_info << "Found output file name:'" << outname << "'";
+        clog::info() << "Found output file name:'" << outname << "'";
       }}
   }).process(argc, argv);
 
   camera.enable();
 
-  log_debug << "Camera info: " << camera;
+  clog::debug() << "Camera info: " << camera;
 
   if (use_raw) {
     if (!encoding) {
       encoding = MMAL_ENCODING_BGR24;
     }
     raw encoder(camera.get_still_output_port(), raw::OutEncoding(encoding.type.uint32));
-    log_debug << "raw capture " << encoding;
+    clog::debug() << "raw capture " << encoding;
     encoder.enable();
 
     for (int i = 0; i < count; ++i) {
@@ -145,7 +145,7 @@ int main(int argc, const char* argv[]) {
 
       const base::image_data& data = encoder.get_data();
 
-      log_debug << "get_data size:" << data.size();
+      clog::debug() << "get_data size:" << data.size();
 
       std::ofstream file(generate_filename(outname, ostreamfmt(encoding), count, i));
       auto sz = camera.get_size();
@@ -165,7 +165,7 @@ int main(int argc, const char* argv[]) {
       encoding = MMAL_ENCODING_JPEG;
     }
     encoded encoder(camera.get_still_output_port(), encoded::OutEncoding(encoding.type.uint32));
-    log_debug << "encoded capture " << encoding;
+    clog::debug() << "encoded capture " << encoding;
 
     encoder.enable();
 
@@ -174,7 +174,7 @@ int main(int argc, const char* argv[]) {
 
       auto data = encoder.get_data();
 
-      log_debug << "get_data size:" << data.size();
+      clog::debug() << "get_data size:" << data.size();
 
       std::ofstream file(generate_filename(outname, ostreamfmt(encoding), count, i));
       file.write((const char*)data.data(), data.size());

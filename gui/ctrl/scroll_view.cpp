@@ -78,7 +78,7 @@ namespace gui {
     core::rectangle scroll_view_base::layout (const core::rectangle& new_size, const core::rectangle& required) const {
       core::rectangle space(new_size);
 
-      //log_debug << "Space:" << space << ", Required:" << required;
+      //clog::debug() << "Space:" << space << ", Required:" << required;
 
       bool show_h = hscroll && ((required.x() < space.x()) || (required.x2() > space.x2()));
       if (show_h) {
@@ -102,7 +102,7 @@ namespace gui {
         core::point::type ymax = std::max(core::point::type(required.y2() - space.y2()), core::point::type(0)) + ypos;
         core::point::type st = std::min(ymax - ymin, space.height());
 
-//        log_debug << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
+//        clog::debug() << *vscroll << " Y:{ min:" << ymin << ", pos:" << ypos << ", max:" << ymax << ", step:" << st << " }";
 
         vscroll->set_min_max_step_page(ymin, ymax, 1, st);
       }
@@ -113,7 +113,7 @@ namespace gui {
         core::point::type xmax = std::max(core::point::type(required.x2() - space.x2()), core::point::type(0)) + xpos;
         core::point::type st = std::min(xmax - xmin, space.width());
 
-//        log_debug << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
+//        clog::debug() << *vscroll << " X:{ min:" << xmin << ", pos:" << xpos << ", max:" << xmax << ", step:" << st << " }";
 
         hscroll->set_min_max_step_page(xmin, xmax, 1, st);
       }

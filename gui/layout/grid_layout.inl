@@ -31,7 +31,7 @@ namespace gui {
 
     template<unsigned width, unsigned height, unsigned border, unsigned gap>
     void grid_lineup<width, height, border, gap>::layout (const core::rectangle& r) const {
-      log_trace << "grid_lineup::layout(" << r << ")";
+      clog::trace() << "grid_lineup::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const type border2 = (border * 2);
       const type xmax = r.width() - border2;
@@ -66,7 +66,7 @@ namespace gui {
 
     template<unsigned columns, unsigned rows, unsigned border, unsigned gap>
     void grid_adaption<columns, rows, border, gap>::layout (const core::rectangle& r) const {
-      log_trace << "grid_adaption::layout(" << r << ")";
+      clog::trace() << "grid_adaption::layout(" << r << ")";
       const auto& elements = super::get_elements();
       const type border2 = (border * 2);
       const type xspace = r.width() - border2;

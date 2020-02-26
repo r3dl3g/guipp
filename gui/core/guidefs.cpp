@@ -152,7 +152,7 @@ namespace gui {
         char buffer[256];
         XGetErrorText(dpy, errev->error_code, buffer, sizeof (buffer));
 
-        log_fatal << "Error occured somewhere in X!"
+        clog::fatal() << "Error occured somewhere in X!"
                     " ResourceID: " << errev->resourceid <<
                     " Serial: " << errev->serial <<
                     " Error_code: " << (int)errev->error_code <<
@@ -164,7 +164,7 @@ namespace gui {
       }
 
       int IOErrorHandler (Display* dpy) {
-        log_fatal << "IO Error occured somewhere in X!";
+        clog::fatal() << "IO Error occured somewhere in X!";
         return 0;
       }
 
@@ -238,10 +238,10 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        log_debug << "os::bit_order: " << core::os::get_bit_order();
-        log_debug << "os::byte_order: " << core::os::get_byte_order();
-        log_debug << "os::platform: " << core::os::system_platform;
-        log_debug << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
+        clog::debug() << "os::bit_order: " << core::os::get_bit_order();
+        clog::debug() << "os::byte_order: " << core::os::get_byte_order();
+        clog::debug() << "os::platform: " << core::os::system_platform;
+        clog::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
                  << ":" << static_cast<unsigned int>(color::part::green)
                  << ":" << static_cast<unsigned int>(color::part::blue)
                  << ":" << static_cast<unsigned int>(color::part::alpha);
@@ -368,13 +368,13 @@ namespace gui {
           xcb_xrm_database_free(xrm_db);
 
           if (i < 0) {
-            log_error << "Could not fetch value of Xft.dpi from Xresources falling back to highest dpi found";
+            clog::error() << "Could not fetch value of Xft.dpi from Xresources falling back to highest dpi found";
           } else {
-            log_debug << "XCB.dpi = " << dpi;
+            clog::debug() << "XCB.dpi = " << dpi;
             return dpi;
           }
         } else {
-          log_error << "Could not open Xresources database falling back to highest dpi found";
+          clog::error() << "Could not open Xresources database falling back to highest dpi found";
         }
 
         for (xcb_screen_iterator_t i = xcb_setup_roots_iterator(xcb_get_setup(gui_static.xcb_connection)); i.rem; xcb_screen_next(&i)) {
@@ -383,7 +383,7 @@ namespace gui {
           }
         }
 
-         log_debug << "XCB.dpi = " << dpi;
+         clog::debug() << "XCB.dpi = " << dpi;
 
         return dpi;
       }
@@ -403,7 +403,7 @@ namespace gui {
           auto screen = XScreenOfDisplay(get_instance(), i);
           dpi = std::max(dpi, get_xlib_dpi_of_screen(screen));
         }
-        log_debug << "X11.dpi = " << dpi;
+        clog::debug() << "X11.dpi = " << dpi;
         return dpi;
       }
 
@@ -420,7 +420,7 @@ namespace gui {
           int dpi = get_xlib_dpi();
 # endif // XCB
           if (dpi == 0) {
-            log_error <<  "Could get highest dpi, using 96 as default";
+            clog::error() <<  "Could get highest dpi, using 96 as default";
             dpi = 96;
           }
 

@@ -587,7 +587,7 @@ namespace gui {
     }
 
     void modal_window::run_modal (window& parent) {
-      log_trace << *this << " Enter modal loop";
+      clog::trace() << *this << " Enter modal loop";
 
       set_visible();
       to_front();
@@ -608,11 +608,11 @@ namespace gui {
       parent.enable();
       parent.take_focus();
 
-      log_trace << *this << " Exit modal loop";
+      clog::trace() << *this << " Exit modal loop";
     }
 
     void modal_window::run_modal (window& parent, const std::vector<hot_key_action>& hot_keys) {
-      log_trace << *this << " Enter modal loop";
+      clog::trace() << *this << " Enter modal loop";
 
       set_visible();
       to_front();
@@ -654,7 +654,7 @@ namespace gui {
       parent.enable();
       parent.take_focus();
 
-      log_trace << *this << " Exit modal loop";
+      clog::trace() << *this << " Exit modal loop";
     }
 
     // --------------------------------------------------------------------------

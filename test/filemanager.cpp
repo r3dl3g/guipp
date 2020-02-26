@@ -82,7 +82,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
         std::string path_str = path.c_str();
 #endif // X11
 
-        log_debug << "exec return:" << std::system(path_str.c_str());
+        clog::debug() << "exec return:" << std::system(path_str.c_str());
       }
     });
   });

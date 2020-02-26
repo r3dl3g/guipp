@@ -92,7 +92,7 @@ namespace testing {
                   const char* fileName,
                   const int   lineNumber,
                   const Arguments... args) {
-    create_error_message(log_warn, testValue, expectedValue,
+    create_error_message(clog::warn(), testValue, expectedValue,
                          testName, expectedName, equality,
                          fileName, lineNumber, args...);
   }
@@ -147,13 +147,13 @@ namespace {\
 int gui_main(const std::vector<std::string>& /*args*/) {\
   logging::odebugstream dbgStrm; \
   logging::core::instance().add_sink(&dbgStrm, logging::level::info, logging::core::get_console_formatter()); \
-  log_warn << "Running " #a " tests";
+  clog::warn() << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
   if (guipp_failed_test_count) {\
-    log_error << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+    clog::error() << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
   } else {\
-    log_error << #a << ": all " << guipp_test_count << " tests passed";\
+    clog::error() << #a << ": all " << guipp_test_count << " tests passed";\
   }\
   logging::core::instance().remove_sink(&dbgStrm);\
   return guipp_failed_test_count;\
@@ -170,13 +170,13 @@ namespace {\
 }\
 \
 int gui_main(const std::vector<std::string>& /*args*/) {\
-  log_warn << "Running " #a " tests";
+  clog::warn() << "Running " #a " tests";
 
 #define TEST_MAIN_END(a)\
   if (guipp_failed_test_count) {\
-    log_error << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
+    clog::error() << #a << ": " << guipp_failed_test_count << " of " << guipp_test_count << " tests failed";\
   } else {\
-    log_error << #a << ": all " << guipp_test_count << " tests passed";\
+    clog::error() << #a << ": all " << guipp_test_count << " tests passed";\
   }\
   return guipp_failed_test_count;\
 }
@@ -193,16 +193,16 @@ int gui_main(const std::vector<std::string>& /*args*/) {\
     a();\
   } catch (std::exception& ex) {\
     ++guipp_failed_test_count;\
-    log_fatal.raw() << #a << " failed with " << ex.what();\
+    clog::fatal().raw() << #a << " failed with " << ex.what();\
   }
 
 #define DEFINE_TEST(a)\
 void a () {\
   const std::string __test_name = #a;\
-  log_warn << #a << " started";
+  clog::warn() << #a << " started";
 
 #define END_TEST(...)\
-  log_warn << __test_name << " passed";\
+  clog::warn() << __test_name << " passed";\
 }
 
 #define EXPECT_EQUAL(test, expect, ...)\

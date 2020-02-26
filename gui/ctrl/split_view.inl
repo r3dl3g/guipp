@@ -86,7 +86,7 @@ namespace gui {
     template<orientation O>
     void split_view<O>::layout (const core::rectangle& sz) const {
       double pos = data.split_pos;//get_split_pos(sz);
-      log_trace << "split_view::layout(" << sz << ") split_pos: " << pos;
+      clog::trace() << "split_view::layout(" << sz << ") split_pos: " << pos;
       if (data.first) {
         data.first->place(get_first_place(sz, pos), IF_WIN32_ELSE(true, false));
       }

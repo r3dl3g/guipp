@@ -55,7 +55,7 @@ namespace gui {
 
       template<typename B, typename L, typename ... A>
       inline void layout_container_base<B, L, A...>::layout (const core::rectangle& r) {
-        log_trace << *this << " layout(" << r << ")";
+        clog::trace() << *this << " layout(" << r << ")";
         layouter.layout(r);
       }
 

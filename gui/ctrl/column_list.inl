@@ -71,7 +71,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       inline void base_column_list_layout::layout (const core::rectangle& sz) const {
-        log_trace << "base_column_list_layout::layout(" << sz << ")";
+        clog::trace() << "base_column_list_layout::layout(" << sz << ")";
         data.header->resize(core::size(sz.width(), 20), false);
         data.list->resize(sz.size() - core::size(0, 20), false);
       }
@@ -306,7 +306,7 @@ namespace gui {
 
     template<typename Layout, os::color background>
     inline void column_list_header<Layout, background>::layout (const core::rectangle& sz) {
-      log_trace << "column_list_header::layout(" << sz << ")";
+      clog::trace() << "column_list_header::layout(" << sz << ")";
       layouter.layout(sz);
     }
 

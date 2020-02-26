@@ -305,7 +305,7 @@ namespace gui {
 
     template<dynamic_border_layout_type type>
     void dynamic_border_layout<type>::layout (const core::rectangle& sz) {
-      log_trace << "dynamic_border_layout::layout(" << sz << ")";
+      clog::trace() << "dynamic_border_layout::layout(" << sz << ")";
       core::size top_left(super::get_left_width(), super::get_top_height());
       core::size bottom_right(super::get_right_width(), super::get_bottom_height());
       core::size size = sz.size() - top_left - bottom_right;

@@ -501,7 +501,7 @@ namespace gui {
       int res = 0;
       XGCValues org_values = {0};
       res = XGetGCValues(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &org_values);
-//      log_debug << "XGCValues:" << org_values;
+//      clog::debug() << "XGCValues:" << org_values;
       if (bmp.mask) {
         auto screen = core::global::x11::get_screen();
         XGCValues values = {

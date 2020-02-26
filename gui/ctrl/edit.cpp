@@ -499,7 +499,7 @@ namespace gui {
               break;
             }
             default:
-              log_debug << "Key Ctrl + 0x" << std::hex << keycode;
+              clog::debug() << "Key Ctrl + 0x" << std::hex << keycode;
               break;
             }
           } else if (chars.size()) {

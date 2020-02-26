@@ -138,7 +138,7 @@ DEFINE_TEST(test_bw)
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   bwmap stretched(expected_size);
@@ -166,7 +166,7 @@ DEFINE_TEST(test_gray) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   graymap stretched(expected_size);
@@ -194,7 +194,7 @@ DEFINE_TEST(test_rgb) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbmap stretched(expected_size);
@@ -222,7 +222,7 @@ DEFINE_TEST(test_rgba) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbamap stretched(expected_size);
@@ -350,7 +350,7 @@ DEFINE_TEST(test_bw_bilinear)
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   bwmap stretched(expected_size);
@@ -378,7 +378,7 @@ DEFINE_TEST(test_gray_bilinear) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   graymap stretched(expected_size);
@@ -410,7 +410,7 @@ DEFINE_TEST(test_rgb_bilinear) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbmap stretched(expected_size);
@@ -438,7 +438,7 @@ DEFINE_TEST(test_rgba_bilinear) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbamap stretched(expected_size);
@@ -517,7 +517,7 @@ DEFINE_TEST(test_bw_bicubic)
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   bwmap stretched(expected_size);
@@ -545,7 +545,7 @@ DEFINE_TEST(test_gray_bicubic) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   graymap stretched(expected_size);
@@ -577,7 +577,7 @@ DEFINE_TEST(test_rgb_bicubic) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbmap stretched(expected_size);
@@ -605,7 +605,7 @@ DEFINE_TEST(test_rgba_bicubic) {
   EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
-  log_warn << "Stretching with factor " << factor;
+  clog::warn() << "Stretching with factor " << factor;
 
   auto expected_size = img.native_size() * factor;
   rgbamap stretched(expected_size);

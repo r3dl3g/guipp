@@ -163,7 +163,7 @@ namespace data {
     double price_per_hour () const;
 
     ~tt_event () {
-      log_trace << "Delete event '" << id << "'";
+      clog::trace() << "Delete event '" << id << "'";
     }
 
     tt_event (project_t project, const std::string& id, const ptree& pt)
@@ -259,7 +259,7 @@ namespace data {
     }
 
     ~tt_project () {
-      log_trace << "Delete project '" << name << "'";
+      clog::trace() << "Delete project '" << name << "'";
     }
 
     double price_per_hour (const time_point& begin) const {
@@ -308,7 +308,7 @@ namespace data {
             boost::property_tree::ini_parser::read_ini(f.path().string(), pt);
             events.emplace_back(std::make_shared<tt_event>(shared_from_this(), f.path().stem().string(), pt));
           } catch (std::exception& ex) {
-            log_fatal << ex;
+            clog::fatal() << ex;
           }
         }
       }
@@ -349,7 +349,7 @@ namespace data {
     }
 
     ~tt_category () {
-      log_trace << "Delete category '" << name << "'";
+      clog::trace() << "Delete category '" << name << "'";
     }
 
     duration_type duration (const time_filter& f) const {
@@ -392,7 +392,7 @@ namespace data {
             prj->read_events(f.path());
             projects.emplace_back(std::move(prj));
           } catch (std::exception& ex) {
-            log_fatal << ex;
+            clog::fatal() << ex;
           }
         }
       }

@@ -256,7 +256,7 @@ namespace gui {
 
       template<int TO, int BO, int LE, int RI, type T>
       void layouter<TO, BO, LE, RI, T>::layout (const core::rectangle& r) {
-        log_trace << "border::layouter(" << r << ")";
+        clog::trace() << "border::layouter(" << r << ")";
         if (get_top()) {
           const left_width pt = geometrie::get_top(r);
           get_top()(core::rectangle(pt.left, r.y(), pt.width, TO));

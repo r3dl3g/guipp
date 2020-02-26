@@ -50,7 +50,7 @@ public:
   bool operator()(const core::event& e, gui::os::event_result& result) {
     if (!win::is_none_client_event(e) &&
         !win::is_frequent_event(e) ) {
-      log_debug << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
+      clog::debug() << "Message: " << e << IF_WIN32_ELSE(" (" << std::hex << e.wParam << ", " << e.lParam << ")", "");
     }
     return false;
   }
@@ -290,8 +290,8 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 
   my_main_window main;
 
-  log_debug << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
-  log_debug << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
+  clog::debug() << "window size:" << sizeof(main)  << ", window_class_info size:" << sizeof(win::class_info);
+  clog::debug() << "long size:" << sizeof(long)<< ", pointer size:" << sizeof(void*);
   size_t str_size = sizeof(std::string);
   size_t evc_size = sizeof(core::event_container);
   size_t win_size = sizeof(win::window);
@@ -302,7 +302,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   size_t tbtn_size = sizeof(ctrl::text_button);
   size_t pnt_size = sizeof(ctrl::paint_function);
 
-  log_info << "Sizes: "
+  clog::info() << "Sizes: "
           <<   "std::string:" << str_size
           << ", event_container:" << evc_size
           << ", window:" << win_size
@@ -319,12 +319,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 //    core::size& mi, core::size& ma) {
 //    mi = { 300, 200 };
 //    ma = { 880, 660 };
-//    log_debug << "Min/Max: " << mi << " < " << ma << " < " << sz;
+//    clog::debug() << "Min/Max: " << mi << " < " << ma << " < " << sz;
 //  }));
 //#endif
 
   const core::rectangle r = core::rectangle(50, 50, 1500, 800);
-  log_debug << "Create Main: " << r;
+  clog::debug() << "Create Main: " << r;
   main.create(r);
   main.set_title("Window Test");
 
@@ -351,7 +351,7 @@ my_main_window::my_main_window ()
   list3.set_item_size_and_background(20, color::light_gray);
 
   on_destroy([] (const window* w) {
-    log_debug << "Destroyed!";
+    clog::debug() << "Destroyed!";
     win::quit_main_loop(w);
   });
 
@@ -363,77 +363,77 @@ my_main_window::my_main_window ()
 
 //#ifdef WIN32
 //  on_close([&]() {
-//    log_debug << "Close!";
+//    clog::debug() << "Close!";
 //    destroy();
 //  });
 //  on_enable([](bool on) {
-//    log_debug << (on ? "Enableed" : "Disabled");
+//    clog::debug() << (on ? "Enableed" : "Disabled");
 //  });
 //  on_activate([](bool on, win::window* win) {
-//    log_debug << "Main " << (on ? "activate" : "deactivate");
+//    clog::debug() << "Main " << (on ? "activate" : "deactivate");
 //  });
-//  on_begin_size_or_move([]() { log_debug << "Start Move/Size"; });
-//  on_end_size_or_move([]() { log_debug << "Finish Move/Size"; });
+//  on_begin_size_or_move([]() { clog::debug() << "Start Move/Size"; });
+//  on_end_size_or_move([]() { clog::debug() << "Finish Move/Size"; });
 //  on_activate_app([](bool on) {
-//    log_debug << (on ? "A" : "Dea") << "ctivate App";
+//    clog::debug() << (on ? "A" : "Dea") << "ctivate App";
 //  });
 
 //#endif
 
   on_moving([] (const core::point& r) {
-    log_debug << "Main moving: " << r;
+    clog::debug() << "Main moving: " << r;
   });
   on_sizing([] (const core::size& r) {
-    log_debug << "Main sizing: " << r;
+    clog::debug() << "Main sizing: " << r;
   });
   on_placing([] (const core::rectangle& r) {
-    log_debug << "Main placing: " << r;
+    clog::debug() << "Main placing: " << r;
   });
 
   on_move([] (const core::point& p) {
-    log_debug << "Main move: " << p;
+    clog::debug() << "Main move: " << p;
   });
   on_size([] (const core::size& s) {
-    log_debug << "Main size: " << s;
+    clog::debug() << "Main size: " << s;
   });
   on_place([] (const core::rectangle& r) {
-    log_debug << "Main place: " << r;
+    clog::debug() << "Main place: " << r;
   });
 
 //#ifdef WIN32
 //  ok_button.on_activate([](bool on, win::window* win) {
-//    log_debug << "Button " << (on ? "" : "de") << "activate";
+//    clog::debug() << "Button " << (on ? "" : "de") << "activate";
 //  });
 //#endif
 //  ok_button.on_set_focus([] (win::window*) {
-//    log_debug << "Button Set Focus";
+//    clog::debug() << "Button Set Focus";
 //  });
 //  ok_button.on_lost_focus([&] (win::window*) {
-//    log_debug << "Button Lost Focus";
+//    clog::debug() << "Button Lost Focus";
 //  });
 
   on_left_btn_down([&] (os::key_state, const core::point& p) {
-    log_debug << "Left Button Down at " << p;
+    clog::debug() << "Left Button Down at " << p;
   });
   on_left_btn_up([&] (os::key_state, const core::point& p) {
-    log_debug << "Left Button Up at " << p;
+    clog::debug() << "Left Button Up at " << p;
   });
   on_right_btn_down([&] (os::key_state, const core::point& p) {
-    log_debug << "Right Button Down at " << p;
+    clog::debug() << "Right Button Down at " << p;
   });
   on_right_btn_up([&] (os::key_state, const core::point& p) {
-    log_debug << "Right Button Up at " << p;
+    clog::debug() << "Right Button Up at " << p;
   });
   window1.on_wheel<orientation::horizontal>([&] (core::point::type delta,
                                                          const core::point& p) {
-    log_debug << "Wheel-X: " << delta << " at " << p;
+    clog::debug() << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   });
   window1.on_wheel<orientation::vertical>([&] (core::point::type delta,
                                                          const core::point& p) {
-    log_debug << "Wheel-Y: " << delta << " at " << p;
+    clog::debug() << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(0, delta));
     }
@@ -443,28 +443,28 @@ my_main_window::my_main_window ()
     at_drag = true;
     last_pos = p;
     window1.capture_pointer();
-    log_debug << "Window1 Mouse down at " << p;
+    clog::debug() << "Window1 Mouse down at " << p;
   });
   window1.on_left_btn_up([&](os::key_state, const core::point& p) {
     window1.uncapture_pointer();
     at_drag = false;
-    log_debug << "Window1 Mouse up at " << p;
+    clog::debug() << "Window1 Mouse up at " << p;
   });
 
   window2.on_left_btn_down([&](os::key_state, const core::point& p) {
     at_drag = true;
     last_pos = p;
     window2.capture_pointer();
-    log_debug << "Window2 Mouse down at " << p;
+    clog::debug() << "Window2 Mouse down at " << p;
   });
   window2.on_left_btn_up([&](os::key_state, const core::point& p) {
     window2.uncapture_pointer();
     at_drag = false;
-    log_debug << "Window2 Mouse up at " << p;
+    clog::debug() << "Window2 Mouse up at " << p;
   });
 
   window1.on_mouse_move([&] (os::key_state, const core::point& p) {
-    //log_debug << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //clog::debug() << "Window1 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
@@ -472,7 +472,7 @@ my_main_window::my_main_window ()
     }
   });
   window2.on_mouse_move([&] (os::key_state, const core::point& p) {
-    //log_debug << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
+    //clog::debug() << "Window2 Mouse " << (at_drag ? "drag" : "move") << " : " << keys << " at " << p;
     if (at_drag) {
       auto delta = p - last_pos;
       //last_pos = p;
@@ -481,28 +481,28 @@ my_main_window::my_main_window ()
   });
 
   window1.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
-    log_debug << "Window1 Double Click up at " << p;
+    clog::debug() << "Window1 Double Click up at " << p;
     window2.set_visible(!window2.is_visible());
   });
 
   on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
-    log_debug << "Double Click up at " << p;
+    clog::debug() << "Double Click up at " << p;
 
     core::point pos = window1.position();
     core::size sz = window1.size();
-    log_debug << "Pos: " << pos << " Size " << sz;
+    clog::debug() << "Pos: " << pos << " Size " << sz;
 
     core::rectangle pl = window1.place();
-    log_debug << "Place: " << pl;
+    clog::debug() << "Place: " << pl;
 
     core::rectangle apl = window1.absolute_place();
-    log_debug << "Abs Place: " << apl;
+    clog::debug() << "Abs Place: " << apl;
 
     core::point apos = window1.absolute_position();
-    log_debug << "Abs Pos: " << apos;
+    clog::debug() << "Abs Pos: " << apos;
 
     core::rectangle car = window1.client_area();
-    log_debug << "Client: " << car;
+    clog::debug() << "Client: " << car;
   });
   on_right_btn_dblclk([&] (os::key_state, const core::point&) {
     window1.move({50, 50});
@@ -513,7 +513,7 @@ my_main_window::my_main_window ()
   at_paint1 = true;
 
   window2.on_left_btn_dblclk([&] (os::key_state, const core::point& p) {
-    log_debug << "Window2 Double Click up at " << p;
+    clog::debug() << "Window2 Double Click up at " << p;
     if (at_paint1) {
       at_paint1 = false;
       window2.unregister_event_handler<win::paint_event>(draw::paint(paint1));
@@ -526,42 +526,42 @@ my_main_window::my_main_window ()
     window2.invalidate();
   });
   window2.on_show([] () {
-    log_debug << "Window2 show:";
+    clog::debug() << "Window2 show:";
   });
   window2.on_hide([] () {
-    log_debug << "Window2 hide:";
+    clog::debug() << "Window2 hide:";
   });
 
 //#ifdef WIN32
 //  ok_button.on_state_changed([](bool state) {
-//    log_debug << "Button " << (state ? "hilited" : "unhilited");
+//    clog::debug() << "Button " << (state ? "hilited" : "unhilited");
 //  });
 //#endif // WIN32
 
   ok_button.on_pushed([&] () {
-    log_debug << "Button pushed";
+    clog::debug() << "Button pushed";
     label.set_text("Pushed!");
   });
   ok_button.on_released([&] () {
-    log_debug << "Button released";
+    clog::debug() << "Button released";
     label.set_text("Released!");
   });
   radio_button.on_clicked([&] () {
-    log_debug << "Radio clicked";
+    clog::debug() << "Radio clicked";
     labelR.set_text("Radio clicked!");
     bool check = radio_button.is_checked();
 //    radio_button.set_checked(!check);
     radio_button2.set_checked(!check);
   });
   radio_button2.on_clicked([&] () {
-    log_debug << "Radio2 clicked";
+    clog::debug() << "Radio2 clicked";
     labelR.set_text("Radio2 clicked!");
     bool check = radio_button2.is_checked();
 //    radio_button2.set_checked(!check);
     radio_button.set_checked(!check);
   });
   check_box.on_state_changed([&] (bool on) {
-    log_debug << "Check clicked";
+    clog::debug() << "Check clicked";
     label.set_text("Check clicked!");
     radio_button.enable(on);
     radio_button2.enable(on);
@@ -574,32 +574,32 @@ my_main_window::my_main_window ()
   });
 
   min_button.on_clicked([&] () {
-    log_debug << "Min clicked";
+    clog::debug() << "Min clicked";
     minimize();
     query_state();
   });
   max_button.on_clicked([&] () {
-    log_debug << "Max clicked";
+    clog::debug() << "Max clicked";
     maximize();
     query_state();
   });
   norm_button.on_clicked([&] () {
-    log_debug << "Norm clicked";
+    clog::debug() << "Norm clicked";
     restore();
     query_state();
   });
   info_button.on_clicked([&] () {
-    log_debug << "Info clicked";
+    clog::debug() << "Info clicked";
     query_state();
     textbox.view.set_text(editor.view.get_selected_text());
     textbox.layout();
   });
   null_button.on_clicked([&] () {
-    log_debug << "0 clicked";
+    clog::debug() << "0 clicked";
     vslider.set_value(vslider.get_min());
   });
   full_button.on_clicked([&] () {
-    log_debug << "Full clicked";
+    clog::debug() << "Full clicked";
     vslider.set_value(size().width() - 15);
   });
 
@@ -669,14 +669,14 @@ my_main_window::my_main_window ()
   });
 
   ok_button.on_clicked([&] () {
-    log_debug << "Ok Button clicked";
+    clog::debug() << "Ok Button clicked";
     label.set_text("OK Clicked!");
     data.insert(data.end(), { "Sechs", "Sieben", "Acht", "Neun", "Zehn" });
     data.update_list(list2);
   });
 
   del_button.on_clicked([&] () {
-    log_debug << "Del Button clicked";
+    clog::debug() << "Del Button clicked";
     label.set_text("Del Clicked!");
     if (!data.empty()) {
       data.erase(data.begin());
@@ -685,7 +685,7 @@ my_main_window::my_main_window ()
   });
 
   clear_button.on_clicked([&] () {
-    log_debug << "Clear Button clicked";
+    clog::debug() << "Clear Button clicked";
     label.set_text("Clear Clicked!");
     data.clear();
     data.update_list(list2);
@@ -781,16 +781,16 @@ my_main_window::my_main_window ()
   });
 
   window2.on_mouse_enter([]() {
-    log_debug << "Window2 mouse enter";
+    clog::debug() << "Window2 mouse enter";
   });
   window2.on_mouse_leave([]() {
-    log_debug << "Window2 mouse leave";
+    clog::debug() << "Window2 mouse leave";
   });
   window1.on_move([](const core::point& p) {
-    log_debug << "Window1 move: " << p;
+    clog::debug() << "Window1 move: " << p;
   });
   window1.on_size([](const core::size& s) {
-    log_debug << "Window1 size: " << s;
+    clog::debug() << "Window1 size: " << s;
   });
 
 //  table_view.columns.set_selection_filter([] (const ctrl::table::position& cell,
@@ -838,9 +838,9 @@ void my_main_window::query_state () {
 }
 
 void my_main_window::onCreated (win::window* w, const core::rectangle& r) {
-  log_debug << "Main created: this:" << std::hex << get_id() << ", w:" << w << ", rect:" << std::dec << r;
+  clog::debug() << "Main created: this:" << std::hex << get_id() << ", w:" << w << ", rect:" << std::dec << r;
   created_children();
-  log_debug << "Children created: this:" << std::hex << get_id() << ", count:" << get_children().size();
+  clog::debug() << "Children created: this:" << std::hex << get_id() << ", count:" << get_children().size();
 }
 
 template<int T, typename C>
@@ -981,7 +981,7 @@ void my_main_window::created_children () {
   table_view.enable_size(true, true);
 
   editor.create(main, core::rectangle(740, 320, 150, 250));
-  log_debug << "Create editor: " << editor.get_id();
+  clog::debug() << "Create editor: " << editor.get_id();
   editor.view.set_text("1. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n"
                        "2. sed diam nonumy eirmod tempor invidunt ut labore et dolore\n"
                        "3. magna aliquyam erat, sed diam voluptua.\n"
@@ -1168,7 +1168,7 @@ void my_main_window::created_children () {
 
 ctrl::paint_function my_main_window::create_paint1 () {
   return [&](const draw::graphics& graph) {
-    //log_debug << "win::paint 1";
+    //clog::debug() << "win::paint 1";
 
     using namespace draw;
 
@@ -1251,7 +1251,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
 
 ctrl::paint_function my_main_window::create_paint2 () {
   return [&](const draw::graphics& graph) {
-    //log_debug << "win::paint 2";
+    //clog::debug() << "win::paint 2";
     using namespace draw;
 
     graph.fill(rectangle(window2.client_area()), color::light_gray);

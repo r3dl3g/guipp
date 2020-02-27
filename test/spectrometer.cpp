@@ -313,7 +313,7 @@ private:
   value_block<int> ss;
   value_block<int> iso;
 
-  value_block<uint32_t> y_scanline;
+  value_block<int32_t> y_scanline;
 
   group_window<layout::horizontal_adaption<1, 0>> values_view;
 
@@ -523,7 +523,7 @@ void spectrometer::update_encodings () {
 spectrometer::spectrometer ()
   : super(255, 160, 0, 0)
 {
-    capture_view.y_scan_pos = 0;
+//    capture_view.y_scan_pos = 0;
 
     camera.set_iso(50);
     camera.set_shutter_speed(12000);
@@ -749,7 +749,7 @@ void spectrometer::display () {
 }
 
 void spectrometer::calc_spectrum () {
-  auto sz = spectrum_view.size();
+  core::size sz = { static_cast<float>(camera.get_size().width), spectrum_view.size().height() };
   if (spectrum_view.image.scaled_size() != sz) {
     spectrum_view.image.create(sz);
   }

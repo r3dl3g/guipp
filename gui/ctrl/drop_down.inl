@@ -272,9 +272,12 @@ namespace gui {
 
     template<typename T, drop_down_drawer<T> D>
     drop_down_list<T, D>::~drop_down_list () {
-      auto* root = super::get_parent()->get_overlapped_window();
-      if (root) {
-        root->template unregister_event_handler<win::move_event>(me);
+      auto parent = super::get_parent();
+      if (parent) {
+        auto* root = parent->get_overlapped_window();
+        if (root) {
+          root->template unregister_event_handler<win::move_event>(me);
+        }
       }
     }
 

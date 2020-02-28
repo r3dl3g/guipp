@@ -59,7 +59,7 @@ public:
   }
 
   pixmap image;
-  int32_t y_scan_pos;
+  uint32_t y_scan_pos;
 };
 
 template<typename T>
@@ -214,10 +214,10 @@ private:
   value_block<float> d_gain;
   value_block<float> a_gain;
 
-  value_block<int> ss;
-  value_block<int> iso;
+  value_block<uint32_t> ss;
+  value_block<uint32_t> iso;
 
-  value_block<int32_t> y_scanline;
+  value_block<uint32_t> y_scanline;
   value_block<int32_t> nm_low;
   value_block<int32_t> nm_high;
 
@@ -476,15 +476,15 @@ spectrometer::spectrometer ()
 
     encoder->register_handler([&] (const encoder_type::image_data& d) {
         data = d;
-        gui::win::run_on_main([&] () {
+        if (continuous.is_checked()) {
+          encoder->capture(0);
+        }
+        gui::win::run_on_main([this] () {
             prepare_data();
             search_scanline();
             update_encodings();
             display();
         });
-        if (continuous.is_checked()) {
-          encoder->capture(0);
-        }
     });
 #else
   capture_size = {1640, 922};
@@ -559,9 +559,9 @@ spectrometer::spectrometer ()
 
   d_gain.set_label("D-Gain");
   a_gain.set_label("A-Gain");
-  ss.set_steps(1.5F, 2.0F);
+  ss.set_steps(2, 4);
   ss.set_label("Shutter");
-  iso.set_steps(2.0F, 4.0F);
+  iso.set_steps(2, 4);
   iso.set_label("ISO");
 
 #ifdef BUILD_FOR_ARM
@@ -578,7 +578,7 @@ spectrometer::spectrometer ()
   d_gain.set_value([&] () { return ostreamfmt(camera.get_digital_gain()); });
   a_gain.set_value([&] () { return ostreamfmt(camera.get_analog_gain()); });
 
-  ss.set_handler([&] (int step) {
+  ss.set_handler([&] (uint32_t step) {
     auto current = camera.get_shutter_speed();
     if (step > 0.0F) {
       camera.set_shutter_speed(current * step);
@@ -590,7 +590,7 @@ spectrometer::spectrometer ()
   });
   ss.set_value([&] () { return ostreamfmt(camera.get_shutter_speed()); });
 
-  iso.set_handler([&] (int step) {
+  iso.set_handler([&] (uint32_t step) {
     auto current = camera.get_iso();
     if (step > 0.0F) {
       camera.set_iso(current * step);
@@ -637,7 +637,7 @@ void spectrometer::capture () {
 #ifdef BUILD_FOR_ARM
   try {
     encoder->clear_data();
-    capture_view.image.clear();
+//    capture_view.image.clear();
     encoder->capture(0);
 
   } catch (std::exception& ex) {
@@ -825,11 +825,13 @@ void spectrometer::load_image () {
 }
 
 struct settings : public persistent::ptree_struct<persistent::int32, persistent::int32, persistent::int32, persistent::int32,
-                                                  persistent::float32, persistent::float32, persistent::integer, persistent::integer,
-                                                  persistent::int32, persistent::int32, persistent::int32> {
+                                                  persistent::float32, persistent::float32,
+                                                  persistent::dword, persistent::dword, persistent::dword,
+                                                  persistent::int32, persistent::int32> {
   typedef persistent::ptree_struct<persistent::int32, persistent::int32, persistent::int32, persistent::int32,
-                                   persistent::float32, persistent::float32, persistent::integer, persistent::integer,
-                                   persistent::int32, persistent::int32, persistent::int32> super;
+                                   persistent::float32, persistent::float32,
+                                   persistent::dword, persistent::dword, persistent::dword,
+                                   persistent::int32, persistent::int32> super;
 
   static const char s_x[];
   static const char s_y[];
@@ -845,8 +847,8 @@ struct settings : public persistent::ptree_struct<persistent::int32, persistent:
 
   settings (const core::native_rect& crop = {},
             float_t dg = 0, float_t ag = 0,
-            int ss_ = 0, int iso_ = 0,
-            int32_t y_s = 0, int32_t low = 0, int32_t high = 0)
+            uint32_t ss_ = 0, uint32_t iso_ = 0,
+            uint32_t y_s = 0, int32_t low = 0, int32_t high = 0)
     : super(x, y, w, h, d_gain, a_gain, ss, iso, y_scanline, nm_low, nm_high)
     , x(s_x, crop.x())
     , y(s_y, crop.y())
@@ -873,9 +875,9 @@ struct settings : public persistent::ptree_struct<persistent::int32, persistent:
   persistent::int32 h;
   persistent::float32 d_gain;
   persistent::float32 a_gain;
-  persistent::integer ss;
-  persistent::integer iso;
-  persistent::int32 y_scanline;
+  persistent::dword ss;
+  persistent::dword iso;
+  persistent::dword y_scanline;
   persistent::int32 nm_low;
   persistent::int32 nm_high;
 };
@@ -896,13 +898,13 @@ void spectrometer::save_settings () {
 #ifdef BUILD_FOR_ARM
   float dg = camera.get_digital_gain();
   float ag = camera.get_analog_gain();
-  int ss = camera.get_shutter_speed();
-  int iso = camera.get_iso();
+  uint32_t ss = camera.get_shutter_speed();
+  uint32_t iso = camera.get_iso();
 #else
   float dg = 1;
   float ag = 1;
-  int ss = 50000;
-  int iso = 50;
+  uint32_t ss = 50000;
+  uint32_t iso = 50;
 #endif // BUILD_FOR_ARM
 
   settings s(current_crop, dg, ag, ss, iso, capture_view.y_scan_pos, nm_range.begin(), nm_range.end());

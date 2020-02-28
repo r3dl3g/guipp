@@ -22,114 +22,6 @@
 #ifdef BUILD_FOR_ARM
 #include "raspi/encoder.h"
 #else
-#define MMAL_ENCODING_RGB24_SLICE 0
-#define VCOS_ALIGN_DOWN(p,n) (((ptrdiff_t)(p)) & ~((n)-1))
-#define VCOS_ALIGN_UP(p,n) VCOS_ALIGN_DOWN((ptrdiff_t)(p)+(n)-1,(n))
-
-namespace raspi {
-  namespace core {
-    // --------------------------------------------------------------------------
-    struct four_cc {
-      four_cc (const std::string& type)
-        : m_type(type)
-      {}
-
-      four_cc () = default;
-
-      bool operator== (const four_cc& rhs) const {
-        return m_type == rhs.m_type;
-      }
-
-      std::string m_type;
-    };
-
-    std::ostream& operator<< (std::ostream& out, const four_cc& f) {
-      return out << f.m_type;
-    }
-
-    std::istream& operator>> (std::istream& in, four_cc& f) {
-      return in >> f.m_type;
-    }
-
-
-    struct port {
-      std::vector<four_cc> get_supported_encodings () {
-        return { {"RGB"}, {"RGBA"}, {"ARGB"}, {"BGR"}, {"BGRA"}, {"ABGR"} };
-      }
-
-      four_cc get_encoding () const { return {"RGB"}; }
-
-      void set_encoding (four_cc) {}
-    };
-
-  } // namespace core
-
-  namespace camera {
-  struct still {
-    still ()
-      : cr{0, 0, 1, 1}
-      , sz{3280, 2456}
-      , g{1, 1}
-      , ss(10000)
-      , iso(100)
-    {}
-
-    struct crop {
-      float x, y, width, height;
-    };
-
-    struct awb_gains {
-      float r_gain, b_gain;
-    };
-
-    struct size {
-      int width, height;
-    };
-
-    crop get_inout_crop () const { return cr; }
-    void set_inout_crop (const crop& c) { cr = c; }
-    crop get_abs_crop () const { return cr; }
-    void set_abs_crop (const crop& c) { cr = c; }
-
-    size get_size () const { return sz; }
-    void set_size (const size& c) { sz = c; }
-
-    int get_shutter_speed () const { return ss; }
-    void set_shutter_speed (int s) { ss = s; }
-    int get_iso () const { return iso; }
-    void set_iso (int i) { iso = i; }
-
-    core::port get_still_output_port () const { return {}; }
-    int get_pixel_per_line () const { return 0; }
-
-  private:
-    crop cr;
-    size sz;
-    awb_gains g;
-    int ss;
-    int iso;
-  };
-
-  struct raw {
-    enum OutEncoding {
-      PPM
-    };
-    raw(core::port, int) {}
-
-    void capture (int) {}
-
-    using image_data = std::basic_string<uint8_t>;
-
-    core::port get_output_port () const { return {}; }
-    core::port get_input_port () const { return {}; }
-
-    image_data get_data () { return {}; }
-    void clear_data () {}
-  };
-
-  typedef raw encoded;
-  }
-}
 #endif // BUILD_FOR_ARM
 
 #define NOTHING
@@ -529,13 +421,14 @@ void spectrometer::update_encodings () {
 
 spectrometer::spectrometer ()
   : super(255, 160, 0, 0)
+  , current_crop{80, 500, 1300, 400}
 {
 //    capture_view.y_scan_pos = 0;
 
     camera.set_iso(50);
-    camera.set_shutter_speed(12000);
-    camera.set_sensor_mode(raspi::camera::still::SensorModeV2::SM_1640x1232_4_3_video_2x2);
-    camera.set_resolution({1640, 1232});
+    camera.set_shutter_speed(50000);
+    camera.set_sensor_mode(raspi::camera::still::SensorModeV2::SM_1640x922_16_9_video_2x2);
+    camera.set_resolution({1640, 922});
 //    camera.set_abs_crop({0, 210, 800, 300});
 
     camera.enable();
@@ -655,6 +548,7 @@ spectrometer::spectrometer ()
     capture_view.y_scan_pos = std::max<uint32_t>(capture_view.y_scan_pos + step, 0);
     y_scanline.refresh();
     display();
+    calc_spectrum();
   });
   y_scanline.set_steps(1, 10);
   y_scanline.set_label("Scanline");
@@ -686,6 +580,10 @@ void spectrometer::display () {
         std::istringstream strm(std::string((const char*)data.data(), data.size()));
         gui::io::load_pnm<PixelFormat::RGB>(strm, image_data);
         clog::debug() << "Display image with dimensions:" << image_data.native_size() << ", ppl:" << image_data.pixel_format();
+        if ((current_crop.width != sz.width) || (current_crop.height != sz.height)) {
+          auto sub = image_data.sub(current_crop.x, current_crop.y, current_crop.width, current_crop.height);
+          image_data = sub;
+        }
         capture_view.image = image_data;
         if (capture_view.y_scan_pos > -1) {
             const auto sub = image_data.sub(0, capture_view.y_scan_pos, image_data.native_size().width(), 1);
@@ -764,13 +662,15 @@ void spectrometer::calc_spectrum () {
         g.draw_lines({core::point(x, 0), core::point(x, sz.height())}, draw::pen(rgb));
       }
 
-      const auto data = const_cast<const draw::graymap&>(scan_line).get_data();
-      core::point last = {0, sz.height()};
-      for (int x = 0; x < sz.width(); ++x) {
-        auto pixel = data.pixel(x, 0);
-        core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
-        g.draw_lines({last, next}, color::white);
-        last = next;
+      if (capture_view.y_scan_pos > -1) {
+          const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
+          core::point last = {0, sz.height()};
+          for (int x = 0; x < row.width(); ++x) {
+            auto pixel = row.pixel(x, 0);
+            core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
+            g.draw_lines({last, next}, color::white);
+            last = next;
+          }
       }
   }
 
@@ -797,6 +697,8 @@ void spectrometer::load_image () {
     data.resize(len);
     f.seekg(0, std::ios::beg);
     f.read((char*)data.data(), data.size());
+    display();
+    calc_spectrum();
   });
 }
 

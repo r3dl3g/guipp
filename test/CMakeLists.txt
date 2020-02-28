@@ -68,6 +68,7 @@ else()
         new_border_layout
         attach_all_layout
         dialogs
+        spectrometer
     )
 endif()
 

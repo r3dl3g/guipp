@@ -191,9 +191,13 @@ namespace gui {
         void init (gui::os::instance i) {
           instance = i;
 #ifdef X11
-          screen = DefaultScreen(instance);
-          XSetErrorHandler(ErrorHandler);
-          XSetIOErrorHandler(IOErrorHandler);
+          if (instance != nullptr) {
+            screen = DefaultScreen(instance);
+            XSetErrorHandler(ErrorHandler);
+            XSetIOErrorHandler(IOErrorHandler);
+          } else {
+            clog::fatal() << "X server instance is 0!";
+          }
 # ifdef XCB
           xcb_connection = XGetXCBConnection(instance);
 # endif // XCB
@@ -218,7 +222,9 @@ namespace gui {
 #ifdef X11
           at_shutdown = true;
 //          XSync(instance, False);
-          XCloseDisplay(instance);
+          if (instance != nullptr) {
+            XCloseDisplay(instance);
+          }
           screen = 0;
 #endif // X11
         }

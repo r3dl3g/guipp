@@ -270,6 +270,7 @@ public:
   void display ();
   void calc_spectrum ();
   void save_image ();
+  void load_image ();
 
   void save_settings ();
   void load_settings ();
@@ -291,6 +292,7 @@ private:
   group_window<layout::vertical_adaption<>> right_button_view;
   ctrl::text_button capture_button;
   ctrl::text_button save_button;
+  ctrl::text_button load_button;
   ctrl::text_button clear_button;
 
   group_window<layout::vertical_adaption<>> left_button_view;
@@ -298,8 +300,8 @@ private:
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
-  ctrl::drop_down_list<raspi::core::four_cc> camera_out_encoding_down;
-  ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
+//  ctrl::drop_down_list<raspi::core::four_cc> camera_out_encoding_down;
+//  ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
   ctrl::drop_down_list<raspi::core::four_cc> encoder_out_encoding_down;
 
   value_block<int32_t> x_pos;
@@ -322,20 +324,22 @@ private:
 
   still camera;
 
-//  typedef encoded encoder_type;
+  typedef encoded encoder_type;
 //  typedef resizer encoder_type;
 //  typedef isp encoder_type;
-  typedef raw encoder_type;
+//  typedef raw encoder_type;
   std::unique_ptr<encoder_type> encoder;
 
   encoder_type::image_data data;
   draw::graymap scan_line;
+
+  MMAL_RECT_T current_crop;
 };
 
 void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
-  auto crop = camera.get_abs_crop();
-  fnkt(crop);
-  camera.set_abs_crop(crop);
+//  auto crop = camera.get_abs_crop();
+  fnkt(current_crop);
+//  camera.set_abs_crop(crop);
 
 #ifdef TRY_CAMERA_CONFIG
   auto cfg = camera.get_camera_config();
@@ -389,11 +393,12 @@ void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
 }
 
 MMAL_RECT_T spectrometer::get_crop () {
-    try {
-        return camera.get_abs_crop();
-    } catch (...) {
-        return MMAL_RECT_T();
-    }
+  return current_crop;
+//    try {
+//        return camera.get_abs_crop();
+//    } catch (...) {
+//        return MMAL_RECT_T();
+//    }
 }
 
 void spectrometer::set_crop (const MMAL_RECT_T& crop) {
@@ -465,31 +470,32 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   right_button_view.create(values_view);
   capture_button.create(right_button_view);
   save_button.create(right_button_view);
+  load_button.create(right_button_view);
   clear_button.create(right_button_view);
 
   values_view.get_layout().add({layout::lay(left_button_view), layout::lay(x_pos), layout::lay(y_pos), layout::lay(w_pos), layout::lay(h_pos),
                                 layout::lay(d_gain), layout::lay(a_gain), layout::lay(ss), layout::lay(iso),
                                 layout::lay(y_scanline), layout::lay(right_button_view)});
 
-  auto camera_encodings = camera.get_still_output_port().get_supported_encodings();
-  camera_out_encoding_down.set_data([=](std::size_t i) { return camera_encodings[i]; }, camera_encodings.size());
-  camera_out_encoding_down.create(right_button_view, {0,0, 20, 20});
-  camera_out_encoding_down.set_visible_items(8);
-  camera_out_encoding_down.items().on_selection_changed([&] (event_source) {
-    auto port = camera.get_still_output_port();
-    port.set_encoding(camera_out_encoding_down.get_selected_item());
-    port.commit_format_change();
-  });
+//  auto camera_encodings = camera.get_still_output_port().get_supported_encodings();
+//  camera_out_encoding_down.set_data([=](std::size_t i) { return camera_encodings[i]; }, camera_encodings.size());
+//  camera_out_encoding_down.create(right_button_view, {0,0, 20, 20});
+//  camera_out_encoding_down.set_visible_items(8);
+//  camera_out_encoding_down.items().on_selection_changed([&] (event_source) {
+//    auto port = camera.get_still_output_port();
+//    port.set_encoding(camera_out_encoding_down.get_selected_item());
+//    port.commit_format_change();
+//  });
 
-  auto in_encodings = encoder->get_input_port().get_supported_encodings();
-  encoder_in_encoding_down.set_data([=](std::size_t i) { return in_encodings[i]; }, in_encodings.size());;
-  encoder_in_encoding_down.create(right_button_view, {0,0, 20, 20});
-  encoder_in_encoding_down.set_visible_items(8);
-  encoder_in_encoding_down.items().on_selection_changed([&] (event_source) {
-    auto port = encoder->get_input_port();
-    port.set_encoding(encoder_in_encoding_down.get_selected_item());
-    port.commit_format_change();
-  });
+//  auto in_encodings = encoder->get_input_port().get_supported_encodings();
+//  encoder_in_encoding_down.set_data([=](std::size_t i) { return in_encodings[i]; }, in_encodings.size());;
+//  encoder_in_encoding_down.create(right_button_view, {0,0, 20, 20});
+//  encoder_in_encoding_down.set_visible_items(8);
+//  encoder_in_encoding_down.items().on_selection_changed([&] (event_source) {
+//    auto port = encoder->get_input_port();
+//    port.set_encoding(encoder_in_encoding_down.get_selected_item());
+//    port.commit_format_change();
+//  });
 
   auto out_encodings = encoder->get_output_port().get_supported_encodings();
   encoder_out_encoding_down.set_data([=](std::size_t i) { return out_encodings[i]; }, out_encodings.size());;
@@ -502,8 +508,9 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
     port.commit_format_change();
   });
 
-  right_button_view.get_layout().add({layout::lay(capture_button), layout::lay(save_button), layout::lay(clear_button),
-                                      layout::lay(camera_out_encoding_down), layout::lay(encoder_in_encoding_down), layout::lay(encoder_out_encoding_down)});
+  right_button_view.get_layout().add({layout::lay(capture_button), layout::lay(save_button), layout::lay(load_button), layout::lay(clear_button),
+//                                      layout::lay(camera_out_encoding_down), layout::lay(encoder_in_encoding_down),
+                                      layout::lay(encoder_out_encoding_down)});
 
   get_layout().set_center_top_bottom_left_right(layout::lay(&capture_view), layout::lay(&spectrum_view), layout::lay(&values_view), nullptr, nullptr);
   load_settings();
@@ -512,11 +519,11 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
 }
 
 void spectrometer::update_encodings () {
-  camera_out_encoding_down.set_selected_item(camera.get_still_output_port().get_encoding());
-  encoder_in_encoding_down.set_selected_item(encoder->get_input_port().get_encoding());
+//  camera_out_encoding_down.set_selected_item(camera.get_still_output_port().get_encoding());
+//  camera_out_encoding_down.invalidate();
+//  encoder_in_encoding_down.set_selected_item(encoder->get_input_port().get_encoding());
+//  encoder_in_encoding_down.invalidate();
   encoder_out_encoding_down.set_selected_item(encoder->get_output_port().get_encoding());
-  camera_out_encoding_down.invalidate();
-  encoder_in_encoding_down.invalidate();
   encoder_out_encoding_down.invalidate();
 }
 
@@ -533,7 +540,7 @@ spectrometer::spectrometer ()
 
     camera.enable();
 
-    encoder = std::unique_ptr<encoder_type>(new encoder_type(camera.get_still_output_port(), encoder_type::OutEncoding::RGB24));
+    encoder = std::unique_ptr<encoder_type>(new encoder_type(camera.get_still_output_port(), encoder_type::OutEncoding::PPM));
     encoder->enable();
 
     encoder->register_handler([&] (const encoder_type::image_data& d) {
@@ -549,14 +556,9 @@ spectrometer::spectrometer ()
   on_destroy(&gui::win::quit_main_loop);
   on_close(util::bind_method(this, &spectrometer::quit));
 
-  //  MMAL_PARAMETER_CROP_T crop = {{MMAL_PARAMETER_CROP, sizeof(MMAL_PARAMETER_CROP_T)}};
-  //  encoder.get_output_port().get(crop.hdr);
-  //  crop.rect.height = sz.height / 2;
-  //  crop.rect.width = sz.width;
-  //  encoder.get_output_port().set(crop.hdr);
-
   capture_button.set_text("Capture");
   save_button.set_text("Save");
+  load_button.set_text("Load");
   clear_button.set_text("Clear");
 
   fullview_button.set_text("1/1");
@@ -566,6 +568,7 @@ spectrometer::spectrometer ()
 
   capture_button.on_clicked(util::bind_method(this, &spectrometer::capture));
   save_button.on_clicked(util::bind_method(this, &spectrometer::save_image));
+  load_button.on_clicked(util::bind_method(this, &spectrometer::load_image));
   clear_button.on_clicked([&] () {
     capture_view.y_scan_pos = camera.get_sensor_size().height / 2;
     y_scanline.refresh();
@@ -675,7 +678,7 @@ void spectrometer::capture () {
 void spectrometer::display () {
   auto sz = camera.get_size();
   auto encoding = (MMAL_FOURCC_T)encoder->get_encoding();
-  clog::debug() << "Display " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_pixel_per_line() << " enc:" << raspi::core::four_cc(encoding);
+  clog::debug() << "Display " << data.size() << " Bytes with dimensions:" << sz.width << "x" << sz.height << " ppl:" << camera.get_bytes_per_line() << " enc:" << raspi::core::four_cc(encoding);
   if (data.size()) {
     switch (encoding) {
       case MMAL_ENCODING_PPM: {
@@ -692,7 +695,7 @@ void spectrometer::display () {
       }
       case MMAL_ENCODING_RGBA:
       case MMAL_ENCODING_RGBA_SLICE: {
-        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line(), PixelFormat::RGBA);
+        bitmap_info bmi(sz.width, sz.height, camera.get_bytes_per_line(), PixelFormat::RGBA);
         const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
@@ -704,7 +707,7 @@ void spectrometer::display () {
       }
       case MMAL_ENCODING_RGB24:
       case MMAL_ENCODING_RGB24_SLICE: {
-        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line(), PixelFormat::RGB);
+        bitmap_info bmi(sz.width, sz.height, camera.get_bytes_per_line(), PixelFormat::RGB);
         const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
@@ -716,7 +719,7 @@ void spectrometer::display () {
       }
       case MMAL_ENCODING_BGRA:
       case MMAL_ENCODING_BGRA_SLICE: {
-        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line(), PixelFormat::BGRA);
+        bitmap_info bmi(sz.width, sz.height, camera.get_bytes_per_line(), PixelFormat::BGRA);
         const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
@@ -728,7 +731,7 @@ void spectrometer::display () {
       }
       case MMAL_ENCODING_BGR24:
       case MMAL_ENCODING_BGR24_SLICE: {
-        bitmap_info bmi(sz.width, sz.height, camera.get_pixel_per_line(), PixelFormat::BGR);
+        bitmap_info bmi(sz.width, sz.height, camera.get_bytes_per_line(), PixelFormat::BGR);
         const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         capture_view.image = image_data;
@@ -761,13 +764,11 @@ void spectrometer::calc_spectrum () {
         g.draw_lines({core::point(x, 0), core::point(x, sz.height())}, draw::pen(rgb));
       }
 
-      const auto w = scan_line.native_size().width();
       const auto data = const_cast<const draw::graymap&>(scan_line).get_data();
-      scale = sz.width() / w;
       core::point last = {0, sz.height()};
-      for (int x = 0; x < w; ++x) {
+      for (int x = 0; x < sz.width(); ++x) {
         auto pixel = data.pixel(x, 0);
-        core::point next = {static_cast<float>(x * scale), 255.0F - static_cast<float>(pixel.value)};
+        core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
         g.draw_lines({last, next}, color::white);
         last = next;
       }
@@ -777,14 +778,25 @@ void spectrometer::calc_spectrum () {
 }
 
 void spectrometer::save_image () {
-  file_save_dialog::show(*this, "Save captured data", "spectrogram.ppm", "Name:", "OK", "Cancel",
+  file_save_dialog::show(*this, "Save captured data", "spectrogram.dat", "Name:", "OK", "Cancel",
                          [&] (const sys_fs::path& path) {
-    std::ofstream file(path);
-    if ((MMAL_FOURCC_T)encoder->get_encoding() != MMAL_ENCODING_PPM) {
-      auto crop = camera.get_abs_crop();
-      file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
-    }
-    file.write((const char*)data.data(), data.size());
+//    std::ofstream file(path);
+//    if ((MMAL_FOURCC_T)encoder->get_encoding() != MMAL_ENCODING_PPM) {
+//      auto crop = camera.get_abs_crop();
+//      file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
+//    }
+    std::ofstream(path).write((const char*)data.data(), data.size());
+  });
+}
+
+void spectrometer::load_image () {
+  file_open_dialog::show(*this, "Load captured data", "OK", "Cancel",
+                         [&] (const sys_fs::path& path) {
+    std::ifstream f(path, std::ios::binary|std::ios::ate);
+    auto len = f.tellg();
+    data.resize(len);
+    f.seekg(0, std::ios::beg);
+    f.read((char*)data.data(), data.size());
   });
 }
 

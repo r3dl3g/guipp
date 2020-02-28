@@ -56,12 +56,23 @@ int APIENTRY WinMain (_In_ HINSTANCE hInstance,
 #ifdef X11
 int main (int argc, char* argv[]) {
 
+  const char* display = NULL;
+
   std::vector<std::string> args;
   for (int i = 0; i < argc; ++i) {
+    if (strcmp(argv[i], "-d") == 0) {
+      ++i;
+      if (i < argc) {
+        display = argv[i];
+      } else {
+        clog::fatal() << "Missing display parameter after '-d'";
+        return 1;
+      }
+    }
     args.push_back(argv[i]);
   }
 
-  gui::core::global::init(XOpenDisplay(0));
+  gui::core::global::init(XOpenDisplay(display));
 #endif // X11
 
   int ret = 0;

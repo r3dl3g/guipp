@@ -59,7 +59,7 @@ public:
   }
 
   pixmap image;
-  uint32_t y_scan_pos;
+  int32_t y_scan_pos;
 };
 
 template<typename T>
@@ -217,7 +217,7 @@ private:
   value_block<uint32_t> ss;
   value_block<uint32_t> iso;
 
-  value_block<uint32_t> y_scanline;
+  value_block<int32_t> y_scanline;
   value_block<int32_t> nm_low;
   value_block<int32_t> nm_high;
 
@@ -238,9 +238,9 @@ private:
   encoder_type::image_data data;
 #else
   std::vector<unsigned char*> data;
-  core::native_size capture_size;
 #endif // BUILD_FOR_ARM
 
+  core::native_size capture_size;
   rgbmap rgb_image;
   draw::graymap scan_line;
 
@@ -311,11 +311,7 @@ const core::native_rect& spectrometer::get_crop () const {
 }
 
 const core::native_size& spectrometer::get_capture_size () const {
-#ifdef BUILD_FOR_ARM
-  return {camera.get_sensor_size().width, camera.get_sensor_size().height};
-#else
   return capture_size;
-#endif // BUILD_FOR_ARM
 }
 
 void spectrometer::set_crop (const core::native_rect& crop) {
@@ -476,14 +472,14 @@ spectrometer::spectrometer ()
 
     encoder->register_handler([&] (const encoder_type::image_data& d) {
         data = d;
-        if (continuous.is_checked()) {
-          encoder->capture(0);
-        }
+        capture_size = {camera.get_sensor_size().width, camera.get_sensor_size().height};
         gui::win::run_on_main([this] () {
             prepare_data();
             search_scanline();
-            update_encodings();
             display();
+            if (continuous.is_checked()) {
+              encoder->capture(0);
+            }
         });
     });
 #else
@@ -559,9 +555,10 @@ spectrometer::spectrometer ()
 
   d_gain.set_label("D-Gain");
   a_gain.set_label("A-Gain");
-  ss.set_steps(2, 4);
+
+  ss.set_steps(15, 20);
   ss.set_label("Shutter");
-  iso.set_steps(2, 4);
+  iso.set_steps(15, 20);
   iso.set_label("ISO");
 
 #ifdef BUILD_FOR_ARM
@@ -578,24 +575,24 @@ spectrometer::spectrometer ()
   d_gain.set_value([&] () { return ostreamfmt(camera.get_digital_gain()); });
   a_gain.set_value([&] () { return ostreamfmt(camera.get_analog_gain()); });
 
-  ss.set_handler([&] (uint32_t step) {
+  ss.set_handler([&] (int32_t step) {
     auto current = camera.get_shutter_speed();
-    if (step > 0.0F) {
-      camera.set_shutter_speed(current * step);
+    if (step > 0) {
+      camera.set_shutter_speed(current * step / 10);
     } else {
-      camera.set_shutter_speed(current / -step);
+      camera.set_shutter_speed(current * 10 / -step);
     }
     ss.refresh();
 //    capture();
   });
   ss.set_value([&] () { return ostreamfmt(camera.get_shutter_speed()); });
 
-  iso.set_handler([&] (uint32_t step) {
+  iso.set_handler([&] (int32_t step) {
     auto current = camera.get_iso();
-    if (step > 0.0F) {
-      camera.set_iso(current * step);
+    if (step > 0) {
+      camera.set_iso(current * step / 10);
     } else {
-      camera.set_iso(std::max<uint32_t>(current / -step, 25));
+      camera.set_iso(std::max<uint32_t>(current * 10 / -step, 25));
     }
     iso.refresh();
 //    capture();
@@ -607,6 +604,7 @@ spectrometer::spectrometer ()
     capture_view.y_scan_pos = std::max<uint32_t>(capture_view.y_scan_pos + step, 0);
     y_scanline.refresh();
     extract_scanline();
+    calc_spectrum();
   });
   y_scanline.set_steps(1, 10);
   y_scanline.set_label("Scanline");

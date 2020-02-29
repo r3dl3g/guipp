@@ -12,6 +12,7 @@
 #include <gui/io/wavelength_to_rgb.h>
 #include <gui/io/pnm.h>
 #include <logging/core.h>
+#include <logging/file_logger.h>
 #include <persistent/ptree_persistent.h>
 
 #include <boost/property_tree/xml_parser.hpp>
@@ -62,10 +63,12 @@ public:
   int32_t y_scan_pos;
 };
 
+using button_group = group_window<layout::vertical_adaption<>>;
+
 template<typename T>
-class value_block : public group_window<layout::vertical_adaption<>> {
+class value_block : public button_group {
 public:
-  using super = layout_container<layout::vertical_adaption<>>;
+  using super = button_group;
   using fnkt = std::function<void(T)>;
 
   value_block ()
@@ -180,26 +183,26 @@ public:
   void change_crop_w (int32_t v);
   void change_crop_h (int32_t v);
 
-  void update_encodings ();
-
   typedef void(crop_fnkt)(core::native_rect&);
   void change_crop (std::function<crop_fnkt>);
 
 private:
-  group_window<layout::vertical_adaption<>> right_button_view;
-  ctrl::text_button capture_button;
-  ctrl::check_box<> continuous;
-  ctrl::text_button save_button;
-  ctrl::text_button load_button;
-  ctrl::text_button search_button;
-
-  group_window<layout::vertical_adaption<>> left_button_view;
+  button_group left_button_view;
   ctrl::text_button fullview_button;
   ctrl::text_button halfview_button;
   ctrl::text_button quarterview_button;
 
-//  ctrl::drop_down_list<raspi::core::four_cc> camera_out_encoding_down;
-//  ctrl::drop_down_list<raspi::core::four_cc> encoder_in_encoding_down;
+  button_group mid_button_view;
+  ctrl::check_box<> continuous;
+  ctrl::text_button norm_button;
+  ctrl::check_box<> compare_check;
+
+  button_group right_button_view;
+  ctrl::text_button capture_button;
+  ctrl::text_button search_button;
+  ctrl::text_button save_button;
+  ctrl::text_button load_button;
+
 #ifdef BUILD_FOR_ARM
   ctrl::drop_down_list<raspi::core::four_cc> encoder_out_encoding_down;
 #else
@@ -221,7 +224,7 @@ private:
   value_block<int32_t> nm_low;
   value_block<int32_t> nm_high;
 
-  group_window<layout::horizontal_adaption<1, 0>> values_view;
+  group_window<layout::horizontal_adaption<0, 2>> values_view;
 
   image_view<> capture_view;
   image_view<> spectrum_view;
@@ -243,6 +246,7 @@ private:
   core::native_size capture_size;
   rgbmap rgb_image;
   draw::graymap scan_line;
+  draw::graymap norm_line;
 
   core::native_rect current_crop;
 
@@ -251,59 +255,12 @@ private:
 };
 
 void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
-//  auto crop = camera.get_abs_crop();
   fnkt(current_crop);
-//  camera.set_abs_crop(crop);
 
-#ifdef TRY_CAMERA_CONFIG
-  auto cfg = camera.get_camera_config();
-  clog::debug() << "Current camera config:" << cfg;
-
-  MMAL_RECT_T crop{0, 0, (int32_t)cfg.max_stills_w, (int32_t)cfg.max_stills_h};
-  fnkt(crop);
-  cfg.max_stills_w = crop.width;
-  cfg.max_stills_h = crop.height;
-
-  camera.set_camera_config(cfg);
-#endif // TRY_CAMERA_CONFIG
-#ifdef TRY_ENCODER_CROP
-  auto port = encoder.get_output_port();
-  auto resize = port.get_resize();
-  auto crop = port.get_crop();
-
-  fnkt(crop);
-
-  resize.mode = MMAL_RESIZE_CROP;
-  resize.max_width = crop.width;
-  resize.max_height = crop.height;
-  resize.preserve_aspect_ratio = MMAL_TRUE;
-  resize.allow_upscaling = MMAL_FALSE;
-
-  MMAL_STATUS_T status = MMAL_SUCCESS;
-//  status = port.set_resize(resize);
-//  clog::debug() << "encoder.set_resize(" << resize << ") returned :"
-//           << mmal_status_to_string(status);
-
-  status = port.set_crop(crop);
-  clog::debug() << "port.set_crop(" << crop << ") returned :"
-           << mmal_status_to_string(status);
-
-  status = port.commit_format_change();
-  clog::debug() << "= port.commit_format_change() returned :"
-           << mmal_status_to_string(status);
-
-//  camera.set_abs_crop(crop);
-//  clog::debug() << "camera.set_abs_crop(" << crop << ") returned :"
-//           << mmal_status_to_string(status);
-#endif // TRY_ENCODER_CROP
-
-  y_scanline.refresh();
   x_pos.refresh();
   y_pos.refresh();
   w_pos.refresh();
   h_pos.refresh();
-  d_gain.refresh();
-  a_gain.refresh();
 }
 
 const core::native_rect& spectrometer::get_crop () const {
@@ -382,36 +339,27 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   nm_low.create(values_view);
   nm_high.create(values_view);
 
+  mid_button_view.create(values_view);
+  continuous.create(mid_button_view);
+  norm_button.create(mid_button_view);
+  compare_check.create(mid_button_view);
+
+  mid_button_view.get_layout().add({layout::lay(continuous), layout::lay(norm_button),
+                                    layout::lay(compare_check), layout::lay(encoder_out_encoding_down)});
+
   right_button_view.create(values_view);
   capture_button.create(right_button_view);
-  continuous.create(right_button_view);
+  search_button.create(right_button_view);
   save_button.create(right_button_view);
   load_button.create(right_button_view);
-  search_button.create(right_button_view);
+
+  right_button_view.get_layout().add({layout::lay(capture_button), layout::lay(search_button),
+                                      layout::lay(save_button), layout::lay(load_button)});
 
   values_view.get_layout().add({layout::lay(left_button_view), layout::lay(x_pos), layout::lay(y_pos), layout::lay(w_pos), layout::lay(h_pos),
                                 layout::lay(d_gain), layout::lay(a_gain), layout::lay(ss), layout::lay(iso),
-                                layout::lay(y_scanline), layout::lay(nm_low), layout::lay(nm_high), layout::lay(right_button_view)});
-
-//  auto camera_encodings = camera.get_still_output_port().get_supported_encodings();
-//  camera_out_encoding_down.set_data([=](std::size_t i) { return camera_encodings[i]; }, camera_encodings.size());
-//  camera_out_encoding_down.create(right_button_view, {0,0, 20, 20});
-//  camera_out_encoding_down.set_visible_items(8);
-//  camera_out_encoding_down.items().on_selection_changed([&] (event_source) {
-//    auto port = camera.get_still_output_port();
-//    port.set_encoding(camera_out_encoding_down.get_selected_item());
-//    port.commit_format_change();
-//  });
-
-//  auto in_encodings = encoder->get_input_port().get_supported_encodings();
-//  encoder_in_encoding_down.set_data([=](std::size_t i) { return in_encodings[i]; }, in_encodings.size());;
-//  encoder_in_encoding_down.create(right_button_view, {0,0, 20, 20});
-//  encoder_in_encoding_down.set_visible_items(8);
-//  encoder_in_encoding_down.items().on_selection_changed([&] (event_source) {
-//    auto port = encoder->get_input_port();
-//    port.set_encoding(encoder_in_encoding_down.get_selected_item());
-//    port.commit_format_change();
-//  });
+                                layout::lay(y_scanline), layout::lay(nm_low), layout::lay(nm_high),
+                                layout::lay(mid_button_view), layout::lay(right_button_view)});
 
 #ifdef BUILD_FOR_ARM
   auto out_encodings = encoder->get_output_port().get_supported_encodings();
@@ -419,7 +367,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
 #else
   encoder_out_encoding_down.set_data([=](std::size_t i) { return "PPM"; }, 1);
 #endif // BUILD_FOR_ARM
-  encoder_out_encoding_down.create(right_button_view, {0,0, 20, 20});;
+  encoder_out_encoding_down.create(mid_button_view, {0,0, 20, 20});;
   encoder_out_encoding_down.set_visible_items(8);
 #ifdef BUILD_FOR_ARM
   encoder_out_encoding_down.set_selected_item(encoder->get_output_port().get_encoding());
@@ -430,25 +378,9 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   });
 #endif // BUILD_FOR_ARM
 
-  right_button_view.get_layout().add({layout::lay(capture_button), layout::lay(continuous), layout::lay(save_button), layout::lay(load_button), layout::lay(search_button),
-//                                      layout::lay(camera_out_encoding_down), layout::lay(encoder_in_encoding_down),
-                                      layout::lay(encoder_out_encoding_down)});
-
   get_layout().set_center_top_bottom_left_right(layout::lay(&capture_view), layout::lay(&spectrum_view), layout::lay(&values_view), nullptr, nullptr);
   load_settings();
-  update_encodings();
 //  set_children_visible();
-}
-
-void spectrometer::update_encodings () {
-//  camera_out_encoding_down.set_selected_item(camera.get_still_output_port().get_encoding());
-//  camera_out_encoding_down.invalidate();
-//  encoder_in_encoding_down.set_selected_item(encoder->get_input_port().get_encoding());
-//  encoder_in_encoding_down.invalidate();
-#ifdef BUILD_FOR_ARM
-  encoder_out_encoding_down.set_selected_item(encoder->get_output_port().get_encoding());
-  encoder_out_encoding_down.invalidate();
-#endif // BUILD_FOR_ARM
 }
 
 spectrometer::spectrometer ()
@@ -456,14 +388,14 @@ spectrometer::spectrometer ()
   , current_crop{80, 500, 1300, 400}
   , nm_range{330, 830}
 {
-//    capture_view.y_scan_pos = 0;
-
 #ifdef BUILD_FOR_ARM
+  camera.set_sensor_mode(raspi::camera::still::SensorModeV2::SM_1640x922_16_9_video_2x2);
     camera.set_iso(50);
     camera.set_shutter_speed(50000);
-    camera.set_sensor_mode(raspi::camera::still::SensorModeV2::SM_1640x922_16_9_video_2x2);
     camera.set_resolution({1640, 922});
-//    camera.set_abs_crop({0, 210, 800, 300});
+    camera.set_awb_mode(still::AWBMode::Off);
+    clog::info() << "Exposure mode:" << camera.get_exposure_mode();
+//    camera.set_exposure_mode(MMAL_PARAM_EXPOSUREMODE_OFF);
 
     camera.enable();
 
@@ -492,6 +424,8 @@ spectrometer::spectrometer ()
 
   capture_button.set_text("Capture");
   continuous.set_text("Continuous");
+  norm_button.set_text("Norm");
+  compare_check.set_text("Compare");
   save_button.set_text("Save");
   load_button.set_text("Load");
   search_button.set_text("Search");
@@ -505,35 +439,41 @@ spectrometer::spectrometer ()
   save_button.on_clicked(util::bind_method(this, &spectrometer::save_image));
   load_button.on_clicked(util::bind_method(this, &spectrometer::load_image));
   search_button.on_clicked(util::bind_method(this, &spectrometer::search_scanline));
+
+  norm_button.on_clicked([&] () {
+    norm_line = scan_line;
+  });
+
   fullview_button.on_clicked([&] () {
 #ifdef BUILD_FOR_ARM
     auto sz = camera.get_sensor_size();
-    set_crop({0, 0, (int32_t)sz.width, (int32_t)sz.height});
+    set_crop({0, 0, sz.width, sz.height});
     camera.set_resolution(sz);
 #else
     set_crop({{}, capture_size});
 #endif // BUILD_FOR_ARM
   });
+
   halfview_button.on_clicked([&] () {
 #ifdef BUILD_FOR_ARM
     still::size sz = camera.get_sensor_size();
     sz = still::size{(uint32_t)(sz.width / 2), (uint32_t)(sz.height / 2)};
-    set_crop({(int32_t)(sz.width / 4), (int32_t)(sz.height / 4), (int32_t)sz.width, (int32_t)sz.height});
+    set_crop({(int32_t)(sz.width / 4), (int32_t)(sz.height / 4), sz.width, sz.height});
     camera.set_resolution(sz);
 #else
     set_crop({(int32_t)(capture_size.width() / 4), (int32_t)(capture_size.height() / 4),
-              (int32_t)capture_size.width() / 2, (int32_t)capture_size.height() / 2});
+              capture_size.width() / 2, capture_size.height() / 2});
 #endif // BUILD_FOR_ARM
   });
   quarterview_button.on_clicked([&] () {
 #ifdef BUILD_FOR_ARM
     still::size sz = camera.get_sensor_size();
     sz = still::size{(uint32_t)(sz.width / 4), (uint32_t)(sz.height / 4)};
-    set_crop({(int32_t)((sz.width / 8) * 3), (int32_t)((sz.height / 8) * 3), (int32_t)sz.width, (int32_t)sz.height});
+    set_crop({(int32_t)((sz.width / 8) * 3), (int32_t)((sz.height / 8) * 3), sz.width, sz.height});
     camera.set_resolution(sz);
 #else
     set_crop({(int32_t)(capture_size.width() / 8 * 3), (int32_t)(capture_size.height() / 8 * 3),
-              (int32_t)capture_size.width() / 4, (int32_t)capture_size.height() / 4});
+              capture_size.width() / 4, capture_size.height() / 4});
 #endif // BUILD_FOR_ARM
   });
 
@@ -605,6 +545,7 @@ spectrometer::spectrometer ()
     y_scanline.refresh();
     extract_scanline();
     calc_spectrum();
+    capture_view.invalidate();
   });
   y_scanline.set_steps(1, 10);
   y_scanline.set_label("Scanline");
@@ -630,12 +571,16 @@ spectrometer::spectrometer ()
 }
 
 void spectrometer::capture () {
+  auto state = camera.get_capture_status();
+  if (state == MMAL_PARAM_CAPTURE_STATUS_CAPTURE_STARTED) {
+    clog::info() << "Already capturing:" << state;
+    return;
+  }
   clog::debug() << "Capture image";
 
 #ifdef BUILD_FOR_ARM
   try {
     encoder->clear_data();
-//    capture_view.image.clear();
     encoder->capture(0);
 
   } catch (std::exception& ex) {
@@ -773,27 +718,41 @@ void spectrometer::calc_spectrum () {
   if (spectrum_view.image.scaled_size() != sz) {
     spectrum_view.image.create(sz);
   }
-  {
-      graphics g(spectrum_view.image);
-      double scale = (nm_range.end() - nm_range.begin()) / sz.width();
-      for (int x = 0; x < sz.width(); ++x) {
-        os::color rgb = io::optics::wave_length_to_rgb(nm_range.begin() + static_cast<double>(x) * scale);
-        g.draw_lines({core::point(x, 0), core::point(x, sz.height())}, draw::pen(rgb));
-      }
 
-      if (capture_view.y_scan_pos > -1) {
-          const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
-          core::point last = {0, sz.height()};
-          for (int x = 0; x < row.width(); ++x) {
-            auto pixel = row.pixel(x, 0);
-            core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
-            g.draw_lines({last, next}, color::white);
-            last = next;
-          }
-      }
+  graphics g(spectrum_view.image);
+  double scale = (nm_range.end() - nm_range.begin()) / sz.width();
+  for (int x = 0; x < sz.width(); ++x) {
+    os::color rgb = io::optics::wave_length_to_rgb(nm_range.begin() + static_cast<double>(x) * scale);
+    g.draw_lines({core::point(x, 0), core::point(x, sz.height())}, draw::pen(rgb));
   }
 
-  spectrum_view.redraw();
+  if (capture_view.y_scan_pos > -1) {
+    core::point last = {0, sz.height()};
+    if (compare_check.is_checked() && norm_line.is_valid()) {
+      const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
+      const auto comp = const_cast<const draw::graymap&>(norm_line).get_data();
+
+      for (int x = 0; x < row.width(); ++x) {
+        auto pixel = row.pixel(x, 0);
+        auto norm = comp.pixel(x, 0);
+
+        core::point next = {static_cast<float>(x), 255.0F - (static_cast<float>(norm.value) - static_cast<float>(pixel.value))};
+        g.draw_lines({last, next}, color::white);
+        last = next;
+      }
+
+    } else {
+      const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
+      for (int x = 0; x < row.width(); ++x) {
+        auto pixel = row.pixel(x, 0);
+        core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
+        g.draw_lines({last, next}, color::white);
+        last = next;
+      }
+    }
+  }
+
+  spectrum_view.invalidate();
 }
 
 void spectrometer::save_image () {
@@ -822,11 +781,11 @@ void spectrometer::load_image () {
   });
 }
 
-struct settings : public persistent::ptree_struct<persistent::int32, persistent::int32, persistent::int32, persistent::int32,
+struct settings : public persistent::ptree_struct<persistent::int32, persistent::int32, persistent::dword, persistent::dword,
                                                   persistent::float32, persistent::float32,
                                                   persistent::dword, persistent::dword, persistent::dword,
                                                   persistent::int32, persistent::int32> {
-  typedef persistent::ptree_struct<persistent::int32, persistent::int32, persistent::int32, persistent::int32,
+  typedef persistent::ptree_struct<persistent::int32, persistent::int32, persistent::dword, persistent::dword,
                                    persistent::float32, persistent::float32,
                                    persistent::dword, persistent::dword, persistent::dword,
                                    persistent::int32, persistent::int32> super;
@@ -869,8 +828,8 @@ struct settings : public persistent::ptree_struct<persistent::int32, persistent:
 
   persistent::int32 x;
   persistent::int32 y;
-  persistent::int32 w;
-  persistent::int32 h;
+  persistent::dword w;
+  persistent::dword h;
   persistent::float32 d_gain;
   persistent::float32 a_gain;
   persistent::dword ss;
@@ -958,6 +917,10 @@ int gui_main(const std::vector<std::string>& /*args*/) {
 //  bcm_host_init();
 //  bcm_host_deinit();
 //  return 0;
+
+  std::string fname = "spektrometer.log";
+  logging::core::rename_file_with_max_count(fname, 5);
+  logging::file_logger flog(fname, logging::level::debug, logging::core::get_standard_formatter());
 
   spectrometer main;
 

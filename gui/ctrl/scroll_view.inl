@@ -29,4 +29,16 @@ namespace gui {
 
   } // namespace layout
 
+  namespace ctrl {
+
+    // --------------------------------------------------------------------------
+    template<os::color B>
+    void scroll_view<B>::create (const container& parent,
+                                 const core::rectangle& place) {
+      super::create(clazz::get(), parent, place);
+      super::create_children(place);
+    }
+
+  } // ctrl
+
 } // gui

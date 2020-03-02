@@ -442,7 +442,7 @@ namespace gui {
       return { (short)(pt.x + i), (short)(pt.y + i) };
     }
 
-    const graphics& graphics::draw_lines (std::initializer_list<core::point> pts,
+    const graphics& graphics::draw_lines (std::vector<core::point> pts,
                                           const pen& p) const {
 
       Use<pen> pn(gc, p);
@@ -608,10 +608,6 @@ namespace gui {
 
     const graphics& graphics::copy_from (const graphics& src, const core::point& pt) const {
       return copy_from(src, src.native_area(), core::global::scale(pt));
-    }
-
-    const graphics& graphics::copy_from (const graphics& src, const core::rectangle& r, const core::point& pt) const {
-      return copy_from(src, core::global::scale(r), core::global::scale(pt));
     }
 
     const graphics& graphics::copy_from (const graphics& src, const core::native_point& pt) const {

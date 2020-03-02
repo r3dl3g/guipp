@@ -142,7 +142,7 @@ private:
 
   int curent_full_image_view;
 
-  ctrl::scroll_view side_scroll;
+  ctrl::scroll_view<> side_scroll;
   view::side_bar filter_list;
 
   bool learning_mode;

@@ -867,7 +867,7 @@ namespace gui {
 
       auto state = get_state();
 
-      if (state.is_redraw_disabled() && !is_visible()) {
+      if (state.is_redraw_disabled() || !is_visible()) {
 //        get_state().set_needs_redraw(true);
         return;
       }

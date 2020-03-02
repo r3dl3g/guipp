@@ -81,7 +81,7 @@ namespace gui {
 
       os::color get_pixel (const core::native_point&) const;
 
-      const graphics& draw_lines (std::initializer_list<core::point> points,
+      const graphics& draw_lines (std::vector<core::point> points,
                                   const pen& pen) const;
 
       const graphics& frame (const std::function<frameable>&, const pen& pen) const;
@@ -91,7 +91,6 @@ namespace gui {
       const graphics& copy (const std::function<copyable>&, const core::point&) const;
 
       const graphics& copy_from (const graphics&, const core::point& dest) const;
-      const graphics& copy_from (const graphics&, const core::rectangle& src, const core::point& dest = core::point::zero) const;
 
       const graphics& copy_from (const draw::pixmap&, const core::point& dest) const;
       const graphics& copy_from (const draw::pixmap&, const core::rectangle& src, const core::point& dest) const;

@@ -89,12 +89,11 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    class GUIPP_CTRL_EXPORT scroll_view : public win::layout_container<layout::scroll_view> {
+    class GUIPP_CTRL_EXPORT scroll_view_base : public win::layout_container<layout::scroll_view> {
     public:
       typedef win::layout_container<layout::scroll_view> super;
-      typedef win::window_class<scroll_view, IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)> clazz;
 
-      scroll_view ();
+      scroll_view_base ();
 
       void set_scroll_pos (const core::point& pt);
       core::point get_scroll_pos () const;
@@ -104,12 +103,11 @@ namespace gui {
       bool is_vscroll_bar_enabled () const;
       bool is_hscroll_bar_enabled () const;
 
-      void create (const win::container& parent,
-                   const core::rectangle& place = core::rectangle::def);
-
       void move_children (const core::size& delta);
 
     protected:
+      void create_children (const core::rectangle& place);
+
       vertical_scroll_bar& get_vscroll ();
       horizontal_scroll_bar& get_hscroll ();
       window& get_edge ();
@@ -119,6 +117,18 @@ namespace gui {
       vertical_scroll_bar   vscroll;
       horizontal_scroll_bar hscroll;
       client_control<>      edge;
+
+    };
+
+    // --------------------------------------------------------------------------
+    template<os::color background = IF_WIN32_ELSE((os::color)(COLOR_WINDOW + 1), color::white)>
+    class GUIPP_CTRL_EXPORT scroll_view : public scroll_view_base {
+    public:
+      typedef scroll_view_base super;
+      typedef win::window_class<scroll_view, background> clazz;
+
+      void create (const win::container& parent,
+                   const core::rectangle& place = core::rectangle::def);
 
     };
 

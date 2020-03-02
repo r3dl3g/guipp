@@ -226,7 +226,7 @@ namespace gui {
   namespace ctrl {
 
     // --------------------------------------------------------------------------
-    scroll_view::scroll_view () {
+    scroll_view_base::scroll_view_base () {
       get_layout().set_main(this);
       get_layout().init(&vscroll, &hscroll, &edge);
 
@@ -239,15 +239,7 @@ namespace gui {
       });
     }
 
-    void scroll_view::create (const container& parent,
-                              const core::rectangle& place) {
-      super::create(clazz::get(), parent, place);
-      vscroll.create(*this, layout::scroll_view::get_vscroll_area(place, true));
-      hscroll.create(*this, layout::scroll_view::get_hscroll_area(place, true));
-      edge.create(*this, layout::scroll_view::get_edge_area(place));
-    }
-
-    void scroll_view::move_children (const core::size& delta) {
+    void scroll_view_base::move_children (const core::size& delta) {
       if (delta == core::size::zero) {
         return;
       }
@@ -262,17 +254,17 @@ namespace gui {
       get_layout().set_in_scroll_event(false);
     }
 
-    void scroll_view::set_scroll_pos (const core::point& pt) {
+    void scroll_view_base::set_scroll_pos (const core::point& pt) {
       hscroll.set_value(pt.x());
       vscroll.set_value(pt.y());
     }
 
-    core::point scroll_view::get_scroll_pos () const {
+    core::point scroll_view_base::get_scroll_pos () const {
       return {core::point::type(hscroll.get_value()),
               core::point::type(vscroll.get_value())};
     }
 
-    void scroll_view::enable_vscroll_bar (bool enable) {
+    void scroll_view_base::enable_vscroll_bar (bool enable) {
       vscroll.set_visible(enable);
       if (enable) {
         bool hscroll_bar_enabled = is_hscroll_bar_enabled();
@@ -288,7 +280,7 @@ namespace gui {
       }
     }
 
-    void scroll_view::enable_hscroll_bar (bool enable) {
+    void scroll_view_base::enable_hscroll_bar (bool enable) {
       hscroll.set_visible(enable);
       if (enable) {
         bool vscroll_bar_enabled = is_vscroll_bar_enabled();
@@ -304,24 +296,30 @@ namespace gui {
       }
     }
 
-    bool scroll_view::is_vscroll_bar_enabled () const {
+    bool scroll_view_base::is_vscroll_bar_enabled () const {
       return vscroll.is_visible();
     }
 
-    bool scroll_view::is_hscroll_bar_enabled () const {
+    bool scroll_view_base::is_hscroll_bar_enabled () const {
       return hscroll.is_visible();
     }
 
-    vertical_scroll_bar& scroll_view::get_vscroll () {
+    vertical_scroll_bar& scroll_view_base::get_vscroll () {
       return vscroll;
     }
 
-    horizontal_scroll_bar& scroll_view::get_hscroll () {
+    horizontal_scroll_bar& scroll_view_base::get_hscroll () {
       return hscroll;
     }
 
-    win::window& scroll_view::get_edge () {
+    win::window& scroll_view_base::get_edge () {
       return edge;
+    }
+
+    void scroll_view_base::create_children (const core::rectangle& place) {
+      vscroll.create(*this, layout::scroll_view::get_vscroll_area(place, true));
+      hscroll.create(*this, layout::scroll_view::get_hscroll_area(place, true));
+      edge.create(*this, layout::scroll_view::get_edge_area(place));
     }
 
   } // ctrl

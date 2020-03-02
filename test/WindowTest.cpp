@@ -153,7 +153,7 @@ public:
   }
 
 private:
-  ctrl::scroll_view scroll_view;
+  ctrl::scroll_view<> scroll_view;
 
   ctrl::client_control<> window1;
   ctrl::client_control<> window2;

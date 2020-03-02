@@ -7,6 +7,7 @@
 #include <gui/ctrl/button.h>
 #include <gui/ctrl/drop_down.h>
 #include <gui/ctrl/std_dialogs.h>
+#include <gui/ctrl/scroll_view.h>
 #include <gui/draw/graphics.h>
 #include <gui/draw/bitmap.h>
 #include <gui/io/wavelength_to_rgb.h>
@@ -43,25 +44,75 @@ const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 template<os::color background = nero>
 class image_view : public client_control<background> {
 public:
+  using super = client_control<background>;
+
   image_view ()
-    : y_scan_pos(-1) {
+    : scan_pos(-1) {
     this->on_paint(draw::paint([&] (const graphics& graph) {
       graph.clear(background);
       if (image.is_valid()) {
-        graph.copy_from(image, core::point::zero);
-        if (y_scan_pos > -1) {
-          const auto w = image.scaled_size().width();
-          graph.draw_lines({core::point(0, y_scan_pos - 1), core::point(w, y_scan_pos - 1)}, color::white);
-          graph.draw_lines({core::point(0, y_scan_pos + 1), core::point(w, y_scan_pos + 1)}, color::white);
+        if (scan_pos > -1) {
+          core::size sz = image.scaled_size();
+          const auto w = sz.width();
+          const auto h = sz.height();
+          int32_t top = std::min(h - 100.0F, std::max(0.0F, scan_pos - 50.0F));
+          graph.copy_from(image, core::rectangle(0, top, w, 100.0F));
+          graph.copy_from(image, core::rectangle(0, scan_pos - top, w, 1), core::point(0, scan_pos - top), copy_mode::bit_dest_invert);
+        } else {
+          graph.copy_from(image, core::point::zero);
         }
       }
-
     }));
   }
 
+  void set_image (const pixmap&);
+  pixmap& get_image ();
+
+  int32_t get_scan_pos () const;
+  void set_scan_pos (const int32_t&);
+
+private:
+  core::rectangle get_image_area () const;
+
+  int32_t scan_pos;
   pixmap image;
-  int32_t y_scan_pos;
 };
+
+template<os::color B>
+core::rectangle image_view<B>::get_image_area () const {
+  if (image.is_valid()) {
+    core::size sz = image.scaled_size();
+    if (scan_pos > -1) {
+      int32_t top = std::min(sz.height() - 100.0F, std::max(0.0F, scan_pos - 50.0F));
+      return core::rectangle(0, top, sz.width(), 100.0F);
+    } else {
+      return core::rectangle(sz);
+    }
+  }
+  return {};
+}
+
+template<os::color B>
+void image_view<B>::set_image (const pixmap& img) {
+  image = img;
+  super::resize(get_image_area().size());
+}
+
+template<os::color B>
+pixmap& image_view<B>::get_image () {
+  return image;
+}
+
+template<os::color B>
+int32_t image_view<B>::get_scan_pos() const {
+  return scan_pos;
+}
+
+template<os::color B>
+void image_view<B>::set_scan_pos(const int32_t& value) {
+  scan_pos = value;
+  super::resize(get_image_area().size());
+}
 
 using button_group = group_window<layout::vertical_adaption<>>;
 
@@ -226,6 +277,7 @@ private:
 
   group_window<layout::horizontal_adaption<0, 2>> values_view;
 
+  ctrl::scroll_view<nero> capture_scroll;
   image_view<> capture_view;
   image_view<> spectrum_view;
 
@@ -316,7 +368,8 @@ void spectrometer::quit () {
 }
 
 void spectrometer::onCreated (window*, const core::rectangle&) {
-  capture_view.create(*this);
+  capture_scroll.create(*this);
+  capture_view.create(capture_scroll);
   spectrum_view.create(*this);
   values_view.create(*this);
 
@@ -378,7 +431,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   });
 #endif // BUILD_FOR_ARM
 
-  get_layout().set_center_top_bottom_left_right(layout::lay(&capture_view), layout::lay(&spectrum_view), layout::lay(&values_view), nullptr, nullptr);
+  get_layout().set_center_top_bottom_left_right(layout::lay(&capture_scroll), layout::lay(&spectrum_view), layout::lay(&values_view), nullptr, nullptr);
   load_settings();
 //  set_children_visible();
 }
@@ -541,7 +594,7 @@ spectrometer::spectrometer ()
 #endif // BUILD_FOR_ARM
 
   y_scanline.set_handler([&] (uint32_t step) {
-    capture_view.y_scan_pos = std::max<uint32_t>(capture_view.y_scan_pos + step, 0);
+    capture_view.set_scan_pos(std::max<uint32_t>(capture_view.get_scan_pos() + step, 0));
     y_scanline.refresh();
     extract_scanline();
     calc_spectrum();
@@ -549,7 +602,7 @@ spectrometer::spectrometer ()
   });
   y_scanline.set_steps(1, 10);
   y_scanline.set_label("Scanline");
-  y_scanline.set_value([&] () { return ostreamfmt(capture_view.y_scan_pos); });
+  y_scanline.set_value([&] () { return ostreamfmt(capture_view.get_scan_pos()); });
 
   nm_low.set_handler(0, 1500, [&] (int32_t l) {
     nm_range = {nm_range.begin() + l, nm_range.end()};
@@ -571,6 +624,7 @@ spectrometer::spectrometer ()
 }
 
 void spectrometer::capture () {
+#ifdef BUILD_FOR_ARM
   auto state = camera.get_capture_status();
   if (state == MMAL_PARAM_CAPTURE_STATUS_CAPTURE_STARTED) {
     clog::info() << "Already capturing:" << state;
@@ -578,7 +632,6 @@ void spectrometer::capture () {
   }
   clog::debug() << "Capture image";
 
-#ifdef BUILD_FOR_ARM
   try {
     encoder->clear_data();
     encoder->capture(0);
@@ -605,7 +658,7 @@ void spectrometer::search_scanline () {
         current_row = y;
       }
     }
-    capture_view.y_scan_pos = current_row;
+    capture_view.set_scan_pos(current_row);
     y_scanline.refresh();
     extract_scanline();
     calc_spectrum();
@@ -617,8 +670,8 @@ void spectrometer::display () {
 }
 
 void spectrometer::extract_scanline () {
-  if (rgb_image.is_valid() && (capture_view.y_scan_pos > -1)) {
-      const auto sub = rgb_image.sub(0, capture_view.y_scan_pos, get_capture_size().width(), 1);
+  if (rgb_image.is_valid() && (capture_view.get_scan_pos() > -1)) {
+      const auto sub = rgb_image.sub(0, capture_view.get_scan_pos(), get_capture_size().width(), 1);
       scan_line = sub.convert<PixelFormat::GRAY>();
   }
 }
@@ -644,11 +697,11 @@ void spectrometer::prepare_data () {
         capture_size = rgb_image.native_size();
 #endif // BUILD_FOR_ARM
         clog::debug() << "Display image with dimensions:" << get_capture_size() << ", ppl:" << rgb_image.pixel_format();
-        if ((current_crop.width() != sz.width()) || (current_crop.height() != sz.height())) {
-          auto sub = rgb_image.sub(current_crop.x(), current_crop.y(), current_crop.width(), current_crop.height());
+        if ((current_crop.width() != sz.width())/* || (current_crop.height() != sz.height())*/) {
+          auto sub = rgb_image.sub(current_crop.x(), 0, current_crop.width(), sz.height());
           rgb_image = sub;
         }
-        capture_view.image = rgb_image;
+        capture_view.set_image(rgb_image);
 #ifdef BUILD_FOR_ARM
         break;
       }
@@ -660,8 +713,8 @@ void spectrometer::prepare_data () {
         rgb_image = image_data;
         capture_view.image = rgb_image;
 //        scan_line.create(sz.width, 1);
-//        if (capture_view.y_scan_pos > -1) {
-//            convert::format::line<PixelFormat::RGBA, PixelFormat::GRAY>::convert(image_data.row(capture_view.y_scan_pos), scan_line.get_data().row(0), sz.width);
+//        if (capture_view.get_scan_pos() > -1) {
+//            convert::format::line<PixelFormat::RGBA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
@@ -673,8 +726,8 @@ void spectrometer::prepare_data () {
         rgb_image = image_data;
         capture_view.image = rgb_image;
 //        scan_line.create(sz.width, 1);
-//        if (capture_view.y_scan_pos > -1) {
-//            convert::format::line<PixelFormat::RGB, PixelFormat::GRAY>::convert(image_data.row(capture_view.y_scan_pos), scan_line.get_data().row(0), sz.width);
+//        if (capture_view.get_scan_pos() > -1) {
+//            convert::format::line<PixelFormat::RGB, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
@@ -686,8 +739,8 @@ void spectrometer::prepare_data () {
         rgb_image = image_data;
         capture_view.image = rgb_image;
 //        scan_line.create(sz.width, 1);
-//        if (capture_view.y_scan_pos > -1) {
-//            convert::format::line<PixelFormat::BGRA, PixelFormat::GRAY>::convert(image_data.row(capture_view.y_scan_pos), scan_line.get_data().row(0), sz.width);
+//        if (capture_view.get_scan_pos() > -1) {
+//            convert::format::line<PixelFormat::BGRA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
@@ -699,8 +752,8 @@ void spectrometer::prepare_data () {
         rgb_image = image_data;
         capture_view.image = rgb_image;
 //        scan_line.create(sz.width, 1);
-//        if (capture_view.y_scan_pos > -1) {
-//            convert::format::line<PixelFormat::BGR, PixelFormat::GRAY>::convert(image_data.row(capture_view.y_scan_pos), scan_line.get_data().row(0), sz.width);
+//        if (capture_view.get_scan_pos() > -1) {
+//            convert::format::line<PixelFormat::BGR, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
@@ -714,20 +767,25 @@ void spectrometer::prepare_data () {
 }
 
 void spectrometer::calc_spectrum () {
-  core::size sz = { static_cast<float>(scan_line.native_size().width() > 0 ? scan_line.native_size().width() : get_capture_size().width()), spectrum_view.size().height() };
-  if (spectrum_view.image.scaled_size() != sz) {
-    spectrum_view.image.create(sz);
+  core::size sz = { static_cast<float>(scan_line.scaled_size().width() > 0 ? scan_line.scaled_size().width() : get_capture_size().width()), spectrum_view.size().height() };
+  if (spectrum_view.get_image().scaled_size() != sz) {
+    spectrum_view.get_image().create(sz);
   }
 
-  graphics g(spectrum_view.image);
+  graphics g(spectrum_view.get_image());
   double scale = (nm_range.end() - nm_range.begin()) / sz.width();
   for (int x = 0; x < sz.width(); ++x) {
     os::color rgb = io::optics::wave_length_to_rgb(nm_range.begin() + static_cast<double>(x) * scale);
     g.draw_lines({core::point(x, 0), core::point(x, sz.height())}, draw::pen(rgb));
   }
 
-  if (capture_view.y_scan_pos > -1) {
-    core::point last = {0, sz.height()};
+  if (capture_view.get_scan_pos() > -1) {
+
+    auto display = core::global::get_instance();
+    XGCValues values = { GXinvert };
+    XChangeGC(display, g.os(), GCFunction, &values);
+
+    std::vector<core::point> lines;
     if (compare_check.is_checked() && norm_line.is_valid()) {
       const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
       const auto comp = const_cast<const draw::graymap&>(norm_line).get_data();
@@ -737,8 +795,7 @@ void spectrometer::calc_spectrum () {
         auto norm = comp.pixel(x, 0);
 
         core::point next = {static_cast<float>(x), 255.0F - (static_cast<float>(norm.value) - static_cast<float>(pixel.value))};
-        g.draw_lines({last, next}, color::white);
-        last = next;
+        lines.push_back(next);
       }
 
     } else {
@@ -746,10 +803,13 @@ void spectrometer::calc_spectrum () {
       for (int x = 0; x < row.width(); ++x) {
         auto pixel = row.pixel(x, 0);
         core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
-        g.draw_lines({last, next}, color::white);
-        last = next;
+        lines.push_back(next);
       }
     }
+    g.draw_lines(lines, color::white);
+
+    values = { GXcopy }; // .function =
+    XChangeGC(display, g.os(), GCFunction, &values);
   }
 
   spectrum_view.invalidate();
@@ -758,11 +818,6 @@ void spectrometer::calc_spectrum () {
 void spectrometer::save_image () {
   file_save_dialog::show(*this, "Save captured data", "spectrogram.dat", "Name:", "OK", "Cancel",
                          [&] (const sys_fs::path& path) {
-//    std::ofstream file(path);
-//    if ((MMAL_FOURCC_T)encoder->get_encoding() != MMAL_ENCODING_PPM) {
-//      auto crop = camera.get_abs_crop();
-//      file << "P6" << std::endl << crop.width << " " << crop.height << std::endl << "255" << std::endl;
-//    }
     std::ofstream(path).write((const char*)data.data(), data.size());
   });
 }
@@ -864,7 +919,7 @@ void spectrometer::save_settings () {
   uint32_t iso = 50;
 #endif // BUILD_FOR_ARM
 
-  settings s(current_crop, dg, ag, ss, iso, capture_view.y_scan_pos, nm_range.begin(), nm_range.end());
+  settings s(current_crop, dg, ag, ss, iso, capture_view.get_scan_pos(), nm_range.begin(), nm_range.end());
 
   using boost::property_tree::ptree;
   namespace xml = boost::property_tree::xml_parser;
@@ -892,10 +947,10 @@ void spectrometer::load_settings () {
     xml::read_xml("spectrometer.xml", xml_main, xml::no_comments);
     auto opt = xml_main.get_child_optional("spectrometer");
     if (opt) {
-      settings s(current_crop, 1, 1, 50000, 50, capture_view.y_scan_pos, nm_range.begin(), nm_range.end());
+      settings s(current_crop, 1, 1, 50000, 50, capture_view.get_scan_pos(), nm_range.begin(), nm_range.end());
       s.read(opt.get());
       current_crop = {s.x(), s.y(), s.w(), s.h()};
-      capture_view.y_scan_pos = s.y_scanline();
+      capture_view.set_scan_pos(s.y_scanline());
       nm_range = {s.nm_low(), s.nm_high()};
 
       y_scanline.refresh();

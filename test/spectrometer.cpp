@@ -69,17 +69,16 @@ public:
   using super = client_control<background>;
 
   image_view ()
-    : scan_pos(-1) {
+    : scan_pos(-1)
+    , scan_width(100)
+  {
     this->on_paint(draw::paint([&] (const graphics& graph) {
       graph.clear(background);
       if (image.is_valid()) {
         if (scan_pos > -1) {
-          core::size sz = image.scaled_size();
-          const auto w = sz.width();
-          const auto h = sz.height();
-          int32_t top = std::min(h - 100.0F, std::max(0.0F, scan_pos - 50.0F));
-          graph.copy_from(image, core::rectangle(0, top, w, 100.0F));
-          graph.copy_from(image, core::rectangle(0, scan_pos - top, w, 1), core::point(0, scan_pos - top), copy_mode::bit_dest_invert);
+          const core::rectangle r = get_image_area();
+          graph.copy_from(image, r);
+          graph.copy_from(image, core::rectangle(0, scan_pos - r.y(), r.width(), 1), core::point(0, scan_pos - r.y()), copy_mode::bit_dest_invert);
         } else {
           graph.copy_from(image, core::point::zero);
         }
@@ -87,16 +86,37 @@ public:
     }));
   }
 
-  void set_image (const pixmap&);
-  pixmap& get_image ();
+  void set_image (const pixmap& img) {
+    image = img;
+    super::resize(get_image_area().size());
+  }
 
-  int32_t get_scan_pos () const;
-  void set_scan_pos (const int32_t&);
+  pixmap& get_image () {
+    return image;
+  }
+
+  int32_t get_scan_pos () const {
+    return scan_pos;
+  }
+
+  void set_scan_pos (int32_t value) {
+    scan_pos = value;
+    super::resize(get_image_area().size());
+  }
+
+  int32_t get_scan_width () const {
+    return scan_width;
+  }
+
+  void set_scan_width (int32_t value) {
+    scan_width = value;
+  }
 
 private:
   core::rectangle get_image_area () const;
 
   int32_t scan_pos;
+  int32_t scan_width;
   pixmap image;
 };
 
@@ -105,35 +125,14 @@ core::rectangle image_view<B>::get_image_area () const {
   if (image.is_valid()) {
     core::size sz = image.scaled_size();
     if (scan_pos > -1) {
-      int32_t top = std::min(sz.height() - 100.0F, std::max(0.0F, scan_pos - 50.0F));
-      return core::rectangle(0, top, sz.width(), 100.0F);
+      const float sw = static_cast<float>(scan_width);
+      int32_t top = std::min(sz.height() - sw, std::max(0.0F, scan_pos - sw / 2.0F));
+      return core::rectangle(0, top, sz.width(), sw);
     } else {
       return core::rectangle(sz);
     }
   }
   return {};
-}
-
-template<os::color B>
-void image_view<B>::set_image (const pixmap& img) {
-  image = img;
-  super::resize(get_image_area().size());
-}
-
-template<os::color B>
-pixmap& image_view<B>::get_image () {
-  return image;
-}
-
-template<os::color B>
-int32_t image_view<B>::get_scan_pos() const {
-  return scan_pos;
-}
-
-template<os::color B>
-void image_view<B>::set_scan_pos(const int32_t& value) {
-  scan_pos = value;
-  super::resize(get_image_area().size());
 }
 
 using button_group = group_window<layout::vertical_adaption<>>;
@@ -252,9 +251,7 @@ public:
   const core::native_size& get_capture_size () const;
 
   void change_crop_x (int32_t v);
-  void change_crop_y (int32_t v);
   void change_crop_w (int32_t v);
-  void change_crop_h (int32_t v);
 
   typedef void(crop_fnkt)(core::native_rect&);
   void change_crop (std::function<crop_fnkt>);
@@ -283,7 +280,6 @@ private:
 #endif // BUILD_FOR_ARM
 
   value_block<int32_t> x_pos;
-  value_block<int32_t> y_pos;
   value_block<int32_t> w_pos;
   value_block<int32_t> h_pos;
 
@@ -332,7 +328,6 @@ void spectrometer::change_crop (std::function<crop_fnkt> fnkt) {
   fnkt(current_crop);
 
   x_pos.refresh();
-  y_pos.refresh();
   w_pos.refresh();
   h_pos.refresh();
 }
@@ -356,24 +351,10 @@ void spectrometer::change_crop_x (int32_t v) {
   });
 }
 
-void spectrometer::change_crop_y (int32_t v) {
-  change_crop([&,v] (core::native_rect& crop) {
-    crop.y(std::min<int32_t>(std::max<int32_t>(crop.y() + v, 0), ci32(get_capture_size().height())));
-    crop.height(std::min<uint32_t>(crop.height(), cu32(get_capture_size().height() - crop.y())));
-  });
-}
-
 void spectrometer::change_crop_w (int32_t v) {
   change_crop([&,v] (core::native_rect& crop) {
     crop.width(std::min<uint32_t>(std::max<uint32_t>(cu32(crop.width() + v), 0), get_capture_size().width()));
     crop.x(std::min<int32_t>(crop.x(), ci32(get_capture_size().width()) - ci32(crop.width())));
-  });
-}
-
-void spectrometer::change_crop_h (int32_t v) {
-  change_crop([&,v] (core::native_rect& crop) {
-    crop.height(std::min<uint32_t>(std::max<uint32_t>(cu32(crop.height() + v), 0), get_capture_size().height()));
-    crop.y(std::min<int32_t>(crop.y(), ci32(get_capture_size().height()) - ci32(crop.height())));
   });
 }
 
@@ -403,7 +384,6 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   left_button_view.get_layout().add({layout::lay(fullview_button), layout::lay(halfview_button), layout::lay(quarterview_button)});
 
   x_pos.create(values_view);
-  y_pos.create(values_view);
   w_pos.create(values_view);
   h_pos.create(values_view);
   d_gain.create(values_view);
@@ -431,7 +411,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
   right_button_view.get_layout().add({layout::lay(capture_button), layout::lay(search_button),
                                       layout::lay(save_button), layout::lay(load_button)});
 
-  values_view.get_layout().add({layout::lay(left_button_view), layout::lay(x_pos), layout::lay(y_pos), layout::lay(w_pos), layout::lay(h_pos),
+  values_view.get_layout().add({layout::lay(left_button_view), layout::lay(x_pos), layout::lay(w_pos), layout::lay(h_pos),
                                 layout::lay(d_gain), layout::lay(a_gain), layout::lay(ss), layout::lay(iso),
                                 layout::lay(y_scanline), layout::lay(nm_low), layout::lay(nm_high),
                                 layout::lay(mid_button_view), layout::lay(right_button_view)});
@@ -460,7 +440,7 @@ void spectrometer::onCreated (window*, const core::rectangle&) {
 
 spectrometer::spectrometer ()
   : super(255, 160, 0, 0)
-  , current_crop{80, 500, 1300, 400}
+  , current_crop{80, 500, 1300, 100}
   , nm_range{330, 830}
 {
 #ifdef BUILD_FOR_ARM
@@ -556,17 +536,17 @@ spectrometer::spectrometer ()
   x_pos.set_label("X");
   x_pos.set_value([&] () { return ostreamfmt(get_crop().x()); });
 
-  y_pos.set_handler(8, 40, util::bind_method(this, &spectrometer::change_crop_y));
-  y_pos.set_label("Y");
-  y_pos.set_value([&] () { return ostreamfmt(get_crop().y()); });
-
   w_pos.set_handler(8, 80, util::bind_method(this, &spectrometer::change_crop_w));
   w_pos.set_label("W");
   w_pos.set_value([&] () { return ostreamfmt(get_crop().width()); });
 
-  h_pos.set_handler(8, 40, util::bind_method(this, &spectrometer::change_crop_h));
+  h_pos.set_handler(8, 40, [&] (int32_t value) {
+    capture_view.set_scan_width(capture_view.get_scan_width() + value);
+  });
   h_pos.set_label("H");
-  h_pos.set_value([&] () { return ostreamfmt(get_crop().height()); });
+  h_pos.set_value([&] () {
+    return ostreamfmt(capture_view.get_scan_width());
+  });
 
   d_gain.set_label("D-Gain");
   a_gain.set_label("A-Gain");
@@ -978,7 +958,6 @@ void spectrometer::load_settings () {
 
       y_scanline.refresh();
       x_pos.refresh();
-      y_pos.refresh();
       w_pos.refresh();
       h_pos.refresh();
 

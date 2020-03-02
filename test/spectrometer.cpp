@@ -38,6 +38,28 @@ using namespace raspi::camera;
 using namespace raspi::encoder;
 #endif // BUILD_FOR_ARM
 
+
+template<typename T>
+uint32_t cu32 (T v) {
+  return static_cast<uint32_t>(v);
+}
+
+template<typename T>
+int32_t ci32 (T v) {
+  return static_cast<int32_t>(v);
+}
+
+template<typename T>
+uint8_t cu8 (T v) {
+  return static_cast<uint8_t>(v);
+}
+
+template<typename T>
+int8_t ci8 (T v) {
+  return static_cast<int8_t>(v);
+}
+
+
 const os::color nero = color::rgb<64,66,68>::value;
 const os::color silver = color::rgb<0xC3,0xC6,0xC7>::value;
 
@@ -329,29 +351,29 @@ void spectrometer::set_crop (const core::native_rect& crop) {
 
 void spectrometer::change_crop_x (int32_t v) {
   change_crop([&,v] (core::native_rect& crop) {
-    crop.x(std::min<int32_t>(std::max<int32_t>(crop.x() + v, 0), get_capture_size().width()));
-    crop.width(std::min<int32_t>(crop.width(), get_capture_size().width() - crop.x()));
+    crop.x(std::min<int32_t>(std::max<int32_t>(crop.x() + v, 0), ci32(get_capture_size().width())));
+    crop.width(std::min<uint32_t>(crop.width(), cu32(get_capture_size().width() - crop.x())));
   });
 }
 
 void spectrometer::change_crop_y (int32_t v) {
   change_crop([&,v] (core::native_rect& crop) {
-    crop.y(std::min<int32_t>(std::max<int32_t>(crop.y() + v, 0), get_capture_size().height()));
-    crop.height(std::min<int32_t>(crop.height(), get_capture_size().height() - crop.y()));
+    crop.y(std::min<int32_t>(std::max<int32_t>(crop.y() + v, 0), ci32(get_capture_size().height())));
+    crop.height(std::min<uint32_t>(crop.height(), cu32(get_capture_size().height() - crop.y())));
   });
 }
 
 void spectrometer::change_crop_w (int32_t v) {
   change_crop([&,v] (core::native_rect& crop) {
-    crop.width(std::min<int32_t>(std::max<int32_t>(crop.width() + v, 0), (int32_t)get_capture_size().width()));
-    crop.x(std::min<int32_t>(crop.x(), get_capture_size().width() - crop.width()));
+    crop.width(std::min<uint32_t>(std::max<uint32_t>(cu32(crop.width() + v), 0), get_capture_size().width()));
+    crop.x(std::min<int32_t>(crop.x(), ci32(get_capture_size().width()) - ci32(crop.width())));
   });
 }
 
 void spectrometer::change_crop_h (int32_t v) {
   change_crop([&,v] (core::native_rect& crop) {
-    crop.height(std::min<int32_t>(std::max<int32_t>(crop.height() + v, 0), (int32_t)get_capture_size().height()));
-    crop.y(std::min<int32_t>(crop.y(), get_capture_size().height() - crop.height()));
+    crop.height(std::min<uint32_t>(std::max<uint32_t>(cu32(crop.height() + v), 0), get_capture_size().height()));
+    crop.y(std::min<int32_t>(crop.y(), ci32(get_capture_size().height()) - ci32(crop.height())));
   });
 }
 
@@ -510,22 +532,22 @@ spectrometer::spectrometer ()
   halfview_button.on_clicked([&] () {
 #ifdef BUILD_FOR_ARM
     still::size sz = camera.get_sensor_size();
-    sz = still::size{(uint32_t)(sz.width / 2), (uint32_t)(sz.height / 2)};
-    set_crop({(int32_t)(sz.width / 4), (int32_t)(sz.height / 4), sz.width, sz.height});
+    sz = still::size{static_cast<uint32_t>(sz.width / 2), static_cast<uint32_t>(sz.height / 2)};
+    set_crop({static_cast<int32_t>(sz.width / 4), static_cast<int32_t>(sz.height / 4), sz.width, sz.height});
     camera.set_resolution(sz);
 #else
-    set_crop({(int32_t)(capture_size.width() / 4), (int32_t)(capture_size.height() / 4),
+    set_crop({static_cast<int32_t>(capture_size.width() / 4), static_cast<int32_t>(capture_size.height() / 4),
               capture_size.width() / 2, capture_size.height() / 2});
 #endif // BUILD_FOR_ARM
   });
   quarterview_button.on_clicked([&] () {
 #ifdef BUILD_FOR_ARM
     still::size sz = camera.get_sensor_size();
-    sz = still::size{(uint32_t)(sz.width / 4), (uint32_t)(sz.height / 4)};
-    set_crop({(int32_t)((sz.width / 8) * 3), (int32_t)((sz.height / 8) * 3), sz.width, sz.height});
+    sz = still::size{static_cast<uint32_t>(sz.width / 4), static_cast<uint32_t>(sz.height / 4)};
+    set_crop({static_cast<int32_t>(sz.width / 8 * 3), static_cast<int32_t>(sz.height / 8 * 3), sz.width, sz.height});
     camera.set_resolution(sz);
 #else
-    set_crop({(int32_t)(capture_size.width() / 8 * 3), (int32_t)(capture_size.height() / 8 * 3),
+    set_crop({static_cast<int32_t>(capture_size.width() / 8 * 3), static_cast<int32_t>(capture_size.height() / 8 * 3),
               capture_size.width() / 4, capture_size.height() / 4});
 #endif // BUILD_FOR_ARM
   });
@@ -571,9 +593,9 @@ spectrometer::spectrometer ()
   ss.set_handler([&] (int32_t step) {
     auto current = camera.get_shutter_speed();
     if (step > 0) {
-      camera.set_shutter_speed(current * step / 10);
+      camera.set_shutter_speed(current * cu32(step) / 10);
     } else {
-      camera.set_shutter_speed(current * 10 / -step);
+      camera.set_shutter_speed(current * 10 / cu32(-step));
     }
     ss.refresh();
 //    capture();
@@ -583,9 +605,9 @@ spectrometer::spectrometer ()
   iso.set_handler([&] (int32_t step) {
     auto current = camera.get_iso();
     if (step > 0) {
-      camera.set_iso(current * step / 10);
+      camera.set_iso(current * cu32(step) / 10);
     } else {
-      camera.set_iso(std::max<uint32_t>(current * 10 / -step, 25));
+      camera.set_iso(std::max<uint32_t>(current * 10 / cu32(-step), 25));
     }
     iso.refresh();
 //    capture();
@@ -593,8 +615,8 @@ spectrometer::spectrometer ()
   iso.set_value([&] () { return ostreamfmt(camera.get_iso()); });
 #endif // BUILD_FOR_ARM
 
-  y_scanline.set_handler([&] (uint32_t step) {
-    capture_view.set_scan_pos(std::max<uint32_t>(capture_view.get_scan_pos() + step, 0));
+  y_scanline.set_handler([&] (int32_t step) {
+    capture_view.set_scan_pos(std::max<int32_t>(capture_view.get_scan_pos() + step, 0));
     y_scanline.refresh();
     extract_scanline();
     calc_spectrum();
@@ -658,7 +680,7 @@ void spectrometer::search_scanline () {
         current_row = y;
       }
     }
-    capture_view.set_scan_pos(current_row);
+    capture_view.set_scan_pos(ci32(current_row));
     y_scanline.refresh();
     extract_scanline();
     calc_spectrum();
@@ -671,7 +693,7 @@ void spectrometer::display () {
 
 void spectrometer::extract_scanline () {
   if (rgb_image.is_valid() && (capture_view.get_scan_pos() > -1)) {
-      const auto sub = rgb_image.sub(0, capture_view.get_scan_pos(), get_capture_size().width(), 1);
+      const auto sub = rgb_image.sub(0, cu32(capture_view.get_scan_pos()), get_capture_size().width(), 1);
       scan_line = sub.convert<PixelFormat::GRAY>();
   }
 }
@@ -679,7 +701,7 @@ void spectrometer::extract_scanline () {
 void spectrometer::prepare_data () {
   auto sz = get_capture_size();
 #ifdef BUILD_FOR_ARM
-  auto encoding = (MMAL_FOURCC_T)encoder->get_encoding();
+  auto encoding = static_cast<MMAL_FOURCC_T>(encoder->get_encoding());
 #endif // BUILD_FOR_ARM
   clog::debug() << "Display " << data.size() << " Bytes with dimensions:" << sz.width() << "x" << sz.height()
 #ifdef BUILD_FOR_ARM
@@ -691,7 +713,7 @@ void spectrometer::prepare_data () {
     switch (encoding) {
       case MMAL_ENCODING_PPM: {
 #endif // BUILD_FOR_ARM
-        std::istringstream strm(std::string((const char*)data.data(), data.size()));
+        std::istringstream strm(std::string(reinterpret_cast<char*>(data.data()), data.size()));
         gui::io::load_pnm<PixelFormat::RGB>(strm, rgb_image);
 #ifndef BUILD_FOR_ARM
         capture_size = rgb_image.native_size();
@@ -711,7 +733,7 @@ void spectrometer::prepare_data () {
         const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
-        capture_view.image = rgb_image;
+        capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
 //            convert::format::line<PixelFormat::RGBA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
@@ -724,7 +746,7 @@ void spectrometer::prepare_data () {
         const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
-        capture_view.image = rgb_image;
+        capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
 //            convert::format::line<PixelFormat::RGB, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
@@ -737,7 +759,7 @@ void spectrometer::prepare_data () {
         const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
-        capture_view.image = rgb_image;
+        capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
 //            convert::format::line<PixelFormat::BGRA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
@@ -750,7 +772,7 @@ void spectrometer::prepare_data () {
         const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
-        capture_view.image = rgb_image;
+        capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
 //            convert::format::line<PixelFormat::BGR, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
@@ -782,7 +804,8 @@ void spectrometer::calc_spectrum () {
   if (capture_view.get_scan_pos() > -1) {
 
     auto display = core::global::get_instance();
-    XGCValues values = { GXinvert };
+    XGCValues values;
+    values.function = GXinvert;
     XChangeGC(display, g.os(), GCFunction, &values);
 
     std::vector<core::point> lines;
@@ -790,7 +813,7 @@ void spectrometer::calc_spectrum () {
       const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
       const auto comp = const_cast<const draw::graymap&>(norm_line).get_data();
 
-      for (int x = 0; x < row.width(); ++x) {
+      for (uint32_t x = 0; x < row.width(); ++x) {
         auto pixel = row.pixel(x, 0);
         auto norm = comp.pixel(x, 0);
 
@@ -800,7 +823,7 @@ void spectrometer::calc_spectrum () {
 
     } else {
       const auto row = const_cast<const draw::graymap&>(scan_line).get_data();
-      for (int x = 0; x < row.width(); ++x) {
+      for (uint32_t x = 0; x < row.width(); ++x) {
         auto pixel = row.pixel(x, 0);
         core::point next = {static_cast<float>(x), 255.0F - static_cast<float>(pixel.value)};
         lines.push_back(next);
@@ -808,7 +831,7 @@ void spectrometer::calc_spectrum () {
     }
     g.draw_lines(lines, color::white);
 
-    values = { GXcopy }; // .function =
+    values.function = GXcopy;
     XChangeGC(display, g.os(), GCFunction, &values);
   }
 
@@ -818,7 +841,7 @@ void spectrometer::calc_spectrum () {
 void spectrometer::save_image () {
   file_save_dialog::show(*this, "Save captured data", "spectrogram.dat", "Name:", "OK", "Cancel",
                          [&] (const sys_fs::path& path) {
-    std::ofstream(path).write((const char*)data.data(), data.size());
+    std::ofstream(path).write(reinterpret_cast<char*>(data.data()), data.size());
   });
 }
 
@@ -829,7 +852,7 @@ void spectrometer::load_image () {
     auto len = f.tellg();
     data.resize(len);
     f.seekg(0, std::ios::beg);
-    f.read((char*)data.data(), data.size());
+    f.read(reinterpret_cast<char*>(data.data()), data.size());
     prepare_data();
     search_scanline();
     display();

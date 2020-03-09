@@ -6,6 +6,7 @@
 #include <gui/layout/layout_container.h>
 #include <gui/layout/adaption_layout.h>
 #include <gui/ctrl/label.h>
+#include <gui/ctrl/button.h>
 
 namespace view {
 
@@ -24,8 +25,10 @@ namespace view {
       LABEL_COUNT = 4
     };
 
-    status_label labels[LABEL_COUNT];
+    gui::ctrl::animated_switch_button<> side_bar_toggle;
     color_view color;
+    super left_view;
+    status_label labels[LABEL_COUNT];
   };
 
 } // namespace view

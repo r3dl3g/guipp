@@ -6,6 +6,7 @@
 #include <gui/layout/grid_layout.h>
 #include <gui/layout/lineup_layout.h>
 #include <gui/layout/attach_layout.h>
+#include <gui/layout/dynamic_border_layout.h>
 #include <util/string_util.h>
 #include <util/blocking_queue.h>
 #include <logging/file_logger.h>
@@ -46,17 +47,32 @@ namespace xml = boost::property_tree::xml_parser;
 pixmap create_text_pixmap (const std::string& str,
                            const core::rectangle& rect,
                            const os::color color) {
+  static font f = font::menu().with_thickness(font::bold);
+
   pixmap img(rect.size());
   graphics g(img);
   text_box box(str, rect, text_origin::center);
   g.clear(color::black);
-  g.text(box, font::menu(), color);
+  g.text(box, f, color);
   return img;
 }
 // --------------------------------------------------------------------------
-class RedImage : public layout_main_window<gui::layout::border::layouter<20, 24, 277, 0>> {
+masked_bitmap create_rect_pixmap (core::rectangle rect,
+                           bool filled) {
+  pixmap img(rect.size());
+  graphics g(img);
+  g.clear(color::menuColor());
+  g.frame(draw::rectangle(rect), color::menuTextColor());
+  if (filled) {
+    rect.shrink({2.0F, 2.0F});
+    g.fill(draw::rectangle(rect), color::menuTextColor());
+  }
+  return {img, bitmap()};
+}
+// --------------------------------------------------------------------------
+class RedImage : public layout_main_window<gui::layout::dynamic_border_layout<>, float, float, float, float> {
 public:
-  typedef layout_main_window<gui::layout::border::layouter<20, 24, 277, 0>> super;
+  typedef layout_main_window<gui::layout::dynamic_border_layout<>, float, float, float, float> super;
 
   RedImage ();
 
@@ -101,6 +117,7 @@ public:
 
   void toggle_learning ();
   void toggle_adjust_brightness ();
+  void toggle_values ();
 
   void calc_title ();
   void calc_status ();
@@ -127,8 +144,8 @@ private:
   popup_menu view_sub_menu;
   popup_menu help_sub_menu;
 
-  pixmap hook_icon;
-  pixmap cross_icon;
+  masked_bitmap hook_icon;
+  masked_bitmap cross_icon;
 
   view::status_bar status;
 
@@ -142,7 +159,9 @@ private:
 
   int curent_full_image_view;
 
-  ctrl::scroll_view<> side_scroll;
+  typedef ctrl::scroll_view<> side_scroll_t;
+
+  side_scroll_t side_scroll;
   view::side_bar filter_list;
 
   bool learning_mode;
@@ -176,7 +195,8 @@ private:
 
 // --------------------------------------------------------------------------
 RedImage::RedImage ()
-  : current_view(nullptr)
+  : super(20, 24, 277, 0)
+  , current_view(nullptr)
   , curent_full_image_view(-1)
   , learning_mode(false)
   , adjust_brightness(true)
@@ -189,6 +209,10 @@ RedImage::RedImage ()
   on_create(util::bind_method(this, &RedImage::onCreated));
   on_destroy(&win::quit_main_loop);
   on_close(util::bind_method(this, &RedImage::quit));
+  status.side_bar_toggle.set_checked(true);
+  status.side_bar_toggle.on_clicked([&] () {
+    toggle_values();
+  });
 }
 // --------------------------------------------------------------------------
 void RedImage::onCreated (win::window*, const core::rectangle&) {
@@ -216,11 +240,11 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Exit", 'x', util::bind_method(this, &RedImage::quit), hot_key(keys::f4, state::alt), true)
   });
 
-  const float icn_sz = core::global::scale<float>(20);
+  const float icn_sz = core::global::scale<float>(12);
   core::rectangle icon_rect(0, 0, icn_sz, icn_sz);
 
-  hook_icon = create_text_pixmap("x", icon_rect, color::dark_red);
-  cross_icon = create_text_pixmap("-", icon_rect, color::dark_green);
+  hook_icon = create_rect_pixmap(icon_rect, true);//create_text_pixmap("\u2612", icon_rect, color::dark_red); //
+  cross_icon = create_rect_pixmap(icon_rect, false);//create_text_pixmap("\u2610", icon_rect, color::dark_green); //
 
   edit_sub_menu.data.add_entries({
     menu_entry("Leaning mode", 'l', util::bind_method(this, &RedImage::toggle_learning), hot_key(keys::t, state::control), false, cross_icon),
@@ -239,6 +263,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Directory View", 'd', util::bind_method(this, &RedImage::show_folder_view), hot_key(keys::g, state::control), false),
     menu_entry("Masks View", 'm', util::bind_method(this, &RedImage::show_mask_view), hot_key(keys::m, state::control), false),
     menu_entry("Main View", 'a', util::bind_method(this, &RedImage::show_quad_view), hot_key(keys::h, state::control), false),
+    menu_entry("Toggle Values", 't', util::bind_method(this, &RedImage::toggle_values), hot_key(keys::v, state::control), false, hook_icon),
     menu_entry("Full View Image 1", '1', [&] () { RedImage::show_full_image(0); }, hot_key('1', state::control), true),
     menu_entry("Full View Image 2", '2', [&] () { RedImage::show_full_image(1); }, hot_key('2', state::control), false),
     menu_entry("Full View Image 3", '3', [&] () { RedImage::show_full_image(2); }, hot_key('3', state::control), false),
@@ -248,8 +273,8 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     menu_entry("Full View Image 7", '7', [&] () { RedImage::show_full_image(6); }, hot_key('7', state::control), false),
     menu_entry("Full View Image 8", '8', [&] () { RedImage::show_full_image(7); }, hot_key('8', state::control), false),
     menu_entry("Full View Image 9", '9', [&] () { RedImage::show_full_image(8); }, hot_key('9', state::control), false),
-    menu_entry("Next Image", 'n', [&] () { RedImage::show_next(); }, hot_key(keys::right, state::control), true),
-    menu_entry("Previous Image", 'P', [&] () { RedImage::show_prev(); }, hot_key(keys::left, state::control), false),
+    menu_entry("Next Image", 'n', util::bind_method(this, &RedImage::show_next), hot_key(keys::right, state::control), true),
+    menu_entry("Previous Image", 'P', util::bind_method(this, &RedImage::show_prev), hot_key(keys::left, state::control), false),
   });
 
   help_sub_menu.data.add_entry(
@@ -320,13 +345,15 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
     }
   });
 
-  get_layout().set_center_top_bottom_left_right([&] (const core::rectangle& r) {
-    filter_view.place(r);
-    folder_view.place(r);
-    quad_view.place(r);
-    mask_view.place(r);
-    full_image_view.place(r);
-  }, layout::lay(menu), layout::lay(status), layout::lay(side_scroll), nullptr);
+  get_layout().set_center_top_bottom_left_right(
+    [&] (const core::rectangle& r) {
+      filter_view.place(r);
+      folder_view.place(r);
+      quad_view.place(r);
+      mask_view.place(r);
+      full_image_view.place(r);
+    },
+    layout::lay(menu), layout::lay(status), layout::lay(side_scroll), nullptr);
 
   for (int i = 3; i < filter_view.count; ++i) {
     filter_view.image_views[i].on_left_btn_down([&, i] (os::key_state, const core::point& pt) {
@@ -493,6 +520,14 @@ void RedImage::toggle_learning () {
 void RedImage::toggle_adjust_brightness () {
   settings.normalize(!settings.normalize());
   edit_sub_menu.data[1].set_icon(settings.normalize() ? hook_icon : cross_icon);
+}
+//-----------------------------------------------------------------------------
+void RedImage::toggle_values () {
+  bool off = (get_layout().get_left_width() == 0);
+  get_layout().set_left_width(off ? 277 : 0);
+  layout();
+  view_sub_menu.data[4].set_icon(off ? hook_icon : cross_icon);
+  status.side_bar_toggle.set_checked(off);
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {

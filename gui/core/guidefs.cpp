@@ -43,21 +43,21 @@
 
 namespace std {
 
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::bit_order bo) {
-    out << (bo == gui::core::bit_order::lsb_first ? "lsb_first" : "msb_first");
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::bit_order_t bo) {
+    out << (bo == gui::core::bit_order_t::lsb_first ? "lsb_first" : "msb_first");
     return out;
   }
 
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::byte_order bo) {
-    out << (bo == gui::core::byte_order::little_endian ? "little_endian" : "big_endian");
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::byte_order_t bo) {
+    out << (bo == gui::core::byte_order_t::little_endian ? "little_endian" : "big_endian");
     return out;
   }
 
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::platform p) {
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream& out, const gui::core::os::platform_t p) {
     switch (p) {
-      case gui::core::os::platform::win32: out << "win32"; break;
-      case gui::core::os::platform::x11:   out << "x11"; break;
-      case gui::core::os::platform::cocoa: out << "cocoa"; break;
+      case gui::core::os::platform_t::win32: out << "win32"; break;
+      case gui::core::os::platform_t::x11:   out << "x11"; break;
+      case gui::core::os::platform_t::cocoa: out << "cocoa"; break;
       default: out << "unknown:" << static_cast<gui::byte>(p); break;
     }
     return out;
@@ -87,42 +87,42 @@ namespace gui {
     "ABGR"
   };
 
-  std::ostream& operator<< (std::ostream& out, PixelFormat pf) {
+  std::ostream& operator<< (std::ostream& out, pixel_format_t pf) {
     out << PixelFormatNames[static_cast<int>(pf)];
     return out;
   }
 
-  PixelFormat get_pixel_format (int pixel_format, core::byte_order byte_order) {
+  pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t) {
     switch (pixel_format) {
-      case 1: return PixelFormat::BW;
-      case 8: return PixelFormat::GRAY;
+      case 1: return pixel_format_t::BW;
+      case 8: return pixel_format_t::GRAY;
       case 24:
-        switch (byte_order) {
-          case core::byte_order::little_endian: return PixelFormat::RGB;
-          case core::byte_order::big_endian: return PixelFormat::BGR;
+        switch (byte_order_t) {
+          case core::byte_order_t::little_endian: return pixel_format_t::RGB;
+          case core::byte_order_t::big_endian: return pixel_format_t::BGR;
         }
       case 32:
-        switch (byte_order) {
-          case core::byte_order::little_endian: return PixelFormat::RGBA;
-          case core::byte_order::big_endian: return PixelFormat::BGRA;
+        switch (byte_order_t) {
+          case core::byte_order_t::little_endian: return pixel_format_t::RGBA;
+          case core::byte_order_t::big_endian: return pixel_format_t::BGRA;
         }
     }
-    return PixelFormat::Undefined;
+    return pixel_format_t::Undefined;
   }
 
-  core::byte_order get_pixel_format_byte_order (PixelFormat px_fmt) {
+  core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt) {
     switch (px_fmt) {
-      case PixelFormat::BW:
-      case PixelFormat::RGB:
-      case PixelFormat::RGBA:
-      case PixelFormat::ARGB:
+      case pixel_format_t::BW:
+      case pixel_format_t::RGB:
+      case pixel_format_t::RGBA:
+      case pixel_format_t::ARGB:
       default:
-        return core::byte_order::little_endian;
-      case PixelFormat::GRAY:
-      case PixelFormat::BGR:
-      case PixelFormat::BGRA:
-      case PixelFormat::ABGR:
-      return core::byte_order::big_endian;
+        return core::byte_order_t::little_endian;
+      case pixel_format_t::GRAY:
+      case pixel_format_t::BGR:
+      case pixel_format_t::BGRA:
+      case pixel_format_t::ABGR:
+      return core::byte_order_t::big_endian;
     }
   }
 
@@ -244,9 +244,9 @@ namespace gui {
 
       void init (gui::os::instance instance) {
         gui_static.init(instance);
-        clog::debug() << "os::bit_order: " << core::os::get_bit_order();
-        clog::debug() << "os::byte_order: " << core::os::get_byte_order();
-        clog::debug() << "os::platform: " << core::os::system_platform;
+        clog::debug() << "os::bit_order_t: " << core::os::get_bit_order();
+        clog::debug() << "os::byte_order_t: " << core::os::get_byte_order();
+        clog::debug() << "os::platform_t: " << core::os::system_platform;
         clog::debug() << "color::part: RGBA=" << static_cast<unsigned int>(color::part::red)
                  << ":" << static_cast<unsigned int>(color::part::green)
                  << ":" << static_cast<unsigned int>(color::part::blue)
@@ -290,19 +290,19 @@ namespace gui {
 #endif // COCOA
       }
 
-      PixelFormat get_device_pixel_format () {
+      pixel_format_t get_device_pixel_format () {
 #ifdef WIN32
         HDC gdc = GetDC(NULL);
         int dbpp = GetDeviceCaps(gdc, BITSPIXEL);
         ReleaseDC(NULL, gdc);
-        return get_pixel_format(static_cast<int>(PixelFormat(dbpp)), os::bitmap_byte_order);
+        return get_pixel_format(static_cast<int>(pixel_format_t(dbpp)), os::bitmap_byte_order);
 #endif // WIN32
 #ifdef X11
         auto inst = get_instance();
-        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), byte_order(ImageByteOrder(inst)));
+        return get_pixel_format(DefaultDepth(inst, x11::get_screen()), byte_order_t(ImageByteOrder(inst)));
 #endif // X11
 #ifdef COCOA
-        return PixelFormat::RGB;
+        return pixel_format_t::RGB;
 #endif // COCOA
       }
 

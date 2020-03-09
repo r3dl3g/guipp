@@ -134,10 +134,10 @@ namespace gui {
                        const std::string& text,
                        const button_state& state,
                        os::color foreground,
-                       alignment a);
+                       alignment_t a);
 
       template<os::color foreground,
-               alignment align>
+               alignment_t align>
       void aligned_tab_button (const draw::graphics& g,
                                const core::rectangle& r,
                                const std::string& text,
@@ -365,7 +365,7 @@ namespace gui {
                                                  paint::color_flat_button<foreground, background> >;
     // --------------------------------------------------------------------------
     template<os::color foreground = color::light_gray,
-             alignment align = alignment::top,
+             alignment_t align = alignment_t::top,
              bool keep_state = false>
     using tab_button = basic_text_button<toggle_button_traits<keep_state>,
                                          text_button_drawer&,

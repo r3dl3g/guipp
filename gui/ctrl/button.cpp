@@ -83,32 +83,32 @@ namespace gui {
       return image;
     }
 
-    template<alignment A>
+    template<alignment_t A>
     const draw::graymap& get_tab_frame (bool pressed);
 
     template<>
-    const draw::graymap& get_tab_frame<alignment::top> (bool pressed) {
+    const draw::graymap& get_tab_frame<alignment_t::top> (bool pressed) {
       static draw::graymap image(get_button_frame<false, false>().sub(1, 0, 7, 24));
       static draw::graymap image_pressed(get_button_frame<false, true>().sub(1, 0, 7, 24));
       return !pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment::bottom> (bool pressed) {
+    const draw::graymap& get_tab_frame<alignment_t::bottom> (bool pressed) {
       static draw::graymap image(get_button_frame<false, true>().sub(1, 4, 7, 24));
       static draw::graymap image_pressed(get_button_frame<false, false>().sub(1, 4, 7, 24));
       return !pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment::left> (bool pressed) {
+    const draw::graymap& get_tab_frame<alignment_t::left> (bool pressed) {
       static draw::graymap image(get_button_frame<true, false>().sub(0, 1, 24, 7));
       static draw::graymap image_pressed(get_button_frame<true, true>().sub(0, 1, 24, 7));
       return !pressed ? image_pressed : image;
     }
 
     template<>
-    const draw::graymap& get_tab_frame<alignment::right> (bool pressed) {
+    const draw::graymap& get_tab_frame<alignment_t::right> (bool pressed) {
       static draw::graymap image(get_button_frame<true, true>().sub(4, 1, 24, 7));
       static draw::graymap image_pressed(get_button_frame<true, false>().sub(4, 1, 24, 7));
       return !pressed ? image_pressed : image;
@@ -418,7 +418,7 @@ namespace gui {
         button_frame(graph, r, state);
 #endif
         using namespace draw;
-        graph.text(text_box(text, r, text_origin::center), font::system(),
+        graph.text(text_box(text, r, text_origin_t::center), font::system(),
                    state.is_enabled() ? color::windowTextColor() : color::disabledTextColor());
       }
 
@@ -454,7 +454,7 @@ namespace gui {
         } else {
           f = color::darker(foreground);
         }
-        g.text(draw::text_box(text, r, text_origin::center), draw::font::system(), f);
+        g.text(draw::text_box(text, r, text_origin_t::center), draw::font::system(), f);
         if (enabled && state.has_focus()) {
           g.frame(draw::rectangle(r), draw::pen(f, dot_line_width, dot_line_style));
         }
@@ -466,39 +466,39 @@ namespace gui {
                        const std::string& text,
                        const button_state& state,
                        os::color foreground,
-                       alignment a) {
+                       alignment_t a) {
         if (state.is_checked()) {
           switch (a) {
-            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(true), 3, 3, 3, 0), r.top_left());    break;
-            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(true), 3, 0, 3, 3), r.top_left()); break;
-            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(true), 3, 3, 0, 3), r.top_left());   break;
-            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(true), 0, 3, 3, 3), r.top_left());  break;
+            case alignment_t::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment_t::top>(true), 3, 3, 3, 0), r.top_left());    break;
+            case alignment_t::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment_t::bottom>(true), 3, 0, 3, 3), r.top_left()); break;
+            case alignment_t::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment_t::left>(true), 3, 3, 0, 3), r.top_left());   break;
+            case alignment_t::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment_t::right>(true), 0, 3, 3, 3), r.top_left());  break;
           }
         } else if (state.is_enabled()) {
           if (state.is_hilited()) {
             switch (a) {
-              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(1.025F), 3, 3, 3, 0), r.top_left());    break;
-              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(1.025F), 3, 0, 3, 3), r.top_left()); break;
-              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(1.025F), 3, 3, 0, 3), r.top_left());   break;
-              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(1.025F), 0, 3, 3, 3), r.top_left());  break;
+              case alignment_t::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment_t::top>(false).brightness(1.025F), 3, 3, 3, 0), r.top_left());    break;
+              case alignment_t::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment_t::bottom>(false).brightness(1.025F), 3, 0, 3, 3), r.top_left()); break;
+              case alignment_t::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment_t::left>(false).brightness(1.025F), 3, 3, 0, 3), r.top_left());   break;
+              case alignment_t::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment_t::right>(false).brightness(1.025F), 0, 3, 3, 3), r.top_left());  break;
             }
           } else {
             switch (a) {
-              case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false), 3, 3, 3, 0), r.top_left());    break;
-              case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false), 3, 0, 3, 3), r.top_left()); break;
-              case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false), 3, 3, 0, 3), r.top_left());   break;
-              case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false), 0, 3, 3, 3), r.top_left());  break;
+              case alignment_t::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment_t::top>(false), 3, 3, 3, 0), r.top_left());    break;
+              case alignment_t::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment_t::bottom>(false), 3, 0, 3, 3), r.top_left()); break;
+              case alignment_t::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment_t::left>(false), 3, 3, 0, 3), r.top_left());   break;
+              case alignment_t::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment_t::right>(false), 0, 3, 3, 3), r.top_left());  break;
             }
           }
         } else {
           switch (a) {
-            case alignment::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment::top>(false).brightness(0.75F), 3, 3, 3, 0), r.top_left());    break;
-            case alignment::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment::bottom>(false).brightness(0.75F), 3, 0, 3, 3), r.top_left()); break;
-            case alignment::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment::left>(false).brightness(0.75F), 3, 3, 0, 3), r.top_left());   break;
-            case alignment::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment::right>(false).brightness(0.75F), 0, 3, 3, 3), r.top_left());  break;
+            case alignment_t::top:    g.copy(draw::frame_image(r, get_tab_frame<alignment_t::top>(false).brightness(0.75F), 3, 3, 3, 0), r.top_left());    break;
+            case alignment_t::bottom: g.copy(draw::frame_image(r, get_tab_frame<alignment_t::bottom>(false).brightness(0.75F), 3, 0, 3, 3), r.top_left()); break;
+            case alignment_t::left:   g.copy(draw::frame_image(r, get_tab_frame<alignment_t::left>(false).brightness(0.75F), 3, 3, 0, 3), r.top_left());   break;
+            case alignment_t::right:  g.copy(draw::frame_image(r, get_tab_frame<alignment_t::right>(false).brightness(0.75F), 0, 3, 3, 3), r.top_left());  break;
           }
         }
-        g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin::center), draw::font::system(), foreground);
+        g.text(draw::text_box(text, r.shrinked({4, 4}), text_origin_t::center), draw::font::system(), foreground);
       }
 
       // --------------------------------------------------------------------------
@@ -536,7 +536,7 @@ namespace gui {
         graph.fill(draw::arc(center, edge - 2, 0, 360), thumb_col);
 
         os::color text_col = enabled ? color::windowTextColor() : color::disabledTextColor();
-        graph.text(draw::text_box(text, rect + core::point(width + 10, 0), text_origin::vcenter_left), draw::font::system(), text_col);
+        graph.text(draw::text_box(text, rect + core::point(width + 10, 0), text_origin_t::vcenter_left), draw::font::system(), text_col);
       }
 
       // --------------------------------------------------------------------------
@@ -560,9 +560,9 @@ namespace gui {
           graph.fill(ellipse(r), state.is_pushed() ? color::dark_gray : col);
         }
         area.x(20);
-        graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
         if (state.has_focus()) {
-          graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
+          graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }
@@ -593,9 +593,9 @@ namespace gui {
           graph.fill(rectangle(r), state.is_pushed() ? color::dark_gray : col);
         }
         area.x(20);
-        graph.text(text_box(text, area, text_origin::vcenter_left), font::system(), col);
+        graph.text(text_box(text, area, text_origin_t::vcenter_left), font::system(), col);
         if (state.has_focus()) {
-          graph.text(bounding_box(text, area, text_origin::vcenter_left), font::system(), color::black);
+          graph.text(bounding_box(text, area, text_origin_t::vcenter_left), font::system(), color::black);
           area.grow({3, 3});
           graph.frame(draw::rectangle(area), pen(color::black, dot_line_width, dot_line_style));
         }

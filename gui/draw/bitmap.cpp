@@ -110,7 +110,7 @@ namespace gui {
           return i->second.second;
         }
       }
-      return {0, 0, 0, PixelFormat::Undefined};
+      return {0, 0, 0, pixel_format_t::Undefined};
     }
 
     void bitmap_put_data (os::bitmap id, cbyteptr data, const draw::bitmap_info& bmi) {
@@ -165,7 +165,7 @@ namespace gui {
         bmi = {
           static_cast<uint32_t>(w),
           static_cast<uint32_t>(h),
-          get_pixel_format(d, core::byte_order(ImageByteOrder(display)))
+          get_pixel_format(d, core::byte_order_t(ImageByteOrder(display)))
         };
       }
       return bmi;
@@ -185,7 +185,7 @@ namespace gui {
             static_cast<uint32_t>(im->width),
             static_cast<uint32_t>(im->height),
             static_cast<uint32_t>(im->bytes_per_line),
-            get_pixel_format(im->bits_per_pixel, core::byte_order(im->byte_order))
+            get_pixel_format(im->bits_per_pixel, core::byte_order_t(im->byte_order))
           };
           const size_t n = bmi.mem_size();
           data.resize(n);
@@ -201,7 +201,7 @@ namespace gui {
       auto display = core::global::get_instance();
       auto gc = XCreateGC(display, id, 0, nullptr);
 
-      core::byte_order byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+      core::byte_order_t byte_order_t = get_pixel_format_byte_order(bmi.pixel_format);
 
       XImage im {
         static_cast<int>(bmi.width),
@@ -209,7 +209,7 @@ namespace gui {
         0,                                                      /* number of pixels offset in X direction */
         ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
         const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-        static_cast<bool>(byte_order),                          /* data byte order, LSBFirst, MSBFirst */
+        static_cast<bool>(byte_order_t),                          /* data byte order, LSBFirst, MSBFirst */
         BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
         BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
         BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
@@ -229,7 +229,7 @@ namespace gui {
 //      //auto screen = core::global::x11::get_screen();
 //      auto gc = XCreateGC(display, id, 0, nullptr);
 
-//      int byte_order = get_pixel_format_byte_order(bmi.pixel_format);
+//      int byte_order_t = get_pixel_format_byte_order(bmi.pixel_format);
 
 //      XImage im {
 //        static_cast<int>(bmi.width),
@@ -237,7 +237,7 @@ namespace gui {
 //        0,                                                      /* number of pixels offset in X direction */
 //        ZPixmap,                                                /* XYBitmap, XYPixmap, ZPixmap */
 //        const_cast<char*>(reinterpret_cast<const char*>(data)), /* pointer to image data */
-//        byte_order,                                             /* data byte order, LSBFirst, MSBFirst */
+//        byte_order_t,                                             /* data byte order, LSBFirst, MSBFirst */
 //        BitmapUnit(display),                                    /* quant. of scanline 8, 16, 32 */
 //        BitmapBitOrder(display),                                /* LSBFirst, MSBFirst */
 //        BitmapPad(display),                                     /* 8, 16, 32 either XY or ZPixmap */
@@ -261,7 +261,7 @@ namespace gui {
 //          static_cast<uint32_t>(im->width),
 //          static_cast<uint32_t>(im->height),
 //          static_cast<uint32_t>(im->bytes_per_line),
-//          get_pixel_format(im->bits_per_pixel, im->byte_order)
+//          get_pixel_format(im->bits_per_pixel, im->byte_order_t)
 //        };
 //        bmi = {
 //          static_cast<uint32_t>(im->width),
@@ -274,37 +274,37 @@ namespace gui {
 
 //          byte* src = reinterpret_cast<byte*>(im->data);
 //          switch (bmi.pixel_format) {
-//            case PixelFormat::RGB: {
-//              typedef draw::const_image_data<PixelFormat::RGBA> src_data;
-//              typedef draw::image_data<PixelFormat::RGB> dst_data;
-//              //<PixelFormat::RGBA, PixelFormat::RGB>
+//            case pixel_format_t::RGB: {
+//              typedef draw::const_image_data<pixel_format_t::RGBA> src_data;
+//              typedef draw::image_data<pixel_format_t::RGB> dst_data;
+//              //<pixel_format_t::RGBA, pixel_format_t::RGB>
 //              convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
 //                                    dst_data(dst_data::raw_type(data), bmi),
 //                                    im->width, im->height);
 //            }
 //            break;
-//            case PixelFormat::RGBA: {
-//                typedef draw::const_image_data<PixelFormat::RGB> src_data;
-//                typedef draw::image_data<PixelFormat::RGBA> dst_data;
-//                //<PixelFormat::RGB, PixelFormat::RGBA>
+//            case pixel_format_t::RGBA: {
+//                typedef draw::const_image_data<pixel_format_t::RGB> src_data;
+//                typedef draw::image_data<pixel_format_t::RGBA> dst_data;
+//                //<pixel_format_t::RGB, pixel_format_t::RGBA>
 //                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
 //                                      dst_data(dst_data::raw_type(data), bmi),
 //                                      im->width, im->height);
 //              }
 //            break;
-//            case PixelFormat::BGR: {
-//                typedef draw::const_image_data<PixelFormat::ABGR> src_data;
-//                typedef draw::image_data<PixelFormat::BGR> dst_data;
-//                //<PixelFormat::BGRA, PixelFormat::BGR>
+//            case pixel_format_t::BGR: {
+//                typedef draw::const_image_data<pixel_format_t::ABGR> src_data;
+//                typedef draw::image_data<pixel_format_t::BGR> dst_data;
+//                //<pixel_format_t::BGRA, pixel_format_t::BGR>
 //                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
 //                                      dst_data(dst_data::raw_type(data), bmi),
 //                                      im->width, im->height);
 //              }
 //            break;
-//            case PixelFormat::BGRA: {
-//                typedef draw::const_image_data<PixelFormat::BGR> src_data;
-//                typedef draw::image_data<PixelFormat::BGRA> dst_data;
-//                //<PixelFormat::BGR, PixelFormat::BGRA>
+//            case pixel_format_t::BGRA: {
+//                typedef draw::const_image_data<pixel_format_t::BGR> src_data;
+//                typedef draw::image_data<pixel_format_t::BGRA> dst_data;
+//                //<pixel_format_t::BGR, pixel_format_t::BGRA>
 //                convert::format::convert(src_data(src_data::raw_type(src, n), src_bmi),
 //                                      dst_data(dst_data::raw_type(data), bmi),
 //                                      im->width, im->height);
@@ -410,7 +410,7 @@ namespace gui {
       return get_info().depth();
     }
 
-    PixelFormat basic_map::pixel_format () const {
+    pixel_format_t basic_map::pixel_format () const {
       return get_info().pixel_format;
     }
 
@@ -426,13 +426,13 @@ namespace gui {
       }
     }
 
-    uint32_t basic_map::calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+    uint32_t basic_map::calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
       return draw::bitmap_info(w, 0, px_fmt).bytes_per_line;
     }
 
     // --------------------------------------------------------------------------
     void bitmap::create (uint32_t w, uint32_t h) {
-      super::create({w, h, PixelFormat::BW});
+      super::create({w, h, pixel_format_t::BW});
       if (!is_valid()) {
         throw std::runtime_error("create bitmap failed");
       }
@@ -484,7 +484,7 @@ namespace gui {
       ReleaseDC(NULL, dc);
 #endif
 #ifdef X11
-      PixelFormat px_fmt = core::global::get_device_pixel_format();
+      pixel_format_t px_fmt = core::global::get_device_pixel_format();
       super::create({w, h, px_fmt});
 #endif //X11
       if (!is_valid()) {
@@ -501,14 +501,14 @@ namespace gui {
 
     void pixmap::invert () {
       switch (pixel_format()) {
-        case PixelFormat::BW:   invert<PixelFormat::BW>();   break;
-        case PixelFormat::GRAY: invert<PixelFormat::GRAY>(); break;
-        case PixelFormat::RGB:  invert<PixelFormat::RGB>();  break;
-        case PixelFormat::RGBA: invert<PixelFormat::RGBA>(); break;
-        case PixelFormat::ARGB: invert<PixelFormat::ARGB>();  break;
-        case PixelFormat::BGR:  invert<PixelFormat::BGR>();  break;
-        case PixelFormat::BGRA: invert<PixelFormat::BGRA>();  break;
-        case PixelFormat::ABGR: invert<PixelFormat::ABGR>();  break;
+        case pixel_format_t::BW:   invert<pixel_format_t::BW>();   break;
+        case pixel_format_t::GRAY: invert<pixel_format_t::GRAY>(); break;
+        case pixel_format_t::RGB:  invert<pixel_format_t::RGB>();  break;
+        case pixel_format_t::RGBA: invert<pixel_format_t::RGBA>(); break;
+        case pixel_format_t::ARGB: invert<pixel_format_t::ARGB>();  break;
+        case pixel_format_t::BGR:  invert<pixel_format_t::BGR>();  break;
+        case pixel_format_t::BGRA: invert<pixel_format_t::BGRA>();  break;
+        case pixel_format_t::ABGR: invert<pixel_format_t::ABGR>();  break;
         default:  break;
       }
     }
@@ -526,7 +526,7 @@ namespace gui {
     }
 
     bwmap pixmap::get_mask (pixel::gray limit) const {
-      return get<PixelFormat::GRAY>().get_mask(limit);
+      return get<pixel_format_t::GRAY>().get_mask(limit);
     }
 
     // --------------------------------------------------------------------------

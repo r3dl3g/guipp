@@ -29,7 +29,7 @@
 namespace gui {
 
   // --------------------------------------------------------------------------
-  enum class text_origin : unsigned short;
+  enum class text_origin_t : unsigned short;
 
   // --------------------------------------------------------------------------
   enum class placement : unsigned short {
@@ -51,7 +51,7 @@ namespace gui {
     return (lhs | static_cast<unsigned short>(rhs));
   }
 
-  inline constexpr bool operator== (text_origin lhs, placement rhs) {
+  inline constexpr bool operator== (text_origin_t lhs, placement rhs) {
     return (static_cast<unsigned short>(lhs) == static_cast<unsigned short>(rhs));
   }
 
@@ -66,7 +66,7 @@ namespace gui {
   }
 
   // --------------------------------------------------------------------------
-  enum class text_origin : unsigned short {
+  enum class text_origin_t : unsigned short {
     top_left        = placement::top     | placement::left    | line_handling::wordbreak,
     top_hcenter     = placement::top     | placement::hcenter | line_handling::wordbreak,
     top_right       = placement::top     | placement::right   | line_handling::wordbreak,
@@ -86,37 +86,37 @@ namespace gui {
   };
 
   // --------------------------------------------------------------------------
-  inline constexpr text_origin operator& (text_origin lhs, text_origin rhs) {
-    return text_origin(static_cast<unsigned int>(lhs) & static_cast<unsigned int>(rhs));
+  inline constexpr text_origin_t operator& (text_origin_t lhs, text_origin_t rhs) {
+    return text_origin_t(static_cast<unsigned int>(lhs) & static_cast<unsigned int>(rhs));
   }
 
-  inline constexpr text_origin operator| (text_origin lhs, text_origin rhs) {
-    return text_origin(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
+  inline constexpr text_origin_t operator| (text_origin_t lhs, text_origin_t rhs) {
+    return text_origin_t(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
   }
 
   // --------------------------------------------------------------------------
-  inline constexpr bool origin_is_h_center (text_origin origin) {
-    return (origin & text_origin::h_align_mask) == placement::hcenter;
+  inline constexpr bool origin_is_h_center (text_origin_t origin) {
+    return (origin & text_origin_t::h_align_mask) == placement::hcenter;
   }
 
-  inline constexpr bool origin_is_left (text_origin origin) {
-    return (origin & text_origin::h_align_mask) == placement::left;
+  inline constexpr bool origin_is_left (text_origin_t origin) {
+    return (origin & text_origin_t::h_align_mask) == placement::left;
   }
 
-  inline constexpr bool origin_is_right (text_origin origin) {
-    return (origin & text_origin::h_align_mask) == placement::right;
+  inline constexpr bool origin_is_right (text_origin_t origin) {
+    return (origin & text_origin_t::h_align_mask) == placement::right;
   }
 
-  inline constexpr bool origin_is_v_center (text_origin origin) {
-    return (origin & text_origin::v_align_mask) == placement::vcenter;
+  inline constexpr bool origin_is_v_center (text_origin_t origin) {
+    return (origin & text_origin_t::v_align_mask) == placement::vcenter;
   }
 
-  inline constexpr bool origin_is_top (text_origin origin) {
-    return (origin & text_origin::v_align_mask) == placement::top;
+  inline constexpr bool origin_is_top (text_origin_t origin) {
+    return (origin & text_origin_t::v_align_mask) == placement::top;
   }
 
-  inline constexpr bool origin_is_bottom (text_origin origin) {
-    return (origin & text_origin::v_align_mask) == placement::bottom;
+  inline constexpr bool origin_is_bottom (text_origin_t origin) {
+    return (origin & text_origin_t::v_align_mask) == placement::bottom;
   }
 
 } // gui

@@ -55,7 +55,7 @@ namespace gui {
       void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
                                                          const draw::graphics& graph,
                                                          const core::rectangle& place,
-                                                         const text_origin align,
+                                                         const text_origin_t align,
                                                          const os::color& foreground,
                                                          const os::color& background,
                                                          item_state state) {
@@ -207,7 +207,7 @@ namespace gui {
         void draw_table_data (const draw::graphics& graph,
                               const core::rectangle& place,
                               const metric& geometrie,
-                              const data::matrix<text_origin>& aligns,
+                              const data::matrix<text_origin_t>& aligns,
                               const data::matrix<os::color>& foregrounds,
                               const data::matrix<os::color>& backgrounds,
                               const std::function<cell_drawer>& drawer,
@@ -273,7 +273,7 @@ namespace gui {
         void draw_table_column (const draw::graphics& graph,
                                 const core::rectangle& place,
                                 const metric& geometrie,
-                                const data::vector<text_origin>& aligns,
+                                const data::vector<text_origin_t>& aligns,
                                 const data::vector<os::color>& foregrounds,
                                 const data::vector<os::color>& backgrounds,
                                 const std::function<cell_drawer>& drawer,
@@ -302,7 +302,7 @@ namespace gui {
         void draw_table_row (const draw::graphics& graph,
                              const core::rectangle& place,
                              const metric& geometrie,
-                             const data::vector<text_origin>& aligns,
+                             const data::vector<text_origin_t>& aligns,
                              const data::vector<os::color>& foregrounds,
                              const data::vector<os::color>& backgrounds,
                              const std::function<cell_drawer>& drawer,
@@ -336,7 +336,7 @@ namespace gui {
         return [src] (const position &cell,
                       const draw::graphics & graph,
                       const core::rectangle & place,
-                      const text_origin align,
+                      const text_origin_t align,
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
@@ -351,7 +351,7 @@ namespace gui {
         return [src] (const position &cell,
                       const draw::graphics & graph,
                       const core::rectangle & place,
-                      const text_origin align,
+                      const text_origin_t align,
                       const os::color & foreground,
                       const os::color & background,
                       item_state state) {
@@ -377,7 +377,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       data_view::data_view (metric& geometrie,
-                            text_origin align,
+                            text_origin_t align,
                             os::color foreground,
                             os::color background)
         : super(geometrie, align, foreground, background, filter::data_selection, filter::data_hilite) {
@@ -410,7 +410,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       column_view::column_view (metric& geometrie,
-                                text_origin align,
+                                text_origin_t align,
                                 os::color foreground,
                                 os::color background)
         : super(geometrie, align, foreground, background, filter::column_selection, filter::column_hilite) {
@@ -441,7 +441,7 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       row_view::row_view (metric& geometrie,
-                          text_origin align,
+                          text_origin_t align,
                           os::color foreground,
                           os::color background)
         : super(geometrie, align, foreground, background, filter::row_selection, filter::row_hilite) {
@@ -484,7 +484,7 @@ namespace gui {
                             core::size::type default_height,
                             core::size::type row_width,
                             core::size::type column_height,
-                            text_origin align,
+                            text_origin_t align,
                             os::color foreground,
                             os::color background,
                             os::color header_background)
@@ -564,24 +564,24 @@ namespace gui {
         send_client_message(this, detail::SELECTION_COMMIT_MESSAGE);
       });
 
-      data.on_wheel<orientation::horizontal>([&](const core::point::type delta, const core::point & pt){
+      data.on_wheel<orientation_t::horizontal>([&](const core::point::type delta, const core::point & pt){
         hscroll.handle_wheel(delta, pt);
       });
-      data.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
+      data.on_wheel<orientation_t::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
       data.on_mouse_move(util::bind_method(this, &table_view::handle_mouse_move));
       data.on_left_btn_down(util::bind_method(this, &table_view::handle_left_btn_down));
       data.on_left_btn_up(util::bind_method(this, &table_view::handle_left_btn_up));
 
-      columns.on_wheel<orientation::horizontal>([&](const core::point::type delta, const core::point & pt){
+      columns.on_wheel<orientation_t::horizontal>([&](const core::point::type delta, const core::point & pt){
         hscroll.handle_wheel(delta, pt);
       });
       columns.on_mouse_move(util::bind_method(this, &table_view::handle_column_mouse_move));
       columns.on_left_btn_down(util::bind_method(this, &table_view::handle_column_left_btn_down));
       columns.on_left_btn_up(util::bind_method(this, &table_view::handle_column_left_btn_up));
 
-      rows.on_wheel<orientation::vertical>([&](const core::point::type delta, const core::point & pt){
+      rows.on_wheel<orientation_t::vertical>([&](const core::point::type delta, const core::point & pt){
         vscroll.handle_wheel(delta, pt);
       });
       rows.on_mouse_move(util::bind_method(this, &table_view::handle_row_mouse_move));
@@ -941,7 +941,7 @@ namespace gui {
                             core::size::type default_height,
                             core::size::type row_width,
                             core::size::type column_height,
-                            text_origin align,
+                            text_origin_t align,
                             os::color foreground,
                             os::color background,
                             os::color header_background)

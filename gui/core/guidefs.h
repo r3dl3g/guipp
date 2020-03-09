@@ -68,7 +68,7 @@ namespace gui {
   typedef std::vector<byte> blob;
 
   // --------------------------------------------------------------------------
-  enum class PixelFormat : int {
+  enum class pixel_format_t : int {
     Undefined = 0,
     BW,
     GRAY,
@@ -80,60 +80,60 @@ namespace gui {
     ABGR
   };
 
-  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream&, PixelFormat);
+  GUIPP_CORE_EXPORT std::ostream& operator<< (std::ostream&, pixel_format_t);
 
   constexpr byte color_depths[] = {0, 1, 8, 24, 24, 24, 24, 24, 24};
 
-  constexpr byte get_color_depth (PixelFormat px_fmt) {
+  constexpr byte get_color_depth (pixel_format_t px_fmt) {
     return color_depths[static_cast<byte>(px_fmt)];
   }
 
   constexpr byte bits_per_pixels[] = {0, 1, 8, 24, 24, 32, 32, 32, 32};
 
-  constexpr byte get_bits_per_pixel (PixelFormat px_fmt) {
+  constexpr byte get_bits_per_pixel (pixel_format_t px_fmt) {
     return bits_per_pixels[static_cast<byte>(px_fmt)];
   }
 
-  PixelFormat get_pixel_format (int pixel_format, core::byte_order byte_order);
-  core::byte_order get_pixel_format_byte_order (PixelFormat px_fmt);
+  pixel_format_t get_pixel_format (int pixel_format, core::byte_order_t byte_order_t);
+  core::byte_order_t get_pixel_format_byte_order (pixel_format_t px_fmt);
 
-  template<PixelFormat px_fmt>
+  template<pixel_format_t px_fmt>
   struct color_depth {
     static constexpr int bits = color_depths[static_cast<byte>(px_fmt)];
   };
 
-  template<PixelFormat px_fmt>
+  template<pixel_format_t px_fmt>
   struct bits_per_pixel {
     static constexpr int bits = bits_per_pixels[static_cast<byte>(px_fmt)];
   };
 
   // --------------------------------------------------------------------------
-  enum class orientation : bool {
+  enum class orientation_t : bool {
     vertical,
     horizontal
   };
 
-  constexpr orientation operator! (orientation o) {
-    return orientation(!static_cast<bool>(o));
+  constexpr orientation_t operator! (orientation_t o) {
+    return orientation_t(!static_cast<bool>(o));
   }
 
-  constexpr orientation operator~ (orientation o) {
-    return orientation(!static_cast<bool>(o));
+  constexpr orientation_t operator~ (orientation_t o) {
+    return orientation_t(!static_cast<bool>(o));
   }
 
-  constexpr orientation operator- (orientation lhs, orientation rhs) {
-    return orientation(static_cast<byte>(lhs) - static_cast<byte>(rhs));
+  constexpr orientation_t operator- (orientation_t lhs, orientation_t rhs) {
+    return orientation_t(static_cast<byte>(lhs) - static_cast<byte>(rhs));
   }
 
   // --------------------------------------------------------------------------
-  enum class origin : byte {
+  enum class origin_t : byte {
     start,
     center,
     end
   };
 
   // --------------------------------------------------------------------------
-  enum class alignment : byte {
+  enum class alignment_t : byte {
     left,
     hcenter,
     right,
@@ -144,71 +144,71 @@ namespace gui {
 
 
   // --------------------------------------------------------------------------
-  template<alignment>
+  template<alignment_t>
   struct alignment_orientation {};
 
   template<>
-  struct alignment_orientation<alignment::left> {
-    static constexpr orientation value = orientation::horizontal;
+  struct alignment_orientation<alignment_t::left> {
+    static constexpr orientation_t value = orientation_t::horizontal;
   };
 
   template<>
-  struct alignment_orientation<alignment::hcenter> {
-    static constexpr orientation value = orientation::horizontal;
+  struct alignment_orientation<alignment_t::hcenter> {
+    static constexpr orientation_t value = orientation_t::horizontal;
   };
 
   template<>
-  struct alignment_orientation<alignment::right> {
-    static constexpr orientation value = orientation::horizontal;
+  struct alignment_orientation<alignment_t::right> {
+    static constexpr orientation_t value = orientation_t::horizontal;
   };
 
   template<>
-  struct alignment_orientation<alignment::top> {
-    static constexpr orientation value = orientation::vertical;
+  struct alignment_orientation<alignment_t::top> {
+    static constexpr orientation_t value = orientation_t::vertical;
   };
 
   template<>
-  struct alignment_orientation<alignment::vcenter> {
-    static constexpr orientation value = orientation::vertical;
+  struct alignment_orientation<alignment_t::vcenter> {
+    static constexpr orientation_t value = orientation_t::vertical;
   };
 
   template<>
-  struct alignment_orientation<alignment::bottom> {
-    static constexpr orientation value = orientation::vertical;
+  struct alignment_orientation<alignment_t::bottom> {
+    static constexpr orientation_t value = orientation_t::vertical;
   };
 
   // --------------------------------------------------------------------------
-  template<alignment>
+  template<alignment_t>
   struct alignment_origin {};
 
   template<>
-  struct alignment_origin<alignment::left> {
-    static constexpr origin value = origin::start;
+  struct alignment_origin<alignment_t::left> {
+    static constexpr origin_t value = origin_t::start;
   };
 
   template<>
-  struct alignment_origin<alignment::hcenter> {
-    static constexpr origin value = origin::center;
+  struct alignment_origin<alignment_t::hcenter> {
+    static constexpr origin_t value = origin_t::center;
   };
 
   template<>
-  struct alignment_origin<alignment::right> {
-    static constexpr origin value = origin::end;
+  struct alignment_origin<alignment_t::right> {
+    static constexpr origin_t value = origin_t::end;
   };
 
   template<>
-  struct alignment_origin<alignment::top> {
-    static constexpr origin value = origin::start;
+  struct alignment_origin<alignment_t::top> {
+    static constexpr origin_t value = origin_t::start;
   };
 
   template<>
-  struct alignment_origin<alignment::vcenter> {
-    static constexpr origin value = origin::center;
+  struct alignment_origin<alignment_t::vcenter> {
+    static constexpr origin_t value = origin_t::center;
   };
 
   template<>
-  struct alignment_origin<alignment::bottom> {
-    static constexpr origin value = origin::end;
+  struct alignment_origin<alignment_t::bottom> {
+    static constexpr origin_t value = origin_t::end;
   };
 
   // --------------------------------------------------------------------------
@@ -222,7 +222,7 @@ namespace gui {
       GUIPP_CORE_EXPORT void sync ();
 
       GUIPP_CORE_EXPORT gui::os::instance get_instance ();
-      GUIPP_CORE_EXPORT PixelFormat get_device_pixel_format ();
+      GUIPP_CORE_EXPORT pixel_format_t get_device_pixel_format ();
       GUIPP_CORE_EXPORT int get_device_depth ();
       GUIPP_CORE_EXPORT gui::os::key_state get_key_state ();
       GUIPP_CORE_EXPORT double get_scale_factor ();

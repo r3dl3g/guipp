@@ -47,19 +47,19 @@ namespace gui {
 
 #ifdef X11
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+      uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
         switch (px_fmt) {
-        case PixelFormat::BW:
+        case pixel_format_t::BW:
           return up_modulo<8, 4>(w);
-        case PixelFormat::GRAY:
+        case pixel_format_t::GRAY:
           return up_modulo<1, 4>(w);
-        case PixelFormat::RGB:
-        case PixelFormat::BGR:
+        case pixel_format_t::RGB:
+        case pixel_format_t::BGR:
           return up_modulo<1, 4>(w * 3);
-        case PixelFormat::RGBA:
-        case PixelFormat::ARGB:
-        case PixelFormat::BGRA:
-        case PixelFormat::ABGR:
+        case pixel_format_t::RGBA:
+        case pixel_format_t::ARGB:
+        case pixel_format_t::BGRA:
+        case pixel_format_t::ABGR:
           return up_modulo<1, 4>(w * 4);
         default:
           break;
@@ -71,19 +71,19 @@ namespace gui {
 
 #if WIN32
 
-      uint32_t bitmap_calc_bytes_per_line (uint32_t w, PixelFormat px_fmt) {
+      uint32_t bitmap_calc_bytes_per_line (uint32_t w, pixel_format_t px_fmt) {
         switch (px_fmt) {
-        case PixelFormat::BW:
+        case pixel_format_t::BW:
           return up_modulo<8, 2>(w);
-        case PixelFormat::GRAY:
+        case pixel_format_t::GRAY:
           return up_modulo<1, 2>(w);
-        case PixelFormat::RGB:
-        case PixelFormat::BGR:
+        case pixel_format_t::RGB:
+        case pixel_format_t::BGR:
           return up_modulo<1, 2>(w * 3);
-        case PixelFormat::RGBA:
-        case PixelFormat::ARGB:
-        case PixelFormat::BGRA:
-        case PixelFormat::ABGR:
+        case pixel_format_t::RGBA:
+        case pixel_format_t::ARGB:
+        case pixel_format_t::BGRA:
+        case pixel_format_t::ABGR:
           return up_modulo<1, 2>(w * 4);
         default:
           break;
@@ -97,25 +97,25 @@ namespace gui {
     bitmap_info::bitmap_info ()
       : width(0)
       , height(0)
-      , pixel_format(PixelFormat::Undefined)
+      , pixel_format(pixel_format_t::Undefined)
       , bytes_per_line(0)
     {}
 
-    bitmap_info::bitmap_info (const core::native_size& sz, PixelFormat px_fmt)
+    bitmap_info::bitmap_info (const core::native_size& sz, pixel_format_t px_fmt)
       : width(sz.width())
       , height(sz.height())
       , pixel_format(px_fmt)
       , bytes_per_line(bitmap_calc_bytes_per_line(sz.width(), px_fmt))
     {}
 
-    bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, PixelFormat px_fmt)
+    bitmap_info::bitmap_info (uint32_t w, uint32_t h, uint32_t bpl, pixel_format_t px_fmt)
       : width(w)
       , height(h)
       , pixel_format(px_fmt)
       , bytes_per_line(bpl)
     {}
 
-    bitmap_info::bitmap_info (uint32_t w, uint32_t h, PixelFormat px_fmt)
+    bitmap_info::bitmap_info (uint32_t w, uint32_t h, pixel_format_t px_fmt)
       : width(w)
       , height(h)
       , pixel_format(px_fmt)

@@ -99,7 +99,7 @@ namespace gui {
         r.x2(area.x2());
         os::color col = item_state::selected == state ? color::highLightTextColor()
                                                       : color::black;
-        graph.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
+        graph.text(draw::text_box(label, r, text_origin_t::vcenter_left), draw::font::system(), col);
       }
 
     } // paint

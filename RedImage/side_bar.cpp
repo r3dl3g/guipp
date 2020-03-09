@@ -38,7 +38,7 @@ namespace view {
               for (auto& c : color_keys) {
                 get_layout().add(gui::layout::lay(c.get()));
               }
-              resize(gui::core::size(size().width(), (layout_type::Dimension + layout_type::Gap + layout_type::Separation) * color_keys.size()));
+              resize(gui::core::size(size().width(), (layout_type::dimension + layout_type::gap + layout_type::separatior_width) * color_keys.size()));
 //              layout();
             });
           }

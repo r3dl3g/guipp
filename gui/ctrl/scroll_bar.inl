@@ -28,33 +28,33 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H>
+    template<orientation_t H>
     inline basic_scroll_bar<H>::basic_scroll_bar (bool grab_focus) {
       set_accept_focus(grab_focus);
       init();
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline basic_scroll_bar<H>::basic_scroll_bar (const basic_scroll_bar& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline basic_scroll_bar<H>::basic_scroll_bar (basic_scroll_bar&& rhs)
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline void basic_scroll_bar<H>::create (const win::container& parent,
                                              const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_geometry () const -> geometry {
       core::size sz = client_size();
       type l = length(sz);
@@ -67,63 +67,63 @@ namespace gui {
       return {l, t, b, s, th, sc, tt};
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_scale() const -> type {
       return get_geometry().scale;
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::get_scale (type spc_size, type tmb_size) const->type {
       return (spc_size - tmb_size) / (get_max() - get_min());
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::button_size (type length, type thickness)->type {
       return std::min(thickness, length / type(2));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::space_size (type length, type btn_size)->type {
       return std::max(length - btn_size * 2, type(0));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::thumb_size (type spc_size, type btn_size) const->type {
       return std::max(get_page() * spc_size / (get_range() + get_page()), std::min(btn_size, spc_size));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline auto basic_scroll_bar<H>::thumb_top (type btn_size, type scale) const->type {
       return btn_size + (get_value() - get_min()) * scale;
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::up_button_place (const geometry& m) const {
       return core::rectangle(core::point::zero, build_size(m.button_size, m.thickness));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::down_button_place (const geometry& m) const {
       return core::rectangle(build_pos(m.length - m.button_size), build_size(m.button_size, m.thickness));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::page_up_place (const geometry& m) const {
       return core::rectangle(build_pos(m.button_size), build_size(m.thumb_top - m.button_size, m.thickness));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::page_down_place (const geometry& m) const {
       type tmb_bottom = m.thumb_top + m.thumb_size;
       return core::rectangle(build_pos(tmb_bottom), build_size(m.length - m.button_size - tmb_bottom, m.thickness));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     inline core::rectangle basic_scroll_bar<H>::thumb_button_place (const geometry& m) const {
       return core::rectangle(build_pos(m.thumb_top), build_size(m.thumb_size, m.thickness));
     }
 
-    template<orientation H>
+    template<orientation_t H>
     void basic_scroll_bar<H>::handle_left_btn_down (os::key_state, const core::point& pt) {
       if (is_enabled()) {
         if (can_accept_focus()) {
@@ -153,7 +153,7 @@ namespace gui {
       }
     }
 
-    template<orientation H>
+    template<orientation_t H>
     void basic_scroll_bar<H>::handle_left_btn_up (os::key_state, const core::point& pt) {
       if (is_enabled()) {
         auto geo = get_geometry();
@@ -193,83 +193,83 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::init ();
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::init ();
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state, const core::point&);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state, const core::point&);
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
-
-    // --------------------------------------------------------------------------
-    template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::init ();
-
-    template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state, const core::point&);
-
-    template<>
-    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state, os::key_symbol key);
 
     // --------------------------------------------------------------------------
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::length (const core::size& sz) {
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::init ();
+
+    template<>
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state, const core::point&);
+
+    template<>
+    GUIPP_CTRL_EXPORT void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key);
+
+    // --------------------------------------------------------------------------
+    template<>
+    inline scroll_bar::type basic_scroll_bar<orientation_t::horizontal>::length (const core::size& sz) {
       return sz.width();
     }
 
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::length (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation_t::vertical>::length (const core::size& sz) {
       return sz.height();
     }
 
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::horizontal>::thickness (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation_t::horizontal>::thickness (const core::size& sz) {
       return sz.height();
     }
 
     template<>
-    inline scroll_bar::type basic_scroll_bar<orientation::vertical>::thickness (const core::size& sz) {
+    inline scroll_bar::type basic_scroll_bar<orientation_t::vertical>::thickness (const core::size& sz) {
       return sz.width();
     }
 
     template<>
-    inline core::size basic_scroll_bar<orientation::horizontal>::build_size (type pos,
+    inline core::size basic_scroll_bar<orientation_t::horizontal>::build_size (type pos,
                                                                              type thickness) {
       return core::size(pos, thickness);
     }
 
     template<>
-    inline core::size basic_scroll_bar<orientation::vertical>::build_size (type pos,
+    inline core::size basic_scroll_bar<orientation_t::vertical>::build_size (type pos,
                                                                            type thickness) {
       return core::size(thickness, pos);
     }
 
     template<>
-    inline core::point basic_scroll_bar<orientation::horizontal>::build_pos (type pos) {
+    inline core::point basic_scroll_bar<orientation_t::horizontal>::build_pos (type pos) {
       return core::point(pos, 0);
     }
 
     template<>
-    inline core::point basic_scroll_bar<orientation::vertical>::build_pos (type pos) {
+    inline core::point basic_scroll_bar<orientation_t::vertical>::build_pos (type pos) {
       return core::point(0, pos);
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H, scrollbar_drawer D>
+    template<orientation_t H, scrollbar_drawer D>
     scroll_bar_base<H, D>::scroll_bar_base (bool grab_focus)
       : super(grab_focus)
     {
       init();
     }
 
-    template<orientation H, scrollbar_drawer D>
+    template<orientation_t H, scrollbar_drawer D>
     scroll_bar_base<H, D>::scroll_bar_base (const scroll_bar_base& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<orientation H, scrollbar_drawer D>
+    template<orientation_t H, scrollbar_drawer D>
     scroll_bar_base<H, D>::scroll_bar_base (scroll_bar_base&& rhs)
       : super(std::move(rhs))
     {
@@ -277,16 +277,16 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H, scrollbar_drawer D>
+    template<orientation_t H, scrollbar_drawer D>
     void scroll_bar_base<H, D>::handle_paint (const draw::graphics& g) {
       auto geo = super::get_geometry();
-      D(g, super::get_state(), super::get_hilite(), super::is_enabled(), H == orientation::horizontal, super::has_focus(),
+      D(g, super::get_state(), super::get_hilite(), super::is_enabled(), H == orientation_t::horizontal, super::has_focus(),
         super::up_button_place(geo), super::down_button_place(geo),
         super::thumb_button_place(geo), super::page_up_place(geo), super::page_down_place(geo));
     }
 
     // --------------------------------------------------------------------------
-    template<orientation H, scrollbar_drawer D>
+    template<orientation_t H, scrollbar_drawer D>
     void scroll_bar_base<H, D>::init () {
       super::on_paint(draw::paint(this, &scroll_bar_base::handle_paint));
     }

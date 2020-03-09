@@ -59,7 +59,7 @@ class status_bar_t : public group_window<horizontal_adaption<2, 10>, very_very_l
 public:
   typedef group_window<gui::layout::horizontal_adaption<2, 10>, very_very_light_gray> super;
 
-  using status_label = basic_label<text_origin::vcenter_left, frame::sunken_relief, black, very_very_light_gray>;
+  using status_label = basic_label<text_origin_t::vcenter_left, frame::sunken_relief, black, very_very_light_gray>;
 
   status_bar_t ();
 
@@ -80,22 +80,22 @@ status_bar_t::status_bar_t () {
 namespace drawer {
 
   // --------------------------------------------------------------------------
-  void name (const std::string& txt, const draw::graphics& g, const core::rectangle& r, const draw::brush& b,  item_state s, text_origin align) {
+  void name (const std::string& txt, const draw::graphics& g, const core::rectangle& r, const draw::brush& b,  item_state s, text_origin_t align) {
     ctrl::paint::text_item(g, r, b, txt, s, align);
     draw::frame::lines(g, r);
   }
 
-  void duration (const duration_type& d, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+  void duration (const duration_type& d, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
     ctrl::paint::text_item(g, r, b, ostreamfmt(d), s, align);
     draw::frame::lines(g, r);
   }
 
-  void money (const double& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+  void money (const double& v, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
     ctrl::paint::text_item(g, r, b, ostreamfmt(std::setprecision(2) << std::fixed << v << " €"), s, align);
     draw::frame::lines(g, r);
   }
 
-  void time (const time_point& t, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+  void time (const time_point& t, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
     ctrl::paint::text_item(g, r, b, ostreamfmt(t), s, align);
     draw::frame::lines(g, r);
   }
@@ -240,7 +240,7 @@ namespace sort {
       typedef layout::vertical_lineup<20, 15, 2> Layout;
       typedef win::group_window<Layout, color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
-      using label_t = basic_label<text_origin::bottom_left,
+      using label_t = basic_label<text_origin_t::bottom_left,
                                   draw::frame::no_frame,
                                   color::black,
                                   color::very_light_gray>;
@@ -450,8 +450,8 @@ public:
       update_events();
     });
 
-    category_view.get_column_layout().set_default_align(text_origin::vcenter_right);
-    category_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
+    category_view.get_column_layout().set_default_align(text_origin_t::vcenter_right);
+    category_view.get_column_layout().set_column_align(0, text_origin_t::vcenter_left);
     category_view.header_label = {"Category", "Duration", "Costs", "Budget"};
     category_view.list.on_selection_changed([&] (event_source) {
       if (category_view.list.has_selection()) {
@@ -463,16 +463,16 @@ public:
       update_events();
     });
 
-    project_view.get_column_layout().set_default_align(text_origin::vcenter_right);
-    project_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
+    project_view.get_column_layout().set_default_align(text_origin_t::vcenter_right);
+    project_view.get_column_layout().set_column_align(0, text_origin_t::vcenter_left);
     project_view.header_label = {"Project", "Duration", "Costs", "Budget", "Costs/h"};
     project_view.list.on_selection_changed([&] (event_source) {
       update_events();
     });
 
-    event_view.get_column_layout().set_default_align(text_origin::vcenter_right);
-    event_view.get_column_layout().set_column_align(0, text_origin::vcenter_left);
-    event_view.get_column_layout().set_column_align(7, text_origin::vcenter_left);
+    event_view.get_column_layout().set_default_align(text_origin_t::vcenter_right);
+    event_view.get_column_layout().set_column_align(0, text_origin_t::vcenter_left);
+    event_view.get_column_layout().set_column_align(7, text_origin_t::vcenter_left);
     event_view.header_label = {"Project", "Begin", "End", "Duration", "Price", "Budget", "Comment", "Costs/h"};
 
     

@@ -159,12 +159,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   typedef std::vector<data_entry> vector_t;
 
   auto weight_columns = {
-    weight_column_info{ 80, text_origin::vcenter_left, 50, 0.0F },
-    weight_column_info{ 80, text_origin::vcenter_left, 50, 0.0F },
-    weight_column_info{ 300, text_origin::vcenter_left, 80, 1.0F },
-    weight_column_info{ 120, text_origin::vcenter_right, 80, 0.0F },
-    weight_column_info{ 100, text_origin::vcenter_right, 80, 0.0F },
-    weight_column_info{ 80, text_origin::center, 50, 0.0F }
+    weight_column_info{ 80, text_origin_t::vcenter_left, 50, 0.0F },
+    weight_column_info{ 80, text_origin_t::vcenter_left, 50, 0.0F },
+    weight_column_info{ 300, text_origin_t::vcenter_left, 80, 1.0F },
+    weight_column_info{ 120, text_origin_t::vcenter_right, 80, 0.0F },
+    weight_column_info{ 100, text_origin_t::vcenter_right, 80, 0.0F },
+    weight_column_info{ 80, text_origin_t::center, 50, 0.0F }
   };
 
   my_column_list_t::row_drawer column_list_drawer = {

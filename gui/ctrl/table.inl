@@ -29,7 +29,7 @@ namespace gui {
       inline void text_cell (const T& t,
                              const draw::graphics& graph,
                              const core::rectangle& place,
-                             const text_origin align,
+                             const text_origin_t align,
                              const os::color& foreground,
                              const os::color& background,
                              item_state state) {
@@ -299,7 +299,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       template<template<typename U> class T>
       cell_view<T>::cell_view (metric& geometrie,
-                               text_origin align,
+                               text_origin_t align,
                                os::color foreground,
                                os::color background,
                                const std::function<filter::selection_and_hilite>& selection_filter,
@@ -356,7 +356,7 @@ namespace gui {
       }
 
       template<template<typename U> class T>
-      inline text_origin cell_view<T>::get_default_align () const {
+      inline text_origin_t cell_view<T>::get_default_align () const {
         return aligns.get_default_data();
       }
 

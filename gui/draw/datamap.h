@@ -30,7 +30,7 @@ namespace gui {
 
   namespace draw {
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     class datamap;
 
     class GUIPP_DRAW_EXPORT basic_datamap {
@@ -44,7 +44,7 @@ namespace gui {
       const bitmap_info& get_info () const;
       bitmap_info& get_info ();
 
-      template<PixelFormat T>
+      template<pixel_format_t T>
       const datamap<T> convert () const;
 
       core::native_size native_size () const;
@@ -52,7 +52,7 @@ namespace gui {
       core::size scaled_size () const;
 
       byte depth () const;
-      PixelFormat pixel_format () const;
+      pixel_format_t pixel_format () const;
 
       void clear ();
 
@@ -60,7 +60,7 @@ namespace gui {
       basic_datamap (const blob&, const bitmap_info&);
       basic_datamap (blob&&, bitmap_info&&);
 
-      template<PixelFormat T>
+      template<pixel_format_t T>
       const const_image_data<T> get_data () const {
         return const_image_data<T>(core::array_wrapper<const byte>(data), info);
       }
@@ -70,12 +70,12 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     class datamap : public basic_datamap {
     public:
       typedef basic_datamap super;
       using pixel_type = typename BPP2Pixel<T>::pixel;
-      static constexpr PixelFormat px_fmt = T;
+      static constexpr pixel_format_t px_fmt = T;
 
       datamap () = default;
 
@@ -87,10 +87,10 @@ namespace gui {
       datamap (const blob& data, const bitmap_info& bmi);
       datamap (blob&& data, bitmap_info&& bmi);
 
-      template<PixelFormat S>
+      template<pixel_format_t S>
       datamap (const datamap<S>& src);
 
-      template<PixelFormat S>
+      template<pixel_format_t S>
       datamap (const const_image_data<S>& src);
 
       void create (uint32_t w, uint32_t h);
@@ -129,18 +129,18 @@ namespace gui {
 
       datamap brightness (double f) const;
 
-      datamap<PixelFormat::BW> get_mask (pixel::gray limit = {0x7F}) const;
+      datamap<pixel_format_t::BW> get_mask (pixel::gray limit = {0x7F}) const;
     };
 
     // --------------------------------------------------------------------------
-    typedef datamap<PixelFormat::BW> bwmap;
-    typedef datamap<PixelFormat::GRAY> graymap;
-    typedef datamap<PixelFormat::RGB> rgbmap;
-    typedef datamap<PixelFormat::RGBA> rgbamap;
-    typedef datamap<PixelFormat::BGR> bgrmap;
-    typedef datamap<PixelFormat::BGRA> bgramap;
-    typedef datamap<PixelFormat::ARGB> argbmap;
-    typedef datamap<PixelFormat::ABGR> abgrmap;
+    typedef datamap<pixel_format_t::BW> bwmap;
+    typedef datamap<pixel_format_t::GRAY> graymap;
+    typedef datamap<pixel_format_t::RGB> rgbmap;
+    typedef datamap<pixel_format_t::RGBA> rgbamap;
+    typedef datamap<pixel_format_t::BGR> bgrmap;
+    typedef datamap<pixel_format_t::BGRA> bgramap;
+    typedef datamap<pixel_format_t::ARGB> argbmap;
+    typedef datamap<pixel_format_t::ABGR> abgrmap;
 
     GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_rect& area);
     GUIPP_DRAW_EXPORT core::native_rect checked_area (const bitmap_info& bmi, const core::native_point& pt, const core::native_size& sz);

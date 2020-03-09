@@ -38,7 +38,7 @@ namespace gui {
              uint32_t border = 0,
              uint32_t gap = 0>
     using top_tab_group = htoggle_group<foreground, background,
-                                        tab_button<foreground, alignment::top, true>,
+                                        tab_button<foreground, alignment_t::top, true>,
                                         layout::horizontal_adaption<border, gap, 0, min, max>>;
 
     template<os::color foreground = color::black,
@@ -48,7 +48,7 @@ namespace gui {
              uint32_t border = 0,
              uint32_t gap = 0>
     using bottom_tab_group = htoggle_group<foreground, background,
-                                           tab_button<foreground, alignment::bottom, true>,
+                                           tab_button<foreground, alignment_t::bottom, true>,
                                            layout::horizontal_adaption<border, gap, 0, min, max>>;
 
 
@@ -59,7 +59,7 @@ namespace gui {
              uint32_t border = 0,
              uint32_t gap = 0>
     using left_tab_group = vtoggle_group<foreground, background,
-                                         tab_button<foreground, alignment::left, true>,
+                                         tab_button<foreground, alignment_t::left, true>,
                                          layout::vertical_adaption<border, gap, 0, min, max>>;
 
     template<os::color foreground = color::black,
@@ -69,7 +69,7 @@ namespace gui {
              uint32_t border = 0,
              uint32_t gap = 0>
     using right_tab_group = vtoggle_group<foreground, background,
-                                          tab_button<foreground, alignment::right, true>,
+                                          tab_button<foreground, alignment_t::right, true>,
                                           layout::vertical_adaption<border, gap, 0, min, max>>;
 
   } // ctrl

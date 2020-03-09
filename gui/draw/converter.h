@@ -40,7 +40,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace format {
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       struct line {
         static void convert (const typename draw::const_image_data<From>::row_type in,
                              typename draw::image_data<To>::row_type out,
@@ -51,12 +51,12 @@ namespace gui {
                           uint32_t w, pixel::gray limit);
       };
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void convert (const typename draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h);
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void mask (const typename draw::const_image_data<From> in,
                  draw::image_data<To> out,
                  uint32_t w, uint32_t h, pixel::gray limit);
@@ -66,12 +66,12 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace copy {
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void row (const typename draw::const_image_data<px_fmt>::row_type src,
                 typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w);
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void sub (const typename draw::const_image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::native_point& src,
@@ -87,7 +87,7 @@ namespace gui {
       bicubic,
     };
 
-    template<PixelFormat F, interpolation I = interpolation::nearest>
+    template<pixel_format_t F, interpolation I = interpolation::nearest>
     struct stretch {
 
       static void sub (const typename draw::const_image_data<F> src_data,
@@ -103,10 +103,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace brightness {
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, double f);
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, double f);
 
     }
@@ -114,10 +114,10 @@ namespace gui {
     // --------------------------------------------------------------------------
     namespace fill {
 
-      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      template<pixel_format_t px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
       void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, const pixel_type& px);
 
-      template<PixelFormat px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
+      template<pixel_format_t px_fmt, typename pixel_type = typename draw::BPP2Pixel<px_fmt>::pixel>
       void fill (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, const pixel_type& px);
 
     }

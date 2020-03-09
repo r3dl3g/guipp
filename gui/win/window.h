@@ -172,7 +172,7 @@ namespace gui {
       void on_right_btn_dblclk (std::function<mouse_fn>&& f);
       void on_middle_btn_dblclk (std::function<mouse_fn>&& f);
 
-      template<orientation V>
+      template<orientation_t V>
       void on_wheel (std::function<wheel_fn>&& f);
 
       void on_wheel_x (std::function<wheel_fn>&& f);

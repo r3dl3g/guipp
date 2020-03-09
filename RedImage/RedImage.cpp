@@ -51,7 +51,7 @@ pixmap create_text_pixmap (const std::string& str,
 
   pixmap img(rect.size());
   graphics g(img);
-  text_box box(str, rect, text_origin::center);
+  text_box box(str, rect, text_origin_t::center);
   g.clear(color::black);
   g.text(box, f, color);
   return img;
@@ -177,7 +177,7 @@ private:
 
   enum {
     IMAGE_COUNT = 11,
-    FILTER_HIGH = view::side_bar::layout_type::Dimension + view::side_bar::layout_type::Gap + view::side_bar::layout_type::Separation,
+    FILTER_HIGH = view::side_bar::layout_type::dimension + view::side_bar::layout_type::gap + view::side_bar::layout_type::separatior_width,
     FILTER_WIDTH = 275 - scroll_bar::scroll_bar_width
   };
   cv::Mat image[IMAGE_COUNT];
@@ -279,7 +279,7 @@ void RedImage::onCreated (win::window*, const core::rectangle&) {
 
   help_sub_menu.data.add_entry(
     menu_entry("About", 'A', [&]() {
-      message_dialog::show(*this, "About RedImage", "RedImage Version 0.0.1", "Ok");
+      message_dialog::show(*this, "About RedImage", "RedImage Version 0.9.0", "Ok");
     })
   );
 

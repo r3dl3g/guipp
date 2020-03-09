@@ -26,7 +26,7 @@ struct drawing {
 
   void paint (const gui::draw::graphics& g) {
     g.fill(gui::draw::rectangle(area), gui::color::light_gray);
-    g.text(gui::draw::text_box(text(), area, gui::text_origin::center),
+    g.text(gui::draw::text_box(text(), area, gui::text_origin_t::center),
                gui::draw::font::system(),
                gui::color::dark_blue);
   }

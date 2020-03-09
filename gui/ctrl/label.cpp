@@ -73,7 +73,7 @@ namespace gui {
                   const std::string& text,
                   os::color foreground,
                   os::color background,
-                  text_origin origin) {
+                  text_origin_t origin) {
         using namespace gui::draw;
         graph.fill(draw::rectangle(area), background);
         graph.text(draw::text_box(text, area, origin),

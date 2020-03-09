@@ -412,50 +412,50 @@ namespace gui {
       int old_mode = SetBkMode(g, TRANSPARENT);
       int px = pos.os_x();
       int py = pos.os_y();
-      unsigned int old_align = static_cast<unsigned int>(text_origin::top_left);
+      unsigned int old_align = static_cast<unsigned int>(text_origin_t::top_left);
       std::wstring wstr = util::string::utf8_to_utf16(str);
 
       switch (origin) {
-      case text_origin::top_left:
+      case text_origin_t::top_left:
         old_align = SetTextAlign(g, TA_LEFT | TA_TOP | TA_NOUPDATECP);
         break;
-      case text_origin::top_right:
+      case text_origin_t::top_right:
         old_align = SetTextAlign(g, TA_RIGHT | TA_TOP | TA_NOUPDATECP);
         break;
-      case text_origin::top_hcenter:
+      case text_origin_t::top_hcenter:
         old_align = SetTextAlign(g, TA_CENTER | TA_TOP | TA_NOUPDATECP);
         break;
-      case text_origin::bottom_left:
+      case text_origin_t::bottom_left:
         old_align = SetTextAlign(g, TA_LEFT | TA_BOTTOM | TA_NOUPDATECP);
         break;
-      case text_origin::bottom_right:
+      case text_origin_t::bottom_right:
         old_align = SetTextAlign(g, TA_RIGHT | TA_BOTTOM | TA_NOUPDATECP);
         break;
-      case text_origin::bottom_hcenter:
+      case text_origin_t::bottom_hcenter:
         old_align = SetTextAlign(g, TA_CENTER | TA_BOTTOM | TA_NOUPDATECP);
         break;
-      case text_origin::vcenter_right: {
+      case text_origin_t::vcenter_right: {
         SIZE sz;
         GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
         py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_RIGHT | TA_NOUPDATECP);
         break;
       }
-      case text_origin::vcenter_left: {
+      case text_origin_t::vcenter_left: {
         SIZE sz;
         GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
         py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_LEFT | TA_NOUPDATECP);
         break;
       }
-      case text_origin::center: {
+      case text_origin_t::center: {
         SIZE sz;
         GetTextExtentPoint32W(g, wstr.c_str(), (int)wstr.size(), &sz);
         py -= sz.cy / 2;
         old_align = SetTextAlign(g, TA_CENTER | TA_NOUPDATECP);
         break;
       }
-      case text_origin::undefined:
+      case text_origin_t::undefined:
         break;
       }
       TextOutW(g, px, py, wstr.c_str(), (int)wstr.size());
@@ -1002,7 +1002,7 @@ namespace gui {
 
 #endif // X11
 
-    template<PixelFormat px_fmt>
+    template<pixel_format_t px_fmt>
     void copy_frame_image (draw::const_image_data<px_fmt> src_img,
                            draw::image_data<px_fmt> dest_img,
                            const bitmap_info& src_bmi, const bitmap_info& dest_bmi,
@@ -1087,7 +1087,7 @@ namespace gui {
       }
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     void draw_image_frame (const graphics& g,
                            const core::point& pt,
                            const core::rectangle rect,
@@ -1110,22 +1110,22 @@ namespace gui {
     }
 
     template<>
-    void image_frame<PixelFormat::BW>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::BW>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<PixelFormat::GRAY>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::GRAY>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<PixelFormat::RGB>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::RGB>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 
     template<>
-    void image_frame<PixelFormat::RGBA>::operator() (const graphics& g, const core::point& pt) const {
+    void image_frame<pixel_format_t::RGBA>::operator() (const graphics& g, const core::point& pt) const {
       draw_image_frame(g, pt, rect, img, frame);
     }
 

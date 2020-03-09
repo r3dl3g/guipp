@@ -84,12 +84,12 @@ namespace gui {
                                     const std::string& text,
                                     os::color foreground,
                                     os::color background,
-                                    text_origin origin);
+                                    text_origin_t origin_t);
 
     }
 
     // --------------------------------------------------------------------------
-    template<text_origin alignment,
+    template<text_origin_t alignment,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::very_light_gray>
@@ -110,19 +110,19 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using label_left = basic_label<text_origin::vcenter_left,
+    using label_left = basic_label<text_origin_t::vcenter_left,
                                    draw::frame::no_frame,
                                    color::black,
                                    color::very_light_gray>;
 
     using label = label_left;
 
-    using label_right = basic_label<text_origin::vcenter_right,
+    using label_right = basic_label<text_origin_t::vcenter_right,
                                     draw::frame::no_frame,
                                     color::black,
                                     color::very_light_gray>;
 
-    using label_center = basic_label<text_origin::center,
+    using label_center = basic_label<text_origin_t::center,
                                      draw::frame::no_frame,
                                      color::black,
                                      color::very_light_gray>;

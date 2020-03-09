@@ -18,7 +18,7 @@ namespace testing {
 
   colormap pixmap2colormap (const gui::draw::pixmap&);
 
-  template<gui::PixelFormat T>
+  template<gui::pixel_format_t T>
   colormap datamap2colormap (const gui::draw::datamap<T>& img) {
     auto data = img.get_data();
     colormap result;
@@ -36,7 +36,7 @@ namespace testing {
     return result;
   }
 
-  template<gui::PixelFormat T>
+  template<gui::pixel_format_t T>
   gui::draw::datamap<T> colormap2datamap (const colormap& colors) {
     const auto width = colors[0].size();
     const auto height = colors.size();

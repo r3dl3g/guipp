@@ -93,12 +93,12 @@ namespace gui {
     }
 
     template<>
-    inline void window::on_wheel<orientation::horizontal> (std::function<wheel_fn>&& f) {
+    inline void window::on_wheel<orientation_t::horizontal> (std::function<wheel_fn>&& f) {
       on_wheel_x(std::move(f));
     }
 
     template<>
-    inline void window::on_wheel<orientation::vertical> (std::function<wheel_fn>&& f) {
+    inline void window::on_wheel<orientation_t::vertical> (std::function<wheel_fn>&& f) {
       on_wheel_y(std::move(f));
     }
 

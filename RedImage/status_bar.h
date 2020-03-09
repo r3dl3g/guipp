@@ -14,7 +14,7 @@ namespace view {
   public:
     typedef gui::win::group_window<gui::layout::horizontal_adaption<2, 10>, gui::color::very_very_light_gray> super;
 
-    using status_label = gui::ctrl::basic_label<gui::text_origin::vcenter_left,
+    using status_label = gui::ctrl::basic_label<gui::text_origin_t::vcenter_left,
     gui::draw::frame::sunken_deep_relief,
     gui::color::black,
     gui::color::very_very_light_gray>;

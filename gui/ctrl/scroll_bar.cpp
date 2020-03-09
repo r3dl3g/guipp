@@ -261,7 +261,7 @@ namespace gui {
             draw::frame::sunken_relief(g, up.shrinked(core::size::two));
           }
           auto s = up_left_arrows[horizontal];
-          g.text(draw::text_box(s, up, text_origin::center), draw::font::system(), col);
+          g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
         }
         if (!down.empty()) {
           paint::simple_frame(g, down, scrollbar_state::down_button == hilite);
@@ -269,7 +269,7 @@ namespace gui {
             draw::frame::sunken_relief(g, down.shrinked(core::size::two));
           }
           auto s = down_right_arrows[horizontal];
-          g.text(draw::text_box(s, down, text_origin::center), draw::font::system(), col);
+          g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
         }
         if (!thumb.empty()) {
           paint::simple_frame(g, thumb, scrollbar_state::thumb_button == hilite, 3, horizontal ? 3 : 13);
@@ -307,7 +307,7 @@ namespace gui {
             draw::frame::sunken_relief(g, up.shrinked(core::size::two));
           }
           auto s = up_left_arrows[horizontal];
-          g.text(draw::text_box(s, up, text_origin::center), draw::font::system(), col);
+          g.text(draw::text_box(s, up, text_origin_t::center), draw::font::system(), col);
         }
         if (!down.empty()) {
           paint::button_frame_w95(g, down, true, false, scrollbar_state::down_button == hilite, false);
@@ -315,7 +315,7 @@ namespace gui {
             draw::frame::sunken_relief(g, down.shrinked(core::size::two));
           }
           auto s = down_right_arrows[horizontal];
-          g.text(draw::text_box(s, down, text_origin::center), draw::font::system(), col);
+          g.text(draw::text_box(s, down, text_origin_t::center), draw::font::system(), col);
         }
         if (!thumb.empty()) {
           paint::button_frame_w95(g, thumb, true, false, scrollbar_state::thumb_button == hilite, false);
@@ -329,7 +329,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation::horizontal>::init () {
+    void basic_scroll_bar<orientation_t::horizontal>::init () {
       using namespace win;
       super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
         if (!left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down)) {
@@ -347,7 +347,7 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::init () {
+    void basic_scroll_bar<orientation_t::vertical>::init () {
       using namespace win;
       super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
         if (!left_btn_down_event::if_match_call(e, this, &basic_scroll_bar::handle_left_btn_down)) {
@@ -366,7 +366,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void basic_scroll_bar<orientation_t::horizontal>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
         if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
@@ -394,7 +394,7 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
+    void basic_scroll_bar<orientation_t::vertical>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       if (is_enabled()) {
         if (win::left_button_bit_mask::is_set(keys)) {
           // check if on thumb
@@ -423,7 +423,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void basic_scroll_bar<orientation::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
+    void basic_scroll_bar<orientation_t::horizontal>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
         case win::keys::left:
@@ -455,7 +455,7 @@ namespace gui {
     }
 
     template<>
-    void basic_scroll_bar<orientation::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
+    void basic_scroll_bar<orientation_t::vertical>::handle_any_key_up (os::key_state, os::key_symbol key) {
       if (is_enabled()) {
         switch (key) {
         case win::keys::up:

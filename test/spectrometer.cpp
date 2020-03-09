@@ -674,7 +674,7 @@ void spectrometer::display () {
 void spectrometer::extract_scanline () {
   if (rgb_image.is_valid() && (capture_view.get_scan_pos() > -1)) {
       const auto sub = rgb_image.sub(0, cu32(capture_view.get_scan_pos()), get_capture_size().width(), 1);
-      scan_line = sub.convert<PixelFormat::GRAY>();
+      scan_line = sub.convert<pixel_format_t::GRAY>();
   }
 }
 
@@ -694,7 +694,7 @@ void spectrometer::prepare_data () {
       case MMAL_ENCODING_PPM: {
 #endif // BUILD_FOR_ARM
         std::istringstream strm(std::string(reinterpret_cast<char*>(data.data()), data.size()));
-        gui::io::load_pnm<PixelFormat::RGB>(strm, rgb_image);
+        gui::io::load_pnm<pixel_format_t::RGB>(strm, rgb_image);
 #ifndef BUILD_FOR_ARM
         capture_size = rgb_image.native_size();
 #endif // BUILD_FOR_ARM
@@ -709,53 +709,53 @@ void spectrometer::prepare_data () {
       }
       case MMAL_ENCODING_RGBA:
       case MMAL_ENCODING_RGBA_SLICE: {
-        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), PixelFormat::RGBA);
-        const_image_data<PixelFormat::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
+        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), pixel_format_t::RGBA);
+        const_image_data<pixel_format_t::RGBA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
         capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
-//            convert::format::line<PixelFormat::RGBA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
+//            convert::format::line<pixel_format_t::RGBA, pixel_format_t::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
       case MMAL_ENCODING_RGB24:
       case MMAL_ENCODING_RGB24_SLICE: {
-        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), PixelFormat::RGB);
-        const_image_data<PixelFormat::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
+        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), pixel_format_t::RGB);
+        const_image_data<pixel_format_t::RGB> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
         capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
-//            convert::format::line<PixelFormat::RGB, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
+//            convert::format::line<pixel_format_t::RGB, pixel_format_t::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
       case MMAL_ENCODING_BGRA:
       case MMAL_ENCODING_BGRA_SLICE: {
-        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), PixelFormat::BGRA);
-        const_image_data<PixelFormat::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
+        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), pixel_format_t::BGRA);
+        const_image_data<pixel_format_t::BGRA> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
         capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
-//            convert::format::line<PixelFormat::BGRA, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
+//            convert::format::line<pixel_format_t::BGRA, pixel_format_t::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }
       case MMAL_ENCODING_BGR24:
       case MMAL_ENCODING_BGR24_SLICE: {
-        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), PixelFormat::BGR);
-        const_image_data<PixelFormat::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
+        bitmap_info bmi(sz.width(), sz.height(), camera.get_bytes_per_line(), pixel_format_t::BGR);
+        const_image_data<pixel_format_t::BGR> image_data(core::array_wrapper<const byte>(data.data(), data.size()), bmi);
         clog::debug() << "Display image with dimensions:" << bmi.size() << ", fmt:" << bmi.pixel_format;
         rgb_image = image_data;
         capture_view.set_image(rgb_image);
 //        scan_line.create(sz.width, 1);
 //        if (capture_view.get_scan_pos() > -1) {
-//            convert::format::line<PixelFormat::BGR, PixelFormat::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
+//            convert::format::line<pixel_format_t::BGR, pixel_format_t::GRAY>::convert(image_data.row(capture_view.get_scan_pos()), scan_line.get_data().row(0), sz.width);
 //        }
         break;
       }

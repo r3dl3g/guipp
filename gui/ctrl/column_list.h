@@ -34,7 +34,7 @@ namespace gui {
 
     struct column_info {
       column_size_type width;
-      text_origin align;
+      text_origin_t align;
     };
 
     namespace detail {
@@ -53,7 +53,7 @@ namespace gui {
         std::size_t get_column_count () const;
         void set_column_count (std::size_t i);
 
-        text_origin get_column_align (std::size_t i) const;
+        text_origin_t get_column_align (std::size_t i) const;
         column_size_type get_column_width (std::size_t i) const;
 
         int split_idx_at (core::point::type pt, column_size_type delta) const;
@@ -63,13 +63,13 @@ namespace gui {
         column_size_type get_column_right_pos (std::size_t i) const;
         core::size::type get_available_width () const;
 
-        void set_column_align (std::size_t i, text_origin a);
+        void set_column_align (std::size_t i, text_origin_t a);
         void set_column_width (std::size_t i, column_size_type w, bool update = false);
         void set_column_info (std::size_t i, const column_info& info, bool update = false);
         void set_columns (std::initializer_list<column_info> infos, bool update = false);
 
         void set_default_width (column_size_type);
-        void set_default_align (text_origin);
+        void set_default_align (text_origin_t);
 
         void set_list (list_type* l);
 
@@ -80,7 +80,7 @@ namespace gui {
         list_type* list;
 
         std::vector<column_size_type> widths;
-        std::vector<text_origin> aligns;
+        std::vector<text_origin_t> aligns;
 
       };
 
@@ -89,7 +89,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct simple_column_info {
       column_size_type width;
-      text_origin align;
+      text_origin_t align;
       column_size_type min_width;
     };
 
@@ -117,7 +117,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     struct weight_column_info {
       column_size_type width;
-      text_origin align;
+      text_origin_t align;
       column_size_type min_width;
       float weight;
     };
@@ -283,7 +283,7 @@ namespace gui {
                        const core::rectangle& place,
                        const draw::brush& background,
                        item_state state,
-                       text_origin align);
+                       text_origin_t align);
 
     };
 
@@ -300,7 +300,7 @@ namespace gui {
                                const core::rectangle&, // place
                                const draw::brush&,     // background
                                item_state,             // state
-                               text_origin);           // align
+                               text_origin_t);           // align
 
       simple_column_list (core::size::type item_size = 20,
                           os::color background = color::white,
@@ -358,7 +358,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       item_state state,
-                      text_origin align);
+                      text_origin_t align);
 
     // --------------------------------------------------------------------------
     template<typename T>
@@ -367,7 +367,7 @@ namespace gui {
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state,
-                                   text_origin align);
+                                   text_origin_t align);
 
     // --------------------------------------------------------------------------
     template<typename ... Arguments>

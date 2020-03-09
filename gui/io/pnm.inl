@@ -23,12 +23,12 @@ namespace gui {
 
   namespace io {
 
-    template<bool BIN, PixelFormat T>
+    template<bool BIN, pixel_format_t T>
     inline opnm<BIN, T>::opnm (const draw::datamap<T>& bmp)
       : bmp(bmp)
     {}
 
-    template<bool BIN, PixelFormat T>
+    template<bool BIN, pixel_format_t T>
     inline void opnm<BIN, T>::write (std::ostream& out) const {
       const draw::bitmap_info& bmi = bmp.get_info();
       write_pnm_header(out, BPP2PNM<T, BIN>::pnm, bmi, BPP2MAX<T>::max);
@@ -36,40 +36,40 @@ namespace gui {
     }
 
 //    template<>
-//    inline void opnm<false, PixelFormat::RGBA>::write (std::ostream& out) const {
+//    inline void opnm<false, pixel_format_t::RGBA>::write (std::ostream& out) const {
 //      const draw::bitmap_info& bmi = bmp.get_info();
-//      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, false>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
+//      write_pnm_header(out, BPP2PNM<pixel_format_t::RGBA, false>::pnm, bmi, BPP2MAX<pixel_format_t::RGBA>::max);
 //      write_pnm_rgba<false>(out, bmp.get_data());
 //    }
 
 //    template<>
-//    inline void opnm<true, PixelFormat::RGBA>::write (std::ostream& out) const {
+//    inline void opnm<true, pixel_format_t::RGBA>::write (std::ostream& out) const {
 //      const draw::bitmap_info& bmi = bmp.get_info();
-//      write_pnm_header(out, BPP2PNM<PixelFormat::RGBA, true>::pnm, bmi, BPP2MAX<PixelFormat::RGBA>::max);
+//      write_pnm_header(out, BPP2PNM<pixel_format_t::RGBA, true>::pnm, bmi, BPP2MAX<pixel_format_t::RGBA>::max);
 //      write_pnm_rgba<true>(out, bmp.get_data());
 //    }
 
     // --------------------------------------------------------------------------
-    template<bool BIN, PixelFormat T>
+    template<bool BIN, pixel_format_t T>
     inline std::ostream& operator<< (std::ostream& out, const opnm<BIN, T>& p) {
       p.write(out);
       return out;
     }
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline ipnm<T>::ipnm (draw::datamap<T>& bmp)
       : bmp(bmp)
     {}
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline ipnm<T>::ipnm (draw::datamap<T>&& bmp)
       : bmp(bmp)
     {}
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void ipnm<T>::read (std::istream& in) {
       int max;
       PNM pnm;
@@ -89,13 +89,13 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline std::istream &operator>> (std::istream& in, ipnm<T>& p) {
       p.read(in);
       return in;
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline std::istream &operator>> (std::istream& in, ipnm<T>&& p) {
       p.read(in);
       return in;
@@ -129,12 +129,12 @@ namespace gui {
     template<PNM i>
     inline void ofpnm<i>::operator<< (const draw::pixmap& b) {
       switch (b.pixel_format()) {
-        case PixelFormat::BW:   opnm<super::bin, PixelFormat::BW>(b.get<PixelFormat::BW>()).write(out); break;
-        case PixelFormat::GRAY: opnm<super::bin, PixelFormat::GRAY>(b.get<PixelFormat::GRAY>()).write(out); break;
-        case PixelFormat::RGB:  opnm<super::bin, PixelFormat::RGB>(b.get<PixelFormat::RGB>()).write(out); break;
-        case PixelFormat::BGR:  opnm<super::bin, PixelFormat::BGR>(b.get<PixelFormat::BGR>()).write(out); break;
-        case PixelFormat::RGBA: opnm<super::bin, PixelFormat::RGBA>(b.get<PixelFormat::RGBA>()).write(out); break;
-        case PixelFormat::BGRA: opnm<super::bin, PixelFormat::BGRA>(b.get<PixelFormat::BGRA>()).write(out); break;
+        case pixel_format_t::BW:   opnm<super::bin, pixel_format_t::BW>(b.get<pixel_format_t::BW>()).write(out); break;
+        case pixel_format_t::GRAY: opnm<super::bin, pixel_format_t::GRAY>(b.get<pixel_format_t::GRAY>()).write(out); break;
+        case pixel_format_t::RGB:  opnm<super::bin, pixel_format_t::RGB>(b.get<pixel_format_t::RGB>()).write(out); break;
+        case pixel_format_t::BGR:  opnm<super::bin, pixel_format_t::BGR>(b.get<pixel_format_t::BGR>()).write(out); break;
+        case pixel_format_t::RGBA: opnm<super::bin, pixel_format_t::RGBA>(b.get<pixel_format_t::RGBA>()).write(out); break;
+        case pixel_format_t::BGRA: opnm<super::bin, pixel_format_t::BGRA>(b.get<pixel_format_t::BGRA>()).write(out); break;
       }
     }
 
@@ -182,7 +182,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void save_pnm (std::ostream& out, const draw::datamap<T>& bmp, bool binary) {
       if (binary) {
         out << opnm<true, T>(bmp);
@@ -191,18 +191,18 @@ namespace gui {
       }
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void load_pnm (std::istream& in, draw::datamap<T>& bmp) {
       in >> ipnm<T>(bmp);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void save_pnm (const std::string& name, const draw::datamap<T>& bmp, bool binary) {
       std::ofstream out(name);
       save_pnm(out, bmp, binary);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void load_pnm (const std::string& name, draw::datamap<T>& bmp) {
       std::ifstream in(name);
       load_pnm(in, bmp);

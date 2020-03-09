@@ -36,11 +36,16 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    template<unsigned width, unsigned height, unsigned border = 0, unsigned gap = 0>
+    template<unsigned W, unsigned H, unsigned B = 0, unsigned G = 0>
     class grid_lineup : public layout_base {
     public:
       typedef core::size::type type;
       typedef layout_base super;
+
+      static constexpr unsigned width = W;
+      static constexpr unsigned height = H;
+      static constexpr unsigned border = B;
+      static constexpr unsigned gap = G;
 
       grid_lineup () = default;
       grid_lineup (std::initializer_list<layout_function> list);
@@ -57,11 +62,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<unsigned columns, unsigned rows, unsigned border = 0, unsigned gap = 0>
+    template<unsigned C, unsigned R, unsigned B = 0, unsigned G = 0>
     class grid_adaption : public layout_base {
     public:
       typedef core::size::type type;
       typedef layout_base super;
+
+      static constexpr unsigned columns = C;
+      static constexpr unsigned rows = R;
+      static constexpr unsigned border = B;
+      static constexpr unsigned gap = G;
 
       grid_adaption () = default;
       grid_adaption (std::initializer_list<layout_function> list);

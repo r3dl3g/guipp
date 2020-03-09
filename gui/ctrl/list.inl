@@ -125,31 +125,31 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     inline core::point::type
-    orientation_traits<orientation::horizontal>::get (const core::point& pt) {
+    orientation_traits<orientation_t::horizontal>::get (const core::point& pt) {
       return pt.x();
     }
 
     template<>
     inline core::size::type
-    orientation_traits<orientation::horizontal>::get (const core::size& sz) {
+    orientation_traits<orientation_t::horizontal>::get (const core::size& sz) {
       return sz.width();
     }
 
     template<>
     inline core::point::type
-    orientation_traits<orientation::horizontal>::get_other (const core::point& pt) {
+    orientation_traits<orientation_t::horizontal>::get_other (const core::point& pt) {
       return pt.y();
     }
 
     template<>
     inline core::size::type
-    orientation_traits<orientation::horizontal>::get_other (const core::size& sz) {
+    orientation_traits<orientation_t::horizontal>::get_other (const core::size& sz) {
       return sz.height();
     }
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set (core::point& pt,
+    orientation_traits<orientation_t::horizontal>::set (core::point& pt,
                                                       core::point::type dim,
                                                       core::point::type other) {
       pt.x(dim);
@@ -158,21 +158,21 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set (core::point& pt,
+    orientation_traits<orientation_t::horizontal>::set (core::point& pt,
                                                       core::point::type dim) {
       pt.x(dim);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set_other (core::point& pt,
+    orientation_traits<orientation_t::horizontal>::set_other (core::point& pt,
                                                             core::point::type other) {
       pt.y(other);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set (core::size& sz,
+    orientation_traits<orientation_t::horizontal>::set (core::size& sz,
                                                       core::size::type dim,
                                                       core::size::type other) {
       sz.width(dim);
@@ -181,21 +181,21 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set (core::size& sz,
+    orientation_traits<orientation_t::horizontal>::set (core::size& sz,
                                                       core::size::type dim) {
       sz.width(dim);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set_other (core::size& sz,
+    orientation_traits<orientation_t::horizontal>::set_other (core::size& sz,
                                                             core::size::type other) {
       sz.height(other);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set (core::rectangle& r,
+    orientation_traits<orientation_t::horizontal>::set (core::rectangle& r,
                                                       core::point::type v,
                                                       core::size::type s) {
       r.x(v);
@@ -204,7 +204,7 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::horizontal>::set_other (core::rectangle& r,
+    orientation_traits<orientation_t::horizontal>::set_other (core::rectangle& r,
                                                             core::point::type v,
                                                             core::size::type s) {
       r.y(v);
@@ -214,31 +214,31 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<>
     inline core::point::type
-    orientation_traits<orientation::vertical>::get (const core::point& pt) {
+    orientation_traits<orientation_t::vertical>::get (const core::point& pt) {
       return pt.y();
     }
 
     template<>
     inline core::size::type
-    orientation_traits<orientation::vertical>::get (const core::size& sz) {
+    orientation_traits<orientation_t::vertical>::get (const core::size& sz) {
       return sz.height();
     }
 
     template<>
     inline core::point::type
-    orientation_traits<orientation::vertical>::get_other (const core::point& pt) {
+    orientation_traits<orientation_t::vertical>::get_other (const core::point& pt) {
       return pt.x();
     }
 
     template<>
     inline core::size::type
-    orientation_traits<orientation::vertical>::get_other (const core::size& sz) {
+    orientation_traits<orientation_t::vertical>::get_other (const core::size& sz) {
       return sz.width();
     }
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set (core::point& pt,
+    orientation_traits<orientation_t::vertical>::set (core::point& pt,
                                                     core::point::type dim,
                                                     core::point::type other) {
       pt.y(dim);
@@ -247,21 +247,21 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set (core::point& pt,
+    orientation_traits<orientation_t::vertical>::set (core::point& pt,
                                                     core::point::type dim) {
       pt.y(dim);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set_other (core::point& pt,
+    orientation_traits<orientation_t::vertical>::set_other (core::point& pt,
                                                           core::point::type other) {
       pt.x(other);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set (core::size& sz,
+    orientation_traits<orientation_t::vertical>::set (core::size& sz,
                                                     core::size::type dim,
                                                     core::size::type other) {
       sz.height(dim);
@@ -270,21 +270,21 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set (core::size& sz,
+    orientation_traits<orientation_t::vertical>::set (core::size& sz,
                                                     core::size::type dim) {
       sz.height(dim);
     }
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set_other (core::size& sz,
+    orientation_traits<orientation_t::vertical>::set_other (core::size& sz,
                                                           core::size::type other) {
       sz.width(other);
    }
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set (core::rectangle& r,
+    orientation_traits<orientation_t::vertical>::set (core::rectangle& r,
                                                     core::point::type v,
                                                     core::size::type s) {
       r.y(v);
@@ -293,7 +293,7 @@ namespace gui {
 
     template<>
     inline void
-    orientation_traits<orientation::vertical>::set_other (core::rectangle& r,
+    orientation_traits<orientation_t::vertical>::set_other (core::rectangle& r,
                                                           core::point::type v,
                                                           core::size::type s) {
       r.x(v);
@@ -301,18 +301,18 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     inline linear_list_traits<V>::linear_list_traits (size_type item_size)
       : item_size(item_size)
     {}
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto linear_list_traits<V>::get_invisible_size (const core::size& list_size,
                                                            size_t count) const -> size_type {
       return std::max(size_type(0), (item_size * size_type(count)) - super::get(list_size));
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline int linear_list_traits<V>::get_index_at_point (const core::size& /*list_size*/,
                                                           const core::point& pt,
                                                           size_type scroll_pos,
@@ -320,7 +320,7 @@ namespace gui {
       return static_cast<int>((super::get(pt) + scroll_pos) / item_size);
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline core::rectangle linear_list_traits<V>::get_place_of_index (const core::size& list_size,
                                                                       int idx,
                                                                       size_type scroll_pos) const {
@@ -330,23 +330,23 @@ namespace gui {
       return place;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto linear_list_traits<V>::get_offset_of_index (const core::size&, int idx) const -> size_type {
       return item_size * idx;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto linear_list_traits<V>::get_line_size () const -> size_type {
       return item_size;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto linear_list_traits<V>::get_item_dimension () const -> size_type {
       return item_size;
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline basic_list<V, T>::basic_list (size_type item_size,
                                          os::color background,
                                          bool grab_focus)
@@ -357,7 +357,7 @@ namespace gui {
       init();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline basic_list<V, T>::basic_list (const basic_list& rhs)
       : super(rhs)
       , scrollbar(rhs.scrollbar)
@@ -366,7 +366,7 @@ namespace gui {
       init();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline basic_list<V, T>::basic_list (basic_list&& rhs)
       : super(std::move(rhs))
       , scrollbar(std::move(rhs.scrollbar))
@@ -375,31 +375,31 @@ namespace gui {
       init();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place) {
       super::create(clazz::get(), parent, place);
       adjust_scroll_bar(place.size());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_item_size () const -> size_type {
       return traits.item_size;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline core::size::type basic_list<V, T>::get_item_dimension () const {
       return traits.get_item_dimension();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::create_scroll_bar (const core::size& sz) {
       if (!scrollbar.is_valid()) {
         scrollbar.create(*reinterpret_cast<win::container*>(this), get_scroll_bar_area(sz));
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::enable_scroll_bar (bool enable) {
       super::get_state().set_scroll_bar_enabled(enable);
       if (enable) {
@@ -409,17 +409,17 @@ namespace gui {
       scrollbar.set_visible(enable && scrollbar.get_max());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline bool basic_list<V, T>::is_scroll_bar_visible () const {
       return scrollbar.is_visible();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_scroll_pos() const -> pos_t {
       return scrollbar.get_value();
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::clear_selection (event_source notify) {
       if (data.selection != -1) {
         data.selection = -1;
@@ -430,7 +430,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::set_hilite (int sel, bool notify) {
       int new_hilite = std::max(-1, sel);
       if (new_hilite >= static_cast<int>(super::get_count())) {
@@ -445,7 +445,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::clear_hilite (bool notify) {
       if (super::get_hilite() != -1) {
         data.hilite = -1;
@@ -456,7 +456,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::init () {
       scrollbar.on_scroll([&] (pos_t) {
         super::invalidate();
@@ -480,12 +480,12 @@ namespace gui {
       });
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline auto basic_list<V, T>::get_list_size () const -> pos_t {
       return traits.get(content_size(client_size()));
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     core::size basic_list<V, T>::content_size (const core::size& client_sz, bool scrollbar_visible) const {
       core::size sz = client_sz;
       if (scrollbar_visible) {
@@ -494,17 +494,17 @@ namespace gui {
       return sz;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     core::size basic_list<V, T>::content_size (const core::size& sz) const {
       return content_size(sz, is_scroll_bar_visible());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::content_area (const core::size& sz) const {
       return core::rectangle(content_size(sz));
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_scroll_bar_area (const core::size& s) const {
       core::rectangle r(s);
       float sz = static_cast<float>(scroll_bar::get_scroll_bar_width());
@@ -512,7 +512,7 @@ namespace gui {
       return r;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     template<typename U, list_item_drawer<U> F>
     inline void basic_list<V, T>::create (const win::container& parent,
                                           const core::rectangle& place,
@@ -521,23 +521,23 @@ namespace gui {
       set_data(data);
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::set_item_size (size_type item_size) {
       traits.item_size = item_size;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::set_item_size_and_background (size_type item_size, os::color background) {
       traits.item_size = item_size;
       super::set_background(background);
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::adjust_scroll_bar () {
       adjust_scroll_bar(client_size());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::adjust_scroll_bar (const core::size& sz) {
       if (super::is_scroll_bar_enabled()) {
         scroll_bar::type invisible = traits.get_invisible_size(content_size(sz, true), super::get_count());
@@ -551,7 +551,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::set_count (std::size_t count) {
       super::data.item_count = count;
 
@@ -571,21 +571,21 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     template<typename F>
     inline void basic_list<V, T>::set_data (const simple_list_data<F>& data) {
       super::set_drawer(data);
       set_count(data.size());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     template<typename F>
     inline void basic_list<V, T>::set_data (std::initializer_list<F> args) {
       super::set_drawer(simple_list_data<F>(args));
       set_count(args.size());
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline int basic_list<V, T>::get_index_at_point (const core::point& pt) {
       auto rect = content_area(client_size());
       if (rect.is_inside(pt)) {
@@ -594,7 +594,7 @@ namespace gui {
       return -1;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     core::rectangle basic_list<V, T>::get_place_of_index (int idx) {
       if (super::is_valid_idx(idx)) {
         return traits.get_place_of_index(content_size(client_size()), idx, get_scroll_pos());
@@ -602,7 +602,7 @@ namespace gui {
       return core::rectangle::zero;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::set_selection (int sel, event_source notify) {
       const int new_selection = std::min(std::max(0, sel), static_cast<int>(super::get_count() - 1));
       if (super::data.selection != new_selection) {
@@ -615,7 +615,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     bool basic_list<V, T>::try_to_select (int sel, event_source notify) {
       if ((sel >= 0) && (sel < get_count())) {
         set_selection(sel, notify);
@@ -624,7 +624,7 @@ namespace gui {
       return false;
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::make_selection_visible () {
       if (super::data.selection > -1) {
         const auto list_size = content_size(client_size());
@@ -641,7 +641,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::set_scroll_pos (pos_t pos) {
       auto value = std::max(zero, std::min(pos, traits.get_invisible_size(content_size(client_size()), super::get_count())));
       if (value != scrollbar.get_value()) {
@@ -649,13 +649,13 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     inline void basic_list<V, T>::handle_wheel (const pos_t delta, const core::point&) {
       set_scroll_pos(get_scroll_pos() - traits.get_line_size() * delta);
       super::get_state().set_moved(true);
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::handle_mouse_move (os::key_state keys, const core::point& pt) {
       const core::rectangle r = content_area(client_size());
       if (win::left_button_bit_mask::is_set(keys) && r.is_inside(pt)) {
@@ -671,7 +671,7 @@ namespace gui {
       }
     }
 
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     void basic_list<V, T>::handle_left_btn_up (os::key_state keys, const core::point& pt) {
       if (!super::is_moved() && (super::get_last_mouse_point() != core::point::undefined)) {
         const int new_selection = traits.get_index_at_point(content_size(client_size()), pt, get_scroll_pos(), get_count());
@@ -690,7 +690,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     inline linear_list<V>::linear_list (core::size::type item_size,
                                         os::color background,
                                         bool grab_focus)
@@ -699,21 +699,21 @@ namespace gui {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline linear_list<V>::linear_list (const linear_list& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline linear_list<V>::linear_list (linear_list&& rhs)
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void linear_list<V>::paint (const draw::graphics& graph) {
       const core::rectangle area(super::content_size(super::client_size(), false));
       core::rectangle place = area;
@@ -742,7 +742,7 @@ namespace gui {
 
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void linear_list<V>::handle_key (os::key_state,
                                     os::key_symbol key,
                                     const std::string&) {
@@ -775,7 +775,7 @@ namespace gui {
       }
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void linear_list<V>::init () {
       super::on_paint(draw::buffered_paint(this, &linear_list::paint));
       super::on_any_key_down(util::bind_method(this, &linear_list::handle_key));

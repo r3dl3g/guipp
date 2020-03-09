@@ -106,7 +106,7 @@ namespace gui {
                                    const core::rectangle& place,
                                    const draw::brush& background,
                                    item_state state) {
-      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin::vcenter_left);
+      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::vcenter_left);
     }
 
     template<typename T>
@@ -144,7 +144,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     struct orientation_traits {
       static core::point::type get (const core::point&);
       static core::point::type get_other (const core::point&);
@@ -166,22 +166,22 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     struct wheel_traits {};
 
     template<>
-    struct wheel_traits<orientation::horizontal> {
+    struct wheel_traits<orientation_t::horizontal> {
       typedef win::wheel_x_event wheel_event_type;
 
     };
 
     template<>
-    struct wheel_traits<orientation::vertical> {
+    struct wheel_traits<orientation_t::vertical> {
       typedef win::wheel_y_event wheel_event_type;
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V, typename T>
+    template<orientation_t V, typename T>
     class basic_list : public detail::list_base {
     public:
       typedef detail::list_base super;
@@ -265,7 +265,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     struct linear_list_traits : public orientation_traits<V> {
       typedef orientation_traits<V> super;
       typedef core::size::type size_type;
@@ -292,7 +292,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     class linear_list : public basic_list<V, linear_list_traits<V>> {
     public:
       typedef basic_list<V, linear_list_traits<V>> super;
@@ -319,14 +319,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void linear_list<orientation_t::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    GUIPP_CTRL_EXPORT void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void linear_list<orientation_t::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
-    typedef linear_list<orientation::horizontal> horizontal_list;
-    typedef linear_list<orientation::vertical> vertical_list;
+    typedef linear_list<orientation_t::horizontal> horizontal_list;
+    typedef linear_list<orientation_t::vertical> vertical_list;
     typedef vertical_list list;
 
     // --------------------------------------------------------------------------

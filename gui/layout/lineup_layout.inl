@@ -23,12 +23,12 @@ namespace gui {
 
   namespace layout {
 
-    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
+    template<orientation_t H, unsigned D, unsigned B, unsigned G, unsigned S, origin_t R>
     inline lineup_layout<H, D, B, G, S, R>::lineup_layout (std::initializer_list<layout_function> list)
       : super(list)
     {}
 
-    template<orientation height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin rows>
+    template<orientation_t height, unsigned dim1, unsigned border, unsigned gap, unsigned sep, origin_t rows>
     void lineup_layout<height, dim1, border, gap, sep, rows>::layout (const core::rectangle& r) const {
       clog::trace() << "lineup_layout::layout(" << r << ")";
       const auto& elements = super::get_elements();

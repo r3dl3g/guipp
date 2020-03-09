@@ -212,7 +212,7 @@ DEFINE_TEST(test_bitmap_get_image) {
   io::load_pnm(in, mask);
 
   draw::pixmap pix(mask);
-  draw::rgbmap img = pix.get<PixelFormat::RGB>();
+  draw::rgbmap img = pix.get<pixel_format_t::RGB>();
 
   auto data = img.get_data();
   for (int y = 0; y < 20; ++y) {
@@ -237,7 +237,7 @@ DEFINE_TEST(test_bitmap_get_image_inv) {
 
   draw::pixmap pix(mask);
   pix.invert();
-  draw::rgbmap img = pix.get<PixelFormat::RGB>();
+  draw::rgbmap img = pix.get<pixel_format_t::RGB>();
 
   auto data = img.get_data();
   for (int y = 0; y < 20; ++y) {
@@ -294,7 +294,7 @@ DEFINE_TEST(test_bitmap_get_image_mask) {
 
   }
 
-  draw::rgbmap img = mem.get<PixelFormat::RGB>();
+  draw::rgbmap img = mem.get<pixel_format_t::RGB>();
   auto data = img.get_data();
 
   auto gray = pixel::rgb::build(color::gray);
@@ -351,8 +351,8 @@ DEFINE_TEST(test_copy_pixmap) {
   draw::pixmap pix0(bw);
   draw::pixmap pix1(pix0);
 
-  draw::rgbamap map0 = pix0.get<PixelFormat::RGBA>();
-  draw::rgbamap map1 = pix1.get<PixelFormat::RGBA>();
+  draw::rgbamap map0 = pix0.get<pixel_format_t::RGBA>();
+  draw::rgbamap map1 = pix1.get<pixel_format_t::RGBA>();
 
   auto data0 = map0.get_data();
   auto data1 = map1.get_data();
@@ -385,7 +385,7 @@ DEFINE_TEST(test_masked_from_pixmap) {
   };
 
   {
-    auto img = pix.get<PixelFormat::RGB>();
+    auto img = pix.get<pixel_format_t::RGB>();
     auto data = img.get_data();
     for (uint32_t y = 0; y < 5; ++y) {
       auto row = data.row(y);
@@ -465,8 +465,8 @@ DEFINE_TEST(test_file_icon) {
   EXPECT_TRUE(mask.is_valid());
   EXPECT_EQUAL(mask.native_size(), core::native_size(20, 20));
   EXPECT_EQUAL(mask.depth(), 1);
-  EXPECT_EQUAL(mask.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(mask.get_info(), draw::bitmap_info(20, 20, 4, PixelFormat::BW));
+  EXPECT_EQUAL(mask.pixel_format(), pixel_format_t::BW);
+  EXPECT_EQUAL(mask.get_info(), draw::bitmap_info(20, 20, 4, pixel_format_t::BW));
 
 //  auto bw_data = mask.get_data();
 

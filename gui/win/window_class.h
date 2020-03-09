@@ -39,11 +39,11 @@ namespace gui {
 
     GUIPP_WIN_EXPORT std::string getLastErrorText ();
 
-    template<core::os::platform P = core::os::system_platform>
+    template<core::os::platform_t P = core::os::system_platform>
     struct window_class_defaults {};
 
     template<>
-    struct window_class_defaults<core::os::platform::win32> {
+    struct window_class_defaults<core::os::platform_t::win32> {
       static constexpr win::cursor_type cursor = win::cursor_type::arrow;
       static constexpr os::style style = IF_WIN32_ELSE(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP, 0);
       static constexpr os::style ex_style = IF_WIN32_ELSE(WS_EX_NOPARENTNOTIFY, 0);
@@ -51,7 +51,7 @@ namespace gui {
     };
 
     template<>
-    struct window_class_defaults<core::os::platform::x11> {
+    struct window_class_defaults<core::os::platform_t::x11> {
       static constexpr win::cursor_type cursor = win::cursor_type::none;
       static constexpr os::style style = 0;
       static constexpr os::style ex_style = 0;

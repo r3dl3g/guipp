@@ -1078,7 +1078,7 @@ constexpr gui::os::color B7 = gui::color::rgba<0xb7, 0xb7, 0xb7, 0xFF>::value;
 constexpr gui::os::color S8 = gui::color::rgba<0x78, 0x78, 0x78, 0xFF>::value;
 
 // --------------------------------------------------------------------------
-template<orientation O, bool sunken, os::color C = color::medium_gray>
+template<orientation_t O, bool sunken, os::color C = color::medium_gray>
 void sep_tester (float scale, int pix, const core::point& pt, const core::size& sz,
                  colormap&& expected) {
   core::global::set_scale_factor(scale);
@@ -1099,7 +1099,7 @@ void sep_tester (float scale, int pix, const core::point& pt, const core::size& 
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vseparator_sunken) {
-  sep_tester<orientation::vertical, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
+  sep_tester<orientation_t::vertical, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_,_ ,_},
     {_,S8,_,B7,_},
     {_,S8,_,B7,_},
@@ -1111,7 +1111,7 @@ END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_vseparator_raised) {
-  sep_tester<orientation::vertical, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
+  sep_tester<orientation_t::vertical, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_,_ ,_},
     {_,B7,_,S8,_},
     {_,B7,_,S8,_},
@@ -1123,7 +1123,7 @@ END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hseparator_sunken) {
-  sep_tester<orientation::horizontal, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
+  sep_tester<orientation_t::horizontal, true>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_ ,_ ,_},
     {_,S8,S8,S8,_},
     {_,_ ,_ ,_ ,_},
@@ -1135,7 +1135,7 @@ END_TEST()
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_hseparator_raised) {
-  sep_tester<orientation::horizontal, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
+  sep_tester<orientation_t::horizontal, false>(1.0F, 5, {1, 1}, {3, 3}, CM({
     {_,_ ,_ ,_ ,_},
     {_,B7,B7,B7,_},
     {_,_ ,_ ,_ ,_},

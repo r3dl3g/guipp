@@ -24,7 +24,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   using namespace gui::ctrl;
   using namespace gui::core;
 
-  using label_t = basic_label<text_origin::center,
+  using label_t = basic_label<text_origin_t::center,
                               draw::frame::raised_deep_relief,
                               color::black,
                               color::very_light_gray>;
@@ -49,7 +49,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.set_title(ostreamfmt("Got focus from: " << (prev ? prev->get_id() : 0)));
   });
 //  main.on_paint(gui::draw::paint([&] (const gui::draw::graphics& g) {
-//    gui::ctrl::paint::text_item(g, main.client_area(), gui::color::very_light_gray, "Hello world", false, gui::text_origin::center);
+//    gui::ctrl::paint::text_item(g, main.client_area(), gui::color::very_light_gray, "Hello world", false, gui::text_origin_t::center);
 //  }));
 #else
   main_window  main;

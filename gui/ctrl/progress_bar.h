@@ -77,13 +77,13 @@ namespace gui {
                                       const std::string& text,
                                       os::color foreground,
                                       os::color background,
-                                      text_origin origin,
+                                      text_origin_t origin_t,
                                       os::color bar_color,
                                       core::size::type bar_pos);
 
     }
 
-    template<text_origin alignment,
+    template<text_origin_t alignment,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::very_light_gray,
@@ -104,7 +104,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using progress_bar = basic_progress_bar<text_origin::center,
+    using progress_bar = basic_progress_bar<text_origin_t::center,
                                             draw::frame::sunken_relief>;
 
   } // ctrl

@@ -57,7 +57,7 @@ namespace gui {
         return widths.size();
       }
 
-      inline text_origin column_list_layout::get_column_align (std::size_t i) const {
+      inline text_origin_t column_list_layout::get_column_align (std::size_t i) const {
         return aligns[i];
       }
 
@@ -257,7 +257,7 @@ namespace gui {
         using namespace draw;
         g.fill(rectangle(r), background);
         frame::raised_relief(g, r);
-        g.text(text_box(labels[i], r, text_origin::center), font::system(), color::windowTextColor());
+        g.text(text_box(labels[i], r, text_origin_t::center), font::system(), color::windowTextColor());
       });
     }
 
@@ -407,7 +407,7 @@ namespace gui {
                                                     const core::rectangle& place,
                                                     const draw::brush& background,
                                                     item_state state,
-                                                    text_origin align) {
+                                                    text_origin_t align) {
       paint::text_item(graph, place, background, util::string::convert::from(super::at(row_id).at(col_id)), state, align);
       if (item_state::selected != state) {
         F(graph, place);
@@ -500,7 +500,7 @@ namespace gui {
                       const core::rectangle& place,
                       const draw::brush& background,
                       item_state state,
-                      text_origin align) {
+                      text_origin_t align) {
       paint::text_item(graph, place, background, util::string::convert::from(t), state, align);
       if (item_state::selected != state) {
         F(graph, place);
@@ -546,7 +546,7 @@ namespace gui {
                                                         const draw::brush& background,
                                                         item_state state) {
       core::size::type width = l.get_column_width(I);
-      text_origin align = l.get_column_align(I);
+      text_origin_t align = l.get_column_align(I);
 
       core::rectangle place(core::point(x, r.y()), core::point(x + width, r.y2()));
       auto dat = std::get<I>(data);

@@ -720,14 +720,14 @@ namespace gui {
                                               0,
                                               event::functor<wheel_button_matcher<Button4, Button5>>>;
 
-    template<orientation O>
+    template<orientation_t O>
     struct wheel_event {};
 
     template<>
-    struct wheel_event<orientation::horizontal> : public wheel_x_event {};
+    struct wheel_event<orientation_t::horizontal> : public wheel_x_event {};
 
     template<>
-    struct wheel_event<orientation::vertical> : public wheel_y_event {};
+    struct wheel_event<orientation_t::vertical> : public wheel_y_event {};
 
     using show_event = core::event_handler<MapNotify, StructureNotifyMask>;
     using hide_event = core::event_handler<UnmapNotify, StructureNotifyMask>;

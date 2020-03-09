@@ -36,21 +36,21 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    template<orientation H,
+    template<orientation_t H,
              unsigned D,
              unsigned B = 0,
              unsigned G = 0,
              unsigned S = 2,
-             origin R = origin::start>
+             origin_t R = origin_t::start>
     class lineup_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
       typedef detail::origin_layout<H, R> super;
 
-      static constexpr unsigned Dimension = D;
-      static constexpr unsigned Border = B;
-      static constexpr unsigned Gap = G;
-      static constexpr unsigned Separation = B;
+      static constexpr unsigned dimension = D;
+      static constexpr unsigned border_width = B;
+      static constexpr unsigned gap = G;
+      static constexpr unsigned separatior_width = S;
 
       lineup_layout () = default;
       lineup_layout (std::initializer_list<layout_function> list);
@@ -59,7 +59,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation H, unsigned D, unsigned B, unsigned G, unsigned S, origin R>
+    template<orientation_t H, unsigned D, unsigned B, unsigned G, unsigned S, origin_t R>
     struct is_layout<lineup_layout<H, D, B, G, S, R>> {
       enum {
         value = true
@@ -67,28 +67,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<unsigned dim1,
-             unsigned border = 0,
-             unsigned gap = 0,
-             unsigned sep = 2,
-             origin R = origin::start>
-    using horizontal_lineup = lineup_layout<orientation::horizontal, dim1, border, gap, sep, R>;
+    template<unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2, origin_t R = origin_t::start>
+    using horizontal_lineup = lineup_layout<orientation_t::horizontal, D, B, G, S, R>;
 
     // --------------------------------------------------------------------------
-    template<unsigned dim1,
-             unsigned border = 0,
-             unsigned gap = 0,
-             unsigned sep = 2,
-             origin R = origin::start>
-    using vertical_lineup = lineup_layout<orientation::vertical, dim1, border, gap, sep, R>;
+    template<unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2, origin_t R = origin_t::start>
+    using vertical_lineup = lineup_layout<orientation_t::vertical, D, B, G, S, R>;
 
     // --------------------------------------------------------------------------
-    template<alignment a,
-             unsigned dim1,
-             unsigned border = 0,
-             unsigned gap = 0,
-             unsigned sep = 2>
-    using lineup = lineup_layout<alignment_orientation<a>::value, dim1, border, gap, sep, alignment_origin<a>::value>;
+    template<alignment_t a, unsigned D, unsigned B = 0, unsigned G = 0, unsigned S = 2>
+    using lineup = lineup_layout<alignment_orientation<a>::value, D, B, G, S, alignment_origin<a>::value>;
 
     // --------------------------------------------------------------------------
   } // namespace layout

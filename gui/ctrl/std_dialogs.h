@@ -88,7 +88,7 @@ namespace gui {
         public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
                                                  color::very_light_gray>> {
     public:
-      typedef basic_textbox<text_origin::center,
+      typedef basic_textbox<text_origin_t::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
@@ -121,7 +121,7 @@ namespace gui {
         public standard_dialog<win::group_window<layout::border::layouter<20, 15, 15, 15>,
                                                  color::very_light_gray>> {
     public:
-      typedef basic_textbox<text_origin::center,
+      typedef basic_textbox<text_origin_t::center,
                             draw::frame::sunken_relief,
                             color::black,
                             color::very_light_gray> message_view_type;
@@ -198,7 +198,7 @@ namespace gui {
                                 color::very_light_gray> content_view_type;
       typedef standard_dialog<content_view_type> super;
       static constexpr size_t N = sizeof...(Arguments);
-      using label_t = basic_label<text_origin::bottom_left,
+      using label_t = basic_label<text_origin_t::bottom_left,
                                   draw::frame::no_frame,
                                   color::black,
                                   color::very_light_gray>;
@@ -302,9 +302,9 @@ namespace gui {
                         std::function<file_selected> action);
 
       top_view_type top_view;
-      basic_edit<text_origin::vcenter_left,
+      basic_edit<text_origin_t::vcenter_left,
                  draw::frame::sunken_deep_relief> input_line;
-      basic_label<text_origin::vcenter_right,
+      basic_label<text_origin_t::vcenter_right,
                   draw::frame::no_frame,
                   color::black,
                   color::very_very_light_gray> input_label;

@@ -185,26 +185,26 @@ namespace gui {
                                       const core::rectangle&,
                                       const core::rectangle&);
     // --------------------------------------------------------------------------
-    template<orientation H, core::os::platform P = core::os::system_platform>
+    template<orientation_t H, core::os::platform_t P = core::os::system_platform>
     struct scroll_bar_traits {};
 
-    template<orientation H>
-    struct scroll_bar_traits<H, core::os::platform::win32> {
+    template<orientation_t H>
+    struct scroll_bar_traits<H, core::os::platform_t::win32> {
       static constexpr os::style style = win::window_class_defaults<>::style;
     };
 
     template<>
-    struct scroll_bar_traits<orientation::horizontal, core::os::platform::x11> {
+    struct scroll_bar_traits<orientation_t::horizontal, core::os::platform_t::x11> {
       static constexpr os::style style = IF_X11_ELSE(SouthWestGravity, 0);
     };
 
     template<>
-    struct scroll_bar_traits<orientation::vertical, core::os::platform::x11> {
+    struct scroll_bar_traits<orientation_t::vertical, core::os::platform_t::x11> {
       static constexpr os::style style = IF_X11_ELSE(NorthEastGravity, 0);
     };
 
     // --------------------------------------------------------------------------
-    template<orientation H>
+    template<orientation_t H>
     class basic_scroll_bar : public scroll_bar {
     public:
       typedef scroll_bar super;
@@ -264,7 +264,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation H,
+    template<orientation_t H,
 #ifdef BUILD_FOR_ARM
              scrollbar_drawer D = paint::scrollbar_w95>
 #else
@@ -285,8 +285,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using vertical_scroll_bar = scroll_bar_base<orientation::vertical>;
-    using horizontal_scroll_bar = scroll_bar_base<orientation::horizontal>;
+    using vertical_scroll_bar = scroll_bar_base<orientation_t::vertical>;
+    using horizontal_scroll_bar = scroll_bar_base<orientation_t::horizontal>;
 
   } // ctrl
 

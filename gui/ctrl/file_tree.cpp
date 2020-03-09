@@ -317,10 +317,10 @@ namespace gui {
 
       void init_file_list_layout (layout::weight_column_list_layout& lay) {
         lay.set_columns({
-          layout::weight_column_info {24, text_origin::center, 24, 0.0F},
-          layout::weight_column_info {120, text_origin::vcenter_left, 20, 1.0F},
-          layout::weight_column_info {80, text_origin::vcenter_right, 20, 0.0F},
-          layout::weight_column_info {160, text_origin::vcenter_right, 20, 0.001F}
+          layout::weight_column_info {24, text_origin_t::center, 24, 0.0F},
+          layout::weight_column_info {120, text_origin_t::vcenter_left, 20, 1.0F},
+          layout::weight_column_info {80, text_origin_t::vcenter_right, 20, 0.0F},
+          layout::weight_column_info {160, text_origin_t::vcenter_right, 20, 0.001F}
         }, false);
       }
 
@@ -342,7 +342,7 @@ namespace gui {
 
       file_list_row_drawer create_file_list_row_drawer () {
         return file_list_row_drawer {
-          [] (const draw::pixmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin) {
+          [] (const draw::pixmap* const& img, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t) {
             if (img) {
               g.fill(draw::image<draw::pixmap>(*img, r), item_state::selected == s ? color::highLightColor() : b);
             } else {
@@ -350,11 +350,11 @@ namespace gui {
             }
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             paint::text_item(g, r, b, path.filename(), s, align);
             draw::frame::lines(g, r);
           },
-          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+          [] (const fs::file_info& path, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             if (path.is_directory()) {
               paint::text_item(g, r, b, std::string(), s, align);
             } else {
@@ -362,7 +362,7 @@ namespace gui {
             }
             draw::frame::lines(g, r);
           },
-          [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin align) {
+          [] (const sys_fs::file_time_type& tp, const draw::graphics& g, const core::rectangle& r, const draw::brush& b, item_state s, text_origin_t align) {
             paint::text_item(g, r, b, util::time::format_datetime(tp), s, align);
             draw::frame::lines(g, r);
           }

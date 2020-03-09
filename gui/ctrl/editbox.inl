@@ -33,14 +33,14 @@ namespace gui {
     void basic_editbox<frame, foreground, background>::handle_paint (const draw::graphics& graph) {
       const auto area = client_area();
       paint::text_box(graph, area, data.lines, data.font,
-                      foreground, background, text_origin::vcenter_left,
+                      foreground, background, text_origin_t::vcenter_left,
                       data.selection, data.cursor_pos, data.offset, has_focus());
       frame(graph, area);
     }
 
     template<draw::frame::drawer frame, os::color fg, os::color bg>
     inline void basic_editbox<frame, fg, bg>::enable_select_by_mouse () {
-      super::enable_select_by_mouse(text_origin::top_left);
+      super::enable_select_by_mouse(text_origin_t::top_left);
     }
 
   } // ctrl

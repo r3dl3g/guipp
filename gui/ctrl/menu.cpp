@@ -38,19 +38,19 @@ namespace gui {
                             char k,
                             os::color c) {
         const draw::font& f = draw::font::menu();
-        g.text(draw::text_box(l, r, text_origin::vcenter_left), f, c);
+        g.text(draw::text_box(l, r, text_origin_t::vcenter_left), f, c);
 
         if (k) {
           auto i = l.find(k);
           if (i != std::string::npos) {
             core::rectangle r1 = r;
-            g.text(draw::bounding_box(l.substr(0, i + 1), r1, text_origin::vcenter_left), f, c);
+            g.text(draw::bounding_box(l.substr(0, i + 1), r1, text_origin_t::vcenter_left), f, c);
             core::point::type x1 = r.x() + 1;
             core::point::type x2 = r1.x2() - 1;
             core::point::type y = r1.y2();
             if (i > 0) {
               core::rectangle r0 = r;
-              g.text(draw::bounding_box(l.substr(0, i), r0, text_origin::vcenter_left), f, c);
+              g.text(draw::bounding_box(l.substr(0, i), r0, text_origin_t::vcenter_left), f, c);
               x1 = r0.x2();
             }
             g.draw_lines({core::point(x1, y), core::point(x2, y)}, c);
@@ -141,7 +141,7 @@ namespace gui {
 
         if (!hotkey.empty()) {
           r2.x(hotkey_pos);
-          g.text(draw::text_box(hotkey.get_key_string(), r2, text_origin::vcenter_left),
+          g.text(draw::text_box(hotkey.get_key_string(), r2, text_origin_t::vcenter_left),
                  draw::font::menu(), col);
         }
         if (is_sub_menu) {

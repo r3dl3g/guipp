@@ -101,7 +101,7 @@ namespace gui {
         }
       }
 
-      void column_list_layout::set_column_align (std::size_t i, text_origin a) {
+      void column_list_layout::set_column_align (std::size_t i, text_origin_t a) {
         aligns[i] = a;
       }
 
@@ -121,8 +121,8 @@ namespace gui {
         }
       }
 
-      void column_list_layout::set_default_align (text_origin a) {
-        for (text_origin& align  : aligns) {
+      void column_list_layout::set_default_align (text_origin_t a) {
+        for (text_origin_t& align  : aligns) {
           align = a;
         }
       }
@@ -248,7 +248,7 @@ namespace gui {
       using namespace draw;
       const core::rectangle r2 = frame::raised_relief(g, r);
       g.fill(rectangle(r2), background);
-      g.text(text_box(ostreamfmt((i + 1) << '.'), r2, text_origin::center), font::system(), color::windowTextColor());
+      g.text(text_box(ostreamfmt((i + 1) << '.'), r2, text_origin_t::center), font::system(), color::windowTextColor());
     }
 
 

@@ -45,7 +45,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<orientation Horizontal>
+      template<orientation_t Horizontal>
       struct line_traits {
         static draw::line first (const core::rectangle&);
         static draw::line second (const core::rectangle&);
@@ -62,7 +62,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation O, bool Sunken = true, os::color background = color::very_very_light_gray>
+    template<orientation_t O, bool Sunken = true, os::color background = color::very_very_light_gray>
     class basic_separator : public detail::separator_base {
     public:
       typedef detail::line_traits<O> lt;
@@ -76,8 +76,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using horizontal_separator = basic_separator<orientation::horizontal>;
-    using vertical_separator = basic_separator<orientation::vertical>;
+    using horizontal_separator = basic_separator<orientation_t::horizontal>;
+    using vertical_separator = basic_separator<orientation_t::vertical>;
 
   } // ctrl
 

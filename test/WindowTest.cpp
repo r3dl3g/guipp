@@ -80,7 +80,7 @@ void htile_drawer (std::size_t idx,
                   ctrl::item_state state) {
   using namespace draw;
 
-  ctrl::paint::text_cell<std::size_t, F>(idx, g, place, text_origin::center, color::black, background.color(), state);
+  ctrl::paint::text_cell<std::size_t, F>(idx, g, place, text_origin_t::center, color::black, background.color(), state);
 }
 
 template<draw::frame::drawer F = draw::frame::sunken_relief>
@@ -93,7 +93,7 @@ void vtile_drawer (std::size_t idx,
 
   std::string s = util::string::utf16_to_utf8(std::wstring(1, std::wstring::value_type(idx + 32)));
   ctrl::paint::text_cell<std::string, F>(ostreamfmt(' ' << std::hex << std::setw(4) << std::setfill('0') << (idx + 32) << ": '" << s << '\''),
-                                        g, place, text_origin::vcenter_left, color::black, background.color(),
+                                        g, place, text_origin_t::vcenter_left, color::black, background.color(),
                                         state);
 }
 
@@ -115,7 +115,7 @@ namespace gui {
                                               const draw::brush&,
                                               item_state state) {
       graph.fill(draw::rectangle(place), c);
-      graph.text(draw::text_box(win::color_to_string(c), place, text_origin::center), draw::font::system(), color::invert(c));
+      graph.text(draw::text_box(win::color_to_string(c), place, text_origin_t::center), draw::font::system(), color::invert(c));
 
       switch (state) {
         case item_state::selected:
@@ -173,7 +173,7 @@ private:
   ctrl::vertical_separator btn_sep1;
   ctrl::vertical_separator btn_sep2;
 
-  win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin::end>, color::very_light_gray> btn_group;
+  win::group_window<layout::horizontal_adaption<5, 10, 2, 50, 90, origin_t::end>, color::very_light_gray> btn_group;
   win::group_window<layout::vertical_adaption<5, 5>> chck_group;
 
   group_group_t group_group;
@@ -190,10 +190,10 @@ private:
   win::group_window<layout::grid_adaption<2, 2, 5, 5>> grid_adaption_group;
   ctrl::label grid_adaption_labels[4];
 
-  win::group_window<layout::horizontal_lineup<30, 5, 5, 2, origin::center>> hc_lineup_group;
+  win::group_window<layout::horizontal_lineup<30, 5, 5, 2, origin_t::center>> hc_lineup_group;
   ctrl::label hc_lineup_labels[4];
 
-  win::group_window<layout::vertical_lineup<30, 5, 5, 2, origin::center>> vc_lineup_group;
+  win::group_window<layout::vertical_lineup<30, 5, 5, 2, origin_t::center>> vc_lineup_group;
   ctrl::label vc_lineup_labels[4];
 
   ctrl::radio_button<> radio_button, radio_button2;
@@ -205,7 +205,7 @@ private:
   ctrl::horizontal_scroll_bar end_angle;
 
   ctrl::label label;
-  ctrl::basic_label<text_origin::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
+  ctrl::basic_label<text_origin_t::center, draw::frame::no_frame, color::blue, color::light_gray> labelC;
   ctrl::label_right labelR;
 
   ctrl::text_button min_button;
@@ -270,7 +270,7 @@ private:
   typedef ctrl::virtual_view<ctrl::editbox> editbox_view;
   editbox_view editor;
 
-  typedef ctrl::basic_textbox<text_origin::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
+  typedef ctrl::basic_textbox<text_origin_t::vcenter_left, draw::frame::sunken_relief, color::dark_blue, color::very_very_light_gray> textbox_type;
   typedef ctrl::virtual_view<textbox_type> textbox_view;
 
   textbox_view textbox;
@@ -424,14 +424,14 @@ my_main_window::my_main_window ()
   on_right_btn_up([&] (os::key_state, const core::point& p) {
     clog::debug() << "Right Button Up at " << p;
   });
-  window1.on_wheel<orientation::horizontal>([&] (core::point::type delta,
+  window1.on_wheel<orientation_t::horizontal>([&] (core::point::type delta,
                                                          const core::point& p) {
     clog::debug() << "Wheel-X: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
       window1.move(window1.position() + core::size(delta, 0));
     }
   });
-  window1.on_wheel<orientation::vertical>([&] (core::point::type delta,
+  window1.on_wheel<orientation_t::vertical>([&] (core::point::type delta,
                                                          const core::point& p) {
     clog::debug() << "Wheel-Y: " << delta << " at " << p;
     if (window1.place().is_inside(p)) {
@@ -886,9 +886,9 @@ void my_main_window::created_children () {
   float floats[] = { 1.1F, 2.2F, 3.3F, 4.4F, 5.5F };
 
   auto columns = {
-    layout::simple_column_info{ 30, text_origin::vcenter_right, 20 },
-    layout::simple_column_info{ 30, text_origin::center, 20 },
-    layout::simple_column_info{ 30, text_origin::vcenter_left, 20 }
+    layout::simple_column_info{ 30, text_origin_t::vcenter_right, 20 },
+    layout::simple_column_info{ 30, text_origin_t::center, 20 },
+    layout::simple_column_info{ 30, text_origin_t::vcenter_left, 20 }
   };
 
   ctrl::simple_column_list_data<int, draw::frame::lines> col_data = {
@@ -912,17 +912,17 @@ void my_main_window::created_children () {
   //                                                    std::make_tuple(3, "drei", 3.3F) };
 
   auto weight_columns = {
-    layout::weight_column_info{ 30, text_origin::vcenter_left, 20, 0.0F },
-    layout::weight_column_info{ 30, text_origin::vcenter_right, 20, 1.0F },
-    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F },
-    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F },
-    layout::weight_column_info{ 30, text_origin::center, 20, 1.0F }
+    layout::weight_column_info{ 30, text_origin_t::vcenter_left, 20, 0.0F },
+    layout::weight_column_info{ 30, text_origin_t::vcenter_right, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin_t::center, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin_t::center, 20, 1.0F },
+    layout::weight_column_info{ 30, text_origin_t::center, 20, 1.0F }
   };
 
   column_list_drawer = {
     [] (const int& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush&, ctrl::item_state state, text_origin) {
-      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin::center);
+        const draw::brush&, ctrl::item_state state, text_origin_t) {
+      ctrl::paint::text_item(g, r, color::buttonColor(), ostreamfmt(v), state, text_origin_t::center);
       draw::frame::raised_relief(g, r);
     },
 
@@ -931,7 +931,7 @@ void my_main_window::created_children () {
     ctrl::cell_drawer<int, draw::frame::sunken_relief>,
 
     [] (const bool& v, const draw::graphics& g, const core::rectangle& r,
-        const draw::brush& b, ctrl::item_state state, text_origin align) {
+        const draw::brush& b, ctrl::item_state state, text_origin_t align) {
       std::string text = v ? u8"♣" : u8"♥";
       ctrl::paint::text_item(g, r, b, text, state, align);
       draw::frame::sunken_relief(g, r);
@@ -945,7 +945,7 @@ void my_main_window::created_children () {
     using namespace draw;
     g.fill(rectangle(r), background);
     frame::raised_deep_relief(g, r);
-    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, text_origin::center), font::system(), color::windowTextColor());
+    g.text(text_box(ostreamfmt((char)('C' + i) << (i + 1)), r, text_origin_t::center), font::system(), color::windowTextColor());
   });
   column_list.set_drawer(column_list_drawer);
   column_list.get_column_layout().set_columns(weight_columns);
@@ -1207,7 +1207,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
     auto draw_text_box = [](const draw::graphics& g,
                             const std::string& t,
                             core::rectangle r,
-                            text_origin o) {
+                            text_origin_t o) {
       g.frame(rectangle(r), color::blue);
       core::rectangle rb = r;
       g.text(bounding_box(t, rb, o), font::system(), color::red);
@@ -1218,7 +1218,7 @@ ctrl::paint_function my_main_window::create_paint1 () {
     auto draw_text = [](const draw::graphics& g,
       const std::string& t,
       const core::point& p,
-      text_origin o) {
+      text_origin_t o) {
       g.fill(arc(p, 2, 0, 360), color::blue);
       g.text(text(t, p, o), font::system(), color::red);
     };
@@ -1228,10 +1228,10 @@ ctrl::paint_function my_main_window::create_paint1 () {
       "CLg", "CCg", "CRg",
       "BRg", "BCg", "BRg"
     };
-    text_origin origins[] = {
-      text_origin::top_left, text_origin::top_hcenter, text_origin::top_right,
-      text_origin::vcenter_left, text_origin::center, text_origin::vcenter_right,
-      text_origin::bottom_left, text_origin::bottom_hcenter, text_origin::bottom_right
+    text_origin_t origins[] = {
+      text_origin_t::top_left, text_origin_t::top_hcenter, text_origin_t::top_right,
+      text_origin_t::vcenter_left, text_origin_t::center, text_origin_t::vcenter_right,
+      text_origin_t::bottom_left, text_origin_t::bottom_hcenter, text_origin_t::bottom_right
     };
 
     for (int y = 0; y < 3; ++y) {

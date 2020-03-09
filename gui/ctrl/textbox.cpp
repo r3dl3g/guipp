@@ -66,7 +66,7 @@ namespace gui {
                      const draw::font& fnt,
                      os::color foreground,
                      os::color background,
-                     const text_origin origin,
+                     const text_origin_t origin,
                      const core::range<core::basic_point<int> >& selection,
                      const core::basic_point<int>& cursor_pos,
                      const core::point& offset,
@@ -185,7 +185,7 @@ namespace gui {
         }
       }
 
-      textbox_base::position textbox_base::get_position_at_point (const core::point& pt, const text_origin origin) const {
+      textbox_base::position textbox_base::get_position_at_point (const core::point& pt, const text_origin_t origin) const {
         const auto row_sz = data.font.line_height();
         const auto last = row_count();
         const auto diff = client_size().height() - (last * row_sz);
@@ -358,7 +358,7 @@ namespace gui {
         return pos;
       }
 
-      void textbox_base::enable_select_by_mouse (const text_origin origin) {
+      void textbox_base::enable_select_by_mouse (const text_origin_t origin) {
         on_left_btn_down([&, origin](os::key_state, const core::point& pt) {
           take_focus();
           data.last_mouse_point = pt;

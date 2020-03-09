@@ -145,22 +145,24 @@ namespace gui {
     // --------------------------------------------------------------------------
     template<typename L>
     struct attachable_layout {
+      using layout_type = L;
+
       attachable_layout ()
       {}
 
-      attachable_layout (const L& lay)
+      attachable_layout (const layout_type& lay)
         : lay(lay)
       {}
 
-      attachable_layout (L&& lay)
+      attachable_layout (layout_type&& lay)
         : lay(std::move(lay))
       {}
 
-      operator L& () {
+      operator layout_type& () {
         return lay;
       }
 
-      L* operator-> () {
+      layout_type* operator-> () {
         return &lay;
       }
 
@@ -169,7 +171,7 @@ namespace gui {
         lay.layout(r);
       }
 
-      L lay;
+      layout_type lay;
       mutable core::rectangle place;
     };
 
@@ -183,13 +185,13 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<orientation O>
+      template<orientation_t O>
       class orientation_layout : public layout_base {
       public:
         typedef layout_base super;
         typedef core::size::type type;
 
-        static constexpr orientation Orientation = O;
+        static constexpr orientation_t orientation = O;
 
         orientation_layout () = default;
         orientation_layout (std::initializer_list<layout_function> list);
@@ -205,13 +207,13 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<orientation H, origin R>
+      template<orientation_t H, origin_t R>
       class origin_layout : public orientation_layout<H> {
       public:
         typedef orientation_layout<H> super;
         typedef core::size::type type;
 
-        static constexpr origin Origin = R;
+        static constexpr origin_t origin = R;
 
         origin_layout () = default;
         origin_layout (std::initializer_list<layout_function> list);

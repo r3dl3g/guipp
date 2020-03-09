@@ -130,12 +130,12 @@ DEFINE_TEST(test_bw)
   using namespace gui;
   using namespace gui::draw;
 
-  bwmap img = colormap2datamap<PixelFormat::BW>(expected_nearest[0]);
+  bwmap img = colormap2datamap<pixel_format_t::BW>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -147,7 +147,7 @@ DEFINE_TEST(test_bw)
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 1);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
@@ -158,12 +158,12 @@ DEFINE_TEST(test_gray) {
   using namespace gui;
   using namespace gui::draw;
 
-  graymap img = colormap2datamap<PixelFormat::GRAY>(expected_nearest[0]);
+  graymap img = colormap2datamap<pixel_format_t::GRAY>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 8);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -175,7 +175,7 @@ DEFINE_TEST(test_gray) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 8);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::GRAY);
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
@@ -186,12 +186,12 @@ DEFINE_TEST(test_rgb) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbmap img = colormap2datamap<PixelFormat::RGB>(expected_nearest[0]);
+  rgbmap img = colormap2datamap<pixel_format_t::RGB>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGB);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -203,7 +203,7 @@ DEFINE_TEST(test_rgb) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGB);
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
@@ -214,12 +214,12 @@ DEFINE_TEST(test_rgba) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbamap img = colormap2datamap<PixelFormat::RGBA>(expected_nearest[0]);
+  rgbamap img = colormap2datamap<pixel_format_t::RGBA>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -231,7 +231,7 @@ DEFINE_TEST(test_rgba) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGBA);
 
   auto buffer = datamap2colormap(stretched);
   EXPECT_EQUAL(buffer, expected_nearest[stretch_f]);
@@ -340,14 +340,14 @@ DEFINE_TEST(test_bw_bilinear)
   using namespace gui;
   using namespace gui::draw;
 
-  bwmap img = colormap2datamap<PixelFormat::BW>(expected_nearest[0]);
+  bwmap img = colormap2datamap<pixel_format_t::BW>(expected_nearest[0]);
 
 //  io::ofpnm<io::PNM::P1>(ostreamfmt("mono_" << stretch_f)) << img;
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -359,7 +359,7 @@ DEFINE_TEST(test_bw_bilinear)
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 1);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bilinear[stretch_f]));
@@ -370,12 +370,12 @@ DEFINE_TEST(test_gray_bilinear) {
   using namespace gui;
   using namespace gui::draw;
 
-  graymap img = colormap2datamap<PixelFormat::GRAY>(expected_nearest[0]);
+  graymap img = colormap2datamap<pixel_format_t::GRAY>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 8);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -387,7 +387,7 @@ DEFINE_TEST(test_gray_bilinear) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 8);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::GRAY);
 
   io::ofpnm<io::PNM::P2>(ostreamfmt("gray_" << stretch_f)) << stretched;
 
@@ -400,14 +400,14 @@ DEFINE_TEST(test_rgb_bilinear) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbmap img = colormap2datamap<PixelFormat::RGB>(expected_nearest[0]);
+  rgbmap img = colormap2datamap<pixel_format_t::RGB>(expected_nearest[0]);
 
 //  io::ofpnm<io::PNM::P3>(ostreamfmt("rgb_" << stretch_f)) << img;
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGB);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -419,7 +419,7 @@ DEFINE_TEST(test_rgb_bilinear) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGB);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
@@ -430,12 +430,12 @@ DEFINE_TEST(test_rgba_bilinear) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbamap img = colormap2datamap<PixelFormat::RGBA>(expected_nearest[0]);
+  rgbamap img = colormap2datamap<pixel_format_t::RGBA>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -447,7 +447,7 @@ DEFINE_TEST(test_rgba_bilinear) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGBA);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bilinear[stretch_f]);
@@ -507,14 +507,14 @@ DEFINE_TEST(test_bw_bicubic)
   using namespace gui;
   using namespace gui::draw;
 
-  bwmap img = colormap2datamap<PixelFormat::BW>(expected_nearest[0]);
+  bwmap img = colormap2datamap<pixel_format_t::BW>(expected_nearest[0]);
 
 //  io::ofpnm<io::PNM::P1>(ostreamfmt("mono_" << stretch_f)) << img;
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -526,7 +526,7 @@ DEFINE_TEST(test_bw_bicubic)
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 1);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::BW);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::BW);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, graysmap2bwsmap(expected_bicubic[stretch_f]));
@@ -537,12 +537,12 @@ DEFINE_TEST(test_gray_bicubic) {
   using namespace gui;
   using namespace gui::draw;
 
-  graymap img = colormap2datamap<PixelFormat::GRAY>(expected_nearest[0]);
+  graymap img = colormap2datamap<pixel_format_t::GRAY>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 8);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::GRAY);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -554,7 +554,7 @@ DEFINE_TEST(test_gray_bicubic) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 8);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::GRAY);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::GRAY);
 
   io::ofpnm<io::PNM::P2>(ostreamfmt("gray_bicubic_" << stretch_f)) << stretched;
 
@@ -567,14 +567,14 @@ DEFINE_TEST(test_rgb_bicubic) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbmap img = colormap2datamap<PixelFormat::RGB>(expected_nearest[0]);
+  rgbmap img = colormap2datamap<pixel_format_t::RGB>(expected_nearest[0]);
 
 //  io::ofpnm<io::PNM::P3>(ostreamfmt("rgb_" << stretch_f)) << img;
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGB);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -586,7 +586,7 @@ DEFINE_TEST(test_rgb_bicubic) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGB);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGB);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);
@@ -597,12 +597,12 @@ DEFINE_TEST(test_rgba_bicubic) {
   using namespace gui;
   using namespace gui::draw;
 
-  rgbamap img = colormap2datamap<PixelFormat::RGBA>(expected_nearest[0]);
+  rgbamap img = colormap2datamap<pixel_format_t::RGBA>(expected_nearest[0]);
 
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(5, 5));
   EXPECT_EQUAL(img.depth(), 24);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::RGBA);
 
   auto factor = stretcht_factor(stretch_f);
   clog::warn() << "Stretching with factor " << factor;
@@ -614,7 +614,7 @@ DEFINE_TEST(test_rgba_bicubic) {
   EXPECT_TRUE(stretched.is_valid());
   EXPECT_EQUAL(stretched.native_size(), expected_size);
   EXPECT_EQUAL(stretched.depth(), 24);
-  EXPECT_EQUAL(stretched.pixel_format(), PixelFormat::RGBA);
+  EXPECT_EQUAL(stretched.pixel_format(), pixel_format_t::RGBA);
 
   auto buffer = datamap2graysmap(stretched);
   EXPECT_EQUAL(buffer, expected_bicubic[stretch_f]);

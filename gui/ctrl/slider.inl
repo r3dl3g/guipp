@@ -34,7 +34,7 @@ namespace gui {
         return max;
       }
 
-      template<orientation O>
+      template<orientation_t O>
       inline void basic_slider<O>::create (const win::container& parent,
                                            const core::rectangle& place) {
         super::create(clazz::get(), parent, place);
@@ -42,52 +42,52 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider ();
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider ();
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider (const basic_slider&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::vertical>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::vertical>::basic_slider (basic_slider&&);
 
       template<>
-      GUIPP_CTRL_EXPORT void basic_slider<orientation::vertical>::set_value (core::point::type v);
+      GUIPP_CTRL_EXPORT void basic_slider<orientation_t::vertical>::set_value (core::point::type v);
 
       template<>
-      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation::vertical>::get_value () const;
+      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation_t::vertical>::get_value () const;
 
       template<>
-      GUIPP_CTRL_EXPORT void basic_slider<orientation::vertical>::init ();
+      GUIPP_CTRL_EXPORT void basic_slider<orientation_t::vertical>::init ();
 
       // --------------------------------------------------------------------------
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider ();
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider ();
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider (const basic_slider&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider (const basic_slider&);
 
       template<>
-      GUIPP_CTRL_EXPORT basic_slider<orientation::horizontal>::basic_slider (basic_slider&&);
+      GUIPP_CTRL_EXPORT basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&&);
 
       template<>
-      GUIPP_CTRL_EXPORT void basic_slider<orientation::horizontal>::set_value (core::point::type v);
+      GUIPP_CTRL_EXPORT void basic_slider<orientation_t::horizontal>::set_value (core::point::type v);
 
       template<>
-      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation::horizontal>::get_value () const;
+      GUIPP_CTRL_EXPORT core::point::type basic_slider<orientation_t::horizontal>::get_value () const;
 
       template<>
-      GUIPP_CTRL_EXPORT void basic_slider<orientation::horizontal>::init ();
+      GUIPP_CTRL_EXPORT void basic_slider<orientation_t::horizontal>::init ();
 
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F>
     inline basic_framed_slider<O, F>::basic_framed_slider () {
       init();
     }
 
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F>
     inline basic_framed_slider<O, F>::basic_framed_slider (const basic_framed_slider& rhs)
       : super(rhs)
@@ -95,7 +95,7 @@ namespace gui {
       init();
     }
 
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F>
     inline basic_framed_slider<O, F>::basic_framed_slider (basic_framed_slider&& rhs)
       : super(std::move(rhs))
@@ -103,13 +103,13 @@ namespace gui {
       init();
     }
 
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F>
       void basic_framed_slider<O, F>::init () {
       super::on_paint(draw::paint(this, &basic_framed_slider::paint));
     }
 
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F>
     void basic_framed_slider<O, F>::paint (const draw::graphics& g) {
       core::rectangle place = super::client_area();

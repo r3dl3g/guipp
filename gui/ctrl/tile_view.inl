@@ -29,78 +29,78 @@ namespace gui {
                                           const core::rectangle& place,
                                           const draw::brush& background,
                                           item_state state) {
-      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin::center);
+      paint::text_item(g, place, background, util::string::convert::from<T>(t), state, text_origin_t::center);
     }
 
     // --------------------------------------------------------------------------
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_line_size () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_line_size () const {
       return item_size.width() + spacing.width();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_item_dimension () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_item_dimension () const {
       return item_size.height();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_item_border () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_item_border () const {
       return border.height();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_line_border () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_line_border () const {
       return border.width();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_item_spacing () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_item_spacing () const {
       return spacing.height();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::horizontal>::get_line_spacing () const {
+    inline core::size::type tile_list_traits<orientation_t::horizontal>::get_line_spacing () const {
       return spacing.width();
     }
 
     // --------------------------------------------------------------------------
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_line_size () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_line_size () const {
       return item_size.height() + spacing.height();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_item_dimension () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_item_dimension () const {
       return item_size.width();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_item_border () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_item_border () const {
       return border.width();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_line_border () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_line_border () const {
       return border.height();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_item_spacing () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_item_spacing () const {
       return spacing.width();
     }
 
     template<>
-    inline core::size::type tile_list_traits<orientation::vertical>::get_line_spacing () const {
+    inline core::size::type tile_list_traits<orientation_t::vertical>::get_line_spacing () const {
       return spacing.height();
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     inline tile_list_traits<V>::tile_list_traits (const size_type& item_size)
       : item_size(item_size)
     {}
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto tile_list_traits<V>::get_invisible_size (const core::size& list_size,
                                                          size_t count) const -> dim_type {
       const auto ipl = get_items_per_line(list_size);
@@ -108,7 +108,7 @@ namespace gui {
       return std::max(dim_type(0), ((get_line_size()) * lines + get_line_border() * 2) - super::get(list_size));
     }
 
-    template<orientation V>
+    template<orientation_t V>
     int tile_list_traits<V>::get_index_at_point (const core::size& list_size,
                                                  const core::point& pt,
                                                  dim_type scroll_pos,
@@ -120,7 +120,7 @@ namespace gui {
       return (idx < count) && get_place_of_index(list_size, idx, scroll_pos).is_inside(pt) ? idx : -1;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     core::rectangle tile_list_traits<V>::get_place_of_index (const core::size& list_size,
                                                              int idx,
                                                              dim_type scroll_pos) const {
@@ -137,13 +137,13 @@ namespace gui {
       return place;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline auto tile_list_traits<V>::get_offset_of_index (const core::size& list_size, int idx) const -> dim_type {
       const int line = idx / static_cast<int>(get_items_per_line(list_size));
       return(get_line_size() * line) + get_line_border();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline std::size_t tile_list_traits<V>::get_items_per_line (const core::size& list_size) const {
       const auto isp = get_item_spacing();
       const auto avail = (super::get_other(list_size) - get_line_spacing() - get_item_border() * 2 + isp);
@@ -151,14 +151,14 @@ namespace gui {
       return static_cast<std::size_t>(std::max(avail / need, 1.0f));
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline std::size_t tile_list_traits<V>::get_line_count (size_t count,
                                                             const core::size& list_size) const {
       return core::div_ceil(count, get_items_per_line(list_size));
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     inline basic_tile_view<V>::basic_tile_view (const core::size& item_size,
                                                 os::color background,
                                                 bool grab_focus)
@@ -167,26 +167,26 @@ namespace gui {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline basic_tile_view<V>::basic_tile_view (const basic_tile_view& rhs)
       : super(rhs)
     {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline basic_tile_view<V>::basic_tile_view (basic_tile_view&& rhs)
       : super(std::move(rhs))
     {
       init();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     inline std::size_t basic_tile_view<V>::get_line_count () const {
       return super::traits.get_line_count(super::get_count(), super::content_size(super::client_size(), true));
     }
 
-    template<orientation V>
+    template<orientation_t V>
     core::rectangle basic_tile_view<V>::get_full_place_of_index (int idx) {
       const auto per_line = super::traits.get_items_per_line(super::content_size(super::client_size()));
       const auto line = per_line > 0 ? static_cast<std::size_t>(idx) / per_line : 0;
@@ -201,7 +201,7 @@ namespace gui {
       return place;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void basic_tile_view<V>::paint (const draw::graphics& graph) {
       const auto list_size = super::content_size(super::client_size());
       const core::rectangle area(list_size);
@@ -283,7 +283,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     void basic_tile_view<V>::handle_key (os::key_state,
                                          os::key_symbol key,
                                          const std::string&) {
@@ -312,30 +312,30 @@ namespace gui {
       }
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void basic_tile_view<V>::init () {
       super::on_paint(draw::buffered_paint(this, &basic_tile_view::paint));
       super::on_any_key_down(util::bind_method(this, &basic_tile_view::handle_key));
     }
 
-    template<orientation V>
+    template<orientation_t V>
     void basic_tile_view<V>::set_border (const core::size& sz) {
       super::traits.border = sz;
       super::adjust_scroll_bar();
     }
     
-    template<orientation V>
+    template<orientation_t V>
     void basic_tile_view<V>::set_spacing (const core::size& sz) {
       super::traits.spacing = sz;
       super::adjust_scroll_bar();
     }
 
-    template<orientation V>
+    template<orientation_t V>
     const core::size& basic_tile_view<V>::get_border () const {
       return super::traits.border;
     }
 
-    template<orientation V>
+    template<orientation_t V>
     const core::size& basic_tile_view<V>::get_spacing () const {
       return super::traits.spacing;
     }

@@ -29,34 +29,34 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (uint32_t w, uint32_t h) {
       create(w, h);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (const core::native_size& sz) {
       create(sz);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (const const_image_data<T>& data) {
       create(data);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (const core::size& sz) {
       create(sz);
     }
 
-    template<PixelFormat T>
-    template<PixelFormat S>
+    template<pixel_format_t T>
+    template<pixel_format_t S>
     inline datamap<T>::datamap (const datamap<S>& src)
       : datamap(src.get_data())
     {}
 
-    template<PixelFormat T>
-    template<PixelFormat S>
+    template<pixel_format_t T>
+    template<pixel_format_t S>
     inline datamap<T>::datamap (const const_image_data<S>& src) {
       const bitmap_info& bmi = src.get_info();
 
@@ -69,17 +69,17 @@ namespace gui {
       convert::format::convert<S, T>(src, get_data(), w, h);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (const blob& data, const bitmap_info& bmi)
       : super(data, bmi)
     {}
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline datamap<T>::datamap (blob&& data, bitmap_info&& bmi)
       : super(std::move(data), std::move(bmi))
     {}
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     const datamap<T> basic_datamap::convert () const {
       const bitmap_info& bmi = get_info();
 
@@ -91,36 +91,36 @@ namespace gui {
 
         datamap<T> dest(w, h);
         switch (bmi.pixel_format) {
-          case PixelFormat::BW:   convert::format::convert<PixelFormat::BW,   T>(get_data<PixelFormat::BW>(),   dest.get_data(), w, h); break;
-          case PixelFormat::GRAY: convert::format::convert<PixelFormat::GRAY, T>(get_data<PixelFormat::GRAY>(), dest.get_data(), w, h); break;
-          case PixelFormat::RGB:  convert::format::convert<PixelFormat::RGB,  T>(get_data<PixelFormat::RGB>(),  dest.get_data(), w, h); break;
-          case PixelFormat::RGBA: convert::format::convert<PixelFormat::RGBA, T>(get_data<PixelFormat::RGBA>(), dest.get_data(), w, h); break;
-          case PixelFormat::BGR:  convert::format::convert<PixelFormat::BGR,  T>(get_data<PixelFormat::BGR>(),  dest.get_data(), w, h); break;
-          case PixelFormat::BGRA: convert::format::convert<PixelFormat::BGRA, T>(get_data<PixelFormat::BGRA>(), dest.get_data(), w, h); break;
-          case PixelFormat::ARGB: convert::format::convert<PixelFormat::ARGB, T>(get_data<PixelFormat::ARGB>(), dest.get_data(), w, h); break;
-          case PixelFormat::ABGR: convert::format::convert<PixelFormat::ABGR, T>(get_data<PixelFormat::ABGR>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BW:   convert::format::convert<pixel_format_t::BW,   T>(get_data<pixel_format_t::BW>(),   dest.get_data(), w, h); break;
+          case pixel_format_t::GRAY: convert::format::convert<pixel_format_t::GRAY, T>(get_data<pixel_format_t::GRAY>(), dest.get_data(), w, h); break;
+          case pixel_format_t::RGB:  convert::format::convert<pixel_format_t::RGB,  T>(get_data<pixel_format_t::RGB>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::RGBA: convert::format::convert<pixel_format_t::RGBA, T>(get_data<pixel_format_t::RGBA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::BGR:  convert::format::convert<pixel_format_t::BGR,  T>(get_data<pixel_format_t::BGR>(),  dest.get_data(), w, h); break;
+          case pixel_format_t::BGRA: convert::format::convert<pixel_format_t::BGRA, T>(get_data<pixel_format_t::BGRA>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ARGB: convert::format::convert<pixel_format_t::ARGB, T>(get_data<pixel_format_t::ARGB>(), dest.get_data(), w, h); break;
+          case pixel_format_t::ABGR: convert::format::convert<pixel_format_t::ABGR, T>(get_data<pixel_format_t::ABGR>(), dest.get_data(), w, h); break;
         }
         return dest;
       }
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::create (uint32_t w, uint32_t h) {
       info = {w, h, T};
       data.resize(info.mem_size());
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::create (const core::size& sz) {
       create(sz.os_width(), sz.os_height());
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::create (const core::native_size& sz) {
       create(sz.width(), sz.height());
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::create (const const_image_data<T>& rhs) {
       const bitmap_info& bmi = rhs.get_info();
       info = bitmap_info(bmi.width, bmi.height, T);
@@ -140,7 +140,7 @@ namespace gui {
       }
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::copy_from (const datamap& src_img,
                                        const core::native_rect& src_rect,
                                        const core::native_point& dest_pt) {
@@ -156,7 +156,7 @@ namespace gui {
       convert::copy::sub<T>(src_img.get_data(), get_data(), src.position(), dest);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::crop (uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
       datamap bmp(w, h);
       bmp.copy_from(*this, core::rectangle(x, y, w, h), core::point::zero);
@@ -164,13 +164,13 @@ namespace gui {
       std::swap(info, bmp.info);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     template<convert::interpolation I>
     inline void datamap<T>::stretch_from (const datamap& src) {
       stretch_from<I>(src, core::native_rect(src.native_size()), core::native_rect(native_size()));
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     template<convert::interpolation I>
     inline void datamap<T>::stretch_from (const datamap& src_img,
                                           const core::native_rect& src_rect,
@@ -187,12 +187,12 @@ namespace gui {
       convert::stretch<T, I>::sub(src_img.get_data(), get_data(), src, dest);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::adjust_brightness (float f) {
       convert::brightness::adjust<T>(get_data(), info.width, info.height, f);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto datamap<T>::sub (uint32_t x, uint32_t y, uint32_t w, uint32_t h) const -> datamap {
       datamap bmp(w, h);
       bmp.copy_from(*this, 
@@ -201,7 +201,7 @@ namespace gui {
       return bmp;
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto datamap<T>::brightness (double f) const -> datamap {
       datamap bmp = *this;
       bitmap_info& bmi = bmp.info;
@@ -209,22 +209,22 @@ namespace gui {
       return bmp;
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::invert () {
       for (auto& c : data) {
         c = ~c;
       }
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline void datamap<T>::fill (const pixel_type& c) {
       convert::fill::fill<T>(get_data(), info.width, info.height, c);
     }
 
-    template<PixelFormat T>
-    inline datamap<PixelFormat::BW> datamap<T>::get_mask (pixel::gray limit) const {
-      datamap<PixelFormat::BW> img(info.size());
-      convert::format::mask<T, PixelFormat::BW>(get_data(), img.get_data(), info.width, info.height, limit);
+    template<pixel_format_t T>
+    inline datamap<pixel_format_t::BW> datamap<T>::get_mask (pixel::gray limit) const {
+      datamap<pixel_format_t::BW> img(info.size());
+      convert::format::mask<T, pixel_format_t::BW>(get_data(), img.get_data(), info.width, info.height, limit);
       return img;
     }
 

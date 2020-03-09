@@ -52,7 +52,7 @@ namespace gui {
                       const draw::font& fnt,
                       os::color foreground,
                       os::color background,
-                      const text_origin origin,
+                      const text_origin_t origin,
                       const core::range<size_t>& selection,
                       const size_t cursor_pos,
                       const size_t scroll_pos,

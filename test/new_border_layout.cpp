@@ -21,9 +21,9 @@ using namespace gui::ctrl;
 using namespace gui::core;
 using namespace gui::draw;
 
-template<border::type T>
+template<border::type_t T>
 struct layout_group {
-  typedef basic_label<text_origin::center,
+  typedef basic_label<text_origin_t::center,
                       draw::frame::raised_deep_relief,
                       color::black,
                       color::very_light_gray> label_t;
@@ -49,13 +49,13 @@ struct layout_group {
 // --------------------------------------------------------------------------
 int gui_main(const std::vector<std::string>& /*args*/) {
 
-  layout_main_window<border::layouter<100, 100, 100, 100, border::type::all_symmetric>> main;
+  layout_main_window<border::layouter<100, 100, 100, 100, border::type_t::all_symmetric>> main;
 
   label_center bottom_labels[5];
   horizontal_adaption<0, 2> bottom({lay(bottom_labels[0]), lay(bottom_labels[1]), lay(bottom_labels[2]), lay(bottom_labels[3]), lay(bottom_labels[4])});
 
   label_center top_labels[5];
-  horizontal_lineup<200, 5, 10, 0, gui::origin::center> top({lay(top_labels[0]), lay(top_labels[1]), lay(top_labels[2]), lay(top_labels[3]), lay(top_labels[4])});
+  horizontal_lineup<200, 5, 10, 0, gui::origin_t::center> top({lay(top_labels[0]), lay(top_labels[1]), lay(top_labels[2]), lay(top_labels[3]), lay(top_labels[4])});
 
   label_center right_labels[5];
   grid_lineup<100, 50, 5, 10> right({lay(right_labels[0]), lay(right_labels[1]), lay(right_labels[2]), lay(right_labels[3]), lay(right_labels[4])});
@@ -63,12 +63,12 @@ int gui_main(const std::vector<std::string>& /*args*/) {
   label_center left_labels[5];
   grid_adaption<2, 4, 5, 10> left({lay(left_labels[0]), lay(left_labels[1]), lay(left_labels[2]), lay(left_labels[3]), lay(left_labels[4])});
 
-  layout_group<border::type::top_bottom_maximize> center0;
-  layout_group<border::type::left_right_maximize> center1;
-  layout_group<border::type::bottom_max_top_min> center2;
-  layout_group<border::type::top_max_bottom_min> center3;
-  layout_group<border::type::left_max_right_min> center4;
-  layout_group<border::type::right_max_left_min> center5;
+  layout_group<border::type_t::top_bottom_maximize> center0;
+  layout_group<border::type_t::left_right_maximize> center1;
+  layout_group<border::type_t::bottom_max_top_min> center2;
+  layout_group<border::type_t::top_max_bottom_min> center3;
+  layout_group<border::type_t::left_max_right_min> center4;
+  layout_group<border::type_t::right_max_left_min> center5;
 
   grid_adaption<2, 3, 5, 5> center({lay(center0.layouter), lay(center1.layouter), lay(center2.layouter), lay(center3.layouter), lay(center4.layouter), lay(center5.layouter)});
 
@@ -110,7 +110,7 @@ int gui_main(const std::vector<std::string>& /*args*/) {
     main.set_title(ostreamfmt("Got focus from: " << (prev ? prev->get_id() : 0)));
   });
 //  main.on_paint(gui::draw::paint([&] (const gui::draw::graphics& g) {
-//    gui::ctrl::paint::text_item(g, main.client_area(), gui::color::very_light_gray, "Hello world", false, gui::text_origin::center);
+//    gui::ctrl::paint::text_item(g, main.client_area(), gui::color::very_light_gray, "Hello world", false, gui::text_origin_t::center);
 //  }));
 
   main.create({50, 50, 800, 600});

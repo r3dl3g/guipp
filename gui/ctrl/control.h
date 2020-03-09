@@ -209,7 +209,7 @@ namespace gui {
                       const draw::brush& background,
                       const std::string& text,
                       item_state state,
-                      text_origin origin = text_origin::vcenter_left);
+                      text_origin_t origin_t = text_origin_t::vcenter_left);
 
     }
 

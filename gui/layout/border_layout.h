@@ -42,7 +42,7 @@ namespace gui {
     namespace border {
 
       // --------------------------------------------------------------------------
-      enum class type {
+      enum class type_t {
         all_symmetric,
         top_bottom_maximize,
         left_right_maximize,
@@ -64,7 +64,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<int TO, int BO, int LE, int RI, type T>
+      template<int TO, int BO, int LE, int RI, type_t T>
       struct border_geometrie {
         static left_width get_top (const core::rectangle&);
         static left_width get_bottom (const core::rectangle&);
@@ -73,10 +73,16 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0, type T = type::top_bottom_maximize>
+      template<int TO = 0, int BO = 0, int LE = 0, int RI = 0, type_t T = type_t::top_bottom_maximize>
       class layouter {
       public:
         typedef border_geometrie<TO, BO, LE, RI, T> geometrie;
+
+        static constexpr int top = TO;
+        static constexpr int bottom = BO;
+        static constexpr int left = LE;
+        static constexpr int right = RI;
+        static constexpr type_t type = T;
 
         layouter (win::container* = nullptr);
 
@@ -118,7 +124,7 @@ namespace gui {
 
     } // namespace border
 
-    template<int TO, int BO, int LE, int RI, border::type T>
+    template<int TO, int BO, int LE, int RI, border::type_t T>
     struct is_layout<border::layouter<TO, BO, LE, RI, T>> {
       enum {
         value = true

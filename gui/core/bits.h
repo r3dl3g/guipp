@@ -60,13 +60,13 @@ namespace gui {
     typedef const word* cwordptr;
 
     // --------------------------------------------------------------------------
-    enum class bit_order : bool {
+    enum class bit_order_t : bool {
       lsb_first,
       msb_first
     };
 
     // --------------------------------------------------------------------------
-    enum class byte_order : bool {
+    enum class byte_order_t : bool {
       little_endian,
       big_endian
     };
@@ -74,8 +74,8 @@ namespace gui {
     namespace os {
 
       // --------------------------------------------------------------------------
-      constexpr bit_order get_bit_order () {
-        return IF_WIN32_ELSE(bit_order::msb_first, bit_order::lsb_first);
+      constexpr bit_order_t get_bit_order () {
+        return IF_WIN32_ELSE(bit_order_t::msb_first, bit_order_t::lsb_first);
       }
 
       namespace detail {
@@ -86,24 +86,24 @@ namespace gui {
       }
 
       // --------------------------------------------------------------------------
-      constexpr byte_order get_byte_order () {
+      constexpr byte_order_t get_byte_order () {
 #ifdef BSD
-        return byte_order::little_endian;
+        return byte_order_t::little_endian;
 #else
-        return byte_order(detail::endianess_check.c[0] == 1);
+        return byte_order_t(detail::endianess_check.c[0] == 1);
 #endif
       }
 
       // --------------------------------------------------------------------------
-      enum class platform : byte {
+      enum class platform_t : byte {
         win32,
         x11,
         cocoa
       };
 
-      const platform system_platform = IF_WIN32_ELSE(platform::win32, IF_X11_ELSE(platform::x11, platform::cocoa));
-      const byte_order bitmap_byte_order = get_byte_order();
-      const bit_order bitmap_bit_order = get_bit_order();
+      const platform_t system_platform = IF_WIN32_ELSE(platform_t::win32, IF_X11_ELSE(platform_t::x11, platform_t::cocoa));
+      const byte_order_t bitmap_byte_order = get_byte_order();
+      const bit_order_t bitmap_bit_order = get_bit_order();
 
     } // namespace os
 
@@ -133,32 +133,32 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<bit_order O>
+    template<bit_order_t O>
     struct bw_bits {};
 
     template<>
-    struct bw_bits<bit_order::lsb_first> {
+    struct bw_bits<bit_order_t::lsb_first> {
       static constexpr byte value[2] = {0, 0xff};
       static constexpr bool white = true;
       static constexpr bool black = false;
     };
 
     template<>
-    struct bw_bits<bit_order::msb_first> {
+    struct bw_bits<bit_order_t::msb_first> {
       static constexpr byte value[2] = {0, 0xff};
       static constexpr bool white = false;
       static constexpr bool black = true;
     };
 
     // --------------------------------------------------------------------------
-    template<byte bit, bit_order O = os::bitmap_bit_order>
+    template<byte bit, bit_order_t O = os::bitmap_bit_order>
     struct system_bit_mask {};
 
     template<byte bit>
-    struct system_bit_mask<bit, bit_order::lsb_first> : lsb_bit_mask<bit> {};
+    struct system_bit_mask<bit, bit_order_t::lsb_first> : lsb_bit_mask<bit> {};
 
     template<byte bit>
-    struct system_bit_mask<bit, bit_order::msb_first> : msb_bit_mask<bit> {};
+    struct system_bit_mask<bit, bit_order_t::msb_first> : msb_bit_mask<bit> {};
 
     // --------------------------------------------------------------------------
     struct system_bw_bits : public bw_bits<os::bitmap_bit_order> {

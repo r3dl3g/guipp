@@ -9,28 +9,28 @@ pixmap cvMat2pixmap (const cv::Mat& source) {
   core::native_size nsize = {(uint32_t)sz.width, (uint32_t)sz.height};
 
   if (CV_8UC3 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), PixelFormat::RGB);
+    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), pixel_format_t::RGB);
 
-    typedef const_image_data<PixelFormat::RGB> img_data;
+    typedef const_image_data<pixel_format_t::RGB> img_data;
     img_data::raw_type data(source.data, info.mem_size());
 
-    pixmap image = datamap<PixelFormat::RGB>(img_data(data, info));
+    pixmap image = datamap<pixel_format_t::RGB>(img_data(data, info));
     return image;
   } else if (CV_8UC4 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), PixelFormat::RGBA);
+    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), pixel_format_t::RGBA);
 
-    typedef const_image_data<PixelFormat::RGBA> img_data;
+    typedef const_image_data<pixel_format_t::RGBA> img_data;
     img_data::raw_type data(source.data, info.mem_size());
 
-    pixmap image = datamap<PixelFormat::RGBA>(img_data(data, info));
+    pixmap image = datamap<pixel_format_t::RGBA>(img_data(data, info));
     return image;
   } else if (CV_8UC1 == source.type()) {
-    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), PixelFormat::GRAY);
+    bitmap_info info(nsize.width(), nsize.height(), (int)(source.cols * source.elemSize()), pixel_format_t::GRAY);
 
-    typedef const_image_data<PixelFormat::GRAY> img_data;
+    typedef const_image_data<pixel_format_t::GRAY> img_data;
     img_data::raw_type data(source.data, info.mem_size());
 
-    pixmap image = datamap<PixelFormat::GRAY>(img_data(data, info));
+    pixmap image = datamap<pixel_format_t::GRAY>(img_data(data, info));
     return image;
   }
 

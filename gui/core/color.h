@@ -98,19 +98,19 @@ namespace gui {
       }
     };
 
-    color_parts get_color_parts (PixelFormat px_fmt);
+    color_parts get_color_parts (pixel_format_t px_fmt);
 
-    template<core::os::platform P = core::os::system_platform>
+    template<core::os::platform_t P = core::os::system_platform>
     struct part_defaults {};
 
     template<>
-    struct part_defaults<core::os::platform::win32> : public rgba_parts {};
+    struct part_defaults<core::os::platform_t::win32> : public rgba_parts {};
 
     template<>
-    struct part_defaults<core::os::platform::cocoa> : public rgba_parts {};
+    struct part_defaults<core::os::platform_t::cocoa> : public rgba_parts {};
     
     template<>
-    struct part_defaults<core::os::platform::x11> : public bgra_parts {};
+    struct part_defaults<core::os::platform_t::x11> : public bgra_parts {};
 
     enum struct part : type {
       red = part_defaults<>::red,

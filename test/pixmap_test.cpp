@@ -72,12 +72,12 @@ DEFINE_TEST(test_bitmap_black) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
   bwmap bw = img.get();
 
-  const_image_data<PixelFormat::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
+  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
@@ -92,12 +92,12 @@ DEFINE_TEST(test_bitmap_white) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
   bwmap bw = img.get();
 
-  const_image_data<PixelFormat::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
+  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
@@ -112,12 +112,12 @@ DEFINE_TEST(test_bitmap_checked) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
   bwmap bw = img.get();
 
-  const_image_data<PixelFormat::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
+  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::black);
@@ -127,7 +127,7 @@ END_TEST(test_bitmap_checked)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_black) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::black);
   EXPECT_TRUE(img.is_valid());
@@ -136,9 +136,9 @@ DEFINE_TEST(test_pixmap_black) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<PixelFormat::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black);
   EXPECT_EQUAL(raw.pixel(0, 1), black);
   EXPECT_EQUAL(raw.pixel(1, 0), black);
@@ -148,7 +148,7 @@ END_TEST(test_pixmap_black)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_red) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::red);
   EXPECT_TRUE(img.is_valid());
@@ -157,9 +157,9 @@ DEFINE_TEST(test_pixmap_red) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<PixelFormat::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), red);
   EXPECT_EQUAL(raw.pixel(0, 1), red);
   EXPECT_EQUAL(raw.pixel(1, 0), red);
@@ -169,7 +169,7 @@ END_TEST(test_pixmap_red)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_green) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::green);
   EXPECT_TRUE(img.is_valid());
@@ -178,9 +178,9 @@ DEFINE_TEST(test_pixmap_green) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<PixelFormat::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), green);
   EXPECT_EQUAL(raw.pixel(0, 1), green);
   EXPECT_EQUAL(raw.pixel(1, 0), green);
@@ -190,7 +190,7 @@ END_TEST(test_pixmap_green)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_blue) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::blue);
   EXPECT_TRUE(img.is_valid());
@@ -199,9 +199,9 @@ DEFINE_TEST(test_pixmap_blue) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<PixelFormat::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), blue);
   EXPECT_EQUAL(raw.pixel(0, 1), blue);
   EXPECT_EQUAL(raw.pixel(1, 0), blue);
@@ -211,7 +211,7 @@ END_TEST(test_pixmap_blue)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap_white) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   graphics(img).clear(color::white);
   EXPECT_TRUE(img.is_valid());
@@ -220,9 +220,9 @@ DEFINE_TEST(test_pixmap_white) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
-  const_image_data<PixelFormat::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
+  const_image_data<pixel_format_t::RGBA> raw = static_cast<const rgbamap&>(rgb).get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), white);
   EXPECT_EQUAL(raw.pixel(0, 1), white);
   EXPECT_EQUAL(raw.pixel(1, 0), white);
@@ -233,7 +233,7 @@ END_TEST(test_pixmap_white)
 
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_pixmap) {
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
   pixmap img(2, 2);
   {
     graphics g(img);
@@ -250,7 +250,7 @@ DEFINE_TEST(test_pixmap) {
   EXPECT_EQUAL(img.pixel_format(), expected_pixelformat);
   EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, 8, expected_pixelformat));
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
   auto raw = rgb.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black);
@@ -271,7 +271,7 @@ DEFINE_TEST(test_pixmap_draw) {
 # define BLUE  "ff000000"
 #endif // WIN32
 
-  const PixelFormat expected_pixelformat = core::global::get_device_pixel_format();
+  const pixel_format_t expected_pixelformat = core::global::get_device_pixel_format();
 
   core::global::set_scale_factor(1.0);
 
@@ -334,7 +334,7 @@ DEFINE_TEST(test_pixmap_draw) {
                              EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY "\n"
                              EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY " " EMPTY);
 
-  rgbamap rgb = img.get<PixelFormat::RGBA>();
+  rgbamap rgb = img.get<pixel_format_t::RGBA>();
 
   auto raw = rgb.get_data();
   EXPECT_EQUAL(raw.pixel(0, 0), black) ;
@@ -379,23 +379,23 @@ DEFINE_TEST(test_pixmap2bitmap) {
     EXPECT_EQUAL(g.get_pixel({1, 1}), color::black);
   }
 
-  bgrmap bgr = pix.get<PixelFormat::BGR>();
+  bgrmap bgr = pix.get<pixel_format_t::BGR>();
   auto bgr_raw = bgr.get_data();
   EXPECT_EQUAL(bgr_raw.pixel(0, 0), pixel::color<pixel::bgr>::black);
   EXPECT_EQUAL(bgr_raw.pixel(0, 1), pixel::color<pixel::bgr>::white);
   EXPECT_EQUAL(bgr_raw.pixel(1, 0), pixel::color<pixel::bgr>::white);
   EXPECT_EQUAL(bgr_raw.pixel(1, 1), pixel::color<pixel::bgr>::black);
 
-  rgbmap rgb = pix.get<PixelFormat::RGB>();
+  rgbmap rgb = pix.get<pixel_format_t::RGB>();
   auto rgb_raw = rgb.get_data();
   EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb>::black);
   EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb>::white);
   EXPECT_EQUAL(rgb_raw.pixel(1, 0), pixel::color<pixel::rgb>::white);
   EXPECT_EQUAL(rgb_raw.pixel(1, 1), pixel::color<pixel::rgb>::black);
 
-  bwmap bw1 = pix.get<PixelFormat::BW>();
+  bwmap bw1 = pix.get<pixel_format_t::BW>();
 
-  const_image_data<PixelFormat::BW> bw_raw = static_cast<const bwmap&>(bw1).get_data();
+  const_image_data<pixel_format_t::BW> bw_raw = static_cast<const bwmap&>(bw1).get_data();
   EXPECT_EQUAL(bw_raw.pixel(0, 0), pixel::mono::black);
   EXPECT_EQUAL(bw_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw_raw.pixel(1, 0), pixel::mono::white);
@@ -406,8 +406,8 @@ DEFINE_TEST(test_pixmap2bitmap) {
   EXPECT_TRUE(img.is_valid());
   EXPECT_EQUAL(img.native_size(), core::native_size(2, 2));
   EXPECT_EQUAL(img.depth(), 1);
-  EXPECT_EQUAL(img.pixel_format(), PixelFormat::BW);
-  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), PixelFormat::BW));
+  EXPECT_EQUAL(img.pixel_format(), pixel_format_t::BW);
+  EXPECT_EQUAL(img.get_info(), bitmap_info(2, 2, IF_WIN32_ELSE(2, 4), pixel_format_t::BW));
 
   {
     graphics g(img);
@@ -443,7 +443,7 @@ DEFINE_TEST(test_pixmap2bitmap) {
 
   bwmap bw2 = img.get();
 
-  const_image_data<PixelFormat::BW> bw2_raw = static_cast<const bwmap&>(bw2).get_data();
+  const_image_data<pixel_format_t::BW> bw2_raw = static_cast<const bwmap&>(bw2).get_data();
   EXPECT_EQUAL(bw2_raw.pixel(0, 0), pixel::mono::black);
   EXPECT_EQUAL(bw2_raw.pixel(0, 1), pixel::mono::white);
   EXPECT_EQUAL(bw2_raw.pixel(1, 0), pixel::mono::white);
@@ -455,9 +455,9 @@ END_TEST(test_pixmap2bitmap)
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bitmap2pixmap) {
   bwmap bw(2,2);
-  using raw_type = image_data<PixelFormat::BW>;
-//  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
-//  using row_type = image_data<PixelFormat::BW>::row_type;
+  using raw_type = image_data<pixel_format_t::BW>;
+//  using raw_data_type = image_data<pixel_format_t::BW>::raw_type;
+//  using row_type = image_data<pixel_format_t::BW>::row_type;
   raw_type bw_raw = bw.get_data();
   bw_raw.pixel(0, 0) = pixel::mono::black;
   bw_raw.pixel(0, 1) = pixel::mono::white;
@@ -465,7 +465,7 @@ DEFINE_TEST(test_bitmap2pixmap) {
   bw_raw.pixel(1, 1) = pixel::mono::black;
 
   pixmap pix = bw;
-  rgbmap rgb = pix.get<PixelFormat::RGB>();
+  rgbmap rgb = pix.get<pixel_format_t::RGB>();
   auto rgb_raw = rgb.get_data();
   EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb>::black);
   EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb>::white);
@@ -478,9 +478,9 @@ END_TEST(test_bitmap2pixmap)
 // --------------------------------------------------------------------------
 DEFINE_TEST(test_bitmap_scale2pixmap) {
   bwmap bw(2,2);
-  using raw_type = image_data<PixelFormat::BW>;
-//  using raw_data_type = image_data<PixelFormat::BW>::raw_type;
-//  using row_type = image_data<PixelFormat::BW>::row_type;
+  using raw_type = image_data<pixel_format_t::BW>;
+//  using raw_data_type = image_data<pixel_format_t::BW>::raw_type;
+//  using row_type = image_data<pixel_format_t::BW>::row_type;
   raw_type bw_raw = bw.get_data();
   bw_raw.pixel(0, 0) = pixel::mono::black;
   bw_raw.pixel(0, 1) = pixel::mono::white;
@@ -509,7 +509,7 @@ DEFINE_TEST(test_bitmap_scale2pixmap) {
   EXPECT_EQUAL(bw2_raw.pixel(3, 3), pixel::mono::black);
 
   pixmap pix = bw2;
-  rgbmap rgb = pix.get<PixelFormat::RGB>();
+  rgbmap rgb = pix.get<pixel_format_t::RGB>();
   auto rgb_raw = rgb.get_data();
   EXPECT_EQUAL(rgb_raw.pixel(0, 0), pixel::color<pixel::rgb>::black);
   EXPECT_EQUAL(rgb_raw.pixel(0, 1), pixel::color<pixel::rgb>::black);

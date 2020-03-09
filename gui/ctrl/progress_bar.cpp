@@ -97,7 +97,7 @@ namespace gui {
                          const std::string& text,
                          os::color foreground,
                          os::color background,
-                         text_origin origin,
+                         text_origin_t origin,
                          os::color bar_color,
                          core::size::type bar_pos) {
         using namespace gui::draw;

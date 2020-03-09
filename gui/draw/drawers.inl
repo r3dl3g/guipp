@@ -70,7 +70,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline text_box::text_box (const std::string& str,
                                const core::rectangle& rect,
-                               text_origin origin)
+                               text_origin_t origin)
       : str(str)
       , rect(rect)
       , origin(origin)
@@ -79,7 +79,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline bounding_box::bounding_box (const std::string& str,
                                        core::rectangle& rect,
-                                       text_origin origin)
+                                       text_origin_t origin)
       : str(str)
       , rect(rect)
       , origin(origin)
@@ -88,7 +88,7 @@ namespace gui {
     // --------------------------------------------------------------------------
     inline text::text (const std::string& str,
                        const core::point& pos,
-                       text_origin origin)
+                       text_origin_t origin)
       : str(str)
       , pos(pos)
       , origin(origin)
@@ -98,7 +98,7 @@ namespace gui {
     template<typename I>
     inline image<I>::image (const I& img,
                             const core::rectangle& rect,
-                            text_origin origin)
+                            text_origin_t origin)
       : img(img)
       , rect(rect)
       , origin(origin)
@@ -126,7 +126,7 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_frame<T>::image_frame (const core::rectangle& rect, const datamap<T>& img, const core::native_rect& frame)
       : rect(rect)
       , img(img)
@@ -134,34 +134,34 @@ namespace gui {
     {}
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::BW>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::BW>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::GRAY>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::GRAY>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::RGB>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGB>::operator() (const graphics& g, const core::point& pt) const;
 
     template<>
-    GUIPP_DRAW_EXPORT void image_frame<PixelFormat::RGBA>::operator() (const graphics& g, const core::point& pt) const;
+    GUIPP_DRAW_EXPORT void image_frame<pixel_format_t::RGBA>::operator() (const graphics& g, const core::point& pt) const;
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame) {
       return image_frame<T>(r, img, frame);
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge) {
       return image_frame<T>(r, img, {static_cast<int32_t>(edge), static_cast<int32_t>(edge), edge, edge});
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical) {
       return image_frame<T>(r, img, {static_cast<int32_t>(horizontal), static_cast<int32_t>(vertical), horizontal, vertical});
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, int32_t left, int32_t top, uint32_t right, uint32_t bottom) {
       return image_frame<T>(r, img, {left, top, right, bottom});
     }

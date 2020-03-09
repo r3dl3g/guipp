@@ -630,11 +630,11 @@ namespace gui {
         } else {
           switch (depth()) {
             case 24: {
-              return copy_from(pixmap(bmp.get<PixelFormat::RGB>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()).get_id(), src, pt);
               break;
             }
             case 32: {
-              return copy_from(pixmap(bmp.get<PixelFormat::RGBA>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()).get_id(), src, pt);
               break;
             }
           }
@@ -650,11 +650,11 @@ namespace gui {
         } else {
           switch (depth()) {
             case 24: {
-              return copy_from(pixmap(bmp.get<PixelFormat::RGB>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGB>()).get_id(), src, pt);
               break;
             }
             case 32: {
-              return copy_from(pixmap(bmp.get<PixelFormat::RGBA>()).get_id(), src, pt);
+              return copy_from(pixmap(bmp.get<pixel_format_t::RGBA>()).get_id(), src, pt);
               break;
             }
           }

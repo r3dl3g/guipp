@@ -32,7 +32,7 @@ namespace gui {
 
   namespace ctrl {
 
-    template<orientation O,
+    template<orientation_t O,
              os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
              typename B = flat_toggle_button<foreground, background, true>,
@@ -70,13 +70,13 @@ namespace gui {
              os::color background = color::light_gray,
              typename button_type = flat_toggle_button<foreground, background, true>,
              typename layout_type = layout::horizontal_adaption<>>
-    using htoggle_group = toggle_group<orientation::horizontal, foreground, background, button_type, layout_type>;
+    using htoggle_group = toggle_group<orientation_t::horizontal, foreground, background, button_type, layout_type>;
 
     template<os::color foreground = color::dark_gray,
              os::color background = color::light_gray,
              typename button_type = flat_toggle_button<foreground, background, true>,
              typename layout_type = layout::vertical_adaption<>>
-    using vtoggle_group = toggle_group<orientation::vertical, foreground, background, button_type, layout_type>;
+    using vtoggle_group = toggle_group<orientation_t::vertical, foreground, background, button_type, layout_type>;
 
   } // ctrl
 

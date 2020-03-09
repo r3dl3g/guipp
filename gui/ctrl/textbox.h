@@ -38,7 +38,7 @@ namespace gui {
                      const draw::font& fnt,
                      os::color foreground,
                      os::color background,
-                     const text_origin origin,
+                     const text_origin_t origin_t,
                      const core::range<core::basic_point<int> >& selection,
                      const core::basic_point<int>& cursor_pos,
                      const core::point& offset,
@@ -92,7 +92,7 @@ namespace gui {
         position find_next_word (const position& pos);
 
       protected:
-        position get_position_at_point (const core::point& pt, const text_origin origin) const;
+        position get_position_at_point (const core::point& pt, const text_origin_t origin_t) const;
 
         void erase_lines (int first, int last);
         void erase_line (int first);
@@ -100,7 +100,7 @@ namespace gui {
         void notify_content_changed () const;
         void notify_selection_changed () const;
 
-        void enable_select_by_mouse (const text_origin origin);
+        void enable_select_by_mouse (const text_origin_t origin_t);
 
         struct data {
           data ();
@@ -119,7 +119,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin align = text_origin::vcenter_left,
+    template<text_origin_t align = text_origin_t::vcenter_left,
              draw::frame::drawer frame = draw::frame::no_frame,
              os::color foreground = color::black,
              os::color background = color::white>

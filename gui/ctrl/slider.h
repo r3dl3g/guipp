@@ -74,21 +74,21 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<orientation O>
+      template<orientation_t O>
       struct slider_cursor {};
 
       template<>
-      struct slider_cursor<orientation::horizontal> {
+      struct slider_cursor<orientation_t::horizontal> {
         static constexpr win::cursor_type value = win::cursor_type::size_v;
       };
 
       template<>
-      struct slider_cursor<orientation::vertical> {
+      struct slider_cursor<orientation_t::vertical> {
         static constexpr win::cursor_type value = win::cursor_type::size_h;
       };
 
       // --------------------------------------------------------------------------
-      template<orientation O>
+      template<orientation_t O>
       class basic_slider : public slider_base {
       public:
         typedef slider_base super;
@@ -111,7 +111,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation O,
+    template<orientation_t O,
              draw::frame::drawer F = draw::frame::raised_relief>
     class basic_framed_slider : public detail::basic_slider<O> {
     public:
@@ -128,8 +128,8 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using vertical_slider = basic_framed_slider<orientation::vertical>;
-    using horizontal_slider = basic_framed_slider<orientation::horizontal>;
+    using vertical_slider = basic_framed_slider<orientation_t::vertical>;
+    using horizontal_slider = basic_framed_slider<orientation_t::horizontal>;
 
   } // ctrl
 

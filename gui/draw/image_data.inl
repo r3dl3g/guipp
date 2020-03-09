@@ -345,21 +345,21 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename S>
-    struct to_pixel<PixelFormat::BW, S> {
+    struct to_pixel<pixel_format_t::BW, S> {
       static pixel::mono to (S s) {
         return pixel::get_bw(s);
       }
     };
 
     template<typename S>
-    struct to_pixel<PixelFormat::GRAY, S> {
+    struct to_pixel<pixel_format_t::GRAY, S> {
       static pixel::gray to (S s) {
         return pixel::gray{pixel::get_gray(s)};
       }
     };
 
     template<typename S>
-    struct to_pixel<PixelFormat::RGB, S> {
+    struct to_pixel<pixel_format_t::RGB, S> {
       static pixel::rgb to (S s) {
         pixel::rgb p;
         p = pixel::get_color(s);
@@ -368,56 +368,56 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline const_image_data<T>::const_image_data (raw_type data, const bitmap_info& info)
       : super(info)
       , data(data)
     {}
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto const_image_data<T>::row (uint32_t y) const -> const row_type {
       const byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
       using raw_type = const typename row_type::type;
       return row_type(reinterpret_cast<raw_type*>(row), width());
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto const_image_data<T>::pixel (uint32_t x, uint32_t y) const -> pixel_type {
       return row(y)[x];
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto const_image_data<T>::raw_data () const -> const raw_type& {
       return data;
     }
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline image_data<T>::image_data (raw_type data, const bitmap_info& info)
       : super(info)
       , data(data)
     {}
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto image_data<T>::row (uint32_t y) -> row_type {
       byte* row = data.data(y * get_info().bytes_per_line, get_info().bytes_per_line);
       using raw_type = typename row_type::type;
       return row_type(reinterpret_cast<raw_type*>(row), width());
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto image_data<T>::pixel (uint32_t x, uint32_t y) -> pixel_type& {
       return row(y)[x];
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     inline auto image_data<T>::raw_data () -> raw_type& {
       return data;
     }
 
     // --------------------------------------------------------------------------
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_data<T>& image_data<T>::operator= (const image_data<T>& rhs) {
       if (get_info() == rhs.get_info()) {
         // copy 1:1
@@ -433,7 +433,7 @@ namespace gui {
       return *this;
     }
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_data<T>& image_data<T>::operator= (const const_image_data<T>& rhs) {
       if (get_info() == rhs.get_info()) {
         // copy 1:1

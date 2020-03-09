@@ -76,7 +76,7 @@ namespace gui {
         super::take_focus();
       });
 
-      super::on_wheel<orientation::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
+      super::on_wheel<orientation_t::vertical>(util::bind_method(this, &drop_down_list::handle_wheel));
       super::on_create(util::bind_method(this, &drop_down_list::create_children));
 
       data.button.on_paint(draw::paint([&](const draw::graphics & graph) {

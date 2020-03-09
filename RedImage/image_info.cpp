@@ -56,12 +56,12 @@ void image_info::drawer (const image_info& info,
   g.copy_from(info.image, place.top_left() + core::point(2, 2));
   core::size sz(150, 20);
   const auto p = place.top_left() + core::point(160, 5);
-  const auto o = text_origin::vcenter_left;
+  const auto o = text_origin_t::vcenter_left;
   g.text(draw::text_box(info.filename.filename().string(), core::rectangle(p, sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Good: " << std::fixed << std::setprecision(2) << info.good), core::rectangle(p + core::point(0, 20), sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Bad: " << std::fixed << std::setprecision(2) << info.bad), core::rectangle(p + core::point(0, 40), sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Off: " << std::fixed << std::setprecision(2) << info.off), core::rectangle(p + core::point(0, 60), sz), o), font::system(), color::black);
   g.text(draw::text_box(ostreamfmt("Quality: " << std::fixed << std::setprecision(2) << info.quality), core::rectangle(p + core::point(0, 80), sz), o), font::system(), color::black);
-  g.text(draw::text_box(ostreamfmt(std::fixed << std::setprecision(1) << info.bad), core::rectangle(p + core::point(80, 30), core::size(70, 40)), text_origin::center), big_font, color::blue);
+  g.text(draw::text_box(ostreamfmt(std::fixed << std::setprecision(1) << info.bad), core::rectangle(p + core::point(80, 30), core::size(70, 40)), text_origin_t::center), big_font, color::blue);
   frame::raised_deep_relief(g, place);
 }

@@ -85,10 +85,10 @@ private:
 
   typedef flat_button<silver, nero> tool_bar_button;
   tool_bar_button buttons[10];
-  basic_separator<orientation::vertical, true, nero> separators[2];
+  basic_separator<orientation_t::vertical, true, nero> separators[2];
 
   group_window<horizontal_adaption<2, 5>, color::rgb_gray<224>::value> status_bar;
-  typedef basic_label<text_origin::vcenter_left, frame::sunken_relief> StatusLabel;
+  typedef basic_label<text_origin_t::vcenter_left, frame::sunken_relief> StatusLabel;
   StatusLabel labels[4];
 
   vertical_list left_list;
@@ -223,7 +223,7 @@ pixmap create_text_pixmap (const std::string& str,
                            const os::color color) {
   pixmap img(rect.size());
   graphics g(img);
-  text_box box(str, rect, text_origin::center);
+  text_box box(str, rect, text_origin_t::center);
   g.clear(color::black);
   g.text(box, font::menu(), color);
   return img;
@@ -427,7 +427,7 @@ void my_main_window::onCreated (win::window*, const core::rectangle&) {
     if (item_state::selected != state) {
       frame::raised_relief(g, place);
     }
-    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
+    g.text(text_box(ostreamfmt("Item " << idx), place, text_origin_t::center), font::system_bold(), item_state::selected == state ? color::light_yellow : color::black);
   });
   left_list.set_count(10);
   left_list.on_hilite_changed([&](bool){
@@ -544,10 +544,10 @@ void my_main_window::open () {
     if (sys_fs::exists(file)) {
       gui::draw::basic_datamap img;
       gui::io::load_pnm(file.string(), img);
-      rgbas[0] = img.convert<PixelFormat::RGBA>();
-      rgbs[0] = img.convert<PixelFormat::RGB>();
-      grays[0] = img.convert<PixelFormat::GRAY>();
-      bws[0] = img.convert<PixelFormat::BW>();
+      rgbas[0] = img.convert<pixel_format_t::RGBA>();
+      rgbs[0] = img.convert<pixel_format_t::RGB>();
+      grays[0] = img.convert<pixel_format_t::GRAY>();
+      bws[0] = img.convert<pixel_format_t::BW>();
       window1.invalidate();
     }
   });
@@ -718,8 +718,8 @@ void my_main_window::cut () {
   grays[0] = img;
   bws[0] = img;
 
-  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[0]);
-  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[0]);
+  std::ofstream("left_list_rgba.p6.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[0]);
+  std::ofstream("left_list_rgba.p3.ppm") << io::opnm<false, pixel_format_t::RGBA>(rgbas[0]);
 
   io::ofpnm<io::PNM::P6>("left_list.p6") << rgbs[0];
   io::ofpnm<io::PNM::P3>("left_list.p3") << rgbs[0];
@@ -737,8 +737,8 @@ void my_main_window::cut () {
 
   rgbas[1] = drawer(sz);
 
-  std::ofstream("p6-rgba.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[1]);
-  std::ofstream("p3-rgba.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[1]);
+  std::ofstream("p6-rgba.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[1]);
+  std::ofstream("p3-rgba.ppm") << io::opnm<false, pixel_format_t::RGBA>(rgbas[1]);
 
   rgbs[1] = drawer(sz);
 
@@ -773,14 +773,14 @@ void read_write (datamap<io::PNM2BPP<P>::px_fmt>& bm) {
 }
 
 template<io::PNM P>
-void read_write_rgba (datamap<PixelFormat::RGBA>& bm) {
+void read_write_rgba (datamap<pixel_format_t::RGBA>& bm) {
   try {
     int i = static_cast<int>(P);
     std::string iname = ostreamfmt("p" << i << "-rgba.ppm");
     std::string oname = ostreamfmt("test.p" << i << "-rgba.ppm");
-    io::ipnm<PixelFormat::RGBA> ip(bm);
+    io::ipnm<pixel_format_t::RGBA> ip(bm);
     std::ifstream(iname) >> ip;
-    std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin, PixelFormat::RGBA>(bm);
+    std::ofstream(oname) << io::opnm<io::PNM2BPP<P>::bin, pixel_format_t::RGBA>(bm);
   }
   catch (std::exception& ex) {
     clog::fatal() << ex;
@@ -851,8 +851,8 @@ void my_main_window::test_rgb () {
 void my_main_window::save_all_bin () {
   ctrl::dir_open_dialog::show(*this, "Choose target directory", "Save", "Cancel", [&] (const sys_fs::path& file) {
     sys_fs::current_path(file);
-    std::ofstream("rgba0.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[0]);
-    std::ofstream("rgba1.b.ppm") << io::opnm<true, PixelFormat::RGBA>(rgbas[1]);
+    std::ofstream("rgba0.b.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[0]);
+    std::ofstream("rgba1.b.ppm") << io::opnm<true, pixel_format_t::RGBA>(rgbas[1]);
     io::ofpnm<io::PNM::P6>("bmp0.b")  << rgbs[0];
     io::ofpnm<io::PNM::P6>("bmp1.b")  << rgbs[1];
     io::ofpnm<io::PNM::P5>("gray0.b") << grays[0];
@@ -863,8 +863,8 @@ void my_main_window::save_all_bin () {
 }
 
 void my_main_window::save_all_ascii() {
-  std::ofstream("rgba0.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[0]);
-  std::ofstream("rgba1.a.ppm") << io::opnm<false, PixelFormat::RGBA>(rgbas[1]);
+  std::ofstream("rgba0.a.ppm") << io::opnm<false, pixel_format_t::RGBA>(rgbas[0]);
+  std::ofstream("rgba1.a.ppm") << io::opnm<false, pixel_format_t::RGBA>(rgbas[1]);
   io::ofpnm<io::PNM::P3>("bmp0.a") << rgbs[0];
   io::ofpnm<io::PNM::P3>("bmp1.a") << rgbs[1];
   io::ofpnm<io::PNM::P2>("gray0.a") << grays[0];

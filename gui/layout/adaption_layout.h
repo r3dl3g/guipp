@@ -36,13 +36,13 @@ namespace gui {
   namespace layout {
 
     // --------------------------------------------------------------------------
-    template<orientation H,
+    template<orientation_t H,
              unsigned border = 0,
              unsigned gap = 0,
              unsigned sep = 2,
              unsigned min = 0,
              unsigned max = std::numeric_limits<unsigned>::max(),
-             origin R = origin::start>
+             origin_t R = origin_t::start>
     class adaption_layout : public detail::origin_layout<H, R> {
     public:
       typedef core::size::type type;
@@ -57,7 +57,7 @@ namespace gui {
       void init ();
     };
 
-    template<orientation A, unsigned B, unsigned C, unsigned D, unsigned E, unsigned F, origin G>
+    template<orientation_t A, unsigned B, unsigned C, unsigned D, unsigned E, unsigned F, origin_t G>
     struct is_layout<adaption_layout<A, B, C, D, E, F, G>> {
       enum {
         value = true
@@ -70,8 +70,8 @@ namespace gui {
              unsigned sep = 2,
              unsigned min = 0,
              unsigned max = std::numeric_limits<unsigned>::max(),
-             origin o = origin::start>
-    using horizontal_adaption = adaption_layout<orientation::horizontal, border, gap, sep, min, max, o>;
+             origin_t o = origin_t::start>
+    using horizontal_adaption = adaption_layout<orientation_t::horizontal, border, gap, sep, min, max, o>;
 
     // --------------------------------------------------------------------------
     template<unsigned border = 0,
@@ -79,8 +79,8 @@ namespace gui {
              unsigned sep = 2,
              unsigned min = 0,
              unsigned max = std::numeric_limits<unsigned>::max(),
-             origin o = origin::start>
-    using vertical_adaption = adaption_layout<orientation::vertical, border, gap, sep, min, max, o>;
+             origin_t o = origin_t::start>
+    using vertical_adaption = adaption_layout<orientation_t::vertical, border, gap, sep, min, max, o>;
 
     // --------------------------------------------------------------------------
   } // namespace layout

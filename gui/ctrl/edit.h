@@ -38,7 +38,7 @@ namespace gui {
                       const draw::font& fnt,
                       os::color foreground,
                       os::color background,
-                      const text_origin origin,
+                      const text_origin_t origin_t,
                       const core::range<size_t>& selection,
                       const size_t cursor_pos,
                       const size_t scroll_pos,
@@ -138,7 +138,7 @@ namespace gui {
     } // detail
 
     // --------------------------------------------------------------------------
-    template<text_origin alignment,
+    template<text_origin_t alignment,
              draw::frame::drawer frame = draw::frame::sunken_relief,
              os::color foreground = color::black,
              os::color background = color::white>
@@ -157,13 +157,13 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using edit_left = basic_edit<text_origin::vcenter_left>;
+    using edit_left = basic_edit<text_origin_t::vcenter_left>;
     typedef edit_left edit;
-    using edit_right = basic_edit<text_origin::vcenter_right>;
-    using edit_center = basic_edit<text_origin::center>;
+    using edit_right = basic_edit<text_origin_t::vcenter_right>;
+    using edit_center = basic_edit<text_origin_t::center>;
 
     // --------------------------------------------------------------------------
-    template<text_origin alignment,
+    template<text_origin_t alignment,
              char C = '#',
              draw::frame::drawer frame = draw::frame::sunken_relief,
              os::color foreground = color::black,
@@ -183,10 +183,10 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    using pass_left = basic_pass<text_origin::vcenter_left>;
+    using pass_left = basic_pass<text_origin_t::vcenter_left>;
     typedef pass_left pass;
-    using pass_right = basic_pass<text_origin::vcenter_right>;
-    using pass_center = basic_pass<text_origin::center>;
+    using pass_right = basic_pass<text_origin_t::vcenter_right>;
+    using pass_center = basic_pass<text_origin_t::center>;
 
   } // ctrl
 

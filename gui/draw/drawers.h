@@ -128,28 +128,28 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT text_box {
       text_box (const std::string& str,
                 const core::rectangle& rect,
-                text_origin origin = text_origin::top_left);
+                text_origin_t origin = text_origin_t::top_left);
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
       const core::rectangle rect;
-      const text_origin origin;
+      const text_origin_t origin;
     };
 
     // --------------------------------------------------------------------------
     struct GUIPP_DRAW_EXPORT bounding_box {
       bounding_box (const std::string& str,
                     core::rectangle& rect,
-                    text_origin origin = text_origin::top_left);
+                    text_origin_t origin = text_origin_t::top_left);
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
       core::rectangle& rect;
-      const text_origin origin;
+      const text_origin_t origin;
 
       // Not implemented!
       void operator= (const bounding_box&) = delete;
@@ -159,14 +159,14 @@ namespace gui {
     struct GUIPP_DRAW_EXPORT text {
       text (const std::string& str,
             const core::point& pos,
-            text_origin origin = text_origin::top_left);
+            text_origin_t origin = text_origin_t::top_left);
 
       void operator() (const graphics&, const font& font, os::color color) const;
 
     private:
       const std::string str;
       const core::point pos;
-      const text_origin origin;
+      const text_origin_t origin;
     };
 
     // --------------------------------------------------------------------------
@@ -174,21 +174,21 @@ namespace gui {
     struct image {
       image (const I& img,
              const core::rectangle& rect,
-             text_origin origin = text_origin::center);
+             text_origin_t origin = text_origin_t::center);
 
       void operator() (const graphics& g, const brush& b) const;
 
     private:
       const I& img;
       const core::rectangle rect;
-      const text_origin origin;
+      const text_origin_t origin;
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T> class datamap;
+    template<pixel_format_t T> class datamap;
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     struct image_frame {
       image_frame (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame);
 
@@ -203,16 +203,16 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, const core::native_rect& frame);
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t edge);
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, uint32_t horizontal, uint32_t vertical);
 
-    template<PixelFormat T>
+    template<pixel_format_t T>
     image_frame<T> frame_image (const core::rectangle& r, const datamap<T>& img, int32_t left, int32_t top, uint32_t right, uint32_t bottom);
 
   } // draw

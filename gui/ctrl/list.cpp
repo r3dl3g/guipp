@@ -109,7 +109,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    void linear_list<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
+    void linear_list<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
       case win::keys::left:
       case win::keys::numpad::left:
@@ -123,7 +123,7 @@ namespace gui {
     }
 
     template<>
-    void linear_list<orientation::vertical>::handle_direction_key (os::key_symbol key) {
+    void linear_list<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
       case win::keys::up:
       case win::keys::numpad::up:

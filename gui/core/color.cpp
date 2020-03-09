@@ -37,17 +37,17 @@ namespace gui {
 
   namespace color {
 
-    color_parts get_color_parts (PixelFormat px_fmt) {
+    color_parts get_color_parts (pixel_format_t px_fmt) {
       switch (px_fmt) {
-        case PixelFormat::RGB:
-        case PixelFormat::RGBA:
+        case pixel_format_t::RGB:
+        case pixel_format_t::RGBA:
           return rgba_parts::get_color_parts();
-        case PixelFormat::BGR:
-        case PixelFormat::BGRA:
+        case pixel_format_t::BGR:
+        case pixel_format_t::BGRA:
           return bgra_parts::get_color_parts();
-        case PixelFormat::ARGB:
+        case pixel_format_t::ARGB:
           return argb_parts::get_color_parts();
-        case PixelFormat::ABGR:
+        case pixel_format_t::ABGR:
           return abgr_parts::get_color_parts();
         default:
           return gray_parts::get_color_parts();

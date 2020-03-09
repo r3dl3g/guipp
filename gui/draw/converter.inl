@@ -29,11 +29,11 @@ namespace gui {
     //
     namespace format {
 
-      template<PixelFormat From>
-      struct line<From, PixelFormat::BW> {
+      template<pixel_format_t From>
+      struct line<From, pixel_format_t::BW> {
 
         static inline void convert (const typename draw::const_image_data<From>::row_type in,
-                                    typename draw::image_data<PixelFormat::BW>::row_type out,
+                                    typename draw::image_data<pixel_format_t::BW>::row_type out,
                                     uint32_t w) {
           for (uint_fast32_t x = 0; x < w; ++x) {
             out[x] = get_bw(in[x]);
@@ -41,7 +41,7 @@ namespace gui {
         }
 
         static inline void mask (const typename draw::const_image_data<From>::row_type in,
-                                 typename draw::image_data<PixelFormat::BW>::row_type out,
+                                 typename draw::image_data<pixel_format_t::BW>::row_type out,
                                  uint32_t w, pixel::gray limit) {
           for (uint_fast32_t x = 0; x < w; ++x) {
             out[x] = (limit.value < pixel::get_gray(in[x].value)) ? pixel::mono::white : pixel::mono::black;
@@ -50,7 +50,7 @@ namespace gui {
 
       };
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void line<From, To>::convert (const typename draw::const_image_data<From>::row_type in,
                                     typename draw::image_data<To>::row_type out,
                                     uint32_t w) {
@@ -72,7 +72,7 @@ namespace gui {
         return limit.value < t.value;
       }
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void line<From, To>::mask (const typename draw::const_image_data<From>::row_type in,
                                  typename draw::image_data<To>::row_type out,
                                  uint32_t w, pixel::gray limit) {
@@ -82,7 +82,7 @@ namespace gui {
         }
       }
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void convert (const typename draw::const_image_data<From> in,
                     draw::image_data<To> out,
                     uint32_t w, uint32_t h) {
@@ -91,7 +91,7 @@ namespace gui {
         }
       }
 
-      template<PixelFormat From, PixelFormat To>
+      template<pixel_format_t From, pixel_format_t To>
       void mask (const typename draw::const_image_data<From> in,
                  draw::image_data<To> out,
                  uint32_t w, uint32_t h, pixel::gray limit) {
@@ -104,7 +104,7 @@ namespace gui {
 
     namespace copy {
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void row (const typename draw::const_image_data<px_fmt>::row_type src,
                 typename draw::image_data<px_fmt>::row_type dst,
                 uint32_t src_x0, uint32_t dest_x0, uint32_t w) {
@@ -113,7 +113,7 @@ namespace gui {
         }
       }
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void sub (const typename draw::const_image_data<px_fmt> src_data,
                 draw::image_data<px_fmt> dest_data,
                 const core::native_point& src,
@@ -128,7 +128,7 @@ namespace gui {
     } // namespace copy
 
     // --------------------------------------------------------------------------
-    template<PixelFormat F>
+    template<pixel_format_t F>
     struct stretch<F, interpolation::nearest> {
 
       static void row (const typename draw::const_image_data<F>::row_type src,
@@ -232,7 +232,7 @@ namespace gui {
     } // namespace bilinear
 
     // --------------------------------------------------------------------------
-    template<PixelFormat F>
+    template<pixel_format_t F>
     struct stretch<F, interpolation::bilinear> {
 
       using type = typename draw::const_image_data<F>::pixel_type;
@@ -359,7 +359,7 @@ namespace gui {
     } // namespace bicubic
 
     // --------------------------------------------------------------------------
-    template<PixelFormat F>
+    template<pixel_format_t F>
     struct stretch<F, interpolation::bicubic> {
 
       static void sub (const typename draw::const_image_data<F> src_data,
@@ -393,7 +393,7 @@ namespace gui {
     }; // struct stretch
 
     // --------------------------------------------------------------------------
-    template<PixelFormat F, interpolation I>
+    template<pixel_format_t F, interpolation I>
     inline void stretch<F, I>::sub (const typename draw::const_image_data<F> src,
                                     draw::image_data<F> dest) {
       sub(src, dest, {0, 0, src.width(), src.hright()}, {0, 0, dest.width(), dest.hright()});
@@ -401,14 +401,14 @@ namespace gui {
 
     namespace brightness {
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, double f) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           data[x] = data[x] * f;
         }
       }
 
-      template<PixelFormat px_fmt>
+      template<pixel_format_t px_fmt>
       void adjust (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, double f) {
         for (uint_fast32_t y = 0; y < h; ++y) {
           row<px_fmt>(data.row(y), w, f);
@@ -419,14 +419,14 @@ namespace gui {
 
     namespace fill {
 
-      template<PixelFormat px_fmt, typename pixel_type>
+      template<pixel_format_t px_fmt, typename pixel_type>
       void row (typename draw::image_data<px_fmt>::row_type data, uint32_t w, const pixel_type& px) {
         for (uint_fast32_t x = 0; x < w; ++x) {
           data[x] = px;
         }
       }
 
-      template<PixelFormat px_fmt, typename pixel_type>
+      template<pixel_format_t px_fmt, typename pixel_type>
       void fill (draw::image_data<px_fmt> data, uint32_t w, uint32_t h, const pixel_type& px) {
         for (uint_fast32_t y = 0; y < h; ++y) {
           row<px_fmt>(data.row(y), w, px);

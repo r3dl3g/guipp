@@ -35,8 +35,8 @@ namespace gui {
 
   namespace core {
 
-    constexpr byte bw_bits<bit_order::lsb_first>::value[];
-    constexpr byte bw_bits<bit_order::msb_first>::value[];
+    constexpr byte bw_bits<bit_order_t::lsb_first>::value[];
+    constexpr byte bw_bits<bit_order_t::msb_first>::value[];
 
     constexpr byte system_bw_bits::mask[];
     constexpr byte system_bw_bits::shift[];

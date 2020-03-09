@@ -43,7 +43,7 @@ namespace gui {
       using simple_tile_data = simple_list_data<T, F>;
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     struct tile_list_traits : public orientation_traits<V> {
       typedef orientation_traits<V> super;
       typedef core::size size_type;
@@ -81,7 +81,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation V>
+    template<orientation_t V>
     class basic_tile_view : public basic_list<V, tile_list_traits<V>> {
     public:
       typedef basic_list<V, tile_list_traits<V>> super;
@@ -119,14 +119,14 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    GUIPP_CTRL_EXPORT void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void basic_tile_view<orientation_t::horizontal>::handle_direction_key (os::key_symbol key);
 
     template<>
-    GUIPP_CTRL_EXPORT void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key);
+    GUIPP_CTRL_EXPORT void basic_tile_view<orientation_t::vertical>::handle_direction_key (os::key_symbol key);
 
     // --------------------------------------------------------------------------
-    typedef basic_tile_view<orientation::horizontal> horizontal_tile_view;
-    typedef basic_tile_view<orientation::vertical> vertical_tile_view;
+    typedef basic_tile_view<orientation_t::horizontal> horizontal_tile_view;
+    typedef basic_tile_view<orientation_t::vertical> vertical_tile_view;
     typedef vertical_tile_view tile_view;
 
   } // ctrl

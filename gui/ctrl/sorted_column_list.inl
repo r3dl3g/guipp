@@ -76,7 +76,7 @@ namespace gui {
                                          const draw::brush& background) {
         g.fill(draw::rectangle(r), background);
         frame::raised_deep_relief(g, r);
-        g.text(text_box(header_label[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
+        g.text(text_box(header_label[i], r, text_origin_t::center), draw::font::system(), color::windowTextColor());
         if (sort_column == i) {
           core::rectangle s = r.right_width(r.height()).shrinked({7, 8});
           if (sort_dir == util::sort::order::up) {

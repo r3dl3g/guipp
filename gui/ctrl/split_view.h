@@ -41,7 +41,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<orientation O>
+    template<orientation_t O>
     class split_view {
     public:
       win::window* get_first () const;
@@ -80,7 +80,7 @@ namespace gui {
     namespace detail {
 
       // --------------------------------------------------------------------------
-      template<orientation O>
+      template<orientation_t O>
       class split_view : public win::layout_container<layout::split_view<O> > {
       public:
         typedef win::layout_container<layout::split_view<O> > super;
@@ -110,7 +110,7 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<orientation O, typename First, typename Second>
+    template<orientation_t O, typename First, typename Second>
     class basic_split_view : public detail::split_view<O> {
     public:
       typedef detail::split_view<O> super;
@@ -131,10 +131,10 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<typename First, typename Second>
-    using vertical_split_view = basic_split_view<orientation::vertical, First, Second>;
+    using vertical_split_view = basic_split_view<orientation_t::vertical, First, Second>;
 
     template<typename First, typename Second>
-    using horizontal_split_view = basic_split_view<orientation::horizontal, First, Second>;
+    using horizontal_split_view = basic_split_view<orientation_t::horizontal, First, Second>;
 
   } // ctrl
 

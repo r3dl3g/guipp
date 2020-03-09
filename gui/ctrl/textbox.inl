@@ -61,13 +61,13 @@ namespace gui {
     } // namespace detail
 
     // --------------------------------------------------------------------------
-    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline basic_textbox<align, frame, fg, bg>::basic_textbox () {
       on_paint(draw::buffered_paint(this, &basic_textbox::handle_paint));
       enable_select_by_mouse();
     }
 
-    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline void basic_textbox<align, frame, fg, bg>::handle_paint (const draw::graphics& graph) {
       const auto area = client_area();
       paint::text_box(graph, area, data.lines, data.font,
@@ -76,7 +76,7 @@ namespace gui {
       frame(graph, area);
     }
 
-    template<text_origin align, draw::frame::drawer frame, os::color fg, os::color bg>
+    template<text_origin_t align, draw::frame::drawer frame, os::color fg, os::color bg>
     inline void basic_textbox<align, frame, fg, bg>::enable_select_by_mouse () {
       super::enable_select_by_mouse(align);
     }

@@ -28,7 +28,7 @@ namespace gui {
   namespace ctrl {
 
     template<>
-    void basic_tile_view<orientation::horizontal>::handle_direction_key (os::key_symbol key) {
+    void basic_tile_view<orientation_t::horizontal>::handle_direction_key (os::key_symbol key) {
       switch (key) {
         case win::keys::left:
         case win::keys::numpad::left: {
@@ -54,7 +54,7 @@ namespace gui {
     }
 
     template<>
-    void basic_tile_view<orientation::vertical>::handle_direction_key (os::key_symbol key) {
+    void basic_tile_view<orientation_t::vertical>::handle_direction_key (os::key_symbol key) {
       switch (key) {
         case win::keys::left:
         case win::keys::numpad::left: {

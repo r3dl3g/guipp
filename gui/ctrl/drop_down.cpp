@@ -71,7 +71,7 @@ namespace gui {
         os::color col = item_state::selected == state ? color::highLightTextColor()
                         : color::black;
 
-        g.text(draw::text_box(label, r, text_origin::vcenter_left), draw::font::system(), col);
+        g.text(draw::text_box(label, r, text_origin_t::vcenter_left), draw::font::system(), col);
 
       }
 

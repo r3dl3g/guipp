@@ -71,7 +71,7 @@ namespace gui {
       return info.depth();
     }
 
-    PixelFormat basic_datamap::pixel_format () const {
+    pixel_format_t basic_datamap::pixel_format () const {
       return info.pixel_format;
     }
 

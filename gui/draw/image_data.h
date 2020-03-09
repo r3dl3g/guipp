@@ -418,19 +418,19 @@ namespace gui {
   namespace draw {
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T> struct BPP2Pixel {};
+    template<pixel_format_t T> struct BPP2Pixel {};
 
-    template<> struct BPP2Pixel<PixelFormat::BW>    { using pixel = pixel::mono; };
-    template<> struct BPP2Pixel<PixelFormat::GRAY>  { using pixel = pixel::gray ; };
-    template<> struct BPP2Pixel<PixelFormat::RGB>   { using pixel = pixel::rgb; };
-    template<> struct BPP2Pixel<PixelFormat::RGBA>  { using pixel = pixel::rgba; };
-    template<> struct BPP2Pixel<PixelFormat::BGR>   { using pixel = pixel::bgr; };
-    template<> struct BPP2Pixel<PixelFormat::BGRA>  { using pixel = pixel::bgra; };
-    template<> struct BPP2Pixel<PixelFormat::ARGB>  { using pixel = pixel::argb; };
-    template<> struct BPP2Pixel<PixelFormat::ABGR>  { using pixel = pixel::abgr; };
+    template<> struct BPP2Pixel<pixel_format_t::BW>    { using pixel = pixel::mono; };
+    template<> struct BPP2Pixel<pixel_format_t::GRAY>  { using pixel = pixel::gray ; };
+    template<> struct BPP2Pixel<pixel_format_t::RGB>   { using pixel = pixel::rgb; };
+    template<> struct BPP2Pixel<pixel_format_t::RGBA>  { using pixel = pixel::rgba; };
+    template<> struct BPP2Pixel<pixel_format_t::BGR>   { using pixel = pixel::bgr; };
+    template<> struct BPP2Pixel<pixel_format_t::BGRA>  { using pixel = pixel::bgra; };
+    template<> struct BPP2Pixel<pixel_format_t::ARGB>  { using pixel = pixel::argb; };
+    template<> struct BPP2Pixel<pixel_format_t::ABGR>  { using pixel = pixel::abgr; };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat F, typename S, typename T = typename BPP2Pixel<F>::pixel>
+    template<pixel_format_t F, typename S, typename T = typename BPP2Pixel<F>::pixel>
     struct to_pixel {
       static T to (S s) {
         T t;
@@ -462,7 +462,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     struct const_image_data : public image_data_base {
       using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
@@ -484,7 +484,7 @@ namespace gui {
     };
 
     // --------------------------------------------------------------------------
-    template<PixelFormat T>
+    template<pixel_format_t T>
     struct image_data : public image_data_base {
       using super = image_data_base;
       using pixel_type = typename BPP2Pixel<T>::pixel;
@@ -510,7 +510,7 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     template<>
-    struct image_data<PixelFormat::BW> : public image_data_base {
+    struct image_data<pixel_format_t::BW> : public image_data_base {
       using super = image_data_base;
       using pixel_type = pixel::mono;
       using raw_type = core::array_wrapper<byte>;
@@ -537,7 +537,7 @@ namespace gui {
       }
 
       image_data& operator= (const image_data&);
-      image_data& operator= (const const_image_data<PixelFormat::BW>&);
+      image_data& operator= (const const_image_data<pixel_format_t::BW>&);
 
     private:
       raw_type data;

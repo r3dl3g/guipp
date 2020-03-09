@@ -41,26 +41,26 @@ namespace gui {
 
       // --------------------------------------------------------------------------
       template<>
-      basic_slider<orientation::vertical>::basic_slider () {
+      basic_slider<orientation_t::vertical>::basic_slider () {
         init();
       }
 
       template<>
-      basic_slider<orientation::vertical>::basic_slider (const basic_slider& rhs)
+      basic_slider<orientation_t::vertical>::basic_slider (const basic_slider& rhs)
         : super(rhs)
       {
         init();
       }
 
       template<>
-      basic_slider<orientation::vertical>::basic_slider (basic_slider&& rhs)
+      basic_slider<orientation_t::vertical>::basic_slider (basic_slider&& rhs)
         : super(std::move(rhs))
       {
         init();
       }
 
       template<>
-      void basic_slider<orientation::vertical>::init () {
+      void basic_slider<orientation_t::vertical>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                           const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
@@ -86,7 +86,7 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation::vertical>::set_value (core::point::type v) {
+      void basic_slider<orientation_t::vertical>::set_value (core::point::type v) {
         const auto new_x = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_x != pt.x()) {
@@ -98,32 +98,32 @@ namespace gui {
       }
 
       template<>
-      core::point::type basic_slider<orientation::vertical>::get_value () const {
+      core::point::type basic_slider<orientation_t::vertical>::get_value () const {
         return position().x();
       }
 
       // --------------------------------------------------------------------------
       template<>
-      basic_slider<orientation::horizontal>::basic_slider () {
+      basic_slider<orientation_t::horizontal>::basic_slider () {
         init();
       }
 
       template<>
-      basic_slider<orientation::horizontal>::basic_slider (const basic_slider& rhs)
+      basic_slider<orientation_t::horizontal>::basic_slider (const basic_slider& rhs)
         : super(rhs)
       {
         init();
       }
 
       template<>
-      basic_slider<orientation::horizontal>::basic_slider (basic_slider&& rhs)
+      basic_slider<orientation_t::horizontal>::basic_slider (basic_slider&& rhs)
         : super(std::move(rhs))
       {
         init();
       }
 
       template<>
-      void basic_slider<orientation::horizontal>::init () {
+      void basic_slider<orientation_t::horizontal>::init () {
         on_mouse_move_abs([&](os::key_state keys,
                           const core::point & p) {
           if ((start_mouse_point != core::point::undefined) && is_enabled() && win::left_button_bit_mask::is_set(keys)) {
@@ -150,7 +150,7 @@ namespace gui {
       }
 
       template<>
-      void basic_slider<orientation::horizontal>::set_value (core::point::type v) {
+      void basic_slider<orientation_t::horizontal>::set_value (core::point::type v) {
         const auto new_y = std::min<core::point::type>(max, std::max<core::point::type>(min, v));
         const auto pt = position();
         if (new_y != pt.y()) {
@@ -162,7 +162,7 @@ namespace gui {
       }
 
       template<>
-      core::point::type basic_slider<orientation::horizontal>::get_value () const {
+      core::point::type basic_slider<orientation_t::horizontal>::get_value () const {
         return position().y();
       }
 

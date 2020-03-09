@@ -136,7 +136,7 @@ namespace gui {
         const draw::brush& b,
         item_state state) {
         const fs::file_info& path = current_dir[idx];
-        paint::text_item(g, r, b, path.filename(), state, text_origin::vcenter_left);
+        paint::text_item(g, r, b, path.filename(), state, text_origin_t::vcenter_left);
       });
     }
 
@@ -264,7 +264,7 @@ namespace gui {
         static std::string title[] = {"", "Name", "Size", "Changed"};
         g.fill(draw::rectangle(r), background);
         draw::frame::raised_relief(g, r);
-        g.text(draw::text_box(title[i], r, text_origin::center), draw::font::system(), color::windowTextColor());
+        g.text(draw::text_box(title[i], r, text_origin_t::center), draw::font::system(), color::windowTextColor());
         if (order != sort_order::none) {
           core::rectangle s = r.right_width(r.height()).shrinked({7, 8});
           const unsigned short idx = static_cast<unsigned short>(order);

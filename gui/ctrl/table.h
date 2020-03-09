@@ -43,7 +43,7 @@ namespace gui {
       void text_cell (const T& t,
                       const draw::graphics& graph,
                       const core::rectangle& place,
-                      const text_origin align,
+                      const text_origin_t align,
                       const os::color& foreground,
                       const os::color& background,
                       item_state state);
@@ -52,7 +52,7 @@ namespace gui {
       GUIPP_CTRL_EXPORT void text_cell<std::string, draw::frame::no_frame>(const std::string& t,
                                                          const draw::graphics& graph,
                                                          const core::rectangle& place,
-                                                         const text_origin align,
+                                                         const text_origin_t align,
                                                          const os::color& foreground,
                                                          const os::color& background,
                                                          item_state state);
@@ -69,7 +69,7 @@ namespace gui {
       typedef void (cell_drawer)(const position&,        // position
                                  const draw::graphics&,  // graph
                                  const core::rectangle&, // place
-                                 const text_origin,      // align
+                                 const text_origin_t,      // align
                                  const os::color&,       // foreground
                                  const os::color&,       // background
                                  item_state);            // state
@@ -236,7 +236,7 @@ namespace gui {
         GUIPP_CTRL_EXPORT void draw_table_data (const draw::graphics& graph,
                               const core::rectangle& place,
                               const metric& geometrie,
-                              const data::matrix<text_origin>& aligns,
+                              const data::matrix<text_origin_t>& aligns,
                               const data::matrix<os::color>& foregrounds,
                               const data::matrix<os::color>& backgrounds,
                               const std::function<cell_drawer>& drawer,
@@ -246,7 +246,7 @@ namespace gui {
         GUIPP_CTRL_EXPORT void draw_table_column (const draw::graphics& graph,
                                 const core::rectangle& place,
                                 const metric& geometrie,
-                                const data::vector<text_origin>& aligns,
+                                const data::vector<text_origin_t>& aligns,
                                 const data::vector<os::color>& foregrounds,
                                 const data::vector<os::color>& backgrounds,
                                 const std::function<cell_drawer>& drawer,
@@ -256,7 +256,7 @@ namespace gui {
         GUIPP_CTRL_EXPORT void draw_table_row (const draw::graphics& graph,
                              const core::rectangle& place,
                              const metric& geometrie,
-                             const data::vector<text_origin>& aligns,
+                             const data::vector<text_origin_t>& aligns,
                              const data::vector<os::color>& foregrounds,
                              const data::vector<os::color>& backgrounds,
                              const std::function<cell_drawer>& drawer,
@@ -275,7 +275,7 @@ namespace gui {
         using container_type = T<U>;
 
         cell_view (metric& geometrie,
-                   text_origin align = text_origin::center,
+                   text_origin_t align = text_origin_t::center,
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray,
                    const std::function<filter::selection_and_hilite>& selection_filter = filter::data_selection,
@@ -295,7 +295,7 @@ namespace gui {
 
         const std::function<cell_drawer>& get_drawer () const;
 
-        text_origin get_default_align () const;
+        text_origin_t get_default_align () const;
         os::color get_default_foreground () const;
         os::color get_default_background () const;
 
@@ -306,7 +306,7 @@ namespace gui {
         void set_hilite_filter (const std::function<filter::selection_and_hilite>& f);
 
         metric& geometrie;
-        container_type<text_origin> aligns;
+        container_type<text_origin_t> aligns;
         container_type<os::color> foregrounds;
         container_type<os::color> backgrounds;
 
@@ -330,7 +330,7 @@ namespace gui {
         typedef cell_view<data::matrix> super;
 
         data_view (metric& geometrie,
-                   text_origin align = text_origin::center,
+                   text_origin_t align = text_origin_t::center,
                    os::color foreground = color::black,
                    os::color background = color::very_very_light_gray);
 
@@ -349,7 +349,7 @@ namespace gui {
         typedef cell_view<data::vector> super;
 
         column_view (metric& geometrie,
-                     text_origin align = text_origin::center,
+                     text_origin_t align = text_origin_t::center,
                      os::color foreground = color::black,
                      os::color background = color::very_very_light_gray);
 
@@ -368,7 +368,7 @@ namespace gui {
         typedef cell_view<data::vector> super;
 
         row_view (metric& geometrie,
-                  text_origin align = text_origin::center,
+                  text_origin_t align = text_origin_t::center,
                   os::color foreground = color::black,
                   os::color background = color::very_very_light_gray);
 
@@ -399,7 +399,7 @@ namespace gui {
       typedef group_window<gui::layout::dynamic_border_layout<layout::dynamic_border_layout_type::bottom_right_maximize>,
                            color::very_very_light_gray, float, float, float, float> super;
 
-      typedef basic_label<text_origin::center,
+      typedef basic_label<text_origin_t::center,
                           draw::frame::raised_relief,
                           color::black,
                           color::very_very_light_gray> edge_view;
@@ -408,7 +408,7 @@ namespace gui {
                   core::size::type default_height = 20,
                   core::size::type row_width = 80,
                   core::size::type column_height = 20,
-                  text_origin align = text_origin::center,
+                  text_origin_t align = text_origin_t::center,
                   os::color foreground = color::black,
                   os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);
@@ -491,7 +491,7 @@ namespace gui {
                   core::size::type default_height = 20,
                   core::size::type row_width = 80,
                   core::size::type column_height = 20,
-                  text_origin align = text_origin::center,
+                  text_origin_t align = text_origin_t::center,
                   os::color foreground = color::black,
                   os::color background = color::white,
                   os::color header_background = color::very_very_light_gray);

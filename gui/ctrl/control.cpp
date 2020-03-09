@@ -106,7 +106,7 @@ namespace gui {
                       const draw::brush& background,
                       const std::string& text,
                       item_state state,
-                      text_origin origin) {
+                      text_origin_t origin) {
         using namespace draw;
         g.fill(rectangle(place), item_state::selected == state ? color::highLightColor() : background);
         os::color col = color::windowTextColor();

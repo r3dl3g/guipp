@@ -42,7 +42,7 @@ namespace gui {
       // --------------------------------------------------------------------------
       GUIPP_IO_EXPORT void save_pnm_header_src (std::ostream& out, const std::string& name, PNM p, int w, int h, int max);
 
-      template<PixelFormat p>
+      template<pixel_format_t p>
       void save_pnm_src (std::ostream& out, const draw::const_image_data<p>& data);
 
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const core::bit_wrapper<const pixel::mono>& pixel);
@@ -50,14 +50,14 @@ namespace gui {
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const pixel::gray pixel);
       GUIPP_IO_EXPORT void write_pixel (std::ostream& out, const pixel::rgb pixel);
 
-      template<PixelFormat T>
+      template<pixel_format_t T>
       void save_pnm_src (std::ostream& out, const draw::datamap<T>& bmp, const std::string& name);
 
-      template<PixelFormat T>
+      template<pixel_format_t T>
       void save_pnm_src (const std::string& filename, const draw::datamap<T>& bmp, const std::string& name);
 
       // --------------------------------------------------------------------------
-      template<PixelFormat T>
+      template<pixel_format_t T>
       class opnm {
       public:
         opnm (const draw::datamap<T>& bmp, const std::string& name);
@@ -69,7 +69,7 @@ namespace gui {
       };
 
       // --------------------------------------------------------------------------
-      template<PixelFormat T>
+      template<pixel_format_t T>
       std::ostream& operator<< (std::ostream& out, const opnm<T>& p);
 
     } // namespace src

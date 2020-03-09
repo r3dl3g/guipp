@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<redimage>
+	<color_sets>
+		<count>2</count>
+		<ranges>
+			<hue>
+				<min>160</min>
+				<max>176</max>
+			</hue>
+			<saturation>
+				<min>20</min>
+				<max>65</max>
+			</saturation>
+			<value>
+				<min>80</min>
+				<max>190</max>
+			</value>
+			<name/>
+		</ranges>
+		<ranges>
+			<hue>
+				<min>170</min>
+				<max>174</max>
+			</hue>
+			<saturation>
+				<min>45</min>
+				<max>255</max>
+			</saturation>
+			<value>
+				<min>0</min>
+				<max>135</max>
+			</value>
+			<name/>
+		</ranges>
+	</color_sets>
+	<last_path>/var/backup/@pictures/Traubenbilder/Trolinger/klein</last_path>
+</redimage>

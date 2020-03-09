@@ -250,7 +250,7 @@ namespace gui {
     }
 
     inline bool masked_bitmap::is_valid () const {
-      return mask.is_valid();
+      return mask.is_valid() || image.is_valid();
     }
 
     inline masked_bitmap::operator bool () const {

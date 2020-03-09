@@ -787,6 +787,7 @@ namespace gui {
     }
 
     void popup_menu::popup_at (const core::point& pt, window& parent) {
+      get_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);
       data.set_mouse_function([&] (bool btn, const core::point & gpt) {
@@ -801,6 +802,7 @@ namespace gui {
     }
 
     void popup_menu::popup_at (window& parent, menu_data& parent_data, const core::point& pt) {
+      get_state().disable_redraw(false);
       data.init();
       data.set_hilite(0);
       parent_data.set_close_function([&] () {

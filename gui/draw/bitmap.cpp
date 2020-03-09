@@ -569,14 +569,14 @@ namespace gui {
     void masked_bitmap::operator= (const pixmap& rhs) {
       image = rhs;
       if (image.is_valid()) {
-        mask = image.get_mask({0x0f});
+        mask = image.get_mask({0x3f});
       }
     }
 
     void masked_bitmap::operator= (pixmap&& rhs) {
       image = std::move(rhs);
       if (image.is_valid()) {
-        mask = image.get_mask({0x0f});
+        mask = image.get_mask({0x3f});
       }
     }
 

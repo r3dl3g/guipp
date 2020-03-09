@@ -520,13 +520,11 @@ namespace gui {
         res = XChangeGC(display, gc, GCFunction|GCForeground|GCBackground|GCGraphicsExposures, &values);
         auto sz = bmp.mask.native_size();
         res = XCopyPlane(get_instance(), bmp.mask, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y(), 1);
+
+        values.function = static_cast<int>(copy_mode::bit_or);
+        res = XChangeGC(display, gc, GCFunction, &values);
       }
       if (bmp.image) {
-        XGCValues values = {
-          static_cast<int>(copy_mode::bit_or) //function
-        };
-        values.graphics_exposures = False;
-        res = XChangeGC(display, gc, GCFunction|GCGraphicsExposures, &values);
         auto sz = bmp.image.native_size();
         res = XCopyArea(get_instance(), bmp.image, target, gc, 0, 0, sz.width(), sz.height(), pt.x(), pt.y());
       }

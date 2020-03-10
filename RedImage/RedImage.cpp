@@ -524,10 +524,10 @@ void RedImage::toggle_adjust_brightness () {
 //-----------------------------------------------------------------------------
 void RedImage::toggle_values () {
   bool off = (get_layout().get_left_width() == 0);
+  status.side_bar_toggle.set_checked(off);
   get_layout().set_left_width(off ? 277 : 0);
   layout();
   view_sub_menu.data[4].set_icon(off ? hook_icon : cross_icon);
-  status.side_bar_toggle.set_checked(off);
 }
 //-----------------------------------------------------------------------------
 void RedImage::show_raw () {

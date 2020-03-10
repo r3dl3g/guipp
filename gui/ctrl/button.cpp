@@ -116,71 +116,15 @@ namespace gui {
 
     // --------------------------------------------------------------------------
     button_base::button_base () {
-      init();
     }
 
     button_base::button_base (const button_base& rhs)
       : super(rhs)
-    {
-      init();
-    }
+    {}
 
     button_base::button_base (button_base&& rhs)
       : super(std::move(rhs))
-    {
-      init();
-    }
-
-    void button_base::init () {
-#ifdef X11
-      static int initialized = detail::init_control_messages();
-      (void)initialized;
-#endif // X11
-
-      set_accept_focus(true);
-
-      using namespace win;
-      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
-        if (set_focus_event::match(e) || lost_focus_event::match(e)) {
-          window::invalidate();
-        } else if (mouse_enter_event::match(e)) {
-          button_base::set_hilited(true);
-        } else if (mouse_leave_event::match(e)) {
-          button_base::set_hilited(false);
-        } else if (any_key_down_event::match(e)) {
-          os::key_symbol k = get_key_symbol(e);
-          if ((k == win::keys::enter) || (k == win::keys::space)) {
-            set_pushed(true);
-          }
-        } else if (left_btn_down_event::match(e) && is_enabled()) {
-          take_focus();
-          set_pushed(true);
-        }
-        return false;
-      }), static_cast<os::event_id>(set_focus_event::mask | lost_focus_event::mask | mouse_enter_event::mask | mouse_leave_event::mask | any_key_down_event::mask | left_btn_down_event::mask));
-
-    }
-
-    void button_base::set_hilited (bool h) {
-      if (get_state().set_hilited(h)) {
-        send_client_message(this, detail::HILITE_CHANGE_MESSAGE, h);
-        invalidate();
-      }
-    }
-
-    void button_base::set_pushed (bool p) {
-      if (get_state().set_pushed(p)) {
-        send_client_message(this, p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
-        invalidate();
-      }
-    }
-
-    void button_base::set_checked (bool f) {
-      if (get_state().set_checked(f)) {
-        send_client_message(this, detail::BN_STATE_MESSAGE, f ? 1 : 0);
-        invalidate();
-      }
-    }
+    {}
 
     void button_base::on_clicked (button_clicked_event::function&& f) {
       on<button_clicked_event>(std::move(f));
@@ -199,10 +143,32 @@ namespace gui {
     }
 
     // --------------------------------------------------------------------------
+    void basic_button_traits::set_hilited (button_base& btn, bool h) {
+      if (btn.get_state().set_hilited(h)) {
+        send_client_message(&btn, detail::HILITE_CHANGE_MESSAGE, h);
+        btn.invalidate();
+      }
+    }
+
+    void basic_button_traits::set_pushed (button_base& btn, bool p) {
+      if (btn.get_state().set_pushed(p)) {
+        send_client_message(&btn, p ? detail::BN_PUSHED_MESSAGE : detail::BN_UNPUSHED_MESSAGE);
+        btn.invalidate();
+      }
+    }
+
+    void basic_button_traits::set_checked (button_base& btn, bool f) {
+      if (btn.get_state().set_checked(f)) {
+        send_client_message(&btn, detail::BN_STATE_MESSAGE, f ? 1 : 0);
+        btn.invalidate();
+      }
+    }
+
+    // --------------------------------------------------------------------------
     void push_button_traits::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
@@ -210,7 +176,7 @@ namespace gui {
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       });
@@ -221,17 +187,17 @@ namespace gui {
     void toggle_button_traits<false>::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
-            btn.set_checked(!btn.is_checked());
+            set_checked(btn, !btn.is_checked());
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
-          btn.set_pushed(false);
-          btn.set_checked(!btn.is_checked());
+          set_pushed(btn, false);
+          set_checked(btn, !btn.is_checked());
           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       });
@@ -242,18 +208,18 @@ namespace gui {
     void toggle_button_traits<true>::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
-            btn.set_checked(true);
+            set_checked(btn, true);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (!btn.is_checked()) {
-            btn.set_checked(true);
+            set_checked(btn, true);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
@@ -290,26 +256,28 @@ namespace gui {
       });
     }
 
+    void basic_animated_button_traits::set_checked (button_base& btn, bool f) {
+      prepare_animation();
+      start_animation(btn);
+      basic_button_traits::set_checked(btn, f);
+    }
+
     // --------------------------------------------------------------------------
     template<>
     void animated_button_traits<false>::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (btn.client_area().is_inside(pos)) {
-            prepare_animation();
-            btn.set_checked(!btn.is_checked());
-            start_animation(btn);
+            set_checked(btn, !btn.is_checked());
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
-          btn.set_pushed(false);
-          prepare_animation();
-          btn.set_checked(!btn.is_checked());
-          start_animation(btn);
+          set_pushed(btn, false);
+          set_checked(btn, !btn.is_checked());
           send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
         }
       });
@@ -320,22 +288,18 @@ namespace gui {
     void animated_button_traits<true>::init (button_base& btn) {
       btn.on_left_btn_up([&] (os::key_state, const core::point & pos) {
         if (btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (!btn.is_checked() && btn.client_area().is_inside(pos)) {
-            prepare_animation();
-            btn.set_checked(true);
-            start_animation(btn);
+            set_checked(btn, true);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }
       });
       btn.on_any_key_up([&] (os::key_state, os::key_symbol k) {
         if (((k == win::keys::enter) || (k == win::keys::space)) && btn.is_pushed()) {
-          btn.set_pushed(false);
+          set_pushed(btn, false);
           if (!btn.is_checked()) {
-            prepare_animation();
-            btn.set_checked(true);
-            start_animation(btn);
+            set_checked(btn, true);
             send_client_message(&btn, detail::BN_CLICKED_MESSAGE);
           }
         }

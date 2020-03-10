@@ -78,18 +78,67 @@ namespace gui {
     template<class T>
     inline basic_button<T>::basic_button () {
       traits.init(*this);
+      init();
     }
 
     template<class T>
     inline basic_button<T>::basic_button (const basic_button& rhs)
       : super(rhs) {
       traits.init(*this);
+      init();
     }
 
     template<class T>
     inline basic_button<T>::basic_button (basic_button&& rhs)
       : super(std::move(rhs)) {
       traits.init(*this);
+      init();
+    }
+
+    template<class T>
+    void basic_button<T>::set_hilited (bool b) {
+      traits.set_hilited(*this, b);
+    }
+
+    template<class T>
+    void basic_button<T>::set_pushed (bool b) {
+      traits.set_pushed(*this, b);
+    }
+
+    template<class T>
+    void basic_button<T>::set_checked (bool b) {
+      traits.set_checked(*this, b);
+    }
+
+    template<class T>
+    void basic_button<T>::init () {
+#ifdef X11
+      static int initialized = detail::init_control_messages();
+      (void)initialized;
+#endif // X11
+
+      set_accept_focus(true);
+
+      using namespace win;
+      super::register_event_handler(event_handler_function([&] (const core::event& e, gui::os::event_result& r) {
+        if (set_focus_event::match(e) || lost_focus_event::match(e)) {
+          window::invalidate();
+        } else if (mouse_enter_event::match(e)) {
+          set_hilited(true);
+        } else if (mouse_leave_event::match(e)) {
+          set_hilited(false);
+        } else if (any_key_down_event::match(e)) {
+          os::key_symbol k = get_key_symbol(e);
+          if ((k == win::keys::enter) || (k == win::keys::space)) {
+            set_pushed(true);
+          }
+        } else if (left_btn_down_event::match(e) && is_enabled()) {
+          take_focus();
+          set_pushed(true);
+        }
+        return false;
+      }), static_cast<os::event_id>(set_focus_event::mask | lost_focus_event::mask | mouse_enter_event::mask | mouse_leave_event::mask | any_key_down_event::mask | left_btn_down_event::mask));
+
     }
 
     // --------------------------------------------------------------------------

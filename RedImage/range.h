@@ -6,9 +6,9 @@
 namespace data {
 
   // --------------------------------------------------------------------------
-  struct range : public persistent::ptree_struct<persistent::byte, persistent::byte> {
-    typedef persistent::ptree_struct<persistent::byte, persistent::byte> super;
-    typedef persistent::byte::value_type byte;
+  struct range : public persistent::ptree_struct<uint8_t, uint8_t> {
+    typedef persistent::ptree_struct<uint8_t, uint8_t> super;
+    typedef uint8_t byte;
 
     static const char s_min[];
     static const char s_max[];
@@ -18,8 +18,8 @@ namespace data {
 
     void extend (byte v);
 
-    persistent::byte min;
-    persistent::byte max;
+    persistent::uint8 min;
+    persistent::uint8 max;
   };
 
 } // namespace data

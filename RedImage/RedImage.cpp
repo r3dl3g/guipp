@@ -770,6 +770,19 @@ void RedImage::load () {
       auto opt = xml_main.get_child_optional("redimage");
       if (opt) {
         settings.read(opt.get());
+
+//        std::ostringstream buffer;
+//        persistent::io::write_struct(buffer, settings);
+
+//        clog::debug() << "Settings:" << buffer.str();
+
+//        data::redimage_settings s2;
+//        std::istringstream is(buffer.str());
+//        persistent::io::read_struct(is, s2);
+
+//        clog::debug() << "Settings2:" << s2;
+//        clog::debug() << "Settings " << (settings == s2 ? "are equal" : "differ!");
+
         old_settings = settings;
         filter_list.set(settings.colors());
         init_sidebar();

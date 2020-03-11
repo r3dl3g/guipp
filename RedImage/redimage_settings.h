@@ -5,14 +5,8 @@
 
 namespace data {
 
-  struct redimage_settings : public persistent::ptree_struct<persistent::type<color_sets>,
-                                                             persistent::string,
-                                                             persistent::integer,
-                                                             persistent::boolean> {
-    typedef persistent::ptree_struct<persistent::type<color_sets>,
-                                     persistent::string,
-                                     persistent::integer,
-                                     persistent::boolean> super;
+  struct redimage_settings : public persistent::ptree_struct<color_sets, std::string, int, bool> {
+    typedef persistent::ptree_struct<color_sets, std::string, int, bool> super;
 
     static const char s_color_sets[];
     static const char s_last_path[];

@@ -839,14 +839,14 @@ void spectrometer::load_image () {
   });
 }
 
-struct settings : public persistent::ptree_struct<persistent::int32, persistent::int32, persistent::dword, persistent::dword,
-                                                  persistent::float32, persistent::float32,
-                                                  persistent::dword, persistent::dword, persistent::dword,
-                                                  persistent::int32, persistent::int32> {
-  typedef persistent::ptree_struct<persistent::int32, persistent::int32, persistent::dword, persistent::dword,
-                                   persistent::float32, persistent::float32,
-                                   persistent::dword, persistent::dword, persistent::dword,
-                                   persistent::int32, persistent::int32> super;
+struct settings : public persistent::ptree_struct<int32_t, int32_t, uint32_t, uint32_t,
+                                                  float, float,
+                                                  uint32_t, uint32_t, uint32_t,
+                                                  int32_t, int32_t> {
+  typedef persistent::ptree_struct<int32_t, int32_t, uint32_t, uint32_t,
+                                   float, float,
+                                   uint32_t, uint32_t, uint32_t,
+                                   int32_t, int32_t> super;
 
   static const char s_x[];
   static const char s_y[];
@@ -952,6 +952,7 @@ void spectrometer::load_settings () {
     if (opt) {
       settings s(current_crop, 1, 1, 50000, 50, capture_view.get_scan_pos(), nm_range.begin(), nm_range.end());
       s.read(opt.get());
+
       current_crop = {s.x(), s.y(), s.w(), s.h()};
       capture_view.set_scan_pos(s.y_scanline());
       nm_range = {s.nm_low(), s.nm_high()};

@@ -5,12 +5,8 @@
 
 namespace data {
 
-  struct rgb_range : public persistent::ptree_struct<persistent::type<range>,
-                                                     persistent::type<range>,
-                                                     persistent::type<range>> {
-    typedef persistent::ptree_struct<persistent::type<range>,
-                                     persistent::type<range>,
-                                     persistent::type<range>> super;
+  struct rgb_range : public persistent::ptree_struct<range, range, range> {
+    typedef persistent::ptree_struct<range, range, range> super;
 
     static const char s_red[];
     static const char s_green[];

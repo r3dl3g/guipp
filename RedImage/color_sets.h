@@ -5,8 +5,8 @@
 
 namespace data {
 
-  struct color_sets : public persistent::ptree_struct<persistent::integer, persistent::vector<hsv_range>> {
-    typedef persistent::ptree_struct<persistent::integer, persistent::vector<hsv_range>> super;
+  struct color_sets : public persistent::ptree_struct<int, std::vector<hsv_range>> {
+    typedef persistent::ptree_struct<int, std::vector<hsv_range>> super;
 
     static const char s_ranges[];
     static const char s_count[];

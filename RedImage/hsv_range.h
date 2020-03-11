@@ -5,14 +5,8 @@
 
 namespace data {
 
-  struct hsv_range : public persistent::ptree_struct<persistent::type<range>,
-                                                     persistent::type<range>,
-                                                     persistent::type<range>,
-                                                     persistent::string> {
-    typedef persistent::ptree_struct<persistent::type<range>,
-                                     persistent::type<range>,
-                                     persistent::type<range>,
-                                     persistent::string> super;
+  struct hsv_range : public persistent::ptree_struct<range, range, range, std::string> {
+    typedef persistent::ptree_struct<range, range, range, std::string> super;
 
     static const char s_hue[];
     static const char s_saturation[];
